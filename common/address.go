@@ -12,6 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package common
 
-package stargazer.v1;
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
+// `EthAddressToAccAddress` converts an Ethereum address to an Cosmos SDK account address.
+func EthAddressToAccAddress(addr Address) sdk.AccAddress {
+	return sdk.AccAddress(addr.Bytes())
+}
+
+// `AccAddressToEthAddress` converts a Cosmos SDK account address to an Ethereum address.
+func AccAddressToEthAddress(addr sdk.AccAddress) Address {
+	return BytesToAddress(addr.Bytes())
+}

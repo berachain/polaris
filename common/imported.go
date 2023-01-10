@@ -12,6 +12,24 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package common
 
-package stargazer.v1;
+import (
+	"github.com/ethereum/go-ethereum/common"
+)
+
+type (
+	Address = common.Address
+	Hash    = common.Hash
+)
+
+var (
+	BigToAddress   = common.BigToAddress
+	BigToHash      = common.BigToHash
+	Bytes2Hex      = common.Bytes2Hex
+	BytesToAddress = common.BytesToAddress
+	BytesToHash    = common.BytesToHash
+	Hex2Bytes      = common.Hex2Bytes
+	HexToAddress   = common.HexToAddress
+	HexToHash      = common.HexToHash
+)

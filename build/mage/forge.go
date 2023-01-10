@@ -19,9 +19,9 @@ import (
 )
 
 var (
-	testContractsDir       = "./testing/solidity"
-	precompileContractsDir = "./pkg/dahlia/pkg/core/vm/precompile/contracts"
-	allForgeDirs           = []string{testContractsDir, precompileContractsDir}
+	testContractsDir        = "./testing/solidity"
+	PrecompiledContractsDir = "./pkg/dahlia/pkg/precompile/contracts"
+	allForgeDirs            = []string{testContractsDir, PrecompiledContractsDir}
 )
 
 // Runs `forge build` in all smart contract directories.
