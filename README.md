@@ -1,5 +1,5 @@
 <a href="https://berachain.com">
-  <img src="https://cdn.shopify.com/s/files/1/0361/9248/5508/articles/ursamaior_desktop_1.5x.jpg?v=1652872477&width=1200" width="100%">
+  <img src="https://wallpaperaccess.com/full/1736439.jpg" width="100%">
 </a>
 <h1 class="center">
   Stargazer
