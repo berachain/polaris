@@ -23,10 +23,11 @@ var (
 	goBuild         = mi.RunCmdV("go", "build", "-mod=readonly")
 	goRun           = mi.RunCmdV("go", "run")
 	goTest          = mi.RunCmdV("go", "test", "-mod=readonly")
-	ginkgoTestCover = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--randomize-suites", "--fail-on-pending", "-trace", "--junit-report=out.xml")
-	goGenerate      = mi.RunCmdV("go", "generate")
-	goModVerify     = mi.RunCmdV("go", "mod", "verify")
-	goModTidy       = mi.RunCmdV("go", "mod", "tidy")
+	ginkgoTestCover = mi.RunCmdV("ginkgo", "-r", "--randomize-all",
+		"--randomize-suites", "--fail-on-pending", "-trace", "--junit-report=out.xml")
+	goGenerate  = mi.RunCmdV("go", "generate")
+	goModVerify = mi.RunCmdV("go", "mod", "verify")
+	goModTidy   = mi.RunCmdV("go", "mod", "tidy")
 )
 
 // Docker Aliases.
