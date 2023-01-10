@@ -18,9 +18,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/berachain/stargazer/common"
+	"github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/types/abi"
 )
 
