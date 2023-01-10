@@ -24,6 +24,7 @@ import (
 
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/vm/precompile/events"
+	eventslib "github.com/berachain/stargazer/core/vm/precompile/events/lib"
 )
 
 // KeyPrefixPrecompileAddress is the prefix for the precompile address to name mapping in the
@@ -61,7 +62,7 @@ func (pr *Registry) RegisterModule(moduleName string, contract any) {
 	if spc, ok := contract.(StatefulContract); ok {
 		pr.hardcodedPrecompiles[moduleAddr] = spc
 	}
-	if eventsContract, ok := contract.(events.HasEvents); ok {
+	if eventsContract, ok := contract.(eventslib.HasEvents); ok {
 		pr.events.RegisterModule(&moduleAddr, eventsContract)
 	}
 }

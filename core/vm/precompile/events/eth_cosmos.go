@@ -30,7 +30,7 @@ type ethCosmosEvent struct {
 	id                           common.Hash
 	indexedInputs                abi.Arguments
 	nonIndexedInputs             abi.Arguments
-	attributeKeysToValueDecoders map[string]AttributeValueDecoder
+	attributeKeysToValueDecoders map[string]lib.AttributeValueDecoder
 }
 
 // get the eth Address for an eth event.

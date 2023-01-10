@@ -21,6 +21,7 @@ import (
 
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/vm/precompile/events/lib"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -43,7 +44,7 @@ func NewRegistry() *Registry {
 // `RegisterModule` registers a Cosmos module with the event registry. This
 // function should be called for every Cosmos module that emits events that
 // should be relayed to Ethereum.
-func (er *Registry) RegisterModule(moduleAddr *common.Address, contract HasEvents) {
+func (er *Registry) RegisterModule(moduleAddr *common.Address, contract lib.HasEvents) {
 	abiEvents := contract.ABIEvents()
 	for _, eventType := range contract.CosmosEventTypes() {
 		eventName := abi.ToCamelCase(eventType)
