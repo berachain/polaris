@@ -1,0 +1,93 @@
+# Copyright (C) 2023, Berachain Foundation. All rights reserved.
+# See the file LICENSE for licensing terms.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+version: 2.1
+
+executors:
+  standard:
+    docker:
+      - image: cimg/go:1.19
+    resource_class: medium
+
+orbs:
+  codecov: codecov/codecov@3.2.4
+
+jobs:
+  lint:
+    executor: standard
+    steps:
+      - setup
+      - run:
+          name: Lint
+          command: mage lint
+
+  test-unit:
+    executor: standard
+    steps:
+      - setup
+      - run:
+          name: Test Unit
+          command: mage testunitcover
+      - codecov/upload:
+          file: coverage-testUnitCover.txt
+      - store_test_results:
+          path: ./
+
+  test-unit-race:
+    executor: standard
+    steps:
+      - setup
+      - run:
+          name: Test Unit Race
+          command: mage testunitrace
+
+workflows:
+  build_lint_test:
+    jobs:
+      # - build
+      - lint
+      - test-unit
+      - test-unit-race
+
+commands:
+  setup: # Setup the test environment
+    steps:
+      - checkout
+      - run:
+          name: Install Foundry
+          command: |
+            curl -L https://foundry.paradigm.xyz | bash || true
+            echo 'export PATH=/home/circleci/.foundry/bin:"$PATH"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+            foundryup
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/home/circleci/go/pkg/mod"
+
+      - run: go mod download
+
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/home/circleci/go/pkg/mod"
+
+      - run:
+          name: Install Go Tools
+          command: |
+            echo 'export PATH=/home/circleci/go/bin:"$PATH"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+            go install github.com/magefile/mage
+            go install github.com/onsi/ginkgo/v2/ginkgo
