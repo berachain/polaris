@@ -3,9 +3,6 @@
 </h1>
 
 <div>
-  <a href="https://github.com/berachain/berachain-node/actions/workflows/pipeline.yaml">
-    <img alt="Imported by" src="https://github.com/berachain/berachain-node/actions/workflows/pipeline.yaml/badge.svg" />
-  </a>
   <a href="https://codecov.io/gh/berachain/stargazer" >
     <img src="https://codecov.io/gh/berachain/stargazer/branch/main/graph/badge.svg?token=41tbVZZvSO"/>
   </a>
