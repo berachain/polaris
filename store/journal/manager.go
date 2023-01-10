@@ -14,27 +14,38 @@
 
 package journal
 
-// `ManagerI` is an interface that defines the methods that a journal manager
-// must implement.
+// `ManagerI` is an interface that defines the methods that a journal manager must implement.
+// Journal managers support holding cache entries and reverting to a certain index.
 type ManagerI interface {
-	// `Append` adds a new CacheEntry instance to the journal. The Size
-	// method returns the current number of entries in the journal.
+	// `Append` adds a new CacheEntry instance to the journal. The Size method returns the current
+	// number of entries in the journal.
 	Append(ce CacheEntry)
+
+	// `Size` returns the current number of entries in the journal.
 	Size() int
+
+	// `Get` returns the CacheEntry instance at the given index.
 	Get(i int) CacheEntry
+
+	// `RevertToSize` reverts and discards all journal entries after and including the given size.
 	RevertToSize(newSize int)
+
+	// `Clone` creates and returns a new Manager instance with a cloned journal.
 	Clone() ManagerI
 }
 
-// `Manager` is a struct that holds an array of CacheEntry instances.
+var _ ManagerI = (*Manager)(nil)
+
+// `Manager` is a struct that holds a slice of CacheEntry instances.
 type Manager struct {
 	journal []CacheEntry
 }
 
-// `NewManager` creates and returns a new Manager instance with an empty
-// journal.
+// `NewManager` creates and returns a new Manager instance with an empty journal.
 func NewManager() *Manager {
-	return &Manager{}
+	return &Manager{
+		journal: make([]CacheEntry, 0),
+	}
 }
 
 // `Append` implements `ManagerI`.
@@ -42,31 +53,43 @@ func (jm *Manager) Append(ce CacheEntry) {
 	jm.journal = append(jm.journal, ce)
 }
 
-// `Size` returns the current number of entries in the journal.
+// `Size` implements `ManagerI`.
 func (jm *Manager) Size() int {
 	return len(jm.journal)
 }
 
-// `Get` returns the CacheEntry instance at the given index.
+// `Get` returns nil if index `i` is invalid.
+//
+// `Get` implements `ManagerI`.
 func (jm *Manager) Get(i int) CacheEntry {
+	if i < 0 || i >= len(jm.journal) {
+		return nil
+	}
 	return jm.journal[i]
 }
 
-// `RevertToSize` reverts and discards all journal entries after and including
-// the given size.
+// `RevertToSize` does not modify the journal if `newSize` is invalid.
+//
+// `RevertToSize` implements `ManagerI`.
 func (jm *Manager) RevertToSize(newSize int) {
+	if newSize > len(jm.journal) {
+		return
+	}
+
 	// Revert and discard all journal entries after and including newSize.
 	for j := len(jm.journal) - 1; j >= newSize; j-- {
 		jm.journal[j].Revert()
 	}
 
-	// Discard all journal entries after and including newSize, such that
-	// now len(jm.journal) == newSize.
+	// Discard all journal entries after and including newSize, such that now
+	// len(jm.journal) == newSize.
 	jm.journal = jm.journal[:newSize]
 }
 
-// `Clone` creates and returns a new Manager instance with a cloned journal.
-func (jm *Manager) Clone() *Manager {
+// `Clone` returns a cloned journal by deep copying each CacheEntry.
+//
+// `Clone` implements `ManagerI`.
+func (jm *Manager) Clone() ManagerI {
 	newJournal := make([]CacheEntry, len(jm.journal))
 	for i := 0; i < len(jm.journal); i++ {
 		newJournal[i] = jm.journal[i].Clone()

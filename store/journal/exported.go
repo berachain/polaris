@@ -18,6 +18,7 @@ package journal
 type CacheEntry interface {
 	// `Revert` undoes the changes made by the entry.
 	Revert()
-	// `Clone` creates a copy of the entry.
+
+	// `Clone` creates and returns a deep copy of the entry.
 	Clone() CacheEntry
 }
