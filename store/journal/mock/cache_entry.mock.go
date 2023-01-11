@@ -34,7 +34,7 @@ func (m *CacheEntry) Revert() {
 }
 
 // `Clone` implements `CacheEntry`.
-func (m *CacheEntry) Clone() journal.CacheEntry {
+func (m *CacheEntry) Clone() journal.CacheEntry { //nolint: ireturn // by design.
 	return &CacheEntry{num: m.num}
 }
 

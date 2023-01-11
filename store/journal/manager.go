@@ -11,12 +11,15 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+//
+//nolint:ireturn // ManagerI returns interfaces by design.
 package journal
+
+import "github.com/berachain/stargazer/types"
 
 // `ManagerI` is an interface that defines the methods that a journal manager must implement.
 // Journal managers support holding cache entries and reverting to a certain index.
-type ManagerI interface {
+type ManagerI[T any] interface {
 	// `Append` adds a new CacheEntry instance to the journal. The Size method returns the current
 	// number of entries in the journal.
 	Append(ce CacheEntry)
@@ -30,11 +33,12 @@ type ManagerI interface {
 	// `RevertToSize` reverts and discards all journal entries after and including the given size.
 	RevertToSize(newSize int)
 
-	// `Clone` creates and returns a new Manager instance with a cloned journal.
-	Clone() ManagerI
+	// `ManagerI` implements `Cloneable`.
+	types.Cloneable[T]
 }
 
-var _ ManagerI = (*Manager)(nil)
+// Compile-time check to ensure `Manager` implements `ManagerI`.
+var _ ManagerI[*Manager] = (*Manager)(nil)
 
 // `Manager` is a struct that holds a slice of CacheEntry instances.
 type Manager struct {
@@ -88,8 +92,8 @@ func (jm *Manager) RevertToSize(newSize int) {
 
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
 //
-// `Clone` implements `ManagerI`.
-func (jm *Manager) Clone() ManagerI {
+// `Clone` implements `ManagerI[*Manager]`.
+func (jm *Manager) Clone() *Manager {
 	newJournal := make([]CacheEntry, len(jm.journal))
 	for i := 0; i < len(jm.journal); i++ {
 		newJournal[i] = jm.journal[i].Clone()

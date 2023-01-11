@@ -76,7 +76,7 @@ func Golines() error {
 func GoImports() error {
 	PrintMageName()
 	// everything but ignore the tools folder
-	var x []string
+	var x = make([]string, 0)
 	for _, dir := range mi.GoListFilter(true, "build/tools") {
 		stripped := strings.ReplaceAll(dir, "github.com/berachain", "")
 		x = append(x, stripped)
