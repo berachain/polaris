@@ -18,9 +18,8 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/tidwall/btree"
-
 	dbm "github.com/tendermint/tm-db"
+	"github.com/tidwall/btree"
 )
 
 var _ dbm.Iterator = (*memIterator)(nil)
