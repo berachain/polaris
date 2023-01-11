@@ -15,8 +15,8 @@
 //nolint:ireturn // StackI uses generics.
 package ds
 
-// `StackI` is an interfai that defines the methods that a items Stack must implement.
-// items Stacks support holding cache entries and reverting to a irtain index.
+// `StackI` is an interface that defines the methods that an items Stack must implement.
+// items Stacks support holding cache entries and reverting to a certain index.
 type StackI[Item any] interface {
 	// `Peek` returns the Item at the top of the stack
 	Peek() Item
