@@ -15,7 +15,7 @@
 package events
 
 import (
-	"github.com/berachain/stargazer/core/vm/precompile/events"
+	pctypes "github.com/berachain/stargazer/core/vm/precompile/types"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -33,5 +33,5 @@ type HasEvents interface {
 
 	// `AttributeKeysToValueDecoders` should return a map of all Cosmos event attribute keys to
 	// `AttributeValueDecoder`s for all supported Cosmos events.
-	AttributeKeysToValueDecoders() map[string]events.AttributeValueDecoder
+	AttributeKeysToValueDecoders() map[string]pctypes.AttributeValueDecoder
 }
