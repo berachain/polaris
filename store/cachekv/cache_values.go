@@ -11,8 +11,6 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-//nolint: ireturn // by design.
 package cachekv
 
 import "github.com/berachain/stargazer/store/journal"
@@ -63,6 +61,8 @@ func (dcv *DeleteCacheValue) Revert() {
 // and a deep copy of the Prev field, if it is not nil.
 //
 // implements journal.CacheEntry.
+//
+//nolint:ireturn // by design.
 func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
 	var prevDeepCopy *cValue
@@ -105,6 +105,8 @@ func (scv *SetCacheValue) Revert() {
 // and a deep copy of the Prev field, if it is not nil.
 //
 // implements journal.CacheEntry.
+//
+//nolint:ireturn // by design.
 func (scv *SetCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
 	var prevDeepCopy *cValue
