@@ -64,7 +64,7 @@ func (jm *Manager) Size() int {
 //
 // `Get` implements `ManagerI`.
 //
-//nolint:ireturn // returns interface by design.
+//nolint:nolintlint,ireturn // returns interface by design.
 func (jm *Manager) Get(i int) CacheEntry {
 	if i < 0 || i >= len(jm.journal) {
 		return nil
@@ -89,7 +89,7 @@ func (jm *Manager) RevertToSize(newSize int) {
 	// len(jm.journal) == newSize.
 
 	jm.journal = jm.journal[:newSize]
-} //nolint:ireturn // returns interface by design.
+} //nolint:nolintlint,ireturn // returns interface by design..
 
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
 //
