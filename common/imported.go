@@ -24,5 +24,6 @@ type (
 )
 
 var (
-	BytesToHash = common.BytesToHash
+	BytesToAddress = common.BytesToAddress
+	BytesToHash    = common.BytesToHash
 )
