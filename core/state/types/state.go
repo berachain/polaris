@@ -15,6 +15,7 @@
 package types
 
 import (
+	fmt "fmt"
 	"strings"
 
 	"cosmossdk.io/errors"
@@ -24,6 +25,7 @@ import (
 
 // Compile-time interface assertions.
 var _ types.Cloneable[State] = &State{}
+var _ fmt.Stringer = Storage{}
 
 // `NewState` creates a new State instance.
 func NewState(key, value common.Hash) State {

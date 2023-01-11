@@ -12,17 +12,18 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package common
 
-package stargazer.core.state.types.v1;
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
-option go_package = "github.com/berachain/stargazer/core/state/types";
+// `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.
+func AccAddressToEthAddress(accAddress sdk.AccAddress) Address {
+	return BytesToAddress(accAddress)
+}
 
-// `State` represents a single key/value pair of evm state data.
-message State {
-  // `key` is the stored key.
-  string key = 1;
-
-  // `value` is the stored value for the given key.
-  string value = 2;
+// `EthAddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
+func EthAddressToAccAddress(ethAddress Address) sdk.AccAddress {
+	return ethAddress.Bytes()
 }
