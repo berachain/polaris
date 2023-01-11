@@ -23,14 +23,14 @@ type (
 	DeleteCacheValue struct {
 		Store *Store  // pointer to the cache Store
 		Key   string  // Key of the value to be deleted
-		Prev  *CValue // deep copy of object in cache map
+		Prev  *cValue // deep copy of object in cache map
 	}
 
 	// SetCacheValue is a struct that contains information needed to set a value in a cache.
 	SetCacheValue struct {
 		Store *Store  // pointer to the cache Store
 		Key   string  // Key of the value to be set
-		Prev  *CValue // deep copy of object in cache map
+		Prev  *cValue // deep copy of object in cache map
 	}
 )
 
@@ -65,7 +65,7 @@ func (dcv *DeleteCacheValue) Revert() {
 // implements journal.CacheEntry.
 func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
-	var prevDeepCopy *CValue
+	var prevDeepCopy *cValue
 	if dcv.Prev != nil {
 		prevDeepCopy = dcv.Prev.deepCopy()
 	}
@@ -107,7 +107,7 @@ func (scv *SetCacheValue) Revert() {
 // implements journal.CacheEntry.
 func (scv *SetCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
-	var prevDeepCopy *CValue
+	var prevDeepCopy *cValue
 	if scv.Prev != nil {
 		prevDeepCopy = scv.Prev.deepCopy()
 	}

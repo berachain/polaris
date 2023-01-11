@@ -14,38 +14,38 @@
 
 package cachekv
 
-// `CValue` represents a cached value.
+// `cValue` represents a cached value.
 // If dirty is true, it indicates the cached value is different from the underlying value.
-type CValue struct {
+type cValue struct {
 	value []byte
 	dirty bool
 }
 
-// `NewCValue` creates a new CValue object with the given value and dirty flag.
-func NewCValue(v []byte, d bool) *CValue {
-	return &CValue{
+// `NewCValue` creates a new cValue object with the given value and dirty flag.
+func NewCValue(v []byte, d bool) *cValue { //nolint: revive // todo:revist.
+	return &cValue{
 		value: v,
 		dirty: d,
 	}
 }
 
-// `Dirty` returns the dirty flag of the CValue object.
-func (cv *CValue) Dirty() bool {
+// `Dirty` returns the dirty flag of the cValue object.
+func (cv *cValue) Dirty() bool {
 	return cv.dirty
 }
 
-// `Value` returns the value of the CValue object.
-func (cv *CValue) Value() []byte {
+// `Value` returns the value of the cValue object.
+func (cv *cValue) Value() []byte {
 	return cv.value
 }
 
-// `deepCopy` creates a new CValue object with the same value and dirty flag as the original
-// CValue object. This function is used to create a deep copy of the prev field in
+// `deepCopy` creates a new cValue object with the same value and dirty flag as the original
+// cValue object. This function is used to create a deep copy of the prev field in
 // DeleteCacheValue and SetCacheValue objects, so that modifications to the original prev value do
 // not affect the cloned DeleteCacheValue or SetCacheValue object.
-func (cv *CValue) deepCopy() *CValue {
-	// Return a new CValue with the same value and dirty flag
-	return &CValue{
+func (cv *cValue) deepCopy() *cValue {
+	// Return a new cValue with the same value and dirty flag
+	return &cValue{
 		value: append([]byte(nil), cv.value...),
 		dirty: cv.dirty,
 	}

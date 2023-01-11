@@ -178,7 +178,7 @@ func (s *CacheValueSuite) TestCloneDelete() {
 	s.Require().True(ok)
 	s.Require().Equal("", dcvNilClone.Key)
 	s.Require().True(reflect.ValueOf(dcvNilClone.Prev).IsNil())
-	// s.Require().Equal((*CValue)(nil), dcvNilClone.Prev)
+	// s.Require().Equal((*cValue)(nil), dcvNilClone.Prev)
 }
 
 func (s *CacheValueSuite) TestCloneSet() {
@@ -201,6 +201,6 @@ func (s *CacheValueSuite) TestCloneSet() {
 	dcvNilClone, ok := dcvNil.Clone().(*cachekv.SetCacheValue)
 	s.Require().True(ok)
 	s.Require().Equal("", dcvNilClone.Key)
-	// s.Require().Equal((*CValue)(nil), dcvNilClone.Prev)
+	// s.Require().Equal((*cValue)(nil), dcvNilClone.Prev)
 	s.Require().True(reflect.ValueOf(dcvNilClone.Prev).IsNil())
 }

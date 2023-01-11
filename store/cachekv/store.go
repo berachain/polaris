@@ -46,7 +46,7 @@ var _ StateDBCacheKVStore = (*Store)(nil)
 // it means the parent doesn't have the key. (No need to delete upon Write()).
 type Store struct {
 	mtx           sync.RWMutex
-	Cache         map[string]*CValue
+	Cache         map[string]*cValue
 	UnsortedCache map[string]struct{}
 	SortedCache   *trees.BTree // always ascending sorted
 	Parent        storetypes.KVStore
@@ -56,7 +56,7 @@ type Store struct {
 // NewStore creates a new Store object.
 func NewStore(parent storetypes.KVStore, journalMgr *journal.Manager) *Store {
 	return &Store{
-		Cache:         make(map[string]*CValue),
+		Cache:         make(map[string]*cValue),
 		UnsortedCache: make(map[string]struct{}),
 		SortedCache:   trees.NewBTree(),
 		Parent:        parent,
@@ -443,7 +443,7 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 		store.journalMgr.Push(cv.Clone())
 	}
 
-	store.Cache[keyStr] = &CValue{
+	store.Cache[keyStr] = &cValue{
 		value: value,
 		dirty: dirty,
 	}
