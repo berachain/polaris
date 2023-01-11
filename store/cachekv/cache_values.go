@@ -36,20 +36,25 @@ type (
 //
 // implements journal.CacheEntry.
 func (dcv *DeleteCacheValue) Revert() {
-	//nolint: gocritic // by design.
+	// If the previous entry is nil, remove the Key from the cache
 	if dcv.Prev == nil {
 		delete(dcv.Store.Cache, dcv.Key)
 		delete(dcv.Store.UnsortedCache, dcv.Key)
 		return
-	} else if !dcv.Prev.dirty {
-		// If there is no previous entry for the Key being deleted, remove the Key from the cache
-		// If the previous entry is not dirty
-		// (i.e., it has not been modified since it was added to the cache)
+	}
+
+	// If there is no previous entry for the Key being deleted, remove the Key from the cache
+	// If the previous entry is not dirty
+	// (i.e., it has not been modified since it was added to the cache)
+	if !dcv.Prev.dirty {
 		// Remove the Key being deleted from the cache and restore the previous entry
 		delete(dcv.Store.UnsortedCache, dcv.Key)
 		dcv.Store.Cache[dcv.Key] = dcv.Prev
-	} else if dcv.Prev.value != nil {
-		// If the previous entry is dirty and has a non-nil value
+		return
+	}
+
+	// If the previous entry is dirty and has a non-nil value
+	if dcv.Prev.value != nil {
 		// Remove the Key being deleted from the "deleted" set and restore the
 		// previous entry to the cache
 		dcv.Store.Cache[dcv.Key] = dcv.Prev
@@ -62,7 +67,7 @@ func (dcv *DeleteCacheValue) Revert() {
 //
 // implements journal.CacheEntry.
 //
-//nolint:ireturn // by design.
+//nolint:nolintlint,ireturn // by design.
 func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
 	var prevDeepCopy *cValue
@@ -93,7 +98,10 @@ func (scv *SetCacheValue) Revert() {
 		delete(scv.Store.UnsortedCache, scv.Key)
 		return
 	}
+
+	// If there was a previous value, set it as the current value in the cache map.
 	scv.Store.Cache[scv.Key] = scv.Prev
+
 	// If the previous value was not dirty, remove the Key from the unsorted cache set
 	if !scv.Prev.dirty {
 		delete(scv.Store.UnsortedCache, scv.Key)
@@ -106,7 +114,7 @@ func (scv *SetCacheValue) Revert() {
 //
 // implements journal.CacheEntry.
 //
-//nolint:ireturn // by design.
+//nolint:nolintlint,ireturn // by design.
 func (scv *SetCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
 	var prevDeepCopy *cValue
