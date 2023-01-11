@@ -82,6 +82,22 @@ var _ = Describe("DBIterator", func() {
 		}
 	})
 
+	It("should be deep copyable", func() {
+		db2 := db.Copy()
+
+		itr, err := db.Iterator(nil, nil)
+		Expect(err).ToNot(HaveOccurred())
+		defer itr.Close()
+
+		for itr.Valid() {
+			key := itr.Key()
+			value := itr.Value()
+			itr.Next()
+			value2 := db2.Get(key)
+			Expect(value).To(Equal(value2))
+		}
+	})
+
 	It("should error with blank iterator keys", func() {
 		_, err := db.ReverseIterator([]byte{}, nil)
 		Expect(err).To(Equal(internal.ErrKeyEmpty))
@@ -172,6 +188,10 @@ var _ = Describe("DBIterator", func() {
 		Expect(err).NotTo(HaveOccurred())
 		verifyIterator(ritr, []int64{8, 7, 5, 4, 3, 2, 1, 0}, "reverse iterator from 9 (ex)")
 	})
+
+})
+
+var _ = Describe("Copy", func() {
 
 })
 
