@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	// `intBase` is 10 because `int`s are parsed in base 10.
+	// `intBase` is the base `int`s are parsed in, 10.
 	intBase = 10
 
-	// `creationHeightBits` is 64 because Cosmos `creationHeight` is stored as a `int64`.
+	// `creationHeightBits` is the number of bits used to store `creationHeight` from the Cosmos
+	// SDK staking module, which is of type `int64`.
 	creationHeightBits = 64
 )
 
@@ -62,7 +63,8 @@ func ConvertAccAddress(attributeValue string) (any, error) {
 	return common.AccAddressToEthAddress(accAddress), nil
 }
 
-// `ConvertCreationHeight` converts a creationHeight `string` to an `int64`.
+// `ConvertCreationHeight` converts a creationHeight, from the Cosmos SDK staking module, `string`
+// to an `int64`.
 //
 // `ConvertCreationHeight` is a `AttributeValueDecoder`.
 func ConvertCreationHeight(attributeValue string) (any, error) {

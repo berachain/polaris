@@ -12,9 +12,9 @@ import (
 // `maxTopicsLen` is the maximum number of topics hashes allowed in an Eth log.
 const maxTopicsLen = 4
 
-// `relayer` holds an event's Cosmos and Eth metadata that is used to convert an incoming Cosmos
+// `cosmosEventRelayer` holds an event's Cosmos and Eth metadata that is used to convert an incoming Cosmos
 // event to its corresponding Eth event log.
-type relayer struct {
+type cosmosEventRelayer struct {
 	// `address` is the Eth address which represents a Cosmos module's account address.
 	address *common.Address
 
@@ -33,12 +33,12 @@ type relayer struct {
 
 // `getAddress` returns the Eth address (which represents account address of the event's
 // corresponding Cosmos module) for an event.
-func (r *relayer) getAddress() common.Address {
+func (r *cosmosEventRelayer) getAddress() common.Address {
 	return *r.address
 }
 
 // `makeTopics` generates the Eth log `Topics` field for a valid cosmos event.
-func (r *relayer) makeTopics(event *sdk.Event) ([]common.Hash, error) {
+func (r *cosmosEventRelayer) makeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(r.indexedInputs)+1)
 	filterQuery[0] = r.id
 	for i := 0; i < len(r.indexedInputs); i++ {
@@ -82,7 +82,7 @@ func (r *relayer) makeTopics(event *sdk.Event) ([]common.Hash, error) {
 }
 
 // `generateData` returns the Eth log `Data` for a valid cosmos event.
-func (r *relayer) generateData(event *sdk.Event) ([]byte, error) {
+func (r *cosmosEventRelayer) generateData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(r.nonIndexedInputs))
 	// complexity of below iteration: O(n^2), where n is the number of non-indexed args
 	for idx, input := range r.nonIndexedInputs {

@@ -13,13 +13,13 @@ import (
 // `Registry` registers and stores all Cosmos events which are supported to be converted to Eth
 // event logs during stateful precompile execution.
 type Registry struct {
-	eventTypesToRelayers map[string]*relayer
+	eventTypesToRelayers map[string]*cosmosEventRelayer
 }
 
 // `NewRegistry` creates and returns a new, empty `Registry` instance.
 func NewRegistry() *Registry {
 	return &Registry{
-		eventTypesToRelayers: make(map[string]*relayer),
+		eventTypesToRelayers: make(map[string]*cosmosEventRelayer),
 	}
 }
 
@@ -34,7 +34,7 @@ func (er *Registry) RegisterModule(moduleAddr *common.Address, contract HasEvent
 			// require that every Eth event has been manually mapped to a corresponding Cosmos one
 			panic(fmt.Errorf("no eth event defined for cosmos event type %s", eventType))
 		}
-		er.eventTypesToRelayers[eventTypeCamelCase] = &relayer{
+		er.eventTypesToRelayers[eventTypeCamelCase] = &cosmosEventRelayer{
 			address:                      moduleAddr,
 			id:                           event.ID,
 			indexedInputs:                getIndexed(event.Inputs),
@@ -47,30 +47,30 @@ func (er *Registry) RegisterModule(moduleAddr *common.Address, contract HasEvent
 // `BuildEthLog` builds the Eth event metadata for a Cosmos event and returns a geth type `Log`
 // with the `Address`, `Topics` and `Data` fields filled.
 func (er *Registry) BuildEthLog(event *sdk.Event) (*types.Log, error) {
-	relayer, err := er.getCosmosEventData(event)
+	cosmosEventRelayer, err := er.getCosmosEventData(event)
 	if err != nil {
 		return nil, err
 	}
-	topics, err := relayer.makeTopics(event)
+	topics, err := cosmosEventRelayer.makeTopics(event)
 	if err != nil {
 		return nil, err
 	}
-	data, err := relayer.generateData(event)
+	data, err := cosmosEventRelayer.generateData(event)
 	if err != nil {
 		return nil, err
 	}
 	return &types.Log{
-		Address: relayer.getAddress(),
+		Address: cosmosEventRelayer.getAddress(),
 		Topics:  topics,
 		Data:    data,
 	}, nil
 }
 
 // `getCosmosEventData` checks that an incoming cosmos event is valid. If valid, it returns the
-// Cosmos-to-Eth event relayer. If not valid, this function panics.
-func (er *Registry) getCosmosEventData(event *sdk.Event) (*relayer, error) {
+// cosmosEventRelayer. If not valid, this function panics.
+func (er *Registry) getCosmosEventData(event *sdk.Event) (*cosmosEventRelayer, error) {
 	eventKey := abi.ToCamelCase(event.Type)
-	relayer, ok := er.eventTypesToRelayers[eventKey]
+	cosmosEventRelayer, ok := er.eventTypesToRelayers[eventKey]
 	if !ok {
 		return nil, fmt.Errorf(
 			"the Eth event corresponding to Cosmos event %s has not been registered",
@@ -78,11 +78,11 @@ func (er *Registry) getCosmosEventData(event *sdk.Event) (*relayer, error) {
 		)
 	}
 	if len(event.Attributes) <
-		len(relayer.indexedInputs)+len(relayer.nonIndexedInputs) {
+		len(cosmosEventRelayer.indexedInputs)+len(cosmosEventRelayer.nonIndexedInputs) {
 		return nil, fmt.Errorf(
 			"not enough event attributes provided for event %s",
 			event.Type,
 		)
 	}
-	return relayer, nil
+	return cosmosEventRelayer, nil
 }
