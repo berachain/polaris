@@ -6,8 +6,8 @@
 </h1>
 
 <div>
-  <a href="https://codecov.io/gh/berachain/stargazer" >
-    <img src="https://codecov.io/gh/berachain/stargazer/branch/main/graph/badge.svg?token=41tbVZZvSO"/>
+  <a href="https://codecov.io/gh/berachain/stargazer" > 
+    <img src="https://codecov.io/gh/berachain/stargazer/branch/main/graph/badge.svg?token=0DYQAKBGVW"/> 
   </a>
   <a href="https://pkg.go.dev/github.com/berachain/stargazer">
     <img src="https://pkg.go.dev/badge/github.com/berachain/stargazer.svg" alt="Go Reference">
