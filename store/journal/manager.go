@@ -49,7 +49,7 @@ func (jm *Manager) PopToSize(newSize int) {
 	for i := jm.Size() - 1; i >= newSize; i-- {
 		jm.Stack.PeekAt(i).Revert()
 	}
-	// Call parent
+	// Call parent.
 	jm.Stack.PopToSize(newSize)
 }
 
