@@ -15,8 +15,8 @@
 package types_test
 
 import (
+	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/state/types"
-	"github.com/berachain/stargazer/lib/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
