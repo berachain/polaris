@@ -12,15 +12,15 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package events
+package precompile
 
 import (
-	pctypes "github.com/berachain/stargazer/core/vm/precompile/types"
+	"github.com/berachain/stargazer/core/vm/precompile/types"
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `HasEvents` defines the minimum set of required functions for a stateful precompile to implement
-// if it wants to emit each of its Cosmos emitted events as an Eth event log.
+// `HasEvents` defines the minimum set of required functions for a stateful precompile contract
+// to implement if it wants to emit each of its Cosmos emitted events as an Eth event log.
 type HasEvents interface {
 	// `CosmosEventTypes` should return a slice of the Cosmos event type strings (under_score)
 	// formatting for all Cosmos events the stateful precompile wishes to emit as Eth events.
@@ -33,5 +33,5 @@ type HasEvents interface {
 
 	// `AttributeKeysToValueDecoders` should return a map of all Cosmos event attribute keys to
 	// `AttributeValueDecoder`s for all supported Cosmos events.
-	AttributeKeysToValueDecoders() map[string]pctypes.AttributeValueDecoder
+	AttributeKeysToValueDecoders() map[string]types.AttributeValueDecoder
 }

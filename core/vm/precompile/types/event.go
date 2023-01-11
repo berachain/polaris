@@ -17,30 +17,31 @@ package types
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/types/abi"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// `PrecompileEvent` represents an Eth event emitted by a Cosmos module's precompile contract.
+// `PrecompileEvent` represents an Ethereum event emitted by a Cosmos module's precompile contract.
 type PrecompileEvent struct {
-	// `address` is the Eth address which represents a Cosmos module's account address.
+	// `address` is the Ethereum address which represents a Cosmos module's account address.
 	moduleAddr common.Address
 
-	// `id` is the Eth event ID, to be used as an Eth event's first topic
+	// `id` is the Ethereum event ID, to be used as an Ethereum event's first topic
 	id common.Hash
 
-	// `indexedInputs` holds an Eth event's indexed arguments, emitted as event topics
+	// `indexedInputs` holds an Ethereum event's indexed arguments, emitted as event topics
 	indexedInputs abi.Arguments
 
-	// `nonIndexedInputs` holds an Eth event's non-indexed arguments, emitted as event data
+	// `nonIndexedInputs` holds an Ethereum event's non-indexed arguments, emitted as event data
 	nonIndexedInputs abi.Arguments
 
 	// `attributeKeysToValueDecoders` is a map of Cosmos attribute keys to value decoder functions
 	valueDecoders map[string]AttributeValueDecoder
 }
 
-// `NewPrecompileEvent` returns a new `PrecompileEvent` with the given `moduleAddress` and `abiEvent`.
+// `NewPrecompileEvent` returns a new `PrecompileEvent` with the given `moduleAddress`, `abiEvent`.
 func NewPrecompileEvent(
 	moduleAddr common.Address,
 	abiEvent *abi.Event,
@@ -59,8 +60,8 @@ func (pe *PrecompileEvent) ModuleAddress() common.Address {
 	return pe.moduleAddr
 }
 
-// `makeTopics` generates the Eth log `Topics` field for a valid cosmos event.
-func (pe *PrecompileEvent) MakeTopicsField(event *sdk.Event) ([]common.Hash, error) {
+// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event.
+func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(pe.indexedInputs)+1)
 	filterQuery[0] = pe.id
 	for i := 0; i < len(pe.indexedInputs); i++ {
@@ -103,8 +104,8 @@ func (pe *PrecompileEvent) MakeTopicsField(event *sdk.Event) ([]common.Hash, err
 	return topics[0], nil
 }
 
-// `generateData` returns the Eth log `Data` for a valid cosmos event.
-func (pe *PrecompileEvent) MakeDataField(event *sdk.Event) ([]byte, error) {
+// `MakeData` returns the Ethereum log `Data` for a valid cosmos event.
+func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
 	// complexity of below iteration: O(n^2), where n is the number of non-indexed args
 	for idx, input := range pe.nonIndexedInputs {
@@ -145,9 +146,11 @@ func (pe *PrecompileEvent) MakeDataField(event *sdk.Event) ([]byte, error) {
 	return data, nil
 }
 
+// `ValidateAttributes` validates an incoming Cosmos `event“. Specifically, it verifies that the
+// number of attributes provided by the Cosmos `event` are adequate for it's corresponding
+// Ethereum events.
 func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
-	if len(event.Attributes) <
-		len(pe.indexedInputs)+len(pe.nonIndexedInputs) {
+	if len(event.Attributes) < len(pe.indexedInputs)+len(pe.nonIndexedInputs) {
 		return fmt.Errorf(
 			"not enough event attributes provided for event %s",
 			event.Type,

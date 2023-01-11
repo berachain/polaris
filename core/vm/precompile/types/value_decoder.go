@@ -77,7 +77,7 @@ func ConvertAccAddress(attributeValue string) (any, error) {
 	return common.AccAddressToEthAddress(accAddress), nil
 }
 
-// `ConvertCreationHeight` converts a creationHeight, from the Cosmos SDK staking module, `string`
+// `ConvertCreationHeight` converts a creation height (from the Cosmos SDK staking module) `string`
 // to an `int64`.
 //
 // `ConvertCreationHeight` is a `AttributeValueDecoder`.
