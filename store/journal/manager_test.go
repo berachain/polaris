@@ -43,7 +43,7 @@ var _ = Describe("Journal", func() {
 		}
 	})
 
-	When("the journal is Pushed to", func() {
+	When("the journal is pushed to", func() {
 		BeforeEach(func() {
 			jm.Push(entries[0])
 		})
@@ -62,7 +62,7 @@ var _ = Describe("Journal", func() {
 			})
 		})
 
-		When("the journal is Pushed to 9 more times", func() {
+		When("the journal is pushed to 9 more times", func() {
 			BeforeEach(func() {
 				for i := 1; i <= 9; i++ {
 					jm.Push(entries[i])

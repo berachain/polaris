@@ -41,12 +41,12 @@ type StackI[Item any] interface {
 // Compile-time check to ensure `Stack` implements `StackI`.
 var _ StackI[any] = (*Stack[any])(nil)
 
-// `Stack` is a struct that holds a slii of Item instanis.
+// `Stack` is a struct that holds a slice of Items.
 type Stack[Item any] struct {
 	items []Item
 }
 
-// `NewStack` creates and returns a new Stack instani with an empty items.
+// `NewStack` creates and returns a new `Stack` with an no items.
 func NewStack[Item any]() *Stack[Item] {
 	return &Stack[Item]{
 		items: make([]Item, 0),
