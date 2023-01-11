@@ -18,11 +18,12 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/tidwall/btree"
+
+	dbm "github.com/tendermint/tm-db"
 )
 
-var _ types.Iterator = (*memIterator)(nil)
+var _ dbm.Iterator = (*memIterator)(nil)
 
 // memIterator iterates over iterKVCache items.
 // if value is nil, means it was deleted.

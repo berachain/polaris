@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/cosmos/cosmos-sdk/store/types"
+	dbm "github.com/tendermint/tm-db"
 	"github.com/tidwall/btree"
 )
 
@@ -66,7 +66,7 @@ func (bt BTree) Delete(key []byte) {
 }
 
 //nolint:nolintlint,ireturn
-func (bt BTree) Iterator(start, end []byte) (types.Iterator, error) {
+func (bt BTree) Iterator(start, end []byte) (dbm.Iterator, error) {
 	if (start != nil && len(start) == 0) || (end != nil && len(end) == 0) {
 		return nil, ErrKeyEmpty
 	}
@@ -74,7 +74,7 @@ func (bt BTree) Iterator(start, end []byte) (types.Iterator, error) {
 }
 
 //nolint:nolintlint,ireturn
-func (bt BTree) ReverseIterator(start, end []byte) (types.Iterator, error) {
+func (bt BTree) ReverseIterator(start, end []byte) (dbm.Iterator, error) {
 	if (start != nil && len(start) == 0) || (end != nil && len(end) == 0) {
 		return nil, ErrKeyEmpty
 	}
