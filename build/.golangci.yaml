@@ -226,7 +226,7 @@ linters:
     - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
     - wastedassign # finds wasted assignment statements
     - whitespace # detects leading and trailing whitespace
-    - wrapcheck # checks that errors returned from external packages are wrapped
+    # - wrapcheck # checks that errors returned from external packages are wrapped
 
     ## you may want to enable
     #- decorder # checks declaration order and count of types, constants, variables and functions
