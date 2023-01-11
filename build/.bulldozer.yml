@@ -29,6 +29,14 @@ merge:
     # Pull requests with auto merge enabled are added to the trigger.
     auto_merge: true
 
+  # "required_statuses" is a list of additional status contexts that must pass
+  # before bulldozer can merge a pull request. This is useful if you want to
+  # require extra testing for automated merges, but not for manual merges.
+  required_statuses:
+    - "ci/circleci: lint"
+    - "ci/circleci: test-unit"
+    - "ci/circleci: test-unit-race"
+
   # "ignore" defines the set of pull request ignored by bulldozer. If the
   # section is missing, bulldozer considers all pull requests. It takes the
   # same keys as the "trigger" section.
