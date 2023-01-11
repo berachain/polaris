@@ -56,17 +56,14 @@ func Test() error {
 
 // Runs the unit tests.
 func TestUnit() error {
-	if err := ForgeBuild(); err != nil {
-		return err
-	}
+	// if err := ForgeBuild(); err != nil {
+	// 	return err
+	// }
 	return testUnit()
 }
 
 func testUnit() error {
-	args := []string{}
-	return goTest(
-		append(args, packagesUnit...)...,
-	)
+	return ginkgoTest()
 }
 
 // Runs the unit tests with coverage.
@@ -74,21 +71,7 @@ func TestUnitCover() error {
 	// if err := ForgeBuild(); err != nil {
 	// 	return err
 	// }
-	if err := ginkgoTestCover(); err != nil {
-		return err
-	}
-
-	return testUnitCover()
-}
-
-func testUnitCover() error {
-	args := []string{
-		"-coverprofile=coverage-testUnitCover.txt",
-		"-covermode=atomic",
-	}
-	return goTest(
-		append(args, packagesUnit...)...,
-	)
+	return ginkgoTest(ginkgoCoverArgs...)
 }
 
 // Runs the unit tests with race detection.

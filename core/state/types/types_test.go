@@ -23,5 +23,5 @@ import (
 
 func TestStateTypes(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "StateTypes Test Suite")
+	RunSpecs(t, "core/state/types")
 }
