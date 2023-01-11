@@ -28,10 +28,6 @@ var _ = Describe("Stack", func() {
 		stack = ds.NewStack[int]()
 	})
 
-	It("should be empty", func() {
-		Expect(stack.Size()).To(BeZero())
-	})
-
 	When("pushing an element", func() {
 		BeforeEach(func() {
 			stack.Push(1)
@@ -47,19 +43,18 @@ var _ = Describe("Stack", func() {
 
 		It("should return the correct element", func() {
 			Expect(stack.PeekAt(0)).To(Equal(1))
+		})
+		It("should return the correct element", func() {
+			Expect(stack.Pop()).To(Equal(1))
+		})
 
-			It("should return the correct element", func() {
-				Expect(stack.Pop()).To(Equal(1))
+		When("popping an element", func() {
+			BeforeEach(func() {
+				stack.Pop()
 			})
 
-			When("popping an element", func() {
-				BeforeEach(func() {
-					stack.Pop()
-				})
-
-				It("should be empty", func() {
-					Expect(stack.Size()).To(BeZero())
-				})
+			It("should be empty", func() {
+				Expect(stack.Size()).To(BeZero())
 			})
 		})
 
@@ -72,11 +67,26 @@ var _ = Describe("Stack", func() {
 			It("should return the correct element", func() {
 				Expect(stack.Peek()).To(Equal(3))
 				Expect(stack.PeekAt(2)).To(Equal(3))
-				Expect(stack.PeekAt(1)).To(Equal(3))
+				Expect(stack.PeekAt(1)).To(Equal(2))
 			})
 
 			It("should have the correct size", func() {
 				Expect(stack.Size()).To(Equal(3))
+			})
+
+			When("calling poptosize with a size smaller than the current size", func() {
+				BeforeEach(func() {
+					stack.PopToSize(1)
+				})
+
+				It("should have the correct size", func() {
+					Expect(stack.Size()).To(Equal(1))
+				})
+
+				It("should return the correct element", func() {
+					Expect(stack.Peek()).To(Equal(1))
+					Expect(stack.PeekAt(0)).To(Equal(1))
+				})
 			})
 		})
 	})
