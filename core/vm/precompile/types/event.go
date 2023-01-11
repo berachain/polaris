@@ -146,7 +146,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	return data, nil
 }
 
-// `ValidateAttributes` validates an incoming Cosmos `event“. Specifically, it verifies that the
+// `ValidateAttributes` validates an incoming Cosmos `event`. Specifically, it verifies that the
 // number of attributes provided by the Cosmos `event` are adequate for it's corresponding
 // Ethereum events.
 func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
