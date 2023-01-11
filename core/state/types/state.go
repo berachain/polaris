@@ -12,15 +12,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package journal
+package types
 
-import "github.com/berachain/stargazer/types"
+import (
+	fmt "fmt"
+	"strings"
 
-// `CacheEntry` is an interface for journal entries.
-type CacheEntry interface {
-	// `CacheEntry` implements `Cloneable`.
-	types.Cloneable[CacheEntry]
+	"cosmossdk.io/errors"
+	"github.com/berachain/stargazer/types"
+	"github.com/ethereum/go-ethereum/common"
+)
 
-	// `Revert` undoes the changes made by the entry.
-	Revert()
+// Compile-time interface assertions.
+var _ types.Cloneable[State] = &State{}
+var _ fmt.Stringer = Storage{}
+
+// `NewState` creates a new State instance.
+func NewState(key, value common.Hash) State {
+	return State{
+		Key:   key.Hex(),
+		Value: value.Hex(),
+	}
+}
+
+// `ValidateBasic` checks to make sure the key is not empty.
+func (s State) ValidateBasic() error {
+	if strings.TrimSpace(s.Key) == "" {
+		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
+	}
+
+	return nil
+}
+
+// `Clone` implements `types.Cloneable`.
+func (s State) Clone() State {
+	return State{
+		Key:   s.Key,
+		Value: s.Value,
+	}
 }

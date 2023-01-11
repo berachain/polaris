@@ -21,7 +21,6 @@ import (
 )
 
 var (
-	protoGenDockerPath = "./build/docker/proto-gen.Dockerfile"
 	// TODO: remove once https://github.com/cosmos/cosmos-sdk/pull/13960 is merged
 	protoImageName    = "berachain-proto"
 	protoImageVersion = "0.11.2"
@@ -53,10 +52,6 @@ func ProtoGen() error {
 		return err
 	}
 
-	if err = ProtoDockerBuild(); err != nil {
-		return err
-	}
-
 	return dockerRunProtoImage(dir)(
 		"sh", "./build/scripts/proto/proto_generate.sh",
 	)
@@ -81,15 +76,6 @@ func ProtoFormat() error {
 // Lint .proto files.
 func ProtoLint() error {
 	return bufWrapper(bufLint)
-}
-
-// Build the proto-gen docker image.
-func ProtoDockerBuild() error {
-	return dockerBuild(
-		"--pull",
-		"-f", protoGenDockerPath,
-		"-t", protoImageName+":"+protoImageVersion,
-		"build/docker")
 }
 
 // Wraps buf commands with the proper directory change.

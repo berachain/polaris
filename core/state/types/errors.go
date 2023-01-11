@@ -12,5 +12,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
-package stargazer.v1;
+package types
+
+import "errors"
+
+var ErrInvalidState = errors.New("invalid state")
