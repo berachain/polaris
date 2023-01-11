@@ -32,6 +32,6 @@ func AccAddressToEthAddress(accAddress sdk.AccAddress) Address {
 	return common.BytesToAddress(accAddress)
 }
 
-func EthAddressToAccAddress(ethAddress Address) []byte {
+func EthAddressToAccAddress(ethAddress Address) sdk.AccAddress {
 	return ethAddress.Bytes()
 }
