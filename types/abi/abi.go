@@ -20,6 +20,9 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
+// `maxTopicsLen` is the maximum number of topics hashes allowed in an Eth log.
+const maxTopicsLen = 4
+
 type (
 	Arguments = abi.Arguments
 	Event     = abi.Event
@@ -40,4 +43,21 @@ func ToMixedCase(input string) string {
 		}
 	}
 	return strings.Join(parts, "")
+}
+
+// Extracts indexed arguments from an Events' inputs. Will panic if more than 3 indexed arguments
+// are provided by the inputs ABI.
+func GetIndexed(args abi.Arguments) abi.Arguments {
+	var indexed abi.Arguments
+	numIndexed := 0
+	for _, arg := range args {
+		if arg.Indexed {
+			if numIndexed == maxTopicsLen {
+				panic("number of indexed arguments is more than allowed by Eth event log")
+			}
+			indexed = append(indexed, arg)
+			numIndexed++
+		}
+	}
+	return indexed
 }
