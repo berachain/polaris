@@ -12,12 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package internal_test
+package trees_test
 
 import (
 	"testing"
 
-	"github.com/berachain/stargazer/store/cachekv/internal"
+	"github.com/berachain/stargazer/lib/ds/trees"
 	"github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -32,10 +32,10 @@ func TestSuite(t *testing.T) {
 }
 
 var _ = Describe("GetSetDelete", func() {
-	var db internal.BTree
+	var db trees.BTree
 
 	BeforeEach(func() {
-		db = internal.NewBTree()
+		db = trees.NewBTree()
 	})
 
 	It("should return nil for a nonexistent key", func() {
@@ -70,10 +70,10 @@ var _ = Describe("GetSetDelete", func() {
 	})
 })
 var _ = Describe("DBIterator", func() {
-	var db internal.BTree
+	var db trees.BTree
 
 	BeforeEach(func() {
-		db = internal.NewBTree()
+		db = trees.NewBTree()
 
 		for i := 0; i < 10; i++ {
 			if i != 6 { // but skip 6.
@@ -100,9 +100,9 @@ var _ = Describe("DBIterator", func() {
 
 	It("should error with blank iterator keys", func() {
 		_, err := db.ReverseIterator([]byte{}, nil)
-		Expect(err).To(Equal(internal.ErrKeyEmpty))
+		Expect(err).To(Equal(trees.ErrKeyEmpty))
 		_, err = db.ReverseIterator(nil, []byte{})
-		Expect(err).To(Equal(internal.ErrKeyEmpty))
+		Expect(err).To(Equal(trees.ErrKeyEmpty))
 	})
 
 	It("should iterate forward", func() {
