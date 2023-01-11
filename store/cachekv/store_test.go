@@ -30,11 +30,11 @@ import (
 	"github.com/berachain/stargazer/store/journal"
 )
 
-func newParent() types.CacheKVStore {
+func newParent() types.CacheKVStore { //nolint: ireturn // by design.
 	return sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
 }
 
-func newCacheKVStoreFromParent(parent types.CacheKVStore) types.CacheKVStore {
+func newCacheKVStoreFromParent(parent types.CacheKVStore) types.CacheKVStore { //nolint: ireturn // by design.
 	return cachekv.NewStore(parent, journal.NewManager())
 }
 
@@ -87,15 +87,18 @@ func TestCacheWrap(t *testing.T) {
 	st.Set(keyFmt(1), valFmt(1))
 	require.Equal(t, valFmt(1), st.Get(keyFmt(1)))
 
-	stWrap := st.CacheWrap().(types.KVStore)
-	stTrace := st.CacheWrapWithTrace(
+	stWrap, ok := st.CacheWrap().(types.KVStore)
+	require.True(t, ok)
+	stTrace, ok := st.CacheWrapWithTrace(
 		bytes.NewBuffer(nil),
 		types.TraceContext(map[string]interface{}{"blockHeight": 64}),
 	).(types.KVStore)
-	stListeners := st.CacheWrapWithListeners(
+	require.True(t, ok)
+	stListeners, ok := st.CacheWrapWithListeners(
 		types.NewKVStoreKey("acc"),
 		[]types.WriteListener{},
 	).(types.KVStore)
+	require.True(t, ok)
 
 	// test after initializing cache wraps
 	st.Set(keyFmt(2), valFmt(2))
@@ -410,7 +413,7 @@ func TestCacheKVMergeIteratorRandom(t *testing.T) {
 	}
 }
 
-//============================================================-
+// ============================================================-
 // do some random ops
 
 const (
@@ -427,7 +430,7 @@ func randInt(n int) int {
 	return tmrand.NewRand().Int() % n
 }
 
-// useful for replaying a error case if we find one
+// useful for replaying a error case if we find one.
 func doOp(t *testing.T, st types.CacheKVStore, truth types.KVStore, op int, args ...int) {
 	switch op {
 	case opSet:
@@ -475,9 +478,9 @@ func doRandomOp(t *testing.T, st types.CacheKVStore, truth types.KVStore, maxKey
 	}
 }
 
-//============================================================-
+// ============================================================-
 
-// iterate over whole domain
+// iterate over whole domain.
 func assertIterateDomain(t *testing.T, st types.KVStore, expectedN int) {
 	itr := st.Iterator(nil, nil)
 	i := 0
@@ -541,7 +544,7 @@ func checkIterators(t *testing.T, itr, itr2 types.Iterator) {
 	require.False(t, itr2.Valid())
 }
 
-//====================================--
+// ====================================--
 
 func setRange(_ *testing.T, st types.KVStore, mem types.KVStore, start, end int) {
 	for i := start; i < end; i++ {
@@ -557,7 +560,7 @@ func deleteRange(_ *testing.T, st types.KVStore, mem types.KVStore, start, end i
 	}
 }
 
-//====================================--
+// ====================================--
 
 type keyRange struct {
 	start int
@@ -572,7 +575,7 @@ func newKeyRangeCounter(kr []keyRange) *keyRangeCounter {
 	return &keyRangeCounter{keyRanges: kr}
 }
 
-// we can iterate over this and make sure our real iterators have all the right keys
+// we can iterate over this and make sure our real iterators have all the right keys.
 type keyRangeCounter struct {
 	rangeIdx  int
 	idx       int

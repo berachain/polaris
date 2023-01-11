@@ -1,3 +1,17 @@
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// See the file LICENSE for licensing terms.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 package cachekv
 
 import (
@@ -24,7 +38,8 @@ type cacheMergeIterator struct {
 
 var _ types.Iterator = (*cacheMergeIterator)(nil)
 
-func NewCacheMergeIterator(parent, cache types.Iterator, ascending bool) *cacheMergeIterator { //nolint:revive
+// `NewCacheMergeIterator` creates a new cacheMergeIterator.
+func newCacheMergeIterator(parent, cache types.Iterator, ascending bool) *cacheMergeIterator {
 	iter := &cacheMergeIterator{
 		parent:    parent,
 		cache:     cache,
@@ -37,7 +52,7 @@ func NewCacheMergeIterator(parent, cache types.Iterator, ascending bool) *cacheM
 
 // Domain implements Iterator.
 // Returns parent domain because cache and parent domains are the same.
-func (iter *cacheMergeIterator) Domain() (start, end []byte) {
+func (iter *cacheMergeIterator) Domain() ([]byte, []byte) {
 	return iter.parent.Domain()
 }
 
@@ -46,7 +61,7 @@ func (iter *cacheMergeIterator) Valid() bool {
 	return iter.valid
 }
 
-// Next implements Iterator
+// Next implements Iterator.
 func (iter *cacheMergeIterator) Next() {
 	iter.assertValid()
 
@@ -73,7 +88,7 @@ func (iter *cacheMergeIterator) Next() {
 	iter.valid = iter.skipUntilExistsOrInvalid()
 }
 
-// Key implements Iterator
+// Key implements Iterator.
 func (iter *cacheMergeIterator) Key() []byte {
 	iter.assertValid()
 
@@ -103,7 +118,7 @@ func (iter *cacheMergeIterator) Key() []byte {
 	}
 }
 
-// Value implements Iterator
+// Value implements Iterator.
 func (iter *cacheMergeIterator) Value() []byte {
 	iter.assertValid()
 
@@ -133,7 +148,7 @@ func (iter *cacheMergeIterator) Value() []byte {
 	}
 }
 
-// Close implements Iterator
+// Close implements Iterator.
 func (iter *cacheMergeIterator) Close() error {
 	err1 := iter.cache.Close()
 	if err := iter.parent.Close(); err != nil {

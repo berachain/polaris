@@ -163,7 +163,8 @@ func (s *CacheValueSuite) TestCloneDelete() {
 		Prev:  cachekv.NewCValue(byte1, true),
 	}
 
-	dcvNonNilClone := dcvNonNil.Clone().(*cachekv.DeleteCacheValue)
+	dcvNonNilClone, ok := dcvNonNil.Clone().(*cachekv.DeleteCacheValue)
+	s.Require().True(ok)
 	s.Require().Equal(byte1Str, dcvNonNilClone.Key)
 	s.Require().True(dcvNonNilClone.Prev.Dirty())
 	s.Require().Equal(byte1, dcvNonNilClone.Prev.Value())
@@ -173,10 +174,11 @@ func (s *CacheValueSuite) TestCloneDelete() {
 		Key:   "",
 		Prev:  nil,
 	}
-	dcvNilClone := dcvNil.Clone().(*cachekv.DeleteCacheValue)
+	dcvNilClone, ok := dcvNil.Clone().(*cachekv.DeleteCacheValue)
+	s.Require().True(ok)
 	s.Require().Equal("", dcvNilClone.Key)
 	s.Require().True(reflect.ValueOf(dcvNilClone.Prev).IsNil())
-	// s.Require().Equal((*cValue)(nil), dcvNilClone.Prev)
+	// s.Require().Equal((*CValue)(nil), dcvNilClone.Prev)
 }
 
 func (s *CacheValueSuite) TestCloneSet() {
@@ -185,7 +187,8 @@ func (s *CacheValueSuite) TestCloneSet() {
 		Key:   byte1Str,
 		Prev:  cachekv.NewCValue(byte1, true),
 	}
-	dcvNonNilClone := dcvNonNil.Clone().(*cachekv.SetCacheValue)
+	dcvNonNilClone, ok := dcvNonNil.Clone().(*cachekv.SetCacheValue)
+	s.Require().True(ok)
 	s.Require().Equal(byte1Str, dcvNonNilClone.Key)
 	s.Require().True(dcvNonNilClone.Prev.Dirty())
 	s.Require().Equal(byte1, dcvNonNilClone.Prev.Value())
@@ -195,8 +198,9 @@ func (s *CacheValueSuite) TestCloneSet() {
 		Key:   "",
 		Prev:  nil,
 	}
-	dcvNilClone := dcvNil.Clone().(*cachekv.SetCacheValue)
+	dcvNilClone, ok := dcvNil.Clone().(*cachekv.SetCacheValue)
+	s.Require().True(ok)
 	s.Require().Equal("", dcvNilClone.Key)
-	// s.Require().Equal((*cValue)(nil), dcvNilClone.Prev)
+	// s.Require().Equal((*CValue)(nil), dcvNilClone.Prev)
 	s.Require().True(reflect.ValueOf(dcvNilClone.Prev).IsNil())
 }

@@ -12,6 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// nolint: ireturn // by design.
 package cachekv
 
 import "github.com/berachain/stargazer/store/journal"
@@ -22,41 +23,38 @@ type (
 	DeleteCacheValue struct {
 		Store *Store  // pointer to the cache Store
 		Key   string  // Key of the value to be deleted
-		Prev  *cValue // deep copy of object in cache map
+		Prev  *CValue // deep copy of object in cache map
 	}
 
 	// SetCacheValue is a struct that contains information needed to set a value in a cache.
 	SetCacheValue struct {
 		Store *Store  // pointer to the cache Store
 		Key   string  // Key of the value to be set
-		Prev  *cValue // deep copy of object in cache map
+		Prev  *CValue // deep copy of object in cache map
 	}
 )
 
 // Revert restores the previous cache entry for the Key, if it exists.
 //
-// implements journal.CacheEntry
+// implements journal.CacheEntry.
 func (dcv *DeleteCacheValue) Revert() {
-	// Check if there is a previous entry for the Key being deleted
-	if dcv.Prev != nil {
-		// If the previous entry is not dirty
-		// (i.e., it has not been modified since it was added to the cache)
-		if !dcv.Prev.dirty {
-			// Remove the Key being deleted from the cache and restore the previous entry
-			delete(dcv.Store.UnsortedCache, dcv.Key)
-			dcv.Store.Cache[dcv.Key] = dcv.Prev
-		} else {
-			// If the previous entry is dirty and has a non-nil value
-			if dcv.Prev.value != nil {
-				// Remove the Key being deleted from the "deleted" set and restore the
-				// previous entry to the cache
-				dcv.Store.Cache[dcv.Key] = dcv.Prev
-			}
-		}
-	} else {
-		// If there is no previous entry for the Key being deleted, remove the Key from the cache
+	//nolint: gocritic // by design.
+	if dcv.Prev == nil {
 		delete(dcv.Store.Cache, dcv.Key)
 		delete(dcv.Store.UnsortedCache, dcv.Key)
+		return
+	} else if !dcv.Prev.dirty {
+		// If there is no previous entry for the Key being deleted, remove the Key from the cache
+		// If the previous entry is not dirty
+		// (i.e., it has not been modified since it was added to the cache)
+		// Remove the Key being deleted from the cache and restore the previous entry
+		delete(dcv.Store.UnsortedCache, dcv.Key)
+		dcv.Store.Cache[dcv.Key] = dcv.Prev
+	} else if dcv.Prev.value != nil {
+		// If the previous entry is dirty and has a non-nil value
+		// Remove the Key being deleted from the "deleted" set and restore the
+		// previous entry to the cache
+		dcv.Store.Cache[dcv.Key] = dcv.Prev
 	}
 }
 
@@ -64,10 +62,10 @@ func (dcv *DeleteCacheValue) Revert() {
 // The deep copy contains the same Store and Key fields as the original,
 // and a deep copy of the Prev field, if it is not nil.
 //
-// implements journal.CacheEntry
+// implements journal.CacheEntry.
 func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
-	var prevDeepCopy *cValue
+	var prevDeepCopy *CValue
 	if dcv.Prev != nil {
 		prevDeepCopy = dcv.Prev.deepCopy()
 	}
@@ -85,7 +83,7 @@ func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 // Revert reverts a set operation on a cache entry by setting the previous value of the entry as
 // the current value in the cache map.
 //
-// implements journal.CacheEntry
+// implements journal.CacheEntry.
 func (scv *SetCacheValue) Revert() {
 	// If there was a previous value, set it as the current value in the cache map
 	if scv.Prev != nil {
@@ -106,10 +104,10 @@ func (scv *SetCacheValue) Revert() {
 // The deep copy contains the same Store and Key fields as the original,
 // and a deep copy of the Prev field, if it is not nil.
 //
-// implements journal.CacheEntry
+// implements journal.CacheEntry.
 func (scv *SetCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
-	var prevDeepCopy *cValue
+	var prevDeepCopy *CValue
 	if scv.Prev != nil {
 		prevDeepCopy = scv.Prev.deepCopy()
 	}

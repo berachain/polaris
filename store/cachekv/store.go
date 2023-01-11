@@ -11,7 +11,8 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+//
+//nolint:ireturn // cachekv needs to return interfaces.
 package cachekv
 
 import (
@@ -42,20 +43,20 @@ var _ StateDBCacheKVStore = (*Store)(nil)
 
 // Store wraps an in-memory cache around an underlying storetypes.KVStore.
 // If a cached value is nil but deleted is defined for the corresponding key,
-// it means the parent doesn't have the key. (No need to delete upon Write())
+// it means the parent doesn't have the key. (No need to delete upon Write()).
 type Store struct {
 	mtx           sync.RWMutex
-	Cache         map[string]*cValue
+	Cache         map[string]*CValue
 	UnsortedCache map[string]struct{}
 	SortedCache   *trees.BTree // always ascending sorted
 	Parent        storetypes.KVStore
 	journalMgr    *journal.Manager
 }
 
-// NewStore creates a new Store object
+// NewStore creates a new Store object.
 func NewStore(parent storetypes.KVStore, journalMgr *journal.Manager) *Store {
 	return &Store{
-		Cache:         make(map[string]*cValue),
+		Cache:         make(map[string]*CValue),
 		UnsortedCache: make(map[string]struct{}),
 		SortedCache:   trees.NewBTree(),
 		Parent:        parent,
@@ -74,7 +75,8 @@ func (store *Store) GetStoreType() storetypes.StoreType {
 
 // Get implements storetypes.KVStore.
 // This function retrieves a value associated with the specified key in the store.
-func (store *Store) Get(key []byte) (value []byte) {
+func (store *Store) Get(key []byte) []byte {
+	var bz []byte
 	store.mtx.RLock()
 	defer store.mtx.RUnlock()
 	// Assert that the key is valid.
@@ -83,13 +85,13 @@ func (store *Store) Get(key []byte) (value []byte) {
 	// Check if the key is in the store's cache.
 	cacheValue, ok := store.Cache[utils.UnsafeBytesToStr(key)]
 	if !ok {
-		value = store.Parent.Get(key)
-		store.setCacheValue(key, value, false)
+		bz = store.Parent.Get(key)
+		store.setCacheValue(key, bz, false)
 	} else {
-		value = cacheValue.value
+		bz = cacheValue.value
 	}
 
-	return value
+	return bz
 }
 
 func (store *Store) GetParent() storetypes.KVStore {
@@ -194,7 +196,7 @@ func (store *Store) CacheWrapWithListeners(
 	return NewStore(listenkv.NewStore(store, storeKey, listeners), store.journalMgr.Clone())
 }
 
-//================================================
+// ================================================
 // Iteration
 
 // Iterator implements storetypes.KVStore.
@@ -230,7 +232,7 @@ func (store *Store) iterator(start, end []byte, ascending bool) types.Iterator {
 		panic(err)
 	}
 
-	return NewCacheMergeIterator(parent, cache, ascending)
+	return newCacheMergeIterator(parent, cache, ascending)
 }
 
 func findStartIndex(strL []string, startQ string) int {
@@ -414,7 +416,7 @@ func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState sort
 	}
 }
 
-//================================================
+// ================================================
 // etc
 
 // Only entrypoint to mutate store.Cache.
@@ -441,7 +443,7 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 		store.journalMgr.Push(cv.Clone())
 	}
 
-	store.Cache[keyStr] = &cValue{
+	store.Cache[keyStr] = &CValue{
 		value: value,
 		dirty: dirty,
 	}
