@@ -54,9 +54,8 @@ func (jm *Manager) PopToSize(newSize int) {
 	jm.Stack.PopToSize(newSize)
 }
 
-// `Clone` implements `ManagerI[*Manager]`.
-//
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
+// `Clone` implements `ManagerI[*Manager]`.
 func (jm *Manager) Clone() *Manager {
 	newManager := NewManager()
 	for i := 0; i < jm.Size(); i++ {

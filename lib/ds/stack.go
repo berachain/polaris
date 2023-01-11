@@ -63,22 +63,16 @@ func (s *Stack[Item]) Size() int {
 	return len(s.items)
 }
 
-// `Peek` returns nil if index `i` is invalid.
-//
 // `Peek` implements `StackI`.
 func (s *Stack[Item]) Peek() Item {
 	return s.items[len(s.items)-1]
 }
 
-// `Peek` returns nil if index `i` is invalid.
-//
 // `Peek` implements `StackI`.
 func (s *Stack[Item]) PeekAt(i int) Item {
 	return s.items[i]
 }
 
-// `Pop` returns nil if index `i` is invalid.
-//
 // `Pop` implements `StackI`.
 func (s *Stack[Item]) Pop() Item {
 	newLen := len(s.items) - 1
@@ -87,8 +81,6 @@ func (s *Stack[Item]) Pop() Item {
 	return item
 }
 
-// `PopToSize` will panic if `newSize` is greater than the current size.
-//
 // `PopToSize` implements `StackI`.
 func (s *Stack[Item]) PopToSize(newSize int) {
 	s.items = s.items[:newSize] // todo: help the GC?
