@@ -14,7 +14,6 @@
 
 package journal
 
-//nolint: nolintlint // eeee
 import "github.com/berachain/stargazer/types"
 
 // `ManagerI` is an interface that defines the methods that a journal manager must implement.
@@ -59,13 +58,13 @@ func (jm *Manager) Append(ce CacheEntry) {
 // `Size` implements `ManagerI`.
 func (jm *Manager) Size() int {
 	return len(jm.journal)
-} //nolint:nolintlint,ireturn
+}
 
 // `Get` returns nil if index `i` is invalid.
 //
 // `Get` implements `ManagerI`.
 //
-//nolint:ireturn // this is by design.
+//nolint:ireturn // returns interface by design.
 func (jm *Manager) Get(i int) CacheEntry {
 	if i < 0 || i >= len(jm.journal) {
 		return nil
@@ -88,13 +87,13 @@ func (jm *Manager) RevertToSize(newSize int) {
 
 	// Discard all journal entries after and including newSize, such that now
 	// len(jm.journal) == newSize.
-	//nolint: ireturn // this is by design.
+
 	jm.journal = jm.journal[:newSize]
-}
+} //nolint:ireturn // returns interface by design.
 
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
 //
-// `Clone` implements `ManagerI`.
+// `Clone` implements `ManagerI[*Manager]`.
 func (jm *Manager) Clone() *Manager {
 	newJournal := make([]CacheEntry, len(jm.journal))
 	for i := 0; i < len(jm.journal); i++ {
