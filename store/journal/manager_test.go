@@ -32,7 +32,7 @@ func TestJournalManager(t *testing.T) {
 }
 
 var _ = Describe("Journal", func() {
-	var jm journal.ManagerI[*journal.Manager]
+	var jm (journal.ManagerI[*journal.Manager])
 	var entries []*mock.CacheEntry
 
 	BeforeEach(func() {
@@ -43,9 +43,9 @@ var _ = Describe("Journal", func() {
 		}
 	})
 
-	When("the journal is appended to", func() {
+	When("the journal is Pushed to", func() {
 		BeforeEach(func() {
-			jm.Append(entries[0])
+			jm.Push(entries[0])
 		})
 
 		It("should have a size of 1", func() {
@@ -54,7 +54,7 @@ var _ = Describe("Journal", func() {
 
 		When("the journal is reverted to size 0", func() {
 			BeforeEach(func() {
-				jm.RevertToSize(0)
+				jm.PopToSize(0)
 			})
 
 			It("should have a size of 0", func() {
@@ -62,10 +62,10 @@ var _ = Describe("Journal", func() {
 			})
 		})
 
-		When("the journal is appended to 9 more times", func() {
+		When("the journal is Pushed to 9 more times", func() {
 			BeforeEach(func() {
 				for i := 1; i <= 9; i++ {
-					jm.Append(entries[i])
+					jm.Push(entries[i])
 				}
 			})
 
@@ -76,7 +76,7 @@ var _ = Describe("Journal", func() {
 			size := rand.Int() % 10
 			When(fmt.Sprintf("the journal is reverted to size, %d", size), func() {
 				BeforeEach(func() {
-					jm.RevertToSize(size)
+					jm.PopToSize(size)
 				})
 
 				It(fmt.Sprintf("should have a size of %d", size), func() {
@@ -86,7 +86,7 @@ var _ = Describe("Journal", func() {
 
 			When("the journal is reverted to size 5", func() {
 				BeforeEach(func() {
-					jm.RevertToSize(5)
+					jm.PopToSize(5)
 				})
 
 				It("should have a size of 5", func() {
@@ -117,14 +117,14 @@ var _ = Describe("Journal", func() {
 
 					It("should be a deep copy", func() {
 						for i := 0; i < 5; i++ {
-							Expect(jm2.Get(i)).To(Equal(jm.Get(i)))
-							Expect(jm2.Get(0)).ToNot(BeIdenticalTo(jm.Get(0)))
+							Expect(jm2.PeekAt(i)).To(Equal(jm.PeekAt(i)))
+							Expect(jm2.PeekAt(0)).ToNot(BeIdenticalTo(jm.PeekAt(0)))
 						}
 					})
 
 					When("the original journal is reverted to size 0", func() {
 						BeforeEach(func() {
-							jm.RevertToSize(0)
+							jm.PopToSize(0)
 						})
 
 						It("the clone should stillhave a size of 5", func() {
