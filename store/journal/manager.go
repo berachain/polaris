@@ -11,8 +11,6 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//nolint:ireturn // ManagerI returns interfaces by design.
 package journal
 
 import (
@@ -27,6 +25,7 @@ type ManagerI[T any] interface {
 	ds.StackI[CacheEntry]
 
 	// `ManagerI` implements `Cloneable`.
+
 	types.Cloneable[T]
 }
 
@@ -45,9 +44,7 @@ func NewManager() *Manager {
 	}
 }
 
-// `RevertToSize` does not modify the journal if `newSize` is invalid.
-//
-// `RevertToSize` implements `ManagerI`.
+// `PopToSize` implements `StackI`.
 func (jm *Manager) PopToSize(newSize int) {
 	// Revert and discard all journal entries after and including newSize.
 	for i := jm.Size() - 1; i >= newSize; i-- {
@@ -57,9 +54,9 @@ func (jm *Manager) PopToSize(newSize int) {
 	jm.Stack.PopToSize(newSize)
 }
 
-// `Clone` returns a cloned journal by deep copying each CacheEntry.
-//
 // `Clone` implements `ManagerI[*Manager]`.
+//
+// `Clone` returns a cloned journal by deep copying each CacheEntry.
 func (jm *Manager) Clone() *Manager {
 	newManager := NewManager()
 	for i := 0; i < jm.Size(); i++ {
