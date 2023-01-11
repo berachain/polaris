@@ -15,14 +15,26 @@
 package common
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
-type (
-	Address = common.Address
-	Hash    = common.Hash
-)
+// `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.
+func AccAddressToEthAddress(accAddress sdk.AccAddress) Address {
+	return BytesToAddress(accAddress)
+}
 
-var (
-	BytesToHash = common.BytesToHash
-)
+// `ValAddressToEthAddress` converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
+func ValAddressToEthAddress(valAddress sdk.ValAddress) Address {
+	return common.BytesToAddress(valAddress)
+}
+
+// `EthAddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
+func EthAddressToAccAddress(ethAddress Address) sdk.AccAddress {
+	return ethAddress.Bytes()
+}
+
+// `EthAddressToValAddress` converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
+func EthAddressToValAddress(ethAddress Address) sdk.ValAddress {
+	return ethAddress.Bytes()
+}
