@@ -36,7 +36,7 @@ type memIterator struct {
 	valid     bool
 }
 
-func newMemIterator(start, end []byte, items BTree, ascending bool) *memIterator {
+func NewMemIterator(start, end []byte, items BTree, ascending bool) *memIterator {
 	iter := items.tree.Iter()
 	var valid bool
 	//nolint:nestif // from sdk.

@@ -40,8 +40,8 @@ type BTree struct {
 }
 
 // NewBTree creates a wrapper around `btree.BTreeG`.
-func NewBTree() BTree {
-	return BTree{
+func NewBTree() *BTree {
+	return &BTree{
 		tree: btree.NewBTreeGOptions(byKeys, btree.Options{
 			Degree:  bTreeDegree,
 			NoLocks: false,
@@ -70,7 +70,7 @@ func (bt BTree) Iterator(start, end []byte) (dbm.Iterator, error) {
 	if (start != nil && len(start) == 0) || (end != nil && len(end) == 0) {
 		return nil, ErrKeyEmpty
 	}
-	return newMemIterator(start, end, bt, true), nil
+	return NewMemIterator(start, end, bt, true), nil
 }
 
 //nolint:nolintlint,ireturn
@@ -78,7 +78,7 @@ func (bt BTree) ReverseIterator(start, end []byte) (dbm.Iterator, error) {
 	if (start != nil && len(start) == 0) || (end != nil && len(end) == 0) {
 		return nil, ErrKeyEmpty
 	}
-	return newMemIterator(start, end, bt, false), nil
+	return NewMemIterator(start, end, bt, false), nil
 }
 
 // Copy the tree. This is a copy-on-write operation and is very fast because
