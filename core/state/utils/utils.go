@@ -33,7 +33,7 @@ func UnsafeStrToBytes(s string) []byte {
 	return buf
 }
 
-// UnsafeBytesToStr is meant to make a zero allocation conversion
+// `UnsafeBytesToStr` is meant to make a zero allocation conversion
 // from []byte -> string to speed up operations, it is not meant
 // to be used generally, but for a specific pattern to delete keys
 // from a map.
