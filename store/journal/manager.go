@@ -25,7 +25,6 @@ type ManagerI[T any] interface {
 	ds.StackI[CacheEntry]
 
 	// `ManagerI` implements `Cloneable`.
-
 	types.Cloneable[T]
 }
 
