@@ -21,7 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/types"
 )
 
-// cacheMergeIterator merges a parent Iterator and a cache Iterator.
+// `cacheMergeIterator` merges a parent Iterator and a cache Iterator.
 // The cache iterator may return nil keys to signal that an item
 // had been deleted (but not deleted in the parent).
 // If the cache iterator has the same key as the parent, the

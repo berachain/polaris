@@ -16,25 +16,25 @@ package cachekv
 import "github.com/berachain/stargazer/store/journal"
 
 type (
-	// DeleteCacheValue is a struct that contains information needed to delete a value
+	// `DeleteCacheValue` is a struct that contains information needed to delete a value
 	// from a cache.
 	DeleteCacheValue struct {
-		Store *Store  // pointer to the cache Store
-		Key   string  // Key of the value to be deleted
-		Prev  *cValue // deep copy of object in cache map
+		Store *Store  // Pointer to the cache store.
+		Key   string  // Key of the value to be deleted.
+		Prev  *cValue // Deep copy of object in cache map.
 	}
 
-	// SetCacheValue is a struct that contains information needed to set a value in a cache.
+	// `SetCacheValue` is a struct that contains information needed to set a value in a cache.
 	SetCacheValue struct {
-		Store *Store  // pointer to the cache Store
-		Key   string  // Key of the value to be set
-		Prev  *cValue // deep copy of object in cache map
+		Store *Store  // Pointer to the cache store.
+		Key   string  // Key of the value to be set.
+		Prev  *cValue // Deep copy of object in cache map.
 	}
 )
 
-// Revert restores the previous cache entry for the Key, if it exists.
+// `Revert` restores the previous cache entry for the Key, if it exists.
 //
-// implements journal.CacheEntry.
+// `Revert` implements journal.CacheEntry.
 func (dcv *DeleteCacheValue) Revert() {
 	// If the previous entry is nil, remove the Key from the cache
 	if dcv.Prev == nil {
@@ -61,11 +61,11 @@ func (dcv *DeleteCacheValue) Revert() {
 	}
 }
 
-// Clone creates a deep copy of the DeleteCacheValue object.
+// `Clone` creates a deep copy of the DeleteCacheValue object.
 // The deep copy contains the same Store and Key fields as the original,
 // and a deep copy of the Prev field, if it is not nil.
 //
-// implements journal.CacheEntry.
+// `Clone` implements journal.CacheEntry.
 //
 //nolint:nolintlint,ireturn // by design.
 func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
@@ -85,10 +85,10 @@ func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	}
 }
 
-// Revert reverts a set operation on a cache entry by setting the previous value of the entry as
+// `Revert` reverts a set operation on a cache entry by setting the previous value of the entry as
 // the current value in the cache map.
 //
-// implements journal.CacheEntry.
+// `Revert` implements journal.CacheEntry.
 func (scv *SetCacheValue) Revert() {
 	// If there was a previous value, set it as the current value in the cache map
 	if scv.Prev == nil {
@@ -108,11 +108,11 @@ func (scv *SetCacheValue) Revert() {
 	}
 }
 
-// Clone creates a deep copy of the SetCacheValue object.
+// `Clone` creates a deep copy of the SetCacheValue object.
 // The deep copy contains the same Store and Key fields as the original,
 // and a deep copy of the Prev field, if it is not nil.
 //
-// implements journal.CacheEntry.
+// `Clone` implements `journal.CacheEntry`.
 //
 //nolint:nolintlint,ireturn // by design.
 func (scv *SetCacheValue) Clone() journal.CacheEntry {
