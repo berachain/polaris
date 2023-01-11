@@ -11,7 +11,8 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+//
+//nolint:ireturn // ManagerI returns interfaces by design.
 package journal
 
 import "github.com/berachain/stargazer/types"
@@ -32,10 +33,11 @@ type ManagerI[T any] interface {
 	// `RevertToSize` reverts and discards all journal entries after and including the given size.
 	RevertToSize(newSize int)
 
-	// `ManagerCloner` implements `Cloneable`.
+	// `ManagerI` implements `Cloneable`.
 	types.Cloneable[T]
 }
 
+// Compile-time check to ensure `Manager` implements `ManagerI`.
 var _ ManagerI[*Manager] = (*Manager)(nil)
 
 // `Manager` is a struct that holds a slice of CacheEntry instances.
@@ -63,8 +65,6 @@ func (jm *Manager) Size() int {
 // `Get` returns nil if index `i` is invalid.
 //
 // `Get` implements `ManagerI`.
-//
-//nolint:nolintlint,ireturn // returns interface by design.
 func (jm *Manager) Get(i int) CacheEntry {
 	if i < 0 || i >= len(jm.journal) {
 		return nil
@@ -87,9 +87,8 @@ func (jm *Manager) RevertToSize(newSize int) {
 
 	// Discard all journal entries after and including newSize, such that now
 	// len(jm.journal) == newSize.
-
 	jm.journal = jm.journal[:newSize]
-} //nolint:nolintlint,ireturn // returns interface by design..
+}
 
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
 //
