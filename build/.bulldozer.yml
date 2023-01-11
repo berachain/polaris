@@ -55,3 +55,11 @@ merge:
   # helps to protect against merging branches which inadvertently do not have
   # required status checks.
   allow_merge_with_no_checks: false
+
+update:
+  required_statuses:
+    - "ci/circleci: lint"
+    - "ci/circleci: test-unit"
+    - "ci/circleci: test-unit-race"
+  whitelist:
+    labels: ["Automerge", "Merge me daddy"]
