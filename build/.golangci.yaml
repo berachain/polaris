@@ -174,6 +174,7 @@ linters:
     - bidichk # checks for dangerous unicode character sequences
     - bodyclose # checks whether HTTP response body is 'closed successfully
     - cyclop # checks function and package cyclomatic complexity
+    - decorder # checks declaration order and count of types, constants, variables and functions
     - dupl # tool for code clone detection
     - durationcheck # checks for two durations multiplied together
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
@@ -189,6 +190,7 @@ linters:
     - gocritic # provides diagnostics that check for bugs, performance and style issues
     - gocyclo # computes and checks the cyclomatic complexity of functions
     - godot # checks if comments end in a period
+    - goheader # checks is file header matches to pattern
     - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
     - gomnd # detects magic numbers
     # - gomoddirectives # manages the use of 'replace', 'retract', and 'excludes' directives in go.mod
@@ -208,6 +210,7 @@ linters:
     - nonamedreturns # reports all named returns
     - nosprintfhostport # checks for misuse of Sprintf to construct a host with port in a URL
     - predeclared # finds code that shadows one of Go's predeclared identifiers
+    - prealloc # [premature optimization, but can be used in some cases] finds slice declarations that could potentially be preallocated
     - promlinter # checks Prometheus metrics naming via promlint
     - reassign # checks that package variables are not reassigned
     - revive # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
@@ -223,6 +226,7 @@ linters:
     - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
     - wastedassign # finds wasted assignment statements
     - whitespace # detects leading and trailing whitespace
+    - wrapcheck # checks that errors returned from external packages are wrapped
 
     ## you may want to enable
     #- decorder # checks declaration order and count of types, constants, variables and functions
@@ -276,6 +280,8 @@ issues:
   max-same-issues: 50
 
   exclude-rules:
+    - path: "build"
+      linters: [wrapcheck]
     - source: "^//\\s*go:generate\\s"
       linters: [lll]
     - source: "(noinspection|TODO)"
