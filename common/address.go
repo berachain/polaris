@@ -16,7 +16,6 @@ package common
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.
@@ -26,7 +25,7 @@ func AccAddressToEthAddress(accAddress sdk.AccAddress) Address {
 
 // `ValAddressToEthAddress` converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
 func ValAddressToEthAddress(valAddress sdk.ValAddress) Address {
-	return common.BytesToAddress(valAddress)
+	return BytesToAddress(valAddress)
 }
 
 // `EthAddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.

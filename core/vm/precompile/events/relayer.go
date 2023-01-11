@@ -12,7 +12,7 @@ import (
 // `maxTopicsLen` is the maximum number of topics hashes allowed in an Eth log.
 const maxTopicsLen = 4
 
-// `relayer` holds an event's Eth and Cosmos metadata that is used to convert an incoming Cosmos
+// `relayer` holds an event's Cosmos and Eth metadata that is used to convert an incoming Cosmos
 // event to its corresponding Eth event log.
 type relayer struct {
 	// `address` is the Eth address which represents a Cosmos module's account address.
@@ -81,7 +81,7 @@ func (r *relayer) makeTopics(event *sdk.Event) ([]common.Hash, error) {
 	return topics[0], nil
 }
 
-// `generateData` returns the Eth log `Data` for a valid cosmos event
+// `generateData` returns the Eth log `Data` for a valid cosmos event.
 func (r *relayer) generateData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(r.nonIndexedInputs))
 	// complexity of below iteration: O(n^2), where n is the number of non-indexed args

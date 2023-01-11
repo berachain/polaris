@@ -21,9 +21,9 @@ const (
 // attribute values may require unique decodings based on their underlying string encoding.
 type AttributeValueDecoder func(attributeValue string) (ethPrimitive any, err error)
 
-// `ConvertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`
+// `ConvertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
 //
-// `ConvertSdkCoin` is a `AttributeValueDecoder`
+// `ConvertSdkCoin` is a `AttributeValueDecoder`.
 func ConvertSdkCoin(attributeValue string) (any, error) {
 	// extract the sdk.Coin from string value
 	coin, err := sdk.ParseCoinNormalized(attributeValue)
@@ -35,9 +35,9 @@ func ConvertSdkCoin(attributeValue string) (any, error) {
 }
 
 // `ConvertValAddress` converts a bech32 string representing a validator address to a
-// `common.Address`
+// `common.Address`.
 //
-// `ConvertValAddress` is a `AttributeValueDecoder`
+// `ConvertValAddress` is a `AttributeValueDecoder`.
 func ConvertValAddress(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value
 	valAddress, err := sdk.ValAddressFromBech32(attributeValue)
@@ -49,9 +49,9 @@ func ConvertValAddress(attributeValue string) (any, error) {
 }
 
 // `ConvertAccAddress` converts a bech32 string representing an account address to a
-// `common.Address`
+// `common.Address`.
 //
-// `ConvertAccAddress` is a `AttributeValueDecoder`
+// `ConvertAccAddress` is a `AttributeValueDecoder`.
 func ConvertAccAddress(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value
 	accAddress, err := sdk.AccAddressFromBech32(attributeValue)
@@ -62,9 +62,9 @@ func ConvertAccAddress(attributeValue string) (any, error) {
 	return common.AccAddressToEthAddress(accAddress), nil
 }
 
-// `ConvertCreationHeight` converts a creationHeight `string` to an `int64`
+// `ConvertCreationHeight` converts a creationHeight `string` to an `int64`.
 //
-// `ConvertCreationHeight` is a `AttributeValueDecoder`
+// `ConvertCreationHeight` is a `AttributeValueDecoder`.
 func ConvertCreationHeight(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, creationHeightBits)
 }
