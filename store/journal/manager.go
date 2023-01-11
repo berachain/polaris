@@ -14,7 +14,7 @@
 package journal
 
 import (
-	ds "github.com/berachain/stargazer/lib/ds"
+	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/types"
 )
 

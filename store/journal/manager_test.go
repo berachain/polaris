@@ -32,7 +32,7 @@ func TestJournalManager(t *testing.T) {
 }
 
 var _ = Describe("Journal", func() {
-	var jm (journal.ManagerI[*journal.Manager])
+	var jm journal.ManagerI[*journal.Manager]
 	var entries []*mock.CacheEntry
 
 	BeforeEach(func() {
