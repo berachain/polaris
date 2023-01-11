@@ -77,4 +77,10 @@ var _ = Describe("State Test", func() {
 			})
 		})
 	})
+
+	It("is cloneable", func() {
+		clone := state.Clone()
+		Expect(clone).To(Equal(state))
+		Expect(clone).NotTo(BeIdenticalTo(state))
+	})
 })

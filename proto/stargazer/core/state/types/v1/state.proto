@@ -22,7 +22,7 @@ option go_package = "github.com/berachain/stargazer/core/state/types";
 message State {
   // `key` is the stored key.
   string key = 1;
-  
+
   // `value` is the stored value for the given key.
   string value = 2;
 }
