@@ -28,7 +28,7 @@ import (
 
 func TestJournalManager(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Journal Manager Test Suite")
+	RunSpecs(t, "store/journal")
 }
 
 var _ = Describe("Journal", func() {

@@ -24,7 +24,7 @@ import (
 
 func TestUtilsPkg(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "State Suite")
+	RunSpecs(t, "core/state/utils")
 }
 
 var _ = Describe("UnsafeStrToBytes", func() {
