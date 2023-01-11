@@ -15,7 +15,7 @@
 package utils
 
 import (
-	"reflect" //#nosec: G702 // the sdk uses it so
+	"reflect" //#nosec: G702 // https://youtu.be/uq6nBigMnlg
 	"unsafe"  //#nosec: G702 // yolo
 )
 
