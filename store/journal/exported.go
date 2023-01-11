@@ -18,7 +18,9 @@ import "github.com/berachain/stargazer/types"
 
 // `CacheEntry` is an interface for journal entries.
 type CacheEntry interface {
+	// `CacheEntry` implements `Cloneable`.
 	types.Cloneable[CacheEntry]
+
 	// `Revert` undoes the changes made by the entry.
 	Revert()
 }

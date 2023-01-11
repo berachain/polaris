@@ -32,7 +32,7 @@ func TestJournalManager(t *testing.T) {
 }
 
 var _ = Describe("Journal", func() {
-	var jm *journal.Manager
+	var jm journal.ManagerI
 	var entries []*mock.CacheEntry
 
 	BeforeEach(func() {
@@ -106,7 +106,7 @@ var _ = Describe("Journal", func() {
 				})
 
 				When("the journal is cloned", func() {
-					var jm2 *journal.Manager
+					var jm2 journal.ManagerI
 					BeforeEach(func() {
 						jm2 = jm.Clone()
 					})

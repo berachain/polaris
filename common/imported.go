@@ -19,10 +19,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// ==============================================================================
-// Ethereum Address
-// ==============================================================================
-
 type (
 	Address = common.Address
 	Hash    = common.Hash
