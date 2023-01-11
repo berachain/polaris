@@ -183,7 +183,6 @@ linters:
     - exportloopref # checks for pointers to enclosing loop variables
     - forbidigo # forbids identifiers
     - funlen # tool for detection of long functions
-    - gochecknoglobals # checks that no global variables exist
     - gochecknoinits # checks that no init functions are present in Go code
     - gocognit # computes and checks the cognitive complexity of functions
     - goconst # finds repeated strings that could be replaced by a constant
@@ -276,8 +275,6 @@ issues:
   max-same-issues: 50
 
   exclude-rules:
-    - path: build/mage
-      linters: [gochecknoglobals]
     - source: "^//\\s*go:generate\\s"
       linters: [lll]
     - source: "(noinspection|TODO)"

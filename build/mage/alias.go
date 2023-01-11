@@ -30,11 +30,6 @@ var (
 	goModTidy   = mi.RunCmdV("go", "mod", "tidy")
 )
 
-// Docker Aliases.
-var (
-	dockerBuild = mi.RunCmdV("docker", "build", "--rm=false")
-)
-
 // Forge Aliases.
 var (
 	forgeBuild = mi.RunCmdV("forge", "build", "--extra-output-files", "abi")

@@ -12,13 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package journal
+package types
 
-import "github.com/berachain/stargazer/types"
-
-// `CacheEntry` is an interface for journal entries.
-type CacheEntry interface {
-	types.Cloneable[CacheEntry]
-	// `Revert` undoes the changes made by the entry.
-	Revert()
+// `Cloneable` is an interface that defines a `Clone` method.
+type Cloneable[T any] interface {
+	Clone() T
 }

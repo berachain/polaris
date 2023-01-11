@@ -12,13 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package journal
+package types_test
 
-import "github.com/berachain/stargazer/types"
+import (
+	"testing"
 
-// `CacheEntry` is an interface for journal entries.
-type CacheEntry interface {
-	types.Cloneable[CacheEntry]
-	// `Revert` undoes the changes made by the entry.
-	Revert()
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestStateTypes(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "StateTypes Test Suite")
 }

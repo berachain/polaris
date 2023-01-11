@@ -12,13 +12,30 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package journal
+package common
 
-import "github.com/berachain/stargazer/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+)
 
-// `CacheEntry` is an interface for journal entries.
-type CacheEntry interface {
-	types.Cloneable[CacheEntry]
-	// `Revert` undoes the changes made by the entry.
-	Revert()
+// ==============================================================================
+// Ethereum Address
+// ==============================================================================
+
+type (
+	Address = common.Address
+	Hash    = common.Hash
+)
+
+var (
+	BytesToHash = common.BytesToHash
+)
+
+func AccAddressToEthAddress(accAddress sdk.AccAddress) Address {
+	return common.BytesToAddress(accAddress)
+}
+
+func EthAddressToAccAddress(ethAddress Address) []byte {
+	return ethAddress.Bytes()
 }
