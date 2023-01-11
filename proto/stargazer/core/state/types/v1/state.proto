@@ -18,10 +18,11 @@ package stargazer.core.state.types.v1;
 
 option go_package = "github.com/berachain/stargazer/core/state/types";
 
-// State represents a single Storage key value pair item.
+// `State` represents a single key/value pair of evm state data.
 message State {
-  // key is the stored key
+  // `key` is the stored key.
   string key = 1;
-  // value is the stored value for the given key
+  
+  // `value` is the stored value for the given key.
   string value = 2;
 }
