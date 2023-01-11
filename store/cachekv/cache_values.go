@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// nolint: ireturn // by design.
+//nolint: ireturn // by design.
 package cachekv
 
 import "github.com/berachain/stargazer/store/journal"
@@ -86,16 +86,16 @@ func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 // implements journal.CacheEntry.
 func (scv *SetCacheValue) Revert() {
 	// If there was a previous value, set it as the current value in the cache map
-	if scv.Prev != nil {
-		scv.Store.Cache[scv.Key] = scv.Prev
-		// If the previous value was not dirty, remove the Key from the unsorted cache set
-		if !scv.Prev.dirty {
-			delete(scv.Store.UnsortedCache, scv.Key)
-		}
-	} else {
+	if scv.Prev == nil {
 		// If there was no previous value, remove the Key from the
 		// cache map and the unsorted cache set
 		delete(scv.Store.Cache, scv.Key)
+		delete(scv.Store.UnsortedCache, scv.Key)
+		return
+	}
+	scv.Store.Cache[scv.Key] = scv.Prev
+	// If the previous value was not dirty, remove the Key from the unsorted cache set
+	if !scv.Prev.dirty {
 		delete(scv.Store.UnsortedCache, scv.Key)
 	}
 }
