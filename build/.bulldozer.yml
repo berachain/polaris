@@ -1,4 +1,4 @@
-# Copyright (C) 2022, Berachain Foundation. All rights reserved.
+# Copyright (C) 2023, Berachain Foundation. All rights reserved.
 # See the file LICENSE for licensing terms.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -21,24 +21,24 @@ merge:
   # "trigger" defines the set of pull requests considered by bulldozer. If
   # the section is missing, bulldozer considers all pull requests not excluded
   # by the ignore conditions.
-  whitelist:
+  trigger:
+    # Pull requests with any of these labels (case-insensitive) are added to
+    # the trigger.
     labels: ["Automerge", "Merge me daddy"]
+
+    # Pull requests with auto merge enabled are added to the trigger.
+    auto_merge: true
 
   # "ignore" defines the set of pull request ignored by bulldozer. If the
   # section is missing, bulldozer considers all pull requests. It takes the
   # same keys as the "trigger" section.
   ignore:
-    labels: ["do not merge"]
+    labels: ["Do not merge"]
     comment_substrings: ["==DO_NOT_MERGE=="]
 
   # "method" defines the merge method. The available options are "merge",
   # "rebase", "squash", and "ff-only".
   method: squash
-
-  merge_method:
-    # "method" defines the merge method. The available options are "merge",
-    # "rebase", "squash", and "ff-only".
-    - method: squash
 
   # If true, bulldozer will delete branches after their pull requests merge.
   delete_after_merge: true
@@ -47,7 +47,3 @@ merge:
   # helps to protect against merging branches which inadvertently do not have
   # required status checks.
   allow_merge_with_no_checks: false
-
-update:
-  whitelist:
-    labels: ["Automerge", "Merge me daddy"]
