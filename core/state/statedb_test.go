@@ -171,10 +171,19 @@ var _ = Describe("StateDB", func() {
 			It("should have zero code hash", func() {
 				Expect(sdb.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(nil)))
 			})
-			It("should have code", func() {
-				sdb.SetCode(alice, []byte("code"))
-				Expect(sdb.GetCode(alice)).To(Equal([]byte("code")))
-				Expect(sdb.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash([]byte("code"))))
+			When("account has code", func() {
+				BeforeEach(func() {
+					sdb.SetCode(alice, []byte("code"))
+				})
+				It("should have code", func() {
+					Expect(sdb.GetCode(alice)).To(Equal([]byte("code")))
+					Expect(sdb.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash([]byte("code"))))
+				})
+				It("should have empty code hash", func() {
+					sdb.SetCode(alice, nil)
+					Expect(sdb.GetCode(alice)).To(BeNil())
+					Expect(sdb.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(nil)))
+				})
 			})
 		})
 	})
