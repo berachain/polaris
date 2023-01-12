@@ -77,8 +77,8 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery[0] = pe.id
 
 	// for each Ethereum indexed argument, get the corresponding Cosmos event attribute and
-	// convert to a geth compatible type. NOTE: this iteration has insignificant complexity as
-	// length of `indexedInputs` <= 3.
+	// convert to a geth compatible type. NOTE: this iteration has total complexity O(M), where
+	// M = average length of atrribute key strings, as length of `indexedInputs` <= 3.
 	for i, arg := range pe.indexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
@@ -118,8 +118,8 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
 
 	// for each Ethereum non-indexed argument, get the corresponding Cosmos event attribute and
-	// convert to a geth compatible type. NOTE: the total complexity of this iteration: O(N^2),
-	// where N is the # of non-indexed args.
+	// convert to a geth compatible type. NOTE: the total complexity of this iteration: O(M*N^2),
+	// where N is the # of non-indexed args, M = average length of atrribute key strings.
 	for i, arg := range pe.nonIndexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
