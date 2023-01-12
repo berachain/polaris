@@ -480,5 +480,25 @@ var _ = Describe("StateDB", func() {
 				Expect(sdb.GetState(alice, key)).To(Equal(common.Hash{}))
 			})
 		})
+
+		Describe("Test Refund", func() {
+			It("simple refund", func() {
+				sdb.AddRefund(10)
+				Expect(sdb.GetRefund()).To(Equal(uint64(10)))
+				sdb.AddRefund(200)
+				Expect(sdb.GetRefund()).To(Equal(uint64(210)))
+			})
+
+			It("nested refund", func() {
+				sdb.AddRefund(uint64(10))
+				sdb.SubRefund(uint64(5))
+				Expect(sdb.GetRefund()).To(Equal(uint64(5)))
+			})
+
+			It("negativ refund", func() {
+				sdb.AddRefund(5)
+				Expect(func() { sdb.SubRefund(10) }).To(Panic())
+			})
+		})
 	})
 })
