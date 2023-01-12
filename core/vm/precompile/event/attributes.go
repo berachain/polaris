@@ -20,8 +20,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/berachain/stargazer/common"
+	"github.com/berachain/stargazer/types/abi"
 )
 
 const (
@@ -31,6 +33,9 @@ const (
 	// `creationHeightBits` is the number of bits used to store `creationHeight` from the Cosmos
 	// SDK staking module, which is of type `int64`.
 	creationHeightBits = 64
+
+	// `notFound` is a default return value for searches in which an item was not found.
+	notFound = -1
 )
 
 type (
@@ -44,25 +49,33 @@ type (
 	ValueDecoders map[string]valueDecoder
 )
 
+// ==============================================================================
+// Default Attribute Value Decoder Getter
+// ==============================================================================
+
 // `getDefaultCosmosValueDecoder` returns a default Cosmos event attribute value decoder function
-// for a certain Cosmos event `attributeKey`.ß NOTE: only the event attributes of default Cosmos SDK
+// for a certain Cosmos event `attributeKey`. NOTE: only the event attributes of default Cosmos SDK
 // modules are supported by this function.
 func getDefaultCosmosValueDecoder(attributeKey string) valueDecoder {
 	return ValueDecoders{
 		sdk.AttributeKeyAmount:                  convertSdkCoin,
-		stakingtypes.AttributeKeyValidator:      convertValAddress,
-		stakingtypes.AttributeKeySrcValidator:   convertValAddress,
-		stakingtypes.AttributeKeyDstValidator:   convertValAddress,
+		stakingtypes.AttributeKeyValidator:      convertValAddressFromBech32,
+		stakingtypes.AttributeKeySrcValidator:   convertValAddressFromBech32,
+		stakingtypes.AttributeKeyDstValidator:   convertValAddressFromBech32,
 		stakingtypes.AttributeKeyCreationHeight: convertCreationHeight,
-		stakingtypes.AttributeKeyDelegator:      convertAccAddress,
-		banktypes.AttributeKeySender:            convertAccAddress,
-		banktypes.AttributeKeyRecipient:         convertAccAddress,
-		banktypes.AttributeKeySpender:           convertAccAddress,
-		banktypes.AttributeKeyReceiver:          convertAccAddress,
-		banktypes.AttributeKeyMinter:            convertAccAddress,
-		banktypes.AttributeKeyBurner:            convertAccAddress,
+		stakingtypes.AttributeKeyDelegator:      convertAccAddressFromBech32,
+		banktypes.AttributeKeySender:            convertAccAddressFromBech32,
+		banktypes.AttributeKeyRecipient:         convertAccAddressFromBech32,
+		banktypes.AttributeKeySpender:           convertAccAddressFromBech32,
+		banktypes.AttributeKeyReceiver:          convertAccAddressFromBech32,
+		banktypes.AttributeKeyMinter:            convertAccAddressFromBech32,
+		banktypes.AttributeKeyBurner:            convertAccAddressFromBech32,
 	}[attributeKey]
 }
+
+// ==============================================================================
+// Default Attribute Value Decoder Functions
+// ==============================================================================
 
 // `convertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
 //
@@ -77,11 +90,11 @@ func convertSdkCoin(attributeValue string) (any, error) {
 	return coin.Amount.BigInt(), nil
 }
 
-// `convertValAddress` converts a bech32 string representing a validator address to a
+// `convertValAddressFromBech32` converts a bech32 string representing a validator address to a
 // `common.Address`.
 //
-// `convertValAddress` is a `valueDecoder`.
-func convertValAddress(attributeValue string) (any, error) {
+// `convertValAddressFromBech32` is a `valueDecoder`.
+func convertValAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value
 	valAddress, err := sdk.ValAddressFromBech32(attributeValue)
 	if err != nil {
@@ -91,11 +104,11 @@ func convertValAddress(attributeValue string) (any, error) {
 	return common.ValAddressToEthAddress(valAddress), nil
 }
 
-// `convertAccAddress` converts a bech32 string representing an account address to a
+// `convertAccAddressFromBech32` converts a bech32 string representing an account address to a
 // `common.Address`.
 //
-// `convertAccAddress` is a `valueDecoder`.
-func convertAccAddress(attributeValue string) (any, error) {
+// `convertAccAddressFromBech32` is a `valueDecoder`.
+func convertAccAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value
 	accAddress, err := sdk.AccAddressFromBech32(attributeValue)
 	if err != nil {
@@ -111,4 +124,21 @@ func convertAccAddress(attributeValue string) (any, error) {
 // `convertCreationHeight` is a `valueDecoder`.
 func convertCreationHeight(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, creationHeightBits)
+}
+
+// ==============================================================================
+// Helpers
+// ==============================================================================
+
+// `searchAttributesForArg` searches through the given slice `attributes` for any attribute having
+// a key that matches `argName`. This function returns the index where `argName` was found or -1 if
+// `argName` was not found.
+func searchAttributesForArg(attributes *[]abci.EventAttribute, argName string) int {
+	for i, attribute := range *attributes {
+		if abi.ToMixedCase(attribute.Key) == argName {
+			return i
+		}
+	}
+	// reached end of loop, `argName` not found
+	return notFound
 }

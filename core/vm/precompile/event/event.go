@@ -23,7 +23,8 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `PrecompileEvent` represents an Ethereum event emitted by a Cosmos module's precompile contract.
+// `PrecompileEvent` contains the required data for a Cosmos Precompile contract to produce an
+// Ethereum formatted log.
 type PrecompileEvent struct {
 	// `address` is the Ethereum address which represents a Cosmos module's account address.
 	moduleAddr common.Address
@@ -75,22 +76,16 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(pe.indexedInputs)+1)
 	filterQuery[0] = pe.id
 
-	// for each Ethereum indexed argument, get the corresponding Cosmos event attribute
-	for i := 0; i < len(pe.indexedInputs); i++ {
-		input := pe.indexedInputs[i]
-		attrIdx := 0
-		for ; attrIdx < len(event.Attributes); attrIdx++ {
-			// this iteration has insignificant complexity as length of event.Attributes <= 3
-			if abi.ToMixedCase(event.Attributes[attrIdx].Key) == input.Name {
-				break
-			}
-		}
-		if attrIdx == len(event.Attributes) {
-			// could not find attribute key in event ABI
+	// for each Ethereum indexed argument, get the corresponding Cosmos event attribute and
+	// convert to a geth compatible type. NOTE: this iteration has insignificant complexity as
+	// length of `indexedInputs` <= 3.
+	for i, arg := range pe.indexedInputs {
+		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
+		if attrIdx == notFound {
 			return nil, fmt.Errorf(
 				"no attribute key found for event %s argument %s",
 				event.Type,
-				input.Name,
+				arg.Name,
 			)
 		}
 
@@ -107,7 +102,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 		filterQuery[i+1] = val
 	}
 
-	// convert all geth compatible types in the filter query to hashes
+	// convert the filter query to a slice of `Topics` hashes
 	topics, err := abi.MakeTopics(filterQuery)
 	if err != nil {
 		return nil, err
@@ -122,21 +117,16 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
 
-	// for each Ethereum non-indexed argument, get the corresponding Cosmos event attribute
-	for idx, input := range pe.nonIndexedInputs {
-		attrIdx := 0
-		for ; attrIdx < len(event.Attributes); attrIdx++ {
-			// total complexity of this iteration: O(N^2), where N is the # of non-indexed args
-			if abi.ToMixedCase(event.Attributes[attrIdx].Key) == input.Name {
-				break
-			}
-		}
-		if attrIdx == len(event.Attributes) {
-			// could not find attribute key in event ABI
+	// for each Ethereum non-indexed argument, get the corresponding Cosmos event attribute and
+	// convert to a geth compatible type. NOTE: the total complexity of this iteration: O(N^2),
+	// where N is the # of non-indexed args.
+	for i, arg := range pe.nonIndexedInputs {
+		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
+		if attrIdx == notFound {
 			return nil, fmt.Errorf(
 				"no attribute key found for event %s argument %s",
 				event.Type,
-				input.Name,
+				arg.Name,
 			)
 		}
 
@@ -150,7 +140,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		attrVals[idx] = val
+		attrVals[i] = val
 	}
 
 	// pack the Cosmos event's attribute values into bytes
@@ -179,7 +169,7 @@ func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 func (pe *PrecompileEvent) getValueDecoder(attrKey string) (valueDecoder, error) {
 	// try custom precompile event attributes
 	if pe.customValueDecoders != nil {
-		if valueDecoder, ok := pe.customValueDecoders[attrKey]; ok {
+		if valueDecoder := pe.customValueDecoders[attrKey]; valueDecoder != nil {
 			return valueDecoder, nil
 		}
 	}
