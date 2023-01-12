@@ -50,32 +50,26 @@ var _ = Describe("StateDB", func() {
 		AfterEach(func() {
 			Expect(sdb.GetSavedErr()).To(BeNil())
 		})
-
 		It("should create account", func() {
 			sdb.CreateAccount(alice)
 			Expect(sdb.Exist(alice)).To(BeTrue())
 		})
-
 	})
 
 	Describe("TestBalance", func() {
-
 		It("should have start with zero balance", func() {
 			Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
 		})
-
 		Context("TestAddBalance", func() {
 			It("should be able to add zero", func() {
 				Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
 				sdb.AddBalance(alice, new(big.Int))
 				Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
 			})
-
 			It("should have 100 balance", func() {
 				sdb.AddBalance(alice, big.NewInt(100))
 				Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(100)))
 			})
-
 			It("should panic if using negative value", func() {
 				Expect(func() {
 					sdb.AddBalance(alice, big.NewInt(-100))
@@ -356,23 +350,19 @@ var _ = Describe("StateDB", func() {
 							common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
 					}
 				})
-
 				When("alice commits suicide", func() {
 					BeforeEach(func() {
 						Expect(sdb.Suicide(alice)).To(BeTrue())
 						Expect(sdb.HasSuicided(alice)).To(BeTrue())
 					})
-
 					It("alice should be marked as suicidal, but not bob", func() {
 						Expect(sdb.HasSuicided(alice)).To(BeTrue())
 						Expect(sdb.HasSuicided(bob)).To(BeFalse())
 					})
-
 					It("alice should have her balance set to 0", func() {
 						Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
 						Expect(sdb.GetBalance(bob)).To(Equal(initialBobBal))
 					})
-
 					It("both alice and bob should have their code and state untouched", func() {
 						Expect(sdb.GetCode(alice)).To(Equal(aliceCode))
 						Expect(sdb.GetCode(bob)).To(Equal(bobCode))
@@ -388,12 +378,10 @@ var _ = Describe("StateDB", func() {
 								To(Equal(common.BytesToHash([]byte(fmt.Sprintf("value%d", i)))))
 						}
 					})
-
 					When("commit is called", func() {
 						BeforeEach(func() {
 							_ = sdb.Commit()
 						})
-
 						It("alice should have her code and state wiped, but not bob", func() {
 							Expect(sdb.GetCode(alice)).To(BeNil())
 							Expect(sdb.GetCode(bob)).To(Equal(bobCode))
@@ -439,7 +427,6 @@ var _ = Describe("StateDB", func() {
 					sdb.AddBalance(alice, big.NewInt(56))
 					sdb.SetNonce(alice, 59)
 				})
-
 				It("accidental override account", func() {
 					// override
 					sdb.CreateAccount(alice)
@@ -639,13 +626,11 @@ var _ = Describe("StateDB", func() {
 							sdb.SetState(alice, key, common.Hash{2})
 							revision2 = sdb.Snapshot()
 						})
-
 						When("we revert to snapshot ", (func() {
 							It("revision 2", func() {
 								sdb.RevertToSnapshot(revision2)
 								Expect(sdb.GetState(alice, key)).To(Equal(common.Hash{2}))
 							})
-
 							It("revision 1", func() {
 								sdb.RevertToSnapshot(revision)
 								Expect(sdb.GetState(alice, key)).To(Equal(value))
@@ -653,7 +638,6 @@ var _ = Describe("StateDB", func() {
 						}))
 					})
 				})
-
 				When("we revert to an invalid snapshot", func() {
 					It("should panic", func() {
 						Expect(func() {
