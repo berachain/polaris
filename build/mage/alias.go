@@ -25,7 +25,7 @@ var (
 	goTest          = mi.RunCmdV("go", "test", "-mod=readonly")
 	ginkgoTest      = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
 	ginkgoCoverArgs = []string{"--junit-report", "out.xml", "--cover",
-		"--coverprofile", "testUnitCover.txt", "--covermode", "atomic"}
+		"--coverprofile", "coverage-testUnitCover.txt", "--covermode", "atomic"}
 	goGenerate  = mi.RunCmdV("go", "generate")
 	goModVerify = mi.RunCmdV("go", "mod", "verify")
 	goModTidy   = mi.RunCmdV("go", "mod", "tidy")
