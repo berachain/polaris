@@ -199,7 +199,7 @@ var _ = Describe("StateDB", func() {
 		})
 	})
 
-	Describe("Test State", func() {
+	Describe("TestState", func() {
 		It("should have empty state", func() {
 			Expect(sdb.GetState(alice, common.Hash{3})).To(Equal(common.Hash{}))
 		})
@@ -561,6 +561,95 @@ var _ = Describe("StateDB", func() {
 						Expect(logs[1].BlockHash).To(Equal(blockHash))
 						Expect(logs[1].Index).To(Equal(uint(1)))
 						Expect(logs[1].Removed).To(BeFalse())
+					})
+				})
+			})
+		})
+
+		Describe("TestSavedErr", func() {
+			When("if we see an error", func() {
+				It("should have an error", func() {
+					sdb.TransferBalance(alice, bob, big.NewInt(100))
+					Expect(sdb.GetSavedErr()).To(HaveOccurred())
+				})
+			})
+
+		})
+
+		Describe("TestRevertSnapshot", func() {
+			key := common.BytesToHash([]byte("key"))
+			value := common.BytesToHash([]byte("value"))
+
+			When("We make a bunch of arbitrary changes", func() {
+				BeforeEach(func() {
+					sdb.SetNonce(alice, 1)
+					sdb.AddBalance(alice, big.NewInt(100))
+					sdb.SetCode(alice, []byte("hello world"))
+					sdb.SetState(alice, key, value)
+					sdb.SetNonce(bob, 1)
+				})
+				When("we take a snapshot", func() {
+					var revision int
+					BeforeEach(func() {
+						revision = sdb.Snapshot()
+					})
+					When("we do more changes", func() {
+						AfterEach(func() {
+							sdb.RevertToSnapshot(revision)
+							Expect(sdb.GetNonce(alice)).To(Equal(uint64(1)))
+							Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(100)))
+							Expect(sdb.GetCode(alice)).To(Equal([]byte("hello world")))
+							Expect(sdb.GetState(alice, key)).To(Equal(value))
+							Expect(sdb.GetNonce(bob)).To(Equal(uint64(1)))
+						})
+
+						It("if we change balance", func() {
+							sdb.AddBalance(alice, big.NewInt(100))
+						})
+
+						It("if we change nonce", func() {
+							sdb.SetNonce(alice, 2)
+						})
+
+						It("if we change code", func() {
+							sdb.SetCode(alice, []byte("goodbye world"))
+						})
+
+						It("if we change state", func() {
+							sdb.SetState(alice, key, common.Hash{})
+						})
+
+						It("if we change nonce of another account", func() {
+							sdb.SetNonce(bob, 2)
+						})
+					})
+
+					When("we make a nested snapshot", func() {
+						var revision2 int
+						BeforeEach(func() {
+							sdb.SetState(alice, key, common.Hash{2})
+							revision2 = sdb.Snapshot()
+						})
+
+						When("we revert to snapshot ", (func() {
+							It("revision 2", func() {
+								sdb.RevertToSnapshot(revision2)
+								Expect(sdb.GetState(alice, key)).To(Equal(common.Hash{2}))
+							})
+
+							It("revision 1", func() {
+								sdb.RevertToSnapshot(revision)
+								Expect(sdb.GetState(alice, key)).To(Equal(value))
+							})
+						}))
+					})
+				})
+
+				When("we revert to an invalid snapshot", func() {
+					It("should panic", func() {
+						Expect(func() {
+							sdb.RevertToSnapshot(100)
+						}).To(Panic())
 					})
 				})
 			})
