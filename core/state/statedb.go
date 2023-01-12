@@ -40,44 +40,8 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
-// ExtStateDB defines an extension to the interface provided by the go-ethereum codebase to
-// support additional state transition functionalities. In particular it supports getting the
-// cosmos sdk context for natively running stateful precompiled contracts.
-type ExtStateDB interface {
-	GethStateDB
+var _ StargazerStateDB = (*StateDB)(nil)
 
-	// TransferBalance transfers the balance from one account to another
-	TransferBalance(common.Address, common.Address, *big.Int)
-
-	// GetSavedErr returns the error saved in the statedb
-	GetSavedErr() error
-
-	// GetLogs returns the logs generated during the transaction
-	Logs() []*coretypes.Log
-
-	// Commit writes the state to the underlying multi-store
-	Commit() error
-}
-
-type IntraBlockStateDB interface {
-	ExtStateDB
-
-	// PrepareForTransition prepares the statedb for a new transition
-	// by setting the block hash, tx hash, tx index and tx log index.
-	PrepareForTransition(common.Hash, common.Hash, uint, uint)
-
-	// Reset resets the statedb to the initial state.
-	Reset(sdk.Context)
-}
-
-var (
-	_ IntraBlockStateDB = (*StateDB)(nil)
-)
-
-// Welcome to the StateDB implementation. This is a wrapper around a cachemulti.Store
-// so that precompiles querying Eth-modified state can directly read from the statedb
-// objects. It adheres to the Geth vm.StateDB and Cosmos MultiStore interfaces, which allows it
-// to be used as a MultiStore in the Cosmos SDK context.
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
 //
@@ -113,8 +77,8 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	ethStore cachekv.StateDBCacheKVStore
 
 	// keepers used for balance and account information.
-	ak AccountKeeper
-	bk BankKeeper
+	ak types.AccountKeeper
+	bk types.BankKeeper
 
 	// DB error.
 	// State objects are used by the consensus core and VM which are
@@ -153,8 +117,8 @@ type StateDB struct { //nolint: revive // we like the vibe.
 // returns a *StateDB using the MultiStore belonging to ctx.
 func NewStateDB(
 	ctx sdk.Context,
-	ak AccountKeeper,
-	bk BankKeeper,
+	ak types.AccountKeeper,
+	bk types.BankKeeper,
 	storeKey storetypes.StoreKey,
 	evmDenom string,
 ) *StateDB {
@@ -597,11 +561,7 @@ func (sdb *StateDB) Commit() error {
 	return nil
 }
 
-// =============================================================================
-// ExtStateDB
-// =============================================================================
-
-// `GetSavedErr` implements `ExtStateDB`
+// `GetSavedErr` implements `StargazerStateDB`
 // Any errors that pop up during store operations should be checked here
 // called upon the conclusion.
 func (sdb *StateDB) GetSavedErr() error {

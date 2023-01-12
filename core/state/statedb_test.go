@@ -36,8 +36,8 @@ var alice = testutil.Alice
 var bob = testutil.Bob
 
 var _ = Describe("StateDB", func() {
-	var ak state.AccountKeeper
-	var bk state.BankKeeper
+	var ak types.AccountKeeper
+	var bk types.BankKeeper
 	var ctx sdk.Context
 	var sdb *state.StateDB
 
