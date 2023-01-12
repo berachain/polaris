@@ -15,6 +15,7 @@
 package precompile
 
 import (
+	"github.com/berachain/stargazer/core/vm/precompile/event"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -29,4 +30,10 @@ type HasEvents interface {
 	// geth abi `Event` structs. Note: this can be directly loaded from the `Events` field of a
 	// geth ABI struct, which is built from a solidity library, interface or contract.
 	ABIEvents() map[string]abi.Event
+}
+
+// `EventHasCustomAttributes` TODO: explain
+type EventHasCustomAttributes interface {
+	// `CustomValueDecoders` TODO: explain
+	CustomValueDecoders() event.ValueDecoders
 }

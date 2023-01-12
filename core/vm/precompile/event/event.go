@@ -37,22 +37,28 @@ type PrecompileEvent struct {
 	// `nonIndexedInputs` holds an Ethereum event's non-indexed arguments, emitted as event data.
 	nonIndexedInputs abi.Arguments
 
-	// `valueDecoders` is a map of Cosmos attribute keys to attribute value decoder functions.
-	valueDecoders map[attributeKey]attributeValueDecoder
+	// `customValueDecoders` is a map of Cosmos attribute keys to attribute value decoder
+	// functions for custom modules.
+	customValueDecoders ValueDecoders
 }
 
-// `NewPrecompileEvent` returns a new `PrecompileEvent` with the given `moduleAddress`, `abiEvent`.
+// `NewPrecompileEvent` returns a new `PrecompileEvent` with the given `moduleAddress`, `abiEvent`,
+// and optional `customValueDecoders`.
 func NewPrecompileEvent(
 	moduleAddr common.Address,
 	abiEvent *abi.Event,
+	customValueDecoders ...ValueDecoders,
 ) *PrecompileEvent {
-	return &PrecompileEvent{
+	pe := &PrecompileEvent{
 		moduleAddr:       moduleAddr,
 		id:               abiEvent.ID,
 		indexedInputs:    abi.GetIndexed(abiEvent.Inputs),
 		nonIndexedInputs: abiEvent.Inputs.NonIndexed(),
-		// valueDecoders:    valueDecoders,
 	}
+	if len(customValueDecoders) > 0 {
+		pe.customValueDecoders = customValueDecoders[0]
+	}
+	return pe
 }
 
 // `ModuleAddress` returns the Ethereum address corresponding to a PrecompileEvent's Cosmos module.
@@ -81,16 +87,13 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 				input.Name,
 			)
 		}
-		// convert attribute value (string) to common.Hash
-		attribute := &event.Attributes[attrIdx]
-		valueDecoder, ok := pe.valueDecoders[attributeKey(attribute.Key)]
-		if !ok {
-			return nil, fmt.Errorf(
-				"attribute for key %s is not mapped to a value decoder",
-				attribute.Key,
-			)
+		// convert attr value (string) to common.Hash
+		attr := &event.Attributes[attrIdx]
+		valueDecoder, err := pe.getValueDecoder(attributeKey(attr.Key))
+		if err != nil {
+			return nil, err
 		}
-		val, err := valueDecoder(attribute.Value)
+		val, err := valueDecoder(attr.Value)
 		if err != nil {
 			return nil, err
 		}
@@ -124,15 +127,12 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 			)
 		}
 		// convert each attribute value to geth type
-		attribute := event.Attributes[attrIdx]
-		valueDecoder, ok := pe.valueDecoders[attributeKey(attribute.Key)]
-		if !ok {
-			return nil, fmt.Errorf(
-				"attribute for key %s is not mapped to a value decoder",
-				attribute.Key,
-			)
+		attr := event.Attributes[attrIdx]
+		valueDecoder, err := pe.getValueDecoder(attributeKey(attr.Key))
+		if err != nil {
+			return nil, err
 		}
-		val, err := valueDecoder(attribute.Value)
+		val, err := valueDecoder(attr.Value)
 		if err != nil {
 			return nil, err
 		}
@@ -157,4 +157,24 @@ func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 		)
 	}
 	return nil
+}
+
+// `getValueDecoder` TODO: explain
+func (pe *PrecompileEvent) getValueDecoder(attrKey attributeKey) (attributeValueDecoder, error) {
+	// try custom precompile event attributes
+	if pe.customValueDecoders != nil {
+		if valueDecoder, ok := pe.customValueDecoders[attrKey]; ok {
+			return valueDecoder, nil
+		}
+	}
+
+	// try default Cosmos SDK event attributes
+	valueDecoder, ok := defaultCosmosAttributes[attrKey]
+	if !ok {
+		return nil, fmt.Errorf(
+			"attribute for key %s is not mapped to a value decoder",
+			attrKey,
+		)
+	}
+	return valueDecoder, nil
 }
