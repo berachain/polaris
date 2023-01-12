@@ -175,7 +175,7 @@ func (pe *PrecompileEvent) getValueDecoder(attrKey string) (valueDecoder, error)
 	}
 
 	// try default Cosmos SDK event attributes
-	decode := getDefaultCosmosValueDecoder(attrKey)
+	decode := defaultCosmosValueDecoders[attrKey]
 	if decode != nil {
 		return decode, nil
 	}

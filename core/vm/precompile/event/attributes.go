@@ -52,24 +52,22 @@ type (
 // Default Attribute Value Decoder Getter
 // ==============================================================================
 
-// `getDefaultCosmosValueDecoder` returns a default Cosmos event attribute value decoder function
-// for a certain Cosmos event `attributeKey`. NOTE: only the event attributes of default Cosmos SDK
-// modules are supported by this function.
-func getDefaultCosmosValueDecoder(attributeKey string) valueDecoder {
-	return ValueDecoders{
-		sdk.AttributeKeyAmount:                  ConvertSdkCoin,
-		stakingtypes.AttributeKeyValidator:      ConvertValAddressFromBech32,
-		stakingtypes.AttributeKeySrcValidator:   ConvertValAddressFromBech32,
-		stakingtypes.AttributeKeyDstValidator:   ConvertValAddressFromBech32,
-		stakingtypes.AttributeKeyCreationHeight: ConvertInt64,
-		stakingtypes.AttributeKeyDelegator:      ConvertAccAddressFromBech32,
-		banktypes.AttributeKeySender:            ConvertAccAddressFromBech32,
-		banktypes.AttributeKeyRecipient:         ConvertAccAddressFromBech32,
-		banktypes.AttributeKeySpender:           ConvertAccAddressFromBech32,
-		banktypes.AttributeKeyReceiver:          ConvertAccAddressFromBech32,
-		banktypes.AttributeKeyMinter:            ConvertAccAddressFromBech32,
-		banktypes.AttributeKeyBurner:            ConvertAccAddressFromBech32,
-	}[attributeKey]
+// `defaultCosmosValueDecoders` is a map of default Cosmos event attribute value decoder functions
+// for the default Cosmos SDK event `attributeKey`s. NOTE: only the event attributes of default
+// Cosmos SDK modules (bank, staking) are supported by this function.
+var defaultCosmosValueDecoders = ValueDecoders{
+	sdk.AttributeKeyAmount:                  ConvertSdkCoin,
+	stakingtypes.AttributeKeyValidator:      ConvertValAddressFromBech32,
+	stakingtypes.AttributeKeySrcValidator:   ConvertValAddressFromBech32,
+	stakingtypes.AttributeKeyDstValidator:   ConvertValAddressFromBech32,
+	stakingtypes.AttributeKeyCreationHeight: ConvertInt64,
+	stakingtypes.AttributeKeyDelegator:      ConvertAccAddressFromBech32,
+	banktypes.AttributeKeySender:            ConvertAccAddressFromBech32,
+	banktypes.AttributeKeyRecipient:         ConvertAccAddressFromBech32,
+	banktypes.AttributeKeySpender:           ConvertAccAddressFromBech32,
+	banktypes.AttributeKeyReceiver:          ConvertAccAddressFromBech32,
+	banktypes.AttributeKeyMinter:            ConvertAccAddressFromBech32,
+	banktypes.AttributeKeyBurner:            ConvertAccAddressFromBech32,
 }
 
 // ==============================================================================

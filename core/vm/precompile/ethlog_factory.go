@@ -51,25 +51,17 @@ func NewEthereumLogFactory() *EthereumLogFactory {
 // Setter
 // ==============================================================================
 
-// `RegisterModule` registers a Cosmos module's precompile events.
-func (pef *EthereumLogFactory) RegisterModule(
+// `RegisterEvent` registers a Cosmos module's precompile event.
+func (pef *EthereumLogFactory) RegisterEvent(
 	moduleEthAddress common.Address,
-	contract HasEvents,
+	abiEvent abi.Event,
+	customModuleAttributes event.ValueDecoders,
 ) {
-	// if contract is of a custom Cosmos module, load its custom attributes' value decoders
-	var customModuleAttributes event.ValueDecoders
-	if customModule, ok := contract.(HasCustomModuleEvents); ok {
-		customModuleAttributes = customModule.CustomValueDecoders()
-	}
-
-	// for each event in the contract's ABI, store the Ethereum to Cosmos precompile event data
-	for eventName, abiEvent := range contract.ABIEvents() {
-		pef.precompileEvents[EventType(eventName)] = event.NewPrecompileEvent(
-			moduleEthAddress,
-			abiEvent,
-			customModuleAttributes,
-		)
-	}
+	pef.precompileEvents[EventType(abiEvent.Name)] = event.NewPrecompileEvent(
+		moduleEthAddress,
+		abiEvent,
+		customModuleAttributes,
+	)
 }
 
 // ==============================================================================

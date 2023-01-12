@@ -48,7 +48,11 @@ var _ = Describe("Events Registry", func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 		factory = precompile.NewEthereumLogFactory()
 		mockCosmosPrecompile = &mockHasEvents{}
-		factory.RegisterModule(stakingModuleAddr, mockCosmosPrecompile)
+		factory.RegisterEvent(
+			stakingModuleAddr,
+			mockCosmosPrecompile.ABIEvents()["CancelUnbondingDelegation"],
+			nil,
+		)
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))
 		amt = sdk.NewCoin("denom", sdk.NewInt(1))
