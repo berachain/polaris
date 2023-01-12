@@ -1,4 +1,4 @@
-// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Copyright (C) 2022, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -14,4 +14,471 @@
 
 package state_test
 
-// test codecov
+import (
+	"errors"
+	"fmt"
+	"math/big"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"github.com/berachain/stargazer/common"
+	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/core/state/types"
+	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/testutil"
+)
+
+var alice = testutil.Alice
+var bob = testutil.Bob
+
+var _ = Describe("StateDB", func() {
+	var ak state.AccountKeeper
+	var bk state.BankKeeper
+	var ctx sdk.Context
+	var sdb *state.StateDB
+
+	BeforeEach(func() {
+		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
+		sdb = state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "abera")
+	})
+
+	Describe("TestCreateAccount", func() {
+		AfterEach(func() {
+			Expect(sdb.GetSavedErr()).To(BeNil())
+		})
+
+		It("should create account", func() {
+			sdb.CreateAccount(alice)
+			Expect(sdb.Exist(alice)).To(BeTrue())
+		})
+
+	})
+
+	Describe("TestBalance", func() {
+
+		It("should have start with zero balance", func() {
+			Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+		})
+
+		Context("TestAddBalance", func() {
+			It("should be able to add zero", func() {
+				Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+				sdb.AddBalance(alice, new(big.Int))
+				Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+			})
+
+			It("should have 100 balance", func() {
+				sdb.AddBalance(alice, big.NewInt(100))
+				Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(100)))
+			})
+
+			It("should panic if using negative value", func() {
+				Expect(func() {
+					sdb.AddBalance(alice, big.NewInt(-100))
+				}).To(Panic())
+			})
+		})
+
+		Context("TestSubBalance", func() {
+			It("should not set balance to negative value", func() {
+				sdb.SubBalance(alice, big.NewInt(100))
+				Expect(sdb.GetSavedErr()).To(HaveOccurred())
+				Expect(errors.Unwrap(errors.Unwrap(sdb.GetSavedErr()))).To(
+					Equal(sdkerrors.ErrInsufficientFunds))
+				Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+			})
+			It("should panic if using negative value", func() {
+				Expect(func() {
+					sdb.SubBalance(alice, big.NewInt(-100))
+				}).To(Panic())
+			})
+		})
+
+		It("should handle complex balance updates", func() {
+			// Initial balance for alice should be 0
+			Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+
+			// Add some balance to alice
+			sdb.AddBalance(alice, big.NewInt(100))
+			Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(100)))
+
+			// Subtract some balance from alice
+			sdb.SubBalance(alice, big.NewInt(50))
+			Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(50)))
+
+			// Add some balance to alice
+			sdb.AddBalance(alice, big.NewInt(100))
+			Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(150)))
+
+			// Subtract some balance from alice
+			sdb.SubBalance(alice, big.NewInt(200))
+			Expect(sdb.GetSavedErr()).To(HaveOccurred())
+			Expect(errors.Unwrap(errors.Unwrap(sdb.GetSavedErr()))).To(
+				Equal(sdkerrors.ErrInsufficientFunds))
+			Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(150)))
+
+		})
+	})
+
+	Describe("TestNonce", func() {
+		When("account exists", func() {
+			BeforeEach(func() {
+				sdb.CreateAccount(alice)
+			})
+			It("should have start with zero nonce", func() {
+				Expect(sdb.GetNonce(alice)).To(Equal(uint64(0)))
+			})
+			It("should have 100 nonce", func() {
+				sdb.SetNonce(alice, 100)
+				Expect(sdb.GetNonce(alice)).To(Equal(uint64(100)))
+			})
+		})
+		When("account does not exist", func() {
+			It("should have start with zero nonce", func() {
+				Expect(sdb.GetNonce(alice)).To(Equal(uint64(0)))
+			})
+
+			It("should have 100 nonce", func() {
+				sdb.SetNonce(alice, 100)
+				Expect(sdb.GetNonce(alice)).To(Equal(uint64(100)))
+			})
+		})
+	})
+
+	Describe("TestCode & CodeHash", func() {
+		When("account does not exist", func() {
+			It("should have empty code hash", func() {
+				Expect(sdb.GetCodeHash(alice)).To(Equal(common.Hash{}))
+			})
+			It("should not have code", func() { // ensure account exists
+				Expect(sdb.GetCode(alice)).To(BeNil())
+				Expect(sdb.GetCodeHash(alice)).To(Equal(common.Hash{}))
+			})
+			It("cannot set code", func() { // ensure account exists
+				sdb.SetCode(alice, []byte("code"))
+				Expect(sdb.GetCode(alice)).To(BeNil())
+				Expect(sdb.GetCodeHash(alice)).To(Equal(common.Hash{}))
+			})
+		})
+		When("account exists", func() {
+			BeforeEach(func() {
+				sdb.CreateAccount(alice)
+			})
+			It("should have zero code hash", func() {
+				Expect(sdb.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(nil)))
+			})
+			It("should have code", func() {
+				sdb.SetCode(alice, []byte("code"))
+				Expect(sdb.GetCode(alice)).To(Equal([]byte("code")))
+				Expect(sdb.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash([]byte("code"))))
+			})
+		})
+	})
+
+	Describe("TestRefund", func() {
+		It("should have 0 refund", func() {
+			Expect(sdb.GetRefund()).To(Equal(uint64(0)))
+		})
+		It("should have 100 refund", func() {
+			sdb.AddRefund(100)
+			Expect(sdb.GetRefund()).To(Equal(uint64(100)))
+		})
+		It("should have 0 refund", func() {
+			sdb.AddRefund(100)
+			sdb.SubRefund(100)
+			Expect(sdb.GetRefund()).To(Equal(uint64(0)))
+		})
+		It("should panic and over refund", func() {
+			Expect(func() {
+				sdb.SubRefund(200)
+			}).To(Panic())
+		})
+	})
+
+	Describe("Test State", func() {
+		It("should have empty state", func() {
+			Expect(sdb.GetState(alice, common.Hash{3})).To(Equal(common.Hash{}))
+		})
+		When("set basic state", func() {
+			BeforeEach(func() {
+				sdb.SetState(alice, common.Hash{3}, common.Hash{1})
+			})
+
+			It("should have state", func() {
+				Expect(sdb.GetState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
+			})
+
+			It("should have state changed", func() {
+				sdb.SetState(alice, common.Hash{3}, common.Hash{2})
+				Expect(sdb.GetState(alice, common.Hash{3})).To(Equal(common.Hash{2}))
+				Expect(sdb.GetCommittedState(alice, common.Hash{3})).To(Equal(common.Hash{}))
+			})
+
+			When("state is committed", func() {
+				BeforeEach(func() {
+					Expect(sdb.Commit()).Should(BeNil())
+					It("should have committed state", func() {
+						Expect(sdb.GetCommittedState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
+					})
+					It("should maintain committed state", func() {
+						sdb.SetState(alice, common.Hash{3}, common.Hash{4})
+						Expect(sdb.GetCommittedState(alice, common.Hash{3})).
+							To(Equal(common.Hash{1}))
+						Expect(sdb.GetState(alice, common.Hash{3})).To(Equal(common.Hash{4}))
+					})
+				})
+			})
+		})
+
+		Describe("TestExist", func() {
+			It("should not exist", func() {
+				Expect(sdb.Exist(alice)).To(BeFalse())
+			})
+			When("account is created", func() {
+				BeforeEach(func() {
+					sdb.CreateAccount(alice)
+				})
+				It("should exist", func() {
+					Expect(sdb.Exist(alice)).To(BeTrue())
+				})
+				When("suicided", func() {
+					BeforeEach(func() {
+						// Only contracts can be suicided
+						sdb.SetCode(alice, []byte("code"))
+						Expect(sdb.Suicide(alice)).To(BeTrue())
+					})
+					It("should still exist", func() {
+						Expect(sdb.Exist(alice)).To(BeTrue())
+					})
+					When("commit", func() {
+						BeforeEach(func() {
+							Expect(sdb.Commit()).To(BeNil())
+						})
+						It("should not exist", func() {
+							Expect(sdb.Exist(alice)).To(BeFalse())
+						})
+					})
+				})
+			})
+		})
+
+		Describe("TestReset", func() {
+			BeforeEach(func() {
+				sdb.AddRefund(1000)
+				sdb.AddLog(&coretypes.Log{})
+				sdb.PrepareForTransition(common.Hash{1}, common.Hash{2}, 3, 4)
+
+				sdb.CreateAccount(alice)
+				sdb.SetCode(alice, []byte("code"))
+				sdb.Suicide(alice)
+			})
+			It("should have reset state", func() {
+				sdb.Reset(ctx)
+				Expect(sdb.GetNonce(alice)).To(Equal(uint64(0)))
+				Expect(sdb.Logs()).To(BeNil())
+				Expect(sdb.GetRefund()).To(Equal(uint64(0)))
+				Expect(sdb.GetSavedErr()).To(BeNil())
+				Expect(sdb.HasSuicided(alice)).To(BeFalse())
+				// todo check the txhash and blockhash stuff
+				Expect(sdb, state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "bera"))
+			})
+		})
+
+		Describe("TestEmpty", func() {
+			When("account does not exist", func() {
+				It("should return true", func() {
+					Expect(sdb.Empty(alice)).To(BeTrue())
+				})
+			})
+			When("account exists", func() {
+				BeforeEach(func() {
+					sdb.CreateAccount(alice)
+				})
+				It("new account", func() {
+					Expect(sdb.Empty(alice)).To(BeTrue())
+				})
+				It("has a balance", func() {
+					sdb.AddBalance(alice, big.NewInt(1))
+					Expect(sdb.Empty(alice)).To(BeFalse())
+				})
+				It("has a nonce", func() {
+					sdb.SetNonce(alice, 1)
+					Expect(sdb.Empty(alice)).To(BeFalse())
+				})
+				It("has code", func() {
+					sdb.SetCode(alice, []byte{0x69})
+					Expect(sdb.Empty(alice)).To(BeFalse())
+				})
+			})
+		})
+
+		Describe("TestSuicide", func() {
+			BeforeEach(func() {
+				sdb.CreateAccount(alice)
+			})
+			It("cannot suicide eoa", func() {
+				Expect(sdb.Suicide(alice)).To(BeFalse())
+				Expect(sdb.HasSuicided(alice)).To(BeFalse())
+			})
+
+			initialAliceBal := big.NewInt(69)
+			initialBobBal := big.NewInt(420)
+			aliceCode := []byte("alicecode")
+			bobCode := []byte("bobcode")
+
+			When("address has code and balance", func() {
+				BeforeEach(func() {
+					sdb.SetCode(alice, aliceCode)
+					sdb.SetCode(bob, bobCode)
+					sdb.AddBalance(alice, initialAliceBal)
+					sdb.AddBalance(bob, initialBobBal)
+					// Give Alice some state
+					for i := 0; i < 5; i++ {
+						sdb.SetState(alice, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))),
+							common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
+					}
+					// Give Bob some state
+					for i := 5; i < 15; i++ {
+						sdb.SetState(bob, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))),
+							common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
+					}
+				})
+
+				When("alice commits suicide", func() {
+					BeforeEach(func() {
+						Expect(sdb.Suicide(alice)).To(BeTrue())
+						Expect(sdb.HasSuicided(alice)).To(BeTrue())
+					})
+
+					It("alice should be marked as suicidal, but not bob", func() {
+						Expect(sdb.HasSuicided(alice)).To(BeTrue())
+						Expect(sdb.HasSuicided(bob)).To(BeFalse())
+					})
+
+					It("alice should have her balance set to 0", func() {
+						Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+						Expect(sdb.GetBalance(bob)).To(Equal(initialBobBal))
+					})
+
+					It("both alice and bob should have their code and state untouched", func() {
+						Expect(sdb.GetCode(alice)).To(Equal(aliceCode))
+						Expect(sdb.GetCode(bob)).To(Equal(bobCode))
+						for i := 0; i < 5; i++ {
+							Expect(sdb.GetState(alice,
+								common.BytesToHash([]byte(fmt.Sprintf("key%d", i))))).
+								To(Equal(common.BytesToHash([]byte(fmt.Sprintf("value%d", i)))))
+						}
+
+						for i := 5; i < 15; i++ {
+							Expect(sdb.GetState(bob,
+								common.BytesToHash([]byte(fmt.Sprintf("key%d", i))))).
+								To(Equal(common.BytesToHash([]byte(fmt.Sprintf("value%d", i)))))
+						}
+					})
+
+					When("commit is called", func() {
+						BeforeEach(func() {
+							_ = sdb.Commit()
+						})
+
+						It("alice should have her code and state wiped, but not bob", func() {
+							Expect(sdb.GetCode(alice)).To(BeNil())
+							Expect(sdb.GetCode(bob)).To(Equal(bobCode))
+							var aliceStorage types.Storage
+							err := sdb.ForEachStorage(alice,
+								func(key, value common.Hash) bool {
+									aliceStorage = append(aliceStorage,
+										types.NewState(key, value))
+									return true
+								})
+							Expect(err).To(BeNil())
+							Expect(len(aliceStorage)).To(BeZero())
+
+							var bobStorage types.Storage
+							err = sdb.ForEachStorage(bob,
+								func(key, value common.Hash) bool {
+									bobStorage = append(bobStorage, types.NewState(key, value))
+									return true
+								})
+							Expect(err).To(BeNil())
+							Expect(len(bobStorage)).To(Equal(10))
+						})
+					})
+
+				})
+			})
+		})
+		Describe("TestAccount", func() {
+			It("account does not exist", func() {
+				Expect(sdb.Exist(alice)).To(BeFalse())
+				Expect(sdb.Empty(alice)).To(BeTrue())
+				Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+				Expect(sdb.GetNonce(alice)).To(BeZero())
+				Expect(sdb.GetCodeHash(alice)).To(Equal(common.Hash{}))
+				Expect(sdb.GetCode(alice)).To(BeNil())
+				Expect(sdb.GetCodeSize(alice)).To(BeZero())
+				Expect(sdb.GetState(alice, common.Hash{})).To(Equal(common.Hash{}))
+				Expect(sdb.GetRefund()).To(BeZero())
+				Expect(sdb.GetCommittedState(alice, common.Hash{})).To(Equal(common.Hash{}))
+			})
+			When("account exists", func() {
+				BeforeEach(func() {
+					sdb.AddBalance(alice, big.NewInt(56))
+					sdb.SetNonce(alice, 59)
+				})
+
+				It("accidental override account", func() {
+					// override
+					sdb.CreateAccount(alice)
+
+					// check balance is not reset
+					Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(56)))
+				})
+			})
+
+		})
+
+		Describe("TestSnapshot", func() {
+			key := common.BytesToHash([]byte("key"))
+			value1 := common.BytesToHash([]byte("value1"))
+			value2 := common.BytesToHash([]byte("value2"))
+			It("simple revert", func() {
+				revision := sdb.Snapshot()
+				Expect(revision).To(Equal(0))
+				sdb.SetState(alice, key, value1)
+				Expect(sdb.GetState(alice, key)).To(Equal(value1))
+				sdb.RevertToSnapshot(revision)
+				Expect(sdb.GetState(alice, key)).To(Equal(common.Hash{}))
+			})
+			It("nested snapshot & revert", func() {
+				revision1 := sdb.Snapshot()
+				Expect(revision1).To(Equal(0))
+				sdb.SetState(alice, key, value1)
+				revision2 := sdb.Snapshot()
+				Expect(revision2).To(Equal(1))
+				sdb.SetState(alice, key, value2)
+				Expect(sdb.GetState(alice, key)).To(Equal(value2))
+
+				sdb.RevertToSnapshot(revision2)
+				Expect(sdb.GetState(alice, key)).To(Equal(value1))
+
+				sdb.RevertToSnapshot(revision1)
+				Expect(sdb.GetState(alice, key)).To(Equal(common.Hash{}))
+			})
+			It("jump revert", func() {
+				revision1 := sdb.Snapshot()
+				Expect(revision1).To(Equal(0))
+				sdb.SetState(alice, key, value1)
+				sdb.Snapshot()
+				sdb.SetState(alice, key, value2)
+				Expect(sdb.GetState(alice, key)).To(Equal(value2))
+				sdb.RevertToSnapshot(revision1)
+				Expect(sdb.GetState(alice, key)).To(Equal(common.Hash{}))
+			})
+		})
+	})
+})

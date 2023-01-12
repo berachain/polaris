@@ -26,4 +26,8 @@ type (
 var (
 	BytesToAddress = common.BytesToAddress
 	BytesToHash    = common.BytesToHash
+	Bytes2Hex      = common.Bytes2Hex
+	HexToAddress   = common.HexToAddress
+	Hex2Bytes      = common.Hex2Bytes
+	HexToHash      = common.HexToHash
 )
