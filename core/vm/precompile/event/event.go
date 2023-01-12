@@ -47,16 +47,14 @@ type PrecompileEvent struct {
 func NewPrecompileEvent(
 	moduleAddr common.Address,
 	abiEvent *abi.Event,
-	customValueDecoders ...ValueDecoders,
+	customValueDecoders ValueDecoders,
 ) *PrecompileEvent {
 	pe := &PrecompileEvent{
-		moduleAddr:       moduleAddr,
-		id:               abiEvent.ID,
-		indexedInputs:    abi.GetIndexed(abiEvent.Inputs),
-		nonIndexedInputs: abiEvent.Inputs.NonIndexed(),
-	}
-	if len(customValueDecoders) > 0 {
-		pe.customValueDecoders = customValueDecoders[0]
+		moduleAddr:          moduleAddr,
+		id:                  abiEvent.ID,
+		indexedInputs:       abi.GetIndexed(abiEvent.Inputs),
+		nonIndexedInputs:    abiEvent.Inputs.NonIndexed(),
+		customValueDecoders: customValueDecoders,
 	}
 	return pe
 }
@@ -66,7 +64,7 @@ func (pe *PrecompileEvent) ModuleAddress() common.Address {
 	return pe.moduleAddr
 }
 
-// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. TODO: explain
+// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. TODO: explain.
 func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(pe.indexedInputs)+1)
 	filterQuery[0] = pe.id
@@ -89,7 +87,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 		}
 		// convert attr value (string) to common.Hash
 		attr := &event.Attributes[attrIdx]
-		valueDecoder, err := pe.getValueDecoder(attributeKey(attr.Key))
+		valueDecoder, err := pe.getValueDecoder(attr.Key)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +105,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	return topics[0], nil
 }
 
-// `MakeData` returns the Ethereum log `Data` for a valid cosmos event. TODO: explain
+// `MakeData` returns the Ethereum log `Data` for a valid cosmos event. TODO: explain.
 func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
 	// complexity of below iteration: O(n^2), where n is the number of non-indexed args
@@ -128,7 +126,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 		}
 		// convert each attribute value to geth type
 		attr := event.Attributes[attrIdx]
-		valueDecoder, err := pe.getValueDecoder(attributeKey(attr.Key))
+		valueDecoder, err := pe.getValueDecoder(attr.Key)
 		if err != nil {
 			return nil, err
 		}
@@ -159,8 +157,8 @@ func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 	return nil
 }
 
-// `getValueDecoder` TODO: explain
-func (pe *PrecompileEvent) getValueDecoder(attrKey attributeKey) (attributeValueDecoder, error) {
+// `getValueDecoder` TODO: explain.
+func (pe *PrecompileEvent) getValueDecoder(attrKey string) (attributeValueDecoder, error) {
 	// try custom precompile event attributes
 	if pe.customValueDecoders != nil {
 		if valueDecoder, ok := pe.customValueDecoders[attrKey]; ok {

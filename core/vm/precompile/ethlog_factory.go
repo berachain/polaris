@@ -56,15 +56,36 @@ func NewEthereumLogFactory() *EthereumLogFactory {
 func (pef *EthereumLogFactory) RegisterNewEvent(
 	moduleEthAddress common.Address,
 	abiEvent *abi.Event,
-	customValueDecoders ...event.ValueDecoders,
+	customValueDecoders event.ValueDecoders,
 ) {
 	// NOTE: The CamelCase version of the Cosmos SDK event's `Type` string corresponding to this
 	// abiEvent is assumed to be equal to the abiEvent's `Name` field.
 	pef.precompileEvents[EventType(abiEvent.Name)] = event.NewPrecompileEvent(
 		moduleEthAddress,
 		abiEvent,
-		customValueDecoders...,
+		customValueDecoders,
 	)
+}
+
+// `RegisterModule` registers a Cosmos module's precompile events.
+func (pef *EthereumLogFactory) RegisterModule(
+	moduleEthAddress common.Address,
+	contract HasEvents,
+) {
+	// load custom Cosmos events' attributes if contract has any
+	customEventAttributes := make(map[string]event.ValueDecoders)
+	if customEventsContract, ok := contract.(HasCustomEventAttributes); ok {
+		customEventAttributes = customEventsContract.CustomEventValueDecoders()
+	}
+
+	for eventName, abiEvent := range contract.ABIEvents() {
+		abiEventPtr := &abiEvent
+		pef.precompileEvents[EventType(eventName)] = event.NewPrecompileEvent(
+			moduleEthAddress,
+			abiEventPtr,
+			customEventAttributes[eventName], // TODO: this should be cosmos or eth formatted?
+		)
+	}
 }
 
 // ==============================================================================

@@ -41,28 +41,25 @@ type (
 	// encoding.
 	attributeValueDecoder func(attributeValue string) (ethPrimitive any, err error)
 
-	// `attributeKey` is a type that represents a Cosmos event attribute key string, in the
-	// mixedCase formatting. NOTE: Cosmos event attribute keys must be converted to mixed case.
-	attributeKey string
-
-	// `ValueDecoders` TODO: explain
-	ValueDecoders map[attributeKey]attributeValueDecoder
+	// `ValueDecoders` TODO: explain. NOTE: Cosmos event attribute keys must be converted to mixed
+	// case.
+	ValueDecoders map[string]attributeValueDecoder
 )
 
-// `defaultCosmosAttributes` TODO: explain
+// `defaultCosmosAttributes` TODO: explain.
 var defaultCosmosAttributes = ValueDecoders{
-	attributeKey(abi.ToMixedCase(sdk.AttributeKeyAmount)):                  convertSdkCoin,
-	attributeKey(abi.ToMixedCase(stakingtypes.AttributeKeyValidator)):      convertValAddress,
-	attributeKey(abi.ToMixedCase(stakingtypes.AttributeKeySrcValidator)):   convertValAddress,
-	attributeKey(abi.ToMixedCase(stakingtypes.AttributeKeyDstValidator)):   convertValAddress,
-	attributeKey(abi.ToMixedCase(stakingtypes.AttributeKeyCreationHeight)): convertCreationHeight,
-	attributeKey(abi.ToMixedCase(stakingtypes.AttributeKeyDelegator)):      convertAccAddress,
-	attributeKey(abi.ToMixedCase(banktypes.AttributeKeySender)):            convertAccAddress,
-	attributeKey(abi.ToMixedCase(banktypes.AttributeKeyRecipient)):         convertAccAddress,
-	attributeKey(abi.ToMixedCase(banktypes.AttributeKeySpender)):           convertAccAddress,
-	attributeKey(abi.ToMixedCase(banktypes.AttributeKeyReceiver)):          convertAccAddress,
-	attributeKey(abi.ToMixedCase(banktypes.AttributeKeyMinter)):            convertAccAddress,
-	attributeKey(abi.ToMixedCase(banktypes.AttributeKeyBurner)):            convertAccAddress,
+	abi.ToMixedCase(sdk.AttributeKeyAmount):                  convertSdkCoin,
+	abi.ToMixedCase(stakingtypes.AttributeKeyValidator):      convertValAddress,
+	abi.ToMixedCase(stakingtypes.AttributeKeySrcValidator):   convertValAddress,
+	abi.ToMixedCase(stakingtypes.AttributeKeyDstValidator):   convertValAddress,
+	abi.ToMixedCase(stakingtypes.AttributeKeyCreationHeight): convertCreationHeight,
+	abi.ToMixedCase(stakingtypes.AttributeKeyDelegator):      convertAccAddress,
+	abi.ToMixedCase(banktypes.AttributeKeySender):            convertAccAddress,
+	abi.ToMixedCase(banktypes.AttributeKeyRecipient):         convertAccAddress,
+	abi.ToMixedCase(banktypes.AttributeKeySpender):           convertAccAddress,
+	abi.ToMixedCase(banktypes.AttributeKeyReceiver):          convertAccAddress,
+	abi.ToMixedCase(banktypes.AttributeKeyMinter):            convertAccAddress,
+	abi.ToMixedCase(banktypes.AttributeKeyBurner):            convertAccAddress,
 }
 
 // `convertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
