@@ -637,11 +637,11 @@ func (sdb *StateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
 }
 
 func (sdb *StateDB) AddressInAccessList(addr common.Address) bool {
-	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+	return false
 }
 
 func (sdb *StateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
-	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+	return false, false
 }
 
 // =============================================================================
