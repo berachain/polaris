@@ -495,9 +495,74 @@ var _ = Describe("StateDB", func() {
 				Expect(sdb.GetRefund()).To(Equal(uint64(5)))
 			})
 
-			It("negativ refund", func() {
+			It("negative refund", func() {
 				sdb.AddRefund(5)
 				Expect(func() { sdb.SubRefund(10) }).To(Panic())
+			})
+		})
+		Describe("Test Log", func() {
+			txHash := common.BytesToHash([]byte("tx"))
+			blockHash := common.BytesToHash([]byte("block"))
+			data := []byte("bing bong bananas")
+			blockNumber := uint64(13)
+
+			BeforeEach(func() {
+				sdb.PrepareForTransition(blockHash, txHash, 0, 0)
+			})
+			When("We add a log to the state", func() {
+				BeforeEach(func() {
+
+					sdb.AddLog(&coretypes.Log{
+						Address:     alice,
+						Topics:      []common.Hash{},
+						Data:        data,
+						BlockNumber: blockNumber,
+						TxHash:      txHash,
+						TxIndex:     0,
+						BlockHash:   blockHash,
+						Index:       0,
+						Removed:     false,
+					})
+				})
+				It("should have the correct log", func() {
+					logs := sdb.Logs()
+					Expect(logs).To(HaveLen(1))
+					Expect(logs[0].Address).To(Equal(alice))
+					Expect(logs[0].Data).To(Equal(data))
+					Expect(logs[0].BlockNumber).To(Equal(blockNumber))
+					Expect(logs[0].TxHash).To(Equal(txHash))
+					Expect(logs[0].TxIndex).To(Equal(uint(0)))
+					Expect(logs[0].BlockHash).To(Equal(blockHash))
+					Expect(logs[0].Index).To(Equal(uint(0)))
+					Expect(logs[0].Removed).To(BeFalse())
+				})
+				When("we add a second log", func() {
+					BeforeEach(func() {
+						sdb.AddLog(&coretypes.Log{
+							Address:     alice,
+							Topics:      []common.Hash{},
+							Data:        data,
+							BlockNumber: blockNumber,
+							TxHash:      txHash,
+							TxIndex:     0,
+							BlockHash:   blockHash,
+							Index:       1,
+							Removed:     false,
+						})
+					})
+					It("should have the correct logs", func() {
+						logs := sdb.Logs()
+						Expect(logs).To(HaveLen(2))
+						Expect(logs[1].Address).To(Equal(alice))
+						Expect(logs[1].Data).To(Equal(data))
+						Expect(logs[1].BlockNumber).To(Equal(blockNumber))
+						Expect(logs[1].TxHash).To(Equal(txHash))
+						Expect(logs[1].TxIndex).To(Equal(uint(0)))
+						Expect(logs[1].BlockHash).To(Equal(blockHash))
+						Expect(logs[1].Index).To(Equal(uint(1)))
+						Expect(logs[1].Removed).To(BeFalse())
+					})
+				})
 			})
 		})
 	})
