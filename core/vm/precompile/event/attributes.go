@@ -130,9 +130,9 @@ func convertCreationHeight(attributeValue string) (any, error) {
 // Helpers
 // ==============================================================================
 
-// `searchAttributesForArg` searches through the given slice `attributes` for any attribute having
-// a key that matches `argName`. This function returns the index where `argName` was found or -1 if
-// `argName` was not found.
+// `searchAttributesForArg` does a linear search through the given slice `attributes` for any
+// attribute having a key that matches `argName`. This function returns the index where `argName`
+// was found or -1 if `argName` was not found. Complexity: O(N), N = len(`attributes`).
 func searchAttributesForArg(attributes *[]abci.EventAttribute, argName string) int {
 	for i, attribute := range *attributes {
 		if abi.ToMixedCase(attribute.Key) == argName {
