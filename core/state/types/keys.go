@@ -37,10 +37,18 @@ var (
 
 // AddressStoragePrefix returns a prefix to iterate over a given account storage.
 func AddressStoragePrefix(address common.Address) []byte {
-	return append(KeyPrefixStorage, address.Bytes()...)
+	return append(KeyPrefixStorage, address[:]...)
 }
 
 // StateKey defines the full key under which an account state is stored.
-func StateKey(address common.Address, key []byte) []byte {
-	return append(AddressStoragePrefix(address), key...)
+func StateKeyFor(address common.Address, key common.Hash) []byte {
+	return append(AddressStoragePrefix(address), key[:]...)
+}
+
+func CodeHashKeyFor(address common.Address) []byte {
+	return append(KeyPrefixCodeHash, address[:]...)
+}
+
+func CodeKeyFor(codeHash common.Hash) []byte {
+	return append(KeyPrefixCode, codeHash[:]...)
 }

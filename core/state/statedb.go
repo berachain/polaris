@@ -20,7 +20,6 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	gevm "github.com/ethereum/go-ethereum/core/vm"
@@ -105,7 +104,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// eth state stores: required for vm.StateDB
 	// We store references to these stores, so that we can access them
 	// directly, without having to go through the MultiStore interface.
-	liveEthState cachekv.StateDBCacheKVStore
+	ethStore cachekv.StateDBCacheKVStore
 
 	// keepers used for balance and account information.
 	ak AccountKeeper
@@ -172,7 +171,7 @@ func NewStateDB(
 	}
 
 	// Must support directly accessing the parent store
-	sdb.liveEthState, _ = sdb.cms.
+	sdb.ethStore, _ = sdb.cms.
 		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
 
 	return sdb
@@ -191,8 +190,7 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 	sdb.ak.SetAccount(sdb.ctx, acc)
 
 	// initialize the code hash to empty
-	prefix.NewStore(sdb.liveEthState, types.KeyPrefixCodeHash).
-		Set(addr[:], types.EmptyCodeHash[:])
+	sdb.ethStore.Set(types.CodeHashKeyFor(addr), types.EmptyCodeHash[:])
 }
 
 // =============================================================================
@@ -216,7 +214,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.MultiStore = cachemulti.NewStoreFrom(ctx.MultiStore())
 	// sdb.ctx = ctx.WithMultiStore(sdb.MultiStore)
 	// // // Must support directly accessing the parent store.
-	// // sdb.liveEthState = sdb.ctx.cms.
+	// // sdb.ethStore = sdb.ctx.cms.
 	// // 	GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
 	// sdb.savedErr = nil
 	// sdb.refund = 0
@@ -323,8 +321,7 @@ func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 // the code hash of account.
 func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
 	if sdb.ak.HasAccount(sdb.ctx, addr[:]) {
-		if ch := prefix.NewStore(sdb.liveEthState,
-			types.KeyPrefixCodeHash).Get(addr[:]); ch != nil {
+		if ch := sdb.ethStore.Get(types.CodeHashKeyFor(addr)); ch != nil {
 			return common.BytesToHash(ch)
 		}
 		return types.EmptyCodeHash
@@ -342,7 +339,7 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 	if (codeHash == common.Hash{}) || codeHash == types.EmptyCodeHash {
 		return nil
 	}
-	return prefix.NewStore(sdb.liveEthState, types.KeyPrefixCode).Get(codeHash.Bytes())
+	return sdb.ethStore.Get(types.CodeKeyFor(codeHash))
 }
 
 // SetCode implements the `GethStateDB` interface by setting the code hash and
@@ -350,13 +347,12 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 func (sdb *StateDB) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
 
-	prefix.NewStore(sdb.liveEthState, types.KeyPrefixCodeHash).Set(addr[:], codeHash[:])
-
+	sdb.ethStore.Set(types.CodeHashKeyFor(addr), codeHash[:])
 	// store or delete code
 	if len(code) == 0 {
-		prefix.NewStore(sdb.liveEthState, types.KeyPrefixCode).Delete(codeHash[:])
+		sdb.ethStore.Delete(types.CodeKeyFor(codeHash))
 	} else {
-		prefix.NewStore(sdb.liveEthState, types.KeyPrefixCode).Set(codeHash[:], code)
+		sdb.ethStore.Set(types.CodeKeyFor(codeHash), code)
 	}
 }
 
@@ -403,13 +399,13 @@ func (sdb *StateDB) GetCommittedState(
 	addr common.Address,
 	slot common.Hash,
 ) common.Hash {
-	return sdb.getStateFromStore(sdb.liveEthState.GetParent(), addr, slot)
+	return sdb.getStateFromStore(sdb.ethStore.GetParent(), addr, slot)
 }
 
 // `GetState` implements the `GethStateDB` interface by returning the current state
 // of slot in the given address.
 func (sdb *StateDB) GetState(addr common.Address, slot common.Hash) common.Hash {
-	return sdb.getStateFromStore(sdb.liveEthState, addr, slot)
+	return sdb.getStateFromStore(sdb.ethStore, addr, slot)
 }
 
 // `getStateFromStore` returns the current state of the slot in the given address.
@@ -417,8 +413,7 @@ func (sdb *StateDB) getStateFromStore(
 	store storetypes.KVStore,
 	addr common.Address, slot common.Hash,
 ) common.Hash {
-	if value := prefix.NewStore(store, types.AddressStoragePrefix(addr)).
-		Get(slot[:]); value != nil {
+	if value := store.Get(types.StateKeyFor(addr, slot)); value != nil {
 		return common.BytesToHash(value)
 	}
 	return common.Hash{}
@@ -434,12 +429,15 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 	// hash.
 	//
 	// CONTRACT: never manually call SetState outside of `opSstore`, or InitGenesis.
-	store := prefix.NewStore(sdb.liveEthState, types.AddressStoragePrefix(addr))
+
+	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		store.Delete(key[:])
-	} else {
-		store.Set(key[:], value[:])
+		sdb.ethStore.Delete(types.StateKeyFor(addr, key))
+		return
 	}
+
+	// Set the state entry.
+	sdb.ethStore.Set(types.StateKeyFor(addr, key), value[:])
 }
 
 // =============================================================================
@@ -546,7 +544,7 @@ func (sdb *StateDB) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
 ) error {
-	it := sdk.KVStorePrefixIterator(sdb.liveEthState, types.AddressStoragePrefix(addr))
+	it := sdk.KVStorePrefixIterator(sdb.ethStore, types.AddressStoragePrefix(addr))
 	defer it.Close()
 
 	for ; it.Valid(); it.Next() {
@@ -588,7 +586,7 @@ func (sdb *StateDB) Commit() error {
 		}
 
 		// clear the codehash from this account
-		prefix.NewStore(sdb.liveEthState, types.KeyPrefixCodeHash).Delete(suicidalAddr[:])
+		sdb.ethStore.Delete(types.CodeHashKeyFor(suicidalAddr))
 
 		// remove auth account
 		sdb.ak.RemoveAccount(sdb.ctx, acct)
