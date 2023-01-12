@@ -330,7 +330,7 @@ func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
 		return types.EmptyCodeHash
 	}
 	// if account at addr does not exist, return ZeroCodeHash
-	return types.ZeroCodeHash
+	return common.Hash{}
 }
 
 // GetCode implements the `GethStateDB` interface by returning
@@ -339,7 +339,7 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 	codeHash := sdb.GetCodeHash(addr)
 	// if account at addr does not exist, GetCodeHash returns ZeroCodeHash so return nil
 	// if codeHash is empty, i.e. crypto.Keccak256(nil), also return nil
-	if codeHash == types.ZeroCodeHash || codeHash == types.EmptyCodeHash {
+	if (codeHash == common.Hash{}) || codeHash == types.EmptyCodeHash {
 		return nil
 	}
 	return prefix.NewStore(sdb.liveEthState, types.KeyPrefixCode).Get(codeHash.Bytes())
@@ -435,7 +435,7 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 	//
 	// CONTRACT: never manually call SetState outside of `opSstore`, or InitGenesis.
 	store := prefix.NewStore(sdb.liveEthState, types.AddressStoragePrefix(addr))
-	if len(value) == 0 || value == types.ZeroCodeHash {
+	if len(value) == 0 || (value == common.Hash{}) {
 		store.Delete(key[:])
 	} else {
 		store.Set(key[:], value[:])
@@ -452,7 +452,7 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 func (sdb *StateDB) Suicide(addr common.Address) bool {
 	// only smart contracts can commit suicide
 	ch := sdb.GetCodeHash(addr)
-	if ch == types.ZeroCodeHash || ch == types.EmptyCodeHash {
+	if (ch == common.Hash{}) || ch == types.EmptyCodeHash {
 		return false
 	}
 
@@ -494,7 +494,7 @@ func (sdb *StateDB) Exist(addr common.Address) bool {
 func (sdb *StateDB) Empty(addr common.Address) bool {
 	ch := sdb.GetCodeHash(addr)
 	return sdb.GetNonce(addr) == 0 &&
-		(ch == types.EmptyCodeHash || ch == types.ZeroCodeHash) &&
+		(ch == types.EmptyCodeHash || ch == common.Hash{}) &&
 		sdb.GetBalance(addr).Sign() == 0
 }
 

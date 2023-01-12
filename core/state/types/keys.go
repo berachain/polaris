@@ -29,7 +29,6 @@ var (
 	// EmptyCodeHash is the code hash of an empty code
 	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 	EmptyCodeHash = crypto.Keccak256Hash(nil)
-	ZeroCodeHash  = common.Hash{}
 
 	KeyPrefixCode     = []byte{keyPrefixCode}
 	KeyPrefixCodeHash = []byte{keyPrefixHash}
