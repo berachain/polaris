@@ -25,6 +25,7 @@ const (
 )
 
 // NOTE: we use copy to build keys for max performance: https://github.com/golang/go/issues/55905
+// TODO: look into using a sync.pool for the keys to reduce allocs
 
 // AddressStoragePrefix returns a prefix to iterate over a given account storage.
 func AddressStoragePrefix(address common.Address) []byte {
