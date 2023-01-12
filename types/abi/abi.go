@@ -37,7 +37,7 @@ var (
 )
 
 // `ToMixedCase` converts a under_score formatted string to mixedCase format (camelCase with the
-// first letter lowercase). This function is inspired by the geth abi.ToCamelCase function.
+// first letter lowercase). This function is inspired by the geth `abi.ToCamelCase“ function.
 func ToMixedCase(input string) string {
 	parts := strings.Split(input, "_")
 	for i, s := range parts {

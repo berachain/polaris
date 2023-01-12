@@ -19,9 +19,66 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/berachain/stargazer/types/abi"
 )
 
 func TestABI(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "ABI Test Suite")
 }
+
+var _ = Describe("ABI Test Suite", func() {
+	Describe("Test ToMixedCase", func() {
+		It("should correctly convert under_score strings to mixedCase", func() {
+			Expect(abi.ToMixedCase("creation_height")).To(Equal("creationHeight"))
+			Expect(abi.ToMixedCase("creation_height_arg")).To(Equal("creationHeightArg"))
+		})
+	})
+
+	Describe("Test GetIndexed", func() {
+		It("should correctly filter out indexed arguments", func() {
+			allArgs := abi.Arguments{
+				abi.Argument{Indexed: false},
+				abi.Argument{
+					Name:    "1",
+					Indexed: true,
+				},
+				abi.Argument{
+					Name:    "2",
+					Indexed: true,
+				},
+				abi.Argument{Indexed: false},
+				abi.Argument{
+					Name:    "3",
+					Indexed: true,
+				},
+				abi.Argument{Indexed: false},
+				abi.Argument{Indexed: false},
+				abi.Argument{
+					Name:    "4",
+					Indexed: true,
+				},
+			}
+			indexedArgs := abi.Arguments{
+				abi.Argument{
+					Name:    "1",
+					Indexed: true,
+				},
+				abi.Argument{
+					Name:    "2",
+					Indexed: true,
+				},
+				abi.Argument{
+					Name:    "3",
+					Indexed: true,
+				},
+				abi.Argument{
+					Name:    "4",
+					Indexed: true,
+				},
+			}
+			Expect(abi.GetIndexed(allArgs)).To(Equal(indexedArgs))
+		})
+	})
+})
