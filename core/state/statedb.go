@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/big"
+	"reflect"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -38,11 +39,7 @@ type GethStateDB = gevm.StateDB
 // support additional state transition functionalities. In particular it supports getting the
 // cosmos sdk context for natively running stateful precompiled contracts.
 type ExtStateDB interface {
-	storetypes.MultiStore
 	GethStateDB
-
-	// GetContext returns the cosmos sdk context with the statedb multistore attached
-	GetContext() sdk.Context
 
 	// GetSavedErr returns the error saved in the statedb
 	GetSavedErr() error
@@ -65,22 +62,8 @@ type IntraBlockStateDB interface {
 	Reset(sdk.Context)
 }
 
-const (
-	keyPrefixCode byte = iota
-	keyPrefixHash
-)
-
 var (
-	// EmptyCodeHash is the code hash of an empty code
-	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
-	EmptyCodeHash = crypto.Keccak256Hash(nil)
-	ZeroCodeHash  = common.Hash{}
-
-	KeyPrefixCode     = []byte{keyPrefixCode}
-	KeyPrefixCodeHash = []byte{keyPrefixHash}
-	// todo: add later?
-	// StateDBStoreKey                         = sdk.NewKVStoreKey(types.StoreKey).
-	_ ExtStateDB = (*StateDB)(nil)
+	_ IntraBlockStateDB = (*StateDB)(nil)
 )
 
 // Welcome to the StateDB implementation. This is a wrapper around a cachemulti.Store
@@ -109,17 +92,19 @@ var (
 //     EVM account, and so it does not set the codeHash. This is totally fine, we just need to
 //     check both for both the codeHash being 0x000... as well as the codeHash being 0x567...
 type StateDB struct { //nolint: revive // we like the vibe.
-	*cachemulti.Store
+	// We maintain a context in the StateDB, so that we can pass it with the correctly
+	// configured multi-store to the precompiled contracts.
+	ctx sdk.Context
+
+	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
+	cms cachemulti.StateDBCacheMultistore
 
 	// eth state stores: required for vm.StateDB
 	// We store references to these stores, so that we can access them
 	// directly, without having to go through the MultiStore interface.
 	liveEthState cachekv.StateDBCacheKVStore
 
-	// cosmos state ctx: required for sdk.MultiStore
-	ctx sdk.Context
-
-	// keepers used for balance and account information
+	// keepers used for balance and account information.
 	ak AccountKeeper
 	bk BankKeeper
 
@@ -132,7 +117,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string
+	evmDenom string // todo: get from params ( we have a store so like why not )
 
 	// The refund counter, also used by state transitioning.
 	refund uint64
@@ -165,24 +150,34 @@ func NewStateDB(
 	storeKey storetypes.StoreKey,
 	evmDenom string,
 ) *StateDB {
+	var ok bool
 	sdb := &StateDB{
-		Store:    cachemulti.NewStoreFrom(ctx.MultiStore()),
+		ctx:      ctx.WithMultiStore(cachemulti.NewStoreFrom(ctx.MultiStore())),
 		ak:       ak,
 		bk:       bk,
 		evmDenom: evmDenom,
 		storeKey: storeKey,
 	}
-	sdb.ctx = ctx.WithMultiStore(sdb)
 
-	// Must support directly accessing the parent store.
-	sdb.liveEthState, _ = sdb.ctx.MultiStore().
-		GetKVStore(storeKey).(cachekv.StateDBCacheKVStore)
+	// Save a pointer and check to make sure that the MultiStore is a StateDBCacheMultistore.
+	if sdb.cms, ok = sdb.ctx.MultiStore().(cachemulti.StateDBCacheMultistore); !ok {
+		sdb.savedErr = fmt.Errorf(
+			"expected MultiStore to be a StateDBCacheMultistore, got %T",
+			reflect.TypeOf(sdb.ctx.MultiStore()),
+		)
+		return sdb
+	}
+
+	// Must support directly accessing the parent store
+	sdb.liveEthState, _ = sdb.cms.
+		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
+
 	return sdb
 }
 
-func (sdb *StateDB) GetEvmDenom() string {
-	return sdb.evmDenom
-}
+// ===========================================================================
+// Account
+// ===========================================================================
 
 // CreateAccount implements the GethStateDB interface by creating a new account
 // in the account keeper. It will allow accounts to be overridden.
@@ -193,7 +188,8 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 	sdb.ak.SetAccount(sdb.ctx, acc)
 
 	// initialize the code hash to empty
-	prefix.NewStore(sdb.liveEthState, KeyPrefixCodeHash).Set(addr[:], EmptyCodeHash[:])
+	prefix.NewStore(sdb.liveEthState, types.KeyPrefixCodeHash).
+		Set(addr[:], types.EmptyCodeHash[:])
 }
 
 // =============================================================================
@@ -217,7 +213,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.MultiStore = cachemulti.NewStoreFrom(ctx.MultiStore())
 	// sdb.ctx = ctx.WithMultiStore(sdb.MultiStore)
 	// // // Must support directly accessing the parent store.
-	// // sdb.liveEthState = sdb.ctx.MultiStore().
+	// // sdb.liveEthState = sdb.ctx.cms.
 	// // 	GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
 	// sdb.savedErr = nil
 	// sdb.refund = 0
@@ -233,13 +229,13 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 // Balance
 // =============================================================================
 
-// GetBalance implements GethStateDB interface.
+// GetBalance implements `GethStateDB` interface.
 func (sdb *StateDB) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
 	return sdb.bk.GetBalance(sdb.ctx, addr[:], sdb.evmDenom).Amount.BigInt()
 }
 
-// AddBalance implements the GethStateDB interface by adding the given amount
+// AddBalance implements the `GethStateDB` interface by adding the given amount
 // from the account associated with addr. If the account does not exist, it will be
 // created.
 func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
@@ -257,7 +253,7 @@ func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
 	}
 }
 
-// SubBalance implements the GethStateDB interface by subtracting the given amount
+// SubBalance implements the `GethStateDB` interface by subtracting the given amount
 // from the account associated with addr.
 func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
@@ -290,7 +286,7 @@ func (sdb *StateDB) SendBalance(from, to common.Address, amount *big.Int) {
 // Nonce
 // =============================================================================
 
-// GetNonce implements the GethStateDB interface by returning the nonce
+// GetNonce implements the `GethStateDB` interface by returning the nonce
 // of an account.
 func (sdb *StateDB) GetNonce(addr common.Address) uint64 {
 	acc := sdb.ak.GetAccount(sdb.ctx, addr[:])
@@ -300,7 +296,7 @@ func (sdb *StateDB) GetNonce(addr common.Address) uint64 {
 	return acc.GetSequence()
 }
 
-// SetNonce implements the GethStateDB interface by setting the nonce
+// SetNonce implements the `GethStateDB` interface by setting the nonce
 // of an account.
 func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 	// get the account or create a new one if doesn't exist
@@ -320,49 +316,49 @@ func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 // Code
 // =============================================================================
 
-// GetCodeHash implements the GethStateDB interface by returning
+// GetCodeHash implements the `GethStateDB` interface by returning
 // the code hash of account.
 func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
 	if sdb.ak.HasAccount(sdb.ctx, addr[:]) {
 		if ch := prefix.NewStore(sdb.liveEthState,
-			KeyPrefixCodeHash).Get(addr[:]); ch != nil {
+			types.KeyPrefixCodeHash).Get(addr[:]); ch != nil {
 			return common.BytesToHash(ch)
 		}
-		return EmptyCodeHash
+		return types.EmptyCodeHash
 	}
 	// if account at addr does not exist, return ZeroCodeHash
-	return ZeroCodeHash
+	return types.ZeroCodeHash
 }
 
-// GetCode implements the GethStateDB interface by returning
+// GetCode implements the `GethStateDB` interface by returning
 // the code of account (nil if not exists).
 func (sdb *StateDB) GetCode(addr common.Address) []byte {
 	codeHash := sdb.GetCodeHash(addr)
 	// if account at addr does not exist, GetCodeHash returns ZeroCodeHash so return nil
 	// if codeHash is empty, i.e. crypto.Keccak256(nil), also return nil
-	if codeHash == ZeroCodeHash || codeHash == EmptyCodeHash {
+	if codeHash == types.ZeroCodeHash || codeHash == types.EmptyCodeHash {
 		return nil
 	}
-	return prefix.NewStore(sdb.liveEthState, KeyPrefixCode).Get(codeHash.Bytes())
+	return prefix.NewStore(sdb.liveEthState, types.KeyPrefixCode).Get(codeHash.Bytes())
 }
 
-// SetCode implements the GethStateDB interface by setting the code hash and
+// SetCode implements the `GethStateDB` interface by setting the code hash and
 // code for the given account.
 func (sdb *StateDB) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
 
-	prefix.NewStore(sdb.liveEthState, KeyPrefixCodeHash).Set(addr[:], codeHash[:])
+	prefix.NewStore(sdb.liveEthState, types.KeyPrefixCodeHash).Set(addr[:], codeHash[:])
 
 	// store or delete code
 	if len(code) == 0 {
-		prefix.NewStore(sdb.liveEthState, KeyPrefixCode).Delete(codeHash[:])
+		prefix.NewStore(sdb.liveEthState, types.KeyPrefixCode).Delete(codeHash[:])
 	} else {
-		prefix.NewStore(sdb.liveEthState, KeyPrefixCode).Set(codeHash[:], code)
+		prefix.NewStore(sdb.liveEthState, types.KeyPrefixCode).Set(codeHash[:], code)
 	}
 }
 
-// GetCodeSize implements the GethStateDB interface by returning the size of the
-// code associated with the given GethStateDB.
+// GetCodeSize implements the `GethStateDB` interface by returning the size of the
+// code associated with the given `GethStateDB`.
 func (sdb *StateDB) GetCodeSize(addr common.Address) int {
 	return len(sdb.GetCode(addr))
 }
@@ -371,24 +367,24 @@ func (sdb *StateDB) GetCodeSize(addr common.Address) int {
 // Refund
 // =============================================================================
 
-// AddRefund implements the GethStateDB interface by adding gas to the
+// `AddRefund` implements the `GethStateDB` interface by adding gas to the
 // refund counter.
 func (sdb *StateDB) AddRefund(gas uint64) {
-	sdb.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
+	sdb.cms.JournalManager().Push(&RefundChange{sdb, sdb.refund})
 	sdb.refund += gas
 }
 
-// SubRefund implements the GethStateDB interface by subtracting gas from the
+// `SubRefund` implements the `GethStateDB` interface by subtracting gas from the
 // refund counter. If the gas is greater than the refund counter, it will panic.
 func (sdb *StateDB) SubRefund(gas uint64) {
-	sdb.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
+	sdb.cms.JournalManager().Push(&RefundChange{sdb, sdb.refund})
 	if gas > sdb.refund {
 		panic(fmt.Sprintf("Refund counter below zero (gas: %d > refund: %d)", gas, sdb.refund))
 	}
 	sdb.refund -= gas
 }
 
-// GetRefund implements the GethStateDB interface by returning the current
+// `GetRefund` implements the `GethStateDB` interface by returning the current
 // value of the refund counter.
 func (sdb *StateDB) GetRefund() uint64 {
 	return sdb.refund
@@ -398,7 +394,7 @@ func (sdb *StateDB) GetRefund() uint64 {
 // State
 // =============================================================================
 
-// GetCommittedState implements the GethStateDB interface by returning the
+// `GetCommittedState` implements the `GethStateDB` interface by returning the
 // committed state of an address.
 func (sdb *StateDB) GetCommittedState(
 	addr common.Address,
@@ -411,7 +407,7 @@ func (sdb *StateDB) GetCommittedState(
 	return common.Hash{}
 }
 
-// GetState implements the GethStateDB interface by returning the current state of an
+// `GetState` implements the `GethStateDB` interface by returning the current state of an
 // address.
 func (sdb *StateDB) GetState(addr common.Address, hash common.Hash) common.Hash {
 	if value := prefix.NewStore(sdb.liveEthState,
@@ -421,7 +417,7 @@ func (sdb *StateDB) GetState(addr common.Address, hash common.Hash) common.Hash 
 	return common.Hash{}
 }
 
-// SetState implements the GethStateDB interface by setting the state of an
+// `SetState` implements the `GethStateDB` interface by setting the state of an
 // address.
 func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 	// For performance reasons, we don't check to ensure the account exists before we execute.
@@ -429,10 +425,10 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 	// SSTORE opcode in the EVM, which will only ever be called on an account that exists, since
 	// it would with 100% certainty have been created by a prior Create, thus setting its code
 	// hash.
-	// CONTRACT: never manually call SetState outside of the the `opSstore` in the interpreter.
-
+	//
+	// CONTRACT: never manually call SetState outside of `opSstore`, or InitGenesis.
 	store := prefix.NewStore(sdb.liveEthState, types.AddressStoragePrefix(addr))
-	if len(value) == 0 || value == ZeroCodeHash {
+	if len(value) == 0 || value == types.ZeroCodeHash {
 		store.Delete(key[:])
 	} else {
 		store.Set(key[:], value[:])
@@ -449,7 +445,7 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 func (sdb *StateDB) Suicide(addr common.Address) bool {
 	// only smart contracts can commit suicide
 	ch := sdb.GetCodeHash(addr)
-	if ch == ZeroCodeHash || ch == EmptyCodeHash {
+	if ch == types.ZeroCodeHash || ch == types.EmptyCodeHash {
 		return false
 	}
 
@@ -462,7 +458,7 @@ func (sdb *StateDB) Suicide(addr common.Address) bool {
 	return true
 }
 
-// HasSuicided implements the GethStateDB interface by returning if the contract was suicided
+// `HasSuicided` implements the `GethStateDB` interface by returning if the contract was suicided
 // in current transaction.
 func (sdb *StateDB) HasSuicided(addr common.Address) bool {
 	for _, suicide := range sdb.suicides {
@@ -477,21 +473,21 @@ func (sdb *StateDB) HasSuicided(addr common.Address) bool {
 // Exist & Empty
 // =============================================================================
 
-// Exist implements the GethStateDB interface by reporting whether the given account address
+// `Exist` implements the `GethStateDB` interface by reporting whether the given account address
 // exists in the state. Notably this also returns true for suicided accounts, which is accounted
 // for since, `RemoveAccount()` is not called until Commit.
 func (sdb *StateDB) Exist(addr common.Address) bool {
 	return sdb.ak.HasAccount(sdb.ctx, addr[:])
 }
 
-// Empty implements the GethStateDB interface by returning whether the state object
+// `Empty` implements the `GethStateDB` interface by returning whether the state object
 // is either non-existent or empty according to the EIP161 specification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
 func (sdb *StateDB) Empty(addr common.Address) bool {
 	ch := sdb.GetCodeHash(addr)
 	return sdb.GetNonce(addr) == 0 &&
-		(ch == EmptyCodeHash || ch == ZeroCodeHash) &&
+		(ch == types.EmptyCodeHash || ch == types.ZeroCodeHash) &&
 		sdb.GetBalance(addr).Sign() == 0
 }
 
@@ -502,11 +498,12 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 // `RevertToSnapshot` implements `StateDB`.
 func (sdb *StateDB) RevertToSnapshot(id int) {
 	// revert and discard all journal entries after snapshot id
-	sdb.JournalMgr.PopToSize(id)
+	sdb.cms.JournalManager().PopToSize(id)
 }
 
+// `Snapshot` implements `StateDB`.
 func (sdb *StateDB) Snapshot() int {
-	return sdb.JournalMgr.Size()
+	return sdb.cms.JournalManager().Size()
 }
 
 // =============================================================================
@@ -515,7 +512,7 @@ func (sdb *StateDB) Snapshot() int {
 
 // AddLog implements the GethStateDB interface by adding the given log to the current transaction.
 func (sdb *StateDB) AddLog(log *coretypes.Log) {
-	sdb.JournalMgr.Push(&AddLogChange{sdb})
+	sdb.cms.JournalManager().Push(&AddLogChange{sdb})
 	log.TxHash = sdb.txHash
 	log.BlockHash = sdb.blockHash
 	log.TxIndex = sdb.txIndex
@@ -533,11 +530,11 @@ func (sdb *StateDB) Logs() []*coretypes.Log {
 // ForEachStorage
 // =============================================================================
 
-// ForEachStorage implements the GethStateDB interface by iterating through the contract state
+// `ForEachStorage` implements the `GethStateDB` interface by iterating through the contract state
 // contract storage, the iteration order is not defined.
 //
 // Note: We do not support iterating through any storage that is modified before calling
-// ForEachStorage; only committed state is iterated through.
+// `ForEachStorage`; only committed state is iterated through.
 func (sdb *StateDB) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
@@ -558,16 +555,8 @@ func (sdb *StateDB) ForEachStorage(
 	return nil
 }
 
-// AddPreimage implements the the GethStateDB interface, but currently
-// performs a no-op since the EnablePreimageRecording flag is disabled.
-func (sdb *StateDB) AddPreimage(hash common.Hash, preimage []byte) {}
-
-// =============================================================================
-// MultiStore
-// =============================================================================
-
-// Commit implements storetypes.MultiStore by writing the dirty states of the
-// liveStateCtx to the committedStateCtx. It also handles sucidal accounts.
+// `Commit` is called when we are complete with the state transition and want to commit the changes
+// to the underlying store.
 func (sdb *StateDB) Commit() error {
 	// If we saw an error during the execution, we return it here.
 	if sdb.savedErr != nil {
@@ -592,7 +581,7 @@ func (sdb *StateDB) Commit() error {
 		}
 
 		// clear the codehash from this account
-		prefix.NewStore(sdb.liveEthState, KeyPrefixCodeHash).Delete(suicidalAddr[:])
+		prefix.NewStore(sdb.liveEthState, types.KeyPrefixCodeHash).Delete(suicidalAddr[:])
 
 		// remove auth account
 		sdb.ak.RemoveAccount(sdb.ctx, acct)
@@ -600,7 +589,7 @@ func (sdb *StateDB) Commit() error {
 
 	// write all cache stores to parent stores, effectively writing temporary state in ctx to
 	// the underlying parent store.
-	sdb.Store.Write()
+	sdb.cms.CacheMultiStore().Write()
 	return nil
 }
 
@@ -608,99 +597,19 @@ func (sdb *StateDB) Commit() error {
 // ExtStateDB
 // =============================================================================
 
-// GetContext implements ExtStateDB
-// returns the StateDB's live context.
-func (sdb *StateDB) GetContext() sdk.Context {
-	return sdb.ctx
-}
-
-// GetSavedErr implements ExtStateDB
-// any errors that pop up during store operations should be checked here
+// `GetSavedErr` implements `ExtStateDB`
+// Any errors that pop up during store operations should be checked here
 // called upon the conclusion.
 func (sdb *StateDB) GetSavedErr() error {
 	return sdb.savedErr
 }
 
-// setErrorUnsafe sets error but should be called in medhods that already have locks.
+// `setErrorUnsafe` sets error but should be called in medhods that already have locks.
 func (sdb *StateDB) setErrorUnsafe(err error) {
 	if sdb.savedErr == nil {
 		sdb.savedErr = err
 	}
 }
-
-// =============================================================================
-// Genesis
-// =============================================================================
-
-// // ImportStateData imports the given genesis accounts into the state database. We pass in a
-// // temporary context to bypass the StateDB caching capabilities to speed up the import.
-// func (sdb *StateDB) ImportStateData(accounts []types.GenesisAccount) error {
-// 	for _, account := range accounts {
-// 		addr := common.HexToAddress(account.Address)
-
-// 		acc := sdb.ak.GetAccount(sdb.ctx, addr[:])
-// 		if acc == nil {
-// 			panic(fmt.Errorf("account not found for address %s", account.Address))
-// 		}
-
-// 		code := common.Hex2Bytes(account.Code)
-// 		codeHash := crypto.Keccak256Hash(code)
-// 		storedCodeHash := sdb.GetCodeHash(addr)
-
-// 		// we ignore the empty Code hash checking, see ethermint PR#1234
-// 		if len(account.Code) != 0 && storedCodeHash != codeHash {
-// 			s := "the evm state code doesn't match with the codehash\n"
-// 			panic(fmt.Sprintf("%s account: %s , evm state codehash: %v,"+
-// 				" ethAccount codehash: %v, evm state code: %s\n",
-// 				s, account.Address, codeHash, storedCodeHash, account.Code))
-// 		}
-
-// 		// Set the code for this contract
-// 		sdb.SetCode(addr, code)
-
-// 		// Set the state for this contract
-// 		for _, storage := range account.Storage {
-// 			sdb.SetState(addr, common.HexToHash(storage.Key), common.HexToHash(storage.Value))
-// 		}
-
-// 		// Commit the changes to save them to the underlying KVStore.
-// 		if err := sdb.Commit(); err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
-
-// // ExportStateData exports all the data stored in the StateDB to a GenesisAccount slice.
-// // We pass in a temporary context to bypass the StateDB caching capabilities to
-// // speed up the import.
-// func (sdb *StateDB) ExportStateData() (ethAccs []types.GenesisAccount) {
-// 	sdb.ak.IterateAccounts(sdb.ctx, func(account authtypes.AccountI) bool {
-// 		addr := common.BytesToAddress(account.GetAddress().Bytes())
-
-// 		// Load Storage
-// 		var storage types.Storage
-// 		if err := sdb.ForEachStorage(addr,
-// 			func(key, value common.Hash) bool {
-// 				storage = append(storage, types.NewState(key, value))
-// 				return true
-// 			},
-// 		); err != nil {
-// 			panic(err)
-// 		}
-
-// 		genAccount := types.GenesisAccount{
-// 			Address: addr.String(),
-// 			Code:    common.Bytes2Hex(sdb.GetCode(addr)),
-// 			Storage: storage,
-// 		}
-
-// 		ethAccs = append(ethAccs, genAccount)
-// 		return false
-// 	})
-// 	return ethAccs
-// }
 
 // =============================================================================
 // AccessList
@@ -730,3 +639,11 @@ func (sdb *StateDB) AddressInAccessList(addr common.Address) bool {
 func (sdb *StateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
 	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
 }
+
+// =============================================================================
+// PreImage
+// =============================================================================
+
+// AddPreimage implements the the `StateDB“ interface, but currently
+// performs a no-op since the EnablePreimageRecording flag is disabled.
+func (sdb *StateDB) AddPreimage(hash common.Hash, preimage []byte) {}

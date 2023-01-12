@@ -23,7 +23,12 @@ import (
 	statetypes "github.com/berachain/stargazer/core/state/types"
 )
 
-var _ storetypes.CacheMultiStore = (*Store)(nil)
+type StateDBCacheMultistore interface {
+	storetypes.MultiStore
+	JournalManager() *journal.Manager
+}
+
+var _ StateDBCacheMultistore = (*Store)(nil)
 
 type Store struct {
 	storetypes.MultiStore
@@ -52,6 +57,10 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	kvstore := s.MultiStore.GetKVStore(key)
 	s.stores[key] = s.newCacheKVStore(key, kvstore)
 	return s.stores[key]
+}
+
+func (s *Store) JournalManager() *journal.Manager {
+	return s.JournalMgr
 }
 
 // implements cosmos sdk storetypes.CacheMultiStore
