@@ -26,8 +26,8 @@ import (
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/berachain/stargazer/store/cachekv"
-	"github.com/berachain/stargazer/store/journal"
+	"github.com/berachain/stargazer/core/state/store/cachekv"
+	"github.com/berachain/stargazer/core/state/store/journal"
 )
 
 func newParent() types.CacheKVStore { //nolint: ireturn // by design.

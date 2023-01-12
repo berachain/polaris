@@ -23,9 +23,9 @@ import (
 	"github.com/stretchr/testify/suite"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/berachain/stargazer/core/state/store/cachekv"
+	"github.com/berachain/stargazer/core/state/store/journal"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/store/cachekv"
-	"github.com/berachain/stargazer/store/journal"
 )
 
 var (

@@ -13,7 +13,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package cachekv
 
-import "github.com/berachain/stargazer/store/journal"
+import "github.com/berachain/stargazer/core/state/store/journal"
 
 type (
 	// `DeleteCacheValue` is a struct that contains information needed to delete a value

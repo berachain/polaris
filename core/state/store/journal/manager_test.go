@@ -22,8 +22,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/store/journal"
-	"github.com/berachain/stargazer/store/journal/mock"
+	"github.com/berachain/stargazer/core/state/store/journal"
+	"github.com/berachain/stargazer/core/state/store/journal/mock"
 )
 
 func TestJournalManager(t *testing.T) {

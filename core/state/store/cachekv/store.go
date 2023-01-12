@@ -29,9 +29,9 @@ import (
 	"github.com/tendermint/tendermint/libs/math"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/berachain/stargazer/core/state/store/journal"
 	"github.com/berachain/stargazer/lib/ds/trees"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/store/journal"
 )
 
 type StateDBCacheKVStore interface {
