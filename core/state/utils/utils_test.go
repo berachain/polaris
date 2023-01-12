@@ -12,16 +12,49 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types_test
+package utils_test
 
 import (
 	"testing"
 
+	"github.com/berachain/stargazer/core/state/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestStateTypes(t *testing.T) {
+func TestUtilsPkg(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/state/types")
+	RunSpecs(t, "State Suite")
 }
+
+var _ = Describe("UnsafeStrToBytes", func() {
+	When("given a valid string", func() {
+		It("should return a byte array with the same content", func() {
+			input := "valid string"
+			expectedOutput := []byte("valid string")
+
+			output := utils.UnsafeStrToBytes(input)
+			Expect(output).To(Equal(expectedOutput))
+		})
+	})
+})
+
+var _ = Describe("UnsafeBytesToStr", func() {
+	When("given a valid byte array", func() {
+		It("should return a string with the same content", func() {
+			input := []byte("valid byte array")
+			expectedOutput := "valid byte array"
+
+			output := utils.UnsafeBytesToStr(input)
+			Expect(output).To(Equal(expectedOutput))
+		})
+	})
+	When("given empty input", func() {
+		It("should return empty string", func() {
+			input := []byte{}
+			expectedOutput := ""
+			output := utils.UnsafeBytesToStr(input)
+			Expect(output).To(Equal(expectedOutput))
+		})
+	})
+})
