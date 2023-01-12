@@ -16,7 +16,6 @@ package types
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 )
 
 const (
@@ -25,30 +24,37 @@ const (
 	keyPrefixStorage
 )
 
-var (
-	// EmptyCodeHash is the code hash of an empty code
-	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
-	EmptyCodeHash = crypto.Keccak256Hash(nil)
-
-	KeyPrefixCode     = []byte{keyPrefixCode}
-	KeyPrefixCodeHash = []byte{keyPrefixHash}
-	KeyPrefixStorage  = []byte{keyPrefixStorage}
-)
+// NOTE: we use copy to build keys for max performance: https://github.com/golang/go/issues/55905
 
 // AddressStoragePrefix returns a prefix to iterate over a given account storage.
 func AddressStoragePrefix(address common.Address) []byte {
-	return append(KeyPrefixStorage, address[:]...)
+	bz := make([]byte, 1+common.AddressLength)
+	copy(bz, []byte{keyPrefixStorage})
+	copy(bz[1:], address[:])
+	return bz
 }
 
-// StateKey defines the full key under which an account state is stored.
+// `StateKeyFor` defines the full key under which an account state is stored.
 func StateKeyFor(address common.Address, key common.Hash) []byte {
-	return append(AddressStoragePrefix(address), key[:]...)
+	bz := make([]byte, 1+common.AddressLength+common.HashLength)
+	copy(bz, []byte{keyPrefixStorage})
+	copy(bz[1:], address[:])
+	copy(bz[1+common.AddressLength:], key[:])
+	return bz
 }
 
+// `CodeHashKeyFor` defines the full key under which an addreses codehash is stored.
 func CodeHashKeyFor(address common.Address) []byte {
-	return append(KeyPrefixCodeHash, address[:]...)
+	bz := make([]byte, 1+common.AddressLength)
+	copy(bz, []byte{keyPrefixCode})
+	copy(bz[1:], address[:])
+	return bz
 }
 
+// `CodeKeyFor` defines the full key for which a codehash's corresponding code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
-	return append(KeyPrefixCode, codeHash[:]...)
+	bz := make([]byte, 1+common.HashLength)
+	copy(bz, []byte{keyPrefixCode})
+	copy(bz[1:], codeHash[:])
+	return bz
 }

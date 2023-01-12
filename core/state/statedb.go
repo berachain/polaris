@@ -34,6 +34,13 @@ import (
 
 type GethStateDB = gevm.StateDB
 
+var (
+	// EmptyCodeHash is the code hash of an empty code
+	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
+	emptyCodeHash      = crypto.Keccak256Hash(nil)
+	emptyCodeHashBytes = emptyCodeHash.Bytes()
+)
+
 // ExtStateDB defines an extension to the interface provided by the go-ethereum codebase to
 // support additional state transition functionalities. In particular it supports getting the
 // cosmos sdk context for natively running stateful precompiled contracts.
@@ -190,7 +197,7 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 	sdb.ak.SetAccount(sdb.ctx, acc)
 
 	// initialize the code hash to empty
-	sdb.ethStore.Set(types.CodeHashKeyFor(addr), types.EmptyCodeHash[:])
+	sdb.ethStore.Set(types.CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
 // =============================================================================
@@ -324,7 +331,7 @@ func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
 		if ch := sdb.ethStore.Get(types.CodeHashKeyFor(addr)); ch != nil {
 			return common.BytesToHash(ch)
 		}
-		return types.EmptyCodeHash
+		return emptyCodeHash
 	}
 	// if account at addr does not exist, return ZeroCodeHash
 	return common.Hash{}
@@ -336,7 +343,7 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 	codeHash := sdb.GetCodeHash(addr)
 	// if account at addr does not exist, GetCodeHash returns ZeroCodeHash so return nil
 	// if codeHash is empty, i.e. crypto.Keccak256(nil), also return nil
-	if (codeHash == common.Hash{}) || codeHash == types.EmptyCodeHash {
+	if (codeHash == common.Hash{}) || codeHash == emptyCodeHash {
 		return nil
 	}
 	return sdb.ethStore.Get(types.CodeKeyFor(codeHash))
@@ -450,7 +457,7 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 func (sdb *StateDB) Suicide(addr common.Address) bool {
 	// only smart contracts can commit suicide
 	ch := sdb.GetCodeHash(addr)
-	if (ch == common.Hash{}) || ch == types.EmptyCodeHash {
+	if (ch == common.Hash{}) || ch == emptyCodeHash {
 		return false
 	}
 
@@ -492,7 +499,7 @@ func (sdb *StateDB) Exist(addr common.Address) bool {
 func (sdb *StateDB) Empty(addr common.Address) bool {
 	ch := sdb.GetCodeHash(addr)
 	return sdb.GetNonce(addr) == 0 &&
-		(ch == types.EmptyCodeHash || ch == common.Hash{}) &&
+		(ch == emptyCodeHash || ch == common.Hash{}) &&
 		sdb.GetBalance(addr).Sign() == 0
 }
 
