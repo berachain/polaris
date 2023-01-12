@@ -21,7 +21,7 @@ import (
 // `ManagerI` is an interface that defines the methods that a journal manager must implement.
 // Journal managers support holding cache entries and reverting to a certain index.
 type ManagerI[T any] interface {
-	// The journal manager is a stack.
+	// `ManagerI` implements `ds.StackI[CacheEntry]`.
 	ds.StackI[CacheEntry]
 
 	// `ManagerI` implements `Cloneable`.
@@ -33,6 +33,7 @@ var _ ManagerI[*Manager] = (*Manager)(nil)
 
 // `Manager` is a struct that holds a slice of CacheEntry instances.
 type Manager struct {
+	// The journal manager is a stack.
 	*ds.Stack[CacheEntry]
 }
 
