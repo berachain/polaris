@@ -26,13 +26,13 @@ import (
 var _ vm.CanTransferFunc = CanTransfer
 var _ vm.TransferFunc = Transfer
 
-// CanTransfer checks whether there are enough funds in the address' account to make a transfer.
-// This does not take the necessary gas in to account to make the transfer valid.
+// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
+// NOTE: This does not take the necessary gas in to account to make the transfer valid.
 func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int) bool {
 	return db.GetBalance(addr).Cmp(amount) >= 0
 }
 
-// Transfer subtracts amount from sender and adds amount to recipient using the given Db.
+// `Transfer` subtracts amount from sender and adds amount to recipient using the `vm.StateDB`.
 func Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
 	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
 	db.(state.ExtStateDB).TransferBalance(sender, recipient, amount)
