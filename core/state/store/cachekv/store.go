@@ -13,6 +13,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+//nolint:ireturn // all Iterators must conform to the same interface.
 package cachekv
 
 import (

@@ -45,7 +45,7 @@ var (
 )
 
 func SetupMinimalKeepers() (sdk.Context,
-	authkeeper.AccountKeeper, bankkeeper.Keeper, stakingkeeper.Keeper) {
+	authkeeper.AccountKeeper, bankkeeper.BaseKeeper, stakingkeeper.Keeper) {
 	dbm := db.NewMemDB()
 	ms := store.NewCommitMultiStore(dbm)
 

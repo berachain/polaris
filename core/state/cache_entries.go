@@ -12,6 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+//nolint:ireturn // all `CacheEntries` must adhere to the same interface.
 package state
 
 import (
@@ -37,12 +38,12 @@ type (
 // AddLogChange
 // ==============================================================================
 
-// implements journal.CacheEntry.
+// `Revert` implements `journal.CacheEntry`.
 func (ce *AddLogChange) Revert() {
 	ce.sdb.logs = ce.sdb.logs[:len(ce.sdb.logs)-1]
 }
 
-// implements journal.CacheEntry.
+// `Clone` implements `journal.CacheEntry`.
 func (ce *AddLogChange) Clone() journal.CacheEntry {
 	return &AddLogChange{
 		sdb: ce.sdb,
@@ -53,12 +54,12 @@ func (ce *AddLogChange) Clone() journal.CacheEntry {
 // RefundChange
 // ==============================================================================
 
-// implements journal.CacheEntry.
+// `Revert` implements `journal.CacheEntry`.
 func (ce *RefundChange) Revert() {
 	ce.sdb.refund = ce.prev
 }
 
-// implements journal.CacheEntry.
+// `Clone` implements `journal.CacheEntry`.
 func (ce *RefundChange) Clone() journal.CacheEntry {
 	return &RefundChange{
 		sdb:  ce.sdb,

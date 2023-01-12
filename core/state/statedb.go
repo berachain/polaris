@@ -108,7 +108,7 @@ var (
 //     codeHash of 0x000... This is because the Bank Module does not know that the account is an
 //     EVM account, and so it does not set the codeHash. This is totally fine, we just need to
 //     check both for both the codeHash being 0x000... as well as the codeHash being 0x567...
-type StateDB struct { //nolint: revive
+type StateDB struct { //nolint: revive // we like the vibe.
 	*cachemulti.Store
 
 	// eth state stores: required for vm.StateDB
@@ -621,7 +621,7 @@ func (sdb *StateDB) GetSavedErr() error {
 	return sdb.savedErr
 }
 
-// setErrorUnsafe sets error but should be called in medhods that already have locks
+// setErrorUnsafe sets error but should be called in medhods that already have locks.
 func (sdb *StateDB) setErrorUnsafe(err error) {
 	if sdb.savedErr == nil {
 		sdb.savedErr = err

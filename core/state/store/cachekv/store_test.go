@@ -30,6 +30,7 @@ import (
 	"github.com/berachain/stargazer/core/state/store/journal"
 )
 
+//nolint:nolintlint,ireturn // must return interface.
 func newParent() types.CacheKVStore {
 	return sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
 }
