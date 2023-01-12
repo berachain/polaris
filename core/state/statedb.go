@@ -398,23 +398,27 @@ func (sdb *StateDB) GetRefund() uint64 {
 // =============================================================================
 
 // `GetCommittedState` implements the `GethStateDB` interface by returning the
-// committed state of an address.
+// committed state of slot in the given address.
 func (sdb *StateDB) GetCommittedState(
 	addr common.Address,
-	hash common.Hash,
+	slot common.Hash,
 ) common.Hash {
-	if value := prefix.NewStore(sdb.liveEthState.GetParent(),
-		types.AddressStoragePrefix(addr)).Get(hash[:]); value != nil {
-		return common.BytesToHash(value)
-	}
-	return common.Hash{}
+	return sdb.getStateFromStore(sdb.liveEthState.GetParent(), addr, slot)
 }
 
-// `GetState` implements the `GethStateDB` interface by returning the current state of an
-// address.
-func (sdb *StateDB) GetState(addr common.Address, hash common.Hash) common.Hash {
-	if value := prefix.NewStore(sdb.liveEthState,
-		types.AddressStoragePrefix(addr)).Get(hash[:]); value != nil {
+// `GetState` implements the `GethStateDB` interface by returning the current state
+// of slot in the given address.
+func (sdb *StateDB) GetState(addr common.Address, slot common.Hash) common.Hash {
+	return sdb.getStateFromStore(sdb.liveEthState, addr, slot)
+}
+
+// `getStateFromStore` returns the current state of the slot in the given address.
+func (sdb *StateDB) getStateFromStore(
+	store storetypes.KVStore,
+	addr common.Address, slot common.Hash,
+) common.Hash {
+	if value := prefix.NewStore(store, types.AddressStoragePrefix(addr)).
+		Get(slot[:]); value != nil {
 		return common.BytesToHash(value)
 	}
 	return common.Hash{}
