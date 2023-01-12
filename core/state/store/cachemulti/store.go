@@ -42,7 +42,7 @@ func NewStoreFrom(ms storetypes.MultiStore) *Store {
 // GetKVStore shadows cosmos sdk storetypes.MultiStore function. Routes native module calls to
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
-func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore { //nolint:ireturn // must return a CacheKVStore.
+func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore { //nolint:ireturn // must return interface.
 	// check if cache kv store already used
 	if cacheKVStore, exists := s.stores[key]; exists {
 		return cacheKVStore
@@ -65,7 +65,7 @@ func (s *Store) Write() {
 	}
 }
 
-func (s *Store) newCacheKVStore( //nolint:ireturn // must return a CacheKVStore.
+func (s *Store) newCacheKVStore( //nolint:ireturn // must return interface.
 	key storetypes.StoreKey,
 	kvstore storetypes.KVStore,
 ) storetypes.CacheKVStore {
