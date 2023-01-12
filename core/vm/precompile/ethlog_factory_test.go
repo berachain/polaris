@@ -26,8 +26,8 @@ import (
 
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/types/abi"
-	"github.com/berachain/stargazer/types/crypto"
 )
 
 func TestEthLogFactory(t *testing.T) {
