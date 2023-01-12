@@ -48,7 +48,7 @@ var _ = Describe("Attributes Test Suite", func() {
 
 		It("should correctly convert creation height to int64", func() {
 			creationHeightStr := strconv.FormatInt(55, 10)
-			gethValue, err = event.ConvertCreationHeight(creationHeightStr)
+			gethValue, err = event.ConvertInt64(creationHeightStr)
 			Expect(err).To(BeNil())
 			int64Val, ok := gethValue.(int64)
 			Expect(ok).To(BeTrue())

@@ -61,7 +61,7 @@ func getDefaultCosmosValueDecoder(attributeKey string) valueDecoder {
 		stakingtypes.AttributeKeyValidator:      ConvertValAddressFromBech32,
 		stakingtypes.AttributeKeySrcValidator:   ConvertValAddressFromBech32,
 		stakingtypes.AttributeKeyDstValidator:   ConvertValAddressFromBech32,
-		stakingtypes.AttributeKeyCreationHeight: ConvertCreationHeight,
+		stakingtypes.AttributeKeyCreationHeight: ConvertInt64,
 		stakingtypes.AttributeKeyDelegator:      ConvertAccAddressFromBech32,
 		banktypes.AttributeKeySender:            ConvertAccAddressFromBech32,
 		banktypes.AttributeKeyRecipient:         ConvertAccAddressFromBech32,
@@ -117,11 +117,11 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 	return common.AccAddressToEthAddress(accAddress), nil
 }
 
-// `ConvertCreationHeight` converts a creation height (from the Cosmos SDK staking module) `string`
+// `ConvertInt64` converts a creation height (from the Cosmos SDK staking module) `string`
 // to an `int64`.
 //
-// `ConvertCreationHeight` is a `valueDecoder`.
-func ConvertCreationHeight(attributeValue string) (any, error) {
+// `ConvertInt64` is a `valueDecoder`.
+func ConvertInt64(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, int64Bits)
 }
 
