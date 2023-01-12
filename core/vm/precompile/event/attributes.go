@@ -30,9 +30,8 @@ const (
 	// `intBase` is the base `int`s are parsed in, 10.
 	intBase = 10
 
-	// `creationHeightBits` is the number of bits used to store `creationHeight` from the Cosmos
-	// SDK staking module, which is of type `int64`.
-	creationHeightBits = 64
+	// `int64Bits` is the number of bits stored in a variabe of `int64` type.
+	int64Bits = 64
 
 	// `notFound` is a default return value for searches in which an item was not found.
 	notFound = -1
@@ -123,7 +122,7 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 //
 // `ConvertCreationHeight` is a `valueDecoder`.
 func ConvertCreationHeight(attributeValue string) (any, error) {
-	return strconv.ParseInt(attributeValue, intBase, creationHeightBits)
+	return strconv.ParseInt(attributeValue, intBase, int64Bits)
 }
 
 // ==============================================================================
