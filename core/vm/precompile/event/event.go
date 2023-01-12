@@ -46,7 +46,7 @@ type PrecompileEvent struct {
 // and optional `customValueDecoders`.
 func NewPrecompileEvent(
 	moduleAddr common.Address,
-	abiEvent *abi.Event,
+	abiEvent abi.Event,
 	customValueDecoders ValueDecoders,
 ) *PrecompileEvent {
 	pe := &PrecompileEvent{
@@ -64,15 +64,23 @@ func (pe *PrecompileEvent) ModuleAddress() common.Address {
 	return pe.moduleAddr
 }
 
-// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. TODO: explain.
+// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. `Topics` is a
+// slice of at most 4 hashes, in which the first topic is the Ethereum event's ID. The optional and
+// following 3 topics are hashes of the Ethereum event's indexed arguments. This function builds
+// this slice of `Topics` by building a filter query of all the corresponding arguments:
+// [eventID, indexed_arg1, ...]. Then this query is converted to topics using geth's
+// `abi.MakeTopics` function, which outputs hashes of all arguments in the query. The slice of
+// hashes is returned.
 func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(pe.indexedInputs)+1)
 	filterQuery[0] = pe.id
+
+	// for each Ethereum indexed argument, get the corresponding Cosmos event attribute
 	for i := 0; i < len(pe.indexedInputs); i++ {
 		input := pe.indexedInputs[i]
-		// below iteration has insignificant complexity as length of event.Attributes <= 3
 		attrIdx := 0
 		for ; attrIdx < len(event.Attributes); attrIdx++ {
+			// this iteration has insignificant complexity as length of event.Attributes <= 3
 			if abi.ToMixedCase(event.Attributes[attrIdx].Key) == input.Name {
 				break
 			}
@@ -85,7 +93,8 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 				input.Name,
 			)
 		}
-		// convert attr value (string) to common.Hash
+
+		// convert attribute value (string) to geth compatible type
 		attr := &event.Attributes[attrIdx]
 		valueDecoder, err := pe.getValueDecoder(attr.Key)
 		if err != nil {
@@ -98,6 +107,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 		filterQuery[i+1] = val
 	}
 
+	// convert all geth compatible types in the filter query to hashes
 	topics, err := abi.MakeTopics(filterQuery)
 	if err != nil {
 		return nil, err
@@ -105,13 +115,18 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	return topics[0], nil
 }
 
-// `MakeData` returns the Ethereum log `Data` for a valid cosmos event. TODO: explain.
+// `MakeData` returns the Ethereum log `Data` field for a valid cosmos event. `Data` is a slice of
+// bytes which store an Ethereum event's non-indexed arguments, packed into bytes. This function
+// packs the values of the incoming Cosmos event's attributes, which correspond to the
+// Ethereum event's non-indexed arguements, into bytes and returns a byte slice.
 func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
-	// complexity of below iteration: O(n^2), where n is the number of non-indexed args
+
+	// for each Ethereum non-indexed argument, get the corresponding Cosmos event attribute
 	for idx, input := range pe.nonIndexedInputs {
 		attrIdx := 0
 		for ; attrIdx < len(event.Attributes); attrIdx++ {
+			// total complexity of this iteration: O(N^2), where N is the # of non-indexed args
 			if abi.ToMixedCase(event.Attributes[attrIdx].Key) == input.Name {
 				break
 			}
@@ -124,7 +139,8 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 				input.Name,
 			)
 		}
-		// convert each attribute value to geth type
+
+		// convert attribute value (string) to geth compatible type
 		attr := event.Attributes[attrIdx]
 		valueDecoder, err := pe.getValueDecoder(attr.Key)
 		if err != nil {
@@ -137,6 +153,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 		attrVals[idx] = val
 	}
 
+	// pack the Cosmos event's attribute values into bytes
 	data, err := pe.nonIndexedInputs.PackValues(attrVals)
 	if err != nil {
 		return nil, err
@@ -157,8 +174,9 @@ func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 	return nil
 }
 
-// `getValueDecoder` TODO: explain.
-func (pe *PrecompileEvent) getValueDecoder(attrKey string) (attributeValueDecoder, error) {
+// `getValueDecoder` returns an attribute value decoder function for a certain Cosmos event
+// attribute key.
+func (pe *PrecompileEvent) getValueDecoder(attrKey string) (valueDecoder, error) {
 	// try custom precompile event attributes
 	if pe.customValueDecoders != nil {
 		if valueDecoder, ok := pe.customValueDecoders[attrKey]; ok {
@@ -167,8 +185,8 @@ func (pe *PrecompileEvent) getValueDecoder(attrKey string) (attributeValueDecode
 	}
 
 	// try default Cosmos SDK event attributes
-	valueDecoder, ok := defaultCosmosAttributes[attrKey]
-	if !ok {
+	valueDecoder := getDefaultCosmosValueDecoder(attrKey)
+	if valueDecoder == nil {
 		return nil, fmt.Errorf(
 			"attribute for key %s is not mapped to a value decoder",
 			attrKey,

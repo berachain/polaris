@@ -51,39 +51,23 @@ func NewEthereumLogFactory() *EthereumLogFactory {
 // Setter
 // ==============================================================================
 
-// `RegisterNewEvent` registers a precompile event at `moduleEthAddress` for the given `abiEvent`
-// and `attributeDecoders`, its corresponding Cosmos attribute keys to value decoder functions.
-func (pef *EthereumLogFactory) RegisterNewEvent(
-	moduleEthAddress common.Address,
-	abiEvent *abi.Event,
-	customValueDecoders event.ValueDecoders,
-) {
-	// NOTE: The CamelCase version of the Cosmos SDK event's `Type` string corresponding to this
-	// abiEvent is assumed to be equal to the abiEvent's `Name` field.
-	pef.precompileEvents[EventType(abiEvent.Name)] = event.NewPrecompileEvent(
-		moduleEthAddress,
-		abiEvent,
-		customValueDecoders,
-	)
-}
-
 // `RegisterModule` registers a Cosmos module's precompile events.
 func (pef *EthereumLogFactory) RegisterModule(
 	moduleEthAddress common.Address,
 	contract HasEvents,
 ) {
-	// load custom Cosmos events' attributes if contract has any
-	customEventAttributes := make(map[string]event.ValueDecoders)
-	if customEventsContract, ok := contract.(HasCustomEventAttributes); ok {
-		customEventAttributes = customEventsContract.CustomEventValueDecoders()
+	// if contract is of a custom Cosmos module, load its custom attributes' value decoders
+	var customModuleAttributes event.ValueDecoders
+	if customModule, ok := contract.(HasCustomModuleEvents); ok {
+		customModuleAttributes = customModule.CustomValueDecoders()
 	}
 
+	// for each event in the contract's ABI, store the Ethereum to Cosmos precompile event data
 	for eventName, abiEvent := range contract.ABIEvents() {
-		abiEventPtr := &abiEvent
 		pef.precompileEvents[EventType(eventName)] = event.NewPrecompileEvent(
 			moduleEthAddress,
-			abiEventPtr,
-			customEventAttributes[eventName], // TODO: this should be cosmos or eth formatted?
+			abiEvent,
+			customModuleAttributes,
 		)
 	}
 }
@@ -97,10 +81,10 @@ func (pef *EthereumLogFactory) BuildLog(event *sdk.Event) (log *coretypes.Log, e
 	// validate incoming Cosmos event
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
-	pe, ok := pef.precompileEvents[EventType(abi.ToCamelCase(event.Type))]
-	if !ok {
+	pe := pef.precompileEvents[EventType(abi.ToCamelCase(event.Type))]
+	if pe == nil {
 		return nil, fmt.Errorf(
-			"the Ethereum event corresponding to Cosmos event %s has not been registered",
+			"the Ethereum event corresponding to Cosmos event %s was not registered",
 			event.Type,
 		)
 	}

@@ -19,19 +19,23 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `HasEvents` defines the minimum set of required functions for a stateful precompile contract
-// to implement if it wants to emit each of its Cosmos emitted events as an Eth event log.
+// `HasEvents` is an interface that enforces the required function for a stateful precompile
+// contract to implement if it wants to emit some (or all) of its Cosmos module's events as
+// Ethereum event logs.
 type HasEvents interface {
-	// `ABIEvents` should return a map of Eth event names (should be CamelCase formatted) to
-	// geth abi `Event` structs. Note: this can be directly loaded from the `Events` field of a
-	// geth ABI struct, which is built from a solidity library, interface or contract.
+	// `ABIEvents` should return a map of Ethereum event names (should be CamelCase formatted) to
+	// geth abi `Event` structs. NOTE: this can be directly loaded from the `Events` field of a
+	// geth ABI struct, which can be built for a solidity library, interface, or contract.
 	ABIEvents() map[string]abi.Event
 }
 
-// `HasCustomAttributes` TODO: explain.
-type HasCustomEventAttributes interface {
+// `HasCustomModuleEvents` is an interface that enforces the required functions for a stateful
+// precompile contract to implement if it wants to emit some (or all) of its custom Cosmos module's
+// events as Ethereum event logs.
+type HasCustomModuleEvents interface {
 	HasEvents
 
-	// `CustomEventValueDecoders` TODO: explain.
-	CustomEventValueDecoders() map[string]event.ValueDecoders
+	// `CustomValueDecoders` should return a map of Cosmos event attribute keys to value decoder
+	// functions for all supported events in the custom Cosmos module.
+	CustomValueDecoders() event.ValueDecoders
 }
