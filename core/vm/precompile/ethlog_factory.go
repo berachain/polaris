@@ -77,28 +77,31 @@ func (pef *EthereumLogFactory) RegisterModule(
 // ==============================================================================
 
 // `BuildLog` builds an Ethereum event log from the given Cosmos event.
-func (pef *EthereumLogFactory) BuildLog(event *sdk.Event) (log *coretypes.Log, err error) {
+func (pef *EthereumLogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// validate incoming Cosmos event
+	pe := pef.precompileEvents[EventType(abi.ToCamelCase(event.Type))]
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
-	pe := pef.precompileEvents[EventType(abi.ToCamelCase(event.Type))]
 	if pe == nil {
 		return nil, fmt.Errorf(
 			"the Ethereum event corresponding to Cosmos event %s was not registered",
 			event.Type,
 		)
 	}
+	var err error
 	if err = pe.ValidateAttributes(event); err != nil {
 		return nil, err
 	}
 
 	// build Ethereum log based on valid Cosmos event
-	log.Address = pe.ModuleAddress()
+	log := &coretypes.Log{
+		Address: pe.ModuleAddress(),
+	}
 	if log.Topics, err = pe.MakeTopics(event); err != nil {
 		return nil, err
 	}
 	if log.Data, err = pe.MakeData(event); err != nil {
 		return nil, err
 	}
-	return
+	return log, nil
 }

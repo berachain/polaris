@@ -91,15 +91,15 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 
 		// convert attribute value (string) to geth compatible type
 		attr := &event.Attributes[attrIdx]
-		valueDecoder, err := pe.getValueDecoder(attr.Key)
+		decode, err := pe.getValueDecoder(attr.Key)
 		if err != nil {
 			return nil, err
 		}
-		val, err := valueDecoder(attr.Value)
+		value, err := decode(attr.Value)
 		if err != nil {
 			return nil, err
 		}
-		filterQuery[i+1] = val
+		filterQuery[i+1] = value
 	}
 
 	// convert the filter query to a slice of `Topics` hashes
@@ -132,15 +132,15 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 
 		// convert attribute value (string) to geth compatible type
 		attr := event.Attributes[attrIdx]
-		valueDecoder, err := pe.getValueDecoder(attr.Key)
+		decode, err := pe.getValueDecoder(attr.Key)
 		if err != nil {
 			return nil, err
 		}
-		val, err := valueDecoder(attr.Value)
+		value, err := decode(attr.Value)
 		if err != nil {
 			return nil, err
 		}
-		attrVals[i] = val
+		attrVals[i] = value
 	}
 
 	// pack the Cosmos event's attribute values into bytes
@@ -169,18 +169,20 @@ func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 func (pe *PrecompileEvent) getValueDecoder(attrKey string) (valueDecoder, error) {
 	// try custom precompile event attributes
 	if pe.customValueDecoders != nil {
-		if valueDecoder := pe.customValueDecoders[attrKey]; valueDecoder != nil {
-			return valueDecoder, nil
+		if decode := pe.customValueDecoders[attrKey]; decode != nil {
+			return decode, nil
 		}
 	}
 
 	// try default Cosmos SDK event attributes
-	valueDecoder := getDefaultCosmosValueDecoder(attrKey)
-	if valueDecoder == nil {
-		return nil, fmt.Errorf(
-			"attribute for key %s is not mapped to a value decoder",
-			attrKey,
-		)
+	decode := getDefaultCosmosValueDecoder(attrKey)
+	if decode != nil {
+		return decode, nil
 	}
-	return valueDecoder, nil
+
+	// no value decoder function was found for attribute key
+	return nil, fmt.Errorf(
+		"event attribute key %s is not mapped to a value decoder function",
+		attrKey,
+	)
 }
