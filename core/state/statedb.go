@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"fmt"
 	"math/big"
-	"reflect"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -159,25 +158,18 @@ func NewStateDB(
 	storeKey storetypes.StoreKey,
 	evmDenom string,
 ) *StateDB {
-	var ok bool
 	sdb := &StateDB{
-		ctx:      ctx.WithMultiStore(cachemulti.NewStoreFrom(ctx.MultiStore())),
 		ak:       ak,
 		bk:       bk,
 		evmDenom: evmDenom,
 		storeKey: storeKey,
 	}
 
-	// Save a pointer and check to make sure that the MultiStore is a StateDBCacheMultistore.
-	if sdb.cms, ok = sdb.ctx.MultiStore().(cachemulti.StateDBCacheMultistore); !ok {
-		sdb.savedErr = fmt.Errorf(
-			"expected MultiStore to be a StateDBCacheMultistore, got %T",
-			reflect.TypeOf(sdb.ctx.MultiStore()),
-		)
-		return sdb
-	}
+	// Wire up the `CacheMultiStore` & `sdk.Context`.
+	sdb.cms = cachemulti.NewStoreFrom(ctx.MultiStore())
+	sdb.ctx = ctx.WithMultiStore(sdb.cms)
 
-	// Must support directly accessing the parent store
+	// Store a reference to the EVM state store for performance reasons.
 	sdb.ethStore, _ = sdb.cms.
 		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
 
