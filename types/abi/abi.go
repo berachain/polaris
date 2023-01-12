@@ -24,12 +24,15 @@ import (
 const maxTopicsLen = 4
 
 type (
+	Argument  = abi.Argument
 	Arguments = abi.Arguments
 	Event     = abi.Event
 )
 
 var (
 	MakeTopics  = abi.MakeTopics
+	NewEvent    = abi.NewEvent
+	NewType     = abi.NewType
 	ToCamelCase = abi.ToCamelCase
 )
 

@@ -26,8 +26,8 @@ import (
 
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/vm/precompile"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/berachain/stargazer/types/abi"
+	"github.com/berachain/stargazer/types/crypto"
 )
 
 func TestEthLogFactory(t *testing.T) {
@@ -186,7 +186,7 @@ var _ = Describe("Events Registry", func() {
 	})
 })
 
-// MOCK DATA
+// MOCK DATA.
 type mockHasEvents struct{}
 
 func (m *mockHasEvents) ABIEvents() map[string]abi.Event {
