@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package event
 
 import (
 	"fmt"
@@ -28,39 +28,39 @@ type PrecompileEvent struct {
 	// `address` is the Ethereum address which represents a Cosmos module's account address.
 	moduleAddr common.Address
 
-	// `id` is the Ethereum event ID, to be used as an Ethereum event's first topic
+	// `id` is the Ethereum event ID, to be used as an Ethereum event's first topic.
 	id common.Hash
 
-	// `indexedInputs` holds an Ethereum event's indexed arguments, emitted as event topics
+	// `indexedInputs` holds an Ethereum event's indexed arguments, emitted as event topics.
 	indexedInputs abi.Arguments
 
-	// `nonIndexedInputs` holds an Ethereum event's non-indexed arguments, emitted as event data
+	// `nonIndexedInputs` holds an Ethereum event's non-indexed arguments, emitted as event data.
 	nonIndexedInputs abi.Arguments
 
-	// `attributeKeysToValueDecoders` is a map of Cosmos attribute keys to value decoder functions
-	valueDecoders map[string]AttributeValueDecoder
+	// `valueDecoders` is a map of Cosmos attribute keys to attribute value decoder functions.
+	valueDecoders map[attributeKey]attributeValueDecoder
 }
 
 // `NewPrecompileEvent` returns a new `PrecompileEvent` with the given `moduleAddress`, `abiEvent`.
 func NewPrecompileEvent(
 	moduleAddr common.Address,
 	abiEvent *abi.Event,
-	valueDecoders map[string]AttributeValueDecoder,
 ) *PrecompileEvent {
 	return &PrecompileEvent{
 		moduleAddr:       moduleAddr,
 		id:               abiEvent.ID,
 		indexedInputs:    abi.GetIndexed(abiEvent.Inputs),
 		nonIndexedInputs: abiEvent.Inputs.NonIndexed(),
-		valueDecoders:    valueDecoders,
+		// valueDecoders:    valueDecoders,
 	}
 }
 
+// `ModuleAddress` returns the Ethereum address corresponding to a PrecompileEvent's Cosmos module.
 func (pe *PrecompileEvent) ModuleAddress() common.Address {
 	return pe.moduleAddr
 }
 
-// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event.
+// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. TODO: explain
 func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(pe.indexedInputs)+1)
 	filterQuery[0] = pe.id
@@ -83,7 +83,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 		}
 		// convert attribute value (string) to common.Hash
 		attribute := &event.Attributes[attrIdx]
-		valueDecoder, ok := pe.valueDecoders[attribute.Key]
+		valueDecoder, ok := pe.valueDecoders[attributeKey(attribute.Key)]
 		if !ok {
 			return nil, fmt.Errorf(
 				"attribute for key %s is not mapped to a value decoder",
@@ -104,7 +104,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	return topics[0], nil
 }
 
-// `MakeData` returns the Ethereum log `Data` for a valid cosmos event.
+// `MakeData` returns the Ethereum log `Data` for a valid cosmos event. TODO: explain
 func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
 	// complexity of below iteration: O(n^2), where n is the number of non-indexed args
@@ -125,7 +125,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 		}
 		// convert each attribute value to geth type
 		attribute := event.Attributes[attrIdx]
-		valueDecoder, ok := pe.valueDecoders[attribute.Key]
+		valueDecoder, ok := pe.valueDecoders[attributeKey(attribute.Key)]
 		if !ok {
 			return nil, fmt.Errorf(
 				"attribute for key %s is not mapped to a value decoder",

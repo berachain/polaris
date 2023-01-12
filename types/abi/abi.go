@@ -45,8 +45,8 @@ func ToMixedCase(input string) string {
 	return strings.Join(parts, "")
 }
 
-// Extracts indexed arguments from an Events' inputs. Will panic if more than 3 indexed arguments
-// are provided by the inputs ABI.
+// `GetIndexed` extracts indexed arguments from a set of arguments. Will panic if more than 3
+// indexed arguments are provided by the inputs ABI.
 func GetIndexed(args abi.Arguments) abi.Arguments {
 	var indexed abi.Arguments
 	numIndexed := 0

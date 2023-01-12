@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package event
 
 import (
 	"strconv"
@@ -20,6 +20,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/common"
+	"github.com/berachain/stargazer/types/abi"
 )
 
 const (
@@ -31,15 +32,29 @@ const (
 	creationHeightBits = 64
 )
 
-// `AttributeValueDecoder` is a type of function that returns a geth compatible, eth primitive type
-// (as type `any`) for a given Cosmos event attribute value (of type `string`). Cosmos event
-// attribute values may require unique decodings based on their underlying string encoding.
-type AttributeValueDecoder func(attributeValue string) (ethPrimitive any, err error)
+type (
+	// `attributeValueDecoder` is a type of function that returns a geth compatible, eth primitive
+	// type (as type `any`) for a given Cosmos event attribute value (of type `string`). Cosmos
+	// event attribute values may require unique decodings based on their underlying string
+	// encoding.
+	attributeValueDecoder func(attributeValue string) (ethPrimitive any, err error)
 
-// `ConvertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
+	// `attributeKey` is a type that represents a Cosmos event attribute key string, in the
+	// mixedCase formatting. NOTE: Cosmos event attribute keys must be converted to mixed case.
+	attributeKey string
+)
+
+// `getValueDecodersFor` returns the value decoders an abi `event`. Specifically, for each argument
+// in the `event`'s inputs, this function first matches the argument name to a Cosmos attribute key
+// and then maps it to its corresponding value decoder function.
+func getValueDecodersFor(event *abi.Event) (map[attributeKey]attributeValueDecoder, error) {
+	return nil, nil
+}
+
+// `convertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
 //
-// `ConvertSdkCoin` is a `AttributeValueDecoder`.
-func ConvertSdkCoin(attributeValue string) (any, error) {
+// `convertSdkCoin` is a `attributeValueDecoder`.
+func convertSdkCoin(attributeValue string) (any, error) {
 	// extract the sdk.Coin from string value
 	coin, err := sdk.ParseCoinNormalized(attributeValue)
 	if err != nil {
@@ -49,11 +64,11 @@ func ConvertSdkCoin(attributeValue string) (any, error) {
 	return coin.Amount.BigInt(), nil
 }
 
-// `ConvertValAddress` converts a bech32 string representing a validator address to a
+// `convertValAddress` converts a bech32 string representing a validator address to a
 // `common.Address`.
 //
-// `ConvertValAddress` is a `AttributeValueDecoder`.
-func ConvertValAddress(attributeValue string) (any, error) {
+// `convertValAddress` is a `attributeValueDecoder`.
+func convertValAddress(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value
 	valAddress, err := sdk.ValAddressFromBech32(attributeValue)
 	if err != nil {
@@ -63,11 +78,11 @@ func ConvertValAddress(attributeValue string) (any, error) {
 	return common.ValAddressToEthAddress(valAddress), nil
 }
 
-// `ConvertAccAddress` converts a bech32 string representing an account address to a
+// `convertAccAddress` converts a bech32 string representing an account address to a
 // `common.Address`.
 //
-// `ConvertAccAddress` is a `AttributeValueDecoder`.
-func ConvertAccAddress(attributeValue string) (any, error) {
+// `convertAccAddress` is a `attributeValueDecoder`.
+func convertAccAddress(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value
 	accAddress, err := sdk.AccAddressFromBech32(attributeValue)
 	if err != nil {
@@ -77,10 +92,10 @@ func ConvertAccAddress(attributeValue string) (any, error) {
 	return common.AccAddressToEthAddress(accAddress), nil
 }
 
-// `ConvertCreationHeight` converts a creation height (from the Cosmos SDK staking module) `string`
+// `convertCreationHeight` converts a creation height (from the Cosmos SDK staking module) `string`
 // to an `int64`.
 //
-// `ConvertCreationHeight` is a `AttributeValueDecoder`.
-func ConvertCreationHeight(attributeValue string) (any, error) {
+// `convertCreationHeight` is a `attributeValueDecoder`.
+func convertCreationHeight(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, creationHeightBits)
 }
