@@ -105,7 +105,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	ctx sdk.Context
 
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
-	cms cachemulti.StateDBCacheMultistore
+	cms *cachemulti.Store
 
 	// eth state stores: required for vm.StateDB
 	// We store references to these stores, so that we can access them
@@ -368,14 +368,14 @@ func (sdb *StateDB) GetCodeSize(addr common.Address) int {
 // `AddRefund` implements the `GethStateDB` interface by adding gas to the
 // refund counter.
 func (sdb *StateDB) AddRefund(gas uint64) {
-	sdb.cms.JournalManager().Push(&RefundChange{sdb, sdb.refund})
+	sdb.cms.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
 	sdb.refund += gas
 }
 
 // `SubRefund` implements the `GethStateDB` interface by subtracting gas from the
 // refund counter. If the gas is greater than the refund counter, it will panic.
 func (sdb *StateDB) SubRefund(gas uint64) {
-	sdb.cms.JournalManager().Push(&RefundChange{sdb, sdb.refund})
+	sdb.cms.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
 	if gas > sdb.refund {
 		panic(fmt.Sprintf("Refund counter below zero (gas: %d > refund: %d)", gas, sdb.refund))
 	}
@@ -502,12 +502,12 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 // `RevertToSnapshot` implements `StateDB`.
 func (sdb *StateDB) RevertToSnapshot(id int) {
 	// revert and discard all journal entries after snapshot id
-	sdb.cms.JournalManager().PopToSize(id)
+	sdb.cms.JournalMgr.PopToSize(id)
 }
 
 // `Snapshot` implements `StateDB`.
 func (sdb *StateDB) Snapshot() int {
-	return sdb.cms.JournalManager().Size()
+	return sdb.cms.JournalMgr.Size()
 }
 
 // =============================================================================
@@ -516,7 +516,7 @@ func (sdb *StateDB) Snapshot() int {
 
 // AddLog implements the GethStateDB interface by adding the given log to the current transaction.
 func (sdb *StateDB) AddLog(log *coretypes.Log) {
-	sdb.cms.JournalManager().Push(&AddLogChange{sdb})
+	sdb.cms.JournalMgr.Push(&AddLogChange{sdb})
 	log.TxHash = sdb.txHash
 	log.BlockHash = sdb.blockHash
 	log.TxIndex = sdb.txIndex
