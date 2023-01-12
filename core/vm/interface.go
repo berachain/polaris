@@ -12,28 +12,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package vm
 
 import (
-	"math/big"
-
 	"github.com/berachain/stargazer/common"
-	"github.com/berachain/stargazer/core/state"
-	"github.com/berachain/stargazer/core/vm"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/holiman/uint256"
 )
 
-// Compile-time interface check.
-var _ vm.CanTransferFunc = CanTransfer
-var _ vm.TransferFunc = Transfer
-
-// CanTransfer checks whether there are enough funds in the address' account to make a transfer.
-// This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int) bool {
-	return db.GetBalance(addr).Cmp(amount) >= 0
-}
-
-// Transfer subtracts amount from sender and adds amount to recipient using the given Db.
-func Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
-	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
-	db.(state.ExtStateDB).TransferBalance(sender, recipient, amount)
+type VMInterface interface { //nolint:revive // we like the vibe.
+	Reset(txCtx TxContext, sdb StateDB)
+	Create(caller ContractRef, code []byte,
+		gas uint64, value *uint256.Int,
+	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
+	Call(caller ContractRef, addr common.Address, input []byte,
+		gas uint64, value *uint256.Int, bailout bool,
+	) (ret []byte, leftOverGas uint64, err error)
+	Config() Config
+	ChainConfig() *params.ChainConfig
+	ChainRules() *params.Rules
+	Context() BlockContext
+	StateDB() StateDB
+	TxContext() TxContext
 }

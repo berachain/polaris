@@ -41,6 +41,9 @@ type GethStateDB = gevm.StateDB
 type ExtStateDB interface {
 	GethStateDB
 
+	// TransferBalance transfers the balance from one account to another
+	TransferBalance(common.Address, common.Address, *big.Int)
+
 	// GetSavedErr returns the error saved in the statedb
 	GetSavedErr() error
 
@@ -271,9 +274,9 @@ func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 	}
 }
 
-// `SendBalance` sends the given amount from one account to another. It will
+// `TransferBalance` sends the given amount from one account to another. It will
 // error if the sender does not have enough funds to send.
-func (sdb *StateDB) SendBalance(from, to common.Address, amount *big.Int) {
+func (sdb *StateDB) TransferBalance(from, to common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the destination address.
