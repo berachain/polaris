@@ -20,46 +20,42 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("TestKeys", func() {
-	var _ = Describe("AddressStoragePrefix", func() {
-		It("returns a prefix to iterate over a given account storage", func() {
-			address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
-			prefix := AddressStoragePrefix(address)
-			Expect(prefix).To(HaveLen(1 + common.AddressLength))
-			Expect(prefix[0]).To(Equal(keyPrefixStorage))
-			Expect(prefix[1:]).To(Equal(address.Bytes()))
-		})
+var _ = Describe("AddressStoragePrefix", func() {
+	It("returns a prefix to iterate over a given account storage", func() {
+		address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
+		prefix := AddressStoragePrefix(address)
+		Expect(prefix).To(HaveLen(1 + common.AddressLength))
+		Expect(prefix[0]).To(Equal(keyPrefixStorage))
+		Expect(prefix[1:]).To(Equal(address.Bytes()))
 	})
+})
 
-	var _ = Describe("StateKeyFor", func() {
-		It("returns a storage key for a given account and storage slot", func() {
-			address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
-			slot := common.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")
-			key := StateKeyFor(address, slot)
-			Expect(key).To(HaveLen(1 + common.AddressLength + common.HashLength))
-			Expect(key[0]).To(Equal(keyPrefixStorage))
-			Expect(key[1 : 1+common.AddressLength]).To(Equal(address.Bytes()))
-			Expect(key[1+common.AddressLength:]).To(Equal(slot.Bytes()))
-		})
+var _ = Describe("StateKeyFor", func() {
+	It("returns a storage key for a given account and storage slot", func() {
+		address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
+		slot := common.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")
+		key := StateKeyFor(address, slot)
+		Expect(key).To(HaveLen(1 + common.AddressLength + common.HashLength))
+		Expect(key[0]).To(Equal(keyPrefixStorage))
+		Expect(key[1 : 1+common.AddressLength]).To(Equal(address.Bytes()))
+		Expect(key[1+common.AddressLength:]).To(Equal(slot.Bytes()))
 	})
+})
 
-	var _ = Describe("CodeHashKeyFor", func() {
-		It("returns a code hash key for a given account", func() {
-			address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
-			key := CodeHashKeyFor(address)
-			Expect(key).To(HaveLen(1 + common.AddressLength))
-			Expect(key[0]).To(Equal(keyPrefixCode))
-			Expect(key[1:]).To(Equal(address.Bytes()))
-		})
-	})
+var _ = Describe("CodeHashKeyFo or a given account", func() {
+	address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
+	key := CodeHashKeyFor(address)
+	Expect(key).To(HaveLen(1 + common.AddressLength))
+	Expect(key[0]).To(Equal(keyPrefixCode))
+	Expect(key[1:]).To(Equal(address.Bytes()))
+})
 
-	var _ = Describe("CodeKeyFor", func() {
-		It("returns a code key for a given account", func() {
-			address := common.HexToHash("0x1234567890abcdef1234567890abcdef12345678")
-			key := CodeKeyFor(address)
-			Expect(key).To(HaveLen(1 + common.HashLength))
-			Expect(key[0]).To(Equal(keyPrefixCode))
-			Expect(key[1:]).To(Equal(address.Bytes()))
-		})
+var _ = Describe("CodeKeyFor", func() {
+	It("returns a code key for a given account", func() {
+		address := common.HexToHash("0x1234567890abcdef1234567890abcdef12345678")
+		key := CodeKeyFor(address)
+		Expect(key).To(HaveLen(1 + common.HashLength))
+		Expect(key[0]).To(Equal(keyPrefixCode))
+		Expect(key[1:]).To(Equal(address.Bytes()))
 	})
 })
