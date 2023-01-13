@@ -27,7 +27,7 @@ type cacheValue struct {
 }
 
 // `newCacheValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
-func newCacheValue(v []byte, d bool) *cacheValue { //nolint:revive // TODO: explain.
+func newCacheValue(v []byte, d bool) *cacheValue { 
 	return &cacheValue{
 		value: v,
 		dirty: d,

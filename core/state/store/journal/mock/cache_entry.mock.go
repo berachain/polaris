@@ -32,11 +32,7 @@ func (m *CacheEntry) Revert() {
 }
 
 // `Clone` implements `CacheEntry`.
-<<<<<<< HEAD
-func (m *CacheEntry) Clone() *journal.CacheEntry {
-=======
 func (m *CacheEntry) Clone() journal.CacheEntry {
->>>>>>> 8162272687f0ced4bd40a3432d54e429440d76ac
 	return &CacheEntry{num: m.num}
 }
 
