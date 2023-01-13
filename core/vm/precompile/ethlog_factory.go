@@ -82,7 +82,7 @@ func (pef *EthereumLogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error
 	}
 	var err error
 	if err = pe.ValidateAttributes(event); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s for event %s", err.Error(), event.Type)
 	}
 
 	// build Ethereum log based on valid Cosmos event
@@ -90,10 +90,10 @@ func (pef *EthereumLogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error
 		Address: pe.ModuleAddress(),
 	}
 	if log.Topics, err = pe.MakeTopics(event); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s for event %s", err.Error(), event.Type)
 	}
 	if log.Data, err = pe.MakeData(event); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s for event %s", err.Error(), event.Type)
 	}
 	return log, nil
 }

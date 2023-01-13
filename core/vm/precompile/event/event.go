@@ -82,11 +82,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	for i, arg := range pe.indexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
-			return nil, fmt.Errorf(
-				"no attribute key found for event %s argument %s",
-				event.Type,
-				arg.Name,
-			)
+			return nil, fmt.Errorf("no attribute key found for argument %s", arg.Name)
 		}
 
 		// convert attribute value (string) to geth compatible type
@@ -123,11 +119,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	for i, arg := range pe.nonIndexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
-			return nil, fmt.Errorf(
-				"no attribute key found for event %s argument %s",
-				event.Type,
-				arg.Name,
-			)
+			return nil, fmt.Errorf("no attribute key found for argument %s", arg.Name)
 		}
 
 		// convert attribute value (string) to geth compatible type
@@ -156,10 +148,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 // Ethereum events.
 func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 	if len(event.Attributes) < len(pe.indexedInputs)+len(pe.nonIndexedInputs) {
-		return fmt.Errorf(
-			"not enough event attributes provided for event %s",
-			event.Type,
-		)
+		return fmt.Errorf("not enough event attributes provided")
 	}
 	return nil
 }
