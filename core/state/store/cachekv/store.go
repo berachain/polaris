@@ -423,13 +423,13 @@ func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState sort
 func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	keyStr := utils.UnsafeBytesToStr(key)
 
-	// add cache value (deep copy) to journal manager if dirty (Set or Delete)
+	// Append a new journal entry if the value is dirty, in order to remember
+	// the previous state. Also add keyStr to the unsorted cache.
 	if dirty {
 		store.journalMgr.Push(NewSetCacheValue(store, keyStr, store.Cache[keyStr]))
-	}
-
-	store.Cache[keyStr] = NewCacheValue(value, dirty)
-	if dirty {
 		store.UnsortedCache[keyStr] = struct{}{}
 	}
+
+	// Cache the value for the key.
+	store.Cache[keyStr] = NewCacheValue(value, dirty)
 }
