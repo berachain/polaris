@@ -20,7 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-// `maxIndexedEvents` is the maximum number of indexed arguments allowed in an Ethereum event log.
+// `maxIndexedArgs` is the maximum number of indexed arguments allowed in an Ethereum event log.
 // In go-ethereum this is often referred to as `maxTopicsLength` but we prefer this terminology.
 const maxIndexedArgs = 3
 
