@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -17,102 +17,65 @@ package cachekv_test
 import (
 	"testing"
 
-	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
-	"github.com/cosmos/cosmos-sdk/store/dbadapter"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/state/store/cachekv"
 	"github.com/berachain/stargazer/core/state/store/journal"
+	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
+	"github.com/cosmos/cosmos-sdk/store/dbadapter"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	dbm "github.com/tendermint/tm-db"
 )
 
-var (
-	byte0           = []byte{0}
-	byte1           = []byte{1}
-	nonZeroCodeHash = common.BytesToHash([]byte{0x05})
-	zeroCodeHash    = common.Hash{}
-)
-
-type EvmStoreSuite struct {
-	suite.Suite
-	parent   storetypes.KVStore
-	evmStore *cachekv.EvmStore
+func TestJournalManager(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/state/store/cachemulti")
 }
 
-func TestEvmStoreSuite(t *testing.T) {
-	suite.Run(t, new(EvmStoreSuite))
-	require.True(t, true)
-}
+var _ = Describe("CacheMulti", func() {
+	var (
+		byte0           = []byte{0}
+		byte1           = []byte{1}
+		nonZeroCodeHash = common.BytesToHash([]byte{0x05})
+		zeroCodeHash    = common.Hash{}
+		parent          storetypes.KVStore
+		evmStore        *cachekv.EvmStore
+	)
 
-func (s *EvmStoreSuite) SetupTest() {
-	parent := sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
-	s.parent = parent
-	s.evmStore = cachekv.NewEvmStore(s.parent, journal.NewManager())
-}
+	BeforeEach(func() {
+		parent = sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
+		evmStore = cachekv.NewEvmStore(parent, journal.NewManager())
+	})
 
-// TODO: determine if this is allowable behavior, should be fine?
-func (s *EvmStoreSuite) TestWarmSlotVia0() {
-	s.SetupTest()
-
-	// set [key: 1, val: zeroCodeHash]
-	s.evmStore.Set(byte1, zeroCodeHash.Bytes())
-	// write Store
-	s.evmStore.Write()
-
-	require.Equal(s.T(), zeroCodeHash.Bytes(), s.parent.Get(byte1))
-}
-
-// parent != nil, set value == zeroCodeHash -> should write key ??
-func (s *EvmStoreSuite) TestWriteZeroValParentNotNil() {
-	s.SetupTest()
-
-	// set [key: 0, val: zeroCodeHash]
-	s.evmStore.Set(byte0, zeroCodeHash.Bytes())
-	// write Store
-	s.evmStore.Write()
-	// check written
-	require.Equal(s.T(), zeroCodeHash.Bytes(), s.parent.Get(byte0))
-}
-
-// parent == nil, set value != zeroCodeHash -> should write key.
-func (s *EvmStoreSuite) TestWriteNonZeroValParentNil() {
-	s.SetupTest()
-
-	// set [key: 1, val: nonZeroCodeHash]
-	s.evmStore.Set(byte1, nonZeroCodeHash.Bytes())
-	// write Store
-	s.evmStore.Write()
-	// check written
-	require.Equal(s.T(), nonZeroCodeHash.Bytes(), s.parent.Get(byte1))
-}
-
-// parent != nil, set value != zeroCodeHash -> should write key.
-func (s *EvmStoreSuite) TestWriteNonZeroValParentNotNil() {
-	s.SetupTest()
-
-	// set [key: 0, val: nonZeroCodeHash]
-	s.evmStore.Set(byte0, nonZeroCodeHash.Bytes())
-	// write Store
-	s.evmStore.Write()
-	// check written
-	require.Equal(s.T(), nonZeroCodeHash.Bytes(), s.parent.Get(byte0))
-}
-
-func (s *EvmStoreSuite) TestWriteAfterDelete() {
-	s.SetupTest()
-
-	// parent store has [key: 1, value: NIL] (does not contain key: 1)
-	// set [key: 1, val: zeroCodeHash] to cache evm store
-	s.evmStore.Set(byte1, zeroCodeHash.Bytes())
-	// the cache evm store SHOULD have value set (to zeroCodeHash) for key: 1
-	require.Equal(s.T(), zeroCodeHash.Bytes(), s.evmStore.Get(byte1))
-	// delete [key: 1, val: zeroCodeHash] from cache evm store
-	s.evmStore.Delete(byte1)
-	require.False(s.T(), s.evmStore.Has(byte1))
-	s.evmStore.Write()
-	// parent store SHOULD NOT be written to; stll [key: 1, value: NIL]
-	require.False(s.T(), s.parent.Has(byte1))
-}
+	It("TestWarmSlotVia0", func() {
+		evmStore.Set(byte1, zeroCodeHash.Bytes())
+		evmStore.Write()
+		Expect(parent.Get(byte1)).To(Equal(zeroCodeHash.Bytes()))
+	})
+	It("TestWriteZeroValParentNotNil", func() {
+		evmStore.Set(byte0, zeroCodeHash.Bytes())
+		evmStore.Write()
+		Expect(parent.Get(byte0)).To(Equal(zeroCodeHash.Bytes()))
+	})
+	It("TestWriteNonZeroValParentNil", func() {
+		evmStore.Set(byte0, nonZeroCodeHash.Bytes())
+		Expect(parent.Get(byte0)).To(BeNil())
+		evmStore.Write()
+		Expect(parent.Get(byte0)).To(Equal(nonZeroCodeHash.Bytes()))
+	})
+	It("TestWriteNonZeroValParentNotNil", func() {
+		evmStore.Set(byte0, nonZeroCodeHash.Bytes())
+		Expect(parent.Get(byte0)).To(BeNil())
+		evmStore.Write()
+		Expect(parent.Get(byte0)).To(Equal(nonZeroCodeHash.Bytes()))
+	})
+	It("TestWriteAfterDelete", func() {
+		evmStore.Set(byte1, zeroCodeHash.Bytes())
+		Expect(evmStore.Get(byte1)).To(Equal(zeroCodeHash.Bytes()))
+		evmStore.Delete(byte1)
+		Expect(evmStore.Get(byte1)).To(BeNil())
+		evmStore.Write()
+		Expect(parent.Get(byte1)).To(BeNil())
+	})
+})
