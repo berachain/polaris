@@ -21,7 +21,7 @@ import (
 )
 
 // `maxIndexedEvents` is the maximum number of indexed arguments allowed in an Ethereum event log.
-const maxIndexedEvents = 3
+const maxIndexedArguments = 3
 
 type (
 	Argument  = abi.Argument
