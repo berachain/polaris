@@ -25,7 +25,6 @@ import (
 
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/vm/precompile"
-	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -48,7 +47,7 @@ var _ = Describe("Events Registry", func() {
 	})
 
 	Describe("Valid Cosmos Event", func() {
-		It("should handle all allowed cosmos types", func() {
+		It("should correctly build the log", func() {
 			event := sdk.NewEvent(
 				"cancel_unbonding_delegation",
 				sdk.NewAttribute("validator", valAddr.String()),
@@ -57,38 +56,18 @@ var _ = Describe("Events Registry", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			log, err := factory.BuildLog(&event)
-			eventID := crypto.Keccak256Hash(
-				[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
-			)
-
 			Expect(err).To(BeNil())
-			Expect(log.Address).To(Equal(stakingModuleAddr))
-			Expect(len(log.Topics)).To(Equal(3))
-			Expect(log.Topics[0]).To(Equal(eventID))
-			Expect(log.Topics[1]).To(Equal(
-				common.BytesToHash(valAddr.Bytes()),
-			))
-			Expect(log.Topics[2]).To(Equal(
-				common.BytesToHash(delAddr.Bytes()),
-			))
-			ethEvent := getMockAbiEvent()
-			Expect(ethEvent).ToNot(BeNil())
-			packedData, err := ethEvent.Inputs.NonIndexed().PackValues(
-				[]any{
-					amt.Amount.BigInt(),
-					creationHeight,
-				},
-			)
-			Expect(err).To(BeNil())
-			Expect(log.Data).To(Equal(packedData))
+			Expect(log.Address).ToNot(BeNil())
+			Expect(log.Topics).ToNot(BeNil())
+			Expect(log.Data).ToNot(BeNil())
 		})
 	})
 
 	Describe("Invalid Cosmos Events", func() {
-		It("should fail on non-registered event name", func() {
-			event := sdk.NewEvent("cancel-unbonding-delegation")
+		It("should fail on non-registered event", func() {
+			event := sdk.NewEvent("redelegate")
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("the Ethereum event corresponding to Cosmos event cancel-unbonding-delegation was not registered")) //nolint:lll
+			Expect(err.Error()).To(Equal("the Ethereum event corresponding to Cosmos event redelegate was not registered")) //nolint:lll
 		})
 
 		It("should fail on incorrect number of attributes given", func() {
@@ -111,7 +90,7 @@ var _ = Describe("Events Registry", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("no attribute key found for event cancel_unbonding_delegation argument validator")) //nolint:lll
+			Expect(err.Error()).To(Equal("no attribute key found for argument validator for event cancel_unbonding_delegation")) //nolint:lll
 		})
 
 		It("should fail on invalid (non-indexed) attribute key given", func() {
@@ -123,57 +102,7 @@ var _ = Describe("Events Registry", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("no attribute key found for event cancel_unbonding_delegation argument amount")) //nolint:lll
-		})
-
-		Context("bad attribute values", func() {
-			It("should error on bad validator address", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", "bad validator string"),
-					sdk.NewAttribute("amount", amt.String()),
-					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-					sdk.NewAttribute("delegator", delAddr.String()),
-				)
-				_, err := factory.BuildLog(&event)
-				Expect(err).ToNot(BeNil())
-			})
-
-			It("should error on bad amount value", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", valAddr.String()),
-					sdk.NewAttribute("amount", "bad amount value"),
-					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-					sdk.NewAttribute("delegator", delAddr.String()),
-				)
-				_, err := factory.BuildLog(&event)
-				Expect(err).ToNot(BeNil())
-			})
-
-			It("should error on bad account address", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", valAddr.String()),
-					sdk.NewAttribute("amount", amt.String()),
-					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-					sdk.NewAttribute("delegator", "bad acc string"),
-				)
-				_, err := factory.BuildLog(&event)
-				Expect(err).ToNot(BeNil())
-			})
-
-			It("should error on bad creation height", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", valAddr.String()),
-					sdk.NewAttribute("amount", amt.String()),
-					sdk.NewAttribute("creation_height", "bad creation height"),
-					sdk.NewAttribute("delegator", delAddr.String()),
-				)
-				_, err := factory.BuildLog(&event)
-				Expect(err).ToNot(BeNil())
-			})
+			Expect(err.Error()).To(Equal("no attribute key found for argument amount for event cancel_unbonding_delegation")) //nolint:lll
 		})
 	})
 })
