@@ -53,13 +53,13 @@ func ToMixedCase(input string) string {
 func GetIndexed(args abi.Arguments) abi.Arguments {
 	var indexed abi.Arguments
 	numIndexed := 0
-	for _, arg := range args {
-		if arg.Indexed {
+	for i := range args {
+		if args[i].Indexed {
 			numIndexed++
 			if numIndexed == maxTopicsLen {
 				panic("number of indexed arguments is more than allowed by Eth event log")
 			}
-			indexed = append(indexed, arg)
+			indexed = append(indexed, args[i])
 		}
 	}
 	return indexed

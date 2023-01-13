@@ -23,7 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("State Test", func() {
+var _ = Describe("core/state/types", func() {
 	var state types.State
 	key := common.Hash{}.Bytes()
 	value := common.Hash{}.Bytes()

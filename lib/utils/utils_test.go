@@ -17,14 +17,14 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/berachain/stargazer/core/state/utils"
+	"github.com/berachain/stargazer/lib/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 func TestUtilsPkg(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "State Suite")
+	RunSpecs(t, "core/state/utils")
 }
 
 var _ = Describe("UnsafeStrToBytes", func() {
