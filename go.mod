@@ -20,6 +20,8 @@ require (
 	github.com/onsi/gomega v1.24.1
 	github.com/segmentio/golines v0.11.0
 	github.com/stretchr/testify v1.8.1
+	github.com/tendermint/tendermint v0.37.0-rc2
+	github.com/tendermint/tm-db v0.6.7
 	github.com/tidwall/btree v1.5.2
 	golang.org/x/tools v0.4.0
 	golang.org/x/tools/gopls v0.11.0
@@ -283,8 +285,6 @@ require (
 	github.com/tendermint/btcd v0.1.1 // indirect
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tendermint/tendermint v0.37.0-rc2 // indirect
-	github.com/tendermint/tm-db v0.6.7 // indirect
 	github.com/tetafro/godot v1.4.11 // indirect
 	github.com/timakin/bodyclose v0.0.0-20210704033933-f49887972144 // indirect
 	github.com/timonwong/loggercheck v0.9.3 // indirect
