@@ -18,9 +18,10 @@ executors:
   standard:
     docker:
       - image: cimg/go:1.19
+      environment:
+        FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
     resource_class: medium
-    environment:
-      FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
+
 orbs:
   codecov: codecov/codecov@3.2.4
 
@@ -52,6 +53,8 @@ jobs:
       - run:
           name: Test Unit Race
           command: mage testunitrace
+      - store_test_results:
+          path: .
 
 workflows:
   build_lint_test:
