@@ -34,10 +34,7 @@ func NewCacheValue(v []byte, d bool) *cacheValue { //nolint:revive // TODO: expl
 	}
 }
 
-// `Clone` creates a new cacheValue object with the same value and dirty flag as the original
-// cacheValue object. This function is used to create a deep copy of the prev field in
-// DeleteCacheValue and CacheEntry objects, so that modifications to the original prev value do
-// not affect the cloned DeleteCacheValue or CacheEntry object.
+// `Clone` implements `types.Cloneable`.
 func (cv *cacheValue) Clone() *cacheValue {
 	// Return a new cacheValue with the same value and dirty flag
 	return NewCacheValue(append([]byte(nil), cv.value...), cv.dirty)
