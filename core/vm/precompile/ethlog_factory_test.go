@@ -16,7 +16,6 @@ package precompile_test
 
 import (
 	"strconv"
-	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,11 +28,6 @@ import (
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/types/abi"
 )
-
-func TestEthLogFactory(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Eth Log Factory Test Suite")
-}
 
 var _ = Describe("Events Registry", func() {
 	var factory *precompile.EthereumLogFactory

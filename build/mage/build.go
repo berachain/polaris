@@ -17,21 +17,33 @@ import (
 	"fmt"
 	"os"
 
+	mi "github.com/berachain/stargazer/build/mage/internal"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
 )
 
-// General purpose build variables.
 var (
-	outdir     = "./bin"
-	cmds       = []string{"berad"}
-	production = false
-	statically = false
+	// Commands.
+	goInstall   = mi.RunCmdV("go", "install", "-mod=readonly")
+	goBuild     = mi.RunCmdV("go", "build", "-mod=readonly")
+	goRun       = mi.RunCmdV("go", "run")
+	goGenerate  = mi.RunCmdV("go", "generate")
+	goModVerify = mi.RunCmdV("go", "mod", "verify")
+	goModTidy   = mi.RunCmdV("go", "mod", "tidy")
 
+	// Directories.
+	outdir = "./bin"
+
+	// Tools.
 	moq     = "github.com/matryer/moq"
 	abigen  = "github.com/ethereum/go-ethereum/cmd/abigen"
 	gitDiff = sh.RunCmd("git", "diff", "--stat", "--exit-code", ".",
 		"':(exclude)*.mod' ':(exclude)*.sum'")
+
+	// Variables and Helpers.
+	cmds       = []string{""}
+	production = false
+	statically = false
 )
 
 // Runs `go build` on the entire project.

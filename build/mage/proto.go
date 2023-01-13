@@ -21,6 +21,13 @@ import (
 )
 
 var (
+	// Buf Commands.
+	bufRepo = "github.com/bufbuild/buf/cmd/buf"
+	// bufBuild  = mi.RunCmdV("go", "run", bufRepo, "build").
+	bufFormat = mi.RunCmdV("go", "run", bufRepo, "format", "-w")
+	bufLint   = mi.RunCmdV("go", "run", bufRepo, "lint", "--error-format=json")
+
+	// Docker Args
 	// TODO: remove once https://github.com/cosmos/cosmos-sdk/pull/13960 is merged
 	protoImageName    = "berachain-proto"
 	protoImageVersion = "0.11.2"
