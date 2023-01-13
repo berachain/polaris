@@ -46,11 +46,7 @@ var _ = Describe("Events Registry", func() {
 	BeforeEach(func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 		factory = precompile.NewEthereumLogFactory()
-		factory.RegisterEvent(
-			stakingModuleAddr,
-			getAbiEvent(),
-			nil,
-		)
+		factory.RegisterEvent(stakingModuleAddr, getMockAbiEvent(), nil)
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))
 		amt = sdk.NewCoin("denom", sdk.NewInt(1))
@@ -81,7 +77,7 @@ var _ = Describe("Events Registry", func() {
 			Expect(log.Topics[2]).To(Equal(
 				common.BytesToHash(delAddr.Bytes()),
 			))
-			ethEvent := getAbiEvent()
+			ethEvent := getMockAbiEvent()
 			Expect(ethEvent).ToNot(BeNil())
 			packedData, err := ethEvent.Inputs.NonIndexed().PackValues(
 				[]any{
@@ -188,8 +184,7 @@ var _ = Describe("Events Registry", func() {
 	})
 })
 
-// MOCK DATA.
-func getAbiEvent() abi.Event {
+func getMockAbiEvent() abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
 	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
 	int64Type, _ := abi.NewType("int64", "int64", nil)
