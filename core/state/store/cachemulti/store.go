@@ -22,27 +22,30 @@ import (
 	statetypes "github.com/berachain/stargazer/core/state/types"
 )
 
+// Compile-time check to ensure `Store` implements `storetypes.CacheMultiStore`.
 var _ storetypes.CacheMultiStore = (*Store)(nil)
 
+// `Store` is a wrapper around the Cosmos SDK `MultiStore` which injects a custom EVM CacheKVStore.
 type Store struct {
 	storetypes.MultiStore
 	stores     map[storetypes.StoreKey]storetypes.CacheKVStore
 	JournalMgr *journal.Manager
 }
 
+// `NewStoreFrom` creates and returns a new `Store` from a given MultiStore.
 func NewStoreFrom(ms storetypes.MultiStore) *Store {
 	return &Store{
 		MultiStore: ms,
 		stores:     make(map[storetypes.StoreKey]storetypes.CacheKVStore),
-
 		JournalMgr: journal.NewManager(),
 	}
 }
 
-// GetKVStore shadows cosmos sdk storetypes.MultiStore function. Routes native module calls to
-// read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
-// context passed in to StateDB, will be routed to a tx-specific cache kv store.
-func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore { //nolint:ireturn // must return a CacheKVStore.
+// `GetKVStore` shadows the Cosmos SDK `storetypes.MultiStore` function. Routes native module calls
+// to read the dirty state during an eth tx. Any state that is modified by evm statedb, and using
+// the context passed in to StateDB, will be routed to a tx-specific cache kv store. This function
+// always returns a `storetypes.CacheKVStore`.
+func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore { //nolint:ireturn // TODO.
 	// check if cache kv store already used
 	if cacheKVStore, exists := s.stores[key]; exists {
 		return cacheKVStore
@@ -53,9 +56,10 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore { //nolin
 	return s.stores[key]
 }
 
-// implements cosmos sdk storetypes.CacheMultiStore
-// Write commits each of the individual cachekv stores to its corresponding parent kv stores.
-func (s *Store) Write() {
+// `Write` commits each of the individual cachekv stores to its corresponding parent kv stores.
+//
+// `Write` implements Cosmos SDK `storetypes.CacheMultiStore`.
+func (s *Store) Write() { //nolint:ireturn // TODO.
 	// Safe from non-determinism, since order in which
 	// we write to the parent kv stores does not matter.
 	//
@@ -65,10 +69,12 @@ func (s *Store) Write() {
 	}
 }
 
-func (s *Store) newCacheKVStore( //nolint:ireturn // must return a CacheKVStore.
+// `newCacheKVStore` returns a new CacheKVStore. If the `key` is an EVM storekey, it will return
+// an EVM CacheKVStore.
+func (s *Store) newCacheKVStore(
 	key storetypes.StoreKey,
 	kvstore storetypes.KVStore,
-) storetypes.CacheKVStore {
+) storetypes.CacheKVStore { //nolint:ireturn // TODO.
 	if key.Name() == statetypes.EvmStoreKey {
 		return cachekv.NewEvmStore(kvstore, s.JournalMgr)
 	}

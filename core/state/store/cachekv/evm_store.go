@@ -21,23 +21,24 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
+// Compile-time check to ensure `EvmStore` implements `storetypes.CacheKVStore`.
 var _ storetypes.CacheKVStore = (*EvmStore)(nil)
 
-// Avoid the mutex lock for EVM stores (codes/storage)
+// `EVMStore` is a cache kv store that avoids the mutex lock for EVM stores (codes/storage).
 // Writes to the EVM are thread-safe because the EVM interpreter is guaranteed to be single
 // threaded. All entry points to the EVM check that only a single execution context is running.
 type EvmStore struct {
 	*Store
 }
 
-// NewEvmStore creates a new Store object.
+// `NewEvmStore` creates a new Store object.
 func NewEvmStore(parent storetypes.KVStore, journalMgr *journal.Manager) *EvmStore {
 	return &EvmStore{
 		NewStore(parent, journalMgr),
 	}
 }
 
-// Get shadows Store.Get
+// `Get` shadows Store.Get
 // This function retrieves a value associated with the specified key in the store.
 func (store *EvmStore) Get(key []byte) []byte {
 	var bz []byte
@@ -57,12 +58,12 @@ func (store *EvmStore) Get(key []byte) []byte {
 	return bz
 }
 
-// Set shadows Store.Set.
+// `Set` shadows Store.Set.
 func (store *EvmStore) Set(key []byte, value []byte) {
 	store.setCacheValue(key, value, true)
 }
 
-// Delete shadows Store.Delete.
+// `Delete` shadows Store.Delete.
 func (store *EvmStore) Delete(key []byte) {
 	store.setCacheValue(key, nil, true)
 }
