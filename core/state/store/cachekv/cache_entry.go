@@ -20,14 +20,12 @@ import (
 // Compile-time check to ensure `CacheEntry` implements `journal.CacheEntry`.
 var _ journal.CacheEntry = (*CacheEntry)(nil)
 
-type (
-	// `CacheEntry` is a struct that contains information needed to set a value in a cache.
-	CacheEntry struct {
-		Store *Store      // Pointer to the cache store.
-		Key   string      // Key of the value to be set.
-		Prev  *cacheValue // Deep copy of object in cache map.
-	}
-)
+// `CacheEntry` is a struct that contains information needed to set a value in a cache.
+type CacheEntry struct {
+	Store *Store      // Pointer to the cache store.
+	Key   string      // Key of the value to be set.
+	Prev  *cacheValue // Deep copy of object in cache map.
+}
 
 // `NewCacheEntry` creates a new `CacheEntry` object for the given `store`, `key`, and `prev`
 // cache value.

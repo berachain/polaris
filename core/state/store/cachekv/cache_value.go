@@ -16,7 +16,7 @@ package cachekv
 
 import "github.com/berachain/stargazer/types"
 
-// `cacheValue` implements `Cloneable`.
+// Compile-time assertion that `cacheValue` implements `types.Cloneable`.
 var _ types.Cloneable[*cacheValue] = (*cacheValue)(nil)
 
 // `cacheValue` represents a cached value in the cachekv store.
