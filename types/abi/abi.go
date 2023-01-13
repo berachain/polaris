@@ -20,7 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-// `maxIndexedEvents` is the maximum number of topics hashes allowed in an Eth log.
+// `maxIndexedEvents` is the maximum number of indexed arguments allowed in an Ethereum event log.
 const maxIndexedEvents = 3
 
 type (
