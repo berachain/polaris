@@ -113,7 +113,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 // `MakeData` returns the Ethereum log `Data` field for a valid cosmos event. `Data` is a slice of
 // bytes which store an Ethereum event's non-indexed arguments, packed into bytes. This function
 // packs the values of the incoming Cosmos event's attributes, which correspond to the
-// Ethereum event's non-indexed arguements, into bytes and returns a byte slice.
+// Ethereum event's non-indexed arguments, into bytes and returns a byte slice.
 func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
 

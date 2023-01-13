@@ -20,9 +20,9 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-// `maxIndexedArguments` is the maximum number of indexed arguments allowed in an Ethereum event
-// log.
-const maxIndexedArguments = 3
+// `maxIndexedEvents` is the maximum number of indexed arguments allowed in an Ethereum event log.
+// In go-ethereum this is often referred to as `maxTopicsLength` but we prefer this terminology.
+const maxIndexedArgs = 3
 
 type (
 	Argument  = abi.Argument
@@ -59,7 +59,7 @@ func GetIndexed(args abi.Arguments) abi.Arguments {
 		}
 	}
 
-	if len(indexed) > maxIndexedArguments {
+	if len(indexed) > maxIndexedArgs {
 		panic("number of indexed arguments is more than allowed by Eth event log")
 	}
 
