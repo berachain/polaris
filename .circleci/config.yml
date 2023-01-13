@@ -19,7 +19,8 @@ executors:
     docker:
       - image: cimg/go:1.19
     resource_class: medium
-
+    environment:
+      FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
 orbs:
   codecov: codecov/codecov@3.2.4
 
@@ -64,13 +65,14 @@ commands:
   setup: # Setup the test environment
     steps:
       - checkout
+
+      # Setup Golang
       - restore_cache:
           keys:
             - go-mod-v1-{{ checksum "go.sum" }}
           paths:
             - "/home/circleci/go/pkg/mod"
             - "/home/circleci/go/pkg/bin"
-            - "/home/circleci/.foundry/bin"
 
       - run:
           name: Install Go Dependencies
@@ -84,8 +86,22 @@ commands:
             source "$BASH_ENV"
             go install github.com/magefile/mage
             go install github.com/onsi/ginkgo/v2/ginkgo
+
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/home/circleci/go/pkg/mod"
+            - "/home/circleci/go/pkg/bin"
+
+      # Setup Foundry
+      - restore_cache:
+          keys:
+            - foundry-{{ $FOUNDRY_COMMIT }}
+          paths:
+            - "/home/circleci/.foundry/bin"
+
       - run:
-          name: Install Foundry
+          name: Install Foundryup
           command: |
             curl -L https://foundry.paradigm.xyz | bash || true
             echo 'export PATH=/home/circleci/.foundry/bin:"$PATH"' >> "$BASH_ENV"
@@ -93,8 +109,7 @@ commands:
             foundryup
 
       - save_cache:
-          key: go-mod-v1-{{ checksum "go.sum" }}
+          keys:
+            - foundry-{{ $FOUNDRY_COMMIT }}
           paths:
-            - "/home/circleci/go/pkg/mod"
-            - "/home/circleci/go/pkg/bin"
             - "/home/circleci/.foundry/bin"
