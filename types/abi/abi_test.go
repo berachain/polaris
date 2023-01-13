@@ -37,24 +37,27 @@ var _ = Describe("ABI Test Suite", func() {
 	})
 
 	Describe("Test GetIndexed", func() {
-		var allArgs = abi.Arguments{
-			abi.Argument{},
-			abi.Argument{
-				Name:    "1",
-				Indexed: true,
-			},
-			abi.Argument{
-				Name:    "2",
-				Indexed: true,
-			},
-			abi.Argument{},
-			abi.Argument{},
-			abi.Argument{},
-			abi.Argument{
-				Name:    "3",
-				Indexed: true,
-			},
-		}
+		var allArgs abi.Arguments
+		BeforeEach(func() {
+			allArgs = abi.Arguments{
+				abi.Argument{},
+				abi.Argument{
+					Name:    "1",
+					Indexed: true,
+				},
+				abi.Argument{
+					Name:    "2",
+					Indexed: true,
+				},
+				abi.Argument{},
+				abi.Argument{},
+				abi.Argument{},
+				abi.Argument{
+					Name:    "3",
+					Indexed: true,
+				},
+			}
+		})
 
 		It("should correctly filter out indexed arguments", func() {
 			indexedArgs := abi.Arguments{
