@@ -12,33 +12,23 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package mock
+syntax = "proto3";
 
-import (
-	"github.com/berachain/stargazer/store/journal"
-)
+package stargazer.crypto.v1;
 
-// `MockCacheEntry` is a basic CacheEntry which increases num by 1 on `Revert()`.
-type CacheEntry struct {
-	num int
+option go_package = "github.com/berachain/stargazer/crypto";
+
+// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
+// Tendermint's `PubKey` interface. It represents the 33-byte compressed public
+// key format.
+message EthSecp256k1PubKey {
+  // `key` is the public key in byte form.
+  bytes key = 1;
 }
 
-// `NewCacheEntry` creates a new `MockCacheEntry`.
-func NewCacheEntry() *CacheEntry {
-	return &CacheEntry{}
-}
-
-// `Revert` implements `CacheEntry`.
-func (m *CacheEntry) Revert() {
-	m.num++
-}
-
-// `Clone` implements `CacheEntry`.
-func (m *CacheEntry) Clone() journal.CacheEntry {
-	return &CacheEntry{num: m.num}
-}
-
-// `RevertCallCount` returns the number of times `Revert` has been called.
-func (m *CacheEntry) RevertCallCount() int {
-	return m.num
+// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
+// Tendermint's `PrivateKey` interface.
+message EthSecp256k1PrivKey {
+  // `key` is the private key in byte form.
+  bytes key = 1;
 }
