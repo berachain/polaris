@@ -20,7 +20,7 @@ executors:
       - image: cimg/go:1.19
         environment:
           FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
-    resource_class: medium
+    resource_class: large
 
 orbs:
   codecov: codecov/codecov@3.2.4
