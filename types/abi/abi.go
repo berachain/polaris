@@ -55,11 +55,11 @@ func GetIndexed(args abi.Arguments) abi.Arguments {
 	numIndexed := 0
 	for _, arg := range args {
 		if arg.Indexed {
+			numIndexed++
 			if numIndexed == maxTopicsLen {
 				panic("number of indexed arguments is more than allowed by Eth event log")
 			}
 			indexed = append(indexed, arg)
-			numIndexed++
 		}
 	}
 	return indexed

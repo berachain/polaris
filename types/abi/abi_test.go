@@ -37,29 +37,26 @@ var _ = Describe("ABI Test Suite", func() {
 	})
 
 	Describe("Test GetIndexed", func() {
+		var allArgs = abi.Arguments{
+			abi.Argument{Indexed: false},
+			abi.Argument{
+				Name:    "1",
+				Indexed: true,
+			},
+			abi.Argument{
+				Name:    "2",
+				Indexed: true,
+			},
+			abi.Argument{Indexed: false},
+			abi.Argument{Indexed: false},
+			abi.Argument{Indexed: false},
+			abi.Argument{
+				Name:    "3",
+				Indexed: true,
+			},
+		}
+
 		It("should correctly filter out indexed arguments", func() {
-			allArgs := abi.Arguments{
-				abi.Argument{Indexed: false},
-				abi.Argument{
-					Name:    "1",
-					Indexed: true,
-				},
-				abi.Argument{
-					Name:    "2",
-					Indexed: true,
-				},
-				abi.Argument{Indexed: false},
-				abi.Argument{
-					Name:    "3",
-					Indexed: true,
-				},
-				abi.Argument{Indexed: false},
-				abi.Argument{Indexed: false},
-				abi.Argument{
-					Name:    "4",
-					Indexed: true,
-				},
-			}
 			indexedArgs := abi.Arguments{
 				abi.Argument{
 					Name:    "1",
@@ -73,12 +70,13 @@ var _ = Describe("ABI Test Suite", func() {
 					Name:    "3",
 					Indexed: true,
 				},
-				abi.Argument{
-					Name:    "4",
-					Indexed: true,
-				},
 			}
 			Expect(abi.GetIndexed(allArgs)).To(Equal(indexedArgs))
+		})
+
+		It("should panic if more than 3 indexed args are present", func() {
+			allArgs = append(allArgs, abi.Argument{Indexed: true})
+			Expect(func() { abi.GetIndexed(allArgs) }).To(Panic())
 		})
 	})
 })
