@@ -17,7 +17,6 @@ package event
 import (
 	"math/big"
 	"strconv"
-	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -27,11 +26,6 @@ import (
 
 	"github.com/berachain/stargazer/common"
 )
-
-func TestAttributes(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Attributes Test Suite")
-}
 
 var _ = Describe("Attributes Test Suite", func() {
 	var gethValue any
@@ -77,11 +71,11 @@ var _ = Describe("Attributes Test Suite", func() {
 
 	Describe("Test Search Attributes for Argument", func() {
 		var attributes = []abci.EventAttribute{
-			abci.EventAttribute{Key: "k0"},
-			abci.EventAttribute{Key: "k1"},
-			abci.EventAttribute{Key: "k2"},
-			abci.EventAttribute{Key: "k3"},
-			abci.EventAttribute{Key: "k4"},
+			{Key: "k0"},
+			{Key: "k1"},
+			{Key: "k2"},
+			{Key: "k3"},
+			{Key: "k4"},
 		}
 
 		It("should return the correct index if it contains the argument name", func() {

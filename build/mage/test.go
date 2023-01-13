@@ -20,6 +20,19 @@ import (
 )
 
 var (
+
+	// Arguments.
+	junitArgs = []string{"--junit-report", "out.xml"}
+	coverArgs = []string{"--cover", "--coverprofile", "coverage.txt", "--covermode", "atomic"}
+	raceArgs  = []string{"-race"}
+
+	// Commands.
+	goTest          = mi.RunCmdV("go", "test", "-mod=readonly")
+	ginkgoTest      = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
+	ginkgoCoverArgs = append(junitArgs, coverArgs...)
+	ginkgoRaceArgs  = append(junitArgs, raceArgs...)
+
+	// Packages.
 	packagesUnit        = mi.GoListFilter(false, "integration", "cli", "e2e", "build")
 	packagesIntegration = mi.GoListFilter(true, "integration", "cli")
 	packagesEvm         = mi.GoListFilter(true, "evm")
@@ -79,12 +92,7 @@ func TestUnitRace() error {
 	// if err := ForgeBuild(); err != nil {
 	// 	return err
 	// }
-	args := []string{
-		"-race",
-	}
-	return goTest(
-		append(args, packagesUnit...)...,
-	)
+	return ginkgoTest(ginkgoRaceArgs...)
 }
 
 // Runs the unit tests with benchmarking.
