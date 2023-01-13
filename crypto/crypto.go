@@ -12,28 +12,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package common
+package crypto
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+import "github.com/ethereum/go-ethereum/crypto"
 
-// `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.
-func AccAddressToEthAddress(accAddress sdk.AccAddress) Address {
-	return BytesToAddress(accAddress)
-}
-
-// `ValAddressToEthAddress` converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
-func ValAddressToEthAddress(valAddress sdk.ValAddress) Address {
-	return BytesToAddress(valAddress)
-}
-
-// `EthAddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
-func EthAddressToAccAddress(ethAddress Address) sdk.AccAddress {
-	return ethAddress.Bytes()
-}
-
-// `EthAddressToValAddress` converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
-func EthAddressToValAddress(ethAddress Address) sdk.ValAddress {
-	return ethAddress.Bytes()
-}
+var Keccak256Hash = crypto.Keccak256Hash
