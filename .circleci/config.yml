@@ -18,8 +18,8 @@ executors:
   standard:
     docker:
       - image: cimg/go:1.19
-      environment:
-        FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
+        environment:
+          FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
     resource_class: medium
 
 orbs:
