@@ -39,9 +39,8 @@ const (
 // `Pubkey` is a wrapper around the Ethereum secp256k1 public key type. This wrapper conforms to
 // `crypotypes.Pubkey` to allow for the use of the Ethereum secp256k1 public key type within the Cosmos SDK.
 
-var (
-	_ cryptotypes.PubKey = &PubKey{}
-)
+// Compile-time type assertion.
+var _ cryptotypes.PubKey = &PubKey{}
 
 // `Address` returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.
@@ -91,9 +90,8 @@ func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 // `PrivKey` is a wrapper around the Ethereum secp256k1 private key type. This wrapper conforms to
 // `crypotypes.Pubkey` to allow for the use of the Ethereum secp256k1 private key type within the Cosmos SDK.
 
-var (
-	_ cryptotypes.PrivKey = &PrivKey{}
-)
+// Compile-time type assertion.
+var _ cryptotypes.PrivKey = &PrivKey{}
 
 // `GenerateKey` generates a new random private key. It returns an error upon
 // failure.
