@@ -12,33 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package mock
+package crypto
 
 import (
-	"github.com/berachain/stargazer/core/state/store/journal"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `MockCacheEntry` is a basic CacheEntry which increases num by 1 on `Revert()`.
-type CacheEntry struct {
-	num int
-}
-
-// `NewCacheEntry` creates a new `MockCacheEntry`.
-func NewCacheEntry() *CacheEntry {
-	return &CacheEntry{}
-}
-
-// `Revert` implements `CacheEntry`.
-func (m *CacheEntry) Revert() {
-	m.num++
-}
-
-// `Clone` implements `CacheEntry`.
-func (m *CacheEntry) Clone() journal.CacheEntry {
-	return &CacheEntry{num: m.num}
-}
-
-// `RevertCallCount` returns the number of times `Revert` has been called.
-func (m *CacheEntry) RevertCallCount() int {
-	return m.num
+func TestCrypto(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "crypto")
 }

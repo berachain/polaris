@@ -4,12 +4,11 @@
 package types
 
 import (
-	"fmt"
+	fmt "fmt"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
-
-	proto "github.com/cosmos/gogoproto/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -23,11 +22,11 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// State represents a single Storage key value pair item.
+// `State` represents a single key/value pair of evm state data.
 type State struct {
-	// key is the stored key
+	// `key` is the stored key.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// value is the stored value for the given key
+	// `value` is the stored value for the given key.
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 }
 
