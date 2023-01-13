@@ -128,7 +128,7 @@ func (privKey PrivKey) PubKey() cryptotypes.PubKey {
 	}
 }
 
-// `s` returns true if two ECDSA private keys are equal and false otherwise.
+// `Equals` returns true if two ECDSA private keys are equal and false otherwise.
 func (privKey PrivKey) Equals(other cryptotypes.LedgerPrivKey) bool {
 	return privKey.Type() == other.Type() && subtle.ConstantTimeCompare(privKey.Bytes(), other.Bytes()) == 1
 }
