@@ -20,6 +20,17 @@ import (
 )
 
 var (
+
+	// Arguments.
+	junitArgs = []string{"--junit-report", "out.xml"}
+	coverArgs = append(junitArgs, []string{"--cover", "--coverprofile", "coverage.txt", "--covermode", "atomic"}...)
+	raceArgs  = append(junitArgs, []string{"-race"}...)
+
+	// Commands.
+	goTest     = mi.RunCmdV("go", "test", "-mod=readonly")
+	ginkgoTest = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
+
+	// Packages.
 	packagesUnit        = mi.GoListFilter(false, "integration", "cli", "e2e", "build")
 	packagesIntegration = mi.GoListFilter(true, "integration", "cli")
 	packagesEvm         = mi.GoListFilter(true, "evm")
@@ -71,7 +82,7 @@ func TestUnitCover() error {
 	// if err := ForgeBuild(); err != nil {
 	// 	return err
 	// }
-	return ginkgoTest(ginkgoCoverArgs...)
+	return ginkgoTest(coverArgs...)
 }
 
 // Runs the unit tests with race detection.
@@ -79,12 +90,7 @@ func TestUnitRace() error {
 	// if err := ForgeBuild(); err != nil {
 	// 	return err
 	// }
-	args := []string{
-		"-race",
-	}
-	return goTest(
-		append(args, packagesUnit...)...,
-	)
+	return ginkgoTest(raceArgs...)
 }
 
 // Runs the unit tests with benchmarking.
