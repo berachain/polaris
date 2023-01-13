@@ -18,7 +18,7 @@ package stargazer_lib.crypto.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/berachain/stargazer/lib/crypto";
+option go_package = "github.com/berachain/stargazer/crypto";
 
 // `PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
 // Tendermint's `PubKey` interface. It represents the 33-byte compressed public

@@ -23,5 +23,5 @@ import (
 
 func TestCrypto(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "lib/crypto")
+	RunSpecs(t, "crypto")
 }
