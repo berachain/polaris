@@ -16,7 +16,6 @@ package crypto
 
 import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -45,13 +44,13 @@ var _ = Describe("PrivKey", func() {
 		addr := privKey.PubKey().Address()
 		key, err := privKey.ToECDSA()
 		Expect(err).To(BeNil())
-		expectedAddr := crypto.PubkeyToAddress(key.PublicKey)
+		expectedAddr := PubkeyToAddress(key.PublicKey)
 		Expect(expectedAddr.Bytes()).To(Equal(addr.Bytes()))
 	})
 
 	It("validates signing bytes", func() {
 		msg := []byte("hello world")
-		sigHash := crypto.Keccak256Hash(msg)
+		sigHash := Keccak256Hash(msg)
 		expectedSig, err := secp256k1.Sign(sigHash.Bytes(), privKey.Bytes())
 		Expect(err).To(BeNil())
 
@@ -86,7 +85,7 @@ var _ = Describe("PrivKey_PubKey", func() {
 
 	It("validates signature", func() {
 		msg := []byte("hello world")
-		sigHash := crypto.Keccak256Hash(msg)
+		sigHash := Keccak256Hash(msg)
 		sig, err := privKey.Sign(sigHash.Bytes())
 		Expect(err).To(BeNil())
 
