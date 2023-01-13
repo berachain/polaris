@@ -38,7 +38,7 @@ var _ = Describe("ABI Test Suite", func() {
 
 	Describe("Test GetIndexed", func() {
 		var allArgs = abi.Arguments{
-			abi.Argument{Indexed: false},
+			abi.Argument{},
 			abi.Argument{
 				Name:    "1",
 				Indexed: true,
@@ -47,9 +47,9 @@ var _ = Describe("ABI Test Suite", func() {
 				Name:    "2",
 				Indexed: true,
 			},
-			abi.Argument{Indexed: false},
-			abi.Argument{Indexed: false},
-			abi.Argument{Indexed: false},
+			abi.Argument{},
+			abi.Argument{},
+			abi.Argument{},
 			abi.Argument{
 				Name:    "3",
 				Indexed: true,
