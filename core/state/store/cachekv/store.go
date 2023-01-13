@@ -425,13 +425,7 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 
 	// add cache value (deep copy) to journal manager if dirty (Set or Delete)
 	if dirty {
-		var cv journal.CacheEntry
-		if value != nil {
-			cv = NewSetCacheValue(store, keyStr, store.Cache[keyStr])
-		} else {
-			cv = NewDeleteCacheValue(store, keyStr, store.Cache[keyStr])
-		}
-		store.journalMgr.Push(cv.Clone())
+		store.journalMgr.Push(NewSetCacheValue(store, keyStr, store.Cache[keyStr]))
 	}
 
 	store.Cache[keyStr] = NewCacheValue(value, dirty)
