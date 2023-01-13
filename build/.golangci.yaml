@@ -219,14 +219,12 @@ linters:
     - stylecheck # is a replacement for golint
     - tenv # detects using os.Setenv instead of t.Setenv since Go1.17
     - testableexamples # checks if examples are testable (have an expected output)
-    # - testpackage # makes you use a separate _test package
     - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert # removes unnecessary type conversions
     - unparam # reports unused function parameters
     - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
     - wastedassign # finds wasted assignment statements
     - whitespace # detects leading and trailing whitespace
-    # - wrapcheck # checks that errors returned from external packages are wrapped
 
     ## you may want to enable
     #- decorder # checks declaration order and count of types, constants, variables and functions
@@ -241,6 +239,7 @@ linters:
     #- wrapcheck # checks that errors returned from external packages are wrapped
 
     ## disabled
+    #- testpackage # makes you use a separate _test package
     #- containedctx # detects struct contained context.Context field
     #- contextcheck # [too many false positives] checks the function whether use a non-inherited context
     #- depguard # [replaced by gomodguard] checks if package imports are in a list of acceptable packages
