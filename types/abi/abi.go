@@ -58,7 +58,7 @@ func GetIndexed(args abi.Arguments) abi.Arguments {
 		}
 	}
 
-	if len(indexed) > maxIndexedEvents {
+	if len(indexed) > maxIndexedArguments{
 		panic("number of indexed arguments is more than allowed by Eth event log")
 	}
 
