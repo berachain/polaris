@@ -17,19 +17,22 @@ import (
 	"github.com/berachain/stargazer/core/state/store/journal"
 )
 
+// Compile-time check to ensure `CacheEntry` implements `journal.CacheEntry`.
+var _ journal.CacheEntry = (*CacheEntry)(nil)
+
 type (
-	// `SetCacheValue` is a struct that contains information needed to set a value in a cache.
-	SetCacheValue struct {
+	// `CacheEntry` is a struct that contains information needed to set a value in a cache.
+	CacheEntry struct {
 		Store *Store      // Pointer to the cache store.
 		Key   string      // Key of the value to be set.
 		Prev  *cacheValue // Deep copy of object in cache map.
 	}
 )
 
-// `NewSetCacheValue` creates a new `SetCacheValue` object for the given `store`, `key`, and `prev`
+// `NewCacheEntry` creates a new `CacheEntry` object for the given `store`, `key`, and `prev`
 // cache value.
-func NewSetCacheValue(store *Store, key string, prev *cacheValue) *SetCacheValue {
-	return &SetCacheValue{
+func NewCacheEntry(store *Store, key string, prev *cacheValue) *CacheEntry {
+	return &CacheEntry{
 		Store: store,
 		Key:   key,
 		Prev:  prev,
@@ -40,41 +43,41 @@ func NewSetCacheValue(store *Store, key string, prev *cacheValue) *SetCacheValue
 // the current value in the cache map.
 //
 // `Revert` implements journal.CacheEntry.
-func (scv *SetCacheValue) Revert() {
+func (ce *CacheEntry) Revert() {
 	// If there was a previous value, set it as the current value in the cache map
-	if scv.Prev == nil {
+	if ce.Prev == nil {
 		// If there was no previous value, remove the Key from the
 		// cache map and the unsorted cache set
-		delete(scv.Store.Cache, scv.Key)
-		delete(scv.Store.UnsortedCache, scv.Key)
+		delete(ce.Store.Cache, ce.Key)
+		delete(ce.Store.UnsortedCache, ce.Key)
 		return
 	}
 
 	// If there was a previous value, set it as the current value in the cache map.
-	scv.Store.Cache[scv.Key] = scv.Prev
+	ce.Store.Cache[ce.Key] = ce.Prev
 
 	// If the previous value was not dirty, remove the Key from the unsorted cache set
-	if !scv.Prev.dirty {
-		delete(scv.Store.UnsortedCache, scv.Key)
+	if !ce.Prev.dirty {
+		delete(ce.Store.UnsortedCache, ce.Key)
 	}
 }
 
-// `Clone` creates a deep copy of the SetCacheValue object.
+// `Clone` creates a deep copy of the CacheEntry object.
 // The deep copy contains the same Store and Key fields as the original,
 // and a deep copy of the Prev field, if it is not nil.
 //
 // `Clone` implements `journal.CacheEntry`.
 //
 //nolint:nolintlint,ireturn // by design.
-func (scv *SetCacheValue) Clone() journal.CacheEntry {
+func (ce *CacheEntry) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
 	var prevDeepCopy *cacheValue
-	if scv.Prev != nil {
-		prevDeepCopy = scv.Prev.Clone()
+	if ce.Prev != nil {
+		prevDeepCopy = ce.Prev.Clone()
 	}
 
-	// Return a new SetCacheValue object with the same Store and Key fields as the original,
+	// Return a new CacheEntry object with the same Store and Key fields as the original,
 	// and the Prev field set to the deep copy of the original Prev field
 	// (or nil if the original was nil)
-	return NewSetCacheValue(scv.Store, scv.Key, prevDeepCopy)
+	return NewCacheEntry(ce.Store, ce.Key, prevDeepCopy)
 }
