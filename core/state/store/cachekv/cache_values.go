@@ -19,18 +19,28 @@ type (
 	// `DeleteCacheValue` is a struct that contains information needed to delete a value
 	// from a cache.
 	DeleteCacheValue struct {
-		Store *Store  // Pointer to the cache store.
-		Key   string  // Key of the value to be deleted.
-		Prev  *cValue // Deep copy of object in cache map.
+		Store *Store      // Pointer to the cache store.
+		Key   string      // Key of the value to be deleted.
+		Prev  *cacheValue // Deep copy of object in cache map.
 	}
 
 	// `SetCacheValue` is a struct that contains information needed to set a value in a cache.
 	SetCacheValue struct {
-		Store *Store  // Pointer to the cache store.
-		Key   string  // Key of the value to be set.
-		Prev  *cValue // Deep copy of object in cache map.
+		Store *Store      // Pointer to the cache store.
+		Key   string      // Key of the value to be set.
+		Prev  *cacheValue // Deep copy of object in cache map.
 	}
 )
+
+// `NewDeleteCacheValue` creates a new `DeleteCacheValue` object for the given `store`, `key`, and
+// `prev` cache value.
+func NewDeleteCacheValue(store *Store, key string, prev *cacheValue) *DeleteCacheValue {
+	return &DeleteCacheValue{
+		Store: store,
+		Key:   key,
+		Prev:  prev,
+	}
+}
 
 // `Revert` restores the previous cache entry for the Key, if it exists.
 //
@@ -70,7 +80,7 @@ func (dcv *DeleteCacheValue) Revert() {
 //nolint:nolintlint,ireturn // by design.
 func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
-	var prevDeepCopy *cValue
+	var prevDeepCopy *cacheValue
 	if dcv.Prev != nil {
 		prevDeepCopy = dcv.Prev.Clone()
 	}
@@ -78,10 +88,16 @@ func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	// Return a new DeleteCacheValue object with the same Store and Key fields as the original,
 	// and the Prev field set to the deep copy of the original Prev field
 	// (or nil if the original was nil)
-	return &DeleteCacheValue{
-		Store: dcv.Store,
-		Key:   dcv.Key,
-		Prev:  prevDeepCopy,
+	return NewDeleteCacheValue(dcv.Store, dcv.Key, prevDeepCopy)
+}
+
+// `NewSetCacheValue` creates a new `SetCacheValue` object for the given `store`, `key`, and `prev`
+// cache value.
+func NewSetCacheValue(store *Store, key string, prev *cacheValue) *SetCacheValue {
+	return &SetCacheValue{
+		Store: store,
+		Key:   key,
+		Prev:  prev,
 	}
 }
 
@@ -117,7 +133,7 @@ func (scv *SetCacheValue) Revert() {
 //nolint:nolintlint,ireturn // by design.
 func (scv *SetCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
-	var prevDeepCopy *cValue
+	var prevDeepCopy *cacheValue
 	if scv.Prev != nil {
 		prevDeepCopy = scv.Prev.Clone()
 	}
@@ -125,9 +141,5 @@ func (scv *SetCacheValue) Clone() journal.CacheEntry {
 	// Return a new SetCacheValue object with the same Store and Key fields as the original,
 	// and the Prev field set to the deep copy of the original Prev field
 	// (or nil if the original was nil)
-	return &SetCacheValue{
-		Store: scv.Store,
-		Key:   scv.Key,
-		Prev:  prevDeepCopy,
-	}
+	return NewSetCacheValue(scv.Store, scv.Key, prevDeepCopy)
 }

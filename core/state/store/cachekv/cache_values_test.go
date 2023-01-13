@@ -156,23 +156,14 @@ func (s *CacheValueSuite) TestRevertSetAfterSet() {
 }
 
 func (s *CacheValueSuite) TestCloneDelete() {
-	dcvNonNil := &DeleteCacheValue{
-		Store: s.cacheKVStore,
-		Key:   byte1Str,
-		Prev:  NewCValue(byte1, true),
-	}
-
+	dcvNonNil := NewDeleteCacheValue(s.cacheKVStore, byte1Str, NewCacheValue(byte1, true))
 	dcvNonNilClone, ok := dcvNonNil.Clone().(*DeleteCacheValue)
 	s.Require().True(ok)
 	s.Require().Equal(byte1Str, dcvNonNilClone.Key)
 	s.Require().True(dcvNonNilClone.Prev.dirty)
 	s.Require().Equal(byte1, dcvNonNilClone.Prev.value)
 
-	dcvNil := &DeleteCacheValue{
-		Store: s.cacheKVStore,
-		Key:   "",
-		Prev:  nil,
-	}
+	dcvNil := NewDeleteCacheValue(s.cacheKVStore, "", nil)
 	dcvNilClone, ok := dcvNil.Clone().(*DeleteCacheValue)
 	s.Require().True(ok)
 	s.Require().Equal("", dcvNilClone.Key)
@@ -181,22 +172,14 @@ func (s *CacheValueSuite) TestCloneDelete() {
 }
 
 func (s *CacheValueSuite) TestCloneSet() {
-	dcvNonNil := &SetCacheValue{
-		Store: s.cacheKVStore,
-		Key:   byte1Str,
-		Prev:  NewCValue(byte1, true),
-	}
+	dcvNonNil := NewSetCacheValue(s.cacheKVStore, byte1Str, NewCacheValue(byte1, true))
 	dcvNonNilClone, ok := dcvNonNil.Clone().(*SetCacheValue)
 	s.Require().True(ok)
 	s.Require().Equal(byte1Str, dcvNonNilClone.Key)
 	s.Require().True(dcvNonNilClone.Prev.dirty)
 	s.Require().Equal(byte1, dcvNonNilClone.Prev.value)
 
-	dcvNil := &SetCacheValue{
-		Store: s.cacheKVStore,
-		Key:   "",
-		Prev:  nil,
-	}
+	dcvNil := NewSetCacheValue(s.cacheKVStore, "", nil)
 	dcvNilClone, ok := dcvNil.Clone().(*SetCacheValue)
 	s.Require().True(ok)
 	s.Require().Equal("", dcvNilClone.Key)

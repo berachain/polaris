@@ -16,32 +16,29 @@ package cachekv
 
 import "github.com/berachain/stargazer/types"
 
-// `cValue` implements `Cloneable`.
-var _ types.Cloneable[*cValue] = (*cValue)(nil)
+// `cacheValue` implements `Cloneable`.
+var _ types.Cloneable[*cacheValue] = (*cacheValue)(nil)
 
-// `cValue` represents a cached value in the cachekv store.
+// `cacheValue` represents a cached value in the cachekv store.
 // If dirty is true, it indicates the cached value is different from the underlying value.
-type cValue struct {
+type cacheValue struct {
 	value []byte
 	dirty bool
 }
 
-// `NewCValue` creates a new cValue object with the given value and dirty flag.
-func NewCValue(v []byte, d bool) *cValue { //nolint: revive // todo:revist.
-	return &cValue{
+// `NewCacheValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
+func NewCacheValue(v []byte, d bool) *cacheValue {
+	return &cacheValue{
 		value: v,
 		dirty: d,
 	}
 }
 
-// `Clone` creates a new cValue object with the same value and dirty flag as the original
-// cValue object. This function is used to create a deep copy of the prev field in
+// `Clone` creates a new cacheValue object with the same value and dirty flag as the original
+// cacheValue object. This function is used to create a deep copy of the prev field in
 // DeleteCacheValue and SetCacheValue objects, so that modifications to the original prev value do
 // not affect the cloned DeleteCacheValue or SetCacheValue object.
-func (cv *cValue) Clone() *cValue {
-	// Return a new cValue with the same value and dirty flag
-	return &cValue{
-		value: append([]byte(nil), cv.value...),
-		dirty: cv.dirty,
-	}
+func (cv *cacheValue) Clone() *cacheValue {
+	// Return a new cacheValue with the same value and dirty flag
+	return NewCacheValue(append([]byte(nil), cv.value...), cv.dirty)
 }
