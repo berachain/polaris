@@ -426,7 +426,7 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	// Append a new journal entry if the value is dirty, in order to remember the previous state.
 	// Also add the key to the unsorted cache.
 	if dirty {
-		store.journalMgr.Push(NewCacheEntry(store, keyStr, store.Cache[keyStr]))
+		store.journalMgr.Push(newCacheEntry(store, keyStr, store.Cache[keyStr]))
 		store.UnsortedCache[keyStr] = struct{}{}
 	}
 

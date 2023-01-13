@@ -29,7 +29,7 @@ type cacheEntry struct {
 
 // `NewCacheEntry` creates a new `CacheEntry` object for the given `store`, `key`, and `prev`
 // cache value.
-func NewCacheEntry(store *Store, key string, prev *cacheValue) *cacheEntry {
+func newCacheEntry(store *Store, key string, prev *cacheValue) *cacheEntry {
 	if prev != nil {
 		prev = prev.Clone()
 	}
@@ -81,5 +81,5 @@ func (ce *cacheEntry) Clone() journal.CacheEntry {
 	// Return a new CacheEntry object with the same Store and Key fields as the original,
 	// and the Prev field set to the deep copy of the original Prev field
 	// (or nil if the original was nil)
-	return NewCacheEntry(ce.Store, ce.Key, prevDeepCopy)
+	return newCacheEntry(ce.Store, ce.Key, prevDeepCopy)
 }
