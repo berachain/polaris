@@ -15,7 +15,7 @@ package journal
 
 import (
 	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/types"
+	"github.com/berachain/stargazer/lib/gointerfaces"
 )
 
 // `ManagerI` is an interface that defines the methods that a journal manager must implement.
@@ -25,7 +25,7 @@ type ManagerI[T any] interface {
 	ds.StackI[CacheEntry]
 
 	// `ManagerI` implements `Cloneable`.
-	types.Cloneable[T]
+	gointerfaces.Cloneable[T]
 }
 
 // Compile-time check to ensure `Manager` implements `ManagerI`.

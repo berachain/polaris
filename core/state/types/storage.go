@@ -18,11 +18,11 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-	"github.com/berachain/stargazer/types"
+	"github.com/berachain/stargazer/lib/gointerfaces"
 )
 
 // Compile-time type assertions.
-var _ types.Cloneable[Storage] = Storage{}
+var _ gointerfaces.Cloneable[Storage] = Storage{}
 var _ fmt.Stringer = Storage{}
 
 // `Storage` represents the account Storage map as a slice of single key value

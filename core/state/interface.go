@@ -17,13 +17,16 @@ package state
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/core/vm"
+
 	"github.com/berachain/stargazer/common"
 	coretypes "github.com/berachain/stargazer/core/types"
 )
 
-// ExtStateDB defines an extension to the interface provided by the go-ethereum codebase to
-// support additional state transition functionalities. In particular it supports getting the
-// cosmos sdk context for natively running stateful precompiled contracts.
+type GethStateDB = vm.StateDB
+
+// `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
+// support additional state transition functionalities that are useful in a Cosmos SDK context.
 type StargazerStateDB interface {
 	GethStateDB
 

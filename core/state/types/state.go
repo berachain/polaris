@@ -19,12 +19,12 @@ import (
 	"strings"
 
 	"cosmossdk.io/errors"
-	"github.com/berachain/stargazer/types"
+	"github.com/berachain/stargazer/lib/gointerfaces"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 // Compile-time interface assertions.
-var _ types.Cloneable[State] = &State{}
+var _ gointerfaces.Cloneable[State] = &State{}
 var _ fmt.Stringer = Storage{}
 
 // `NewState` creates a new State instance.

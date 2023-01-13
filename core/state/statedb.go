@@ -21,7 +21,6 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	gevm "github.com/ethereum/go-ethereum/core/vm"
 
 	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/state/store/cachekv"
@@ -30,8 +29,6 @@ import (
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/crypto"
 )
-
-type GethStateDB = gevm.StateDB
 
 var (
 	// EmptyCodeHash is the code hash of an empty code
@@ -80,11 +77,8 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	ak types.AccountKeeper
 	bk types.BankKeeper
 
-	// DB error.
-	// State objects are used by the consensus core and VM which are
-	// unable to deal with database-level errors. Any error that occurs
-	// during a database read is memoized here and will eventually be returned
-	// by StateDB.Commit.
+	// Any error that occurs during an sdk module read or write is
+	// memoized here and is eventually be returned by `Commit`.
 	savedErr error
 
 	// we load the evm denom in the constructor, to prevent going to
