@@ -25,10 +25,6 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version of
-// its corresponding Cosmos event's `Type`.
-type EventType string
-
 // `EthereumLogFactory` builds Ethereum logs from Cosmos events.
 type EthereumLogFactory struct {
 	// `precompileEvents` is a map of `EventType`s to `*types.PrecompileEvents` for all supported

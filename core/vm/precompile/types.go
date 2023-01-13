@@ -19,6 +19,10 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
+// `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version of
+// its corresponding Cosmos event's `Type`.
+type EventType string
+
 // `HasEvents` is an interface that enforces the required function for a stateful precompile
 // contract to implement if it wants to emit some (or all) of its Cosmos module's events as
 // Ethereum event logs.
