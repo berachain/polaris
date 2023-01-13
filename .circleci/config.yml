@@ -72,10 +72,10 @@ commands:
             - "/home/circleci/go/pkg/bin"
             - "/home/circleci/.foundry/bin"
 
-      - run: 
+      - run:
           name: Install Go Dependencies
-            command: |
-              go mod download
+          command: |
+            go mod download
 
       - run:
           name: Install Go Tools
