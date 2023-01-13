@@ -99,7 +99,7 @@ commands:
       # Setup Foundry
       - restore_cache:
           keys:
-            - foundry-{{ $FOUNDRY_COMMIT }}
+            - foundry-${FOUNDRY_COMMIT}
           paths:
             - "/home/circleci/.foundry/bin"
 
@@ -113,6 +113,6 @@ commands:
 
       - save_cache:
           keys:
-            - foundry-{{ $FOUNDRY_COMMIT }}
+            - foundry-${FOUNDRY_COMMIT}
           paths:
             - "/home/circleci/.foundry/bin"
