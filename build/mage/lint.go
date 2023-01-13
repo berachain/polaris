@@ -53,7 +53,7 @@ func Format() error {
 func GolangCiLint() error {
 	PrintMageName()
 	return goRun(golangCi,
-		"run", "--timeout=15m", "--config=build/.golangci.yaml", "-v", "./...",
+		"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "./...",
 	)
 }
 
@@ -61,7 +61,7 @@ func GolangCiLint() error {
 func GolangCiLintFix() error {
 	PrintMageName()
 	return goRun(golangCi,
-		"run", "--timeout=15m", "--config=build/.golangci.yaml", "-v", "--fix", "./...",
+		"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "--fix", "./...",
 	)
 }
 
