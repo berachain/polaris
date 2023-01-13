@@ -27,7 +27,7 @@ const (
 	// `PrivKeyNumBytes` defines the length of the PrivKey byte array.
 	PrivKeyNumBytes = 32
 	// `PubKeyNumBytes` defines the length of the PubKey byte array.
-	PubKeyNumBytes = 33
+	PubKeyNumBytes = PrivKeyNumBytes + 1
 	// `KeyType` is the string constant for the secp256k1 algorithm.
 	KeyType = "eth_secp256k1"
 )
@@ -40,11 +40,11 @@ const (
 // `crypotypes.Pubkey` to allow for the use of the Ethereum secp256k1 public key type within the Cosmos SDK.
 
 // Compile-time type assertion.
-var _ cryptotypes.PubKey = &PubKey{}
+var _ cryptotypes.PubKey = &EthSecp256K1PubKey{}
 
 // `Address` returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.
-func (pubKey PubKey) Address() tmcrypto.Address {
+func (pubKey EthSecp256K1PubKey) Address() tmcrypto.Address {
 	pubk, err := DecompressPubkey(pubKey.Key)
 	if err != nil {
 		return nil
@@ -54,7 +54,7 @@ func (pubKey PubKey) Address() tmcrypto.Address {
 }
 
 // `Bytes` returns the raw bytes of the ECDSA public key.
-func (pubKey PubKey) Bytes() []byte {
+func (pubKey EthSecp256K1PubKey) Bytes() []byte {
 	bz := make([]byte, len(pubKey.Key))
 	copy(bz, pubKey.Key)
 
@@ -62,18 +62,18 @@ func (pubKey PubKey) Bytes() []byte {
 }
 
 // `Type` returns eth_secp256k1.
-func (pubKey PubKey) Type() string {
+func (pubKey EthSecp256K1PubKey) Type() string {
 	return KeyType
 }
 
 // `Equals` returns true if the pubkey type is the same and their bytes are deeply equal.
-func (pubKey PubKey) Equals(other cryptotypes.PubKey) bool {
+func (pubKey EthSecp256K1PubKey) Equals(other cryptotypes.PubKey) bool {
 	return pubKey.Type() == other.Type() && bytes.Equal(pubKey.Bytes(), other.Bytes())
 }
 
 // `VerifySignature` verifies that the ECDSA public key created a given signature over
 // the provided message. The signature should be in [R || S] format.
-func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
+func (pubKey EthSecp256K1PubKey) VerifySignature(msg, sig []byte) bool {
 	if len(sig) == SignatureLength {
 		// remove recovery ID (V) if contained in the signature
 		sig = sig[:len(sig)-1]
@@ -91,23 +91,23 @@ func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 // `crypotypes.Pubkey` to allow for the use of the Ethereum secp256k1 private key type within the Cosmos SDK.
 
 // Compile-time type assertion.
-var _ cryptotypes.PrivKey = &PrivKey{}
+var _ cryptotypes.PrivKey = &EthSecp256K1PrivKey{}
 
 // `GenerateKey` generates a new random private key. It returns an error upon
 // failure.
-func GenerateKey() (*PrivKey, error) {
+func GenerateKey() (*EthSecp256K1PrivKey, error) {
 	priv, err := GenerateEthKey()
 	if err != nil {
 		return nil, err
 	}
 
-	return &PrivKey{
+	return &EthSecp256K1PrivKey{
 		Key: FromECDSA(priv),
 	}, nil
 }
 
 // `Bytes` returns the byte representation of the ECDSA Private Key.
-func (privKey PrivKey) Bytes() []byte {
+func (privKey EthSecp256K1PrivKey) Bytes() []byte {
 	bz := make([]byte, len(privKey.Key))
 	copy(bz, privKey.Key)
 	return bz
@@ -115,31 +115,31 @@ func (privKey PrivKey) Bytes() []byte {
 
 // `PubKey` returns the ECDSA private key's public key. If the privkey is not valid
 // it returns a nil value.
-func (privKey PrivKey) PubKey() cryptotypes.PubKey {
+func (privKey EthSecp256K1PrivKey) PubKey() cryptotypes.PubKey {
 	ecdsaPrivKey, err := privKey.ToECDSA()
 	if err != nil {
 		return nil
 	}
 
-	return &PubKey{
+	return &EthSecp256K1PubKey{
 		Key: CompressPubkey(&ecdsaPrivKey.PublicKey),
 	}
 }
 
 // `Equals` returns true if two ECDSA private keys are equal and false otherwise.
-func (privKey PrivKey) Equals(other cryptotypes.LedgerPrivKey) bool {
+func (privKey EthSecp256K1PrivKey) Equals(other cryptotypes.LedgerPrivKey) bool {
 	return privKey.Type() == other.Type() && subtle.ConstantTimeCompare(privKey.Bytes(), other.Bytes()) == 1
 }
 
 // `Type` returns eth_secp256k1.
-func (privKey PrivKey) Type() string {
+func (privKey EthSecp256K1PrivKey) Type() string {
 	return KeyType
 }
 
 // `Sign` creates a recoverable ECDSA signature on the secp256k1 curve over the
 // provided hash of the message. The produced signature is 65 bytes
 // where the last byte contains the recovery ID.
-func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
+func (privKey EthSecp256K1PrivKey) Sign(digestBz []byte) ([]byte, error) {
 	key, err := privKey.ToECDSA()
 	if err != nil {
 		return nil, err
@@ -149,6 +149,6 @@ func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
 }
 
 // `ToECDSA` returns the ECDSA private key as a reference to ecdsa.PrivateKey type.
-func (privKey PrivKey) ToECDSA() (*ecdsa.PrivateKey, error) {
+func (privKey EthSecp256K1PrivKey) ToECDSA() (*ecdsa.PrivateKey, error) {
 	return ToECDSA(privKey.Bytes())
 }

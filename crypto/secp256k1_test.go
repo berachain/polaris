@@ -23,7 +23,7 @@ import (
 )
 
 var _ = Describe("PrivKey", func() {
-	var privKey *PrivKey
+	var privKey *EthSecp256K1PrivKey
 
 	BeforeEach(func() {
 		var err error
@@ -32,7 +32,7 @@ var _ = Describe("PrivKey", func() {
 	})
 
 	It("validates type and equality", func() {
-		Expect(privKey).To(BeAssignableToTypeOf((cryptotypes.PrivKey)(&PrivKey{})))
+		Expect(privKey).To(BeAssignableToTypeOf((cryptotypes.PrivKey)(&EthSecp256K1PrivKey{})))
 	})
 
 	It("validates inequality", func() {
@@ -62,7 +62,7 @@ var _ = Describe("PrivKey", func() {
 })
 
 var _ = Describe("PrivKey_PubKey", func() {
-	var privKey *PrivKey
+	var privKey *EthSecp256K1PrivKey
 
 	BeforeEach(func() {
 		var err error
@@ -71,10 +71,10 @@ var _ = Describe("PrivKey_PubKey", func() {
 	})
 
 	It("validates type", func() {
-		pubKey := &PubKey{
+		pubKey := &EthSecp256K1PubKey{
 			Key: privKey.PubKey().Bytes(),
 		}
-		Expect(pubKey).To(BeAssignableToTypeOf((cryptotypes.PubKey)(&PubKey{})))
+		Expect(pubKey).To(BeAssignableToTypeOf((cryptotypes.PubKey)(&EthSecp256K1PubKey{})))
 	})
 
 	It("validates equality", func() {

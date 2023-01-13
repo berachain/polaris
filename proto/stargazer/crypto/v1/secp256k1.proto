@@ -14,23 +14,21 @@
 
 syntax = "proto3";
 
-package stargazer_lib.crypto.v1;
-
-import "gogoproto/gogo.proto";
+package stargazer.crypto.v1;
 
 option go_package = "github.com/berachain/stargazer/crypto";
 
-// `PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
+// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
 // Tendermint's `PubKey` interface. It represents the 33-byte compressed public
 // key format.
-message PubKey {
-  // `key` is the public key in byte form
+message EthSecp256k1PubKey {
+  // `key` is the public key in byte form.
   bytes key = 1;
 }
 
-// `PrivKey` defines a type alias for an `ecdsa.PrivateKey` that implements
+// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
 // Tendermint's `PrivateKey` interface.
-message PrivKey {
-  // `key` is the private key in byte form
+message EthSecp256k1PrivKey {
+  // `key` is the private key in byte form.
   bytes key = 1;
 }
