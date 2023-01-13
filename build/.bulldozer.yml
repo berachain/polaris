@@ -62,4 +62,4 @@ update:
     - "ci/circleci: test-unit"
     - "ci/circleci: test-unit-race"
   whitelist:
-    labels: ["Automerge", "Merge me daddy"]
+    labels: ["Update me daddy"]

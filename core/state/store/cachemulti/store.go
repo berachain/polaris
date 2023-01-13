@@ -23,19 +23,21 @@ import (
 	statetypes "github.com/berachain/stargazer/core/state/types"
 )
 
-var _ storetypes.MultiStore = (*Store)(nil)
+// Compile-time check to ensure `Store` implements `storetypes.CacheMultiStore`.
+var _ storetypes.CacheMultiStore = (*Store)(nil)
 
+// `Store` is a wrapper around the Cosmos SDK `MultiStore` which injects a custom EVM CacheKVStore.
 type Store struct {
 	storetypes.MultiStore
 	stores     map[storetypes.StoreKey]storetypes.CacheKVStore
 	JournalMgr *journal.Manager
 }
 
+// `NewStoreFrom` creates and returns a new `Store` from a given MultiStore.
 func NewStoreFrom(ms storetypes.MultiStore) *Store {
 	return &Store{
 		MultiStore: ms,
 		stores:     make(map[storetypes.StoreKey]storetypes.CacheKVStore),
-
 		JournalMgr: journal.NewManager(),
 	}
 }
@@ -54,8 +56,9 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return s.stores[key]
 }
 
-// implements cosmos sdk storetypes.CacheMultiStore
-// Write commits each of the individual cachekv stores to its corresponding parent kv stores.
+// `Write` commits each of the individual cachekv stores to its corresponding parent kv stores.
+//
+// `Write` implements Cosmos SDK `storetypes.CacheMultiStore`.
 func (s *Store) Write() {
 	// Safe from non-determinism, since order in which
 	// we write to the parent kv stores does not matter.
@@ -66,6 +69,8 @@ func (s *Store) Write() {
 	}
 }
 
+// `newCacheKVStore` returns a new CacheKVStore. If the `key` is an EVM storekey, it will return
+// an EVM CacheKVStore.
 func (s *Store) newCacheKVStore(
 	key storetypes.StoreKey,
 	kvstore storetypes.KVStore,

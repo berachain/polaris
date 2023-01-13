@@ -12,30 +12,23 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package cachekv
+syntax = "proto3";
 
-import "github.com/berachain/stargazer/types"
+package stargazer.crypto.v1;
 
-// Compile-time assertion that `cacheValue` implements `types.Cloneable`.
-var _ types.Cloneable[*cacheValue] = (*cacheValue)(nil)
+option go_package = "github.com/berachain/stargazer/crypto";
 
-// `cacheValue` represents a cached value in the cachekv store.
-// If dirty is true, it indicates the cached value is different from the underlying value.
-type cacheValue struct {
-	value []byte
-	dirty bool
+// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
+// Tendermint's `PubKey` interface. It represents the 33-byte compressed public
+// key format.
+message EthSecp256k1PubKey {
+  // `key` is the public key in byte form.
+  bytes key = 1;
 }
 
-// `newCacheValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
-func newCacheValue(v []byte, d bool) *cacheValue {
-	return &cacheValue{
-		value: v,
-		dirty: d,
-	}
-}
-
-// `Clone` implements `types.Cloneable`.
-func (cv *cacheValue) Clone() *cacheValue {
-	// Return a new cacheValue with the same value and dirty flag
-	return newCacheValue(append([]byte(nil), cv.value...), cv.dirty)
+// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
+// Tendermint's `PrivateKey` interface.
+message EthSecp256k1PrivKey {
+  // `key` is the private key in byte form.
+  bytes key = 1;
 }

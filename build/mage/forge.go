@@ -16,9 +16,18 @@ package mage
 import (
 	"fmt"
 	"os"
+
+	mi "github.com/berachain/stargazer/build/mage/internal"
 )
 
 var (
+	// Commands.
+	forgeBuild = mi.RunCmdV("forge", "build", "--extra-output-files", "abi")
+	forgeClean = mi.RunCmdV("forge", "clean")
+	forgeTest  = mi.RunCmdV("forge", "test")
+	forgeFmt   = mi.RunCmdV("forge", "fmt")
+
+	// Directories.
 	testContractsDir       = "./testing/solidity"
 	precompileContractsDir = "./pkg/dahlia/pkg/core/vm/precompile/contracts"
 	allForgeDirs           = []string{testContractsDir, precompileContractsDir}

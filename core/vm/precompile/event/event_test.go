@@ -12,30 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package cachekv
+package event
 
-import "github.com/berachain/stargazer/types"
+import (
+	"testing"
 
-// Compile-time assertion that `cacheValue` implements `types.Cloneable`.
-var _ types.Cloneable[*cacheValue] = (*cacheValue)(nil)
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
 
-// `cacheValue` represents a cached value in the cachekv store.
-// If dirty is true, it indicates the cached value is different from the underlying value.
-type cacheValue struct {
-	value []byte
-	dirty bool
-}
-
-// `newCacheValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
-func newCacheValue(v []byte, d bool) *cacheValue {
-	return &cacheValue{
-		value: v,
-		dirty: d,
-	}
-}
-
-// `Clone` implements `types.Cloneable`.
-func (cv *cacheValue) Clone() *cacheValue {
-	// Return a new cacheValue with the same value and dirty flag
-	return newCacheValue(append([]byte(nil), cv.value...), cv.dirty)
+func TestEvent(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/vm/precompile/event")
 }

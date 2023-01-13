@@ -18,89 +18,83 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/berachain/stargazer/core/state/store/cachekv"
+	"github.com/berachain/stargazer/core/state/store/cachemulti"
 	sdkcachemulti "github.com/cosmos/cosmos-sdk/store/cachemulti"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	dbm "github.com/tendermint/tm-db"
-
-	"github.com/berachain/stargazer/core/state/store/cachemulti"
 )
 
-var (
-	byte1       = []byte{1}
-	evmStoreKey = storetypes.NewKVStoreKey("evm")
-	accStoreKey = storetypes.NewKVStoreKey("acc")
-)
-
-type CacheMultiSuite struct {
-	suite.Suite
-	ms storetypes.MultiStore
+func TestCacheMulti(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/state/store/cachemulti")
 }
 
-func TestCacheMultiSuite(t *testing.T) {
-	suite.Run(t, new(CacheMultiSuite))
-}
-
-func (s *CacheMultiSuite) SetupTest() {
-	stores := map[storetypes.StoreKey]storetypes.CacheWrapper{
-		evmStoreKey: dbadapter.Store{DB: dbm.NewMemDB()},
-		accStoreKey: dbadapter.Store{DB: dbm.NewMemDB()},
-	}
-	s.ms = sdkcachemulti.NewStore(
-		dbm.NewMemDB(),
-		stores, map[string]storetypes.StoreKey{},
-		nil,
-		nil,
+var _ = Describe("CacheMulti", func() {
+	var (
+		byte1          = []byte{1}
+		cms            storetypes.CacheMultiStore
+		ms             storetypes.MultiStore
+		accStoreParent storetypes.KVStore
+		accStoreCache  storetypes.KVStore
+		accStoreKey    = storetypes.NewKVStoreKey("acc")
+		evmStoreParent storetypes.KVStore
+		evmStoreCache  storetypes.KVStore
+		evmStoreKey    = storetypes.NewKVStoreKey("evm")
 	)
-}
 
-func (s *CacheMultiSuite) TestCorrectStoreType() {
-	s.SetupTest()
+	BeforeEach(func() {
+		stores := map[storetypes.StoreKey]storetypes.CacheWrapper{
+			evmStoreKey: dbadapter.Store{DB: dbm.NewMemDB()},
+			accStoreKey: dbadapter.Store{DB: dbm.NewMemDB()},
+		}
+		ms = sdkcachemulti.NewStore(
+			dbm.NewMemDB(),
+			stores, map[string]storetypes.StoreKey{},
+			nil,
+			nil,
+		)
+		accStoreParent = ms.GetKVStore(accStoreKey)
+		evmStoreParent = ms.GetKVStore(evmStoreKey)
+		cms = cachemulti.NewStoreFrom(ms)
+		accStoreCache = cms.GetKVStore(accStoreKey)
+		evmStoreCache = cms.GetKVStore(evmStoreKey)
+	})
 
-	cms := cachemulti.NewStoreFrom(s.ms)
-	evmStore := cms.GetKVStore(evmStoreKey)
-	evmStoreType := reflect.TypeOf(evmStore).String()
-	require.Equal(s.T(), "*cachekv.EvmStore", evmStoreType)
+	It("CorrectStoreType", func() {
+		// Test that the correct store type is returned
+		Expect(reflect.TypeOf(cms.GetKVStore(evmStoreKey))).To(Equal(reflect.TypeOf(&cachekv.EvmStore{})))
+		Expect(reflect.TypeOf(cms.GetKVStore(accStoreKey))).To(Equal(reflect.TypeOf(&cachekv.Store{})))
+	})
 
-	accStore := cms.GetKVStore(accStoreKey)
-	accStoreType := reflect.TypeOf(accStore).String()
-	require.Equal(s.T(), "*cachekv.Store", accStoreType)
-}
+	It("TestWrite", func() {
+		// Test that the cache multi store writes to the underlying stores
+		evmStoreCache.Set(byte1, byte1)
+		accStoreCache.Set(byte1, byte1)
+		Expect(evmStoreParent.Get(byte1)).To(BeNil())
+		Expect(accStoreParent.Get(byte1)).To(BeNil())
+		Expect(evmStoreCache.Get(byte1)).To(Equal(byte1))
+		Expect(accStoreCache.Get(byte1)).To(Equal(byte1))
 
-func (s *CacheMultiSuite) TestWriteToParent() {
-	accStoreParent := s.ms.GetKVStore(accStoreKey)
-	evmStoreParent := s.ms.GetKVStore(evmStoreKey)
-	accStoreParent.Set(byte1, byte1)
+		cms.Write()
 
-	// simulate writes to cache store as it would through context
-	cms := cachemulti.NewStoreFrom(s.ms)
-	cms.GetKVStore(evmStoreKey).Set(byte1, byte1)
-	cms.GetKVStore(accStoreKey).Delete(byte1)
+		Expect(evmStoreParent.Get(byte1)).To(Equal(byte1))
+		Expect(evmStoreParent.Get(byte1)).To(Equal(byte1))
+		Expect(evmStoreCache.Get(byte1)).To(Equal(byte1))
+		Expect(accStoreCache.Get(byte1)).To(Equal(byte1))
+	})
 
-	// should not write to parent
-	require.False(s.T(), evmStoreParent.Has(byte1))
-	require.Equal(s.T(), byte1, accStoreParent.Get(byte1))
+	It("TestWriteCacheMultiStore", func() {
+		// check that accStoreCache is not equal to accStoreParent
+		accStoreCache.Set(byte1, byte1)
+		Expect(accStoreCache.Has(byte1)).To(BeTrue())
+		Expect(accStoreParent.Has(byte1)).To(BeFalse())
 
-	cms.Write()
-
-	// accStore should be empty, evmStore should have key: 1 to val: 1
-	require.False(s.T(), accStoreParent.Has(byte1))
-	require.Equal(s.T(), byte1, evmStoreParent.Get(byte1))
-}
-
-func (s *CacheMultiSuite) TestGetCachedStore() {
-	accStoreParent := s.ms.GetKVStore(accStoreKey)
-	cms := cachemulti.NewStoreFrom(s.ms)
-	accStoreCache := cms.GetKVStore(accStoreKey)
-	accStoreCache.Set(byte1, byte1)
-
-	// check that accStoreCache is not equal to accStoreParent
-	require.True(s.T(), accStoreCache.Has(byte1))
-	require.False(s.T(), accStoreParent.Has(byte1))
-
-	// check that getting accStore from cms is not the same as parent
-	accStoreCache2 := cms.GetKVStore(accStoreKey)
-	require.True(s.T(), accStoreCache2.Has(byte1))
-}
+		// check that getting accStore from cms is not the same as parent
+		accStoreCache2 := cms.GetKVStore(accStoreKey)
+		Expect(accStoreCache2.Has(byte1)).To(BeTrue())
+	})
+})
