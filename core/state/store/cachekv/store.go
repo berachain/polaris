@@ -431,5 +431,5 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	}
 
 	// Cache the value for the key.
-	store.Cache[keyStr] = NewCacheValue(value, dirty)
+	store.Cache[keyStr] = newCacheValue(value, dirty)
 }

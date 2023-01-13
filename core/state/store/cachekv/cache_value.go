@@ -26,8 +26,8 @@ type cacheValue struct {
 	dirty bool
 }
 
-// `NewCacheValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
-func NewCacheValue(v []byte, d bool) *cacheValue { //nolint:revive // TODO: explain.
+// `newCacheValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
+func newCacheValue(v []byte, d bool) *cacheValue { //nolint:revive // TODO: explain.
 	return &cacheValue{
 		value: v,
 		dirty: d,
@@ -37,5 +37,5 @@ func NewCacheValue(v []byte, d bool) *cacheValue { //nolint:revive // TODO: expl
 // `Clone` implements `types.Cloneable`.
 func (cv *cacheValue) Clone() *cacheValue {
 	// Return a new cacheValue with the same value and dirty flag
-	return NewCacheValue(append([]byte(nil), cv.value...), cv.dirty)
+	return newCacheValue(append([]byte(nil), cv.value...), cv.dirty)
 }

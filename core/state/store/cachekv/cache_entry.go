@@ -13,23 +13,22 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package cachekv
 
-import (
-	"github.com/berachain/stargazer/core/state/store/journal"
-)
+import "github.com/berachain/stargazer/core/state/store/journal"
 
-// Compile-time check to ensure `CacheEntry` implements `journal.CacheEntry`.
+// Compile-time check to ensure `cacheEntry` implements `journal.CacheEntry`.
 var _ journal.CacheEntry = (*cacheEntry)(nil)
 
-// `CacheEntry` is a struct that contains information needed to set a value in a cache.
+// `cacheEntry` is a struct that contains information needed to set a value in a cache.
 type cacheEntry struct {
 	Store *Store      // Pointer to the cache store.
 	Key   string      // Key of the value to be set.
 	Prev  *cacheValue // Deep copy of object in cache map.
 }
 
-// `NewCacheEntry` creates a new `CacheEntry` object for the given `store`, `key`, and `prev`
+// `newCacheEntry` creates a new `cacheEntry` object for the given `store`, `key`, and `prev`
 // cache value.
 func newCacheEntry(store *Store, key string, prev *cacheValue) *cacheEntry {
+	// create a deep copy of the Prev field, if it is not nil.
 	if prev != nil {
 		prev = prev.Clone()
 	}
@@ -44,7 +43,7 @@ func newCacheEntry(store *Store, key string, prev *cacheValue) *cacheEntry {
 // `Revert` reverts a set operation on a cache entry by setting the previous value of the entry as
 // the current value in the cache map.
 //
-// `Revert` implements journal.CacheEntry.
+// `Revert` implements journal.cacheEntry.
 func (ce *cacheEntry) Revert() {
 	// If there was a previous value, set it as the current value in the cache map
 	if ce.Prev == nil {
@@ -64,22 +63,16 @@ func (ce *cacheEntry) Revert() {
 	}
 }
 
-// `Clone` creates a deep copy of the CacheEntry object.
+// `Clone` creates a deep copy of the cacheEntry object.
 // The deep copy contains the same Store and Key fields as the original,
 // and a deep copy of the Prev field, if it is not nil.s
 //
-// `Clone` implements `journal.CacheEntry`.
+// `Clone` implements `journal.cacheEntry`.
 //
 //nolint:nolintlint,ireturn // by design.
 func (ce *cacheEntry) Clone() journal.CacheEntry {
-	// Create a deep copy of the Prev field, if it is not nil
-	var prevDeepCopy *cacheValue
-	if ce.Prev != nil {
-		prevDeepCopy = ce.Prev.Clone()
-	}
-
-	// Return a new CacheEntry object with the same Store and Key fields as the original,
-	// and the Prev field set to the deep copy of the original Prev field
-	// (or nil if the original was nil)
-	return newCacheEntry(ce.Store, ce.Key, prevDeepCopy)
+	// Return a new cacheEntry object with the same Store and Key fields as the original,
+	// and the Prev field set to the deep copy of the original Prev field (or nil if the original
+	// was nil).
+	return newCacheEntry(ce.Store, ce.Key, ce.Prev)
 }

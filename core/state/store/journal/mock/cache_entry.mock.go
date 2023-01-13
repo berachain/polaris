@@ -14,9 +14,7 @@
 
 package mock
 
-import (
-	"github.com/berachain/stargazer/core/state/store/journal"
-)
+import "github.com/berachain/stargazer/core/state/store/journal"
 
 // `MockCacheEntry` is a basic CacheEntry which increases num by 1 on `Revert()`.
 type CacheEntry struct {
@@ -34,7 +32,7 @@ func (m *CacheEntry) Revert() {
 }
 
 // `Clone` implements `CacheEntry`.
-func (m *CacheEntry) Clone() journal.CacheEntry { //nolint: ireturn // by design.
+func (m *CacheEntry) Clone() *journal.CacheEntry {
 	return &CacheEntry{num: m.num}
 }
 
