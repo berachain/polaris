@@ -37,5 +37,5 @@ type HasCustomModuleEvents interface {
 
 	// `CustomValueDecoders` should return a map of Cosmos event attribute keys to value decoder
 	// functions for all supported events in the custom Cosmos module.
-	CustomValueDecoders() event.ValueDecoders
+	CustomValueDecoders() map[EventType]event.ValueDecoders
 }

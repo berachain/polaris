@@ -38,7 +38,6 @@ func TestEthLogFactory(t *testing.T) {
 var _ = Describe("Events Registry", func() {
 	var factory *precompile.EthereumLogFactory
 	var stakingModuleAddr common.Address
-	var mockCosmosPrecompile precompile.HasEvents
 	var valAddr sdk.ValAddress
 	var delAddr sdk.AccAddress
 	var amt sdk.Coin
@@ -47,10 +46,9 @@ var _ = Describe("Events Registry", func() {
 	BeforeEach(func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 		factory = precompile.NewEthereumLogFactory()
-		mockCosmosPrecompile = &mockHasEvents{}
 		factory.RegisterEvent(
 			stakingModuleAddr,
-			mockCosmosPrecompile.ABIEvents()["CancelUnbondingDelegation"],
+			getAbiEvent(),
 			nil,
 		)
 		valAddr = sdk.ValAddress([]byte("alice"))
@@ -83,7 +81,7 @@ var _ = Describe("Events Registry", func() {
 			Expect(log.Topics[2]).To(Equal(
 				common.BytesToHash(delAddr.Bytes()),
 			))
-			ethEvent := mockCosmosPrecompile.ABIEvents()["CancelUnbondingDelegation"]
+			ethEvent := getAbiEvent()
 			Expect(ethEvent).ToNot(BeNil())
 			packedData, err := ethEvent.Inputs.NonIndexed().PackValues(
 				[]any{
@@ -191,39 +189,35 @@ var _ = Describe("Events Registry", func() {
 })
 
 // MOCK DATA.
-type mockHasEvents struct{}
-
-func (m *mockHasEvents) ABIEvents() map[string]abi.Event {
+func getAbiEvent() abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
 	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
 	int64Type, _ := abi.NewType("int64", "int64", nil)
-	return map[string]abi.Event{
-		"CancelUnbondingDelegation": abi.NewEvent(
-			"CancelUnbondingDelegation",
-			"CancelUnbondingDelegation",
-			false,
-			abi.Arguments{
-				abi.Argument{
-					Name:    "validator",
-					Type:    addrType,
-					Indexed: true,
-				},
-				abi.Argument{
-					Name:    "delegator",
-					Type:    addrType,
-					Indexed: true,
-				},
-				abi.Argument{
-					Name:    "amount",
-					Type:    uint256Type,
-					Indexed: false,
-				},
-				abi.Argument{
-					Name:    "creationHeight",
-					Type:    int64Type,
-					Indexed: false,
-				},
+	return abi.NewEvent(
+		"CancelUnbondingDelegation",
+		"CancelUnbondingDelegation",
+		false,
+		abi.Arguments{
+			abi.Argument{
+				Name:    "validator",
+				Type:    addrType,
+				Indexed: true,
 			},
-		),
-	}
+			abi.Argument{
+				Name:    "delegator",
+				Type:    addrType,
+				Indexed: true,
+			},
+			abi.Argument{
+				Name:    "amount",
+				Type:    uint256Type,
+				Indexed: false,
+			},
+			abi.Argument{
+				Name:    "creationHeight",
+				Type:    int64Type,
+				Indexed: false,
+			},
+		},
+	)
 }
