@@ -28,9 +28,9 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-func TestJournalManager(t *testing.T) {
+func TestCacheKv(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/state/store/cachemulti")
+	RunSpecs(t, "core/state/store/cachekv")
 }
 
 var _ = Describe("CacheMulti", func() {
