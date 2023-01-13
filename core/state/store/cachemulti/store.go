@@ -45,8 +45,9 @@ func NewStoreFrom(ms storetypes.MultiStore) *Store {
 // to read the dirty state during an eth tx. Any state that is modified by evm statedb, and using
 // the context passed in to StateDB, will be routed to a tx-specific cache kv store. This function
 // always returns a `storetypes.CacheKVStore`.
-func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore { //nolint:ireturn // TODO.
-	// check if cache kv store already used
+//
+//nolint:nolintlint,ireturn // must return interface.
+func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	if cacheKVStore, exists := s.stores[key]; exists {
 		return cacheKVStore
 	}
@@ -59,7 +60,7 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore { //nolin
 // `Write` commits each of the individual cachekv stores to its corresponding parent kv stores.
 //
 // `Write` implements Cosmos SDK `storetypes.CacheMultiStore`.
-func (s *Store) Write() { //nolint:ireturn // TODO.
+func (s *Store) Write() {
 	// Safe from non-determinism, since order in which
 	// we write to the parent kv stores does not matter.
 	//
@@ -71,10 +72,12 @@ func (s *Store) Write() { //nolint:ireturn // TODO.
 
 // `newCacheKVStore` returns a new CacheKVStore. If the `key` is an EVM storekey, it will return
 // an EVM CacheKVStore.
+//
+//nolint:nolintlint,ireturn // must return interface.
 func (s *Store) newCacheKVStore(
 	key storetypes.StoreKey,
 	kvstore storetypes.KVStore,
-) storetypes.CacheKVStore { //nolint:ireturn // TODO.
+) storetypes.CacheKVStore {
 	if key.Name() == statetypes.EvmStoreKey {
 		return cachekv.NewEvmStore(kvstore, s.JournalMgr)
 	}
