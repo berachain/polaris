@@ -30,8 +30,10 @@ import (
 )
 
 var (
-	zeroCodeHash    = common.Hash{}
+	byte0           = []byte{0}
+	byte1           = []byte{1}
 	nonZeroCodeHash = common.BytesToHash([]byte{0x05})
+	zeroCodeHash    = common.Hash{}
 )
 
 type EvmStoreSuite struct {

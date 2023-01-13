@@ -72,7 +72,7 @@ func (dcv *DeleteCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
 	var prevDeepCopy *cValue
 	if dcv.Prev != nil {
-		prevDeepCopy = dcv.Prev.deepCopy()
+		prevDeepCopy = dcv.Prev.Clone()
 	}
 
 	// Return a new DeleteCacheValue object with the same Store and Key fields as the original,
@@ -119,7 +119,7 @@ func (scv *SetCacheValue) Clone() journal.CacheEntry {
 	// Create a deep copy of the Prev field, if it is not nil
 	var prevDeepCopy *cValue
 	if scv.Prev != nil {
-		prevDeepCopy = scv.Prev.deepCopy()
+		prevDeepCopy = scv.Prev.Clone()
 	}
 
 	// Return a new SetCacheValue object with the same Store and Key fields as the original,

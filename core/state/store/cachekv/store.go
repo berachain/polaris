@@ -421,20 +421,19 @@ func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState sort
 
 // Only entrypoint to mutate store.Cache.
 func (store *Store) setCacheValue(key, value []byte, dirty bool) {
-	deleted := value == nil
 	keyStr := utils.UnsafeBytesToStr(key)
 
 	// add cache value (deep copy) to journal manager if dirty (Set or Delete)
 	if dirty {
 		var cv journal.CacheEntry
-		if deleted {
-			cv = &DeleteCacheValue{
+		if value != nil {
+			cv = &SetCacheValue{
 				Store: store,
 				Key:   keyStr,
 				Prev:  store.Cache[keyStr],
 			}
 		} else {
-			cv = &SetCacheValue{
+			cv = &DeleteCacheValue{
 				Store: store,
 				Key:   keyStr,
 				Prev:  store.Cache[keyStr],
