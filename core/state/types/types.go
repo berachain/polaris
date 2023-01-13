@@ -15,3 +15,4 @@
 package types
 
 const EvmStoreKey = "evm"
+const EvmNamespace = "evm"

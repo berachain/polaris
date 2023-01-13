@@ -200,13 +200,13 @@ func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
-	if err := sdb.bk.MintCoins(sdb.ctx, "evm", coins); err != nil {
+	if err := sdb.bk.MintCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
 		sdb.setErrorUnsafe(err)
 		return
 	}
 
 	// Send the coins from the evm module account to the destination address.
-	if err := sdb.bk.SendCoinsFromModuleToAccount(sdb.ctx, "evm", addr[:], coins); err != nil {
+	if err := sdb.bk.SendCoinsFromModuleToAccount(sdb.ctx, types.EvmNamespace, addr[:], coins); err != nil {
 		sdb.setErrorUnsafe(err)
 	}
 }
@@ -217,13 +217,13 @@ func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the evm module account.
-	if err := sdb.bk.SendCoinsFromAccountToModule(sdb.ctx, addr[:], "evm", coins); err != nil {
+	if err := sdb.bk.SendCoinsFromAccountToModule(sdb.ctx, addr[:], types.EvmNamespace, coins); err != nil {
 		sdb.setErrorUnsafe(err)
 		return
 	}
 
 	// Burn the coins from the evm module account.
-	if err := sdb.bk.BurnCoins(sdb.ctx, "evm", coins); err != nil {
+	if err := sdb.bk.BurnCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
 		sdb.setErrorUnsafe(err)
 		return
 	}
