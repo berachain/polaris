@@ -32,7 +32,7 @@ func TestSuite(t *testing.T) {
 }
 
 var _ = Describe("GetSetDelete", func() {
-	var db trees.BTree
+	var db *trees.BTree
 
 	BeforeEach(func() {
 		db = trees.NewBTree()
@@ -70,7 +70,7 @@ var _ = Describe("GetSetDelete", func() {
 	})
 })
 var _ = Describe("DBIterator", func() {
-	var db trees.BTree
+	var db *trees.BTree
 
 	BeforeEach(func() {
 		db = trees.NewBTree()
