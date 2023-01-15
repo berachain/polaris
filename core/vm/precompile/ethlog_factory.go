@@ -56,12 +56,14 @@ func (pef *EthereumLogFactory) RegisterEvent(
 	moduleEthAddress common.Address,
 	abiEvent abi.Event,
 	customModuleAttributes event.ValueDecoders,
-) {
-	pef.precompileEvents[EventType(abiEvent.Name)] = event.NewPrecompileEvent(
+) error {
+	var err error
+	pef.precompileEvents[EventType(abiEvent.Name)], err = event.NewPrecompileEvent(
 		moduleEthAddress,
 		abiEvent,
 		customModuleAttributes,
 	)
+	return err
 }
 
 // ==============================================================================
