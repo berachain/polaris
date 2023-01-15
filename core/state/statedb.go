@@ -76,6 +76,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// keepers used for balance and account information.
 	ak types.AccountKeeper
 	bk types.BankKeeper
+	lf types.EthereumLogFactory
 
 	// Any error that occurs during an sdk module read or write is
 	// memoized here and is eventually be returned by `Commit`.
@@ -113,12 +114,14 @@ func NewStateDB(
 	ctx sdk.Context,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
+	lf types.EthereumLogFactory,
 	storeKey storetypes.StoreKey,
 	evmDenom string,
 ) *StateDB {
 	sdb := &StateDB{
 		ak:       ak,
 		bk:       bk,
+		lf:       lf,
 		evmDenom: evmDenom,
 		storeKey: storeKey,
 	}
@@ -180,7 +183,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.accessList = newAccessList()
 	// sdb.suicides = make([]common.Address, 0)
 	// TODO: unghetto this
-	*sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
+	*sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.lf, sdb.storeKey, sdb.evmDenom)
 }
 
 // =============================================================================
