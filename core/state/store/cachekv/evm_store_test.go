@@ -17,9 +17,9 @@ package cachekv_test
 import (
 	"testing"
 
-	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/state/store/cachekv"
 	"github.com/berachain/stargazer/core/state/store/journal"
+	"github.com/berachain/stargazer/lib/common"
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"

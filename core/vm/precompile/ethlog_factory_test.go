@@ -23,9 +23,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/crypto"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
 
