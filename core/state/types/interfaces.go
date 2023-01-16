@@ -12,9 +12,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state
+package types
 
 import (
+	coretypes "github.com/berachain/stargazer/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -41,4 +42,8 @@ type BankKeeper interface {
 		recipientModule string, amt sdk.Coins) error
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+}
+
+type EthereumLogFactory interface {
+	BuildLog(event *sdk.Event) (*coretypes.Log, error)
 }

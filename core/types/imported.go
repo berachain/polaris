@@ -14,5 +14,11 @@
 
 package types
 
-const EvmStoreKey = "evm"
-const EvmNamespace = "evm"
+import (
+	"github.com/ethereum/go-ethereum/core/types"
+)
+
+type (
+	AccessList = types.AccessList
+	Log        = types.Log
+)

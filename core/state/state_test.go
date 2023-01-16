@@ -12,7 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package state_test
 
-const EvmStoreKey = "evm"
-const EvmNamespace = "evm"
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestState(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/state")
+}

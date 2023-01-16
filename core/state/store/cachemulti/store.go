@@ -11,7 +11,6 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 package cachemulti
 
 import (
@@ -41,13 +40,11 @@ func NewStoreFrom(ms storetypes.MultiStore) *Store {
 	}
 }
 
-// `GetKVStore` shadows the Cosmos SDK `storetypes.MultiStore` function. Routes native module calls
-// to read the dirty state during an eth tx. Any state that is modified by evm statedb, and using
-// the context passed in to StateDB, will be routed to a tx-specific cache kv store. This function
-// always returns a `storetypes.CacheKVStore`.
-//
-//nolint:nolintlint,ireturn // must return interface.
+// `GetKVStore` shadows the SDK's `storetypes.MultiStore` function. Routes native module calls to
+// read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
+// context passed in to StateDB, will be routed to a tx-specific cache kv store.
 func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
+	// check if cache kv store already used
 	if cacheKVStore, exists := s.stores[key]; exists {
 		return cacheKVStore
 	}
@@ -72,8 +69,6 @@ func (s *Store) Write() {
 
 // `newCacheKVStore` returns a new CacheKVStore. If the `key` is an EVM storekey, it will return
 // an EVM CacheKVStore.
-//
-//nolint:nolintlint,ireturn // must return interface.
 func (s *Store) newCacheKVStore(
 	key storetypes.StoreKey,
 	kvstore storetypes.KVStore,
