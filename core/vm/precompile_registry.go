@@ -27,7 +27,7 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-// `KeyPrefixPrecompileAddress` is the prefix for the precompile address to name mapping in the
+// KeyPrefixPrecompileAddress is the prefix for the precompile address to name mapping in the
 // precompile kvstore.
 var KeyPrefixPrecompileAddress = []byte{0x01}
 
@@ -56,7 +56,7 @@ func (pr *PrecompileRegistry) GetEventFactory() *precompile.EthereumLogFactory {
 }
 
 // `RegisterModule` stores a module's evm stateful precompile contract (in memory) at hardcoded
-// addresses and registers its events if it has any
+// addresses and registers its events if it has any.
 func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) error {
 	moduleEthAddr := common.BytesToAddress(authtypes.NewModuleAddress(moduleName).Bytes())
 
