@@ -15,6 +15,7 @@
 package vm
 
 import (
+	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/lib/common"
 	gevm "github.com/ethereum/go-ethereum/core/vm"
 )
@@ -30,8 +31,9 @@ type (
 	StatefulPrecompiledContract interface {
 		PrecompiledContract
 
-		// `GetFunctionsAndGas` TODO.
-		GetFunctionsAndGas()
+		// `GetFunctionsAndGas` should return all the stateful precompile's functions (and each of
+		// their required gas).
+		GetFunctionsAndGas() precompile.FnsAndGas
 	}
 
 	// `FactoryPrecompiledContract` is the interface for all factory stateful precompiled
