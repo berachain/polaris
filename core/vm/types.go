@@ -20,6 +20,9 @@ import (
 )
 
 type (
+	// `PrecompiledContract` is the basic interface for native Go contracts. The implementation
+	// requires a deterministic gas count based on the input size of the `Run` method of the
+	// contract.
 	PrecompiledContract = gevm.PrecompiledContract
 
 	StatefulPrecompiledContract interface {
@@ -28,7 +31,7 @@ type (
 		GetFunctionsAndGas()
 	}
 
-	FactoryContract interface {
+	FactoryPrecompiledContract interface {
 		StatefulPrecompiledContract
 
 		Name() string
