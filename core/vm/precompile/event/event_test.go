@@ -24,8 +24,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/crypto"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -44,7 +44,9 @@ var _ = Describe("Precompile Event", func() {
 
 	BeforeEach(func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
-		precompileEvent = NewPrecompileEvent(stakingModuleAddr, getMockAbiEvent(), nil)
+		var err error
+		precompileEvent, err = NewPrecompileEvent(stakingModuleAddr, getMockAbiEvent(), nil)
+		Expect(err).To(BeNil())
 
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))

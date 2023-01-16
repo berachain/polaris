@@ -74,12 +74,16 @@ var _ = Describe("ABI Test Suite", func() {
 					Indexed: true,
 				},
 			}
-			Expect(abi.GetIndexed(allArgs)).To(Equal(indexedArgs))
+			args, err := abi.GetIndexed(allArgs)
+			Expect(err).To(BeNil())
+			Expect(args).To(Equal(indexedArgs))
 		})
 
-		It("should panic if more than 3 indexed args are present", func() {
+		It("should return an error if more than 3 indexed args are given", func() {
 			allArgs = append(allArgs, abi.Argument{Indexed: true})
-			Expect(func() { abi.GetIndexed(allArgs) }).To(Panic())
+			args, err := abi.GetIndexed(allArgs)
+			Expect(args).To(BeNil())
+			Expect(err).To(Equal(abi.ErrTooManyIndexedArgs))
 		})
 	})
 })

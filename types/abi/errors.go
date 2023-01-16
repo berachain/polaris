@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -12,27 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package abi
 
-import (
-	"github.com/berachain/stargazer/lib/common"
-	gevm "github.com/ethereum/go-ethereum/core/vm"
-)
+import "errors"
 
-type (
-	PrecompiledContract = gevm.PrecompiledContract
-
-	StatefulPrecompiledContract interface {
-		PrecompiledContract
-
-		GetFunctionsAndGas()
-	}
-
-	FactoryContract interface {
-		StatefulPrecompiledContract
-
-		Name() string
-	}
-
-	PrecompileGetter func(addr common.Address) (PrecompiledContract, bool)
+var (
+	// `ErrTooManyIndexedArgs` is returned when the number of indexed arguments
+	// in an event exceeds the maximum allowed by the Ethereum event log.
+	ErrTooManyIndexedArgs = errors.New("number of indexed arguments is more than allowed by Eth event log")
 )

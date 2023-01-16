@@ -50,7 +50,7 @@ func ToMixedCase(input string) string {
 
 // `GetIndexed` extracts indexed arguments from a set of arguments. Will panic if more than 3
 // indexed arguments are provided by the inputs ABI.
-func GetIndexed(args abi.Arguments) abi.Arguments {
+func GetIndexed(args abi.Arguments) (abi.Arguments, error) {
 	var indexed abi.Arguments
 	for _, arg := range args {
 		if arg.Indexed {
@@ -59,8 +59,8 @@ func GetIndexed(args abi.Arguments) abi.Arguments {
 	}
 
 	if len(indexed) > maxIndexedArgs {
-		panic("number of indexed arguments is more than allowed by Eth event log")
+		return nil, ErrTooManyIndexedArgs
 	}
 
-	return indexed
+	return indexed, nil
 }

@@ -22,9 +22,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/event"
+	"github.com/berachain/stargazer/lib/common"
 )
 
 // KeyPrefixPrecompileAddress is the prefix for the precompile address to name mapping in the
