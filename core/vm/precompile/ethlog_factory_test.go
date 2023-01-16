@@ -23,9 +23,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/crypto"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -40,7 +40,8 @@ var _ = Describe("Events Registry", func() {
 	BeforeEach(func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 		factory = precompile.NewEthereumLogFactory()
-		factory.RegisterEvent(stakingModuleAddr, getMockAbiEvent(), nil)
+		err := factory.RegisterEvent(stakingModuleAddr, getMockAbiEvent(), nil)
+		Expect(err).To(BeNil())
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))
 		amt = sdk.NewCoin("denom", sdk.NewInt(1))
