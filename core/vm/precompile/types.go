@@ -15,7 +15,6 @@
 package precompile
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -79,7 +78,7 @@ var (
 func (fg *FnAndGas) RequireValid() error {
 	// ensure all fields are nonempty
 	if len(fg.AbiSig) == 0 || fg.Func == nil || fg.RequiredGas == 0 {
-		return errors.New("incomplete FnAndGas passed in for precompile")
+		return errIncompleteFnAndGas
 	}
 
 	// validate user-defined abi signature (AbiSig) according to geth ABI signature definition

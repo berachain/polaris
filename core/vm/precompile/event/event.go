@@ -152,7 +152,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 // Ethereum events.
 func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 	if len(event.Attributes) < len(pe.indexedInputs)+len(pe.nonIndexedInputs) {
-		return fmt.Errorf("not enough event attributes provided")
+		return errNotEnoughAttributes
 	}
 	return nil
 }
