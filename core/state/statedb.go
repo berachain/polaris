@@ -161,16 +161,6 @@ func (sdb *StateDB) PrepareForTransition(blockHash, txHash common.Hash, ti, li u
 // Reset clears the journal and other state objects. It also clears the
 // refund counter and the access list.
 func (sdb *StateDB) Reset(ctx sdk.Context) {
-	// TODO: figure out why not fully reallocating the object causes
-	// the gas shit to fail
-	// sdb.MultiStore = cachemulti.NewStoreFrom(ctx.MultiStore())
-	// sdb.ctx = ctx.WithMultiStore(sdb.MultiStore)
-	// // // Must support directly accessing the parent store.
-	// // sdb.ethStore = sdb.ctx.cms.
-	// // 	GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
-	sdb.savedErr = nil
-	sdb.refund = 0
-
 	// Wire up the `CacheMultiStore` & `sdk.Context`.
 	sdb.cms = cachemulti.NewStoreFrom(ctx.MultiStore())
 	sdb.ctx = ctx.WithMultiStore(sdb.cms)
@@ -179,17 +169,15 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	sdb.ethStore, _ = sdb.cms.
 		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
 
+	// Reset all the state objects.
+	sdb.savedErr = nil
+	sdb.refund = 0
 	sdb.txHash = common.Hash{}
 	sdb.blockHash = common.Hash{}
 	sdb.txIndex = 0
 	sdb.logSize = 0
 	sdb.logs = make([]*coretypes.Log, 0)
 	sdb.suicides = make([]common.Address, 0)
-
-	// sdb.logs = make([]*coretypes.Log, 0)
-	// sdb.accessList = newAccessList()
-	// TODO: unghetto this
-	// *sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
 }
 
 // =============================================================================
