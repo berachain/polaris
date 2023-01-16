@@ -107,6 +107,6 @@ func mockPrecompileFn(
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) (a []any, err error) {
-	return
+) ([]any, error) {
+	return nil, nil
 }
