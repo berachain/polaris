@@ -28,7 +28,6 @@ import (
 	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/testutil"
 )
@@ -44,7 +43,7 @@ var _ = Describe("StateDB", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sdb = state.NewStateDB(ctx, ak, bk, nil, testutil.EvmKey, "abera") // todo use lf
+		sdb = state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "abera") // todo use lf
 	})
 
 	Describe("TestCreateAccount", func() {
@@ -288,7 +287,7 @@ var _ = Describe("StateDB", func() {
 				Expect(sdb.GetSavedErr()).To(BeNil())
 				Expect(sdb.HasSuicided(alice)).To(BeFalse())
 				// todo check the txhash and blockhash stuff
-				Expect(sdb, state.NewStateDB(ctx, ak, bk, precompile.NewEthereumLogFactory(), testutil.EvmKey, "bera"))
+				Expect(sdb, state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "bera"))
 			})
 		})
 

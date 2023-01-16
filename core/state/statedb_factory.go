@@ -32,8 +32,6 @@ type StateDBFactory struct { //nolint:revive // the vibes are good.
 
 	// evmDenom is the denom used for EVM transactions.
 	// evmDenom params.Retriever[params.EVMDenom]
-
-	lf types.EthereumLogFactory
 }
 
 // NewStateDBFactory returns a new StateDBFactory instance.
@@ -47,7 +45,6 @@ func NewStateDBFactory(
 	return &StateDBFactory{
 		ak:          ak,
 		bk:          bk,
-		lf:          logFactory,
 		evmStoreKey: evmStoreKey,
 		// evmDenom:    evmDenom,
 		// er:          er,
@@ -56,5 +53,5 @@ func NewStateDBFactory(
 
 // BuildNewStateDB returns a new StateDB instance.
 func (sdf *StateDBFactory) BuildStateDB(ctx sdk.Context) *StateDB {
-	return NewStateDB(ctx, sdf.ak, sdf.bk, sdf.lf, sdf.evmStoreKey, "abera") // sdf.evmDenom.Get(ctx), sdf.er)
+	return NewStateDB(ctx, sdf.ak, sdf.bk, sdf.evmStoreKey, "abera") // sdf.evmDenom.Get(ctx), sdf.er)
 }
