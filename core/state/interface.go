@@ -12,7 +12,23 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package state
 
-const EvmStoreKey = "evm"
-const EvmNamespace = "evm"
+import (
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/core/vm"
+
+	"github.com/berachain/stargazer/lib/common"
+)
+
+type GethStateDB = vm.StateDB
+
+// `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
+// support additional state transition functionalities that are useful in a Cosmos SDK context.
+type StargazerStateDB interface {
+	GethStateDB
+
+	// TransferBalance transfers the balance from one account to another
+	TransferBalance(common.Address, common.Address, *big.Int)
+}

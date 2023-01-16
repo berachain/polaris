@@ -12,42 +12,28 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package core
 
 import (
-	"fmt"
-	"strings"
+	"math/big"
 
-	"cosmossdk.io/errors"
-	"github.com/berachain/stargazer/lib/gointerfaces"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/lib/common"
 )
 
-// Compile-time interface assertions.
-var _ gointerfaces.Cloneable[State] = &State{}
-var _ fmt.Stringer = Storage{}
+// Compile-time interface check.
+var _ vm.CanTransferFunc = CanTransfer
+var _ vm.TransferFunc = Transfer
 
-// `NewState` creates a new State instance.
-func NewState(key, value common.Hash) State {
-	return State{
-		Key:   key.Hex(),
-		Value: value.Hex(),
-	}
+// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
+// NOTE: This does not take the necessary gas in to account to make the transfer valid.
+func CanTransfer(sdb vm.StateDB, addr common.Address, amount *big.Int) bool {
+	return sdb.GetBalance(addr).Cmp(amount) >= 0
 }
 
-// `ValidateBasic` checks to make sure the key is not empty.
-func (s State) ValidateBasic() error {
-	if strings.TrimSpace(s.Key) == "" {
-		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
-	}
-
-	return nil
-}
-
-// `Clone` implements `types.Cloneable`.
-func (s State) Clone() State {
-	return State{
-		Key:   s.Key,
-		Value: s.Value,
-	}
+// `Transfer` subtracts amount from sender and adds amount to recipient using the `vm.StateDB`.
+func Transfer(sdb vm.StateDB, sender, recipient common.Address, amount *big.Int) {
+	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
+	sdb.(state.ExtStateDB).TransferBalance(sender, recipient, amount)
 }

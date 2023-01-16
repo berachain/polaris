@@ -12,7 +12,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package vm
 
-const EvmStoreKey = "evm"
-const EvmNamespace = "evm"
+import (
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/holiman/uint256"
+)
+
+type VMInterface interface { //nolint:revive // we like the vibe.
+	Reset(txCtx TxContext, sdb StateDB)
+	Create(caller ContractRef, code []byte,
+		gas uint64, value *uint256.Int,
+	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
+	Call(caller ContractRef, addr common.Address, input []byte,
+		gas uint64, value *uint256.Int, bailout bool,
+	) (ret []byte, leftOverGas uint64, err error)
+	Config() Config
+	ChainConfig() *params.ChainConfig
+	ChainRules() *params.Rules
+	Context() BlockContext
+	StateDB() StateDB
+	TxContext() TxContext
+}
