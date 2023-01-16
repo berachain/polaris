@@ -34,7 +34,7 @@ var KeyPrefixPrecompileAddress = []byte{0x01}
 // PrecompileRegistry will store and provide custom, stateful precompiled smart contracts
 type PrecompileRegistry struct {
 	hardcodedPrecompiles      map[common.Address]StatefulPrecompiledContract
-	namesToFactoryPrecompiles map[string]StatefulPrecompiledContract
+	namesToFactoryPrecompiles map[string]FactoryContract
 	storeKey                  storetypes.StoreKey
 
 	eventFactory *precompile.EthereumLogFactory
@@ -43,7 +43,7 @@ type PrecompileRegistry struct {
 func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 	return &PrecompileRegistry{
 		hardcodedPrecompiles:      make(map[common.Address]StatefulPrecompiledContract),
-		namesToFactoryPrecompiles: make(map[string]StatefulPrecompiledContract),
+		namesToFactoryPrecompiles: make(map[string]FactoryContract),
 		storeKey:                  storeKey,
 		eventFactory:              precompile.NewEthereumLogFactory(),
 	}
