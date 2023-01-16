@@ -27,11 +27,11 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-// KeyPrefixPrecompileAddress is the prefix for the precompile address to name mapping in the
-// precompile kvstore
+// `KeyPrefixPrecompileAddress` is the prefix for the precompile address to name mapping in the
+// precompile kvstore.
 var KeyPrefixPrecompileAddress = []byte{0x01}
 
-// PrecompileRegistry will store and provide custom, stateful precompiled smart contracts
+// `PrecompileRegistry` will store and provide custom, stateful precompiled smart contracts.
 type PrecompileRegistry struct {
 	hardcodedPrecompiles      map[common.Address]StatefulPrecompiledContract
 	namesToFactoryPrecompiles map[string]FactoryContract
@@ -40,6 +40,7 @@ type PrecompileRegistry struct {
 	eventFactory *precompile.EthereumLogFactory
 }
 
+// `NewPrecompileRegistry` creates and returns a new `PrecompileRegistry` for given `storeKey`.
 func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 	return &PrecompileRegistry{
 		hardcodedPrecompiles:      make(map[common.Address]StatefulPrecompiledContract),
@@ -49,13 +50,14 @@ func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 	}
 }
 
+// `GetEventFactory` returns the Ethereum log factory for this precompile registry.
 func (pr *PrecompileRegistry) GetEventFactory() *precompile.EthereumLogFactory {
 	return pr.eventFactory
 }
 
-// RegisterModule stores a module's evm stateful precompile contract (in memory) at hardcoded
+// `RegisterModule` stores a module's evm stateful precompile contract (in memory) at hardcoded
 // addresses and registers its events if it has any
-func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) {
+func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) error {
 	moduleEthAddr := common.BytesToAddress(authtypes.NewModuleAddress(moduleName).Bytes())
 
 	// store the module stateful precompile contract in the hardcoded map
@@ -73,12 +75,16 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) {
 				customEventAttributes =
 					customModule.CustomValueDecoders()[precompile.EventType(abiEvent.Name)]
 			}
-			pr.eventFactory.RegisterEvent(moduleEthAddr, abiEvent, customEventAttributes)
+			err := pr.eventFactory.RegisterEvent(moduleEthAddr, abiEvent, customEventAttributes)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
-// Inject stores any module's factory stateful precompile in the precompile kvstore
+// `Inject` stores any module's factory stateful precompile in the EVM kvstore.
 func (pr *PrecompileRegistry) Inject(
 	ctx sdk.Context,
 	addr common.Address,
@@ -98,6 +104,7 @@ func (pr *PrecompileRegistry) Inject(
 	return nil
 }
 
+// `GetPrecompileFn` returns a `PrecompileGetter` function, to be used by the EVM.
 func (pr *PrecompileRegistry) GetPrecompileFn(ctx sdk.Context) PrecompileGetter {
 	return func(addr common.Address) (PrecompiledContract, bool) {
 		// try hardcoded precompile in memory
