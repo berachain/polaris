@@ -49,15 +49,19 @@ func NewPrecompileEvent(
 	moduleAddr common.Address,
 	abiEvent abi.Event,
 	customValueDecoders ValueDecoders,
-) *PrecompileEvent {
+) (*PrecompileEvent, error) {
+	indexedInputs, err := abi.GetIndexed(abiEvent.Inputs)
+	if err != nil {
+		return nil, err
+	}
 	pe := &PrecompileEvent{
 		moduleAddr:          moduleAddr,
 		id:                  abiEvent.ID,
-		indexedInputs:       abi.GetIndexed(abiEvent.Inputs),
+		indexedInputs:       indexedInputs,
 		nonIndexedInputs:    abiEvent.Inputs.NonIndexed(),
 		customValueDecoders: customValueDecoders,
 	}
-	return pe
+	return pe, nil
 }
 
 // `ModuleAddress` returns the Ethereum address corresponding to a PrecompileEvent's Cosmos module.
