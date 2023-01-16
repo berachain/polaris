@@ -15,6 +15,7 @@
 package precompile_test
 
 import (
+	"fmt"
 	"strconv"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -28,8 +29,8 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-var _ = Describe("Events Registry", func() {
-	var factory *precompile.EthereumLogFactory
+var _ = Describe("Events Factory", func() {
+	var factory *precompile.LogFactory
 	var stakingModuleAddr common.Address
 	var valAddr sdk.ValAddress
 	var delAddr sdk.AccAddress
@@ -38,7 +39,7 @@ var _ = Describe("Events Registry", func() {
 
 	BeforeEach(func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
-		factory = precompile.NewEthereumLogFactory()
+		factory = precompile.NewLogFactory()
 		err := factory.RegisterEvent(stakingModuleAddr, getMockAbiEvent(), nil)
 		Expect(err).To(BeNil())
 		valAddr = sdk.ValAddress([]byte("alice"))
@@ -68,6 +69,7 @@ var _ = Describe("Events Registry", func() {
 		It("should fail on non-registered event", func() {
 			event := sdk.NewEvent("redelegate")
 			_, err := factory.BuildLog(&event)
+			fmt.Println(err)
 			Expect(err.Error()).To(Equal("the Ethereum event corresponding to Cosmos event redelegate was not registered")) //nolint:lll
 		})
 

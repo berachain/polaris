@@ -25,8 +25,8 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `EthereumLogFactory` builds Ethereum logs from Cosmos events.
-type EthereumLogFactory struct {
+// `LogFactory` builds Ethereum logs from Cosmos events.
+type LogFactory struct {
 	// `precompileEvents` is a map of `EventType`s to `*types.PrecompileEvents` for all supported
 	// Cosmos events.
 	precompileEvents map[EventType]*event.PrecompileEvent
@@ -36,9 +36,9 @@ type EthereumLogFactory struct {
 // Constructor
 // ==============================================================================
 
-// `NewEthereumLogFactory` creates and returns a new, empty `EthereumLogFactory`.
-func NewEthereumLogFactory() *EthereumLogFactory {
-	return &EthereumLogFactory{
+// `NewLogFactory` creates and returns a new, empty `LogFactory`.
+func NewLogFactory() *LogFactory {
+	return &LogFactory{
 		precompileEvents: make(map[EventType]*event.PrecompileEvent),
 	}
 }
@@ -48,7 +48,7 @@ func NewEthereumLogFactory() *EthereumLogFactory {
 // ==============================================================================
 
 // `RegisterEvent` registers a Cosmos module's precompile event.
-func (pef *EthereumLogFactory) RegisterEvent(
+func (pef *LogFactory) RegisterEvent(
 	moduleEthAddress common.Address,
 	abiEvent abi.Event,
 	customModuleAttributes event.ValueDecoders,
@@ -67,7 +67,7 @@ func (pef *EthereumLogFactory) RegisterEvent(
 // ==============================================================================
 
 // `BuildLog` builds an Ethereum event log from the given Cosmos event.
-func (pef *EthereumLogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
+func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// validate incoming Cosmos event
 	pe := pef.precompileEvents[EventType(abi.ToCamelCase(event.Type))]
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to

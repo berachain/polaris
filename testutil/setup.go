@@ -44,8 +44,8 @@ var (
 	Bob        = common.BytesToAddress([]byte("bob"))
 )
 
-func SetupMinimalKeepers() (sdk.Context,
-	authkeeper.AccountKeeper, bankkeeper.BaseKeeper, stakingkeeper.Keeper) {
+// `NewContextWithMultistores` creates a SDK context and mounts basic SDK modules' kvstores.
+func NewContextWithMultistores() sdk.Context {
 	dbm := db.NewMemDB()
 	ms := store.NewCommitMultiStore(dbm)
 
@@ -59,7 +59,17 @@ func SetupMinimalKeepers() (sdk.Context,
 		panic(err)
 	}
 
-	ctx := sdk.NewContext(ms, tmproto.Header{}, false, log.TestingLogger())
+	return sdk.NewContext(ms, tmproto.Header{}, false, log.TestingLogger())
+}
+
+// `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.
+func SetupMinimalKeepers() (
+	sdk.Context,
+	authkeeper.AccountKeeper,
+	bankkeeper.BaseKeeper,
+	stakingkeeper.Keeper,
+) {
+	ctx := NewContextWithMultistores()
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
 		auth.AppModuleBasic{},

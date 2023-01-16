@@ -48,7 +48,7 @@ type PrecompileRegistry struct {
 
 	// `eventFactory` is the Ethereum log builder for all Cosmos events emitted during precompile
 	// execution.
-	eventFactory *precompile.EthereumLogFactory
+	eventFactory *precompile.LogFactory
 }
 
 // `NewPrecompileRegistry` creates and returns a new `PrecompileRegistry` for given `storeKey`.
@@ -58,12 +58,12 @@ func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 		statefulPrecompiles:  make(map[common.Address]StatefulPrecompiledContract),
 		factoryPrecompiles:   make(map[string]FactoryPrecompiledContract),
 		storeKey:             storeKey,
-		eventFactory:         precompile.NewEthereumLogFactory(),
+		eventFactory:         precompile.NewLogFactory(),
 	}
 }
 
 // `GetEventFactory` returns the Ethereum log factory for this precompile registry.
-func (pr *PrecompileRegistry) GetEventFactory() *precompile.EthereumLogFactory {
+func (pr *PrecompileRegistry) GetEventFactory() *precompile.LogFactory {
 	return pr.eventFactory
 }
 
@@ -128,7 +128,13 @@ func (pr *PrecompileRegistry) InjectFactoryContract(
 // `GetPrecompileFn` returns a `PrecompileGetter` function, to be used by the EVM.
 func (pr *PrecompileRegistry) GetPrecompileFn(ctx sdk.Context) PrecompileGetter {
 	return func(addr common.Address) (PrecompiledContract, bool) {
-		// try hardcoded precompile in memory
+		// try stateless precompile in memory
+		pc, found := pr.statelessPrecompiles[addr]
+		if found {
+			return pc, found
+		}
+
+		// try stateful precompile in memory
 		spc, found := pr.statefulPrecompiles[addr]
 		if found {
 			return spc, found
@@ -140,8 +146,7 @@ func (pr *PrecompileRegistry) GetPrecompileFn(ctx sdk.Context) PrecompileGetter 
 		if name == nil {
 			return nil, false
 		}
-
-		spc, found = pr.factoryPrecompiles[string(name)]
-		return spc, found
+		fpc, found := pr.factoryPrecompiles[string(name)]
+		return fpc, found
 	}
 }
