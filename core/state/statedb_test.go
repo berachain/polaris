@@ -282,7 +282,7 @@ var _ = Describe("StateDB", func() {
 			It("should have reset state", func() {
 				sdb.Reset(ctx)
 				Expect(sdb.GetNonce(alice)).To(Equal(uint64(0)))
-				Expect(sdb.Logs()).To(BeNil())
+				Expect(len(sdb.Logs())).To(Equal(0))
 				Expect(sdb.GetRefund()).To(Equal(uint64(0)))
 				Expect(sdb.GetSavedErr()).To(BeNil())
 				Expect(sdb.HasSuicided(alice)).To(BeFalse())

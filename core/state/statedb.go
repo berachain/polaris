@@ -98,7 +98,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	txHash    common.Hash
 	blockHash common.Hash
 	txIndex   uint
-	logIndex  uint
+	logSize   uint
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -123,13 +123,8 @@ func NewStateDB(
 		storeKey: storeKey,
 	}
 
-	// Wire up the `CacheMultiStore` & `sdk.Context`.
-	sdb.cms = cachemulti.NewStoreFrom(ctx.MultiStore())
-	sdb.ctx = ctx.WithMultiStore(sdb.cms)
-
-	// Store a reference to the EVM state store for performance reasons.
-	sdb.ethStore, _ = sdb.cms.
-		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
+	// set the context
+	sdb.Reset(ctx)
 
 	return sdb
 }
@@ -160,7 +155,7 @@ func (sdb *StateDB) PrepareForTransition(blockHash, txHash common.Hash, ti, li u
 	sdb.blockHash = blockHash
 	sdb.txHash = txHash
 	sdb.txIndex = ti
-	sdb.logIndex = li
+	sdb.logSize = li
 }
 
 // Reset clears the journal and other state objects. It also clears the
@@ -173,14 +168,28 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// // // Must support directly accessing the parent store.
 	// // sdb.ethStore = sdb.ctx.cms.
 	// // 	GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
-	// sdb.savedErr = nil
-	// sdb.refund = 0
+	sdb.savedErr = nil
+	sdb.refund = 0
+
+	// Wire up the `CacheMultiStore` & `sdk.Context`.
+	sdb.cms = cachemulti.NewStoreFrom(ctx.MultiStore())
+	sdb.ctx = ctx.WithMultiStore(sdb.cms)
+
+	// Store a reference to the EVM state store for performance reasons.
+	sdb.ethStore, _ = sdb.cms.
+		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
+
+	sdb.txHash = common.Hash{}
+	sdb.blockHash = common.Hash{}
+	sdb.txIndex = 0
+	sdb.logSize = 0
+	sdb.logs = make([]*coretypes.Log, 0)
+	sdb.suicides = make([]common.Address, 0)
 
 	// sdb.logs = make([]*coretypes.Log, 0)
 	// sdb.accessList = newAccessList()
-	// sdb.suicides = make([]common.Address, 0)
 	// TODO: unghetto this
-	*sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
+	// *sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
 }
 
 // =============================================================================
@@ -478,9 +487,9 @@ func (sdb *StateDB) AddLog(log *coretypes.Log) {
 	log.TxHash = sdb.txHash
 	log.BlockHash = sdb.blockHash
 	log.TxIndex = sdb.txIndex
-	log.Index = sdb.logIndex
+	log.Index = sdb.logSize
 	sdb.logs = append(sdb.logs, log)
-	sdb.logIndex++ // erigon intra
+	sdb.logSize++ // erigon intra
 }
 
 // Logs returns the logs of current transaction.
