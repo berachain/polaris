@@ -19,7 +19,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
 )
 
@@ -32,17 +31,4 @@ type StargazerStateDB interface {
 
 	// TransferBalance transfers the balance from one account to another
 	TransferBalance(common.Address, common.Address, *big.Int)
-
-	// GetSavedErr returns the error saved in the statedb
-	GetSavedErr() error
-
-	// GetLogs returns the logs generated during the transaction
-	Logs() []*coretypes.Log
-
-	// Commit writes the state to the underlying multi-store
-	Commit() error
-
-	// PrepareForTransition prepares the statedb for a new transition
-	// by setting the block hash, tx hash, tx index and tx log index.
-	PrepareForTransition(common.Hash, common.Hash, uint, uint)
 }
