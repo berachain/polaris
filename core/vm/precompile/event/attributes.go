@@ -74,6 +74,13 @@ var defaultCosmosValueDecoders = ValueDecoders{
 // Default Attribute Value Decoder Functions
 // ==============================================================================
 
+var (
+	_ valueDecoder = ConvertSdkCoin
+	_ valueDecoder = ConvertValAddressFromBech32
+	_ valueDecoder = ConvertAccAddressFromBech32
+	_ valueDecoder = ConvertInt64
+)
+
 // `ConvertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
 //
 // `ConvertSdkCoin` is a `valueDecoder`.

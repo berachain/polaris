@@ -15,7 +15,6 @@
 package precompile_test
 
 import (
-	"fmt"
 	"strconv"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -69,7 +68,6 @@ var _ = Describe("Events Factory", func() {
 		It("should fail on non-registered event", func() {
 			event := sdk.NewEvent("redelegate")
 			_, err := factory.BuildLog(&event)
-			fmt.Println(err)
 			Expect(err.Error()).To(Equal("the Ethereum event corresponding to Cosmos event redelegate was not registered")) //nolint:lll
 		})
 

@@ -53,7 +53,8 @@ var _ = Describe("Precompile Registry", func() {
 		})
 
 		It("should correctly register events for registered modules", func() {
-			pr.RegisterModule("test", mc)
+			err := pr.RegisterModule("test", mc)
+			Expect(err).To(BeNil())
 			cosmosEvent := sdk.NewEvent("cosmos_event_type")
 			log, err := pr.GetEventFactory().BuildLog(&cosmosEvent)
 			Expect(err).To(BeNil())
@@ -72,7 +73,8 @@ var _ = Describe("Precompile Registry", func() {
 
 	Describe("Test Stateful Precompile", func() {
 		It("should register and get a stateful precompile", func() {
-			pr.RegisterModule("test", mc)
+			err := pr.RegisterModule("test", mc)
+			Expect(err).To(BeNil())
 			spc, found := pr.GetPrecompileFn(ctx)(moduleAddr)
 			Expect(found).To(BeTrue())
 			Expect(spc).ToNot(BeNil())
@@ -81,7 +83,8 @@ var _ = Describe("Precompile Registry", func() {
 
 	Describe("Test Factory Precompile", func() {
 		It("should inject and get a factory Precompile", func() {
-			pr.InjectFactoryContract(ctx, addr, mf)
+			err := pr.InjectFactoryContract(ctx, addr, mf)
+			Expect(err).To(BeNil())
 			fc, found := pr.GetPrecompileFn(ctx)(addr)
 			Expect(found).To(BeTrue())
 			Expect(fc).ToNot(BeNil())
