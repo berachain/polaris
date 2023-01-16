@@ -15,7 +15,7 @@
 package vm
 
 import (
-	"github.com/berachain/stargazer/common"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 )

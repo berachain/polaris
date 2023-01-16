@@ -24,10 +24,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/testutil"
 )

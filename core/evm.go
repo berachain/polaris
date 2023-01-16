@@ -17,9 +17,9 @@ package core
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/common"
 	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/lib/common"
 )
 
 // Compile-time interface check.

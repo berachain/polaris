@@ -19,8 +19,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/berachain/stargazer/common"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/common"
 )
 
 type GethStateDB = vm.StateDB

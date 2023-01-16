@@ -32,7 +32,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	db "github.com/tendermint/tm-db"
 
-	"github.com/berachain/stargazer/common"
+	"github.com/berachain/stargazer/lib/common"
 )
 
 var (
