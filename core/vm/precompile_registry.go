@@ -89,11 +89,11 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 	if eventsContract, hasEvents := contract.(precompile.HasEvents); hasEvents {
 		for _, abiEvent := range eventsContract.ABIEvents() {
 			var customModuleAttributes event.ValueDecoders
-			if customModule, isCustom := contract.(precompile.HasCustomModuleEvents); isCustom {
+			if customEvents, isCustom := contract.(precompile.HasCustomEvents); isCustom {
 				// if contract is of a custom Cosmos module, load its custom attributes' value
 				// decoders
 				customModuleAttributes =
-					customModule.CustomValueDecoders()[precompile.EventType(abiEvent.Name)]
+					customEvents.CustomValueDecoders()[precompile.EventType(abiEvent.Name)]
 			}
 			err := pr.eventFactory.RegisterEvent(moduleEthAddr, abiEvent, customModuleAttributes)
 			if err != nil {
@@ -101,6 +101,7 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 			}
 		}
 	}
+
 	return nil
 }
 

@@ -25,17 +25,25 @@ type (
 	// contract.
 	PrecompiledContract = gevm.PrecompiledContract
 
+	// `StatefulPrecompiledContract` is the interface for all stateful precompiled contracts, which
+	// must expose their functions and gas requirements for stateful execution.
 	StatefulPrecompiledContract interface {
 		PrecompiledContract
 
+		// `GetFunctionsAndGas` TODO.
 		GetFunctionsAndGas()
 	}
 
+	// `FactoryPrecompiledContract` is the interface for all factory stateful precompiled
+	// contracts.
 	FactoryPrecompiledContract interface {
 		StatefulPrecompiledContract
 
+		// `Name` should return a string name of the factory contract.
 		Name() string
 	}
 
+	// `PrecompileGetter` is a type of function used by the EVM to retrieve precompiled contracts
+	// during EVM execution.
 	PrecompileGetter func(addr common.Address) (PrecompiledContract, bool)
 )
