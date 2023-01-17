@@ -34,8 +34,8 @@ type StargazerStateDB interface {
 	TransferBalance(common.Address, common.Address, *big.Int)
 }
 
-// `ExtStateDBI` defines the interface to support running stateful precompiled contracts.
-type ExtStateDBI interface {
+// `PrecompileStateDB` defines the interface to support running stateful precompiled contracts.
+type PrecompileStateDB interface {
 	GethStateDB
 
 	GetContext() sdk.Context

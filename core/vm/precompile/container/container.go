@@ -57,7 +57,7 @@ func (sc *StatefulContainer) Run(
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
-	esdb, ok := evm.StateDB.(state.ExtStateDBI)
+	esdb, ok := evm.StateDB.(state.PrecompileStateDB)
 	if !ok {
 		return nil, types.ErrStateDBNotSupported
 	}
