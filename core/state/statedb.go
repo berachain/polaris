@@ -99,6 +99,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	blockHash common.Hash
 	txIndex   uint
 	logSize   uint
+	bloom     coretypes.Bloom
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -176,6 +177,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	sdb.blockHash = common.Hash{}
 	sdb.txIndex = 0
 	sdb.logSize = 0
+	sdb.bloom = coretypes.Bloom{}
 	sdb.logs = make(map[common.Hash][]*coretypes.Log, 0)
 	sdb.suicides = make([]common.Address, 0)
 }
@@ -478,11 +480,27 @@ func (sdb *StateDB) AddLog(log *coretypes.Log) {
 	log.Index = sdb.logSize
 	sdb.logs[sdb.txHash] = append(sdb.logs[sdb.txHash], log)
 	sdb.logSize++ // erigon intra
+
+	// todo maybe also build bloom filter here? And then the journal will handle reverting it?
+	// would need to store bare copies of the bloom filter tho which may be really slow?
 }
 
-// Logs returns the logs of current transaction.
+// `GetLogs` implements the `GethStateDB` interface by returning the logs of the given transaction hash.
+func (sdb *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
+	logs := sdb.logs[txHash]
+	for _, log := range logs {
+		log.BlockHash = blockHash
+	}
+	return logs
+}
+
+// `Logs` implements the `GethStateDB` interface by all the logs currently stored in the `StateDB`.
 func (sdb *StateDB) Logs() []*coretypes.Log {
-	return sdb.logs[sdb.txHash]
+	logs := make([]*coretypes.Log, 0)
+	for _, lgs := range sdb.logs {
+		logs = append(logs, lgs...)
+	}
+	return logs
 }
 
 // =============================================================================
@@ -517,6 +535,15 @@ func (sdb *StateDB) ForEachStorage(
 // `Commit` is called when we are complete with the state transition and want to commit the changes
 // to the underlying store.
 func (sdb *StateDB) Commit() error {
+	// We want to always update the bloom filter and logs even if there is a savedErr since we want
+	// to record logs and bloom filter for the transaction even if it fails.
+	for _, log := range sdb.logs[sdb.txHash] {
+		sdb.bloom.Add(log.Address.Bytes())
+		for _, b := range log.Topics {
+			sdb.bloom.Add(b[:]) // Todo reuse buffer to save
+		}
+	}
+
 	// If we saw an error during the execution, we return it here.
 	if sdb.savedErr != nil {
 		return sdb.savedErr

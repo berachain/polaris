@@ -20,5 +20,6 @@ import (
 
 type (
 	AccessList = types.AccessList
+	Bloom      = types.Bloom
 	Log        = types.Log
 )
