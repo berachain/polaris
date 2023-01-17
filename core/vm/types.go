@@ -36,12 +36,12 @@ type (
 		GetFunctionsAndGas() precompile.FnsAndGas
 	}
 
-	// `FactoryPrecompiledContract` is the interface for all factory stateful precompiled
+	// `DynamicPrecompiledContract` is the interface for all dynamic stateful precompiled
 	// contracts.
-	FactoryPrecompiledContract interface {
+	DynamicPrecompiledContract interface {
 		StatefulPrecompiledContract
 
-		// `Name` should return a string name of the factory contract.
+		// `Name` should return a string name of the dynamic contract.
 		Name() string
 	}
 

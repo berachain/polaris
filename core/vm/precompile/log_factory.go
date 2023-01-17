@@ -53,6 +53,10 @@ func (pef *LogFactory) RegisterEvent(
 	abiEvent abi.Event,
 	customModuleAttributes event.ValueDecoders,
 ) error {
+	if _, found := pef.precompileEvents[EventType(abiEvent.Name)]; found {
+		return fmt.Errorf(common.WrapErrorWithString, ErrEthEventAlreadyRegistered, abiEvent.Name)
+	}
+
 	var err error
 	pef.precompileEvents[EventType(abiEvent.Name)], err = event.NewPrecompileEvent(
 		moduleEthAddress,

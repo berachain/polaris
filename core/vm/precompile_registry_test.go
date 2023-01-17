@@ -32,7 +32,7 @@ var _ = Describe("Precompile Registry", func() {
 	var pr *vm.PrecompileRegistry
 	var mc *mockStatefulContract
 	var ms *mockStateless
-	var mf *mockFactory
+	var mf *mockDynamic
 	var ctx sdk.Context
 	var addr common.Address
 	var moduleAddr common.Address
@@ -41,7 +41,7 @@ var _ = Describe("Precompile Registry", func() {
 		pr = vm.NewPrecompileRegistry(testutil.EvmKey)
 		ms = &mockStateless{}
 		mc = &mockStatefulContract{mockStateless: ms}
-		mf = &mockFactory{mockStatefulContract: mc}
+		mf = &mockDynamic{mockStatefulContract: mc}
 		ctx = testutil.NewContextWithMultistores()
 		addr = common.BytesToAddress([]byte{1})
 		moduleAddr = common.BytesToAddress(authtypes.NewModuleAddress("test").Bytes())
@@ -49,22 +49,23 @@ var _ = Describe("Precompile Registry", func() {
 
 	Describe("Test Event Factory", func() {
 		It("should load a non-nil event factory", func() {
-			Expect(pr.GetEventFactory()).ToNot(BeNil())
+			Expect(pr.GetLogFactory()).ToNot(BeNil())
 		})
 
 		It("should correctly register events for registered modules", func() {
 			err := pr.RegisterModule("test", mc)
 			Expect(err).To(BeNil())
 			cosmosEvent := sdk.NewEvent("cosmos_event_type")
-			log, err := pr.GetEventFactory().BuildLog(&cosmosEvent)
+			log, err := pr.GetLogFactory().BuildLog(&cosmosEvent)
 			Expect(err).To(BeNil())
 			Expect(log.Address).To(Equal(moduleAddr))
 		})
 	})
 
 	Describe("Test Stateless Precompiles", func() {
-		It("should inject and get a stateless precompile", func() {
-			pr.InjectStatelessContract(addr, ms)
+		It("should register and get a stateless precompile", func() {
+			err := pr.RegisterStatelessContract(addr, ms)
+			Expect(err).To(BeNil())
 			sc, found := pr.GetPrecompileFn(ctx)(addr)
 			Expect(found).To(BeTrue())
 			Expect(sc).ToNot(BeNil())
@@ -81,9 +82,9 @@ var _ = Describe("Precompile Registry", func() {
 		})
 	})
 
-	Describe("Test Factory Precompile", func() {
-		It("should inject and get a factory Precompile", func() {
-			err := pr.InjectFactoryContract(ctx, addr, mf)
+	Describe("Test Dynamic Precompile", func() {
+		It("should register and get a factory Precompile", func() {
+			err := pr.RegisterDynamicContract(ctx, addr, mf)
 			Expect(err).To(BeNil())
 			fc, found := pr.GetPrecompileFn(ctx)(addr)
 			Expect(found).To(BeTrue())
@@ -123,10 +124,10 @@ func (mc *mockStatefulContract) GetFunctionsAndGas() precompile.FnsAndGas {
 	return nil
 }
 
-type mockFactory struct {
+type mockDynamic struct {
 	*mockStatefulContract
 }
 
-func (mf *mockFactory) Name() string {
+func (mf *mockDynamic) Name() string {
 	return "name"
 }

@@ -68,7 +68,7 @@ var _ = Describe("Events Factory", func() {
 		It("should fail on non-registered event", func() {
 			event := sdk.NewEvent("redelegate")
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("the Ethereum event corresponding to Cosmos event redelegate was not registered")) //nolint:lll
+			Expect(err.Error()).To(Equal("the Ethereum event was not registered for Cosmos event redelegate"))
 		})
 
 		It("should fail on incorrect number of attributes given", func() {
@@ -79,7 +79,7 @@ var _ = Describe("Events Factory", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("not enough event attributes provided for event cancel_unbonding_delegation")) //nolint:lll
+			Expect(err.Error()).To(Equal("not enough event attributes provided for event cancel_unbonding_delegation"))
 		})
 
 		It("should fail on invalid (indexed) attribute key given", func() {
@@ -91,7 +91,7 @@ var _ = Describe("Events Factory", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("no attribute key found for argument validator for event cancel_unbonding_delegation")) //nolint:lll
+			Expect(err.Error()).To(Equal("no attribute key found for argument validator for event cancel_unbonding_delegation"))
 		})
 
 		It("should fail on invalid (non-indexed) attribute key given", func() {
@@ -103,7 +103,7 @@ var _ = Describe("Events Factory", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("no attribute key found for argument amount for event cancel_unbonding_delegation")) //nolint:lll
+			Expect(err.Error()).To(Equal("no attribute key found for argument amount for event cancel_unbonding_delegation"))
 		})
 	})
 })

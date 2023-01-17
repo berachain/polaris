@@ -31,24 +31,25 @@ import (
 // precompile kvstore.
 var KeyPrefixPrecompileAddress = []byte{0x01}
 
-// `PrecompileRegistry` will store and provide stateless and custom or factory stateful precompiled
-// contracts to the EVM.
+// `PrecompileRegistry` will store and provide stateless and custom or dynamic stateful
+// precompiled contracts to the EVM.
 type PrecompileRegistry struct {
-	// `StatelessPrecompiles` is a map of Ethereum addresses
+	// `StatelessPrecompiles` is a map of Ethereum addresses to stateless precompiled contracts.
 	statelessPrecompiles map[common.Address]PrecompiledContract
 
 	// `statefulPrecompiles` is a map of Ethereum addresses to stateful precompiled contracts.
 	statefulPrecompiles map[common.Address]StatefulPrecompiledContract
 
-	// `factoryPrecompiles` is a map of names to factory precompiled contracts.
-	factoryPrecompiles map[string]FactoryPrecompiledContract
+	// `dynamicPrecompiles` is a map of names to dynamic precompiled contracts.
+	dynamicPrecompiles map[string]DynamicPrecompiledContract
 
-	// `storeKey` is the store key of the Cosmos KVStore used for storing precompiles.
+	// `storeKey` is the store key of the Cosmos KVStore used for storing the addresses of dynamic
+	// precompiled contracts.
 	storeKey storetypes.StoreKey
 
-	// `eventFactory` is the Ethereum log builder for all Cosmos events emitted during precompile
+	// `logFactory` is the Ethereum log builder for all Cosmos events emitted during precompile
 	// execution.
-	eventFactory *precompile.LogFactory
+	logFactory *precompile.LogFactory
 }
 
 // `NewPrecompileRegistry` creates and returns a new `PrecompileRegistry` for given `storeKey`.
@@ -56,23 +57,31 @@ func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 	return &PrecompileRegistry{
 		statelessPrecompiles: make(map[common.Address]PrecompiledContract),
 		statefulPrecompiles:  make(map[common.Address]StatefulPrecompiledContract),
-		factoryPrecompiles:   make(map[string]FactoryPrecompiledContract),
+		dynamicPrecompiles:   make(map[string]DynamicPrecompiledContract),
 		storeKey:             storeKey,
-		eventFactory:         precompile.NewLogFactory(),
+		logFactory:           precompile.NewLogFactory(),
 	}
 }
 
-// `GetEventFactory` returns the Ethereum log factory for this precompile registry.
-func (pr *PrecompileRegistry) GetEventFactory() *precompile.LogFactory {
-	return pr.eventFactory
+// `GetLogFactory` returns the Ethereum log dynamic for this precompile registry.
+func (pr *PrecompileRegistry) GetLogFactory() *precompile.LogFactory {
+	return pr.logFactory
 }
 
-// `InjectStateless` stores the stateless precompile `pc` at the given Ethereum address `addr`.
-func (pr *PrecompileRegistry) InjectStatelessContract(
+// `RegisterStateless` stores the stateless precompile `pc` at the given Ethereum address `addr`.
+func (pr *PrecompileRegistry) RegisterStatelessContract(
 	addr common.Address,
 	pc PrecompiledContract,
-) {
+) error {
+	if _, found := pr.statelessPrecompiles[addr]; found {
+		return fmt.Errorf(
+			common.WrapErrorWithString,
+			ErrPrecompileAlreadyRegistered,
+			addr.String(),
+		)
+	}
 	pr.statelessPrecompiles[addr] = pc
+	return nil
 }
 
 // `RegisterModule` stores a module's stateful precompile contract (in memory) at a hardcoded
@@ -81,7 +90,14 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 	moduleEthAddr := common.BytesToAddress(authtypes.NewModuleAddress(moduleName).Bytes())
 
 	// store the module stateful precompile contract in the hardcoded map
-	if spc, ok := contract.(StatefulPrecompiledContract); ok {
+	if spc, isStateful := contract.(StatefulPrecompiledContract); isStateful {
+		if _, found := pr.statefulPrecompiles[moduleEthAddr]; found {
+			return fmt.Errorf(
+				common.WrapErrorWithString,
+				ErrPrecompileAlreadyRegistered,
+				moduleName,
+			)
+		}
 		pr.statefulPrecompiles[moduleEthAddr] = spc
 	}
 
@@ -95,7 +111,7 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 				customModuleAttributes =
 					customEvents.CustomValueDecoders()[precompile.EventType(abiEvent.Name)]
 			}
-			err := pr.eventFactory.RegisterEvent(moduleEthAddr, abiEvent, customModuleAttributes)
+			err := pr.logFactory.RegisterEvent(moduleEthAddr, abiEvent, customModuleAttributes)
 			if err != nil {
 				return err
 			}
@@ -105,19 +121,23 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 	return nil
 }
 
-// `Inject` stores any module's factory stateful precompile in the EVM kvstore.
-func (pr *PrecompileRegistry) InjectFactoryContract(
+// `RegisterDynamicContract` stores any module's dynamic stateful precompile in the EVM kvstore.
+func (pr *PrecompileRegistry) RegisterDynamicContract(
 	ctx sdk.Context,
 	addr common.Address,
-	fpc FactoryPrecompiledContract,
+	dpc DynamicPrecompiledContract,
 ) error {
-	precompileName := fpc.Name()
+	precompileName := dpc.Name()
 
-	// store stateful precompiled contract object in memory
-	if _, ok := pr.factoryPrecompiles[precompileName]; ok {
-		return fmt.Errorf("%s precompile is already injected", precompileName)
+	// store dyanmic precompiled contract object in memory
+	if _, ok := pr.dynamicPrecompiles[precompileName]; ok {
+		return fmt.Errorf(
+			common.WrapErrorWithString,
+			ErrPrecompileAlreadyRegistered,
+			precompileName,
+		)
 	}
-	pr.factoryPrecompiles[precompileName] = fpc
+	pr.dynamicPrecompiles[precompileName] = dpc
 
 	// add address-precompileName pair to kv store
 	store := prefix.NewStore(ctx.KVStore(pr.storeKey), KeyPrefixPrecompileAddress)
@@ -146,7 +166,7 @@ func (pr *PrecompileRegistry) GetPrecompileFn(ctx sdk.Context) PrecompileGetter 
 		if name == nil {
 			return nil, false
 		}
-		fpc, found := pr.factoryPrecompiles[string(name)]
-		return fpc, found
+		dpc, found := pr.dynamicPrecompiles[string(name)]
+		return dpc, found
 	}
 }

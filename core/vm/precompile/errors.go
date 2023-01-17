@@ -28,4 +28,8 @@ var (
 	// `ErrEthEventNotRegistered` is returned when an incoming Cosmos event is not mapped to any
 	// registered Ethereum event.
 	ErrEthEventNotRegistered = errors.New("the Ethereum event was not registered for Cosmos event")
+
+	// `ErrEthEventAlreadyRegistered` is returned when an already registered Ethereum event is
+	// being registered again.
+	ErrEthEventAlreadyRegistered = errors.New("the Ethereum event is already registered: ")
 )
