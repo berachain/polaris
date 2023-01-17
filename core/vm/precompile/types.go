@@ -74,8 +74,8 @@ var (
 	typeRegex     = regexp.MustCompile(`^[a-z]+[0-9]*$`)
 )
 
-// `RequireValid` returns an error if this a precompile `FnAndGas` has invalid fields.
-func (fg *FnAndGas) RequireValid() error {
+// `ValidateBasic` returns an error if this a precompile `FnAndGas` has invalid fields.
+func (fg *FnAndGas) ValidateBasic() error {
 	// ensure all fields are nonempty
 	if len(fg.AbiSig) == 0 || fg.Func == nil || fg.RequiredGas == 0 {
 		return ErrIncompleteFnAndGas

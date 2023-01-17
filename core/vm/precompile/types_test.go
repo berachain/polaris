@@ -27,13 +27,13 @@ import (
 )
 
 var _ = Describe("Precompile Types", func() {
-	Context("Basic - RequireValid Tests", func() {
+	Context("Basic - ValidateBasic Tests", func() {
 		It("should error on missing Abi function signature", func() {
 			pfgMissingSig := &precompile.FnAndGas{
 				Func:        mockPrecompileFn,
 				RequiredGas: 10,
 			}
-			err := pfgMissingSig.RequireValid()
+			err := pfgMissingSig.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 		})
 
@@ -42,7 +42,7 @@ var _ = Describe("Precompile Types", func() {
 				AbiSig: "contractFunc(address)",
 				Func:   mockPrecompileFn,
 			}
-			err := pfgMissingGas.RequireValid()
+			err := pfgMissingGas.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 		})
 
@@ -51,12 +51,12 @@ var _ = Describe("Precompile Types", func() {
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
 			}
-			err := pfgMissingFunc.RequireValid()
+			err := pfgMissingFunc.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 		})
 	})
 
-	Context("Abi Signature verification - RequireValid tests", func() {
+	Context("Abi Signature verification - ValidateBasic tests", func() {
 		var pfg = &precompile.FnAndGas{
 			Func:        mockPrecompileFn,
 			RequiredGas: 10,
@@ -64,37 +64,37 @@ var _ = Describe("Precompile Types", func() {
 
 		It("should not error on valid abi signatures", func() {
 			pfg.AbiSig = "contractFunc(address)"
-			err := pfg.RequireValid()
+			err := pfg.ValidateBasic()
 			Expect(err).To(BeNil())
 			pfg.AbiSig = "getOutputPartial()"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).To(BeNil())
 			pfg.AbiSig = "cancelUnbondingDelegation(address,uint256,int64)"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).To(BeNil())
 			pfg.AbiSig = "$$_$3fads343(address,int64,int)"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).To(BeNil())
 		})
 
 		It("should error on invalid abi signatures", func() {
 			pfg.AbiSig = ""
-			err := pfg.RequireValid()
+			err := pfg.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 			pfg.AbiSig = "()"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 			pfg.AbiSig = "(int64)"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 			pfg.AbiSig = "(address,uint256,int64)"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 			pfg.AbiSig = "4fsd$_$2f(address)"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 			pfg.AbiSig = "func(324fds)"
-			err = pfg.RequireValid()
+			err = pfg.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 		})
 	})
