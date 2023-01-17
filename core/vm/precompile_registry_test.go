@@ -66,7 +66,7 @@ var _ = Describe("Precompile Registry", func() {
 		It("should register and get a stateless precompile", func() {
 			err := pr.RegisterStatelessContract(addr, ms)
 			Expect(err).To(BeNil())
-			sc, found := pr.GetPrecompileFn(ctx)(addr)
+			sc, found := pr.GetStatelessContract(addr)
 			Expect(found).To(BeTrue())
 			Expect(sc).ToNot(BeNil())
 		})
@@ -76,7 +76,7 @@ var _ = Describe("Precompile Registry", func() {
 		It("should register and get a stateful precompile", func() {
 			err := pr.RegisterModule("test", mc)
 			Expect(err).To(BeNil())
-			spc, found := pr.GetPrecompileFn(ctx)(moduleAddr)
+			spc, found := pr.GetStatefulContract(moduleAddr)
 			Expect(found).To(BeTrue())
 			Expect(spc).ToNot(BeNil())
 		})
@@ -86,7 +86,7 @@ var _ = Describe("Precompile Registry", func() {
 		It("should register and get a factory Precompile", func() {
 			err := pr.RegisterDynamicContract(ctx, addr, mf)
 			Expect(err).To(BeNil())
-			fc, found := pr.GetPrecompileFn(ctx)(addr)
+			fc, found := pr.GetDynamicContract(ctx, addr)
 			Expect(found).To(BeTrue())
 			Expect(fc).ToNot(BeNil())
 		})

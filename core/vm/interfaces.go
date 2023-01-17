@@ -15,6 +15,8 @@
 package vm
 
 import (
+	"math/big"
+
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
@@ -34,4 +36,16 @@ type VMInterface interface { //nolint:revive // we like the vibe.
 	Context() BlockContext
 	StateDB() StateDB
 	TxContext() TxContext
+}
+
+// `PrecompileManagerI` is invoked by the EVM to determine if a particular address is one of a
+// precompiled contract and allows the EVM to execute a precompiled contract function.
+type PrecompileManagerI interface {
+	// `Exists` returns a precompiled contract if it was found at `addr`.
+	Exists(addr common.Address) (PrecompiledContract, bool)
+
+	// `Run` runs a precompiled contract and returns the leftover gas.
+	Run(sdb StateDB, input []byte, caller common.Address,
+		value *big.Int, suppliedGas uint64, readonly bool,
+	) (ret []byte, leftOverGas uint64, err error)
 }

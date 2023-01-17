@@ -52,6 +52,10 @@ type PrecompileRegistry struct {
 	logFactory *precompile.LogFactory
 }
 
+// ==============================================================================
+// Constructor
+// ==============================================================================
+
 // `NewPrecompileRegistry` creates and returns a new `PrecompileRegistry` for given `storeKey`.
 func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 	return &PrecompileRegistry{
@@ -63,10 +67,9 @@ func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 	}
 }
 
-// `GetLogFactory` returns the Ethereum log dynamic for this precompile registry.
-func (pr *PrecompileRegistry) GetLogFactory() *precompile.LogFactory {
-	return pr.logFactory
-}
+// ==============================================================================
+// Setters
+// ==============================================================================
 
 // `RegisterStateless` stores the stateless precompile `pc` at the given Ethereum address `addr`.
 func (pr *PrecompileRegistry) RegisterStatelessContract(
@@ -145,28 +148,37 @@ func (pr *PrecompileRegistry) RegisterDynamicContract(
 	return nil
 }
 
-// `GetPrecompileFn` returns a `PrecompileGetter` function, to be used by the EVM.
-func (pr *PrecompileRegistry) GetPrecompileFn(ctx sdk.Context) PrecompileGetter {
-	return func(addr common.Address) (PrecompiledContract, bool) {
-		// try stateless precompile in memory
-		pc, found := pr.statelessPrecompiles[addr]
-		if found {
-			return pc, found
-		}
+// ==============================================================================
+// Getters
+// ==============================================================================
 
-		// try stateful precompile in memory
-		spc, found := pr.statefulPrecompiles[addr]
-		if found {
-			return spc, found
-		}
+// `GetLogFactory` returns the Ethereum log dynamic for this precompile registry.
+func (pr *PrecompileRegistry) GetLogFactory() *precompile.LogFactory {
+	return pr.logFactory
+}
 
-		// try dynamically loading precompile from kvstore
-		store := prefix.NewStore(ctx.KVStore(pr.storeKey), KeyPrefixPrecompileAddress)
-		name := store.Get(addr.Bytes())
-		if name == nil {
-			return nil, false
-		}
-		dpc, found := pr.dynamicPrecompiles[string(name)]
-		return dpc, found
+// `GetStatelessContract` returns a stateless precompile in memory at the given `addr`.
+func (pr *PrecompileRegistry) GetStatelessContract(addr common.Address) (PrecompiledContract, bool) {
+	pc, found := pr.statelessPrecompiles[addr]
+	return pc, found
+}
+
+// `GetStatefulContract` returns a stateful precompile in memory at the given `addr`.
+func (pr *PrecompileRegistry) GetStatefulContract(addr common.Address) (PrecompiledContract, bool) {
+	pc, found := pr.statefulPrecompiles[addr]
+	return pc, found
+}
+
+// `GetDynamicContract` returns a dynamic precompile from `ctx` stores at the given `addr`.
+func (pr *PrecompileRegistry) GetDynamicContract(
+	ctx sdk.Context,
+	addr common.Address,
+) (PrecompiledContract, bool) {
+	store := prefix.NewStore(ctx.KVStore(pr.storeKey), KeyPrefixPrecompileAddress)
+	name := store.Get(addr.Bytes())
+	if name == nil {
+		return nil, false
 	}
+	dpc, found := pr.dynamicPrecompiles[string(name)]
+	return dpc, found
 }

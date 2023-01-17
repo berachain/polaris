@@ -16,7 +16,6 @@ package vm
 
 import (
 	"github.com/berachain/stargazer/core/vm/precompile"
-	"github.com/berachain/stargazer/lib/common"
 	gevm "github.com/ethereum/go-ethereum/core/vm"
 )
 
@@ -44,8 +43,4 @@ type (
 		// `Name` should return a string name of the dynamic contract.
 		Name() string
 	}
-
-	// `PrecompileGetter` is a type of function used by the EVM to retrieve precompiled contracts
-	// during EVM execution.
-	PrecompileGetter func(addr common.Address) (PrecompiledContract, bool)
 )
