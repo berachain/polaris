@@ -22,7 +22,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/berachain/stargazer/core/vm/precompile"
-	"github.com/berachain/stargazer/core/vm/precompile/event"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 )
 
@@ -98,7 +98,7 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 	// register the module's events if the precompile contract exposes any events
 	if eventsContract, hasEvents := contract.(precompile.HasEvents); hasEvents {
 		for _, abiEvent := range eventsContract.ABIEvents() {
-			var customModuleAttributes event.ValueDecoders
+			var customModuleAttributes log.ValueDecoders
 			if customEvents, isCustom := contract.(precompile.HasCustomEvents); isCustom {
 				// if contract is of a custom Cosmos module, load its custom attributes' value
 				// decoders

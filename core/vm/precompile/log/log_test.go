@@ -12,14 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package event
+package log
 
 import (
 	"strconv"
 	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -27,15 +24,18 @@ import (
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-func TestEvent(t *testing.T) {
+func TestLog(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm/precompile/event")
+	RunSpecs(t, "core/vm/precompile/log")
 }
 
-var _ = Describe("Precompile Event", func() {
-	var precompileEvent *PrecompileEvent
+var _ = Describe("Precompile Log", func() {
+	var precompileLog *PrecompileLog
 	var stakingModuleAddr common.Address
 	var valAddr sdk.ValAddress
 	var delAddr sdk.AccAddress
@@ -45,7 +45,7 @@ var _ = Describe("Precompile Event", func() {
 	BeforeEach(func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 		var err error
-		precompileEvent, err = NewPrecompileEvent(stakingModuleAddr, getMockAbiEvent(), nil)
+		precompileLog, err = NewPrecompileLog(stakingModuleAddr, getMockAbiEvent(), nil)
 		Expect(err).To(BeNil())
 
 		valAddr = sdk.ValAddress([]byte("alice"))
@@ -67,13 +67,13 @@ var _ = Describe("Precompile Event", func() {
 				[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
 			)
 
-			err := precompileEvent.ValidateAttributes(&event)
+			err := precompileLog.ValidateAttributes(&event)
 			Expect(err).To(BeNil())
 
-			addr := precompileEvent.ModuleAddress()
+			addr := precompileLog.ModuleAddress()
 			Expect(addr).To(Equal(stakingModuleAddr))
 
-			topics, err := precompileEvent.MakeTopics(&event)
+			topics, err := precompileLog.MakeTopics(&event)
 			Expect(err).To(BeNil())
 			Expect(len(topics)).To(Equal(3))
 			Expect(topics[0]).To(Equal(eventID))
@@ -84,7 +84,7 @@ var _ = Describe("Precompile Event", func() {
 				common.BytesToHash(delAddr.Bytes()),
 			))
 
-			data, err := precompileEvent.MakeData(&event)
+			data, err := precompileLog.MakeData(&event)
 			Expect(err).To(BeNil())
 			packedData, err := getMockAbiEvent().Inputs.NonIndexed().PackValues(
 				[]any{
@@ -105,7 +105,7 @@ var _ = Describe("Precompile Event", func() {
 				sdk.NewAttribute("amount", amt.String()),
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
-			err := precompileEvent.ValidateAttributes(&event)
+			err := precompileLog.ValidateAttributes(&event)
 			Expect(err.Error()).To(Equal("not enough event attributes provided"))
 		})
 
@@ -117,7 +117,7 @@ var _ = Describe("Precompile Event", func() {
 				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
-			_, err := precompileEvent.MakeTopics(&event)
+			_, err := precompileLog.MakeTopics(&event)
 			Expect(err.Error()).To(Equal("validator: this Ethereum event argument has no matching Cosmos attribute key"))
 		})
 
@@ -129,7 +129,7 @@ var _ = Describe("Precompile Event", func() {
 				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
-			_, err := precompileEvent.MakeData(&event)
+			_, err := precompileLog.MakeData(&event)
 			Expect(err.Error()).To(Equal("amount: this Ethereum event argument has no matching Cosmos attribute key"))
 		})
 
@@ -142,7 +142,7 @@ var _ = Describe("Precompile Event", func() {
 					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
-				_, err := precompileEvent.MakeTopics(&event)
+				_, err := precompileLog.MakeTopics(&event)
 				Expect(err).ToNot(BeNil())
 			})
 
@@ -154,7 +154,7 @@ var _ = Describe("Precompile Event", func() {
 					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
-				_, err := precompileEvent.MakeData(&event)
+				_, err := precompileLog.MakeData(&event)
 				Expect(err).ToNot(BeNil())
 			})
 
@@ -166,7 +166,7 @@ var _ = Describe("Precompile Event", func() {
 					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 					sdk.NewAttribute("delegator", "bad acc string"),
 				)
-				_, err := precompileEvent.MakeTopics(&event)
+				_, err := precompileLog.MakeTopics(&event)
 				Expect(err).ToNot(BeNil())
 			})
 
@@ -178,7 +178,7 @@ var _ = Describe("Precompile Event", func() {
 					sdk.NewAttribute("creation_height", "bad creation height"),
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
-				_, err := precompileEvent.MakeData(&event)
+				_, err := precompileLog.MakeData(&event)
 				Expect(err).ToNot(BeNil())
 			})
 		})

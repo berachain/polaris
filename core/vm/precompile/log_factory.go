@@ -19,7 +19,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	coretypes "github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm/precompile/event"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
@@ -28,7 +28,7 @@ import (
 type LogFactory struct {
 	// `events` is a map of `EventType`s to `*types.PrecompileEvents` for all supported Cosmos
 	// events.
-	events map[EventType]*event.PrecompileEvent
+	events map[EventType]*log.PrecompileLog
 }
 
 // ==============================================================================
@@ -38,7 +38,7 @@ type LogFactory struct {
 // `NewLogFactory` creates and returns a new, empty `LogFactory`.
 func NewLogFactory() *LogFactory {
 	return &LogFactory{
-		events: make(map[EventType]*event.PrecompileEvent),
+		events: make(map[EventType]*log.PrecompileLog),
 	}
 }
 
@@ -46,18 +46,18 @@ func NewLogFactory() *LogFactory {
 // Setter
 // ==============================================================================
 
-// `RegisterEvent` registers a Cosmos module's precompile event.
+// `RegisterEvent` registers a Cosmos module's precompile log.
 func (pef *LogFactory) RegisterEvent(
 	moduleEthAddress common.Address,
 	abiEvent abi.Event,
-	customModuleAttributes event.ValueDecoders,
+	customModuleAttributes log.ValueDecoders,
 ) error {
 	if _, found := pef.events[EventType(abiEvent.Name)]; found {
 		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
 	}
 
 	var err error
-	pef.events[EventType(abiEvent.Name)], err = event.NewPrecompileEvent(
+	pef.events[EventType(abiEvent.Name)], err = log.NewPrecompileLog(
 		moduleEthAddress,
 		abiEvent,
 		customModuleAttributes,
@@ -69,7 +69,7 @@ func (pef *LogFactory) RegisterEvent(
 // Builder
 // ==============================================================================
 
-// `BuildLog` builds an Ethereum event log from the given Cosmos event.
+// `BuildLog` builds an Ethereum event log from the given Cosmos log.
 func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// validate incoming Cosmos event
 	pe := pef.events[EventType(abi.ToCamelCase(event.Type))]
@@ -84,14 +84,14 @@ func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	}
 
 	// build Ethereum log based on valid Cosmos event
-	log := &coretypes.Log{
+	eventLog := &coretypes.Log{
 		Address: pe.ModuleAddress(),
 	}
-	if log.Topics, err = pe.MakeTopics(event); err != nil {
+	if eventLog.Topics, err = pe.MakeTopics(event); err != nil {
 		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
 	}
-	if log.Data, err = pe.MakeData(event); err != nil {
+	if eventLog.Data, err = pe.MakeData(event); err != nil {
 		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
 	}
-	return log, nil
+	return eventLog, nil
 }

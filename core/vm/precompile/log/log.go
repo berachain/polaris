@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package event
+package log
 
 import (
 	"cosmossdk.io/errors"
@@ -22,9 +22,9 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `PrecompileEvent` contains the required data for a Cosmos precompile contract to produce an
-// Ethereum formatted log.
-type PrecompileEvent struct {
+// `PrecompileLog` contains the required data for a Cosmos precompile contract to produce an
+// Ethereum formatted event log.
+type PrecompileLog struct {
 	// `address` is the Ethereum address which represents a Cosmos module's account address.
 	moduleAddr common.Address
 
@@ -42,18 +42,18 @@ type PrecompileEvent struct {
 	customValueDecoders ValueDecoders
 }
 
-// `NewPrecompileEvent` returns a new `PrecompileEvent` with the given `moduleAddress`, `abiEvent`,
+// `NewPrecompileLog` returns a new `PrecompileLog` with the given `moduleAddress`, `abiEvent`,
 // and optional `customValueDecoders`.
-func NewPrecompileEvent(
+func NewPrecompileLog(
 	moduleAddr common.Address,
 	abiEvent abi.Event,
 	customValueDecoders ValueDecoders,
-) (*PrecompileEvent, error) {
+) (*PrecompileLog, error) {
 	indexedInputs, err := abi.GetIndexed(abiEvent.Inputs)
 	if err != nil {
 		return nil, err
 	}
-	pe := &PrecompileEvent{
+	pe := &PrecompileLog{
 		moduleAddr:          moduleAddr,
 		id:                  abiEvent.ID,
 		indexedInputs:       indexedInputs,
@@ -63,8 +63,8 @@ func NewPrecompileEvent(
 	return pe, nil
 }
 
-// `ModuleAddress` returns the Ethereum address corresponding to a PrecompileEvent's Cosmos module.
-func (pe *PrecompileEvent) ModuleAddress() common.Address {
+// `ModuleAddress` returns the Ethereum address corresponding to a PrecompileLog's Cosmos module.
+func (pe *PrecompileLog) ModuleAddress() common.Address {
 	return pe.moduleAddr
 }
 
@@ -75,7 +75,7 @@ func (pe *PrecompileEvent) ModuleAddress() common.Address {
 // [eventID, indexed_arg1, ...]. Then this query is converted to topics using geth's
 // `abi.MakeTopics` function, which outputs hashes of all arguments in the query. The slice of
 // hashes is returned.
-func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
+func (pe *PrecompileLog) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(pe.indexedInputs)+1)
 	filterQuery[0] = pe.id
 
@@ -113,7 +113,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 // bytes which store an Ethereum event's non-indexed arguments, packed into bytes. This function
 // packs the values of the incoming Cosmos event's attributes, which correspond to the
 // Ethereum event's non-indexed arguments, into bytes and returns a byte slice.
-func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
+func (pe *PrecompileLog) MakeData(event *sdk.Event) ([]byte, error) {
 	attrVals := make([]any, len(pe.nonIndexedInputs))
 
 	// for each Ethereum non-indexed argument, get the corresponding Cosmos event attribute and
@@ -149,7 +149,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 // `ValidateAttributes` validates an incoming Cosmos `event`. Specifically, it verifies that the
 // number of attributes provided by the Cosmos `event` are adequate for it's corresponding
 // Ethereum events.
-func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
+func (pe *PrecompileLog) ValidateAttributes(event *sdk.Event) error {
 	if len(event.Attributes) < len(pe.indexedInputs)+len(pe.nonIndexedInputs) {
 		return ErrNotEnoughAttributes
 	}
@@ -158,7 +158,7 @@ func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 
 // `getValueDecoder` returns an attribute value decoder function for a certain Cosmos event
 // attribute key.
-func (pe *PrecompileEvent) getValueDecoder(attrKey string) (valueDecoder, error) {
+func (pe *PrecompileLog) getValueDecoder(attrKey string) (valueDecoder, error) {
 	// try custom precompile event attributes
 	if pe.customValueDecoders != nil {
 		if decode := pe.customValueDecoders[attrKey]; decode != nil {

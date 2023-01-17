@@ -26,7 +26,7 @@ import (
 
 	gevm "github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/berachain/stargazer/core/vm/precompile/event"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
@@ -155,6 +155,6 @@ type (
 		// `CustomValueDecoders` should return a map of Cosmos event types to attribute
 		// key-to-value decoder functions map for each of the supported events in the custom Cosmos
 		// module.
-		CustomValueDecoders() map[EventType]event.ValueDecoders
+		CustomValueDecoders() map[EventType]log.ValueDecoders
 	}
 )
