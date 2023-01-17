@@ -17,6 +17,7 @@ package state
 import (
 	"github.com/berachain/stargazer/core/state/store/journal"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -28,10 +29,11 @@ var _ = Describe("AddLogChange", func() {
 	)
 	BeforeEach(func() {
 		sdb = &StateDB{
-			logs: []*coretypes.Log{},
+			logs: make(map[common.Hash][]*coretypes.Log),
 		}
 		ce = &AddLogChange{
-			sdb: sdb,
+			sdb:    sdb,
+			txHash: common.Hash{123},
 		}
 	})
 	It("implements journal.CacheEntry", func() {
@@ -39,7 +41,9 @@ var _ = Describe("AddLogChange", func() {
 		Expect(ce).To(BeAssignableToTypeOf(&AddLogChange{}))
 	})
 	It("Revert should remove the last log", func() {
-		sdb.logs = append(sdb.logs, &coretypes.Log{})
+		x := sdb.logs[common.Hash{123}]
+		x = append(x, &coretypes.Log{})
+		sdb.logs[common.Hash{123}] = x
 		ce.Revert()
 		Expect(len(sdb.logs)).To(Equal(0))
 	})

@@ -92,7 +92,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	storeKey storetypes.StoreKey
 
 	// Per-transaction logs
-	logs []*coretypes.Log
+	logs map[common.Hash][]*coretypes.Log
 
 	// Transaction and logging bookkeeping
 	txHash    common.Hash
@@ -176,7 +176,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	sdb.blockHash = common.Hash{}
 	sdb.txIndex = 0
 	sdb.logSize = 0
-	sdb.logs = make([]*coretypes.Log, 0)
+	sdb.logs = make(map[common.Hash][]*coretypes.Log, 0)
 	sdb.suicides = make([]common.Address, 0)
 }
 
@@ -471,18 +471,18 @@ func (sdb *StateDB) Snapshot() int {
 
 // AddLog implements the GethStateDB interface by adding the given log to the current transaction.
 func (sdb *StateDB) AddLog(log *coretypes.Log) {
-	sdb.cms.JournalMgr.Push(&AddLogChange{sdb})
+	sdb.cms.JournalMgr.Push(&AddLogChange{sdb, sdb.txHash})
 	log.TxHash = sdb.txHash
 	log.BlockHash = sdb.blockHash
 	log.TxIndex = sdb.txIndex
 	log.Index = sdb.logSize
-	sdb.logs = append(sdb.logs, log)
+	sdb.logs[sdb.txHash] = append(sdb.logs[sdb.txHash], log)
 	sdb.logSize++ // erigon intra
 }
 
 // Logs returns the logs of current transaction.
 func (sdb *StateDB) Logs() []*coretypes.Log {
-	return sdb.logs
+	return sdb.logs[sdb.txHash]
 }
 
 // =============================================================================
