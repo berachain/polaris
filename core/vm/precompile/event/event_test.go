@@ -118,7 +118,7 @@ var _ = Describe("Precompile Event", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			_, err := precompileEvent.MakeTopics(&event)
-			Expect(err.Error()).To(Equal("no attribute key found for argument validator"))
+			Expect(err.Error()).To(Equal("validator: this Ethereum event argument has no matching Cosmos attribute key"))
 		})
 
 		It("should fail on invalid (non-indexed) attribute key given", func() {
@@ -130,7 +130,7 @@ var _ = Describe("Precompile Event", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			_, err := precompileEvent.MakeData(&event)
-			Expect(err.Error()).To(Equal("no attribute key found for argument amount"))
+			Expect(err.Error()).To(Equal("amount: this Ethereum event argument has no matching Cosmos attribute key"))
 		})
 
 		Context("bad attribute values", func() {

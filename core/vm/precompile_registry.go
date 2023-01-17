@@ -15,8 +15,7 @@
 package vm
 
 import (
-	"fmt"
-
+	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -77,11 +76,7 @@ func (pr *PrecompileRegistry) RegisterStatelessContract(
 	pc PrecompiledContract,
 ) error {
 	if _, found := pr.statelessPrecompiles[addr]; found {
-		return fmt.Errorf(
-			common.WrapErrorWithString,
-			ErrPrecompileAlreadyRegistered,
-			addr.String(),
-		)
+		return errors.Wrap(ErrPrecompileAlreadyRegistered, addr.String())
 	}
 	pr.statelessPrecompiles[addr] = pc
 	return nil
@@ -95,11 +90,7 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 	// store the module stateful precompile contract in the hardcoded map
 	if spc, isStateful := contract.(StatefulPrecompiledContract); isStateful {
 		if _, found := pr.statefulPrecompiles[moduleEthAddr]; found {
-			return fmt.Errorf(
-				common.WrapErrorWithString,
-				ErrPrecompileAlreadyRegistered,
-				moduleName,
-			)
+			return errors.Wrap(ErrPrecompileAlreadyRegistered, moduleName)
 		}
 		pr.statefulPrecompiles[moduleEthAddr] = spc
 	}
@@ -134,11 +125,7 @@ func (pr *PrecompileRegistry) RegisterDynamicContract(
 
 	// store dyanmic precompiled contract object in memory
 	if _, ok := pr.dynamicPrecompiles[precompileName]; ok {
-		return fmt.Errorf(
-			common.WrapErrorWithString,
-			ErrPrecompileAlreadyRegistered,
-			precompileName,
-		)
+		return errors.Wrap(ErrPrecompileAlreadyRegistered, precompileName)
 	}
 	pr.dynamicPrecompiles[precompileName] = dpc
 

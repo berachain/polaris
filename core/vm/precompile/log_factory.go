@@ -15,8 +15,7 @@
 package precompile
 
 import (
-	"fmt"
-
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	coretypes "github.com/berachain/stargazer/core/types"
@@ -54,7 +53,7 @@ func (pef *LogFactory) RegisterEvent(
 	customModuleAttributes event.ValueDecoders,
 ) error {
 	if _, found := pef.events[EventType(abiEvent.Name)]; found {
-		return fmt.Errorf(common.WrapErrorWithString, ErrEthEventAlreadyRegistered, abiEvent.Name)
+		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
 	}
 
 	var err error
@@ -77,11 +76,11 @@ func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
 	if pe == nil {
-		return nil, fmt.Errorf(common.WrapErrorWithString, ErrEthEventNotRegistered, event.Type)
+		return nil, errors.Wrap(ErrEthEventNotRegistered, event.Type)
 	}
 	var err error
 	if err = pe.ValidateAttributes(event); err != nil {
-		return nil, fmt.Errorf(common.WrapErrorWithStrings, err, "for event", event.Type)
+		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
 	}
 
 	// build Ethereum log based on valid Cosmos event
@@ -89,10 +88,10 @@ func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 		Address: pe.ModuleAddress(),
 	}
 	if log.Topics, err = pe.MakeTopics(event); err != nil {
-		return nil, fmt.Errorf(common.WrapErrorWithStrings, err, "for event", event.Type)
+		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
 	}
 	if log.Data, err = pe.MakeData(event); err != nil {
-		return nil, fmt.Errorf(common.WrapErrorWithStrings, err, "for event", event.Type)
+		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
 	}
 	return log, nil
 }

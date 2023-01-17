@@ -28,5 +28,5 @@ var (
 
 	// `ErrNoAttributeKeyFound` is returned when no Cosmos event attribute is provided for a
 	// certain Ethereum event's argument.
-	ErrNoAttributeKeyFound = errors.New("no attribute key found for argument")
+	ErrNoAttributeKeyFound = errors.New("this Ethereum event argument has no matching Cosmos attribute key")
 )

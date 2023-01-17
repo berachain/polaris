@@ -15,8 +15,7 @@
 package event
 
 import (
-	"fmt"
-
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/lib/common"
@@ -86,7 +85,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	for i, arg := range pe.indexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
-			return nil, fmt.Errorf(common.WrapErrorWithString, ErrNoAttributeKeyFound, arg.Name)
+			return nil, errors.Wrap(ErrNoAttributeKeyFound, arg.Name)
 		}
 
 		// convert attribute value (string) to geth compatible type
@@ -123,7 +122,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	for i, arg := range pe.nonIndexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
-			return nil, fmt.Errorf(common.WrapErrorWithString, ErrNoAttributeKeyFound, arg.Name)
+			return nil, errors.Wrap(ErrNoAttributeKeyFound, arg.Name)
 		}
 
 		// convert attribute value (string) to geth compatible type
@@ -174,5 +173,5 @@ func (pe *PrecompileEvent) getValueDecoder(attrKey string) (valueDecoder, error)
 	}
 
 	// no value decoder function was found for attribute key
-	return nil, fmt.Errorf(common.WrapErrorWithString, ErrNoValueDecoderFunc, attrKey)
+	return nil, errors.Wrap(ErrNoValueDecoderFunc, attrKey)
 }

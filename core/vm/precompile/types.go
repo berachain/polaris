@@ -15,13 +15,13 @@
 package precompile
 
 import (
-	"fmt"
 	"math/big"
 	"reflect"
 	"regexp"
 	"runtime"
 	"strings"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	gevm "github.com/ethereum/go-ethereum/core/vm"
@@ -85,29 +85,26 @@ func (fg *FnAndGas) ValidateBasic() error {
 	// check only 1 `(` exists in the string
 	nameAndArgs := strings.Split(fg.AbiSig, "(")
 	if len(nameAndArgs) != 2 { //nolint:gomnd // this constant, 2, will never change.
-		return fmt.Errorf(
-			common.WrapErrorWithStrings,
+		return errors.Wrapf(
 			ErrAbiSigInvalid,
-			"does not contain exactly 1 '(' for function",
+			"function %s does not contain exactly 1 '('",
 			fg.Func.getFuncName(),
 		)
 	}
 	// check that the function name is valid according to Solidity
 	if name := nameAndArgs[0]; !funcNameRegex.MatchString(name) {
-		return fmt.Errorf(
-			common.WrapErrorWithStrings,
+		return errors.Wrapf(
 			ErrAbiSigInvalid,
-			"does not have a valid function name for function",
+			"function %s does not have a valid function name",
 			fg.Func.getFuncName(),
 		)
 	}
 	// check that only 1 `)` exists and its the last character
 	args := strings.Split(nameAndArgs[1], ")")
 	if len(args) != 2 || len(args[1]) > 0 {
-		return fmt.Errorf(
-			common.WrapErrorWithStrings,
+		return errors.Wrapf(
 			ErrAbiSigInvalid,
-			"does not does not end with 1 ')' for function",
+			"function %s does not does not end with 1 ')'",
 			fg.Func.getFuncName(),
 		)
 	}
@@ -119,10 +116,9 @@ func (fg *FnAndGas) ValidateBasic() error {
 	types := strings.Split(args[0], ",")
 	for _, t := range types {
 		if len(t) == 0 || !typeRegex.MatchString(t) {
-			return fmt.Errorf(
-				common.WrapErrorWithStrings,
+			return errors.Wrapf(
 				ErrAbiSigInvalid,
-				"has incorrect argument types for function",
+				"function %s has incorrect argument types",
 				fg.Func.getFuncName(),
 			)
 		}
