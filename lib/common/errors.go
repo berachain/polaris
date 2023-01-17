@@ -12,12 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package abi
+package common
 
-import "errors"
+const (
+	// `WrapErrorWithString` can be used by a string formatter to wrap an existing error with a
+	// string of added information.
+	WrapErrorWithString = `%w %s`
 
-var (
-	// `ErrTooManyIndexedArgs` is returned when the number of indexed arguments in an event exceeds
-	// the maximum allowed by the Ethereum event log.
-	ErrTooManyIndexedArgs = errors.New("number of indexed arguments is more than allowed by Eth event log")
+	// `WrapErrorWithStrings` can be used by a string formatter to wrap an existing error with 2
+	// strings of added information.
+	WrapErrorWithStrings = `%w %s %s`
 )

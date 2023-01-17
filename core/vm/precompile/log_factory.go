@@ -73,14 +73,11 @@ func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
 	if pe == nil {
-		return nil, fmt.Errorf(
-			"the Ethereum event corresponding to Cosmos event %s was not registered",
-			event.Type,
-		)
+		return nil, fmt.Errorf(common.WrapErrorWithString, ErrEthEventNotRegistered, event.Type)
 	}
 	var err error
 	if err = pe.ValidateAttributes(event); err != nil {
-		return nil, fmt.Errorf("%w for event %s", err, event.Type)
+		return nil, fmt.Errorf(common.WrapErrorWithStrings, err, "for event", event.Type)
 	}
 
 	// build Ethereum log based on valid Cosmos event
@@ -88,10 +85,10 @@ func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 		Address: pe.ModuleAddress(),
 	}
 	if log.Topics, err = pe.MakeTopics(event); err != nil {
-		return nil, fmt.Errorf("%w for event %s", err, event.Type)
+		return nil, fmt.Errorf(common.WrapErrorWithStrings, err, "for event", event.Type)
 	}
 	if log.Data, err = pe.MakeData(event); err != nil {
-		return nil, fmt.Errorf("%w for event %s", err, event.Type)
+		return nil, fmt.Errorf(common.WrapErrorWithStrings, err, "for event", event.Type)
 	}
 	return log, nil
 }

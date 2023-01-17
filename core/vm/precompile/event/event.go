@@ -86,7 +86,7 @@ func (pe *PrecompileEvent) MakeTopics(event *sdk.Event) ([]common.Hash, error) {
 	for i, arg := range pe.indexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
-			return nil, fmt.Errorf("no attribute key found for argument %s", arg.Name)
+			return nil, fmt.Errorf(common.WrapErrorWithString, ErrNoAttributeKeyFound, arg.Name)
 		}
 
 		// convert attribute value (string) to geth compatible type
@@ -123,7 +123,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 	for i, arg := range pe.nonIndexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
-			return nil, fmt.Errorf("no attribute key found for argument %s", arg.Name)
+			return nil, fmt.Errorf(common.WrapErrorWithString, ErrNoAttributeKeyFound, arg.Name)
 		}
 
 		// convert attribute value (string) to geth compatible type
@@ -152,7 +152,7 @@ func (pe *PrecompileEvent) MakeData(event *sdk.Event) ([]byte, error) {
 // Ethereum events.
 func (pe *PrecompileEvent) ValidateAttributes(event *sdk.Event) error {
 	if len(event.Attributes) < len(pe.indexedInputs)+len(pe.nonIndexedInputs) {
-		return errNotEnoughAttributes
+		return ErrNotEnoughAttributes
 	}
 	return nil
 }
@@ -174,8 +174,5 @@ func (pe *PrecompileEvent) getValueDecoder(attrKey string) (valueDecoder, error)
 	}
 
 	// no value decoder function was found for attribute key
-	return nil, fmt.Errorf(
-		"event attribute key %s is not mapped to a value decoder function",
-		attrKey,
-	)
+	return nil, fmt.Errorf(common.WrapErrorWithString, ErrNoValueDecoderFunc, attrKey)
 }

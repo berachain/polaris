@@ -78,7 +78,7 @@ var (
 func (fg *FnAndGas) RequireValid() error {
 	// ensure all fields are nonempty
 	if len(fg.AbiSig) == 0 || fg.Func == nil || fg.RequiredGas == 0 {
-		return errIncompleteFnAndGas
+		return ErrIncompleteFnAndGas
 	}
 
 	// validate user-defined abi signature (AbiSig) according to geth ABI signature definition
@@ -86,14 +86,18 @@ func (fg *FnAndGas) RequireValid() error {
 	nameAndArgs := strings.Split(fg.AbiSig, "(")
 	if len(nameAndArgs) != 2 { //nolint:gomnd // this constant, 2, will never change.
 		return fmt.Errorf(
-			"user-provided ABI signature for function %s does not contain exactly 1 '('",
+			common.WrapErrorWithStrings,
+			ErrAbiSigInvalid,
+			"does not contain exactly 1 '(' for function",
 			fg.Func.getFuncName(),
 		)
 	}
 	// check that the function name is valid according to Solidity
 	if name := nameAndArgs[0]; !funcNameRegex.MatchString(name) {
 		return fmt.Errorf(
-			"user-provided ABI signature for function %s does not have a valid function name",
+			common.WrapErrorWithStrings,
+			ErrAbiSigInvalid,
+			"does not have a valid function name for function",
 			fg.Func.getFuncName(),
 		)
 	}
@@ -101,7 +105,9 @@ func (fg *FnAndGas) RequireValid() error {
 	args := strings.Split(nameAndArgs[1], ")")
 	if len(args) != 2 || len(args[1]) > 0 {
 		return fmt.Errorf(
-			"user-provided ABI signature for function %s does not does not end with 1 ')'",
+			common.WrapErrorWithStrings,
+			ErrAbiSigInvalid,
+			"does not does not end with 1 ')' for function",
 			fg.Func.getFuncName(),
 		)
 	}
@@ -114,7 +120,9 @@ func (fg *FnAndGas) RequireValid() error {
 	for _, t := range types {
 		if len(t) == 0 || !typeRegex.MatchString(t) {
 			return fmt.Errorf(
-				"user-provided ABI signature for function %s has incorrect argument types",
+				common.WrapErrorWithStrings,
+				ErrAbiSigInvalid,
+				"has incorrect argument types for function",
 				fg.Func.getFuncName(),
 			)
 		}
