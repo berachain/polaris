@@ -17,6 +17,7 @@ package state
 import (
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"github.com/berachain/stargazer/lib/common"
@@ -31,4 +32,14 @@ type StargazerStateDB interface {
 
 	// TransferBalance transfers the balance from one account to another
 	TransferBalance(common.Address, common.Address, *big.Int)
+}
+
+// `ExtStateDBI` defines the interface to support running stateful precompiled contracts.
+type ExtStateDBI interface {
+	GethStateDB
+
+	GetContext() sdk.Context
+	BeginStatefulExecution()
+	EndStatefulExecution()
+	GetSavedErr() error
 }

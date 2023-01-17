@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package types
 
 import "errors"
 
@@ -22,6 +22,21 @@ var (
 
 	// `ErrAbiSigInvalid` is returned when a user-provided ABI signature (`FnAndGas.AbiSig`) does
 	// not match the Go-Ethereum style function signatures. Please check
-	// core/vm/precompile/types.go for more information.
+	// core/vm/precompile/container/types.go for more information.
 	ErrAbiSigInvalid = errors.New("user-provided ABI signature invalid: ")
+
+	// `ErrEthEventNotRegistered` is returned when an incoming Cosmos event is not mapped to any
+	// registered Ethereum event.
+	ErrEthEventNotRegistered = errors.New("this Ethereum event was not registered for Cosmos event")
+
+	// `ErrEthEventAlreadyRegistered` is returned when an already registered Ethereum event is
+	// being registered again.
+	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
+
+	// `ErrStateDBNotSupported` is returned when the state DB is not compatible for running
+	// stateful precompiles.
+	ErrStateDBNotSupported = errors.New("given StateDB is not compatible for running stateful precompiles")
+
+	// `ErrPrecompileMethodNotFound` is returned when the Precompile method is not found.
+	ErrPrecompileMethodNotFound = errors.New("precompile method not found in contract ABI")
 )

@@ -12,16 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package container
+package types
 
-import "errors"
-
-var (
-	// `ErrEthEventNotRegistered` is returned when an incoming Cosmos event is not mapped to any
-	// registered Ethereum event.
-	ErrEthEventNotRegistered = errors.New("this Ethereum event was not registered for Cosmos event")
-
-	// `ErrEthEventAlreadyRegistered` is returned when an already registered Ethereum event is
-	// being registered again.
-	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
+import (
+	gevm "github.com/ethereum/go-ethereum/core/vm"
 )
+
+// `GethEVM` represents the imported EVM object, from Go-Ethereum.
+type GethEVM = gevm.EVM
+
+// `PrecompiledContract` is the basic interface for native Go contracts. The implementation
+// requires a deterministic gas count based on the input size of the `Run` method of the
+// contract.
+type PrecompiledContract = gevm.PrecompiledContract

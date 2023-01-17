@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package types_test
 
 import (
 	"math/big"
@@ -20,36 +20,49 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/types/abi"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var _ = Describe("Precompile Types", func() {
+var _ = Describe("Container Types", func() {
 	Context("Basic - ValidateBasic Tests", func() {
 		It("should error on missing Abi function signature", func() {
-			pfgMissingSig := &precompile.FnAndGas{
+			pfgMissingSig := &types.PrecompileMethod{
 				Func:        mockPrecompileFn,
 				RequiredGas: 10,
+				AbiMethod:   &abi.Method{},
 			}
 			err := pfgMissingSig.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("should error on missing (or 0) RequireGas", func() {
-			pfgMissingGas := &precompile.FnAndGas{
-				AbiSig: "contractFunc(address)",
-				Func:   mockPrecompileFn,
+			pfgMissingGas := &types.PrecompileMethod{
+				AbiSig:    "contractFunc(address)",
+				Func:      mockPrecompileFn,
+				AbiMethod: &abi.Method{},
 			}
 			err := pfgMissingGas.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("should error on missing precompile function", func() {
-			pfgMissingFunc := &precompile.FnAndGas{
+			pfgMissingFunc := &types.PrecompileMethod{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
+				AbiMethod:   &abi.Method{},
+			}
+			err := pfgMissingFunc.ValidateBasic()
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("should error on missing abi method", func() {
+			pfgMissingFunc := &types.PrecompileMethod{
+				AbiSig:      "contractFunc(address)",
+				RequiredGas: 10,
+				Func:        mockPrecompileFn,
 			}
 			err := pfgMissingFunc.ValidateBasic()
 			Expect(err).ToNot(BeNil())
@@ -57,9 +70,10 @@ var _ = Describe("Precompile Types", func() {
 	})
 
 	Context("Abi Signature verification - ValidateBasic tests", func() {
-		var pfg = &precompile.FnAndGas{
+		var pfg = &types.PrecompileMethod{
 			Func:        mockPrecompileFn,
 			RequiredGas: 10,
+			AbiMethod:   &abi.Method{},
 		}
 
 		It("should not error on valid abi signatures", func() {
@@ -102,7 +116,7 @@ var _ = Describe("Precompile Types", func() {
 
 func mockPrecompileFn(
 	ctx sdk.Context,
-	evm *precompile.GethEVM,
+	evm *types.GethEVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

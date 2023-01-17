@@ -12,8 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package container
+package types_test
 
-// `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version
-// of its corresponding Cosmos event's `Type`.
-type EventType string
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestContainerTypes(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/vm/precompile/container/types")
+}

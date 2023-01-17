@@ -20,9 +20,14 @@ import (
 
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm/precompile/container/log"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
+
+// `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version of
+// its corresponding Cosmos event's `Type`.
+type EventType string
 
 // `LogFactory` builds Ethereum logs from Cosmos events.
 type LogFactory struct {
@@ -53,7 +58,7 @@ func (pef *LogFactory) RegisterEvent(
 	customModuleAttributes log.ValueDecoders,
 ) error {
 	if _, found := pef.events[EventType(abiEvent.Name)]; found {
-		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
+		return errors.Wrap(types.ErrEthEventAlreadyRegistered, abiEvent.Name)
 	}
 
 	var err error
@@ -76,7 +81,7 @@ func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
 	if pe == nil {
-		return nil, errors.Wrap(ErrEthEventNotRegistered, event.Type)
+		return nil, errors.Wrap(types.ErrEthEventNotRegistered, event.Type)
 	}
 	var err error
 	if err = pe.ValidateAttributes(event); err != nil {
