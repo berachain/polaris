@@ -17,10 +17,28 @@ package precompile
 import (
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/log"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/types/abi"
 )
 
 type (
+	// `StatefulContractImpl` is the interface for all stateful precompiled contracts, which
+	// must expose their functions and gas requirements for stateful execution.
+	StatefulContractImpl interface {
+		// `GetFunctionsAndGas` should return all the stateful precompile's functions (and each of
+		// their required gas).
+		GetFunctionsAndGas() types.PrecompileMethods
+	}
+
+	// `DynamicContractImpl` is the interface for all dynamic stateful precompiled
+	// contracts.
+	DynamicContractImpl interface {
+		StatefulContractImpl
+
+		// `Name` should return a string name of the dynamic contract.
+		Name() string
+	}
+
 	// `HasEvents` is an interface that enforces the required function for a stateful precompile
 	// contract to implement if it wants to emit some (or all) of its Cosmos module's events as
 	// Ethereum event logs.

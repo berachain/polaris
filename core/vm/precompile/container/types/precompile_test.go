@@ -116,7 +116,6 @@ var _ = Describe("Container Types", func() {
 
 func mockPrecompileFn(
 	ctx sdk.Context,
-	evm *types.GethEVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

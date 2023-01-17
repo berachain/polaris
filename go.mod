@@ -2,8 +2,11 @@ module github.com/berachain/stargazer
 
 go 1.19
 
-// Required for emitting Cosmos events to Eth logs
+// Required for emitting Cosmos events to Eth logs.
 replace github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.47.0-alpha2.0.20221228180048-31eec31bde07
+
+// Required for supporting stateful precompiled contracts.
+replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230116233040-37748e5db687
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7
@@ -14,7 +17,6 @@ require (
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/golangci/golangci-lint v1.50.1
 	github.com/google/addlicense v1.1.0
-	github.com/holiman/uint256 v1.2.0
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
 	github.com/onsi/ginkgo/v2 v2.7.0
@@ -180,6 +182,7 @@ require (
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
+	github.com/holiman/uint256 v1.2.0 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/huin/goupnp v1.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect

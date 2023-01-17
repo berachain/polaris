@@ -12,13 +12,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package precompile
 
-import (
-	gevm "github.com/ethereum/go-ethereum/core/vm"
-)
-
-// `PrecompiledContract` is the basic interface for native Go contracts. The implementation
-// requires a deterministic gas count based on the input size of the `Run` method of the
-// contract.
-type PrecompiledContract = gevm.PrecompiledContract
+type StatefulContainerFactory struct{}

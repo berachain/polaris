@@ -28,7 +28,7 @@ import (
 const NumBytesMethodID = 4
 
 // Compile-time assertion to ensure `StatefulContainer` is a `PrecompiledContract`.
-// var _ types.PrecompiledContract = (*StatefulContainer)(nil)
+var _ types.PrecompiledContract = (*StatefulContainer)(nil)
 
 // `StatefulContainer` is a container for running stateful precompiled contracts.
 type StatefulContainer struct {
@@ -51,13 +51,13 @@ func NewStatefulContainer(idsToMethods map[string]*types.PrecompileMethod) *Stat
 //
 // `Run` implements `PrecompiledContract`.
 func (sc *StatefulContainer) Run(
-	evm *types.GethEVM,
+	sdb state.GethStateDB,
 	input []byte,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
-	esdb, ok := evm.StateDB.(state.PrecompileStateDB)
+	psdb, ok := sdb.(state.PrecompileStateDB)
 	if !ok {
 		return nil, types.ErrStateDBNotSupported
 	}
@@ -75,16 +75,15 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// Call the function registered with the given signature
-	esdb.BeginStatefulExecution()
+	psdb.BeginStatefulExecution()
 	vals, err := method.Func(
-		esdb.GetContext(),
-		evm,
+		psdb.GetContext(),
 		caller,
 		value,
 		readonly,
 		unpackedArgs...,
 	)
-	esdb.EndStatefulExecution()
+	psdb.EndStatefulExecution()
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
@@ -98,7 +97,7 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// If the statedb return an error, the error is returned to the caller.
-	return ret, esdb.GetSavedErr()
+	return ret, psdb.GetSavedErr()
 }
 
 // `RequiredGas` checks the PrecompileMethod corresponding to input for the required gas amount.

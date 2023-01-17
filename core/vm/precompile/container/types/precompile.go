@@ -30,7 +30,6 @@ import (
 // `PrecompileFn` is a type of function that a stateful precompiled contract should implement.
 type PrecompileFn func(
 	ctx sdk.Context,
-	evm *GethEVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -125,6 +124,6 @@ func (pm *PrecompileMethod) ValidateBasic() error {
 	return nil
 }
 
-// `PrecompileFnsAndGas` is a type that represents a list of functions and gas. This is what a stateful
-// precompiled contract should expose.
-type PrecompileFnsAndGas []*PrecompileMethod
+// `PrecompileMethods` is a type that represents a list of functions and gas. This is what
+// stateful precompiled contract should expose.
+type PrecompileMethods []*PrecompileMethod
