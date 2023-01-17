@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package container_test
 
 import (
 	"strconv"
@@ -23,13 +23,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
 
-var _ = Describe("Events Factory", func() {
-	var factory *precompile.LogFactory
+var _ = Describe("Log Factory", func() {
+	var factory *container.LogFactory
 	var stakingModuleAddr common.Address
 	var valAddr sdk.ValAddress
 	var delAddr sdk.AccAddress
@@ -38,7 +38,7 @@ var _ = Describe("Events Factory", func() {
 
 	BeforeEach(func() {
 		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
-		factory = precompile.NewLogFactory()
+		factory = container.NewLogFactory()
 		err := factory.RegisterEvent(stakingModuleAddr, getMockAbiEvent(), nil)
 		Expect(err).To(BeNil())
 		valAddr = sdk.ValAddress([]byte("alice"))
@@ -68,7 +68,7 @@ var _ = Describe("Events Factory", func() {
 		It("should fail on non-registered event", func() {
 			event := sdk.NewEvent("redelegate")
 			_, err := factory.BuildLog(&event)
-			Expect(err.Error()).To(Equal("redelegate: the Ethereum event was not registered for Cosmos event"))
+			Expect(err.Error()).To(Equal("redelegate: this Ethereum event was not registered for Cosmos event"))
 		})
 
 		It("should fail on incorrect number of attributes given", func() {

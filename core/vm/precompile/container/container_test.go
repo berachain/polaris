@@ -12,16 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package container_test
 
-import "errors"
+import (
+	"testing"
 
-var (
-	// `ErrIncompleteFnAndGas` is returned when a `FnAndGas` has missing, or nil, fields.
-	ErrIncompleteFnAndGas = errors.New("incomplete FnAndGas passed in for precompile")
-
-	// `ErrAbiSigInvalid` is returned when a user-provided ABI signature (`FnAndGas.AbiSig`) does
-	// not match the Go-Ethereum style function signatures. Please check
-	// core/vm/precompile/types.go for more information.
-	ErrAbiSigInvalid = errors.New("user-provided ABI signature invalid: ")
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
+
+func TestContainer(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/vm/precompile/container")
+}

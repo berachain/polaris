@@ -26,7 +26,8 @@ import (
 
 	gevm "github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/berachain/stargazer/core/vm/precompile/log"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
+	"github.com/berachain/stargazer/core/vm/precompile/container/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
@@ -132,10 +133,6 @@ func (fg *FnAndGas) ValidateBasic() error {
 type FnsAndGas []*FnAndGas
 
 type (
-	// `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version
-	// of its corresponding Cosmos event's `Type`.
-	EventType string
-
 	// `HasEvents` is an interface that enforces the required function for a stateful precompile
 	// contract to implement if it wants to emit some (or all) of its Cosmos module's events as
 	// Ethereum event logs.
@@ -155,6 +152,6 @@ type (
 		// `CustomValueDecoders` should return a map of Cosmos event types to attribute
 		// key-to-value decoder functions map for each of the supported events in the custom Cosmos
 		// module.
-		CustomValueDecoders() map[EventType]log.ValueDecoders
+		CustomValueDecoders() map[container.EventType]log.ValueDecoders
 	}
 )

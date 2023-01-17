@@ -22,7 +22,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/berachain/stargazer/core/vm/precompile"
-	"github.com/berachain/stargazer/core/vm/precompile/log"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
+	"github.com/berachain/stargazer/core/vm/precompile/container/log"
 	"github.com/berachain/stargazer/lib/common"
 )
 
@@ -48,7 +49,7 @@ type PrecompileRegistry struct {
 
 	// `logFactory` is the Ethereum log builder for all Cosmos events emitted during precompile
 	// execution.
-	logFactory *precompile.LogFactory
+	logFactory *container.LogFactory
 }
 
 // ==============================================================================
@@ -62,7 +63,7 @@ func NewPrecompileRegistry(storeKey storetypes.StoreKey) *PrecompileRegistry {
 		statefulPrecompiles:  make(map[common.Address]StatefulPrecompiledContract),
 		dynamicPrecompiles:   make(map[string]DynamicPrecompiledContract),
 		storeKey:             storeKey,
-		logFactory:           precompile.NewLogFactory(),
+		logFactory:           container.NewLogFactory(),
 	}
 }
 
@@ -103,7 +104,7 @@ func (pr *PrecompileRegistry) RegisterModule(moduleName string, contract any) er
 				// if contract is of a custom Cosmos module, load its custom attributes' value
 				// decoders
 				customModuleAttributes =
-					customEvents.CustomValueDecoders()[precompile.EventType(abiEvent.Name)]
+					customEvents.CustomValueDecoders()[container.EventType(abiEvent.Name)]
 			}
 			err := pr.logFactory.RegisterEvent(moduleEthAddr, abiEvent, customModuleAttributes)
 			if err != nil {
@@ -139,8 +140,8 @@ func (pr *PrecompileRegistry) RegisterDynamicContract(
 // Getters
 // ==============================================================================
 
-// `GetLogFactory` returns the Ethereum log dynamic for this precompile registry.
-func (pr *PrecompileRegistry) GetLogFactory() *precompile.LogFactory {
+// `GetLogFactory` returns the Ethereum log factory for this precompile registry.
+func (pr *PrecompileRegistry) GetLogFactory() *container.LogFactory {
 	return pr.logFactory
 }
 
