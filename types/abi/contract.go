@@ -16,7 +16,7 @@ package abi
 
 import (
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/berachain/stargazer/lib/common/hexutil"
 )
 
 // `CompiliedContract` is a contract that has been compiled.
