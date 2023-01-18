@@ -21,7 +21,6 @@ import (
 	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/utils"
 )
 
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
@@ -36,12 +35,12 @@ type StatefulContainer struct {
 	// precompile functions. The signature key is provided by the precompile creator and must
 	// exactly match the signature in the geth abi.Method.Sig field (geth abi format). Please check
 	// core/vm/precompile/container/types.go for more information.
-	idsToMethods map[string]*types.PrecompileMethod
+	idsToMethods map[common.Hash]*types.PrecompileMethod
 }
 
 // `NewStatefulContainer` creates and returns a new `StatefulContainer` with the given method ids
 // precompile functions map.
-func NewStatefulContainer(idsToMethods map[string]*types.PrecompileMethod) *StatefulContainer {
+func NewStatefulContainer(idsToMethods map[common.Hash]*types.PrecompileMethod) *StatefulContainer {
 	return &StatefulContainer{
 		idsToMethods: idsToMethods,
 	}
@@ -68,7 +67,7 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// extract the method ID from the input and load the function
-	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
+	method, ok := sc.idsToMethods[common.BytesToHash(input[:NumBytesMethodID])]
 	if !ok {
 		return nil, types.ErrPrecompileMethodNotFound
 	}
@@ -80,7 +79,7 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// Call the function registered with the given signature
-	psdb.BeginStatefulExecution()
+	psdb.EnableEventLogging()
 	vals, err := method.Func(
 		psdb.GetContext(),
 		caller,
@@ -88,7 +87,7 @@ func (sc *StatefulContainer) Run(
 		readonly,
 		unpackedArgs...,
 	)
-	psdb.EndStatefulExecution()
+	psdb.DisableEventLogging()
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
@@ -114,7 +113,7 @@ func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
 		return math.MaxUint64
 	}
 
-	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
+	method, ok := sc.idsToMethods[common.BytesToHash(input[:NumBytesMethodID])]
 	if !ok {
 		// return max uint64 so call to precompile function fails
 		return math.MaxUint64
