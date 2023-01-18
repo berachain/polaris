@@ -24,6 +24,7 @@ import (
 const maxIndexedArgs = 3
 
 type (
+	ABI       = abi.ABI
 	Argument  = abi.Argument
 	Arguments = abi.Arguments
 	Event     = abi.Event
@@ -34,6 +35,7 @@ var (
 	NewEvent    = abi.NewEvent
 	NewType     = abi.NewType
 	ToCamelCase = abi.ToCamelCase
+	JSON        = abi.JSON
 )
 
 // `ToMixedCase` converts a under_score formatted string to mixedCase format (camelCase with the
