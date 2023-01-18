@@ -84,7 +84,10 @@ type (
 	}
 )
 
+// `AbstractContainerFactory` is an interface that all precompile container factories must adhere
+// to.
 type AbstractContainerFactory interface {
+	// `Build` builds and returns the precompile container for the type of container/factory.
 	Build(bci BaseContractImpl) (types.PrecompileContainer, error)
 }
 
@@ -94,7 +97,7 @@ type Host interface {
 	// `Exists` returns if a precompiled contract was found at `addr`.
 	Exists(addr common.Address) (types.PrecompileContainer, bool)
 
-	// `Run` runs a precompiled contract container and returns the leftover gas.
+	// `Run` runs a precompiled contract container and returns the remaining gas.
 	Run(pc types.PrecompileContainer, sdb state.GethStateDB, input []byte, caller common.Address,
 		value *big.Int, suppliedGas uint64, readonly bool,
 	) (ret []byte, leftOverGas uint64, err error)

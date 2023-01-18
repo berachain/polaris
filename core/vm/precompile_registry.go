@@ -27,6 +27,8 @@ import (
 var statefulContractType = reflect.TypeOf(precompile.StatefulContractImpl(nil))
 var statelessContractType = reflect.TypeOf(precompile.StatelessContractImpl(nil))
 
+// `PrecompileRegistry` stores and provides stateless and stateful precompile containers to a
+// precompile host.
 type PrecompileRegistry struct {
 	// `precompiles` is a map of Ethereum addresses to precompiled contract containers. Only
 	// supporting stateless and stateful precompiles for now.
@@ -45,6 +47,9 @@ func NewPrecompileRegistry() *PrecompileRegistry {
 	}
 }
 
+// `Register` builds a precompile container using a container factory and stores the container
+// at the given address. This function returns an error if the given contract is not a properly
+// defined precompile or the container factory cannot build the container.
 func (pr *PrecompileRegistry) Register(
 	addr common.Address,
 	contract precompile.BaseContractImpl,
@@ -69,6 +74,7 @@ func (pr *PrecompileRegistry) Register(
 	return nil
 }
 
+// `Get` returns a precompile container at the given address, if it exists.
 func (pr *PrecompileRegistry) Get(addr common.Address) (types.PrecompileContainer, bool) {
 	pc, found := pr.precompiles[addr]
 	return pc, found

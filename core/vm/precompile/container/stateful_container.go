@@ -20,6 +20,7 @@ import (
 
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -35,12 +36,12 @@ type StatefulContainer struct {
 	// precompile functions. The signature key is provided by the precompile creator and must
 	// exactly match the signature in the geth abi.Method.Sig field (geth abi format). Please check
 	// core/vm/precompile/container/types.go for more information.
-	idsToMethods map[common.Hash]*types.PrecompileMethod
+	idsToMethods map[string]*types.PrecompileMethod
 }
 
 // `NewStatefulContainer` creates and returns a new `StatefulContainer` with the given method ids
 // precompile functions map.
-func NewStatefulContainer(idsToMethods map[common.Hash]*types.PrecompileMethod) *StatefulContainer {
+func NewStatefulContainer(idsToMethods map[string]*types.PrecompileMethod) *StatefulContainer {
 	return &StatefulContainer{
 		idsToMethods: idsToMethods,
 	}
@@ -63,7 +64,7 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// extract the method ID from the input and load the method.
-	method, ok := sc.idsToMethods[common.BytesToHash(input[:NumBytesMethodID])]
+	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !ok {
 		return nil, types.ErrPrecompileMethodNotFound
 	}
@@ -102,7 +103,7 @@ func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
 	}
 
 	// extract the method ID from the input and load the method.
-	method, ok := sc.idsToMethods[common.BytesToHash(input[:NumBytesMethodID])]
+	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !ok {
 		return 0
 	}

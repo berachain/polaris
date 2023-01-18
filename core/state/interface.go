@@ -48,7 +48,4 @@ type PrecompileStateDB interface {
 
 	// `DisableEventLogging` disables Cosmos events to be added to Ethereum logs.
 	DisableEventLogging()
-
-	// `GetSavedErr` returns the error saved in the statedb
-	GetSavedErr() error
 }

@@ -25,5 +25,7 @@ var (
 	// to build a precompile contract.
 	ErrWrongContainerFactory = errors.New("this container factory does not support the given precompile contract")
 
-	ErrNotStatelessPrecompile = errors.New("this precompile contract does not implement `PrecompileContainer`")
+	// `ErrNotStatelessPrecompile` is returned when a base contract implementation does not
+	// properly implement the `StatelessContractImpl` interface.
+	ErrNotStatelessPrecompile = errors.New("this precompile contract does not implement `StatelessContractImpl`")
 )

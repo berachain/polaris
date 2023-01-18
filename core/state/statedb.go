@@ -579,9 +579,8 @@ func (sdb *StateDB) Commit() error {
 // Saved Errors
 // =============================================================================
 
-// `GetSavedErr` implements `PrecompileStateDB`
-// Any errors that pop up during store operations should be checked here
-// called upon the conclusion.
+// Any errors that pop up during store operations should be checked here.
+// Called upon the conclusion.
 func (sdb *StateDB) GetSavedErr() error {
 	return sdb.savedErr
 }

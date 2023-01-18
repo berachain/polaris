@@ -23,23 +23,33 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
+// Compile-time assertion to ensure `PrecompileHost` adheres to `precompile.Host`.
 var _ precompile.Host = (*PrecompileHost)(nil)
 
+// `PrecompileHost` is gets and executes a precompiled container at a given address.
 type PrecompileHost struct {
 	pr *PrecompileRegistry
 }
 
+// `NewPrecompileHost` creates and returns a new `PrecompileHost` for the given precompile
+// registry `pr`.
 func NewPrecompileHost(pr *PrecompileRegistry) *PrecompileHost {
 	return &PrecompileHost{
 		pr: pr,
 	}
 }
 
+// `Exists` gets a precompile container at the given `addr` from the precompile registry.
+//
 // `Exists` implements `precompile.Host`.
 func (ph *PrecompileHost) Exists(addr common.Address) (types.PrecompileContainer, bool) {
 	return ph.pr.Get(addr)
 }
 
+// `Run` runs the given precompile container and returns the remaining gas after execution. This
+// function returns an error if the given statedb is not compatible with precompiles, insufficient
+// gas is provided, or the precompile execution returns an error.
+//
 // `Run` implements `precompile.Host`.
 func (ph *PrecompileHost) Run(
 	pc types.PrecompileContainer,
@@ -69,6 +79,5 @@ func (ph *PrecompileHost) Run(
 		return nil, suppliedGas, err
 	}
 
-	// If the statedb return an error, the error is returned to the caller.
-	return ret, suppliedGas, psdb.GetSavedErr()
+	return ret, suppliedGas, nil
 }
