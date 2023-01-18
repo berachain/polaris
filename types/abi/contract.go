@@ -15,8 +15,6 @@
 package abi
 
 import (
-	"strings"
-
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -29,8 +27,8 @@ type CompiliedContract struct {
 
 // `BuildCompiledContract` builds a `CompiledContract` from an ABI string and a bytecode string.
 func BuildCompiledContract(abiStr, bytecode string) CompiliedContract {
-	parsedAbi, err := JSON(strings.NewReader(abiStr))
-	if err != nil {
+	var parsedAbi ABI
+	if err := parsedAbi.UnmarshalJSON([]byte(abiStr)); err != nil {
 		panic(err)
 	}
 	return CompiliedContract{
