@@ -14,4 +14,79 @@
 
 package precompile
 
+import (
+	"cosmossdk.io/errors"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/types/abi"
+)
+
+const statefulContainerFactoryName = `StatefulContainerFactory`
+
+var _ AbstractContainerFactory = (*StatefulContainerFactory)(nil)
+
 type StatefulContainerFactory struct{}
+
+func NewStatefulContainerFactory() *StatefulContainerFactory {
+	return &StatefulContainerFactory{}
+}
+
+func (scf *StatefulContainerFactory) Build(
+	bci BaseContractImpl,
+) (types.PrecompileContainer, error) {
+	sci, ok := bci.(StatefulContractImpl)
+	if !ok {
+		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerFactoryName)
+	}
+
+	var err error
+	var idsToMethods map[string]*types.PrecompileMethod
+
+	// add precompile methods to Stateful Container, if any
+	precompileMethods := sci.PrecompileMethods()
+	if precompileMethods != nil {
+		// validate precompile methods
+		for _, pm := range precompileMethods {
+			if err = pm.ValidateBasic(); err != nil {
+				return nil, err
+			}
+		}
+
+		idsToMethods, err = scf.buildIdsToMethods(precompileMethods, sci.ABIMethods())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return container.NewStatefulContainer(idsToMethods), nil
+}
+
+func (scf *StatefulContainerFactory) buildIdsToMethods(
+	precompileMethods types.PrecompileMethods,
+	abiMethods map[string]abi.Method,
+) (map[string]*types.PrecompileMethod, error) {
+	// match every ABI method to corresponding precompile method
+	idsToMethods := make(map[string]*types.PrecompileMethod)
+	for name := range abiMethods {
+		abiMethod := abiMethods[name]
+
+		// find the corresponding precompile method for abiMethod based on signature
+		var precompileMethod *types.PrecompileMethod
+		i := 0
+		for ; i < len(precompileMethods); i++ {
+			if precompileMethods[i].AbiSig == abiMethod.Sig {
+				precompileMethod = precompileMethods[i]
+				break
+			}
+		}
+		if i == len(precompileMethods) {
+			return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+		}
+
+		// attach the ABI method to the precompile method for stateful container to handle
+		precompileMethod.AbiMethod = &abiMethod
+		idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = precompileMethod
+	}
+	return idsToMethods, nil
+}

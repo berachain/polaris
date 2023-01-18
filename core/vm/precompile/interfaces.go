@@ -22,30 +22,18 @@ import (
 )
 
 type (
-	// `StatefulContractImpl` is the interface for all stateful precompiled contracts, which
-	// must expose their functions and gas requirements for stateful execution.
-	StatefulContractImpl interface {
-		// `GetFunctionsAndGas` should return all the stateful precompile's functions (and each of
-		// their required gas).
-		GetFunctionsAndGas() types.PrecompileMethods
-	}
+	// `BaseContractImpl` is a type for the base precompiled contract implementation.
+	BaseContractImpl interface{}
 
-	// `DynamicContractImpl` is the interface for all dynamic stateful precompiled
-	// contracts.
-	DynamicContractImpl interface {
-		StatefulContractImpl
-
-		// `Name` should return a string name of the dynamic contract.
-		Name() string
-	}
+	// TODO: `HasErrors`
 
 	// `HasEvents` is an interface that enforces the required function for a stateful precompile
 	// contract to implement if it wants to emit some (or all) of its Cosmos module's events as
 	// Ethereum event logs.
 	HasEvents interface {
 		// `ABIEvents` should return a map of Ethereum event names (should be CamelCase formatted)
-		// to geth abi `Event` structs. NOTE: this can be directly loaded from the `Events` field
-		// of a geth ABI struct, which can be built for a solidity library, interface, or contract.
+		// to Go-Ethereum abi `Event` structs. NOTE: this can be directly loaded from the `Events` field
+		// of a Go-Ethereum ABI struct, which can be built for a solidity library, interface, or contract.
 		ABIEvents() map[string]abi.Event
 	}
 
@@ -60,4 +48,32 @@ type (
 		// module.
 		CustomValueDecoders() map[container.EventType]log.ValueDecoders
 	}
+
+	// `StatefulContractImpl` is the interface for all stateful precompiled contracts, which
+	// must expose their functions and gas requirements for stateful execution.
+	StatefulContractImpl interface {
+		HasCustomEvents
+
+		// `ABIMethods` should return a map of Ethereum method names to Go-Ethereum abi `Method`
+		// structs. NOTE: this can be directly loaded from the `Methods` field of a Go-Ethereum ABI
+		// struct, which can be built for a solidity interface or contract.
+		ABIMethods() map[string]abi.Method
+
+		// `PrecompileMethods` should return all the stateful precompile's functions (and each of
+		// their required gas).
+		PrecompileMethods() types.PrecompileMethods
+	}
+
+	// `DynamicContractImpl` is the interface for all dynamic stateful precompiled
+	// contracts.
+	DynamicContractImpl interface {
+		StatefulContractImpl
+
+		// `Name` should return a string name of the dynamic contract.
+		Name() string
+	}
 )
+
+type AbstractContainerFactory interface {
+	Build(bci BaseContractImpl) (types.PrecompileContainer, error)
+}

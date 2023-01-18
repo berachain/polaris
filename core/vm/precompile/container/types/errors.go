@@ -39,4 +39,8 @@ var (
 
 	// `ErrPrecompileMethodNotFound` is returned when the Precompile method is not found.
 	ErrPrecompileMethodNotFound = errors.New("precompile method not found in contract ABI")
+
+	// `ErrPrecompileHasNoMethods` is returned when a stateful container function is invoked but no
+	// precompile methods were registered.
+	ErrPrecompileHasNoMethods = errors.New("the stateful precompile has no methods to run")
 )

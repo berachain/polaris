@@ -12,13 +12,24 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package precompile
 
-import (
-	gevm "github.com/ethereum/go-ethereum/core/vm"
-)
+import "github.com/berachain/stargazer/core/vm/precompile/container/types"
 
-// `PrecompileContainer` is the basic interface for native Go contracts. The implementation
-// requires a deterministic gas count based on the input size of the `Run` method of the
-// contract.
-type PrecompileContainer = gevm.PrecompiledContract
+var _ AbstractContainerFactory = (*StatelessContainerFactory)(nil)
+
+type StatelessContainerFactory struct{}
+
+func NewStatelessContainerFactory() *StatelessContainerFactory {
+	return &StatelessContainerFactory{}
+}
+
+func (scf *StatelessContainerFactory) Build(
+	bci BaseContractImpl,
+) (types.PrecompileContainer, error) {
+	pc, ok := bci.(types.PrecompileContainer)
+	if !ok {
+		return nil, ErrNotStatelessPrecompile
+	}
+	return pc, nil
+}

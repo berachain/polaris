@@ -32,7 +32,6 @@ var _ = Describe("Container Types", func() {
 			pfgMissingSig := &types.PrecompileMethod{
 				Func:        mockPrecompileFn,
 				RequiredGas: 10,
-				AbiMethod:   &abi.Method{},
 			}
 			err := pfgMissingSig.ValidateBasic()
 			Expect(err).ToNot(BeNil())
@@ -40,9 +39,8 @@ var _ = Describe("Container Types", func() {
 
 		It("should error on missing (or 0) RequireGas", func() {
 			pfgMissingGas := &types.PrecompileMethod{
-				AbiSig:    "contractFunc(address)",
-				Func:      mockPrecompileFn,
-				AbiMethod: &abi.Method{},
+				AbiSig: "contractFunc(address)",
+				Func:   mockPrecompileFn,
 			}
 			err := pfgMissingGas.ValidateBasic()
 			Expect(err).ToNot(BeNil())
@@ -52,17 +50,17 @@ var _ = Describe("Container Types", func() {
 			pfgMissingFunc := &types.PrecompileMethod{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
-				AbiMethod:   &abi.Method{},
 			}
 			err := pfgMissingFunc.ValidateBasic()
 			Expect(err).ToNot(BeNil())
 		})
 
-		It("should error on missing abi method", func() {
+		It("should error on given abi method", func() {
 			pfgMissingFunc := &types.PrecompileMethod{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
 				Func:        mockPrecompileFn,
+				AbiMethod:   &abi.Method{},
 			}
 			err := pfgMissingFunc.ValidateBasic()
 			Expect(err).ToNot(BeNil())
@@ -73,7 +71,6 @@ var _ = Describe("Container Types", func() {
 		var pfg = &types.PrecompileMethod{
 			Func:        mockPrecompileFn,
 			RequiredGas: 10,
-			AbiMethod:   &abi.Method{},
 		}
 
 		It("should not error on valid abi signatures", func() {

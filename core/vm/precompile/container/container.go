@@ -27,12 +27,12 @@ import (
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
 const NumBytesMethodID = 4
 
-// Compile-time assertion to ensure `StatefulContainer` is a `PrecompiledContract`.
-var _ types.PrecompiledContract = (*StatefulContainer)(nil)
+// Compile-time assertion to ensure `StatefulContainer` is a `PrecompileContainer`.
+var _ types.PrecompileContainer = (*StatefulContainer)(nil)
 
-// `StatefulContainer` is a container for running stateful precompiled contracts.
+// `StatefulContainer` is a container for running stateful (and dynamic) precompiled contracts.
 type StatefulContainer struct {
-	// `idsToMethods` is a mapping of method IDs (keccack256 hash of method signatures) to native
+	// `idsToMethods` is a mapping of method IDs (keccak256 hash of method signatures) to native
 	// precompile functions. The signature key is provided by the precompile creator and must
 	// exactly match the signature in the geth abi.Method.Sig field (geth abi format). Please check
 	// core/vm/precompile/container/types.go for more information.
@@ -49,7 +49,7 @@ func NewStatefulContainer(idsToMethods map[string]*types.PrecompileMethod) *Stat
 
 // `Run` loads the corresponding precompile function for given input and runs it.
 //
-// `Run` implements `PrecompiledContract`.
+// `Run` implements `PrecompileContainer`.
 func (sc *StatefulContainer) Run(
 	sdb state.GethStateDB,
 	input []byte,
@@ -57,6 +57,11 @@ func (sc *StatefulContainer) Run(
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
+	if sc.idsToMethods == nil {
+		return nil, types.ErrPrecompileHasNoMethods
+	}
+
+	// TODO: pass in the ctx directly instead of sdb
 	psdb, ok := sdb.(state.PrecompileStateDB)
 	if !ok {
 		return nil, types.ErrStateDBNotSupported
@@ -102,8 +107,13 @@ func (sc *StatefulContainer) Run(
 
 // `RequiredGas` checks the PrecompileMethod corresponding to input for the required gas amount.
 //
-// `RequiredGas` implements PrecompiledContract.
+// `RequiredGas` implements PrecompileContainer.
 func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
+	if sc.idsToMethods == nil {
+		// return max uint64 so call to precompile function fails
+		return math.MaxUint64
+	}
+
 	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !ok {
 		// return max uint64 so call to precompile function fails

@@ -54,7 +54,9 @@ type PrecompileMethod struct {
 	// Also note that "int" is substitute for its canonical representation "int256".
 	AbiSig string
 
-	// `AbiMethod` is the ABI `Method` struct corresponding to this precompile function.
+	// `AbiMethod` is the ABI `Method` struct corresponding to this precompile function. NOTE: this
+	// field should be left empty (as nil) as this will automatically be populated by the
+	// corresponding interface's ABI.
 	AbiMethod *abi.Method
 
 	// `Func` is the function which will execute the logic of the precompile function.
@@ -72,7 +74,7 @@ var (
 // `ValidateBasic` returns an error if this a precompile `PrecompileMethod` has invalid fields.
 func (pm *PrecompileMethod) ValidateBasic() error {
 	// ensure all fields are nonempty
-	if len(pm.AbiSig) == 0 || pm.AbiMethod == nil || pm.Func == nil || pm.RequiredGas == 0 {
+	if len(pm.AbiSig) == 0 || pm.AbiMethod != nil || pm.Func == nil || pm.RequiredGas == 0 {
 		return ErrIncompleteFnAndGas
 	}
 

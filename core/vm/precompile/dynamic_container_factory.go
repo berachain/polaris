@@ -12,13 +12,28 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package precompile
 
 import (
-	gevm "github.com/ethereum/go-ethereum/core/vm"
+	"cosmossdk.io/errors"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 )
 
-// `PrecompileContainer` is the basic interface for native Go contracts. The implementation
-// requires a deterministic gas count based on the input size of the `Run` method of the
-// contract.
-type PrecompileContainer = gevm.PrecompiledContract
+const dynamicContainerFactoryName = `DynamicContainerFactory`
+
+type DynamicContainerFactory struct{}
+
+func NewDynamicContainerFactory() *DynamicContainerFactory {
+	return &DynamicContainerFactory{}
+}
+
+func (dcf *DynamicContainerFactory) Build(
+	bci BaseContractImpl,
+) (types.PrecompileContainer, error) {
+	dci, ok := bci.(DynamicContractImpl)
+	if !ok {
+		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerFactoryName)
+	}
+
+	return NewStatefulContainerFactory().Build(dci)
+}
