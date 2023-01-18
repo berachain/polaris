@@ -55,10 +55,10 @@ func Build() error {
 		}
 	}
 
-	// // Build all solidity contracts.
-	// if err = ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	// Build all solidity contracts.
+	if err = ForgeBuild(); err != nil {
+		return err
+	}
 
 	for _, cmd := range cmds {
 		args := []string{
@@ -137,10 +137,10 @@ func Clean() error {
 		return err
 	}
 
-	// // Remove solidity build artifacts.
-	// if err := ForgeClean(); err != nil {
-	// 	return err
-	// }
+	// Remove solidity build artifacts.
+	if err := ForgeClean(); err != nil {
+		return err
+	}
 
 	// Remove test cache.
 	if err := sh.RunV("go", "clean", "-testcache"); err != nil {
