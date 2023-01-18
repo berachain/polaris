@@ -38,21 +38,21 @@ func Run(packageName, inputPath, outputPath, varName string) error {
 
 	// Unmarshal the JSON data into the forgeJSON variable.
 	if err = json.Unmarshal(data, &i); err != nil {
-		panic(err)
+		return err
 	}
 
 	// Load ABI String.
 	abiString := i.(map[string]interface{})["abi"]
 	abiStringMarshalled, err := json.Marshal(abiString)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Load Bytecode String.
 	bytecode := i.(map[string]interface{})["bytecode"].(map[string]interface{})["object"]
 	bytecodeMarshalled, err := json.Marshal(bytecode)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Build the golang file.
