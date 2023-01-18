@@ -30,7 +30,8 @@ import (
 // Compile-time assertion to ensure `PrecompileHost` adheres to `precompile.Host`.
 var _ precompile.Host = (*PrecompileHost)(nil)
 
-// `PrecompileHost` is gets and executes a precompiled container at a given address.
+// `PrecompileHost` is the execution environment of a precompiled container at a given address.
+// The host manages the execution of the container and emission of logs.
 type PrecompileHost struct {
 	// `pr` is the registry from which the precompile container will be pulled.
 	pr *PrecompileRegistry
