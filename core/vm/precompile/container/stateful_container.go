@@ -46,7 +46,7 @@ func NewStatefulContainer(idsToMethods map[common.Hash]*types.PrecompileMethod) 
 	}
 }
 
-// `Run` loads the corresponding precompile function for given input and runs it.
+// `Run` loads the corresponding precompile method for given input and executes it.
 //
 // `Run` implements `PrecompileContainer`.
 func (sc *StatefulContainer) Run(
@@ -56,11 +56,13 @@ func (sc *StatefulContainer) Run(
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
+	// TODO: this will change to take in `suppliedGas` and return `remainingGas`.
+
 	if sc.idsToMethods == nil {
 		return nil, types.ErrPrecompileHasNoMethods
 	}
 
-	// extract the method ID from the input and load the function
+	// extract the method ID from the input and load the method.
 	method, ok := sc.idsToMethods[common.BytesToHash(input[:NumBytesMethodID])]
 	if !ok {
 		return nil, types.ErrPrecompileMethodNotFound
@@ -72,7 +74,7 @@ func (sc *StatefulContainer) Run(
 		return nil, err
 	}
 
-	// Call the function registered with the given signature
+	// Execute the method registered with the given signature with the given args.
 	vals, err := method.Execute(
 		sdk.UnwrapSDKContext(ctx),
 		caller,
@@ -86,7 +88,6 @@ func (sc *StatefulContainer) Run(
 		return nil, err
 	}
 
-	// If the return values cannot be packed to the correct format, return error.
 	return method.AbiMethod.Outputs.PackValues(vals)
 }
 
@@ -94,10 +95,13 @@ func (sc *StatefulContainer) Run(
 //
 // `RequiredGas` implements PrecompileContainer.
 func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
+	// TODO: RequiredGas will be deprecated in Geth.
+
 	if sc.idsToMethods == nil {
 		return 0
 	}
 
+	// extract the method ID from the input and load the method.
 	method, ok := sc.idsToMethods[common.BytesToHash(input[:NumBytesMethodID])]
 	if !ok {
 		return 0

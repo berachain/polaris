@@ -51,7 +51,7 @@ func NewLogFactory() *LogFactory {
 // Setter
 // ==============================================================================
 
-// `RegisterEvent` registers a Cosmos module's precompile log.
+// `RegisterEvent` registers an Ethereum event as a precompile log.
 func (pef *LogFactory) RegisterEvent(
 	moduleEthAddress common.Address,
 	abiEvent abi.Event,
@@ -74,7 +74,7 @@ func (pef *LogFactory) RegisterEvent(
 // Builder
 // ==============================================================================
 
-// `BuildLog` builds an Ethereum event log from the given Cosmos log.
+// `BuildLog` builds an Ethereum event log from the given Cosmos event.
 func (pef *LogFactory) BuildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// validate incoming Cosmos event
 	pe := pef.eventTypesToLogs[EventType(abi.ToCamelCase(event.Type))]

@@ -37,6 +37,7 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
+// Compile-time assertions to ensure StateDB adheres to StargazerStateDB and PrecompileStateDB.
 var _ StargazerStateDB = (*StateDB)(nil)
 var _ PrecompileStateDB = (*StateDB)(nil)
 
@@ -82,7 +83,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// memoized here and is eventually be returned by `Commit`.
 	savedErr error
 
-	// flag that is true only during stateful precompile execution.
+	// flag that is true when Cosmos events should be emitted as Ethereum logs.
 	eventLoggingEnabled bool
 
 	// we load the evm denom in the constructor, to prevent going to

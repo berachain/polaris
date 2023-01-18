@@ -22,9 +22,40 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-const statefulContainerFactoryName = `StatefulContainerFactory`
+const (
+	statefulContainerFactoryName = `StatefulContainerFactory`
+	dynamicContainerFactoryName  = `DynamicContainerFactory`
+)
 
-var _ AbstractContainerFactory = (*StatefulContainerFactory)(nil)
+var (
+	_ AbstractContainerFactory = (*StatelessContainerFactory)(nil)
+	_ AbstractContainerFactory = (*StatelessContainerFactory)(nil)
+	_ AbstractContainerFactory = (*DynamicContainerFactory)(nil)
+)
+
+// ===========================================================================
+// Stateless Container Factory
+// ===========================================================================
+
+type StatelessContainerFactory struct{}
+
+func NewStatelessContainerFactory() *StatelessContainerFactory {
+	return &StatelessContainerFactory{}
+}
+
+func (scf *StatelessContainerFactory) Build(
+	bci BaseContractImpl,
+) (types.PrecompileContainer, error) {
+	pc, ok := bci.(StatelessContractImpl)
+	if !ok {
+		return nil, ErrNotStatelessPrecompile
+	}
+	return pc, nil
+}
+
+// ===========================================================================
+// Stateful Container Factory
+// ===========================================================================
 
 type StatefulContainerFactory struct{}
 
@@ -89,4 +120,25 @@ func (scf *StatefulContainerFactory) buildIdsToMethods(
 		idsToMethods[common.BytesToHash(abiMethod.ID)] = precompileMethod
 	}
 	return idsToMethods, nil
+}
+
+// ===========================================================================
+// Dynamic Container Factory
+// ===========================================================================
+
+type DynamicContainerFactory struct{}
+
+func NewDynamicContainerFactory() *DynamicContainerFactory {
+	return &DynamicContainerFactory{}
+}
+
+func (dcf *DynamicContainerFactory) Build(
+	bci BaseContractImpl,
+) (types.PrecompileContainer, error) {
+	dci, ok := bci.(DynamicContractImpl)
+	if !ok {
+		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerFactoryName)
+	}
+
+	return NewStatefulContainerFactory().Build(dci)
 }

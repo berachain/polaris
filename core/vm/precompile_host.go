@@ -55,7 +55,7 @@ func (ph *PrecompileHost) Run(
 		return nil, 0, ErrStateDBNotSupported
 	}
 
-	// TODO: dynamic gas consumption here.
+	// TODO: move gas calculation to precompile container using gas meter.
 	gasCost := pc.RequiredGas(input)
 	if suppliedGas < gasCost {
 		return nil, 0, ErrOutOfGas
@@ -66,7 +66,7 @@ func (ph *PrecompileHost) Run(
 	ret, err := pc.Run(psdb.GetContext(), input, caller, value, readonly)
 	psdb.DisableEventLogging()
 	if err != nil {
-		return nil, 0, err
+		return nil, suppliedGas, err
 	}
 
 	// If the statedb return an error, the error is returned to the caller.

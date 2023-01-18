@@ -34,12 +34,21 @@ type StargazerStateDB interface {
 	TransferBalance(common.Address, common.Address, *big.Int)
 }
 
-// `PrecompileStateDB` defines the interface to support running stateful precompiled contracts.
+// `PrecompileStateDB` defines an extension to the interface provided by the Go-Ethereum codebase
+// to support additional state transition functionalities. In particular it supports getting the
+// cosmos sdk context for natively running stateful precompiled contracts.
 type PrecompileStateDB interface {
 	GethStateDB
 
+	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
 	GetContext() sdk.Context
+
+	// `EnableEventLogging` enables Cosmos events to be added to Ethereum logs.
 	EnableEventLogging()
+
+	// `DisableEventLogging` disables Cosmos events to be added to Ethereum logs.
 	DisableEventLogging()
+
+	// `GetSavedErr` returns the error saved in the statedb
 	GetSavedErr() error
 }

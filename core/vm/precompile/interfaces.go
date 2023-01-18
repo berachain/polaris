@@ -59,7 +59,8 @@ type (
 	}
 
 	// `StatefulContractImpl` is the interface for all stateful precompiled contracts, which
-	// must expose their functions and gas requirements for stateful execution.
+	// must expose their ABI methods, precompile methods, and gas requirements for stateful
+	// execution.
 	StatefulContractImpl interface {
 		HasCustomEvents
 

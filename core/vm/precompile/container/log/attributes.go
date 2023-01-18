@@ -74,6 +74,8 @@ var defaultCosmosValueDecoders = ValueDecoders{
 // Default Attribute Value Decoder Functions
 // ==============================================================================
 
+// Compile-time assertions to ensure that the default attribute value decoder functions are
+// valueDecoders.
 var (
 	_ valueDecoder = ConvertSdkCoin
 	_ valueDecoder = ConvertValAddressFromBech32
