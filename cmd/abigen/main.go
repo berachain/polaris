@@ -11,40 +11,34 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 package main
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/berachain/stargazer/types/abi"
+	"github.com/berachain/stargazer/cmd/abigen/generator"
 	"github.com/spf13/cobra"
 )
 
-const numRootArgs = 4
-
 func main() {
-	if err := newRootCmd().Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
 		os.Exit(1)
 	}
 }
 
-func newRootCmd() *cobra.Command {
-	rootCmd := &cobra.Command{
-		Use:   "TODO",
-		Args:  cobra.MatchAll(cobra.ExactArgs(numRootArgs), cobra.OnlyValidArgs),
-		Short: "Foundry contract generator",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			packageName := args[0]
-			inputFile := args[1]
-			outputPath := args[2]
-			varName := args[3]
-			return abi.NewGenerator(
-				packageName, inputFile, outputPath,
-			).Generate(varName)
-		},
-	}
-	return rootCmd
+const numRootArgs = 4
+
+var rootCmd = &cobra.Command{
+	Use:   "abigen <packageName> <inputFile>, <outputFile> <varName>",
+	Args:  cobra.MatchAll(cobra.ExactArgs(numRootArgs), cobra.OnlyValidArgs),
+	Short: "Foundry contract generator",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		packageName := args[0]
+		inputFile := args[1]
+		outputPath := args[2]
+		varName := args[3]
+		return generator.Run(packageName, inputFile, outputPath, varName)
+	},
 }
