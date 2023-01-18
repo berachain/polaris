@@ -14,4 +14,4 @@
 
 package solidity
 
-//go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/SolmateERC20.sol/SolmateERC20.json ./generated/SolmateERC20.abigen.go SolmateERC20Contract
+//go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/SolmateERC20.sol/SolmateERC20.json ./generated/solmate_erc20.abigen.go SolmateERC20Contract
