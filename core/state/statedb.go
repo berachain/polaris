@@ -38,6 +38,7 @@ var (
 )
 
 var _ StargazerStateDB = (*StateDB)(nil)
+var _ PrecompileStateDB = (*StateDB)(nil)
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
@@ -80,6 +81,9 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// Any error that occurs during an sdk module read or write is
 	// memoized here and is eventually be returned by `Commit`.
 	savedErr error
+
+	// flag that is true only during stateful precompile execution.
+	eventLoggingEnabled bool
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
@@ -132,6 +136,11 @@ func NewStateDB(
 		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
 
 	return sdb
+}
+
+// `GetContext` implements PrecompileStateDB
+func (sdb *StateDB) GetContext() sdk.Context {
+	return sdb.ctx
 }
 
 // ===========================================================================
@@ -488,6 +497,16 @@ func (sdb *StateDB) Logs() []*coretypes.Log {
 	return sdb.logs
 }
 
+// `EnableEventLogging` implements PrecompileStateDB
+func (sdb *StateDB) EnableEventLogging() {
+	sdb.eventLoggingEnabled = true
+}
+
+// `DisableEventLogging` implements PrecompileStateDB
+func (sdb *StateDB) DisableEventLogging() {
+	sdb.eventLoggingEnabled = false
+}
+
 // =============================================================================
 // ForEachStorage
 // =============================================================================
@@ -555,7 +574,11 @@ func (sdb *StateDB) Commit() error {
 	return nil
 }
 
-// `GetSavedErr` implements `StargazerStateDB`
+// =============================================================================
+// Saved Errors
+// =============================================================================
+
+// `GetSavedErr` implements `PrecompileStateDB`
 // Any errors that pop up during store operations should be checked here
 // called upon the conclusion.
 func (sdb *StateDB) GetSavedErr() error {

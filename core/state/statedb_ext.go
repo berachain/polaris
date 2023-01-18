@@ -15,7 +15,7 @@
 package state
 
 // Compile-time assertion to ensure `ExtStateDB` implements `PrecompileStateDB`.
-// var _ PrecompileStateDB = (*ExtStateDB)(nil)
+var _ PrecompileStateDB = (*ExtStateDB)(nil)
 
 type ExtStateDB struct {
 	// StateDB is the underlying state database.

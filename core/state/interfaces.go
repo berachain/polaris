@@ -39,7 +39,7 @@ type PrecompileStateDB interface {
 	GethStateDB
 
 	GetContext() sdk.Context
-	BeginStatefulExecution()
-	EndStatefulExecution()
+	EnableEventLogging()
+	DisableEventLogging()
 	GetSavedErr() error
 }
