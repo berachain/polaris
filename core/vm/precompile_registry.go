@@ -19,7 +19,6 @@ import (
 
 	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile"
-	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
 )
@@ -27,38 +26,35 @@ import (
 var statefulContractType = reflect.TypeOf(precompile.StatefulContractImpl(nil))
 var statelessContractType = reflect.TypeOf(precompile.StatelessContractImpl(nil))
 
-// `PrecompileRegistry` stores and provides stateless and stateful precompile containers to a
+// `PrecompileRegistry` stores and provides all stateless and stateful precompile containers to a
 // precompile host.
 type PrecompileRegistry struct {
 	// `precompiles` is a map of Ethereum addresses to precompiled contract containers. Only
 	// supporting stateless and stateful precompiles for now.
 	precompiles map[common.Address]types.PrecompileContainer
 
-	// `logFactory` is the Ethereum log builder for all Cosmos events emitted during precompile
+	// `logRegistry` is the Ethereum log builder for all Cosmos events emitted during precompile
 	// execution.
-	logFactory *container.LogFactory
+	logRegistry *precompile.LogRegistry
 }
 
 // `NewPrecompileRegistry` creates and returns a new `PrecompileRegistry`.
 func NewPrecompileRegistry() *PrecompileRegistry {
 	return &PrecompileRegistry{
 		precompiles: make(map[common.Address]types.PrecompileContainer),
-		logFactory:  container.NewLogFactory(),
+		logRegistry: precompile.NewLogRegistry(),
 	}
 }
 
 // `Register` builds a precompile container using a container factory and stores the container
 // at the given address. This function returns an error if the given contract is not a properly
 // defined precompile or the container factory cannot build the container.
-func (pr *PrecompileRegistry) Register(
-	addr common.Address,
-	contract precompile.BaseContractImpl,
-) error {
+func (pr *PrecompileRegistry) Register(contract precompile.BaseContractImpl) error {
 	var cf precompile.AbstractContainerFactory
 	contractType := reflect.ValueOf(contract).Type()
 	//nolint:gocritic // cannot be converted to switch-case.
 	if contractType.Implements(statefulContractType) {
-		cf = precompile.NewStatefulContainerFactory()
+		cf = precompile.NewStatefulContainerFactory(pr.logRegistry)
 	} else if contractType.Implements(statelessContractType) {
 		cf = precompile.NewStatelessContainerFactory()
 	} else {
@@ -69,7 +65,7 @@ func (pr *PrecompileRegistry) Register(
 	if err != nil {
 		return err
 	}
-	pr.precompiles[addr] = pc
+	pr.precompiles[contract.Address()] = pc
 
 	return nil
 }

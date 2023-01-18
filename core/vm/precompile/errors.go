@@ -21,6 +21,14 @@ var (
 	// corresponding ABI method.
 	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
 
+	// `ErrEthEventAlreadyRegistered` is returned when an already registered Ethereum event is
+	// being registered again.
+	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
+
+	// `ErrEthEventNotRegistered` is returned when an incoming Cosmos event is not mapped to any
+	// registered Ethereum event.
+	ErrEthEventNotRegistered = errors.New("this Ethereum event was not registered for Cosmos event")
+
 	// `ErrWrongContainerFactory` is returned when the wrong precompile container factory is used
 	// to build a precompile contract.
 	ErrWrongContainerFactory = errors.New("this container factory does not support the given precompile contract")

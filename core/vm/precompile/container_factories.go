@@ -18,6 +18,7 @@ import (
 	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/types/abi"
 )
@@ -32,7 +33,7 @@ const (
 // `AbstractContainerFactory`.
 var (
 	_ AbstractContainerFactory = (*StatelessContainerFactory)(nil)
-	_ AbstractContainerFactory = (*StatelessContainerFactory)(nil)
+	_ AbstractContainerFactory = (*StatefulContainerFactory)(nil)
 	_ AbstractContainerFactory = (*DynamicContainerFactory)(nil)
 )
 
@@ -63,18 +64,22 @@ func (scf *StatelessContainerFactory) Build(
 }
 
 // ===========================================================================
-// Stateful Container Factory
+// stateful container Factory
 // ===========================================================================
 
 // `StatefulContainerFactory` is used to build stateful precompile containers.
-type StatefulContainerFactory struct{}
-
-// `NewStatefulContainerFactory` creates and returns a new `StatefulContainerFactory`.
-func NewStatefulContainerFactory() *StatefulContainerFactory {
-	return &StatefulContainerFactory{}
+type StatefulContainerFactory struct {
+	lr *LogRegistry
 }
 
-// `Build` returns a stateful precompile container for the given base contract implememntation.
+// `NewStatefulContainerFactory` creates and returns a new `StatefulContainerFactory`.
+func NewStatefulContainerFactory(lr *LogRegistry) *StatefulContainerFactory {
+	return &StatefulContainerFactory{
+		lr: lr,
+	}
+}
+
+// `Build` returns a stateful precompile container for the given base contract implementation.
 // This function will return an error if the given contract is not a stateful implementation.
 //
 // `Build` implements `AbstractContainerFactory`.
@@ -87,9 +92,9 @@ func (scf *StatefulContainerFactory) Build(
 	}
 
 	var err error
-	var idsToMethods map[string]*types.PrecompileMethod
 
-	// add precompile methods to Stateful Container, if any
+	// add precompile methods to stateful container, if any exist
+	var idsToMethods map[string]*types.Method
 	if precompileMethods := sci.PrecompileMethods(); precompileMethods != nil {
 		idsToMethods, err = scf.buildIdsToMethods(precompileMethods, sci.ABIMethods())
 		if err != nil {
@@ -97,16 +102,34 @@ func (scf *StatefulContainerFactory) Build(
 		}
 	}
 
+	// add precompile events to stateful container, if any exist
+	if precompileEvents := sci.ABIEvents(); precompileEvents != nil {
+		customValueDecoders := sci.CustomValueDecoders()
+		for _, abiEvent := range precompileEvents {
+			// add value decoders for custom events, if any exist
+			var customEventValueDecoders log.ValueDecoders
+			if customValueDecoders != nil {
+				customEventValueDecoders = customValueDecoders[EventType(abiEvent.Name)]
+			}
+			err = scf.lr.RegisterEvent(sci.Address(), abiEvent, customEventValueDecoders)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	// TODO: add precompile errors to stateful container, if any exist
+
 	return container.NewStatefulContainer(idsToMethods), nil
 }
 
 // `buildIdsToMethods` builds the stateful precompile container for the given `precompileMethods`
 // and `abiMethods`. This function will return an error if every method in `abiMethods` does not
-// have a valid, corresponding `types.PrecompileMethod`.
+// have a valid, corresponding `types.Method`.
 func (scf *StatefulContainerFactory) buildIdsToMethods(
 	precompileMethods types.PrecompileMethods,
 	abiMethods map[string]abi.Method,
-) (map[string]*types.PrecompileMethod, error) {
+) (map[string]*types.Method, error) {
 	// validate precompile methods
 	for _, pm := range precompileMethods {
 		if err := pm.ValidateBasic(); err != nil {
@@ -115,12 +138,12 @@ func (scf *StatefulContainerFactory) buildIdsToMethods(
 	}
 
 	// match every ABI method to corresponding precompile method
-	idsToMethods := make(map[string]*types.PrecompileMethod)
+	idsToMethods := make(map[string]*types.Method)
 	for name := range abiMethods {
 		abiMethod := abiMethods[name]
 
 		// find the corresponding precompile method for abiMethod based on signature
-		var precompileMethod *types.PrecompileMethod
+		var precompileMethod *types.Method
 		i := 0
 		for ; i < len(precompileMethods); i++ {
 			if precompileMethods[i].AbiSig == abiMethod.Sig {
@@ -144,11 +167,16 @@ func (scf *StatefulContainerFactory) buildIdsToMethods(
 // ===========================================================================
 
 // `DynamicContainerFactory` is used to build dynamic precompile containers.
-type DynamicContainerFactory struct{}
+type DynamicContainerFactory struct {
+	*StatefulContainerFactory
+}
 
-// `NewDynamicContainerFactory` creates and returns a new `DynamicContainerFactory`.
-func NewDynamicContainerFactory() *DynamicContainerFactory {
-	return &DynamicContainerFactory{}
+// `NewDynamicContainerFactory` creates and returns a new `DynamicContainerFactory` for the given
+// log registry `lr`.
+func NewDynamicContainerFactory(lr *LogRegistry) *DynamicContainerFactory {
+	return &DynamicContainerFactory{
+		StatefulContainerFactory: NewStatefulContainerFactory(lr),
+	}
 }
 
 // `Build` returns a dynamic precompile container for the given base contract implememntation.
@@ -163,5 +191,5 @@ func (dcf *DynamicContainerFactory) Build(
 		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerFactoryName)
 	}
 
-	return NewStatefulContainerFactory().Build(dci)
+	return dcf.StatefulContainerFactory.Build(dci)
 }

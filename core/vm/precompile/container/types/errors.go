@@ -17,26 +17,18 @@ package types
 import "errors"
 
 var (
-	// `ErrIncompleteFnAndGas` is returned when a `FnAndGas` has missing, or nil, fields.
-	ErrIncompleteFnAndGas = errors.New("incomplete FnAndGas passed in for precompile")
+	// `ErrIncompleteMethod` is returned when a `FnAndGas` has missing, or nil, required fields.
+	ErrIncompleteMethod = errors.New("incomplete precompile Method")
 
 	// `ErrAbiSigInvalid` is returned when a user-provided ABI signature (`FnAndGas.AbiSig`) does
 	// not match the Go-Ethereum style function signatures. Please check
 	// core/vm/precompile/container/types.go for more information.
 	ErrAbiSigInvalid = errors.New("user-provided ABI signature invalid: ")
 
-	// `ErrEthEventNotRegistered` is returned when an incoming Cosmos event is not mapped to any
-	// registered Ethereum event.
-	ErrEthEventNotRegistered = errors.New("this Ethereum event was not registered for Cosmos event")
+	// `ErrMethodNotFound` is returned when the Precompile method is not found.
+	ErrMethodNotFound = errors.New("precompile method not found in contract ABI")
 
-	// `ErrEthEventAlreadyRegistered` is returned when an already registered Ethereum event is
-	// being registered again.
-	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
-
-	// `ErrPrecompileMethodNotFound` is returned when the Precompile method is not found.
-	ErrPrecompileMethodNotFound = errors.New("precompile method not found in contract ABI")
-
-	// `ErrPrecompileHasNoMethods` is returned when a stateful container function is invoked but no
+	// `ErrContainerHasNoMethods` is returned when a stateful container function is invoked but no
 	// precompile methods were registered.
-	ErrPrecompileHasNoMethods = errors.New("the stateful precompile has no methods to run")
+	ErrContainerHasNoMethods = errors.New("the stateful precompile has no methods to run")
 )

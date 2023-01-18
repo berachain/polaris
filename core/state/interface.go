@@ -42,10 +42,4 @@ type PrecompileStateDB interface {
 
 	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
 	GetContext() sdk.Context
-
-	// `EnableEventLogging` enables Cosmos events to be added to Ethereum logs.
-	EnableEventLogging()
-
-	// `DisableEventLogging` disables Cosmos events to be added to Ethereum logs.
-	DisableEventLogging()
 }

@@ -29,7 +29,7 @@ import (
 var _ = Describe("Container Types", func() {
 	Context("Basic - ValidateBasic Tests", func() {
 		It("should error on missing Abi function signature", func() {
-			pfgMissingSig := &types.PrecompileMethod{
+			pfgMissingSig := &types.Method{
 				Execute:     mockPrecompileFn,
 				RequiredGas: 10,
 			}
@@ -38,7 +38,7 @@ var _ = Describe("Container Types", func() {
 		})
 
 		It("should error on missing (or 0) RequireGas", func() {
-			pfgMissingGas := &types.PrecompileMethod{
+			pfgMissingGas := &types.Method{
 				AbiSig:  "contractFunc(address)",
 				Execute: mockPrecompileFn,
 			}
@@ -47,7 +47,7 @@ var _ = Describe("Container Types", func() {
 		})
 
 		It("should error on missing precompile function", func() {
-			pfgMissingFunc := &types.PrecompileMethod{
+			pfgMissingFunc := &types.Method{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
 			}
@@ -56,7 +56,7 @@ var _ = Describe("Container Types", func() {
 		})
 
 		It("should error on given abi method", func() {
-			pfgMissingFunc := &types.PrecompileMethod{
+			pfgMissingFunc := &types.Method{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
 				Execute:     mockPrecompileFn,
@@ -68,7 +68,7 @@ var _ = Describe("Container Types", func() {
 	})
 
 	Context("Abi Signature verification - ValidateBasic tests", func() {
-		var pfg = &types.PrecompileMethod{
+		var pfg = &types.Method{
 			Execute:     mockPrecompileFn,
 			RequiredGas: 10,
 		}

@@ -83,9 +83,6 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// memoized here and is eventually be returned by `Commit`.
 	savedErr error
 
-	// flag that is true when Cosmos events should be emitted as Ethereum logs.
-	eventLoggingEnabled bool
-
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
 	evmDenom string // todo: get from params ( we have a store so like why not )
@@ -496,16 +493,6 @@ func (sdb *StateDB) AddLog(log *coretypes.Log) {
 // Logs returns the logs of current transaction.
 func (sdb *StateDB) Logs() []*coretypes.Log {
 	return sdb.logs
-}
-
-// `EnableEventLogging` implements PrecompileStateDB.
-func (sdb *StateDB) EnableEventLogging() {
-	sdb.eventLoggingEnabled = true
-}
-
-// `DisableEventLogging` implements PrecompileStateDB.
-func (sdb *StateDB) DisableEventLogging() {
-	sdb.eventLoggingEnabled = false
 }
 
 // =============================================================================

@@ -36,12 +36,12 @@ type StatefulContainer struct {
 	// precompile functions. The signature key is provided by the precompile creator and must
 	// exactly match the signature in the geth abi.Method.Sig field (geth abi format). Please check
 	// core/vm/precompile/container/types.go for more information.
-	idsToMethods map[string]*types.PrecompileMethod
+	idsToMethods map[string]*types.Method
 }
 
 // `NewStatefulContainer` creates and returns a new `StatefulContainer` with the given method ids
 // precompile functions map.
-func NewStatefulContainer(idsToMethods map[string]*types.PrecompileMethod) *StatefulContainer {
+func NewStatefulContainer(idsToMethods map[string]*types.Method) *StatefulContainer {
 	return &StatefulContainer{
 		idsToMethods: idsToMethods,
 	}
@@ -57,16 +57,14 @@ func (sc *StatefulContainer) Run(
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
-	// TODO: this will change to take in `suppliedGas` and return `remainingGas`.
-
 	if sc.idsToMethods == nil {
-		return nil, types.ErrPrecompileHasNoMethods
+		return nil, types.ErrContainerHasNoMethods
 	}
 
 	// extract the method ID from the input and load the method.
 	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !ok {
-		return nil, types.ErrPrecompileMethodNotFound
+		return nil, types.ErrMethodNotFound
 	}
 
 	// unpack the args from the input
@@ -92,7 +90,7 @@ func (sc *StatefulContainer) Run(
 	return method.AbiMethod.Outputs.PackValues(vals)
 }
 
-// `RequiredGas` checks the PrecompileMethod corresponding to input for the required gas amount.
+// `RequiredGas` checks the Method corresponding to input for the required gas amount.
 //
 // `RequiredGas` implements PrecompileContainer.
 func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {

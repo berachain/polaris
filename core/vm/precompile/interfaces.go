@@ -18,21 +18,27 @@ import (
 	"math/big"
 
 	"github.com/berachain/stargazer/core/state"
-	"github.com/berachain/stargazer/core/vm/precompile/container"
-	"github.com/berachain/stargazer/core/vm/precompile/container/log"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
 
 type (
 	// `BaseContractImpl` is a type for the base precompiled contract implementation.
-	BaseContractImpl interface{}
+	BaseContractImpl interface {
+		// `Address` should return the address where this contract and its events will be
+		// registered.
+		Address() common.Address
+	}
 
 	// `StatelessContractImpl` is the basic interface for native Go contracts. The implementation
 	// requires a deterministic gas count, `RequiredGas` based on the input size of the `Run`
 	// method of the contract.
-	StatelessContractImpl = types.PrecompileContainer
+	StatelessContractImpl interface {
+		BaseContractImpl
+		types.PrecompileContainer
+	}
 
 	// TODO: `HasErrors`
 
@@ -55,13 +61,14 @@ type (
 		// `CustomValueDecoders` should return a map of Cosmos event types to attribute
 		// key-to-value decoder functions map for each of the supported events in the custom Cosmos
 		// module.
-		CustomValueDecoders() map[container.EventType]log.ValueDecoders
+		CustomValueDecoders() map[EventType]log.ValueDecoders
 	}
 
 	// `StatefulContractImpl` is the interface for all stateful precompiled contracts, which
 	// must expose their ABI methods, precompile methods, and gas requirements for stateful
 	// execution.
 	StatefulContractImpl interface {
+		BaseContractImpl
 		HasCustomEvents
 
 		// `ABIMethods` should return a map of Ethereum method names to Go-Ethereum abi `Method`
