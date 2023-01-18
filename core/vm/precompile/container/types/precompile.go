@@ -27,6 +27,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// TODO: Explain the relation of `Method`, `abi.Method`, `PrecompileMethod` and how an implementing
+// precompile uses all of them.
+
 // `Method` is a type of function that a stateful precompiled contract should implement.
 type Method func(
 	ctx sdk.Context,

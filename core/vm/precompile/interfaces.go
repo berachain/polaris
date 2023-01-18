@@ -29,6 +29,11 @@ type (
 	// `BaseContractImpl` is a type for the base precompiled contract implementation.
 	BaseContractImpl interface{}
 
+	// `StatelessContractImpl` is the basic interface for native Go contracts. The implementation
+	// requires a deterministic gas count, `RequiredGas` based on the input size of the `Run`
+	// method of the contract.
+	StatelessContractImpl = types.PrecompileContainer
+
 	// TODO: `HasErrors`
 
 	// `HasEvents` is an interface that enforces the required function for a stateful precompile
@@ -82,14 +87,14 @@ type AbstractContainerFactory interface {
 	Build(bci BaseContractImpl) (types.PrecompileContainer, error)
 }
 
-// `Executor` is invoked by the EVM to determine if a particular address is one of a
-// precompiled contract and allows the EVM to execute a precompiled contract function.
-type Executor interface {
+// `Host` is invoked by the EVM to determine if a particular address is one of a precompiled
+// contract and allows the EVM to execute a precompiled contract function.
+type Host interface {
 	// `Exists` returns if a precompiled contract was found at `addr`.
-	Exists(addr common.Address) bool
+	Exists(addr common.Address) (types.PrecompileContainer, bool)
 
-	// `Run` runs a precompiled contract and returns the leftover gas.
-	Run(sdb state.GethStateDB, input []byte, caller common.Address,
+	// `Run` runs a precompiled contract container and returns the leftover gas.
+	Run(pc types.PrecompileContainer, sdb state.GethStateDB, input []byte, caller common.Address,
 		value *big.Int, suppliedGas uint64, readonly bool,
 	) (ret []byte, leftOverGas uint64, err error)
 }

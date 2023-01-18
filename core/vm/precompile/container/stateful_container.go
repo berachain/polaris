@@ -15,12 +15,12 @@
 package container
 
 import (
-	"math"
+	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
@@ -50,7 +50,7 @@ func NewStatefulContainer(idsToMethods map[common.Hash]*types.PrecompileMethod) 
 //
 // `Run` implements `PrecompileContainer`.
 func (sc *StatefulContainer) Run(
-	sdb state.GethStateDB,
+	ctx context.Context,
 	input []byte,
 	caller common.Address,
 	value *big.Int,
@@ -58,12 +58,6 @@ func (sc *StatefulContainer) Run(
 ) ([]byte, error) {
 	if sc.idsToMethods == nil {
 		return nil, types.ErrPrecompileHasNoMethods
-	}
-
-	// TODO: pass in the ctx directly instead of sdb
-	psdb, ok := sdb.(state.PrecompileStateDB)
-	if !ok {
-		return nil, types.ErrStateDBNotSupported
 	}
 
 	// extract the method ID from the input and load the function
@@ -79,15 +73,13 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// Call the function registered with the given signature
-	psdb.EnableEventLogging()
 	vals, err := method.Execute(
-		psdb.GetContext(),
+		sdk.UnwrapSDKContext(ctx),
 		caller,
 		value,
 		readonly,
 		unpackedArgs...,
 	)
-	psdb.DisableEventLogging()
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
@@ -95,13 +87,7 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// If the return values cannot be packed to the correct format, return error.
-	ret, err := method.AbiMethod.Outputs.PackValues(vals)
-	if err != nil {
-		return nil, err
-	}
-
-	// If the statedb return an error, the error is returned to the caller.
-	return ret, psdb.GetSavedErr()
+	return method.AbiMethod.Outputs.PackValues(vals)
 }
 
 // `RequiredGas` checks the PrecompileMethod corresponding to input for the required gas amount.
@@ -109,14 +95,12 @@ func (sc *StatefulContainer) Run(
 // `RequiredGas` implements PrecompileContainer.
 func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
 	if sc.idsToMethods == nil {
-		// return max uint64 so call to precompile function fails
-		return math.MaxUint64
+		return 0
 	}
 
 	method, ok := sc.idsToMethods[common.BytesToHash(input[:NumBytesMethodID])]
 	if !ok {
-		// return max uint64 so call to precompile function fails
-		return math.MaxUint64
+		return 0
 	}
 
 	return method.RequiredGas

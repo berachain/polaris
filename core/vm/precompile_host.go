@@ -12,26 +12,37 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package vm
 
 import (
 	"math/big"
 
 	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
 )
 
-var _ Executor = (*HostExecutor)(nil)
+var _ precompile.Host = (*PrecompileHost)(nil)
 
-type HostExecutor struct{}
-
-// `Exists` implements `PrecompileExecutor`.
-func (he *HostExecutor) Exists(addr common.Address) bool {
-	return false
+type PrecompileHost struct {
+	pr *PrecompileRegistry
 }
 
-// `Run` implements `PrecompileExecutor`.
-func (he *HostExecutor) Run(
+func NewPrecompileHost(pr *PrecompileRegistry) *PrecompileHost {
+	return &PrecompileHost{
+		pr: pr,
+	}
+}
+
+// `Exists` implements `precompile.Host`.
+func (ph *PrecompileHost) Exists(addr common.Address) (types.PrecompileContainer, bool) {
+	return ph.pr.Get(addr)
+}
+
+// `Run` implements `precompile.Host`.
+func (ph *PrecompileHost) Run(
+	pc types.PrecompileContainer,
 	sdb state.GethStateDB,
 	input []byte,
 	caller common.Address,
@@ -39,5 +50,25 @@ func (he *HostExecutor) Run(
 	suppliedGas uint64,
 	readonly bool,
 ) ([]byte, uint64, error) {
-	return nil, 0, nil
+	psdb, ok := sdb.(state.PrecompileStateDB)
+	if !ok {
+		return nil, 0, ErrStateDBNotSupported
+	}
+
+	// TODO: dynamic gas consumption here.
+	gasCost := pc.RequiredGas(input)
+	if suppliedGas < gasCost {
+		return nil, 0, ErrOutOfGas
+	}
+	suppliedGas -= gasCost
+
+	psdb.EnableEventLogging()
+	ret, err := pc.Run(psdb.GetContext(), input, caller, value, readonly)
+	psdb.DisableEventLogging()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// If the statedb return an error, the error is returned to the caller.
+	return ret, suppliedGas, psdb.GetSavedErr()
 }

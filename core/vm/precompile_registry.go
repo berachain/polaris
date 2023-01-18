@@ -13,3 +13,62 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package vm
+
+import (
+	"reflect"
+
+	"cosmossdk.io/errors"
+	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/lib/common"
+)
+
+var statefulContractType = reflect.TypeOf(precompile.StatefulContractImpl(nil))
+var statelessContractType = reflect.TypeOf(precompile.StatelessContractImpl(nil))
+
+type PrecompileRegistry struct {
+	// `precompiles` is a map of Ethereum addresses to precompiled contract containers. Only
+	// supporting stateless and stateful precompiles for now.
+	precompiles map[common.Address]types.PrecompileContainer
+
+	// `logFactory` is the Ethereum log builder for all Cosmos events emitted during precompile
+	// execution.
+	logFactory *container.LogFactory
+}
+
+// `NewPrecompileRegistry` creates and returns a new `PrecompileRegistry`.
+func NewPrecompileRegistry() *PrecompileRegistry {
+	return &PrecompileRegistry{
+		precompiles: make(map[common.Address]types.PrecompileContainer),
+		logFactory:  container.NewLogFactory(),
+	}
+}
+
+func (pr *PrecompileRegistry) Register(
+	addr common.Address,
+	contract precompile.BaseContractImpl,
+) error {
+	var cf precompile.AbstractContainerFactory
+	contractType := reflect.ValueOf(contract).Type()
+	if contractType.Implements(statefulContractType) {
+		cf = precompile.NewStatefulContainerFactory()
+	} else if contractType.Implements(statelessContractType) {
+		cf = precompile.NewStatelessContainerFactory()
+	} else {
+		return errors.Wrap(ErrIncorrectPrecompileType, contractType.Name())
+	}
+
+	pc, err := cf.Build(contract)
+	if err != nil {
+		return err
+	}
+	pr.precompiles[addr] = pc
+
+	return nil
+}
+
+func (pr *PrecompileRegistry) Get(addr common.Address) (types.PrecompileContainer, bool) {
+	pc, found := pr.precompiles[addr]
+	return pc, found
+}

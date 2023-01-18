@@ -33,10 +33,6 @@ var (
 	// being registered again.
 	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
 
-	// `ErrStateDBNotSupported` is returned when the state DB is not compatible for running
-	// stateful precompiles.
-	ErrStateDBNotSupported = errors.New("given StateDB is not compatible for running stateful precompiles")
-
 	// `ErrPrecompileMethodNotFound` is returned when the Precompile method is not found.
 	ErrPrecompileMethodNotFound = errors.New("precompile method not found in contract ABI")
 

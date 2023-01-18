@@ -18,7 +18,5 @@ import (
 	gevm "github.com/ethereum/go-ethereum/core/vm"
 )
 
-// `PrecompileContainer` is the basic interface for native Go contracts. The implementation
-// requires a deterministic gas count based on the input size of the `Run` method of the
-// contract.
+// `PrecompileContainer` defines the required functions for a precompile execution container.
 type PrecompileContainer = gevm.PrecompiledContract

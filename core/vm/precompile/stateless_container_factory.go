@@ -27,7 +27,7 @@ func NewStatelessContainerFactory() *StatelessContainerFactory {
 func (scf *StatelessContainerFactory) Build(
 	bci BaseContractImpl,
 ) (types.PrecompileContainer, error) {
-	pc, ok := bci.(types.PrecompileContainer)
+	pc, ok := bci.(StatelessContractImpl)
 	if !ok {
 		return nil, ErrNotStatelessPrecompile
 	}
