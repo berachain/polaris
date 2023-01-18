@@ -30,4 +30,6 @@ var (
 	HexToAddress   = common.HexToAddress
 	Hex2Bytes      = common.Hex2Bytes
 	HexToHash      = common.HexToHash
+	AddressLength  = common.AddressLength
+	HashLength     = common.HashLength
 )

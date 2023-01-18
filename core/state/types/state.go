@@ -19,8 +19,8 @@ import (
 	"strings"
 
 	"cosmossdk.io/errors"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/gointerfaces"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // Compile-time interface assertions.

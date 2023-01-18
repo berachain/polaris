@@ -35,7 +35,6 @@ var (
 	outdir = "./bin"
 
 	// Tools.
-	abigen  = "github.com/ethereum/go-ethereum/cmd/abigen"
 	gitDiff = sh.RunCmd("git", "diff", "--stat", "--exit-code", ".",
 		"':(exclude)*.mod' ':(exclude)*.sum'")
 
@@ -111,13 +110,6 @@ func Install() error {
 
 // Runs `go generate` on the entire project.
 func Generate() error {
-	// if err := goInstall(moq); err != nil {
-	// 	return err
-	// }
-
-	if err := goInstall(abigen); err != nil {
-		return err
-	}
 	return goGenerate("-x", "./...")
 }
 
