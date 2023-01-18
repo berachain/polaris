@@ -15,9 +15,13 @@
 package precompile
 
 import (
+	"math/big"
+
+	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/log"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -76,4 +80,16 @@ type (
 
 type AbstractContainerFactory interface {
 	Build(bci BaseContractImpl) (types.PrecompileContainer, error)
+}
+
+// `HostExecutor` is invoked by the EVM to determine if a particular address is one of a
+// precompiled contract and allows the EVM to execute a precompiled contract function.
+type HostExecutor interface {
+	// `Exists` returns a precompiled contract if it was found at `addr`.
+	Exists(addr common.Address) (types.PrecompileContainer, bool)
+
+	// `Run` runs a precompiled contract and returns the leftover gas.
+	Run(sdb state.GethStateDB, input []byte, caller common.Address,
+		value *big.Int, suppliedGas uint64, readonly bool,
+	) (ret []byte, leftOverGas uint64, err error)
 }
