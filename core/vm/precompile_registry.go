@@ -51,6 +51,7 @@ func (pr *PrecompileRegistry) Register(
 ) error {
 	var cf precompile.AbstractContainerFactory
 	contractType := reflect.ValueOf(contract).Type()
+	//nolint:gocritic // cannot be converted to switch-case.
 	if contractType.Implements(statefulContractType) {
 		cf = precompile.NewStatefulContainerFactory()
 	} else if contractType.Implements(statelessContractType) {
