@@ -13,3 +13,31 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package precompile
+
+import (
+	"math/big"
+
+	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/lib/common"
+)
+
+var _ PrecompileExecutor = (*HostExecutor)(nil)
+
+type HostExecutor struct{}
+
+// `Exists` implements `PrecompileExecutor`
+func (he *HostExecutor) Exists(addr common.Address) bool {
+	return false
+}
+
+// `Run` implements `PrecompileExecutor`
+func (he *HostExecutor) Run(
+	sdb state.GethStateDB,
+	input []byte,
+	caller common.Address,
+	value *big.Int,
+	suppliedGas uint64,
+	readonly bool,
+) (ret []byte, leftOverGas uint64, err error) {
+	return nil, 0, nil
+}

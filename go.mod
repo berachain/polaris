@@ -6,7 +6,7 @@ go 1.19
 replace github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.47.0-alpha2.0.20221228180048-31eec31bde07
 
 // Required for supporting stateful precompiled contracts.
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230116233040-37748e5db687
+replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230118165721-cdf5821f6fa5
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7

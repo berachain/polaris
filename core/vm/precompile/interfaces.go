@@ -82,11 +82,11 @@ type AbstractContainerFactory interface {
 	Build(bci BaseContractImpl) (types.PrecompileContainer, error)
 }
 
-// `HostExecutor` is invoked by the EVM to determine if a particular address is one of a
+// `PrecompileExecutor` is invoked by the EVM to determine if a particular address is one of a
 // precompiled contract and allows the EVM to execute a precompiled contract function.
-type HostExecutor interface {
-	// `Exists` returns a precompiled contract if it was found at `addr`.
-	Exists(addr common.Address) (types.PrecompileContainer, bool)
+type PrecompileExecutor interface {
+	// `Exists` returns if a precompiled contract was found at `addr`.
+	Exists(addr common.Address) bool
 
 	// `Run` runs a precompiled contract and returns the leftover gas.
 	Run(sdb state.GethStateDB, input []byte, caller common.Address,
