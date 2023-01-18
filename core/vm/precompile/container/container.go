@@ -80,7 +80,7 @@ func (sc *StatefulContainer) Run(
 
 	// Call the function registered with the given signature
 	psdb.EnableEventLogging()
-	vals, err := method.Func(
+	vals, err := method.Execute(
 		psdb.GetContext(),
 		caller,
 		value,

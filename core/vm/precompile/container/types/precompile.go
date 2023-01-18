@@ -27,8 +27,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// `PrecompileFn` is a type of function that a stateful precompiled contract should implement.
-type PrecompileFn func(
+// `Method` is a type of function that a stateful precompiled contract should implement.
+type Method func(
 	ctx sdk.Context,
 	caller common.Address,
 	value *big.Int,
@@ -36,8 +36,8 @@ type PrecompileFn func(
 	args ...any,
 ) (ret []any, err error)
 
-// `getFuncName` uses `reflect` and `runtime` to get the function's name.
-func (pfn PrecompileFn) getFuncName() string {
+// `getFuncName` uses `reflect` and `runtime` to get the Go function's name.
+func (pfn Method) getFuncName() string {
 	fullName := runtime.FuncForPC(reflect.ValueOf(pfn).Pointer()).Name()
 	if brokenUpName := strings.Split(fullName, "."); len(brokenUpName) > 1 {
 		return brokenUpName[1]
@@ -59,10 +59,10 @@ type PrecompileMethod struct {
 	// corresponding interface's ABI.
 	AbiMethod *abi.Method
 
-	// `Func` is the function which will execute the logic of the precompile function.
-	Func PrecompileFn
+	// `Execute` is the function which will execute the logic of the precompile function.
+	Execute Method
 
-	// `RequiredGas` is the amount of gas (as a `uint64`) used up by the execution of `Func`.
+	// `RequiredGas` is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
 	RequiredGas uint64
 }
 
@@ -74,7 +74,7 @@ var (
 // `ValidateBasic` returns an error if this a precompile `PrecompileMethod` has invalid fields.
 func (pm *PrecompileMethod) ValidateBasic() error {
 	// ensure all fields are nonempty
-	if len(pm.AbiSig) == 0 || pm.AbiMethod != nil || pm.Func == nil || pm.RequiredGas == 0 {
+	if len(pm.AbiSig) == 0 || pm.AbiMethod != nil || pm.Execute == nil || pm.RequiredGas == 0 {
 		return ErrIncompleteFnAndGas
 	}
 
@@ -85,7 +85,7 @@ func (pm *PrecompileMethod) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"function %s does not contain exactly 1 '('",
-			pm.Func.getFuncName(),
+			pm.Execute.getFuncName(),
 		)
 	}
 	// check that the function name is valid according to Solidity
@@ -93,7 +93,7 @@ func (pm *PrecompileMethod) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"function %s does not have a valid function name",
-			pm.Func.getFuncName(),
+			pm.Execute.getFuncName(),
 		)
 	}
 	// check that only 1 `)` exists and its the last character
@@ -102,7 +102,7 @@ func (pm *PrecompileMethod) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"function %s does not does not end with 1 ')'",
-			pm.Func.getFuncName(),
+			pm.Execute.getFuncName(),
 		)
 	}
 	// if no args are provided, sig is valid
@@ -116,7 +116,7 @@ func (pm *PrecompileMethod) ValidateBasic() error {
 			return errors.Wrapf(
 				ErrAbiSigInvalid,
 				"function %s has incorrect argument types",
-				pm.Func.getFuncName(),
+				pm.Execute.getFuncName(),
 			)
 		}
 	}

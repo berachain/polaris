@@ -18,7 +18,7 @@ import (
 	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
-	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -41,7 +41,7 @@ func (scf *StatefulContainerFactory) Build(
 	}
 
 	var err error
-	var idsToMethods map[string]*types.PrecompileMethod
+	var idsToMethods map[common.Hash]*types.PrecompileMethod
 
 	// add precompile methods to Stateful Container, if any
 	precompileMethods := sci.PrecompileMethods()
@@ -65,9 +65,9 @@ func (scf *StatefulContainerFactory) Build(
 func (scf *StatefulContainerFactory) buildIdsToMethods(
 	precompileMethods types.PrecompileMethods,
 	abiMethods map[string]abi.Method,
-) (map[string]*types.PrecompileMethod, error) {
+) (map[common.Hash]*types.PrecompileMethod, error) {
 	// match every ABI method to corresponding precompile method
-	idsToMethods := make(map[string]*types.PrecompileMethod)
+	idsToMethods := make(map[common.Hash]*types.PrecompileMethod)
 	for name := range abiMethods {
 		abiMethod := abiMethods[name]
 
@@ -86,7 +86,7 @@ func (scf *StatefulContainerFactory) buildIdsToMethods(
 
 		// attach the ABI method to the precompile method for stateful container to handle
 		precompileMethod.AbiMethod = &abiMethod
-		idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = precompileMethod
+		idsToMethods[common.BytesToHash(abiMethod.ID)] = precompileMethod
 	}
 	return idsToMethods, nil
 }

@@ -138,7 +138,7 @@ func NewStateDB(
 	return sdb
 }
 
-// `GetContext` implements PrecompileStateDB
+// `GetContext` implements PrecompileStateDB.
 func (sdb *StateDB) GetContext() sdk.Context {
 	return sdb.ctx
 }
@@ -497,12 +497,12 @@ func (sdb *StateDB) Logs() []*coretypes.Log {
 	return sdb.logs
 }
 
-// `EnableEventLogging` implements PrecompileStateDB
+// `EnableEventLogging` implements PrecompileStateDB.
 func (sdb *StateDB) EnableEventLogging() {
 	sdb.eventLoggingEnabled = true
 }
 
-// `DisableEventLogging` implements PrecompileStateDB
+// `DisableEventLogging` implements PrecompileStateDB.
 func (sdb *StateDB) DisableEventLogging() {
 	sdb.eventLoggingEnabled = false
 }
