@@ -21,16 +21,16 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-var _ PrecompileExecutor = (*HostExecutor)(nil)
+var _ Executor = (*HostExecutor)(nil)
 
 type HostExecutor struct{}
 
-// `Exists` implements `PrecompileExecutor`
+// `Exists` implements `PrecompileExecutor`.
 func (he *HostExecutor) Exists(addr common.Address) bool {
 	return false
 }
 
-// `Run` implements `PrecompileExecutor`
+// `Run` implements `PrecompileExecutor`.
 func (he *HostExecutor) Run(
 	sdb state.GethStateDB,
 	input []byte,
@@ -38,6 +38,6 @@ func (he *HostExecutor) Run(
 	value *big.Int,
 	suppliedGas uint64,
 	readonly bool,
-) (ret []byte, leftOverGas uint64, err error) {
+) ([]byte, uint64, error) {
 	return nil, 0, nil
 }
