@@ -26,19 +26,17 @@ import (
 // support additional state transition functionalities that are useful in a Cosmos SDK context.
 type StargazerStateDB interface {
 	GethStateDB
+	PrecompileStateDB
 
 	// TransferBalance transfers the balance from one account to another
 	TransferBalance(common.Address, common.Address, *big.Int)
-
-	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
-	GetContext() sdk.Context
 }
 
 // `PrecompileStateDB` defines an extension to the interface provided by go-ethereum to
 // support additional state transition functionalities that are useful in a Cosmos SDK context.
 type PrecompileStateDB interface {
 	// `AddLog` adds a log to the statedb.
-	AddLog(log *coretypes.Log)
+	AddLog(*coretypes.Log)
 
 	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
 	GetContext() sdk.Context

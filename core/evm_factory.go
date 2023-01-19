@@ -35,16 +35,16 @@ func NewEVMFactory() *EVMFactory {
 
 // `Build` creates and returns a new `vm.StargazerEVM` with a new `vm.PrecompileHost`.
 func (ef *EVMFactory) Build(
-	sdb vm.StargazerStateDB,
+	ssdb vm.StargazerStateDB,
 	blockCtx vm.BlockContext,
 	txCtx vm.TxContext,
 	chainConfig *params.EthChainConfig,
 	noBaseFee bool,
 ) *vm.StargazerEVM {
 	return vm.NewStargazerEVM(
-		blockCtx, txCtx, sdb, chainConfig, vm.Config{}, vm.NewPrecompileHost(
+		blockCtx, txCtx, ssdb, chainConfig, vm.Config{}, vm.NewPrecompileHost(
 			ef.pr,
-			sdb,
+			ssdb,
 		),
 	)
 }

@@ -139,7 +139,7 @@ func NewStateDB(
 	return sdb
 }
 
-// `GetContext` implements PrecompileStateDB.
+// `GetContext` implements `StargazerStateDB`.
 func (sdb *StateDB) GetContext() sdk.Context {
 	return sdb.ctx
 }
