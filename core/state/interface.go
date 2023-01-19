@@ -17,17 +17,14 @@ package state
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/core/vm"
-
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 )
-
-type GethStateDB = vm.StateDB
 
 // `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
 // support additional state transition functionalities that are useful in a Cosmos SDK context.
 type StargazerStateDB interface {
-	GethStateDB
+	vm.GethStateDB
 
 	// TransferBalance transfers the balance from one account to another
 	TransferBalance(common.Address, common.Address, *big.Int)

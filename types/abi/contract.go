@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -12,16 +12,27 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package crypto
+package abi
 
-import "github.com/ethereum/go-ethereum/crypto"
-
-var (
-	Keccak256       = crypto.Keccak256
-	Keccak256Hash   = crypto.Keccak256Hash
-	CreateAddress   = crypto.CreateAddress
-	ToECDSA         = crypto.ToECDSA
-	FromECDSA       = crypto.FromECDSA
-	HexToECDSA      = crypto.HexToECDSA
-	PubkeyToAddress = crypto.PubkeyToAddress
+import (
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/common/hexutil"
 )
+
+// `CompiliedContract` is a contract that has been compiled.
+type CompiliedContract struct {
+	ABI ABI
+	Bin hexutil.Bytes
+}
+
+// `BuildCompiledContract` builds a `CompiledContract` from an ABI string and a bytecode string.
+func BuildCompiledContract(abiStr, bytecode string) CompiliedContract {
+	var parsedAbi ABI
+	if err := parsedAbi.UnmarshalJSON([]byte(abiStr)); err != nil {
+		panic(err)
+	}
+	return CompiliedContract{
+		ABI: parsedAbi,
+		Bin: common.Hex2Bytes(bytecode),
+	}
+}

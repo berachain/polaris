@@ -32,10 +32,5 @@ ignore:
   - "*/**/*.abigen.go"
   - "*/**/*.mock.go"
   - "*/**/proto"
-  - "build/" # ignore build folder scripts
-  - "*/**/*.mock.go" # ignore mocks
-  - "pkg/**/cli/*.go" # ignore cli (autocli coming soon)
-  - "pkg/**/simulation/*.go" # ignore simulation helpers
-  - "testing/utils/fake" # ignore fake utils
-  - "testing/framework/keeper" # ignore testing framework
-  - "testing/framework/suite" # ignore testing framework
+  - "build/"
+  - "cmd/" 

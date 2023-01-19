@@ -21,7 +21,7 @@ import (
 )
 
 type VMInterface interface { //nolint:revive // we like the vibe.
-	Reset(txCtx TxContext, sdb StateDB)
+	Reset(txCtx TxContext, sdb GethStateDB)
 	Create(caller ContractRef, code []byte,
 		gas uint64, value *uint256.Int,
 	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
@@ -32,6 +32,6 @@ type VMInterface interface { //nolint:revive // we like the vibe.
 	ChainConfig() *params.ChainConfig
 	ChainRules() *params.Rules
 	Context() BlockContext
-	StateDB() StateDB
+	StateDB() GethStateDB
 	TxContext() TxContext
 }

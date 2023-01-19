@@ -22,15 +22,15 @@ import (
 
 var (
 	// Commands.
-	forgeBuild = mi.RunCmdV("forge", "build", "--extra-output-files", "abi")
+	forgeBuild = mi.RunCmdV("forge", "build")
 	forgeClean = mi.RunCmdV("forge", "clean")
 	forgeTest  = mi.RunCmdV("forge", "test")
 	forgeFmt   = mi.RunCmdV("forge", "fmt")
 
 	// Directories.
-	testContractsDir       = "./testing/solidity"
-	precompileContractsDir = "./pkg/dahlia/pkg/core/vm/precompile/contracts"
-	allForgeDirs           = []string{testContractsDir, precompileContractsDir}
+	testContractsDir = "./testutil/contracts/solidity"
+	// precompileContractsDir = "./pkg/dahlia/pkg/core/vm/precompile/contracts".
+	allForgeDirs = []string{testContractsDir /*, precompileContractsDir*/}
 )
 
 // Runs `forge build` in all smart contract directories.

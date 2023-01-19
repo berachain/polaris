@@ -11,43 +11,34 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-package types
+package main
 
 import (
 	"fmt"
-	"strings"
+	"os"
 
-	"cosmossdk.io/errors"
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/gointerfaces"
+	"github.com/berachain/stargazer/cmd/abigen/generator"
+	"github.com/spf13/cobra"
 )
 
-// Compile-time interface assertions.
-var _ gointerfaces.Cloneable[State] = &State{}
-var _ fmt.Stringer = Storage{}
-
-// `NewState` creates a new State instance.
-func NewState(key, value common.Hash) State {
-	return State{
-		Key:   key.Hex(),
-		Value: value.Hex(),
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
+		os.Exit(1)
 	}
 }
 
-// `ValidateBasic` checks to make sure the key is not empty.
-func (s State) ValidateBasic() error {
-	if strings.TrimSpace(s.Key) == "" {
-		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
-	}
+const numRootArgs = 4
 
-	return nil
-}
-
-// `Clone` implements `types.Cloneable`.
-func (s State) Clone() State {
-	return State{
-		Key:   s.Key,
-		Value: s.Value,
-	}
+var rootCmd = &cobra.Command{
+	Use:   "abigen <packageName> <inputFile>, <outputFile> <varName>",
+	Args:  cobra.MatchAll(cobra.ExactArgs(numRootArgs), cobra.OnlyValidArgs),
+	Short: "Foundry contract generator",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		packageName := args[0]
+		inputFile := args[1]
+		outputPath := args[2]
+		varName := args[3]
+		return generator.Run(packageName, inputFile, outputPath, varName)
+	},
 }
