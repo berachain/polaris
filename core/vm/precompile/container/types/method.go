@@ -40,6 +40,9 @@ import (
  *             Do NOT provide the `abiMethod` as this field will be auto-populated.
  **/
 
+// `funcNamePart` is the part of a runtime function name that is of relevance.
+const funcNamePart = 2
+
 // `Executable` is a type of function that stateful precompiled contract will implement. Each
 // `Executable` should directly correspond to an ABI method.
 type Executable func(
@@ -53,8 +56,8 @@ type Executable func(
 // `GetName` uses `reflect` and `runtime` to get the Go function's name.
 func (e Executable) GetName() string {
 	fullName := runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name()
-	if brokenUpName := strings.Split(fullName, "."); len(brokenUpName) > 2 { //nolint:mnd // this will not change.
-		return brokenUpName[2]
+	if brokenUpName := strings.Split(fullName, "."); len(brokenUpName) > funcNamePart {
+		return brokenUpName[funcNamePart]
 	}
 	return fullName
 }
