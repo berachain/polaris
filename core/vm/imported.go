@@ -23,7 +23,7 @@ type (
 	CanTransferFunc = vm.CanTransferFunc
 	ContractRef     = vm.ContractRef
 	Config          = vm.Config
+	GethStateDB     = vm.StateDB
 	TransferFunc    = vm.TransferFunc
 	TxContext       = vm.TxContext
-	StateDB         = vm.StateDB
 )

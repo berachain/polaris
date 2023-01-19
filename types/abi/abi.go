@@ -35,7 +35,6 @@ var (
 	NewEvent    = abi.NewEvent
 	NewType     = abi.NewType
 	ToCamelCase = abi.ToCamelCase
-	JSON        = abi.JSON
 )
 
 // `ToMixedCase` converts a under_score formatted string to mixedCase format (camelCase with the

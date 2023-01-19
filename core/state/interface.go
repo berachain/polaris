@@ -24,7 +24,7 @@ import (
 // `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
 // support additional state transition functionalities that are useful in a Cosmos SDK context.
 type StargazerStateDB interface {
-	vm.StateDB
+	vm.GethStateDB
 
 	// TransferBalance transfers the balance from one account to another
 	TransferBalance(common.Address, common.Address, *big.Int)
