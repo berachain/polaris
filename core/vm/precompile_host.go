@@ -20,7 +20,6 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/berachain/stargazer/core/state"
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
@@ -36,13 +35,17 @@ type PrecompileHost struct {
 	// `pr` is the registry from which the precompile container will be pulled and precompile logs
 	// can be built.
 	pr *PrecompileRegistry
+
+	// `psdb` is the precompile state database.
+	psdb PrecompileStateDB
 }
 
 // `NewPrecompileHost` creates and returns a new `PrecompileHost` for the given precompile
 // registry `pr` and log registry `lr`.
-func NewPrecompileHost(pr *PrecompileRegistry) *PrecompileHost {
+func NewPrecompileHost(pr *PrecompileRegistry, psdb PrecompileStateDB) *PrecompileHost {
 	return &PrecompileHost{
-		pr: pr,
+		pr:   pr,
+		psdb: psdb,
 	}
 }
 
@@ -60,18 +63,13 @@ func (ph *PrecompileHost) Exists(addr common.Address) (types.PrecompileContainer
 // `Run` implements `precompile.Host`.
 func (ph *PrecompileHost) Run(
 	pc types.PrecompileContainer,
-	sdb state.GethStateDB,
+
 	input []byte,
 	caller common.Address,
 	value *big.Int,
 	suppliedGas uint64,
 	readonly bool,
 ) ([]byte, uint64, error) {
-	psdb, ok := sdb.(state.PrecompileStateDB)
-	if !ok {
-		return nil, 0, ErrStateDBNotSupported
-	}
-
 	// TODO: move gas calculation to precompile container using gas meter.
 	gasCost := pc.RequiredGas(input)
 	if suppliedGas < gasCost {
@@ -81,7 +79,7 @@ func (ph *PrecompileHost) Run(
 
 	// store the number of events before container execution, to be used as index for building logs
 	// for all Cosmos events emitted during execution
-	ctx := psdb.GetContext()
+	ctx := ph.psdb.GetContext()
 	beforeExecutionNumEvents := len(ctx.EventManager().Events())
 	ret, err := pc.Run(ctx, input, caller, value, readonly)
 	if err != nil {
@@ -96,7 +94,7 @@ func (ph *PrecompileHost) Run(
 		if err != nil {
 			return nil, suppliedGas, err
 		}
-		psdb.AddLog(log)
+		ph.psdb.AddLog(log)
 	}
 
 	return ret, suppliedGas, nil

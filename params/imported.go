@@ -18,4 +18,5 @@ import "github.com/ethereum/go-ethereum/params"
 
 type (
 	EthChainConfig = params.ChainConfig
+	Rules          = params.Rules
 )

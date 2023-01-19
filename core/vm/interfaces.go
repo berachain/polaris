@@ -17,21 +17,29 @@ package vm
 import (
 	"math/big"
 
+	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Compile-time function assertion.
-var _ CanTransferFunc = CanTransfer
-var _ TransferFunc = Transfer
+// `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
+// support additional state transition functionalities that are useful in a Cosmos SDK context.
+type StargazerStateDB interface {
+	GethStateDB
 
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(sdb GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
+	// TransferBalance transfers the balance from one account to another
+	TransferBalance(common.Address, common.Address, *big.Int)
+
+	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
+	GetContext() sdk.Context
 }
 
-// `Transfer` subtracts amount from sender and adds amount to recipient using the `vm.StateDB`.
-func Transfer(sdb GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
-	sdb.(StargazerStateDB).TransferBalance(sender, recipient, amount)
+// `PrecompileStateDB` defines an extension to the interface provided by go-ethereum to
+// support additional state transition functionalities that are useful in a Cosmos SDK context.
+type PrecompileStateDB interface {
+	// `AddLog` adds a log to the statedb.
+	AddLog(log *coretypes.Log)
+
+	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
+	GetContext() sdk.Context
 }

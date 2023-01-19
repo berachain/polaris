@@ -24,6 +24,7 @@ import (
 const maxIndexedArgs = 3
 
 type (
+	ABI       = abi.ABI
 	Argument  = abi.Argument
 	Arguments = abi.Arguments
 	Event     = abi.Event

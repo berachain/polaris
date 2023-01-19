@@ -14,8 +14,10 @@
 
 package state
 
+import "github.com/berachain/stargazer/core/vm"
+
 // Compile-time assertion to ensure `ExtStateDB` implements `PrecompileStateDB`.
-var _ PrecompileStateDB = (*ExtStateDB)(nil)
+var _ vm.PrecompileStateDB = (*ExtStateDB)(nil)
 
 type ExtStateDB struct {
 	// StateDB is the underlying state database.

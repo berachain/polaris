@@ -35,8 +35,6 @@ var (
 	outdir = "./bin"
 
 	// Tools.
-	moq     = "github.com/matryer/moq"
-	abigen  = "github.com/ethereum/go-ethereum/cmd/abigen"
 	gitDiff = sh.RunCmd("git", "diff", "--stat", "--exit-code", ".",
 		"':(exclude)*.mod' ':(exclude)*.sum'")
 
@@ -57,10 +55,10 @@ func Build() error {
 		}
 	}
 
-	// // Build all solidity contracts.
-	// if err = ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	// Build all solidity contracts.
+	if err = ForgeBuild(); err != nil {
+		return err
+	}
 
 	for _, cmd := range cmds {
 		args := []string{
@@ -112,13 +110,6 @@ func Install() error {
 
 // Runs `go generate` on the entire project.
 func Generate() error {
-	if err := goInstall(moq); err != nil {
-		return err
-	}
-
-	if err := goInstall(abigen); err != nil {
-		return err
-	}
 	return goGenerate("-x", "./...")
 }
 
@@ -146,10 +137,10 @@ func Clean() error {
 		return err
 	}
 
-	// // Remove solidity build artifacts.
-	// if err := ForgeClean(); err != nil {
-	// 	return err
-	// }
+	// Remove solidity build artifacts.
+	if err := ForgeClean(); err != nil {
+		return err
+	}
 
 	// Remove test cache.
 	if err := sh.RunV("go", "clean", "-testcache"); err != nil {

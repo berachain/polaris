@@ -12,34 +12,27 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state
+package abi
 
 import (
-	"math/big"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/common/hexutil"
 )
 
-type GethStateDB = vm.StateDB
-
-// `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
-// support additional state transition functionalities that are useful in a Cosmos SDK context.
-type StargazerStateDB interface {
-	GethStateDB
-
-	// TransferBalance transfers the balance from one account to another
-	TransferBalance(common.Address, common.Address, *big.Int)
+// `CompiliedContract` is a contract that has been compiled.
+type CompiliedContract struct {
+	ABI ABI
+	Bin hexutil.Bytes
 }
 
-// `PrecompileStateDB` defines an extension to the interface provided by the Go-Ethereum codebase
-// to support additional state transition functionalities. In particular it supports getting the
-// cosmos sdk context for natively running stateful precompiled contracts.
-type PrecompileStateDB interface {
-	GethStateDB
-
-	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
-	GetContext() sdk.Context
+// `BuildCompiledContract` builds a `CompiledContract` from an ABI string and a bytecode string.
+func BuildCompiledContract(abiStr, bytecode string) CompiliedContract {
+	var parsedAbi ABI
+	if err := parsedAbi.UnmarshalJSON([]byte(abiStr)); err != nil {
+		panic(err)
+	}
+	return CompiliedContract{
+		ABI: parsedAbi,
+		Bin: common.Hex2Bytes(bytecode),
+	}
 }

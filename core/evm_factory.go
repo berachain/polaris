@@ -15,7 +15,6 @@
 package core
 
 import (
-	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/params"
 )
@@ -36,13 +35,16 @@ func NewEVMFactory() *EVMFactory {
 
 // `Build` creates and returns a new `vm.StargazerEVM` with a new `vm.PrecompileHost`.
 func (ef *EVMFactory) Build(
-	sdb state.GethStateDB,
+	sdb vm.StargazerStateDB,
 	blockCtx vm.BlockContext,
 	txCtx vm.TxContext,
 	chainConfig *params.EthChainConfig,
 	noBaseFee bool,
 ) *vm.StargazerEVM {
 	return vm.NewStargazerEVM(
-		blockCtx, txCtx, sdb, chainConfig, vm.Config{}, vm.NewPrecompileHost(ef.pr),
+		blockCtx, txCtx, sdb, chainConfig, vm.Config{}, vm.NewPrecompileHost(
+			ef.pr,
+			sdb,
+		),
 	)
 }

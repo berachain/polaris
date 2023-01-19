@@ -53,9 +53,9 @@ func StartNoBuild() error {
 func Test() error {
 	tests := []func() error{testUnit /*, testIntegration, testUnitBenchmark*/}
 
-	// if err := ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	if err := ForgeBuild(); err != nil {
+		return err
+	}
 
 	for _, t := range tests {
 		if err := t(); err != nil {
@@ -67,9 +67,9 @@ func Test() error {
 
 // Runs the unit tests.
 func TestUnit() error {
-	// if err := ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	if err := ForgeBuild(); err != nil {
+		return err
+	}
 	return testUnit()
 }
 
@@ -79,25 +79,25 @@ func testUnit() error {
 
 // Runs the unit tests with coverage.
 func TestUnitCover() error {
-	// if err := ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	if err := ForgeBuild(); err != nil {
+		return err
+	}
 	return ginkgoTest(coverArgs...)
 }
 
 // Runs the unit tests with race detection.
 func TestUnitRace() error {
-	// if err := ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	if err := ForgeBuild(); err != nil {
+		return err
+	}
 	return ginkgoTest(raceArgs...)
 }
 
 // Runs the unit tests with benchmarking.
 func TestUnitBenchmark() error {
-	// if err := ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	if err := ForgeBuild(); err != nil {
+		return err
+	}
 
 	return testUnitBenchmark()
 }
@@ -113,9 +113,9 @@ func testUnitBenchmark() error {
 
 // Runs the unit tests with benchmarking.
 func TestUnitEvmBenchmark() error {
-	// if err := ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	if err := ForgeBuild(); err != nil {
+		return err
+	}
 
 	args := []string{
 		"-bench=.",
@@ -127,9 +127,9 @@ func TestUnitEvmBenchmark() error {
 
 // Runs the integration tests.
 func TestIntegration() error {
-	// if err := ForgeBuild(); err != nil {
-	// 	return err
-	// }
+	if err := ForgeBuild(); err != nil {
+		return err
+	}
 	return testIntegration()
 }
 

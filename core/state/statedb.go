@@ -26,8 +26,9 @@ import (
 	"github.com/berachain/stargazer/core/state/store/cachemulti"
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/crypto"
 )
 
 var (
@@ -38,8 +39,10 @@ var (
 )
 
 // Compile-time assertions to ensure StateDB adheres to StargazerStateDB and PrecompileStateDB.
-var _ StargazerStateDB = (*StateDB)(nil)
-var _ PrecompileStateDB = (*StateDB)(nil)
+var (
+	_ vm.StargazerStateDB  = (*StateDB)(nil)
+	_ vm.PrecompileStateDB = (*StateDB)(nil)
+)
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:

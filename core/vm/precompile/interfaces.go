@@ -17,7 +17,6 @@ package precompile
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
@@ -105,7 +104,7 @@ type Host interface {
 	Exists(addr common.Address) (types.PrecompileContainer, bool)
 
 	// `Run` runs a precompiled contract container and returns the remaining gas.
-	Run(pc types.PrecompileContainer, sdb state.GethStateDB, input []byte, caller common.Address,
+	Run(pc types.PrecompileContainer, input []byte, caller common.Address,
 		value *big.Int, suppliedGas uint64, readonly bool,
 	) (ret []byte, leftOverGas uint64, err error)
 }

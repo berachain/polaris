@@ -15,10 +15,29 @@
 package vm
 
 import (
-	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/params"
+	"github.com/holiman/uint256"
 )
+
+type VMInterface interface { //nolint:revive // we like the vibe.
+	Reset(txCtx TxContext, sdb GethStateDB)
+	Create(caller ContractRef, code []byte,
+		gas uint64, value *uint256.Int,
+	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
+	Call(caller ContractRef, addr common.Address, input []byte,
+		gas uint64, value *uint256.Int, bailout bool,
+	) (ret []byte, leftOverGas uint64, err error)
+	Config() Config
+	ChainConfig() *params.EthChainConfig
+	ChainRules() *params.Rules
+	Context() BlockContext
+	StateDB() GethStateDB
+	TxContext() TxContext
+}
+
+// var _ VMInterface = (*StargazerEVM)(nil)
 
 // `StargazerEVM` is the wrapper for the Go-Ethereum EVM.
 type StargazerEVM struct {
@@ -29,7 +48,7 @@ type StargazerEVM struct {
 func NewStargazerEVM(
 	blockCtx BlockContext,
 	txCtx TxContext,
-	stateDB state.GethStateDB,
+	stateDB GethStateDB,
 	chainConfig *params.EthChainConfig,
 	config Config,
 	precompileHost precompile.Host,
