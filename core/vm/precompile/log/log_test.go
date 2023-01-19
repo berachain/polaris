@@ -16,7 +16,6 @@ package log
 
 import (
 	"strconv"
-	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -28,11 +27,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
-func TestLog(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm/precompile/log")
-}
 
 var _ = Describe("Precompile Log", func() {
 	var precompileLog *PrecompileLog

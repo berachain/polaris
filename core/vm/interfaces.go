@@ -15,18 +15,24 @@
 package vm
 
 import (
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/holiman/uint256"
 )
 
-type (
-	BlockContext    = vm.BlockContext
-	CanTransferFunc = vm.CanTransferFunc
-	ContractRef     = vm.ContractRef
-	Config          = vm.Config
-	TransferFunc    = vm.TransferFunc
-	TxContext       = vm.TxContext
-)
-
-var (
-	ErrOutOfGas = vm.ErrOutOfGas
-)
+type VMInterface interface { //nolint:revive // we like the vibe.
+	Reset(txCtx TxContext, sdb state.GethStateDB)
+	Create(caller ContractRef, code []byte,
+		gas uint64, value *uint256.Int,
+	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
+	Call(caller ContractRef, addr common.Address, input []byte,
+		gas uint64, value *uint256.Int, bailout bool,
+	) (ret []byte, leftOverGas uint64, err error)
+	Config() Config
+	ChainConfig() *params.ChainConfig
+	ChainRules() *params.Rules
+	Context() BlockContext
+	StateDB() state.GethStateDB
+	TxContext() TxContext
+}

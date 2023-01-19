@@ -30,7 +30,7 @@ type EventType string
 
 // `LogRegistry` builds Ethereum logs from Cosmos events.
 type LogRegistry struct {
-	// `eventTypesToLogs` is a map of `EventType`s to `*types.PrecompileEvents` for all supported
+	// `eventTypesToLogs` is a map of `EventType`s to `*log.PrecompileLog` for all supported
 	// Cosmos events.
 	eventTypesToLogs map[EventType]*log.PrecompileLog
 }

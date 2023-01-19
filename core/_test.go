@@ -12,21 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package core_test
 
 import (
-	"github.com/ethereum/go-ethereum/core/vm"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-type (
-	BlockContext    = vm.BlockContext
-	CanTransferFunc = vm.CanTransferFunc
-	ContractRef     = vm.ContractRef
-	Config          = vm.Config
-	TransferFunc    = vm.TransferFunc
-	TxContext       = vm.TxContext
-)
-
-var (
-	ErrOutOfGas = vm.ErrOutOfGas
-)
+func TestVM(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core")
+}

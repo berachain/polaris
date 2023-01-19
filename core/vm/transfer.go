@@ -15,18 +15,24 @@
 package vm
 
 import (
-	"github.com/ethereum/go-ethereum/core/vm"
+	"math/big"
+
+	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/lib/common"
 )
 
-type (
-	BlockContext    = vm.BlockContext
-	CanTransferFunc = vm.CanTransferFunc
-	ContractRef     = vm.ContractRef
-	Config          = vm.Config
-	TransferFunc    = vm.TransferFunc
-	TxContext       = vm.TxContext
-)
+// Compile-time function assertion.
+var _ CanTransferFunc = CanTransfer
+var _ TransferFunc = Transfer
 
-var (
-	ErrOutOfGas = vm.ErrOutOfGas
-)
+// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
+// NOTE: This does not take the necessary gas in to account to make the transfer valid.
+func CanTransfer(sdb state.GethStateDB, addr common.Address, amount *big.Int) bool {
+	return sdb.GetBalance(addr).Cmp(amount) >= 0
+}
+
+// `Transfer` subtracts amount from sender and adds amount to recipient using the geth `StateDB`.
+func Transfer(sdb state.GethStateDB, sender, recipient common.Address, amount *big.Int) {
+	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
+	sdb.(state.StargazerStateDB).TransferBalance(sender, recipient, amount)
+}
