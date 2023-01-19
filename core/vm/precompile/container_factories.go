@@ -64,11 +64,12 @@ func (scf *StatelessContainerFactory) Build(
 }
 
 // ===========================================================================
-// stateful container Factory
+// Stateful Container Factory
 // ===========================================================================
 
 // `StatefulContainerFactory` is used to build stateful precompile containers.
 type StatefulContainerFactory struct {
+	// `lr` is used to register stateful precompiles' event logs, if any.
 	lr *LogRegistry
 }
 
