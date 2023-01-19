@@ -22,7 +22,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
+// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to
 // support additional state transition functionalities that are useful in a Cosmos SDK context.
 type StargazerStateDB interface {
 	GethStateDB
@@ -32,12 +32,12 @@ type StargazerStateDB interface {
 	TransferBalance(common.Address, common.Address, *big.Int)
 }
 
-// `PrecompileStateDB` defines an extension to the interface provided by go-ethereum to
-// support additional state transition functionalities that are useful in a Cosmos SDK context.
+// `PrecompileStateDB` defines the required functions to support execution of stateful precompiled
+// contracts.
 type PrecompileStateDB interface {
-	// `AddLog` adds a log to the statedb.
+	// `AddLog` adds a log to the StateDB.
 	AddLog(*coretypes.Log)
 
-	// `GetContext` returns the cosmos sdk context with the statedb multistore attached.
+	// `GetContext` returns the Cosmos SDK context with the StateDB Multistore attached.
 	GetContext() sdk.Context
 }

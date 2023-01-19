@@ -18,6 +18,7 @@ import (
 	"context"
 	"math/big"
 
+	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
@@ -32,10 +33,10 @@ var _ types.PrecompileContainer = (*StatefulContainer)(nil)
 
 // `StatefulContainer` is a container for running stateful (and dynamic) precompiled contracts.
 type StatefulContainer struct {
-	// `idsToMethods` is a mapping of method IDs (keccak256 hash of method signatures) to native
-	// precompile functions. The signature key is provided by the precompile creator and must
-	// exactly match the signature in the geth abi.Method.Sig field (geth abi format). Please check
-	// core/vm/precompile/container/types.go for more information.
+	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
+	// method signatures) to native precompile functions. The signature key is provided by the
+	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
+	// (geth abi format). Please check core/vm/precompile/container/types.go for more information.
 	idsToMethods map[string]*types.Method
 }
 
@@ -60,17 +61,24 @@ func (sc *StatefulContainer) Run(
 	if sc.idsToMethods == nil {
 		return nil, types.ErrContainerHasNoMethods
 	}
+	if len(input) < NumBytesMethodID {
+		return nil, types.ErrInvalidInputToPrecompile
+	}
 
 	// extract the method ID from the input and load the method.
-	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
-	if !ok {
+	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
+	if !found {
 		return nil, types.ErrMethodNotFound
 	}
 
-	// unpack the args from the input
-	unpackedArgs, err := method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
-	if err != nil {
-		return nil, err
+	// unpack the args from the input, if any exist.
+	var unpackedArgs []any
+	var err error
+	if inputs := method.AbiMethod.Inputs; inputs != nil {
+		unpackedArgs, err = method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Execute the method registered with the given signature with the given args.
@@ -84,25 +92,35 @@ func (sc *StatefulContainer) Run(
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, method.Execute.GetName())
 	}
 
-	return method.AbiMethod.Outputs.PackValues(vals)
+	// pack the return values and return, if any exist.
+	outputs := method.AbiMethod.Outputs
+	if len(outputs) > 0 && len(vals) == len(outputs) {
+		return outputs.PackValues(vals)
+	}
+
+	if len(outputs) == 0 && (vals != nil || len(vals) > 0) {
+		// precompile execution returned values when none were expected.
+		return nil, errors.Wrap(types.ErrInvalidPrecompileReturn, method.Execute.GetName())
+	}
+
+	return nil, nil
 }
 
 // `RequiredGas` checks the Method corresponding to input for the required gas amount.
+// TODO: RequiredGas will be deprecated in Geth.
 //
 // `RequiredGas` implements PrecompileContainer.
 func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
-	// TODO: RequiredGas will be deprecated in Geth.
-
-	if sc.idsToMethods == nil {
+	if sc.idsToMethods == nil || len(input) < NumBytesMethodID {
 		return 0
 	}
 
 	// extract the method ID from the input and load the method.
-	method, ok := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
-	if !ok {
+	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
+	if !found {
 		return 0
 	}
 

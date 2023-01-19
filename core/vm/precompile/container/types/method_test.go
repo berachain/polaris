@@ -17,13 +17,13 @@ package types_test
 import (
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var _ = Describe("Container Types", func() {

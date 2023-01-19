@@ -38,6 +38,7 @@ type VMInterface interface { //nolint:revive // we like the vibe.
 	// TxContext() TxContext
 }
 
+// Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.
 var _ VMInterface = (*StargazerEVM)(nil)
 
 // `StargazerEVM` is the wrapper for the Go-Ethereum EVM.

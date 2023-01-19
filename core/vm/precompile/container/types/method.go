@@ -50,11 +50,11 @@ type Executable func(
 	args ...any,
 ) (ret []any, err error)
 
-// `getName` uses `reflect` and `runtime` to get the Go function's name.
-func (e Executable) getName() string {
+// `GetName` uses `reflect` and `runtime` to get the Go function's name.
+func (e Executable) GetName() string {
 	fullName := runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name()
-	if brokenUpName := strings.Split(fullName, "."); len(brokenUpName) > 1 {
-		return brokenUpName[1]
+	if brokenUpName := strings.Split(fullName, "."); len(brokenUpName) > 2 { //nolint:mnd // this will not change.
+		return brokenUpName[2]
 	}
 	return fullName
 }
@@ -100,7 +100,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not contain exactly 1 '('",
-			m.Execute.getName(),
+			m.Execute.GetName(),
 		)
 	}
 	// check that the method name is valid according to Solidity
@@ -108,7 +108,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not have a valid method name",
-			m.Execute.getName(),
+			m.Execute.GetName(),
 		)
 	}
 	// check that only 1 `)` exists and its the last character
@@ -117,7 +117,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not does not end with 1 ')'",
-			m.Execute.getName(),
+			m.Execute.GetName(),
 		)
 	}
 	// if no args are provided, sig is valid
@@ -131,7 +131,7 @@ func (m *Method) ValidateBasic() error {
 			return errors.Wrapf(
 				ErrAbiSigInvalid,
 				"%s has incorrect argument types",
-				m.Execute.getName(),
+				m.Execute.GetName(),
 			)
 		}
 	}

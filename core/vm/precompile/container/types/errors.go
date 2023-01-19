@@ -25,10 +25,18 @@ var (
 	// core/vm/precompile/container/types.go for more information.
 	ErrAbiSigInvalid = errors.New("user-provided ABI signature invalid: ")
 
-	// `ErrMethodNotFound` is returned when the Precompile method is not found.
+	// `ErrMethodNotFound` is returned when the precompile method is not found.
 	ErrMethodNotFound = errors.New("precompile method not found in contract ABI")
 
 	// `ErrContainerHasNoMethods` is returned when a stateful container function is invoked but no
 	// precompile methods were registered.
 	ErrContainerHasNoMethods = errors.New("the stateful precompile has no methods to run")
+
+	// `ErrInvalidPrecompileReturn` is returned when a precompile method execution returns values
+	// and the interface method is not expecting any return values.
+	ErrInvalidPrecompileReturn = errors.New("precompile function returned values when not expected")
+
+	// `ErrInvalidInputToPrecompile` is returned when a precompile container receives invalid
+	// input.
+	ErrInvalidInputToPrecompile = errors.New("input bytes to precompile container are invalid")
 )

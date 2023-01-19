@@ -15,3 +15,4 @@
 package solidity
 
 //go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/SolmateERC20.sol/SolmateERC20.json ./generated/solmate_erc20.abigen.go SolmateERC20Contract
+//go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/MockPrecompileInterface.sol/MockPrecompileInterface.json ./generated/mock_precompile_interface.abigen.go MockPrecompileInterface
