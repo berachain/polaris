@@ -16,12 +16,13 @@ require (
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/dave/jennifer v1.6.0
 	github.com/ethereum/go-ethereum v1.10.26
-	github.com/golangci/golangci-lint v1.49.0
+	github.com/golangci/golangci-lint v1.50.1
 	github.com/google/addlicense v1.1.0
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
 	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.24.1
+	github.com/securego/gosec/v2 v2.14.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
@@ -41,6 +42,7 @@ require (
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
+	github.com/Abirdcfly/dupword v0.0.7 // indirect
 	github.com/Antonboom/errname v0.1.7 // indirect
 	github.com/Antonboom/nilnil v0.1.1 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
@@ -86,7 +88,7 @@ require (
 	github.com/cosmos/ledger-cosmos-go v0.12.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
-	github.com/daixiang0/gci v0.6.3 // indirect
+	github.com/daixiang0/gci v0.8.1 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/dave/dst v0.27.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -149,6 +151,7 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gookit/color v1.5.2 // indirect
 	github.com/gordonklaus/ineffassign v0.0.0-20210914165742-4cc7213b9bc8 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
@@ -184,6 +187,7 @@ require (
 	github.com/julz/importas v0.1.0 // indirect
 	github.com/kisielk/errcheck v1.6.2 // indirect
 	github.com/kisielk/gotool v1.0.0 // indirect
+	github.com/kkHAIKE/contextcheck v1.1.3 // indirect
 	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/kulti/thelper v0.6.3 // indirect
@@ -195,6 +199,7 @@ require (
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/lufeee/execinquery v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
+	github.com/maratori/testableexamples v1.0.0 // indirect
 	github.com/maratori/testpackage v1.1.0 // indirect
 	github.com/matoous/godox v0.0.0-20210227103229-6504466cf951 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -245,7 +250,6 @@ require (
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/sashamelentyev/interfacebloat v1.1.0 // indirect
 	github.com/sashamelentyev/usestdlibvars v1.20.0 // indirect
-	github.com/securego/gosec/v2 v2.13.1 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shazow/go-diff v0.0.0-20160112020656-b6b7b6733b8c // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
@@ -263,7 +267,6 @@ require (
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
-	github.com/sylvia7788/contextcheck v1.0.6 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
 	github.com/tendermint/btcd v0.1.1 // indirect
@@ -271,8 +274,8 @@ require (
 	github.com/tendermint/go-amino v0.16.0 // indirect
 	github.com/tetafro/godot v1.4.11 // indirect
 	github.com/timakin/bodyclose v0.0.0-20210704033933-f49887972144 // indirect
-	github.com/timonwong/logrlint v0.1.0 // indirect
-	github.com/tomarrell/wrapcheck/v2 v2.6.2 // indirect
+	github.com/timonwong/loggercheck v0.9.3 // indirect
+	github.com/tomarrell/wrapcheck/v2 v2.7.0 // indirect
 	github.com/tommy-muehle/go-mnd/v2 v2.5.1 // indirect
 	github.com/ultraware/funlen v0.0.3 // indirect
 	github.com/ultraware/whitespace v0.0.5 // indirect
