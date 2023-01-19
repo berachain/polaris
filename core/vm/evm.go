@@ -1,4 +1,4 @@
-// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Copyright (C) 2022, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -15,20 +15,26 @@
 package vm
 
 import (
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/params"
 )
 
-type (
-	BlockContext    = vm.BlockContext
-	CanTransferFunc = vm.CanTransferFunc
-	ContractRef     = vm.ContractRef
-	Config          = vm.Config
-	TransferFunc    = vm.TransferFunc
-	TxContext       = vm.TxContext
-	GethEVM         = vm.EVM
-)
+// `StargazerEVM` is the wrapper for the Go-Ethereum EVM.
+type StargazerEVM struct {
+	*GethEVM
+}
 
-var (
-	NewGethEVM  = vm.NewEVM
-	ErrOutOfGas = vm.ErrOutOfGas
-)
+// `NewStargazerEVM` creates and returns a new `StargazerEVM`.
+func NewStargazerEVM(
+	blockCtx BlockContext,
+	txCtx TxContext,
+	stateDB state.GethStateDB,
+	chainConfig *params.EthChainConfig,
+	config Config,
+	precompileHost precompile.Host,
+) *StargazerEVM {
+	return &StargazerEVM{
+		GethEVM: NewGethEVM(blockCtx, txCtx, stateDB, chainConfig, config, precompileHost),
+	}
+}

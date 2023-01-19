@@ -33,19 +33,16 @@ var _ precompile.Host = (*PrecompileHost)(nil)
 // `PrecompileHost` is the execution environment of a precompiled container at a given address.
 // The host manages the execution of the container and emission of logs.
 type PrecompileHost struct {
-	// `pr` is the registry from which the precompile container will be pulled.
+	// `pr` is the registry from which the precompile container will be pulled and precompile logs
+	// can be built.
 	pr *PrecompileRegistry
-
-	// `lr` is the registry of Cosmos events that can be emitted as Ethereum logs.
-	lr *precompile.LogRegistry
 }
 
 // `NewPrecompileHost` creates and returns a new `PrecompileHost` for the given precompile
 // registry `pr` and log registry `lr`.
-func NewPrecompileHost(pr *PrecompileRegistry, lr *precompile.LogRegistry) *PrecompileHost {
+func NewPrecompileHost(pr *PrecompileRegistry) *PrecompileHost {
 	return &PrecompileHost{
 		pr: pr,
-		lr: lr,
 	}
 }
 
@@ -108,7 +105,7 @@ func (ph *PrecompileHost) Run(
 // `buildLog` builds an Ethereum event log from the given Cosmos event.
 func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// validate incoming Cosmos event
-	pe := ph.lr.GetPrecompileLog(event)
+	pe := ph.pr.logRegistry.GetPrecompileLog(event)
 	if pe == nil {
 		return nil, errors.Wrap(precompile.ErrEthEventNotRegistered, event.Type)
 	}
