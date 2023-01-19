@@ -40,19 +40,19 @@ func Run(packageName, inputPath, outputPath, varName string) error {
 	var forgeJSON interface{}
 
 	// Unmarshal the JSON data into the forgeJSON variable.
-	if err = json.Unmarshal(data, &i); err != nil {
+	if err = json.Unmarshal(data, &forgeJSON); err != nil {
 		return err
 	}
 
 	// Load ABI String.
-	abiString := i.(map[string]interface{})["abi"]
+	abiString := forgeJSON.(map[string]interface{})["abi"]
 	abiStringMarshalled, err := json.Marshal(abiString)
 	if err != nil {
 		return err
 	}
 
 	// Load Bytecode String.
-	bytecode := i.(map[string]interface{})["bytecode"].(map[string]interface{})["object"]
+	bytecode := forgeJSON.(map[string]interface{})["bytecode"].(map[string]interface{})["object"]
 	bytecodeMarshalled, err := json.Marshal(bytecode)
 	if err != nil {
 		return err
