@@ -37,7 +37,7 @@ func Run(packageName, inputPath, outputPath, varName string) error {
 	}
 
 	// Declare a variable to hold the unmarshaled JSON data.
-	var i interface{}
+	var forgeJSON interface{}
 
 	// Unmarshal the JSON data into the forgeJSON variable.
 	if err = json.Unmarshal(data, &i); err != nil {
@@ -68,7 +68,7 @@ func Run(packageName, inputPath, outputPath, varName string) error {
 	}
 
 	// Output to file.
-	n, err := outFile.WriteString(fmt.Sprintf("%#v", f) + "\n")
+	_, err = outFile.WriteString(fmt.Sprintf("%#v", f) + "\n")
 	if err != nil {
 		return err
 	}
@@ -77,9 +77,6 @@ func Run(packageName, inputPath, outputPath, varName string) error {
 	if err = outFile.Sync(); err != nil {
 		return err
 	}
-
-	//nolint: forbidigo // meh its okay for now.
-	fmt.Printf("\nwrote %d bytes to %s", n, outputPath)
 
 	return nil
 }
