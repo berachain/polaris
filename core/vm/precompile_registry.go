@@ -15,9 +15,6 @@
 package vm
 
 import (
-	"reflect"
-
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
@@ -49,14 +46,13 @@ func NewPrecompileRegistry() *PrecompileRegistry {
 // defined precompile or the container factory cannot build the container.
 func (pr *PrecompileRegistry) Register(contractImpl precompile.BaseContractImpl) error {
 	var cf precompile.AbstractContainerFactory
-	contractType := reflect.TypeOf(contractImpl)
 	//nolint:gocritic // cannot be converted to switch-case.
 	if utils.Implements[precompile.StatefulContractImpl](contractImpl) {
 		cf = precompile.NewStatefulContainerFactory(pr.logRegistry)
 	} else if utils.Implements[precompile.StatelessContractImpl](contractImpl) {
 		cf = precompile.NewStatelessContainerFactory()
 	} else {
-		return errors.Wrap(ErrIncorrectPrecompileType, contractType.Name())
+		return ErrIncorrectPrecompileType
 	}
 
 	pc, err := cf.Build(contractImpl)
