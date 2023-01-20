@@ -172,6 +172,13 @@ func (sdb *StateDB) PrepareForTransition(blockHash, txHash common.Hash, ti, li u
 	sdb.logIndex = li
 }
 
+// `BuildBloomFilterForTxn` implements `StargazerStateDB` by building a bloom
+// filter from the logs generated during the state transition. For use in
+// single txn querying.
+func (sdb *StateDB) BuildBloomFilterForTxn() coretypes.Bloom {
+	return coretypes.BytesToBloom(coretypes.LogsBloom(sdb.logs))
+}
+
 // Reset clears the journal and other state objects. It also clears the
 // refund counter and the access list.
 func (sdb *StateDB) Reset(ctx sdk.Context) {
@@ -240,11 +247,11 @@ func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 
 // `TransferBalance` sends the given amount from one account to another. It will
 // error if the sender does not have enough funds to send.
-func (sdb *StateDB) TransferBalance(from, to common.Address, amount *big.Int) {
+func (sdb *StateDB) TransferBalance(sender, recipient common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the destination address.
-	if err := sdb.bk.SendCoins(sdb.ctx, from[:], to[:], coins); err != nil {
+	if err := sdb.bk.SendCoins(sdb.ctx, sender[:], recipient[:], coins); err != nil {
 		sdb.setErrorUnsafe(err)
 	}
 }

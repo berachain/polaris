@@ -25,4 +25,8 @@ type (
 	Message    = types.Message
 )
 
-var NewMessage = types.NewMessage
+var (
+	NewMessage   = types.NewMessage
+	LogsBloom    = types.LogsBloom
+	BytesToBloom = types.BytesToBloom
+)

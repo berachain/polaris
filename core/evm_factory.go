@@ -15,6 +15,8 @@
 package core
 
 import (
+	"math/big"
+
 	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/params"
@@ -42,8 +44,21 @@ func (ef *EVMFactory) Build(
 	chainConfig *params.EthChainConfig,
 	noBaseFee bool,
 ) *vm.StargazerEVM {
+	ctx := ssdb.GetContext()
+	bc := vm.BlockContext{
+		CanTransfer: vm.CanTransfer,
+		Transfer:    vm.Transfer,
+		BlockNumber: big.NewInt(ctx.BlockHeight()),
+		Time:        big.NewInt(ctx.BlockTime().Unix()),
+		Difficulty:  big.NewInt(0),
+		GasLimit:    ctx.BlockGasLimit(),
+	}
+	blockCtx.Transfer = vm.Transfer
+	blockCtx.CanTransfer = vm.CanTransfer
 	return vm.NewStargazerEVM(
-		blockCtx, txCtx, ssdb, chainConfig, ef.BuildVMConfig(nil, noBaseFee), vm.NewPrecompileHost(
+		blockCtx, txCtx, ssdb, chainConfig,
+		ef.BuildVMConfig(nil, noBaseFee),
+		vm.NewPrecompileHost(
 			ef.pr,
 			ssdb,
 		),
