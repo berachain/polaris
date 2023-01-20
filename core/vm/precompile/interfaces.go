@@ -31,9 +31,10 @@ type (
 		Address() common.Address
 	}
 
-	// `StatelessContractImpl` is the basic interface for native Go contracts. The implementation
-	// requires a deterministic gas count, `RequiredGas` based on the input size of the `Run`
-	// method of the contract.
+	// `StatelessContractImpl` is the interface for all stateless precompiled contract
+	// implementations. A stateless contract must provide its own precompile container, as it is
+	// stateless in nature. This requires a deterministic gas count, `RequiredGas`, and an
+	// executable function `Run`.
 	StatelessContractImpl interface {
 		BaseContractImpl
 		types.PrecompileContainer

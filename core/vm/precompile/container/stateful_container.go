@@ -72,13 +72,9 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// unpack the args from the input, if any exist.
-	var unpackedArgs []any
-	var err error
-	if inputs := method.AbiMethod.Inputs; inputs != nil {
-		unpackedArgs, err = method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
-		if err != nil {
-			return nil, err
-		}
+	unpackedArgs, err := method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
+	if err != nil {
+		return nil, err
 	}
 
 	// Execute the method registered with the given signature with the given args.
@@ -96,17 +92,7 @@ func (sc *StatefulContainer) Run(
 	}
 
 	// pack the return values and return, if any exist.
-	outputs := method.AbiMethod.Outputs
-	if len(outputs) > 0 && len(vals) == len(outputs) {
-		return outputs.PackValues(vals)
-	}
-
-	if len(outputs) == 0 && (vals != nil || len(vals) > 0) {
-		// precompile execution returned values when none were expected.
-		return nil, errors.Wrap(types.ErrInvalidPrecompileReturn, method.Execute.GetName())
-	}
-
-	return nil, nil
+	return method.AbiMethod.Outputs.Pack(vals...)
 }
 
 // `RequiredGas` checks the Method corresponding to input for the required gas amount.

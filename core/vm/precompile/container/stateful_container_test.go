@@ -102,7 +102,7 @@ var _ = Describe("Stateful Container", func() {
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
 			_, err = sc.Run(ctx, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
-			Expect(err.Error()).To(Equal("contractFuncStrInput: precompile function returned values when not expected"))
+			Expect(err).ToNot(BeNil())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)

@@ -13,3 +13,48 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package precompile_test
+
+import (
+	"context"
+	"math/big"
+
+	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/lib/common"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Container Factories", func() {
+	Context("Stateless Container Factory", func() {
+		var scf *precompile.StatelessContainerFactory
+
+		BeforeEach(func() {
+			scf = precompile.NewStatelessContainerFactory()
+		})
+
+		It("should build stateless precompile containers", func() {
+			pc, err := scf.Build(&mockStateless{})
+			Expect(err).To(BeNil())
+			Expect(pc).ToNot(BeNil())
+		})
+	})
+})
+
+// MOCKS BELOW.
+
+type mockStateless struct{}
+
+func (ms *mockStateless) Address() common.Address {
+	return common.Address{}
+}
+
+func (ms *mockStateless) RequiredGas(input []byte) uint64 {
+	return 0
+}
+
+func (ms *mockStateless) Run(
+	ctx context.Context, input []byte, caller common.Address,
+	value *big.Int, readonly bool,
+) ([]byte, error) {
+	return nil, nil
+}

@@ -32,10 +32,6 @@ var (
 	// precompile methods were registered.
 	ErrContainerHasNoMethods = errors.New("the stateful precompile has no methods to run")
 
-	// `ErrInvalidPrecompileReturn` is returned when a precompile method execution returns values
-	// and the interface method is not expecting any return values.
-	ErrInvalidPrecompileReturn = errors.New("precompile function returned values when not expected")
-
 	// `ErrInvalidInputToPrecompile` is returned when a precompile container receives invalid
 	// input.
 	ErrInvalidInputToPrecompile = errors.New("input bytes to precompile container are invalid")
