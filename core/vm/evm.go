@@ -30,12 +30,6 @@ type VMInterface interface { //nolint:revive // we like the vibe.
 	Call(caller ContractRef, addr common.Address, input []byte,
 		gas uint64, value *big.Int,
 	) (ret []byte, leftOverGas uint64, err error)
-	// Config() Config
-	// ChainConfig() *params.EthChainConfig
-	// ChainRules() *params.Rules
-	// Context() BlockContext
-	// StateDB() GethStateDB
-	// TxContext() TxContext
 }
 
 // Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.

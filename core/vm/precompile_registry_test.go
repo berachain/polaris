@@ -27,5 +27,3 @@ var _ = Describe("Precompile Registry", func() {
 		Expect(err.Error()).To(Equal("this contract does not implement a the required precompile contract interface"))
 	})
 })
-
-// MOCKS BELOW.
