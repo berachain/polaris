@@ -42,7 +42,7 @@ jobs:
           name: Test Unit
           command: mage testunitcover
       - codecov/upload:
-          file: ./coverage-testunitcover.txt
+          file: coverage-testunitcover.txt
       - store_test_results:
           path: .
 

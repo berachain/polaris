@@ -24,7 +24,7 @@ var (
 	// Arguments.
 	junitArgs = []string{"--junit-report", "out.xml"}
 	coverArgs = append(junitArgs, []string{"--cover", "--coverprofile",
-		"cover-testunitcover.txt", "--covermode", "atomic"}...)
+		"coverage-testunitcover.txt", "--covermode", "atomic"}...)
 	raceArgs = append(junitArgs, []string{"-race"}...)
 
 	// Commands.
