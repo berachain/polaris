@@ -107,6 +107,12 @@ var _ = Describe("Container Types", func() {
 			pfg.AbiSig = "func(324fds)"
 			err = pfg.ValidateBasic()
 			Expect(err).ToNot(BeNil())
+			pfg.AbiSig = "func"
+			err = pfg.ValidateBasic()
+			Expect(err).ToNot(BeNil())
+			pfg.AbiSig = "func())"
+			err = pfg.ValidateBasic()
+			Expect(err).ToNot(BeNil())
 		})
 	})
 })
