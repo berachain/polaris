@@ -196,7 +196,8 @@ var _ = Describe("Precompile Log", func() {
 		})
 
 		It("should error on no value decoder func", func() {
-			precompileLog, err := NewPrecompileLog(stakingModuleAddr, mockBadAbiEvent(), nil)
+			var err error
+			precompileLog, err = NewPrecompileLog(stakingModuleAddr, mockBadAbiEvent(), nil)
 			Expect(err).To(BeNil())
 
 			event := sdk.NewEvent(
@@ -208,7 +209,8 @@ var _ = Describe("Precompile Log", func() {
 		})
 
 		It("should find the custom value decoders", func() {
-			precompileLog, err := NewPrecompileLog(
+			var err error
+			precompileLog, err = NewPrecompileLog(
 				stakingModuleAddr,
 				mockBadAbiEvent(),
 				ValueDecoders{

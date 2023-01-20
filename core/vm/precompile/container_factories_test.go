@@ -124,7 +124,9 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 }
 
 func (ms *mockStateful) CustomValueDecoders() map[precompile.EventType]log.ValueDecoders {
-	return nil
+	return map[precompile.EventType]log.ValueDecoders{
+		precompile.EventType("Event"): make(log.ValueDecoders),
+	}
 }
 
 func (ms *mockStateful) ABIMethods() map[string]abi.Method {
