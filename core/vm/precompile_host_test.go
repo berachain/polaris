@@ -17,6 +17,7 @@ package vm_test
 import (
 	"errors"
 	"math/big"
+	"strconv"
 
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
@@ -25,6 +26,7 @@ import (
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/testutil"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
 	"github.com/berachain/stargazer/types/abi"
 
@@ -35,11 +37,12 @@ import (
 )
 
 var _ = Describe("Precompile Host", func() {
+	var pr *vm.PrecompileRegistry
 	var ph *vm.PrecompileHost
 	var psdb *mockPSDB
 
 	BeforeEach(func() {
-		pr := vm.NewPrecompileRegistry()
+		pr = vm.NewPrecompileRegistry()
 		err := pr.Register(&mockStateful{&mockBase{}})
 		Expect(err).To(BeNil())
 		psdb = &mockPSDB{}
@@ -60,6 +63,26 @@ var _ = Describe("Precompile Host", func() {
 		})
 	})
 
+	Describe("Test Run", func() {
+		It("should correctly run and build logs", func() {
+			abiMethod := solidity.MockPrecompileInterface.ABI.Methods["getOutput"]
+			inputs, err := abiMethod.Inputs.Pack("string")
+			Expect(err).To(BeNil())
+			pc, err := precompile.NewStatefulContainerFactory(precompile.NewLogRegistry()).Build(
+				&mockStateful{&mockBase{}},
+			)
+			Expect(err).To(BeNil())
+			_, gas, err := ph.Run(
+				pc,
+				append(abiMethod.ID, inputs...),
+				addr, new(big.Int), 10, false,
+			)
+			Expect(err).To(BeNil())
+			Expect(gas).To(Equal(uint64(9)))
+			Expect(len(psdb.logs)).To(Equal(1))
+			Expect(psdb.logs[0].Address).To(Equal(addr))
+		})
+	})
 })
 
 // MOCKS BELOW.
@@ -73,7 +96,7 @@ func (mp *mockPSDB) AddLog(log *coretypes.Log) {
 }
 
 func (mp *mockPSDB) GetContext() sdk.Context {
-	return sdk.Context{}
+	return testutil.NewContextWithMultistores()
 }
 
 type mockBase struct{}
@@ -130,6 +153,13 @@ func getOutput(
 	if !ok {
 		return nil, errors.New("cast error")
 	}
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		"cancel_unbonding_delegation",
+		sdk.NewAttribute("validator", common.EthAddressToValAddress(testutil.Alice).String()),
+		sdk.NewAttribute("delegator", common.EthAddressToAccAddress(testutil.Bob).String()),
+		sdk.NewAttribute("amount", "10bgt"),
+		sdk.NewAttribute("creation_height", strconv.FormatInt(1, 10)),
+	))
 	return []any{
 		[]mockObject{
 			{
