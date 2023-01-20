@@ -76,8 +76,8 @@ func (ph *PrecompileHost) Run(
 	}
 	suppliedGas -= gasCost
 
-	// store the number of events before container execution, to be used as index for building logs
-	// for all Cosmos events emitted during execution
+	// store the number of events before precompile container execution, to be used as index for
+	// building logs for all Cosmos events emitted during execution
 	ctx := ph.psdb.GetContext()
 	beforeExecutionNumEvents := len(ctx.EventManager().Events())
 	ret, err := pc.Run(ctx, input, caller, value, readonly)
@@ -85,7 +85,8 @@ func (ph *PrecompileHost) Run(
 		return nil, suppliedGas, err
 	}
 
-	// convert all Cosmos events emitted during container execution to logs and add to sdb
+	// convert all Cosmos events emitted during precompile container execution to logs and add to
+	// StateDB
 	events := ctx.EventManager().Events()
 	for i := beforeExecutionNumEvents; i < len(events); i++ {
 		var log *coretypes.Log
