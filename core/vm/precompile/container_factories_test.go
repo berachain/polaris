@@ -16,15 +16,25 @@ package precompile_test
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
+	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
+	"github.com/berachain/stargazer/types/abi"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Container Factories", func() {
+	var lr *precompile.LogRegistry
+
 	Context("Stateless Container Factory", func() {
 		var scf *precompile.StatelessContainerFactory
 
@@ -33,19 +43,62 @@ var _ = Describe("Container Factories", func() {
 		})
 
 		It("should build stateless precompile containers", func() {
-			pc, err := scf.Build(&mockStateless{})
+			pc, err := scf.Build(&mockStateless{&mockBase{}})
 			Expect(err).To(BeNil())
 			Expect(pc).ToNot(BeNil())
+
+			_, err = scf.Build(&mockBase{})
+			Expect(err.Error()).To(Equal("StatelessContainerImpl: this precompile contract implementation is not implemented"))
+		})
+	})
+
+	Context("Stateful Container Factory", func() {
+		var scf *precompile.StatefulContainerFactory
+
+		BeforeEach(func() {
+			lr = precompile.NewLogRegistry()
+			scf = precompile.NewStatefulContainerFactory(lr)
+		})
+
+		It("should correctly build stateful containers and log events", func() {
+			pc, err := scf.Build(&mockStateful{&mockBase{}})
+			Expect(err).To(BeNil())
+			Expect(pc).ToNot(BeNil())
+
+			_, err = scf.Build(&mockStateless{&mockBase{}})
+			Expect(err.Error()).To(Equal("StatefulContainerImpl: this precompile contract implementation is not implemented"))
+		})
+	})
+
+	Context("Dynamic Container Factory", func() {
+		var dcf *precompile.DynamicContainerFactory
+
+		BeforeEach(func() {
+			lr = precompile.NewLogRegistry()
+			dcf = precompile.NewDynamicContainerFactory(lr)
+		})
+
+		It("should properly build dynamic container", func() {
+			pc, err := dcf.Build(&mockDynamic{&mockStateful{&mockBase{}}})
+			Expect(err).To(BeNil())
+			Expect(pc).ToNot(BeNil())
+
+			_, err = dcf.Build(&mockStateful{&mockBase{}})
+			Expect(err.Error()).To(Equal("DynamicContainerImpl: this precompile contract implementation is not implemented"))
 		})
 	})
 })
 
 // MOCKS BELOW.
 
-type mockStateless struct{}
+type mockBase struct{}
 
-func (ms *mockStateless) Address() common.Address {
+func (mb *mockBase) Address() common.Address {
 	return common.Address{}
+}
+
+type mockStateless struct {
+	*mockBase
 }
 
 func (ms *mockStateless) RequiredGas(input []byte) uint64 {
@@ -57,4 +110,68 @@ func (ms *mockStateless) Run(
 	value *big.Int, readonly bool,
 ) ([]byte, error) {
 	return nil, nil
+}
+
+type mockStateful struct {
+	*mockBase
+}
+
+func (ms *mockStateful) ABIEvents() map[string]abi.Event {
+	return map[string]abi.Event{
+		"Event": {Name: "Event"},
+	}
+}
+
+func (ms *mockStateful) CustomValueDecoders() map[precompile.EventType]log.ValueDecoders {
+	return nil
+}
+
+func (ms *mockStateful) ABIMethods() map[string]abi.Method {
+	return map[string]abi.Method{
+		"getOutput": solidity.MockPrecompileInterface.ABI.Methods["getOutput"],
+	}
+}
+
+func (ms *mockStateful) PrecompileMethods() types.Methods {
+	return types.Methods{
+		{
+			AbiSig:      "getOutput(string)",
+			Execute:     getOutput,
+			RequiredGas: 1,
+		},
+	}
+}
+
+type mockDynamic struct {
+	*mockStateful
+}
+
+func (md *mockDynamic) Name() string {
+	return ""
+}
+
+type mockObject struct {
+	CreationHeight *big.Int
+	TimeStamp      string
+}
+
+func getOutput(
+	ctx sdk.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	str, ok := args[0].(string)
+	if !ok {
+		return nil, errors.New("cast error")
+	}
+	return []any{
+		[]mockObject{
+			{
+				CreationHeight: big.NewInt(1),
+				TimeStamp:      str,
+			},
+		},
+	}, nil
 }

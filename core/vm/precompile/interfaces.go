@@ -76,7 +76,7 @@ type (
 
 		// `PrecompileMethods` should return all the stateful precompile's functions (and each of
 		// their required gas).
-		PrecompileMethods() types.PrecompileMethods
+		PrecompileMethods() types.Methods
 	}
 
 	// `DynamicContractImpl` is the interface for all dynamic stateful precompiled

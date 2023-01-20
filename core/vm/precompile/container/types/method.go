@@ -142,6 +142,6 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
-// `PrecompileMethods` is a type that represents a list of precompile methods. This is what a
+// `Methods` is a type that represents a list of precompile methods. This is what a
 // stateful precompiled contract implementation should expose.
-type PrecompileMethods []*Method
+type Methods []*Method

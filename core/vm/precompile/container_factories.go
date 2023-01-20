@@ -24,9 +24,10 @@ import (
 )
 
 const (
-	// factory names stored as constants, to be used in error messages.
-	statefulContainerFactoryName = `StatefulContainerFactory`
-	dynamicContainerFactoryName  = `DynamicContainerFactory`
+	// container impl names stored as constants, to be used in error messages.
+	statelessContainerName = `StatelessContainerImpl`
+	statefulContainerName  = `StatefulContainerImpl`
+	dynamicContainerName   = `DynamicContainerImpl`
 )
 
 // Compile-time assertions to ensure these container factories adhere to
@@ -58,7 +59,7 @@ func (scf *StatelessContainerFactory) Build(
 ) (types.PrecompileContainer, error) {
 	pc, ok := bci.(StatelessContractImpl)
 	if !ok {
-		return nil, ErrNotStatelessPrecompile
+		return nil, errors.Wrap(ErrWrongContainerFactory, statelessContainerName)
 	}
 	return pc, nil
 }
@@ -89,7 +90,7 @@ func (scf *StatefulContainerFactory) Build(
 ) (types.PrecompileContainer, error) {
 	sci, ok := bci.(StatefulContractImpl)
 	if !ok {
-		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerFactoryName)
+		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
 
 	var err error
@@ -127,7 +128,7 @@ func (scf *StatefulContainerFactory) Build(
 // and `abiMethods`. This function will return an error if every method in `abiMethods` does not
 // have a valid, corresponding `types.Method`.
 func (scf *StatefulContainerFactory) buildIdsToMethods(
-	precompileMethods types.PrecompileMethods,
+	precompileMethods types.Methods,
 	abiMethods map[string]abi.Method,
 ) (map[string]*types.Method, error) {
 	// validate precompile methods
@@ -188,7 +189,7 @@ func (dcf *DynamicContainerFactory) Build(
 ) (types.PrecompileContainer, error) {
 	dci, ok := bci.(DynamicContractImpl)
 	if !ok {
-		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerFactoryName)
+		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerName)
 	}
 
 	return dcf.StatefulContainerFactory.Build(dci)
