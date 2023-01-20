@@ -17,25 +17,27 @@ package vm
 import (
 	"math/big"
 
+	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/params"
 )
 
 type VMInterface interface { //nolint:revive // we like the vibe.
-	Reset(txCtx TxContext, sdb GethStateDB)
+	Reset(txCtx TxContext, sdb state.BaseStateDB)
 	Create(caller ContractRef, code []byte,
 		gas uint64, value *big.Int,
 	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
 	Call(caller ContractRef, addr common.Address, input []byte,
 		gas uint64, value *big.Int,
 	) (ret []byte, leftOverGas uint64, err error)
-	// Config() Config
-	// ChainConfig() *params.EthChainConfig
-	// ChainRules() *params.Rules
-	// Context() BlockContext
-	// StateDB() GethStateDB
-	// TxContext() TxContext
+	Config() Config
+	ChainConfig() *params.EthChainConfig
+	Context() BlockContext
+	StateDB() state.StargazerStateDB
+	SetTxContext(TxContext)
+	SetTracer(EVMLogger)
+	SetDebug(bool)
 }
 
 var _ VMInterface = (*StargazerEVM)(nil)
@@ -49,12 +51,36 @@ type StargazerEVM struct {
 func NewStargazerEVM(
 	blockCtx BlockContext,
 	txCtx TxContext,
-	stateDB StargazerStateDB,
+	stateDB state.BaseStateDB,
 	chainConfig *params.EthChainConfig,
 	config Config,
 	precompileHost precompile.Host,
 ) *StargazerEVM {
 	return &StargazerEVM{
-		GethEVM: NewGethEVM(blockCtx, txCtx, stateDB, chainConfig, config, precompileHost),
+		GethEVM: NewGethEVMWithPrecompileHost(blockCtx, txCtx, stateDB, chainConfig, config, precompileHost),
 	}
+}
+
+func (sge *StargazerEVM) SetDebug(debug bool) {
+	sge.GethEVM.Config.Debug = debug
+}
+
+func (sge *StargazerEVM) SetTracer(tracer EVMLogger) {
+	sge.GethEVM.Config.Tracer = tracer
+}
+
+func (sge *StargazerEVM) SetTxContext(txCtx TxContext) {
+	sge.GethEVM.TxContext = txCtx
+}
+
+func (sge *StargazerEVM) StateDB() state.StargazerStateDB {
+	return sge.GethEVM.StateDB.(state.StargazerStateDB)
+}
+
+func (sge *StargazerEVM) Config() Config {
+	return sge.GethEVM.Config
+}
+
+func (sge *StargazerEVM) Context() BlockContext {
+	return sge.GethEVM.Context
 }

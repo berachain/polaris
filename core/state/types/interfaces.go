@@ -45,5 +45,5 @@ type BankKeeper interface {
 }
 
 type EthereumLogFactory interface {
-	BuildLog(event *sdk.Event) (*coretypes.Log, error)
+	BuildLog(event *sdk.Event) (*coretypes.EthLog, error)
 }

@@ -20,6 +20,7 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/berachain/stargazer/core/state"
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
@@ -37,12 +38,12 @@ type PrecompileHost struct {
 	pr *PrecompileRegistry
 
 	// `psdb` is the precompile state database.
-	psdb PrecompileStateDB
+	psdb state.PrecompileStateDB
 }
 
 // `NewPrecompileHost` creates and returns a new `PrecompileHost` for the given precompile
 // registry `pr` and log registry `lr`.
-func NewPrecompileHost(pr *PrecompileRegistry, psdb PrecompileStateDB) *PrecompileHost {
+func NewPrecompileHost(pr *PrecompileRegistry, psdb state.PrecompileStateDB) *PrecompileHost {
 	return &PrecompileHost{
 		pr:   pr,
 		psdb: psdb,
@@ -89,7 +90,7 @@ func (ph *PrecompileHost) Run(
 	// convert all Cosmos events emitted during container execution to logs and add to sdb
 	events := ctx.EventManager().Events()
 	for i := beforeExecutionNumEvents; i < len(events); i++ {
-		var log *coretypes.Log
+		var log *coretypes.EthLog
 		log, err = ph.buildLog(&events[i])
 		if err != nil {
 			return nil, suppliedGas, err
@@ -101,7 +102,7 @@ func (ph *PrecompileHost) Run(
 }
 
 // `buildLog` builds an Ethereum event log from the given Cosmos event.
-func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
+func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.EthLog, error) {
 	// validate incoming Cosmos event
 	pe := ph.pr.logRegistry.GetPrecompileLog(event)
 	if pe == nil {
@@ -113,7 +114,7 @@ func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	}
 
 	// build Ethereum log based on valid Cosmos event
-	eventLog := &coretypes.Log{
+	eventLog := &coretypes.EthLog{
 		Address: pe.ModuleAddress(),
 	}
 	if eventLog.Topics, err = pe.MakeTopics(event); err != nil {

@@ -20,3 +20,8 @@ type (
 	EthChainConfig = params.ChainConfig
 	Rules          = params.Rules
 )
+
+var (
+	RefundQuotient        = params.RefundQuotient
+	RefundQuotientEIP3529 = params.RefundQuotientEIP3529
+)

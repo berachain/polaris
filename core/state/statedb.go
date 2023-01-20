@@ -26,7 +26,6 @@ import (
 	"github.com/berachain/stargazer/core/state/store/cachemulti"
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
 )
@@ -40,8 +39,8 @@ var (
 
 // Compile-time assertions to ensure StateDB adheres to StargazerStateDB and PrecompileStateDB.
 var (
-	_ vm.StargazerStateDB  = (*StateDB)(nil)
-	_ vm.PrecompileStateDB = (*StateDB)(nil)
+	_ StargazerStateDB  = (*StateDB)(nil)
+	_ PrecompileStateDB = (*StateDB)(nil)
 )
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
@@ -97,7 +96,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	storeKey storetypes.StoreKey
 
 	// Per-transaction logs
-	logs []*coretypes.Log
+	logs []*coretypes.EthLog
 
 	// Transaction and logging bookkeeping
 	txHash    common.Hash
@@ -186,7 +185,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.savedErr = nil
 	// sdb.refund = 0
 
-	// sdb.logs = make([]*coretypes.Log, 0)
+	// sdb.logs = make([]*coretypes.EthLog, 0)
 	// sdb.accessList = newAccessList()
 	// sdb.suicides = make([]common.Address, 0)
 	// TODO: unghetto this
@@ -483,7 +482,7 @@ func (sdb *StateDB) Snapshot() int {
 // =============================================================================
 
 // AddLog implements the GethStateDB interface by adding the given log to the current transaction.
-func (sdb *StateDB) AddLog(log *coretypes.Log) {
+func (sdb *StateDB) AddLog(log *coretypes.EthLog) {
 	sdb.cms.JournalMgr.Push(&AddLogChange{sdb})
 	log.TxHash = sdb.txHash
 	log.BlockHash = sdb.blockHash
@@ -494,7 +493,7 @@ func (sdb *StateDB) AddLog(log *coretypes.Log) {
 }
 
 // Logs returns the logs of current transaction.
-func (sdb *StateDB) Logs() []*coretypes.Log {
+func (sdb *StateDB) Logs() []*coretypes.EthLog {
 	return sdb.logs
 }
 

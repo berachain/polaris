@@ -19,6 +19,10 @@ import (
 )
 
 type (
+	Bloom      = types.Bloom
 	AccessList = types.AccessList
-	Log        = types.Log
+	EthLog     = types.Log
+	Message    = types.Message
 )
+
+var NewMessage = types.NewMessage

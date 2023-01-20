@@ -15,6 +15,7 @@
 package core
 
 import (
+	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/params"
 )
@@ -35,16 +36,41 @@ func NewEVMFactory() *EVMFactory {
 
 // `Build` creates and returns a new `vm.StargazerEVM` with a new `vm.PrecompileHost`.
 func (ef *EVMFactory) Build(
-	ssdb vm.StargazerStateDB,
+	ssdb state.StargazerStateDB,
 	blockCtx vm.BlockContext,
 	txCtx vm.TxContext,
 	chainConfig *params.EthChainConfig,
 	noBaseFee bool,
 ) *vm.StargazerEVM {
 	return vm.NewStargazerEVM(
-		blockCtx, txCtx, ssdb, chainConfig, vm.Config{}, vm.NewPrecompileHost(
+		blockCtx, txCtx, ssdb, chainConfig, ef.BuildVMConfig(nil, noBaseFee), vm.NewPrecompileHost(
 			ef.pr,
 			ssdb,
 		),
 	)
+}
+
+// BuildVMConfig returns a new VMConfig to be used in the VM.
+func (ef *EVMFactory) BuildVMConfig(tracer vm.EVMLogger, noBaseFee bool) vm.Config {
+	// extraEIPs := ef.extraEIPs.Get(ctx) // silence linter
+
+	// // TODO: this is so bad need to get rid of this garbage proto type
+	// if extraEIPs == nil {
+	// 	extraEIPs = &params.ExtraEIPs{}
+	// }
+
+	// TODO: this is so bad like holy fuck on god fr fr
+	// eips := make([]int, len(extraEIPs.EIPs))
+
+	eips := make([]int, 0)
+	// for i, eip := range extraEIPs.EIPs {
+	// 	eips[i] = int(eip)
+	// }
+
+	return vm.Config{
+		Debug:     tracer != nil,
+		Tracer:    tracer,
+		NoBaseFee: noBaseFee,
+		ExtraEips: eips,
+	}
 }

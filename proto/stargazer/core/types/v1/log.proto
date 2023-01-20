@@ -1,0 +1,53 @@
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// See the file LICENSE for licensing terms.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+syntax = "proto3";
+
+package stargazer.core.types.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/berachain/stargazer/core/types";
+
+// Log represents an protobuf compatible Ethereum Log that defines a contract
+// log event.
+message Log {
+  // Consensus Fields
+  //
+  // `address` of the contract that generated the event
+  bytes address = 1 [(gogoproto.jsontag) = "address"];
+  // `topics` is a list of topics provided by the contract.
+  repeated bytes topics = 2 [(gogoproto.jsontag) = "topics"];
+  // `data` which is supplied by the contract, usually ABI-encoded
+  bytes data = 3 [(gogoproto.jsontag) = "data"];
+  // Derived Fields
+  //
+  // `block_number` of the block in which the transaction was included
+  uint64 block_number = 4 [(gogoproto.jsontag) = "blockNumber"];
+  // `tx_hash` is the transaction hash
+  string tx_hash = 5 [(gogoproto.jsontag) = "transactionHash"];
+  // `tx_index` of the transaction in the block
+  uint64 tx_index = 6 [(gogoproto.jsontag) = "transactionIndex"];
+  // `block_hash` of the block in which the transaction was included
+  string block_hash = 7 [(gogoproto.jsontag) = "blockHash"];
+  // `index` of the log in the block
+  uint64 index = 8 [(gogoproto.jsontag) = "logIndex"];
+
+  // Removed Field
+  //
+  // `removed` is true if this log was reverted due to a chain
+  // reorganisation. You must pay attention to this field if you receive logs
+  // through a filter query.
+  bool removed = 9 [(gogoproto.jsontag) = "removed"];
+}

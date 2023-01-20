@@ -28,7 +28,7 @@ var _ = Describe("AddLogChange", func() {
 	)
 	BeforeEach(func() {
 		sdb = &StateDB{
-			logs: []*coretypes.Log{},
+			logs: []*coretypes.EthLog{},
 		}
 		ce = &AddLogChange{
 			sdb: sdb,
@@ -39,7 +39,7 @@ var _ = Describe("AddLogChange", func() {
 		Expect(ce).To(BeAssignableToTypeOf(&AddLogChange{}))
 	})
 	It("Revert should remove the last log", func() {
-		sdb.logs = append(sdb.logs, &coretypes.Log{})
+		sdb.logs = append(sdb.logs, &coretypes.EthLog{})
 		ce.Revert()
 		Expect(len(sdb.logs)).To(Equal(0))
 	})

@@ -12,25 +12,25 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+syntax = "proto3";
 
-import (
-	"github.com/ethereum/go-ethereum/core/vm"
-)
+package stargazer.core.types.v1;
 
-type (
-	AccountRef      = vm.AccountRef
-	BlockContext    = vm.BlockContext
-	CanTransferFunc = vm.CanTransferFunc
-	ContractRef     = vm.ContractRef
-	Config          = vm.Config
-	EVMLogger       = vm.EVMLogger
-	GethEVM         = vm.EVM
-	TransferFunc    = vm.TransferFunc
-	TxContext       = vm.TxContext
-)
+import "stargazer/core/types/v1/log.proto";
 
-var (
-	NewGethEVMWithPrecompileHost = vm.NewEVMWithPrecompileHost
-	ErrOutOfGas                  = vm.ErrOutOfGas
-)
+option go_package = "github.com/berachain/stargazer/core/types";
+
+// `ExecutionResult` is the result of the execution.
+message ExecutionResult {
+  // `used_gas` is the gas used during the execution.
+  uint64 used_gas = 1;
+
+  // `error` is the error message of the execution.
+  string error = 2;
+
+  // `return_data` is the return data of the execution.
+  bytes return_data = 3;
+
+  // `logs` is the list of logs emitted during the execution.
+  repeated Log logs = 4;
+}

@@ -272,7 +272,7 @@ var _ = Describe("StateDB", func() {
 		Describe("TestReset", func() {
 			BeforeEach(func() {
 				sdb.AddRefund(1000)
-				sdb.AddLog(&coretypes.Log{})
+				sdb.AddLog(&coretypes.EthLog{})
 				sdb.PrepareForTransition(common.Hash{1}, common.Hash{2}, 3, 4)
 
 				sdb.CreateAccount(alice)
@@ -508,7 +508,7 @@ var _ = Describe("StateDB", func() {
 			When("We add a log to the state", func() {
 				BeforeEach(func() {
 
-					sdb.AddLog(&coretypes.Log{
+					sdb.AddLog(&coretypes.EthLog{
 						Address:     alice,
 						Topics:      []common.Hash{},
 						Data:        data,
@@ -534,7 +534,7 @@ var _ = Describe("StateDB", func() {
 				})
 				When("we add a second log", func() {
 					BeforeEach(func() {
-						sdb.AddLog(&coretypes.Log{
+						sdb.AddLog(&coretypes.EthLog{
 							Address:     alice,
 							Topics:      []common.Hash{},
 							Data:        data,
