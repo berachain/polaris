@@ -26,11 +26,11 @@ comment:
   require_changes: true
 
 ignore:
-  - "*/**/*.pb.go"
-  - "*/**/*.pb.gw.go"
-  - "*/**/*.pb.pulsar.go"
-  - "*/**/*.abigen.go"
-  - "*/**/*.mock.go"
-  - "*/**/proto"
+  - "**/*.pb.go"
+  - "**/*.pb.gw.go"
+  - "**/*.pb.pulsar.go"
+  - "**/*.abigen.go"
+  - "**/*.mock.go"
+  - "**/proto"
   - "build/"
-  - "cmd/" 
+  - "cmd/"
