@@ -157,14 +157,14 @@ func (s *CacheValueSuite) TestRevertSetAfterSet() {
 
 func (s *CacheValueSuite) TestCloneSet() {
 	dcvNonNil := newCacheEntry(s.cacheKVStore, byte1Str, newCacheValue(byte1, true))
-	dcvNonNilClone, ok := dcvNonNil.Clone().(*cacheEntry)
+	dcvNonNilClone, ok := utils.GetAs[*cacheEntry](dcvNonNil.Clone())
 	s.Require().True(ok)
 	s.Require().Equal(byte1Str, dcvNonNilClone.Key)
 	s.Require().True(dcvNonNilClone.Prev.dirty)
 	s.Require().Equal(byte1, dcvNonNilClone.Prev.value)
 
 	dcvNil := newCacheEntry(s.cacheKVStore, "", nil)
-	dcvNilClone, ok := dcvNil.Clone().(*cacheEntry)
+	dcvNilClone, ok := utils.GetAs[*cacheEntry](dcvNil.Clone())
 	s.Require().True(ok)
 	s.Require().Equal("", dcvNilClone.Key)
 	s.Require().Equal(dcvNil.Prev, dcvNilClone.Prev)

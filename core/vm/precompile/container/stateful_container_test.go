@@ -142,7 +142,7 @@ func getOutput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	str, ok := args[0].(string)
+	str, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}
@@ -173,7 +173,7 @@ func contractFuncAddrInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	_, ok := args[0].(common.Address)
+	_, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}
@@ -187,7 +187,7 @@ func contractFuncStrInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	addr, ok := args[0].(string)
+	addr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}

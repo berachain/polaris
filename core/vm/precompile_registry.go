@@ -21,10 +21,8 @@ import (
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 )
-
-var statefulContractType = reflect.TypeOf(precompile.StatefulContractImpl(nil))
-var statelessContractType = reflect.TypeOf(precompile.StatelessContractImpl(nil))
 
 // `PrecompileRegistry` stores and provides all stateless and stateful precompile containers to a
 // precompile host.
@@ -49,23 +47,23 @@ func NewPrecompileRegistry() *PrecompileRegistry {
 // `Register` builds a precompile container using a container factory and stores the container
 // at the given address. This function returns an error if the given contract is not a properly
 // defined precompile or the container factory cannot build the container.
-func (pr *PrecompileRegistry) Register(contract precompile.BaseContractImpl) error {
+func (pr *PrecompileRegistry) Register(contractImpl precompile.BaseContractImpl) error {
 	var cf precompile.AbstractContainerFactory
-	contractType := reflect.ValueOf(contract).Type()
+	contractType := reflect.TypeOf(contractImpl)
 	//nolint:gocritic // cannot be converted to switch-case.
-	if contractType.Implements(statefulContractType) {
+	if utils.Implements[precompile.StatefulContractImpl](contractImpl) {
 		cf = precompile.NewStatefulContainerFactory(pr.logRegistry)
-	} else if contractType.Implements(statelessContractType) {
+	} else if utils.Implements[precompile.StatelessContractImpl](contractImpl) {
 		cf = precompile.NewStatelessContainerFactory()
 	} else {
 		return errors.Wrap(ErrIncorrectPrecompileType, contractType.Name())
 	}
 
-	pc, err := cf.Build(contract)
+	pc, err := cf.Build(contractImpl)
 	if err != nil {
 		return err
 	}
-	pr.precompiles[contract.Address()] = pc
+	pr.precompiles[contractImpl.Address()] = pc
 
 	return nil
 }

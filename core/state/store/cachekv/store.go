@@ -81,8 +81,7 @@ func (store *Store) Get(key []byte) []byte {
 	storetypes.AssertValidKey(key)
 
 	// Check if the key is in the store's cache.
-	cacheValue, ok := store.Cache[utils.UnsafeBytesToStr(key)]
-	if !ok {
+	if cacheValue, found := store.Cache[utils.UnsafeBytesToStr(key)]; !found {
 		bz = store.Parent.Get(key)
 		store.setCacheValue(key, bz, false)
 	} else {

@@ -57,7 +57,7 @@ func NewStatelessContainerFactory() *StatelessContainerFactory {
 func (scf *StatelessContainerFactory) Build(
 	bci BaseContractImpl,
 ) (types.PrecompileContainer, error) {
-	pc, ok := bci.(StatelessContractImpl)
+	pc, ok := utils.GetAs[StatelessContractImpl](bci)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statelessContainerName)
 	}
@@ -88,7 +88,7 @@ func NewStatefulContainerFactory(lr *LogRegistry) *StatefulContainerFactory {
 func (scf *StatefulContainerFactory) Build(
 	bci BaseContractImpl,
 ) (types.PrecompileContainer, error) {
-	sci, ok := bci.(StatefulContractImpl)
+	sci, ok := utils.GetAs[StatefulContractImpl](bci)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
@@ -187,7 +187,7 @@ func NewDynamicContainerFactory(lr *LogRegistry) *DynamicContainerFactory {
 func (dcf *DynamicContainerFactory) Build(
 	bci BaseContractImpl,
 ) (types.PrecompileContainer, error) {
-	dci, ok := bci.(DynamicContractImpl)
+	dci, ok := utils.GetAs[DynamicContractImpl](bci)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerName)
 	}

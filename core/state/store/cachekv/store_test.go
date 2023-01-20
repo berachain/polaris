@@ -28,6 +28,7 @@ import (
 
 	"github.com/berachain/stargazer/core/state/store/cachekv"
 	"github.com/berachain/stargazer/core/state/store/journal"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
 func newParent() types.CacheKVStore {
@@ -87,17 +88,21 @@ func TestCacheWrap(t *testing.T) {
 	st.Set(keyFmt(1), valFmt(1))
 	require.Equal(t, valFmt(1), st.Get(keyFmt(1)))
 
-	stWrap, ok := st.CacheWrap().(types.KVStore)
+	stWrap, ok := utils.GetAs[types.KVStore](st.CacheWrap())
 	require.True(t, ok)
-	stTrace, ok := st.CacheWrapWithTrace(
-		bytes.NewBuffer(nil),
-		types.TraceContext(map[string]interface{}{"blockHeight": 64}),
-	).(types.KVStore)
+	stTrace, ok := utils.GetAs[types.KVStore](
+		st.CacheWrapWithTrace(
+			bytes.NewBuffer(nil),
+			types.TraceContext(map[string]interface{}{"blockHeight": 64}),
+		),
+	)
 	require.True(t, ok)
-	stListeners, ok := st.CacheWrapWithListeners(
-		types.NewKVStoreKey("acc"),
-		[]types.WriteListener{},
-	).(types.KVStore)
+	stListeners, ok := utils.GetAs[types.KVStore](
+		st.CacheWrapWithListeners(
+			types.NewKVStoreKey("acc"),
+			[]types.WriteListener{},
+		),
+	)
 	require.True(t, ok)
 
 	// test after initializing cache wraps

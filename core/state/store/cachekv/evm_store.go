@@ -43,8 +43,7 @@ func NewEvmStore(parent storetypes.KVStore, journalMgr *journal.Manager) *EvmSto
 func (store *EvmStore) Get(key []byte) []byte {
 	var bz []byte
 	// Check if the key is in the store's cache.
-	cacheValue, ok := store.Cache[utils.UnsafeBytesToStr(key)]
-	if ok {
+	if cacheValue, found := store.Cache[utils.UnsafeBytesToStr(key)]; found {
 		// If the key is in the cache, return the value.
 		return cacheValue.value
 	}

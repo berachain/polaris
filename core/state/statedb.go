@@ -29,6 +29,7 @@ import (
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
 var (
@@ -133,8 +134,7 @@ func NewStateDB(
 	sdb.ctx = ctx.WithMultiStore(sdb.cms)
 
 	// Store a reference to the EVM state store for performance reasons.
-	sdb.ethStore, _ = sdb.cms.
-		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
+	sdb.ethStore, _ = utils.GetAs[cachekv.StateDBCacheKVStore](sdb.cms.GetKVStore(sdb.storeKey))
 
 	return sdb
 }

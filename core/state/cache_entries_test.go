@@ -17,6 +17,7 @@ package state
 import (
 	"github.com/berachain/stargazer/core/state/store/journal"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -44,7 +45,7 @@ var _ = Describe("AddLogChange", func() {
 		Expect(len(sdb.logs)).To(Equal(0))
 	})
 	It("Clone should return a new AddLogChange with the same sdb", func() {
-		cloned, ok := ce.Clone().(*AddLogChange)
+		cloned, ok := utils.GetAs[*AddLogChange](ce.Clone())
 		Expect(ok).To(BeTrue())
 		Expect(cloned.sdb).To(Equal(sdb))
 		Expect(cloned).ToNot(BeIdenticalTo(ce))
@@ -77,7 +78,7 @@ var _ = Describe("RefundChange", func() {
 		Expect(sdb.refund).To(Equal(uint64(50)))
 	})
 	It("Clone should return a new RefundChange with the same sdb and prev", func() {
-		cloned, ok := ce.Clone().(*RefundChange)
+		cloned, ok := utils.GetAs[*RefundChange](ce.Clone())
 		Expect(ok).To(BeTrue())
 		Expect(cloned.sdb).To(Equal(sdb))
 		Expect(cloned.prev).To(Equal(ce.prev))

@@ -30,18 +30,18 @@ import (
 var _ precompile.Host = (*PrecompileHost)(nil)
 
 // `PrecompileHost` is the execution environment of a precompiled container at a given address.
-// The host manages the execution of the container and emission of logs.
+// The host manages the execution of the container and emission of Cosmos events to Ethereum logs.
 type PrecompileHost struct {
 	// `pr` is the registry from which the precompile container will be pulled and precompile logs
 	// can be built.
 	pr *PrecompileRegistry
 
-	// `psdb` is the precompile state database.
+	// `psdb` is the precompile StateDB to support state changes during precompile execution.
 	psdb PrecompileStateDB
 }
 
 // `NewPrecompileHost` creates and returns a new `PrecompileHost` for the given precompile
-// registry `pr` and log registry `lr`.
+// registry `pr` and precompile StateDB `psdb`.
 func NewPrecompileHost(pr *PrecompileRegistry, psdb PrecompileStateDB) *PrecompileHost {
 	return &PrecompileHost{
 		pr:   pr,
@@ -63,7 +63,6 @@ func (ph *PrecompileHost) Exists(addr common.Address) (types.PrecompileContainer
 // `Run` implements `precompile.Host`.
 func (ph *PrecompileHost) Run(
 	pc types.PrecompileContainer,
-
 	input []byte,
 	caller common.Address,
 	value *big.Int,

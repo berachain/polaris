@@ -12,15 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package vm_test
 
 import (
-	"context"
 	"errors"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
@@ -29,88 +28,60 @@ import (
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
 	"github.com/berachain/stargazer/types/abi"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Container Factories", func() {
-	var lr *precompile.LogRegistry
+var _ = Describe("Precompile Host", func() {
+	var ph *vm.PrecompileHost
+	var psdb *mockPSDB
 
-	Context("Stateless Container Factory", func() {
-		var scf *precompile.StatelessContainerFactory
+	BeforeEach(func() {
+		pr := vm.NewPrecompileRegistry()
+		err := pr.Register(&mockStateful{&mockBase{}})
+		Expect(err).To(BeNil())
+		psdb = &mockPSDB{}
+		ph = vm.NewPrecompileHost(pr, psdb)
+	})
 
-		BeforeEach(func() {
-			scf = precompile.NewStatelessContainerFactory()
+	Describe("Test Exists", func() {
+		It("should not return a container that doesn't exist", func() {
+			pc, exists := ph.Exists(common.BytesToAddress([]byte{2}))
+			Expect(exists).To(BeFalse())
+			Expect(pc).To(BeNil())
 		})
 
-		It("should build stateless precompile containers", func() {
-			pc, err := scf.Build(&mockStateless{&mockBase{}})
-			Expect(err).To(BeNil())
+		It("should return a container that does exist", func() {
+			pc, exists := ph.Exists(addr)
+			Expect(exists).To(BeTrue())
 			Expect(pc).ToNot(BeNil())
-
-			_, err = scf.Build(&mockBase{})
-			Expect(err.Error()).To(Equal("StatelessContainerImpl: this precompile contract implementation is not implemented"))
 		})
 	})
 
-	Context("Stateful Container Factory", func() {
-		var scf *precompile.StatefulContainerFactory
-
-		BeforeEach(func() {
-			lr = precompile.NewLogRegistry()
-			scf = precompile.NewStatefulContainerFactory(lr)
-		})
-
-		It("should correctly build stateful containers and log events", func() {
-			pc, err := scf.Build(&mockStateful{&mockBase{}})
-			Expect(err).To(BeNil())
-			Expect(pc).ToNot(BeNil())
-
-			_, err = scf.Build(&mockStateless{&mockBase{}})
-			Expect(err.Error()).To(Equal("StatefulContainerImpl: this precompile contract implementation is not implemented"))
-		})
-	})
-
-	Context("Dynamic Container Factory", func() {
-		var dcf *precompile.DynamicContainerFactory
-
-		BeforeEach(func() {
-			lr = precompile.NewLogRegistry()
-			dcf = precompile.NewDynamicContainerFactory(lr)
-		})
-
-		It("should properly build dynamic container", func() {
-			pc, err := dcf.Build(&mockDynamic{&mockStateful{&mockBase{}}})
-			Expect(err).To(BeNil())
-			Expect(pc).ToNot(BeNil())
-
-			_, err = dcf.Build(&mockStateful{&mockBase{}})
-			Expect(err.Error()).To(Equal("DynamicContainerImpl: this precompile contract implementation is not implemented"))
-		})
-	})
 })
 
 // MOCKS BELOW.
 
+type mockPSDB struct {
+	logs []*coretypes.Log
+}
+
+func (mp *mockPSDB) AddLog(log *coretypes.Log) {
+	mp.logs = append(mp.logs, log)
+}
+
+func (mp *mockPSDB) GetContext() sdk.Context {
+	return sdk.Context{}
+}
+
 type mockBase struct{}
 
+var addr = common.BytesToAddress([]byte{1})
+
 func (mb *mockBase) Address() common.Address {
-	return common.Address{}
-}
-
-type mockStateless struct {
-	*mockBase
-}
-
-func (ms *mockStateless) RequiredGas(input []byte) uint64 {
-	return 0
-}
-
-func (ms *mockStateless) Run(
-	ctx context.Context, input []byte, caller common.Address,
-	value *big.Int, readonly bool,
-) ([]byte, error) {
-	return nil, nil
+	return addr
 }
 
 type mockStateful struct {
@@ -119,7 +90,7 @@ type mockStateful struct {
 
 func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	return map[string]abi.Event{
-		"Event": {Name: "Event"},
+		"CancelUnbondingDelegation": mockAbiEvent(),
 	}
 }
 
@@ -141,14 +112,6 @@ func (ms *mockStateful) PrecompileMethods() types.Methods {
 			RequiredGas: 1,
 		},
 	}
-}
-
-type mockDynamic struct {
-	*mockStateful
-}
-
-func (md *mockDynamic) Name() string {
-	return ""
 }
 
 type mockObject struct {
@@ -175,4 +138,37 @@ func getOutput(
 			},
 		},
 	}, nil
+}
+
+func mockAbiEvent() abi.Event {
+	addrType, _ := abi.NewType("address", "address", nil)
+	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
+	int64Type, _ := abi.NewType("int64", "int64", nil)
+	return abi.NewEvent(
+		"CancelUnbondingDelegation",
+		"CancelUnbondingDelegation",
+		false,
+		abi.Arguments{
+			abi.Argument{
+				Name:    "validator",
+				Type:    addrType,
+				Indexed: true,
+			},
+			abi.Argument{
+				Name:    "delegator",
+				Type:    addrType,
+				Indexed: true,
+			},
+			abi.Argument{
+				Name:    "amount",
+				Type:    uint256Type,
+				Indexed: false,
+			},
+			abi.Argument{
+				Name:    "creationHeight",
+				Type:    int64Type,
+				Indexed: false,
+			},
+		},
+	)
 }

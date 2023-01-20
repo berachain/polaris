@@ -25,6 +25,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
 var _ = Describe("Attributes Test Suite", func() {
@@ -36,7 +37,7 @@ var _ = Describe("Attributes Test Suite", func() {
 			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
 			gethValue, err = ConvertSdkCoin(denom10.String())
 			Expect(err).To(BeNil())
-			bigVal, ok := gethValue.(*big.Int)
+			bigVal, ok := utils.GetAs[*big.Int](gethValue)
 			Expect(ok).To(BeTrue())
 			Expect(bigVal).To(Equal(big.NewInt(10)))
 		})
@@ -45,7 +46,7 @@ var _ = Describe("Attributes Test Suite", func() {
 			creationHeightStr := strconv.FormatInt(55, 10)
 			gethValue, err = ConvertInt64(creationHeightStr)
 			Expect(err).To(BeNil())
-			int64Val, ok := gethValue.(int64)
+			int64Val, ok := utils.GetAs[int64](gethValue)
 			Expect(ok).To(BeTrue())
 			Expect(int64Val).To(Equal(int64(55)))
 		})
@@ -54,7 +55,7 @@ var _ = Describe("Attributes Test Suite", func() {
 			valAddr := sdk.ValAddress([]byte("alice"))
 			gethValue, err = ConvertValAddressFromBech32(valAddr.String())
 			Expect(err).To(BeNil())
-			valAddrVal, ok := gethValue.(common.Address)
+			valAddrVal, ok := utils.GetAs[common.Address](gethValue)
 			Expect(ok).To(BeTrue())
 			Expect(valAddrVal).To(Equal(common.ValAddressToEthAddress(valAddr)))
 		})
@@ -63,7 +64,7 @@ var _ = Describe("Attributes Test Suite", func() {
 			accAddr := sdk.AccAddress([]byte("alice"))
 			gethValue, err = ConvertAccAddressFromBech32(accAddr.String())
 			Expect(err).To(BeNil())
-			accAddrVal, ok := gethValue.(common.Address)
+			accAddrVal, ok := utils.GetAs[common.Address](gethValue)
 			Expect(ok).To(BeTrue())
 			Expect(accAddrVal).To(Equal(common.AccAddressToEthAddress(accAddr)))
 		})
