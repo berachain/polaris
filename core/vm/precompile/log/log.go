@@ -161,15 +161,14 @@ func (pe *PrecompileLog) ValidateAttributes(event *sdk.Event) error {
 func (pe *PrecompileLog) getValueDecoder(attrKey string) (valueDecoder, error) {
 	// try custom precompile event attributes
 	if pe.customValueDecoders != nil {
-		if decode := pe.customValueDecoders[attrKey]; decode != nil {
-			return decode, nil
+		if customDecoder, found := pe.customValueDecoders[attrKey]; found {
+			return customDecoder, nil
 		}
 	}
 
 	// try default Cosmos SDK event attributes
-	decode := defaultCosmosValueDecoders[attrKey]
-	if decode != nil {
-		return decode, nil
+	if defaultDecoder, found := defaultCosmosValueDecoders[attrKey]; found {
+		return defaultDecoder, nil
 	}
 
 	// no value decoder function was found for attribute key

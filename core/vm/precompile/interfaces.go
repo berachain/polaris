@@ -39,8 +39,6 @@ type (
 		types.PrecompileContainer
 	}
 
-	// TODO: `HasErrors`
-
 	// `HasEvents` is an interface that enforces the required function for a stateful precompile
 	// contract to implement if it wants to emit some (or all) of its Cosmos module's events as
 	// Ethereum event logs.
