@@ -42,151 +42,195 @@ var _ = Describe("Precompile Log", func() {
 	var amt sdk.Coin
 	var creationHeight int64
 
-	BeforeEach(func() {
-		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
-		var err error
-		precompileLog, err = NewPrecompileLog(stakingModuleAddr, getMockAbiEvent(), nil)
-		Expect(err).To(BeNil())
+	Context("No value decoder issues", func() {
+		BeforeEach(func() {
+			stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
+			var err error
+			precompileLog, err = NewPrecompileLog(stakingModuleAddr, mockDefaultAbiEvent(), nil)
+			Expect(err).To(BeNil())
 
-		valAddr = sdk.ValAddress([]byte("alice"))
-		delAddr = sdk.AccAddress([]byte("bob"))
-		amt = sdk.NewCoin("denom", sdk.NewInt(1))
-		creationHeight = int64(1234)
+			valAddr = sdk.ValAddress([]byte("alice"))
+			delAddr = sdk.AccAddress([]byte("bob"))
+			amt = sdk.NewCoin("denom", sdk.NewInt(1))
+			creationHeight = int64(1234)
+		})
+
+		Describe("Valid Cosmos Event", func() {
+			It("should handle all allowed cosmos types", func() {
+				event := sdk.NewEvent(
+					"cancel_unbonding_delegation",
+					sdk.NewAttribute("validator", valAddr.String()),
+					sdk.NewAttribute("amount", amt.String()),
+					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
+					sdk.NewAttribute("delegator", delAddr.String()),
+				)
+				eventID := crypto.Keccak256Hash(
+					[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
+				)
+
+				err := precompileLog.ValidateAttributes(&event)
+				Expect(err).To(BeNil())
+
+				addr := precompileLog.ModuleAddress()
+				Expect(addr).To(Equal(stakingModuleAddr))
+
+				topics, err := precompileLog.MakeTopics(&event)
+				Expect(err).To(BeNil())
+				Expect(len(topics)).To(Equal(3))
+				Expect(topics[0]).To(Equal(eventID))
+				Expect(topics[1]).To(Equal(
+					common.BytesToHash(valAddr.Bytes()),
+				))
+				Expect(topics[2]).To(Equal(
+					common.BytesToHash(delAddr.Bytes()),
+				))
+
+				data, err := precompileLog.MakeData(&event)
+				Expect(err).To(BeNil())
+				packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().PackValues(
+					[]any{
+						amt.Amount.BigInt(),
+						creationHeight,
+					},
+				)
+				Expect(err).To(BeNil())
+				Expect(data).To(Equal(packedData))
+			})
+		})
+
+		Describe("Invalid Cosmos Events", func() {
+			It("should fail on incorrect number of attributes given", func() {
+				event := sdk.NewEvent(
+					"cancel_unbonding_delegation",
+					sdk.NewAttribute("validator", valAddr.String()),
+					sdk.NewAttribute("amount", amt.String()),
+					sdk.NewAttribute("delegator", delAddr.String()),
+				)
+				err := precompileLog.ValidateAttributes(&event)
+				Expect(err.Error()).To(Equal("not enough event attributes provided"))
+			})
+
+			It("should fail on invalid (indexed) attribute key given", func() {
+				event := sdk.NewEvent(
+					"cancel_unbonding_delegation",
+					sdk.NewAttribute("validator!", valAddr.String()),
+					sdk.NewAttribute("amount", amt.String()),
+					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
+					sdk.NewAttribute("delegator", delAddr.String()),
+				)
+				_, err := precompileLog.MakeTopics(&event)
+				Expect(err.Error()).To(Equal("validator: this Ethereum event argument has no matching Cosmos attribute key"))
+			})
+
+			It("should fail on invalid (non-indexed) attribute key given", func() {
+				event := sdk.NewEvent(
+					"cancel_unbonding_delegation",
+					sdk.NewAttribute("validator", valAddr.String()),
+					sdk.NewAttribute("amount!", amt.String()),
+					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
+					sdk.NewAttribute("delegator", delAddr.String()),
+				)
+				_, err := precompileLog.MakeData(&event)
+				Expect(err.Error()).To(Equal("amount: this Ethereum event argument has no matching Cosmos attribute key"))
+			})
+
+			Context("bad attribute values", func() {
+				It("should error on bad validator address", func() {
+					event := sdk.NewEvent(
+						"cancel_unbonding_delegation",
+						sdk.NewAttribute("validator", "bad validator string"),
+						sdk.NewAttribute("amount", amt.String()),
+						sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
+						sdk.NewAttribute("delegator", delAddr.String()),
+					)
+					_, err := precompileLog.MakeTopics(&event)
+					Expect(err).ToNot(BeNil())
+				})
+
+				It("should error on bad amount value", func() {
+					event := sdk.NewEvent(
+						"cancel_unbonding_delegation",
+						sdk.NewAttribute("validator", valAddr.String()),
+						sdk.NewAttribute("amount", "bad amount value"),
+						sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
+						sdk.NewAttribute("delegator", delAddr.String()),
+					)
+					_, err := precompileLog.MakeData(&event)
+					Expect(err).ToNot(BeNil())
+				})
+
+				It("should error on bad account address", func() {
+					event := sdk.NewEvent(
+						"cancel_unbonding_delegation",
+						sdk.NewAttribute("validator", valAddr.String()),
+						sdk.NewAttribute("amount", amt.String()),
+						sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
+						sdk.NewAttribute("delegator", "bad acc string"),
+					)
+					_, err := precompileLog.MakeTopics(&event)
+					Expect(err).ToNot(BeNil())
+				})
+
+				It("should error on bad creation height", func() {
+					event := sdk.NewEvent(
+						"cancel_unbonding_delegation",
+						sdk.NewAttribute("validator", valAddr.String()),
+						sdk.NewAttribute("amount", amt.String()),
+						sdk.NewAttribute("creation_height", "bad creation height"),
+						sdk.NewAttribute("delegator", delAddr.String()),
+					)
+					_, err := precompileLog.MakeData(&event)
+					Expect(err).ToNot(BeNil())
+				})
+			})
+		})
 	})
 
-	Describe("Valid Cosmos Event", func() {
-		It("should handle all allowed cosmos types", func() {
+	Context("value decoder issues", func() {
+		BeforeEach(func() {
+			stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
+			valAddr = sdk.ValAddress([]byte("alice"))
+			delAddr = sdk.AccAddress([]byte("bob"))
+			amt = sdk.NewCoin("denom", sdk.NewInt(1))
+			creationHeight = int64(1234)
+		})
+
+		It("should error on no value decoder func", func() {
+			precompileLog, err := NewPrecompileLog(stakingModuleAddr, mockBadAbiEvent(), nil)
+			Expect(err).To(BeNil())
+
 			event := sdk.NewEvent(
 				"cancel_unbonding_delegation",
-				sdk.NewAttribute("validator", valAddr.String()),
-				sdk.NewAttribute("amount", amt.String()),
-				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-				sdk.NewAttribute("delegator", delAddr.String()),
+				sdk.NewAttribute("validator_bad_arg", "bad validator value"),
 			)
-			eventID := crypto.Keccak256Hash(
-				[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
-			)
+			_, err = precompileLog.MakeTopics(&event)
+			Expect(err.Error()).To(Equal("validator_bad_arg: no value decoder function is found for event attribute key"))
+		})
 
-			err := precompileLog.ValidateAttributes(&event)
-			Expect(err).To(BeNil())
-
-			addr := precompileLog.ModuleAddress()
-			Expect(addr).To(Equal(stakingModuleAddr))
-
-			topics, err := precompileLog.MakeTopics(&event)
-			Expect(err).To(BeNil())
-			Expect(len(topics)).To(Equal(3))
-			Expect(topics[0]).To(Equal(eventID))
-			Expect(topics[1]).To(Equal(
-				common.BytesToHash(valAddr.Bytes()),
-			))
-			Expect(topics[2]).To(Equal(
-				common.BytesToHash(delAddr.Bytes()),
-			))
-
-			data, err := precompileLog.MakeData(&event)
-			Expect(err).To(BeNil())
-			packedData, err := getMockAbiEvent().Inputs.NonIndexed().PackValues(
-				[]any{
-					amt.Amount.BigInt(),
-					creationHeight,
+		It("should find the custom value decoders", func() {
+			precompileLog, err := NewPrecompileLog(
+				stakingModuleAddr,
+				mockBadAbiEvent(),
+				ValueDecoders{
+					"validator_bad_arg": func(s string) (any, error) {
+						return common.ValAddressToEthAddress(valAddr), nil
+					},
 				},
 			)
 			Expect(err).To(BeNil())
-			Expect(data).To(Equal(packedData))
+
+			event := sdk.NewEvent(
+				"cancel_unbonding_delegation",
+				sdk.NewAttribute("validator_bad_arg", "any validator value"),
+			)
+			topics, err := precompileLog.MakeTopics(&event)
+			Expect(err).To(BeNil())
+			Expect(topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 		})
 	})
-
-	Describe("Invalid Cosmos Events", func() {
-		It("should fail on incorrect number of attributes given", func() {
-			event := sdk.NewEvent(
-				"cancel_unbonding_delegation",
-				sdk.NewAttribute("validator", valAddr.String()),
-				sdk.NewAttribute("amount", amt.String()),
-				sdk.NewAttribute("delegator", delAddr.String()),
-			)
-			err := precompileLog.ValidateAttributes(&event)
-			Expect(err.Error()).To(Equal("not enough event attributes provided"))
-		})
-
-		It("should fail on invalid (indexed) attribute key given", func() {
-			event := sdk.NewEvent(
-				"cancel_unbonding_delegation",
-				sdk.NewAttribute("validator!", valAddr.String()),
-				sdk.NewAttribute("amount", amt.String()),
-				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-				sdk.NewAttribute("delegator", delAddr.String()),
-			)
-			_, err := precompileLog.MakeTopics(&event)
-			Expect(err.Error()).To(Equal("validator: this Ethereum event argument has no matching Cosmos attribute key"))
-		})
-
-		It("should fail on invalid (non-indexed) attribute key given", func() {
-			event := sdk.NewEvent(
-				"cancel_unbonding_delegation",
-				sdk.NewAttribute("validator", valAddr.String()),
-				sdk.NewAttribute("amount!", amt.String()),
-				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-				sdk.NewAttribute("delegator", delAddr.String()),
-			)
-			_, err := precompileLog.MakeData(&event)
-			Expect(err.Error()).To(Equal("amount: this Ethereum event argument has no matching Cosmos attribute key"))
-		})
-
-		Context("bad attribute values", func() {
-			It("should error on bad validator address", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", "bad validator string"),
-					sdk.NewAttribute("amount", amt.String()),
-					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-					sdk.NewAttribute("delegator", delAddr.String()),
-				)
-				_, err := precompileLog.MakeTopics(&event)
-				Expect(err).ToNot(BeNil())
-			})
-
-			It("should error on bad amount value", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", valAddr.String()),
-					sdk.NewAttribute("amount", "bad amount value"),
-					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-					sdk.NewAttribute("delegator", delAddr.String()),
-				)
-				_, err := precompileLog.MakeData(&event)
-				Expect(err).ToNot(BeNil())
-			})
-
-			It("should error on bad account address", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", valAddr.String()),
-					sdk.NewAttribute("amount", amt.String()),
-					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-					sdk.NewAttribute("delegator", "bad acc string"),
-				)
-				_, err := precompileLog.MakeTopics(&event)
-				Expect(err).ToNot(BeNil())
-			})
-
-			It("should error on bad creation height", func() {
-				event := sdk.NewEvent(
-					"cancel_unbonding_delegation",
-					sdk.NewAttribute("validator", valAddr.String()),
-					sdk.NewAttribute("amount", amt.String()),
-					sdk.NewAttribute("creation_height", "bad creation height"),
-					sdk.NewAttribute("delegator", delAddr.String()),
-				)
-				_, err := precompileLog.MakeData(&event)
-				Expect(err).ToNot(BeNil())
-			})
-		})
-	})
-
 })
 
-func getMockAbiEvent() abi.Event {
+func mockDefaultAbiEvent() abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
 	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
 	int64Type, _ := abi.NewType("int64", "int64", nil)
@@ -195,25 +239,41 @@ func getMockAbiEvent() abi.Event {
 		"CancelUnbondingDelegation",
 		false,
 		abi.Arguments{
-			abi.Argument{
+			{
 				Name:    "validator",
 				Type:    addrType,
 				Indexed: true,
 			},
-			abi.Argument{
+			{
 				Name:    "delegator",
 				Type:    addrType,
 				Indexed: true,
 			},
-			abi.Argument{
+			{
 				Name:    "amount",
 				Type:    uint256Type,
 				Indexed: false,
 			},
-			abi.Argument{
+			{
 				Name:    "creationHeight",
 				Type:    int64Type,
 				Indexed: false,
+			},
+		},
+	)
+}
+
+func mockBadAbiEvent() abi.Event {
+	addrType, _ := abi.NewType("address", "address", nil)
+	return abi.NewEvent(
+		"CancelUnbondingDelegation",
+		"CancelUnbondingDelegation",
+		false,
+		abi.Arguments{
+			{
+				Name:    "validatorBadArg",
+				Type:    addrType,
+				Indexed: true,
 			},
 		},
 	)
