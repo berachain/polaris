@@ -15,6 +15,7 @@
 package vm_test
 
 import (
+	"context"
 	"errors"
 	"math/big"
 	"strconv"
@@ -83,6 +84,13 @@ var _ = Describe("Precompile Host", func() {
 			Expect(psdb.logs[0].Address).To(Equal(addr))
 		})
 	})
+
+	Describe("Test Stateless Registration", func() {
+		It("should properly register via the stateless container factory", func() {
+			err := pr.Register(&mockStateless{})
+			Expect(err).To(BeNil())
+		})
+	})
 })
 
 // MOCKS BELOW.
@@ -105,6 +113,21 @@ var addr = common.BytesToAddress([]byte{1})
 
 func (mb *mockBase) Address() common.Address {
 	return addr
+}
+
+type mockStateless struct {
+	*mockBase
+}
+
+func (ms *mockStateless) RequiredGas(input []byte) uint64 {
+	return 0
+}
+
+func (ms *mockStateless) Run(
+	ctx context.Context, input []byte, caller common.Address,
+	value *big.Int, readonly bool,
+) ([]byte, error) {
+	return nil, nil
 }
 
 type mockStateful struct {
