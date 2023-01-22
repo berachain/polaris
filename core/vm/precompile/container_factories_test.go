@@ -135,9 +135,9 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	}
 }
 
-func (ms *mockStateful) CustomValueDecoders() map[precompile.EventType]log.ValueDecoders {
-	return map[precompile.EventType]log.ValueDecoders{
-		precompile.EventType("Event"): make(log.ValueDecoders),
+func (ms *mockStateful) CustomValueDecoders() map[string]log.ValueDecoders {
+	return map[string]log.ValueDecoders{
+		string("Event"): make(log.ValueDecoders),
 	}
 }
 

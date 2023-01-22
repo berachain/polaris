@@ -59,7 +59,7 @@ type (
 		// `CustomValueDecoders` should return a map of Cosmos event types to attribute
 		// key-to-value decoder functions map for each of the supported events in the custom Cosmos
 		// module.
-		CustomValueDecoders() map[EventType]log.ValueDecoders
+		CustomValueDecoders() map[string]log.ValueDecoders
 	}
 
 	// `StatefulContractImpl` is the interface for all stateful precompiled contracts, which

@@ -111,7 +111,7 @@ func (scf *StatefulContainerFactory) Build(
 			// add value decoders if the event is custom
 			var customEventValueDecoders log.ValueDecoders
 			if customValueDecoders != nil {
-				customEventValueDecoders = customValueDecoders[EventType(abiEvent.Name)]
+				customEventValueDecoders = customValueDecoders[abiEvent.Name]
 			}
 			// register the event to the precompiles' log registry
 			err = scf.lr.RegisterEvent(sci.Address(), abiEvent, customEventValueDecoders)

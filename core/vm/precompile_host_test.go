@@ -140,7 +140,7 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	}
 }
 
-func (ms *mockStateful) CustomValueDecoders() map[precompile.EventType]log.ValueDecoders {
+func (ms *mockStateful) CustomValueDecoders() map[string]log.ValueDecoders {
 	return nil
 }
 

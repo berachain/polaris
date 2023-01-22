@@ -21,21 +21,17 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version of
-// its corresponding `eventType`.
-type EventType string
-
 // `LogRegistry` stores a mapping of `EventType`s to `*log.PrecompileLog`s.
 type LogRegistry struct {
 	// `eventTypesToLogs` is a map of `EventType`s to `*log.PrecompileLog` for all supported
 	// events.
-	eventTypesToLogs map[EventType]*log.PrecompileLog
+	eventTypesToLogs map[string]*log.PrecompileLog
 }
 
 // `NewLogRegistry` creates and returns a new, empty `LogRegistry`.
 func NewLogRegistry() *LogRegistry {
 	return &LogRegistry{
-		eventTypesToLogs: make(map[EventType]*log.PrecompileLog),
+		eventTypesToLogs: make(map[string]*log.PrecompileLog),
 	}
 }
 
@@ -45,12 +41,12 @@ func (lr *LogRegistry) RegisterEvent(
 	abiEvent abi.Event,
 	customModuleAttributes log.ValueDecoders,
 ) error {
-	if _, found := lr.eventTypesToLogs[EventType(abiEvent.Name)]; found {
+	if _, found := lr.eventTypesToLogs[abiEvent.Name]; found {
 		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
 	}
 
 	var err error
-	lr.eventTypesToLogs[EventType(abiEvent.Name)], err = log.NewPrecompileLog(
+	lr.eventTypesToLogs[abiEvent.Name], err = log.NewPrecompileLog(
 		moduleEthAddress,
 		abiEvent,
 		customModuleAttributes,
@@ -60,5 +56,5 @@ func (lr *LogRegistry) RegisterEvent(
 
 // `GetPrecompileLog` returns the precompile log corresponding to the given event.
 func (lr *LogRegistry) GetPrecompileLog(eventType string) *log.PrecompileLog {
-	return lr.eventTypesToLogs[EventType(abi.ToCamelCase(eventType))]
+	return lr.eventTypesToLogs[abi.ToCamelCase(eventType)]
 }
