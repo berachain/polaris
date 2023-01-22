@@ -17,27 +17,16 @@ package vm
 import (
 	"math/big"
 
-	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/lib/common"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to
 // support additional state transition functionalities that are useful in a Cosmos SDK context.
 type StargazerStateDB interface {
 	GethStateDB
-	PrecompileStateDB
+	precompile.PrecompileStateDB
 
 	// TransferBalance transfers the balance from one account to another
 	TransferBalance(common.Address, common.Address, *big.Int)
-}
-
-// `PrecompileStateDB` defines the required functions to support execution of stateful precompiled
-// contracts.
-type PrecompileStateDB interface {
-	// `AddLog` adds a log to the StateDB.
-	AddLog(*coretypes.Log)
-
-	// `GetContext` returns the Cosmos SDK context with the StateDB Multistore attached.
-	GetContext() sdk.Context
 }

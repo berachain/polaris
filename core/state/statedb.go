@@ -16,6 +16,7 @@ package state
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"math/big"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
@@ -41,8 +43,8 @@ var (
 
 // Compile-time assertions to ensure StateDB adheres to StargazerStateDB and PrecompileStateDB.
 var (
-	_ vm.StargazerStateDB  = (*StateDB)(nil)
-	_ vm.PrecompileStateDB = (*StateDB)(nil)
+	_ vm.StargazerStateDB          = (*StateDB)(nil)
+	_ precompile.PrecompileStateDB = (*StateDB)(nil)
 )
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
@@ -140,7 +142,7 @@ func NewStateDB(
 }
 
 // `GetContext` implements `StargazerStateDB`.
-func (sdb *StateDB) GetContext() sdk.Context {
+func (sdb *StateDB) GetContext() context.Context {
 	return sdb.ctx
 }
 

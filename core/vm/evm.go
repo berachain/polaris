@@ -47,7 +47,7 @@ func NewStargazerEVM(
 	stateDB StargazerStateDB,
 	chainConfig *params.EthChainConfig,
 	config Config,
-	precompileRunner precompile.Runner,
+	precompileRunner *precompile.Runner,
 ) *StargazerEVM {
 	return &StargazerEVM{
 		GethEVM: NewGethEVM(blockCtx, txCtx, stateDB, chainConfig, config, precompileRunner),

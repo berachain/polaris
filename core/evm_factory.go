@@ -16,6 +16,7 @@ package core
 
 import (
 	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/params"
 )
 
@@ -23,13 +24,13 @@ import (
 type EVMFactory struct {
 	// `pr` is the precompile registry is responsible for keeping track of the stateful
 	// precompiles, events, and errors that are available to the EVM.
-	pr *vm.PrecompileRegistry
+	pr *precompile.Registry
 }
 
-// `NewEVMFactory` creates and returns a new `EVMFactory` with a new `vm.PrecompileRegistry`.
+// `NewEVMFactory` creates and returns a new `EVMFactory` with a new `precompile.Registry`.
 func NewEVMFactory() *EVMFactory {
 	return &EVMFactory{
-		pr: vm.NewPrecompileRegistry(),
+		pr: precompile.NewRegistry(),
 	}
 }
 
@@ -43,7 +44,7 @@ func (ef *EVMFactory) Build(
 ) *vm.StargazerEVM {
 	return vm.NewStargazerEVM(
 		blockCtx, txCtx, ssdb, chainConfig, vm.Config{},
-		vm.NewPrecompileRunner(
+		precompile.NewRunner(
 			ef.pr,
 			ssdb,
 		),

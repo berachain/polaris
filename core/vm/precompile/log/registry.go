@@ -12,41 +12,40 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package log
 
 import (
-	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `LogRegistry` stores a mapping of `EventType`s to `*log.PrecompileLog`s.
-type LogRegistry struct {
+// `Registry` stores a mapping of `EventType`s to `*log.PrecompileLog`s.
+type Registry struct {
 	// `eventTypesToLogs` is a map of `EventType`s to `*log.PrecompileLog` for all supported
 	// events.
-	eventTypesToLogs map[string]*log.PrecompileLog
+	eventTypesToLogs map[string]*PrecompileLog
 }
 
-// `NewLogRegistry` creates and returns a new, empty `LogRegistry`.
-func NewLogRegistry() *LogRegistry {
-	return &LogRegistry{
-		eventTypesToLogs: make(map[string]*log.PrecompileLog),
+// `NewRegistry` creates and returns a new, empty `Registry`.
+func NewRegistry() *Registry {
+	return &Registry{
+		eventTypesToLogs: make(map[string]*PrecompileLog),
 	}
 }
 
 // `RegisterEvent` registers an Ethereum event as a precompile log.
-func (lr *LogRegistry) RegisterEvent(
+func (lr *Registry) RegisterEvent(
 	moduleEthAddress common.Address,
 	abiEvent abi.Event,
-	customModuleAttributes log.ValueDecoders,
+	customModuleAttributes ValueDecoders,
 ) error {
 	if _, found := lr.eventTypesToLogs[abiEvent.Name]; found {
 		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
 	}
 
 	var err error
-	lr.eventTypesToLogs[abiEvent.Name], err = log.NewPrecompileLog(
+	lr.eventTypesToLogs[abiEvent.Name], err = NewPrecompileLog(
 		moduleEthAddress,
 		abiEvent,
 		customModuleAttributes,
@@ -55,6 +54,6 @@ func (lr *LogRegistry) RegisterEvent(
 }
 
 // `GetPrecompileLog` returns the precompile log corresponding to the given event.
-func (lr *LogRegistry) GetPrecompileLog(eventType string) *log.PrecompileLog {
+func (lr *Registry) GetPrecompileLog(eventType string) *PrecompileLog {
 	return lr.eventTypesToLogs[abi.ToCamelCase(eventType)]
 }

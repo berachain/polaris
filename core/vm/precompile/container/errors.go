@@ -12,14 +12,20 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state
+package container
 
-import "github.com/berachain/stargazer/core/vm"
+import "errors"
 
-// Compile-time assertion to ensure `ExtStateDB` implements `PrecompileStateDB`.
-var _ vm.PrecompileStateDB = (*ExtStateDB)(nil)
+var (
+	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
+	// non-precompile contract.
+	ErrIncorrectPrecompileType = errors.New("this contract does not implement a the required precompile contract interface") //nolint:lll
 
-type ExtStateDB struct {
-	// StateDB is the underlying state database.
-	*StateDB
-}
+	// `ErrNoPrecompileMethodForABIMethod` is returned when no precompile method is provided for a
+	// corresponding ABI method.
+	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
+
+	// `ErrWrongContainerFactory` is returned when the wrong precompile container factory is used
+	// to build a precompile contract.
+	ErrWrongContainerFactory = errors.New("this precompile contract implementation is not implemented")
+)

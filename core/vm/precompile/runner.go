@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package precompile
 
 import (
 	"math/big"
@@ -20,30 +20,29 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	coretypes "github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 )
 
-// Compile-time assertion to ensure `PrecompileRunner` adheres to `precompile.Runner`.
-var _ precompile.Runner = (*PrecompileRunner)(nil)
+// Compile-time assertion to ensure `Runner` adheres to `Runner`.
+var _ RunnerI = (*Runner)(nil)
 
-// `PrecompileRunner` is the execution environment of a precompiled container at a given address.
+// `Runner` is the execution environment of a precompiled container at a given address.
 // The host manages the execution of the container and emission of Cosmos events to Ethereum logs.
-type PrecompileRunner struct {
+type Runner struct {
 	// `pr` is the registry from which the precompile container will be pulled and precompile logs
 	// can be built.
-	pr *PrecompileRegistry
+	pr *Registry
 
 	// `psdb` is the precompile StateDB to support state changes during precompile execution.
 	psdb PrecompileStateDB
 }
 
-// `NewPrecompileRunner` creates and returns a new `PrecompileRunner` for the given precompile
+// `NewRunner` creates and returns a new `Runner` for the given precompile
 // registry `pr` and precompile StateDB `psdb`.
-func NewPrecompileRunner(pr *PrecompileRegistry, psdb PrecompileStateDB) *PrecompileRunner {
-	return &PrecompileRunner{
+func NewRunner(pr *Registry, psdb PrecompileStateDB) *Runner {
+	return &Runner{
 		pr:   pr,
 		psdb: psdb,
 	}
@@ -51,8 +50,8 @@ func NewPrecompileRunner(pr *PrecompileRegistry, psdb PrecompileStateDB) *Precom
 
 // `Exists` gets a precompile container at the given `addr` from the precompile registry.
 //
-// `Exists` implements `precompile.Runner`.
-func (ph *PrecompileRunner) Exists(addr common.Address) (types.PrecompileContainer, bool) {
+// `Exists` implements `Runner`.
+func (ph *Runner) Exists(addr common.Address) (types.PrecompileContainer, bool) {
 	return ph.pr.Get(addr)
 }
 
@@ -60,8 +59,8 @@ func (ph *PrecompileRunner) Exists(addr common.Address) (types.PrecompileContain
 // function returns an error if the given statedb is not compatible with precompiles, insufficient
 // gas is provided, or the precompile execution returns an error.
 //
-// `Run` implements `precompile.Runner`.
-func (ph *PrecompileRunner) Run(
+// `Run` implements `Runner`.
+func (ph *Runner) Run(
 	pc types.PrecompileContainer,
 	input []byte,
 	caller common.Address,
@@ -80,7 +79,7 @@ func (ph *PrecompileRunner) Run(
 	// store the number of events before precompile container execution, to be used as index for
 	// building logs for all Cosmos events emitted during execution
 	ctx := ph.psdb.GetContext()
-	beforeExecutionNumEvents := len(ctx.EventManager().Events())
+	beforeExecutionNumEvents := len(sdk.UnwrapSDKContext(ctx).EventManager().Events())
 
 	ret, err := pc.Run(ctx, input, caller, value, readonly)
 	if err != nil {
@@ -94,7 +93,7 @@ func (ph *PrecompileRunner) Run(
 	// The goal here is to make it so precompile runner does not need to know about Cosmos events
 	// convert all Cosmos events emitted during precompile container execution to logs and add to
 	// StateDB
-	events := ctx.EventManager().Events()
+	events := sdk.UnwrapSDKContext(ctx).EventManager().Events()
 	for i := beforeExecutionNumEvents; i < len(events); i++ {
 		var log *coretypes.Log
 		log, err = ph.buildLog(&events[i])
@@ -108,16 +107,16 @@ func (ph *PrecompileRunner) Run(
 }
 
 // `buildLog` builds an Ethereum event log from the given Cosmos event.
-func (ph *PrecompileRunner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
+func (ph *Runner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
-	log := ph.pr.logRegistry.GetPrecompileLog(event.Type)
+	log := ph.pr.Registry.GetPrecompileLog(event.Type)
 	if log == nil {
-		return nil, errors.Wrapf(precompile.ErrEthEventNotRegistered, "cosmos event %s", event.Type)
+		return nil, errors.Wrapf(ErrEthEventNotRegistered, "cosmos event %s", event.Type)
 	}
 	var err error
 	if err = log.ValidateAttributes(event); err != nil {
-		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
+		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 
 	// build Ethereum log based on valid Cosmos event
@@ -125,10 +124,10 @@ func (ph *PrecompileRunner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 		Address: log.GetPrecompileAddress(),
 	}
 	if eventLog.Topics, err = log.MakeTopics(event); err != nil {
-		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
+		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 	if eventLog.Data, err = log.MakeData(event); err != nil {
-		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
+		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 	return eventLog, nil
 }

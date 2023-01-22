@@ -17,13 +17,15 @@ package precompile
 import "errors"
 
 var (
+	ErrOutOfGas = errors.New("out of gas")
+
+	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
+	// non-precompile contract.
+	ErrIncorrectPrecompileType = errors.New("this contract does not implement a the required precompile contract interface") //nolint:lll
+
 	// `ErrNoPrecompileMethodForABIMethod` is returned when no precompile method is provided for a
 	// corresponding ABI method.
 	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
-
-	// `ErrEthEventAlreadyRegistered` is returned when an already registered Ethereum event is
-	// being registered again.
-	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
 
 	// `ErrEthEventNotRegistered` is returned when an incoming Cosmos event is not mapped to any
 	// registered Ethereum event.
@@ -31,8 +33,4 @@ var (
 
 	// `ErrEventHasIssues` is returned when an event has issues.
 	ErrEventHasIssues = errors.New("this event has issues")
-
-	// `ErrWrongContainerFactory` is returned when the wrong precompile container factory is used
-	// to build a precompile contract.
-	ErrWrongContainerFactory = errors.New("this precompile contract implementation is not implemented")
 )

@@ -128,32 +128,6 @@ var _ = Describe("Stateful Container", func() {
 
 // MOCKS BELOW.
 
-type mockObject struct {
-	CreationHeight *big.Int
-	TimeStamp      string
-}
-
-func getOutput(
-	ctx context.Context,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
-	args ...any,
-) ([]any, error) {
-	str, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
-	return []any{
-		[]mockObject{
-			{
-				CreationHeight: big.NewInt(1),
-				TimeStamp:      str,
-			},
-		},
-	}, nil
-}
-
 func getOutputPartial(
 	ctx context.Context,
 	caller common.Address,

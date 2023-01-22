@@ -17,10 +17,6 @@ package vm
 import "errors"
 
 var (
-	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
-	// non-precompile contract.
-	ErrIncorrectPrecompileType = errors.New("this contract does not implement a the required precompile contract interface") //nolint:lll
-
 	// `ErrStateDBNotSupported` is returned when the state DB is not compatible for running
 	// stateful precompiles.
 	ErrStateDBNotSupported = errors.New("given StateDB is not compatible for running stateful precompiles")

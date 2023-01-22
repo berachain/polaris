@@ -12,14 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package container_test
 
 import (
 	"context"
 	"errors"
 	"math/big"
 
-	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
@@ -32,13 +32,13 @@ import (
 )
 
 var _ = Describe("Container Factories", func() {
-	var lr *precompile.LogRegistry
+	var lr *log.Registry
 
 	Context("Stateless Container Factory", func() {
-		var scf *precompile.StatelessContainerFactory
+		var scf *container.StatelessContainerFactory
 
 		BeforeEach(func() {
-			scf = precompile.NewStatelessContainerFactory()
+			scf = container.NewStatelessContainerFactory()
 		})
 
 		It("should build stateless precompile containers", func() {
@@ -52,11 +52,11 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Stateful Container Factory", func() {
-		var scf *precompile.StatefulContainerFactory
+		var scf *container.StatefulContainerFactory
 
 		BeforeEach(func() {
-			lr = precompile.NewLogRegistry()
-			scf = precompile.NewStatefulContainerFactory(lr)
+			lr = log.NewRegistry()
+			scf = container.NewStatefulContainerFactory(lr)
 		})
 
 		It("should correctly build stateful containers and log events", func() {
@@ -70,11 +70,11 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Bad Stateful Container", func() {
-		var scf *precompile.StatefulContainerFactory
+		var scf *container.StatefulContainerFactory
 
 		BeforeEach(func() {
-			lr = precompile.NewLogRegistry()
-			scf = precompile.NewStatefulContainerFactory(lr)
+			lr = log.NewRegistry()
+			scf = container.NewStatefulContainerFactory(lr)
 		})
 
 		It("should error on missing precompile method for ABI method", func() {
@@ -84,11 +84,11 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Dynamic Container Factory", func() {
-		var dcf *precompile.DynamicContainerFactory
+		var dcf *container.DynamicContainerFactory
 
 		BeforeEach(func() {
-			lr = precompile.NewLogRegistry()
-			dcf = precompile.NewDynamicContainerFactory(lr)
+			lr = log.NewRegistry()
+			dcf = container.NewDynamicContainerFactory(lr)
 		})
 
 		It("should properly build dynamic container", func() {

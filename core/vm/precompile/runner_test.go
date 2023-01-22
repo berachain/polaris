@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm_test
+package precompile_test
 
 import (
 	"context"
@@ -21,8 +21,8 @@ import (
 	"strconv"
 
 	coretypes "github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
@@ -38,16 +38,16 @@ import (
 )
 
 var _ = Describe("Precompile Host", func() {
-	var pr *vm.PrecompileRegistry
-	var ph *vm.PrecompileRunner
+	var pr *precompile.Registry
+	var ph *precompile.Runner
 	var psdb *mockPSDB
 
 	BeforeEach(func() {
-		pr = vm.NewPrecompileRegistry()
+		pr = precompile.NewRegistry()
 		err := pr.Register(&mockStateful{&mockBase{}})
 		Expect(err).To(BeNil())
 		psdb = &mockPSDB{}
-		ph = vm.NewPrecompileRunner(pr, psdb)
+		ph = precompile.NewRunner(pr, psdb)
 	})
 
 	Describe("Test Exists", func() {
@@ -69,7 +69,7 @@ var _ = Describe("Precompile Host", func() {
 			abiMethod := solidity.MockPrecompileInterface.ABI.Methods["getOutput"]
 			inputs, err := abiMethod.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			pc, err := precompile.NewStatefulContainerFactory(precompile.NewLogRegistry()).Build(
+			pc, err := container.NewStatefulContainerFactory(log.NewRegistry()).Build(
 				&mockStateful{&mockBase{}},
 			)
 			Expect(err).To(BeNil())
@@ -103,7 +103,7 @@ func (mp *mockPSDB) AddLog(log *coretypes.Log) {
 	mp.logs = append(mp.logs, log)
 }
 
-func (mp *mockPSDB) GetContext() sdk.Context {
+func (mp *mockPSDB) GetContext() context.Context {
 	return testutil.NewContextWithMultistores()
 }
 

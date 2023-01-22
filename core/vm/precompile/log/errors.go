@@ -29,4 +29,8 @@ var (
 	// `ErrNoAttributeKeyFound` is returned when no Cosmos event attribute is provided for a
 	// certain Ethereum event's argument.
 	ErrNoAttributeKeyFound = errors.New("this Ethereum event argument has no matching Cosmos attribute key")
+
+	// `ErrEthEventAlreadyRegistered` is returned when an already registered Ethereum event is
+	// being registered again.
+	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
 )

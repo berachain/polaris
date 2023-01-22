@@ -12,10 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package container
 
 import (
-	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/errors"
@@ -71,11 +70,11 @@ func (scf *StatelessContainerFactory) Build(
 // `StatefulContainerFactory` is used to build stateful precompile containers.
 type StatefulContainerFactory struct {
 	// `lr` is used to register stateful precompiles' event logs, if any.
-	lr *LogRegistry
+	lr *log.Registry
 }
 
 // `NewStatefulContainerFactory` creates and returns a new `StatefulContainerFactory`.
-func NewStatefulContainerFactory(lr *LogRegistry) *StatefulContainerFactory {
+func NewStatefulContainerFactory(lr *log.Registry) *StatefulContainerFactory {
 	return &StatefulContainerFactory{
 		lr: lr,
 	}
@@ -121,7 +120,7 @@ func (scf *StatefulContainerFactory) Build(
 		}
 	}
 
-	return container.NewStatefulContainer(idsToMethods), nil
+	return NewStatefulContainer(idsToMethods), nil
 }
 
 // `buildIdsToMethods` builds the stateful precompile container for the given `precompileMethods`
@@ -174,7 +173,7 @@ type DynamicContainerFactory struct {
 
 // `NewDynamicContainerFactory` creates and returns a new `DynamicContainerFactory` for the given
 // log registry `lr`.
-func NewDynamicContainerFactory(lr *LogRegistry) *DynamicContainerFactory {
+func NewDynamicContainerFactory(lr *log.Registry) *DynamicContainerFactory {
 	return &DynamicContainerFactory{
 		StatefulContainerFactory: NewStatefulContainerFactory(lr),
 	}

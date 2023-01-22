@@ -12,10 +12,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package log_test
 
 import (
-	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 
@@ -24,12 +24,12 @@ import (
 )
 
 var _ = Describe("Log Registry", func() {
-	var lr *precompile.LogRegistry
+	var lr *log.Registry
 	var addr = common.BytesToAddress([]byte("my precompile address"))
 	var abiEvent abi.Event
 
 	BeforeEach(func() {
-		lr = precompile.NewLogRegistry()
+		lr = log.NewRegistry()
 		abiEvent = abi.Event{Name: "CancelUnbondingDelegation"}
 	})
 

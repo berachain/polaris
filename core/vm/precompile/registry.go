@@ -12,45 +12,46 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package precompile
 
 import (
-	"github.com/berachain/stargazer/core/vm/precompile"
+	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// `PrecompileRegistry` stores and provides all stateless and stateful precompile containers to a
+// `Registry` stores and provides all stateless and stateful precompile containers to a
 // precompile host.
-type PrecompileRegistry struct {
+type Registry struct {
 	// `precompiles` is a map of Ethereum addresses to precompiled contract containers. Only
 	// supporting stateless and stateful precompiles for now.
 	precompiles map[common.Address]types.PrecompileContainer
 
-	// `logRegistry` is the Ethereum log builder for all Cosmos events emitted during precompile
+	// `Registry` is the Ethereum log builder for all Cosmos events emitted during precompile
 	// execution.
-	logRegistry *precompile.LogRegistry
+	Registry *log.Registry
 }
 
-// `NewPrecompileRegistry` creates and returns a new `PrecompileRegistry`.
-func NewPrecompileRegistry() *PrecompileRegistry {
-	return &PrecompileRegistry{
+// `NewRegistry` creates and returns a new `Registry`.
+func NewRegistry() *Registry {
+	return &Registry{
 		precompiles: make(map[common.Address]types.PrecompileContainer),
-		logRegistry: precompile.NewLogRegistry(),
+		Registry:    log.NewRegistry(),
 	}
 }
 
 // `Register` builds a precompile container using a container factory and stores the container
 // at the given address. This function returns an error if the given contract is not a properly
 // defined precompile or the container factory cannot build the container.
-func (pr *PrecompileRegistry) Register(contractImpl precompile.BaseContractImpl) error {
-	var cf precompile.AbstractContainerFactory
+func (pr *Registry) Register(contractImpl container.BaseContractImpl) error {
+	var cf container.AbstractContainerFactory
 	//nolint:gocritic // cannot be converted to switch-case.
-	if utils.Implements[precompile.StatefulContractImpl](contractImpl) {
-		cf = precompile.NewStatefulContainerFactory(pr.logRegistry)
-	} else if utils.Implements[precompile.StatelessContractImpl](contractImpl) {
-		cf = precompile.NewStatelessContainerFactory()
+	if utils.Implements[container.StatefulContractImpl](contractImpl) {
+		cf = container.NewStatefulContainerFactory(pr.Registry)
+	} else if utils.Implements[container.StatelessContractImpl](contractImpl) {
+		cf = container.NewStatelessContainerFactory()
 	} else {
 		return ErrIncorrectPrecompileType
 	}
@@ -65,7 +66,7 @@ func (pr *PrecompileRegistry) Register(contractImpl precompile.BaseContractImpl)
 }
 
 // `Get` returns a precompile container at the given address, if it exists.
-func (pr *PrecompileRegistry) Get(addr common.Address) (types.PrecompileContainer, bool) {
+func (pr *Registry) Get(addr common.Address) (types.PrecompileContainer, bool) {
 	pc, found := pr.precompiles[addr]
 	return pc, found
 }
