@@ -12,10 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package vm
 
 import (
-	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/params"
 )
@@ -36,14 +35,14 @@ func NewEVMFactory() *EVMFactory {
 
 // `Build` creates and returns a new `vm.StargazerEVM` with a new `vm.PrecompileHost`.
 func (ef *EVMFactory) Build(
-	ssdb vm.StargazerStateDB,
-	blockCtx vm.BlockContext,
-	txCtx vm.TxContext,
+	ssdb StargazerStateDB,
+	blockCtx BlockContext,
+	txCtx TxContext,
 	chainConfig *params.EthChainConfig,
 	noBaseFee bool,
-) *vm.StargazerEVM {
-	return vm.NewStargazerEVM(
-		blockCtx, txCtx, ssdb, chainConfig, vm.Config{},
+) *StargazerEVM {
+	return NewStargazerEVM(
+		blockCtx, txCtx, ssdb, chainConfig, Config{},
 		precompile.NewRunner(
 			ef.pr,
 			ssdb,
