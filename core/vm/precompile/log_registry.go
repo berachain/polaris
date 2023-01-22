@@ -22,10 +22,10 @@ import (
 )
 
 // `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version of
-// its corresponding event's `Type`.
+// its corresponding `eventType`.
 type EventType string
 
-// `LogRegistry` builds Ethereum logs from Cosmos events.
+// `LogRegistry` stores a mapping of `EventType`s to `*log.PrecompileLog`s.
 type LogRegistry struct {
 	// `eventTypesToLogs` is a map of `EventType`s to `*log.PrecompileLog` for all supported
 	// events.
