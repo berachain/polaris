@@ -15,16 +15,16 @@
 package types
 
 import (
+	"context"
 	"math/big"
 	"reflect"
 	"regexp"
 	"runtime"
 	"strings"
 
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 /**
@@ -46,7 +46,7 @@ const funcNamePart = 2
 // `Executable` is a type of function that stateful precompiled contract will implement. Each
 // `Executable` should directly correspond to an ABI method.
 type Executable func(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

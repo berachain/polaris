@@ -18,11 +18,10 @@ import (
 	"context"
 	"math/big"
 
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/utils"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
@@ -38,6 +37,12 @@ type StatefulContainer struct {
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
 	// (geth abi format). Please check core/vm/precompile/container/types.go for more information.
 	idsToMethods map[string]*types.Method
+
+	// todo: implement
+	receive *types.Method
+
+	// todo: implement
+	fallback *types.Method
 }
 
 // `NewStatefulContainer` creates and returns a new `StatefulContainer` with the given method ids
@@ -45,6 +50,8 @@ type StatefulContainer struct {
 func NewStatefulContainer(idsToMethods map[string]*types.Method) *StatefulContainer {
 	return &StatefulContainer{
 		idsToMethods: idsToMethods,
+		receive:      nil,
+		fallback:     nil,
 	}
 }
 
@@ -79,7 +86,7 @@ func (sc *StatefulContainer) Run(
 
 	// Execute the method registered with the given signature with the given args.
 	vals, err := method.Execute(
-		sdk.UnwrapSDKContext(ctx),
+		ctx,
 		caller,
 		value,
 		readonly,

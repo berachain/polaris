@@ -20,8 +20,6 @@ import (
 	"math/big"
 	"reflect"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
@@ -96,7 +94,7 @@ var _ = Describe("Stateful Container", func() {
 
 			// precompile exec error
 			_, err = sc.Run(ctx, getOutputPartialABI.ID, addr, value, readonly)
-			Expect(err.Error()).To(Equal("getOutputPartial: err during precompile execution"))
+			Expect(err.Error()).To(Equal("err during precompile execution: getOutputPartial"))
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
@@ -136,7 +134,7 @@ type mockObject struct {
 }
 
 func getOutput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -157,7 +155,7 @@ func getOutput(
 }
 
 func getOutputPartial(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -167,7 +165,7 @@ func getOutputPartial(
 }
 
 func contractFuncAddrInput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -181,7 +179,7 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

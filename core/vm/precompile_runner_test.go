@@ -39,7 +39,7 @@ import (
 
 var _ = Describe("Precompile Host", func() {
 	var pr *vm.PrecompileRegistry
-	var ph *vm.PrecompileHost
+	var ph *vm.PrecompileRunner
 	var psdb *mockPSDB
 
 	BeforeEach(func() {
@@ -47,7 +47,7 @@ var _ = Describe("Precompile Host", func() {
 		err := pr.Register(&mockStateful{&mockBase{}})
 		Expect(err).To(BeNil())
 		psdb = &mockPSDB{}
-		ph = vm.NewPrecompileHost(pr, psdb)
+		ph = vm.NewPrecompileRunner(pr, psdb)
 	})
 
 	Describe("Test Exists", func() {
@@ -140,7 +140,7 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	}
 }
 
-func (ms *mockStateful) CustomValueDecoders() map[precompile.EventType]log.ValueDecoders {
+func (ms *mockStateful) CustomValueDecoders() map[string]log.ValueDecoders {
 	return nil
 }
 
@@ -166,7 +166,7 @@ type mockObject struct {
 }
 
 func getOutput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -176,7 +176,7 @@ func getOutput(
 	if !ok {
 		return nil, errors.New("cast error")
 	}
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(sdk.NewEvent(
 		"cancel_unbonding_delegation",
 		sdk.NewAttribute("validator", common.EthAddressToValAddress(testutil.Alice).String()),
 		sdk.NewAttribute("delegator", common.EthAddressToAccAddress(testutil.Bob).String()),

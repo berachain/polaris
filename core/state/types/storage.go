@@ -17,7 +17,6 @@ package types
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/lib/gointerfaces"
 )
 
@@ -36,7 +35,7 @@ func (s Storage) ValidateBasic() error {
 	seenStorage := make(map[string]bool)
 	for i, state := range s {
 		if seenStorage[state.Key] {
-			return errors.Wrapf(ErrInvalidState, "duplicate state key %d: %s", i, state.Key)
+			return fmt.Errorf("%w duplicate state key %d: %s", ErrInvalidState, i, state.Key)
 		}
 
 		if err := state.ValidateBasic(); err != nil {

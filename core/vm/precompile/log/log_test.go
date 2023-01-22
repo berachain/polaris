@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
@@ -36,21 +35,17 @@ func TestLog(t *testing.T) {
 
 var _ = Describe("Precompile Log", func() {
 	var precompileLog *PrecompileLog
-	var stakingModuleAddr common.Address
-	var valAddr sdk.ValAddress
-	var delAddr sdk.AccAddress
+	var precompileAddr = common.BytesToAddress([]byte("my precompile address"))
+	var valAddr = sdk.ValAddress([]byte("alice"))
+	var delAddr = sdk.AccAddress([]byte("bob"))
 	var amt sdk.Coin
 	var creationHeight int64
 
 	Context("No value decoder issues", func() {
 		BeforeEach(func() {
-			stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 			var err error
-			precompileLog, err = NewPrecompileLog(stakingModuleAddr, mockDefaultAbiEvent(), nil)
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockDefaultAbiEvent(), nil)
 			Expect(err).To(BeNil())
-
-			valAddr = sdk.ValAddress([]byte("alice"))
-			delAddr = sdk.AccAddress([]byte("bob"))
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
 		})
@@ -71,8 +66,8 @@ var _ = Describe("Precompile Log", func() {
 				err := precompileLog.ValidateAttributes(&event)
 				Expect(err).To(BeNil())
 
-				addr := precompileLog.ModuleAddress()
-				Expect(addr).To(Equal(stakingModuleAddr))
+				addr := precompileLog.precompileAddr
+				Expect(addr).To(Equal(addr))
 
 				topics, err := precompileLog.MakeTopics(&event)
 				Expect(err).To(BeNil())
@@ -119,7 +114,7 @@ var _ = Describe("Precompile Log", func() {
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
 				_, err := precompileLog.MakeTopics(&event)
-				Expect(err.Error()).To(Equal("validator: this Ethereum event argument has no matching Cosmos attribute key"))
+				Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: validator"))
 			})
 
 			It("should fail on invalid (non-indexed) attribute key given", func() {
@@ -131,7 +126,7 @@ var _ = Describe("Precompile Log", func() {
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
 				_, err := precompileLog.MakeData(&event)
-				Expect(err.Error()).To(Equal("amount: this Ethereum event argument has no matching Cosmos attribute key"))
+				Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: amount"))
 			})
 
 			Context("bad attribute values", func() {
@@ -188,16 +183,13 @@ var _ = Describe("Precompile Log", func() {
 
 	Context("value decoder issues", func() {
 		BeforeEach(func() {
-			stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
-			valAddr = sdk.ValAddress([]byte("alice"))
-			delAddr = sdk.AccAddress([]byte("bob"))
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
 		})
 
 		It("should error on no value decoder func", func() {
 			var err error
-			precompileLog, err = NewPrecompileLog(stakingModuleAddr, mockBadAbiEvent(), nil)
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockBadAbiEvent(), nil)
 			Expect(err).To(BeNil())
 
 			event := sdk.NewEvent(
@@ -205,13 +197,13 @@ var _ = Describe("Precompile Log", func() {
 				sdk.NewAttribute("validator_bad_arg", "bad validator value"),
 			)
 			_, err = precompileLog.MakeTopics(&event)
-			Expect(err.Error()).To(Equal("validator_bad_arg: no value decoder function is found for event attribute key"))
+			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: validator_bad_arg"))
 		})
 
 		It("should find the custom value decoders", func() {
 			var err error
 			precompileLog, err = NewPrecompileLog(
-				stakingModuleAddr,
+				precompileAddr,
 				mockBadAbiEvent(),
 				ValueDecoders{
 					"validator_bad_arg": func(s string) (any, error) {

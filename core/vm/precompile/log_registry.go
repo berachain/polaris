@@ -15,30 +15,23 @@
 package precompile
 
 import (
-	"cosmossdk.io/errors"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version of
-// its corresponding Cosmos event's `Type`.
-type EventType string
-
-// `LogRegistry` builds Ethereum logs from Cosmos events.
+// `LogRegistry` stores a mapping of `EventType`s to `*log.PrecompileLog`s.
 type LogRegistry struct {
 	// `eventTypesToLogs` is a map of `EventType`s to `*log.PrecompileLog` for all supported
-	// Cosmos events.
-	eventTypesToLogs map[EventType]*log.PrecompileLog
+	// events.
+	eventTypesToLogs map[string]*log.PrecompileLog
 }
 
 // `NewLogRegistry` creates and returns a new, empty `LogRegistry`.
 func NewLogRegistry() *LogRegistry {
 	return &LogRegistry{
-		eventTypesToLogs: make(map[EventType]*log.PrecompileLog),
+		eventTypesToLogs: make(map[string]*log.PrecompileLog),
 	}
 }
 
@@ -48,12 +41,12 @@ func (lr *LogRegistry) RegisterEvent(
 	abiEvent abi.Event,
 	customModuleAttributes log.ValueDecoders,
 ) error {
-	if _, found := lr.eventTypesToLogs[EventType(abiEvent.Name)]; found {
+	if _, found := lr.eventTypesToLogs[abiEvent.Name]; found {
 		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
 	}
 
 	var err error
-	lr.eventTypesToLogs[EventType(abiEvent.Name)], err = log.NewPrecompileLog(
+	lr.eventTypesToLogs[abiEvent.Name], err = log.NewPrecompileLog(
 		moduleEthAddress,
 		abiEvent,
 		customModuleAttributes,
@@ -61,9 +54,7 @@ func (lr *LogRegistry) RegisterEvent(
 	return err
 }
 
-// `GetPrecompileLog` returns the precompile log corresponding to the given Cosmos event.
-func (lr *LogRegistry) GetPrecompileLog(event *sdk.Event) *log.PrecompileLog {
-	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
-	// the Ethereum event's name.
-	return lr.eventTypesToLogs[EventType(abi.ToCamelCase(event.Type))]
+// `GetPrecompileLog` returns the precompile log corresponding to the given event.
+func (lr *LogRegistry) GetPrecompileLog(eventType string) *log.PrecompileLog {
+	return lr.eventTypesToLogs[abi.ToCamelCase(eventType)]
 }

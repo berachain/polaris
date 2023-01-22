@@ -15,9 +15,9 @@
 package types_test
 
 import (
+	"context"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -118,7 +118,7 @@ var _ = Describe("Container Types", func() {
 })
 
 func mockPrecompileFn(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

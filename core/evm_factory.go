@@ -42,7 +42,8 @@ func (ef *EVMFactory) Build(
 	noBaseFee bool,
 ) *vm.StargazerEVM {
 	return vm.NewStargazerEVM(
-		blockCtx, txCtx, ssdb, chainConfig, vm.Config{}, vm.NewPrecompileHost(
+		blockCtx, txCtx, ssdb, chainConfig, vm.Config{},
+		vm.NewPrecompileRunner(
 			ef.pr,
 			ssdb,
 		),

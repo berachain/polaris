@@ -15,10 +15,10 @@
 package precompile
 
 import (
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/types/abi"
 )
@@ -111,7 +111,7 @@ func (scf *StatefulContainerFactory) Build(
 			// add value decoders if the event is custom
 			var customEventValueDecoders log.ValueDecoders
 			if customValueDecoders != nil {
-				customEventValueDecoders = customValueDecoders[EventType(abiEvent.Name)]
+				customEventValueDecoders = customValueDecoders[abiEvent.Name]
 			}
 			// register the event to the precompiles' log registry
 			err = scf.lr.RegisterEvent(sci.Address(), abiEvent, customEventValueDecoders)

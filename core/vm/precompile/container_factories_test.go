@@ -19,8 +19,6 @@ import (
 	"errors"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
@@ -49,7 +47,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{})
-			Expect(err.Error()).To(Equal("StatelessContainerImpl: this precompile contract implementation is not implemented"))
+			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatelessContainerImpl"))
 		})
 	})
 
@@ -67,7 +65,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockStateless{&mockBase{}})
-			Expect(err.Error()).To(Equal("StatefulContainerImpl: this precompile contract implementation is not implemented"))
+			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatefulContainerImpl"))
 		})
 	})
 
@@ -81,7 +79,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}})
-			Expect(err.Error()).To(Equal("getOutputPartial(): this ABI method does not have a corresponding precompile method"))
+			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
 		})
 	})
 
@@ -99,7 +97,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = dcf.Build(&mockStateful{&mockBase{}})
-			Expect(err.Error()).To(Equal("DynamicContainerImpl: this precompile contract implementation is not implemented"))
+			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: DynamicContainerImpl"))
 		})
 	})
 })
@@ -137,9 +135,9 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	}
 }
 
-func (ms *mockStateful) CustomValueDecoders() map[precompile.EventType]log.ValueDecoders {
-	return map[precompile.EventType]log.ValueDecoders{
-		precompile.EventType("Event"): make(log.ValueDecoders),
+func (ms *mockStateful) CustomValueDecoders() map[string]log.ValueDecoders {
+	return map[string]log.ValueDecoders{
+		string("Event"): make(log.ValueDecoders),
 	}
 }
 
@@ -184,7 +182,7 @@ type mockObject struct {
 }
 
 func getOutput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
