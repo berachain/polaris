@@ -20,8 +20,6 @@ import (
 	"math/big"
 	"reflect"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
@@ -136,7 +134,7 @@ type mockObject struct {
 }
 
 func getOutput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -157,7 +155,7 @@ func getOutput(
 }
 
 func getOutputPartial(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -167,7 +165,7 @@ func getOutputPartial(
 }
 
 func contractFuncAddrInput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -181,7 +179,7 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

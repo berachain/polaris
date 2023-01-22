@@ -166,7 +166,7 @@ type mockObject struct {
 }
 
 func getOutput(
-	ctx sdk.Context,
+	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -176,7 +176,7 @@ func getOutput(
 	if !ok {
 		return nil, errors.New("cast error")
 	}
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(sdk.NewEvent(
 		"cancel_unbonding_delegation",
 		sdk.NewAttribute("validator", common.EthAddressToValAddress(testutil.Alice).String()),
 		sdk.NewAttribute("delegator", common.EthAddressToAccAddress(testutil.Bob).String()),

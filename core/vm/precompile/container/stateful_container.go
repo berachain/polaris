@@ -22,7 +22,6 @@ import (
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
@@ -79,7 +78,7 @@ func (sc *StatefulContainer) Run(
 
 	// Execute the method registered with the given signature with the given args.
 	vals, err := method.Execute(
-		sdk.UnwrapSDKContext(ctx),
+		ctx,
 		caller,
 		value,
 		readonly,
