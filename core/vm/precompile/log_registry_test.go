@@ -19,30 +19,26 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Log Registry", func() {
 	var lr *precompile.LogRegistry
-	var stakingModuleAddr common.Address
+	var addr = common.BytesToAddress([]byte("my precompile address"))
 	var abiEvent abi.Event
 
 	BeforeEach(func() {
 		lr = precompile.NewLogRegistry()
-		stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 		abiEvent = abi.Event{Name: "CancelUnbondingDelegation"}
 	})
 
 	Describe("Test Register Event", func() {
 		It("should handle registration properly", func() {
-			err := lr.RegisterEvent(stakingModuleAddr, abiEvent, nil)
+			err := lr.RegisterEvent(addr, abiEvent, nil)
 			Expect(err).To(BeNil())
 
-			err = lr.RegisterEvent(stakingModuleAddr, abiEvent, nil)
+			err = lr.RegisterEvent(addr, abiEvent, nil)
 			Expect(err.Error()).To(Equal("this Ethereum event is already registered: CancelUnbondingDelegation"))
 		})
 	})
@@ -50,19 +46,17 @@ var _ = Describe("Log Registry", func() {
 	Describe("Test Get Precompile Log", func() {
 		It("should correctly return existing/non-existing logs", func() {
 			// event not registeredß
-			event := sdk.NewEvent("cancel_unbonding_delegation")
-			log := lr.GetPrecompileLog(event.Type)
+			log := lr.GetPrecompileLog("cancel_unbonding_delegation")
 			Expect(log).To(BeNil())
 
 			// valid event registered
-			err := lr.RegisterEvent(stakingModuleAddr, abiEvent, nil)
+			err := lr.RegisterEvent(addr, abiEvent, nil)
 			Expect(err).To(BeNil())
-			log = lr.GetPrecompileLog(event.Type)
+			log = lr.GetPrecompileLog("cancel_unbonding_delegation")
 			Expect(log).ToNot(BeNil())
 
-			// invalid event
-			event = sdk.NewEvent("cancel-unbonding-delegation")
-			log = lr.GetPrecompileLog(event.Type)
+			// event that doesn't exist
+			log = lr.GetPrecompileLog("cancel-unbonding-delegation")
 			Expect(log).To(BeNil())
 		})
 	})
