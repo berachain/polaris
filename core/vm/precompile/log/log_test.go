@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
@@ -36,21 +35,17 @@ func TestLog(t *testing.T) {
 
 var _ = Describe("Precompile Log", func() {
 	var precompileLog *PrecompileLog
-	var stakingModuleAddr common.Address
-	var valAddr sdk.ValAddress
-	var delAddr sdk.AccAddress
+	var precompileAddr = common.BytesToAddress([]byte("my precompile address"))
+	var valAddr = sdk.ValAddress([]byte("alice"))
+	var delAddr = sdk.AccAddress([]byte("bob"))
 	var amt sdk.Coin
 	var creationHeight int64
 
 	Context("No value decoder issues", func() {
 		BeforeEach(func() {
-			stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
 			var err error
-			precompileLog, err = NewPrecompileLog(stakingModuleAddr, mockDefaultAbiEvent(), nil)
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockDefaultAbiEvent(), nil)
 			Expect(err).To(BeNil())
-
-			valAddr = sdk.ValAddress([]byte("alice"))
-			delAddr = sdk.AccAddress([]byte("bob"))
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
 		})
@@ -71,8 +66,8 @@ var _ = Describe("Precompile Log", func() {
 				err := precompileLog.ValidateAttributes(&event)
 				Expect(err).To(BeNil())
 
-				addr := precompileLog.ModuleAddress()
-				Expect(addr).To(Equal(stakingModuleAddr))
+				addr := precompileLog.precompileAddr
+				Expect(addr).To(Equal(addr))
 
 				topics, err := precompileLog.MakeTopics(&event)
 				Expect(err).To(BeNil())
@@ -188,16 +183,13 @@ var _ = Describe("Precompile Log", func() {
 
 	Context("value decoder issues", func() {
 		BeforeEach(func() {
-			stakingModuleAddr = common.BytesToAddress(authtypes.NewModuleAddress("staking").Bytes())
-			valAddr = sdk.ValAddress([]byte("alice"))
-			delAddr = sdk.AccAddress([]byte("bob"))
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
 		})
 
 		It("should error on no value decoder func", func() {
 			var err error
-			precompileLog, err = NewPrecompileLog(stakingModuleAddr, mockBadAbiEvent(), nil)
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockBadAbiEvent(), nil)
 			Expect(err).To(BeNil())
 
 			event := sdk.NewEvent(
@@ -211,7 +203,7 @@ var _ = Describe("Precompile Log", func() {
 		It("should find the custom value decoders", func() {
 			var err error
 			precompileLog, err = NewPrecompileLog(
-				stakingModuleAddr,
+				precompileAddr,
 				mockBadAbiEvent(),
 				ValueDecoders{
 					"validator_bad_arg": func(s string) (any, error) {

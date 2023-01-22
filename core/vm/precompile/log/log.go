@@ -26,7 +26,7 @@ import (
 // Ethereum formatted event log.
 type PrecompileLog struct {
 	// `address` is the Ethereum address which represents a Cosmos module's account address.
-	moduleAddr common.Address
+	precompileAddr common.Address
 
 	// `id` is the Ethereum event ID, to be used as an Ethereum event's first topic.
 	id common.Hash
@@ -42,10 +42,10 @@ type PrecompileLog struct {
 	customValueDecoders ValueDecoders
 }
 
-// `NewPrecompileLog` returns a new `PrecompileLog` with the given `moduleAddress`, `abiEvent`,
+// `NewPrecompileLog` returns a new `PrecompileLog` with the given `precompileAddress`, `abiEvent`,
 // and optional `customValueDecoders`.
 func NewPrecompileLog(
-	moduleAddr common.Address,
+	precompileAddr common.Address,
 	abiEvent abi.Event,
 	customValueDecoders ValueDecoders,
 ) (*PrecompileLog, error) {
@@ -54,7 +54,7 @@ func NewPrecompileLog(
 		return nil, err
 	}
 	pe := &PrecompileLog{
-		moduleAddr:          moduleAddr,
+		precompileAddr:      precompileAddr,
 		id:                  abiEvent.ID,
 		indexedInputs:       indexedInputs,
 		nonIndexedInputs:    abiEvent.Inputs.NonIndexed(),
@@ -63,9 +63,10 @@ func NewPrecompileLog(
 	return pe, nil
 }
 
-// `ModuleAddress` returns the Ethereum address corresponding to a PrecompileLog's Cosmos module.
-func (pe *PrecompileLog) ModuleAddress() common.Address {
-	return pe.moduleAddr
+// `GetPrecompileAddress` returns the address of the precompile contract in which
+// this event is to be emitted from.
+func (pe *PrecompileLog) GetPrecompileAddress() common.Address {
+	return pe.precompileAddr
 }
 
 // `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. `Topics` is a

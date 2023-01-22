@@ -104,23 +104,23 @@ func (ph *PrecompileHost) Run(
 func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
-	pe := ph.pr.logRegistry.GetPrecompileLog(event.Type)
-	if pe == nil {
+	log := ph.pr.logRegistry.GetPrecompileLog(event.Type)
+	if log == nil {
 		return nil, errors.Wrapf(precompile.ErrEthEventNotRegistered, "cosmos event %s", event.Type)
 	}
 	var err error
-	if err = pe.ValidateAttributes(event); err != nil {
+	if err = log.ValidateAttributes(event); err != nil {
 		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 
 	// build Ethereum log based on valid Cosmos event
 	eventLog := &coretypes.Log{
-		Address: pe.ModuleAddress(),
+		Address: log.GetPrecompileAddress(),
 	}
-	if eventLog.Topics, err = pe.MakeTopics(event); err != nil {
+	if eventLog.Topics, err = log.MakeTopics(event); err != nil {
 		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
-	if eventLog.Data, err = pe.MakeData(event); err != nil {
+	if eventLog.Data, err = log.MakeData(event); err != nil {
 		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 	return eventLog, nil
