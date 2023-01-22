@@ -206,7 +206,3 @@ func (st *StateTransition) to() common.Address {
 	}
 	return *st.msg.To()
 }
-
-func (st *StateTransition) Logs() []*types.EthLog {
-	return st.evm.StateDB().Logs()
-}

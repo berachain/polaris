@@ -12,18 +12,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package core
 
 import (
 	"math/big"
 
 	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 )
 
 // Compile-time function assertion.
-var _ CanTransferFunc = CanTransfer
-var _ TransferFunc = Transfer
+var _ vm.CanTransferFunc = CanTransfer
+var _ vm.TransferFunc = Transfer
 
 // `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
 // NOTE: This does not take the necessary gas in to account to make the transfer valid.
