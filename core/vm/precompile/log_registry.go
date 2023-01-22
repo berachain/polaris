@@ -22,13 +22,13 @@ import (
 )
 
 // `EventType` is the name of an Ethereum event, which is equivalent to the CamelCase version of
-// its corresponding Cosmos event's `Type`.
+// its corresponding event's `Type`.
 type EventType string
 
 // `LogRegistry` builds Ethereum logs from Cosmos events.
 type LogRegistry struct {
 	// `eventTypesToLogs` is a map of `EventType`s to `*log.PrecompileLog` for all supported
-	// Cosmos events.
+	// events.
 	eventTypesToLogs map[EventType]*log.PrecompileLog
 }
 
@@ -60,7 +60,5 @@ func (lr *LogRegistry) RegisterEvent(
 
 // `GetPrecompileLog` returns the precompile log corresponding to the given event.
 func (lr *LogRegistry) GetPrecompileLog(eventType string) *log.PrecompileLog {
-	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
-	// the Ethereum event's name.
 	return lr.eventTypesToLogs[EventType(abi.ToCamelCase(eventType))]
 }
