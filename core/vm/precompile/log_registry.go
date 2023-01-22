@@ -15,8 +15,6 @@
 package precompile
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
@@ -60,9 +58,9 @@ func (lr *LogRegistry) RegisterEvent(
 	return err
 }
 
-// `GetPrecompileLog` returns the precompile log corresponding to the given Cosmos event.
-func (lr *LogRegistry) GetPrecompileLog(event *sdk.Event) *log.PrecompileLog {
+// `GetPrecompileLog` returns the precompile log corresponding to the given event.
+func (lr *LogRegistry) GetPrecompileLog(eventType string) *log.PrecompileLog {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
-	return lr.eventTypesToLogs[EventType(abi.ToCamelCase(event.Type))]
+	return lr.eventTypesToLogs[EventType(abi.ToCamelCase(eventType))]
 }

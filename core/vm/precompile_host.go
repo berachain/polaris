@@ -103,7 +103,7 @@ func (ph *PrecompileHost) Run(
 // `buildLog` builds an Ethereum event log from the given Cosmos event.
 func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// validate incoming Cosmos event
-	pe := ph.pr.logRegistry.GetPrecompileLog(event)
+	pe := ph.pr.logRegistry.GetPrecompileLog(event.Type)
 	if pe == nil {
 		return nil, errors.Wrapf(precompile.ErrEthEventNotRegistered, "cosmos event %s", event.Type)
 	}

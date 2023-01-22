@@ -51,18 +51,18 @@ var _ = Describe("Log Registry", func() {
 		It("should correctly return existing/non-existing logs", func() {
 			// event not registeredß
 			event := sdk.NewEvent("cancel_unbonding_delegation")
-			log := lr.GetPrecompileLog(&event)
+			log := lr.GetPrecompileLog(event.Type)
 			Expect(log).To(BeNil())
 
 			// valid event registered
 			err := lr.RegisterEvent(stakingModuleAddr, abiEvent, nil)
 			Expect(err).To(BeNil())
-			log = lr.GetPrecompileLog(&event)
+			log = lr.GetPrecompileLog(event.Type)
 			Expect(log).ToNot(BeNil())
 
 			// invalid event
 			event = sdk.NewEvent("cancel-unbonding-delegation")
-			log = lr.GetPrecompileLog(&event)
+			log = lr.GetPrecompileLog(event.Type)
 			Expect(log).To(BeNil())
 		})
 	})
