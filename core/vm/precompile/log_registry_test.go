@@ -43,7 +43,7 @@ var _ = Describe("Log Registry", func() {
 			Expect(err).To(BeNil())
 
 			err = lr.RegisterEvent(stakingModuleAddr, abiEvent, nil)
-			Expect(err.Error()).To(Equal("CancelUnbondingDelegation: this Ethereum event is already registered"))
+			Expect(err.Error()).To(Equal("this Ethereum event is already registered: CancelUnbondingDelegation"))
 		})
 	})
 

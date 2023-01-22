@@ -12,42 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package errors
 
-import (
-	"fmt"
-	"strings"
+import "fmt"
 
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/errors"
-	"github.com/berachain/stargazer/lib/gointerfaces"
-)
-
-// Compile-time interface assertions.
-var _ gointerfaces.Cloneable[State] = &State{}
-var _ fmt.Stringer = Storage{}
-
-// `NewState` creates a new State instance.
-func NewState(key, value common.Hash) State {
-	return State{
-		Key:   key.Hex(),
-		Value: value.Hex(),
-	}
+func Wrap(err error, desc string) error {
+	return fmt.Errorf("%w: %s", err, desc)
 }
 
-// `ValidateBasic` checks to make sure the key is not empty.
-func (s State) ValidateBasic() error {
-	if strings.TrimSpace(s.Key) == "" {
-		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
-	}
-
-	return nil
-}
-
-// `Clone` implements `types.Cloneable`.
-func (s State) Clone() State {
-	return State{
-		Key:   s.Key,
-		Value: s.Value,
-	}
+func Wrapf(err error, format string, args ...interface{}) error {
+	return fmt.Errorf("%w: %s", err, fmt.Sprintf(format, args...))
 }

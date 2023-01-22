@@ -18,9 +18,9 @@ import (
 	"context"
 	"math/big"
 
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/utils"
 )
 

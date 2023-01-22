@@ -15,7 +15,7 @@
 package log
 
 import (
-	"cosmossdk.io/errors"
+	"github.com/berachain/stargazer/lib/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/lib/common"

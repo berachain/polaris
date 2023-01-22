@@ -15,12 +15,11 @@
 package precompile
 
 import (
-	"cosmossdk.io/errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
 )
 

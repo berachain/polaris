@@ -15,10 +15,10 @@
 package precompile
 
 import (
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/types/abi"
 )

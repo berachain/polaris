@@ -22,8 +22,8 @@ import (
 	"runtime"
 	"strings"
 
-	"cosmossdk.io/errors"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
 )
 

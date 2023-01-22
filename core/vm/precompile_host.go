@@ -17,13 +17,13 @@ package vm
 import (
 	"math/big"
 
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
 )
 
 // Compile-time assertion to ensure `PrecompileHost` adheres to `precompile.Host`.
@@ -105,11 +105,11 @@ func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// validate incoming Cosmos event
 	pe := ph.pr.logRegistry.GetPrecompileLog(event)
 	if pe == nil {
-		return nil, errors.Wrap(precompile.ErrEthEventNotRegistered, event.Type)
+		return nil, errors.Wrapf(precompile.ErrEthEventNotRegistered, "cosmos event %s", event.Type)
 	}
 	var err error
 	if err = pe.ValidateAttributes(event); err != nil {
-		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
+		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 
 	// build Ethereum log based on valid Cosmos event
@@ -117,10 +117,10 @@ func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 		Address: pe.ModuleAddress(),
 	}
 	if eventLog.Topics, err = pe.MakeTopics(event); err != nil {
-		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
+		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 	if eventLog.Data, err = pe.MakeData(event); err != nil {
-		return nil, errors.Wrapf(err, "Cosmos event %s has issue", event.Type)
+		return nil, errors.Wrapf(precompile.ErrEventHasIssues, "cosmos event %s", event.Type)
 	}
 	return eventLog, nil
 }

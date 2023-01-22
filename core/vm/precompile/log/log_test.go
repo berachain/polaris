@@ -119,7 +119,7 @@ var _ = Describe("Precompile Log", func() {
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
 				_, err := precompileLog.MakeTopics(&event)
-				Expect(err.Error()).To(Equal("validator: this Ethereum event argument has no matching Cosmos attribute key"))
+				Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: validator"))
 			})
 
 			It("should fail on invalid (non-indexed) attribute key given", func() {
@@ -131,7 +131,7 @@ var _ = Describe("Precompile Log", func() {
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
 				_, err := precompileLog.MakeData(&event)
-				Expect(err.Error()).To(Equal("amount: this Ethereum event argument has no matching Cosmos attribute key"))
+				Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: amount"))
 			})
 
 			Context("bad attribute values", func() {
@@ -205,7 +205,7 @@ var _ = Describe("Precompile Log", func() {
 				sdk.NewAttribute("validator_bad_arg", "bad validator value"),
 			)
 			_, err = precompileLog.MakeTopics(&event)
-			Expect(err.Error()).To(Equal("validator_bad_arg: no value decoder function is found for event attribute key"))
+			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: validator_bad_arg"))
 		})
 
 		It("should find the custom value decoders", func() {
