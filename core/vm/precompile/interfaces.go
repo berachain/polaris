@@ -96,9 +96,9 @@ type AbstractContainerFactory interface {
 	Build(bci BaseContractImpl) (types.PrecompileContainer, error)
 }
 
-// `Host` is invoked by the EVM to determine if a particular address is one of a precompiled
+// `Runner` is invoked by the EVM to determine if a particular address is one of a precompiled
 // contract and allows the EVM to execute a precompiled contract function.
-type Host interface {
+type Runner interface {
 	// `Exists` returns if a precompiled contract was found at `addr`.
 	Exists(addr common.Address) (types.PrecompileContainer, bool)
 

@@ -26,12 +26,12 @@ import (
 	"github.com/berachain/stargazer/lib/errors"
 )
 
-// Compile-time assertion to ensure `PrecompileHost` adheres to `precompile.Host`.
-var _ precompile.Host = (*PrecompileHost)(nil)
+// Compile-time assertion to ensure `PrecompileRunner` adheres to `precompile.Runner`.
+var _ precompile.Runner = (*PrecompileRunner)(nil)
 
-// `PrecompileHost` is the execution environment of a precompiled container at a given address.
+// `PrecompileRunner` is the execution environment of a precompiled container at a given address.
 // The host manages the execution of the container and emission of Cosmos events to Ethereum logs.
-type PrecompileHost struct {
+type PrecompileRunner struct {
 	// `pr` is the registry from which the precompile container will be pulled and precompile logs
 	// can be built.
 	pr *PrecompileRegistry
@@ -40,10 +40,10 @@ type PrecompileHost struct {
 	psdb PrecompileStateDB
 }
 
-// `NewPrecompileHost` creates and returns a new `PrecompileHost` for the given precompile
+// `NewPrecompileRunner` creates and returns a new `PrecompileRunner` for the given precompile
 // registry `pr` and precompile StateDB `psdb`.
-func NewPrecompileHost(pr *PrecompileRegistry, psdb PrecompileStateDB) *PrecompileHost {
-	return &PrecompileHost{
+func NewPrecompileRunner(pr *PrecompileRegistry, psdb PrecompileStateDB) *PrecompileRunner {
+	return &PrecompileRunner{
 		pr:   pr,
 		psdb: psdb,
 	}
@@ -51,8 +51,8 @@ func NewPrecompileHost(pr *PrecompileRegistry, psdb PrecompileStateDB) *Precompi
 
 // `Exists` gets a precompile container at the given `addr` from the precompile registry.
 //
-// `Exists` implements `precompile.Host`.
-func (ph *PrecompileHost) Exists(addr common.Address) (types.PrecompileContainer, bool) {
+// `Exists` implements `precompile.Runner`.
+func (ph *PrecompileRunner) Exists(addr common.Address) (types.PrecompileContainer, bool) {
 	return ph.pr.Get(addr)
 }
 
@@ -60,8 +60,8 @@ func (ph *PrecompileHost) Exists(addr common.Address) (types.PrecompileContainer
 // function returns an error if the given statedb is not compatible with precompiles, insufficient
 // gas is provided, or the precompile execution returns an error.
 //
-// `Run` implements `precompile.Host`.
-func (ph *PrecompileHost) Run(
+// `Run` implements `precompile.Runner`.
+func (ph *PrecompileRunner) Run(
 	pc types.PrecompileContainer,
 	input []byte,
 	caller common.Address,
@@ -87,7 +87,11 @@ func (ph *PrecompileHost) Run(
 		return nil, suppliedGas, err
 	}
 
-	// todo: generalize adding logs
+	// We add logs after the precompile container execution to ensure that if the precompile reverts,
+	// the logs are not added. This is a design choice.
+
+	// todo: generalize adding logs, maybe `Execute` should return logs to append.
+	// The goal here is to make it so precompile runner does not need to know about Cosmos events
 	// convert all Cosmos events emitted during precompile container execution to logs and add to
 	// StateDB
 	events := ctx.EventManager().Events()
@@ -104,7 +108,7 @@ func (ph *PrecompileHost) Run(
 }
 
 // `buildLog` builds an Ethereum event log from the given Cosmos event.
-func (ph *PrecompileHost) buildLog(event *sdk.Event) (*coretypes.Log, error) {
+func (ph *PrecompileRunner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
 	log := ph.pr.logRegistry.GetPrecompileLog(event.Type)

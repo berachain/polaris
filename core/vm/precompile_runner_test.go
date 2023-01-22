@@ -39,7 +39,7 @@ import (
 
 var _ = Describe("Precompile Host", func() {
 	var pr *vm.PrecompileRegistry
-	var ph *vm.PrecompileHost
+	var ph *vm.PrecompileRunner
 	var psdb *mockPSDB
 
 	BeforeEach(func() {
@@ -47,7 +47,7 @@ var _ = Describe("Precompile Host", func() {
 		err := pr.Register(&mockStateful{&mockBase{}})
 		Expect(err).To(BeNil())
 		psdb = &mockPSDB{}
-		ph = vm.NewPrecompileHost(pr, psdb)
+		ph = vm.NewPrecompileRunner(pr, psdb)
 	})
 
 	Describe("Test Exists", func() {
