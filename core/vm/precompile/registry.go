@@ -18,7 +18,6 @@ import (
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
-	"github.com/berachain/stargazer/core/vm/precompile/log/cosmos"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 )
@@ -30,16 +29,16 @@ type Registry struct {
 	// supporting stateless and stateful precompiles for now.
 	precompiles map[common.Address]types.PrecompileContainer
 
-	// `Registry` is the Ethereum log builder for all Cosmos events emitted during precompile
+	// `Registry` is the registry for all Cosmos events emitted during precompile
 	// execution.
 	Registry *log.Registry
 }
 
 // `NewRegistry` creates and returns a new `Registry`.
-func NewRegistry() *Registry {
+func NewRegistry(logTranslator log.Translator) *Registry {
 	return &Registry{
 		precompiles: make(map[common.Address]types.PrecompileContainer),
-		Registry:    log.NewRegistry(cosmos.NewTranslator(nil)), // todo: move
+		Registry:    log.NewRegistry(logTranslator),
 	}
 }
 

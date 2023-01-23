@@ -117,5 +117,5 @@ func (ph *Runner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	}
 
 	var i any = event
-	return ph.pr.Registry.Translator.BuildLog(_log, i)
+	return ph.pr.Registry.GetTranslator().BuildLog(_log, i)
 }

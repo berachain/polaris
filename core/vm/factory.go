@@ -29,7 +29,7 @@ type EVMFactory struct {
 // `NewEVMFactory` creates and returns a new `EVMFactory` with a new `precompile.Registry`.
 func NewEVMFactory() *EVMFactory {
 	return &EVMFactory{
-		pr: precompile.NewRegistry(),
+		pr: precompile.NewRegistry(nil),
 	}
 }
 

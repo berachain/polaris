@@ -44,7 +44,7 @@ var _ = Describe("Precompile Host", func() {
 	var psdb *mockPSDB
 
 	BeforeEach(func() {
-		pr = precompile.NewRegistry()
+		pr = precompile.NewRegistry(cosmos.NewTranslator(nil))
 		err := pr.Register(&mockStateful{&mockBase{}})
 		Expect(err).To(BeNil())
 		psdb = &mockPSDB{}

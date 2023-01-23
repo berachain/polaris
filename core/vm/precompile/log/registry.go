@@ -27,7 +27,7 @@ type Registry struct {
 	eventTypesToLogs map[string]*PrecompileLog
 
 	// `factory` is the `LogFactory` used to create `sdk.Event`s. ( //
-	Translator Translator // todo: generalize
+	translator Translator
 }
 
 // `NewRegistry` creates and returns a new, empty `Registry`.
@@ -36,7 +36,7 @@ func NewRegistry(
 ) *Registry {
 	return &Registry{
 		eventTypesToLogs: make(map[string]*PrecompileLog),
-		Translator:       translator,
+		translator:       translator,
 	}
 }
 
@@ -58,6 +58,10 @@ func (lr *Registry) RegisterEvent(
 	// todo register translator events here?
 
 	return err
+}
+
+func (lr *Registry) GetTranslator() Translator {
+	return lr.translator
 }
 
 // `GetPrecompileLog` returns the precompile log corresponding to the given event.

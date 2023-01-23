@@ -22,7 +22,7 @@ import (
 
 var _ = Describe("Precompile Registry", func() {
 	It("should error on incorrect precompile types", func() {
-		pr := precompile.NewRegistry()
+		pr := precompile.NewRegistry(nil)
 		err := pr.Register(&mockBase{})
 		Expect(err.Error()).To(Equal("this contract does not implement a the required precompile contract interface"))
 	})
