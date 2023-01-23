@@ -114,20 +114,6 @@ func (ph *Runner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	if log == nil {
 		return nil, errors.Wrapf(ErrEthEventNotRegistered, "cosmos event %s", event.Type)
 	}
-	var err error
-	if err = log.ValidateAttributes(event); err != nil {
-		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
-	}
 
-	// build Ethereum log based on valid Cosmos event
-	eventLog := &coretypes.Log{
-		Address: log.GetPrecompileAddress(),
-	}
-	if eventLog.Topics, err = log.MakeTopics(event); err != nil {
-		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
-	}
-	if eventLog.Data, err = log.MakeData(event); err != nil {
-		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
-	}
-	return eventLog, nil
+	return ph.pr.Registry.Translator.BuildLog(log, event)
 }

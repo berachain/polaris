@@ -18,6 +18,7 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `Registry` stores a mapping of `EventType`s to `*log.PrecompileLog`s.
@@ -25,12 +26,16 @@ type Registry struct {
 	// `eventTypesToLogs` is a map of `EventType`s to `*log.PrecompileLog` for all supported
 	// events.
 	eventTypesToLogs map[string]*PrecompileLog
+
+	// `factory` is the `LogFactory` used to create `sdk.Event`s. (//todo: bing bong)
+	Translator Translator[sdk.Event]
 }
 
 // `NewRegistry` creates and returns a new, empty `Registry`.
 func NewRegistry() *Registry {
 	return &Registry{
 		eventTypesToLogs: make(map[string]*PrecompileLog),
+		Translator:       &CosmosLogFactory{}, // todo accept as parameter from configurator.
 	}
 }
 
@@ -48,8 +53,14 @@ func (lr *Registry) RegisterEvent(
 	lr.eventTypesToLogs[abiEvent.Name], err = NewPrecompileLog(
 		moduleEthAddress,
 		abiEvent,
-		customModuleAttributes,
 	)
+
+	// TODO move to constructor and build the translator properly,s ince Registry needs to be
+	// generic.
+	for k, v := range customModuleAttributes {
+		lr.Translator.(*CosmosLogFactory).customValueDecoders[k] = v
+	}
+
 	return err
 }
 

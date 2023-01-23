@@ -38,16 +38,23 @@ var _ = Describe("Precompile Log", func() {
 	var precompileAddr = common.BytesToAddress([]byte("my precompile address"))
 	var valAddr = sdk.ValAddress([]byte("alice"))
 	var delAddr = sdk.AccAddress([]byte("bob"))
+	var translator *CosmosLogFactory
 	var amt sdk.Coin
 	var creationHeight int64
 
 	Context("No value decoder issues", func() {
 		BeforeEach(func() {
 			var err error
-			precompileLog, err = NewPrecompileLog(precompileAddr, mockDefaultAbiEvent(), nil)
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockDefaultAbiEvent())
 			Expect(err).To(BeNil())
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
+
+			translator = NewCosmosLogFactory(ValueDecoders{
+				"validator_bad_arg": func(s string) (any, error) {
+					return common.ValAddressToEthAddress(valAddr), nil
+				},
+			})
 		})
 
 		Describe("Valid Cosmos Event", func() {
@@ -63,13 +70,13 @@ var _ = Describe("Precompile Log", func() {
 					[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
 				)
 
-				err := precompileLog.ValidateAttributes(&event)
+				err := validateAttributes(precompileLog, &event)
 				Expect(err).To(BeNil())
 
 				addr := precompileLog.precompileAddr
 				Expect(addr).To(Equal(addr))
 
-				topics, err := precompileLog.MakeTopics(&event)
+				topics, err := translator.makeTopics(precompileLog, &event)
 				Expect(err).To(BeNil())
 				Expect(len(topics)).To(Equal(3))
 				Expect(topics[0]).To(Equal(eventID))
@@ -80,7 +87,7 @@ var _ = Describe("Precompile Log", func() {
 					common.BytesToHash(delAddr.Bytes()),
 				))
 
-				data, err := precompileLog.MakeData(&event)
+				data, err := translator.makeData(precompileLog, &event)
 				Expect(err).To(BeNil())
 				packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().PackValues(
 					[]any{
@@ -101,7 +108,7 @@ var _ = Describe("Precompile Log", func() {
 					sdk.NewAttribute("amount", amt.String()),
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
-				err := precompileLog.ValidateAttributes(&event)
+				err := validateAttributes(precompileLog, &event)
 				Expect(err.Error()).To(Equal("not enough event attributes provided"))
 			})
 
@@ -113,7 +120,7 @@ var _ = Describe("Precompile Log", func() {
 					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
-				_, err := precompileLog.MakeTopics(&event)
+				_, err := translator.makeTopics(precompileLog, &event)
 				Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: validator"))
 			})
 
@@ -125,7 +132,7 @@ var _ = Describe("Precompile Log", func() {
 					sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 					sdk.NewAttribute("delegator", delAddr.String()),
 				)
-				_, err := precompileLog.MakeData(&event)
+				_, err := translator.makeData(precompileLog, &event)
 				Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: amount"))
 			})
 
@@ -138,7 +145,7 @@ var _ = Describe("Precompile Log", func() {
 						sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 						sdk.NewAttribute("delegator", delAddr.String()),
 					)
-					_, err := precompileLog.MakeTopics(&event)
+					_, err := translator.makeTopics(precompileLog, &event)
 					Expect(err).ToNot(BeNil())
 				})
 
@@ -150,7 +157,7 @@ var _ = Describe("Precompile Log", func() {
 						sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 						sdk.NewAttribute("delegator", delAddr.String()),
 					)
-					_, err := precompileLog.MakeData(&event)
+					_, err := translator.makeData(precompileLog, &event)
 					Expect(err).ToNot(BeNil())
 				})
 
@@ -162,7 +169,7 @@ var _ = Describe("Precompile Log", func() {
 						sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 						sdk.NewAttribute("delegator", "bad acc string"),
 					)
-					_, err := precompileLog.MakeTopics(&event)
+					_, err := translator.makeTopics(precompileLog, &event)
 					Expect(err).ToNot(BeNil())
 				})
 
@@ -174,7 +181,7 @@ var _ = Describe("Precompile Log", func() {
 						sdk.NewAttribute("creation_height", "bad creation height"),
 						sdk.NewAttribute("delegator", delAddr.String()),
 					)
-					_, err := precompileLog.MakeData(&event)
+					_, err := translator.makeData(precompileLog, &event)
 					Expect(err).ToNot(BeNil())
 				})
 			})
@@ -189,14 +196,16 @@ var _ = Describe("Precompile Log", func() {
 
 		It("should error on no value decoder func", func() {
 			var err error
-			precompileLog, err = NewPrecompileLog(precompileAddr, mockBadAbiEvent(), nil)
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockBadAbiEvent())
 			Expect(err).To(BeNil())
 
 			event := sdk.NewEvent(
 				"cancel_unbonding_delegation",
 				sdk.NewAttribute("validator_bad_arg", "bad validator value"),
 			)
-			_, err = precompileLog.MakeTopics(&event)
+			// reset the translator to remove the decoder for validator
+			translator = NewCosmosLogFactory(nil)
+			_, err = translator.makeTopics(precompileLog, &event)
 			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: validator_bad_arg"))
 		})
 
@@ -205,11 +214,6 @@ var _ = Describe("Precompile Log", func() {
 			precompileLog, err = NewPrecompileLog(
 				precompileAddr,
 				mockBadAbiEvent(),
-				ValueDecoders{
-					"validator_bad_arg": func(s string) (any, error) {
-						return common.ValAddressToEthAddress(valAddr), nil
-					},
-				},
 			)
 			Expect(err).To(BeNil())
 
@@ -217,7 +221,7 @@ var _ = Describe("Precompile Log", func() {
 				"cancel_unbonding_delegation",
 				sdk.NewAttribute("validator_bad_arg", "any validator value"),
 			)
-			topics, err := precompileLog.MakeTopics(&event)
+			topics, err := translator.makeTopics(precompileLog, &event)
 			Expect(err).To(BeNil())
 			Expect(topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 		})
