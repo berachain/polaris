@@ -95,7 +95,7 @@ func (ph *Runner) Run(
 	events := ctx.EventManager().Events()
 	for i := beforeExecutionNumEvents; i < len(events); i++ {
 		var log *coretypes.Log
-		log, err = ph.pr.Registry.TranslateLogData(&events[i])
+		log, err = ph.pr.logRegistry.TranslateLogData(&events[i])
 		if err != nil {
 			return nil, suppliedGas, err
 		}

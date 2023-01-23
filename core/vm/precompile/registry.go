@@ -31,14 +31,14 @@ type Registry struct {
 
 	// `Registry` is the Ethereum log builder for all Cosmos events emitted during precompile
 	// execution.
-	Registry *log.Registry
+	logRegistry *log.Registry
 }
 
 // `NewRegistry` creates and returns a new `Registry`.
 func NewRegistry(logTranslator log.Translator) *Registry {
 	return &Registry{
 		precompiles: make(map[common.Address]types.PrecompileContainer),
-		Registry:    log.NewRegistry(logTranslator),
+		logRegistry: log.NewRegistry(logTranslator),
 	}
 }
 
@@ -50,7 +50,7 @@ func (pr *Registry) Register(contractImpl container.BaseContractImpl) error {
 	var cf container.AbstractContainerFactory
 	//nolint:gocritic // cannot be converted to switch-case.
 	if utils.Implements[container.StatefulContractImpl](contractImpl) {
-		cf = container.NewStatefulContainerFactory(pr.Registry)
+		cf = container.NewStatefulContainerFactory(pr.logRegistry)
 	} else if utils.Implements[container.StatelessContractImpl](contractImpl) {
 		cf = container.NewStatelessContainerFactory()
 	} else {
@@ -81,7 +81,7 @@ func (pr *Registry) Register(contractImpl container.BaseContractImpl) error {
 				customEventValueDecoders = customValueDecoders[abiEvent.Name]
 			}
 			// register the event to the precompiles' log registry
-			err = pr.Registry.RegisterEvent(ec.Address(), abiEvent, customEventValueDecoders)
+			err = pr.logRegistry.RegisterEvent(ec.Address(), abiEvent, customEventValueDecoders)
 			if err != nil {
 				return err
 			}
