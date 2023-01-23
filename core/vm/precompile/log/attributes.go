@@ -39,12 +39,12 @@ const (
 
 type (
 	// `valueDecoder` is a type of function that returns a geth compatible, eth primitive type (as
-	// type `any`) for a given Cosmos event attribute value (of type `string`). Cosmos event
-	// attribute values may require unique decodings based on their underlying string encoding.
+	// type `any`) for a given event attribute value (of type `string`). Event attribute values may
+	// require unique decodings based on their underlying string encoding.
 	valueDecoder func(attributeValue string) (ethPrimitive any, err error)
 
-	// `ValueDecoders` is a type that represents a map of Cosmos event attribute keys to value
-	// decoder functions.
+	// `ValueDecoders` is a type that represents a map of event attribute keys to value decoder
+	// functions.
 	ValueDecoders map[string]valueDecoder
 )
 

@@ -28,16 +28,16 @@ import (
 )
 
 /**
- * 	Welcome to Stateful Precompiled Contracts!
- *	To build a stateful precompile, you must follow these steps:
- *		1) Define a Solidity interface with the methods that you want implemented via a precompile.
- *		2) Build a Go precompile contract, which implements the interface's methods.
- *   		A) This precompile contract should expose the ABI's `Methods`, which can be generated
- *      	   via Go-Ethereum's abi package. These methods are of type `abi.Method`.
- *   		B) This precompile contract should also expose the `Method`s. A
- *             `Method` includes the `Executable`, which is the direct implementation of
- *             a corresponding ABI method, the `Executable`'s `RequiredGas`, and the ABI signature.
- *             Do NOT provide the `abiMethod` as this field will be auto-populated.
+ * 	Welcome to Stateful Precompiled Contracts! To build a stateful precompile, you must follow
+ *  these steps:
+ *	  1) Define a Solidity interface with the methods that you want implemented via a precompile.
+ *	  2) Build a Go precompile contract, which implements the interface's methods.
+ *       A) This precompile contract should expose the ABI's `Methods`, which can be generated via
+ *          Go-Ethereum's abi package. These methods are of type `abi.Method`.
+ *   	 B) This precompile contract should also expose the `Method`s. A `Method` includes the
+ *          `Executable`, which is the direct implementation of a corresponding ABI method, the
+ *          `Executable`'s `RequiredGas`, and the ABI signature. Do NOT provide the `abiMethod` as
+ *          this field will be automatically populated.
  **/
 
 // `funcNamePart` is the part of a runtime function name that is of relevance.
@@ -99,7 +99,7 @@ func (m *Method) ValidateBasic() error {
 	// validate user-defined abi signature (AbiSig) according to geth ABI signature definition
 	// check only 1 `(` exists in the string
 	nameAndArgs := strings.Split(m.AbiSig, "(")
-	if len(nameAndArgs) != 2 { //nolint:gomnd // this constant -- 2 -- will never change.
+	if len(nameAndArgs) != 2 { //nolint:gomnd // the constant 2 will never change.
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not contain exactly 1 '('",
@@ -142,6 +142,6 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
-// `Methods` is a type that represents a list of precompile methods. This is what a
-// stateful precompiled contract implementation should expose.
+// `Methods` is a type that represents a list of precompile methods. This is what a stateful
+// precompiled contract implementation should expose.
 type Methods []*Method

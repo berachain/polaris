@@ -37,7 +37,7 @@ func NewLogRegistry() *LogRegistry {
 
 // `RegisterEvent` registers an Ethereum event as a precompile log.
 func (lr *LogRegistry) RegisterEvent(
-	moduleEthAddress common.Address,
+	precompileAddress common.Address,
 	abiEvent abi.Event,
 	customModuleAttributes log.ValueDecoders,
 ) error {
@@ -47,7 +47,7 @@ func (lr *LogRegistry) RegisterEvent(
 
 	var err error
 	lr.eventTypesToLogs[abiEvent.Name], err = log.NewPrecompileLog(
-		moduleEthAddress,
+		precompileAddress,
 		abiEvent,
 		customModuleAttributes,
 	)

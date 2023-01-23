@@ -38,10 +38,10 @@ type StatefulContainer struct {
 	// (geth abi format). Please check core/vm/precompile/container/types.go for more information.
 	idsToMethods map[string]*types.Method
 
-	// todo: implement
+	// TODO: implement
 	receive *types.Method
 
-	// todo: implement
+	// TODO: implement
 	fallback *types.Method
 }
 

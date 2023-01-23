@@ -22,10 +22,10 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `PrecompileLog` contains the required data for a Cosmos precompile contract to produce an
-// Ethereum formatted event log.
+// `PrecompileLog` contains the required data for a precompile contract to produce an Ethereum
+// compatible event log.
 type PrecompileLog struct {
-	// `address` is the Ethereum address which represents a Cosmos module's account address.
+	// `address` is the Ethereum address used as the `Address` field for the Ethereum log.
 	precompileAddr common.Address
 
 	// `id` is the Ethereum event ID, to be used as an Ethereum event's first topic.
@@ -37,8 +37,8 @@ type PrecompileLog struct {
 	// `nonIndexedInputs` holds an Ethereum event's non-indexed arguments, emitted as event data.
 	nonIndexedInputs abi.Arguments
 
-	// `customValueDecoders` is a map of Cosmos attribute keys to attribute value decoder
-	// functions for custom modules.
+	// `customValueDecoders` is a map of attribute keys to attribute value decoder functions for
+	// custom events.
 	customValueDecoders ValueDecoders
 }
 
@@ -69,7 +69,7 @@ func (pe *PrecompileLog) GetPrecompileAddress() common.Address {
 	return pe.precompileAddr
 }
 
-// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. `Topics` is a
+// `MakeTopics` generates the Ethereum log `Topics` field for a valid Cosmos event. `Topics` is a
 // slice of at most 4 hashes, in which the first topic is the Ethereum event's ID. The optional and
 // following 3 topics are hashes of the Ethereum event's indexed arguments. This function builds
 // this slice of `Topics` by building a filter query of all the corresponding arguments:
@@ -157,8 +157,7 @@ func (pe *PrecompileLog) ValidateAttributes(event *sdk.Event) error {
 	return nil
 }
 
-// `getValueDecoder` returns an attribute value decoder function for a certain Cosmos event
-// attribute key.
+// `getValueDecoder` returns an attribute value decoder function for a certain event attribute key.
 func (pe *PrecompileLog) getValueDecoder(attrKey string) (valueDecoder, error) {
 	// try custom precompile event attributes
 	if pe.customValueDecoders != nil {

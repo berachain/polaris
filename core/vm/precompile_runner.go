@@ -76,7 +76,7 @@ func (ph *PrecompileRunner) Run(
 	}
 	suppliedGas -= gasCost
 
-	// todo: generalize adding logs
+	// TODO: generalize adding logs
 	// store the number of events before precompile container execution, to be used as index for
 	// building logs for all Cosmos events emitted during execution
 	ctx := ph.psdb.GetContext()
@@ -87,11 +87,11 @@ func (ph *PrecompileRunner) Run(
 		return nil, suppliedGas, err
 	}
 
-	// We add logs after the precompile container execution to ensure that if the precompile reverts,
-	// the logs are not added. This is a design choice.
+	// We add logs after the precompile container execution to ensure that if the precompile
+	// reverts, the logs are not added. This is a design choice.
+	// TODO: generalize adding logs, maybe `Execute` should return logs to append. The goal here is
+	// to make it so precompile runner does not need to know about Cosmos events.
 
-	// todo: generalize adding logs, maybe `Execute` should return logs to append.
-	// The goal here is to make it so precompile runner does not need to know about Cosmos events
 	// convert all Cosmos events emitted during precompile container execution to logs and add to
 	// StateDB
 	events := ctx.EventManager().Events()

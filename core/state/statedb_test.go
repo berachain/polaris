@@ -43,7 +43,7 @@ var _ = Describe("StateDB", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sdb = state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "abera") // todo use lf
+		sdb = state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "abera") // TODO: use lf
 	})
 
 	Describe("TestCreateAccount", func() {
@@ -286,7 +286,7 @@ var _ = Describe("StateDB", func() {
 				Expect(sdb.GetRefund()).To(Equal(uint64(0)))
 				Expect(sdb.GetSavedErr()).To(BeNil())
 				Expect(sdb.HasSuicided(alice)).To(BeFalse())
-				// todo check the txhash and blockhash stuff
+				// TODO: check the txhash and blockhash stuff
 				Expect(sdb, state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "bera"))
 			})
 		})
