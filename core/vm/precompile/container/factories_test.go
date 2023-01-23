@@ -22,7 +22,6 @@ import (
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
-	"github.com/berachain/stargazer/core/vm/precompile/log/cosmos"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
@@ -56,7 +55,7 @@ var _ = Describe("Container Factories", func() {
 		var scf *container.StatefulContainerFactory
 
 		BeforeEach(func() {
-			lr = log.NewRegistry(cosmos.NewTranslator(nil))
+			lr = log.NewRegistry(log.NewTranslator(nil))
 			scf = container.NewStatefulContainerFactory(lr)
 		})
 
@@ -74,7 +73,7 @@ var _ = Describe("Container Factories", func() {
 		var scf *container.StatefulContainerFactory
 
 		BeforeEach(func() {
-			lr = log.NewRegistry(cosmos.NewTranslator(nil))
+			lr = log.NewRegistry(log.NewTranslator(nil))
 			scf = container.NewStatefulContainerFactory(lr)
 		})
 
@@ -88,7 +87,7 @@ var _ = Describe("Container Factories", func() {
 		var dcf *container.DynamicContainerFactory
 
 		BeforeEach(func() {
-			lr = log.NewRegistry(cosmos.NewTranslator(nil))
+			lr = log.NewRegistry(log.NewTranslator(nil))
 			dcf = container.NewDynamicContainerFactory(lr)
 		})
 
@@ -136,9 +135,9 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	}
 }
 
-func (ms *mockStateful) CustomValueDecoders() map[string]cosmos.ValueDecoders {
-	return map[string]cosmos.ValueDecoders{
-		string("Event"): make(cosmos.ValueDecoders),
+func (ms *mockStateful) CustomValueDecoders() map[string]log.ValueDecoders {
+	return map[string]log.ValueDecoders{
+		string("Event"): make(log.ValueDecoders),
 	}
 }
 

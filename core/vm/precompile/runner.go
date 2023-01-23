@@ -21,9 +21,7 @@ import (
 
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
-	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/errors"
 )
 
 // Compile-time assertion to ensure `Runner` adheres to `Runner`.
@@ -79,8 +77,8 @@ func (ph *Runner) Run(
 	// todo: generalize adding logs
 	// store the number of events before precompile container execution, to be used as index for
 	// building logs for all Cosmos events emitted during execution
-	ctx := ph.psdb.GetContext()
-	beforeExecutionNumEvents := len(sdk.UnwrapSDKContext(ctx).EventManager().Events())
+	ctx := sdk.UnwrapSDKContext(ph.psdb.GetContext())
+	beforeExecutionNumEvents := len(ctx.EventManager().Events())
 
 	ret, err := pc.Run(ctx, input, caller, value, readonly)
 	if err != nil {
@@ -94,10 +92,10 @@ func (ph *Runner) Run(
 	// The goal here is to make it so precompile runner does not need to know about Cosmos events
 	// convert all Cosmos events emitted during precompile container execution to logs and add to
 	// StateDB
-	events := sdk.UnwrapSDKContext(ctx).EventManager().Events()
+	events := ctx.EventManager().Events()
 	for i := beforeExecutionNumEvents; i < len(events); i++ {
 		var log *coretypes.Log
-		log, err = ph.buildLog(&events[i])
+		log, err = ph.pr.Registry.TranslateLogData(&events[i])
 		if err != nil {
 			return nil, suppliedGas, err
 		}
@@ -105,17 +103,4 @@ func (ph *Runner) Run(
 	}
 
 	return ret, suppliedGas, nil
-}
-
-// `buildLog` builds an Ethereum event log from the given Cosmos event.
-func (ph *Runner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
-	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
-	// the Ethereum event's name.
-	_log := ph.pr.Registry.GetPrecompileLog(event.Type)
-	if _log == nil {
-		return nil, errors.Wrapf(log.ErrEthEventNotRegistered, "cosmos event %s", event.Type)
-	}
-
-	var i any = event
-	return ph.pr.Registry.GetTranslator().BuildLog(_log, i)
 }

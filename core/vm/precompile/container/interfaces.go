@@ -16,6 +16,7 @@ package container
 
 import (
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 )
@@ -40,7 +41,7 @@ type (
 	// execution.
 	StatefulContractImpl interface {
 		BaseContractImpl
-		HasEvents
+		HasCustomEvents
 
 		// `ABIMethods` should return a map of Ethereum method names to Go-Ethereum abi `Method`
 		// structs. NOTE: this can be directly loaded from the `Methods` field of a Go-Ethereum ABI
@@ -74,9 +75,22 @@ type (
 	// contract to implement if it wants to emit some (or all) of its Cosmos module's events as
 	// Ethereum event logs.
 	HasEvents interface {
+		BaseContractImpl
 		// `ABIEvents` should return a map of Ethereum event names (should be CamelCase formatted)
 		// to Go-Ethereum abi `Event` structs. NOTE: this can be directly loaded from the `Events` field
 		// of a Go-Ethereum ABI struct, which can be built for a solidity library, interface, or contract.
 		ABIEvents() map[string]abi.Event
+	}
+
+	// `HasCustomEvents` is an interface that enforces the required functions for a stateful
+	// precompile contract to implement if it wants to emit some (or all) of its custom Cosmos
+	// module's events as Ethereum event logs.
+	HasCustomEvents interface {
+		HasEvents
+
+		// `CustomValueDecoders` should return a map of Cosmos event types to attribute
+		// key-to-value decoder functions map for each of the supported events in the custom Cosmos
+		// module.
+		CustomValueDecoders() map[string]log.ValueDecoders
 	}
 )

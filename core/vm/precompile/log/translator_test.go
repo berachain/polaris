@@ -12,15 +12,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package cosmos
+package log
 
 import (
 	"strconv"
-	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
@@ -29,24 +27,19 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestCosmosTranslator(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm/precompile/log/cosmos")
-}
-
 var _ = Describe("Precompile Log", func() {
-	var precompileLog *log.PrecompileLog
+	var precompileLog *PrecompileLog
 	var precompileAddr = common.BytesToAddress([]byte("my precompile address"))
 	var valAddr = sdk.ValAddress([]byte("alice"))
 	var delAddr = sdk.AccAddress([]byte("bob"))
-	var translator *Translator
+	var translator *CosmosTranslator
 	var amt sdk.Coin
 	var creationHeight int64
 
 	Context("No value decoder issues", func() {
 		BeforeEach(func() {
 			var err error
-			precompileLog, err = log.NewPrecompileLog(precompileAddr, mockDefaultAbiEvent())
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockDefaultAbiEvent())
 			Expect(err).To(BeNil())
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
@@ -197,7 +190,7 @@ var _ = Describe("Precompile Log", func() {
 
 		It("should error on no value decoder func", func() {
 			var err error
-			precompileLog, err = log.NewPrecompileLog(precompileAddr, mockBadAbiEvent())
+			precompileLog, err = NewPrecompileLog(precompileAddr, mockBadAbiEvent())
 			Expect(err).To(BeNil())
 
 			event := sdk.NewEvent(
@@ -212,7 +205,7 @@ var _ = Describe("Precompile Log", func() {
 
 		It("should find the custom value decoders", func() {
 			var err error
-			precompileLog, err = log.NewPrecompileLog(
+			precompileLog, err = NewPrecompileLog(
 				precompileAddr,
 				mockBadAbiEvent(),
 			)

@@ -15,9 +15,11 @@
 package log
 
 import (
+	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `Registry` stores a mapping of `EventType`s to `*log.PrecompileLog`s.
@@ -44,6 +46,7 @@ func NewRegistry(
 func (lr *Registry) RegisterEvent(
 	moduleEthAddress common.Address,
 	abiEvent abi.Event,
+	customValueDecoders ValueDecoders,
 ) error {
 	if _, found := lr.eventTypesToLogs[abiEvent.Name]; found {
 		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
@@ -55,7 +58,9 @@ func (lr *Registry) RegisterEvent(
 		abiEvent,
 	)
 
-	// todo register translator events here?
+	for key, value := range customValueDecoders {
+		lr.translator.RegisterValueDecoder(key, value)
+	}
 
 	return err
 }
@@ -63,6 +68,18 @@ func (lr *Registry) RegisterEvent(
 // `GetTranslator` returns the `LogTranslator` used by this `Registry`.
 func (lr *Registry) GetTranslator() Translator {
 	return lr.translator
+}
+
+// `TranslateLogData` translates the given event into an Ethereum log.
+func (lr *Registry) TranslateLogData(
+	event *sdk.Event,
+) (*coretypes.Log, error) {
+	_log := lr.GetPrecompileLog(event.Type)
+	if _log == nil {
+		return nil, errors.Wrapf(ErrEthEventNotRegistered, "cosmos event %s", event.Type)
+	}
+
+	return lr.translator.BuildLog(_log, event)
 }
 
 // `GetPrecompileLog` returns the precompile log corresponding to the given event.

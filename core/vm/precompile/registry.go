@@ -29,7 +29,7 @@ type Registry struct {
 	// supporting stateless and stateful precompiles for now.
 	precompiles map[common.Address]types.PrecompileContainer
 
-	// `Registry` is the registry for all Cosmos events emitted during precompile
+	// `Registry` is the Ethereum log builder for all Cosmos events emitted during precompile
 	// execution.
 	Registry *log.Registry
 }
@@ -38,7 +38,7 @@ type Registry struct {
 func NewRegistry(logTranslator log.Translator) *Registry {
 	return &Registry{
 		precompiles: make(map[common.Address]types.PrecompileContainer),
-		Registry:    log.NewRegistry(logTranslator),
+		Registry:    log.NewRegistry(logTranslator), // todo: move
 	}
 }
 

@@ -16,9 +16,169 @@ package log
 
 import (
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
+	"github.com/berachain/stargazer/types/abi"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `LogTranslator` is an interface for translating arbitrary data events into Ethereum logs.
 type Translator interface {
-	BuildLog(log *PrecompileLog, logData any) (*coretypes.Log, error)
+	BuildLog(log *PrecompileLog, logData *sdk.Event) (*coretypes.Log, error)
+	RegisterValueDecoder(key string, decoder valueDecoder)
+}
+
+// `Translator` is a Cosmos event translator. It implements the `Translator` interface.
+var _ Translator = (*CosmosTranslator)(nil)
+
+type CosmosTranslator struct {
+	// `customValueDecoders` is a map of Cosmos attribute keys to attribute value decoder
+	// functions for custom modules.
+	customValueDecoders ValueDecoders
+}
+
+func NewTranslator(customValueDecoders ValueDecoders) *CosmosTranslator {
+	return &CosmosTranslator{
+		customValueDecoders: customValueDecoders,
+	}
+}
+
+// `RegisterValueDecoder` registers a custom attribute value decoder for a Cosmos attribute key.
+func (clf *CosmosTranslator) RegisterValueDecoder(key string, decoder valueDecoder) {
+	clf.customValueDecoders[key] = decoder
+}
+
+// `BuildLog` builds an Ethereum log from a valid Cosmos event. The Ethereum log is built by
+// converting the Cosmos event's attributes into the Ethereum event's indexed and non-indexed
+// arguments. The Ethereum log's `Topics` field is built by converting the Cosmos event's
+// attributes into the Ethereum event's indexed arguments. The Ethereum log's `Data` field is
+// built by converting the Cosmos event's attributes into the Ethereum event's non-indexed
+// arguments. The Ethereum log's `Address` field is set to the precompile address of the
+// Ethereum event.
+func (clf *CosmosTranslator) BuildLog(log *PrecompileLog, event *sdk.Event) (*coretypes.Log, error) {
+	var err error
+	if err = validateAttributes(log, event); err != nil {
+		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
+	}
+
+	// build Ethereum log based on valid Cosmos event
+	eventLog := &coretypes.Log{
+		Address: log.GetPrecompileAddress(),
+	}
+	if eventLog.Topics, err = clf.makeTopics(log, event); err != nil {
+		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
+	}
+	if eventLog.Data, err = clf.makeData(log, event); err != nil {
+		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)
+	}
+	return eventLog, nil
+}
+
+// `MakeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. `Topics` is a
+// slice of at most 4 hashes, in which the first topic is the Ethereum event's ID. The optional and
+// following 3 topics are hashes of the Ethereum event's indexed arguments. This function builds
+// this slice of `Topics` by building a filter query of all the corresponding arguments:
+// [eventID, indexed_arg1, ...]. Then this query is converted to topics using geth's
+// `abi.MakeTopics` function, which outputs hashes of all arguments in the query. The slice of
+// hashes is returned.
+func (clf *CosmosTranslator) makeTopics(pl *PrecompileLog, event *sdk.Event) ([]common.Hash, error) {
+	indexedInputs := pl.IndexedInputs()
+	filterQuery := make([]any, len(indexedInputs)+1)
+	filterQuery[0] = pl.ID()
+
+	// for each Ethereum indexed argument, get the corresponding Cosmos event attribute and
+	// convert to a geth compatible type. NOTE: this iteration has total complexity O(M), where
+	// M = average length of atrribute key strings, as length of `indexedInputs` <= 3.
+	for i, arg := range pl.IndexedInputs() {
+		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
+		if attrIdx == notFound {
+			return nil, errors.Wrap(ErrNoAttributeKeyFound, arg.Name)
+		}
+
+		// convert attribute value (string) to geth compatible type
+		attr := &event.Attributes[attrIdx]
+		decode, err := clf.getValueDecoder(attr.Key)
+		if err != nil {
+			return nil, err
+		}
+		value, err := decode(attr.Value)
+		if err != nil {
+			return nil, err
+		}
+		filterQuery[i+1] = value
+	}
+
+	// convert the filter query to a slice of `Topics` hashes
+	topics, err := abi.MakeTopics(filterQuery)
+	if err != nil {
+		return nil, err
+	}
+	return topics[0], nil
+}
+
+// `MakeData` returns the Ethereum log `Data` field for a valid cosmos event. `Data` is a slice of
+// bytes which store an Ethereum event's non-indexed arguments, packed into bytes. This function
+// packs the values of the incoming Cosmos event's attributes, which correspond to the
+// Ethereum event's non-indexed arguments, into bytes and returns a byte slice.
+func (clf *CosmosTranslator) makeData(pl *PrecompileLog, event *sdk.Event) ([]byte, error) {
+	nonIndexedInputs := pl.NonIndexedInputs()
+	attrVals := make([]any, len(nonIndexedInputs))
+
+	// for each Ethereum non-indexed argument, get the corresponding Cosmos event attribute and
+	// convert to a geth compatible type. NOTE: the total complexity of this iteration: O(M*N^2),
+	// where N is the # of non-indexed args, M = average length of atrribute key strings.
+	for i, arg := range nonIndexedInputs {
+		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
+		if attrIdx == notFound {
+			return nil, errors.Wrap(ErrNoAttributeKeyFound, arg.Name)
+		}
+
+		// convert attribute value (string) to geth compatible type
+		attr := event.Attributes[attrIdx]
+		decode, err := clf.getValueDecoder(attr.Key)
+		if err != nil {
+			return nil, err
+		}
+		value, err := decode(attr.Value)
+		if err != nil {
+			return nil, err
+		}
+		attrVals[i] = value
+	}
+
+	// pack the Cosmos event's attribute values into bytes
+	data, err := nonIndexedInputs.PackValues(attrVals)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+// `getValueDecoder` returns an attribute value decoder function for a certain Cosmos event
+// attribute key.
+func (clf *CosmosTranslator) getValueDecoder(attrKey string) (valueDecoder, error) {
+	// try custom precompile event attributes
+	if clf.customValueDecoders != nil {
+		if customDecoder, found := clf.customValueDecoders[attrKey]; found {
+			return customDecoder, nil
+		}
+	}
+
+	// try default Cosmos SDK event attributes
+	if defaultDecoder, found := defaultCosmosValueDecoders[attrKey]; found {
+		return defaultDecoder, nil
+	}
+
+	// no value decoder function was found for attribute key
+	return nil, errors.Wrap(ErrNoValueDecoderFunc, attrKey)
+}
+
+// `validateAttributes` validates an incoming Cosmos `event`. Specifically, it verifies that the
+// number of attributes provided by the Cosmos `event` are adequate for it's corresponding
+// Ethereum events.
+func validateAttributes(log *PrecompileLog, event *sdk.Event) error {
+	if len(event.Attributes) < len(log.IndexedInputs())+len(log.NonIndexedInputs()) {
+		return ErrNotEnoughAttributes
+	}
+	return nil
 }

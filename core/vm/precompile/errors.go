@@ -29,4 +29,7 @@ var (
 
 	// `ErrEventHasIssues` is returned when an event has issues.
 	ErrEventHasIssues = errors.New("this event has issues")
+
+	// `ErrEthEventAlreadyRegistered` is returned on duplicate registration of an Ethereum event.
+	ErrEthEventAlreadyRegistered = errors.New("this Ethereum event is already registered")
 )

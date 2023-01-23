@@ -22,10 +22,8 @@ import (
 
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm/precompile"
-	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
-	"github.com/berachain/stargazer/core/vm/precompile/log/cosmos"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
@@ -44,7 +42,7 @@ var _ = Describe("Precompile Host", func() {
 	var psdb *mockPSDB
 
 	BeforeEach(func() {
-		pr = precompile.NewRegistry(cosmos.NewTranslator(nil))
+		pr = precompile.NewRegistry(log.NewTranslator(nil))
 		err := pr.Register(&mockStateful{&mockBase{}})
 		Expect(err).To(BeNil())
 		psdb = &mockPSDB{}
@@ -70,12 +68,8 @@ var _ = Describe("Precompile Host", func() {
 			abiMethod := solidity.MockPrecompileInterface.ABI.Methods["getOutput"]
 			inputs, err := abiMethod.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			pc, err := container.NewStatefulContainerFactory(log.NewRegistry(
-				cosmos.NewTranslator(nil),
-			)).Build(
-				&mockStateful{&mockBase{}},
-			)
-			Expect(err).To(BeNil())
+			pc, exists := ph.Exists(addr)
+			Expect(exists).To(BeTrue())
 			_, gas, err := ph.Run(
 				pc,
 				append(abiMethod.ID, inputs...),
@@ -143,7 +137,7 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	}
 }
 
-func (ms *mockStateful) CustomValueDecoders() map[string]cosmos.ValueDecoders {
+func (ms *mockStateful) CustomValueDecoders() map[string]log.ValueDecoders {
 	return nil
 }
 
@@ -186,6 +180,7 @@ func getOutput(
 		sdk.NewAttribute("amount", "10bgt"),
 		sdk.NewAttribute("creation_height", strconv.FormatInt(1, 10)),
 	))
+
 	return []any{
 		[]mockObject{
 			{

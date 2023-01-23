@@ -105,9 +105,15 @@ func (scf *StatefulContainerFactory) Build(
 
 	// add precompile events to stateful container, if any exist
 	if precompileEvents := sci.ABIEvents(); precompileEvents != nil {
+		customValueDecoders := sci.CustomValueDecoders()
 		for _, abiEvent := range precompileEvents {
+			// add value decoders if the event is custom
+			var customEventValueDecoders log.ValueDecoders
+			if customValueDecoders != nil {
+				customEventValueDecoders = customValueDecoders[abiEvent.Name]
+			}
 			// register the event to the precompiles' log registry
-			err = scf.lr.RegisterEvent(sci.Address(), abiEvent)
+			err = scf.lr.RegisterEvent(sci.Address(), abiEvent, customEventValueDecoders)
 			if err != nil {
 				return nil, err
 			}
