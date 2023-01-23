@@ -18,6 +18,7 @@ import (
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
+	"github.com/berachain/stargazer/core/vm/precompile/log/cosmos"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 )
@@ -38,7 +39,7 @@ type Registry struct {
 func NewRegistry() *Registry {
 	return &Registry{
 		precompiles: make(map[common.Address]types.PrecompileContainer),
-		Registry:    log.NewRegistry(),
+		Registry:    log.NewRegistry(cosmos.NewTranslator(nil)), // todo: move
 	}
 }
 

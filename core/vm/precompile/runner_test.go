@@ -25,6 +25,7 @@ import (
 	"github.com/berachain/stargazer/core/vm/precompile/container"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
 	"github.com/berachain/stargazer/core/vm/precompile/log"
+	"github.com/berachain/stargazer/core/vm/precompile/log/cosmos"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
@@ -69,7 +70,9 @@ var _ = Describe("Precompile Host", func() {
 			abiMethod := solidity.MockPrecompileInterface.ABI.Methods["getOutput"]
 			inputs, err := abiMethod.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			pc, err := container.NewStatefulContainerFactory(log.NewRegistry()).Build(
+			pc, err := container.NewStatefulContainerFactory(log.NewRegistry(
+				cosmos.NewTranslator(nil),
+			)).Build(
 				&mockStateful{&mockBase{}},
 			)
 			Expect(err).To(BeNil())
@@ -140,7 +143,7 @@ func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	}
 }
 
-func (ms *mockStateful) CustomValueDecoders() map[string]log.ValueDecoders {
+func (ms *mockStateful) CustomValueDecoders() map[string]cosmos.ValueDecoders {
 	return nil
 }
 

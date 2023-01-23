@@ -16,6 +16,7 @@ package log_test
 
 import (
 	"github.com/berachain/stargazer/core/vm/precompile/log"
+	"github.com/berachain/stargazer/core/vm/precompile/log/cosmos"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
 
@@ -29,16 +30,16 @@ var _ = Describe("Log Registry", func() {
 	var abiEvent abi.Event
 
 	BeforeEach(func() {
-		lr = log.NewRegistry()
+		lr = log.NewRegistry(cosmos.NewTranslator(nil))
 		abiEvent = abi.Event{Name: "CancelUnbondingDelegation"}
 	})
 
 	Describe("Test Register Event", func() {
 		It("should handle registration properly", func() {
-			err := lr.RegisterEvent(addr, abiEvent, nil)
+			err := lr.RegisterEvent(addr, abiEvent)
 			Expect(err).To(BeNil())
 
-			err = lr.RegisterEvent(addr, abiEvent, nil)
+			err = lr.RegisterEvent(addr, abiEvent)
 			Expect(err.Error()).To(Equal("this Ethereum event is already registered: CancelUnbondingDelegation"))
 		})
 	})
@@ -50,7 +51,7 @@ var _ = Describe("Log Registry", func() {
 			Expect(log).To(BeNil())
 
 			// valid event registered
-			err := lr.RegisterEvent(addr, abiEvent, nil)
+			err := lr.RegisterEvent(addr, abiEvent)
 			Expect(err).To(BeNil())
 			log = lr.GetPrecompileLog("cancel_unbonding_delegation")
 			Expect(log).ToNot(BeNil())

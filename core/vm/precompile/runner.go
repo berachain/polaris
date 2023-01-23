@@ -21,6 +21,7 @@ import (
 
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 )
@@ -110,10 +111,10 @@ func (ph *Runner) Run(
 func (ph *Runner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 	// NOTE: the incoming Cosmos event's `Type` field, converted to CamelCase, should be equal to
 	// the Ethereum event's name.
-	log := ph.pr.Registry.GetPrecompileLog(event.Type)
-	if log == nil {
-		return nil, errors.Wrapf(ErrEthEventNotRegistered, "cosmos event %s", event.Type)
+	_log := ph.pr.Registry.GetPrecompileLog(event.Type)
+	if _log == nil {
+		return nil, errors.Wrapf(log.ErrEthEventNotRegistered, "cosmos event %s", event.Type)
 	}
 
-	return ph.pr.Registry.Translator.BuildLog(log, event)
+	return ph.pr.Registry.Translator.BuildLog(_log, event)
 }

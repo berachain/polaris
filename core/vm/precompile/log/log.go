@@ -59,3 +59,18 @@ func NewPrecompileLog(
 func (pe *PrecompileLog) GetPrecompileAddress() common.Address {
 	return pe.precompileAddr
 }
+
+// `ID` returns the event ID.
+func (pe *PrecompileLog) ID() common.Hash {
+	return pe.id
+}
+
+// `IndexedInputs` returns the indexed arguments of the event.
+func (pe *PrecompileLog) IndexedInputs() abi.Arguments {
+	return pe.indexedInputs
+}
+
+// `NonIndexedInputs` returns the non-indexed arguments of the event.
+func (pe *PrecompileLog) NonIndexedInputs() abi.Arguments {
+	return pe.nonIndexedInputs
+}

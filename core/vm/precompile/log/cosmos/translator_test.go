@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package log
+package cosmos
 
 import (
 	"strconv"
@@ -20,6 +20,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/berachain/stargazer/core/vm/precompile/log"
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/types/abi"
@@ -28,29 +29,29 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestLog(t *testing.T) {
+func TestCosmosTranslator(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm/precompile/log")
+	RunSpecs(t, "core/vm/precompile/log/cosmos")
 }
 
 var _ = Describe("Precompile Log", func() {
-	var precompileLog *PrecompileLog
+	var precompileLog *log.PrecompileLog
 	var precompileAddr = common.BytesToAddress([]byte("my precompile address"))
 	var valAddr = sdk.ValAddress([]byte("alice"))
 	var delAddr = sdk.AccAddress([]byte("bob"))
-	var translator *CosmosLogFactory
+	var translator *Translator
 	var amt sdk.Coin
 	var creationHeight int64
 
 	Context("No value decoder issues", func() {
 		BeforeEach(func() {
 			var err error
-			precompileLog, err = NewPrecompileLog(precompileAddr, mockDefaultAbiEvent())
+			precompileLog, err = log.NewPrecompileLog(precompileAddr, mockDefaultAbiEvent())
 			Expect(err).To(BeNil())
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
 
-			translator = NewCosmosLogFactory(ValueDecoders{
+			translator = NewTranslator(ValueDecoders{
 				"validator_bad_arg": func(s string) (any, error) {
 					return common.ValAddressToEthAddress(valAddr), nil
 				},
@@ -73,7 +74,7 @@ var _ = Describe("Precompile Log", func() {
 				err := validateAttributes(precompileLog, &event)
 				Expect(err).To(BeNil())
 
-				addr := precompileLog.precompileAddr
+				addr := precompileLog.GetPrecompileAddress()
 				Expect(addr).To(Equal(addr))
 
 				topics, err := translator.makeTopics(precompileLog, &event)
@@ -196,7 +197,7 @@ var _ = Describe("Precompile Log", func() {
 
 		It("should error on no value decoder func", func() {
 			var err error
-			precompileLog, err = NewPrecompileLog(precompileAddr, mockBadAbiEvent())
+			precompileLog, err = log.NewPrecompileLog(precompileAddr, mockBadAbiEvent())
 			Expect(err).To(BeNil())
 
 			event := sdk.NewEvent(
@@ -204,14 +205,14 @@ var _ = Describe("Precompile Log", func() {
 				sdk.NewAttribute("validator_bad_arg", "bad validator value"),
 			)
 			// reset the translator to remove the decoder for validator
-			translator = NewCosmosLogFactory(nil)
+			translator = NewTranslator(nil)
 			_, err = translator.makeTopics(precompileLog, &event)
 			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: validator_bad_arg"))
 		})
 
 		It("should find the custom value decoders", func() {
 			var err error
-			precompileLog, err = NewPrecompileLog(
+			precompileLog, err = log.NewPrecompileLog(
 				precompileAddr,
 				mockBadAbiEvent(),
 			)

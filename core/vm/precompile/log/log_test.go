@@ -12,21 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package log
 
-import "errors"
+import (
+	"testing"
 
-var (
-	ErrOutOfGas = errors.New("out of gas")
-
-	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
-	// non-precompile contract.
-	ErrIncorrectPrecompileType = errors.New("this contract does not implement a the required precompile contract interface") //nolint:lll
-
-	// `ErrNoPrecompileMethodForABIMethod` is returned when no precompile method is provided for a
-	// corresponding ABI method.
-	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
-
-	// `ErrEventHasIssues` is returned when an event has issues.
-	ErrEventHasIssues = errors.New("this event has issues")
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
+
+func TestLog(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/vm/precompile/log")
+}

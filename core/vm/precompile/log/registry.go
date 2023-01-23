@@ -27,15 +27,17 @@ type Registry struct {
 	// events.
 	eventTypesToLogs map[string]*PrecompileLog
 
-	// `factory` is the `LogFactory` used to create `sdk.Event`s. (//todo: bing bong)
-	Translator Translator[sdk.Event]
+	// `factory` is the `LogFactory` used to create `sdk.Event`s. ( //
+	Translator Translator[sdk.Event] // todo: generalize
 }
 
 // `NewRegistry` creates and returns a new, empty `Registry`.
-func NewRegistry() *Registry {
+func NewRegistry(
+	translator Translator[sdk.Event],
+) *Registry {
 	return &Registry{
 		eventTypesToLogs: make(map[string]*PrecompileLog),
-		Translator:       &CosmosLogFactory{}, // todo accept as parameter from configurator.
+		Translator:       translator,
 	}
 }
 
@@ -43,7 +45,6 @@ func NewRegistry() *Registry {
 func (lr *Registry) RegisterEvent(
 	moduleEthAddress common.Address,
 	abiEvent abi.Event,
-	customModuleAttributes ValueDecoders,
 ) error {
 	if _, found := lr.eventTypesToLogs[abiEvent.Name]; found {
 		return errors.Wrap(ErrEthEventAlreadyRegistered, abiEvent.Name)
@@ -54,12 +55,6 @@ func (lr *Registry) RegisterEvent(
 		moduleEthAddress,
 		abiEvent,
 	)
-
-	// TODO move to constructor and build the translator properly,s ince Registry needs to be
-	// generic.
-	for k, v := range customModuleAttributes {
-		lr.Translator.(*CosmosLogFactory).customValueDecoders[k] = v
-	}
 
 	return err
 }
