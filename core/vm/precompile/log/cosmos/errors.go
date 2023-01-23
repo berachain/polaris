@@ -32,4 +32,7 @@ var (
 
 	// `ErrEventHasIssues` is returned when an event has issues.
 	ErrEventHasIssues = errors.New("this event has issues")
+
+	// `ErrInvalidLogData` is returned when the log data is invalid.
+	ErrInvalidLogData = errors.New("invalid log data")
 )

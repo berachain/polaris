@@ -116,5 +116,6 @@ func (ph *Runner) buildLog(event *sdk.Event) (*coretypes.Log, error) {
 		return nil, errors.Wrapf(log.ErrEthEventNotRegistered, "cosmos event %s", event.Type)
 	}
 
-	return ph.pr.Registry.Translator.BuildLog(_log, event)
+	var i any = event
+	return ph.pr.Registry.Translator.BuildLog(_log, i)
 }

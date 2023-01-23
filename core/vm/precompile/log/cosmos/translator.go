@@ -23,7 +23,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var _ log.Translator[sdk.Event] = (*Translator)(nil)
+// `Translator` is a Cosmos event translator. It implements the `log.Translator` interface.
+var _ log.Translator = (*Translator)(nil)
 
 type Translator struct {
 	// `customValueDecoders` is a map of Cosmos attribute keys to attribute value decoder
@@ -44,7 +45,12 @@ func NewTranslator(customValueDecoders ValueDecoders) *Translator {
 // built by converting the Cosmos event's attributes into the Ethereum event's non-indexed
 // arguments. The Ethereum log's `Address` field is set to the precompile address of the
 // Ethereum event.
-func (clf *Translator) BuildLog(log *log.PrecompileLog, event *sdk.Event) (*coretypes.Log, error) {
+func (clf *Translator) BuildLog(log *log.PrecompileLog, logData any) (*coretypes.Log, error) {
+	event, ok := logData.(*sdk.Event)
+	if !ok {
+		return nil, errors.Wrapf(ErrInvalidLogData, "cosmos event %s", event.Type)
+	}
+
 	var err error
 	if err = validateAttributes(log, event); err != nil {
 		return nil, errors.Wrapf(ErrEventHasIssues, "cosmos event %s", event.Type)

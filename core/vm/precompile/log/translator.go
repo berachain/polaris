@@ -19,6 +19,6 @@ import (
 )
 
 // `LogTranslator` is an interface for translating arbitrary data events into Ethereum logs.
-type Translator[T any] interface {
-	BuildLog(log *PrecompileLog, data *T) (*coretypes.Log, error)
+type Translator interface {
+	BuildLog(log *PrecompileLog, logData any) (*coretypes.Log, error)
 }
