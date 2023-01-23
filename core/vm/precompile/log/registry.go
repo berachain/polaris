@@ -60,6 +60,7 @@ func (lr *Registry) RegisterEvent(
 	return err
 }
 
+// `GetTranslator` returns the `LogTranslator` used by this `Registry`.
 func (lr *Registry) GetTranslator() Translator {
 	return lr.translator
 }
