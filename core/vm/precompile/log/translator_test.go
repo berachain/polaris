@@ -184,6 +184,7 @@ var _ = Describe("Precompile Log", func() {
 
 	Context("value decoder issues", func() {
 		var precompileLog2 *PrecompileLog
+		var translator2 *CosmosTranslator
 		BeforeEach(func() {
 			amt = sdk.NewCoin("denom", sdk.NewInt(1))
 			creationHeight = int64(1234)
@@ -191,6 +192,12 @@ var _ = Describe("Precompile Log", func() {
 				precompileAddr,
 				mockBadAbiEvent(),
 			)
+
+			translator2 = NewTranslator(ValueDecoders{
+				"validator_bad_arg": func(s string) (any, error) {
+					return common.ValAddressToEthAddress(valAddr), nil
+				},
+			})
 		})
 
 		It("should error on no value decoder func", func() {
@@ -199,8 +206,7 @@ var _ = Describe("Precompile Log", func() {
 				sdk.NewAttribute("validator_bad_arg", "bad validator value"),
 			)
 			// reset the translator to remove the decoder for validator
-			translator = NewTranslator(nil)
-			_, err := translator.makeTopics(precompileLog2, &event)
+			_, err := NewTranslator(nil).makeTopics(precompileLog2, &event)
 			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: validator_bad_arg"))
 		})
 
@@ -209,7 +215,7 @@ var _ = Describe("Precompile Log", func() {
 				"cancel_unbonding_delegation",
 				sdk.NewAttribute("validator_bad_arg", "any validator value"),
 			)
-			topics, err := translator.makeTopics(precompileLog2, &event)
+			topics, err := translator2.makeTopics(precompileLog2, &event)
 			Expect(err).To(BeNil())
 			Expect(topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 		})
