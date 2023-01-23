@@ -83,5 +83,5 @@ func (s *Stack[Item]) Pop() Item {
 
 // `PopToSize` implements `StackI`.
 func (s *Stack[Item]) PopToSize(newSize int) {
-	s.items = s.items[:newSize] // todo: help the GC?
+	s.items = s.items[:newSize] // TODO: help the GC?
 }

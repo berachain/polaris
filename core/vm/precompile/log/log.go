@@ -19,10 +19,10 @@ import (
 	"github.com/berachain/stargazer/types/abi"
 )
 
-// `PrecompileLog` contains the required data for a Cosmos precompile contract to produce an
-// Ethereum formatted event log.
+// `PrecompileLog` contains the required data for a precompile contract to produce an Ethereum
+// compatible event log.
 type PrecompileLog struct {
-	// `address` is the Ethereum address which represents a Cosmos module's account address.
+	// `address` is the Ethereum address used as the `Address` field for the Ethereum log.
 	precompileAddr common.Address
 
 	// `id` is the Ethereum event ID, to be used as an Ethereum event's first topic.

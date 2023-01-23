@@ -30,36 +30,36 @@ var _ RunnerI = (*Runner)(nil)
 // `Runner` is the execution environment of a precompiled container at a given address.
 // The host manages the execution of the container and emission of Cosmos events to Ethereum logs.
 type Runner struct {
-	// `pr` is the registry from which the precompile container will be pulled and precompile logs
-	// can be built.
-	pr *Registry
+	// `registry` is the registry from which the precompile container will be pulled and precompile
+	// logs can be built.
+	registry *Registry
 
 	// `psdb` is the precompile StateDB to support state changes during precompile execution.
 	psdb PrecompileStateDB
 }
 
-// `NewRunner` creates and returns a new `Runner` for the given precompile
-// registry `pr` and precompile StateDB `psdb`.
-func NewRunner(pr *Registry, psdb PrecompileStateDB) *Runner {
+// `NewRunner` creates and returns a new `PrecompileRunner` for the given precompile
+// registry `registry` and precompile StateDB `psdb`.
+func NewRunner(registry *Registry, psdb PrecompileStateDB) *Runner {
 	return &Runner{
-		pr:   pr,
-		psdb: psdb,
+		registry: registry,
+		psdb:     psdb,
 	}
 }
 
 // `Exists` gets a precompile container at the given `addr` from the precompile registry.
 //
-// `Exists` implements `Runner`.
-func (ph *Runner) Exists(addr common.Address) (types.PrecompileContainer, bool) {
-	return ph.pr.Get(addr)
+// `Exists` implements `precompile.Runner`.
+func (pr *Runner) Exists(addr common.Address) (types.PrecompileContainer, bool) {
+	return pr.registry.Get(addr)
 }
 
 // `Run` runs the given precompile container and returns the remaining gas after execution. This
 // function returns an error if the given statedb is not compatible with precompiles, insufficient
 // gas is provided, or the precompile execution returns an error.
 //
-// `Run` implements `Runner`.
-func (ph *Runner) Run(
+// `Run` implements `precompile.Runner`.
+func (pr *Runner) Run(
 	pc types.PrecompileContainer,
 	input []byte,
 	caller common.Address,
@@ -74,10 +74,10 @@ func (ph *Runner) Run(
 	}
 	suppliedGas -= gasCost
 
-	// todo: generalize adding logs
+	// TODO: generalize adding logs
 	// store the number of events before precompile container execution, to be used as index for
 	// building logs for all Cosmos events emitted during execution
-	ctx := sdk.UnwrapSDKContext(ph.psdb.GetContext())
+	ctx := sdk.UnwrapSDKContext(pr.psdb.GetContext())
 	beforeExecutionNumEvents := len(ctx.EventManager().Events())
 
 	ret, err := pc.Run(ctx, input, caller, value, readonly)
@@ -85,21 +85,21 @@ func (ph *Runner) Run(
 		return nil, suppliedGas, err
 	}
 
-	// We add logs after the precompile container execution to ensure that if the precompile reverts,
-	// the logs are not added. This is a design choice.
+	// We add logs after the precompile container execution to ensure that if the precompile
+	// reverts, the logs are not added. This is a design choice.
+	// TODO: generalize adding logs, maybe `Execute` should return logs to append. The goal here is
+	// to make it so precompile runner does not need to know about Cosmos events.
 
-	// todo: generalize adding logs, maybe `Execute` should return logs to append.
-	// The goal here is to make it so precompile runner does not need to know about Cosmos events
 	// convert all Cosmos events emitted during precompile container execution to logs and add to
 	// StateDB
 	events := ctx.EventManager().Events()
 	for i := beforeExecutionNumEvents; i < len(events); i++ {
 		var log *coretypes.Log
-		log, err = ph.pr.logRegistry.TranslateLogData(&events[i])
+		log, err = pr.registry.logRegistry.TranslateLogData(&events[i])
 		if err != nil {
 			return nil, suppliedGas, err
 		}
-		ph.psdb.AddLog(log)
+		pr.psdb.AddLog(log)
 	}
 
 	return ret, suppliedGas, nil

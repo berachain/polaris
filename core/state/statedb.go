@@ -91,7 +91,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string // todo: get from params ( we have a store so like why not )
+	evmDenom string // TODO: get from params ( we have a store so like why not )
 
 	// The refund counter, also used by state transitioning.
 	refund uint64
