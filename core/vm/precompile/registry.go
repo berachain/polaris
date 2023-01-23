@@ -46,6 +46,7 @@ func NewRegistry(logTranslator log.Translator) *Registry {
 // at the given address. This function returns an error if the given contract is not a properly
 // defined precompile or the container factory cannot build the container.
 func (pr *Registry) Register(contractImpl container.BaseContractImpl) error {
+	// 1. Select the correct container factory based on the contract type.
 	var cf container.AbstractContainerFactory
 	//nolint:gocritic // cannot be converted to switch-case.
 	if utils.Implements[container.StatefulContractImpl](contractImpl) {
@@ -56,11 +57,36 @@ func (pr *Registry) Register(contractImpl container.BaseContractImpl) error {
 		return ErrIncorrectPrecompileType
 	}
 
+	// 2. Build the container and store it at the given address.
 	pc, err := cf.Build(contractImpl)
 	if err != nil {
 		return err
 	}
 	pr.precompiles[contractImpl.Address()] = pc
+
+	// 3. Check to see if the contract has any custom events. If not then we can return early.
+	var ec container.HasCustomEvents
+	var ok bool
+	if ec, ok = contractImpl.(container.HasCustomEvents); !ok {
+		return nil
+	}
+
+	// 4. Register the custom events to the precompile's log registry.
+	if precompileEvents := ec.ABIEvents(); precompileEvents != nil {
+		customValueDecoders := ec.CustomValueDecoders()
+		for _, abiEvent := range precompileEvents {
+			// add value decoders if the event is custom
+			var customEventValueDecoders log.ValueDecoders
+			if customValueDecoders != nil {
+				customEventValueDecoders = customValueDecoders[abiEvent.Name]
+			}
+			// register the event to the precompiles' log registry
+			err = pr.Registry.RegisterEvent(ec.Address(), abiEvent, customEventValueDecoders)
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }

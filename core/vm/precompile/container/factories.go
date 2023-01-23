@@ -69,15 +69,11 @@ func (scf *StatelessContainerFactory) Build(
 
 // `StatefulContainerFactory` is used to build stateful precompile containers.
 type StatefulContainerFactory struct {
-	// `lr` is used to register stateful precompiles' event logs, if any.
-	lr *log.Registry
 }
 
 // `NewStatefulContainerFactory` creates and returns a new `StatefulContainerFactory`.
 func NewStatefulContainerFactory(lr *log.Registry) *StatefulContainerFactory {
-	return &StatefulContainerFactory{
-		lr: lr,
-	}
+	return &StatefulContainerFactory{}
 }
 
 // `Build` returns a stateful precompile container for the given base contract implementation.
@@ -100,23 +96,6 @@ func (scf *StatefulContainerFactory) Build(
 		idsToMethods, err = scf.buildIdsToMethods(precompileMethods, sci.ABIMethods())
 		if err != nil {
 			return nil, err
-		}
-	}
-
-	// add precompile events to stateful container, if any exist
-	if precompileEvents := sci.ABIEvents(); precompileEvents != nil {
-		customValueDecoders := sci.CustomValueDecoders()
-		for _, abiEvent := range precompileEvents {
-			// add value decoders if the event is custom
-			var customEventValueDecoders log.ValueDecoders
-			if customValueDecoders != nil {
-				customEventValueDecoders = customValueDecoders[abiEvent.Name]
-			}
-			// register the event to the precompiles' log registry
-			err = scf.lr.RegisterEvent(sci.Address(), abiEvent, customEventValueDecoders)
-			if err != nil {
-				return nil, err
-			}
 		}
 	}
 
