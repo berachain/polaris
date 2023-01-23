@@ -38,7 +38,7 @@ type Runner struct {
 	psdb PrecompileStateDB
 }
 
-// `NewRunner` creates and returns a new `PrecompileRunner` for the given precompile
+// `NewRunner` creates and returns a new `Runner` for the given precompile
 // registry `registry` and precompile StateDB `psdb`.
 func NewRunner(registry *Registry, psdb PrecompileStateDB) *Runner {
 	return &Runner{
@@ -49,7 +49,7 @@ func NewRunner(registry *Registry, psdb PrecompileStateDB) *Runner {
 
 // `Exists` gets a precompile container at the given `addr` from the precompile registry.
 //
-// `Exists` implements `precompile.Runner`.
+// `Exists` implements `RunnerI`.
 func (pr *Runner) Exists(addr common.Address) (types.PrecompileContainer, bool) {
 	return pr.registry.Get(addr)
 }
@@ -58,7 +58,7 @@ func (pr *Runner) Exists(addr common.Address) (types.PrecompileContainer, bool) 
 // function returns an error if the given statedb is not compatible with precompiles, insufficient
 // gas is provided, or the precompile execution returns an error.
 //
-// `Run` implements `precompile.Runner`.
+// `Run` implements `RunnerI`.
 func (pr *Runner) Run(
 	pc types.PrecompileContainer,
 	input []byte,
