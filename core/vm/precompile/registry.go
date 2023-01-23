@@ -23,7 +23,7 @@ import (
 )
 
 // `Registry` stores and provides all stateless and stateful precompile containers to a
-// precompile host.
+// precompile runnner.
 type Registry struct {
 	// `precompiles` is a map of Ethereum addresses to precompiled contract containers. Only
 	// supporting stateless and stateful precompiles for now.

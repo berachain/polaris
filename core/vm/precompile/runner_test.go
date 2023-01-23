@@ -36,7 +36,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Precompile Host", func() {
+var _ = Describe("Precompile Runner", func() {
 	var pr *precompile.Registry
 	var ph *precompile.Runner
 	var psdb *mockPSDB
