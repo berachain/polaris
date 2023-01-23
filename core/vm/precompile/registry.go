@@ -38,7 +38,7 @@ type Registry struct {
 func NewRegistry(logTranslator log.Translator) *Registry {
 	return &Registry{
 		precompiles: make(map[common.Address]types.PrecompileContainer),
-		Registry:    log.NewRegistry(logTranslator), // todo: move
+		Registry:    log.NewRegistry(logTranslator),
 	}
 }
 
