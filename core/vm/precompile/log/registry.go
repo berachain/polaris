@@ -28,7 +28,7 @@ type Registry struct {
 	// events.
 	eventTypesToLogs map[string]*PrecompileLog
 
-	// `factory` is the `LogFactory` used to create `sdk.Event`s. ( //
+	// `translator` is the `Translator` used to create `sdk.Event`s. ( //
 	translator Translator
 }
 
