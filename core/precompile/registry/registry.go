@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package registry
 
 import (
 	"github.com/berachain/stargazer/core/precompile/container"
@@ -21,17 +21,14 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// Compile-time assertion to ensure `registry` adheres to `vm.PrecompileRegistry`.
-var _ vm.PrecompileRegistry = (registry)(nil)
-
-// `registry` stores and provides all stateless, stateful, and dynamic precompile containers. It is
+// `Registry` stores and provides all stateless, stateful, and dynamic precompile containers. It is
 //
 //	a map of Ethereum addresses to precompiled contract containers.
-type registry map[common.Address]vm.PrecompileContainer
+type Registry map[common.Address]vm.PrecompileContainer
 
-// `NewRegistry` creates and returns a new `registry`.
-func NewRegistry() registry { //nolint:revive // this will only be used as a `vm.PrecompileRegistry` interface
-	return make(registry)
+// `NewRegistry` creates and returns a new `Registry`.
+func NewRegistry() Registry {
+	return make(Registry)
 }
 
 // `Register` builds a precompile container using a container factory and stores the container
@@ -39,7 +36,7 @@ func NewRegistry() registry { //nolint:revive // this will only be used as a `vm
 // defined precompile or the container factory cannot build the container.
 //
 // `Register` implements `vm.PrecompileRegistry`.
-func (r registry) Register(contractImpl vm.BasePrecompileImpl) error {
+func (r Registry) Register(contractImpl vm.BasePrecompileImpl) error {
 	// select the correct container factory based on the contract type.
 	var cf container.AbstractFactory
 	//nolint:gocritic // cannot be converted to switch-case.
@@ -66,7 +63,7 @@ func (r registry) Register(contractImpl vm.BasePrecompileImpl) error {
 // `Lookup` returns a precompile container at the given address, if it exists.
 //
 // `Lookup` implements `vm.PrecompileRegistry`.
-func (r registry) Lookup(addr common.Address) (vm.PrecompileContainer, bool) {
+func (r Registry) Lookup(addr common.Address) (vm.PrecompileContainer, bool) {
 	pc, found := r[addr]
 	return pc, found
 }

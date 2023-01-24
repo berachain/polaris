@@ -12,27 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package registry
 
-import (
-	"github.com/ethereum/go-ethereum/core/vm"
-)
-
-type (
-	BlockContext         = vm.BlockContext
-	CanTransferFunc      = vm.CanTransferFunc
-	ContractRef          = vm.ContractRef
-	Config               = vm.Config
-	GethEVM              = vm.EVM
-	GethStateDB          = vm.StateDB
-	PrecompileContainer  = vm.PrecompiledContract
-	PrecompileController = vm.PrecompileController
-	TransferFunc         = vm.TransferFunc
-	TxContext            = vm.TxContext
-)
+import "errors"
 
 var (
-	NewGethEVM                = vm.NewEVM
-	NewGethEVMWithPrecompiles = vm.NewEVMWithPrecompiles
-	ErrOutOfGas               = vm.ErrOutOfGas
+	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
+	// non-precompile contract.
+	ErrIncorrectPrecompileType = errors.New("this contract does not implement a the required precompile contract interface") //nolint:lll
 )

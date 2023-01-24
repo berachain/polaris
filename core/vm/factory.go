@@ -20,15 +20,15 @@ import (
 
 // `EVMFactory` is used to build new Stargazer `EVM`s.
 type EVMFactory struct {
-	// `precompiles` is a registry that is responsible for keeping track of the stateful precompile
+	// `precompileController` is responsible for keeping track of the stateful precompile
 	// containers that are available to the EVM.
-	precompiles PrecompileRegistry
+	precompileController PrecompileController
 }
 
 // `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileRegistry`.
-func NewEVMFactory(precompiles PrecompileRegistry) *EVMFactory {
+func NewEVMFactory(precompileController PrecompileController) *EVMFactory {
 	return &EVMFactory{
-		precompiles: precompiles,
+		precompileController: precompileController,
 	}
 }
 
@@ -39,8 +39,7 @@ func (ef *EVMFactory) Build(
 	txCtx TxContext,
 	chainConfig *params.EthChainConfig,
 	noBaseFee bool,
-	runPrecompile RunPrecompile,
 ) *StargazerEVM {
 	return NewStargazerEVM(
-		blockCtx, txCtx, ssdb, chainConfig, Config{}, ef.precompiles.Lookup, runPrecompile)
+		blockCtx, txCtx, ssdb, chainConfig, Config{}, ef.precompileController)
 }
