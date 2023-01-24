@@ -23,14 +23,14 @@ type EVMFactory struct {
 	precompiles PrecompileRegistry
 }
 
-// `NewEVMFactory` creates and returns a new `EVMFactory` with a new `precompile.Registry`.
+// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileRegistry`.
 func NewEVMFactory(precompiles PrecompileRegistry) *EVMFactory {
 	return &EVMFactory{
 		precompiles: precompiles,
 	}
 }
 
-// `Build` creates and returns a new `vm.StargazerEVM` with a new `vm.PrecompileHost`.
+// `Build` creates and returns a new `vm.StargazerEVM`.
 func (ef *EVMFactory) Build(
 	ssdb StargazerStateDB,
 	blockCtx BlockContext,
