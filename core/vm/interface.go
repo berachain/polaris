@@ -28,9 +28,3 @@ type StargazerStateDB interface {
 	Reset(context.Context)
 	Logs() []*coretypes.Log
 }
-
-type IntraBlockStateDB interface {
-	StargazerStateDB
-	BuildBloomFilterForTxn() *coretypes.Bloom
-	GetBlockBloomFilter() *coretypes.Bloom
-}

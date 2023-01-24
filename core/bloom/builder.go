@@ -15,45 +15,37 @@
 package state
 
 import (
-	"context"
-
 	coretypes "github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm"
 )
 
-// `IntraBlockStateDB` is a wrapper around `StateDB` that is used to persist data between
+// `BloomBuilder` is a wrapper around `StateDB` that is used to persist data between
 // transactions within a block.
-type IntraBlockStateDB struct {
-	// StateDB is the underlying state database.
-	vm.StargazerStateDB
-
+type BloomBuilder struct {
 	// blockBloom is scratch space for building the
 	// bloom filter for an entire block
-	blockBloom *coretypes.Bloom
+	bloom *coretypes.Bloom
 }
 
-// `Reset` clears the journal and other state objects. It also clears the
-// refund counter and the access list.
-func (ibs *IntraBlockStateDB) Reset(ctx context.Context) {
-	ibs.StargazerStateDB.Reset(ctx)
-	ibs.blockBloom = new(coretypes.Bloom)
-}
-
-// `BuildBloomFilterForTxn` builds the bloom filter for the current transaction.
+// `AddLogsToBloom` builds the bloom filter for the provided set of logs.
 // It also adds the bloom filter to the block bloom filter.
-func (ibs *IntraBlockStateDB) BuildBloomFilterForTxn() *coretypes.Bloom {
+func (bb *BloomBuilder) AddLogsToBloom(logs []*coretypes.Log) *coretypes.Bloom {
 	// Calculate bloom for current transaction.
-	txBloomBz := coretypes.LogsBloom(ibs.StargazerStateDB.Logs())
+	txBloomBz := coretypes.LogsBloom(logs)
 
 	// Add bloom to block bloom filter.
-	ibs.blockBloom.Add(txBloomBz)
+	bb.bloom.Add(txBloomBz)
 
 	// Convert bytes to bloom and return this tx's bloom.
 	bloom := coretypes.BytesToBloom(txBloomBz)
 	return &bloom
 }
 
-// `GetBlockBloom` returns the currently built bloom filter.
-func (ibs *IntraBlockStateDB) GetBlockBloom() *coretypes.Bloom {
-	return ibs.blockBloom
+// `Reset` resets the bloom builder.
+func (bb *BloomBuilder) Reset() {
+	bb.bloom = &coretypes.Bloom{}
+}
+
+// `GetBloom` returns the currently built bloom filter.
+func (bb *BloomBuilder) GetBloom() *coretypes.Bloom {
+	return bb.bloom
 }
