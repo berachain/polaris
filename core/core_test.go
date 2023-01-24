@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestVM(t *testing.T) {
+func TestCore(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "core")
 }
