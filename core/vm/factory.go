@@ -21,11 +21,11 @@ import (
 // `EVMFactory` is used to build new Stargazer `EVM`s.
 type EVMFactory struct {
 	// `precompileController` is responsible for keeping track of the stateful precompile
-	// containers that are available to the EVM.
+	// containers that are available to the EVM and executing them.
 	precompileController PrecompileController
 }
 
-// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileRegistry`.
+// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileController`.
 func NewEVMFactory(precompileController PrecompileController) *EVMFactory {
 	return &EVMFactory{
 		precompileController: precompileController,

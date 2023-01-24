@@ -35,7 +35,7 @@ type cosmosRunner struct {
 
 // `NewCosmosRunner` creates and returns a `cosmosRunner` with the given `PrecompileStateDB`.
 //
-//nolint:revive // this will only be used as a `vm.PrecompileRunner`
+//nolint:revive // this will only be used as a `vm.PrecompileRunner`.
 func NewCosmosRunner(psdb vm.PrecompileStateDB) *cosmosRunner {
 	return &cosmosRunner{
 		psdb: psdb,

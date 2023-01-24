@@ -35,7 +35,7 @@ type controller struct {
 // `NewController` creates and returns a `controller` with the given precompile registry and
 // precompile runner.
 //
-//nolint:revive // this is only used as a vm.PrecompileController
+//nolint:revive // this is only used as a `vm.PrecompileController`.
 func NewController(registry *registry.Registry, runner vm.PrecompileRunner) *controller {
 	return &controller{
 		PrecompileRunner: runner,
