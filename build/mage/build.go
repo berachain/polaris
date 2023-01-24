@@ -44,6 +44,7 @@ var (
 	statically = false
 )
 
+// Runs a series of commonly used commands.
 func All() error {
 	cmds := []func() error{Generate, Format, Proto, Lint, Test}
 	for _, cmd := range cmds {
