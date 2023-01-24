@@ -78,7 +78,7 @@ type Method struct {
 	// Also note that "int" is substitute for its canonical representation "int256".
 	AbiSig string
 
-	// `Execute` is the precompile executable which will execute the logic of the implemented
+	// `Execute` is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
 	Execute Executable
 

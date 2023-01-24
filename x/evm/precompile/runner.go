@@ -24,8 +24,9 @@ import (
 )
 
 // `NewCosmosRunner` returns a `vm.RunPrecompile` that runs the a precompile container for the
-// given `vm.PrecompileStateDB` and returns the remaining gas after execution. This function
-// returns an error if insufficient gas is provided or the precompile execution returns an error.
+// given `vm.PrecompileStateDB` and returns the remaining gas after execution. The returned
+// function returns an error if insufficient gas is provided or the precompile execution returns an
+// error.
 func NewCosmosRunner(psdb vm.PrecompileStateDB) vm.RunPrecompile {
 	return func(
 		pc vm.PrecompileContainer, input []byte, caller common.Address,
@@ -38,7 +39,7 @@ func NewCosmosRunner(psdb vm.PrecompileStateDB) vm.RunPrecompile {
 		}
 		suppliedGas -= gasCost
 
-		// supply context with a precompile gas meter for dynamic consumption
+		// supply context with a precompile-specific gas meter for dynamic consumption
 		ctx := sdk.UnwrapSDKContext(psdb.GetContext())
 		ctx = ctx.WithGasMeter(sdk.NewGasMeter(suppliedGas))
 		ret, err := pc.Run(ctx, input, caller, value, readonly)

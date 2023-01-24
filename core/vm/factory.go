@@ -20,6 +20,8 @@ import (
 
 // `EVMFactory` is used to build new Stargazer `EVM`s.
 type EVMFactory struct {
+	// `precompiles` is a registry that is responsible for keeping track of the stateful precompile
+	// containers that are available to the EVM.
 	precompiles PrecompileRegistry
 }
 

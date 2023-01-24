@@ -39,7 +39,7 @@ type (
 	}
 
 	// `StatefulPrecompileImpl` is the interface for all stateful precompiled contracts, which must
-	// expose their ABI methods, precompile methods, and gas requirements for stateful execution.
+	// expose their ABI methods and precompile methods for stateful execution.
 	StatefulPrecompileImpl interface {
 		vm.BasePrecompileImpl
 
