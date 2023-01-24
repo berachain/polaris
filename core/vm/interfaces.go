@@ -39,14 +39,12 @@ type (
 		GetContext() context.Context
 	}
 
-	// `PrecompileRegistry` defines the required functions of a precompile registry.
-	PrecompileRegistry interface {
-		// `Register` registers a base precompile implementation at its address.
-		Register(BasePrecompileImpl) error
-
-		// `Lookup` searches the registry at an address and returns a precompile container if it
-		// was found.
-		Lookup(common.Address) (PrecompileContainer, bool)
+	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
+	PrecompileRunner interface {
+		// `Run` runs a precompiled contract and returns the remaining gas.
+		Run(pc PrecompileContainer, input []byte, caller common.Address,
+			value *big.Int, suppliedGas uint64, readonly bool,
+		) (ret []byte, remainingGas uint64, err error)
 	}
 
 	// `BasePrecompileImpl` is a type for the base precompile implementation, which only needs to

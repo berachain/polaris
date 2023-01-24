@@ -23,27 +23,45 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-// `NewCosmosRunner` returns a `vm.RunPrecompile` that runs the a precompile container for the
-// given `vm.PrecompileStateDB` and returns the remaining gas after execution. The returned
-// function returns an error if insufficient gas is provided or the precompile execution returns an
-// error.
-func NewCosmosRunner(psdb vm.PrecompileStateDB) vm.RunPrecompile {
-	return func(
-		pc vm.PrecompileContainer, input []byte, caller common.Address,
-		value *big.Int, suppliedGas uint64, readonly bool,
-	) ([]byte, uint64, error) {
-		// pre-defined, static gas consumption
-		gasCost := pc.RequiredGas(input)
-		if suppliedGas < gasCost {
-			return nil, 0, ErrOutOfGas
-		}
-		suppliedGas -= gasCost
+// Compile-time assertion to ensure `cosmosRunner` adheres to `vm.PrecompileRunner`.
+var _ vm.PrecompileRunner = (*cosmosRunner)(nil)
 
-		// supply context with a precompile-specific gas meter for dynamic consumption
-		ctx := sdk.UnwrapSDKContext(psdb.GetContext())
-		ctx = ctx.WithGasMeter(sdk.NewGasMeter(suppliedGas))
-		ret, err := pc.Run(ctx, input, caller, value, readonly)
+// `cosmosRunner` is a struct that runs precompile containers in a Cosmos environment.
+type cosmosRunner struct {
+	// `psdb` allows the `cosmosRunner` to inject a context into the execution environment of the
+	// precompile container.
+	psdb vm.PrecompileStateDB
+}
 
-		return ret, ctx.GasMeter().GasRemaining(), err
+// `NewCosmosRunner` creates and returns a `cosmosRunner` with the given `PrecompileStateDB`.
+//
+//nolint:revive // this will only be used as a `vm.PrecompileRunner`.
+func NewCosmosRunner(psdb vm.PrecompileStateDB) *cosmosRunner {
+	return &cosmosRunner{
+		psdb: psdb,
 	}
+}
+
+// `Run` runs the a precompile container and returns the remaining gas after execution by injecting
+// a Cosmos SDK `GasMeter`. This function returns an error if insufficient gas is provided or the
+// precompile execution returns an error.
+//
+// `Run` implements `vm.PrecompileRunner`.
+func (cr *cosmosRunner) Run(
+	pc vm.PrecompileContainer, input []byte, caller common.Address,
+	value *big.Int, suppliedGas uint64, readonly bool,
+) ([]byte, uint64, error) {
+	// deterministic, static gas consumption
+	gasCost := pc.RequiredGas(input)
+	if suppliedGas < gasCost {
+		return nil, 0, ErrOutOfGas
+	}
+	suppliedGas -= gasCost
+
+	// supply context with a precompile-specific gas meter for dynamic consumption
+	ctx := sdk.UnwrapSDKContext(cr.psdb.GetContext())
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(suppliedGas))
+	ret, err := pc.Run(ctx, input, caller, value, readonly)
+
+	return ret, ctx.GasMeter().GasRemaining(), err
 }

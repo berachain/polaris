@@ -46,12 +46,11 @@ func NewStargazerEVM(
 	stateDB StargazerStateDB,
 	chainConfig *params.EthChainConfig,
 	config Config,
-	precompileExists PrecompileExists,
-	runPrecompile RunPrecompile,
+	pctr PrecompileController,
 ) *StargazerEVM {
 	return &StargazerEVM{
 		GethEVM: NewGethEVMWithPrecompiles(
-			blockCtx, txCtx, stateDB, chainConfig, config, precompileExists, runPrecompile,
+			blockCtx, txCtx, stateDB, chainConfig, config, pctr,
 		),
 	}
 }

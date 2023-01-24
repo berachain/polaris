@@ -17,6 +17,9 @@ package container
 import "errors"
 
 var (
+	// `ErrOutOfGas` is returned when a precompile container execution runs out of gas.
+	ErrOutOfGas = errors.New("out of gas")
+
 	// `ErrIncompleteMethod` is returned when a `FnAndGas` has missing, or nil, required fields.
 	ErrIncompleteMethod = errors.New("incomplete precompile Method")
 

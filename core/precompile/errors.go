@@ -17,9 +17,6 @@ package precompile
 import "errors"
 
 var (
-	// `ErrOutOfGas` is returned when a precompile container execution runs out of gas.
-	ErrOutOfGas = errors.New("out of gas")
-
 	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
 	// non-precompile contract.
 	ErrIncorrectPrecompileType = errors.New("this contract does not implement a the required precompile contract interface") //nolint:lll
