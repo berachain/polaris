@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package core
 
 import (
 	"github.com/berachain/stargazer/core/precompile"
@@ -20,24 +20,26 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-// Compile-time assertion to ensure `controller` adheres to `PrecompileController`.
-var _ vm.PrecompileController = (*controller)(nil)
+// Compile-time assertion to ensure `precompileController` adheres to `PrecompileController`.
+var _ vm.PrecompileController = (*precompileController)(nil)
 
-// `controller` is a struct that embeds a `vm.PrecompileRunner` and uses a precompile precompile.
-type controller struct {
+// `precompileController` is a struct that embeds a `vm.PrecompileRunner` and uses a precompile precompile.
+type precompileController struct {
 	// `PrecompileRunner` will run the precompile in a custom precompile environment.
 	vm.PrecompileRunner
 
-	// `registry` allows the `controller` to search for a precompile container at an address.
+	// `registry` allows the `precompileController` to search for a precompile container at an address.
 	registry *precompile.Registry
 }
 
-// `NewController` creates and returns a `controller` with the given precompile registry and
-// precompile runner.
+// `NewPrecompileController` creates and returns a `precompileController` with the given precompile
+// registry and precompile runner.
 //
 //nolint:revive // this is only used as a `vm.PrecompileController`.
-func NewController(registry *precompile.Registry, runner vm.PrecompileRunner) *controller {
-	return &controller{
+func NewPrecompileController(
+	registry *precompile.Registry, runner vm.PrecompileRunner,
+) *precompileController {
+	return &precompileController{
 		PrecompileRunner: runner,
 		registry:         registry,
 	}
@@ -46,6 +48,6 @@ func NewController(registry *precompile.Registry, runner vm.PrecompileRunner) *c
 // `Exists` searches the registry at the given `addr` for a precompile container.
 //
 // `Exists` implements `vm.PrecompileContainer`.
-func (c *controller) Exists(addr common.Address) (vm.PrecompileContainer, bool) {
+func (c *precompileController) Exists(addr common.Address) (vm.PrecompileContainer, bool) {
 	return c.registry.Lookup(addr)
 }

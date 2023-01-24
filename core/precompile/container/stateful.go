@@ -30,7 +30,7 @@ const NumBytesMethodID = 4
 // Compile-time assertion to ensure `Stateful` is a `PrecompileContainer`.
 var _ vm.PrecompileContainer = (*Stateful)(nil)
 
-// `Stateful` is a container for running stateful (and dynamic) precompiled contracts.
+// `Stateful` is a container for running stateful and dynamic precompiled contracts.
 type Stateful struct {
 	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
