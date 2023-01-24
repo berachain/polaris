@@ -35,4 +35,12 @@ var (
 	// `ErrInvalidInputToPrecompile` is returned when a precompile container receives invalid
 	// input.
 	ErrInvalidInputToPrecompile = errors.New("input bytes to precompile container are invalid")
+
+	// `ErrWrongContainerFactory` is returned when the wrong precompile container factory is used
+	// to build a precompile contract.
+	ErrWrongContainerFactory = errors.New("this precompile contract implementation is not implemented")
+
+	// `ErrNoPrecompileMethodForABIMethod` is returned when no precompile method is provided for a
+	// corresponding ABI method.
+	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
 )

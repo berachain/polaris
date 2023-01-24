@@ -12,18 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package container
 
 import (
-	"github.com/berachain/stargazer/core/precompile/container"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/types/abi"
 )
 
 type (
-	// `AbstractContainerFactory` is an interface that all precompile container factories must
-	// adhere to.
-	AbstractContainerFactory interface {
+	// `AbstractFactory` is an interface that all precompile container factories must adhere to.
+	AbstractFactory interface {
 		// `Build` builds and returns the precompile container for the type of container/factory.
 		Build(bci vm.BaseContractImpl) (vm.PrecompileContainer, error)
 	}
@@ -53,7 +51,7 @@ type (
 
 		// `PrecompileMethods` should return all the stateful precompile's functions (and each of
 		// their required gas).
-		PrecompileMethods() container.Methods
+		PrecompileMethods() Methods
 	}
 
 	// `DynamicContractImpl` is the interface for all dynamic stateful precompiled contracts.
