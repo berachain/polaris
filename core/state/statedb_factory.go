@@ -15,6 +15,8 @@
 package state
 
 import (
+	"context"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -52,6 +54,7 @@ func NewStateDBFactory(
 }
 
 // BuildNewStateDB returns a new StateDB instance.
-func (sdf *StateDBFactory) BuildStateDB(ctx sdk.Context) *StateDB {
-	return NewStateDB(ctx, sdf.ak, sdf.bk, sdf.evmStoreKey, "abera") // sdf.evmDenom.Get(ctx), sdf.er)
+func (sdf *StateDBFactory) BuildStateDB(ctx context.Context) *StateDB {
+	return NewStateDB(sdk.UnwrapSDKContext(ctx), sdf.ak, sdf.bk, sdf.evmStoreKey, "abera")
+	// sdf.evmDenom.Get(ctx), sdf.er)
 }

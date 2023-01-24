@@ -19,17 +19,20 @@ import (
 )
 
 type (
-	BlockContext    = vm.BlockContext
-	CanTransferFunc = vm.CanTransferFunc
-	ContractRef     = vm.ContractRef
-	Config          = vm.Config
-	GethEVM         = vm.EVM
-	GethStateDB     = vm.StateDB
-	TransferFunc    = vm.TransferFunc
-	TxContext       = vm.TxContext
+	BlockContext         = vm.BlockContext
+	CanTransferFunc      = vm.CanTransferFunc
+	ContractRef          = vm.ContractRef
+	Config               = vm.Config
+	GethEVM              = vm.EVM
+	GethStateDB          = vm.StateDB
+	PrecompileContainer  = vm.PrecompiledContract
+	PrecompileController = vm.PrecompileController
+	TransferFunc         = vm.TransferFunc
+	TxContext            = vm.TxContext
 )
 
 var (
-	NewGethEVM  = vm.NewEVM
-	ErrOutOfGas = vm.ErrOutOfGas
+	NewGethEVM                = vm.NewEVM
+	NewGethEVMWithPrecompiles = vm.NewEVMWithPrecompiles
+	ErrOutOfGas               = vm.ErrOutOfGas
 )

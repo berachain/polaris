@@ -12,21 +12,4 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package log
-
-import "errors"
-
-var (
-	// `ErrNotEnoughAttributes` is returned when a Cosmos event does not have enough attributes for
-	// its corresponding Ethereum event; there are less Cosmos event attributes than Ethereum event
-	// arguments.
-	ErrNotEnoughAttributes = errors.New("not enough event attributes provided")
-
-	// `ErrNoValueDecoderFunc` is returned when a Cosmos event's attribute key is not mapped to any
-	// attribute value decoder function.
-	ErrNoValueDecoderFunc = errors.New("no value decoder function is found for event attribute key")
-
-	// `ErrNoAttributeKeyFound` is returned when no Cosmos event attribute is provided for a
-	// certain Ethereum event's argument.
-	ErrNoAttributeKeyFound = errors.New("this Ethereum event argument has no matching Cosmos attribute key")
-)
+package vm

@@ -12,14 +12,32 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state
+package core
 
-import "github.com/berachain/stargazer/core/vm"
+import (
+	"context"
 
-// Compile-time assertion to ensure `ExtStateDB` implements `PrecompileStateDB`.
-var _ vm.PrecompileStateDB = (*ExtStateDB)(nil)
+	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/lib/common"
+)
 
-type ExtStateDB struct {
-	// StateDB is the underlying state database.
-	*StateDB
+// `EngineAPI` is the StateProcessor.
+type EngineAPI interface {
+	// Set the stateDB factory
+	SetStateDBFactory(StateDBFactory)
+
+	PrepareForEthBlock(context.Context, common.Address, common.Hash)
+	ProcessTx(context.Context)
+	FinalizeEthBlock(context.Context)
+}
+
+type StateDBFactory interface {
+	BuildStateDB(ctx context.Context) vm.StargazerStateDB
+}
+
+type EVMAPI interface {
+	vm.VMInterface
+}
+
+type EVMEngine struct {
 }

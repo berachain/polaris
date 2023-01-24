@@ -12,16 +12,34 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types_test
+package vm
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/berachain/stargazer/params"
 )
 
-func TestContainerTypes(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm/precompile/container/types")
+// `EVMFactory` is used to build new Stargazer `EVM`s.
+type EVMFactory struct {
+	// `precompileController` is responsible for keeping track of the stateful precompile
+	// containers that are available to the EVM and executing them.
+	precompileController PrecompileController
+}
+
+// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileController`.
+func NewEVMFactory(precompileController PrecompileController) *EVMFactory {
+	return &EVMFactory{
+		precompileController: precompileController,
+	}
+}
+
+// `Build` creates and returns a new `vm.StargazerEVM`.
+func (ef *EVMFactory) Build(
+	ssdb StargazerStateDB,
+	blockCtx BlockContext,
+	txCtx TxContext,
+	chainConfig *params.EthChainConfig,
+	noBaseFee bool,
+) *StargazerEVM {
+	return NewStargazerEVM(
+		blockCtx, txCtx, ssdb, chainConfig, Config{}, ef.precompileController)
 }

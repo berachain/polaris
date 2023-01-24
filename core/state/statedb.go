@@ -16,6 +16,7 @@ package state
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"math/big"
 
@@ -39,11 +40,8 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
-// Compile-time assertions to ensure StateDB adheres to StargazerStateDB and PrecompileStateDB.
-var (
-	_ vm.StargazerStateDB  = (*StateDB)(nil)
-	_ vm.PrecompileStateDB = (*StateDB)(nil)
-)
+// Compile-time assertion to ensure StateDB adheres to StargazerStateDB.
+var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
@@ -140,7 +138,7 @@ func NewStateDB(
 }
 
 // `GetContext` implements `StargazerStateDB`.
-func (sdb *StateDB) GetContext() sdk.Context {
+func (sdb *StateDB) GetContext() context.Context {
 	return sdb.ctx
 }
 

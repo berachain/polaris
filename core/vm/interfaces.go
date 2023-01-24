@@ -15,29 +15,39 @@
 package vm
 
 import (
+	"context"
 	"math/big"
 
-	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to
-// support additional state transition functionalities that are useful in a Cosmos SDK context.
-type StargazerStateDB interface {
-	GethStateDB
-	PrecompileStateDB
+type (
+	// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to support
+	// additional state transition functionalities.
+	StargazerStateDB interface {
+		GethStateDB
+		PrecompileStateDB
 
-	// TransferBalance transfers the balance from one account to another
-	TransferBalance(common.Address, common.Address, *big.Int)
-}
+		// TransferBalance transfers the balance from one account to another
+		TransferBalance(common.Address, common.Address, *big.Int)
+	}
 
-// `PrecompileStateDB` defines the required functions to support execution of stateful precompiled
-// contracts.
-type PrecompileStateDB interface {
-	// `AddLog` adds a log to the StateDB.
-	AddLog(*coretypes.Log)
+	// `PrecompileStateDB` defines the required functions to support execution of stateful
+	// precompile contract containers.
+	PrecompileStateDB interface {
+		// `GetContext` returns the Go context associated to the StateDB.
+		GetContext() context.Context
+	}
 
-	// `GetContext` returns the Cosmos SDK context with the StateDB Multistore attached.
-	GetContext() sdk.Context
-}
+	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
+	PrecompileRunner interface {
+		// `Run` runs a precompiled contract and returns the remaining gas.
+		Run(pc PrecompileContainer, input []byte, caller common.Address,
+			value *big.Int, suppliedGas uint64, readonly bool,
+		) (ret []byte, remainingGas uint64, err error)
+	}
+
+	// `BasePrecompileImpl` is a type for the base precompile implementation, which only needs to
+	// provide an Ethereum address of where its contract is found.
+	BasePrecompileImpl = ContractRef
+)

@@ -17,7 +17,6 @@ package vm
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/core/vm/precompile"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/params"
 )
@@ -47,9 +46,11 @@ func NewStargazerEVM(
 	stateDB StargazerStateDB,
 	chainConfig *params.EthChainConfig,
 	config Config,
-	precompileRunner precompile.Runner,
+	pctr PrecompileController,
 ) *StargazerEVM {
 	return &StargazerEVM{
-		GethEVM: NewGethEVM(blockCtx, txCtx, stateDB, chainConfig, config, precompileRunner),
+		GethEVM: NewGethEVMWithPrecompiles(
+			blockCtx, txCtx, stateDB, chainConfig, config, pctr,
+		),
 	}
 }

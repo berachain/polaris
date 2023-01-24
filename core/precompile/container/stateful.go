@@ -18,7 +18,7 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/core/vm/precompile/container/types"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/utils"
@@ -27,38 +27,43 @@ import (
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
 const NumBytesMethodID = 4
 
-// Compile-time assertion to ensure `StatefulContainer` is a `PrecompileContainer`.
-var _ types.PrecompileContainer = (*StatefulContainer)(nil)
+// Compile-time assertion to ensure `Stateful` is a `PrecompileContainer`.
+var _ vm.PrecompileContainer = (*Stateful)(nil)
 
-// `StatefulContainer` is a container for running stateful (and dynamic) precompiled contracts.
-type StatefulContainer struct {
+// `Stateful` is a container for running stateful and dynamic precompiled contracts.
+type Stateful struct {
 	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
-	// (geth abi format). Please check core/vm/precompile/container/types.go for more information.
-	idsToMethods map[string]*types.Method
+	// (geth abi format). Please check core/precompile/container/method.go for more information.
+	idsToMethods map[string]*Method
 
 	// TODO: implement
-	receive *types.Method
+	receive *Method
 
 	// TODO: implement
-	fallback *types.Method
+	fallback *Method
+
+	// `sdb` represents a subset of the `vm.GethStateDB` interface that is used by the
+	// `Stateful` container to add logs during execution.
+	sdb logDB
 }
 
-// `NewStatefulContainer` creates and returns a new `StatefulContainer` with the given method ids
+// `NewStateful` creates and returns a new `Stateful` with the given method ids
 // precompile functions map.
-func NewStatefulContainer(idsToMethods map[string]*types.Method) *StatefulContainer {
-	return &StatefulContainer{
+func NewStateful(idsToMethods map[string]*Method) *Stateful {
+	return &Stateful{
 		idsToMethods: idsToMethods,
 		receive:      nil,
 		fallback:     nil,
 	}
 }
 
-// `Run` loads the corresponding precompile method for given input and executes it.
+// `Run` loads the corresponding precompile method for given input, executes it, and handles
+// output.
 //
 // `Run` implements `PrecompileContainer`.
-func (sc *StatefulContainer) Run(
+func (sc *Stateful) Run(
 	ctx context.Context,
 	input []byte,
 	caller common.Address,
@@ -66,26 +71,26 @@ func (sc *StatefulContainer) Run(
 	readonly bool,
 ) ([]byte, error) {
 	if sc.idsToMethods == nil {
-		return nil, types.ErrContainerHasNoMethods
+		return nil, ErrContainerHasNoMethods
 	}
 	if len(input) < NumBytesMethodID {
-		return nil, types.ErrInvalidInputToPrecompile
+		return nil, ErrInvalidInputToPrecompile
 	}
 
-	// extract the method ID from the input and load the method.
+	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {
-		return nil, types.ErrMethodNotFound
+		return nil, ErrMethodNotFound
 	}
 
-	// unpack the args from the input, if any exist.
+	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
 	}
 
 	// Execute the method registered with the given signature with the given args.
-	vals, err := method.Execute(
+	vals, logs, err := method.Execute(
 		ctx,
 		caller,
 		value,
@@ -95,23 +100,32 @@ func (sc *StatefulContainer) Run(
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
-		return nil, errors.Wrap(err, method.Execute.GetName())
+		return nil, errors.Wrap(err, method.Execute.getName())
 	}
 
-	// pack the return values and return, if any exist.
-	return method.AbiMethod.Outputs.Pack(vals...)
+	// Pack the return values and return, if any exist.
+	ret, err := method.AbiMethod.Outputs.Pack(vals...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add the logs to the logdb if there are no errors in container execution.
+	for _, log := range logs {
+		sc.sdb.AddLog(log)
+	}
+
+	return ret, nil
 }
 
 // `RequiredGas` checks the Method corresponding to input for the required gas amount.
-// TODO: RequiredGas will be deprecated in Geth.
 //
 // `RequiredGas` implements PrecompileContainer.
-func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
+func (sc *Stateful) RequiredGas(input []byte) uint64 {
 	if sc.idsToMethods == nil || len(input) < NumBytesMethodID {
 		return 0
 	}
 
-	// extract the method ID from the input and load the method.
+	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {
 		return 0

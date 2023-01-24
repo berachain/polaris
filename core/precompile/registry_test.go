@@ -12,18 +12,4 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm_test
-
-import (
-	"github.com/berachain/stargazer/core/vm"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
-
-var _ = Describe("Precompile Registry", func() {
-	It("should error on incorrect precompile types", func() {
-		pr := vm.NewPrecompileRegistry()
-		err := pr.Register(&mockBase{})
-		Expect(err.Error()).To(Equal("this contract does not implement a the required precompile contract interface"))
-	})
-})
+package precompile_test
