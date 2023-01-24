@@ -22,8 +22,7 @@ import (
 )
 
 // `Registry` stores and provides all stateless, stateful, and dynamic precompile containers. It is
-//
-//	a map of Ethereum addresses to precompiled contract containers.
+// a map of Ethereum addresses to precompiled contract containers.
 type Registry map[common.Address]vm.PrecompileContainer
 
 // `New` creates and returns a new `Registry`.
