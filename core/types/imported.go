@@ -19,12 +19,18 @@ import (
 )
 
 type (
-	AccessList = types.AccessList
-	Bloom      = types.Bloom
-	Log        = types.Log
-	Receipt    = types.Receipt
+	AccessList  = types.AccessList
+	Bloom       = types.Bloom
+	Log         = types.Log
+	Transaction = types.Transaction
+	Receipt     = types.Receipt
+	Receipts    = types.Receipts
+	Header      = types.Header
+	Signer      = types.Signer
 )
 
 var (
-	CreateBloom = types.CreateBloom
+	CreateBloom             = types.CreateBloom
+	ReceiptStatusFailed     = types.ReceiptStatusFailed
+	ReceiptStatusSuccessful = types.ReceiptStatusSuccessful
 )

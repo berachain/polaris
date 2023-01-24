@@ -17,31 +17,36 @@ package state
 import (
 	"github.com/berachain/stargazer/core/state/store/journal"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("AddLogChange", func() {
 	var (
-		ce  *AddLogChange
-		sdb *StateDB
+		ce   *AddLogChange
+		sdb  *StateDB
+		hash common.Hash
 	)
 	BeforeEach(func() {
 		sdb = &StateDB{
-			logs: []*coretypes.Log{},
+			logs: make(map[common.Hash][]*coretypes.Log),
 		}
+		hash = common.HexToHash("0x1234")
 		ce = &AddLogChange{
-			sdb: sdb,
+			sdb:    sdb,
+			txHash: hash,
 		}
+
 	})
 	It("implements journal.CacheEntry", func() {
 		var _ journal.CacheEntry = ce
 		Expect(ce).To(BeAssignableToTypeOf(&AddLogChange{}))
 	})
 	It("Revert should remove the last log", func() {
-		sdb.logs = append(sdb.logs, &coretypes.Log{})
+		sdb.logs[hash] = append(sdb.logs[hash], &coretypes.Log{})
 		ce.Revert()
-		Expect(len(sdb.logs)).To(Equal(0))
+		Expect(len(sdb.logs[hash])).To(Equal(0))
 	})
 	It("Clone should return a new AddLogChange with the same sdb", func() {
 		cloned, ok := ce.Clone().(*AddLogChange)

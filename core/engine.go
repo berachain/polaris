@@ -14,36 +14,42 @@
 
 package core
 
-import (
-	"context"
+// // `EngineAPI` is the StateProcessor.
+// type EngineAPI interface {
+// 	// Set the stateDB factory
+// 	SetStateDBFactory(StateDBFactory)
 
-	block "github.com/berachain/stargazer/core/block"
-	"github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm"
-	"github.com/berachain/stargazer/lib/common"
-)
+// 	Prepare(context.Context, common.Address, common.Hash)
+// 	Finalize(context.Context)
+// }
 
-// `EngineAPI` is the StateProcessor.
-type EngineAPI interface {
-	// Set the stateDB factory
-	SetStateDBFactory(StateDBFactory)
+// type interface {
+// 	Coinbase() common.Address
+// 	Number() *big.Int
+// }
 
-	PrepareForEthBlock(context.Context, common.Address, common.Hash)
-	ProcessTx(context.Context)
-	FinalizeEthBlock(context.Context)
-}
+// type StateDBFactory interface {
+// 	BuildStateDB(ctx context.Context) vm.StargazerStateDB
+// }
 
-type StateDBFactory interface {
-	BuildStateDB(ctx context.Context) vm.StargazerStateDB
-}
+// type Engine struct {
+// 	// currentBlock is the current block being processed.
+// 	currentBlock EthereumBlock
+// }
 
-type Engine struct {
-	currentBlock block.Block
+// func (e *Engine) EthHeader(ctx sdk.Context) *coretypes.Header {
+// 	return &coretypes.Header{
 
-	// Contextual Variables (updated once per block)
-	signer types.Signer
-}
+// }
 
-func (e *Engine) SetStateDBFactory(factory StateDBFactory) {
-	e.stateDBFactory = factory
-}
+// func NewEngine() *Engine {
+// 	return &Engine{}
+// }
+
+// func (e *Engine) PrepareForBlock(ctx context.Context, eb EthereumBlock) {
+
+// }
+
+// func (e *Engine) FinalizeBlock(ctx context.Context) (types.Receipts, []*types.Log, uint64, error) {
+// 	return nil, nil, 0, nil
+// }

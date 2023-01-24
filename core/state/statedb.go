@@ -95,14 +95,11 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// The storekey used during execution
 	storeKey storetypes.StoreKey
 
-	// Per-transaction logs
-	logs []*coretypes.Log
-
 	// Transaction and logging bookkeeping
-	txHash    common.Hash
-	blockHash common.Hash
-	txIndex   uint
-	logIndex  uint
+	txHash  common.Hash
+	txIndex uint
+	logs    map[common.Hash][]*coretypes.Log
+	logSize uint
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -125,6 +122,7 @@ func NewStateDB(
 		bk:       bk,
 		evmDenom: evmDenom,
 		storeKey: storeKey,
+		logs:     make(map[common.Hash][]*coretypes.Log),
 	}
 
 	// Wire up the `CacheMultiStore` & `sdk.Context`.
@@ -162,13 +160,11 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 // Transaction Handling
 // =============================================================================
 
-// Prepare sets the current transaction hash and index and block hash which is
-// used for logging events.
-func (sdb *StateDB) PrepareForTransition(blockHash, txHash common.Hash, ti, li uint) {
-	sdb.blockHash = blockHash
-	sdb.txHash = txHash
-	sdb.txIndex = ti
-	sdb.logIndex = li
+// Prepare sets the current transaction hash and index which are
+// used when the EVM emits new state logs.
+func (s *StateDB) Prepare(txHash common.Hash, ti uint) {
+	s.txHash = txHash
+	s.txIndex = ti
 }
 
 // Reset clears the journal and other state objects. It also clears the
@@ -482,18 +478,21 @@ func (sdb *StateDB) Snapshot() int {
 
 // AddLog implements the GethStateDB interface by adding the given log to the current transaction.
 func (sdb *StateDB) AddLog(log *coretypes.Log) {
-	sdb.cms.JournalMgr.Push(&AddLogChange{sdb})
+	sdb.cms.JournalMgr.Push(&AddLogChange{sdb, sdb.txHash})
 	log.TxHash = sdb.txHash
-	log.BlockHash = sdb.blockHash
 	log.TxIndex = sdb.txIndex
-	log.Index = sdb.logIndex
-	sdb.logs = append(sdb.logs, log)
-	sdb.logIndex++ // erigon intra
+	log.Index = sdb.logSize
+	sdb.logs[sdb.txHash] = append(sdb.logs[sdb.txHash], log)
+	sdb.logSize++
 }
 
 // Logs returns the logs of current transaction.
-func (sdb *StateDB) Logs() []*coretypes.Log {
-	return sdb.logs
+func (s *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
+	logs := s.logs[txHash]
+	for _, l := range logs {
+		l.BlockHash = blockHash
+	}
+	return logs
 }
 
 // =============================================================================

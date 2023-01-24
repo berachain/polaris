@@ -18,6 +18,7 @@ import (
 	"context"
 	"math/big"
 
+	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
 )
 
@@ -28,8 +29,12 @@ type (
 		GethStateDB
 		PrecompileStateDB
 
+		Prepare(txHash common.Hash, ti uint)
+
 		// TransferBalance transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
+
+		GetLogs(common.Hash, common.Hash) []*coretypes.Log
 	}
 
 	// `PrecompileStateDB` defines the required functions to support execution of stateful
