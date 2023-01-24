@@ -44,6 +44,16 @@ var (
 	statically = false
 )
 
+func All() error {
+	cmds := []func() error{Generate, Format, Proto, Lint, Test}
+	for _, cmd := range cmds {
+		if err := cmd(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Runs `go build` on the entire project.
 func Build() error {
 	PrintMageName()

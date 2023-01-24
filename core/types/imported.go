@@ -21,4 +21,5 @@ import (
 type (
 	AccessList = types.AccessList
 	Log        = types.Log
+	Receipt    = types.Receipt
 )
