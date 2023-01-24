@@ -29,8 +29,9 @@ import (
 )
 
 /**
- * 	Welcome to Stateful Precompiled Contracts! To build a stateful precompile, you must follow
- *  these steps:
+ * 	Welcome to Stateful Precompiled Contracts! To build a stateful precompile, you must implement
+ *  the `StatefulPrecompileImpl` interface in `interfaces.go`; below are the suggested steps to
+ *  follow:
  *	  1) Define a Solidity interface with the methods that you want implemented via a precompile.
  *	  2) Build a Go precompile contract, which implements the interface's methods.
  *       A) This precompile contract should expose the ABI's `Methods`, which can be generated via
@@ -63,10 +64,10 @@ func (e Executable) getName() string {
 	return fullName
 }
 
-// `Method` is a struct that contains the required information for the EVM to Execute a stateful
+// `Method` is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {
-	// `AbiMethod` is the ABI `Methods` struct corresponding to this precompile executable. NOTE:
+	// `AbiMethod` is the ABI `Methods` struct corresponding to this precompile's executable. NOTE:
 	// this field should be left empty (as nil) as this will automatically be populated by the
 	// corresponding interface's ABI.
 	AbiMethod *abi.Method
@@ -82,8 +83,8 @@ type Method struct {
 	Execute Executable
 
 	// `RequiredGas` is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
-	// This field is optional; if left empty, the precompile method's `Execute` function should
-	// consume gas using the native gas meter.
+	// This field is optional; if left empty, the precompile's executable should consume gas using
+	// the native gas meter.
 	RequiredGas uint64
 }
 
@@ -145,4 +146,6 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
+// `Methods` is a type that represents a list of precompile methods. This is what a stateful
+// precompiled contract implementation should expose.
 type Methods []*Method

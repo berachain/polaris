@@ -23,26 +23,25 @@ type (
 	// `AbstractFactory` is an interface that all precompile container factories must adhere to.
 	AbstractFactory interface {
 		// `Build` builds and returns the precompile container for the type of container/factory.
-		Build(bci vm.BaseContractImpl) (vm.PrecompileContainer, error)
+		Build(bci vm.BasePrecompileImpl) (vm.PrecompileContainer, error)
 	}
 )
 
 type (
-	// `StatelessContractImpl` is the interface for all stateless precompiled contract
+	// `StatelessPrecompileImpl` is the interface for all stateless precompiled contract
 	// implementations. A stateless contract must provide its own precompile container, as it is
 	// stateless in nature. This requires a deterministic gas count, `RequiredGas`, and an
 	// executable function `Run`.
-	StatelessContractImpl interface {
-		vm.BaseContractImpl
+	StatelessPrecompileImpl interface {
+		vm.BasePrecompileImpl
 
 		vm.PrecompileContainer
 	}
 
-	// `StatefulContractImpl` is the interface for all stateful precompiled contracts, which
-	// must expose their ABI methods, precompile methods, and gas requirements for stateful
-	// execution.
-	StatefulContractImpl interface {
-		vm.BaseContractImpl
+	// `StatefulPrecompileImpl` is the interface for all stateful precompiled contracts, which must
+	// expose their ABI methods, precompile methods, and gas requirements for stateful execution.
+	StatefulPrecompileImpl interface {
+		vm.BasePrecompileImpl
 
 		// `ABIMethods` should return a map of Ethereum method names to Go-Ethereum abi `Method`
 		// structs. NOTE: this can be directly loaded from the `Methods` field of a Go-Ethereum ABI
@@ -54,9 +53,9 @@ type (
 		PrecompileMethods() Methods
 	}
 
-	// `DynamicContractImpl` is the interface for all dynamic stateful precompiled contracts.
-	DynamicContractImpl interface {
-		StatefulContractImpl
+	// `DynamicPrecompileImpl` is the interface for all dynamic stateful precompiled contracts.
+	DynamicPrecompileImpl interface {
+		StatefulPrecompileImpl
 
 		// `Name` should return a string name of the dynamic contract.
 		Name() string

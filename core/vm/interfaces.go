@@ -39,12 +39,17 @@ type (
 		GetContext() context.Context
 	}
 
+	// `PrecompileRegistry` defines the required functions of a precompile registry.
 	PrecompileRegistry interface {
-		Register(BaseContractImpl) error
+		// `Register` registers a base precompile implementation at its address.
+		Register(BasePrecompileImpl) error
+
+		// `Lookup` searches the registry at an address and returns a precompile container if it
+		// was found.
 		Lookup(common.Address) (PrecompileContainer, bool)
 	}
 
-	// `BaseContractImpl` is a type for the base contract implementation. The base contract only
-	// needs to provide an Ethereum address.
-	BaseContractImpl = ContractRef
+	// `BasePrecompileImpl` is a type for the base precompile implementation, which only needs to
+	// provide an Ethereum address of where its contract is found.
+	BasePrecompileImpl = ContractRef
 )

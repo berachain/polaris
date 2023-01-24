@@ -52,9 +52,9 @@ func NewStatelessFactory() *StatelessFactory {
 //
 // `Build` implements `AbstractFactory`.
 func (sf *StatelessFactory) Build(
-	bci vm.BaseContractImpl,
+	bci vm.BasePrecompileImpl,
 ) (vm.PrecompileContainer, error) {
-	pc, ok := utils.GetAs[StatelessContractImpl](bci)
+	pc, ok := utils.GetAs[StatelessPrecompileImpl](bci)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statelessContainerName)
 	}
@@ -79,9 +79,9 @@ func NewStatefulFactory() *StatefulFactory {
 //
 // `Build` implements `AbstractFactory`.
 func (sf *StatefulFactory) Build(
-	bci vm.BaseContractImpl,
+	bci vm.BasePrecompileImpl,
 ) (vm.PrecompileContainer, error) {
-	sci, ok := utils.GetAs[StatefulContractImpl](bci)
+	sci, ok := utils.GetAs[StatefulPrecompileImpl](bci)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
@@ -161,9 +161,9 @@ func NewDynamicFactory() *DynamicFactory {
 //
 // `Build` implements `AbstractFactory`.
 func (dcf *DynamicFactory) Build(
-	bci vm.BaseContractImpl,
+	bci vm.BasePrecompileImpl,
 ) (vm.PrecompileContainer, error) {
-	dci, ok := utils.GetAs[DynamicContractImpl](bci)
+	dci, ok := utils.GetAs[DynamicPrecompileImpl](bci)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerName)
 	}

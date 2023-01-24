@@ -39,15 +39,15 @@ func NewRegistry() registry { //nolint:revive // this will only be used as a `vm
 // defined precompile or the container factory cannot build the container.
 //
 // `Register` implements `vm.PrecompileRegistry`.
-func (r registry) Register(contractImpl vm.BaseContractImpl) error {
+func (r registry) Register(contractImpl vm.BasePrecompileImpl) error {
 	// select the correct container factory based on the contract type.
 	var cf container.AbstractFactory
 	//nolint:gocritic // cannot be converted to switch-case.
-	if utils.Implements[container.DynamicContractImpl](contractImpl) {
+	if utils.Implements[container.DynamicPrecompileImpl](contractImpl) {
 		cf = container.NewDynamicFactory()
-	} else if utils.Implements[container.StatefulContractImpl](contractImpl) {
+	} else if utils.Implements[container.StatefulPrecompileImpl](contractImpl) {
 		cf = container.NewStatefulFactory()
-	} else if utils.Implements[container.StatelessContractImpl](contractImpl) {
+	} else if utils.Implements[container.StatelessPrecompileImpl](contractImpl) {
 		cf = container.NewStatelessFactory()
 	} else {
 		return ErrIncorrectPrecompileType
