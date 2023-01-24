@@ -12,19 +12,31 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package block
 
 import (
-	"github.com/ethereum/go-ethereum/core/types"
+	coretypes "github.com/berachain/stargazer/core/types"
 )
 
-type (
-	AccessList = types.AccessList
-	Bloom      = types.Bloom
-	Log        = types.Log
-	Receipt    = types.Receipt
-)
+// `Builder` is used to build a bloom filter for a block.
+type Builder struct {
+	receipts []*coretypes.Receipt
+}
 
-var (
-	CreateBloom = types.CreateBloom
-)
+// `NewBuilder` returns a new bloom builder.
+func NewBuilder() *Builder {
+	return &Builder{
+		receipts: make([]*coretypes.Receipt, 6),
+	}
+}
+
+// `AddLogsToBloom` builds the bloom filter for the provided set of logs.
+// It also adds the bloom filter to the block bloom filter.
+func (bb *Builder) AddReceiptToBlock(r *coretypes.Receipt) {
+	bb.receipts = append(bb.receipts, r)
+}
+
+// `GetBloom` returns the currently built bloom filter.
+func (bb *Builder) BuildBloom() coretypes.Bloom {
+	return coretypes.CreateBloom(bb.receipts)
+}

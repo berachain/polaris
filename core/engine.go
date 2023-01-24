@@ -17,6 +17,8 @@ package core
 import (
 	"context"
 
+	block "github.com/berachain/stargazer/core/block"
+	"github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 )
@@ -35,9 +37,13 @@ type StateDBFactory interface {
 	BuildStateDB(ctx context.Context) vm.StargazerStateDB
 }
 
-type EVMAPI interface {
-	vm.VMInterface
+type Engine struct {
+	currentBlock block.Block
+
+	// Contextual Variables (updated once per block)
+	signer types.Signer
 }
 
-type EVMEngine struct {
+func (e *Engine) SetStateDBFactory(factory StateDBFactory) {
+	e.stateDBFactory = factory
 }

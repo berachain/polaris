@@ -1,4 +1,4 @@
-// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Copyright (C) 2022, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -12,19 +12,20 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package block
 
 import (
-	"github.com/ethereum/go-ethereum/core/types"
+	"math/big"
+
+	"github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/common"
 )
 
-type (
-	AccessList = types.AccessList
-	Bloom      = types.Bloom
-	Log        = types.Log
-	Receipt    = types.Receipt
-)
-
-var (
-	CreateBloom = types.CreateBloom
-)
+type EthBlock struct {
+	Coinbase common.Address
+	Number   *big.Int
+	bloom    types.Bloom
+	GasLimit uint64
+	BaseFee  *big.Int
+	Time     *big.Int
+}
