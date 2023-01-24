@@ -44,10 +44,7 @@ type (
 		Lookup(common.Address) (PrecompileContainer, bool)
 	}
 
-	// `BaseContractImpl` is a type for the base precompiled contract implementation.
-	BaseContractImpl interface {
-		// `Address` should return the address where this contract and its events will be
-		// registered.
-		Address() common.Address
-	}
+	// `BaseContractImpl` is a type for the base contract implementation. The base contract only
+	// needs to provide an Ethereum address.
+	BaseContractImpl = ContractRef
 )
