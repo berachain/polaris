@@ -27,6 +27,7 @@ import (
 	"github.com/berachain/stargazer/core/state/store/cachemulti"
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 )
@@ -38,7 +39,7 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
-var _ StargazerStateDB = (*StateDB)(nil)
+var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
@@ -232,11 +233,11 @@ func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 
 // `TransferBalance` sends the given amount from one account to another. It will
 // error if the sender does not have enough funds to send.
-func (sdb *StateDB) TransferBalance(from, to common.Address, amount *big.Int) {
+func (sdb *StateDB) TransferBalance(sender, receiver common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the destination address.
-	if err := sdb.bk.SendCoins(sdb.ctx, from[:], to[:], coins); err != nil {
+	if err := sdb.bk.SendCoins(sdb.ctx, sender[:], receiver[:], coins); err != nil {
 		sdb.setErrorUnsafe(err)
 	}
 }

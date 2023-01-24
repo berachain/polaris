@@ -17,7 +17,6 @@ package core
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 )
@@ -35,5 +34,5 @@ func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool 
 // `Transfer` subtracts amount from sender and adds amount to recipient using the `vm.StateDB`.
 func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
 	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
-	sdb.(state.ExtStateDB).TransferBalance(sender, recipient, amount)
+	sdb.(vm.StargazerStateDB).TransferBalance(sender, recipient, amount)
 }

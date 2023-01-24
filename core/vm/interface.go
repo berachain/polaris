@@ -16,12 +16,21 @@ package vm
 
 import (
 	"context"
+	"math/big"
 
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/common"
 )
 
 type StargazerStateDB interface {
 	GethStateDB
+	TransferBalance(sender, receiver common.Address, amount *big.Int)
 	Reset(context.Context)
 	Logs() []*coretypes.Log
+}
+
+type IntraBlockStateDB interface {
+	StargazerStateDB
+	BuildBloomFilterForTxn() *coretypes.Bloom
+	GetBlockBloomFilter() *coretypes.Bloom
 }

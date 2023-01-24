@@ -41,7 +41,7 @@ func (ibs *IntraBlockStateDB) Reset(ctx context.Context) {
 
 // `BuildBloomFilterForTxn` builds the bloom filter for the current transaction.
 // It also adds the bloom filter to the block bloom filter.
-func (ibs *IntraBlockStateDB) BuildBloomFilterForTxn() coretypes.Bloom {
+func (ibs *IntraBlockStateDB) BuildBloomFilterForTxn() *coretypes.Bloom {
 	// Calculate bloom for current transaction.
 	txBloomBz := coretypes.LogsBloom(ibs.StargazerStateDB.Logs())
 
@@ -49,7 +49,8 @@ func (ibs *IntraBlockStateDB) BuildBloomFilterForTxn() coretypes.Bloom {
 	ibs.blockBloom.Add(txBloomBz)
 
 	// Convert bytes to bloom and return this tx's bloom.
-	return coretypes.BytesToBloom(txBloomBz)
+	bloom := coretypes.BytesToBloom(txBloomBz)
+	return &bloom
 }
 
 // `GetBlockBloom` returns the currently built bloom filter.
