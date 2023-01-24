@@ -30,7 +30,7 @@ var _ vm.PrecompileRegistry = (registry)(nil)
 type registry map[common.Address]vm.PrecompileContainer
 
 // `NewRegistry` creates and returns a new `registry`.
-func NewRegistry() registry {
+func NewRegistry() registry { //nolint:revive // this will only be used as a `vm.PrecompileRegistry` interface
 	return make(registry)
 }
 
