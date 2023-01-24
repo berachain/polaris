@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package registry
+package precompile
 
 import (
 	"github.com/berachain/stargazer/core/precompile/container"
@@ -26,7 +26,7 @@ import (
 //	a map of Ethereum addresses to precompiled contract containers.
 type Registry map[common.Address]vm.PrecompileContainer
 
-// `NewRegistry` creates and returns a new `Registry`.
+// `New` creates and returns a new `Registry`.
 func NewRegistry() Registry {
 	return make(Registry)
 }

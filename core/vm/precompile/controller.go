@@ -15,7 +15,7 @@
 package precompile
 
 import (
-	"github.com/berachain/stargazer/core/precompile/registry"
+	"github.com/berachain/stargazer/core/precompile"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 )
@@ -23,20 +23,20 @@ import (
 // Compile-time assertion to ensure `controller` adheres to `PrecompileController`.
 var _ vm.PrecompileController = (*controller)(nil)
 
-// `controller` is a struct that embeds a `vm.PrecompileRunner` and uses a precompile registry.
+// `controller` is a struct that embeds a `vm.PrecompileRunner` and uses a precompile precompile.
 type controller struct {
 	// `PrecompileRunner` will run the precompile in a custom precompile environment.
 	vm.PrecompileRunner
 
 	// `registry` allows the `controller` to search for a precompile container at an address.
-	registry *registry.Registry
+	registry *precompile.Registry
 }
 
 // `NewController` creates and returns a `controller` with the given precompile registry and
 // precompile runner.
 //
 //nolint:revive // this is only used as a `vm.PrecompileController`.
-func NewController(registry *registry.Registry, runner vm.PrecompileRunner) *controller {
+func NewController(registry *precompile.Registry, runner vm.PrecompileRunner) *controller {
 	return &controller{
 		PrecompileRunner: runner,
 		registry:         registry,

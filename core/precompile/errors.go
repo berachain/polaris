@@ -12,4 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package registry_test
+package precompile
+
+import "errors"
+
+var (
+	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
+	// non-precompile contract.
+	ErrIncorrectPrecompileType = errors.New("this contract does not implement a the required precompile contract interface") //nolint:lll
+)
