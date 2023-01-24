@@ -16,6 +16,7 @@ package state
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"math/big"
 
@@ -165,7 +166,7 @@ func (sdb *StateDB) PrepareForTransition(blockHash, txHash common.Hash, ti, li u
 
 // Reset clears the journal and other state objects. It also clears the
 // refund counter and the access list.
-func (sdb *StateDB) Reset(ctx sdk.Context) {
+func (sdb *StateDB) Reset(ctx context.Context) {
 	// TODO: figure out why not fully reallocating the object causes
 	// the gas shit to fail
 	// sdb.MultiStore = cachemulti.NewStoreFrom(ctx.MultiStore())
@@ -180,7 +181,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.accessList = newAccessList()
 	// sdb.suicides = make([]common.Address, 0)
 	// TODO: unghetto this
-	*sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
+	*sdb = *NewStateDB(sdk.UnwrapSDKContext(ctx), sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
 }
 
 // =============================================================================

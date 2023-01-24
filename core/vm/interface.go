@@ -15,23 +15,13 @@
 package vm
 
 import (
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/holiman/uint256"
+	"context"
+
+	coretypes "github.com/berachain/stargazer/core/types"
 )
 
-type VMInterface interface { //nolint:revive // we like the vibe.
-	Reset(txCtx TxContext, sdb GethStateDB)
-	Create(caller ContractRef, code []byte,
-		gas uint64, value *uint256.Int,
-	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
-	Call(caller ContractRef, addr common.Address, input []byte,
-		gas uint64, value *uint256.Int, bailout bool,
-	) (ret []byte, leftOverGas uint64, err error)
-	Config() Config
-	ChainConfig() *params.ChainConfig
-	ChainRules() *params.Rules
-	Context() BlockContext
-	StateDB() GethStateDB
-	TxContext() TxContext
+type StargazerStateDB interface {
+	GethStateDB
+	Reset(context.Context)
+	Logs() []*coretypes.Log
 }

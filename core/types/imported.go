@@ -20,6 +20,12 @@ import (
 
 type (
 	AccessList = types.AccessList
+	Bloom      = types.Bloom
 	Log        = types.Log
 	Receipt    = types.Receipt
+)
+
+var (
+	BytesToBloom = types.BytesToBloom
+	LogsBloom    = types.LogsBloom
 )
