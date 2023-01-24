@@ -13,3 +13,15 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package container_test
+
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestContainer(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/precompile/container")
+}

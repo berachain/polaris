@@ -44,8 +44,8 @@ type Stateful struct {
 	// TODO: implement
 	fallback *Method
 
-	// `sdb` represents a subset of the `vm.GethStateDB` interface that is used by the
-	// `Stateful` container to add logs during execution.
+	// `sdb` represents a subset of the `vm.GethStateDB` interface that is used by the `Stateful`
+	// container to add logs during execution.
 	sdb logDB
 }
 
