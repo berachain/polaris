@@ -12,33 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package precompile
 
-import (
-	"github.com/berachain/stargazer/params"
+import "errors"
+
+var (
+	// `ErrOutOfGas` is returned when the precompile execution runs out of gas.
+	ErrOutOfGas = errors.New("out of gas")
 )
-
-// `EVMFactory` is used to build new Stargazer `EVM`s.
-type EVMFactory struct {
-	precompiles PrecompileRegistry
-}
-
-// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileRegistry`.
-func NewEVMFactory(precompiles PrecompileRegistry) *EVMFactory {
-	return &EVMFactory{
-		precompiles: precompiles,
-	}
-}
-
-// `Build` creates and returns a new `vm.StargazerEVM`.
-func (ef *EVMFactory) Build(
-	ssdb StargazerStateDB,
-	blockCtx BlockContext,
-	txCtx TxContext,
-	chainConfig *params.EthChainConfig,
-	noBaseFee bool,
-	runPrecompile RunPrecompile,
-) *StargazerEVM {
-	return NewStargazerEVM(
-		blockCtx, txCtx, ssdb, chainConfig, Config{}, ef.precompiles.Lookup, runPrecompile)
-}

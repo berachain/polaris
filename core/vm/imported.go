@@ -26,7 +26,8 @@ type (
 	GethEVM             = vm.EVM
 	GethStateDB         = vm.StateDB
 	PrecompileContainer = vm.PrecompiledContract
-	PrecompileRunner    = vm.PrecompileRunner
+	PrecompileExists    = vm.PrecompileExists
+	RunPrecompile       = vm.RunPrecompile
 	TransferFunc        = vm.TransferFunc
 	TxContext           = vm.TxContext
 )

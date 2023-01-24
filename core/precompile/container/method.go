@@ -22,6 +22,7 @@ import (
 	"runtime"
 	"strings"
 
+	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/types/abi"
@@ -35,8 +36,8 @@ import (
  *       A) This precompile contract should expose the ABI's `Methods`, which can be generated via
  *          Go-Ethereum's abi package. These methods are of type `abi.Method`.
  *   	 B) This precompile contract should also expose the `Method`s. A `Method` includes the
- *          `Executable`, which is the direct implementation of a corresponding ABI method, the
- *          `Executable`'s `RequiredGas`, and the ABI signature. Do NOT provide the `abiMethod` as
+ *          `executable`, which is the direct implementation of a corresponding ABI method, the
+ *          `executable`'s `RequiredGas`, and the ABI signature. Do NOT provide the `AbiMethod` as
  *          this field will be automatically populated.
  **/
 
@@ -45,16 +46,16 @@ const funcNamePart = 2
 
 // `Executable` is a type of function that stateful precompiled contract will implement. Each
 // `Executable` should directly correspond to an ABI method.
-type executable func(
+type Executable func(
 	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) (ret []any, err error)
+) (ret []any, logs []*coretypes.Log, err error)
 
 // `GetName` uses `reflect` and `runtime` to get the Go function's name.
-func (e executable) getName() string {
+func (e Executable) getName() string {
 	fullName := runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name()
 	if brokenUpName := strings.Split(fullName, "."); len(brokenUpName) > funcNamePart {
 		return brokenUpName[funcNamePart]
@@ -62,11 +63,28 @@ func (e executable) getName() string {
 	return fullName
 }
 
+// `Method` is a struct that contains the required information for the EVM to Execute a stateful
+// precompiled contract method.
 type Method struct {
-	abiMethod   *abi.Method
-	abiSig      string
-	requiredGas uint64
-	execute     executable
+	// `AbiMethod` is the ABI `Methods` struct corresponding to this precompile executable. NOTE:
+	// this field should be left empty (as nil) as this will automatically be populated by the
+	// corresponding interface's ABI.
+	AbiMethod *abi.Method
+
+	// `AbiSig` returns the method's string signature according to the ABI spec.
+	// e.g.		function foo(uint32 a, int b) = "foo(uint32,int256)"
+	// Note that there are no spaces and variable names in the signature.
+	// Also note that "int" is substitute for its canonical representation "int256".
+	AbiSig string
+
+	// `Execute` is the precompile executable which will execute the logic of the implemented
+	// ABI method.
+	Execute Executable
+
+	// `RequiredGas` is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
+	// This field is optional; if left empty, the precompile method's `Execute` function should
+	// consume gas using the native gas meter.
+	RequiredGas uint64
 }
 
 var (
@@ -77,18 +95,18 @@ var (
 // `ValidateBasic` returns an error if this a precompile `Method` has invalid fields.
 func (m *Method) ValidateBasic() error {
 	// ensure all required fields are nonempty
-	if len(m.abiSig) == 0 || m.abiMethod != nil || m.execute == nil {
+	if len(m.AbiSig) == 0 || m.AbiMethod != nil || m.Execute == nil {
 		return ErrIncompleteMethod
 	}
 
-	// validate user-defined abi signature (abiSig) according to geth ABI signature definition
+	// validate user-defined abi signature (AbiSig) according to geth ABI signature definition
 	// check only 1 `(` exists in the string
-	nameAndArgs := strings.Split(m.abiSig, "(")
+	nameAndArgs := strings.Split(m.AbiSig, "(")
 	if len(nameAndArgs) != 2 { //nolint:gomnd // the constant 2 will never change.
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not contain exactly 1 '('",
-			m.execute.getName(),
+			m.Execute.getName(),
 		)
 	}
 	// check that the method name is valid according to Solidity
@@ -96,7 +114,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not have a valid method name",
-			m.execute.getName(),
+			m.Execute.getName(),
 		)
 	}
 	// check that only 1 `)` exists and its the last character
@@ -105,7 +123,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not does not end with 1 ')'",
-			m.execute.getName(),
+			m.Execute.getName(),
 		)
 	}
 	// if no args are provided, sig is valid
@@ -119,7 +137,7 @@ func (m *Method) ValidateBasic() error {
 			return errors.Wrapf(
 				ErrAbiSigInvalid,
 				"%s has incorrect argument types",
-				m.execute.getName(),
+				m.Execute.getName(),
 			)
 		}
 	}

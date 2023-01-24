@@ -15,7 +15,7 @@
 package precompile
 
 import (
-	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/precompile/container"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/types/abi"
 )
@@ -36,6 +36,7 @@ type (
 	// executable function `Run`.
 	StatelessContractImpl interface {
 		vm.BaseContractImpl
+
 		vm.PrecompileContainer
 	}
 
@@ -52,11 +53,7 @@ type (
 
 		// `PrecompileMethods` should return all the stateful precompile's functions (and each of
 		// their required gas).
-		PrecompileMethods() // TODO: Methods type
-
-		// `LogsFromExecution` should return a slice of Ethereum `Log`s that should be emitted for
-		// a contract method's execution.
-		LogsFromExecution() []*coretypes.Log
+		PrecompileMethods() container.Methods
 	}
 
 	// `DynamicContractImpl` is the interface for all dynamic stateful precompiled contracts.

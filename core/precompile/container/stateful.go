@@ -35,7 +35,7 @@ type StatefulContainer struct {
 	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
-	// (geth abi format). Please check core/vm/precompile/container/types.go for more information.
+	// (geth abi format). Please check core/precompile/container/method.go for more information.
 	idsToMethods map[string]*Method
 
 	// TODO: implement
@@ -43,6 +43,9 @@ type StatefulContainer struct {
 
 	// TODO: implement
 	fallback *Method
+
+	// `gsdb` is used to add logs from the execution of the container to the state db.
+	gsdb vm.GethStateDB
 }
 
 // `NewStatefulContainer` creates and returns a new `StatefulContainer` with the given method ids
@@ -55,7 +58,8 @@ func NewStatefulContainer(idsToMethods map[string]*Method) *StatefulContainer {
 	}
 }
 
-// `Run` loads the corresponding precompile method for given input and executes it.
+// `Run` loads the corresponding precompile method for given input, executes it, and handles
+// output.
 //
 // `Run` implements `PrecompileContainer`.
 func (sc *StatefulContainer) Run(
@@ -72,20 +76,20 @@ func (sc *StatefulContainer) Run(
 		return nil, ErrInvalidInputToPrecompile
 	}
 
-	// extract the method ID from the input and load the method.
+	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {
 		return nil, ErrMethodNotFound
 	}
 
-	// unpack the args from the input, if any exist.
-	unpackedArgs, err := method.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
+	// Unpack the args from the input, if any exist.
+	unpackedArgs, err := method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
 	}
 
 	// Execute the method registered with the given signature with the given args.
-	vals, err := method.execute(
+	vals, logs, err := method.Execute(
 		ctx,
 		caller,
 		value,
@@ -95,15 +99,24 @@ func (sc *StatefulContainer) Run(
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
-		return nil, errors.Wrap(err, method.execute.getName())
+		return nil, errors.Wrap(err, method.Execute.getName())
 	}
 
-	// pack the return values and return, if any exist.
-	return method.abiMethod.Outputs.Pack(vals...)
+	// Pack the return values and return, if any exist.
+	ret, err := method.AbiMethod.Outputs.Pack(vals...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add the logs to the statedb if there are no errors in container execution.
+	for _, log := range logs {
+		sc.gsdb.AddLog(log)
+	}
+
+	return ret, nil
 }
 
 // `RequiredGas` checks the Method corresponding to input for the required gas amount.
-// TODO: RequiredGas will be deprecated in Geth.
 //
 // `RequiredGas` implements PrecompileContainer.
 func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
@@ -111,11 +124,11 @@ func (sc *StatefulContainer) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	// extract the method ID from the input and load the method.
+	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {
 		return 0
 	}
 
-	return method.requiredGas
+	return method.RequiredGas
 }

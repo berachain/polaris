@@ -17,46 +17,32 @@ package precompile
 import (
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 )
 
-var _ vm.PrecompileRunner = (*CosmosRunner)(nil)
+// `NewCosmosRunner` returns a `vm.RunPrecompile` that runs the a precompile container for the
+// given `vm.PrecompileStateDB` and returns the remaining gas after execution. This function
+// returns an error if insufficient gas is provided or the precompile execution returns an error.
+func NewCosmosRunner(psdb vm.PrecompileStateDB) vm.RunPrecompile {
+	return func(
+		pc vm.PrecompileContainer, input []byte, caller common.Address,
+		value *big.Int, suppliedGas uint64, readonly bool,
+	) ([]byte, uint64, error) {
+		// pre-defined, static gas consumption
+		gasCost := pc.RequiredGas(input)
+		if suppliedGas < gasCost {
+			return nil, 0, ErrOutOfGas
+		}
+		suppliedGas -= gasCost
 
-type CosmosRunner struct {
-	registry vm.PrecompileRegistry
+		// supply context with a precompile gas meter for dynamic consumption
+		ctx := sdk.UnwrapSDKContext(psdb.GetContext())
+		ctx = ctx.WithGasMeter(sdk.NewGasMeter(suppliedGas))
+		ret, err := pc.Run(ctx, input, caller, value, readonly)
 
-	psdb vm.PrecompileStateDB
-}
-
-// `NewRunner` creates and returns a new `Runner` for the given precompile
-// registry `registry` and precompile StateDB `psdb`.
-func NewRunner(registry vm.PrecompileRegistry, psdb vm.PrecompileStateDB) *CosmosRunner {
-	return &CosmosRunner{
-		registry: registry,
-		psdb:     psdb,
+		return ret, ctx.GasMeter().GasRemaining(), err
 	}
-}
-
-// `Exists` gets a precompile container at the given `addr` from the precompile registry.
-//
-// `Exists` implements `vm.PrecompileRunner`.
-func (cr *CosmosRunner) Exists(addr common.Address) (vm.PrecompileContainer, bool) {
-	return cr.registry.Lookup(addr)
-}
-
-// `Run` runs the given precompile container and returns the remaining gas after execution. This
-// function returns an error if the given statedb is not compatible with precompiles, insufficient
-// gas is provided, or the precompile execution returns an error.
-//
-// `Run` implements `vm.PrecompileRunner`.
-func (cr *CosmosRunner) Run(
-	pc vm.PrecompileContainer,
-	input []byte,
-	caller common.Address,
-	value *big.Int,
-	suppliedGas uint64,
-	readonly bool,
-) ([]byte, uint64, error) {
-	return nil, 0, nil
 }
