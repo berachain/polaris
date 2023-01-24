@@ -162,9 +162,9 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 
 // Prepare sets the current transaction hash and index which are
 // used when the EVM emits new state logs.
-func (s *StateDB) Prepare(txHash common.Hash, ti uint) {
-	s.txHash = txHash
-	s.txIndex = ti
+func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
+	sdb.txHash = txHash
+	sdb.txIndex = ti
 }
 
 // Reset clears the journal and other state objects. It also clears the
@@ -487,8 +487,8 @@ func (sdb *StateDB) AddLog(log *coretypes.Log) {
 }
 
 // Logs returns the logs of current transaction.
-func (s *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
-	logs := s.logs[txHash]
+func (sdb *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
+	logs := sdb.logs[txHash]
 	for _, l := range logs {
 		l.BlockHash = blockHash
 	}
@@ -524,9 +524,9 @@ func (sdb *StateDB) ForEachStorage(
 	return nil
 }
 
-// `Commit` is called when we are complete with the state transition and want to commit the changes
+// `Finalize` is called when we are complete with the state transition and want to commit the changes
 // to the underlying store.
-func (sdb *StateDB) Commit() error {
+func (sdb *StateDB) Finalize() error {
 	// If we saw an error during the execution, we return it here.
 	if sdb.savedErr != nil {
 		return sdb.savedErr

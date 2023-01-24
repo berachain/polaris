@@ -26,7 +26,7 @@ type Builder struct {
 // `NewBuilder` returns a new bloom builder.
 func NewBuilder() *Builder {
 	return &Builder{
-		receipts: make([]*coretypes.Receipt, 6),
+		receipts: make([]*coretypes.Receipt, 0),
 	}
 }
 

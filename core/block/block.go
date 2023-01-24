@@ -17,14 +17,13 @@ package block
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
 )
 
 type EthBlock struct {
 	Coinbase common.Address
 	Number   *big.Int
-	bloom    types.Bloom
+	// bloom    types.Bloom
 	GasLimit uint64
 	BaseFee  *big.Int
 	Time     *big.Int

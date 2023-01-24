@@ -223,7 +223,7 @@ var _ = Describe("StateDB", func() {
 
 			When("state is committed", func() {
 				BeforeEach(func() {
-					Expect(sdb.Commit()).Should(BeNil())
+					Expect(sdb.Finalize()).Should(BeNil())
 					It("should have committed state", func() {
 						Expect(sdb.GetCommittedState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
 					})
@@ -259,7 +259,7 @@ var _ = Describe("StateDB", func() {
 					})
 					When("commit", func() {
 						BeforeEach(func() {
-							Expect(sdb.Commit()).To(BeNil())
+							Expect(sdb.Finalize()).To(BeNil())
 						})
 						It("should not exist", func() {
 							Expect(sdb.Exist(alice)).To(BeFalse())
@@ -380,7 +380,7 @@ var _ = Describe("StateDB", func() {
 					})
 					When("commit is called", func() {
 						BeforeEach(func() {
-							_ = sdb.Commit()
+							_ = sdb.Finalize()
 						})
 						It("alice should have her code and state wiped, but not bob", func() {
 							Expect(sdb.GetCode(alice)).To(BeNil())
