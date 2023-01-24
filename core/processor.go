@@ -16,11 +16,13 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/params"
 )
 
 type StateProcessor struct {
@@ -28,21 +30,44 @@ type StateProcessor struct {
 
 	// Contextual Variables (updated once per block)
 	// signer types.Signer
-
+	config  *params.EthChainConfig
+	vmf     vm.EVMFactory
+	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
 
 	// the blockHash of the current block being processed
 	blockHash   common.Hash
 	blockNumber *big.Int
+	// blockContext vm.BlockContext
+	baseFee *big.Int
 
 	// st *StateTransitioner
 }
 
-func (sp *StateProcessor) Prepare(ctx context.Context) {
+func NewStateProcessor(vmf vm.EVMFactory) *StateProcessor {
+	return &StateProcessor{
+		vmf: vmf,
+	}
+}
 
+func (sp *StateProcessor) Prepare(ctx context.Context) {
+	// blockContext := vm.BlockContext{}
+	// evm := sp.vmf.NewStargazerEVM(sp.blockContext,
+	// 	txCtx TxContext,
+	// 	stateDB StargazerStateDB,
+	// 	chainConfig *params.EthChainConfig,
+	// 	nil, nil,
+	// )
+	// Store direct pointers to structs in the evm in order to save a little computation.
+	sp.statedb, _ = sp.evm.StateDB.(vm.StargazerStateDB)
 }
 
 func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+	_, err := tx.AsMessage(types.MakeSigner(sp.config, sp.blockNumber), sp.baseFee)
+	if err != nil {
+		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
+	}
+
 	// var err error
 	sp.statedb.Prepare(tx.Hash(), 0)
 

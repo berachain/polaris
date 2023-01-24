@@ -15,12 +15,10 @@
 package state_test
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -47,9 +45,6 @@ var _ = Describe("StateDB", func() {
 	})
 
 	Describe("TestCreateAccount", func() {
-		AfterEach(func() {
-			Expect(sdb.GetSavedErr()).To(BeNil())
-		})
 		It("should create account", func() {
 			sdb.CreateAccount(alice)
 			Expect(sdb.Exist(alice)).To(BeTrue())
@@ -79,11 +74,9 @@ var _ = Describe("StateDB", func() {
 
 		Context("TestSubBalance", func() {
 			It("should not set balance to negative value", func() {
-				sdb.SubBalance(alice, big.NewInt(100))
-				Expect(sdb.GetSavedErr()).To(HaveOccurred())
-				Expect(errors.Unwrap(errors.Unwrap(sdb.GetSavedErr()))).To(
-					Equal(sdkerrors.ErrInsufficientFunds))
-				Expect(sdb.GetBalance(alice)).To(Equal(new(big.Int)))
+				Expect(func() {
+					sdb.SubBalance(alice, big.NewInt(100))
+				}).To(Panic())
 			})
 			It("should panic if using negative value", func() {
 				Expect(func() {
@@ -109,12 +102,9 @@ var _ = Describe("StateDB", func() {
 			Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(150)))
 
 			// Subtract some balance from alice
-			sdb.SubBalance(alice, big.NewInt(200))
-			Expect(sdb.GetSavedErr()).To(HaveOccurred())
-			Expect(errors.Unwrap(errors.Unwrap(sdb.GetSavedErr()))).To(
-				Equal(sdkerrors.ErrInsufficientFunds))
-			Expect(sdb.GetBalance(alice)).To(Equal(big.NewInt(150)))
-
+			Expect(func() {
+				sdb.SubBalance(alice, big.NewInt(200))
+			}).To(Panic())
 		})
 	})
 
@@ -223,7 +213,7 @@ var _ = Describe("StateDB", func() {
 
 			When("state is committed", func() {
 				BeforeEach(func() {
-					Expect(sdb.Finalize()).Should(BeNil())
+					Expect(sdb.FinalizeTx()).Should(BeNil())
 					It("should have committed state", func() {
 						Expect(sdb.GetCommittedState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
 					})
@@ -259,7 +249,7 @@ var _ = Describe("StateDB", func() {
 					})
 					When("commit", func() {
 						BeforeEach(func() {
-							Expect(sdb.Finalize()).To(BeNil())
+							Expect(sdb.FinalizeTx()).To(BeNil())
 						})
 						It("should not exist", func() {
 							Expect(sdb.Exist(alice)).To(BeFalse())
@@ -380,7 +370,7 @@ var _ = Describe("StateDB", func() {
 					})
 					When("commit is called", func() {
 						BeforeEach(func() {
-							_ = sdb.Finalize()
+							_ = sdb.FinalizeTx()
 						})
 						It("alice should have her code and state wiped, but not bob", func() {
 							Expect(sdb.GetCode(alice)).To(BeNil())
@@ -560,16 +550,6 @@ var _ = Describe("StateDB", func() {
 					})
 				})
 			})
-		})
-
-		Describe("TestSavedErr", func() {
-			When("if we see an error", func() {
-				It("should have an error", func() {
-					sdb.TransferBalance(alice, bob, big.NewInt(100))
-					Expect(sdb.GetSavedErr()).To(HaveOccurred())
-				})
-			})
-
 		})
 
 		Describe("TestRevertSnapshot", func() {

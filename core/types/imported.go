@@ -33,4 +33,5 @@ var (
 	CreateBloom             = types.CreateBloom
 	ReceiptStatusFailed     = types.ReceiptStatusFailed
 	ReceiptStatusSuccessful = types.ReceiptStatusSuccessful
+	MakeSigner              = types.MakeSigner
 )

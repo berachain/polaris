@@ -83,7 +83,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 
 	// Any error that occurs during an sdk module read or write is
 	// memoized here and is eventually be returned by `Commit`.
-	savedErr error
+	fatalErr error
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
@@ -177,7 +177,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// // // Must support directly accessing the parent store.
 	// // sdb.ethStore = sdb.ctx.cms.
 	// // 	GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
-	// sdb.savedErr = nil
+	// sdb.fatalErr = nil
 	// sdb.refund = 0
 
 	// sdb.logs = make([]*coretypes.Log, 0)
@@ -205,13 +205,12 @@ func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
 
 	// Mint the coins to the evm module account
 	if err := sdb.bk.MintCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
-		sdb.setErrorUnsafe(err)
-		return
+		panic(err)
 	}
 
 	// Send the coins from the evm module account to the destination address.
 	if err := sdb.bk.SendCoinsFromModuleToAccount(sdb.ctx, types.EvmNamespace, addr[:], coins); err != nil {
-		sdb.setErrorUnsafe(err)
+		panic(err)
 	}
 }
 
@@ -222,14 +221,12 @@ func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 
 	// Send the coins from the source address to the evm module account.
 	if err := sdb.bk.SendCoinsFromAccountToModule(sdb.ctx, addr[:], types.EvmNamespace, coins); err != nil {
-		sdb.setErrorUnsafe(err)
-		return
+		panic(err)
 	}
 
 	// Burn the coins from the evm module account.
 	if err := sdb.bk.BurnCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
-		sdb.setErrorUnsafe(err)
-		return
+		panic(err)
 	}
 }
 
@@ -240,7 +237,9 @@ func (sdb *StateDB) TransferBalance(from, to common.Address, amount *big.Int) {
 
 	// Send the coins from the source address to the destination address.
 	if err := sdb.bk.SendCoins(sdb.ctx, from[:], to[:], coins); err != nil {
-		sdb.setErrorUnsafe(err)
+		// This is safe to panic as the error is only returned if the sender does
+		// not have enough funds to send, which should be guarded by `CanTransfer`.
+		panic(err)
 	}
 }
 
@@ -524,12 +523,27 @@ func (sdb *StateDB) ForEachStorage(
 	return nil
 }
 
-// `Finalize` is called when we are complete with the state transition and want to commit the changes
+// `FinalizeTx` is called when we are complete with the state transition and want to commit the changes
 // to the underlying store.
-func (sdb *StateDB) Finalize() error {
+func (sdb *StateDB) FinalizeTx() error {
+	var err error
+	defer func() {
+		if err != nil {
+			// If we see a fatal error we want to revert all changes that are tracked
+			// via the journal (i.e logs) since we have produced a consensus breaking error
+			// and we want to revert the state to the last good state.
+			sdb.RevertToSnapshot(0)
+			return
+		}
+		// write all cache stores to parent stores, effectively writing temporary state in ctx to
+		// the underlying parent store.
+		sdb.cms.CacheMultiStore().Write()
+	}()
+
 	// If we saw an error during the execution, we return it here.
-	if sdb.savedErr != nil {
-		return sdb.savedErr
+	if sdb.fatalErr != nil {
+		err = sdb.fatalErr
+		return err
 	}
 
 	// Manually delete all suicidal accounts.
@@ -541,11 +555,11 @@ func (sdb *StateDB) Finalize() error {
 		}
 
 		// clear storage
-		if err := sdb.ForEachStorage(suicidalAddr,
+		if _err := sdb.ForEachStorage(suicidalAddr,
 			func(key, _ common.Hash) bool {
 				sdb.SetState(suicidalAddr, key, common.Hash{})
 				return true
-			}); err != nil {
+			}); _err != nil {
 			return err
 		}
 
@@ -556,9 +570,6 @@ func (sdb *StateDB) Finalize() error {
 		sdb.ak.RemoveAccount(sdb.ctx, acct)
 	}
 
-	// write all cache stores to parent stores, effectively writing temporary state in ctx to
-	// the underlying parent store.
-	sdb.cms.CacheMultiStore().Write()
 	return nil
 }
 
@@ -568,14 +579,14 @@ func (sdb *StateDB) Finalize() error {
 
 // Any errors that pop up during store operations should be checked here.
 // Called upon the conclusion.
-func (sdb *StateDB) GetSavedErr() error {
-	return sdb.savedErr
+func (sdb *StateDB) GetFatalErr() error {
+	return sdb.fatalErr
 }
 
 // `setErrorUnsafe` sets error but should be called in medhods that already have locks.
 func (sdb *StateDB) setErrorUnsafe(err error) {
-	if sdb.savedErr == nil {
-		sdb.savedErr = err
+	if sdb.fatalErr == nil {
+		sdb.fatalErr = err
 	}
 }
 
