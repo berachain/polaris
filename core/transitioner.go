@@ -89,20 +89,3 @@ func (str *StateTransitioner) buildStateTransition(
 ) *StateTransition {
 	return NewStateTransition(evm, msg)
 }
-
-// //=============================================================================
-// // Expose Params Provider
-// //=============================================================================
-
-// // GetParamsProvider returns the params provider.
-// func (str *StateTransitioner) GetParamsProvider() *params.Provider {
-// 	return str.pp
-// }
-
-// func (str *StateTransitioner) GetPetrolStation() *PetrolStation {
-// 	return &str.ps
-// }
-
-// func (str *StateTransitioner) GetStateDBFactory() *state.StateDBFactory {
-// 	return str.sdf
-// }
