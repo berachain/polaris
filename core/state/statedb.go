@@ -81,10 +81,6 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	ak types.AccountKeeper
 	bk types.BankKeeper
 
-	// Any error that occurs during an sdk module read or write is
-	// memoized here and is eventually be returned by `Commit`.
-	fatalErr error
-
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
 	evmDenom string // TODO: get from params ( we have a store so like why not )
@@ -267,7 +263,7 @@ func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 	}
 
 	if err := acc.SetSequence(nonce); err != nil {
-		sdb.setErrorUnsafe(err)
+		panic(err)
 	}
 
 	sdb.ak.SetAccount(sdb.ctx, acc)
@@ -526,26 +522,6 @@ func (sdb *StateDB) ForEachStorage(
 // `FinalizeTx` is called when we are complete with the state transition and want to commit the changes
 // to the underlying store.
 func (sdb *StateDB) FinalizeTx() error {
-	var err error
-	defer func() {
-		if err != nil {
-			// If we see a fatal error we want to revert all changes that are tracked
-			// via the journal (i.e logs) since we have produced a consensus breaking error
-			// and we want to revert the state to the last good state.
-			sdb.RevertToSnapshot(0)
-			return
-		}
-		// write all cache stores to parent stores, effectively writing temporary state in ctx to
-		// the underlying parent store.
-		sdb.cms.CacheMultiStore().Write()
-	}()
-
-	// If we saw an error during the execution, we return it here.
-	if sdb.fatalErr != nil {
-		err = sdb.fatalErr
-		return err
-	}
-
 	// Manually delete all suicidal accounts.
 	for _, suicidalAddr := range sdb.suicides {
 		acct := sdb.ak.GetAccount(sdb.ctx, suicidalAddr[:])
@@ -555,13 +531,11 @@ func (sdb *StateDB) FinalizeTx() error {
 		}
 
 		// clear storage
-		if _err := sdb.ForEachStorage(suicidalAddr,
+		_ = sdb.ForEachStorage(suicidalAddr,
 			func(key, _ common.Hash) bool {
 				sdb.SetState(suicidalAddr, key, common.Hash{})
 				return true
-			}); _err != nil {
-			return err
-		}
+			})
 
 		// clear the codehash from this account
 		sdb.ethStore.Delete(types.CodeHashKeyFor(suicidalAddr))
@@ -569,25 +543,8 @@ func (sdb *StateDB) FinalizeTx() error {
 		// remove auth account
 		sdb.ak.RemoveAccount(sdb.ctx, acct)
 	}
-
+	sdb.cms.CacheMultiStore().Write()
 	return nil
-}
-
-// =============================================================================
-// Saved Errors
-// =============================================================================
-
-// Any errors that pop up during store operations should be checked here.
-// Called upon the conclusion.
-func (sdb *StateDB) GetFatalErr() error {
-	return sdb.fatalErr
-}
-
-// `setErrorUnsafe` sets error but should be called in medhods that already have locks.
-func (sdb *StateDB) setErrorUnsafe(err error) {
-	if sdb.fatalErr == nil {
-		sdb.fatalErr = err
-	}
 }
 
 // =============================================================================
