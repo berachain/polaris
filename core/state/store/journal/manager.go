@@ -22,7 +22,7 @@ import (
 // Journal managers support holding cache entries and reverting to a certain index.
 type ManagerI[T any] interface {
 	// `ManagerI` implements `ds.StackI[CacheEntry]`.
-	ds.StackI[CacheEntry]
+	ds.Stack[CacheEntry]
 
 	// `ManagerI` implements `Cloneable`.
 	gointerfaces.Cloneable[T]
@@ -34,13 +34,16 @@ var _ ManagerI[*Manager] = (*Manager)(nil)
 // `Manager` is a struct that holds a slice of CacheEntry instances.
 type Manager struct {
 	// The journal manager is a stack.
-	*ds.Stack[CacheEntry]
+	ds.Stack[CacheEntry]
 }
+
+// TODO: determine optimal initial capacity
+const initialJournalCapacity = 512
 
 // `NewManager` creates and returns a new Manager instance with an empty journal.
 func NewManager() *Manager {
 	return &Manager{
-		ds.NewStack[CacheEntry](),
+		ds.NewStack[CacheEntry](initialJournalCapacity),
 	}
 }
 

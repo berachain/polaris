@@ -22,10 +22,10 @@ import (
 )
 
 var _ = Describe("Stack", func() {
-	var stack *ds.Stack[int]
+	var stack ds.Stack[int]
 
 	BeforeEach(func() {
-		stack = ds.NewStack[int]()
+		stack = ds.NewStack[int](1)
 	})
 
 	When("pushing an element", func() {

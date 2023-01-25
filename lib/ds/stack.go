@@ -12,17 +12,17 @@
 // OR TORT (INCLUDING NEGLIGENi OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//nolint:ireturn // StackI uses generics.
+//nolint:ireturn // Stack uses generics.
 package ds
 
-// `StackI` is an interface that defines the methods that an items Stack must implement.
+// `Stack` is an interface that defines the methods that an items Stack must implement.
 // items Stacks support holding cache entries and reverting to a certain index.
-type StackI[Item any] interface {
+type Stack[Item any] interface {
 	// `Peek` returns the Item at the top of the stack
 	Peek() Item
 
 	// `PeekAt` returns the Item at the given index.
-	PeekAt(i int) Item
+	PeekAt(index int) Item
 
 	// `Push` adds a new Item to the top of the stack. The Size method returns the current
 	// number of entries in the items.
@@ -38,50 +38,80 @@ type StackI[Item any] interface {
 	Size() int
 }
 
-// Compile-time check to ensure `Stack` implements `StackI`.
-var _ StackI[any] = (*Stack[any])(nil)
+const resizeRatio = 2
+
+// Compile-time check to ensure `Stack` implements `Stack`.
+var _ Stack[any] = (*stack[any])(nil)
 
 // `Stack` is a struct that holds a slice of Items.
-type Stack[Item any] struct {
-	items []Item
+// Last in, first out data structure.
+type stack[T any] struct {
+	size     int
+	capacity int
+
+	buf []T
 }
 
-// `NewStack` creates and returns a new `Stack` with an no items.
-func NewStack[Item any]() *Stack[Item] {
-	return &Stack[Item]{
-		items: make([]Item, 0),
+// Creates a new, empty stack.
+func NewStack[T any](capacity int) Stack[T] {
+	result := new(stack[T])
+	result.capacity = capacity
+	result.size = 0
+	result.buf = make([]T, capacity)
+	return result
+}
+
+// `Peek` implements `Stack`.
+func (s *stack[T]) Peek() T {
+	return s.buf[s.size-1]
+}
+
+// `PeekAt` implements `Stack`.
+func (s *stack[T]) PeekAt(index int) T {
+	if index >= s.size {
+		panic("index out of bounds")
+	}
+	return s.buf[index]
+}
+
+// `Push` implements `Stack`.
+func (s *stack[T]) Push(i T) {
+	if s.size == s.capacity {
+		s.resize(s.capacity * 2)
+	}
+	s.buf[s.size] = i
+	s.size++
+}
+
+// `Size` implements `Stack`.
+func (s *stack[T]) Size() int {
+	return s.size
+}
+
+// `Pop` implements `Stack`.
+func (s *stack[T]) Pop() T {
+	s.size--
+	if newCap := s.capacity / resizeRatio; s.size < newCap {
+		s.resize(newCap)
+	}
+	return s.buf[s.size]
+}
+
+// `PopToSize` implements `Stack`.
+func (s *stack[T]) PopToSize(newSize int) {
+	if newSize > s.size {
+		panic("newSize out of bounds")
+	}
+	s.size = newSize
+	if newCap := s.capacity / resizeRatio; s.size < newCap {
+		s.resize(newCap)
 	}
 }
 
-// `Push` implements `StackI`.
-func (s *Stack[Item]) Push(i Item) {
-	s.items = append(s.items, i)
-}
-
-// `Size` implements `StackI`.
-func (s *Stack[Item]) Size() int {
-	return len(s.items)
-}
-
-// `Peek` implements `StackI`.
-func (s *Stack[Item]) Peek() Item {
-	return s.items[len(s.items)-1]
-}
-
-// `Peek` implements `StackI`.
-func (s *Stack[Item]) PeekAt(i int) Item {
-	return s.items[i]
-}
-
-// `Pop` implements `StackI`.
-func (s *Stack[Item]) Pop() Item {
-	newLen := len(s.items) - 1
-	item := s.items[newLen]
-	s.items = s.items[:newLen] // exclusive to chop off last item
-	return item
-}
-
-// `PopToSize` implements `StackI`.
-func (s *Stack[Item]) PopToSize(newSize int) {
-	s.items = s.items[:newSize] // TODO: help the GC?
+// `resize` doubles the capacity of the stack.
+func (s *stack[T]) resize(newCapacity int) {
+	newBuf := make([]T, newCapacity)
+	copy(newBuf, s.buf)
+	s.buf = newBuf
+	s.capacity = newCapacity
 }
