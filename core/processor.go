@@ -81,7 +81,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	// var err error
 	sp.statedb.Prepare(tx.Hash(), 0)
 
-	// TODO: Replace with ApplyMessage
+	// Apply the state transition.
 	result, err := (&StateTransitioner{}).ApplyMessageAndCommit(sp.evm, msg)
 	if err != nil {
 		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
