@@ -17,7 +17,7 @@ package types
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/gointerfaces"
 )
 
