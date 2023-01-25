@@ -42,14 +42,8 @@ type (
 
 // `Revert` implements `journal.CacheEntry`.
 func (ce *AddLogChange) Revert() {
-	sdb := ce.sdb
-	logs := sdb.logs[ce.txHash]
-	if len(logs) == 1 {
-		delete(sdb.logs, ce.txHash)
-	} else {
-		sdb.logs[ce.txHash] = sdb.logs[ce.txHash][:len(logs)-1]
-	}
-	sdb.logSize--
+	ce.sdb.logs[ce.txHash].Pop()
+	ce.sdb.logSize--
 }
 
 // `Clone` implements `journal.CacheEntry`.

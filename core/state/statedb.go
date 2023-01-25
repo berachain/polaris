@@ -30,7 +30,13 @@ import (
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/ds"
+	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/utils"
+)
+
+const (
+	logStackCapacity = 64
 )
 
 var (
@@ -94,7 +100,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// Transaction and logging bookkeeping
 	txHash  common.Hash
 	txIndex uint
-	logs    map[common.Hash][]*coretypes.Log
+	logs    map[common.Hash]ds.Stack[*coretypes.Log]
 	logSize uint
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
@@ -118,7 +124,7 @@ func NewStateDB(
 		bk:       bk,
 		evmDenom: evmDenom,
 		storeKey: storeKey,
-		logs:     make(map[common.Hash][]*coretypes.Log),
+		logs:     make(map[common.Hash]ds.Stack[*coretypes.Log]),
 	}
 
 	// Wire up the `CacheMultiStore` & `sdk.Context`.
@@ -161,6 +167,7 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
 	sdb.txHash = txHash
 	sdb.txIndex = ti
+	sdb.logs[txHash] = stack.New[*coretypes.Log](logStackCapacity)
 }
 
 // Reset clears the journal and other state objects. It also clears the
@@ -477,17 +484,20 @@ func (sdb *StateDB) AddLog(log *coretypes.Log) {
 	log.TxHash = sdb.txHash
 	log.TxIndex = sdb.txIndex
 	log.Index = sdb.logSize
-	sdb.logs[sdb.txHash] = append(sdb.logs[sdb.txHash], log)
+	sdb.logs[sdb.txHash].Push(log)
 	sdb.logSize++
 }
 
 // Logs returns the logs of current transaction.
 func (sdb *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
 	logs := sdb.logs[txHash]
-	for _, l := range logs {
-		l.BlockHash = blockHash
+	size := logs.Size()
+	output := make([]*coretypes.Log, size)
+	for i := 0; i < logs.Size(); i++ {
+		output[i] = logs.PeekAt(i)
+		output[i].BlockHash = blockHash
 	}
-	return logs
+	return output
 }
 
 // =============================================================================

@@ -15,6 +15,7 @@ package journal
 
 import (
 	"github.com/berachain/stargazer/lib/ds"
+	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/gointerfaces"
 )
 
@@ -43,7 +44,7 @@ const initialJournalCapacity = 512
 // `NewManager` creates and returns a new Manager instance with an empty journal.
 func NewManager() *Manager {
 	return &Manager{
-		ds.NewStack[CacheEntry](initialJournalCapacity),
+		stack.New[CacheEntry](initialJournalCapacity),
 	}
 }
 

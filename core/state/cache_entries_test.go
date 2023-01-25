@@ -18,6 +18,7 @@ import (
 	"github.com/berachain/stargazer/core/state/store/journal"
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/ds"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -30,9 +31,10 @@ var _ = Describe("AddLogChange", func() {
 	)
 	BeforeEach(func() {
 		sdb = &StateDB{
-			logs: make(map[common.Hash][]*coretypes.Log),
+			logs: make(map[common.Hash]ds.Stack[*coretypes.Log]),
 		}
 		hash = common.HexToHash("0x1234")
+		sdb.Prepare(hash, 0)
 		ce = &AddLogChange{
 			sdb:    sdb,
 			txHash: hash,
@@ -44,9 +46,9 @@ var _ = Describe("AddLogChange", func() {
 		Expect(ce).To(BeAssignableToTypeOf(&AddLogChange{}))
 	})
 	It("Revert should remove the last log", func() {
-		sdb.logs[hash] = append(sdb.logs[hash], &coretypes.Log{})
+		sdb.logs[hash].Push(&coretypes.Log{})
 		ce.Revert()
-		Expect(len(sdb.logs[hash])).To(Equal(0))
+		Expect((sdb.logs[hash].Size())).To(Equal(0))
 	})
 	It("Clone should return a new AddLogChange with the same sdb", func() {
 		cloned, ok := ce.Clone().(*AddLogChange)

@@ -13,35 +13,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //nolint:ireturn // Stack uses generics.
-package ds
+package stack
 
-// `Stack` is an interface that defines the methods that an items Stack must implement.
-// items Stacks support holding cache entries and reverting to a certain index.
-type Stack[Item any] interface {
-	// `Peek` returns the Item at the top of the stack
-	Peek() Item
-
-	// `PeekAt` returns the Item at the given index.
-	PeekAt(index int) Item
-
-	// `Push` adds a new Item to the top of the stack. The Size method returns the current
-	// number of entries in the items.
-	Push(i Item)
-
-	// `Pop` returns the Item at the top of the stack and removes it from the stack.
-	Pop() Item
-
-	// `PopToSize` discards all items entries after and including the given size.
-	PopToSize(newSize int)
-
-	// `Size` returns the current number of entries in the items.
-	Size() int
-}
+import "github.com/berachain/stargazer/lib/ds"
 
 const resizeRatio = 2
-
-// Compile-time check to ensure `Stack` implements `Stack`.
-var _ Stack[any] = (*stack[any])(nil)
 
 // `Stack` is a struct that holds a slice of Items.
 // Last in, first out data structure.
@@ -53,7 +29,7 @@ type stack[T any] struct {
 }
 
 // Creates a new, empty stack.
-func NewStack[T any](capacity int) Stack[T] {
+func New[T any](capacity int) ds.Stack[T] {
 	result := new(stack[T])
 	result.capacity = capacity
 	result.size = 0
@@ -77,7 +53,7 @@ func (s *stack[T]) PeekAt(index int) T {
 // `Push` implements `Stack`.
 func (s *stack[T]) Push(i T) {
 	if s.size == s.capacity {
-		s.resize(s.capacity * 2)
+		s.resize(s.capacity * resizeRatio)
 	}
 	s.buf[s.size] = i
 	s.size++
