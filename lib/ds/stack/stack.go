@@ -92,7 +92,7 @@ func (s *stack[T]) expandIfRequired() {
 	s.capacity *= resizeRatio
 }
 
-// `shrinkIfRequired` shrinks the stack if the size is less than the capacity.
+// `shrinkIfRequired` shrinks the stack if the size is less than the capacity/resizeRatio.
 func (s *stack[T]) shrinkIfRequired() {
 	if newCap := s.capacity / resizeRatio; s.size < newCap {
 		newBuf := make([]T, newCap)
