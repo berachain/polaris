@@ -74,6 +74,11 @@ var _ = Describe("Container Factories", func() {
 			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}})
 			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
 		})
+
+		It("should error on invalid precompile methods", func() {
+			_, err := scf.Build(&invalidMockStateful{&mockStateful{&mockBase{}}})
+			Expect(err.Error()).To(Equal("incomplete precompile Method"))
+		})
 	})
 
 	Context("Dynamic Container Factory", func() {
@@ -145,6 +150,19 @@ func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
 		"getOutput":        solidity.MockPrecompileInterface.ABI.Methods["getOutput"],
 		"getOutputPartial": solidity.MockPrecompileInterface.ABI.Methods["getOutputPartial"],
+	}
+}
+
+type invalidMockStateful struct {
+	*mockStateful
+}
+
+func (ims *invalidMockStateful) PrecompileMethods() container.Methods {
+	return container.Methods{
+		{
+			AbiSig:      "getOutput(string)",
+			RequiredGas: 1,
+		},
 	}
 }
 
