@@ -17,6 +17,7 @@ package crypto
 import "github.com/ethereum/go-ethereum/crypto"
 
 var (
+	CreateAddress    = crypto.CreateAddress
 	CompressPubkey   = crypto.CompressPubkey
 	DecompressPubkey = crypto.DecompressPubkey
 	DigestLength     = crypto.DigestLength

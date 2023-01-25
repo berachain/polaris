@@ -12,16 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package event
+package errors
 
-import (
-	"testing"
+import "fmt"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
+func Wrap(err error, desc string) error {
+	return fmt.Errorf("%w: %s", err, desc)
+}
 
-func TestEvent(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm/precompile/event")
+func Wrapf(err error, format string, args ...interface{}) error {
+	return fmt.Errorf("%w: %s", err, fmt.Sprintf(format, args...))
 }

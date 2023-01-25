@@ -12,16 +12,22 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package utils
 
-import (
-	"testing"
+// `GetAs` returns `obj` as type `T`. Uses Golang built-in type assertion.
+func GetAs[T any](obj any) (T, bool) {
+	casted, ok := obj.(T)
+	return casted, ok
+}
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
+// `MustGetAs` returns `obj` as type `T`. Will panic if `obj` is not of type `T`. Uses Golang
+// built-in type assertion.
+func MustGetAs[T any](obj any) T {
+	return obj.(T)
+}
 
-func TestPrecompile(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm/precompile")
+// `Implements` returns whether `obj` implements `T`. Uses Golang built-in type assertion.
+func Implements[T any](obj any) bool {
+	_, ok := obj.(T)
+	return ok
 }
