@@ -21,8 +21,8 @@ import (
 	"github.com/berachain/stargazer/core/block"
 	"github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
-	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/params"
 )
 
