@@ -17,14 +17,13 @@ package container
 import (
 	"context"
 	"math/big"
-	"reflect"
 	"regexp"
-	"runtime"
 	"strings"
 
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
+	"github.com/berachain/stargazer/lib/errors/debug"
 	"github.com/berachain/stargazer/types/abi"
 )
 
@@ -42,9 +41,6 @@ import (
  *          this field will be automatically populated.
  **/
 
-// `funcNamePart` is the part of a runtime function name that is of relevance.
-const funcNamePart = 2
-
 // `Executable` is a type of function that stateful precompiled contract will implement. Each
 // `Executable` should directly correspond to an ABI method.
 type Executable func(
@@ -54,15 +50,6 @@ type Executable func(
 	readonly bool,
 	args ...any,
 ) (ret []any, logs []*coretypes.Log, err error)
-
-// `GetName` uses `reflect` and `runtime` to get the Go function's name.
-func (e Executable) getName() string {
-	fullName := runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name()
-	if brokenUpName := strings.Split(fullName, "."); len(brokenUpName) > funcNamePart {
-		return brokenUpName[funcNamePart]
-	}
-	return fullName
-}
 
 // `Method` is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
@@ -107,7 +94,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not contain exactly 1 '('",
-			m.Execute.getName(),
+			debug.GetFnName(m.Execute),
 		)
 	}
 	// check that the method name is valid according to Solidity
@@ -115,7 +102,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not have a valid method name",
-			m.Execute.getName(),
+			debug.GetFnName(m.Execute),
 		)
 	}
 	// check that only 1 `)` exists and its the last character
@@ -124,7 +111,7 @@ func (m *Method) ValidateBasic() error {
 		return errors.Wrapf(
 			ErrAbiSigInvalid,
 			"%s does not does not end with 1 ')'",
-			m.Execute.getName(),
+			debug.GetFnName(m.Execute),
 		)
 	}
 	// if no args are provided, sig is valid
@@ -138,7 +125,7 @@ func (m *Method) ValidateBasic() error {
 			return errors.Wrapf(
 				ErrAbiSigInvalid,
 				"%s has incorrect argument types",
-				m.Execute.getName(),
+				debug.GetFnName(m.Execute),
 			)
 		}
 	}

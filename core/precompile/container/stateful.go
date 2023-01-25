@@ -21,6 +21,7 @@ import (
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
+	"github.com/berachain/stargazer/lib/errors/debug"
 	"github.com/berachain/stargazer/lib/utils"
 )
 
@@ -100,7 +101,7 @@ func (sc *Stateful) Run(
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
-		return nil, errors.Wrap(err, method.Execute.getName())
+		return nil, errors.Wrap(err, debug.GetFnName(method.Execute))
 	}
 
 	// Pack the return values and return, if any exist.
