@@ -28,7 +28,7 @@ import (
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
-	"github.com/berachain/stargazer/crypto"
+	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
