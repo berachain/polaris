@@ -34,12 +34,12 @@ type Controller struct {
 	runner vm.PrecompileRunner
 
 	// `registry` allows the `Controller` to search for a precompile container at an address.
-	registry registry
+	registry Registry
 }
 
-// `NewPrecompileController` creates and returns a `Controller` with the given precompile
+// `NewController` creates and returns a `Controller` with the given precompile
 // registry and precompile runner.
-func NewPrecompileController(registry registry, runner vm.PrecompileRunner) *Controller {
+func NewController(registry Registry, runner vm.PrecompileRunner) *Controller {
 	return &Controller{
 		runner:   runner,
 		registry: registry,

@@ -12,11 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package precompile_test
 
 import (
 	"math/big"
 
+	"github.com/berachain/stargazer/core/precompile"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	. "github.com/onsi/ginkgo/v2"
@@ -24,16 +25,16 @@ import (
 )
 
 var _ = Describe("controller", func() {
-	var r registry
-	var c *Controller
+	var r precompile.Registry
+	var c *precompile.Controller
 	var mr *mockRunner
 
 	BeforeEach(func() {
-		r = newRegistry()
-		err := r.register(&mockStateless{})
+		r = precompile.NewRegistry()
+		err := r.Register(&mockStateless{})
 		Expect(err).To(BeNil())
 		mr = &mockRunner{}
-		c = NewPrecompileController(r, mr)
+		c = precompile.NewController(r, mr)
 	})
 
 	It("should find and run", func() {

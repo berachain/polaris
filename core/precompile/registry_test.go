@@ -12,13 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package precompile_test
 
 import (
 	"context"
 	"errors"
 	"math/big"
 
+	"github.com/berachain/stargazer/core/precompile"
 	"github.com/berachain/stargazer/core/precompile/container"
 	"github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
@@ -31,25 +32,25 @@ import (
 )
 
 var _ = Describe("registry", func() {
-	pr := newRegistry()
+	pr := precompile.NewRegistry()
 
 	It("should error on incorrect precompile types", func() {
-		err := pr.register(&mockBase{})
+		err := pr.Register(&mockBase{})
 		Expect(err.Error()).To(Equal("this contract does not implement the required precompile contract interface"))
 	})
 
 	It("should create a stateless container", func() {
-		err := pr.register(&mockStateless{&mockBase{}})
+		err := pr.Register(&mockStateless{&mockBase{}})
 		Expect(err).To(BeNil())
 	})
 
 	It("should create a stateful container", func() {
-		err := pr.register(&mockStateful{&mockBase{}})
+		err := pr.Register(&mockStateful{&mockBase{}})
 		Expect(err).To(BeNil())
 	})
 
 	It("should create a dynamic container", func() {
-		err := pr.register(&mockDynamic{&mockStateful{&mockBase{}}})
+		err := pr.Register(&mockDynamic{&mockStateful{&mockBase{}}})
 		Expect(err).To(BeNil())
 	})
 })
