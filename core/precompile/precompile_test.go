@@ -14,10 +14,14 @@
 
 package precompile
 
-import "errors"
+import (
+	"testing"
 
-var (
-	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
-	// non-precompile contract.
-	ErrIncorrectPrecompileType = errors.New("this contract does not implement the required precompile contract interface") //nolint:lll
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
+
+func TestPrecompile(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/precompile")
+}

@@ -28,16 +28,14 @@ type controller struct {
 	vm.PrecompileRunner
 
 	// `registry` allows the `controller` to search for a precompile container at an address.
-	registry *registry
+	registry registry
 }
 
 // `NewPrecompileController` creates and returns a `controller` with the given precompile
 // registry and precompile runner.
 //
 //nolint:revive // this is only used as a `vm.PrecompileController`.
-func NewPrecompileController(
-	registry *registry, runner vm.PrecompileRunner,
-) *controller {
+func NewPrecompileController(registry registry, runner vm.PrecompileRunner) *controller {
 	return &controller{
 		PrecompileRunner: runner,
 		registry:         registry,

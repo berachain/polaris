@@ -26,8 +26,6 @@ import (
 type registry map[common.Address]vm.PrecompileContainer
 
 // `newRegistry` creates and returns a new `registry`.
-//
-//nolint:unused // for now.
 func newRegistry() registry {
 	return make(registry)
 }
@@ -35,8 +33,6 @@ func newRegistry() registry {
 // `register` builds a precompile container using a container factory and stores the container
 // at the given address. This function returns an error if the given contract is not a properly
 // defined precompile or the container factory cannot build the container.
-//
-//nolint:unused // for now.
 func (r registry) register(contractImpl vm.BasePrecompileImpl) error {
 	// select the correct container factory based on the contract type.
 	var cf container.AbstractFactory
