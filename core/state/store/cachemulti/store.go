@@ -65,6 +65,9 @@ func (s *Store) Write() {
 	for _, cacheKVStore := range s.stores {
 		cacheKVStore.Write()
 	}
+
+	// Clear the journal entries
+	s.JournalMgr = journal.NewManager()
 }
 
 // `newCacheKVStore` returns a new CacheKVStore. If the `key` is an EVM storekey, it will return

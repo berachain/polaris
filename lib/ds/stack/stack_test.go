@@ -12,80 +12,81 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package ds_test
+package stack_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/berachain/stargazer/lib/ds"
+	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
 var _ = Describe("Stack", func() {
-	var stack *ds.Stack[int]
+	var s ds.Stack[int]
 
 	BeforeEach(func() {
-		stack = ds.NewStack[int]()
+		s = stack.New[int](1)
 	})
 
 	When("pushing an element", func() {
 		BeforeEach(func() {
-			stack.Push(1)
+			s.Push(1)
 		})
 
 		It("should not be empty", func() {
-			Expect(stack.Size()).To(Equal(1))
+			Expect(s.Size()).To(Equal(1))
 		})
 
 		It("should return the correct element", func() {
-			Expect(stack.Peek()).To(Equal(1))
+			Expect(s.Peek()).To(Equal(1))
 		})
 
 		It("should return the correct element", func() {
-			Expect(stack.PeekAt(0)).To(Equal(1))
+			Expect(s.PeekAt(0)).To(Equal(1))
 		})
 		It("should return the correct element", func() {
-			Expect(stack.Pop()).To(Equal(1))
+			Expect(s.Pop()).To(Equal(1))
 		})
 
 		When("popping an element", func() {
 			BeforeEach(func() {
-				stack.Pop()
+				s.Pop()
 			})
 
 			It("should be empty", func() {
-				Expect(stack.Size()).To(BeZero())
+				Expect(s.Size()).To(BeZero())
 			})
 		})
 
 		When("pushing more elements", func() {
 			BeforeEach(func() {
-				stack.Push(2)
-				stack.Push(3)
+				s.Push(2)
+				s.Push(3)
 			})
 
 			It("should return the correct element", func() {
-				Expect(stack.Peek()).To(Equal(3))
-				Expect(stack.PeekAt(2)).To(Equal(3))
-				Expect(stack.PeekAt(1)).To(Equal(2))
+				Expect(s.Peek()).To(Equal(3))
+				Expect(s.PeekAt(2)).To(Equal(3))
+				Expect(s.PeekAt(1)).To(Equal(2))
 			})
 
 			It("should have the correct size", func() {
-				Expect(stack.Size()).To(Equal(3))
+				Expect(s.Size()).To(Equal(3))
 			})
 
 			When("calling poptosize with a size smaller than the current size", func() {
 				BeforeEach(func() {
-					stack.PopToSize(1)
+					s.PopToSize(1)
 				})
 
 				It("should have the correct size", func() {
-					Expect(stack.Size()).To(Equal(1))
+					Expect(s.Size()).To(Equal(1))
 				})
 
 				It("should return the correct element", func() {
-					Expect(stack.Peek()).To(Equal(1))
-					Expect(stack.PeekAt(0)).To(Equal(1))
+					Expect(s.Peek()).To(Equal(1))
+					Expect(s.PeekAt(0)).To(Equal(1))
 				})
 			})
 		})

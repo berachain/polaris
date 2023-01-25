@@ -12,21 +12,27 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package crypto
+package ds
 
-import "github.com/ethereum/go-ethereum/crypto"
+// `Stack` is an interface that defines the methods that an items Stack must implement.
+// items Stacks support holding cache entries and reverting to a certain index.
+type Stack[Item any] interface {
+	// `Peek` returns the Item at the top of the stack
+	Peek() Item
 
-var (
-	CreateAddress    = crypto.CreateAddress
-	CompressPubkey   = crypto.CompressPubkey
-	DecompressPubkey = crypto.DecompressPubkey
-	DigestLength     = crypto.DigestLength
-	EthSign          = crypto.Sign
-	FromECDSA        = crypto.FromECDSA
-	GenerateEthKey   = crypto.GenerateKey
-	Keccak256Hash    = crypto.Keccak256Hash
-	PubkeyToAddress  = crypto.PubkeyToAddress
-	SignatureLength  = crypto.SignatureLength
-	ToECDSA          = crypto.ToECDSA
-	VerifySignature  = crypto.VerifySignature
-)
+	// `PeekAt` returns the Item at the given index.
+	PeekAt(index int) Item
+
+	// `Push` adds a new Item to the top of the stack. The Size method returns the current
+	// number of entries in the items.
+	Push(i Item)
+
+	// `Pop` returns the Item at the top of the stack and removes it from the stack.
+	Pop() Item
+
+	// `PopToSize` discards all items entries after and including the given size.
+	PopToSize(newSize int)
+
+	// `Size` returns the current number of entries in the items.
+	Size() int
+}
