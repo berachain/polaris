@@ -43,6 +43,11 @@ var _ = Describe("cosmos runner", func() {
 		_, _, err := cr.Run(&mockStateless{}, &mockSDB{&state.StateDB{}}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
+
+	It("should plug in custom gas configs", func() {
+		*cr = cr.WithKVGasConfig(&sdk.GasConfig{})
+		*cr = cr.WithTransientKVGasConfig(&sdk.GasConfig{})
+	})
 })
 
 // MOCKS BELOW.
