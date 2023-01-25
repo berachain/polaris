@@ -49,7 +49,7 @@ var _ = Describe("controller", func() {
 		_, _, err = c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
 		Expect(err).To(BeNil())
 		Expect(mr.called).To(BeTrue())
-		Expect(mr.hasStateDb).To(BeTrue())
+		Expect(mr.calledWithStateDB).To(BeTrue())
 	})
 
 	It("should not find an unregistered", func() {
@@ -75,8 +75,8 @@ type badMockSdb struct {
 }
 
 type mockRunner struct {
-	called     bool
-	hasStateDb bool
+	called            bool
+	calledWithStateDB bool
 }
 
 func (mr *mockRunner) Run(
@@ -84,6 +84,6 @@ func (mr *mockRunner) Run(
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	mr.called = true
-	mr.hasStateDb = statedb != nil
+	mr.calledWithStateDB = statedb != nil
 	return nil, 0, nil
 }
