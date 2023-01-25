@@ -18,6 +18,7 @@ import (
 	"math/big"
 
 	"github.com/berachain/stargazer/core/precompile"
+	"github.com/berachain/stargazer/core/state"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	. "github.com/onsi/ginkgo/v2"
@@ -38,11 +39,14 @@ var _ = Describe("controller", func() {
 	})
 
 	It("should find and run", func() {
+		err := c.PrepareForStateTransition(&mockSdb{&state.StateDB{}})
+		Expect(err).To(BeNil())
+
 		pc, found := c.Exists(addr)
 		Expect(found).To(BeTrue())
 		Expect(pc).ToNot(BeNil())
 
-		_, _, err := c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
+		_, _, err = c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
 		Expect(err).To(BeNil())
 		Expect(mr.called).To(BeTrue())
 	})
@@ -52,12 +56,26 @@ var _ = Describe("controller", func() {
 		Expect(found).To(BeFalse())
 		Expect(pc).To(BeNil())
 	})
+
+	It("should error on incompatible statedb", func() {
+		err := c.PrepareForStateTransition(badMockSdb{})
+		Expect(err.Error()).To(Equal("statedb is not compatible with Stargazer"))
+	})
 })
 
 // MOCKS BELOW.
 
+type mockSdb struct {
+	vm.StargazerStateDB
+}
+
+type badMockSdb struct {
+	vm.GethStateDB
+}
+
 type mockRunner struct {
-	called bool
+	called     bool
+	hasStateDb bool
 }
 
 func (mr *mockRunner) Run(
@@ -65,5 +83,6 @@ func (mr *mockRunner) Run(
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	mr.called = true
+	mr.hasStateDb = statedb != nil
 	return nil, 0, nil
 }
