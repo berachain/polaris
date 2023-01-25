@@ -15,36 +15,63 @@
 package precompile
 
 import (
+	"math/big"
+
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
-// Compile-time assertion to ensure `controller` adheres to `PrecompileController`.
-var _ vm.PrecompileController = (*controller)(nil)
+// Compile-time assertion to ensure `Controller` adheres to `PrecompileController`.
+var _ vm.PrecompileController = (*Controller)(nil)
 
-// `controller` is a struct that embeds a `vm.PrecompileRunner` and uses a precompile precompile.
-type controller struct {
-	// `PrecompileRunner` will run the precompile in a custom precompile environment.
-	vm.PrecompileRunner
+// `Controller` retrieves and runs precompile containers with an ephemeral context.
+type Controller struct {
+	// `ephemeralSDB` is the StargazerStateDB for a current state transition.
+	ephemeralSDB vm.StargazerStateDB
 
-	// `registry` allows the `controller` to search for a precompile container at an address.
+	// `runner` will run the precompile in a custom precompile environment for a given context.
+	runner vm.PrecompileRunner
+
+	// `registry` allows the `Controller` to search for a precompile container at an address.
 	registry registry
 }
 
-// `NewPrecompileController` creates and returns a `controller` with the given precompile
+// `NewPrecompileController` creates and returns a `Controller` with the given precompile
 // registry and precompile runner.
-//
-//nolint:revive // this is only used as a `vm.PrecompileController`.
-func NewPrecompileController(registry registry, runner vm.PrecompileRunner) *controller {
-	return &controller{
-		PrecompileRunner: runner,
-		registry:         registry,
+func NewPrecompileController(registry registry, runner vm.PrecompileRunner) *Controller {
+	return &Controller{
+		runner:   runner,
+		registry: registry,
 	}
+}
+
+// `PrepareForStateTransition` sets the precompile's native environment statedb.
+//
+// `PrepareForStateTransition` implements `vm.PrecompileController`.
+func (c *Controller) PrepareForStateTransition(sdb vm.GethStateDB) error {
+	ssdb, ok := utils.GetAs[vm.StargazerStateDB](sdb)
+	if !ok {
+		return ErrIncompatibleStateDB
+	}
+
+	c.ephemeralSDB = ssdb
+	return nil
 }
 
 // `Exists` searches the registry at the given `addr` for a precompile container.
 //
-// `Exists` implements `vm.PrecompileContainer`.
-func (c *controller) Exists(addr common.Address) (vm.PrecompileContainer, bool) {
+// `Exists` implements `vm.PrecompileController`.
+func (c *Controller) Exists(addr common.Address) (vm.PrecompileContainer, bool) {
 	return c.registry.lookup(addr)
+}
+
+// `Run` runs the precompile container using its runner and its ephemeral context.
+//
+// `Run` implements `vm.PrecompileController`.
+func (c *Controller) Run(
+	pc vm.PrecompileContainer, input []byte, caller common.Address,
+	value *big.Int, suppliedGas uint64, readonly bool,
+) ([]byte, uint64, error) {
+	return c.runner.Run(pc, c.ephemeralSDB, input, caller, value, suppliedGas, readonly)
 }

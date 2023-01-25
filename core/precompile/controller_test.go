@@ -25,7 +25,7 @@ import (
 
 var _ = Describe("controller", func() {
 	var r registry
-	var c *controller
+	var c *Controller
 	var mr *mockRunner
 
 	BeforeEach(func() {
@@ -60,8 +60,8 @@ type mockRunner struct {
 }
 
 func (mr *mockRunner) Run(
-	pc vm.PrecompileContainer, input []byte, caller common.Address,
-	value *big.Int, suppliedGas uint64, readonly bool,
+	pc vm.PrecompileContainer, statedb vm.StargazerStateDB, input []byte,
+	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	mr.called = true
 	return nil, 0, nil

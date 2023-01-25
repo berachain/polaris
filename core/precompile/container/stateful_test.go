@@ -70,42 +70,42 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// empty input
-			_, err := empty.Run(ctx, blank, addr, value, readonly)
+			_, err := empty.Run(ctx, nil, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 			// invalid input
-			_, err = sc.Run(ctx, blank, addr, value, readonly)
+			_, err = sc.Run(ctx, nil, blank, addr, value, readonly)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, badInput, addr, value, readonly)
+			_, err = sc.Run(ctx, nil, badInput, addr, value, readonly)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
+			_, err = sc.Run(ctx, nil, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, getOutputPartialABI.ID, addr, value, readonly)
+			_, err = sc.Run(ctx, nil, getOutputPartialABI.ID, addr, value, readonly)
 			Expect(err.Error()).To(Equal("err during precompile execution: getOutputPartial"))
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			_, err = sc.Run(ctx, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, nil, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
 			Expect(err).To(BeNil())
-			_, err = sc.Run(ctx, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, nil, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("should return properly for valid method calls", func() {
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			ret, err := sc.Run(ctx, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, nil, append(getOutputABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(BeNil())
 			outputs, err := getOutputABI.Outputs.Unpack(ret)
 			Expect(err).To(BeNil())

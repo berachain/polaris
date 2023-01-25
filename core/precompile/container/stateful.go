@@ -40,23 +40,16 @@ type Stateful struct {
 	idsToMethods map[string]*Method
 
 	// TODO: implement
-	receive *Method
+	// receive *Method
 
 	// TODO: implement
-	fallback *Method
-
-	// `sdb` represents a subset of the `vm.GethStateDB` interface that is used by the `Stateful`
-	// container to add logs during execution.
-	sdb logDB
+	// fallback *Method
 }
 
-// `NewStateful` creates and returns a new `Stateful` with the given method ids
-// precompile functions map.
+// `NewStateful` creates and returns a new `Stateful` with the given method ids precompile functions map.
 func NewStateful(idsToMethods map[string]*Method) *Stateful {
 	return &Stateful{
 		idsToMethods: idsToMethods,
-		receive:      nil,
-		fallback:     nil,
 	}
 }
 
@@ -66,6 +59,7 @@ func NewStateful(idsToMethods map[string]*Method) *Stateful {
 // `Run` implements `PrecompileContainer`.
 func (sc *Stateful) Run(
 	ctx context.Context,
+	sdb vm.GethStateDB,
 	input []byte,
 	caller common.Address,
 	value *big.Int,
@@ -112,7 +106,7 @@ func (sc *Stateful) Run(
 
 	// Add the logs to the logdb if there are no errors in container execution.
 	for _, log := range logs {
-		sc.sdb.AddLog(log)
+		sdb.AddLog(log)
 	}
 
 	return ret, nil

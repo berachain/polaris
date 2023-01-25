@@ -32,8 +32,8 @@ type (
 		TransferBalance(common.Address, common.Address, *big.Int)
 	}
 
-	// `PrecompileStateDB` defines the required functions to support execution of stateful
-	// precompile contract containers.
+	// `PrecompileStateDB` defines the required function a statedb must implement to support
+	// execution of stateful precompiles.
 	PrecompileStateDB interface {
 		// `GetContext` returns the Go context associated to the StateDB.
 		GetContext() context.Context
@@ -41,9 +41,9 @@ type (
 
 	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
 	PrecompileRunner interface {
-		// `Run` runs a precompiled contract and returns the remaining gas.
-		Run(pc PrecompileContainer, input []byte, caller common.Address,
-			value *big.Int, suppliedGas uint64, readonly bool,
+		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
+		Run(pc PrecompileContainer, ssdb StargazerStateDB, input []byte,
+			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 		) (ret []byte, remainingGas uint64, err error)
 	}
 

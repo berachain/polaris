@@ -15,16 +15,8 @@
 package container
 
 import (
-	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/types/abi"
-)
-
-type (
-	// `logDB` is an interface that precompile containers can use to add logs during execution.
-	logDB interface {
-		AddLog(log *coretypes.Log)
-	}
 )
 
 type (

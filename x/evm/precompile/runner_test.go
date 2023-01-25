@@ -18,6 +18,8 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/core/state"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/precompile"
@@ -29,20 +31,27 @@ import (
 )
 
 var _ = Describe("cosmos runner", func() {
-	cr := precompile.NewCosmosRunner(&mockPSDB{})
+	cr := precompile.NewCosmosRunner()
 
 	It("should use correctly consume gas", func() {
-		_, remainingGas, err := cr.Run(&mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
+		_, remainingGas, err := cr.Run(&mockStateless{}, &mockSDB{&state.StateDB{}}, []byte{}, addr, new(big.Int), 30, false)
 		Expect(err).To(BeNil())
 		Expect(remainingGas).To(Equal(uint64(10)))
+	})
+
+	It("should error on insufficient gas", func() {
+		_, _, err := cr.Run(&mockStateless{}, &mockSDB{&state.StateDB{}}, []byte{}, addr, new(big.Int), 5, true)
+		Expect(err.Error()).To(Equal("out of gas"))
 	})
 })
 
 // MOCKS BELOW.
 
-type mockPSDB struct{}
+type mockSDB struct {
+	vm.StargazerStateDB
+}
 
-func (mp *mockPSDB) GetContext() context.Context {
+func (msdb *mockSDB) GetContext() context.Context {
 	return testutil.NewContextWithMultistores()
 }
 
@@ -55,8 +64,8 @@ func (ms *mockStateless) Address() common.Address {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, input []byte, caller common.Address,
-	value *big.Int, readonly bool,
+	ctx context.Context, statedb vm.GethStateDB, input []byte,
+	caller common.Address, value *big.Int, readonly bool,
 ) ([]byte, error) {
 	sdk.UnwrapSDKContext(ctx).GasMeter().ConsumeGas(10, "")
 	return nil, nil

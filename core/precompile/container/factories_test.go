@@ -19,6 +19,7 @@ import (
 	"math/big"
 
 	"github.com/berachain/stargazer/core/precompile/container"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
 	"github.com/berachain/stargazer/types/abi"
@@ -110,8 +111,8 @@ func (ms *mockStateless) RequiredGas(input []byte) uint64 {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, input []byte, caller common.Address,
-	value *big.Int, readonly bool,
+	ctx context.Context, statedb vm.GethStateDB, input []byte,
+	caller common.Address, value *big.Int, readonly bool,
 ) ([]byte, error) {
 	return nil, nil
 }
