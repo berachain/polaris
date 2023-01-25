@@ -59,7 +59,7 @@ var _ = Describe("controller", func() {
 	})
 
 	It("should error on incompatible statedb", func() {
-		err := c.PrepareForStateTransition(badMockSdb{})
+		err := c.PrepareForStateTransition(badMockSdb{&state.StateDB{}})
 		Expect(err.Error()).To(Equal("statedb is not compatible with Stargazer"))
 	})
 })
