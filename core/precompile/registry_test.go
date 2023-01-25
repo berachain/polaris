@@ -53,6 +53,11 @@ var _ = Describe("registry", func() {
 		err := pr.Register(&mockDynamic{&mockStateful{&mockBase{}}})
 		Expect(err).To(BeNil())
 	})
+
+	It("should error on building the container", func() {
+		err := pr.Register(&mockStatefulBad{&mockStateful{&mockBase{}}})
+		Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
+	})
 })
 
 // MOCKS BELOW.
@@ -97,6 +102,17 @@ func (ms *mockStateful) PrecompileMethods() container.Methods {
 			Execute:     getOutput,
 			RequiredGas: 1,
 		},
+	}
+}
+
+type mockStatefulBad struct {
+	*mockStateful
+}
+
+func (msb *mockStatefulBad) ABIMethods() map[string]abi.Method {
+	return map[string]abi.Method{
+		"getOutput":        solidity.MockPrecompileInterface.ABI.Methods["getOutput"],
+		"getOutputPartial": solidity.MockPrecompileInterface.ABI.Methods["getOutputPartial"],
 	}
 }
 
