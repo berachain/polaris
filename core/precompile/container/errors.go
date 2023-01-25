@@ -20,6 +20,9 @@ var (
 	// `ErrOutOfGas` is returned when a precompile container execution runs out of gas.
 	ErrOutOfGas = errors.New("out of gas")
 
+	// `ErrIncompatibleStateDB` is returned when an incompatible statedb is passed in.
+	ErrIncompatibleStateDB = errors.New("statedb is not compatible with Stargazer")
+
 	// `ErrIncompleteMethod` is returned when a `FnAndGas` has missing, or nil, required fields.
 	ErrIncompleteMethod = errors.New("incomplete precompile Method")
 

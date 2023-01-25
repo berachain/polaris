@@ -17,10 +17,6 @@ package precompile
 import "errors"
 
 var (
-	// `ErrIncompatibleStateDB` is returned when an incompatible statedb is passed in to the
-	// precompile controller.
-	ErrIncompatibleStateDB = errors.New("statedb is not compatible with Stargazer")
-
 	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
 	// non-precompile contract.
 	ErrIncorrectPrecompileType = errors.New("this contract does not implement the required precompile contract interface") //nolint:lll

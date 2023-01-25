@@ -68,6 +68,9 @@ func (sc *Stateful) Run(
 	if sc.idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
 	}
+	if sdb == nil {
+		return nil, ErrIncompatibleStateDB
+	}
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
 	}

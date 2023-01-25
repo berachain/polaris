@@ -21,7 +21,9 @@ import (
 	"reflect"
 
 	"github.com/berachain/stargazer/core/precompile/container"
+	"github.com/berachain/stargazer/core/state"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
@@ -40,11 +42,13 @@ var _ = Describe("Stateful Container", func() {
 	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
+	var sdb *mockSdb
 
 	BeforeEach(func() {
 		ctx = testutil.NewContextWithMultistores()
 		sc = container.NewStateful(mockIdsToMethods)
 		empty = container.NewStateful(nil)
+		sdb = &mockSdb{&state.StateDB{}, 0}
 	})
 
 	Describe("Test Required Gas", func() {
@@ -70,43 +74,48 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// empty input
-			_, err := empty.Run(ctx, nil, blank, addr, value, readonly)
+			_, err := empty.Run(ctx, sdb, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 			// invalid input
-			_, err = sc.Run(ctx, nil, blank, addr, value, readonly)
+			_, err = sc.Run(ctx, sdb, blank, addr, value, readonly)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
+			// missing statedb
+			_, err = sc.Run(ctx, nil, blank, addr, value, readonly)
+			Expect(err).To(MatchError("statedb is not compatible with Stargazer"))
+
 			// method not found
-			_, err = sc.Run(ctx, nil, badInput, addr, value, readonly)
+			_, err = sc.Run(ctx, sdb, badInput, addr, value, readonly)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, nil, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
+			_, err = sc.Run(ctx, sdb, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, nil, getOutputPartialABI.ID, addr, value, readonly)
+			_, err = sc.Run(ctx, sdb, getOutputPartialABI.ID, addr, value, readonly)
 			Expect(err.Error()).To(Equal("err during precompile execution: getOutputPartial"))
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			_, err = sc.Run(ctx, nil, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, sdb, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
 			Expect(err).To(BeNil())
-			_, err = sc.Run(ctx, nil, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, sdb, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("should return properly for valid method calls", func() {
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			ret, err := sc.Run(ctx, nil, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, sdb, append(getOutputABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(BeNil())
+			Expect(sdb.count).To(Equal(2))
 			outputs, err := getOutputABI.Outputs.Unpack(ret)
 			Expect(err).To(BeNil())
 			Expect(len(outputs)).To(Equal(1))
@@ -155,6 +164,15 @@ var (
 	}
 )
 
+type mockSdb struct {
+	vm.StargazerStateDB
+	count int
+}
+
+func (ms *mockSdb) AddLog(log *coretypes.Log) {
+	ms.count++
+}
+
 type mockObject struct {
 	CreationHeight *big.Int
 	TimeStamp      string
@@ -178,7 +196,7 @@ func getOutput(
 				TimeStamp:      str,
 			},
 		},
-	}, nil, nil
+	}, []*coretypes.Log{{}, {}}, nil
 }
 
 func getOutputPartial(

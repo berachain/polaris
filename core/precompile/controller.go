@@ -17,6 +17,7 @@ package precompile
 import (
 	"math/big"
 
+	"github.com/berachain/stargazer/core/precompile/container"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
@@ -52,7 +53,7 @@ func NewController(registry Registry, runner vm.PrecompileRunner) *Controller {
 func (c *Controller) PrepareForStateTransition(sdb vm.GethStateDB) error {
 	ssdb, ok := utils.GetAs[vm.StargazerStateDB](sdb)
 	if !ok {
-		return ErrIncompatibleStateDB
+		return container.ErrIncompatibleStateDB
 	}
 
 	c.ephemeralSDB = ssdb
