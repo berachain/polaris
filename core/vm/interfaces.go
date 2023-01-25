@@ -35,6 +35,8 @@ type (
 		TransferBalance(common.Address, common.Address, *big.Int)
 
 		GetLogs(common.Hash, common.Hash) []*coretypes.Log
+
+		FinalizeTx() error
 	}
 
 	// `PrecompileStateDB` defines the required functions to support execution of stateful

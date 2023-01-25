@@ -17,62 +17,77 @@ package core
 import (
 	"context"
 	"fmt"
-	"math/big"
 
+	"github.com/berachain/stargazer/core/block"
 	"github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/params"
 )
 
 type StateProcessor struct {
-	// engine *Engine
+	// The engine allows for the state processor to communicate with an arbitrary consensus engine.
+	engine Engine
 
 	// Contextual Variables (updated once per block)
 	// signer types.Signer
 	config  *params.EthChainConfig
 	vmf     vm.EVMFactory
-	evm     vm.StargazerEVM
+	evm     *vm.StargazerEVM
 	statedb vm.StargazerStateDB
 
 	// the blockHash of the current block being processed
-	blockHash   common.Hash
-	blockNumber *big.Int
-	// blockContext vm.BlockContext
-	baseFee *big.Int
-
+	blockHash    common.Hash
+	blockContext vm.BlockContext
 	// st *StateTransitioner
+
+	// `receipts` are stored in the state processor to be returned to the caller.
+	receipts types.Receipts
 }
 
-func NewStateProcessor(vmf vm.EVMFactory) *StateProcessor {
+func NewStateProcessor(
+	vmf vm.EVMFactory,
+) *StateProcessor {
 	return &StateProcessor{
 		vmf: vmf,
 	}
 }
 
-func (sp *StateProcessor) Prepare(ctx context.Context) {
-	// blockContext := vm.BlockContext{}
-	// evm := sp.vmf.NewStargazerEVM(sp.blockContext,
-	// 	txCtx TxContext,
-	// 	stateDB StargazerStateDB,
-	// 	chainConfig *params.EthChainConfig,
-	// 	nil, nil,
-	// )
+func (sp *StateProcessor) Prepare(ctx context.Context, block *block.Data) {
+	// Build block context.
+	sp.blockContext = NewEVMBlockContext(block, sp.engine.GetBlockHashFunc(ctx))
+
+	// Save the block hash to prevent having to recalculate it later.
+	sp.blockHash = sp.blockContext.GetHash(sp.blockContext.BlockNumber.Uint64())
+
+	// Build a new EVM to use for this block.
+	sp.evm = sp.vmf.Build(sp.statedb, sp.blockContext, &params.EthChainConfig{}, false)
+
 	// Store direct pointers to structs in the evm in order to save a little computation.
-	sp.statedb, _ = sp.evm.StateDB.(vm.StargazerStateDB)
+	sp.statedb = sp.evm.StateDB()
 }
 
 func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
-	_, err := tx.AsMessage(types.MakeSigner(sp.config, sp.blockNumber), sp.baseFee)
+	msg, err := tx.AsMessage(types.MakeSigner(sp.config, sp.blockContext.BlockNumber), sp.blockContext.BaseFee)
 	if err != nil {
 		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
 
+	// Create a new context to be used in the EVM environment.
+	txContext := NewEVMTxContext(msg)
+	sp.evm.Reset(txContext, sp.statedb)
+
 	// var err error
 	sp.statedb.Prepare(tx.Hash(), 0)
 
+	// TODO: Replace with ApplyMessage
+	result, err := (&StateTransitioner{}).ApplyMessageAndCommit(sp.evm, msg)
+	if err != nil {
+		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
+	}
+
 	// Build Receipt
-	result := ExecutionResult{}
 	receipt := &types.Receipt{Type: tx.Type() /*, PostState: root, CumulativeGasUsed: *usedGas*/}
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
@@ -82,20 +97,22 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	receipt.TxHash = tx.Hash()
 	receipt.GasUsed = result.UsedGas
 
-	// // If the transaction created a contract, store the creation address in the receipt.
-	// if msg.To() == nil {
-	// 	receipt.ContractAddress = crypto.CreateAddress(evm.TxContext.Origin, tx.Nonce())
-	// }
+	// If the transaction created a contract, store the creation address in the receipt.
+	if msg.To() == nil {
+		receipt.ContractAddress = crypto.CreateAddress(sp.evm.TxContext.Origin, tx.Nonce())
+	}
 
-	// // Set the receipt logs and create the bloom filter.
-	// receipt.Logs = sp.statedb.GetLogs(tx.Hash(), sp.blockHash)
+	// Set the receipt logs and create the bloom filter.
+	receipt.Logs = sp.statedb.GetLogs(tx.Hash(), sp.blockHash)
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = sp.blockHash
-	receipt.BlockNumber = sp.blockNumber
+	receipt.BlockNumber = sp.blockContext.BlockNumber
 	// receipt.TransactionIndex = uint(sp.statedb.TxIndex())
+
+	sp.receipts = append(sp.receipts, receipt)
 	return receipt, nil
 }
 
-func (sp *StateProcessor) Finalize(ctx context.Context) {
-
+func (sp *StateProcessor) Finalize(ctx context.Context) (types.Receipts, error) {
+	return sp.receipts, nil
 }

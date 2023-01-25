@@ -20,10 +20,9 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-type EthBlock struct {
+type Data struct {
 	Coinbase common.Address
 	Number   *big.Int
-	// bloom    types.Bloom
 	GasLimit uint64
 	BaseFee  *big.Int
 	Time     *big.Int

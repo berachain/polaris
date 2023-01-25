@@ -20,4 +20,14 @@ import (
 
 type (
 	ExecutionResult = core.ExecutionResult
+	Message         = core.Message
+)
+
+var (
+	NewEVMTxContext                 = core.NewEVMTxContext
+	ErrIntrinsicGas                 = core.ErrIntrinsicGas
+	EthIntrinsicGas                 = core.IntrinsicGas
+	ErrInsufficientFundsForTransfer = core.ErrInsufficientFundsForTransfer
+	ErrInsufficientFunds            = core.ErrInsufficientFunds
+	ErrGasUintOverflow              = core.ErrGasUintOverflow
 )
