@@ -49,6 +49,7 @@ var _ = Describe("controller", func() {
 		_, _, err = c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
 		Expect(err).To(BeNil())
 		Expect(mr.called).To(BeTrue())
+		Expect(mr.hasStateDb).To(BeTrue())
 	})
 
 	It("should not find an unregistered", func() {
