@@ -17,7 +17,10 @@ package stack
 
 import "github.com/berachain/stargazer/lib/ds"
 
-const resizeRatio = 2
+const (
+	resizeRatio = 2
+	two         = 2
+)
 
 // `Stack` is a struct that holds a slice of Items.
 // Last in, first out data structure.
@@ -52,9 +55,7 @@ func (s *stack[T]) PeekAt(index int) T {
 
 // `Push` implements `Stack`.
 func (s *stack[T]) Push(i T) {
-	if s.size == s.capacity {
-		s.resize(s.capacity * resizeRatio)
-	}
+	s.expandIfRequired()
 	s.buf[s.size] = i
 	s.size++
 }
@@ -67,9 +68,7 @@ func (s *stack[T]) Size() int {
 // `Pop` implements `Stack`.
 func (s *stack[T]) Pop() T {
 	s.size--
-	if newCap := s.capacity / resizeRatio; s.size < newCap {
-		s.resize(newCap)
-	}
+	s.shrinkIfRequired()
 	return s.buf[s.size]
 }
 
@@ -79,15 +78,26 @@ func (s *stack[T]) PopToSize(newSize int) {
 		panic("newSize out of bounds")
 	}
 	s.size = newSize
-	if newCap := s.capacity / resizeRatio; s.size < newCap {
-		s.resize(newCap)
-	}
+	s.shrinkIfRequired()
 }
 
-// `resize` doubles the capacity of the stack.
-func (s *stack[T]) resize(newCapacity int) {
-	newBuf := make([]T, newCapacity)
-	copy(newBuf, s.buf)
-	s.buf = newBuf
-	s.capacity = newCapacity
+// `expandIfRequired` expands the stack if the size is equal to the capacity.
+func (s *stack[T]) expandIfRequired() {
+	if s.size < s.capacity {
+		return
+	}
+
+	newBuf := make([]T, (s.capacity*resizeRatio)/two)
+	s.buf = append(s.buf, newBuf...)
+	s.capacity *= resizeRatio
+}
+
+// `shrinkIfRequired` shrinks the stack if the size is less than the capacity.
+func (s *stack[T]) shrinkIfRequired() {
+	if newCap := s.capacity / resizeRatio; s.size < newCap {
+		newBuf := make([]T, newCap)
+		copy(newBuf, s.buf)
+		s.buf = newBuf
+		s.capacity = newCap
+	}
 }
