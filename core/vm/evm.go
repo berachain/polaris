@@ -21,7 +21,7 @@ import (
 	"github.com/berachain/stargazer/params"
 )
 
-type VMInterface interface { //nolint:revive // we like the vibe.
+type StargazerEVM interface {
 	Reset(txCtx TxContext, sdb GethStateDB)
 	Create(caller ContractRef, code []byte,
 		gas uint64, value *big.Int,
@@ -29,13 +29,15 @@ type VMInterface interface { //nolint:revive // we like the vibe.
 	Call(caller ContractRef, addr common.Address, input []byte,
 		gas uint64, value *big.Int,
 	) (ret []byte, leftOverGas uint64, err error)
+
+	StateDB() StargazerStateDB
 }
 
 // Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.
-var _ VMInterface = (*StargazerEVM)(nil)
+var _ StargazerEVM = (*stargazerEVM)(nil)
 
 // `StargazerEVM` is the wrapper for the Go-Ethereum EVM.
-type StargazerEVM struct {
+type stargazerEVM struct {
 	*GethEVM
 }
 
@@ -47,10 +49,14 @@ func NewStargazerEVM(
 	chainConfig *params.EthChainConfig,
 	config Config,
 	pctr PrecompileController,
-) *StargazerEVM {
-	return &StargazerEVM{
+) StargazerEVM {
+	return &stargazerEVM{
 		GethEVM: NewGethEVMWithPrecompiles(
 			blockCtx, txCtx, stateDB, chainConfig, config, pctr,
 		),
 	}
+}
+
+func (evm *stargazerEVM) StateDB() StargazerStateDB {
+	return evm.GethEVM.StateDB.(StargazerStateDB)
 }
