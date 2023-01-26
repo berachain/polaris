@@ -22,6 +22,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/berachain/stargazer/lib/utils/slice"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal/mock"
 )
@@ -36,7 +37,7 @@ var _ = Describe("Journal", func() {
 	var entries []*mock.CacheEntry
 
 	BeforeEach(func() {
-		entries = make([]*mock.CacheEntry, 10)
+		entries = slice.Make[*mock.CacheEntry]()
 		jm = journal.NewManager()
 		for i := 0; i < 10; i++ {
 			entries[i] = mock.NewCacheEntry()

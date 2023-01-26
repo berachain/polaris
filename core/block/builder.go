@@ -16,6 +16,7 @@ package block
 
 import (
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/lib/utils/slice"
 )
 
 // `Builder` is used to build a bloom filter for a block.
@@ -26,12 +27,11 @@ type Builder struct {
 // `NewBuilder` returns a new bloom builder.
 func NewBuilder() *Builder {
 	return &Builder{
-		receipts: make([]*coretypes.Receipt, 0),
+		receipts: slice.Make[*coretypes.Receipt](),
 	}
 }
 
-// `AddLogsToBloom` builds the bloom filter for the provided set of logs.
-// It also adds the bloom filter to the block bloom filter.
+// `AddReceiptToBlock` adds the tx receipt to the block bloom builder.
 func (bb *Builder) AddReceiptToBlock(r *coretypes.Receipt) {
 	bb.receipts = append(bb.receipts, r)
 }

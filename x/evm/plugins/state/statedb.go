@@ -183,9 +183,9 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.fatalErr = nil
 	// sdb.refund = 0
 
-	// sdb.logs = make([]*coretypes.Log, 0)
+	// sdb.logs = slice.Make[*coretypes.Log]()
 	// sdb.accessList = newAccessList()
-	// sdb.suicides = make([]common.Address, 0)
+	// sdb.suicides = slice.Make[common.Address]()
 	// TODO: unghetto this
 	*sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
 }

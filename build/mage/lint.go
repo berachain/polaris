@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	mi "github.com/berachain/stargazer/build/mage/internal"
+	"github.com/berachain/stargazer/lib/utils/slice"
 )
 
 const (
@@ -76,7 +77,7 @@ func Golines() error {
 func GoImports() error {
 	PrintMageName()
 	// everything but ignore the tools folder
-	var x = make([]string, 0)
+	var x = slice.Make[string]()
 	for _, dir := range mi.GoListFilter(true, "build/tools") {
 		stripped := strings.ReplaceAll(dir, "github.com/berachain", "")
 		x = append(x, stripped)

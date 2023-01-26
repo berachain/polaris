@@ -20,6 +20,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/berachain/stargazer/lib/utils/slice"
 	"github.com/berachain/stargazer/testutil/mock/interfaces"
 	"github.com/berachain/stargazer/testutil/mock/interfaces/mock"
 	"github.com/cosmos/cosmos-sdk/store/types"
@@ -221,7 +222,7 @@ type mockIterator struct {
 }
 
 func newMockIterator(start, end []byte, content map[string][]byte) *mockIterator {
-	keys := make([][]byte, 0)
+	keys := slice.Make[[]byte]()
 
 	// select the keys according to the specified domain
 	for k := range content {

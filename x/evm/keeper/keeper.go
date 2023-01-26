@@ -84,7 +84,7 @@ func (k *Keeper) GetBlockHashFunc(gctx context.Context) vm.GetHashFunc {
 			contextBlockHeader := ctx.BlockHeader()
 			header, err := tmtypes.HeaderFromProto(&contextBlockHeader)
 			if err != nil {
-				ctx.Logger().Error("failed to cast tendermint header from proto", "error", err)
+				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}
 			}
 
@@ -109,7 +109,7 @@ func (k *Keeper) GetBlockHashFunc(gctx context.Context) vm.GetHashFunc {
 
 			header, err := tmtypes.HeaderFromProto(&histInfo.Header)
 			if err != nil {
-				ctx.Logger().Error("failed to cast tendermint header from proto", "error", err)
+				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}
 			}
 

@@ -12,28 +12,15 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package mage
+package slice
 
-import (
-	"fmt"
-	"runtime"
-	"strings"
+// `defaultInitialCapacity` is the recommended initial capacity of slices to avoid extra overhead
+// from the Golang runtime. While the capacity of a slice is than ~10, the slice is resized by just
+// 1 entry at a time, which can be avoided by using a higher initial capacity.
+const defaultInitialCapacity = 16
 
-	"github.com/berachain/stargazer/lib/utils/slice"
-)
-
-func PrintMageName() {
-	skip := 2
-	pc := slice.Make[uintptr]() // at least 1 entry needed
-	runtime.Callers(skip, pc)
-	f := runtime.FuncForPC(pc[0])
-	slice := strings.Split(f.Name(), ".")
-	name := slice[len(slice)-1]
-	//nolint:forbidigo // This is a mage file
-	fmt.Printf(`===========================
-Running %s...
-===========================
-`,
-		name,
-	)
+// `Make` creates and returns a slice of elements of type `T` with an initial capacity of 16. This
+// helps avoid repeated resizes (alloc and copy operations) while the slice grows from 0 size.
+func Make[T any]() []T {
+	return make([]T, 0, defaultInitialCapacity)
 }
