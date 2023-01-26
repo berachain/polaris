@@ -43,8 +43,8 @@ var (
 	Bob        = common.BytesToAddress([]byte("bob"))
 )
 
-// `NewContextWithMultistores` creates a SDK context and mounts basic SDK modules' kvstores.
-func NewContextWithMultistores() sdk.Context {
+// `NewContext` creates a SDK context and mounts basic SDK modules' kvstores.
+func NewContext() sdk.Context {
 	return sdk.NewContext(mock.NewMultiStore(), tmproto.Header{}, false, log.TestingLogger())
 }
 
@@ -55,7 +55,7 @@ func SetupMinimalKeepers() (
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
-	ctx := NewContextWithMultistores()
+	ctx := NewContext()
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
 		auth.AppModuleBasic{},

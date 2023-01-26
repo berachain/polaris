@@ -45,7 +45,7 @@ var _ = Describe("Stateful Container", func() {
 	var sdb *mockSdb
 
 	BeforeEach(func() {
-		ctx = testutil.NewContextWithMultistores()
+		ctx = testutil.NewContext()
 		sc = container.NewStateful(mockIdsToMethods)
 		empty = container.NewStateful(nil)
 		sdb = &mockSdb{&state.StateDB{}, 0}
