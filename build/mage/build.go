@@ -38,6 +38,9 @@ var (
 	gitDiff = sh.RunCmd("git", "diff", "--stat", "--exit-code", ".",
 		"':(exclude)*.mod' ':(exclude)*.sum'")
 
+	// Dependencies.
+	moq = "github.com/matryer/moq"
+
 	// Variables and Helpers.
 	cmds       = []string{""}
 	production = false
@@ -121,6 +124,9 @@ func Install() error {
 
 // Runs `go generate` on the entire project.
 func Generate() error {
+	if err := goInstall(moq); err != nil {
+		return err
+	}
 	return goGenerate("-x", "./...")
 }
 
