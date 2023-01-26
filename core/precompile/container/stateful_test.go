@@ -21,13 +21,13 @@ import (
 	"reflect"
 
 	"github.com/berachain/stargazer/core/precompile/container"
-	"github.com/berachain/stargazer/core/state"
 	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
+	"github.com/berachain/stargazer/x/evm/plugins/state"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
