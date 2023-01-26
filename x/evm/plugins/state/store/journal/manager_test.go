@@ -17,27 +17,20 @@ package journal_test
 import (
 	"fmt"
 	"math/rand"
-	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/lib/utils/slice"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal/mock"
 )
 
-func TestJournalManager(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/store/journal")
-}
-
-var _ = Describe("Journal", func() {
+var _ = Describe("Journal Manager", func() {
 	var jm journal.ManagerI[*journal.Manager]
 	var entries []*mock.CacheEntry
 
 	BeforeEach(func() {
-		entries = slice.Make[*mock.CacheEntry]()
+		entries = make([]*mock.CacheEntry, 10)
 		jm = journal.NewManager()
 		for i := 0; i < 10; i++ {
 			entries[i] = mock.NewCacheEntry()
