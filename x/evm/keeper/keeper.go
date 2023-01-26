@@ -28,17 +28,21 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
+// Compile-time assertion to ensure `Keeper` adheres to `core.Host`.
 var _ core.Host = (*Keeper)(nil)
 
+// `Keeper` is the evm module's keeper.
 type Keeper struct {
+	// `sk` is used to access the staking keeper.
 	sk StakingKeeper
 }
 
-// Logger returns a module-specific logger.
+// `Logger` returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "evm")
 }
 
+// `GetCoinbase` implements `core.Host`.
 func (k *Keeper) GetCoinbase(gctx context.Context) (common.Address, error) {
 	ctx := sdk.UnwrapSDKContext(gctx)
 	// todo: add redundancy here, incrase BlockHeader().ProposerAddress is not found, we want
@@ -55,10 +59,12 @@ func (k *Keeper) GetCoinbase(gctx context.Context) (common.Address, error) {
 	return common.BytesToAddress(validator.GetOperator()), nil
 }
 
+// `GasMeter` implements `core.Host`.
 func (k *Keeper) GasMeter(ctx context.Context) core.StargazerGasMeter {
 	return sdk.UnwrapSDKContext(ctx).GasMeter()
 }
 
+// `GetBlockHashFunc` implements `core.Host`.
 func (k *Keeper) GetBlockHashFunc(gctx context.Context) vm.GetHashFunc {
 	ctx := sdk.UnwrapSDKContext(gctx)
 	return func(h uint64) common.Hash {
@@ -89,8 +95,8 @@ func (k *Keeper) GetBlockHashFunc(gctx context.Context) vm.GetHashFunc {
 			// the store for the current chain epoch. This only applies if the current height is
 			// greater than the requested height.
 
-			// If the requested height is greater than the max uint64 value,
-			// we return an empty hash.
+			// If the requested height is greater than the max uint64 value, we return an empty
+			// hash.
 			if h > uint64(math.MaxInt64) {
 				return common.Hash{}
 			}
