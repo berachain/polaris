@@ -22,6 +22,7 @@ import (
 	vmmock "github.com/berachain/stargazer/core/vm/mock"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/testutil"
+	"github.com/ethereum/go-ethereum/core/vm"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -95,6 +96,23 @@ var _ = Describe("StateTransition", func() {
 			Expect(len(evm.CallCalls())).To(Equal(1))
 			Expect(res.UsedGas).To(Equal(uint64(100000)))
 			Expect(err).To(BeNil())
+		})
+		It("should check to ensure required funds are available", func() {
+			msg.GasFunc = func() uint64 {
+				return 100000
+			}
+			msg.ValueFunc = func() *big.Int {
+				return big.NewInt(1)
+			}
+			evm.ContextFunc = func() vm.BlockContext {
+				return vm.BlockContext{
+					CanTransfer: func(db vm.StateDB, addr common.Address, amount *big.Int) bool {
+						return false
+					},
+				}
+			}
+			_, err := core.NewStateTransition(evm, msg).TransitionDB()
+			Expect(err).To(MatchError(core.ErrInsufficientFundsForTransfer))
 		})
 	})
 })
