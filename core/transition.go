@@ -86,6 +86,7 @@ func (st *StateTransition) TransitionDB() (*ExecutionResult, error) {
 
 	gas, err := EthIntrinsicGas(msgData, st.msg.AccessList(),
 		contractCreation, rules.IsHomestead, rules.IsIstanbul)
+
 	if err != nil {
 		return nil, err
 	}

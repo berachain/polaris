@@ -32,13 +32,16 @@ func NewStargazerEVM() *StargazerEVMMock {
 			return []byte{}, 0, nil
 		},
 		ChainConfigFunc: func() *params.ChainConfig {
-			return &params.ChainConfig{}
+			return &params.ChainConfig{
+				HomesteadBlock: big.NewInt(0),
+			}
 		},
 		ContextFunc: func() ethereumcorevm.BlockContext {
 			return stargazercorevm.BlockContext{
 				CanTransfer: func(db stargazercorevm.GethStateDB, addr common.Address, amount *big.Int) bool {
 					return true
 				},
+				BlockNumber: big.NewInt(1), // default to block == 1 to pass all forks,
 			}
 		},
 		CreateFunc: func(caller ethereumcorevm.ContractRef, code []byte,

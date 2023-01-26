@@ -21,7 +21,6 @@ import (
 	"github.com/berachain/stargazer/core/mock"
 	vmmock "github.com/berachain/stargazer/core/vm/mock"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/params"
 	"github.com/berachain/stargazer/testutil"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,7 +28,6 @@ import (
 
 var _ = Describe("StateTransition", func() {
 	var (
-		st  *core.StateTransition
 		evm *vmmock.StargazerEVMMock
 		sdb *vmmock.StargazerStateDBMock
 		msg = new(mock.MessageMock)
@@ -48,19 +46,9 @@ var _ = Describe("StateTransition", func() {
 			return big.NewInt(123456789)
 		}
 
-		msg.GasFunc = func() uint64 {
-			return 100000
-		}
-
 		msg.ToFunc = func() *common.Address {
 			return &common.Address{1}
 		}
-
-		evm.ChainConfigFunc = func() *params.EthChainConfig {
-			return &params.EthChainConfig{}
-		}
-
-		st = core.NewStateTransition(evm, msg)
 
 	})
 	When("Contract Creation", func() {
@@ -70,10 +58,22 @@ var _ = Describe("StateTransition", func() {
 			}
 		})
 		It("should call create", func() {
-			res, err := st.TransitionDB()
+			msg.GasFunc = func() uint64 {
+				return 53000 // exact intrinsic gas for create after homestead
+			}
+			res, err := core.NewStateTransition(evm, msg).TransitionDB()
 			Expect(len(evm.CreateCalls())).To(Equal(1))
-			Expect(res.UsedGas).To(Equal(uint64(100000)))
+			Expect(res.UsedGas).To(Equal(uint64(53000)))
 			Expect(err).To(BeNil())
+		})
+		When("we have less than the intrinsic gas", func() {
+			msg.GasFunc = func() uint64 {
+				return 53000 - 1
+			}
+			It("should return error", func() {
+				_, err := core.NewStateTransition(evm, msg).TransitionDB()
+				Expect(err).To(MatchError(core.ErrIntrinsicGas))
+			})
 		})
 	})
 
@@ -88,7 +88,10 @@ var _ = Describe("StateTransition", func() {
 			}
 		})
 		It("should call call", func() {
-			res, err := st.TransitionDB()
+			msg.GasFunc = func() uint64 {
+				return 100000
+			}
+			res, err := core.NewStateTransition(evm, msg).TransitionDB()
 			Expect(len(evm.CallCalls())).To(Equal(1))
 			Expect(res.UsedGas).To(Equal(uint64(100000)))
 			Expect(err).To(BeNil())
