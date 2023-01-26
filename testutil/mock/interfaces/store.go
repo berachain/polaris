@@ -18,7 +18,7 @@ import sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 // Interface wrappers for mocking
 //
-//go:generate moq -out ./mock/store.go -pkg mock . MultiStore CacheMultiStore KVStore
+//go:generate moq -out ./mock/store.mock.go -pkg mock . MultiStore CacheMultiStore KVStore
 type (
 	// MultiStore wrapper for github.com/cosmos/cosmos-sdk/types.MultiStore.
 	MultiStore sdktypes.MultiStore
