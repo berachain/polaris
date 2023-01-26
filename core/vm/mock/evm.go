@@ -33,6 +33,7 @@ func NewStargazerEVM() *StargazerEVMMock {
 		},
 		ChainConfigFunc: func() *params.ChainConfig {
 			return &params.ChainConfig{
+				LondonBlock:    big.NewInt(0),
 				HomesteadBlock: big.NewInt(0),
 			}
 		},

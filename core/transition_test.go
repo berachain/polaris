@@ -19,10 +19,11 @@ import (
 
 	"github.com/berachain/stargazer/core"
 	"github.com/berachain/stargazer/core/mock"
+	"github.com/berachain/stargazer/core/vm"
 	vmmock "github.com/berachain/stargazer/core/vm/mock"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/params"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/ethereum/go-ethereum/core/vm"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -87,26 +88,54 @@ var _ = Describe("StateTransition", func() {
 			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
 				return common.Hash{1}
 			}
-		})
-		It("should call call", func() {
 			msg.GasFunc = func() uint64 {
 				return 100000
 			}
-			res, err := core.NewStateTransition(evm, msg).TransitionDB()
-			Expect(len(evm.CallCalls())).To(Equal(1))
-			Expect(res.UsedGas).To(Equal(uint64(100000)))
-			Expect(err).To(BeNil())
+		})
+		Context("Gas Refund", func() {
+			BeforeEach(func() {
+				sdb.GetRefundFunc = func() uint64 {
+					return 20000
+				}
+				evm.StateDBFunc = func() vm.StargazerStateDB {
+					return sdb
+				}
+				evm.CallFunc = func(caller vm.ContractRef, addr common.Address,
+					input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
+					return []byte{}, 80000, nil
+				}
+			})
+			When("we are in london", func() {
+				It("should call call", func() {
+					res, err := core.NewStateTransition(evm, msg).TransitionDB()
+					Expect(len(evm.CallCalls())).To(Equal(1))
+					Expect(res.UsedGas).To(Equal(uint64(16000))) // refund is capped to 1/5th
+					Expect(err).To(BeNil())
+				})
+			})
+
+			When("we are not in london", func() {
+				It("should call and cap refund properly", func() {
+					evm.ChainConfigFunc = func() *params.EthChainConfig {
+						return &params.EthChainConfig{
+							LondonBlock:    big.NewInt(1000000000),
+							HomesteadBlock: big.NewInt(0),
+						}
+					}
+					res, err := core.NewStateTransition(evm, msg).TransitionDB()
+					Expect(len(evm.CallCalls())).To(Equal(1))
+					Expect(res.UsedGas).To(Equal(uint64(10000))) // refund is capped to 1/2
+					Expect(err).To(BeNil())
+				})
+			})
 		})
 		It("should check to ensure required funds are available", func() {
-			msg.GasFunc = func() uint64 {
-				return 100000
-			}
 			msg.ValueFunc = func() *big.Int {
 				return big.NewInt(1)
 			}
 			evm.ContextFunc = func() vm.BlockContext {
 				return vm.BlockContext{
-					CanTransfer: func(db vm.StateDB, addr common.Address, amount *big.Int) bool {
+					CanTransfer: func(db vm.GethStateDB, addr common.Address, amount *big.Int) bool {
 						return false
 					},
 				}
