@@ -57,7 +57,7 @@ type mockSDB struct {
 }
 
 func (msdb *mockSDB) GetContext() context.Context {
-	return testutil.NewContextWithMultistores()
+	return testutil.NewContext()
 }
 
 type mockStateless struct{}

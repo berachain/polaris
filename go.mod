@@ -16,6 +16,7 @@ require (
 	github.com/google/addlicense v1.1.0
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
+	github.com/matryer/moq v0.3.0
 	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.24.1
 	github.com/securego/gosec/v2 v2.14.0
