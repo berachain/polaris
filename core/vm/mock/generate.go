@@ -15,3 +15,4 @@
 package mock
 
 //go:generate moq -out ./statedb.mock.go -pkg mock ../ StargazerStateDB
+//go:generate moq -out ./evm.mock.go -pkg mock ../ StargazerEVM
