@@ -18,17 +18,16 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
-
-	"github.com/berachain/stargazer/lib/utils/slice"
 )
 
 func PrintMageName() {
 	skip := 2
-	pc := slice.Make[uintptr]() // at least 1 entry needed
+	size := 10
+	pc := make([]uintptr, size) // at least 1 entry needed
 	runtime.Callers(skip, pc)
 	f := runtime.FuncForPC(pc[0])
-	splitup := strings.Split(f.Name(), ".")
-	name := splitup[len(splitup)-1]
+	slice := strings.Split(f.Name(), ".")
+	name := slice[len(slice)-1]
 	//nolint:forbidigo // This is a mage file
 	fmt.Printf(`===========================
 Running %s...
