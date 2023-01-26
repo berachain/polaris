@@ -2,24 +2,23 @@ module github.com/berachain/stargazer
 
 go 1.19
 
-// Required for emitting Cosmos events to Eth logs
-replace github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.47.0-alpha2.0.20221228180048-31eec31bde07
+// Required for supporting stateful precompiled contracts.
+replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230125220728-952aea289a62
 
 require (
 	github.com/bufbuild/buf v1.7.0
-	github.com/cosmos/cosmos-sdk v0.0.0-00010101000000-000000000000
+	github.com/cosmos/cosmos-sdk v0.47.0-alpha2.0.20221227211314-7d986b209e29
 	github.com/cosmos/gogoproto v1.4.3
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/dave/jennifer v1.6.0
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/golangci/golangci-lint v1.50.1
 	github.com/google/addlicense v1.1.0
-	github.com/holiman/uint256 v1.2.0
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
 	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.24.1
-	github.com/securego/gosec/v2 v2.13.1
+	github.com/securego/gosec/v2 v2.14.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
@@ -66,6 +65,7 @@ require (
 	github.com/bombsimon/wsl/v3 v3.3.0 // indirect
 	github.com/breml/bidichk v0.2.3 // indirect
 	github.com/breml/errchkjson v0.3.0 // indirect
+	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/bufbuild/connect-go v0.2.0 // indirect
 	github.com/butuzov/ireturn v0.1.1 // indirect
@@ -171,6 +171,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
+	github.com/holiman/uint256 v1.2.0 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jdxcode/netrc v0.0.0-20210204082910-926c7f70242a // indirect

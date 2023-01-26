@@ -12,28 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package precompile_test
 
 import (
-	"math/big"
+	"testing"
 
-	"github.com/berachain/stargazer/core/state"
-	"github.com/berachain/stargazer/core/vm"
-	"github.com/berachain/stargazer/lib/common"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// Compile-time interface check.
-var _ vm.CanTransferFunc = CanTransfer
-var _ vm.TransferFunc = Transfer
-
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
-}
-
-// `Transfer` subtracts amount from sender and adds amount to recipient using the `vm.StateDB`.
-func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
-	sdb.(state.ExtStateDB).TransferBalance(sender, recipient, amount)
+func TestPrecompile(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "core/precompile")
 }

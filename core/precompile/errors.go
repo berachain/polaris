@@ -12,7 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package solidity
+package precompile
 
-//go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/SolmateERC20.sol/SolmateERC20.json ./generated/solmate_erc20.abigen.go SolmateERC20Contract
-//go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/MockPrecompileInterface.sol/MockPrecompileInterface.json ./generated/mock_precompile_interface.abigen.go MockPrecompileInterface
+import "errors"
+
+var (
+	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
+	// non-precompile contract.
+	ErrIncorrectPrecompileType = errors.New("this contract does not implement the required precompile contract interface") //nolint:lll
+)

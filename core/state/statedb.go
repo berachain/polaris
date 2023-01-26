@@ -16,6 +16,7 @@ package state
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"math/big"
 
@@ -26,8 +27,10 @@ import (
 	"github.com/berachain/stargazer/core/state/store/cachemulti"
 	"github.com/berachain/stargazer/core/state/types"
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
 var (
@@ -37,7 +40,8 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
-var _ StargazerStateDB = (*StateDB)(nil)
+// Compile-time assertion to ensure StateDB adheres to StargazerStateDB.
+var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
@@ -83,7 +87,7 @@ type StateDB struct { //nolint: revive // we like the vibe.
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string // todo: get from params ( we have a store so like why not )
+	evmDenom string // TODO: get from params ( we have a store so like why not )
 
 	// The refund counter, also used by state transitioning.
 	refund uint64
@@ -128,10 +132,14 @@ func NewStateDB(
 	sdb.ctx = ctx.WithMultiStore(sdb.cms)
 
 	// Store a reference to the EVM state store for performance reasons.
-	sdb.ethStore, _ = sdb.cms.
-		GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
+	sdb.ethStore, _ = utils.GetAs[cachekv.StateDBCacheKVStore](sdb.cms.GetKVStore(sdb.storeKey))
 
 	return sdb
+}
+
+// `GetContext` implements `StargazerStateDB`.
+func (sdb *StateDB) GetContext() context.Context {
+	return sdb.ctx
 }
 
 // ===========================================================================
@@ -555,9 +563,12 @@ func (sdb *StateDB) Commit() error {
 	return nil
 }
 
-// `GetSavedErr` implements `StargazerStateDB`
-// Any errors that pop up during store operations should be checked here
-// called upon the conclusion.
+// =============================================================================
+// Saved Errors
+// =============================================================================
+
+// Any errors that pop up during store operations should be checked here.
+// Called upon the conclusion.
 func (sdb *StateDB) GetSavedErr() error {
 	return sdb.savedErr
 }

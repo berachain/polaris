@@ -12,20 +12,17 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state
+package debug
 
 import (
-	"math/big"
-
-	"github.com/berachain/stargazer/core/vm"
-	"github.com/berachain/stargazer/lib/common"
+	"reflect"
+	"runtime"
+	"strings"
 )
 
-// `StargazerStateDB` defines an extension to the interface provided by go-ethereum to
-// support additional state transition functionalities that are useful in a Cosmos SDK context.
-type StargazerStateDB interface {
-	vm.GethStateDB
-
-	// TransferBalance transfers the balance from one account to another
-	TransferBalance(common.Address, common.Address, *big.Int)
+// `GetFnName` returns the name of a function `fn`.
+func GetFnName(fn any) string {
+	fullName := runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
+	brokenUpName := strings.Split(fullName, ".") // guarantees len(broknUpName) >= 1
+	return brokenUpName[len(brokenUpName)-1]
 }

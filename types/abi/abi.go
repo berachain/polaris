@@ -28,6 +28,7 @@ type (
 	Argument  = abi.Argument
 	Arguments = abi.Arguments
 	Event     = abi.Event
+	Method    = abi.Method
 )
 
 var (

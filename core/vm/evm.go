@@ -1,4 +1,4 @@
-// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Copyright (C) 2022, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -15,23 +15,42 @@
 package vm
 
 import (
+	"math/big"
+
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/holiman/uint256"
+	"github.com/berachain/stargazer/params"
 )
 
 type VMInterface interface { //nolint:revive // we like the vibe.
 	Reset(txCtx TxContext, sdb GethStateDB)
 	Create(caller ContractRef, code []byte,
-		gas uint64, value *uint256.Int,
+		gas uint64, value *big.Int,
 	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
 	Call(caller ContractRef, addr common.Address, input []byte,
-		gas uint64, value *uint256.Int, bailout bool,
+		gas uint64, value *big.Int,
 	) (ret []byte, leftOverGas uint64, err error)
-	Config() Config
-	ChainConfig() *params.ChainConfig
-	ChainRules() *params.Rules
-	Context() BlockContext
-	StateDB() GethStateDB
-	TxContext() TxContext
+}
+
+// Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.
+var _ VMInterface = (*StargazerEVM)(nil)
+
+// `StargazerEVM` is the wrapper for the Go-Ethereum EVM.
+type StargazerEVM struct {
+	*GethEVM
+}
+
+// `NewStargazerEVM` creates and returns a new `StargazerEVM`.
+func NewStargazerEVM(
+	blockCtx BlockContext,
+	txCtx TxContext,
+	stateDB StargazerStateDB,
+	chainConfig *params.EthChainConfig,
+	config Config,
+	pctr PrecompileController,
+) *StargazerEVM {
+	return &StargazerEVM{
+		GethEVM: NewGethEVMWithPrecompiles(
+			blockCtx, txCtx, stateDB, chainConfig, config, pctr,
+		),
+	}
 }

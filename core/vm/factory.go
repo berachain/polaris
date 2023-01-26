@@ -15,24 +15,31 @@
 package vm
 
 import (
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/berachain/stargazer/params"
 )
 
-type (
-	BlockContext         = vm.BlockContext
-	CanTransferFunc      = vm.CanTransferFunc
-	ContractRef          = vm.ContractRef
-	Config               = vm.Config
-	GethEVM              = vm.EVM
-	GethStateDB          = vm.StateDB
-	PrecompileContainer  = vm.PrecompiledContract
-	PrecompileController = vm.PrecompileController
-	TransferFunc         = vm.TransferFunc
-	TxContext            = vm.TxContext
-)
+// `EVMFactory` is used to build new Stargazer `EVM`s.
+type EVMFactory struct {
+	// `precompileController` is responsible for keeping track of the stateful precompile
+	// containers that are available to the EVM and executing them.
+	precompileController PrecompileController
+}
 
-var (
-	NewGethEVM                = vm.NewEVM
-	NewGethEVMWithPrecompiles = vm.NewEVMWithPrecompiles
-	ErrOutOfGas               = vm.ErrOutOfGas
-)
+// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileController`.
+func NewEVMFactory(precompileController PrecompileController) *EVMFactory {
+	return &EVMFactory{
+		precompileController: precompileController,
+	}
+}
+
+// `Build` creates and returns a new `vm.StargazerEVM`.
+func (ef *EVMFactory) Build(
+	ssdb StargazerStateDB,
+	blockCtx BlockContext,
+	txCtx TxContext,
+	chainConfig *params.EthChainConfig,
+	noBaseFee bool,
+) *StargazerEVM {
+	return NewStargazerEVM(
+		blockCtx, txCtx, ssdb, chainConfig, Config{}, ef.precompileController)
+}
