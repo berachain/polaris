@@ -21,20 +21,29 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
+// `Host` provides the EVM with the underlying application and consensus engine to run.
 type Host interface {
 	Application
 	Consensus
 }
 
+// `Application` defines the required function for a specific application layer to implement.
 type Application interface {
+	// `GasMeter` should return the application's native gas meter.
 	GasMeter(context.Context) StargazerGasMeter
 }
 
+// `Consensus` defines the required functions for a consensus engine to implement.
 type Consensus interface {
+	// `GetBlockHashFunc` should return a block hash function getter for a particular block. It is
+	// used by the BLOCKHASH EVM op code.
 	GetBlockHashFunc(context.Context) vm.GetHashFunc
+
+	// `GetCoinbase` gets the coinbase address from the consensus engine.
 	GetCoinbase(context.Context) (common.Address, error)
 }
 
+// `StargazerGasMeter` defines the required function for an application's native gas meter.
 type StargazerGasMeter interface {
-	ConsumeGas(uint64, string)
+	ConsumeGas(gas uint64, descriptor string)
 }

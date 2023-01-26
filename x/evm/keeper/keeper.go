@@ -45,7 +45,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // `GetCoinbase` implements `core.Host`.
 func (k *Keeper) GetCoinbase(gctx context.Context) (common.Address, error) {
 	ctx := sdk.UnwrapSDKContext(gctx)
-	// todo: add redundancy here, incrase BlockHeader().ProposerAddress is not found, we want
+	// TODO: add redundancy here, incrase BlockHeader().ProposerAddress is not found, we want
 	// to make sure that life is gucci as sometimes it doesn't matter.
 	validator, found := k.sk.GetValidatorByConsAddr(ctx, ctx.BlockHeader().ProposerAddress)
 	if !found {
