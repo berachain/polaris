@@ -28,6 +28,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/berachain/stargazer/core/state/store/journal"
+	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/trees"
 	"github.com/berachain/stargazer/lib/utils"
 )
@@ -46,7 +47,7 @@ type Store struct {
 	mtx           sync.RWMutex
 	Cache         map[string]*cacheValue
 	UnsortedCache map[string]struct{}
-	SortedCache   *trees.BTree // always ascending sorted
+	SortedCache   ds.BTree // always ascending sorted
 	Parent        storetypes.KVStore
 	journalMgr    *journal.Manager
 }
