@@ -27,8 +27,9 @@ import (
 )
 
 type StateProcessor struct {
-	// The engine allows for the state processor to communicate with an arbitrary consensus engine.
-	engine Engine
+	// The Host provides the underlying application the EVM is running in
+	// as well an underlying consensus engine.
+	host Host
 
 	// Contextual Variables (updated once per block)
 	// signer types.Signer
@@ -40,23 +41,25 @@ type StateProcessor struct {
 	// the blockHash of the current block being processed
 	blockHash    common.Hash
 	blockContext vm.BlockContext
-	// st *StateTransitioner
 
 	// `receipts` are stored in the state processor to be returned to the caller.
 	receipts types.Receipts
 }
 
 func NewStateProcessor(
-	vmf vm.EVMFactory,
+	config *params.EthChainConfig,
+	host Host,
 ) *StateProcessor {
 	return &StateProcessor{
-		vmf: vmf,
+		config: config,
+		host:   host,
+		vmf:    *vm.NewEVMFactory(nil),
 	}
 }
 
 func (sp *StateProcessor) Prepare(ctx context.Context, block *block.Data) {
 	// Build block context.
-	sp.blockContext = NewEVMBlockContext(block, sp.engine.GetBlockHashFunc(ctx))
+	sp.blockContext = NewEVMBlockContext(block, sp.host.GetBlockHashFunc(ctx))
 
 	// Save the block hash to prevent having to recalculate it later.
 	sp.blockHash = sp.blockContext.GetHash(sp.blockContext.BlockNumber.Uint64())
@@ -113,6 +116,6 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	return receipt, nil
 }
 
-func (sp *StateProcessor) Finalize(ctx context.Context) (types.Receipts, error) {
-	return sp.receipts, nil
+func (sp *StateProcessor) Finalize(ctx context.Context) (types.Receipts, types.Bloom, error) {
+	return sp.receipts, types.CreateBloom(sp.receipts), nil
 }

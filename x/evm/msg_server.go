@@ -12,21 +12,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package evm
 
-import (
-	"context"
+import "github.com/berachain/stargazer/core"
 
-	"github.com/berachain/stargazer/core/vm"
-	"github.com/berachain/stargazer/lib/common"
-)
-
-type Engine interface {
-	GetBlockHashFunc(context.Context) vm.GetHashFunc
-	GetCoinbase(context.Context) common.Hash
-	GasMeter()
-}
-
-type StargazerGasMeter interface {
-	ConsumeGas(uint64)
+type MsgServer struct {
+	core.StateProcessor
 }
