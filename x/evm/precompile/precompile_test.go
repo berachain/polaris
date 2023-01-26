@@ -11,7 +11,8 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package core_test
+
+package precompile
 
 import (
 	"testing"
@@ -20,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestCore(t *testing.T) {
+func TestPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "core")
+	RunSpecs(t, "x/evm/precompile")
 }

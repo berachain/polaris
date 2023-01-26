@@ -269,16 +269,16 @@ var _ = Describe("StateDB", func() {
 		// 		sdb.SetCode(alice, []byte("code"))
 		// 		sdb.Suicide(alice)
 		// 	})
-		// 	// It("should have reset state", func() {
-		// 	// 	sdb.Reset(ctx)
-		// 	// 	Expect(sdb.GetNonce(alice)).To(Equal(uint64(0)))
-		// 	// 	Expect(sdb.GetLogs(common.Hash{1}, common.Hash{3})).To(BeNil())
-		// 	// 	Expect(sdb.GetRefund()).To(Equal(uint64(0)))
-		// 	// 	Expect(sdb.GetSavedErr()).To(BeNil())
-		// 	// 	Expect(sdb.HasSuicided(alice)).To(BeFalse())
-		// 	// 	// TODO: check the txhash and blockhash stuff
-		// 	// 	Expect(sdb, state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "bera"))
-		// 	// })
+		// 	It("should have reset state", func() {
+		// 		sdb.Reset(ctx)
+		// 		Expect(sdb.GetNonce(alice)).To(Equal(uint64(0)))
+		// 		Expect(sdb.Logs()).To(BeNil())
+		// 		Expect(sdb.GetRefund()).To(Equal(uint64(0)))
+		// 		Expect(sdb.GetSavedErr()).To(BeNil())
+		// 		Expect(sdb.HasSuicided(alice)).To(BeFalse())
+		// 		// TODO: check the txhash and blockhash stuff
+		// 		Expect(sdb, state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "bera"))
+		// 	})
 		// })
 
 		Describe("TestEmpty", func() {

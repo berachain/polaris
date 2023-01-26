@@ -11,16 +11,13 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package core_test
 
-import (
-	"testing"
+package precompile
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+import "errors"
+
+var (
+	// `ErrIncorrectPrecompileType` is returned when the precompile registry registers a
+	// non-precompile contract.
+	ErrIncorrectPrecompileType = errors.New("this contract does not implement the required precompile contract interface") //nolint:lll
 )
-
-func TestCore(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core")
-}

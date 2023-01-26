@@ -11,16 +11,18 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package core_test
+
+package debug
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"reflect"
+	"runtime"
+	"strings"
 )
 
-func TestCore(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core")
+// `GetFnName` returns the name of a function `fn`.
+func GetFnName(fn any) string {
+	fullName := runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
+	brokenUpName := strings.Split(fullName, ".") // guarantees len(broknUpName) >= 1
+	return brokenUpName[len(brokenUpName)-1]
 }

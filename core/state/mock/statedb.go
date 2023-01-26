@@ -11,16 +11,38 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package core_test
 
-import (
-	"testing"
+package mock
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
+// import (
+// 	"math/big"
 
-func TestCore(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core")
-}
+// 	"github.com/berachain/stargazer/core/vm"
+// 	"github.com/berachain/stargazer/lib/common"
+// 	"github.com/ethereum/go-ethereum/core/rawdb"
+// 	"github.com/ethereum/go-ethereum/core/state"
+// )
+
+// // var _ vm.StargazerStateDB = (*StateDB)(nil)
+
+// // type StateDB struct {
+// // 	*state.StateDB
+// // }
+
+// // func NewMockStateDB() *StateDB {
+// // 	gethStateDB, _ := state.New(common.Hash{}, state.NewDatabase(rawdb.NewMemoryDatabase()), nil)
+// // 	return &StateDB{
+// // 		gethStateDB,
+// // 	}
+// // }
+
+// // func (m *StateDB) TransferBalance(from, to common.Address, amount *big.Int) {
+// // 	m.SubBalance(from, amount)
+// // 	m.AddBalance(to, amount)
+// // }
+
+// // func (m *StateDB) FinalizeTx() error {
+// // 	m.Finalise(false)
+// // 	_, err := m.Commit(false)
+// // 	return err
+// // }

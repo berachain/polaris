@@ -15,9 +15,11 @@
 package vm
 
 import (
+	coretypes "github.com/berachain/stargazer/core/types"
+
+	"context"
 	"math/big"
 
-	coretypes "github.com/berachain/stargazer/core/types"
 	"github.com/berachain/stargazer/lib/common"
 )
 
@@ -26,6 +28,7 @@ type (
 	// additional state transition functionalities.
 	StargazerStateDB interface {
 		GethStateDB
+		PrecompileStateDB
 
 		// `Prepare`
 		Prepare(txHash common.Hash, ti uint)
@@ -39,4 +42,23 @@ type (
 		// `FinalizeTx`
 		FinalizeTx() error
 	}
+
+	// `PrecompileStateDB` defines the required function a statedb must implement to support
+	// execution of stateful precompiles.
+	PrecompileStateDB interface {
+		// `GetContext` returns the Go context associated to the StateDB.
+		GetContext() context.Context
+	}
+
+	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
+	PrecompileRunner interface {
+		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
+		Run(pc PrecompileContainer, ssdb StargazerStateDB, input []byte,
+			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
+		) (ret []byte, remainingGas uint64, err error)
+	}
+
+	// `BasePrecompileImpl` is a type for the base precompile implementation, which only needs to
+	// provide an Ethereum address of where its contract is found.
+	BasePrecompileImpl = ContractRef
 )
