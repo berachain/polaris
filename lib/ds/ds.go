@@ -14,6 +14,8 @@
 
 package ds
 
+import dbm "github.com/tendermint/tm-db"
+
 // `Stack` is an interface that defines the methods that an items Stack must implement.
 // items Stacks support holding cache entries and reverting to a certain index.
 type Stack[Item any] interface {
@@ -35,4 +37,25 @@ type Stack[Item any] interface {
 
 	// `Size` returns the current number of entries in the items.
 	Size() int
+}
+
+// `BTree` is an interface that defines the methods a binary tree must implement.
+type BTree interface {
+	// `Set` sets the key to value.
+	Set(key, value []byte)
+
+	// `Get` gets the value at key.
+	Get(key []byte) []byte
+
+	// `Delete` deletes key.
+	Delete(key []byte)
+
+	// `Iterator` returns an iterator between start and end.
+	Iterator(start, end []byte) (dbm.Iterator, error)
+
+	// `ReverseIterator` returns a reverse iterator between start and end.
+	ReverseIterator(start, end []byte) (dbm.Iterator, error)
+
+	// `Copy` returns a shallow copy of BTree.
+	Copy() BTree
 }
