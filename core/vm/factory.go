@@ -38,7 +38,7 @@ func (ef *EVMFactory) Build(
 	blockCtx BlockContext,
 	chainConfig *params.EthChainConfig,
 	noBaseFee bool,
-) *StargazerEVM {
+) StargazerEVM {
 	return NewStargazerEVM(
 		blockCtx, TxContext{}, ssdb, chainConfig, Config{}, ef.precompileController)
 }

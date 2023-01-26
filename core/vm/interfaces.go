@@ -16,6 +16,7 @@ package vm
 
 import (
 	coretypes "github.com/berachain/stargazer/core/types"
+	"github.com/berachain/stargazer/params"
 
 	"context"
 	"math/big"
@@ -24,6 +25,27 @@ import (
 )
 
 type (
+	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support additional
+	// state transition functionalities.
+	StargazerEVM interface {
+		Reset(txCtx TxContext, sdb GethStateDB)
+		Create(caller ContractRef, code []byte,
+			gas uint64, value *big.Int,
+		) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
+		Call(caller ContractRef, addr common.Address, input []byte,
+			gas uint64, value *big.Int,
+		) (ret []byte, leftOverGas uint64, err error)
+
+		SetTxContext(txCtx TxContext)
+		SetTracer(tracer EVMLogger)
+		SetDebug(debug bool)
+		StateDB() StargazerStateDB
+		TxContext() TxContext
+		Tracer() EVMLogger
+		Context() BlockContext
+		ChainConfig() *params.EthChainConfig
+	}
+
 	// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to support
 	// additional state transition functionalities.
 	StargazerStateDB interface {

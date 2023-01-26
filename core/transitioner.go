@@ -31,7 +31,7 @@ type StateTransitioner struct{}
 
 // Create a new state transitioner to process a single transaction.
 func (str *StateTransitioner) ApplyMessage(
-	evm *vm.StargazerEVM,
+	evm vm.StargazerEVM,
 	msg Message,
 ) (*ExecutionResult, error) {
 	return str.buildStateTransition(evm, msg).transitionDB()
@@ -39,7 +39,7 @@ func (str *StateTransitioner) ApplyMessage(
 
 // Create a new state transitioner to process a single transaction.
 func (str *StateTransitioner) ApplyMessageAndCommit(
-	evm *vm.StargazerEVM,
+	evm vm.StargazerEVM,
 	msg Message,
 ) (*ExecutionResult, error) {
 	res, err := str.buildStateTransition(evm, msg).transitionDB()
@@ -57,7 +57,7 @@ func (str *StateTransitioner) ApplyMessageAndCommit(
 
 // Create a new state transitioner to process a single transaction.
 func (str *StateTransitioner) ApplyMessageWithTracer(
-	evm *vm.StargazerEVM,
+	evm vm.StargazerEVM,
 	msg Message,
 	tracer vm.EVMLogger,
 ) (*ExecutionResult, error) {
@@ -66,7 +66,7 @@ func (str *StateTransitioner) ApplyMessageWithTracer(
 
 // Create a new state transitioner to process a single transaction.
 func (str *StateTransitioner) ApplyMessageWithTracerAndCommit(
-	evm *vm.StargazerEVM,
+	evm vm.StargazerEVM,
 	msg Message,
 	tracer vm.EVMLogger,
 ) (*ExecutionResult, error) {
@@ -84,7 +84,7 @@ func (str *StateTransitioner) ApplyMessageWithTracerAndCommit(
 
 // Create a new state transitioner to process a single transaction.
 func (str *StateTransitioner) buildStateTransition(
-	evm *vm.StargazerEVM,
+	evm vm.StargazerEVM,
 	msg Message,
 ) *StateTransition {
 	return NewStateTransition(evm, msg)

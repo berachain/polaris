@@ -34,7 +34,7 @@ type StateProcessor struct {
 	// signer types.Signer
 	config  *params.EthChainConfig
 	vmf     vm.EVMFactory
-	evm     *vm.StargazerEVM
+	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
 
 	// the blockHash of the current block being processed
@@ -99,7 +99,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
-		receipt.ContractAddress = crypto.CreateAddress(sp.evm.TxContext.Origin, tx.Nonce())
+		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
 	// Set the receipt logs and create the bloom filter.

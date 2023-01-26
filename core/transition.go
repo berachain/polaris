@@ -24,7 +24,7 @@ import (
 
 type StateTransition struct {
 	// An instance of the  Virtual Machine
-	evm *vm.StargazerEVM
+	evm vm.StargazerEVM
 
 	// The message to deliver to the EVM
 	msg Message
@@ -39,11 +39,12 @@ type StateTransition struct {
 // =============================================================================
 
 // NewStateTransition creates a new state transition object.
-func NewStateTransition(evm *vm.StargazerEVM, msg Message) *StateTransition {
+func NewStateTransition(evm vm.StargazerEVM, msg Message) *StateTransition {
 	// Configure transaction config from the message.
-	evm.TxContext.Origin = msg.From()
-	evm.TxContext.GasPrice = msg.GasPrice()
-
+	evm.SetTxContext(vm.TxContext{
+		Origin:   msg.From(),
+		GasPrice: msg.GasPrice(),
+	})
 	return &StateTransition{
 		evm:        evm,
 		msg:        msg,
@@ -72,7 +73,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	var (
 		msgFrom  = st.msg.From()
 		msgValue = st.msg.Value()
-		ctx      = st.evm.Context
+		ctx      = st.evm.Context()
 		msgData  = st.msg.Data()
 		sender   = vm.AccountRef(msgFrom)
 		rules    = st.evm.ChainConfig().Rules(
@@ -159,18 +160,18 @@ func (st *StateTransition) traceTransitionDB(tracer vm.EVMLogger) (*ExecutionRes
 	}
 
 	// Apply the supplied tracer to the EVM as well as switch it to debug mode.
-	st.evm.Config.Tracer = tracer
-	st.evm.Config.Debug = true
+	st.evm.SetTracer(tracer)
+	st.evm.SetDebug(true)
 
 	// Capture the starting gas for the tracer, we can skip the check for debug mode that is
 	// present in geth, as we already know that the EVM is in debug mode from the lines above.
-	st.evm.Config.Tracer.CaptureTxStart(st.initialGas)
+	st.evm.Tracer().CaptureTxStart(st.initialGas)
 	defer func() {
 		// After execution is completed we need to capture gas remaining.
-		st.evm.Config.Tracer.CaptureTxEnd(st.gas)
+		st.evm.Tracer().CaptureTxEnd(st.gas)
 		// We also take the EVM out of debug mode as this allows us to optimize the normal
 		// execution mode by being able to skip setting debug to false in that code path.
-		st.evm.Config.Debug = false
+		st.evm.SetDebug(false)
 	}()
 
 	// Perform the state machine execution
