@@ -15,49 +15,122 @@
 package mock
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 //go:generate moq -out ./statedb.mock.go -pkg mock ../ StargazerStateDB
 
 // `NewEmptyStateDB` creates a new `StateDBMock` instance.
 func NewEmptyStateDB() *StargazerStateDBMock {
-	ssdb := &StargazerStateDBMock{}
-
-	ssdb.SetCodeFunc = func(addr common.Address, code []byte) {
+	mockedStargazerStateDB := &StargazerStateDBMock{
+		AddAddressToAccessListFunc: func(addr common.Address) {
+			panic("mock out the AddAddressToAccessList method")
+		},
+		AddBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
+			panic("mock out the AddBalance method")
+		},
+		AddLogFunc: func(log *types.Log) {
+			panic("mock out the AddLog method")
+		},
+		AddPreimageFunc: func(hash common.Hash, bytes []byte) {
+			panic("mock out the AddPreimage method")
+		},
+		AddRefundFunc: func(v uint64) {
+			panic("mock out the AddRefund method")
+		},
+		AddSlotToAccessListFunc: func(addr common.Address, slot common.Hash) {
+			panic("mock out the AddSlotToAccessList method")
+		},
+		AddressInAccessListFunc: func(addr common.Address) bool {
+			panic("mock out the AddressInAccessList method")
+		},
+		CreateAccountFunc: func(address common.Address) {
+			panic("mock out the CreateAccount method")
+		},
+		EmptyFunc: func(address common.Address) bool {
+			return true
+		},
+		ExistFunc: func(address common.Address) bool {
+			return false
+		},
+		FinalizeTxFunc: func() error {
+			panic("mock out the FinalizeTx method")
+		},
+		ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
+			panic("mock out the ForEachStorage method")
+		},
+		GetBalanceFunc: func(address common.Address) *big.Int {
+			return big.NewInt(0)
+		},
+		GetCodeFunc: func(address common.Address) []byte {
+			return []byte{}
+		},
+		GetCodeHashFunc: func(address common.Address) common.Hash {
+			return common.Hash{}
+		},
+		GetCodeSizeFunc: func(address common.Address) int {
+			panic("mock out the GetCodeSize method")
+		},
+		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
+			panic("mock out the GetCommittedState method")
+		},
+		GetContextFunc: func() context.Context {
+			panic("mock out the GetContext method")
+		},
+		GetLogsFunc: func(hash1 common.Hash, hash2 common.Hash) []*types.Log {
+			panic("mock out the GetLogs method")
+		},
+		GetNonceFunc: func(address common.Address) uint64 {
+			return 0
+		},
+		GetRefundFunc: func() uint64 {
+			return 0
+		},
+		GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
+			panic("mock out the GetState method")
+		},
+		HasSuicidedFunc: func(address common.Address) bool {
+			panic("mock out the HasSuicided method")
+		},
+		PrepareFunc: func(txHash common.Hash, ti uint) {
+			panic("mock out the Prepare method")
+		},
+		PrepareAccessListFunc: func(sender common.Address, dest *common.Address,
+			precompiles []common.Address, txAccesses types.AccessList) {
+			panic("mock out the PrepareAccessList method")
+		},
+		RevertToSnapshotFunc: func(n int) {
+			panic("mock out the RevertToSnapshot method")
+		},
+		SetCodeFunc: func(address common.Address, bytes []byte) {
+			panic("mock out the SetCode method")
+		},
+		SetNonceFunc: func(address common.Address, v uint64) {},
+		SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash) {
+			panic("mock out the SetState method")
+		},
+		SlotInAccessListFunc: func(addr common.Address, slot common.Hash) (bool, bool) {
+			panic("mock out the SlotInAccessList method")
+		},
+		SnapshotFunc: func() int {
+			panic("mock out the Snapshot method")
+		},
+		SubBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
+			panic("mock out the SubBalance method")
+		},
+		SubRefundFunc: func(v uint64) {
+			panic("mock out the SubRefund method")
+		},
+		SuicideFunc: func(address common.Address) bool {
+			panic("mock out the Suicide method")
+		},
+		TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
+			panic("mock out the TransferBalance method")
+		},
 	}
-
-	ssdb.SetStateFunc = func(addr common.Address, key, value common.Hash) {
-	}
-
-	ssdb.SetNonceFunc = func(addr common.Address, nonce uint64) {
-	}
-
-	ssdb.GetNonceFunc = func(addr common.Address) uint64 {
-		return 0
-	}
-
-	ssdb.GetBalanceFunc = func(addr common.Address) *big.Int {
-		return big.NewInt(0)
-	}
-
-	ssdb.GetCodeSizeFunc = func(addr common.Address) int {
-		return 0
-	}
-
-	ssdb.GetCodeFunc = func(addr common.Address) []byte {
-		return nil
-	}
-
-	ssdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
-		return common.Hash{}
-	}
-
-	ssdb.GetRefundFunc = func() uint64 {
-		return 0
-	}
-
-	return ssdb
+	return mockedStargazerStateDB
 }

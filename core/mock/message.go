@@ -18,39 +18,46 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	coretypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 //go:generate moq -out ./message.mock.go -pkg mock ../ Message
 
 func NewEmptyMessage() *MessageMock {
-	m := new(MessageMock)
-	m.FromFunc = func() common.Address {
-		return common.Address{}
+	mockedMessage := &MessageMock{
+		AccessListFunc: func() types.AccessList {
+			return nil
+		},
+		DataFunc: func() []byte {
+			return nil
+		},
+		FromFunc: func() common.Address {
+			return common.Address{}
+		},
+		GasFunc: func() uint64 {
+			return 0
+		},
+		GasFeeCapFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		GasPriceFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		GasTipCapFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		IsFakeFunc: func() bool {
+			return false
+		},
+		NonceFunc: func() uint64 {
+			return 0
+		},
+		ToFunc: func() *common.Address {
+			return nil
+		},
+		ValueFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
 	}
-	m.GasPriceFunc = func() *big.Int {
-		return big.NewInt(0)
-	}
-	m.GasFunc = func() uint64 {
-		return 0
-	}
-	m.GasFeeCapFunc = func() *big.Int {
-		return big.NewInt(0)
-	}
-	m.ValueFunc = func() *big.Int {
-		return big.NewInt(0)
-	}
-	m.DataFunc = func() []byte {
-		return []byte{}
-	}
-	m.ToFunc = func() *common.Address {
-		return nil
-	}
-	m.AccessListFunc = func() coretypes.AccessList {
-		return nil
-	}
-	m.NonceFunc = func() uint64 {
-		return 0
-	}
-	return m
+	return mockedMessage
 }

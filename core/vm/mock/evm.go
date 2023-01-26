@@ -17,31 +17,55 @@ package mock
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/core/vm"
+	stargazercorevm "github.com/berachain/stargazer/core/vm"
 	"github.com/ethereum/go-ethereum/common"
+	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 //go:generate moq -out ./evm.mock.go -pkg mock ../ StargazerEVM
 
 func NewStargazerEVM() *StargazerEVMMock {
-	evm := new(StargazerEVMMock)
-	sdb := NewEmptyStateDB()
-	evm.SetTxContextFunc = func(txContext vm.TxContext) {
-		evm.TxContextFunc = func() vm.TxContext {
-			return txContext
-		}
-	}
+	mockedStargazerEVM := &StargazerEVMMock{
+		CallFunc: func(caller ethereumcorevm.ContractRef, addr common.Address,
+			input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
+			return []byte{}, 0, nil
+		},
+		ChainConfigFunc: func() *params.ChainConfig {
+			return &params.ChainConfig{}
+		},
+		ContextFunc: func() ethereumcorevm.BlockContext {
+			return stargazercorevm.BlockContext{
+				CanTransfer: func(db stargazercorevm.GethStateDB, addr common.Address, amount *big.Int) bool {
+					return true
+				},
+			}
+		},
+		CreateFunc: func(caller ethereumcorevm.ContractRef, code []byte,
+			gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
+			return []byte{}, common.Address{}, 0, nil
+		},
+		ResetFunc: func(txCtx ethereumcorevm.TxContext, sdb ethereumcorevm.StateDB) {
+			panic("mock out the Reset method")
+		},
+		SetDebugFunc: func(debug bool) {
+			panic("mock out the SetDebug method")
+		},
+		SetTracerFunc: func(tracer ethereumcorevm.EVMLogger) {
+			panic("mock out the SetTracer method")
+		},
+		SetTxContextFunc: func(txCtx ethereumcorevm.TxContext) {
 
-	evm.StateDBFunc = func() vm.StargazerStateDB {
-		return sdb
+		},
+		StateDBFunc: func() stargazercorevm.StargazerStateDB {
+			return NewEmptyStateDB()
+		},
+		TracerFunc: func() ethereumcorevm.EVMLogger {
+			panic("mock out the Tracer method")
+		},
+		TxContextFunc: func() ethereumcorevm.TxContext {
+			panic("mock out the TxContext method")
+		},
 	}
-
-	evm.ContextFunc = func() vm.BlockContext {
-		return vm.BlockContext{
-			CanTransfer: func(db vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-				return true
-			},
-		}
-	}
-	return evm
+	return mockedStargazerEVM
 }

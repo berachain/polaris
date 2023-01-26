@@ -19,7 +19,6 @@ import (
 
 	"github.com/berachain/stargazer/core"
 	"github.com/berachain/stargazer/core/mock"
-	"github.com/berachain/stargazer/core/vm"
 	vmmock "github.com/berachain/stargazer/core/vm/mock"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/params"
@@ -39,7 +38,7 @@ var _ = Describe("StateTransition", func() {
 	BeforeEach(func() {
 		msg = mock.NewEmptyMessage()
 		evm = vmmock.NewStargazerEVM()
-		sdb = evm.StateDB().(*vmmock.StargazerStateDBMock)
+		sdb, _ = evm.StateDB().(*vmmock.StargazerStateDBMock)
 		_ = sdb
 		msg.FromFunc = func() common.Address {
 			return testutil.Alice
@@ -57,22 +56,11 @@ var _ = Describe("StateTransition", func() {
 			return &common.Address{1}
 		}
 
-		evm.CallFunc = func(caller vm.ContractRef, addr common.Address, input []byte,
-			gas uint64, value *big.Int,
-		) ([]byte, uint64, error) {
-			return []byte{}, 0, nil
-		}
-
-		evm.CreateFunc = func(caller vm.ContractRef, input []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
-			return []byte{}, common.Address{}, 0, nil
-		}
-
 		evm.ChainConfigFunc = func() *params.EthChainConfig {
 			return &params.EthChainConfig{}
 		}
 
 		st = core.NewStateTransition(evm, msg)
-		_ = st
 
 	})
 	When("Contract Creation", func() {
@@ -81,15 +69,29 @@ var _ = Describe("StateTransition", func() {
 				return nil
 			}
 		})
-		It("should create a contract", func() {
-			_, err := st.TransitionDB()
+		It("should call create", func() {
+			res, err := st.TransitionDB()
+			Expect(len(evm.CreateCalls())).To(Equal(1))
+			Expect(res.UsedGas).To(Equal(uint64(100000)))
 			Expect(err).To(BeNil())
 		})
-
 	})
-	It("", func() {
-		Expect(msg.From()).To(Equal(testutil.Alice))
-		_, err := st.TransitionDB()
-		Expect(err).To(BeNil())
+
+	When("Contract Call", func() {
+		BeforeEach(func() {
+			msg.ToFunc = func() *common.Address {
+				return &common.Address{1}
+			}
+
+			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
+				return common.Hash{1}
+			}
+		})
+		It("should call call", func() {
+			res, err := st.TransitionDB()
+			Expect(len(evm.CallCalls())).To(Equal(1))
+			Expect(res.UsedGas).To(Equal(uint64(100000)))
+			Expect(err).To(BeNil())
+		})
 	})
 })
