@@ -17,6 +17,7 @@ package trees_test
 import (
 	"testing"
 
+	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/trees"
 	"github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,7 +33,7 @@ func TestSuite(t *testing.T) {
 }
 
 var _ = Describe("GetSetDelete", func() {
-	var db *trees.BTree
+	var db ds.BTree
 
 	BeforeEach(func() {
 		db = trees.NewBTree()
@@ -70,7 +71,7 @@ var _ = Describe("GetSetDelete", func() {
 	})
 })
 var _ = Describe("DBIterator", func() {
-	var db *trees.BTree
+	var db ds.BTree
 
 	BeforeEach(func() {
 		db = trees.NewBTree()

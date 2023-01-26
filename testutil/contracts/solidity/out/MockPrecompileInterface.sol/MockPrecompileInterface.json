@@ -245,19 +245,19 @@
   },
   "ast": {
     "absolutePath": "src/MockPrecompileInterface.sol",
-    "id": 35,
+    "id": 423,
     "exportedSymbols": {
       "MockPrecompileInterface": [
-        34
+        422
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:448:0",
+    "src": "32:448:1",
     "nodes": [
       {
-        "id": 1,
+        "id": 389,
         "nodeType": "PragmaDirective",
-        "src": "32:24:0",
+        "src": "32:24:1",
         "nodes": [],
         "literals": [
           "solidity",
@@ -267,26 +267,26 @@
         ]
       },
       {
-        "id": 34,
+        "id": 422,
         "nodeType": "ContractDefinition",
-        "src": "58:421:0",
+        "src": "58:421:1",
         "nodes": [
           {
-            "id": 6,
+            "id": 394,
             "nodeType": "StructDefinition",
-            "src": "98:79:0",
+            "src": "98:79:1",
             "nodes": [],
             "canonicalName": "MockPrecompileInterface.Object",
             "members": [
               {
                 "constant": false,
-                "id": 3,
+                "id": 391,
                 "mutability": "mutable",
                 "name": "creationHeight",
-                "nameLocation": "130:14:0",
+                "nameLocation": "130:14:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 6,
-                "src": "122:22:0",
+                "scope": 394,
+                "src": "122:22:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -294,10 +294,10 @@
                   "typeString": "uint256"
                 },
                 "typeName": {
-                  "id": 2,
+                  "id": 390,
                   "name": "uint256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "122:7:0",
+                  "src": "122:7:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_uint256",
                     "typeString": "uint256"
@@ -307,13 +307,13 @@
               },
               {
                 "constant": false,
-                "id": 5,
+                "id": 393,
                 "mutability": "mutable",
                 "name": "timeStamp",
-                "nameLocation": "161:9:0",
+                "nameLocation": "161:9:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 6,
-                "src": "154:16:0",
+                "scope": 394,
+                "src": "154:16:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -321,10 +321,10 @@
                   "typeString": "string"
                 },
                 "typeName": {
-                  "id": 4,
+                  "id": 392,
                   "name": "string",
                   "nodeType": "ElementaryTypeName",
-                  "src": "154:6:0",
+                  "src": "154:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_string_storage_ptr",
                     "typeString": "string"
@@ -334,34 +334,34 @@
               }
             ],
             "name": "Object",
-            "nameLocation": "105:6:0",
-            "scope": 34,
+            "nameLocation": "105:6:1",
+            "scope": 422,
             "visibility": "public"
           },
           {
-            "id": 15,
+            "id": 403,
             "nodeType": "FunctionDefinition",
-            "src": "183:91:0",
+            "src": "183:91:1",
             "nodes": [],
             "functionSelector": "b5c11fc2",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getOutput",
-            "nameLocation": "192:9:0",
+            "nameLocation": "192:9:1",
             "parameters": {
-              "id": 9,
+              "id": 397,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8,
+                  "id": 396,
                   "mutability": "mutable",
                   "name": "str",
-                  "nameLocation": "227:3:0",
+                  "nameLocation": "227:3:1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 15,
-                  "src": "211:19:0",
+                  "scope": 403,
+                  "src": "211:19:1",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -369,10 +369,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 7,
+                    "id": 395,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "211:6:0",
+                    "src": "211:6:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -381,156 +381,156 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "201:35:0"
+              "src": "201:35:1"
             },
             "returnParameters": {
-              "id": 14,
+              "id": 402,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 13,
+                  "id": 401,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 15,
-                  "src": "255:17:0",
+                  "scope": 403,
+                  "src": "255:17:1",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_Object_$6_calldata_ptr_$dyn_calldata_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_Object_$394_calldata_ptr_$dyn_calldata_ptr",
                     "typeString": "struct MockPrecompileInterface.Object[]"
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 11,
+                      "id": 399,
                       "nodeType": "UserDefinedTypeName",
                       "pathNode": {
-                        "id": 10,
+                        "id": 398,
                         "name": "Object",
                         "nameLocations": [
-                          "255:6:0"
+                          "255:6:1"
                         ],
                         "nodeType": "IdentifierPath",
-                        "referencedDeclaration": 6,
-                        "src": "255:6:0"
+                        "referencedDeclaration": 394,
+                        "src": "255:6:1"
                       },
-                      "referencedDeclaration": 6,
-                      "src": "255:6:0",
+                      "referencedDeclaration": 394,
+                      "src": "255:6:1",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Object_$6_storage_ptr",
+                        "typeIdentifier": "t_struct$_Object_$394_storage_ptr",
                         "typeString": "struct MockPrecompileInterface.Object"
                       }
                     },
-                    "id": 12,
+                    "id": 400,
                     "nodeType": "ArrayTypeName",
-                    "src": "255:8:0",
+                    "src": "255:8:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_array$_t_struct$_Object_$6_storage_$dyn_storage_ptr",
+                      "typeIdentifier": "t_array$_t_struct$_Object_$394_storage_$dyn_storage_ptr",
                       "typeString": "struct MockPrecompileInterface.Object[]"
                     }
                   },
                   "visibility": "internal"
                 }
               ],
-              "src": "254:19:0"
+              "src": "254:19:1"
             },
-            "scope": 34,
+            "scope": 422,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 21,
+            "id": 409,
             "nodeType": "FunctionDefinition",
-            "src": "280:63:0",
+            "src": "280:63:1",
             "nodes": [],
             "functionSelector": "7acaaeb9",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getOutputPartial",
-            "nameLocation": "289:16:0",
+            "nameLocation": "289:16:1",
             "parameters": {
-              "id": 16,
+              "id": 404,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "305:2:0"
+              "src": "305:2:1"
             },
             "returnParameters": {
-              "id": 20,
+              "id": 408,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 19,
+                  "id": 407,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 21,
-                  "src": "326:15:0",
+                  "scope": 409,
+                  "src": "326:15:1",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_Object_$6_calldata_ptr",
+                    "typeIdentifier": "t_struct$_Object_$394_calldata_ptr",
                     "typeString": "struct MockPrecompileInterface.Object"
                   },
                   "typeName": {
-                    "id": 18,
+                    "id": 406,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 17,
+                      "id": 405,
                       "name": "Object",
                       "nameLocations": [
-                        "326:6:0"
+                        "326:6:1"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 6,
-                      "src": "326:6:0"
+                      "referencedDeclaration": 394,
+                      "src": "326:6:1"
                     },
-                    "referencedDeclaration": 6,
-                    "src": "326:6:0",
+                    "referencedDeclaration": 394,
+                    "src": "326:6:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Object_$6_storage_ptr",
+                      "typeIdentifier": "t_struct$_Object_$394_storage_ptr",
                       "typeString": "struct MockPrecompileInterface.Object"
                     }
                   },
                   "visibility": "internal"
                 }
               ],
-              "src": "325:17:0"
+              "src": "325:17:1"
             },
-            "scope": 34,
+            "scope": 422,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 28,
+            "id": 416,
             "nodeType": "FunctionDefinition",
-            "src": "349:67:0",
+            "src": "349:67:1",
             "nodes": [],
             "functionSelector": "c7dda0b9",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "contractFunc",
-            "nameLocation": "358:12:0",
+            "nameLocation": "358:12:1",
             "parameters": {
-              "id": 24,
+              "id": 412,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 23,
+                  "id": 411,
                   "mutability": "mutable",
                   "name": "addr",
-                  "nameLocation": "379:4:0",
+                  "nameLocation": "379:4:1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28,
-                  "src": "371:12:0",
+                  "scope": 416,
+                  "src": "371:12:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -538,10 +538,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 22,
+                    "id": 410,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "371:7:0",
+                    "src": "371:7:1",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -551,21 +551,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "370:14:0"
+              "src": "370:14:1"
             },
             "returnParameters": {
-              "id": 27,
+              "id": 415,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 26,
+                  "id": 414,
                   "mutability": "mutable",
                   "name": "ans",
-                  "nameLocation": "411:3:0",
+                  "nameLocation": "411:3:1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28,
-                  "src": "403:11:0",
+                  "scope": 416,
+                  "src": "403:11:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -573,10 +573,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 25,
+                    "id": 413,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "403:7:0",
+                    "src": "403:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -585,37 +585,37 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "402:13:0"
+              "src": "402:13:1"
             },
-            "scope": 34,
+            "scope": 422,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 33,
+            "id": 421,
             "nodeType": "FunctionDefinition",
-            "src": "422:55:0",
+            "src": "422:55:1",
             "nodes": [],
             "functionSelector": "04bb5393",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "contractFuncStr",
-            "nameLocation": "431:15:0",
+            "nameLocation": "431:15:1",
             "parameters": {
-              "id": 31,
+              "id": 419,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 30,
+                  "id": 418,
                   "mutability": "mutable",
                   "name": "str",
-                  "nameLocation": "463:3:0",
+                  "nameLocation": "463:3:1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 33,
-                  "src": "447:19:0",
+                  "scope": 421,
+                  "src": "447:19:1",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -623,10 +623,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 29,
+                    "id": 417,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "447:6:0",
+                    "src": "447:6:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -635,15 +635,15 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "446:21:0"
+              "src": "446:21:1"
             },
             "returnParameters": {
-              "id": 32,
+              "id": 420,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "476:0:0"
+              "src": "476:0:1"
             },
-            "scope": 34,
+            "scope": 422,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -656,15 +656,15 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34
+          422
         ],
         "name": "MockPrecompileInterface",
-        "nameLocation": "68:23:0",
-        "scope": 35,
+        "nameLocation": "68:23:1",
+        "scope": 423,
         "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 0
+  "id": 1
 }
