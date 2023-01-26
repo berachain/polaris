@@ -34,7 +34,7 @@ func (str *StateTransitioner) ApplyMessage(
 	evm vm.StargazerEVM,
 	msg Message,
 ) (*ExecutionResult, error) {
-	return str.buildStateTransition(evm, msg).transitionDB()
+	return str.buildStateTransition(evm, msg).TransitionDB()
 }
 
 // Create a new state transitioner to process a single transaction.
@@ -42,9 +42,9 @@ func (str *StateTransitioner) ApplyMessageAndCommit(
 	evm vm.StargazerEVM,
 	msg Message,
 ) (*ExecutionResult, error) {
-	res, err := str.buildStateTransition(evm, msg).transitionDB()
+	res, err := str.buildStateTransition(evm, msg).TransitionDB()
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to transitionDB")
+		return nil, sdkerrors.Wrap(err, "failed to TransitionDB")
 	}
 
 	// Persist state.
@@ -72,7 +72,7 @@ func (str *StateTransitioner) ApplyMessageWithTracerAndCommit(
 ) (*ExecutionResult, error) {
 	res, err := str.ApplyMessageWithTracer(evm, msg, tracer)
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to transitionDB")
+		return nil, sdkerrors.Wrap(err, "failed to TransitionDB")
 	}
 
 	// Persist state.

@@ -57,7 +57,7 @@ func NewStateTransition(evm vm.StargazerEVM, msg Message) *StateTransition {
 // Low Level Transition w/State Machine
 // =============================================================================
 
-// `transitionDB` executes the configured message in the Ethereum Virtual Machine (EVM) and
+// `TransitionDB` executes the configured message in the Ethereum Virtual Machine (EVM) and
 // returns the execution result. The function does a number of checks and operations
 // before and after executing the message in the EVM, including:
 //
@@ -69,7 +69,7 @@ func NewStateTransition(evm vm.StargazerEVM, msg Message) *StateTransition {
 //  5. Checking that the EVM did not use more gas than was supplied
 //  6. Calculating and applying any gas refunds, if applicable
 //  7. Updating the sender's nonce in the state database (sdb)
-func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
+func (st *StateTransition) TransitionDB() (*ExecutionResult, error) {
 	var (
 		msgFrom  = st.msg.From()
 		msgValue = st.msg.Value()
@@ -148,7 +148,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}, nil
 }
 
-// `traceTransitionDB` is wrapper around `transitionDB` that adds a tracer to the EVM
+// `traceTransitionDB` is wrapper around `TransitionDB` that adds a tracer to the EVM
 // and switches it to debug mode. The tracer is used to capture the execution trace
 // of the message in the EVM. After execution it captures the gas remaining and
 // returns the execution result, while also setting the EVM back to non-debug mode.
@@ -175,7 +175,7 @@ func (st *StateTransition) traceTransitionDB(tracer vm.EVMLogger) (*ExecutionRes
 	}()
 
 	// Perform the state machine execution
-	return st.transitionDB()
+	return st.TransitionDB()
 }
 
 func (st *StateTransition) gasUsed() uint64 {

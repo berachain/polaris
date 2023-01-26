@@ -14,5 +14,4 @@
 
 package mock
 
-//go:generate moq -out ./statedb.mock.go -pkg mock ../ StargazerStateDB
-//go:generate moq -out ./evm.mock.go -pkg mock ../ StargazerEVM
+//go:generate moq -out ./message.mock.go -pkg mock ../ Message
