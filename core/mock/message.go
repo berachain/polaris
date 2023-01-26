@@ -47,5 +47,8 @@ func NewEmptyMessage() *MessageMock {
 	m.AccessListFunc = func() coretypes.AccessList {
 		return nil
 	}
+	m.NonceFunc = func() uint64 {
+		return 0
+	}
 	return m
 }

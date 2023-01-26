@@ -31,14 +31,16 @@ import (
 var _ = Describe("StateTransition", func() {
 	var (
 		st  *core.StateTransition
-		sdb = new(vmmock.StargazerStateDBMock)
-		evm = new(vmmock.StargazerEVMMock)
+		evm *vmmock.StargazerEVMMock
+		sdb *vmmock.StargazerStateDBMock
 		msg = new(mock.MessageMock)
 	)
 
 	BeforeEach(func() {
-		sdb = vmmock.NewEmptyStateDB()
 		msg = mock.NewEmptyMessage()
+		evm = vmmock.NewStargazerEVM()
+		sdb = evm.StateDB().(*vmmock.StargazerStateDBMock)
+		_ = sdb
 		msg.FromFunc = func() common.Address {
 			return testutil.Alice
 		}
@@ -55,28 +57,14 @@ var _ = Describe("StateTransition", func() {
 			return &common.Address{1}
 		}
 
-		evm.SetTxContextFunc = func(txContext vm.TxContext) {
-			evm.TxContextFunc = func() vm.TxContext {
-				return txContext
-			}
-		}
-
-		evm.StateDBFunc = func() vm.StargazerStateDB {
-			return sdb
-		}
-
-		evm.ContextFunc = func() vm.BlockContext {
-			return vm.BlockContext{
-				CanTransfer: func(db vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-					return true
-				},
-			}
-		}
-
 		evm.CallFunc = func(caller vm.ContractRef, addr common.Address, input []byte,
 			gas uint64, value *big.Int,
 		) ([]byte, uint64, error) {
 			return []byte{}, 0, nil
+		}
+
+		evm.CreateFunc = func(caller vm.ContractRef, input []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
+			return []byte{}, common.Address{}, 0, nil
 		}
 
 		evm.ChainConfigFunc = func() *params.EthChainConfig {
@@ -87,8 +75,19 @@ var _ = Describe("StateTransition", func() {
 		_ = st
 
 	})
+	When("Contract Creation", func() {
+		BeforeEach(func() {
+			msg.ToFunc = func() *common.Address {
+				return nil
+			}
+		})
+		It("should create a contract", func() {
+			_, err := st.TransitionDB()
+			Expect(err).To(BeNil())
+		})
 
-	It("should return the correct sender", func() {
+	})
+	It("", func() {
 		Expect(msg.From()).To(Equal(testutil.Alice))
 		_, err := st.TransitionDB()
 		Expect(err).To(BeNil())

@@ -14,4 +14,34 @@
 
 package mock
 
+import (
+	"math/big"
+
+	"github.com/berachain/stargazer/core/vm"
+	"github.com/ethereum/go-ethereum/common"
+)
+
 //go:generate moq -out ./evm.mock.go -pkg mock ../ StargazerEVM
+
+func NewStargazerEVM() *StargazerEVMMock {
+	evm := new(StargazerEVMMock)
+	sdb := NewEmptyStateDB()
+	evm.SetTxContextFunc = func(txContext vm.TxContext) {
+		evm.TxContextFunc = func() vm.TxContext {
+			return txContext
+		}
+	}
+
+	evm.StateDBFunc = func() vm.StargazerStateDB {
+		return sdb
+	}
+
+	evm.ContextFunc = func() vm.BlockContext {
+		return vm.BlockContext{
+			CanTransfer: func(db vm.GethStateDB, addr common.Address, amount *big.Int) bool {
+				return true
+			},
+		}
+	}
+	return evm
+}
