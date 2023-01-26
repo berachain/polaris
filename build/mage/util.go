@@ -27,8 +27,8 @@ func PrintMageName() {
 	pc := slice.Make[uintptr]() // at least 1 entry needed
 	runtime.Callers(skip, pc)
 	f := runtime.FuncForPC(pc[0])
-	slice := strings.Split(f.Name(), ".")
-	name := slice[len(slice)-1]
+	splitup := strings.Split(f.Name(), ".")
+	name := splitup[len(splitup)-1]
 	//nolint:forbidigo // This is a mage file
 	fmt.Printf(`===========================
 Running %s...
