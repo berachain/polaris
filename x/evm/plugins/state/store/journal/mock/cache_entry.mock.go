@@ -12,17 +12,31 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package mock
 
-package stargazer.core.state.types.v1;
+import "github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 
-option go_package = "github.com/berachain/stargazer/x/evm/plugins/state/types";
+// `MockCacheEntry` is a basic CacheEntry which increases num by 1 on `Revert()`.
+type CacheEntry struct {
+	num int
+}
 
-// `State` represents a single key/value pair of evm state data.
-message State {
-  // `key` is the stored key.
-  string key = 1;
+// `NewCacheEntry` creates a new `MockCacheEntry`.
+func NewCacheEntry() *CacheEntry {
+	return &CacheEntry{}
+}
 
-  // `value` is the stored value for the given key.
-  string value = 2;
+// `Revert` implements `CacheEntry`.
+func (m *CacheEntry) Revert() {
+	m.num++
+}
+
+// `Clone` implements `CacheEntry`.
+func (m *CacheEntry) Clone() journal.CacheEntry {
+	return &CacheEntry{num: m.num}
+}
+
+// `RevertCallCount` returns the number of times `Revert` has been called.
+func (m *CacheEntry) RevertCallCount() int {
+	return m.num
 }
