@@ -21,6 +21,8 @@ import (
 	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
 
+//go:generate moq -out ./message.mock.go -pkg mock ../ Message
+
 func NewEmptyMessage() *MessageMock {
 	m := new(MessageMock)
 	m.FromFunc = func() common.Address {
