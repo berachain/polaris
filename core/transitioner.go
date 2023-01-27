@@ -15,77 +15,63 @@
 package core
 
 import (
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/lib/errors"
 )
-
-// The StateTransitioner is responsible for executing state transtions.
-// It also caches EVM config / param variables to prevent having to pull the parameters from the
-// store on every transaction.
-type StateTransitioner struct{}
 
 // =============================================================================
 // Transition Execution
 // =============================================================================
 
 // Create a new state transitioner to process a single transaction.
-func (str *StateTransitioner) ApplyMessage(
+func ApplyMessage(
 	evm vm.StargazerEVM,
 	msg Message,
 ) (*ExecutionResult, error) {
-	return str.buildStateTransition(evm, msg).TransitionDB()
+	return NewStateTransition(evm, msg).TransitionDB()
 }
 
 // Create a new state transitioner to process a single transaction.
-func (str *StateTransitioner) ApplyMessageAndCommit(
+func ApplyMessageAndCommit(
 	evm vm.StargazerEVM,
 	msg Message,
 ) (*ExecutionResult, error) {
-	res, err := str.buildStateTransition(evm, msg).TransitionDB()
+	res, err := NewStateTransition(evm, msg).TransitionDB()
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to TransitionDB")
+		return nil, errors.Wrap(err, "failed to TransitionDB")
 	}
 
 	// Persist state.
 	if err = evm.StateDB().FinalizeTx(); err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to commit stateDB")
+		return nil, errors.Wrap(err, "failed to commit stateDB")
 	}
 
 	return res, nil
 }
 
 // Create a new state transitioner to process a single transaction.
-func (str *StateTransitioner) ApplyMessageWithTracer(
+func ApplyMessageWithTracer(
 	evm vm.StargazerEVM,
 	msg Message,
 	tracer vm.EVMLogger,
 ) (*ExecutionResult, error) {
-	return str.buildStateTransition(evm, msg).traceTransitionDB(tracer)
+	return NewStateTransition(evm, msg).traceTransitionDB(tracer)
 }
 
 // Create a new state transitioner to process a single transaction.
-func (str *StateTransitioner) ApplyMessageWithTracerAndCommit(
+func ApplyMessageWithTracerAndCommit(
 	evm vm.StargazerEVM,
 	msg Message,
 	tracer vm.EVMLogger,
 ) (*ExecutionResult, error) {
-	res, err := str.ApplyMessageWithTracer(evm, msg, tracer)
+	res, err := ApplyMessageWithTracer(evm, msg, tracer)
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to TransitionDB")
+		return nil, errors.Wrap(err, "failed to TransitionDB")
 	}
 
 	// Persist state.
 	if err = evm.StateDB().FinalizeTx(); err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to commit stateDB")
+		return nil, errors.Wrap(err, "failed to commit stateDB")
 	}
 	return res, nil
-}
-
-// Create a new state transitioner to process a single transaction.
-func (str *StateTransitioner) buildStateTransition(
-	evm vm.StargazerEVM,
-	msg Message,
-) *StateTransition {
-	return NewStateTransition(evm, msg)
 }

@@ -38,13 +38,13 @@ func NewEVMBlockContext(bd *block.Data, getHashFunc vm.GetHashFunc) vm.BlockCont
 	}
 }
 
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
+// `canTransfer` checks whether there are enough funds in the address' account to make a transfer.
 // NOTE: This does not take the necessary gas in to account to make the transfer valid.
 func canTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
 	return sdb.GetBalance(addr).Cmp(amount) >= 0
 }
 
-// `Transfer` subtracts amount from sender and adds amount to recipient using the `vm.StateDB`.
+// `transfer` sends amount from sender to recipient using the evm's `vm.GethStateDB`.
 func transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
 	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
 	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
