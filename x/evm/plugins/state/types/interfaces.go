@@ -15,7 +15,7 @@
 package types
 
 import (
-	coretypes "github.com/berachain/stargazer/core/types"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
