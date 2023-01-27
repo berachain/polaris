@@ -13,9 +13,3 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package core
-
-import "errors"
-
-var (
-	ErrNilMessage = errors.New("nil message")
-)
