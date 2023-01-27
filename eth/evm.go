@@ -14,8 +14,19 @@
 
 package evm
 
-import "github.com/berachain/stargazer/eth/core"
+import (
+	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/eth/services"
+)
 
-type MsgServer struct {
-	core.StateProcessor
+type ChainService interface{}
+
+type TxService interface{}
+
+type QueryService interface{}
+
+type ParamsService interface{}
+
+func NewEvmChain(core.Host) *services.Chain {
+	return &services.Chain{}
 }

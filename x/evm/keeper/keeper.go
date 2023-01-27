@@ -19,8 +19,8 @@ import (
 	"math"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/berachain/stargazer/core"
-	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"

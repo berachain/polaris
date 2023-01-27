@@ -12,10 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package state
 
-import "github.com/berachain/stargazer/eth/core"
+import (
+	"github.com/berachain/stargazer/eth/core/vm"
+)
 
-type MsgServer struct {
-	core.StateProcessor
+type StateDB struct { //nolint:revive // StateDB is a struct that holds the state of the blockchain.
+	vm.StargazerStateDB
 }

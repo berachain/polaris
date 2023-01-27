@@ -12,10 +12,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package services
 
-import "github.com/berachain/stargazer/eth/core"
+import (
+	"context"
 
-type MsgServer struct {
-	core.StateProcessor
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/lib/common"
+)
+
+// StateDBReader
+// VMReader
+// GasStation
+
+type Query struct {
+
+	// StateProcessorFactory
+	// other shit
+}
+
+func (q *Query) EthCall(ctx context.Context, data []byte,
+	gascap uint64, coinbase common.Address, chainID int64) *coretypes.Receipt {
+	return &coretypes.Receipt{}
 }
