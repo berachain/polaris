@@ -14,6 +14,12 @@
 
 package services
 
-type Tx struct {
-	// csp StateProcessor
+import "github.com/berachain/stargazer/eth"
+
+var _ eth.TxService = (*Tx)(nil)
+
+type Tx struct{}
+
+func NewTx() *Tx {
+	return &Tx{}
 }

@@ -19,6 +19,8 @@ import (
 	"github.com/berachain/stargazer/eth/core"
 )
 
+var _ eth.ChainService = (*Chain)(nil)
+
 type Chain struct {
 	// native application's host
 	host core.Host
@@ -33,7 +35,7 @@ type Chain struct {
 func NewChain(host core.Host) eth.ChainService {
 	return &Chain{
 		host:         host,
-		queryService: &Query{},
-		txService:    &Tx{},
+		queryService: NewQuery(),
+		txService:    NewTx(),
 	}
 }
