@@ -15,7 +15,7 @@
 package state
 
 import (
-	coretypes "github.com/berachain/stargazer/core/types"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

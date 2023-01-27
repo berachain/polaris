@@ -20,7 +20,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	// "github.com/berachain/stargazer/params".
+	// "github.com/berachain/stargazer/eth/params".
 	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 

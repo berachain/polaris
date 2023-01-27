@@ -17,8 +17,8 @@ package precompile
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/core/precompile/container"
-	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/eth/core/precompile/container"
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 )
