@@ -20,9 +20,9 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/berachain/stargazer/core/precompile/container"
-	coretypes "github.com/berachain/stargazer/core/types"
-	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/eth/core/precompile/container"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"

@@ -17,8 +17,8 @@ package precompile_test
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/core/precompile"
-	"github.com/berachain/stargazer/core/vm"
+	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	. "github.com/onsi/ginkgo/v2"

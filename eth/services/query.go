@@ -12,34 +12,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package services
 
 import (
-	"github.com/berachain/stargazer/params"
+	"context"
+
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/lib/common"
 )
 
-// `EVMFactory` is used to build new Stargazer `EVM`s.
-type EVMFactory struct {
-	// `precompileController` is responsible for keeping track of the stateful precompile
-	// containers that are available to the EVM and executing them.
-	precompileController PrecompileController
+// StateDBReader
+// VMReader
+// GasStation
+
+type Query struct {
+
+	// StateProcessorFactory
+	// other shit
 }
 
-// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `PrecompileController`.
-func NewEVMFactory(precompileController PrecompileController) *EVMFactory {
-	return &EVMFactory{
-		precompileController: precompileController,
-	}
-}
-
-// `Build` creates and returns a new `vm.StargazerEVM`.
-func (ef *EVMFactory) Build(
-	ssdb StargazerStateDB,
-	blockCtx BlockContext,
-	txCtx TxContext,
-	chainConfig *params.EthChainConfig,
-	noBaseFee bool,
-) StargazerEVM {
-	return NewStargazerEVM(
-		blockCtx, txCtx, ssdb, chainConfig, Config{}, ef.precompileController)
+func (q *Query) EthCall(ctx context.Context, data []byte,
+	gascap uint64, coinbase common.Address, chainID int64) *coretypes.Receipt {
+	return &coretypes.Receipt{}
 }

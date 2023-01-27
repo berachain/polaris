@@ -20,7 +20,7 @@ import (
 	"regexp"
 	"strings"
 
-	coretypes "github.com/berachain/stargazer/core/types"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/errors/debug"

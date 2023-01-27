@@ -29,8 +29,8 @@ var (
 
 	// Docker Args
 	// TODO: remove once https://github.com/cosmos/cosmos-sdk/pull/13960 is merged
-	protoImageName    = "berachain-proto"
-	protoImageVersion = "0.11.2"
+	protoImageName    = "ghcr.io/cosmos/proto-builder"
+	protoImageVersion = "0.11.6"
 	protoDir          = "proto"
 )
 

@@ -17,8 +17,8 @@ package vm
 import (
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/params"
 )
 
 type StargazerEVM interface {
