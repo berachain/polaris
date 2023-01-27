@@ -12,16 +12,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package keeper
+package params
 
-import "github.com/berachain/stargazer/eth/core"
+import "math/big"
 
-type Querier struct {
-	StateProcessor *core.StateProcessor
+type Provider struct {
+	eip155chainIDMem *big.Int
+
+	chainConfigMem *EthChainConfig
 }
 
-func NewQuerier(sp *core.StateProcessor) *Querier {
-	return &Querier{
-		StateProcessor: sp,
+func NewProvider() *Provider {
+	return &Provider{
+		eip155chainIDMem: nil,
+		chainConfigMem:   nil,
 	}
 }

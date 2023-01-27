@@ -12,21 +12,30 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package eth
 
-import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/services"
-)
+type ChainService interface {
+	TxService
+	QueryService
+	ParamsService
+}
 
-type ChainService interface{}
+type TxService interface {
+	// ApplyTx()
+}
 
-type TxService interface{}
+type QueryService interface {
+	StateDBReader
+	VMReader
+	GasStation
+}
 
-type QueryService interface{}
+type StateDBReader interface{}
 
-type ParamsService interface{}
+type VMReader interface{}
 
-func NewEvmChain(core.Host) *services.Chain {
-	return &services.Chain{}
+type GasStation interface{}
+
+type ParamsService interface {
+	// UpdateParams()
 }

@@ -35,9 +35,9 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-//==============================================================================
+// ==============================================================================
 // AppModuleBasic
-//==============================================================================
+// ==============================================================================
 
 // AppModuleBasic is the AppModuleBasic object for the evm module.
 type AppModuleBasic struct{}
@@ -63,7 +63,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return nil
 }
 
-// ValidateGenesis is the validation check of the Genesis
+// ValidateGenesis is the validation check of the Genesis.
 func (AppModuleBasic) ValidateGenesis(
 	cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage,
 ) error {
@@ -92,9 +92,9 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 	types.RegisterInterfaces(registry)
 }
 
-//==============================================================================
+// ==============================================================================
 // AppModule
-//==============================================================================
+// ==============================================================================
 
 // AppModule implements an application module for the evm module.
 type AppModule struct {
@@ -102,13 +102,11 @@ type AppModule struct {
 	newKeeper *keeper.Keeper
 }
 
-// NewAppModule creates a new AppModule object
-func NewAppModule(
-	newKeeper *keeper.Keeper,
-	sk keeper.StakingKeeper,
-) (am AppModule) {
-	am.newKeeper = newKeeper
-	return am
+// NewAppModule creates a new AppModule object.
+func NewAppModule(newKeeper *keeper.Keeper, sk keeper.StakingKeeper) AppModule {
+	return AppModule{
+		newKeeper: newKeeper,
+	}
 }
 
 // RegisterServices registers a GRPC query service to respond to the
@@ -140,23 +138,23 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return nil
 }
 
-//==============================================================================
+// ==============================================================================
 // ABCI Functions
-//==============================================================================
+// ==============================================================================
 
-// BeginBlock returns the begin block for the evm module.
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
-}
+// // BeginBlock returns the begin block for the evm module.
+// func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
+// }
 
-// EndBlock returns the end blocker for the evm module. It returns no validator
-// updates.
-func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return nil
-}
+// // EndBlock returns the end blocker for the evm module. It returns no validator
+// // updates.
+// func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.ValidatorUpdate {
+// 	return nil
+// }
 
-//==============================================================================
+// ==============================================================================
 // No-op functions
-//==============================================================================
+// ==============================================================================
 
 // RegisterInvariants interface for registering invariants. Performs a no-op
 // as the evm module doesn't expose invariants.

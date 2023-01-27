@@ -15,7 +15,10 @@
 //nolint:ireturn // Stack uses generics.
 package stack
 
-import "github.com/berachain/stargazer/lib/ds"
+import (
+	"github.com/berachain/stargazer/lib/ds"
+	"github.com/berachain/stargazer/lib/utils/slice"
+)
 
 const (
 	resizeRatio = 2
@@ -31,12 +34,22 @@ type stack[T any] struct {
 	buf []T
 }
 
-// Creates a new, empty stack.
-func New[T any](capacity int) ds.Stack[T] {
+// Creates a new, empty stack with an optional `capacity`. Uses a default capacity of 16 if not
+// provided.
+func New[T any](capacity ...int) ds.Stack[T] {
 	result := new(stack[T])
-	result.capacity = capacity
-	result.size = 0
-	result.buf = make([]T, capacity)
+
+	//nolint:gocritic // cannot be converted to switch-case.
+	if len(capacity) > 1 {
+		panic("invalid capacity")
+	} else if len(capacity) == 1 {
+		result.capacity = capacity[0]
+		result.buf = make([]T, result.capacity)
+	} else {
+		result.capacity = slice.DefaultInitialCapacity
+		result.buf = slice.Make[T]()
+	}
+
 	return result
 }
 
@@ -81,7 +94,7 @@ func (s *stack[T]) PopToSize(newSize int) {
 	s.shrinkIfRequired()
 }
 
-// `expandIfRequired` expands the stack if the size is equal to the capacity.
+// `expandIfRequired` expands the stack by resizeRatio if the size is equal to the capacity.
 func (s *stack[T]) expandIfRequired() {
 	if s.size < s.capacity {
 		return

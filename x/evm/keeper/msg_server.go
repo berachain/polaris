@@ -17,7 +17,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/berachain/stargazer/core"
+	"github.com/berachain/stargazer/eth/core"
 )
 
 type MsgServer struct {

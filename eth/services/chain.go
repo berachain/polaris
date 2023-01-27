@@ -14,6 +14,26 @@
 
 package services
 
+import (
+	"github.com/berachain/stargazer/eth"
+	"github.com/berachain/stargazer/eth/core"
+)
+
 type Chain struct {
-	// host core.Host
+	// native application's host
+	host core.Host
+
+	// eth querier
+	queryService *Query
+
+	// tx server
+	txService *Tx
+}
+
+func NewChain(host core.Host) eth.ChainService {
+	return &Chain{
+		host:         host,
+		queryService: &Query{},
+		txService:    &Tx{},
+	}
 }

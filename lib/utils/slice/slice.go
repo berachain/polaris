@@ -14,13 +14,13 @@
 
 package slice
 
-// `defaultInitialCapacity` is the recommended initial capacity of slices to avoid extra overhead
+// `DefaultInitialCapacity` is the recommended initial capacity of slices to avoid extra overhead
 // from the Golang runtime. While the capacity of a slice is than ~10, the slice is resized by just
 // 1 entry at a time, which can be avoided by using a higher initial capacity.
-const defaultInitialCapacity = 16
+const DefaultInitialCapacity = 16
 
 // `Make` creates and returns a slice of elements of type `T` with an initial capacity of 16. This
 // helps avoid repeated resizes (alloc and copy operations) while the slice grows from 0 size.
 func Make[T any]() []T {
-	return make([]T, 0, defaultInitialCapacity)
+	return make([]T, 0, DefaultInitialCapacity)
 }

@@ -12,16 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package keeper
+package services
 
-import "github.com/berachain/stargazer/eth/core"
-
-type Querier struct {
-	StateProcessor *core.StateProcessor
-}
-
-func NewQuerier(sp *core.StateProcessor) *Querier {
-	return &Querier{
-		StateProcessor: sp,
-	}
+type Params struct {
 }
