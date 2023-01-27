@@ -18,7 +18,6 @@ import (
 	"fmt"
 
 	"github.com/berachain/stargazer/core/vm"
-	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/params"
 )
 
@@ -129,7 +128,9 @@ func (st *StateTransition) TransitionDB() (*ExecutionResult, error) {
 			msgData, st.gas, msgValue)
 		sdb.SetNonce(sender.Address(), st.msg.Nonce()+1)
 	} else {
-		ret, st.gas, vmErr = st.evm.Call(sender, st.to(),
+		// It is to deference st.msg.To() here, as it is checked
+		// to be non-nil higher up in this function.
+		ret, st.gas, vmErr = st.evm.Call(sender, *st.msg.To(),
 			msgData, st.gas, msgValue)
 	}
 
@@ -205,12 +206,4 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	// Moving buyGas and refundGas to here however... would open the door to potentially using
 	// the Geth/Erigon state transition code, which would be nice. We would then just do no
 	// gas fee deduction in the AnteHandler, as the native state transition does that.
-}
-
-// to returns the recipient of the message.
-func (st *StateTransition) to() common.Address {
-	if st.msg == nil || st.msg.To() == nil /* contract creation */ {
-		return common.Address{}
-	}
-	return *st.msg.To()
 }

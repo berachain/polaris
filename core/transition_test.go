@@ -53,6 +53,7 @@ var _ = Describe("StateTransition", func() {
 		}
 
 	})
+
 	When("Contract Creation", func() {
 		BeforeEach(func() {
 			msg.ToFunc = func() *common.Address {
