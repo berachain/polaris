@@ -7,7 +7,7 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0
 
 require (
 	github.com/bufbuild/buf v1.7.0
-	github.com/cosmos/cosmos-sdk v0.47.0-alpha2.0.20221227211314-7d986b209e29
+	github.com/cosmos/cosmos-sdk v0.47.0-rc1
 	github.com/cosmos/gogoproto v1.4.3
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/dave/jennifer v1.6.0
