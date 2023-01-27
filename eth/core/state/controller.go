@@ -12,31 +12,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package services
+package state
 
-import (
-	"context"
+import "github.com/berachain/stargazer/lib/ds"
 
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/common"
-)
-
-// StateDBReader
-// VMReader
-// GasStation
-
-type Query struct {
-
-	// StateProcessorFactory
-	// other shit
+type Controller struct {
+	stores      map[string]Store
+	snapTracker ds.Stack[map[string]int]
 }
 
-func (q *Query) EthCall(
-	ctx context.Context,
-	data []byte,
-	gascap uint64,
-	coinbase common.Address,
-	chainID int64,
-) *coretypes.Receipt {
-	return &coretypes.Receipt{}
+func NewController() *Controller {
+	return &Controller{
+		stores: make(map[string]Store),
+	}
+}
+
+func (ctrl *Controller) AddStore(store Store) {
+	ctrl.stores[store.Name()] = store
+}
+
+func (ctrl *Controller) GetStore(name string) Store {
+	return ctrl.stores[name]
+}
+
+func (ctrl *Controller) Snapshot() int {
+	snap := make(map[string]int)
+	for name, store := range ctrl.stores {
+		snap[name] = store.Snapshot()
+	}
+	ctrl.snapTracker.Push(snap)
+	return ctrl.snapTracker.Size()
+}
+
+func (ctrl *Controller) RevertToSnapshot(snap int) {
+	top := ctrl.snapTracker.Peek()
+	for name, store := range ctrl.stores {
+		store.RevertToSnapshot(top[name])
+	}
+	ctrl.snapTracker.PopToSize(snap)
 }
