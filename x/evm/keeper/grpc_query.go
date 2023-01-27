@@ -14,14 +14,14 @@
 
 package keeper
 
-import "github.com/berachain/stargazer/eth/core"
+import (
+	"github.com/berachain/stargazer/eth"
+)
 
 type Querier struct {
-	StateProcessor *core.StateProcessor
+	eth.QueryService
 }
 
-func NewQuerier(sp *core.StateProcessor) *Querier {
-	return &Querier{
-		StateProcessor: sp,
-	}
+func NewQuerier(qs eth.QueryService) *Querier {
+	return &Querier{qs}
 }

@@ -17,17 +17,22 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/eth"
 )
 
 type MsgServer struct {
-	StateProcessor *core.StateProcessor
-	authority      sdk.AccAddress
+	eth.TxService
+	eth.ParamsService
+
+	authority sdk.AccAddress
 }
 
-func NewMsgServer(sp *core.StateProcessor, authority sdk.AccAddress) *MsgServer {
+func NewMsgServer(
+	tx eth.TxService, params eth.ParamsService, authority sdk.AccAddress,
+) *MsgServer {
 	return &MsgServer{
-		StateProcessor: sp,
-		authority:      authority,
+		TxService:     tx,
+		ParamsService: params,
+		authority:     authority,
 	}
 }
