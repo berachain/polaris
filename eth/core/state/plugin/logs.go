@@ -30,6 +30,7 @@ var _ Base = (*logs)(nil)
 type logs struct {
 	// For the block.
 	txHashToLogs map[common.Hash]ds.Stack[*coretypes.Log]
+	logSize      uint
 
 	// Reset every tx.
 	currentTxHash common.Hash
@@ -62,8 +63,9 @@ func (l *logs) AddLog(log *coretypes.Log) {
 	logs := l.txHashToLogs[l.currentTxHash]
 	log.TxHash = l.currentTxHash
 	log.TxIndex = l.currenTxIndex
-	log.Index = uint(logs.Size())
+	log.Index = l.logSize
 	logs.Push(log)
+	l.logSize++
 }
 
 // `GetLogs` returns the logs for a given transaction hash.

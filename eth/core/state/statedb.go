@@ -32,11 +32,13 @@ var (
 	emptyCodeHash = crypto.Keccak256Hash(nil)
 )
 
+// Compile-time assertion that StateDB implements the vm.StargazerStateDB interface.
 var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 type StateDB struct { //nolint:revive // StateDB is a struct that holds the state of the blockchain.
 	ctx context.Context
 
+	// The controller is used to manage the plugins
 	ctrl Controller
 
 	// Developer provided plugins
@@ -58,10 +60,24 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 }
 
 func NewStateDB(ctrl Controller) *StateDB {
-	ctrl.AddStore(plugin.NewRefund())
-	return &StateDB{ctrl: ctrl}
+	// Add the internal plugins to the controller
+	ctrl.AddPlugin(plugin.NewRefund())
+	ctrl.AddPlugin(plugin.NewLogs())
+
+	// Create the stateDB and populate the developer provided plugins.
+	return &StateDB{
+		ctrl:     ctrl,
+		ap:       ctrl.GetPlugin("account").(AccountPlugin),
+		bp:       ctrl.GetPlugin("balance").(BalancePlugin),
+		cp:       ctrl.GetPlugin("code").(CodePlugin),
+		sp:       ctrl.GetPlugin("storage").(StoragePlugin),
+		lp:       ctrl.GetPlugin("logs").(LogPlugin),
+		rf:       ctrl.GetPlugin("refund").(RefundPlugin),
+		suicides: make([]common.Address, 0),
+	}
 }
 
+// `GetContext` returns the context of the StateDB.
 func (sdb *StateDB) GetContext() context.Context {
 	return sdb.ctx
 }
@@ -85,6 +101,7 @@ func (sdb *StateDB) Reset(ctx context.Context) {
 // Account
 // =============================================================================
 
+// `CreateAccount` creates a new account.
 func (sdb *StateDB) CreateAccount(addr common.Address) {
 	sdb.ap.CreateAccount(sdb.ctx, addr)
 }
@@ -105,18 +122,22 @@ func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 // Balance
 // =============================================================================
 
+// `GetBalance` returns the balance of an account.
 func (sdb *StateDB) GetBalance(addr common.Address) *big.Int {
 	return sdb.bp.GetBalance(sdb.ctx, addr)
 }
 
+// `SubBalance` subtracts an amount from the balance of an account.
 func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 	sdb.bp.SubBalance(sdb.ctx, addr, amount)
 }
 
+// `AddBalance` adds an amount to the balance of an account.
 func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
 	sdb.bp.AddBalance(sdb.ctx, addr, amount)
 }
 
+// `TransferBalance` transfers an amount from one account to another.
 func (sdb *StateDB) TransferBalance(sender, receipient common.Address, amount *big.Int) {
 	sdb.bp.TransferBalance(sdb.ctx, sender, receipient, amount)
 }

@@ -19,6 +19,7 @@ import (
 	"github.com/berachain/stargazer/lib/ds"
 )
 
+// `Controller` is a state controller that manages multiple state stores.
 type Controller struct {
 	stores      map[string]plugin.Base
 	snapTracker ds.Stack[map[string]int]
@@ -30,11 +31,11 @@ func NewController() *Controller {
 	}
 }
 
-func (ctrl *Controller) AddStore(store plugin.Base) {
+func (ctrl *Controller) AddPlugin(store plugin.Base) {
 	ctrl.stores[store.Name()] = store
 }
 
-func (ctrl *Controller) GetStore(name string) plugin.Base {
+func (ctrl *Controller) GetPlugin(name string) plugin.Base {
 	return ctrl.stores[name]
 }
 
