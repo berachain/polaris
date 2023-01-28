@@ -15,14 +15,24 @@
 package state
 
 import (
+	"bytes"
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/core/state/plugin"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 )
 
-// var _ vm.StargazerStateDB = (*StateDB)(nil)
+var (
+	// EmptyCodeHash is the Keccak256 Hash of empty code
+	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
+	emptyCodeHash = crypto.Keccak256Hash(nil)
+)
+
+var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 type StateDB struct { //nolint:revive // StateDB is a struct that holds the state of the blockchain.
 	ctx context.Context
@@ -36,18 +46,24 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 	sp StoragePlugin
 
 	// Internal plugins
+	lp LogPlugin
 	rf RefundPlugin
 
-	// Transaction and logging bookkeeping
-	txHash  common.Hash
-	txIndex uint
-	// logs    map[common.Hash]ds.Stack[*coretypes.Log]
-	// logSize uint
+	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
+	// for the code and state to still be accessible even after the account has been deleted.
+	// We chose to keep track of them in a separate slice, rather than a map, because the
+	// number of accounts that will be suicided in a single transaction is expected to be
+	// very low.
+	suicides []common.Address
 }
 
 func NewStateDB(ctrl Controller) *StateDB {
-	ctrl.AddStore(&RefundPlugin{})
+	ctrl.AddStore(plugin.NewRefund())
 	return &StateDB{ctrl: ctrl}
+}
+
+func (sdb *StateDB) GetContext() context.Context {
+	return sdb.ctx
 }
 
 // =============================================================================
@@ -57,9 +73,7 @@ func NewStateDB(ctrl Controller) *StateDB {
 // `Prepare` sets the current transaction hash and index which are
 // used when the EVM emits new state logs.
 func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
-	sdb.txHash = txHash
-	sdb.txIndex = ti
-	// sdb.logs[txHash] = stack.New[*coretypes.Log](logStackCapacity)
+	sdb.lp.Prepare(txHash, ti)
 }
 
 // `Reset` resets the state object to the initial state.
@@ -165,13 +179,182 @@ func (sdb *StateDB) GetState(addr common.Address, key common.Hash) common.Hash {
 	return sdb.sp.GetState(sdb.ctx, addr, key)
 }
 
+func (sdb *StateDB) GetCommittedState(addr common.Address, key common.Hash) common.Hash {
+	return sdb.sp.GetCommittedState(sdb.ctx, addr, key)
+}
+
 func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sdb.sp.DeleteState(sdb.ctx, addr, key)
+		sdb.sp.SetState(sdb.ctx, addr, key, value)
 		return
 	}
 
 	// Set the state entry.
-	sdb.sp.SetState(sdb.ctx, addr, key, value)
+	sdb.sp.DeleteState(sdb.ctx, addr, key)
 }
+
+// =============================================================================
+// Suicide
+// =============================================================================
+
+// Suicide implements the GethStateDB interface by marking the given address as suicided.
+// This clears the account balance, but the code and state of the address remains available
+// until after Commit is called.
+func (sdb *StateDB) Suicide(addr common.Address) bool {
+	// only smart contracts can commit suicide
+	ch := sdb.GetCodeHash(addr)
+	if (ch == common.Hash{}) || ch == emptyCodeHash {
+		return false
+	}
+
+	// Reduce it's balance to 0.
+	sdb.SubBalance(addr, sdb.GetBalance(addr))
+
+	// Mark the underlying account for deletion in `Commit()`.
+	sdb.suicides = append(sdb.suicides, addr)
+	return true
+}
+
+// `HasSuicided` implements the `GethStateDB` interface by returning if the contract was suicided
+// in current transaction.
+func (sdb *StateDB) HasSuicided(addr common.Address) bool {
+	for _, suicide := range sdb.suicides {
+		if bytes.Equal(suicide[:], addr[:]) {
+			return true
+		}
+	}
+	return false
+}
+
+// =============================================================================
+// Exist & Empty
+// =============================================================================
+
+// `Exist` implements the `GethStateDB` interface by reporting whether the given account address
+// exists in the state. Notably this also returns true for suicided accounts, which is accounted
+// for since, `RemoveAccount()` is not called until Commit.
+func (sdb *StateDB) Exist(addr common.Address) bool {
+	return sdb.ap.HasAccount(sdb.ctx, addr)
+}
+
+// `Empty` implements the `GethStateDB` interface by returning whether the state object
+// is either non-existent or empty according to the EIP161 specification
+// (balance = nonce = code = 0)
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
+func (sdb *StateDB) Empty(addr common.Address) bool {
+	ch := sdb.GetCodeHash(addr)
+	return sdb.GetNonce(addr) == 0 &&
+		(ch == emptyCodeHash || ch == common.Hash{}) &&
+		sdb.GetBalance(addr).Sign() == 0
+}
+
+// =============================================================================
+// Logs
+// =============================================================================
+
+// `AddLog` implements the `GethStateDB` interface by adding a log to the current
+// transaction.
+func (sdb *StateDB) AddLog(log *coretypes.Log) {
+	sdb.lp.AddLog(log)
+}
+
+// `GetLogs` implements the `GethStateDB` interface by returning the logs for the.
+func (sdb *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
+	return sdb.lp.GetLogs(txHash, blockHash)
+}
+
+// =============================================================================
+// Snapshot
+// =============================================================================
+
+// `RevertToSnapshot` implements `StateDB`.
+func (sdb *StateDB) RevertToSnapshot(id int) {
+	// revert and discard all journal entries after snapshot id
+	sdb.ctrl.RevertToSnapshot(id)
+}
+
+// `Snapshot` implements `StateDB`.
+func (sdb *StateDB) Snapshot() int {
+	return sdb.ctrl.Snapshot()
+}
+
+// =============================================================================
+// ForEachStorage
+// =============================================================================
+
+// `ForEachStorage` implements the `GethStateDB` interface by iterating through the contract state
+// contract storage, the iteration order is not defined.
+//
+// Note: We do not support iterating through any storage that is modified before calling
+// `ForEachStorage`; only committed state is iterated through.
+func (sdb *StateDB) ForEachStorage(
+	addr common.Address,
+	cb func(key, value common.Hash) bool,
+) error {
+	return sdb.sp.ForEachStorage(sdb.ctx, addr, cb)
+}
+
+// `FinalizeTx` is called when we are complete with the state transition and want to commit the changes
+// to the underlying store.
+func (sdb *StateDB) FinalizeTx() error {
+	// Manually delete all suicidal accounts.
+	for _, suicidalAddr := range sdb.suicides {
+		if !sdb.ap.HasAccount(sdb.ctx, suicidalAddr) {
+			// handles the double suicide case
+			continue
+		}
+
+		// clear storage
+		_ = sdb.ForEachStorage(suicidalAddr,
+			func(key, _ common.Hash) bool {
+				sdb.SetState(suicidalAddr, key, common.Hash{})
+				return true
+			})
+
+		// clear the codehash from this account
+		sdb.cp.SetCodeHash(sdb.ctx, suicidalAddr, common.Hash{})
+
+		// remove auth account
+		sdb.ap.DeleteAccount(sdb.ctx, suicidalAddr)
+	}
+	sdb.ctrl.Finalize()
+	return nil
+}
+
+// =============================================================================
+// AccessList
+// =============================================================================
+
+func (sdb *StateDB) PrepareAccessList(
+	sender common.Address,
+	dst *common.Address,
+	precompiles []common.Address,
+	list coretypes.AccessList,
+) {
+	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+}
+
+func (sdb *StateDB) AddAddressToAccessList(addr common.Address) {
+	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+}
+
+func (sdb *StateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
+	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+}
+
+func (sdb *StateDB) AddressInAccessList(addr common.Address) bool {
+	return false
+}
+
+func (sdb *StateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
+	return false, false
+}
+
+// =============================================================================
+// PreImage
+// =============================================================================
+
+// AddPreimage implements the the `StateDB“ interface, but currently
+// performs a no-op since the EnablePreimageRecording flag is disabled.
+func (sdb *StateDB) AddPreimage(hash common.Hash, preimage []byte) {}

@@ -18,23 +18,21 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/core/state/plugin"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
 )
 
-type Store interface {
-	// `GetName` returns the name of the store
-	Name() string
-
-	// `RevertToSnapshot` reverts the state to a previous version
-	RevertToSnapshot(int)
-
-	// `Snapshot` returns an identifier for the current revision of the state.
-	Snapshot() int
-}
-
 type AccountPlugin interface {
+	plugin.Base
 	// `CreateAccount` creates a new account with the given address
 	CreateAccount(context.Context, common.Address)
+
+	// `HasAccount` returns true if the account associated with the given address exists
+	HasAccount(context.Context, common.Address) bool
+
+	// `DeleteAccount` deletes the account associated with the given address
+	DeleteAccount(context.Context, common.Address)
 
 	// `GetNonce` returns the nonce of the account associated with the given address
 	GetNonce(context.Context, common.Address) uint64
@@ -44,6 +42,7 @@ type AccountPlugin interface {
 }
 
 type BalancePlugin interface {
+	plugin.Base
 	// `GetBalance` returns the balance of the account associated with the given address
 	GetBalance(context.Context, common.Address) *big.Int
 
@@ -59,6 +58,7 @@ type BalancePlugin interface {
 }
 
 type CodePlugin interface {
+	plugin.Base
 	// `GetCodeHash` returns the code hash of the account associated with the given address
 	GetCodeHash(context.Context, common.Address) common.Hash
 
@@ -75,9 +75,40 @@ type CodePlugin interface {
 	DeleteCode(context.Context, common.Address)
 }
 
+type LogPlugin interface {
+	plugin.Base
+	// `Prepare` prepares the state for a txHash
+	Prepare(common.Hash, uint)
+
+	// `AddLog` adds a log to the state
+	AddLog(*coretypes.Log)
+
+	// `GetLogs` returns the logs of the state
+	GetLogs(common.Hash, common.Hash) []*coretypes.Log
+}
+
+type RefundPlugin interface {
+	plugin.Base
+	// `AddRefund` adds amount to the refund counter
+	Add(uint64)
+
+	// `SubRefund` subtracts amount from the refund counter
+	Sub(uint64)
+
+	// `GetRefund` returns the refund counter
+	Get() uint64
+}
+
 type StoragePlugin interface {
+	plugin.Base
 	// `GetState` returns the value of key in the storage of the account associated with the given address
 	GetState(context.Context, common.Address, common.Hash) common.Hash
+
+	// `GetCommittedState` returns the value of key in the storage of the account associated with the given address
+	GetCommittedState(context.Context, common.Address, common.Hash) common.Hash
+
+	// `ForEachStorage` iterates over the storage of the account associated with the given address
+	ForEachStorage(context.Context, common.Address, func(common.Hash, common.Hash) bool) error
 
 	// `SetState` sets the value of key in the storage of the account associated with the given address
 	SetState(context.Context, common.Address, common.Hash, common.Hash)

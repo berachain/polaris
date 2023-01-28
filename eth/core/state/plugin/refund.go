@@ -12,58 +12,58 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state
+package plugin
 
 import (
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
-// `initCapacity` is the initial capacity of the `RefundPlugin`'s snapshot stack.
+// `initCapacity` is the initial capacity of the `Refund`'s snapshot stack.
 const initCapacity = 32
 
-// Compile-time assertion to ensure `RefundPlugin` adheres to `Store`.
-var _ Store = (*RefundPlugin)(nil)
+// Compile-time assertion that `refund` implements `Base`.
+var _ Base = (*refund)(nil)
 
-// `RefundPlugin` is a `Store` that tracks the refund counter.
-type RefundPlugin struct {
+// `refund` is a `Store` that tracks the refund counter.
+type refund struct {
 	ds.Stack[uint64] // snapshot stack
 }
 
-// `NewRefund` creates and returns a `RefundPlugin`.
-func NewRefund() *RefundPlugin {
-	return &RefundPlugin{
+// `NewRefund` creates and returns a `refund`.
+func NewRefund() *refund { //nolint:revive // only used as interface.
+	return &refund{
 		Stack: stack.New[uint64](initCapacity),
 	}
 }
 
-// `Name` returns the name of the `RefundPlugin`.
-func (rs *RefundPlugin) Name() string {
+// `Name` returns the name of the plugin.
+func (rs *refund) Name() string {
 	return "refund"
 }
 
 // `Get` returns the current value of the refund counter.
-func (rs *RefundPlugin) Get() uint64 {
+func (rs *refund) Get() uint64 {
 	return rs.Peek()
 }
 
 // `Set` sets the refund counter to the given `amount`.
-func (rs *RefundPlugin) Add(amount uint64) {
+func (rs *refund) Add(amount uint64) {
 	rs.Push(rs.Peek() + amount)
 }
 
 // `Sub` subtracts the given `amount` from the refund counter.
-func (rs *RefundPlugin) Sub(amount uint64) {
+func (rs *refund) Sub(amount uint64) {
 	rs.Push(rs.Peek() - amount)
 }
 
 // `Snapshot` returns the current size of the refund counter, which is used to
 // revert the refund counter to a previous value.
-func (rs *RefundPlugin) Snapshot() int {
+func (rs *refund) Snapshot() int {
 	return rs.Size()
 }
 
 // `RevertToSnapshot` reverts the refund counter to the value at the given `snap`.
-func (rs *RefundPlugin) RevertToSnapshot(snap int) {
+func (rs *refund) RevertToSnapshot(snap int) {
 	rs.PopToSize(snap)
 }

@@ -14,24 +14,27 @@
 
 package state
 
-import "github.com/berachain/stargazer/lib/ds"
+import (
+	"github.com/berachain/stargazer/eth/core/state/plugin"
+	"github.com/berachain/stargazer/lib/ds"
+)
 
 type Controller struct {
-	stores      map[string]Store
+	stores      map[string]plugin.Base
 	snapTracker ds.Stack[map[string]int]
 }
 
 func NewController() *Controller {
 	return &Controller{
-		stores: make(map[string]Store),
+		stores: make(map[string]plugin.Base),
 	}
 }
 
-func (ctrl *Controller) AddStore(store Store) {
+func (ctrl *Controller) AddStore(store plugin.Base) {
 	ctrl.stores[store.Name()] = store
 }
 
-func (ctrl *Controller) GetStore(name string) Store {
+func (ctrl *Controller) GetStore(name string) plugin.Base {
 	return ctrl.stores[name]
 }
 
@@ -50,4 +53,7 @@ func (ctrl *Controller) RevertToSnapshot(snap int) {
 		store.RevertToSnapshot(top[name])
 	}
 	ctrl.snapTracker.PopToSize(snap)
+}
+
+func (ctrl *Controller) Finalize() {
 }
