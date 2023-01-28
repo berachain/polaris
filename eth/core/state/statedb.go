@@ -64,7 +64,7 @@ func NewStateDB(ctrl Controller) *StateDB {
 	ctrl.AddPlugin(plugin.NewRefund())
 	ctrl.AddPlugin(plugin.NewLogs())
 
-	// Create the stateDB and populate the developer provided plugins.
+	// Create the `StateDB` and populate the developer provided plugins.
 	return &StateDB{
 		ctrl:     ctrl,
 		ap:       ctrl.GetPlugin(plugin.AccountName).(AccountPlugin),
