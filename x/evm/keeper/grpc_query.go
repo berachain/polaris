@@ -15,13 +15,13 @@
 package keeper
 
 import (
-	"github.com/berachain/stargazer/eth"
+	ethservices "github.com/berachain/stargazer/eth/services"
 )
 
 type Querier struct {
-	eth.QueryService
+	ethservices.Query
 }
 
-func NewQuerier(qs eth.QueryService) *Querier {
-	return &Querier{qs}
+func NewQuerier(q ethservices.Query) *Querier {
+	return &Querier{q}
 }

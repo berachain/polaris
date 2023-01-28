@@ -14,12 +14,10 @@
 
 package services
 
-import "github.com/berachain/stargazer/eth"
+var _ Tx = (*tx)(nil)
 
-var _ eth.TxService = (*Tx)(nil)
+type tx struct{}
 
-type Tx struct{}
-
-func NewTx() *Tx {
-	return &Tx{}
+func NewTx() *tx {
+	return &tx{}
 }

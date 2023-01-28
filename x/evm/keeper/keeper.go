@@ -15,16 +15,14 @@
 package keeper
 
 import (
-	"github.com/berachain/stargazer/eth"
 	"github.com/berachain/stargazer/eth/services"
+	ethservices "github.com/berachain/stargazer/eth/services"
 )
 
 type Keeper struct {
-	chainService eth.ChainService
+	services.Chain
 }
 
 func NewKeeper(sk StakingKeeper) *Keeper {
-	return &Keeper{
-		chainService: services.NewChain(NewHost(sk)),
-	}
+	return &Keeper{ethservices.NewChain(NewHost(sk))}
 }

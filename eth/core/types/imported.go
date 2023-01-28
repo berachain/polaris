@@ -19,14 +19,15 @@ import (
 )
 
 type (
-	AccessList  = types.AccessList
-	Bloom       = types.Bloom
-	Log         = types.Log
-	Transaction = types.Transaction
-	Receipt     = types.Receipt
-	Receipts    = types.Receipts
-	Header      = types.Header
-	Signer      = types.Signer
+	AccessList   = types.AccessList
+	Bloom        = types.Bloom
+	Log          = types.Log
+	Transaction  = types.Transaction
+	Receipt      = types.Receipt
+	Receipts     = types.Receipts
+	Header       = types.Header
+	Signer       = types.Signer
+	StateAccount = types.StateAccount
 )
 
 var (

@@ -17,20 +17,19 @@ package services
 import (
 	"context"
 
-	"github.com/berachain/stargazer/eth"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
 )
 
-var _ eth.QueryService = (*Query)(nil)
+var _ Query = (*query)(nil)
 
-type Query struct{}
+type query struct{}
 
-func NewQuery() *Query {
-	return &Query{}
+func NewQuery() *query {
+	return &query{}
 }
 
-func (q *Query) EthCall(
+func (q *query) EthCall(
 	ctx context.Context, data []byte, gascap uint64, coinbase common.Address, chainID int64,
 ) *coretypes.Receipt {
 	return &coretypes.Receipt{}

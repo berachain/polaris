@@ -12,30 +12,49 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package eth
+package services
 
-type ChainService interface {
-	TxService
-	QueryService
-	ParamsService
+import (
+	"context"
+	"math/big"
+
+	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/lib/common"
+	coretypes "github.com/ethereum/go-ethereum/core/types"
+)
+
+type Chain interface {
+	Tx
+	Query
+	Params
 }
 
-type TxService interface {
-	// ApplyTx()
+type Tx interface {
+	ApplyTx(context.Context)
 }
 
-type QueryService interface {
+type Query interface {
 	StateDBReader
 	VMReader
-	GasStation
+
+	BaseFee(context.Context) *big.Int
 }
 
-type StateDBReader interface{}
+type StateDBReader interface {
+	Account(context.Context, common.Address) coretypes.StateAccount
+	Balance(context.Context, common.Address) *big.Int
+	Code(context.Context, common.Address) []byte
+	Storage(context.Context, common.Address, common.Hash) common.Hash
+}
 
-type VMReader interface{}
+type VMReader interface {
+	EstimateGas(context.Context)
+	EthCall(context.Context)
+	TraceTx(context.Context)
+	TraceBlock(context.Context)
+}
 
-type GasStation interface{}
-
-type ParamsService interface {
-	// UpdateParams()
+type Params interface {
+	Params(context.Context) *params.Provider
+	UpdateParams(context.Context)
 }

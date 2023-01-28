@@ -14,12 +14,10 @@
 
 package services
 
-import "github.com/berachain/stargazer/eth"
+var _ Params = (*param)(nil)
 
-var _ eth.ParamsService = (*Params)(nil)
+type param struct{}
 
-type Params struct{}
-
-func NewParams() *Params {
-	return &Params{}
+func NewParams() *param {
+	return &param{}
 }
