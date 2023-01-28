@@ -39,7 +39,7 @@ func NewRefund() *refund { //nolint:revive // only used as interface.
 
 // `Name` returns the name of the plugin.
 func (rs *refund) Name() string {
-	return "refund"
+	return RefundName
 }
 
 // `Get` returns the current value of the refund counter.

@@ -48,7 +48,7 @@ func NewLogs() *logs { //nolint: revive // only used as plugin.
 
 // `Name` returns the name of the plugin.
 func (l *logs) Name() string {
-	return "logs"
+	return LogsName
 }
 
 // `Prepare` prepares the `Logs` store for a new transaction.

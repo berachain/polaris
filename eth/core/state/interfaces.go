@@ -75,7 +75,7 @@ type CodePlugin interface {
 	DeleteCode(context.Context, common.Address)
 }
 
-type LogPlugin interface {
+type LogsPlugin interface {
 	plugin.Base
 	// `Prepare` prepares the state for a txHash
 	Prepare(common.Hash, uint)

@@ -48,7 +48,7 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 	sp StoragePlugin
 
 	// Internal plugins
-	lp LogPlugin
+	lp LogsPlugin
 	rf RefundPlugin
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
@@ -67,12 +67,12 @@ func NewStateDB(ctrl Controller) *StateDB {
 	// Create the stateDB and populate the developer provided plugins.
 	return &StateDB{
 		ctrl:     ctrl,
-		ap:       ctrl.GetPlugin("account").(AccountPlugin),
-		bp:       ctrl.GetPlugin("balance").(BalancePlugin),
-		cp:       ctrl.GetPlugin("code").(CodePlugin),
-		sp:       ctrl.GetPlugin("storage").(StoragePlugin),
-		lp:       ctrl.GetPlugin("logs").(LogPlugin),
-		rf:       ctrl.GetPlugin("refund").(RefundPlugin),
+		ap:       ctrl.GetPlugin(plugin.AccountName).(AccountPlugin),
+		bp:       ctrl.GetPlugin(plugin.BalanceName).(BalancePlugin),
+		cp:       ctrl.GetPlugin(plugin.CodeName).(CodePlugin),
+		sp:       ctrl.GetPlugin(plugin.StorageName).(StoragePlugin),
+		lp:       ctrl.GetPlugin(plugin.LogsName).(LogsPlugin),
+		rf:       ctrl.GetPlugin(plugin.RefundName).(RefundPlugin),
 		suicides: make([]common.Address, 0),
 	}
 }
