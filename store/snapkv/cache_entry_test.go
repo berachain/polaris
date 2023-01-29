@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package cachekv
+package snapkv
 
 import (
 	"reflect"
@@ -54,13 +54,13 @@ func (s *CacheValueSuite) TestRevertDeleteAfterNothing() {
 	snapshot := s.cacheKVStore.Snapshot()
 	// delete key: 0
 	s.cacheKVStore.Delete(byte0)
-	s.Require().Equal(([]byte)(nil), s.cacheKVStore.Cache[byte0Str].value)
-	s.Require().True(s.cacheKVStore.Cache[byte0Str].dirty)
-	s.Require().Contains(s.cacheKVStore.UnsortedCache, byte0Str)
+	s.Require().Equal(([]byte)(nil), s.cacheKVStore.cache[byte0Str].value)
+	s.Require().True(s.cacheKVStore.cache[byte0Str].dirty)
+	s.Require().Contains(s.cacheKVStore.unsortedCache, byte0Str)
 	// revert delete key: 0
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().NotContains(s.cacheKVStore.Cache, byte0Str)
-	s.Require().NotContains(s.cacheKVStore.UnsortedCache, byte0Str)
+	s.Require().NotContains(s.cacheKVStore.cache, byte0Str)
+	s.Require().NotContains(s.cacheKVStore.unsortedCache, byte0Str)
 }
 
 func (s *CacheValueSuite) TestRevertDeleteAfterGet() {
@@ -71,9 +71,9 @@ func (s *CacheValueSuite) TestRevertDeleteAfterGet() {
 	s.cacheKVStore.Delete(byte0)
 	// revert delete key: 0
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().Equal(byte0, s.cacheKVStore.Cache[byte0Str].value)
-	s.Require().False(s.cacheKVStore.Cache[byte0Str].dirty)
-	s.Require().NotContains(s.cacheKVStore.UnsortedCache, byte0Str)
+	s.Require().Equal(byte0, s.cacheKVStore.cache[byte0Str].value)
+	s.Require().False(s.cacheKVStore.cache[byte0Str].dirty)
+	s.Require().NotContains(s.cacheKVStore.unsortedCache, byte0Str)
 }
 
 func (s *CacheValueSuite) TestRevertDeleteAfterSet() {
@@ -84,9 +84,9 @@ func (s *CacheValueSuite) TestRevertDeleteAfterSet() {
 	s.cacheKVStore.Delete(byte1)
 	// revert delete key: 1
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().Equal(byte1, s.cacheKVStore.Cache[byte1Str].value)
-	s.Require().True(s.cacheKVStore.Cache[byte1Str].dirty)
-	s.Require().Contains(s.cacheKVStore.UnsortedCache, byte1Str)
+	s.Require().Equal(byte1, s.cacheKVStore.cache[byte1Str].value)
+	s.Require().True(s.cacheKVStore.cache[byte1Str].dirty)
+	s.Require().Contains(s.cacheKVStore.unsortedCache, byte1Str)
 }
 
 func (s *CacheValueSuite) TestRevertDeleteAfterDelete() {
@@ -97,9 +97,9 @@ func (s *CacheValueSuite) TestRevertDeleteAfterDelete() {
 	s.cacheKVStore.Delete(byte0)
 	// revert delete key: 0
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().Equal(([]byte)(nil), s.cacheKVStore.Cache[byte0Str].value)
-	s.Require().True(s.cacheKVStore.Cache[byte0Str].dirty)
-	s.Require().Contains(s.cacheKVStore.UnsortedCache, byte0Str)
+	s.Require().Equal(([]byte)(nil), s.cacheKVStore.cache[byte0Str].value)
+	s.Require().True(s.cacheKVStore.cache[byte0Str].dirty)
+	s.Require().Contains(s.cacheKVStore.unsortedCache, byte0Str)
 }
 
 func (s *CacheValueSuite) TestRevertSetAfterNothing() {
@@ -107,13 +107,13 @@ func (s *CacheValueSuite) TestRevertSetAfterNothing() {
 	snapshot := s.cacheKVStore.Snapshot()
 	// set key: 1
 	s.cacheKVStore.Set(byte1, byte1)
-	s.Require().Equal(byte1, s.cacheKVStore.Cache[byte1Str].value)
-	s.Require().True(s.cacheKVStore.Cache[byte1Str].dirty)
-	s.Require().Contains(s.cacheKVStore.UnsortedCache, byte1Str)
+	s.Require().Equal(byte1, s.cacheKVStore.cache[byte1Str].value)
+	s.Require().True(s.cacheKVStore.cache[byte1Str].dirty)
+	s.Require().Contains(s.cacheKVStore.unsortedCache, byte1Str)
 	// revert set key: 1
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().NotContains(s.cacheKVStore.Cache, byte1Str)
-	s.Require().NotContains(s.cacheKVStore.UnsortedCache, byte1Str)
+	s.Require().NotContains(s.cacheKVStore.cache, byte1Str)
+	s.Require().NotContains(s.cacheKVStore.unsortedCache, byte1Str)
 }
 
 func (s *CacheValueSuite) TestRevertSetAfterGet() {
@@ -124,9 +124,9 @@ func (s *CacheValueSuite) TestRevertSetAfterGet() {
 	s.cacheKVStore.Set(byte0, byte1)
 	// revert set key: 1 to val: 1
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().Equal(byte0, s.cacheKVStore.Cache[byte0Str].value)
-	s.Require().False(s.cacheKVStore.Cache[byte0Str].dirty)
-	s.Require().NotContains(s.cacheKVStore.UnsortedCache, byte0Str)
+	s.Require().Equal(byte0, s.cacheKVStore.cache[byte0Str].value)
+	s.Require().False(s.cacheKVStore.cache[byte0Str].dirty)
+	s.Require().NotContains(s.cacheKVStore.unsortedCache, byte0Str)
 }
 
 func (s *CacheValueSuite) TestRevertSetAfterDelete() {
@@ -137,9 +137,9 @@ func (s *CacheValueSuite) TestRevertSetAfterDelete() {
 	s.cacheKVStore.Set(byte0, byte0)
 	// revert set key: 0 to val: 0
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().Nil(s.cacheKVStore.Cache[byte0Str].value)
-	s.Require().True(s.cacheKVStore.Cache[byte0Str].dirty)
-	s.Require().Contains(s.cacheKVStore.UnsortedCache, byte0Str)
+	s.Require().Nil(s.cacheKVStore.cache[byte0Str].value)
+	s.Require().True(s.cacheKVStore.cache[byte0Str].dirty)
+	s.Require().Contains(s.cacheKVStore.unsortedCache, byte0Str)
 }
 
 func (s *CacheValueSuite) TestRevertSetAfterSet() {
@@ -150,9 +150,9 @@ func (s *CacheValueSuite) TestRevertSetAfterSet() {
 	s.cacheKVStore.Set(byte1, byte0)
 	// revert set key: 1 to val: 0
 	s.cacheKVStore.RevertToSnapshot(snapshot)
-	s.Require().Equal(byte1, s.cacheKVStore.Cache[byte1Str].value)
-	s.Require().True(s.cacheKVStore.Cache[byte1Str].dirty)
-	s.Require().Contains(s.cacheKVStore.UnsortedCache, byte1Str)
+	s.Require().Equal(byte1, s.cacheKVStore.cache[byte1Str].value)
+	s.Require().True(s.cacheKVStore.cache[byte1Str].dirty)
+	s.Require().Contains(s.cacheKVStore.unsortedCache, byte1Str)
 }
 
 func (s *CacheValueSuite) TestCloneSet() {
