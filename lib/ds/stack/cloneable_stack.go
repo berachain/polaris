@@ -24,7 +24,7 @@ type cloneableStack[T libtypes.Cloneable[T]] struct {
 	ds.Stack[T]
 }
 
-// `NewCloneable` creates and returns a new cloneableStack instance with an empty journal.
+// `NewCloneable` creates and returns a new cloneableStack instance.
 func NewCloneable[T libtypes.Cloneable[T]](capacity int) cloneableStack[T] { //nolint:revive // it's ok.
 	return cloneableStack[T]{
 		New[T](capacity),
