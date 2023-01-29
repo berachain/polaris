@@ -8,15 +8,15 @@ import (
 	"sync"
 )
 
-// Ensure, that SnapshottableMock does implement lib.Snapshottable.
+// Ensure, that SnapshottableMock does implement types.Snapshottable.
 // If this is not the case, regenerate this file with moq.
-var _ lib.Snapshottable = &SnapshottableMock{}
+var _ types.Snapshottable = &SnapshottableMock{}
 
-// SnapshottableMock is a mock implementation of lib.Snapshottable.
+// SnapshottableMock is a mock implementation of types.Snapshottable.
 //
 //	func TestSomethingThatUsesSnapshottable(t *testing.T) {
 //
-//		// make and configure a mocked lib.Snapshottable
+//		// make and configure a mocked types.Snapshottable
 //		mockedSnapshottable := &SnapshottableMock{
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
@@ -26,7 +26,7 @@ var _ lib.Snapshottable = &SnapshottableMock{}
 //			},
 //		}
 //
-//		// use mockedSnapshottable in code that requires lib.Snapshottable
+//		// use mockedSnapshottable in code that requires types.Snapshottable
 //		// and then make assertions.
 //
 //	}
