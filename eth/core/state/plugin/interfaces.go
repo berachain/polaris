@@ -14,13 +14,14 @@
 
 package plugin
 
+import (
+	libtypes "github.com/berachain/stargazer/lib/types"
+)
+
 type Base interface {
+	// Plugins must be `Snapshottable`
+	libtypes.Snapshottable
+
 	// `GetName` returns the name of the store
 	Name() string
-
-	// `RevertToSnapshot` reverts the state to a previous version
-	RevertToSnapshot(int)
-
-	// `Snapshot` returns an identifier for the current revision of the state.
-	Snapshot() int
 }
