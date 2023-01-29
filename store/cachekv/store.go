@@ -31,7 +31,6 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/ds/trees"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
@@ -53,11 +52,11 @@ type Store struct {
 	UnsortedCache map[string]struct{}
 	SortedCache   ds.BTree // always ascending sorted
 	Parent        storetypes.KVStore
-	journal       ds.CloneableStack[journal.CacheEntry]
+	journal       ds.CloneableStack[CacheEntry]
 }
 
 // NewStore creates a new Store object.
-func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[journal.CacheEntry]) *Store {
+func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[CacheEntry]) *Store {
 	return &Store{
 		Cache:         make(map[string]*cacheValue),
 		UnsortedCache: make(map[string]struct{}),
@@ -159,7 +158,7 @@ func (store *Store) Write() {
 
 	// Clear the journal entries
 	// Todo: size this properly / consider using a pool.
-	store.journal = stack.NewCloneable[journal.CacheEntry](store.journal.Size())
+	store.journal = stack.NewCloneable[CacheEntry](store.journal.Size())
 
 	// Clear the cache using the map clearing idiom
 	// and not allocating fresh objects.
@@ -195,6 +194,10 @@ func (store *Store) CacheWrapWithListeners(
 	return NewStore(listenkv.NewStore(store, storeKey, listeners), store.journal.Clone())
 }
 
+// ====================================================================
+// types.Snapshottable
+// ====================================================================
+
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (store *Store) Snapshot() int {
 	return store.journal.Size()
@@ -205,9 +208,32 @@ func (store *Store) RevertToSnapshot(revision int) {
 	journal := store.journal
 	// Revert and discard all journal entries with an index greater than or equal to revision.
 	for i := journal.Size() - 1; i >= revision; i-- {
-		journal.PeekAt(i).Revert()
+		store.RevertEntry(journal.PeekAt(i))
 	}
 	journal.PopToSize(revision)
+}
+
+// `RevertEntry` reverts a set operation on a cache entry by setting the previous value of the entry as
+// the current value in the cache map.
+func (store *Store) RevertEntry(ce CacheEntry) {
+	key := ce.Key()
+	prev := ce.Prev()
+	// If there was a previous value, set it as the current value in the cache map
+	if prev == nil {
+		// If there was no previous value, remove the Key from the
+		// cache map and the unsorted cache set
+		delete(store.Cache, key)
+		delete(store.UnsortedCache, key)
+		return
+	}
+
+	// If there was a previous value, set it as the current value in the cache map.
+	store.Cache[key] = prev
+
+	// If the previous value was not dirty, remove the Key from the unsorted cache set
+	if !prev.dirty {
+		delete(store.UnsortedCache, key)
+	}
 }
 
 // ================================================
@@ -440,7 +466,7 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	// Append a new journal entry if the value is dirty, in order to remember the previous state.
 	// Also add the key to the unsorted cache.
 	if dirty {
-		store.journal.Push(newCacheEntry(store, keyStr, store.Cache[keyStr]))
+		store.journal.Push(newCacheEntry(keyStr, store.Cache[keyStr]))
 		store.UnsortedCache[keyStr] = struct{}{}
 	}
 

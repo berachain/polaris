@@ -25,7 +25,6 @@ import (
 
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 )
 
 var (
@@ -47,7 +46,7 @@ func TestCacheValueSuite(t *testing.T) {
 func (s *CacheValueSuite) SetupTest() {
 	parent := sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
 	parent.Set(byte0, byte0)
-	s.cacheKVStore = NewStore(parent, stack.NewCloneable[journal.CacheEntry](16))
+	s.cacheKVStore = NewStore(parent, stack.NewCloneable[CacheEntry](16))
 }
 
 func (s *CacheValueSuite) TestRevertDeleteAfterNothing() {
@@ -157,17 +156,17 @@ func (s *CacheValueSuite) TestRevertSetAfterSet() {
 }
 
 func (s *CacheValueSuite) TestCloneSet() {
-	dcvNonNil := newCacheEntry(s.cacheKVStore, byte1Str, newCacheValue(byte1, true))
+	dcvNonNil := newCacheEntry(byte1Str, newCacheValue(byte1, true))
 	dcvNonNilClone, ok := dcvNonNil.Clone().(*cacheEntry)
 	s.Require().True(ok)
-	s.Require().Equal(byte1Str, dcvNonNilClone.Key)
-	s.Require().True(dcvNonNilClone.Prev.dirty)
-	s.Require().Equal(byte1, dcvNonNilClone.Prev.value)
+	s.Require().Equal(byte1Str, dcvNonNilClone.Key())
+	s.Require().True(dcvNonNilClone.Prev().dirty)
+	s.Require().Equal(byte1, dcvNonNilClone.Prev().value)
 
-	dcvNil := newCacheEntry(s.cacheKVStore, "", nil)
+	dcvNil := newCacheEntry("", nil)
 	dcvNilClone, ok := dcvNil.Clone().(*cacheEntry)
 	s.Require().True(ok)
-	s.Require().Equal("", dcvNilClone.Key)
-	s.Require().Equal(dcvNil.Prev, dcvNilClone.Prev)
-	s.Require().True(reflect.ValueOf(dcvNilClone.Prev).IsNil())
+	s.Require().Equal("", dcvNilClone.Key())
+	s.Require().Equal(dcvNil.Prev(), dcvNilClone.Prev())
+	s.Require().True(reflect.ValueOf(dcvNilClone.Prev()).IsNil())
 }

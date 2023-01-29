@@ -13,66 +13,63 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package cachekv
 
-import "github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
+import (
+	libtypes "github.com/berachain/stargazer/lib/types"
+)
+
+// `CacheEntry` is an interface for journal entries.
+type CacheEntry interface {
+	// `CacheEntry` implements `Cloneable`.
+	libtypes.Cloneable[CacheEntry]
+
+	// `Key` returns the key of the entry.
+	Key() string
+
+	// `Prev` returns the previous value of the entry.
+	Prev() *cacheValue
+}
 
 // Compile-time check to ensure `cacheEntry` implements `journal.CacheEntry`.
-var _ journal.CacheEntry = (*cacheEntry)(nil)
+var _ CacheEntry = (*cacheEntry)(nil)
 
 // `cacheEntry` is a struct that contains information needed to set a value in a cache.
 type cacheEntry struct {
-	Store *Store      // Pointer to the cache store.
-	Key   string      // Key of the value to be set.
-	Prev  *cacheValue // Deep copy of object in cache map.
+	key  string      // key of the value to be set.
+	prev *cacheValue // Deep copy of object in cache map.
 }
 
 // `newCacheEntry` creates a new `cacheEntry` object for the given `store`, `key`, and `prev`
 // cache value.
-func newCacheEntry(store *Store, key string, prev *cacheValue) *cacheEntry {
-	// create a deep copy of the Prev field, if it is not nil.
+func newCacheEntry(key string, prev *cacheValue) *cacheEntry {
+	// create a deep copy of the prev field, if it is not nil.
 	if prev != nil {
 		prev = prev.Clone()
 	}
 
 	return &cacheEntry{
-		Store: store,
-		Key:   key,
-		Prev:  prev,
+		key:  key,
+		prev: prev,
 	}
 }
 
-// `Revert` reverts a set operation on a cache entry by setting the previous value of the entry as
-// the current value in the cache map.
-//
-// `Revert` implements journal.cacheEntry.
-func (ce *cacheEntry) Revert() {
-	// If there was a previous value, set it as the current value in the cache map
-	if ce.Prev == nil {
-		// If there was no previous value, remove the Key from the
-		// cache map and the unsorted cache set
-		delete(ce.Store.Cache, ce.Key)
-		delete(ce.Store.UnsortedCache, ce.Key)
-		return
-	}
+func (ce *cacheEntry) Key() string {
+	return ce.key
+}
 
-	// If there was a previous value, set it sas the current value in the cache map.
-	ce.Store.Cache[ce.Key] = ce.Prev
-
-	// If the previous value was not dirty, remove the Key from the unsorted cache set
-	if !ce.Prev.dirty {
-		delete(ce.Store.UnsortedCache, ce.Key)
-	}
+func (ce *cacheEntry) Prev() *cacheValue {
+	return ce.prev
 }
 
 // `Clone` creates a deep copy of the cacheEntry object.
-// The deep copy contains the same Store and Key fields as the original,
-// and a deep copy of the Prev field, if it is not nil.s
+// The deep copy contains the same Store and key fields as the original,
+// and a deep copy of the prev field, if it is not nil.s
 //
 // `Clone` implements `journal.cacheEntry`.
 //
 //nolint:nolintlint,ireturn // by design.
-func (ce *cacheEntry) Clone() journal.CacheEntry {
-	// Return a new cacheEntry object with the same Store and Key fields as the original,
-	// and the Prev field set to the deep copy of the original Prev field (or nil if the original
+func (ce *cacheEntry) Clone() CacheEntry {
+	// Return a new cacheEntry object with the same Store and key fields as the original,
+	// and the prev field set to the deep copy of the original prev field (or nil if the original
 	// was nil).
-	return newCacheEntry(ce.Store, ce.Key, ce.Prev)
+	return newCacheEntry(ce.key, ce.prev)
 }
