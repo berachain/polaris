@@ -98,10 +98,10 @@ func (store *Store) GetParent() storetypes.KVStore {
 
 // Set implements storetypes.KVStore.
 func (store *Store) Set(key []byte, value []byte) {
-	store.mtx.Lock()
-	defer store.mtx.Unlock()
 	storetypes.AssertValidKey(key)
 	storetypes.AssertValidValue(value)
+	store.mtx.Lock()
+	defer store.mtx.Unlock()
 	store.setCacheValue(key, value, true)
 }
 
@@ -114,6 +114,7 @@ func (store *Store) Has(key []byte) bool {
 // Delete implements storetypes.KVStore.
 func (store *Store) Delete(key []byte) {
 	storetypes.AssertValidKey(key)
+
 	store.mtx.Lock()
 	defer store.mtx.Unlock()
 	store.setCacheValue(key, nil, true)
@@ -300,7 +301,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 				unsorted = append(unsorted, &kv.Pair{Key: []byte(key), Value: cacheValue.value})
 			}
 		}
-		store.clearunsortedCacheSubset(unsorted, stateUnsorted)
+		store.clearUnsortedCacheSubset(unsorted, stateUnsorted)
 		return
 	}
 
@@ -348,10 +349,10 @@ func (store *Store) dirtyItems(start, end []byte) {
 	}
 
 	// kvL was already sorted so pass it in as is.
-	store.clearunsortedCacheSubset(kvL, stateAlreadySorted)
+	store.clearUnsortedCacheSubset(kvL, stateAlreadySorted)
 }
 
-func (store *Store) clearunsortedCacheSubset(unsorted []*kv.Pair, sortState sortState) {
+func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState sortState) {
 	n := len(store.unsortedCache)
 	if len(unsorted) == n { // This pattern allows the Go compiler to emit the map clearing idiom for the entire map.
 		for key := range store.unsortedCache {
