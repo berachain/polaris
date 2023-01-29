@@ -26,7 +26,7 @@ import (
 
 func TestStack(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "lib/stack")
+	RunSpecs(t, "lib/ds/stack")
 }
 
 var _ = Describe("Stack", func() {
