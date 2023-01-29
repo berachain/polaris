@@ -15,30 +15,27 @@
 package stack_test
 
 import (
-	"testing"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
+	typesmock "github.com/berachain/stargazer/lib/types/mock"
 )
 
-func TestStack(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "lib/stack")
-}
-
-var _ = Describe("Stack", func() {
-	var s ds.Stack[int]
+var _ = Describe("Cloneable Stack", func() {
+	var s ds.CloneableStack[*typesmock.MyCloneableObj]
+	item1 := typesmock.NewMyCloneableObjMock[typesmock.MyCloneableObj](1)
+	item2 := typesmock.NewMyCloneableObjMock[typesmock.MyCloneableObj](2)
+	item3 := typesmock.NewMyCloneableObjMock[typesmock.MyCloneableObj](3)
 
 	BeforeEach(func() {
-		s = stack.New[int](1)
+		s = stack.NewCloneable[*typesmock.MyCloneableObj](1000)
 	})
 
 	When("pushing an element", func() {
 		BeforeEach(func() {
-			s.Push(1)
+			s.Push(item1)
 		})
 
 		It("should not be empty", func() {
@@ -46,14 +43,14 @@ var _ = Describe("Stack", func() {
 		})
 
 		It("should return the correct element", func() {
-			Expect(s.Peek()).To(Equal(1))
+			Expect(s.Peek()).To(Equal(item1))
 		})
 
 		It("should return the correct element", func() {
-			Expect(s.PeekAt(0)).To(Equal(1))
+			Expect(s.PeekAt(0)).To(Equal(item1))
 		})
 		It("should return the correct element", func() {
-			Expect(s.Pop()).To(Equal(1))
+			Expect(s.Pop()).To(Equal(item1))
 		})
 
 		When("popping an element", func() {
@@ -68,14 +65,14 @@ var _ = Describe("Stack", func() {
 
 		When("pushing more elements", func() {
 			BeforeEach(func() {
-				s.Push(2)
-				s.Push(3)
+				s.Push(item2)
+				s.Push(item3)
 			})
 
 			It("should return the correct element", func() {
-				Expect(s.Peek()).To(Equal(3))
-				Expect(s.PeekAt(2)).To(Equal(3))
-				Expect(s.PeekAt(1)).To(Equal(2))
+				Expect(s.Peek()).To(Equal(item3))
+				Expect(s.PeekAt(2)).To(Equal(item3))
+				Expect(s.PeekAt(1)).To(Equal(item2))
 			})
 
 			It("should have the correct size", func() {
@@ -92,8 +89,33 @@ var _ = Describe("Stack", func() {
 				})
 
 				It("should return the correct element", func() {
-					Expect(s.Peek()).To(Equal(1))
-					Expect(s.PeekAt(0)).To(Equal(1))
+					Expect(s.Peek()).To(Equal(item1))
+					Expect(s.PeekAt(0)).To(Equal(item1))
+				})
+			})
+
+			When("we call clone", func() {
+				var s2 ds.CloneableStack[*typesmock.MyCloneableObj]
+				BeforeEach(func() {
+					s2 = s.Clone()
+				})
+
+				It("should have the same size", func() {
+					Expect(s.Size()).To(Equal(s2.Size()))
+				})
+
+				It("should have the same elements", func() {
+					Expect(s.Peek().Val()).To(Equal(s2.Peek().Val()))
+					Expect(s.PeekAt(0).Val()).To(Equal(s2.PeekAt(0).Val()))
+					Expect(s.PeekAt(1).Val()).To(Equal(s2.PeekAt(1).Val()))
+					Expect(s.PeekAt(2).Val()).To(Equal(s2.PeekAt(2).Val()))
+				})
+
+				It("items should have different memory addresses", func() {
+					Expect(s.Peek()).NotTo(BeIdenticalTo(s2.Peek()))
+					Expect(s.PeekAt(0)).NotTo(BeIdenticalTo(s2.PeekAt(0)))
+					Expect(s.PeekAt(1)).NotTo(BeIdenticalTo(s2.PeekAt(1)))
+					Expect(s.PeekAt(2)).NotTo(BeIdenticalTo(s2.PeekAt(2)))
 				})
 			})
 		})

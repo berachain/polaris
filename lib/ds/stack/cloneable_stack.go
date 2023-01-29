@@ -11,45 +11,34 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+package stack
 
-package mock
+import (
+	"github.com/berachain/stargazer/lib/ds"
+	libtypes "github.com/berachain/stargazer/lib/types"
+)
 
-import libtypes "github.com/berachain/stargazer/lib/types"
-
-//go:generate moq -out ./cloneable.mock.go -pkg mock ../ Cloneable
-
-// func (cmo CloneableMockObj) Clone() CloneableMockObj {
-// 	return cmo.CloneableMock.Clone()
-// }
-
-var _ libtypes.Cloneable[*MyCloneableObj] = &MyCloneableObj{}
-
-type MyCloneableObj struct {
-	CloneableMock[MyCloneableObj]
-	val int
+// `cloneableStack` is a struct that holds a slice of CacheEntry instances.
+type cloneableStack[T libtypes.Cloneable[T]] struct {
+	// The `cloneableStack` is a `ds.Stack`.
+	ds.Stack[T]
 }
 
-func NewMyCloneableObjMock[T any](val int) *MyCloneableObj {
-	return &MyCloneableObj{
-		CloneableMock: CloneableMock[MyCloneableObj]{
-			CloneFunc: func() MyCloneableObj {
-				return MyCloneableObj{}
-			},
-		},
-		val: val,
+// `NewCloneable` creates and returns a new cloneableStack instance with an empty journal.
+func NewCloneable[T libtypes.Cloneable[T]](capacity int) cloneableStack[T] { //nolint:revive // it's ok.
+	return cloneableStack[T]{
+		New[T](capacity),
 	}
 }
 
-func (mco *MyCloneableObj) Clone() *MyCloneableObj {
-	mco.CloneableMock.Clone()
-	return &MyCloneableObj{
-		val: mco.val,
-		CloneableMock: CloneableMock[MyCloneableObj]{
-			CloneFunc: mco.CloneableMock.CloneFunc,
-		},
+// `Clone` returns a cloned journal by deep copyign each CacheEntry.
+//
+// `Clone` implements `CloneableStack[T]`.
+func (cs cloneableStack[T]) Clone() ds.CloneableStack[T] {
+	newcloneableStack := NewCloneable[T](cs.Size() * two)
+	for i := 0; i < cs.Size(); i++ {
+		clone := cs.PeekAt(i).Clone()
+		newcloneableStack.Push(clone)
 	}
-}
-
-func (mco *MyCloneableObj) Val() int {
-	return mco.val
+	return newcloneableStack
 }
