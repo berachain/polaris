@@ -14,12 +14,12 @@
 
 package journal
 
-import "github.com/berachain/stargazer/lib/gointerfaces"
+import libtypes "github.com/berachain/stargazer/lib/types"
 
 // `CacheEntry` is an interface for journal entries.
 type CacheEntry interface {
 	// `CacheEntry` implements `Cloneable`.
-	gointerfaces.Cloneable[CacheEntry]
+	libtypes.Cloneable[CacheEntry]
 
 	// `Revert` undoes the changes made by the entry.
 	Revert()

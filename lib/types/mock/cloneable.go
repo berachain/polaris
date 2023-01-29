@@ -12,4 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package mock
+
+//go:generate moq -out ./cloneable.mock.go -pkg mock ../ Cloneable
+
+func NewCloneableMock() *CloneableMock[any] {
+	return &CloneableMock[any]{
+		CloneFunc: func() interface{} { return nil },
+	}
+}
