@@ -21,8 +21,8 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// Compile-time check to ensure `EvmStore` implements `storetypes.CacheKVStore`.
-var _ storetypes.CacheKVStore = (*EvmStore)(nil)
+// Compile-time check to ensure `EvmStore` implements `SnapshotKVStore`.
+var _ SnapshotKVStore = (*EvmStore)(nil)
 
 // `EVMStore` is a cache kv store that avoids the mutex lock for EVM stores (codes/storage).
 // Writes to the EVM are thread-safe because the EVM interpreter is guaranteed to be single

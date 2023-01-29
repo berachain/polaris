@@ -52,10 +52,12 @@ func newCacheEntry(key string, prev *cacheValue) *cacheEntry {
 	}
 }
 
+// `Key` returns the key of the entry.
 func (ce *cacheEntry) Key() string {
 	return ce.key
 }
 
+// `Prev` returns the previous value of the entry.
 func (ce *cacheEntry) Prev() *cacheValue {
 	return ce.prev
 }
