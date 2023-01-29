@@ -18,11 +18,11 @@ import (
 	"fmt"
 
 	"github.com/berachain/stargazer/lib/errors"
-	"github.com/berachain/stargazer/lib/gointerfaces"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
 // Compile-time type assertions.
-var _ gointerfaces.Cloneable[Storage] = Storage{}
+var _ libtypes.Cloneable[Storage] = Storage{}
 var _ fmt.Stringer = Storage{}
 
 // `Storage` represents the account Storage map as a slice of single key value

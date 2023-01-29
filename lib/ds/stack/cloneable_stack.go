@@ -11,43 +11,34 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-package types
+package stack
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/errors"
+	"github.com/berachain/stargazer/lib/ds"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// Compile-time interface assertions.
-var _ libtypes.Cloneable[State] = &State{}
-var _ fmt.Stringer = Storage{}
+// `cloneableStack` is a struct that holds a slice of CacheEntry instances.
+type cloneableStack[T libtypes.Cloneable[T]] struct {
+	// The `cloneableStack` is a `ds.Stack`.
+	ds.Stack[T]
+}
 
-// `NewState` creates a new State instance.
-func NewState(key, value common.Hash) State {
-	return State{
-		Key:   key.Hex(),
-		Value: value.Hex(),
+// `NewCloneable` creates and returns a new cloneableStack instance with an empty journal.
+func NewCloneable[T libtypes.Cloneable[T]](capacity int) cloneableStack[T] { //nolint:revive // it's ok.
+	return cloneableStack[T]{
+		New[T](capacity),
 	}
 }
 
-// `ValidateBasic` checks to make sure the key is not empty.
-func (s State) ValidateBasic() error {
-	if strings.TrimSpace(s.Key) == "" {
-		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
+// `Clone` returns a cloned journal by deep copyign each CacheEntry.
+//
+// `Clone` implements `CloneableStack[T]`.
+func (cs cloneableStack[T]) Clone() ds.CloneableStack[T] {
+	newcloneableStack := NewCloneable[T](cs.Size() * two)
+	for i := 0; i < cs.Size(); i++ {
+		clone := cs.PeekAt(i).Clone()
+		newcloneableStack.Push(clone)
 	}
-
-	return nil
-}
-
-// `Clone` implements `types.Cloneable`.
-func (s State) Clone() State {
-	return State{
-		Key:   s.Key,
-		Value: s.Value,
-	}
+	return newcloneableStack
 }
