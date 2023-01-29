@@ -12,4 +12,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package lib
+
+// `Cloneable` is an interface that defines a `Clone` method.
+type Cloneable[T any] interface {
+	Clone() T
+}
+
+// `Snapshottable` is an interface that defines methods for snapshotting and reverting
+// a logical unit of data.
+type Snapshottable interface {
+	// `RevertToSnapshot` reverts the data to a previous version
+	RevertToSnapshot(int)
+
+	// `Snapshot` returns an identifier for the current revision of the data.
+	Snapshot() int
+}
