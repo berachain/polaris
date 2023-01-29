@@ -8,22 +8,22 @@ import (
 	"sync"
 )
 
-// Ensure, that CloneableMock does implement lib.Cloneable.
+// Ensure, that CloneableMock does implement types.Cloneable.
 // If this is not the case, regenerate this file with moq.
-var _ lib.Cloneable[any] = &CloneableMock[any]{}
+var _ types.Cloneable[any] = &CloneableMock[any]{}
 
-// CloneableMock is a mock implementation of lib.Cloneable.
+// CloneableMock is a mock implementation of types.Cloneable.
 //
 //	func TestSomethingThatUsesCloneable(t *testing.T) {
 //
-//		// make and configure a mocked lib.Cloneable
+//		// make and configure a mocked types.Cloneable
 //		mockedCloneable := &CloneableMock{
 //			CloneFunc: func() T {
 //				panic("mock out the Clone method")
 //			},
 //		}
 //
-//		// use mockedCloneable in code that requires lib.Cloneable
+//		// use mockedCloneable in code that requires types.Cloneable
 //		// and then make assertions.
 //
 //	}
