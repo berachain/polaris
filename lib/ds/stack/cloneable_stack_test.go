@@ -24,13 +24,13 @@ import (
 )
 
 var _ = Describe("Cloneable Stack", func() {
-	var s ds.CloneableStack[*typesmock.MyCloneableObj]
-	item1 := typesmock.NewMyCloneableObjMock[typesmock.MyCloneableObj](1)
-	item2 := typesmock.NewMyCloneableObjMock[typesmock.MyCloneableObj](2)
-	item3 := typesmock.NewMyCloneableObjMock[typesmock.MyCloneableObj](3)
+	var s ds.CloneableStack[*typesmock.WrappedCloneableMock]
+	item1 := typesmock.NewWrappedCloneableMock[typesmock.WrappedCloneableMock](1)
+	item2 := typesmock.NewWrappedCloneableMock[typesmock.WrappedCloneableMock](2)
+	item3 := typesmock.NewWrappedCloneableMock[typesmock.WrappedCloneableMock](3)
 
 	BeforeEach(func() {
-		s = stack.NewCloneable[*typesmock.MyCloneableObj](1000)
+		s = stack.NewCloneable[*typesmock.WrappedCloneableMock](1000)
 	})
 
 	When("pushing an element", func() {
@@ -95,7 +95,7 @@ var _ = Describe("Cloneable Stack", func() {
 			})
 
 			When("we call clone", func() {
-				var s2 ds.CloneableStack[*typesmock.MyCloneableObj]
+				var s2 ds.CloneableStack[*typesmock.WrappedCloneableMock]
 				BeforeEach(func() {
 					s2 = s.Clone()
 				})

@@ -18,38 +18,40 @@ import libtypes "github.com/berachain/stargazer/lib/types"
 
 //go:generate moq -out ./cloneable.mock.go -pkg mock ../ Cloneable
 
-// func (cmo CloneableMockObj) Clone() CloneableMockObj {
-// 	return cmo.CloneableMock.Clone()
-// }
+// `WrappedCloneableMock` is a mock for the `Cloneable` interface.
+var _ libtypes.Cloneable[*WrappedCloneableMock] = &WrappedCloneableMock{}
 
-var _ libtypes.Cloneable[*MyCloneableObj] = &MyCloneableObj{}
-
-type MyCloneableObj struct {
-	CloneableMock[MyCloneableObj]
+// `WrappedCloneableMock` is a mock for the `Cloneable` interface.
+// It wraps the `CloneableMock` and adds a `val` field.
+type WrappedCloneableMock struct {
+	CloneableMock[WrappedCloneableMock]
 	val int
 }
 
-func NewMyCloneableObjMock[T any](val int) *MyCloneableObj {
-	return &MyCloneableObj{
-		CloneableMock: CloneableMock[MyCloneableObj]{
-			CloneFunc: func() MyCloneableObj {
-				return MyCloneableObj{}
+// `NewWrappedCloneableMock` returns a new `WrappedCloneableMock`.
+func NewWrappedCloneableMock[T any](val int) *WrappedCloneableMock {
+	return &WrappedCloneableMock{
+		CloneableMock: CloneableMock[WrappedCloneableMock]{
+			CloneFunc: func() WrappedCloneableMock {
+				return WrappedCloneableMock{}
 			},
 		},
 		val: val,
 	}
 }
 
-func (mco *MyCloneableObj) Clone() *MyCloneableObj {
+// `Clone` returns a clone of the mock.
+func (mco *WrappedCloneableMock) Clone() *WrappedCloneableMock {
 	mco.CloneableMock.Clone()
-	return &MyCloneableObj{
+	return &WrappedCloneableMock{
 		val: mco.val,
-		CloneableMock: CloneableMock[MyCloneableObj]{
+		CloneableMock: CloneableMock[WrappedCloneableMock]{
 			CloneFunc: mco.CloneableMock.CloneFunc,
 		},
 	}
 }
 
-func (mco *MyCloneableObj) Val() int {
+// `Val` returns the value of the mock.
+func (mco *WrappedCloneableMock) Val() int {
 	return mco.val
 }
