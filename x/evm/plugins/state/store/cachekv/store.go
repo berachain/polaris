@@ -157,6 +157,9 @@ func (store *Store) Write() {
 		}
 	}
 
+	// Clear the journal entries
+	store.journalMgr = journal.NewManager()
+
 	// Clear the cache using the map clearing idiom
 	// and not allocating fresh objects.
 	// Please see https://bencher.orijtech.com/perfclinic/mapclearing/
