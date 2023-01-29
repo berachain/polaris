@@ -46,11 +46,6 @@ func NewLogs() *logs { //nolint: revive // only used as plugin.
 	}
 }
 
-// `Name` returns the name of the plugin.
-func (l *logs) Name() string {
-	return LogsName
-}
-
 // `Prepare` prepares the `Logs` store for a new transaction.
 func (l *logs) Prepare(txHash common.Hash, ti uint) {
 	l.currentTxHash = txHash
@@ -81,11 +76,15 @@ func (l *logs) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.L
 }
 
 // `Snapshot` takes a snapshot of the `Logs` store.
+//
+// `Snapshot` implements `libtypes.Snapshottable`.
 func (l *logs) Snapshot() int {
 	return l.txHashToLogs[l.currentTxHash].Size()
 }
 
 // `RevertToSnapshot` reverts the `Logs` store to a given snapshot.
+//
+// `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (l *logs) RevertToSnapshot(i int) {
 	l.txHashToLogs[l.currentTxHash].PopToSize(i)
 }

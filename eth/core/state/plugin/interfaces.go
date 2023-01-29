@@ -18,10 +18,8 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
+// `Base` is the interface that all plugins must implement.
 type Base interface {
 	// Plugins must be `Snapshottable`
 	libtypes.Snapshottable
-
-	// `GetName` returns the name of the store
-	Name() string
 }

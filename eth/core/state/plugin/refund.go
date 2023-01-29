@@ -37,11 +37,6 @@ func NewRefund() *refund { //nolint:revive // only used as interface.
 	}
 }
 
-// `Name` returns the name of the plugin.
-func (rs *refund) Name() string {
-	return RefundName
-}
-
 // `Get` returns the current value of the refund counter.
 func (rs *refund) Get() uint64 {
 	return rs.Peek()
@@ -59,11 +54,15 @@ func (rs *refund) Sub(amount uint64) {
 
 // `Snapshot` returns the current size of the refund counter, which is used to
 // revert the refund counter to a previous value.
+//
+// `Snapshot` implements `libtypes.Snapshottable`.
 func (rs *refund) Snapshot() int {
 	return rs.Size()
 }
 
 // `RevertToSnapshot` reverts the refund counter to the value at the given `snap`.
+//
+// `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (rs *refund) RevertToSnapshot(snap int) {
 	rs.PopToSize(snap)
 }
