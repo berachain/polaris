@@ -24,6 +24,7 @@ import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/lib/snapshot"
 )
 
 var (
@@ -39,7 +40,7 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 	ctx context.Context
 
 	// The controller is used to manage the plugins
-	ctrl Controller
+	ctrl snapshot.Controller
 
 	// Developer provided plugins
 	ap AccountPlugin
@@ -59,20 +60,20 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 	suicides []common.Address
 }
 
-func NewStateDB(ctrl Controller) *StateDB {
+func NewStateDB(ctrl snapshot.Controller) *StateDB {
 	// Add the internal plugins to the controller
-	ctrl.AddPlugin(plugin.NewRefund())
-	ctrl.AddPlugin(plugin.NewLogs())
+	_ = ctrl.Control(plugin.RefundName, plugin.NewRefund())
+	_ = ctrl.Control(plugin.LogsName, plugin.NewLogs())
 
 	// Create the `StateDB` and populate the developer provided plugins.
 	return &StateDB{
 		ctrl:     ctrl,
-		ap:       ctrl.GetPlugin(plugin.AccountName).(AccountPlugin),
-		bp:       ctrl.GetPlugin(plugin.BalanceName).(BalancePlugin),
-		cp:       ctrl.GetPlugin(plugin.CodeName).(CodePlugin),
-		sp:       ctrl.GetPlugin(plugin.StorageName).(StoragePlugin),
-		lp:       ctrl.GetPlugin(plugin.LogsName).(LogsPlugin),
-		rf:       ctrl.GetPlugin(plugin.RefundName).(RefundPlugin),
+		ap:       ctrl.Get(plugin.AccountName).(AccountPlugin),
+		bp:       ctrl.Get(plugin.BalanceName).(BalancePlugin),
+		cp:       ctrl.Get(plugin.CodeName).(CodePlugin),
+		sp:       ctrl.Get(plugin.StorageName).(StoragePlugin),
+		lp:       ctrl.Get(plugin.LogsName).(LogsPlugin),
+		rf:       ctrl.Get(plugin.RefundName).(RefundPlugin),
 		suicides: make([]common.Address, 0),
 	}
 }
