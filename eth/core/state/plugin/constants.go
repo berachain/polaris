@@ -21,15 +21,12 @@ const (
 	// `BalanceName` is the name of the balance plugin.
 	BalanceName = "balance"
 
-	// `CodeName` is the name of the code plugin.
-	CodeName = "code"
+	// `EthName` is the name of the code plugin.
+	EthName = "eth"
 
 	// `LogsName` is the name of the logs plugin.
 	LogsName = "logs"
 
 	// `RefundName` is the name of the refund plugin.
 	RefundName = "refund"
-
-	// `StorageName` is the name of the storage plugin.
-	StorageName = "storage"
 )

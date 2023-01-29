@@ -42,13 +42,12 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 	// The controller is used to manage the plugins
 	ctrl snapshot.Controller
 
-	// Developer provided plugins
+	// Developer suppled plugins
 	ap AccountPlugin
 	bp BalancePlugin
-	cp CodePlugin
-	sp StoragePlugin
+	ep EthPlugin
 
-	// Internal plugins
+	// Stargazer supplied plugins
 	lp LogsPlugin
 	rf RefundPlugin
 
@@ -70,8 +69,7 @@ func NewStateDB(ctrl snapshot.Controller) *StateDB {
 		ctrl:     ctrl,
 		ap:       ctrl.Get(plugin.AccountName).(AccountPlugin),
 		bp:       ctrl.Get(plugin.BalanceName).(BalancePlugin),
-		cp:       ctrl.Get(plugin.CodeName).(CodePlugin),
-		sp:       ctrl.Get(plugin.StorageName).(StoragePlugin),
+		ep:       ctrl.Get(plugin.EthName).(EthPlugin),
 		lp:       ctrl.Get(plugin.LogsName).(LogsPlugin),
 		rf:       ctrl.Get(plugin.RefundName).(RefundPlugin),
 		suicides: make([]common.Address, 0),
@@ -148,27 +146,29 @@ func (sdb *StateDB) TransferBalance(sender, receipient common.Address, amount *b
 // =============================================================================
 
 func (sdb *StateDB) GetCode(addr common.Address) []byte {
-	return sdb.cp.GetCodeFromHash(sdb.ctx, sdb.GetCodeHash(addr))
+	return sdb.ep.GetCodeFromHash(sdb.ctx, sdb.GetCodeHash(addr))
 }
 
 func (sdb *StateDB) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
 	// store or delete code
 	// todo: nil vs 0? codehash?
-	sdb.cp.SetCodeHash(sdb.ctx, addr, codeHash)
+	sdb.ep.SetCodeHash(sdb.ctx, addr, codeHash)
 	if len(code) == 0 {
-		sdb.cp.DeleteCode(sdb.ctx, addr)
+		sdb.ep.DeleteCode(sdb.ctx, addr)
 	} else {
-		sdb.cp.SetCode(sdb.ctx, codeHash, code)
+		sdb.ep.SetCode(sdb.ctx, codeHash, code)
 	}
 }
 
+// `GetCodeSize` returns the size of the code of an account.
 func (sdb *StateDB) GetCodeSize(addr common.Address) int {
 	return len(sdb.GetCode(addr))
 }
 
+// `GetCodeHash` returns the code hash of an account.
 func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
-	return sdb.cp.GetCodeHash(sdb.ctx, addr)
+	return sdb.ep.GetCodeHash(sdb.ctx, addr)
 }
 
 // =============================================================================
@@ -198,22 +198,22 @@ func (sdb *StateDB) GetRefund() uint64 {
 // =============================================================================
 
 func (sdb *StateDB) GetState(addr common.Address, key common.Hash) common.Hash {
-	return sdb.sp.GetState(sdb.ctx, addr, key)
+	return sdb.ep.GetState(sdb.ctx, addr, key)
 }
 
 func (sdb *StateDB) GetCommittedState(addr common.Address, key common.Hash) common.Hash {
-	return sdb.sp.GetCommittedState(sdb.ctx, addr, key)
+	return sdb.ep.GetCommittedState(sdb.ctx, addr, key)
 }
 
 func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sdb.sp.SetState(sdb.ctx, addr, key, value)
+		sdb.ep.SetState(sdb.ctx, addr, key, value)
 		return
 	}
 
 	// Set the state entry.
-	sdb.sp.DeleteState(sdb.ctx, addr, key)
+	sdb.ep.DeleteState(sdb.ctx, addr, key)
 }
 
 // =============================================================================
@@ -261,7 +261,7 @@ func (sdb *StateDB) Exist(addr common.Address) bool {
 }
 
 // `Empty` implements the `GethStateDB` interface by returning whether the state object
-// is either non-existent or empty according to the EIP161 specification
+// is either non-existent or empty according to the EIP161 epecification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
 func (sdb *StateDB) Empty(addr common.Address) bool {
@@ -314,7 +314,7 @@ func (sdb *StateDB) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
 ) error {
-	return sdb.sp.ForEachStorage(sdb.ctx, addr, cb)
+	return sdb.ep.ForEachStorage(sdb.ctx, addr, cb)
 }
 
 // `FinalizeTx` is called when we are complete with the state transition and want to commit the changes
@@ -335,7 +335,7 @@ func (sdb *StateDB) FinalizeTx() error {
 			})
 
 		// clear the codehash from this account
-		sdb.cp.SetCodeHash(sdb.ctx, suicidalAddr, common.Hash{})
+		sdb.ep.SetCodeHash(sdb.ctx, suicidalAddr, common.Hash{})
 
 		// remove auth account
 		sdb.ap.DeleteAccount(sdb.ctx, suicidalAddr)

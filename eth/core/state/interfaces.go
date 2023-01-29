@@ -57,7 +57,7 @@ type BalancePlugin interface {
 	TransferBalance(context.Context, common.Address, common.Address, *big.Int)
 }
 
-type CodePlugin interface {
+type EthPlugin interface {
 	plugin.Base
 	// `GetCodeHash` returns the code hash of the account associated with the given address
 	GetCodeHash(context.Context, common.Address) common.Hash
@@ -73,6 +73,21 @@ type CodePlugin interface {
 
 	// `DeleteCode` deletes the code of the account associated with the given address
 	DeleteCode(context.Context, common.Address)
+
+	// `GetState` returns the value of key in the storage of the account associated with the given address
+	GetState(context.Context, common.Address, common.Hash) common.Hash
+
+	// `GetCommittedState` returns the value of key in the storage of the account associated with the given address
+	GetCommittedState(context.Context, common.Address, common.Hash) common.Hash
+
+	// `ForEachStorage` iterates over the storage of the account associated with the given address
+	ForEachStorage(context.Context, common.Address, func(common.Hash, common.Hash) bool) error
+
+	// `SetState` sets the value of key in the storage of the account associated with the given address
+	SetState(context.Context, common.Address, common.Hash, common.Hash)
+
+	// `DeleteState` deletes the value of key in the storage of the account associated with the given address
+	DeleteState(context.Context, common.Address, common.Hash)
 }
 
 type LogsPlugin interface {
@@ -101,18 +116,4 @@ type RefundPlugin interface {
 
 type StoragePlugin interface {
 	plugin.Base
-	// `GetState` returns the value of key in the storage of the account associated with the given address
-	GetState(context.Context, common.Address, common.Hash) common.Hash
-
-	// `GetCommittedState` returns the value of key in the storage of the account associated with the given address
-	GetCommittedState(context.Context, common.Address, common.Hash) common.Hash
-
-	// `ForEachStorage` iterates over the storage of the account associated with the given address
-	ForEachStorage(context.Context, common.Address, func(common.Hash, common.Hash) bool) error
-
-	// `SetState` sets the value of key in the storage of the account associated with the given address
-	SetState(context.Context, common.Address, common.Hash, common.Hash)
-
-	// `DeleteState` deletes the value of key in the storage of the account associated with the given address
-	DeleteState(context.Context, common.Address, common.Hash)
 }
