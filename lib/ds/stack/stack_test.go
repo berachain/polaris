@@ -15,12 +15,19 @@
 package stack_test
 
 import (
+	"testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
+
+func TestStack(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "lib/ds/stack")
+}
 
 var _ = Describe("Stack", func() {
 	var s ds.Stack[int]
