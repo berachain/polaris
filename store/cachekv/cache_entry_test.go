@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 )
@@ -46,7 +47,7 @@ func TestCacheValueSuite(t *testing.T) {
 func (s *CacheValueSuite) SetupTest() {
 	parent := sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
 	parent.Set(byte0, byte0)
-	s.cacheKVStore = NewStore(parent, journal.NewManager())
+	s.cacheKVStore = NewStore(parent, stack.NewCloneable[journal.CacheEntry](16))
 }
 
 func (s *CacheValueSuite) TestRevertDeleteAfterNothing() {

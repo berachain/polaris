@@ -28,6 +28,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/berachain/stargazer/lib/ds"
+	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/ds/trees"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
@@ -52,17 +53,17 @@ type Store struct {
 	UnsortedCache map[string]struct{}
 	SortedCache   ds.BTree // always ascending sorted
 	Parent        storetypes.KVStore
-	journalMgr    *journal.Manager
+	journal       ds.CloneableStack[journal.CacheEntry]
 }
 
 // NewStore creates a new Store object.
-func NewStore(parent storetypes.KVStore, journalMgr *journal.Manager) *Store {
+func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[journal.CacheEntry]) *Store {
 	return &Store{
 		Cache:         make(map[string]*cacheValue),
 		UnsortedCache: make(map[string]struct{}),
 		SortedCache:   trees.NewBTree(),
 		Parent:        parent,
-		journalMgr:    journalMgr,
+		journal:       journal,
 	}
 }
 
@@ -157,7 +158,8 @@ func (store *Store) Write() {
 	}
 
 	// Clear the journal entries
-	store.journalMgr = journal.NewManager()
+	// Todo: size this properly / consider using a pool.
+	store.journal = stack.NewCloneable[journal.CacheEntry](store.journal.Size())
 
 	// Clear the cache using the map clearing idiom
 	// and not allocating fresh objects.
@@ -174,7 +176,7 @@ func (store *Store) Write() {
 
 // CacheWrap implements CacheWrapper.
 func (store *Store) CacheWrap() storetypes.CacheWrap {
-	return NewStore(store, store.journalMgr.Clone())
+	return NewStore(store, store.journal.Clone())
 }
 
 // CacheWrapWithTrace implements the CacheWrapper interface.
@@ -182,7 +184,7 @@ func (store *Store) CacheWrapWithTrace(
 	w io.Writer,
 	tc storetypes.TraceContext,
 ) storetypes.CacheWrap {
-	return NewStore(tracekv.NewStore(store, w, tc), store.journalMgr.Clone())
+	return NewStore(tracekv.NewStore(store, w, tc), store.journal.Clone())
 }
 
 // CacheWrapWithListeners implements the CacheWrapper interface.
@@ -190,17 +192,22 @@ func (store *Store) CacheWrapWithListeners(
 	storeKey storetypes.StoreKey,
 	listeners []storetypes.WriteListener,
 ) storetypes.CacheWrap {
-	return NewStore(listenkv.NewStore(store, storeKey, listeners), store.journalMgr.Clone())
+	return NewStore(listenkv.NewStore(store, storeKey, listeners), store.journal.Clone())
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (store *Store) Snapshot() int {
-	return store.journalMgr.Size()
+	return store.journal.Size()
 }
 
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (store *Store) RevertToSnapshot(revision int) {
-	store.journalMgr.PopToSize(revision)
+	journal := store.journal
+	// Revert and discard all journal entries with an index greater than or equal to revision.
+	for i := journal.Size() - 1; i >= revision; i-- {
+		journal.PeekAt(i).Revert()
+	}
+	journal.PopToSize(revision)
 }
 
 // ================================================
@@ -433,7 +440,7 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	// Append a new journal entry if the value is dirty, in order to remember the previous state.
 	// Also add the key to the unsorted cache.
 	if dirty {
-		store.journalMgr.Push(newCacheEntry(store, keyStr, store.Cache[keyStr]))
+		store.journal.Push(newCacheEntry(store, keyStr, store.Cache[keyStr]))
 		store.UnsortedCache[keyStr] = struct{}{}
 	}
 
