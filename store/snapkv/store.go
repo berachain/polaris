@@ -31,6 +31,7 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/ds/trees"
 	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/store/snapkv/internal"
 
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
@@ -256,7 +257,7 @@ func (store *Store) iterator(start, end []byte, ascending bool) types.Iterator {
 	defer store.mtx.Unlock()
 
 	store.dirtyItems(start, end)
-	isosortedCache := store.sortedCache.Copy()
+	isoSortedCache := store.sortedCache.Copy()
 
 	var (
 		err           error
@@ -265,16 +266,16 @@ func (store *Store) iterator(start, end []byte, ascending bool) types.Iterator {
 
 	if ascending {
 		parent = store.parent.Iterator(start, end)
-		cache, err = isosortedCache.Iterator(start, end)
+		cache, err = isoSortedCache.Iterator(start, end)
 	} else {
 		parent = store.parent.ReverseIterator(start, end)
-		cache, err = isosortedCache.ReverseIterator(start, end)
+		cache, err = isoSortedCache.ReverseIterator(start, end)
 	}
 	if err != nil {
 		panic(err)
 	}
 
-	return newCacheMergeIterator(parent, cache, ascending)
+	return internal.NewCacheMergeIterator(parent, cache, ascending)
 }
 
 // Constructs a slice of dirty items, to use w/ memIterator.

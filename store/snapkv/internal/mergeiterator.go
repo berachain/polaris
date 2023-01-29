@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapkv
+package internal
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/types"
 )
 
-// `cacheMergeIterator` merges a parent Iterator and a cache Iterator.
+// cacheMergeIterator merges a parent Iterator and a cache Iterator.
 // The cache iterator may return nil keys to signal that an item
 // had been deleted (but not deleted in the parent).
 // If the cache iterator has the same key as the parent, the
@@ -38,8 +38,8 @@ type cacheMergeIterator struct {
 
 var _ types.Iterator = (*cacheMergeIterator)(nil)
 
-// `NewCacheMergeIterator` creates a new cacheMergeIterator.
-func newCacheMergeIterator(parent, cache types.Iterator, ascending bool) *cacheMergeIterator {
+//nolint:revive // copied from cosmos-sdk.
+func NewCacheMergeIterator(parent, cache types.Iterator, ascending bool) *cacheMergeIterator {
 	iter := &cacheMergeIterator{
 		parent:    parent,
 		cache:     cache,
