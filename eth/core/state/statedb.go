@@ -105,13 +105,13 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 	sdb.ap.CreateAccount(sdb.ctx, addr)
 }
 
-// GetNonce implements the `GethStateDB` interface by returning the nonce
+// GetNonce implements the `StargazerStateDB` interface by returning the nonce
 // of an account.
 func (sdb *StateDB) GetNonce(addr common.Address) uint64 {
 	return sdb.ap.GetNonce(sdb.ctx, addr)
 }
 
-// SetNonce implements the `GethStateDB` interface by setting the nonce
+// SetNonce implements the `StargazerStateDB` interface by setting the nonce
 // of an account.
 func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 	sdb.ap.SetNonce(sdb.ctx, addr, nonce)
@@ -175,19 +175,19 @@ func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
 // Refund
 // =============================================================================
 
-// `AddRefund` implements the `GethStateDB` interface by adding gas to the
+// `AddRefund` implements the `StargazerStateDB` interface by adding gas to the
 // refund counter.
 func (sdb *StateDB) AddRefund(gas uint64) {
 	sdb.rf.Add(gas)
 }
 
-// `SubRefund` implements the `GethStateDB` interface by subtracting gas from the
+// `SubRefund` implements the `StargazerStateDB` interface by subtracting gas from the
 // refund counter. If the gas is greater than the refund counter, it will panic.
 func (sdb *StateDB) SubRefund(gas uint64) {
 	sdb.rf.Sub(gas)
 }
 
-// `GetRefund` implements the `GethStateDB` interface by returning the current
+// `GetRefund` implements the `StargazerStateDB` interface by returning the current
 // value of the refund counter.
 func (sdb *StateDB) GetRefund() uint64 {
 	return sdb.rf.Get()
@@ -220,7 +220,7 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 // Suicide
 // =============================================================================
 
-// Suicide implements the GethStateDB interface by marking the given address as suicided.
+// Suicide implements the StargazerStateDB interface by marking the given address as suicided.
 // This clears the account balance, but the code and state of the address remains available
 // until after Commit is called.
 func (sdb *StateDB) Suicide(addr common.Address) bool {
@@ -238,7 +238,7 @@ func (sdb *StateDB) Suicide(addr common.Address) bool {
 	return true
 }
 
-// `HasSuicided` implements the `GethStateDB` interface by returning if the contract was suicided
+// `HasSuicided` implements the `StargazerStateDB` interface by returning if the contract was suicided
 // in current transaction.
 func (sdb *StateDB) HasSuicided(addr common.Address) bool {
 	for _, suicide := range sdb.suicides {
@@ -253,14 +253,14 @@ func (sdb *StateDB) HasSuicided(addr common.Address) bool {
 // Exist & Empty
 // =============================================================================
 
-// `Exist` implements the `GethStateDB` interface by reporting whether the given account address
+// `Exist` implements the `StargazerStateDB` interface by reporting whether the given account address
 // exists in the state. Notably this also returns true for suicided accounts, which is accounted
 // for since, `RemoveAccount()` is not called until Commit.
 func (sdb *StateDB) Exist(addr common.Address) bool {
 	return sdb.ap.HasAccount(sdb.ctx, addr)
 }
 
-// `Empty` implements the `GethStateDB` interface by returning whether the state object
+// `Empty` implements the `StargazerStateDB` interface by returning whether the state object
 // is either non-existent or empty according to the EIP161 epecification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
@@ -275,13 +275,13 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 // Logs
 // =============================================================================
 
-// `AddLog` implements the `GethStateDB` interface by adding a log to the current
+// `AddLog` implements the `StargazerStateDB` interface by adding a log to the current
 // transaction.
 func (sdb *StateDB) AddLog(log *coretypes.Log) {
 	sdb.lp.AddLog(log)
 }
 
-// `GetLogs` implements the `GethStateDB` interface by returning the logs for the.
+// `GetLogs` implements the `StargazerStateDB` interface by returning the logs for the.
 func (sdb *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
 	return sdb.lp.GetLogs(txHash, blockHash)
 }
@@ -305,7 +305,7 @@ func (sdb *StateDB) Snapshot() int {
 // ForEachStorage
 // =============================================================================
 
-// `ForEachStorage` implements the `GethStateDB` interface by iterating through the contract state
+// `ForEachStorage` implements the `StargazerStateDB` interface by iterating through the contract state
 // contract storage, the iteration order is not defined.
 //
 // Note: We do not support iterating through any storage that is modified before calling
