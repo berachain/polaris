@@ -225,6 +225,7 @@ func (store *Store) RevertEntry(ce CacheEntry) {
 	if prev == nil {
 		// If there was no previous value, remove the Key from the
 		// cache map and the unsorted cache set
+		// TODO: cache wrap breaks this?
 		delete(store.cache, key)
 		delete(store.unsortedCache, key)
 		return
