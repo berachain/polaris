@@ -19,6 +19,7 @@ import (
 	"sort"
 	"sync"
 
+	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	"github.com/cosmos/cosmos-sdk/store/listenkv"
 	"github.com/cosmos/cosmos-sdk/store/tracekv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -176,25 +177,30 @@ func (store *Store) Write() {
 	store.sortedCache = trees.NewBTree()
 }
 
-// CacheWrap implements CacheWrapper.
+// `CacheWrap` wraps the store with a native Cosmos-SDK. We do not wrap with a
+// `SnapshotKVStore` because the snapshotting is meaningless after wrapping. This is
+// because the snapshotting is handled on this store, when the newly created cachekv.Store
+// calls `Write()`.
+//
+// `CacheWrap` implements CacheWrapper.
 func (store *Store) CacheWrap() storetypes.CacheWrap {
-	return NewStore(store, store.journal.Clone())
+	return sdkcachekv.NewStore(store)
 }
 
-// CacheWrapWithTrace implements the CacheWrapper interface.
+// `CacheWrapWithTrace` implements the CacheWrapper interface.
 func (store *Store) CacheWrapWithTrace(
 	w io.Writer,
 	tc storetypes.TraceContext,
 ) storetypes.CacheWrap {
-	return NewStore(tracekv.NewStore(store, w, tc), store.journal.Clone())
+	return sdkcachekv.NewStore(tracekv.NewStore(store, w, tc))
 }
 
-// CacheWrapWithListeners implements the CacheWrapper interface.
+// `CacheWrapWithListeners` implements the CacheWrapper interface.
 func (store *Store) CacheWrapWithListeners(
 	storeKey storetypes.StoreKey,
 	listeners []storetypes.WriteListener,
 ) storetypes.CacheWrap {
-	return NewStore(listenkv.NewStore(store, storeKey, listeners), store.journal.Clone())
+	return sdkcachekv.NewStore(listenkv.NewStore(store, storeKey, listeners))
 }
 
 // ====================================================================
