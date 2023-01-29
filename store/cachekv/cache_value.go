@@ -37,5 +37,10 @@ func newCacheValue(v []byte, d bool) *cacheValue {
 // `Clone` implements `types.Cloneable`.
 func (cv *cacheValue) Clone() *cacheValue {
 	// Return a new cacheValue with the same value and dirty flag
-	return newCacheValue(append([]byte(nil), cv.value...), cv.dirty)
+	if cv.value == nil {
+		return newCacheValue(nil, cv.dirty)
+	}
+	bz := make([]byte, len(cv.value))
+	copy(bz, cv.value)
+	return newCacheValue(bz, cv.dirty)
 }
