@@ -22,3 +22,18 @@ const (
 )
 
 const MinSortSize = 1024
+
+// `Cloneable` is an interface that defines a `Clone` method.
+type Cloneable[T any] interface {
+	Clone() T
+}
+
+// `Snapshottable` is an interface that defines methods for snapshotting and reverting
+// a logical unit of data.
+type Snapshottable interface {
+	// `RevertToSnapshot` reverts the data to a previous version
+	RevertToSnapshot(int)
+
+	// `Snapshot` returns an identifier for the current revision of the data.
+	Snapshot() int
+}
