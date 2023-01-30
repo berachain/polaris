@@ -19,8 +19,8 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
-// `initCapacity` is the initial capacity of the `Refund`'s snapshot stack.
-const initCapacity = 32
+// `initCapacity` is the initial capacity of the `refund`'s snapshot stack.
+const initCapacity = 16
 
 // Compile-time assertion that `refund` implements `Base`.
 var _ Base = (*refund)(nil)
@@ -31,25 +31,25 @@ type refund struct {
 }
 
 // `NewRefund` creates and returns a `refund`.
-func NewRefund() *refund { //nolint:revive // only used as interface.
+func NewRefund() *refund { //nolint: revive // its ok.
 	return &refund{
 		Stack: stack.New[uint64](initCapacity),
 	}
 }
 
 // `Get` returns the current value of the refund counter.
-func (rs *refund) Get() uint64 {
+func (rs *refund) GetRefund() uint64 {
 	return rs.Peek()
 }
 
-// `Set` sets the refund counter to the given `amount`.
-func (rs *refund) Add(amount uint64) {
-	rs.Push(rs.Peek() + amount)
+// `Set` sets the refund counter to the given `gas`.
+func (rs *refund) AddRefund(gas uint64) {
+	rs.Push(rs.Peek() + gas)
 }
 
-// `Sub` subtracts the given `amount` from the refund counter.
-func (rs *refund) Sub(amount uint64) {
-	rs.Push(rs.Peek() - amount)
+// `Sub` subtracts the given `gas` from the refund counter.
+func (rs *refund) SubRefund(gas uint64) {
+	rs.Push(rs.Peek() - gas)
 }
 
 // `Snapshot` returns the current size of the refund counter, which is used to

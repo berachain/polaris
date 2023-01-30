@@ -21,11 +21,10 @@ import (
 	"github.com/berachain/stargazer/eth/core/state/plugin"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
-	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-type StateDBBackend interface { //nolint:revive // vibes.
-	libtypes.Snapshottable
+type StatePlugin interface { //nolint:revive // vibes.
+	plugin.Base
 
 	GetContext() context.Context
 	CreateAccount(common.Address)
@@ -42,10 +41,6 @@ type StateDBBackend interface { //nolint:revive // vibes.
 	GetCode(common.Address) []byte
 	SetCode(common.Address, []byte)
 	GetCodeSize(common.Address) int
-
-	AddRefund(uint64)
-	SubRefund(uint64)
-	GetRefund() uint64
 
 	GetCommittedState(common.Address, common.Hash) common.Hash
 	GetState(common.Address, common.Hash) common.Hash
@@ -74,11 +69,9 @@ type LogsPlugin interface {
 type RefundPlugin interface {
 	plugin.Base
 	// `AddRefund` adds amount to the refund counter
-	Add(uint64)
-
+	AddRefund(uint64)
 	// `SubRefund` subtracts amount from the refund counter
-	Sub(uint64)
-
+	SubRefund(uint64)
 	// `GetRefund` returns the refund counter
-	Get() uint64
+	GetRefund() uint64
 }

@@ -26,6 +26,8 @@ import (
 	"github.com/berachain/stargazer/lib/snapshot"
 )
 
+// `StatePlugin` is the plugin that holds the state of the evm.
+
 var (
 	// EmptyCodeHash is the Keccak256 Hash of empty code
 	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
@@ -35,15 +37,14 @@ var (
 // Compile-time assertion that StateDB implements the vm.StargazerStateDB interface.
 var _ vm.StargazerStateDB = (*StateDB)(nil)
 
-type StateDB struct { //nolint:revive // StateDB is a struct that holds the state of the blockchain.
-	StateDBBackend
-
+type StateDB struct { //nolint:revive // we live the vibe.
 	// The controller is used to manage the plugins
 	ctrl snapshot.Controller
 
-	// Stargazer supplied plugins
-	lp LogsPlugin
-	rf RefundPlugin
+	// References to the plugins in the controller.
+	StatePlugin
+	RefundPlugin
+	LogsPlugin
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -53,7 +54,7 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 	suicides []common.Address
 }
 
-func NewStateDB(sdbb StateDBBackend, ctrl snapshot.Controller) *StateDB {
+func NewStateDB(sp StatePlugin, ctrl snapshot.Controller) *StateDB {
 	// Build snapshottables for logs and refunds.
 	lp := plugin.NewLogs()
 	rf := plugin.NewRefund()
@@ -61,15 +62,15 @@ func NewStateDB(sdbb StateDBBackend, ctrl snapshot.Controller) *StateDB {
 	// Register the snapshottables with the controller.
 	_ = ctrl.Control(plugin.RefundName, lp)
 	_ = ctrl.Control(plugin.LogsName, rf)
-	_ = ctrl.Control(plugin.BackendName, sdbb)
+	_ = ctrl.Control(plugin.BackendName, sp)
 
 	// Create the `StateDB` and populate the developer provided plugins.
 	return &StateDB{
-		StateDBBackend: sdbb,
-		ctrl:           ctrl,
-		lp:             lp,
-		rf:             rf,
-		suicides:       make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		StatePlugin:  sp,
+		LogsPlugin:   lp,
+		RefundPlugin: rf,
+		ctrl:         ctrl,
+		suicides:     make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}
 }
 
@@ -77,37 +78,15 @@ func NewStateDB(sdbb StateDBBackend, ctrl snapshot.Controller) *StateDB {
 // Transaction Handling
 // =============================================================================
 
-// `Prepare` sets the current transaction hash and index which are
-// used when the EVM emits new state logs.
-func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
-	sdb.lp.Prepare(txHash, ti)
-}
+// // `Prepare` sets the current transaction hash and index which are
+// // used when the EVM emits new state logs.
+// func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
+// 	sdb.Prepare(txHash, ti)
+// }
 
 // `Reset` resets the state object to the initial state.
 func (sdb *StateDB) Reset(ctx context.Context) {
 	// sdb.ctx = ctx
-}
-
-// =============================================================================
-// Refund
-// =============================================================================
-
-// `AddRefund` implements the `StargazerStateDB` interface by adding gas to the
-// refund counter.
-func (sdb *StateDB) AddRefund(gas uint64) {
-	sdb.rf.Add(gas)
-}
-
-// `SubRefund` implements the `StargazerStateDB` interface by subtracting gas from the
-// refund counter. If the gas is greater than the refund counter, it will panic.
-func (sdb *StateDB) SubRefund(gas uint64) {
-	sdb.rf.Sub(gas)
-}
-
-// `GetRefund` implements the `StargazerStateDB` interface by returning the current
-// value of the refund counter.
-func (sdb *StateDB) GetRefund() uint64 {
-	return sdb.rf.Get()
 }
 
 // =============================================================================
@@ -152,21 +131,6 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 	return sdb.GetNonce(addr) == 0 &&
 		(ch == emptyCodeHash || ch == common.Hash{}) &&
 		sdb.GetBalance(addr).Sign() == 0
-}
-
-// =============================================================================
-// Logs
-// =============================================================================
-
-// `AddLog` implements the `StargazerStateDB` interface by adding a log to the current
-// transaction.
-func (sdb *StateDB) AddLog(log *coretypes.Log) {
-	sdb.lp.AddLog(log)
-}
-
-// `GetLogs` implements the `StargazerStateDB` interface by returning the logs for the.
-func (sdb *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
-	return sdb.lp.GetLogs(txHash, blockHash)
 }
 
 // =============================================================================

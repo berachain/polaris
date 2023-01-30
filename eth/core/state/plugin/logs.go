@@ -23,10 +23,10 @@ import (
 
 const initLogCapacity = 16
 
-// Compile-time assertion that `logs` implements `Base`.
+// Compile-time assertion that `Logs` implements `Base`.
 var _ Base = (*logs)(nil)
 
-// `logs` is a `Store` that tracks the refund counter.
+// `Logs` is a `Store` that tracks the refund counter.
 type logs struct {
 	// For the block.
 	txHashToLogs map[common.Hash]ds.Stack[*coretypes.Log]
@@ -38,7 +38,7 @@ type logs struct {
 }
 
 // `NewLogs` returns a new `Logs` store.
-func NewLogs() *logs { //nolint: revive // only used as plugin.
+func NewLogs() *logs { //nolint: revive // its okay.
 	return &logs{
 		txHashToLogs:  make(map[common.Hash]ds.Stack[*coretypes.Log]),
 		currentTxHash: common.Hash{},
@@ -63,7 +63,7 @@ func (l *logs) AddLog(log *coretypes.Log) {
 	l.logSize++
 }
 
-// `GetLogs` returns the logs for a given transaction hash.
+// `GetLogs` returns the Logs for a given transaction hash.
 func (l *logs) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
 	logs := l.txHashToLogs[txHash]
 	size := logs.Size()
