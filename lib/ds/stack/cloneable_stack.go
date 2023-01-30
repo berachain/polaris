@@ -11,18 +11,33 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+package stack
 
-// `Cloneable` is an interface that defines a `Clone` method.
-type Cloneable[T any] interface {
-	Clone() T
+import (
+	"github.com/berachain/stargazer/lib/ds"
+	libtypes "github.com/berachain/stargazer/lib/types"
+)
+
+// `cloneableStack` is a struct that holds a slice of CacheEntry instances.
+type cloneableStack[T libtypes.Cloneable[T]] struct {
+	// The `cloneableStack` is a `ds.Stack`.
+	ds.Stack[T]
 }
 
-// `Snapshottable` is an interface that defines methods for snapshotting and reverting
-// a logical unit of data.
-type Snapshottable interface {
-	// `RevertToSnapshot` reverts the data to a previous version
-	RevertToSnapshot(int)
+// `NewCloneable` creates and returns a new cloneableStack instance with an empty journal.
+func NewCloneable[T libtypes.Cloneable[T]](capacity int) cloneableStack[T] { //nolint:revive // it's ok.
+	return cloneableStack[T]{
+		New[T](capacity),
+	}
+}
 
-	// `Snapshot` returns an identifier for the current revision of the data.
-	Snapshot() int
+// `Clone` returns a cloned journal by deep copyign each CacheEntry.
+//
+// `Clone` implements `CloneableStack[T]`.
+func (cs cloneableStack[T]) Clone() ds.CloneableStack[T] {
+	newcloneableStack := NewCloneable[T](cs.Capacity())
+	for i := 0; i < cs.Size(); i++ {
+		newcloneableStack.Push(cs.PeekAt(i).Clone())
+	}
+	return newcloneableStack
 }
