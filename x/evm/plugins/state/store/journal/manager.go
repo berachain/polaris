@@ -30,7 +30,7 @@ type ManagerI[T any] interface {
 }
 
 // Compile-time check to ensure `Manager` implements `ManagerI`.
-var _ ManagerI[*Manager] = (*Manager)(nil)
+var _ ds.CloneableStack[CacheEntry] = (*Manager)(nil)
 
 // `Manager` is a struct that holds a slice of CacheEntry instances.
 type Manager struct {
@@ -60,7 +60,7 @@ func (jm *Manager) PopToSize(newSize int) {
 
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
 // `Clone` implements `ManagerI[*Manager]`.
-func (jm *Manager) Clone() *Manager {
+func (jm *Manager) Clone() ds.CloneableStack[CacheEntry] {
 	newManager := NewManager()
 	for i := 0; i < jm.Size(); i++ {
 		newManager.Push(jm.PeekAt(i).Clone())
