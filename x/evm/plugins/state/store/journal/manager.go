@@ -16,21 +16,10 @@ package journal
 import (
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
-	"github.com/berachain/stargazer/lib/gointerfaces"
 )
 
-// `ManagerI` is an interface that defines the methods that a journal manager must implement.
-// Journal managers support holding cache entries and reverting to a certain index.
-type ManagerI[T any] interface {
-	// `ManagerI` implements `ds.StackI[CacheEntry]`.
-	ds.Stack[CacheEntry]
-
-	// `ManagerI` implements `Cloneable`.
-	gointerfaces.Cloneable[T]
-}
-
 // Compile-time check to ensure `Manager` implements `ManagerI`.
-var _ ManagerI[*Manager] = (*Manager)(nil)
+var _ ds.CloneableStack[CacheEntry] = (*Manager)(nil)
 
 // `Manager` is a struct that holds a slice of CacheEntry instances.
 type Manager struct {
@@ -60,7 +49,7 @@ func (jm *Manager) PopToSize(newSize int) {
 
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
 // `Clone` implements `ManagerI[*Manager]`.
-func (jm *Manager) Clone() *Manager {
+func (jm *Manager) Clone() ds.CloneableStack[CacheEntry] {
 	newManager := NewManager()
 	for i := 0; i < jm.Size(); i++ {
 		newManager.Push(jm.PeekAt(i).Clone())

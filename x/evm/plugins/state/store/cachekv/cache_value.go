@@ -14,10 +14,10 @@
 
 package cachekv
 
-import "github.com/berachain/stargazer/lib/gointerfaces"
+import libtypes "github.com/berachain/stargazer/lib/types"
 
 // Compile-time assertion that `cacheValue` implements `types.Cloneable`.
-var _ gointerfaces.Cloneable[*cacheValue] = (*cacheValue)(nil)
+var _ libtypes.Cloneable[*cacheValue] = (*cacheValue)(nil)
 
 // `cacheValue` represents a cached value in the cachekv store.
 // If dirty is true, it indicates the cached value is different from the underlying value.

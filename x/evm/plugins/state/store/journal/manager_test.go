@@ -22,6 +22,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal/mock"
 )
@@ -32,7 +33,7 @@ func TestJournalManager(t *testing.T) {
 }
 
 var _ = Describe("Journal", func() {
-	var jm journal.ManagerI[*journal.Manager]
+	var jm ds.CloneableStack[journal.CacheEntry]
 	var entries []*mock.CacheEntry
 
 	BeforeEach(func() {
@@ -106,7 +107,7 @@ var _ = Describe("Journal", func() {
 				})
 
 				When("the journal is cloned", func() {
-					var jm2 journal.ManagerI[*journal.Manager]
+					var jm2 ds.CloneableStack[journal.CacheEntry]
 					BeforeEach(func() {
 						jm2 = jm.Clone()
 					})
