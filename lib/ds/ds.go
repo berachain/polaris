@@ -54,16 +54,6 @@ type CloneableStack[T libtypes.Cloneable[T]] interface {
 	libtypes.Cloneable[CloneableStack[T]]
 }
 
-// `CloneableStack` is an interface that extends `Stack` to allow for deep copying.
-// As such, the items in the stack must implement `Cloneable`.
-type CloneableStack[T libtypes.Cloneable[T]] interface {
-	// `CloneableStack` is a `Stack`.
-	Stack[T]
-
-	// `CloneableStack` implements `Cloneable`.
-	libtypes.Cloneable[CloneableStack[T]]
-}
-
 // `BTree` is an interface that defines the methods a binary tree must implement.
 type BTree interface {
 	// `Set` sets the key to value.
