@@ -35,10 +35,9 @@ func NewCloneable[T libtypes.Cloneable[T]](capacity int) cloneableStack[T] { //n
 //
 // `Clone` implements `CloneableStack[T]`.
 func (cs cloneableStack[T]) Clone() ds.CloneableStack[T] {
-	newcloneableStack := NewCloneable[T](cs.Size() * two)
+	newcloneableStack := NewCloneable[T](cs.Capacity())
 	for i := 0; i < cs.Size(); i++ {
-		clone := cs.PeekAt(i).Clone()
-		newcloneableStack.Push(clone)
+		newcloneableStack.Push(cs.PeekAt(i).Clone())
 	}
 	return newcloneableStack
 }
