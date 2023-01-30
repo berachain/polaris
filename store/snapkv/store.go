@@ -25,16 +25,17 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
+
 	"github.com/tendermint/tendermint/libs/math"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/ds/trees"
+	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/store/snapkv/internal"
-
-	libtypes "github.com/berachain/stargazer/lib/types"
+	snapkvsort "github.com/berachain/stargazer/store/snapkv/sort"
 )
 
 type SnapshotKVStore interface {
@@ -313,7 +314,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 	// O(N^2) overhead.
 	// Even without that, too many range checks eventually becomes more expensive
 	// than just not having the cache.
-	if n < minSortSize {
+	if n < snapkvsort.MinSortSize {
 		for key := range store.unsortedCache {
 			// dbm.IsKeyInDomain is nil safe and returns true iff key is greater than start
 			if dbm.IsKeyInDomain(utils.UnsafeStrToBytes(key), start, end) {
@@ -321,7 +322,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 				unsorted = append(unsorted, &kv.Pair{Key: []byte(key), Value: cacheValue.value})
 			}
 		}
-		store.clearUnsortedCacheSubset(unsorted, stateUnsorted)
+		store.clearUnsortedCacheSubset(unsorted, snapkvsort.StateUnsorted)
 		return
 	}
 
@@ -335,7 +336,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 
 	// Now find the values within the domain
 	//  [start, end)
-	startIndex := findStartIndex(strL, startStr)
+	startIndex := snapkvsort.FindStartIndex(strL, startStr)
 	if startIndex < 0 {
 		startIndex = 0
 	}
@@ -344,7 +345,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 	if end == nil {
 		endIndex = len(strL) - 1
 	} else {
-		endIndex = findEndIndex(strL, endStr)
+		endIndex = snapkvsort.FindEndIndex(strL, endStr)
 	}
 	if endIndex < 0 {
 		endIndex = len(strL) - 1
@@ -354,10 +355,10 @@ func (store *Store) dirtyItems(start, end []byte) {
 	// ensure start to end is at least minSortSize in size
 	// if below minSortSize, expand it to cover additional values
 	// this amortizes the cost of processing elements across multiple calls
-	if endIndex-startIndex < minSortSize {
-		endIndex = math.MinInt(startIndex+minSortSize, len(strL)-1)
-		if endIndex-startIndex < minSortSize {
-			startIndex = math.MaxInt(endIndex-minSortSize, 0)
+	if endIndex-startIndex < snapkvsort.MinSortSize {
+		endIndex = math.MinInt(startIndex+snapkvsort.MinSortSize, len(strL)-1)
+		if endIndex-startIndex < snapkvsort.MinSortSize {
+			startIndex = math.MaxInt(endIndex-snapkvsort.MinSortSize, 0)
 		}
 	}
 
@@ -369,10 +370,10 @@ func (store *Store) dirtyItems(start, end []byte) {
 	}
 
 	// kvL was already sorted so pass it in as is.
-	store.clearUnsortedCacheSubset(kvL, stateAlreadySorted)
+	store.clearUnsortedCacheSubset(kvL, snapkvsort.StateAlreadySorted)
 }
 
-func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState sortState) {
+func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState snapkvsort.State) {
 	n := len(store.unsortedCache)
 	if len(unsorted) == n { // This pattern allows the Go compiler to emit the map clearing idiom for the entire map.
 		for key := range store.unsortedCache {
@@ -384,7 +385,7 @@ func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState sort
 		}
 	}
 
-	if sortState == stateUnsorted {
+	if sortState == snapkvsort.StateUnsorted {
 		sort.Slice(unsorted, func(i, j int) bool {
 			return bytes.Compare(unsorted[i].Key, unsorted[j].Key) < 0
 		})

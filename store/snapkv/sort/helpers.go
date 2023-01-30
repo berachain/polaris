@@ -12,9 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapkv
+package sort
 
-func findStartIndex(strL []string, startQ string) int {
+func FindStartIndex(strL []string, startQ string) int {
 	// Modified binary search to find the very first element in >=startQ.
 	if len(strL) == 0 {
 		return -1
@@ -48,7 +48,7 @@ func findStartIndex(strL []string, startQ string) int {
 	return -1
 }
 
-func findEndIndex(strL []string, endQ string) int {
+func FindEndIndex(strL []string, endQ string) int {
 	if len(strL) == 0 {
 		return -1
 	}

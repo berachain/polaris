@@ -26,7 +26,15 @@ import (
 	"github.com/stretchr/testify/require"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	dbm "github.com/tendermint/tm-db"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
+
+func TestSnapKV(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "store/snapkv")
+}
 
 func newParent() types.CacheKVStore {
 	return sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})

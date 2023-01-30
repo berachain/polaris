@@ -12,16 +12,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapkv
+package sort
 
-import (
-	"testing"
+type State int
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+const (
+	StateUnsorted State = iota
+	StateAlreadySorted
 )
 
-func TestSnapKV(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "store/snapkv")
-}
+const MinSortSize = 1024

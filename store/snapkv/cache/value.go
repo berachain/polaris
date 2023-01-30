@@ -12,13 +12,35 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapkv
+package cache
 
-type sortState int
+import libtypes "github.com/berachain/stargazer/lib/types"
 
-const (
-	stateUnsorted sortState = iota
-	stateAlreadySorted
-)
+// Compile-time assertion that `Value` implements `types.Cloneable`.
+var _ libtypes.Cloneable[*Value] = (*Value)(nil)
 
-const minSortSize = 1024
+// `Value` represents a cached value in the cachekv store.
+// If dirty is true, it indicates the cached value is different from the underlying value.
+type Value struct {
+	value []byte
+	dirty bool
+}
+
+// `newValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
+func newValue(v []byte, d bool) *Value {
+	return &Value{
+		value: v,
+		dirty: d,
+	}
+}
+
+// `Clone` implements `types.Cloneable`.
+func (cv *Value) Clone() *Value {
+	// Return a new cacheValue with the same value and dirty flag
+	if cv.value == nil {
+		return newValue(nil, cv.dirty)
+	}
+	bz := make([]byte, len(cv.value))
+	copy(bz, cv.value)
+	return newValue(bz, cv.dirty)
+}
