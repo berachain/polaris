@@ -39,6 +39,9 @@ type Stack[Item any] interface {
 
 	// `Size` returns the current number of entries in the items.
 	Size() int
+
+	// `Capacity` returns the size of the allocated buffer for the stack.
+	Capacity() int
 }
 
 // `CloneableStack` is an interface that extends `Stack` to allow for deep copying.
