@@ -23,11 +23,11 @@ import (
 // `initJournalCapacity` is the initial capacity of the `journal` stack.
 const initJournalCapacity = 16
 
-// `Controller` implements the `lib.Snapshottable` interface.
+// `Controller` implements the `libtypes.Snapshottable` interface.
 var _ libtypes.Snapshottable = (*Controller)(nil)
 
-// `Controller` conforms to the `lib.Snapshottable` interface and is used to sync
-// snapshotting across multiple `lib.Snapshottable` objects.
+// `Controller` conforms to the `libtypes.Snapshottable` interface and is used to sync
+// snapshotting across multiple `libtypes.Snapshottable` objects.
 type Controller struct {
 	keyToSnapshottable map[string]libtypes.Snapshottable
 	journal            ds.Stack[map[string]int]
@@ -41,7 +41,7 @@ func NewController() *Controller {
 	}
 }
 
-// `Control` adds a `lib.Snapshottable` object to the `Controller`.
+// `Register` adds a `libtypes.Snapshottable` object to the `Controller`.
 func (c *Controller) Register(key string, object libtypes.Snapshottable) error {
 	if _, ok := c.keyToSnapshottable[key]; ok {
 		return ErrObjectAlreadyExists
@@ -50,7 +50,7 @@ func (c *Controller) Register(key string, object libtypes.Snapshottable) error {
 	return nil
 }
 
-// `Get` returns the `lib.Snapshottable` object with the given `id`.
+// `Get` returns the `libtypes.Snapshottable` object with the given `id`.
 func (c *Controller) Get(key string) libtypes.Snapshottable {
 	return c.keyToSnapshottable[key]
 }
@@ -66,31 +66,18 @@ func (c *Controller) Snapshot() int {
 	return c.journal.Size()
 }
 
-// `RevertToSnapshot` reverts all `lib.Snapshottable` objects to the snapshot with
+// `RevertToSnapshot` reverts all `libtypes.Snapshottable` objects to the snapshot with
 // the given `snap` number.
 func (c *Controller) RevertToSnapshot(revision int) {
 	lastestSnapshot := c.journal.Peek()
 	for id, store := range c.keyToSnapshottable {
 		// Only revert if exists. This is to handle the case where a
-		// `lib.Snapshottable` object is added after a snapshot has been taken.
+		// `libtypes.Snapshottable` object is added after a snapshot has been taken.
 		if objRevision, ok := lastestSnapshot[id]; ok {
 			store.RevertToSnapshot(objRevision)
 		}
 	}
 	c.journal.PopToSize(revision)
-}
-
-// `Revision` returns a specific set of snapshot numbers for all `lib.Snapshottable`
-// that are being tracked by the `Controller` at that revision number.
-func (c *Controller) Revision(revision int) map[string]int {
-	// 1st revision is the 0th index.
-	return c.journal.PeekAt(revision - 1)
-}
-
-// `LatestRevision` returns the current snapshot numbers for all `lib.Snapshottable`
-// that are being tracked by the `Controller`.
-func (c *Controller) LatestRevision() map[string]int {
-	return c.journal.Peek()
 }
 
 // `Finalize` is a no-op and is left to be extended by an implementation.

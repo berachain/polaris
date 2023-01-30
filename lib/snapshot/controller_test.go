@@ -12,12 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapshot_test
+package snapshot
 
 import (
 	"testing"
 
-	"github.com/berachain/stargazer/lib/snapshot"
 	typesmock "github.com/berachain/stargazer/lib/types/mock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,12 +28,12 @@ func TestSnapshot(t *testing.T) {
 }
 
 var _ = Describe("Controller", func() {
-	var ctrl *snapshot.Controller
+	var ctrl *Controller
 	var object1 *typesmock.SnapshottableMock
 	var object2 *typesmock.SnapshottableMock
 	// var object3 *typesmock.SnapshottableMock
 	BeforeEach(func() {
-		ctrl = snapshot.NewController()
+		ctrl = NewController()
 		object1 = typesmock.NewSnapshottableMock()
 		object2 = typesmock.NewSnapshottableMock()
 		// object3 = typesmock.NewSnapshottableMock()
@@ -55,7 +54,7 @@ var _ = Describe("Controller", func() {
 		When("adding a new object with the same name", func() {
 			It("should return an error", func() {
 				err := ctrl.Register("object1", object1)
-				Expect(err).To(MatchError(snapshot.ErrObjectAlreadyExists))
+				Expect(err).To(MatchError(ErrObjectAlreadyExists))
 			})
 		})
 
@@ -73,10 +72,10 @@ var _ = Describe("Controller", func() {
 			})
 			It("should call snapshot on the controlled object", func() {
 				Expect(object1.SnapshotCalls()).To(HaveLen(1))
-				snaps := ctrl.Revision(1)
+				snaps := ctrl.journal.PeekAt(0)
 				Expect(snaps).To(HaveLen(1))
 				Expect(snaps["object1"]).To(Equal(5))
-				snaps = ctrl.LatestRevision()
+				snaps = ctrl.journal.Peek()
 				Expect(snaps).To(HaveLen(1))
 				Expect(snaps["object1"]).To(Equal(5))
 			})
@@ -88,13 +87,13 @@ var _ = Describe("Controller", func() {
 				})
 				It("should call snapshot on the controlled object again", func() {
 					Expect(object1.SnapshotCalls()).To(HaveLen(2))
-					snaps := ctrl.Revision(1)
+					snaps := ctrl.journal.PeekAt(0)
 					Expect(snaps).To(HaveLen(1))
 					Expect(snaps["object1"]).To(Equal(5))
-					snaps = ctrl.Revision(2)
+					snaps = ctrl.journal.PeekAt(1)
 					Expect(snaps).To(HaveLen(1))
 					Expect(snaps["object1"]).To(Equal(12))
-					snaps = ctrl.LatestRevision()
+					snaps = ctrl.journal.Peek()
 					Expect(snaps).To(HaveLen(1))
 					Expect(snaps["object1"]).To(Equal(12))
 				})
@@ -116,17 +115,17 @@ var _ = Describe("Controller", func() {
 							Expect(object2.SnapshotCalls()).To(HaveLen(1))
 						})
 						It("should have the correct historical revisions", func() {
-							snaps := ctrl.Revision(1)
+							snaps := ctrl.journal.PeekAt(0)
 							Expect(snaps).To(HaveLen(1))
 							Expect(snaps["object1"]).To(Equal(5))
-							snaps = ctrl.Revision(2)
+							snaps = ctrl.journal.PeekAt(1)
 							Expect(snaps).To(HaveLen(1))
 							Expect(snaps["object1"]).To(Equal(12))
-							snaps = ctrl.Revision(3)
+							snaps = ctrl.journal.PeekAt(2)
 							Expect(snaps).To(HaveLen(2))
 							Expect(snaps["object1"]).To(Equal(12))
 							Expect(snaps["object2"]).To(Equal(7))
-							snaps = ctrl.LatestRevision()
+							snaps = ctrl.journal.Peek()
 							Expect(snaps).To(HaveLen(2))
 							Expect(snaps["object1"]).To(Equal(12))
 							Expect(snaps["object2"]).To(Equal(7))
@@ -136,16 +135,16 @@ var _ = Describe("Controller", func() {
 								ctrl.RevertToSnapshot(2)
 								Expect(object1.RevertToSnapshotCalls()).To(HaveLen(1))
 								Expect(object2.RevertToSnapshotCalls()).To(HaveLen(1))
-								snaps := ctrl.Revision(1)
+								snaps := ctrl.journal.PeekAt(0)
 								Expect(snaps).To(HaveLen(1))
 								Expect(snaps["object1"]).To(Equal(5))
-								snaps = ctrl.Revision(2)
+								snaps = ctrl.journal.PeekAt(1)
 								Expect(snaps).To(HaveLen(1))
 								Expect(snaps["object1"]).To(Equal(12))
 								Expect(func() {
-									ctrl.Revision(3)
+									ctrl.journal.PeekAt(2)
 								}).To(Panic())
-								snaps = ctrl.LatestRevision()
+								snaps = ctrl.journal.Peek()
 								Expect(snaps).To(HaveLen(1))
 								Expect(snaps["object1"]).To(Equal(12))
 							})
