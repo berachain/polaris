@@ -26,7 +26,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-var _ = Describe("CacheMulti", func() {
+var _ = Describe("Evm Store", func() {
 	var (
 		nonZeroCodeHash = common.BytesToHash([]byte{0x05})
 		zeroCodeHash    = common.Hash{}

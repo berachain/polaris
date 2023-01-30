@@ -49,7 +49,7 @@ type SnapshotKVStore interface {
 // Compile-time type assertion.
 var _ SnapshotKVStore = (*Store)(nil)
 
-// Store wraps an in-memory cache around an underlying storetypes.KVStore.
+// `Store` wraps an in-memory cache around an underlying storetypes.KVStore.
 // If a cached value is nil but deleted is defined for the corresponding key,
 // it means the parent doesn't have the key. (No need to delete upon Write()).
 type Store struct {
@@ -61,7 +61,7 @@ type Store struct {
 	journal       ds.CloneableStack[*journal.Entry]
 }
 
-// NewStore creates a new Store object.
+// `NewStore` creates a new Store object.
 func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[*journal.Entry]) *Store {
 	return &Store{
 		cache:         make(map[string]*cache.Value),
@@ -76,12 +76,12 @@ func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[*journal.Entr
 // KVStore
 // ====================================================================
 
-// GetStoreType implements storetypes.KVStore.
+// `GetStoreType` implements storetypes.KVStore.
 func (store *Store) GetStoreType() storetypes.StoreType {
 	return store.parent.GetStoreType()
 }
 
-// Get implements storetypes.KVStore.
+// `Get` implements storetypes.KVStore.
 // This function retrieves a value associated with the specified key in the store.
 func (store *Store) Get(key []byte) []byte {
 	var bz []byte
@@ -101,11 +101,12 @@ func (store *Store) Get(key []byte) []byte {
 	return bz
 }
 
+// `GetParent` implements `SnapshotKVStore`.
 func (store *Store) GetParent() storetypes.KVStore {
 	return store.parent
 }
 
-// Set implements storetypes.KVStore.
+// `Set` implements storetypes.KVStore.
 func (store *Store) Set(key []byte, value []byte) {
 	storetypes.AssertValidKey(key)
 	storetypes.AssertValidValue(value)
@@ -114,13 +115,13 @@ func (store *Store) Set(key []byte, value []byte) {
 	store.setCacheValue(key, value, true)
 }
 
-// Has implements storetypes.KVStore.
+// `Has` implements storetypes.KVStore.
 func (store *Store) Has(key []byte) bool {
 	value := store.Get(key)
 	return value != nil
 }
 
-// Delete implements storetypes.KVStore.
+// `Delete` implements storetypes.KVStore.
 func (store *Store) Delete(key []byte) {
 	storetypes.AssertValidKey(key)
 
@@ -133,7 +134,7 @@ func (store *Store) Delete(key []byte) {
 // CacheKVStore
 // ====================================================================
 
-// Implements cachetypes.KVStore.
+// `Write` implements cachetypes.KVStore.
 func (store *Store) Write() {
 	store.mtx.Lock()
 	defer store.mtx.Unlock()
@@ -264,16 +265,17 @@ func (store *Store) RevertEntry(ce *journal.Entry) {
 // Iterator
 // ====================================================================
 
-// Iterator implements storetypes.KVStore.
+// `Iterator` implements storetypes.KVStore.
 func (store *Store) Iterator(start, end []byte) storetypes.Iterator {
 	return store.iterator(start, end, true)
 }
 
-// ReverseIterator implements storetypes.KVStore.
+// `ReverseIterator` implements storetypes.KVStore.
 func (store *Store) ReverseIterator(start, end []byte) storetypes.Iterator {
 	return store.iterator(start, end, false)
 }
 
+// `iterator` returns an iterator over a domain of keys in ascending or descending order.
 func (store *Store) iterator(start, end []byte, ascending bool) types.Iterator {
 	store.mtx.Lock()
 	defer store.mtx.Unlock()
@@ -402,7 +404,10 @@ func (store *Store) clearUnsortedCacheSubset(unsorted []*kv.Pair, sortState snap
 // ================================================
 // etc
 
-// Only entrypoint to mutate store.Cache.
+// `setCacheValue` is the only entrypoint to mutate store.Cache. It is
+// responsible for appending a new journal entry if the value is dirty, in order
+// to remember the previous state. It is also responsible for adding the key to
+// the unsorted cache if the value is dirty.
 func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	keyStr := utils.UnsafeBytesToStr(key)
 
