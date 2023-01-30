@@ -19,7 +19,7 @@ import (
 
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/store/snapkv/internal/cache"
+	"github.com/berachain/stargazer/store/snapkv/internal/journal"
 )
 
 // Compile-time check to ensure `EvmStore` implements `SnapshotKVStore`.
@@ -33,7 +33,7 @@ type EvmStore struct {
 }
 
 // `NewEvmStore` creates a new Store object.
-func NewEvmStore(parent storetypes.KVStore, journal ds.CloneableStack[*cache.Entry]) *EvmStore {
+func NewEvmStore(parent storetypes.KVStore, journal ds.CloneableStack[*journal.Entry]) *EvmStore {
 	return &EvmStore{
 		NewStore(parent, journal),
 	}

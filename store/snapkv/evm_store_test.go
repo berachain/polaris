@@ -17,7 +17,7 @@ package snapkv
 import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/ds/stack"
-	"github.com/berachain/stargazer/store/snapkv/internal/cache"
+	"github.com/berachain/stargazer/store/snapkv/internal/journal"
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -36,7 +36,7 @@ var _ = Describe("CacheMulti", func() {
 
 	BeforeEach(func() {
 		parent = sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
-		evmStore = NewEvmStore(parent, stack.NewCloneable[*cache.Entry](128))
+		evmStore = NewEvmStore(parent, stack.NewCloneable[*journal.Entry](128))
 	})
 
 	It("TestWarmSlotVia0", func() {

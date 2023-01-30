@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/berachain/stargazer/lib/ds/stack"
-	"github.com/berachain/stargazer/store/snapkv/internal/cache"
+	"github.com/berachain/stargazer/store/snapkv/internal/journal"
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
 	"github.com/cosmos/cosmos-sdk/store/types"
@@ -42,7 +42,7 @@ func newParent() types.CacheKVStore {
 }
 
 func newCacheKVStoreFromParent(parent types.CacheKVStore) types.CacheKVStore {
-	return NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	return NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 }
 
 func TestSdkConsistency(t *testing.T) {
@@ -60,13 +60,13 @@ func TestSdkConsistency(t *testing.T) {
 
 func TestGetStoreType(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 	require.Equal(t, parent.GetStoreType(), st.GetStoreType())
 }
 
 func TestHas(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 	st.Set(keyFmt(1), keyFmt(1))
 	require.True(t, st.Has(keyFmt(1)))
 	require.False(t, parent.Has(keyFmt(1)))
@@ -76,7 +76,7 @@ func TestHas(t *testing.T) {
 
 func TestCacheKVReverseIterator(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 
 	// Use the parent to check values on the merge iterator
 	setRange(t, st, parent, 0, 40)
@@ -88,7 +88,7 @@ func TestCacheKVReverseIterator(t *testing.T) {
 }
 
 func TestCacheWrap(t *testing.T) {
-	st := NewStore(newParent(), stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(newParent(), stack.NewCloneable[*journal.Entry](16))
 
 	// test before initializing cache wraps
 	st.Set(keyFmt(1), valFmt(1))
@@ -215,7 +215,7 @@ func TestCacheKVStoreNested(t *testing.T) {
 
 func TestCacheKVIteratorBounds(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 
 	// set some items
 	nItems := 5
@@ -267,7 +267,7 @@ func TestCacheKVIteratorBounds(t *testing.T) {
 
 func TestCacheKVMergeIteratorBasics(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 
 	// set and delete an item in the cache, iterator should be empty
 	k, v := keyFmt(0), valFmt(0)
@@ -316,7 +316,7 @@ func TestCacheKVMergeIteratorBasics(t *testing.T) {
 
 func TestCacheKVMergeIteratorDeleteLast(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 
 	// set some items and write them
 	nItems := 5
@@ -377,7 +377,7 @@ func TestCacheKVMergeIteratorDeletes(t *testing.T) {
 
 func TestCacheKVMergeIteratorChunks(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 
 	// Use the parent to check values on the merge iterator
 	// sets to the parent
@@ -407,7 +407,7 @@ func TestCacheKVMergeIteratorChunks(t *testing.T) {
 
 func TestCacheKVMergeIteratorRandom(t *testing.T) {
 	parent := newParent()
-	st := NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	st := NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 
 	start, end := 25, 975
 	max := 1000

@@ -36,6 +36,7 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/store/snapkv/internal"
 	"github.com/berachain/stargazer/store/snapkv/internal/cache"
+	"github.com/berachain/stargazer/store/snapkv/internal/journal"
 	snapkvsort "github.com/berachain/stargazer/store/snapkv/internal/sort"
 )
 
@@ -57,11 +58,11 @@ type Store struct {
 	unsortedCache map[string]struct{}
 	sortedCache   ds.BTree // always ascending sorted
 	parent        storetypes.KVStore
-	journal       ds.CloneableStack[*cache.Entry]
+	journal       ds.CloneableStack[*journal.Entry]
 }
 
 // NewStore creates a new Store object.
-func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[*cache.Entry]) *Store {
+func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[*journal.Entry]) *Store {
 	return &Store{
 		cache:         make(map[string]*cache.Value),
 		unsortedCache: make(map[string]struct{}),
@@ -172,7 +173,7 @@ func (store *Store) Write() {
 
 	// Clear the journal entries
 	// Todo: size this properly / consider using a pool.
-	store.journal = stack.NewCloneable[*cache.Entry](store.journal.Size())
+	store.journal = stack.NewCloneable[*journal.Entry](store.journal.Size())
 
 	// Clear the cache using the map clearing idiom
 	// and not allocating fresh objects.
@@ -237,7 +238,7 @@ func (store *Store) RevertToSnapshot(revision int) {
 
 // `RevertEntry` reverts a set operation on a cache entry by setting the previous value of the entry as
 // the current value in the cache map.
-func (store *Store) RevertEntry(ce *cache.Entry) {
+func (store *Store) RevertEntry(ce *journal.Entry) {
 	key := ce.Key
 	prev := ce.Prev
 	// If there was a previous value, set it as the current value in the cache map
@@ -408,7 +409,7 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	// Append a new journal entry if the value is dirty, in order to remember the previous state.
 	// Also add the key to the unsorted cache.
 	if dirty {
-		store.journal.Push(cache.NewEntry(keyStr, store.cache[keyStr]))
+		store.journal.Push(journal.NewEntry(keyStr, store.cache[keyStr]))
 		store.unsortedCache[keyStr] = struct{}{}
 	}
 

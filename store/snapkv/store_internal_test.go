@@ -24,7 +24,7 @@ import (
 
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/store/snapkv/internal/cache"
+	"github.com/berachain/stargazer/store/snapkv/internal/journal"
 )
 
 var (
@@ -46,7 +46,7 @@ func TestCacheValueSuite(t *testing.T) {
 func (s *CacheValueSuite) SetupTest() {
 	parent := sdkcachekv.NewStore(dbadapter.Store{DB: dbm.NewMemDB()})
 	parent.Set(byte0, byte0)
-	s.cacheKVStore = NewStore(parent, stack.NewCloneable[*cache.Entry](16))
+	s.cacheKVStore = NewStore(parent, stack.NewCloneable[*journal.Entry](16))
 }
 
 func (s *CacheValueSuite) TestRevertDeleteAfterNothing() {
