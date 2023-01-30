@@ -19,6 +19,7 @@ import (
 	"sort"
 	"sync"
 
+	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	"github.com/cosmos/cosmos-sdk/store/listenkv"
 	"github.com/cosmos/cosmos-sdk/store/tracekv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -175,7 +176,7 @@ func (store *Store) Write() {
 
 // CacheWrap implements CacheWrapper.
 func (store *Store) CacheWrap() storetypes.CacheWrap {
-	return NewStore(store, store.journalMgr.Clone())
+	return sdkcachekv.NewStore(store)
 }
 
 // CacheWrapWithTrace implements the CacheWrapper interface.
@@ -183,7 +184,7 @@ func (store *Store) CacheWrapWithTrace(
 	w io.Writer,
 	tc storetypes.TraceContext,
 ) storetypes.CacheWrap {
-	return NewStore(tracekv.NewStore(store, w, tc), store.journalMgr.Clone())
+	return sdkcachekv.NewStore(tracekv.NewStore(store, w, tc))
 }
 
 // CacheWrapWithListeners implements the CacheWrapper interface.
@@ -191,7 +192,7 @@ func (store *Store) CacheWrapWithListeners(
 	storeKey storetypes.StoreKey,
 	listeners []storetypes.WriteListener,
 ) storetypes.CacheWrap {
-	return NewStore(listenkv.NewStore(store, storeKey, listeners), store.journalMgr.Clone())
+	return sdkcachekv.NewStore(listenkv.NewStore(store, storeKey, listeners))
 }
 
 // ================================================

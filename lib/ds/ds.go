@@ -39,6 +39,19 @@ type Stack[Item any] interface {
 
 	// `Size` returns the current number of entries in the items.
 	Size() int
+
+	// `Capacity` returns the size of the allocated buffer for the stack.
+	Capacity() int
+}
+
+// `CloneableStack` is an interface that extends `Stack` to allow for deep copying.
+// As such, the items in the stack must implement `Cloneable`.
+type CloneableStack[T libtypes.Cloneable[T]] interface {
+	// `CloneableStack` is a `Stack`.
+	Stack[T]
+
+	// `CloneableStack` implements `Cloneable`.
+	libtypes.Cloneable[CloneableStack[T]]
 }
 
 // `CloneableStack` is an interface that extends `Stack` to allow for deep copying.
