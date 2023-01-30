@@ -65,6 +65,11 @@ func (s *stack[T]) Size() int {
 	return s.size
 }
 
+// `Capacity` implements `Stack`.
+func (s *stack[T]) Capacity() int {
+	return s.capacity
+}
+
 // `Pop` implements `Stack`.
 func (s *stack[T]) Pop() T {
 	s.size--
