@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 
 	jsonrpc "github.com/berachain/stargazer/jsonrpc"
@@ -47,7 +46,7 @@ var rootCmd = &cobra.Command{
 		// TODO: move into `./jsonrpc` and add configuration file.
 		httpSrv := &http.Server{
 			Addr:              "localhost:8545",
-			Handler:           cors.AllowAll().Handler(rpcServer),
+			Handler:           rpcServer,
 			ReadHeaderTimeout: time.Second,
 			WriteTimeout:      time.Second,
 		}
