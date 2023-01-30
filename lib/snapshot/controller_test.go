@@ -45,7 +45,7 @@ var _ = Describe("Controller", func() {
 
 	When("adding a new object", func() {
 		BeforeEach(func() {
-			err := ctrl.Control("object1", object1)
+			err := ctrl.Register("object1", object1)
 			Expect(err).To(BeNil())
 		})
 		It("should add the object", func() {
@@ -54,7 +54,7 @@ var _ = Describe("Controller", func() {
 		})
 		When("adding a new object with the same name", func() {
 			It("should return an error", func() {
-				err := ctrl.Control("object1", object1)
+				err := ctrl.Register("object1", object1)
 				Expect(err).To(MatchError(snapshot.ErrObjectAlreadyExists))
 			})
 		})
@@ -100,7 +100,7 @@ var _ = Describe("Controller", func() {
 				})
 				When("we start controlling a new object", func() {
 					BeforeEach(func() {
-						Expect(ctrl.Control("object2", object2)).To(BeNil())
+						Expect(ctrl.Register("object2", object2)).To(BeNil())
 					})
 					It("should have the correct number of snapshot calls still", func() {
 						Expect(object1.SnapshotCalls()).To(HaveLen(2))
