@@ -41,13 +41,9 @@ func NewEntry(key string, prev *cache.Value) *Entry {
 	}
 }
 
-// `Clone` creates a deep copy of the entry object.
-// The deep copy contains the same Store and key fields as the original,
-// and a deep copy of the prev field, if it is not nil.
+// `Clone` creates a deep copy of an Entry.
 //
 // `Clone` implements `libtypes.Cloneable[*Entry]`.
-//
-//nolint:nolintlint,ireturn // by design.
 func (ce Entry) Clone() *Entry {
 	// Return a new entry object with the same Store and key fields as the original,
 	// and the prev field set to the deep copy of the original prev field (or nil if the original
