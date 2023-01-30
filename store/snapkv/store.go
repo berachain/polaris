@@ -69,6 +69,10 @@ func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[CacheEntry]) 
 	}
 }
 
+// ====================================================================
+// KVStore
+// ====================================================================
+
 // GetStoreType implements storetypes.KVStore.
 func (store *Store) GetStoreType() storetypes.StoreType {
 	return store.parent.GetStoreType()
@@ -122,7 +126,11 @@ func (store *Store) Delete(key []byte) {
 	store.setCacheValue(key, nil, true)
 }
 
-// Implements Cachetypes.KVStore.
+// ====================================================================
+// CacheKVStore
+// ====================================================================
+
+// Implements cachetypes.KVStore.
 func (store *Store) Write() {
 	store.mtx.Lock()
 	defer store.mtx.Unlock()
@@ -176,6 +184,10 @@ func (store *Store) Write() {
 
 	store.sortedCache = trees.NewBTree()
 }
+
+// ====================================================================
+// CacheWrapper
+// ====================================================================
 
 // `CacheWrap` wraps the store with a native Cosmos-SDK. We do not wrap with a
 // `SnapshotKVStore` because the snapshotting is meaningless after wrapping. This is
