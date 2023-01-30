@@ -12,12 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapshot_test
+package snapshot
 
 import (
 	"testing"
 
-	"github.com/berachain/stargazer/lib/snapshot"
 	typesmock "github.com/berachain/stargazer/lib/types/mock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,23 +28,19 @@ func TestSnapshot(t *testing.T) {
 }
 
 var _ = Describe("Controller", func() {
-	var ctrl *snapshot.Controller
+	var ctrl *Controller
 	var object1 *typesmock.SnapshottableMock
 	var object2 *typesmock.SnapshottableMock
-	// var object3 *typesmock.SnapshottableMock
+
 	BeforeEach(func() {
-		ctrl = snapshot.NewController()
+		ctrl = NewController()
 		object1 = typesmock.NewSnapshottableMock()
 		object2 = typesmock.NewSnapshottableMock()
-		// object3 = typesmock.NewSnapshottableMock()
-		// ctrl.Control("object1", object1)
-		// ctrl.Control("object2", object2)
-		// ctrl.Control("object3", object3)
 	})
 
 	When("adding a new object", func() {
 		BeforeEach(func() {
-			err := ctrl.Control("object1", object1)
+			err := ctrl.Register("object1", object1)
 			Expect(err).To(BeNil())
 		})
 		It("should add the object", func() {
@@ -54,8 +49,8 @@ var _ = Describe("Controller", func() {
 		})
 		When("adding a new object with the same name", func() {
 			It("should return an error", func() {
-				err := ctrl.Control("object1", object1)
-				Expect(err).To(MatchError(snapshot.ErrObjectAlreadyExists))
+				err := ctrl.Register("object1", object1)
+				Expect(err).To(MatchError(ErrObjectAlreadyExists))
 			})
 		})
 
@@ -73,10 +68,10 @@ var _ = Describe("Controller", func() {
 			})
 			It("should call snapshot on the controlled object", func() {
 				Expect(object1.SnapshotCalls()).To(HaveLen(1))
-				snaps := ctrl.Revision(1)
+				snaps := ctrl.journal.PeekAt(0)
 				Expect(snaps).To(HaveLen(1))
 				Expect(snaps["object1"]).To(Equal(5))
-				snaps = ctrl.LatestRevision()
+				snaps = ctrl.journal.Peek()
 				Expect(snaps).To(HaveLen(1))
 				Expect(snaps["object1"]).To(Equal(5))
 			})
@@ -88,19 +83,19 @@ var _ = Describe("Controller", func() {
 				})
 				It("should call snapshot on the controlled object again", func() {
 					Expect(object1.SnapshotCalls()).To(HaveLen(2))
-					snaps := ctrl.Revision(1)
+					snaps := ctrl.journal.PeekAt(0)
 					Expect(snaps).To(HaveLen(1))
 					Expect(snaps["object1"]).To(Equal(5))
-					snaps = ctrl.Revision(2)
+					snaps = ctrl.journal.PeekAt(1)
 					Expect(snaps).To(HaveLen(1))
 					Expect(snaps["object1"]).To(Equal(12))
-					snaps = ctrl.LatestRevision()
+					snaps = ctrl.journal.Peek()
 					Expect(snaps).To(HaveLen(1))
 					Expect(snaps["object1"]).To(Equal(12))
 				})
 				When("we start controlling a new object", func() {
 					BeforeEach(func() {
-						Expect(ctrl.Control("object2", object2)).To(BeNil())
+						Expect(ctrl.Register("object2", object2)).To(BeNil())
 					})
 					It("should have the correct number of snapshot calls still", func() {
 						Expect(object1.SnapshotCalls()).To(HaveLen(2))
@@ -116,17 +111,17 @@ var _ = Describe("Controller", func() {
 							Expect(object2.SnapshotCalls()).To(HaveLen(1))
 						})
 						It("should have the correct historical revisions", func() {
-							snaps := ctrl.Revision(1)
+							snaps := ctrl.journal.PeekAt(0)
 							Expect(snaps).To(HaveLen(1))
 							Expect(snaps["object1"]).To(Equal(5))
-							snaps = ctrl.Revision(2)
+							snaps = ctrl.journal.PeekAt(1)
 							Expect(snaps).To(HaveLen(1))
 							Expect(snaps["object1"]).To(Equal(12))
-							snaps = ctrl.Revision(3)
+							snaps = ctrl.journal.PeekAt(2)
 							Expect(snaps).To(HaveLen(2))
 							Expect(snaps["object1"]).To(Equal(12))
 							Expect(snaps["object2"]).To(Equal(7))
-							snaps = ctrl.LatestRevision()
+							snaps = ctrl.journal.Peek()
 							Expect(snaps).To(HaveLen(2))
 							Expect(snaps["object1"]).To(Equal(12))
 							Expect(snaps["object2"]).To(Equal(7))
@@ -136,16 +131,16 @@ var _ = Describe("Controller", func() {
 								ctrl.RevertToSnapshot(2)
 								Expect(object1.RevertToSnapshotCalls()).To(HaveLen(1))
 								Expect(object2.RevertToSnapshotCalls()).To(HaveLen(1))
-								snaps := ctrl.Revision(1)
+								snaps := ctrl.journal.PeekAt(0)
 								Expect(snaps).To(HaveLen(1))
 								Expect(snaps["object1"]).To(Equal(5))
-								snaps = ctrl.Revision(2)
+								snaps = ctrl.journal.PeekAt(1)
 								Expect(snaps).To(HaveLen(1))
 								Expect(snaps["object1"]).To(Equal(12))
 								Expect(func() {
-									ctrl.Revision(3)
+									ctrl.journal.PeekAt(2)
 								}).To(Panic())
-								snaps = ctrl.LatestRevision()
+								snaps = ctrl.journal.Peek()
 								Expect(snaps).To(HaveLen(1))
 								Expect(snaps["object1"]).To(Equal(12))
 							})
