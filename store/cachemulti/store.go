@@ -14,10 +14,7 @@
 package cachemulti
 
 import (
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/stack"
 	libtypes "github.com/berachain/stargazer/lib/types"
-	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachekv"
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
@@ -29,14 +26,15 @@ var _ libtypes.Snapshottable = (*Store)(nil)
 // `Store` is a wrapper around the Cosmos SDK `MultiStore` which injects a custom EVM CacheKVStore.
 type Store struct {
 	storetypes.MultiStore
-	stores ds.Stack[map[storetypes.StoreKey]storetypes.CacheKVStore]
+	stores     map[storetypes.StoreKey]storetypes.CacheKVStore
+	revisionID int
 }
 
 // `NewStoreFrom` creates and returns a new `Store` from a given MultiStore.
 func NewStoreFrom(ms storetypes.MultiStore) *Store {
 	return &Store{
 		MultiStore: ms,
-		stores:     stack.New[map[storetypes.StoreKey]storetypes.CacheKVStore](8),
+		stores:     make(map[storetypes.StoreKey]storetypes.CacheKVStore),
 	}
 }
 
@@ -45,28 +43,39 @@ func NewStoreFrom(ms storetypes.MultiStore) *Store {
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
 func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	// check if cache kv store already used
-	store := s.stores.Peek()
-	if cacheKVStore, exists := store[key]; exists {
+	if cacheKVStore, exists := s.stores[key]; exists {
 		return cacheKVStore
 	}
 	// get kvstore from cachemultistore and set cachekv to memory
 	kvstore := s.MultiStore.GetKVStore(key)
-	store[key] = s.newCacheKVStore(key, kvstore)
-	return store[key]
+	s.stores[key] = sdkcachekv.NewStore(kvstore)
+	return s.stores[key]
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (s *Store) Snapshot() int {
-	stores := s.stores.Peek()
-	for store := range stores {
-		stores[store] = stores[store].CacheWrap().(storetypes.CacheKVStore)
+	for key := range s.stores {
+		s.stores[key] = s.stores[key].CacheWrap().(storetypes.CacheKVStore)
 	}
-	return s.stores.Size()
+	snapshot := s.revisionID
+	s.revisionID++
+	return snapshot
 }
 
 // `Revert` implements `libtypes.Snapshottable`.
 func (s *Store) RevertToSnapshot(revision int) {
-	s.stores.PopToSize(revision) // nolint:errcheck
+	for key := range s.stores {
+		revertTo := s.stores[key]
+		for i := s.revisionID; i >= revision; i-- {
+			revertTo = revertTo.
+		}
+	}
+
+	for i := s.revisionID; i >= revision; i-- {
+		for key := range s.stores {
+			s.stores[key] = s.stores[key].CacheWrap().(storetypes.CacheKVStore)
+		}
+	}
 }
 
 // `Write` commits each of the individual cachekv stores to its corresponding parent kv stores.
@@ -88,16 +97,4 @@ func (s *Store) Write() {
 			delete(store, key)
 		}
 	}
-}
-
-// `newCacheKVStore` returns a new CacheKVStore. If the `key` is an EVM storekey, it will return
-// an EVM CacheKVStore.
-func (s *Store) newCacheKVStore(
-	key storetypes.StoreKey,
-	kvstore storetypes.KVStore,
-) storetypes.CacheKVStore {
-	if key.Name() == statetypes.EvmStoreKey {
-		return cachekv.NewEvmStore(kvstore)
-	}
-	return sdkcachekv.NewStore(kvstore)
 }
