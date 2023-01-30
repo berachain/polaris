@@ -187,13 +187,12 @@ func (store *Store) Write() {
 
 // ====================================================================
 // CacheWrapper
+//
+// We do not wrap with a `SnapshotKVStore` because the snapshotting is meaningless
+// after wrapping. This is because the snapshotting is handled on this store, when
+// the newly created cachekv.Store calls `Write()`.
 // ====================================================================
 
-// `CacheWrap` wraps the store with a native Cosmos-SDK. We do not wrap with a
-// `SnapshotKVStore` because the snapshotting is meaningless after wrapping. This is
-// because the snapshotting is handled on this store, when the newly created cachekv.Store
-// calls `Write()`.
-//
 // `CacheWrap` implements CacheWrapper.
 func (store *Store) CacheWrap() storetypes.CacheWrap {
 	return sdkcachekv.NewStore(store)
@@ -258,8 +257,9 @@ func (store *Store) RevertEntry(ce CacheEntry) {
 	}
 }
 
-// ================================================
-// Iteration
+// ====================================================================
+// Iterator
+// ====================================================================
 
 // Iterator implements storetypes.KVStore.
 func (store *Store) Iterator(start, end []byte) storetypes.Iterator {
