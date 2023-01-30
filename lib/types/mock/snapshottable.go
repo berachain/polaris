@@ -12,19 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package mock
 
-// `Cloneable` is an interface that defines a `Clone` method.
-type Cloneable[T any] interface {
-	Clone() T
-}
+//go:generate moq -out ./snapshottable.mock.go -pkg mock ../ Snapshottable
 
-// `Snapshottable` is an interface that defines methods for snapshotting and reverting
-// a logical unit of data.
-type Snapshottable interface {
-	// `RevertToSnapshot` reverts the data to a previous version
-	RevertToSnapshot(int)
-
-	// `Snapshot` returns an identifier for the current revision of the data.
-	Snapshot() int
+// `SnapshottableMock` is a mock for the `Snapshottable` interface.
+func NewSnapshottableMock() *SnapshottableMock {
+	return &SnapshottableMock{
+		RevertToSnapshotFunc: func(n int) {},
+		SnapshotFunc:         func() int { return 0 },
+	}
 }
