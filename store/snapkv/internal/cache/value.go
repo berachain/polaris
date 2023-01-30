@@ -12,35 +12,35 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapkv
+package cache
 
 import libtypes "github.com/berachain/stargazer/lib/types"
 
-// Compile-time assertion that `cacheValue` implements `types.Cloneable`.
-var _ libtypes.Cloneable[*cacheValue] = (*cacheValue)(nil)
+// Compile-time assertion that `Value` implements `types.Cloneable`.
+var _ libtypes.Cloneable[*Value] = (*Value)(nil)
 
-// `cacheValue` represents a cached value in the cachekv store.
+// `Value` represents a cached value in the cachekv store.
 // If dirty is true, it indicates the cached value is different from the underlying value.
-type cacheValue struct {
-	value []byte
-	dirty bool
+type Value struct {
+	Value []byte
+	Dirty bool
 }
 
-// `newCacheValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
-func newCacheValue(v []byte, d bool) *cacheValue {
-	return &cacheValue{
-		value: v,
-		dirty: d,
+// `NewValue` creates a new `cacheValue` object with the given `value` and `dirty` flag.
+func NewValue(bz []byte, d bool) *Value {
+	return &Value{
+		Value: bz,
+		Dirty: d,
 	}
 }
 
 // `Clone` implements `types.Cloneable`.
-func (cv *cacheValue) Clone() *cacheValue {
+func (cv *Value) Clone() *Value {
 	// Return a new cacheValue with the same value and dirty flag
-	if cv.value == nil {
-		return newCacheValue(nil, cv.dirty)
+	if cv.Value == nil {
+		return NewValue(nil, cv.Dirty)
 	}
-	bz := make([]byte, len(cv.value))
-	copy(bz, cv.value)
-	return newCacheValue(bz, cv.dirty)
+	bz := make([]byte, len(cv.Value))
+	copy(bz, cv.Value)
+	return NewValue(bz, cv.Dirty)
 }

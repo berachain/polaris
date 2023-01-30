@@ -19,6 +19,7 @@ import (
 
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/store/snapkv/internal/cache"
 )
 
 // Compile-time check to ensure `EvmStore` implements `SnapshotKVStore`.
@@ -32,7 +33,7 @@ type EvmStore struct {
 }
 
 // `NewEvmStore` creates a new Store object.
-func NewEvmStore(parent storetypes.KVStore, journal ds.CloneableStack[CacheEntry]) *EvmStore {
+func NewEvmStore(parent storetypes.KVStore, journal ds.CloneableStack[*cache.Entry]) *EvmStore {
 	return &EvmStore{
 		NewStore(parent, journal),
 	}
@@ -45,7 +46,7 @@ func (store *EvmStore) Get(key []byte) []byte {
 	// Check if the key is in the store's cache.
 	if cacheValue, found := store.cache[utils.UnsafeBytesToStr(key)]; found {
 		// If the key is in the cache, return the value.
-		return cacheValue.value
+		return cacheValue.Value
 	}
 
 	// If the key is not found in the cache, query the parent store.

@@ -35,7 +35,8 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/store/snapkv/internal"
-	snapkvsort "github.com/berachain/stargazer/store/snapkv/sort"
+	"github.com/berachain/stargazer/store/snapkv/internal/cache"
+	snapkvsort "github.com/berachain/stargazer/store/snapkv/internal/sort"
 )
 
 type SnapshotKVStore interface {
@@ -52,17 +53,17 @@ var _ SnapshotKVStore = (*Store)(nil)
 // it means the parent doesn't have the key. (No need to delete upon Write()).
 type Store struct {
 	mtx           sync.RWMutex
-	cache         map[string]*cacheValue
+	cache         map[string]*cache.Value
 	unsortedCache map[string]struct{}
 	sortedCache   ds.BTree // always ascending sorted
 	parent        storetypes.KVStore
-	journal       ds.CloneableStack[CacheEntry]
+	journal       ds.CloneableStack[*cache.Entry]
 }
 
 // NewStore creates a new Store object.
-func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[CacheEntry]) *Store {
+func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[*cache.Entry]) *Store {
 	return &Store{
-		cache:         make(map[string]*cacheValue),
+		cache:         make(map[string]*cache.Value),
 		unsortedCache: make(map[string]struct{}),
 		sortedCache:   trees.NewBTree(),
 		parent:        parent,
@@ -93,7 +94,7 @@ func (store *Store) Get(key []byte) []byte {
 		bz = store.parent.Get(key)
 		store.setCacheValue(key, bz, false)
 	} else {
-		bz = cacheValue.value
+		bz = cacheValue.Value
 	}
 
 	return bz
@@ -146,7 +147,7 @@ func (store *Store) Write() {
 	keys := make([]string, 0, len(store.cache))
 
 	for key, dbValue := range store.cache {
-		if dbValue.dirty {
+		if dbValue.Dirty {
 			keys = append(keys, key)
 		}
 	}
@@ -161,9 +162,9 @@ func (store *Store) Write() {
 		// not. Once we get confirmation that .Delete is guaranteed not to
 		// save the byteslice, then we can assume only a read-only copy is sufficient.
 		cacheValue := store.cache[key]
-		if cacheValue.value != nil {
+		if cacheValue.Value != nil {
 			// It already exists in the parent, hence update it.
-			store.parent.Set([]byte(key), cacheValue.value)
+			store.parent.Set([]byte(key), cacheValue.Value)
 		} else {
 			store.parent.Delete([]byte(key))
 		}
@@ -171,7 +172,7 @@ func (store *Store) Write() {
 
 	// Clear the journal entries
 	// Todo: size this properly / consider using a pool.
-	store.journal = stack.NewCloneable[CacheEntry](store.journal.Size())
+	store.journal = stack.NewCloneable[*cache.Entry](store.journal.Size())
 
 	// Clear the cache using the map clearing idiom
 	// and not allocating fresh objects.
@@ -236,9 +237,9 @@ func (store *Store) RevertToSnapshot(revision int) {
 
 // `RevertEntry` reverts a set operation on a cache entry by setting the previous value of the entry as
 // the current value in the cache map.
-func (store *Store) RevertEntry(ce CacheEntry) {
-	key := ce.Key()
-	prev := ce.Prev()
+func (store *Store) RevertEntry(ce *cache.Entry) {
+	key := ce.Key
+	prev := ce.Prev
 	// If there was a previous value, set it as the current value in the cache map
 	if prev == nil {
 		// If there was no previous value, remove the Key from the
@@ -253,7 +254,7 @@ func (store *Store) RevertEntry(ce CacheEntry) {
 	store.cache[key] = prev
 
 	// If the previous value was not dirty, remove the Key from the unsorted cache set
-	if !prev.dirty {
+	if !prev.Dirty {
 		delete(store.unsortedCache, key)
 	}
 }
@@ -319,7 +320,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 			// dbm.IsKeyInDomain is nil safe and returns true iff key is greater than start
 			if dbm.IsKeyInDomain(utils.UnsafeStrToBytes(key), start, end) {
 				cacheValue := store.cache[key]
-				unsorted = append(unsorted, &kv.Pair{Key: []byte(key), Value: cacheValue.value})
+				unsorted = append(unsorted, &kv.Pair{Key: []byte(key), Value: cacheValue.Value})
 			}
 		}
 		store.clearUnsortedCacheSubset(unsorted, snapkvsort.StateUnsorted)
@@ -366,7 +367,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 	for i := startIndex; i <= endIndex; i++ {
 		key := strL[i]
 		cacheValue := store.cache[key]
-		kvL = append(kvL, &kv.Pair{Key: []byte(key), Value: cacheValue.value})
+		kvL = append(kvL, &kv.Pair{Key: []byte(key), Value: cacheValue.Value})
 	}
 
 	// kvL was already sorted so pass it in as is.
@@ -407,10 +408,10 @@ func (store *Store) setCacheValue(key, value []byte, dirty bool) {
 	// Append a new journal entry if the value is dirty, in order to remember the previous state.
 	// Also add the key to the unsorted cache.
 	if dirty {
-		store.journal.Push(newCacheEntry(keyStr, store.cache[keyStr]))
+		store.journal.Push(cache.NewEntry(keyStr, store.cache[keyStr]))
 		store.unsortedCache[keyStr] = struct{}{}
 	}
 
 	// Cache the value for the key.
-	store.cache[keyStr] = newCacheValue(value, dirty)
+	store.cache[keyStr] = cache.NewValue(value, dirty)
 }

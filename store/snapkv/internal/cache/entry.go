@@ -17,61 +17,39 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `Entry` is an interface for journal entries.
-type Entry interface {
-	// `Entry` implements `Cloneable`.
-	libtypes.Cloneable[Entry]
-
-	// `Key` returns the key of the entry.
-	Key() string
-
-	// `Prev` returns the previous value of the entry.
-	Prev() *Value
-}
-
 // Compile-time check to ensure `entry` implements `journal.Entry`.
-var _ Entry = (*entry)(nil)
+var _ libtypes.Cloneable[*Entry] = (*Entry)(nil)
 
 // `entry` is a struct that contains information needed to set a value in a cache.
-type entry struct {
-	key  string // key of the value to be set.
-	prev *Value // Deep copy of object in cache map.
+type Entry struct {
+	Key  string // key of the value to be set.
+	Prev *Value // Deep copy of object in cache map.
 }
 
-// `newEntry` creates a new `entry` object for the given `store`, `key`, and `prev`
+// `NewEntry` creates a new `entry` object for the given `store`, `key`, and `prev`
 // cache value.
-func newEntry(key string, prev *Value) *entry {
+func NewEntry(key string, prev *Value) *Entry {
 	// create a deep copy of the prev field, if it is not nil.
 	if prev != nil {
 		prev = prev.Clone()
 	}
 
-	return &entry{
-		key:  key,
-		prev: prev,
+	return &Entry{
+		Key:  key,
+		Prev: prev,
 	}
-}
-
-// `Key` returns the key of the entry.
-func (ce *entry) Key() string {
-	return ce.key
-}
-
-// `Prev` returns the previous value of the entry.
-func (ce *entry) Prev() *Value {
-	return ce.prev
 }
 
 // `Clone` creates a deep copy of the entry object.
 // The deep copy contains the same Store and key fields as the original,
-// and a deep copy of the prev field, if it is not nil.s
+// and a deep copy of the prev field, if it is not nil.
 //
 // `Clone` implements `journal.entry`.
 //
 //nolint:nolintlint,ireturn // by design.
-func (ce *entry) Clone() Entry {
+func (ce Entry) Clone() *Entry {
 	// Return a new entry object with the same Store and key fields as the original,
 	// and the prev field set to the deep copy of the original prev field (or nil if the original
 	// was nil).
-	return newEntry(ce.key, ce.prev)
+	return NewEntry(ce.Key, ce.Prev)
 }
