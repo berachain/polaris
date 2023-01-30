@@ -19,8 +19,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-// `Stack` is an interface that defines the methods that an items Stack must implement.
-// items Stacks support holding cache entries and reverting to a certain index.
+// `Stack` is an interface represent a FILO data structure.
 type Stack[Item any] interface {
 	// `Peek` returns the Item at the top of the stack
 	Peek() Item
