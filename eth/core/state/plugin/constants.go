@@ -15,14 +15,8 @@
 package plugin
 
 const (
-	// `AccountName` is the name of the account plugin.
-	AccountName = "account"
-
-	// `BalanceName` is the name of the balance plugin.
-	BalanceName = "balance"
-
-	// `EthName` is the name of the code plugin.
-	EthName = "eth"
+	// `BackendName` is the name of the backend plugin.
+	BackendName = "backend"
 
 	// `LogsName` is the name of the logs plugin.
 	LogsName = "logs"

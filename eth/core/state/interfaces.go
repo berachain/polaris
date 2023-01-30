@@ -21,73 +21,42 @@ import (
 	"github.com/berachain/stargazer/eth/core/state/plugin"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-type AccountPlugin interface {
-	plugin.Base
-	// `CreateAccount` creates a new account with the given address
-	CreateAccount(context.Context, common.Address)
+type StateDBBackend interface { //nolint:revive // vibes.
+	libtypes.Snapshottable
 
-	// `HasAccount` returns true if the account associated with the given address exists
-	HasAccount(context.Context, common.Address) bool
+	GetContext() context.Context
+	CreateAccount(common.Address)
 
-	// `DeleteAccount` deletes the account associated with the given address
-	DeleteAccount(context.Context, common.Address)
+	SubBalance(common.Address, *big.Int)
+	AddBalance(common.Address, *big.Int)
+	GetBalance(common.Address) *big.Int
+	TransferBalance(common.Address, common.Address, *big.Int)
 
-	// `GetNonce` returns the nonce of the account associated with the given address
-	GetNonce(context.Context, common.Address) uint64
+	GetNonce(common.Address) uint64
+	SetNonce(common.Address, uint64)
 
-	// `SetNonce` sets the nonce of the account associated with the given address
-	SetNonce(context.Context, common.Address, uint64)
-}
+	GetCodeHash(common.Address) common.Hash
+	GetCode(common.Address) []byte
+	SetCode(common.Address, []byte)
+	GetCodeSize(common.Address) int
 
-type BalancePlugin interface {
-	plugin.Base
-	// `GetBalance` returns the balance of the account associated with the given address
-	GetBalance(context.Context, common.Address) *big.Int
+	AddRefund(uint64)
+	SubRefund(uint64)
+	GetRefund() uint64
 
-	// `AddBalance` adds amount to the balance of the account associated with the given address
-	AddBalance(context.Context, common.Address, *big.Int)
+	GetCommittedState(common.Address, common.Hash) common.Hash
+	GetState(common.Address, common.Hash) common.Hash
+	SetState(common.Address, common.Hash, common.Hash)
 
-	// `SubBalance` subtracts amount from the balance of the account associated with the given address
-	SubBalance(context.Context, common.Address, *big.Int)
+	// Exist reports whether the given account exists in state.
+	// Notably this should also return true for suicided accounts.
+	Exist(common.Address) bool
+	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
 
-	// `TransferBalance` transfers amount from the balance of the account associated with the
-	// given from address to the balance of the account associated with the given to address
-	TransferBalance(context.Context, common.Address, common.Address, *big.Int)
-}
-
-type EthPlugin interface {
-	plugin.Base
-	// `GetCodeHash` returns the code hash of the account associated with the given address
-	GetCodeHash(context.Context, common.Address) common.Hash
-
-	// `SetCodeHash` sets the code hash of the account associated with the given address
-	SetCodeHash(context.Context, common.Address, common.Hash)
-
-	// `GetCodeFromHash` returns the code associated with the given hash
-	GetCodeFromHash(context.Context, common.Hash) []byte
-
-	// `SetCode` sets the code of the account associated with the given hash
-	SetCode(context.Context, common.Hash, []byte)
-
-	// `DeleteCode` deletes the code of the account associated with the given address
-	DeleteCode(context.Context, common.Address)
-
-	// `GetState` returns the value of key in the storage of the account associated with the given address
-	GetState(context.Context, common.Address, common.Hash) common.Hash
-
-	// `GetCommittedState` returns the value of key in the storage of the account associated with the given address
-	GetCommittedState(context.Context, common.Address, common.Hash) common.Hash
-
-	// `ForEachStorage` iterates over the storage of the account associated with the given address
-	ForEachStorage(context.Context, common.Address, func(common.Hash, common.Hash) bool) error
-
-	// `SetState` sets the value of key in the storage of the account associated with the given address
-	SetState(context.Context, common.Address, common.Hash, common.Hash)
-
-	// `DeleteState` deletes the value of key in the storage of the account associated with the given address
-	DeleteState(context.Context, common.Address, common.Hash)
+	Finalize() error
 }
 
 type LogsPlugin interface {
@@ -112,8 +81,4 @@ type RefundPlugin interface {
 
 	// `GetRefund` returns the refund counter
 	Get() uint64
-}
-
-type StoragePlugin interface {
-	plugin.Base
 }

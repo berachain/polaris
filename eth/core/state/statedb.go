@@ -17,7 +17,6 @@ package state
 import (
 	"bytes"
 	"context"
-	"math/big"
 
 	"github.com/berachain/stargazer/eth/core/state/plugin"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
@@ -37,15 +36,10 @@ var (
 var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 type StateDB struct { //nolint:revive // StateDB is a struct that holds the state of the blockchain.
-	ctx context.Context
+	StateDBBackend
 
 	// The controller is used to manage the plugins
 	ctrl snapshot.Controller
-
-	// Developer suppled plugins
-	ap AccountPlugin
-	bp BalancePlugin
-	ep EthPlugin
 
 	// Stargazer supplied plugins
 	lp LogsPlugin
@@ -59,26 +53,24 @@ type StateDB struct { //nolint:revive // StateDB is a struct that holds the stat
 	suicides []common.Address
 }
 
-func NewStateDB(ctrl snapshot.Controller) *StateDB {
-	// Add the internal plugins to the controller
-	_ = ctrl.Control(plugin.RefundName, plugin.NewRefund())
-	_ = ctrl.Control(plugin.LogsName, plugin.NewLogs())
+func NewStateDB(sdbb StateDBBackend, ctrl snapshot.Controller) *StateDB {
+	// Build snapshottables for logs and refunds.
+	lp := plugin.NewLogs()
+	rf := plugin.NewRefund()
+
+	// Register the snapshottables with the controller.
+	_ = ctrl.Control(plugin.RefundName, lp)
+	_ = ctrl.Control(plugin.LogsName, rf)
+	_ = ctrl.Control(plugin.BackendName, sdbb)
 
 	// Create the `StateDB` and populate the developer provided plugins.
 	return &StateDB{
-		ctrl:     ctrl,
-		ap:       ctrl.Get(plugin.AccountName).(AccountPlugin),
-		bp:       ctrl.Get(plugin.BalanceName).(BalancePlugin),
-		ep:       ctrl.Get(plugin.EthName).(EthPlugin),
-		lp:       ctrl.Get(plugin.LogsName).(LogsPlugin),
-		rf:       ctrl.Get(plugin.RefundName).(RefundPlugin),
-		suicides: make([]common.Address, 0),
+		StateDBBackend: sdbb,
+		ctrl:           ctrl,
+		lp:             lp,
+		rf:             rf,
+		suicides:       make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}
-}
-
-// `GetContext` returns the context of the StateDB.
-func (sdb *StateDB) GetContext() context.Context {
-	return sdb.ctx
 }
 
 // =============================================================================
@@ -93,82 +85,7 @@ func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
 
 // `Reset` resets the state object to the initial state.
 func (sdb *StateDB) Reset(ctx context.Context) {
-	sdb.ctx = ctx
-}
-
-// =============================================================================
-// Account
-// =============================================================================
-
-// `CreateAccount` creates a new account.
-func (sdb *StateDB) CreateAccount(addr common.Address) {
-	sdb.ap.CreateAccount(sdb.ctx, addr)
-}
-
-// GetNonce implements the `StargazerStateDB` interface by returning the nonce
-// of an account.
-func (sdb *StateDB) GetNonce(addr common.Address) uint64 {
-	return sdb.ap.GetNonce(sdb.ctx, addr)
-}
-
-// SetNonce implements the `StargazerStateDB` interface by setting the nonce
-// of an account.
-func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
-	sdb.ap.SetNonce(sdb.ctx, addr, nonce)
-}
-
-// =============================================================================
-// Balance
-// =============================================================================
-
-// `GetBalance` returns the balance of an account.
-func (sdb *StateDB) GetBalance(addr common.Address) *big.Int {
-	return sdb.bp.GetBalance(sdb.ctx, addr)
-}
-
-// `SubBalance` subtracts an amount from the balance of an account.
-func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
-	sdb.bp.SubBalance(sdb.ctx, addr, amount)
-}
-
-// `AddBalance` adds an amount to the balance of an account.
-func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
-	sdb.bp.AddBalance(sdb.ctx, addr, amount)
-}
-
-// `TransferBalance` transfers an amount from one account to another.
-func (sdb *StateDB) TransferBalance(sender, receipient common.Address, amount *big.Int) {
-	sdb.bp.TransferBalance(sdb.ctx, sender, receipient, amount)
-}
-
-// =============================================================================
-// Code
-// =============================================================================
-
-func (sdb *StateDB) GetCode(addr common.Address) []byte {
-	return sdb.ep.GetCodeFromHash(sdb.ctx, sdb.GetCodeHash(addr))
-}
-
-func (sdb *StateDB) SetCode(addr common.Address, code []byte) {
-	codeHash := crypto.Keccak256Hash(code)
-	// store or delete code
-	// todo: nil vs 0? codehash?
-	sdb.ep.SetCodeHash(sdb.ctx, addr, codeHash)
-	if len(code) == 0 {
-		sdb.ep.DeleteCode(sdb.ctx, addr)
-	} else {
-		sdb.ep.SetCode(sdb.ctx, codeHash, code)
-	}
-}
-
-// `GetCodeSize` returns the size of the code of an account.
-func (sdb *StateDB) GetCodeSize(addr common.Address) int {
-	return len(sdb.GetCode(addr))
-}
-
-// `GetCodeHash` returns the code hash of an account.
-func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
-	return sdb.ep.GetCodeHash(sdb.ctx, addr)
+	// sdb.ctx = ctx
 }
 
 // =============================================================================
@@ -191,29 +108,6 @@ func (sdb *StateDB) SubRefund(gas uint64) {
 // value of the refund counter.
 func (sdb *StateDB) GetRefund() uint64 {
 	return sdb.rf.Get()
-}
-
-// =============================================================================
-// Storage
-// =============================================================================
-
-func (sdb *StateDB) GetState(addr common.Address, key common.Hash) common.Hash {
-	return sdb.ep.GetState(sdb.ctx, addr, key)
-}
-
-func (sdb *StateDB) GetCommittedState(addr common.Address, key common.Hash) common.Hash {
-	return sdb.ep.GetCommittedState(sdb.ctx, addr, key)
-}
-
-func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
-	// If empty value is given, delete the state entry.
-	if len(value) == 0 || (value == common.Hash{}) {
-		sdb.ep.SetState(sdb.ctx, addr, key, value)
-		return
-	}
-
-	// Set the state entry.
-	sdb.ep.DeleteState(sdb.ctx, addr, key)
 }
 
 // =============================================================================
@@ -247,17 +141,6 @@ func (sdb *StateDB) HasSuicided(addr common.Address) bool {
 		}
 	}
 	return false
-}
-
-// =============================================================================
-// Exist & Empty
-// =============================================================================
-
-// `Exist` implements the `StargazerStateDB` interface by reporting whether the given account address
-// exists in the state. Notably this also returns true for suicided accounts, which is accounted
-// for since, `RemoveAccount()` is not called until Commit.
-func (sdb *StateDB) Exist(addr common.Address) bool {
-	return sdb.ap.HasAccount(sdb.ctx, addr)
 }
 
 // `Empty` implements the `StargazerStateDB` interface by returning whether the state object
@@ -299,49 +182,6 @@ func (sdb *StateDB) RevertToSnapshot(id int) {
 // `Snapshot` implements `StateDB`.
 func (sdb *StateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
-}
-
-// =============================================================================
-// ForEachStorage
-// =============================================================================
-
-// `ForEachStorage` implements the `StargazerStateDB` interface by iterating through the contract state
-// contract storage, the iteration order is not defined.
-//
-// Note: We do not support iterating through any storage that is modified before calling
-// `ForEachStorage`; only committed state is iterated through.
-func (sdb *StateDB) ForEachStorage(
-	addr common.Address,
-	cb func(key, value common.Hash) bool,
-) error {
-	return sdb.ep.ForEachStorage(sdb.ctx, addr, cb)
-}
-
-// `FinalizeTx` is called when we are complete with the state transition and want to commit the changes
-// to the underlying store.
-func (sdb *StateDB) FinalizeTx() error {
-	// Manually delete all suicidal accounts.
-	for _, suicidalAddr := range sdb.suicides {
-		if !sdb.ap.HasAccount(sdb.ctx, suicidalAddr) {
-			// handles the double suicide case
-			continue
-		}
-
-		// clear storage
-		_ = sdb.ForEachStorage(suicidalAddr,
-			func(key, _ common.Hash) bool {
-				sdb.SetState(suicidalAddr, key, common.Hash{})
-				return true
-			})
-
-		// clear the codehash from this account
-		sdb.ep.SetCodeHash(sdb.ctx, suicidalAddr, common.Hash{})
-
-		// remove auth account
-		sdb.ap.DeleteAccount(sdb.ctx, suicidalAddr)
-	}
-	sdb.ctrl.Finalize()
-	return nil
 }
 
 // =============================================================================

@@ -529,9 +529,9 @@ func (sdb *StateDB) ForEachStorage(
 	return nil
 }
 
-// `FinalizeTx` is called when we are complete with the state transition and want to commit the changes
+// `Finalize` is called when we are complete with the state transition and want to commit the changes
 // to the underlying store.
-func (sdb *StateDB) FinalizeTx() error {
+func (sdb *StateDB) Finalize() error {
 	// Manually delete all suicidal accounts.
 	for _, suicidalAddr := range sdb.suicides {
 		acct := sdb.ak.GetAccount(sdb.ctx, suicidalAddr[:])
