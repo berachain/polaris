@@ -31,15 +31,11 @@ var _ = Describe("Controller", func() {
 	var ctrl *Controller
 	var object1 *typesmock.SnapshottableMock
 	var object2 *typesmock.SnapshottableMock
-	// var object3 *typesmock.SnapshottableMock
+
 	BeforeEach(func() {
 		ctrl = NewController()
 		object1 = typesmock.NewSnapshottableMock()
 		object2 = typesmock.NewSnapshottableMock()
-		// object3 = typesmock.NewSnapshottableMock()
-		// ctrl.Control("object1", object1)
-		// ctrl.Control("object2", object2)
-		// ctrl.Control("object3", object3)
 	})
 
 	When("adding a new object", func() {
