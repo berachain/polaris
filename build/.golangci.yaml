@@ -278,6 +278,8 @@ issues:
   max-same-issues: 50
 
   exclude-rules:
+    - path: "mock/.*\\.go"
+      linters: [funlen]
     - path: "build"
       linters: [wrapcheck]
     - source: "^//\\s*go:generate\\s"

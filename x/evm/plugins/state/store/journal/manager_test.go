@@ -29,7 +29,7 @@ import (
 
 func TestJournalManager(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "store/journal")
+	RunSpecs(t, "x/evm/plugins/store/journal")
 }
 
 var _ = Describe("Journal", func() {

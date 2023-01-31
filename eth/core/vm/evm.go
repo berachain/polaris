@@ -15,23 +15,8 @@
 package vm
 
 import (
-	"math/big"
-
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/common"
 )
-
-type StargazerEVM interface {
-	Reset(txCtx TxContext, sdb GethStateDB)
-	Create(caller ContractRef, code []byte,
-		gas uint64, value *big.Int,
-	) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
-	Call(caller ContractRef, addr common.Address, input []byte,
-		gas uint64, value *big.Int,
-	) (ret []byte, leftOverGas uint64, err error)
-
-	StateDB() StargazerStateDB
-}
 
 // Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.
 var _ StargazerEVM = (*stargazerEVM)(nil)
@@ -57,6 +42,30 @@ func NewStargazerEVM(
 	}
 }
 
+func (evm *stargazerEVM) SetTxContext(txCtx TxContext) {
+	evm.GethEVM.TxContext = txCtx
+}
+
+func (evm *stargazerEVM) Context() BlockContext {
+	return evm.GethEVM.Context
+}
+
 func (evm *stargazerEVM) StateDB() StargazerStateDB {
 	return evm.GethEVM.StateDB.(StargazerStateDB)
+}
+
+func (evm *stargazerEVM) SetTracer(tracer EVMLogger) {
+	evm.Config.Tracer = tracer
+}
+
+func (evm *stargazerEVM) SetDebug(debug bool) {
+	evm.Config.Debug = debug
+}
+
+func (evm *stargazerEVM) Tracer() EVMLogger {
+	return evm.Config.Tracer
+}
+
+func (evm *stargazerEVM) TxContext() TxContext {
+	return evm.GethEVM.TxContext
 }

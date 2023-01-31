@@ -16,6 +16,7 @@
 package state
 
 import (
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
 )
 
@@ -26,7 +27,8 @@ var (
 
 type (
 	AddLogChange struct {
-		sdb *StateDB
+		sdb    *StateDB
+		txHash common.Hash
 	}
 	RefundChange struct {
 		sdb  *StateDB
@@ -40,7 +42,8 @@ type (
 
 // `Revert` implements `journal.CacheEntry`.
 func (ce *AddLogChange) Revert() {
-	ce.sdb.logs = ce.sdb.logs[:len(ce.sdb.logs)-1]
+	ce.sdb.logs[ce.txHash].Pop()
+	ce.sdb.logSize--
 }
 
 // `Clone` implements `journal.CacheEntry`.

@@ -32,6 +32,10 @@ import (
 	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
+const (
+	logStackCapacity = 64
+)
+
 var (
 	// EmptyCodeHash is the code hash of an empty code
 	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
@@ -85,10 +89,6 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	ak types.AccountKeeper
 	bk types.BankKeeper
 
-	// Any error that occurs during an sdk module read or write is
-	// memoized here and is eventually be returned by `Commit`.
-	savedErr error
-
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
 	evmDenom string // TODO: get from params ( we have a store so like why not )
@@ -99,14 +99,11 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	// The storekey used during execution
 	storeKey storetypes.StoreKey
 
-	// Per-transaction logs
-	logs []*coretypes.Log
-
 	// Transaction and logging bookkeeping
-	txHash    common.Hash
-	blockHash common.Hash
-	txIndex   uint
-	logIndex  uint
+	txHash  common.Hash
+	txIndex uint
+	logs    map[common.Hash]ds.Stack[*coretypes.Log]
+	logSize uint
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -129,6 +126,7 @@ func NewStateDB(
 		bk:       bk,
 		evmDenom: evmDenom,
 		storeKey: storeKey,
+		logs:     make(map[common.Hash]ds.Stack[*coretypes.Log]),
 	}
 
 	// Wire up the `CacheMultiStore` & `sdk.Context`.
@@ -168,13 +166,12 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 // Transaction Handling
 // =============================================================================
 
-// Prepare sets the current transaction hash and index and block hash which is
-// used for logging events.
-func (sdb *StateDB) PrepareForTransition(blockHash, txHash common.Hash, ti, li uint) {
-	sdb.blockHash = blockHash
+// Prepare sets the current transaction hash and index which are
+// used when the EVM emits new state logs.
+func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
 	sdb.txHash = txHash
 	sdb.txIndex = ti
-	sdb.logIndex = li
+	sdb.logs[txHash] = stack.New[*coretypes.Log](logStackCapacity)
 }
 
 // Reset clears the journal and other state objects. It also clears the
@@ -187,7 +184,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// // // Must support directly accessing the parent store.
 	// // sdb.cms.GetKVStore(sdb.storeKey) = sdb.ctx.cms.
 	// // 	GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
-	// sdb.savedErr = nil
+	// sdb.fatalErr = nil
 	// sdb.refund = 0
 
 	// sdb.logs = make([]*coretypes.Log, 0) // TODO: set initial capacity
@@ -215,13 +212,12 @@ func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
 
 	// Mint the coins to the evm module account
 	if err := sdb.bk.MintCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
-		sdb.setErrorUnsafe(err)
-		return
+		panic(err)
 	}
 
 	// Send the coins from the evm module account to the destination address.
 	if err := sdb.bk.SendCoinsFromModuleToAccount(sdb.ctx, types.EvmNamespace, addr[:], coins); err != nil {
-		sdb.setErrorUnsafe(err)
+		panic(err)
 	}
 }
 
@@ -232,14 +228,12 @@ func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 
 	// Send the coins from the source address to the evm module account.
 	if err := sdb.bk.SendCoinsFromAccountToModule(sdb.ctx, addr[:], types.EvmNamespace, coins); err != nil {
-		sdb.setErrorUnsafe(err)
-		return
+		panic(err)
 	}
 
 	// Burn the coins from the evm module account.
 	if err := sdb.bk.BurnCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
-		sdb.setErrorUnsafe(err)
-		return
+		panic(err)
 	}
 }
 
@@ -250,7 +244,9 @@ func (sdb *StateDB) TransferBalance(from, to common.Address, amount *big.Int) {
 
 	// Send the coins from the source address to the destination address.
 	if err := sdb.bk.SendCoins(sdb.ctx, from[:], to[:], coins); err != nil {
-		sdb.setErrorUnsafe(err)
+		// This is safe to panic as the error is only returned if the sender does
+		// not have enough funds to send, which should be guarded by `CanTransfer`.
+		panic(err)
 	}
 }
 
@@ -278,7 +274,7 @@ func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 	}
 
 	if err := acc.SetSequence(nonce); err != nil {
-		sdb.setErrorUnsafe(err)
+		panic(err)
 	}
 
 	sdb.ak.SetAccount(sdb.ctx, acc)
@@ -491,18 +487,28 @@ func (sdb *StateDB) Snapshot() int {
 
 // AddLog implements the GethStateDB interface by adding the given log to the current transaction.
 func (sdb *StateDB) AddLog(log *coretypes.Log) {
+<<<<<<< HEAD
 	// sdb.cms.JournalMgr.Push(&AddLogChange{sdb})
+=======
+	sdb.cms.JournalMgr.Push(&AddLogChange{sdb, sdb.txHash})
+>>>>>>> 1f13365e32978415830d564bdba9e6d00c024460
 	log.TxHash = sdb.txHash
-	log.BlockHash = sdb.blockHash
 	log.TxIndex = sdb.txIndex
-	log.Index = sdb.logIndex
-	sdb.logs = append(sdb.logs, log)
-	sdb.logIndex++ // erigon intra
+	log.Index = sdb.logSize
+	sdb.logs[sdb.txHash].Push(log)
+	sdb.logSize++
 }
 
 // Logs returns the logs of current transaction.
-func (sdb *StateDB) Logs() []*coretypes.Log {
-	return sdb.logs
+func (sdb *StateDB) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
+	logs := sdb.logs[txHash]
+	size := logs.Size()
+	output := make([]*coretypes.Log, size)
+	for i := 0; i < logs.Size(); i++ {
+		output[i] = logs.PeekAt(i)
+		output[i].BlockHash = blockHash
+	}
+	return output
 }
 
 // =============================================================================
@@ -534,14 +540,9 @@ func (sdb *StateDB) ForEachStorage(
 	return nil
 }
 
-// `Commit` is called when we are complete with the state transition and want to commit the changes
+// `Finalize` is called when we are complete with the state transition and want to commit the changes
 // to the underlying store.
-func (sdb *StateDB) Commit() error {
-	// If we saw an error during the execution, we return it here.
-	if sdb.savedErr != nil {
-		return sdb.savedErr
-	}
-
+func (sdb *StateDB) Finalize() error {
 	// Manually delete all suicidal accounts.
 	for _, suicidalAddr := range sdb.suicides {
 		acct := sdb.ak.GetAccount(sdb.ctx, suicidalAddr[:])
@@ -551,13 +552,11 @@ func (sdb *StateDB) Commit() error {
 		}
 
 		// clear storage
-		if err := sdb.ForEachStorage(suicidalAddr,
+		_ = sdb.ForEachStorage(suicidalAddr,
 			func(key, _ common.Hash) bool {
 				sdb.SetState(suicidalAddr, key, common.Hash{})
 				return true
-			}); err != nil {
-			return err
-		}
+			})
 
 		// clear the codehash from this account
 		sdb.cms.GetKVStore(sdb.storeKey).Delete(types.CodeHashKeyFor(suicidalAddr))
@@ -565,28 +564,8 @@ func (sdb *StateDB) Commit() error {
 		// remove auth account
 		sdb.ak.RemoveAccount(sdb.ctx, acct)
 	}
-
-	// write all cache stores to parent stores, effectively writing temporary state in ctx to
-	// the underlying parent store.
 	sdb.cms.CacheMultiStore().Write()
 	return nil
-}
-
-// =============================================================================
-// Saved Errors
-// =============================================================================
-
-// Any errors that pop up during store operations should be checked here.
-// Called upon the conclusion.
-func (sdb *StateDB) GetSavedErr() error {
-	return sdb.savedErr
-}
-
-// `setErrorUnsafe` sets error but should be called in medhods that already have locks.
-func (sdb *StateDB) setErrorUnsafe(err error) {
-	if sdb.savedErr == nil {
-		sdb.savedErr = err
-	}
 }
 
 // =============================================================================

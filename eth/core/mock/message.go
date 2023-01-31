@@ -11,16 +11,53 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package core_test
+
+package mock
 
 import (
-	"testing"
+	"math/big"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
-func TestCore(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core")
+//go:generate moq -out ./message.mock.go -pkg mock ../ Message
+
+func NewEmptyMessage() *MessageMock {
+	mockedMessage := &MessageMock{
+		AccessListFunc: func() types.AccessList {
+			return nil
+		},
+		DataFunc: func() []byte {
+			return nil
+		},
+		FromFunc: func() common.Address {
+			return common.Address{}
+		},
+		GasFunc: func() uint64 {
+			return 0
+		},
+		GasFeeCapFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		GasPriceFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		GasTipCapFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		IsFakeFunc: func() bool {
+			return false
+		},
+		NonceFunc: func() uint64 {
+			return 0
+		},
+		ToFunc: func() *common.Address {
+			return nil
+		},
+		ValueFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+	}
+	return mockedMessage
 }

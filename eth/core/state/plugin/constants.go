@@ -11,16 +11,16 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package core_test
 
-import (
-	"testing"
+package plugin
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+const (
+	// `BackendName` is the name of the backend plugin.
+	BackendName = "backend"
+
+	// `LogsName` is the name of the logs plugin.
+	LogsName = "logs"
+
+	// `RefundName` is the name of the refund plugin.
+	RefundName = "refund"
 )
-
-func TestCore(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core")
-}

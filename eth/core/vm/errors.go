@@ -11,16 +11,13 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package core_test
 
-import (
-	"testing"
+package vm
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+import "errors"
+
+var (
+	// `ErrStateDBNotSupported` is returned when the state DB is not compatible for running
+	// stateful precompiles.
+	ErrStateDBNotSupported = errors.New("given StateDB is not compatible for running stateful precompiles")
 )
-
-func TestCore(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "core")
-}

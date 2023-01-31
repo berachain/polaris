@@ -14,4 +14,27 @@
 
 package core
 
-type Host interface{}
+import (
+	"context"
+
+	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/lib/common"
+)
+
+type Host interface {
+	Application
+	Consensus
+}
+
+type Application interface {
+	GasMeter(context.Context) StargazerGasMeter
+}
+
+type Consensus interface {
+	GetBlockHashFunc(context.Context) vm.GetHashFunc
+	GetCoinbase(context.Context) (common.Address, error)
+}
+
+type StargazerGasMeter interface {
+	ConsumeGas(uint64, string)
+}

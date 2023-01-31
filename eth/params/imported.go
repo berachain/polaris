@@ -11,7 +11,6 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 package params
 
 import "github.com/ethereum/go-ethereum/params"
@@ -19,4 +18,9 @@ import "github.com/ethereum/go-ethereum/params"
 type (
 	EthChainConfig = params.ChainConfig
 	Rules          = params.Rules
+)
+
+var (
+	RefundQuotient        = params.RefundQuotient
+	RefundQuotientEIP3529 = params.RefundQuotientEIP3529
 )
