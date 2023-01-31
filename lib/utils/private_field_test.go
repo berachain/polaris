@@ -25,9 +25,11 @@ type A struct {
 	privateField2 *A
 }
 
+type AI interface{}
+
 var _ = Describe("Get Private Field", func() {
-	var a1 *A
-	var a2 *A
+	var a1 AI
+	var a2 AI
 
 	BeforeEach(func() {
 		a1 = &A{
@@ -35,12 +37,13 @@ var _ = Describe("Get Private Field", func() {
 		}
 		a2 = &A{
 			privateField:  "a2",
-			privateField2: a1,
+			privateField2: utils.MustGetAs[*A](a1),
 		}
 	})
 
 	It("should correctly return a primitive private field", func() {
 		Expect(utils.MustGetPrivateFieldByName[string](a1, "privateField")).To(Equal("a1"))
+		Expect(utils.MustGetPrivateFieldByName[AI](a1, "privateField2")).To(BeNil())
 		Expect(utils.MustGetPrivateFieldByName[*A](a1, "privateField2")).To(BeNil())
 	})
 

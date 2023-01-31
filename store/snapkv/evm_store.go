@@ -17,9 +17,7 @@ package snapkv
 import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/store/snapkv/internal/journal"
 )
 
 // Compile-time check to ensure `EvmStore` implements `SnapshotKVStore`.
@@ -33,9 +31,9 @@ type EvmStore struct {
 }
 
 // `NewEvmStore` creates a new Store object.
-func NewEvmStore(parent storetypes.KVStore, journal ds.CloneableStack[*journal.Entry]) *EvmStore {
+func NewEvmStore(parent storetypes.KVStore) *EvmStore {
 	return &EvmStore{
-		NewStore(parent, journal),
+		NewStore(parent),
 	}
 }
 

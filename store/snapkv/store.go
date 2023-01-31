@@ -62,13 +62,13 @@ type Store struct {
 }
 
 // `NewStore` creates a new Store object.
-func NewStore(parent storetypes.KVStore, journal ds.CloneableStack[*journal.Entry]) *Store {
+func NewStore(parent storetypes.KVStore) *Store {
 	return &Store{
 		cache:         make(map[string]*cache.Value),
 		unsortedCache: make(map[string]struct{}),
 		sortedCache:   trees.NewBTree(),
 		parent:        parent,
-		journal:       journal,
+		journal:       stack.NewCloneable[*journal.Entry](128),
 	}
 }
 
@@ -228,13 +228,13 @@ func (store *Store) Snapshot() int {
 }
 
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (store *Store) RevertToSnapshot(revision int) {
+func (store *Store) RevertToSnapshot(id int) {
 	journal := store.journal
 	// Revert and discard all journal entries with an index greater than or equal to revision.
-	for i := journal.Size() - 1; i >= revision; i-- {
+	for i := journal.Size() - 1; i >= id; i-- {
 		store.RevertEntry(journal.PeekAt(i))
 	}
-	journal.PopToSize(revision)
+	journal.PopToSize(id)
 }
 
 // `RevertEntry` reverts a set operation on a cache entry by setting the previous value of the entry as

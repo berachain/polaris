@@ -18,8 +18,6 @@ import (
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 	libtypes "github.com/berachain/stargazer/lib/types"
-	"github.com/berachain/stargazer/lib/utils"
-	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
@@ -29,20 +27,20 @@ var (
 	_ libtypes.Snapshottable     = (*Store)(nil)
 )
 
-// CACHEWRAPS
-// `Store` is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
+// m
+// `MSStore` is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
 // It stores revisions by cache-wrapping the cachekv stores on a call to `Snapshot`.
-type Store struct {
+type MSStore struct {
 	storetypes.MultiStore
 
-	stores ds.Stack[map[storetypes.StoreKey]storetypes.CacheKVStore]
+	stores ds.Stack[storetypes.CacheMultiStore]
 }
 
-// `NewStoreFrom` creates and returns a new `Store` from a given MultiStore.
-func NewStoreFrom(ms storetypes.MultiStore) *Store {
-	stores := stack.New[map[storetypes.StoreKey]storetypes.CacheKVStore](32)
-	stores.Push(make(map[storetypes.StoreKey]storetypes.CacheKVStore))
-	return &Store{
+// `NewMSStoreFrom` creates and returns a new `Store` from a given MultiStore.
+func NewMSStoreFrom(ms storetypes.MultiStore) *MSStore {
+	stores := stack.New[storetypes.CacheMultiStore](16)
+	stores.Push(ms.CacheMultiStore())
+	return &MSStore{
 		MultiStore: ms,
 		stores:     stores,
 	}
@@ -51,55 +49,34 @@ func NewStoreFrom(ms storetypes.MultiStore) *Store {
 // `GetKVStore` shadows the SDK's `storetypes.MultiStore` function. Routes native module calls to
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
-func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
+func (ms *MSStore) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	// check if cache kv store already used
-	curr := s.stores.Peek()
-	if cacheKVStore, exists := curr[key]; exists {
-		return cacheKVStore
-	}
-
-	// get kvstore from cachemultistore and set cachekv to memory
-	curr[key] = sdkcachekv.NewStore(s.MultiStore.GetKVStore(key))
-	return curr[key]
+	return ms.stores.Peek().GetKVStore(key)
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
-func (s *Store) Snapshot() int {
-	curr := s.stores.Peek()
-	next := make(map[storetypes.StoreKey]storetypes.CacheKVStore)
-	for key := range curr {
-		next[key] = utils.MustGetAs[storetypes.CacheKVStore](curr[key].CacheWrap())
-	}
+func (ms *MSStore) Snapshot() int {
 	defer func() {
-		s.stores.Push(next)
+		ms.stores.Push(ms.stores.Peek().CacheMultiStore())
 	}()
 
-	return s.stores.Size()
+	return ms.stores.Size()
 }
 
 // `Revert` implements `libtypes.Snapshottable`.
-func (s *Store) RevertToSnapshot(id int) {
-	s.stores.PopToSize(id)
+func (ms *MSStore) RevertToSnapshot(id int) {
+	ms.stores.PopToSize(id)
 	if id == 0 {
-		s.stores.Push(make(map[storetypes.StoreKey]storetypes.CacheKVStore))
+		ms.stores.Push(ms.CacheMultiStore())
 	}
 }
 
 // `Write` commits each of the individual cachekv stores to its corresponding parent kv stores.
 //
 // `Write` implements Cosmos SDK `storetypes.CacheMultiStore`.
-func (s *Store) Write() {
+func (ms *MSStore) Write() {
 	// to allow garbage collector to vibe
-	for i := s.stores.Size() - 1; i >= 0; i-- {
-		revision := s.stores.Pop()
-
-		// Safe from non-determinism, since order in which
-		// we write to the parent kv stores does not matter.
-		//
-		//#nosec:G705
-		for key, store := range revision {
-			store.Write()
-			delete(revision, key)
-		}
+	for i := ms.stores.Size() - 1; i >= 0; i-- {
+		ms.stores.Pop().Write()
 	}
 }

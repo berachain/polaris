@@ -28,12 +28,12 @@ func TestSnapshot(t *testing.T) {
 }
 
 var _ = Describe("Controller", func() {
-	var ctrl *Controller
+	var ctrl *Controller[*typesmock.SnapshottableMock]
 	var object1 *typesmock.SnapshottableMock
 	var object2 *typesmock.SnapshottableMock
 
 	BeforeEach(func() {
-		ctrl = NewController()
+		ctrl = NewController[*typesmock.SnapshottableMock]()
 		object1 = typesmock.NewSnapshottableMock()
 		object2 = typesmock.NewSnapshottableMock()
 	})

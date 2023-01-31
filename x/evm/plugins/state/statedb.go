@@ -27,9 +27,8 @@ import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
-	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachekv"
-	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachemulti"
+	libtypes "github.com/berachain/stargazer/lib/types"
+	"github.com/berachain/stargazer/store/cachemulti"
 	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
@@ -39,6 +38,11 @@ var (
 	emptyCodeHash      = crypto.Keccak256Hash(nil)
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
+
+type SnapshottableCMS interface {
+	storetypes.CacheMultiStore
+	libtypes.Snapshottable
+}
 
 // Compile-time assertion to ensure StateDB adheres to StargazerStateDB.
 var _ vm.StargazerStateDB = (*StateDB)(nil)
@@ -70,12 +74,12 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	ctx sdk.Context
 
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
-	cms *cachemulti.Store
+	cms SnapshottableCMS
 
 	// eth state stores: required for vm.StateDB
 	// We store references to these stores, so that we can access them
 	// directly, without having to go through the MultiStore interface.
-	ethStore cachekv.StateDBCacheKVStore
+	// ethStore cachekv.StateDBCacheKVStore
 
 	// keepers used for balance and account information.
 	ak types.AccountKeeper
@@ -128,11 +132,13 @@ func NewStateDB(
 	}
 
 	// Wire up the `CacheMultiStore` & `sdk.Context`.
-	sdb.cms = cachemulti.NewStoreFrom(ctx.MultiStore())
+	// sdb.cms = cachemulti.NewMSStoreFrom(ctx.MultiStore()) // cachemultis
+	sdb.cms = cachemulti.NewStoreFrom(ctx.MultiStore()) // cachewraps
+	// sdb.cms = controller.NewMultiStoreFrom(ctx.MultiStore()) // snapkv
 	sdb.ctx = ctx.WithMultiStore(sdb.cms)
 
 	// Store a reference to the EVM state store for performance reasons.
-	sdb.ethStore, _ = utils.GetAs[cachekv.StateDBCacheKVStore](sdb.cms.GetKVStore(sdb.storeKey))
+	//  sdb.cms.GetKVStore(sdb.storeKey), _ = utils.GetAs[cachekv.StateDBCacheKVStore](sdb.cms.GetKVStore(sdb.storeKey))
 
 	return sdb
 }
@@ -155,7 +161,7 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 	sdb.ak.SetAccount(sdb.ctx, acc)
 
 	// initialize the code hash to empty
-	sdb.ethStore.Set(types.CodeHashKeyFor(addr), emptyCodeHashBytes)
+	sdb.cms.GetKVStore(sdb.storeKey).Set(types.CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
 // =============================================================================
@@ -179,14 +185,14 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.MultiStore = cachemulti.NewStoreFrom(ctx.MultiStore())
 	// sdb.ctx = ctx.WithMultiStore(sdb.MultiStore)
 	// // // Must support directly accessing the parent store.
-	// // sdb.ethStore = sdb.ctx.cms.
+	// // sdb.cms.GetKVStore(sdb.storeKey) = sdb.ctx.cms.
 	// // 	GetKVStore(sdb.storeKey).(cachekv.StateDBCacheKVStore)
 	// sdb.savedErr = nil
 	// sdb.refund = 0
 
-	// sdb.logs = make([]*coretypes.Log, 0)
+	// sdb.logs = make([]*coretypes.Log, 0) // TODO: set initial capacity
 	// sdb.accessList = newAccessList()
-	// sdb.suicides = make([]common.Address, 0)
+	// sdb.suicides = make([]common.Address, 0) // TODO: set initial capacity
 	// TODO: unghetto this
 	*sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
 }
@@ -286,7 +292,7 @@ func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 // the code hash of account.
 func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
 	if sdb.ak.HasAccount(sdb.ctx, addr[:]) {
-		if ch := sdb.ethStore.Get(types.CodeHashKeyFor(addr)); ch != nil {
+		if ch := sdb.cms.GetKVStore(sdb.storeKey).Get(types.CodeHashKeyFor(addr)); ch != nil {
 			return common.BytesToHash(ch)
 		}
 		return emptyCodeHash
@@ -304,7 +310,7 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 	if (codeHash == common.Hash{}) || codeHash == emptyCodeHash {
 		return nil
 	}
-	return sdb.ethStore.Get(types.CodeKeyFor(codeHash))
+	return sdb.cms.GetKVStore(sdb.storeKey).Get(types.CodeKeyFor(codeHash))
 }
 
 // SetCode implements the `GethStateDB` interface by setting the code hash and
@@ -312,12 +318,12 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 func (sdb *StateDB) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
 
-	sdb.ethStore.Set(types.CodeHashKeyFor(addr), codeHash[:])
+	sdb.cms.GetKVStore(sdb.storeKey).Set(types.CodeHashKeyFor(addr), codeHash[:])
 	// store or delete code
 	if len(code) == 0 {
-		sdb.ethStore.Delete(types.CodeKeyFor(codeHash))
+		sdb.cms.GetKVStore(sdb.storeKey).Delete(types.CodeKeyFor(codeHash))
 	} else {
-		sdb.ethStore.Set(types.CodeKeyFor(codeHash), code)
+		sdb.cms.GetKVStore(sdb.storeKey).Set(types.CodeKeyFor(codeHash), code)
 	}
 }
 
@@ -334,14 +340,14 @@ func (sdb *StateDB) GetCodeSize(addr common.Address) int {
 // `AddRefund` implements the `GethStateDB` interface by adding gas to the
 // refund counter.
 func (sdb *StateDB) AddRefund(gas uint64) {
-	sdb.cms.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
+	// sdb.cms.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
 	sdb.refund += gas
 }
 
 // `SubRefund` implements the `GethStateDB` interface by subtracting gas from the
 // refund counter. If the gas is greater than the refund counter, it will panic.
 func (sdb *StateDB) SubRefund(gas uint64) {
-	sdb.cms.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
+	// sdb.cms.JournalMgr.Push(&RefundChange{sdb, sdb.refund})
 	if gas > sdb.refund {
 		panic(fmt.Sprintf("Refund counter below zero (gas: %d > refund: %d)", gas, sdb.refund))
 	}
@@ -364,13 +370,14 @@ func (sdb *StateDB) GetCommittedState(
 	addr common.Address,
 	slot common.Hash,
 ) common.Hash {
-	return sdb.getStateFromStore(sdb.ethStore.GetParent(), addr, slot)
+	return common.Hash{}
+	// return sdb.getStateFromStore(sdb.cms.GetKVStore(sdb.storeKey).GetParent(), addr, slot)
 }
 
 // `GetState` implements the `GethStateDB` interface by returning the current state
 // of slot in the given address.
 func (sdb *StateDB) GetState(addr common.Address, slot common.Hash) common.Hash {
-	return sdb.getStateFromStore(sdb.ethStore, addr, slot)
+	return sdb.getStateFromStore(sdb.cms.GetKVStore(sdb.storeKey), addr, slot)
 }
 
 // `getStateFromStore` returns the current state of the slot in the given address.
@@ -397,12 +404,12 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sdb.ethStore.Delete(types.StateKeyFor(addr, key))
+		sdb.cms.GetKVStore(sdb.storeKey).Delete(types.StateKeyFor(addr, key))
 		return
 	}
 
 	// Set the state entry.
-	sdb.ethStore.Set(types.StateKeyFor(addr, key), value[:])
+	sdb.cms.GetKVStore(sdb.storeKey).Set(types.StateKeyFor(addr, key), value[:])
 }
 
 // =============================================================================
@@ -468,12 +475,14 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 // `RevertToSnapshot` implements `StateDB`.
 func (sdb *StateDB) RevertToSnapshot(id int) {
 	// revert and discard all journal entries after snapshot id
-	sdb.cms.JournalMgr.PopToSize(id)
+	// sdb.cms.JournalMgr.PopToSize(id)
+	sdb.cms.RevertToSnapshot(id)
 }
 
 // `Snapshot` implements `StateDB`.
 func (sdb *StateDB) Snapshot() int {
-	return sdb.cms.JournalMgr.Size()
+	// return sdb.cms.JournalMgr.Size()
+	return sdb.cms.Snapshot()
 }
 
 // =============================================================================
@@ -482,7 +491,7 @@ func (sdb *StateDB) Snapshot() int {
 
 // AddLog implements the GethStateDB interface by adding the given log to the current transaction.
 func (sdb *StateDB) AddLog(log *coretypes.Log) {
-	sdb.cms.JournalMgr.Push(&AddLogChange{sdb})
+	// sdb.cms.JournalMgr.Push(&AddLogChange{sdb})
 	log.TxHash = sdb.txHash
 	log.BlockHash = sdb.blockHash
 	log.TxIndex = sdb.txIndex
@@ -509,7 +518,7 @@ func (sdb *StateDB) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
 ) error {
-	it := sdk.KVStorePrefixIterator(sdb.ethStore, types.AddressStoragePrefix(addr))
+	it := sdk.KVStorePrefixIterator(sdb.cms.GetKVStore(sdb.storeKey), types.AddressStoragePrefix(addr))
 	defer it.Close()
 
 	for ; it.Valid(); it.Next() {
@@ -551,7 +560,7 @@ func (sdb *StateDB) Commit() error {
 		}
 
 		// clear the codehash from this account
-		sdb.ethStore.Delete(types.CodeHashKeyFor(suicidalAddr))
+		sdb.cms.GetKVStore(sdb.storeKey).Delete(types.CodeHashKeyFor(suicidalAddr))
 
 		// remove auth account
 		sdb.ak.RemoveAccount(sdb.ctx, acct)
