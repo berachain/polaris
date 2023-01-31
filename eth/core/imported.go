@@ -12,27 +12,22 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package core
 
 import (
-	"math/big"
-
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/utils"
+	"github.com/ethereum/go-ethereum/core"
 )
 
-// Compile-time function assertion.
-var _ CanTransferFunc = CanTransfer
-var _ TransferFunc = Transfer
+type (
+	ExecutionResult = core.ExecutionResult
+	Message         = core.Message
+)
 
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(sdb GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
-}
-
-// `Transfer` subtracts amount from sender and adds amount to recipient using the `vm.StateDB`.
-func Transfer(sdb GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
-	utils.MustGetAs[StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
-}
+var (
+	NewEVMTxContext                 = core.NewEVMTxContext
+	ErrIntrinsicGas                 = core.ErrIntrinsicGas
+	EthIntrinsicGas                 = core.IntrinsicGas
+	ErrInsufficientFundsForTransfer = core.ErrInsufficientFundsForTransfer
+	ErrInsufficientFunds            = core.ErrInsufficientFunds
+	ErrGasUintOverflow              = core.ErrGasUintOverflow
+)
