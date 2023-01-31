@@ -34,14 +34,13 @@ type Controller[T libtypes.Snapshottable] struct {
 }
 
 // `NewController` returns a new `Controller` object.
-func NewController[T libtypes.Snapshottable]() *Controller[T] {
-	return &Controller[T]{
-		keyToSnapshottable: make(map[string]T),
+func NewController() *Controller {
+	return &Controller{
+		keyToSnapshottable: make(map[string]libtypes.Snapshottable),
 		journal:            stack.New[map[string]int](initJournalCapacity),
 	}
 }
 
-// `Register` adds a `libtypes.Snapshottable` object to the `Controller`.
 func (c *Controller[T]) Register(key string, object T) error {
 	if _, ok := c.keyToSnapshottable[key]; ok {
 		return ErrObjectAlreadyExists
@@ -81,4 +80,4 @@ func (c *Controller[T]) RevertToSnapshot(id int) {
 }
 
 // `Finalize` is a no-op and is left to be extended by an implementation.
-func (c *Controller[T]) Finalize() {}
+func (c *Controller) Finalize() {}
