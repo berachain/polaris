@@ -18,7 +18,7 @@ import (
 	"reflect"
 	"testing"
 
-	snapmulti "github.com/berachain/stargazer/x/evm/plugins/state/store/cachemulti"
+	"github.com/berachain/stargazer/store/snapmulti"
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	sdkcachemulti "github.com/cosmos/cosmos-sdk/store/cachemulti"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"

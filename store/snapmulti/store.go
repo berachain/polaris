@@ -23,7 +23,10 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
-const storeRegistryKey = `snapmultistore`
+const (
+	storeRegistryKey    = `snapmultistore`
+	initJournalCapacity = 32
+)
 
 // Compile-time check to ensure `Store` implements `storetypes.CacheMultiStore`.
 var _ types.ControllableMultiStore = (*Store)(nil)
@@ -37,7 +40,7 @@ type Store struct {
 
 // `NewStoreFrom` creates and returns a new `Store` from a given MultiStore.
 func NewStoreFrom(ms storetypes.MultiStore) *Store {
-	journal := stack.New[map[storetypes.StoreKey]storetypes.CacheKVStore](32)
+	journal := stack.New[map[storetypes.StoreKey]storetypes.CacheKVStore](initJournalCapacity)
 	journal.Push(make(map[storetypes.StoreKey]storetypes.CacheKVStore))
 	return &Store{
 		MultiStore: ms,

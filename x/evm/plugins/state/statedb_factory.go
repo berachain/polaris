@@ -24,7 +24,7 @@ import (
 	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
-type PluginFactory struct { 
+type PluginFactory struct {
 	// Cosmos Keeper References
 	ak types.AccountKeeper
 	bk types.BankKeeper

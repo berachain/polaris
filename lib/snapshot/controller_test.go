@@ -36,7 +36,9 @@ var _ = Describe("Controller", func() {
 	var object2 *typesmock.ControllableMock[string]
 
 	BeforeEach(func() {
-		ctrl = utils.MustGetAs[*controller[string, libtypes.Controllable[string]]](NewController[string, libtypes.Controllable[string]]())
+		ctrl = utils.MustGetAs[*controller[string, libtypes.Controllable[string]]](
+			NewController[string, libtypes.Controllable[string]](),
+		)
 		object1 = typesmock.NewControllableMock1()
 		object2 = typesmock.NewControllableMock2()
 	})

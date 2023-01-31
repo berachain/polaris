@@ -39,7 +39,7 @@ type logs struct {
 }
 
 // `NewLogs` returns a new `Logs` store.
-func NewLogs() *logs {
+func NewLogs() *logs { //nolint:revive // only used as LogsPlugin interface.
 	return &logs{
 		txHashToLogs:  make(map[common.Hash]ds.Stack[*coretypes.Log]),
 		currentTxHash: common.Hash{},

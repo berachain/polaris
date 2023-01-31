@@ -23,6 +23,7 @@ import (
 // is of type `T`. Will panic if `object` is not a struct or does not have a field by name of
 // `fieldName`.
 func MustGetPrivateFieldByName[T any](object any, fieldName string) T {
+	//#nosec:G103 // unsafe call okay.
 	ptrToField := unsafe.Pointer(
 		reflect.Indirect(reflect.ValueOf(object)).FieldByName(fieldName).UnsafeAddr(),
 	)

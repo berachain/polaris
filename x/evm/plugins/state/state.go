@@ -60,7 +60,7 @@ var (
 //     codeHash of 0x000... This is because the Bank Module does not know that the account is an
 //     EVM account, and so it does not set the codeHash. This is totally fine, we just need to
 //     check both for both the codeHash being 0x000... as well as the codeHash being 0x567...
-type statePlugin struct { 
+type statePlugin struct {
 	libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// We maintain a context in the StateDB, so that we can pass it with the correctly
@@ -89,7 +89,7 @@ func NewPlugin(
 	bk types.BankKeeper,
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
-) (*statePlugin, error) {
+) (*statePlugin, error) { //nolint:revive // only used as StatePlugin interface
 	sp := &statePlugin{
 		ak:          ak,
 		bk:          bk,

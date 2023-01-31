@@ -28,6 +28,8 @@ type mapRegistry[K comparable, T libtypes.Registrable[K]] struct {
 }
 
 // `NewMap` creates and returns a new `mapRegistry`.
+//
+//nolint:revive // only used as Registry interface.
 func NewMap[K comparable, T libtypes.Registrable[K]]() *mapRegistry[K, T] {
 	return &mapRegistry[K, T]{
 		items: make(map[K]T),
