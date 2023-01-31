@@ -24,7 +24,9 @@ type api struct {
 	logger libtypes.Logger[zapcore.Field]
 }
 
-// `NewAPI` returns a new `API` object.
-func NewAPI() *api { //nolint: revive // by design.
-	return &api{}
+// `NewAPI` returns a new `api` object.
+func NewAPI(logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by design.
+	return &api{
+		logger: logger,
+	}
 }

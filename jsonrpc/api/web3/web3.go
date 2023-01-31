@@ -21,12 +21,19 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	// `MethodClientVersion` is the method name of `ClientVersion`.
+	MethodClientVersion = "web3_clientVersion"
+	// `MethodSha3` is the method name of `Sha3`.
+	MethodSha3 = "web3_sha3"
+)
+
 // `API` the Web3 API.
 type api struct {
 	logger libtypes.Logger[zapcore.Field]
 }
 
-// `NewAPI` returns a new `API` object.
+// `NewAPI` returns a new `api` object.
 func NewAPI(logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by design.
 	return &api{
 		logger,
@@ -35,12 +42,12 @@ func NewAPI(logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by
 
 // `ClientVersion` returns the client version.
 func (api *api) ClientVersion() string {
-	api.logger.Debug("web3_clientVersion")
+	api.logger.Debug(MethodClientVersion)
 	return "stargazer" // TODO: implement
 }
 
 // `Sha3` returns the keccak-256 hash of the supplied input.
 func (api *api) Sha3(input string) hexutil.Bytes {
-	api.logger.Debug("web3_sha3")
+	api.logger.Debug(MethodSha3)
 	return crypto.Keccak256(hexutil.Bytes(input))
 }

@@ -16,14 +16,21 @@ package eth
 
 import "github.com/ethereum/go-ethereum/common/hexutil"
 
+const (
+	// `MethodEthHashrate` is the method name of `eth_hashrate`.
+	MethodEthHashrate = "eth_hashrate"
+	// `MethodEthMining` is the method name of `eth_mining`.
+	MethodEthMining = "eth_mining"
+)
+
 // `Hashrate` returns 0 since there is no mining in Tendermint.
 func (e *api) Hashrate() hexutil.Uint64 {
-	e.logger.Debug("eth_hashrate")
+	e.logger.Debug(MethodEthHashrate)
 	return 0
 }
 
 // `Mining` returns 0 since there is no mining in Tendermint.
 func (e *api) Mining() bool {
-	e.logger.Debug("eth_mining")
+	e.logger.Debug(MethodEthMining)
 	return false
 }
