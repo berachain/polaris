@@ -22,9 +22,51 @@ type Cloneable[T any] interface {
 // `Snapshottable` is an interface that defines methods for snapshotting and reverting
 // a logical unit of data.
 type Snapshottable interface {
-	// `RevertToSnapshot` reverts the data to a previous version
-	RevertToSnapshot(int)
-
 	// `Snapshot` returns an identifier for the current revision of the data.
 	Snapshot() int
+
+	// `RevertToSnapshot` reverts the data to a previous version
+	RevertToSnapshot(int)
+}
+
+// `Registrable` is an interface that all objects that can be registered in a
+// `Registry` must implement.
+type Registrable[K comparable] interface {
+	// `RegistryKey` returns the key that will be used to register the object.
+	RegistryKey() K
+}
+
+// `Registry` is an interface that all objects that can be used as a registry
+// must implement.
+type Registry[K comparable, T Registrable[K]] interface {
+	// Get return an item using its ID.
+	Get(K) (T, error)
+
+	// Register adds an item to the registry.
+	Register(T) error
+
+	// Remove removes an item from the registry.
+	Remove(K) error
+
+	// Exists returns true if the item exists in the registry.
+	Exists(K) bool
+
+	// Iterate returns an iterable map of the registry.
+	Iterate() map[K]T
+}
+
+// `Controllable` defines a type which can be controlled.
+type Controllable[K comparable] interface {
+	Snapshottable
+	Registrable[K]
+
+	Write()
+}
+
+// `Controller` is an interface for controller types.
+type Controller[K comparable, T Controllable[K]] interface {
+	Snapshottable
+	Registry[K, T]
+
+	Finalize()
 }

@@ -16,9 +16,16 @@ package types
 
 import (
 	coretypes "github.com/berachain/stargazer/eth/core/types"
+	libtypes "github.com/berachain/stargazer/lib/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
+
+type ControllableMultiStore interface {
+	storetypes.CacheMultiStore
+	libtypes.Controllable[string]
+}
 
 // `AccountKeeper` defines the expected account keeper.
 type AccountKeeper interface {

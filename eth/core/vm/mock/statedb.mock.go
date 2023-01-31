@@ -52,7 +52,7 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
 //			},
-//			FinalizeFunc: func() error {
+//			FinalizeFunc: func()  {
 //				panic("mock out the Finalize method")
 //			},
 //			ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
@@ -165,7 +165,7 @@ type StargazerStateDBMock struct {
 	ExistFunc func(address common.Address) bool
 
 	// FinalizeFunc mocks the Finalize method.
-	FinalizeFunc func() error
+	FinalizeFunc func()
 
 	// ForEachStorageFunc mocks the ForEachStorage method.
 	ForEachStorageFunc func(address common.Address, fn func(common.Hash, common.Hash) bool) error
@@ -817,7 +817,7 @@ func (mock *StargazerStateDBMock) ExistCalls() []struct {
 }
 
 // Finalize calls FinalizeFunc.
-func (mock *StargazerStateDBMock) Finalize() error {
+func (mock *StargazerStateDBMock) Finalize() {
 	if mock.FinalizeFunc == nil {
 		panic("StargazerStateDBMock.FinalizeFunc: method is nil but StargazerStateDB.Finalize was just called")
 	}
@@ -826,7 +826,7 @@ func (mock *StargazerStateDBMock) Finalize() error {
 	mock.lockFinalize.Lock()
 	mock.calls.Finalize = append(mock.calls.Finalize, callInfo)
 	mock.lockFinalize.Unlock()
-	return mock.FinalizeFunc()
+	mock.FinalizeFunc()
 }
 
 // FinalizeCalls gets all the calls that were made to Finalize.

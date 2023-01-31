@@ -18,20 +18,24 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/core/state/plugin"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
 type StatePlugin interface { //nolint:revive // vibes.
-	plugin.Base
+	libtypes.Controllable[string]
 
 	GetContext() context.Context
-	CreateAccount(common.Address)
 
+	CreateAccount(common.Address)
+	// Exist reports whether the given account exists in state.
+	// Notably this should also return true for suicided accounts.
+	Exist(common.Address) bool
+
+	GetBalance(common.Address) *big.Int
 	SubBalance(common.Address, *big.Int)
 	AddBalance(common.Address, *big.Int)
-	GetBalance(common.Address) *big.Int
 	TransferBalance(common.Address, common.Address, *big.Int)
 
 	GetNonce(common.Address) uint64
@@ -45,17 +49,15 @@ type StatePlugin interface { //nolint:revive // vibes.
 	GetCommittedState(common.Address, common.Hash) common.Hash
 	GetState(common.Address, common.Hash) common.Hash
 	SetState(common.Address, common.Hash, common.Hash)
-
-	// Exist reports whether the given account exists in state.
-	// Notably this should also return true for suicided accounts.
-	Exist(common.Address) bool
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
 
-	Finalize() error
+	DeleteSuicides([]common.Address)
+	Finalize()
 }
 
 type LogsPlugin interface {
-	plugin.Base
+	libtypes.Controllable[string]
+
 	// `Prepare` prepares the state for a txHash
 	Prepare(common.Hash, uint)
 
@@ -67,7 +69,8 @@ type LogsPlugin interface {
 }
 
 type RefundPlugin interface {
-	plugin.Base
+	libtypes.Controllable[string]
+
 	// `AddRefund` adds amount to the refund counter
 	AddRefund(uint64)
 	// `SubRefund` subtracts amount from the refund counter

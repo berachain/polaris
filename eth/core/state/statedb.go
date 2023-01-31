@@ -16,14 +16,13 @@ package state
 
 import (
 	"bytes"
-	"context"
 
-	"github.com/berachain/stargazer/eth/core/state/plugin"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/lib/snapshot"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
 // `StatePlugin` is the plugin that holds the state of the evm.
@@ -38,13 +37,13 @@ var (
 var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 type StateDB struct { //nolint:revive // we live the vibe.
-	// The controller is used to manage the plugins
-	ctrl snapshot.Controller
-
 	// References to the plugins in the controller.
 	StatePlugin
 	RefundPlugin
 	LogsPlugin
+
+	// The controller is used to manage the plugins
+	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -54,39 +53,40 @@ type StateDB struct { //nolint:revive // we live the vibe.
 	suicides []common.Address
 }
 
-func NewStateDB(sp StatePlugin, ctrl snapshot.Controller) *StateDB {
-	// Build snapshottables for logs and refunds.
-	lp := plugin.NewLogs()
-	rf := plugin.NewRefund()
-
-	// Register the snapshottables with the controller.
-	_ = ctrl.Control(plugin.RefundName, lp)
-	_ = ctrl.Control(plugin.LogsName, rf)
-	_ = ctrl.Control(plugin.BackendName, sp)
+func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (*StateDB, error) {
+	// Build the controller and register the plugins
+	controller := snapshot.NewController[string, libtypes.Controllable[string]]()
+	err := controller.Register(lp)
+	if err != nil {
+		return nil, err
+	}
+	err = controller.Register(rp)
+	if err != nil {
+		return nil, err
+	}
+	err = controller.Register(sp)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create the `StateDB` and populate the developer provided plugins.
 	return &StateDB{
 		StatePlugin:  sp,
 		LogsPlugin:   lp,
-		RefundPlugin: rf,
-		ctrl:         ctrl,
+		RefundPlugin: rp,
+		ctrl:         controller,
 		suicides:     make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
-	}
+	}, nil
 }
 
 // =============================================================================
 // Transaction Handling
 // =============================================================================
 
-// // `Prepare` sets the current transaction hash and index which are
-// // used when the EVM emits new state logs.
-// func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {
-// 	sdb.Prepare(txHash, ti)
-// }
-
 // `Reset` resets the state object to the initial state.
-func (sdb *StateDB) Reset(ctx context.Context) {
-	// sdb.ctx = ctx
+// TODO: put on the stargazer statedb interface ?
+func (sdb *StateDB) Reset() {
+	panic("implement me")
 }
 
 // =============================================================================
@@ -139,13 +139,21 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 
 // `RevertToSnapshot` implements `StateDB`.
 func (sdb *StateDB) RevertToSnapshot(id int) {
-	// revert and discard all journal entries after snapshot id
 	sdb.ctrl.RevertToSnapshot(id)
 }
 
 // `Snapshot` implements `StateDB`.
 func (sdb *StateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
+}
+
+// =============================================================================
+// Finalize
+// =============================================================================
+
+func (sdb *StateDB) Finalize() {
+	sdb.DeleteSuicides(sdb.suicides)
+	sdb.ctrl.Finalize()
 }
 
 // =============================================================================

@@ -19,11 +19,11 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
-// `initCapacity` is the initial capacity of the `refund`'s snapshot stack.
-const initCapacity = 16
-
-// Compile-time assertion that `refund` implements `Base`.
-var _ Base = (*refund)(nil)
+const (
+	// `initCapacity` is the initial capacity of the `refund`'s snapshot stack.
+	initCapacity      = 16
+	refundRegistryKey = `refund`
+)
 
 // `refund` is a `Store` that tracks the refund counter.
 type refund struct {
@@ -37,32 +37,40 @@ func NewRefund() *refund { //nolint: revive // its ok.
 	}
 }
 
+func (r *refund) RegistryKey() string {
+	return refundRegistryKey
+}
+
 // `Get` returns the current value of the refund counter.
-func (rs *refund) GetRefund() uint64 {
-	return rs.Peek()
+func (r *refund) GetRefund() uint64 {
+	return r.Peek()
 }
 
 // `Set` sets the refund counter to the given `gas`.
-func (rs *refund) AddRefund(gas uint64) {
-	rs.Push(rs.Peek() + gas)
+func (r *refund) AddRefund(gas uint64) {
+	r.Push(r.Peek() + gas)
 }
 
 // `Sub` subtracts the given `gas` from the refund counter.
-func (rs *refund) SubRefund(gas uint64) {
-	rs.Push(rs.Peek() - gas)
+func (r *refund) SubRefund(gas uint64) {
+	r.Push(r.Peek() - gas)
 }
 
 // `Snapshot` returns the current size of the refund counter, which is used to
 // revert the refund counter to a previous value.
 //
 // `Snapshot` implements `libtypes.Snapshottable`.
-func (rs *refund) Snapshot() int {
-	return rs.Size()
+func (r *refund) Snapshot() int {
+	return r.Size()
 }
 
 // `RevertToSnapshot` reverts the refund counter to the value at the given `snap`.
 //
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (rs *refund) RevertToSnapshot(snap int) {
-	rs.PopToSize(snap)
+func (r *refund) RevertToSnapshot(snap int) {
+	r.PopToSize(snap)
+}
+
+func (r *refund) Finalize() error {
+	return nil
 }

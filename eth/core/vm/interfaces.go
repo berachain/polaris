@@ -61,7 +61,7 @@ type (
 		// `GetLogs`
 		GetLogs(common.Hash, common.Hash) []*coretypes.Log
 
-		Finalize() error
+		Finalize()
 	}
 
 	// `PrecompileStateDB` defines the required function a statedb must implement to support

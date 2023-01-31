@@ -27,7 +27,7 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
+	"github.com/berachain/stargazer/eth/core/state"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

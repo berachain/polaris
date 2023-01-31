@@ -12,28 +12,29 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package sort
+package mock
 
-type State int
+import libtypes "github.com/berachain/stargazer/lib/types"
 
-const (
-	StateUnsorted State = iota
-	StateAlreadySorted
-)
+// Assert that `MockRegistrable` implements `Registrable`.
+var _ libtypes.Registrable[string] = &Registrable{}
 
-const MinSortSize = 1024
-
-// `Cloneable` is an interface that defines a `Clone` method.
-type Cloneable[T any] interface {
-	Clone() T
+type Registrable struct {
+	registerKey string
+	data        string
 }
 
-// `Snapshottable` is an interface that defines methods for snapshotting and reverting
-// a logical unit of data.
-type Snapshottable interface {
-	// `RevertToSnapshot` reverts the data to a previous version
-	RevertToSnapshot(int)
+func NewMockRegistrable(registerKey string, data string) *Registrable {
+	return &Registrable{
+		registerKey: registerKey,
+		data:        data,
+	}
+}
 
-	// `Snapshot` returns an identifier for the current revision of the data.
-	Snapshot() int
+func (m Registrable) RegistryKey() string {
+	return m.registerKey
+}
+
+func (m Registrable) Data() string {
+	return m.data
 }

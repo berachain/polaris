@@ -57,7 +57,7 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		ExistFunc: func(address common.Address) bool {
 			return false
 		},
-		FinalizeFunc: func() error {
+		FinalizeFunc: func() {
 			panic("mock out the Finalize method")
 		},
 		ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {

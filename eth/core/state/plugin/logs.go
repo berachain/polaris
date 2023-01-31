@@ -21,12 +21,13 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
-const initLogCapacity = 16
+const (
+	// `initLogCapacity` is the initial capacity of the `logs` snapshot stack.
+	initLogCapacity = 16
+	logsRegistryKey = `logs`
+)
 
-// Compile-time assertion that `Logs` implements `Base`.
-var _ Base = (*logs)(nil)
-
-// `Logs` is a `Store` that tracks the refund counter.
+// `logs` is a state plugin that tracks Ethereum logs.
 type logs struct {
 	// For the block.
 	txHashToLogs map[common.Hash]ds.Stack[*coretypes.Log]
@@ -38,12 +39,16 @@ type logs struct {
 }
 
 // `NewLogs` returns a new `Logs` store.
-func NewLogs() *logs { //nolint: revive // its okay.
+func NewLogs() *logs {
 	return &logs{
 		txHashToLogs:  make(map[common.Hash]ds.Stack[*coretypes.Log]),
 		currentTxHash: common.Hash{},
 		currenTxIndex: 0,
 	}
+}
+
+func (l *logs) RegistryKey() string {
+	return logsRegistryKey
 }
 
 // `Prepare` prepares the `Logs` store for a new transaction.
@@ -87,4 +92,8 @@ func (l *logs) Snapshot() int {
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (l *logs) RevertToSnapshot(i int) {
 	l.txHashToLogs[l.currentTxHash].PopToSize(i)
+}
+
+func (l *logs) Finalize() error {
+	return nil
 }

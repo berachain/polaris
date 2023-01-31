@@ -20,11 +20,11 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	// "github.com/berachain/stargazer/eth/params".
+	ethstate "github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
-type StateDBFactory struct { //nolint:revive // the vibes are good.
+type PluginFactory struct { 
 	// Cosmos Keeper References
 	ak types.AccountKeeper
 	bk types.BankKeeper
@@ -36,25 +36,23 @@ type StateDBFactory struct { //nolint:revive // the vibes are good.
 	// evmDenom params.Retriever[params.EVMDenom]
 }
 
-// NewStateDBFactory returns a new StateDBFactory instance.
-func NewStateDBFactory(
+// NewPluginFactory returns a new PluginFactory instance.
+func NewPluginFactory(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	evmStoreKey storetypes.StoreKey,
-	// evmDenom params.Retriever[params.EVMDenom],
 	logFactory types.EthereumLogFactory,
-) *StateDBFactory {
-	return &StateDBFactory{
+) *PluginFactory {
+	return &PluginFactory{
 		ak:          ak,
 		bk:          bk,
 		evmStoreKey: evmStoreKey,
-		// evmDenom:    evmDenom,
-		// er:          er,
 	}
 }
 
-// BuildNewStateDB returns a new StateDB instance.
-func (sdf *StateDBFactory) BuildStateDB(ctx context.Context) *StateDB {
-	return NewStateDB(sdk.UnwrapSDKContext(ctx), sdf.ak, sdf.bk, sdf.evmStoreKey, "abera")
-	// sdf.evmDenom.Get(ctx), sdf.er)
+// Build returns a new StateDB instance.
+func (pf *PluginFactory) Build(ctx context.Context) ethstate.StatePlugin {
+	// TODO: handle error? / ignore it completely?
+	sp, _ := NewPlugin(sdk.UnwrapSDKContext(ctx), pf.ak, pf.bk, pf.evmStoreKey, "abera")
+	return sp
 }

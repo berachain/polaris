@@ -12,14 +12,23 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package mock
 
-import (
-	libtypes "github.com/berachain/stargazer/lib/types"
-)
+//go:generate moq -out ./controllable.mock.go -skip-ensure -pkg mock ../ Controllable
 
-// `Base` is the interface that all plugins must implement.
-type Base interface {
-	// Plugins must be `Snapshottable`
-	libtypes.Snapshottable
+// `SnapshottableMock` is a mock for the `Snapshottable` interface.
+func NewControllableMock1[K string]() *ControllableMock[K] {
+	return &ControllableMock[K]{
+		RevertToSnapshotFunc: func(n int) {},
+		SnapshotFunc:         func() int { return 0 },
+		RegistryKeyFunc:      func() K { return "object1" },
+	}
+}
+
+func NewControllableMock2[K string]() *ControllableMock[K] {
+	return &ControllableMock[K]{
+		RevertToSnapshotFunc: func(n int) {},
+		SnapshotFunc:         func() int { return 0 },
+		RegistryKeyFunc:      func() K { return "object2" },
+	}
 }

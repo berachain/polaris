@@ -12,14 +12,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package cachemulti_test
+package snapmulti_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachekv"
-	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachemulti"
+	snapmulti "github.com/berachain/stargazer/x/evm/plugins/state/store/cachemulti"
+	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	sdkcachemulti "github.com/cosmos/cosmos-sdk/store/cachemulti"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -28,12 +28,12 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-func TestCacheMulti(t *testing.T) {
+func TestSnapMulti(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/state/store/cachemulti")
+	RunSpecs(t, "x/evm/plugins/state/store/snapmulti")
 }
 
-var _ = Describe("CacheMulti", func() {
+var _ = Describe("SnapMulti", func() {
 	var (
 		byte1          = []byte{1}
 		cms            storetypes.CacheMultiStore
@@ -59,15 +59,15 @@ var _ = Describe("CacheMulti", func() {
 		)
 		accStoreParent = ms.GetKVStore(accStoreKey)
 		evmStoreParent = ms.GetKVStore(evmStoreKey)
-		cms = cachemulti.NewStoreFrom(ms)
+		cms = snapmulti.NewStoreFrom(ms)
 		accStoreCache = cms.GetKVStore(accStoreKey)
 		evmStoreCache = cms.GetKVStore(evmStoreKey)
 	})
 
 	It("CorrectStoreType", func() {
 		// Test that the correct store type is returned
-		Expect(reflect.TypeOf(cms.GetKVStore(evmStoreKey))).To(Equal(reflect.TypeOf(&cachekv.EvmStore{})))
-		Expect(reflect.TypeOf(cms.GetKVStore(accStoreKey))).To(Equal(reflect.TypeOf(&cachekv.Store{})))
+		Expect(reflect.TypeOf(cms.GetKVStore(evmStoreKey))).To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))
+		Expect(reflect.TypeOf(cms.GetKVStore(accStoreKey))).To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))
 	})
 
 	It("TestWrite", func() {
