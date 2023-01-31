@@ -73,8 +73,10 @@ type RefundPlugin interface {
 
 	// `AddRefund` adds amount to the refund counter
 	AddRefund(uint64)
+
 	// `SubRefund` subtracts amount from the refund counter
 	SubRefund(uint64)
+
 	// `GetRefund` returns the refund counter
 	GetRefund() uint64
 }
