@@ -11,34 +11,12 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package main
 
-import (
-	"fmt"
-	"os"
+package eth
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/spf13/cobra"
-
-	jsonrpc "github.com/berachain/stargazer/jsonrpc"
-	"github.com/berachain/stargazer/jsonrpc/server"
-)
-
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		os.Exit(1)
-	}
-}
-
-var rootCmd = &cobra.Command{
-	Use:   "json-rpc",
-	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
-	Short: "Foundry contract generator",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		errCh := make(chan error)
-		ctx := client.GetClientContextFromCmd(cmd)
-		go jsonrpc.New(*server.DefaultConfig(), ctx).Start(errCh)
-		return <-errCh
-	},
+type MethodHandler interface {
+	// Method returns the method name
+	Method() string
+	// Handler returns the handler function
+	Handler() interface{}
 }

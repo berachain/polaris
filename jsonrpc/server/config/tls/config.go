@@ -11,34 +11,22 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package main
 
-import (
-	"fmt"
-	"os"
+package tls
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/spf13/cobra"
+// `Config` defines a certificate and matching private key for the server.
+type Config struct {
+	// `CertPath` the file path for the certificate .pem file
+	CertPath string `mapstructure:"cert-path"`
 
-	jsonrpc "github.com/berachain/stargazer/jsonrpc"
-	"github.com/berachain/stargazer/jsonrpc/server"
-)
-
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		os.Exit(1)
-	}
+	// KeyPath the file path for the key .pem file
+	KeyPath string `toml:"key-path"`
 }
 
-var rootCmd = &cobra.Command{
-	Use:   "json-rpc",
-	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
-	Short: "Foundry contract generator",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		errCh := make(chan error)
-		ctx := client.GetClientContextFromCmd(cmd)
-		go jsonrpc.New(*server.DefaultConfig(), ctx).Start(errCh)
-		return <-errCh
-	},
+// DefaultConfig returns the default TLS configuration.
+func DefaultConfig() *Config {
+	return &Config{
+		CertPath: "",
+		KeyPath:  "",
+	}
 }
