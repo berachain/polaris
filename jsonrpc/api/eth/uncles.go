@@ -12,34 +12,29 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package web3
+package eth
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	"go.uber.org/zap"
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/common/hexutil"
 )
 
-func TestWeb3(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "web3")
+// `GetUncleByBlockHashAndIndex` returns nil since there are no uncles in Tendermint.
+func (e *api) GetUncleByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) map[string]interface{} {
+	return nil
 }
 
-var _ = Describe("Web3", func() {
-	api := NewAPI(
-		zap.NewNop(),
-	)
-	When("ClientVersion", func() {
-		It("should return the correct client version", func() {
-			Expect(api.ClientVersion()).To(Equal("stargazer"))
-		})
-	})
-	When("Sha3", func() {
-		It("should return the correct hash", func() {
-			Expect(api.Sha3("bing bong").String()).
-				To(Equal("0x5a38a1379b46de450b1455628645a564ea35034dd036427fbf0dc33199d81c05"))
-		})
-	})
-})
+// `GetUncleByBlockNumberAndIndex` returns nil since there are no uncles in Tendermint.
+func (e *api) GetUncleByBlockNumberAndIndex(number, idx hexutil.Uint) map[string]interface{} {
+	return nil
+}
+
+// `GetUncleCountByBlockHash` returns 0 since there are no uncles in Tendermint.
+func (e *api) GetUncleCountByBlockHash(hash common.Hash) hexutil.Uint {
+	return 0
+}
+
+// `GetUncleCountByBlockNumber` returns 0 since there are no uncles in Tendermint.
+func (e *api) GetUncleCountByBlockNumber(blockNum int64) hexutil.Uint {
+	return 0
+}

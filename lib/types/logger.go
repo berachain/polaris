@@ -12,34 +12,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package web3
+package types
 
-import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	"go.uber.org/zap"
-)
-
-func TestWeb3(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "web3")
+type Logger[T any] interface {
+	// Debug logs a message at level Debug on the standard logger.
+	Debug(msg string, args ...T)
+	// Info logs a message at level Info on the standard logger.
+	Info(msg string, args ...T)
+	// Warn logs a message at level Warn on the standard logger.
+	Warn(msg string, args ...T)
 }
-
-var _ = Describe("Web3", func() {
-	api := NewAPI(
-		zap.NewNop(),
-	)
-	When("ClientVersion", func() {
-		It("should return the correct client version", func() {
-			Expect(api.ClientVersion()).To(Equal("stargazer"))
-		})
-	})
-	When("Sha3", func() {
-		It("should return the correct hash", func() {
-			Expect(api.Sha3("bing bong").String()).
-				To(Equal("0x5a38a1379b46de450b1455628645a564ea35034dd036427fbf0dc33199d81c05"))
-		})
-	})
-})

@@ -14,8 +14,15 @@
 
 package node
 
+import (
+	libtypes "github.com/berachain/stargazer/lib/types"
+	"go.uber.org/zap/zapcore"
+)
+
 // `API` is the node API.
-type api struct{}
+type api struct {
+	logger libtypes.Logger[zapcore.Field]
+}
 
 func NewAPI() *api { //nolint: revive // by design.
 	return &api{}
@@ -27,11 +34,13 @@ func (api) Namespace() string {
 }
 
 // `Health` returns if the stargazer node is healthy.
-func (api) Health() string {
+func (api *api) Health() string {
+	api.logger.Info("node_health")
 	return "ok" // todo query the node status
 }
 
 // `RPCHealth` returns if the rpc server is healthy.
-func (api) RPCHealth() string {
+func (api api) RPCHealth() string {
+	api.logger.Info("node_rpcHealth")
 	return "ok"
 }

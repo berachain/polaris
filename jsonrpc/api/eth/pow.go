@@ -12,34 +12,18 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package web3
+package eth
 
-import (
-	"testing"
+import "github.com/ethereum/go-ethereum/common/hexutil"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	"go.uber.org/zap"
-)
-
-func TestWeb3(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "web3")
+// `Hashrate` returns 0 since there is no mining in Tendermint.
+func (e *api) Hashrate() hexutil.Uint64 {
+	e.logger.Debug("eth_hashrate")
+	return 0
 }
 
-var _ = Describe("Web3", func() {
-	api := NewAPI(
-		zap.NewNop(),
-	)
-	When("ClientVersion", func() {
-		It("should return the correct client version", func() {
-			Expect(api.ClientVersion()).To(Equal("stargazer"))
-		})
-	})
-	When("Sha3", func() {
-		It("should return the correct hash", func() {
-			Expect(api.Sha3("bing bong").String()).
-				To(Equal("0x5a38a1379b46de450b1455628645a564ea35034dd036427fbf0dc33199d81c05"))
-		})
-	})
-})
+// `Mining` returns 0 since there is no mining in Tendermint.
+func (e *api) Mining() bool {
+	e.logger.Debug("eth_mining")
+	return false
+}

@@ -25,6 +25,7 @@ func Build(namespace string) Service {
 	switch namespace {
 	case "node":
 		return node.NewAPI()
+
 	default:
 		return nil
 	}

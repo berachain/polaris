@@ -17,22 +17,30 @@ package web3
 import (
 	"github.com/berachain/stargazer/lib/common/hexutil"
 	"github.com/berachain/stargazer/lib/crypto"
+	libtypes "github.com/berachain/stargazer/lib/types"
+	"go.uber.org/zap/zapcore"
 )
 
 // `API` the Web3 API.
-type api struct{}
+type api struct {
+	logger libtypes.Logger[zapcore.Field]
+}
 
 // `NewAPI` returns a new `API` object.
-func NewAPI() *api { //nolint: revive // by design.
-	return &api{}
+func NewAPI(logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by design.
+	return &api{
+		logger,
+	}
 }
 
 // `ClientVersion` returns the client version.
-func (a *api) ClientVersion() string {
+func (api *api) ClientVersion() string {
+	api.logger.Debug("web3_clientVersion")
 	return "stargazer" // TODO: implement
 }
 
 // `Sha3` returns the keccak-256 hash of the supplied input.
-func (a *api) Sha3(input string) hexutil.Bytes {
+func (api *api) Sha3(input string) hexutil.Bytes {
+	api.logger.Debug("web3_sha3")
 	return crypto.Keccak256(hexutil.Bytes(input))
 }

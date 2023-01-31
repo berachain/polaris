@@ -14,9 +14,17 @@
 
 package eth
 
-type MethodHandler interface {
-	// Method returns the method name
-	Method() string
-	// Handler returns the handler function
-	Handler() interface{}
+import (
+	libtypes "github.com/berachain/stargazer/lib/types"
+	"go.uber.org/zap/zapcore"
+)
+
+// `API` contains the Eth API.
+type api struct {
+	logger libtypes.Logger[zapcore.Field]
+}
+
+// `NewAPI` returns a new `API` object.
+func NewAPI() *api { //nolint: revive // by design.
+	return &api{}
 }
