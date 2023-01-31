@@ -32,10 +32,12 @@ func New(config server.Config, clientCtx client.Context) *Service {
 }
 
 // `Start` starts the service.
-func (s *Service) Start(errCh chan error) {
+func (s *Service) Start() chan error {
+	errCh := make(chan error)
 	// 1. Build CosmosClient to connect to node
 	// TODO: implement
 
 	// 2. Setup JSONRPC Server to provide endpoint
 	s.server.Start(errCh)
+	return errCh
 }

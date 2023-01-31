@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/berachain/stargazer/jsonrpc/api"
-	"github.com/berachain/stargazer/jsonrpc/api/node"
 	"github.com/cosmos/cosmos-sdk/client"
 
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
@@ -52,11 +51,11 @@ func (s *Service) Start(errCh chan error) {
 		WriteTimeout: time.Second, // s.config.rpc.HTTPTimeout,
 	}
 
-	// TODO: move these to a proper spot
-	if err := s.RegisterService(&node.Service{}); err != nil {
-		errCh <- err
-		return
-	}
+	// // TODO: move these to a proper spot
+	// if err := s.RegisterService(node.NewAPI()); err != nil {
+	// 	errCh <- err
+	// 	return
+	// }
 
 	httpSrvDone := make(chan struct{}, 1)
 	if err := httpSrv.ListenAndServe(); err != nil {

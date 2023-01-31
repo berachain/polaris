@@ -36,9 +36,9 @@ var rootCmd = &cobra.Command{
 	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
 	Short: "Foundry contract generator",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		errCh := make(chan error)
-		ctx := client.GetClientContextFromCmd(cmd)
-		go jsonrpc.New(*server.DefaultConfig(), ctx).Start(errCh)
-		return <-errCh
+		return <-jsonrpc.New(
+			*server.DefaultConfig(),
+			client.GetClientContextFromCmd(cmd),
+		).Start()
 	},
 }

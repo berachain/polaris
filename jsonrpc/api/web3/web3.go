@@ -12,26 +12,27 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package node
+package web3
 
-// `API` is the node API.
+import (
+	"github.com/berachain/stargazer/lib/common/hexutil"
+	"github.com/berachain/stargazer/lib/crypto"
+)
+
+// `API` the Web3 API.
 type api struct{}
 
+// `NewAPI` returns a new `API` object.
 func NewAPI() *api { //nolint: revive // by design.
 	return &api{}
 }
 
-// `Namespace` impements the api.Service interface.
-func (api) Namespace() string {
-	return "node"
+// `ClientVersion` returns the client version.
+func (a *api) ClientVersion() string {
+	return "stargazer" // TODO: implement
 }
 
-// `Health` returns if the stargazer node is healthy.
-func (api) Health() string {
-	return "ok" // todo query the node status
-}
-
-// `RPCHealth` returns if the rpc server is healthy.
-func (api) RPCHealth() string {
-	return "ok"
+// `Sha3` returns the keccak-256 hash of the supplied input.
+func (a *api) Sha3(input string) hexutil.Bytes {
+	return crypto.Keccak256(hexutil.Bytes(input))
 }

@@ -12,26 +12,31 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package node
+package web3
 
-// `API` is the node API.
-type api struct{}
+import (
+	"testing"
 
-func NewAPI() *api { //nolint: revive // by design.
-	return &api{}
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestWeb3(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "web3")
 }
 
-// `Namespace` impements the api.Service interface.
-func (api) Namespace() string {
-	return "node"
-}
-
-// `Health` returns if the stargazer node is healthy.
-func (api) Health() string {
-	return "ok" // todo query the node status
-}
-
-// `RPCHealth` returns if the rpc server is healthy.
-func (api) RPCHealth() string {
-	return "ok"
-}
+var _ = Describe("Web3", func() {
+	api := NewAPI()
+	When("ClientVersion", func() {
+		It("should return the correct client version", func() {
+			Expect(api.ClientVersion()).To(Equal("stargazer"))
+		})
+	})
+	When("Sha3", func() {
+		It("should return the correct hash", func() {
+			Expect(api.Sha3("bing bong").String()).
+				To(Equal("0x5a38a1379b46de450b1455628645a564ea35034dd036427fbf0dc33199d81c05"))
+		})
+	})
+})
