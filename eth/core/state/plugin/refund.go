@@ -72,5 +72,5 @@ func (r *refund) RevertToSnapshot(snap int) {
 	r.PopToSize(snap)
 }
 
-// `Write` implements `libtypes.Controllable`.
-func (r *refund) Write() {}
+// `Finalize` implements `libtypes.Controllable`.
+func (r *refund) Finalize() {}

@@ -72,7 +72,7 @@ var _ = Describe("Snapmulti Store", func() {
 		Expect(evmStoreCache.Get(byte1)).To(Equal(byte1))
 		Expect(accStoreCache.Get(byte1)).To(Equal(byte1))
 
-		cms.Write()
+		cms.Finalize()
 
 		Expect(evmStoreParent.Get(byte1)).To(Equal(byte1))
 		Expect(evmStoreParent.Get(byte1)).To(Equal(byte1))
@@ -119,11 +119,11 @@ var _ = Describe("Snapmulti Store", func() {
 			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte1))
 		})
 
-		It("should write properly", func() {
+		It("should finalize properly", func() {
 			cms.GetKVStore(accStoreKey).Set(byte1, []byte{2})
 			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{2}))
 
-			cms.Write()
+			cms.Finalize()
 			Expect(accStoreParent.Get(byte1)).To(Equal([]byte{2}))
 		})
 	})

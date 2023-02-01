@@ -59,6 +59,12 @@ func (s *store) RegistryKey() string {
 	return storeRegistryKey
 }
 
+// `GetCommittedKVStore` returns the KV Store from the given Multistore. This function follows
+// the Multistore's normal `GetKVStore` code path.
+func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore {
+	return s.MultiStore.GetKVStore(key)
+}
+
 // `GetKVStore` shadows the SDK's `storetypes.MultiStore` function. Routes native module calls to
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
@@ -79,12 +85,6 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return cms[key]
 }
 
-// `GetCommittedKVStore` returns the KV Store from the given Multistore. This function follows
-// the Multistore's normal `GetKVStore` code path.
-func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore {
-	return s.MultiStore.GetKVStore(key)
-}
-
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (s *store) Snapshot() int {
 	var cms cachemultistore
@@ -99,11 +99,8 @@ func (s *store) Snapshot() int {
 		revision[key] = utils.MustGetAs[storetypes.CacheKVStore](cacheKVStore.CacheWrap())
 	}
 
-	// defer pushing to the journal stack so that we return the size BEFORE snapshot
-	defer func() {
-		s.journal.Push(revision)
-	}()
-	return s.journal.Size()
+	// push the revision to the journal and return the size BEFORE snapshot
+	return s.journal.Push(revision) - 1
 }
 
 // `Revert` implements `libtypes.Snapshottable`.
@@ -112,11 +109,11 @@ func (s *store) RevertToSnapshot(id int) {
 	s.journal.PopToSize(id)
 }
 
-// `Write` commits each of the individual cachekv stores to its corresponding parent cachekv stores
+// `Finalize` commits each of the individual cachekv stores to its corresponding parent cachekv stores
 // in the journal. Finally it commits the root cachekv stores.
 //
-// `Write` implements Cosmos SDK `storetypes.CacheMultiStore`.
-func (s *store) Write() {
+// `Finalize` implements `libtypes.Controllable`.
+func (s *store) Finalize() {
 	// write each cachekv store in the journal to its parent
 	revision := s.journal.Peek()
 	for ; s.journal.Size() > 0; revision = s.journal.Pop() {

@@ -95,5 +95,5 @@ func (l *logs) RevertToSnapshot(i int) {
 	l.txHashToLogs[l.currentTxHash].PopToSize(i)
 }
 
-// `Write` implements `libtypes.Controllable`.
-func (l *logs) Write() {}
+// `Finalize` implements `libtypes.Controllable`.
+func (l *logs) Finalize() {}

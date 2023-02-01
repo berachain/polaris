@@ -388,8 +388,3 @@ func (sp *statePlugin) DeleteSuicides(suicides []common.Address) {
 		sp.ak.RemoveAccount(sp.ctx, acct)
 	}
 }
-
-// // `Write` implements `libtypes.Controllable`.
-// func (sp *statePlugin) Write() {
-// 	sp.Controller.Finalize()
-// }

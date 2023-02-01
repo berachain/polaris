@@ -124,6 +124,11 @@ var _ = Describe("Controller", func() {
 							Expect(snaps["object1"]).To(Equal(12))
 							Expect(snaps["object2"]).To(Equal(7))
 						})
+						It("should correctly finalize", func() {
+							ctrl.Finalize()
+							Expect(len(object1.FinalizeCalls())).To(Equal(1))
+							Expect(len(object2.FinalizeCalls())).To(Equal(1))
+						})
 						When("we call revert on the controller", func() {
 							It("should have the correct historical revisions", func() {
 								ctrl.RevertToSnapshot(2)

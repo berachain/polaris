@@ -191,7 +191,7 @@ var _ = Describe("StateDB", func() {
 
 			When("state is committed", func() {
 				BeforeEach(func() {
-					sp.Write()
+					sp.Finalize()
 					It("should have committed state", func() {
 						Expect(sp.GetCommittedState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
 					})

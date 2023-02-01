@@ -137,14 +137,14 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 // Snapshot
 // =============================================================================
 
-// `RevertToSnapshot` implements `StateDB`.
-func (sdb *StateDB) RevertToSnapshot(id int) {
-	sdb.ctrl.RevertToSnapshot(id)
-}
-
 // `Snapshot` implements `StateDB`.
 func (sdb *StateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
+}
+
+// `RevertToSnapshot` implements `StateDB`.
+func (sdb *StateDB) RevertToSnapshot(id int) {
+	sdb.ctrl.RevertToSnapshot(id)
 }
 
 // =============================================================================

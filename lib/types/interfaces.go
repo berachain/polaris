@@ -59,14 +59,16 @@ type Registry[K comparable, T Registrable[K]] interface {
 type Controllable[K comparable] interface {
 	Snapshottable
 	Registrable[K]
-
-	Write()
+	Finalizeable
 }
 
 // `Controller` is an interface for controller types.
 type Controller[K comparable, T Controllable[K]] interface {
 	Snapshottable
 	Registry[K, T]
+	Finalizeable
+}
 
+type Finalizeable interface {
 	Finalize()
 }
