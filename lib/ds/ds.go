@@ -42,6 +42,9 @@ type Stack[Item any] interface {
 
 	// `Capacity` returns the size of the allocated buffer for the stack.
 	Capacity() int
+
+	// `Slice` returns the stack in the form of a slice.
+	Slice() []Item
 }
 
 // `CloneableStack` is an interface that extends `Stack` to allow for deep copying.

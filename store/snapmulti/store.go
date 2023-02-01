@@ -28,29 +28,29 @@ const (
 	initJournalCapacity = 32
 )
 
-// `cachemultistore` represents a cached multistore, which is just a map of store keys to its
+// `cacheMultiStore` represents a cached multistore, which is just a map of store keys to its
 // corresponding cache kv store currently being used.
-type cachemultistore map[storetypes.StoreKey]storetypes.CacheKVStore
+type cacheMultiStore map[storetypes.StoreKey]storetypes.CacheKVStore
 
 // `store` is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
 // It journals revisions by cache-wrapping the cachekv stores on a call to `Snapshot`. In this
 // store's lifecycle, any operations done before the first call to snapshot will be enforced on the
-// root `cachemultistore`.
+// root `cacheMultiStore`.
 type store struct {
 	storetypes.MultiStore
 
-	// root is the cachemultistore used before the first snapshot is called
-	root cachemultistore
+	// root is the cacheMultiStore used before the first snapshot is called
+	root cacheMultiStore
 	// journal holds the snapshots of cachemultistores
-	journal ds.Stack[cachemultistore]
+	journal ds.Stack[cacheMultiStore]
 }
 
 // `NewStoreFrom` creates and returns a new `store` from a given Multistore `ms`.
 func NewStoreFrom(ms storetypes.MultiStore) *store { //nolint:revive // its okay.
 	return &store{
 		MultiStore: ms,
-		root:       make(cachemultistore),
-		journal:    stack.New[cachemultistore](initJournalCapacity),
+		root:       make(cacheMultiStore),
+		journal:    stack.New[cacheMultiStore](initJournalCapacity),
 	}
 }
 
@@ -69,7 +69,7 @@ func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore 
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
 func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
-	var cms cachemultistore
+	var cms cacheMultiStore
 	if cms = s.journal.Peek(); cms == nil {
 		// use root if the journal is empty
 		cms = s.root
@@ -80,21 +80,21 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 		return cacheKVStore
 	}
 
-	// get kvstore from cachemultistore and set cachekv to memory
+	// get kvstore from cacheMultiStore and set cachekv to memory
 	cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
 	return cms[key]
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (s *store) Snapshot() int {
-	var cms cachemultistore
+	var cms cacheMultiStore
 	if cms = s.journal.Peek(); cms == nil {
 		// use root if the journal is empty
 		cms = s.root
 	}
 
 	// build revision of cms by cachewrapping each cachekv store
-	revision := make(cachemultistore)
+	revision := make(cacheMultiStore)
 	for key, cacheKVStore := range cms {
 		revision[key] = utils.MustGetAs[storetypes.CacheKVStore](cacheKVStore.CacheWrap())
 	}

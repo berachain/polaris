@@ -68,8 +68,8 @@ func (r *refund) Snapshot() int {
 // `RevertToSnapshot` reverts the refund counter to the value at the given `snap`.
 //
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (r *refund) RevertToSnapshot(snap int) {
-	r.PopToSize(snap)
+func (r *refund) RevertToSnapshot(id int) {
+	r.PopToSize(id)
 }
 
 // `Finalize` implements `libtypes.Controllable`.

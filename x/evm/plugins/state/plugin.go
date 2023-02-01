@@ -28,6 +28,7 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/store/snapmulti"
 	"github.com/berachain/stargazer/x/evm/constants"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 )
 
 const pluginRegistryKey = `statePlugin`
@@ -63,12 +64,13 @@ var (
 type statePlugin struct {
 	libtypes.Controller[string, libtypes.Controllable[string]]
 
+	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
+	cms ControllableMultiStore
+
 	// We maintain a context in the StateDB, so that we can pass it with the correctly
 	// configured multi-store to the precompiled contracts.
 	ctx sdk.Context
-
-	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
-	cms ControllableMultiStore
+	cc  sdk.Context
 
 	// Store the evm store key for quick lookups to the evm store
 	evmStoreKey storetypes.StoreKey
@@ -90,26 +92,30 @@ func NewPlugin(
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
 ) (ethstate.StatePlugin, error) {
-	sp := &statePlugin{
-		ak:          ak,
-		bk:          bk,
-		evmDenom:    evmDenom,
-		evmStoreKey: evmStoreKey,
-	}
-
-	// wire up the `ControllableMultiStore` and `sdk.Context`
-	sp.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
-	sp.ctx = ctx.WithMultiStore(sp.cms)
+	// setup the Controllable MultiStore and EventManager
+	cms := snapmulti.NewStoreFrom(ctx.MultiStore())
+	cem := events.NewControllableManagerFrom(ctx)
 
 	// setup the snapshot controller
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	err := ctrl.Register(sp.cms)
+	err := ctrl.Register(cms)
 	if err != nil {
 		return nil, err
 	}
-	sp.Controller = ctrl
+	err = ctrl.Register(cem)
+	if err != nil {
+		return nil, err
+	}
 
-	return sp, nil
+	return &statePlugin{
+		Controller:  ctrl,
+		cms:         cms,
+		ctx:         ctx.WithMultiStore(cms).WithEventManager(cem),
+		evmStoreKey: evmStoreKey,
+		ak:          ak,
+		bk:          bk,
+		evmDenom:    evmDenom,
+	}, nil
 }
 
 func (sp *statePlugin) RegistryKey() string {
@@ -131,7 +137,7 @@ func (sp *statePlugin) CreateAccount(addr common.Address) {
 	acc := sp.ak.NewAccountWithAddress(sp.ctx, addr[:])
 
 	// save the new account in the account keeper
-	sp.ak.SetAccount(sp.ctx, acc)
+	sp.ak.SetAccount(sp.cc, acc)
 
 	// initialize the code hash to empty
 	sp.cms.GetKVStore(sp.evmStoreKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
@@ -314,8 +320,7 @@ func (sp *statePlugin) getStateFromStore(
 	return common.Hash{}
 }
 
-// `SetState` implements the `GethStateDB` interface by setting the state of an
-// address.
+// `SetState` sets the state of an address.
 func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
 	// For performance reasons, we don't check to ensure the account exists before we execute.
 	// This is reasonably safe since under normal operation, SetState is only ever called by the

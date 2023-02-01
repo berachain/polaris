@@ -91,8 +91,8 @@ func (l *logs) Snapshot() int {
 // `RevertToSnapshot` reverts the `Logs` store to a given snapshot.
 //
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (l *logs) RevertToSnapshot(i int) {
-	l.txHashToLogs[l.currentTxHash].PopToSize(i)
+func (l *logs) RevertToSnapshot(id int) {
+	l.txHashToLogs[l.currentTxHash].PopToSize(id)
 }
 
 // `Finalize` implements `libtypes.Controllable`.
