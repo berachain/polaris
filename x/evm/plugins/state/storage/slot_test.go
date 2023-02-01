@@ -12,26 +12,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types_test
+package storage_test
 
 import (
 	"math/rand"
 
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
+	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("x/evm/plugins/state/types", func() {
-	var state types.State
+	var state storage.Slot
 	key := common.Hash{}.Bytes()
 	value := common.Hash{}.Bytes()
 
 	BeforeEach(func() {
 		rand.Read(key)
 		rand.Read(value)
-		state = types.NewState(common.BytesToHash(key), common.BytesToHash(value))
+		state = storage.NewSlot(common.BytesToHash(key), common.BytesToHash(value))
 	})
 
 	It("should return the correct key", func() {

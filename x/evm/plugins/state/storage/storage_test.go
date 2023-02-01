@@ -12,11 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types_test
+package storage_test
 
 import (
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
+	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -24,54 +24,54 @@ import (
 var _ = Describe("StorageTest", func() {
 	When("storage is empty", func() {
 		It("should not return an error", func() {
-			storage := types.Storage{}
+			storage := storage.Slots{}
 			Expect(storage.ValidateBasic()).To(BeNil())
 		})
 	})
 	When("storage is not empty", func() {
-		var storage types.Storage
+		var slots storage.Slots
 
 		BeforeEach(func() {
-			storage = types.Storage{
-				types.NewState(common.BytesToHash([]byte{1, 2, 3}), common.BytesToHash([]byte{1, 2, 3})),
+			slots = storage.Slots{
+				storage.NewSlot(common.BytesToHash([]byte{1, 2, 3}), common.BytesToHash([]byte{1, 2, 3})),
 			}
 		})
 
 		It("should not return an error", func() {
-			Expect(storage.ValidateBasic()).To(BeNil())
+			Expect(slots.ValidateBasic()).To(BeNil())
 		})
 
 		When("a storage key is empty", func() {
 			BeforeEach(func() {
-				storage[0].Key = ""
+				slots[0].Key = ""
 			})
 
 			It("should return an error", func() {
-				Expect(storage.ValidateBasic()).NotTo(BeNil())
+				Expect(slots.ValidateBasic()).NotTo(BeNil())
 			})
 		})
 
 		It("should be Cloneable", func() {
-			clone := storage.Clone()
-			Expect(clone).To(Equal(storage))
-			Expect(clone).NotTo(BeIdenticalTo(storage))
+			clone := slots.Clone()
+			Expect(clone).To(Equal(slots))
+			Expect(clone).NotTo(BeIdenticalTo(slots))
 		})
 
 		When("a storage key is duplicated", func() {
 			BeforeEach(func() {
-				storage = append(storage, types.NewState(
+				slots = append(slots, storage.NewSlot(
 					common.BytesToHash([]byte{1, 2, 3}),
 					common.BytesToHash([]byte{1, 2, 3}),
 				))
 			})
 
 			It("should return an error", func() {
-				Expect(storage.ValidateBasic()).NotTo(BeNil())
+				Expect(slots.ValidateBasic()).NotTo(BeNil())
 			})
 		})
 
 		It("should be printable", func() {
-			Expect(storage.String()).To(ContainSubstring("key:" +
+			Expect(slots.String()).To(ContainSubstring("key:" +
 				"\"0x0000000000000000000000000000000000000000000000000000000000010203\" value:" +
 				"\"0x0000000000000000000000000000000000000000000000000000000000010203\"",
 			))
