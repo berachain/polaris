@@ -17,7 +17,6 @@ package params
 import "github.com/ethereum/go-ethereum/params"
 
 type (
-	// `ChainConfig` is the core config which determines the blockchain settings.
 	EthChainConfig = params.ChainConfig
 	Rules          = params.Rules
 )
