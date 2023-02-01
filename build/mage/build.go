@@ -42,14 +42,14 @@ var (
 	moq = "github.com/matryer/moq"
 
 	// Variables and Helpers.
-	cmds       = []string{""}
+	cmds       = []string{"jsonrpc"}
 	production = false
 	statically = false
 )
 
 // Runs a series of commonly used commands.
 func All() error {
-	cmds := []func() error{ForgeBuild, Generate, Format, Proto, Lint, Test}
+	cmds := []func() error{Build, ForgeBuild, Generate, Format, Proto, Lint, Test}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err
@@ -100,6 +100,28 @@ func BuildRelease() error {
 	}
 
 	return Build()
+}
+
+func BuildJSONRPC() error {
+	PrintMageName()
+	production = true
+	statically = false
+
+	// Verify dependencies.
+	if err := goModVerify(); err != nil {
+		return err
+	}
+
+	args := []string{
+		"-o", generateOutDirectory("jsonrpc"),
+		generateCmdToBuild("jsonrpc"),
+	}
+
+	if err := goBuild(args...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Runs `go install` on the entire project.
