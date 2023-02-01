@@ -23,8 +23,10 @@ import (
 )
 
 type ControllableMultiStore interface {
-	storetypes.CacheMultiStore
 	libtypes.Controllable[string]
+
+	storetypes.CacheMultiStore
+	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
 }
 
 // `AccountKeeper` defines the expected account keeper.

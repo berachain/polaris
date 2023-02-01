@@ -24,7 +24,6 @@ import (
 	ethstate "github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
-	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/store/snapmulti"
 	. "github.com/berachain/stargazer/x/evm/plugins/state/types" //nolint:revive,stylecheck // own package types.
 )
@@ -293,14 +292,7 @@ func (sp *statePlugin) GetCommittedState(
 	addr common.Address,
 	slot common.Hash,
 ) common.Hash {
-	return sp.getStateFromStore(
-		utils.MustGetPrivateFieldByName[storetypes.KVStore](
-			sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey),
-			"parent",
-		),
-		addr,
-		slot,
-	)
+	return sp.getStateFromStore(sp.GetCommittedKVStore(sp.evmStoreKey), addr, slot)
 }
 
 // `GetState` implements the `GethStateDB` interface by returning the current state

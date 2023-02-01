@@ -46,7 +46,7 @@ type store struct {
 	journal ds.Stack[cachemultistore]
 }
 
-// `NewStoreFrom` creates and returns a new `store` from a given MultiStore.
+// `NewStoreFrom` creates and returns a new `store` from a given Multistore `ms`.
 func NewStoreFrom(ms storetypes.MultiStore) ControllableMultiStore {
 	return &store{
 		MultiStore: ms,
@@ -76,8 +76,13 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	}
 
 	// get kvstore from cachemultistore and set cachekv to memory
-	cms[key] = cachekv.NewStore(s.MultiStore.GetKVStore(key))
+	cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
 	return cms[key]
+}
+
+// `GetCommittedKVStore` returns the KV Store from the given Multistore.
+func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore {
+	return s.MultiStore.GetKVStore(key)
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
