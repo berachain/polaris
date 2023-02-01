@@ -17,11 +17,10 @@ package mage
 import mi "github.com/berachain/stargazer/build/mage/internal"
 
 var (
-	// Commands
+	// Commands.
 	dockerBuild = mi.RunCmdV("docker", "build", "--rm=false")
-	dockerRun   = mi.RunCmdV("docker", "run", "--rm", "-v")
 
-	// Variables
+	// Variables.
 	baseDockerPath         = "./build/docker/"
 	beradDockerPath        = baseDockerPath + "berad.Dockerfile"
 	jsonrpcDockerPath      = "./jsonrpc/docker/Dockerfile"

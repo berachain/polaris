@@ -42,7 +42,7 @@ var (
 	moq = "github.com/matryer/moq"
 
 	// Variables and Helpers.
-	cmds       = []string{"jsonrpc"}
+	cmds       = []string{"jsonrpcd"}
 	production = false
 	statically = false
 )
@@ -113,8 +113,8 @@ func BuildJSONRPC() error {
 	}
 
 	args := []string{
-		"-o", generateOutDirectory("jsonrpc"),
-		generateCmdToBuild("jsonrpc"),
+		"-o", generateOutDirectory("jsonrpcd"),
+		generateCmdToBuild("jsonrpcd"),
 	}
 
 	if err := goBuild(args...); err != nil {
