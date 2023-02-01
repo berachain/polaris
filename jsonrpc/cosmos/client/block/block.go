@@ -32,17 +32,17 @@ type Client struct {
 	// `logger` is the logger instance.
 	logger libtypes.Logger[zap.Field]
 	// `cbCtx` is the `CometBlockClient` context.
-	cbCtx CometBlockClient
+	cbc CometBlockClient
 }
 
 // `NewClient` creates a new `Client` instance.
-func NewClient(cbCtx CometBlockClient) Client {
-	return Client{cbCtx: cbCtx}
+func NewClient(cbc CometBlockClient) Client {
+	return Client{cbc: cbc}
 }
 
 // `LatestBlockNumber` returns the the latest block number as reported at the application layer.
 func (c *Client) LatestBlockNumber() (uint64, error) {
-	res, err := c.cbCtx.ABCIInfo(c.ctx)
+	res, err := c.cbc.ABCIInfo(c.ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -60,7 +60,7 @@ func (c *Client) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock, erro
 		height = int64(n)
 	}
 
-	resBlock, err := c.cbCtx.Block(c.ctx, &height)
+	resBlock, err := c.cbc.Block(c.ctx, &height)
 	if err != nil {
 		c.logger.Debug("CometBlockClient client failed to get block",
 			zap.Int64("height", height), zap.String("error", err.Error()))
