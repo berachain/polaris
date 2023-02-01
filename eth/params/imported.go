@@ -17,11 +17,15 @@ package params
 import "github.com/ethereum/go-ethereum/params"
 
 type (
+	// `ChainConfig` is the core config which determines the blockchain settings.
 	EthChainConfig = params.ChainConfig
 	Rules          = params.Rules
 )
 
 var (
-	RefundQuotient        = params.RefundQuotient
+	// `RefundQuotient` is the refund quotient parameter.
+	RefundQuotient = params.RefundQuotient
+
+	// `RefundQuotientEIP3529` is the refund quotient parameter for EIP-3529.
 	RefundQuotientEIP3529 = params.RefundQuotientEIP3529
 )
