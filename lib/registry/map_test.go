@@ -15,19 +15,12 @@
 package registry_test
 
 import (
-	"testing"
-
 	"github.com/berachain/stargazer/lib/registry"
 	"github.com/berachain/stargazer/lib/registry/mock"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
-func TestRegister(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "lib/registry")
-}
 
 var _ = Describe("Registry", func() {
 	var r libtypes.Registry[string, libtypes.Registrable[string]]
