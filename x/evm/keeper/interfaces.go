@@ -12,19 +12,18 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package params
+package keeper
 
-import "github.com/ethereum/go-ethereum/params"
-
-type (
-	EthChainConfig = params.ChainConfig
-	Rules          = params.Rules
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-var (
-	// `RefundQuotient` is the refund quotient parameter.
-	RefundQuotient = params.RefundQuotient
+// `StakingKeeper` is the interface that the EVM module needs from the staking module.
+type StakingKeeper interface {
+	// `GetValidatorByConsAddr` returns the validator for a given consensus address.
+	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (stakingtypes.ValidatorI, bool)
 
-	// `RefundQuotientEIP3529` is the refund quotient parameter for EIP-3529.
-	RefundQuotientEIP3529 = params.RefundQuotientEIP3529
-)
+	// `GetHistoricalInfo` returns the historical info for a given height.
+	GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool)
+}
