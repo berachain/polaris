@@ -52,7 +52,6 @@ type StatePlugin interface { //nolint:revive // vibes.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
 
 	DeleteSuicides([]common.Address)
-	Finalize()
 }
 
 type LogsPlugin interface {

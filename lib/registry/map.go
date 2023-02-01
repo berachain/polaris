@@ -15,8 +15,6 @@
 package registry
 
 import (
-	"fmt"
-
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
@@ -37,12 +35,8 @@ func NewMap[K comparable, T libtypes.Registrable[K]]() *mapRegistry[K, T] {
 }
 
 // `Get` returns an item using its ID.
-func (mr *mapRegistry[K, T]) Get(id K) (T, error) {
-	item, ok := mr.items[id]
-	if !ok {
-		return item, fmt.Errorf("item %v not found", id)
-	}
-	return item, nil
+func (mr *mapRegistry[K, T]) Get(id K) T {
+	return mr.items[id]
 }
 
 // `Register` adds an item to the registry.
@@ -56,12 +50,8 @@ func (mr *mapRegistry[K, T]) Register(item T) error {
 }
 
 // `Remove` removes an item from the registry.
-func (mr *mapRegistry[K, T]) Remove(id K) error {
-	if _, ok := mr.items[id]; !ok {
-		return fmt.Errorf("item %v not found", id)
-	}
+func (mr *mapRegistry[K, T]) Remove(id K) {
 	delete(mr.items, id)
-	return nil
 }
 
 // `Exists` returns true if the item exists in the registry.

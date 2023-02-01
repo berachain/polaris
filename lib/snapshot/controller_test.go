@@ -49,8 +49,7 @@ var _ = Describe("Controller", func() {
 			Expect(err).To(BeNil())
 		})
 		It("should add the object", func() {
-			obj, err := ctrl.Get("object1")
-			Expect(err).To(BeNil())
+			obj := ctrl.Get("object1")
 			Expect(obj).To(Equal(object1))
 		})
 		When("adding a new object with the same name", func() {
@@ -62,8 +61,7 @@ var _ = Describe("Controller", func() {
 
 		When("calling Get on an uncontrolled object", func() {
 			It("should return nil", func() {
-				obj, err := ctrl.Get("object2")
-				Expect(err.Error()).To(Equal("item object2 not found"))
+				obj := ctrl.Get("object2")
 				Expect(obj).To(BeNil())
 			})
 		})

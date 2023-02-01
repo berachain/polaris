@@ -15,6 +15,7 @@
 package plugin
 
 import (
+	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
@@ -31,7 +32,7 @@ type refund struct {
 }
 
 // `NewRefund` creates and returns a `refund`.
-func NewRefund() *refund { //nolint: revive // its ok.
+func NewRefund() state.RefundPlugin {
 	return &refund{
 		Stack: stack.New[uint64](initCapacity),
 	}
@@ -71,6 +72,5 @@ func (r *refund) RevertToSnapshot(snap int) {
 	r.PopToSize(snap)
 }
 
-func (r *refund) Finalize() error {
-	return nil
-}
+// `Write` implements `libtypes.Controllable`.
+func (r *refund) Write() {}

@@ -39,14 +39,14 @@ type Registrable[K comparable] interface {
 // `Registry` is an interface that all objects that can be used as a registry
 // must implement.
 type Registry[K comparable, T Registrable[K]] interface {
-	// Get return an item using its ID.
-	Get(K) (T, error)
+	// Get return an item using its ID. It returns nil if the ID does not exist.
+	Get(K) T
 
 	// Register adds an item to the registry.
 	Register(T) error
 
 	// Remove removes an item from the registry.
-	Remove(K) error
+	Remove(K)
 
 	// Exists returns true if the item exists in the registry.
 	Exists(K) bool

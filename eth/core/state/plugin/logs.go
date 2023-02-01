@@ -15,6 +15,7 @@
 package plugin
 
 import (
+	"github.com/berachain/stargazer/eth/core/state"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/ds"
@@ -39,7 +40,7 @@ type logs struct {
 }
 
 // `NewLogs` returns a new `Logs` store.
-func NewLogs() *logs { //nolint:revive // only used as LogsPlugin interface.
+func NewLogs() state.LogsPlugin {
 	return &logs{
 		txHashToLogs:  make(map[common.Hash]ds.Stack[*coretypes.Log]),
 		currentTxHash: common.Hash{},
@@ -94,6 +95,5 @@ func (l *logs) RevertToSnapshot(i int) {
 	l.txHashToLogs[l.currentTxHash].PopToSize(i)
 }
 
-func (l *logs) Finalize() error {
-	return nil
-}
+// `Write` implements `libtypes.Controllable`.
+func (l *logs) Write() {}

@@ -43,8 +43,8 @@ func NewController[K comparable, T libtypes.Controllable[K]]() libtypes.Controll
 // `Snapshot` returns the current snapshot number.
 func (c *controller[K, T]) Snapshot() int {
 	snap := make(map[K]int)
-	for key, store := range c.Iterate() {
-		snap[key] = store.Snapshot()
+	for key, controllable := range c.Iterate() {
+		snap[key] = controllable.Snapshot()
 	}
 	c.journal.Push(snap)
 
@@ -55,18 +55,18 @@ func (c *controller[K, T]) Snapshot() int {
 // the given `snap` number.
 func (c *controller[K, T]) RevertToSnapshot(id int) {
 	lastestSnapshot := c.journal.Peek()
-	for key, store := range c.Iterate() {
+	for key, controllable := range c.Iterate() {
 		// Only revert if exists. This is to handle the case where a `libtypes.Controllable` object
 		// is added after a snapshot has been taken.
 		if revision, ok := lastestSnapshot[key]; ok {
-			store.RevertToSnapshot(revision)
+			controllable.RevertToSnapshot(revision)
 		}
 	}
 	c.journal.PopToSize(id)
 }
 
 func (c *controller[K, T]) Finalize() {
-	for _, store := range c.Iterate() {
-		store.Write()
+	for _, controllable := range c.Iterate() {
+		controllable.Write()
 	}
 }

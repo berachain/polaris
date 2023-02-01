@@ -18,8 +18,9 @@ import (
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
-	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
+	. "github.com/berachain/stargazer/x/evm/plugins/state/types" //nolint:revive,stylecheck // own package types.
+
+	"github.com/cosmos/cosmos-sdk/store/cachekv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
@@ -28,81 +29,105 @@ const (
 	initJournalCapacity = 32
 )
 
-// Compile-time check to ensure `Store` implements `storetypes.CacheMultiStore`.
-var _ types.ControllableMultiStore = (*Store)(nil)
+// `cachemultistore` represents a cached multistore, which is just a map of store keys to its
+// corresponding cache kv store currently being used.
+type cachemultistore map[storetypes.StoreKey]storetypes.CacheKVStore
 
-// `Store` is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
-// It journal revisions by cache-wrapping the cachekv journal on a call to `Snapshot`.
-type Store struct {
+// `store` is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
+// It journals revisions by cache-wrapping the cachekv stores on a call to `Snapshot`. In this
+// store's lifecycle, any operations done before the first call to snapshot will be enforced on the
+// root `cachemultistore`.
+type store struct {
 	storetypes.MultiStore
-	journal ds.Stack[map[storetypes.StoreKey]storetypes.CacheKVStore]
+
+	// root is the cachemultistore used before the first snapshot is called
+	root cachemultistore
+	// journal holds the snapshots of cachemultistores
+	journal ds.Stack[cachemultistore]
 }
 
-// `NewStoreFrom` creates and returns a new `Store` from a given MultiStore.
-func NewStoreFrom(ms storetypes.MultiStore) *Store {
-	journal := stack.New[map[storetypes.StoreKey]storetypes.CacheKVStore](initJournalCapacity)
-	journal.Push(make(map[storetypes.StoreKey]storetypes.CacheKVStore))
-	return &Store{
+// `NewStoreFrom` creates and returns a new `store` from a given MultiStore.
+func NewStoreFrom(ms storetypes.MultiStore) ControllableMultiStore {
+	return &store{
 		MultiStore: ms,
-		journal:    journal,
+		root:       make(cachemultistore),
+		journal:    stack.New[cachemultistore](initJournalCapacity),
 	}
 }
 
-func (s *Store) RegistryKey() string {
+// `RegistryKey` implements `libtypes.Registrable`.
+func (s *store) RegistryKey() string {
 	return storeRegistryKey
 }
 
 // `GetKVStore` shadows the SDK's `storetypes.MultiStore` function. Routes native module calls to
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
-func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
+func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
+	var cms cachemultistore
+	if cms = s.journal.Peek(); cms == nil {
+		// use root if the journal is empty
+		cms = s.root
+	}
+
 	// check if cache kv store already used
-	curr := s.journal.Peek()
-	if cacheKVStore, exists := curr[key]; exists {
+	if cacheKVStore, found := cms[key]; found {
 		return cacheKVStore
 	}
 
 	// get kvstore from cachemultistore and set cachekv to memory
-	curr[key] = sdkcachekv.NewStore(s.MultiStore.GetKVStore(key))
-	return curr[key]
+	cms[key] = cachekv.NewStore(s.MultiStore.GetKVStore(key))
+	return cms[key]
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
-func (s *Store) Snapshot() int {
-	curr := s.journal.Peek()
-	next := make(map[storetypes.StoreKey]storetypes.CacheKVStore)
-	for key := range curr {
-		next[key] = utils.MustGetAs[storetypes.CacheKVStore](curr[key].CacheWrap())
+func (s *store) Snapshot() int {
+	var cms cachemultistore
+	if cms = s.journal.Peek(); cms == nil {
+		// use root if the journal is empty
+		cms = s.root
 	}
-	defer func() {
-		s.journal.Push(next)
-	}()
 
+	// build revision of cms by cachewrapping each cachekv store
+	revision := make(cachemultistore)
+	for key, cacheKVStore := range cms {
+		revision[key] = utils.MustGetAs[storetypes.CacheKVStore](cacheKVStore.CacheWrap())
+	}
+
+	// defer pushing to the journal stack so that we return the size BEFORE snapshot
+	defer func() {
+		s.journal.Push(revision)
+	}()
 	return s.journal.Size()
 }
 
 // `Revert` implements `libtypes.Snapshottable`.
-func (s *Store) RevertToSnapshot(id int) {
+func (s *store) RevertToSnapshot(id int) {
+	// `id` is the new size of the journal we want to maintain.
 	s.journal.PopToSize(id)
-	if id == 0 {
-		s.journal.Push(make(map[storetypes.StoreKey]storetypes.CacheKVStore))
-	}
 }
 
-// `Write` commits each of the individual cachekv journal to its corresponding parent kv journal.
+// `Write` commits each of the individual cachekv stores to its corresponding parent cachekv stores
+// in the journal. Finally it commits the root cachekv stores.
 //
 // `Write` implements Cosmos SDK `storetypes.CacheMultiStore`.
-func (s *Store) Write() {
-	for i := s.journal.Size() - 1; i >= 0; i-- {
-		revision := s.journal.Pop()
-
+func (s *store) Write() {
+	// write each cachekv store in the journal to its parent
+	revision := s.journal.Peek()
+	for ; s.journal.Size() > 0; revision = s.journal.Pop() {
 		// Safe from non-determinism, since order in which
 		// we write to the parent kv journal does not matter.
 		//
 		//#nosec:G705
-		for key, store := range revision {
-			store.Write()
+		for key, cacheKVStore := range revision {
+			cacheKVStore.Write()
 			delete(revision, key)
 		}
+	}
+
+	// write the root
+	for key, cacheKVStore := range s.root {
+		cacheKVStore.Write()
+		delete(s.root, key)
 	}
 }

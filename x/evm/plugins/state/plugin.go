@@ -21,13 +21,12 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	ethstate "github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
-	"github.com/berachain/stargazer/lib/snapshot"
-	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/store/snapmulti"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
+	. "github.com/berachain/stargazer/x/evm/plugins/state/types" //nolint:revive,stylecheck // own package types.
 )
 
 const pluginRegistryKey = `statePlugin`
@@ -61,21 +60,21 @@ var (
 //     EVM account, and so it does not set the codeHash. This is totally fine, we just need to
 //     check both for both the codeHash being 0x000... as well as the codeHash being 0x567...
 type statePlugin struct {
-	libtypes.Controller[string, libtypes.Controllable[string]]
+	// libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// We maintain a context in the StateDB, so that we can pass it with the correctly
 	// configured multi-store to the precompiled contracts.
 	ctx sdk.Context
 
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
-	cms types.ControllableMultiStore
+	ControllableMultiStore
 
 	// Store the evm store key for quick lookups to the evm store
 	evmStoreKey storetypes.StoreKey
 
 	// keepers used for balance and account information.
-	ak types.AccountKeeper
-	bk types.BankKeeper
+	ak AccountKeeper
+	bk BankKeeper
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
@@ -85,11 +84,11 @@ type statePlugin struct {
 // returns a *statePlugin using the MultiStore belonging to ctx.
 func NewPlugin(
 	ctx sdk.Context,
-	ak types.AccountKeeper,
-	bk types.BankKeeper,
+	ak AccountKeeper,
+	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
-) (*statePlugin, error) { //nolint:revive // only used as StatePlugin interface
+) (ethstate.StatePlugin, error) {
 	sp := &statePlugin{
 		ak:          ak,
 		bk:          bk,
@@ -97,17 +96,17 @@ func NewPlugin(
 		evmStoreKey: evmStoreKey,
 	}
 
-	// wire up the `CacheMultiStore` and `sdk.Context`
-	sp.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
-	sp.ctx = ctx.WithMultiStore(sp.cms)
+	// wire up the `ControllableMultiStore` and `sdk.Context`
+	sp.ControllableMultiStore = snapmulti.NewStoreFrom(ctx.MultiStore())
+	sp.ctx = ctx.WithMultiStore(sp.ControllableMultiStore)
 
 	// setup the snapshot controller
-	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	err := ctrl.Register(sp.cms)
-	if err != nil {
-		return nil, err
-	}
-	sp.Controller = ctrl
+	// ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
+	// err := ctrl.Register(sp.ControllableMultiStore)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// sp.Controller = ctrl
 
 	return sp, nil
 }
@@ -134,7 +133,7 @@ func (sp *statePlugin) CreateAccount(addr common.Address) {
 	sp.ak.SetAccount(sp.ctx, acc)
 
 	// initialize the code hash to empty
-	sp.cms.GetKVStore(sp.evmStoreKey).Set(types.CodeHashKeyFor(addr), emptyCodeHashBytes)
+	sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
 // `Exist` implements the `GethStateDB` interface by reporting whether the given account address
@@ -161,13 +160,13 @@ func (sp *statePlugin) AddBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sp.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
-	if err := sp.bk.MintCoins(sp.ctx, types.EvmNamespace, coins); err != nil {
+	if err := sp.bk.MintCoins(sp.ctx, EvmNamespace, coins); err != nil {
 		panic(err)
 	}
 
 	// Send the coins from the evm module account to the destination address.
 	if err := sp.bk.SendCoinsFromModuleToAccount(
-		sp.ctx, types.EvmNamespace, addr[:], coins,
+		sp.ctx, EvmNamespace, addr[:], coins,
 	); err != nil {
 		panic(err)
 	}
@@ -180,13 +179,13 @@ func (sp *statePlugin) SubBalance(addr common.Address, amount *big.Int) {
 
 	// Send the coins from the source address to the evm module account.
 	if err := sp.bk.SendCoinsFromAccountToModule(
-		sp.ctx, addr[:], types.EvmNamespace, coins,
+		sp.ctx, addr[:], EvmNamespace, coins,
 	); err != nil {
 		panic(err)
 	}
 
 	// Burn the coins from the evm module account.
-	if err := sp.bk.BurnCoins(sp.ctx, types.EvmNamespace, coins); err != nil {
+	if err := sp.bk.BurnCoins(sp.ctx, EvmNamespace, coins); err != nil {
 		panic(err)
 	}
 }
@@ -242,7 +241,7 @@ func (sp *statePlugin) SetNonce(addr common.Address, nonce uint64) {
 // the code hash of account.
 func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
 	if sp.ak.HasAccount(sp.ctx, addr[:]) {
-		if ch := sp.cms.GetKVStore(sp.evmStoreKey).Get(types.CodeHashKeyFor(addr)); ch != nil {
+		if ch := sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Get(CodeHashKeyFor(addr)); ch != nil {
 			return common.BytesToHash(ch)
 		}
 		return emptyCodeHash
@@ -260,21 +259,21 @@ func (sp *statePlugin) GetCode(addr common.Address) []byte {
 	if (codeHash == common.Hash{}) || codeHash == emptyCodeHash {
 		return nil
 	}
-	return sp.cms.GetKVStore(sp.evmStoreKey).Get(types.CodeKeyFor(codeHash))
+	return sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Get(CodeKeyFor(codeHash))
 }
 
 // SetCode implements the `GethStateDB` interface by setting the code hash and
 // code for the given account.
 func (sp *statePlugin) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
-	ethStore := sp.cms.GetKVStore(sp.evmStoreKey)
-	ethStore.Set(types.CodeHashKeyFor(addr), codeHash[:])
+	ethStore := sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey)
+	ethStore.Set(CodeHashKeyFor(addr), codeHash[:])
 
 	// store or delete code
 	if len(code) == 0 {
-		ethStore.Delete(types.CodeKeyFor(codeHash))
+		ethStore.Delete(CodeKeyFor(codeHash))
 	} else {
-		ethStore.Set(types.CodeKeyFor(codeHash), code)
+		ethStore.Set(CodeKeyFor(codeHash), code)
 	}
 }
 
@@ -296,7 +295,7 @@ func (sp *statePlugin) GetCommittedState(
 ) common.Hash {
 	return sp.getStateFromStore(
 		utils.MustGetPrivateFieldByName[storetypes.KVStore](
-			sp.cms.GetKVStore(sp.evmStoreKey),
+			sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey),
 			"parent",
 		),
 		addr,
@@ -307,7 +306,7 @@ func (sp *statePlugin) GetCommittedState(
 // `GetState` implements the `GethStateDB` interface by returning the current state
 // of slot in the given address.
 func (sp *statePlugin) GetState(addr common.Address, slot common.Hash) common.Hash {
-	return sp.getStateFromStore(sp.cms.GetKVStore(sp.evmStoreKey), addr, slot)
+	return sp.getStateFromStore(sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey), addr, slot)
 }
 
 // `getStateFromStore` returns the current state of the slot in the given address.
@@ -315,7 +314,7 @@ func (sp *statePlugin) getStateFromStore(
 	store storetypes.KVStore,
 	addr common.Address, slot common.Hash,
 ) common.Hash {
-	if value := store.Get(types.StateKeyFor(addr, slot)); value != nil {
+	if value := store.Get(StateKeyFor(addr, slot)); value != nil {
 		return common.BytesToHash(value)
 	}
 	return common.Hash{}
@@ -334,12 +333,12 @@ func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
 
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sp.cms.GetKVStore(sp.evmStoreKey).Delete(types.StateKeyFor(addr, key))
+		sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Delete(StateKeyFor(addr, key))
 		return
 	}
 
 	// Set the state entry.
-	sp.cms.GetKVStore(sp.evmStoreKey).Set(types.StateKeyFor(addr, key), value[:])
+	sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Set(StateKeyFor(addr, key), value[:])
 }
 
 // =============================================================================
@@ -356,8 +355,8 @@ func (sp *statePlugin) ForEachStorage(
 	cb func(key, value common.Hash) bool,
 ) error {
 	it := sdk.KVStorePrefixIterator(
-		sp.cms.GetKVStore(sp.evmStoreKey),
-		types.AddressStoragePrefix(addr),
+		sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey),
+		AddressStoragePrefix(addr),
 	)
 	defer it.Close()
 
@@ -391,13 +390,14 @@ func (sp *statePlugin) DeleteSuicides(suicides []common.Address) {
 			})
 
 		// clear the codehash from this account
-		sp.cms.GetKVStore(sp.evmStoreKey).Delete(types.CodeHashKeyFor(suicidalAddr))
+		sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Delete(CodeHashKeyFor(suicidalAddr))
 
 		// remove auth account
 		sp.ak.RemoveAccount(sp.ctx, acct)
 	}
 }
 
-func (sp *statePlugin) Write() {
-	sp.Controller.Finalize()
-}
+// // `Write` implements `libtypes.Controllable`.
+// func (sp *statePlugin) Write() {
+// 	sp.Controller.Finalize()
+// }

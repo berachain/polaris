@@ -16,9 +16,9 @@ package snapmulti_test
 
 import (
 	"reflect"
-	"testing"
 
 	"github.com/berachain/stargazer/store/snapmulti"
+	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	sdkcachemulti "github.com/cosmos/cosmos-sdk/store/cachemulti"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
@@ -28,15 +28,10 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-func TestSnapMulti(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/state/store/snapmulti")
-}
-
-var _ = Describe("SnapMulti", func() {
+var _ = Describe("Snapmulti Store", func() {
 	var (
 		byte1          = []byte{1}
-		cms            storetypes.CacheMultiStore
+		cms            types.ControllableMultiStore
 		ms             storetypes.MultiStore
 		accStoreParent storetypes.KVStore
 		accStoreCache  storetypes.KVStore
@@ -96,5 +91,42 @@ var _ = Describe("SnapMulti", func() {
 		// check that getting accStore from cms is not the same as parent
 		accStoreCache2 := cms.GetKVStore(accStoreKey)
 		Expect(accStoreCache2.Has(byte1)).To(BeTrue())
+	})
+
+	It("should have the correct registry key", func() {
+		Expect(cms.RegistryKey()).To(Equal("snapmultistore"))
+	})
+
+	When("snapshots and reverts", func() {
+		var snapshot1 int
+		BeforeEach(func() {
+			cms.GetKVStore(accStoreKey).Set(byte1, byte1)
+			snapshot1 = cms.Snapshot()
+		})
+
+		It("should correctly revert", func() {
+			cms.GetKVStore(accStoreKey).Set(byte1, []byte{2})
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{2}))
+
+			cms.RevertToSnapshot(snapshot1)
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte1))
+		})
+
+		It("should handle nested snapshots", func() {
+			cms.Snapshot()
+			cms.GetKVStore(accStoreKey).Set(byte1, []byte{3})
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{3}))
+
+			cms.RevertToSnapshot(snapshot1)
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte1))
+		})
+
+		It("should write properly", func() {
+			cms.GetKVStore(accStoreKey).Set(byte1, []byte{2})
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{2}))
+
+			cms.Write()
+			Expect(accStoreParent.Get(byte1)).To(Equal([]byte{2}))
+		})
 	})
 })

@@ -52,19 +52,17 @@ var _ = Describe("Registry", func() {
 
 		It("should be able to get the item", func() {
 			// Get the item.
-			item, err := r.Get("foo")
-			Expect(err).ToNot(HaveOccurred())
+			item := r.Get("foo")
 			Expect(item.RegistryKey()).To(Equal("foo"))
 		})
 
 		It("should be able to remove the item", func() {
 			// Remove the item.
-			err := r.Remove("foo")
-			Expect(err).ToNot(HaveOccurred())
+			r.Remove("foo")
 
 			// Get the item.
-			_, err = r.Get("foo")
-			Expect(err).To(HaveOccurred())
+			item := r.Get("foo")
+			Expect(item).To(BeNil())
 		})
 
 		It("should be able to check if the item exists", func() {
@@ -73,8 +71,7 @@ var _ = Describe("Registry", func() {
 			Expect(exists).To(BeTrue())
 
 			// Remove the item.
-			err := r.Remove("foo")
-			Expect(err).ToNot(HaveOccurred())
+			r.Remove("foo")
 
 			// Check if the item exists.
 			exists = r.Exists("foo")
@@ -87,10 +84,9 @@ var _ = Describe("Registry", func() {
 			Expect(exists).To(BeFalse())
 		})
 
-		It("should fail when removing an item that does not exist", func() {
+		It("should no-op when removing an item that does not exist", func() {
 			// Remove an item that does not exist.
-			err := r.Remove("bar")
-			Expect(err).To(HaveOccurred())
+			r.Remove("bar")
 		})
 	})
 })

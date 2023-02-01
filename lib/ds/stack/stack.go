@@ -75,6 +75,10 @@ func (s *stack[T]) Capacity() int {
 
 // `Pop` implements `Stack`.
 func (s *stack[T]) Pop() T {
+	if s.size == 0 {
+		var t T
+		return t
+	}
 	s.size--
 	s.shrinkIfRequired()
 	return s.buf[s.size]
