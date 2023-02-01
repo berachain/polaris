@@ -21,13 +21,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethstate "github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
 type PluginFactory struct {
 	// Cosmos Keeper References
-	ak types.AccountKeeper
-	bk types.BankKeeper
+	ak AccountKeeper
+	bk BankKeeper
 
 	// evmStoreKey is the store key for the EVM store.
 	evmStoreKey storetypes.StoreKey
@@ -38,10 +37,10 @@ type PluginFactory struct {
 
 // NewPluginFactory returns a new PluginFactory instance.
 func NewPluginFactory(
-	ak types.AccountKeeper,
-	bk types.BankKeeper,
+	ak AccountKeeper,
+	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
-	logFactory types.EthereumLogFactory,
+	logFactory EthereumLogFactory,
 ) *PluginFactory {
 	return &PluginFactory{
 		ak:          ak,
