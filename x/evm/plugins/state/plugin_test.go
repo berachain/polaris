@@ -354,20 +354,20 @@ var _ = Describe("StateDB", func() {
 		// 				It("alice should have her code and state wiped, but not bob", func() {
 		// 					Expect(sp.GetCode(alice)).To(BeNil())
 		// 					Expect(sp.GetCode(bob)).To(Equal(bobCode))
-		// 					var aliceStorage storage.Slots
+		// 					var aliceStorage types.Storage
 		// 					err := sp.ForEachStorage(alice,
 		// 						func(key, value common.Hash) bool {
 		// 							aliceStorage = append(aliceStorage,
-		// 								types.NewSlot(key, value))
+		// 								types.NewState(key, value))
 		// 							return true
 		// 						})
 		// 					Expect(err).To(BeNil())
 		// 					Expect(len(aliceStorage)).To(BeZero())
 
-		// 					var bobStorage storage.Slots
+		// 					var bobStorage types.Storage
 		// 					err = sp.ForEachStorage(bob,
 		// 						func(key, value common.Hash) bool {
-		// 							bobStorage = append(bobStorage, types.NewSlot(key, value))
+		// 							bobStorage = append(bobStorage, types.NewState(key, value))
 		// 							return true
 		// 						})
 		// 					Expect(err).To(BeNil())

@@ -12,56 +12,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package storage
+package types
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/errors"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// Compile-time type assertions.
-var _ libtypes.Cloneable[Slots] = Slots{}
-var _ fmt.Stringer = Slots{}
+// Compile-time interface assertions.
+var _ libtypes.Cloneable[State] = &State{}
+var _ fmt.Stringer = Storage{}
 
-// `Slots` represents the account Storage map as a slice of single key value
-// State pairs. This helps to ensure that the Storage map can be iterated over
-// deterministically.
-type Slots []Slot
-
-// `ValidateBasic` performs basic validation of the Storage data structure.
-// It checks for duplicate keys and calls `ValidateBasic` on each `State`.
-func (s Slots) ValidateBasic() error {
-	seenStorage := make(map[string]bool)
-	for i, slot := range s {
-		if seenStorage[slot.Key] {
-			return errors.Wrapf(ErrInvalidState, "duplicate state key %d: %s", i, slot.Key)
-		}
-
-		if err := slot.ValidateBasic(); err != nil {
-			return err
-		}
-
-		seenStorage[slot.Key] = true
+// `NewState` creates a new State instance.
+func NewState(key, value common.Hash) State {
+	return State{
+		Key:   key.Hex(),
+		Value: value.Hex(),
 	}
+}
+
+// `ValidateBasic` checks to make sure the key is not empty.
+func (s State) ValidateBasic() error {
+	if strings.TrimSpace(s.Key) == "" {
+		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
+	}
+
 	return nil
 }
 
-// `String` implements `fmt.Stringer`.
-func (s Slots) String() string {
-	var str string
-	for _, state := range s {
-		str += fmt.Sprintf("%s\n", state.String())
-	}
-
-	return str
-}
-
 // `Clone` implements `types.Cloneable`.
-func (s Slots) Clone() Slots {
-	cpy := make(Slots, len(s))
-	copy(cpy, s)
-
-	return cpy
+func (s State) Clone() State {
+	return State{
+		Key:   s.Key,
+		Value: s.Value,
+	}
 }
