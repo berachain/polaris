@@ -14,5 +14,7 @@
 
 package constants
 
-const EvmStoreKey = "evm"
-const EvmNamespace = "evm"
+const (
+	EvmStoreKey  = "evm"
+	EvmNamespace = "evm"
+)

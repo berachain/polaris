@@ -50,7 +50,7 @@ func (s *stack[T]) Peek() T {
 
 // `PeekAt` implements `Stack`.
 func (s *stack[T]) PeekAt(index int) T {
-	if index < 0 || index >= s.size {
+	if index >= s.size {
 		panic("index out of bounds")
 	}
 	return s.buf[index]
