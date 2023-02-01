@@ -60,7 +60,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM ${RUNNER_IMAGE}
 
-COPY --from=builder /berachain/bin/jsonrpc /bin/jsonrpc
+COPY --from=builder /berachain/bin/jsonrpcd /bin/jsonrpcd
 
 ENV HOME /berachain
 WORKDIR $HOME
@@ -68,4 +68,4 @@ WORKDIR $HOME
 EXPOSE 8545
 EXPOSE 8546
 
-ENTRYPOINT ["jsonrpc"]
+ENTRYPOINT ["jsonrpcd"]
