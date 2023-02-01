@@ -23,26 +23,37 @@ import (
 
 // `initJournalCapacity` is the initial capacity of the `journal` stack.
 // TODO: determine better initial capacity.
-const initJournalCapacity = 1000000
+const initJournalCapacity = 32
+
+// `revision` is a snapshot revision, which holds all `Controllable`s' snapshot ids.
+// Specifically, it is a map of a `Controllable`'s `RegistryKey` to its corresponding current
+// snapshot revision id.
+type revision[K comparable] map[K]int
 
 // `controller` conforms to the `libtypes.Controller` interface and is used to register and sync
 // snapshotting across multiple `libtypes.Controllable` objects.
 type controller[K comparable, T libtypes.Controllable[K]] struct {
+	// `Registry` stores the `Controllable` objects.
 	libtypes.Registry[K, T]
-	journal ds.Stack[map[K]int]
+
+	// `journal` is a stack of `revision`s.
+	journal ds.Stack[revision[K]]
 }
 
 // `NewController` returns a new `Controller` object.
 func NewController[K comparable, T libtypes.Controllable[K]]() libtypes.Controller[K, T] {
 	return &controller[K, T]{
 		Registry: registry.NewMap[K, T](),
-		journal:  stack.New[map[K]int](initJournalCapacity),
+		journal:  stack.New[revision[K]](initJournalCapacity),
 	}
 }
 
-// `Snapshot` returns the current snapshot number.
+// `Snapshot` takes a snapshot for all controllable objects and returns the controller's snapshot
+// id.
+//
+// `Snapshot` implements `libtypes.Snapshottable`.
 func (c *controller[K, T]) Snapshot() int {
-	snap := make(map[K]int)
+	snap := make(revision[K])
 	for key, controllable := range c.Iterate() {
 		snap[key] = controllable.Snapshot()
 	}
@@ -51,8 +62,10 @@ func (c *controller[K, T]) Snapshot() int {
 	return c.journal.Size()
 }
 
-// `RevertToSnapshot` reverts all `libtypes.Snapshottable` objects to the snapshot with
-// the given `snap` number.
+// `RevertToSnapshot` reverts all controllable objects to their own snapshot id corresponding to
+// `id`.
+//
+// `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (c *controller[K, T]) RevertToSnapshot(id int) {
 	lastestSnapshot := c.journal.Peek()
 	for key, controllable := range c.Iterate() {
@@ -65,6 +78,9 @@ func (c *controller[K, T]) RevertToSnapshot(id int) {
 	c.journal.PopToSize(id)
 }
 
+// `Finalize` writes all the controllables controlled by this controller.
+//
+// `Finalize` implements `libtypes.Controller`.
 func (c *controller[K, T]) Finalize() {
 	for _, controllable := range c.Iterate() {
 		controllable.Write()

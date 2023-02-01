@@ -80,7 +80,8 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return cms[key]
 }
 
-// `GetCommittedKVStore` returns the KV Store from the given Multistore.
+// `GetCommittedKVStore` returns the KV Store from the given Multistore. This function follows
+// the Multistore's normal `GetKVStore` code path.
 func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return s.MultiStore.GetKVStore(key)
 }
