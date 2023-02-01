@@ -25,7 +25,7 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/store/snapmulti"
-	. "github.com/berachain/stargazer/x/evm/plugins/state/types" //nolint:revive,stylecheck // own package types.
+	"github.com/berachain/stargazer/x/evm/constants"
 )
 
 const pluginRegistryKey = `statePlugin`
@@ -159,13 +159,13 @@ func (sp *statePlugin) AddBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sp.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
-	if err := sp.bk.MintCoins(sp.ctx, EvmNamespace, coins); err != nil {
+	if err := sp.bk.MintCoins(sp.ctx, constants.EvmNamespace, coins); err != nil {
 		panic(err)
 	}
 
 	// Send the coins from the evm module account to the destination address.
 	if err := sp.bk.SendCoinsFromModuleToAccount(
-		sp.ctx, EvmNamespace, addr[:], coins,
+		sp.ctx, constants.EvmNamespace, addr[:], coins,
 	); err != nil {
 		panic(err)
 	}
@@ -178,13 +178,13 @@ func (sp *statePlugin) SubBalance(addr common.Address, amount *big.Int) {
 
 	// Send the coins from the source address to the evm module account.
 	if err := sp.bk.SendCoinsFromAccountToModule(
-		sp.ctx, addr[:], EvmNamespace, coins,
+		sp.ctx, addr[:], constants.EvmNamespace, coins,
 	); err != nil {
 		panic(err)
 	}
 
 	// Burn the coins from the evm module account.
-	if err := sp.bk.BurnCoins(sp.ctx, EvmNamespace, coins); err != nil {
+	if err := sp.bk.BurnCoins(sp.ctx, constants.EvmNamespace, coins); err != nil {
 		panic(err)
 	}
 }
@@ -306,7 +306,7 @@ func (sp *statePlugin) getStateFromStore(
 	store storetypes.KVStore,
 	addr common.Address, slot common.Hash,
 ) common.Hash {
-	if value := store.Get(StateKeyFor(addr, slot)); value != nil {
+	if value := store.Get(KeyForSlot(addr, slot)); value != nil {
 		return common.BytesToHash(value)
 	}
 	return common.Hash{}
@@ -325,12 +325,12 @@ func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
 
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Delete(StateKeyFor(addr, key))
+		sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Delete(KeyForSlot(addr, key))
 		return
 	}
 
 	// Set the state entry.
-	sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Set(StateKeyFor(addr, key), value[:])
+	sp.ControllableMultiStore.GetKVStore(sp.evmStoreKey).Set(KeyForSlot(addr, key), value[:])
 }
 
 // =============================================================================

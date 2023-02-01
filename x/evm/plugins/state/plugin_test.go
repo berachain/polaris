@@ -26,15 +26,14 @@ import (
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
 var alice = testutil.Alice
 var bob = testutil.Bob
 
 var _ = Describe("StateDB", func() {
-	var ak types.AccountKeeper
-	var bk types.BankKeeper
+	var ak state.AccountKeeper
+	var bk state.BankKeeper
 	var ctx sdk.Context
 	var sp ethstate.StatePlugin
 
@@ -358,7 +357,7 @@ var _ = Describe("StateDB", func() {
 		// 					err := sp.ForEachStorage(alice,
 		// 						func(key, value common.Hash) bool {
 		// 							aliceStorage = append(aliceStorage,
-		// 								types.NewSlot(key, value))
+		// 								NewSlot(key, value))
 		// 							return true
 		// 						})
 		// 					Expect(err).To(BeNil())
@@ -367,7 +366,7 @@ var _ = Describe("StateDB", func() {
 		// 					var bobStorage storage.Slots
 		// 					err = sp.ForEachStorage(bob,
 		// 						func(key, value common.Hash) bool {
-		// 							bobStorage = append(bobStorage, types.NewSlot(key, value))
+		// 							bobStorage = append(bobStorage, NewSlot(key, value))
 		// 							return true
 		// 						})
 		// 					Expect(err).To(BeNil())
