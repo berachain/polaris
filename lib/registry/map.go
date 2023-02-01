@@ -42,7 +42,7 @@ func (mr *mapRegistry[K, T]) Get(id K) T {
 // `Register` adds an item to the registry.
 func (mr *mapRegistry[K, T]) Register(item T) error {
 	id := item.RegistryKey()
-	if _, ok := mr.items[id]; ok {
+	if _, found := mr.items[id]; found {
 		return libtypes.ErrObjectAlreadyExists
 	}
 	mr.items[id] = item
@@ -55,9 +55,9 @@ func (mr *mapRegistry[K, T]) Remove(id K) {
 }
 
 // `Exists` returns true if the item exists in the registry.
-func (mr *mapRegistry[K, T]) Exists(id K) bool {
-	_, ok := mr.items[id]
-	return ok
+func (mr *mapRegistry[K, T]) Exists(id K) (T, bool) {
+	item, found := mr.items[id]
+	return item, found
 }
 
 // `Iterate` returns the underlying map.

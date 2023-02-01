@@ -18,22 +18,28 @@ import (
 	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// `Registry` stores and provides all stateless, stateful, and dynamic precompile containers. It is
+// `registry` stores and provides all stateless, stateful, and dynamic precompile containers. It is
 // a map of Ethereum addresses to precompiled contract containers.
-type Registry map[common.Address]vm.PrecompileContainer
+// type registry map[common.Address]vm.PrecompileContainer
+type registry struct {
+	libtypes.Registry[common.Address, vm.PrecompileContainer]
+}
 
-// `NewRegistry` creates and returns a new `Registry`.
-func NewRegistry() Registry {
-	return make(Registry)
+// `NewRegistry` creates and returns a new `registry`.
+func NewRegistry() libtypes.Registry[common.Address, vm.PrecompileContainer] {
+	return &registry{
+		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
+	}
 }
 
 // `Register` builds a precompile container using a container factory and stores the container
 // at the given address. This function returns an error if the given contract is not a properly
 // defined precompile or the container factory cannot build the container.
-func (r Registry) Register(contractImpl vm.BasePrecompileImpl) error {
+func (r registry) Register(contractImpl vm.BasePrecompileImpl) error {
 	// select the correct container factory based on the contract type.
 	var cf container.AbstractFactory
 	//nolint:gocritic // cannot be converted to switch-case.
@@ -58,7 +64,7 @@ func (r Registry) Register(contractImpl vm.BasePrecompileImpl) error {
 }
 
 // `lookup` returns a precompile container at the given address, if it exists.
-func (r Registry) lookup(addr common.Address) (vm.PrecompileContainer, bool) {
+func (r registry) lookup(addr common.Address) (vm.PrecompileContainer, bool) {
 	pc, found := r[addr]
 	return pc, found
 }

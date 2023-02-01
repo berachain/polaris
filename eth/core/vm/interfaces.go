@@ -17,6 +17,7 @@ package vm
 import (
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/params"
+	libtypes "github.com/berachain/stargazer/lib/types"
 
 	"context"
 	"math/big"
@@ -79,7 +80,11 @@ type (
 		) (ret []byte, remainingGas uint64, err error)
 	}
 
-	// `BasePrecompileImpl` is a type for the base precompile implementation, which only needs to
-	// provide an Ethereum address of where its contract is found.
-	BasePrecompileImpl = ContractRef
+	// // `BasePrecompileImpl` is a type for the base precompile implementation, which only needs to
+	// // provide an Ethereum address of where its contract is found.
+	// BasePrecompileImpl = ContractRef
+	PrecompileContainer interface {
+		libtypes.Registrable[common.Address]
+		PrecompiledContract
+	}
 )

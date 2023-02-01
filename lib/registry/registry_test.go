@@ -12,30 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package registry_test
 
 import (
-	"github.com/ethereum/go-ethereum/core/vm"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-type (
-	AccountRef           = vm.AccountRef
-	BlockContext         = vm.BlockContext
-	CanTransferFunc      = vm.CanTransferFunc
-	ContractRef          = vm.ContractRef
-	Config               = vm.Config
-	EVMLogger            = vm.EVMLogger
-	GethEVM              = vm.EVM
-	GethStateDB          = vm.StateDB
-	GetHashFunc          = vm.GetHashFunc
-	PrecompiledContract  = vm.PrecompiledContract
-	PrecompileController = vm.PrecompileController
-	TransferFunc         = vm.TransferFunc
-	TxContext            = vm.TxContext
-)
-
-var (
-	NewGethEVM                = vm.NewEVM
-	NewGethEVMWithPrecompiles = vm.NewEVMWithPrecompiles
-	ErrOutOfGas               = vm.ErrOutOfGas
-)
+func TestRegistry(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "lib/registry")
+}

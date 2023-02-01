@@ -15,8 +15,6 @@
 package registry_test
 
 import (
-	"testing"
-
 	"github.com/berachain/stargazer/lib/registry"
 	"github.com/berachain/stargazer/lib/registry/mock"
 	libtypes "github.com/berachain/stargazer/lib/types"
@@ -24,16 +22,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestRegister(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "lib/registry")
-}
-
 var _ = Describe("Registry", func() {
-	var r libtypes.Registry[string, libtypes.Registrable[string]]
+	var r libtypes.Registry[string, *mock.Registrable]
 
 	BeforeEach(func() {
-		r = registry.NewMap[string, libtypes.Registrable[string]]()
+		r = registry.NewMap[string, *mock.Registrable]()
 	})
 
 	When("adding an item", func() {
@@ -67,20 +60,23 @@ var _ = Describe("Registry", func() {
 
 		It("should be able to check if the item exists", func() {
 			// Check if the item exists.
-			exists := r.Exists("foo")
+			item, exists := r.Exists("foo")
+			Expect(item.Data()).To(Equal("bar"))
 			Expect(exists).To(BeTrue())
 
 			// Remove the item.
 			r.Remove("foo")
 
 			// Check if the item exists.
-			exists = r.Exists("foo")
+			item, exists = r.Exists("foo")
+			Expect(item).To(BeNil())
 			Expect(exists).To(BeFalse())
 		})
 
 		It("should be able to check if an item does not exist", func() {
 			// Check an item that does not exist.
-			exists := r.Exists("bar")
+			item, exists := r.Exists("bar")
+			Expect(item).To(BeNil())
 			Expect(exists).To(BeFalse())
 		})
 
