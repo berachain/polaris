@@ -12,13 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package snapmulti_test
+package snapmulti
 
 import (
 	"reflect"
 
-	"github.com/berachain/stargazer/store/snapmulti"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	sdkcachemulti "github.com/cosmos/cosmos-sdk/store/cachemulti"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
@@ -31,7 +29,7 @@ import (
 var _ = Describe("Snapmulti Store", func() {
 	var (
 		byte1          = []byte{1}
-		cms            types.ControllableMultiStore
+		cms            *store
 		ms             storetypes.MultiStore
 		accStoreParent storetypes.KVStore
 		accStoreCache  storetypes.KVStore
@@ -54,7 +52,7 @@ var _ = Describe("Snapmulti Store", func() {
 		)
 		accStoreParent = ms.GetKVStore(accStoreKey)
 		evmStoreParent = ms.GetKVStore(evmStoreKey)
-		cms = snapmulti.NewStoreFrom(ms)
+		cms = NewStoreFrom(ms)
 		accStoreCache = cms.GetKVStore(accStoreKey)
 		evmStoreCache = cms.GetKVStore(evmStoreKey)
 	})

@@ -18,7 +18,6 @@ import (
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/utils"
-	. "github.com/berachain/stargazer/x/evm/plugins/state/types" //nolint:revive,stylecheck // own package types.
 
 	"github.com/cosmos/cosmos-sdk/store/cachekv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -47,7 +46,7 @@ type store struct {
 }
 
 // `NewStoreFrom` creates and returns a new `store` from a given Multistore `ms`.
-func NewStoreFrom(ms storetypes.MultiStore) ControllableMultiStore {
+func NewStoreFrom(ms storetypes.MultiStore) *store { //nolint:revive // its okay.
 	return &store{
 		MultiStore: ms,
 		root:       make(cachemultistore),

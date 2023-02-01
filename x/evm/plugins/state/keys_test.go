@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package state
 
 import (
 	"github.com/berachain/stargazer/lib/common"
@@ -30,11 +30,11 @@ var _ = Describe("AddressStoragePrefix", func() {
 	})
 })
 
-var _ = Describe("StateKeyFor", func() {
+var _ = Describe("KeyForSlot", func() {
 	It("returns a storage key for a given account and storage slot", func() {
 		address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
 		slot := common.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")
-		key := StateKeyFor(address, slot)
+		key := KeyForSlot(address, slot)
 		Expect(key).To(HaveLen(1 + common.AddressLength + common.HashLength))
 		Expect(key[0]).To(Equal(keyPrefixStorage))
 		Expect(key[1 : 1+common.AddressLength]).To(Equal(address.Bytes()))
