@@ -87,7 +87,7 @@ func (s *stack[T]) Pop() T {
 
 // `PopToSize` implements `Stack`.
 func (s *stack[T]) PopToSize(newSize int) T {
-	if newSize < 0 || newSize > s.size {
+	if newSize > s.size {
 		panic("newSize out of bounds")
 	}
 
