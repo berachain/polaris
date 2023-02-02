@@ -1,4 +1,4 @@
-// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Copyright (C) 2022, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -12,21 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package events_test
 
 import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/services"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-type ChainService interface{}
-
-type TxService interface{}
-
-type QueryService interface{}
-
-type ParamsService interface{}
-
-func NewEvmChain(core.Host) ChainService {
-	return &services.Chain{}
+func TestEvents(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/state/events")
 }

@@ -12,21 +12,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package storage
 
 import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/services"
+	"fmt"
+	"strings"
+
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-type ChainService interface{}
+// Compile-time interface assertions.
+var _ libtypes.Cloneable[Slot] = &Slot{}
+var _ fmt.Stringer = &Slot{}
 
-type TxService interface{}
+// `NewSlot` creates a new State instance.
+func NewSlot(key, value common.Hash) Slot {
+	return Slot{
+		Key:   key.Hex(),
+		Value: value.Hex(),
+	}
+}
 
-type QueryService interface{}
+// `ValidateBasic` checks to make sure the key is not empty.
+func (s Slot) ValidateBasic() error {
+	if strings.TrimSpace(s.Key) == "" {
+		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
+	}
 
-type ParamsService interface{}
+	return nil
+}
 
-func NewEvmChain(core.Host) ChainService {
-	return &services.Chain{}
+// `Clone` implements `types.Cloneable`.
+func (s Slot) Clone() Slot {
+	return Slot{
+		Key:   s.Key,
+		Value: s.Value,
+	}
 }

@@ -52,8 +52,8 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
 //			},
-//			FinalizeTxFunc: func() error {
-//				panic("mock out the FinalizeTx method")
+//			FinalizeFunc: func()  {
+//				panic("mock out the Finalize method")
 //			},
 //			ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
 //				panic("mock out the ForEachStorage method")
@@ -164,8 +164,8 @@ type StargazerStateDBMock struct {
 	// ExistFunc mocks the Exist method.
 	ExistFunc func(address common.Address) bool
 
-	// FinalizeTxFunc mocks the FinalizeTx method.
-	FinalizeTxFunc func() error
+	// FinalizeFunc mocks the Finalize method.
+	FinalizeFunc func()
 
 	// ForEachStorageFunc mocks the ForEachStorage method.
 	ForEachStorageFunc func(address common.Address, fn func(common.Hash, common.Hash) bool) error
@@ -297,8 +297,8 @@ type StargazerStateDBMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
-		// FinalizeTx holds details about calls to the FinalizeTx method.
-		FinalizeTx []struct {
+		// Finalize holds details about calls to the Finalize method.
+		Finalize []struct {
 		}
 		// ForEachStorage holds details about calls to the ForEachStorage method.
 		ForEachStorage []struct {
@@ -457,7 +457,7 @@ type StargazerStateDBMock struct {
 	lockCreateAccount          sync.RWMutex
 	lockEmpty                  sync.RWMutex
 	lockExist                  sync.RWMutex
-	lockFinalizeTx             sync.RWMutex
+	lockFinalize               sync.RWMutex
 	lockForEachStorage         sync.RWMutex
 	lockGetBalance             sync.RWMutex
 	lockGetCode                sync.RWMutex
@@ -816,30 +816,30 @@ func (mock *StargazerStateDBMock) ExistCalls() []struct {
 	return calls
 }
 
-// FinalizeTx calls FinalizeTxFunc.
-func (mock *StargazerStateDBMock) FinalizeTx() error {
-	if mock.FinalizeTxFunc == nil {
-		panic("StargazerStateDBMock.FinalizeTxFunc: method is nil but StargazerStateDB.FinalizeTx was just called")
+// Finalize calls FinalizeFunc.
+func (mock *StargazerStateDBMock) Finalize() {
+	if mock.FinalizeFunc == nil {
+		panic("StargazerStateDBMock.FinalizeFunc: method is nil but StargazerStateDB.Finalize was just called")
 	}
 	callInfo := struct {
 	}{}
-	mock.lockFinalizeTx.Lock()
-	mock.calls.FinalizeTx = append(mock.calls.FinalizeTx, callInfo)
-	mock.lockFinalizeTx.Unlock()
-	return mock.FinalizeTxFunc()
+	mock.lockFinalize.Lock()
+	mock.calls.Finalize = append(mock.calls.Finalize, callInfo)
+	mock.lockFinalize.Unlock()
+	mock.FinalizeFunc()
 }
 
-// FinalizeTxCalls gets all the calls that were made to FinalizeTx.
+// FinalizeCalls gets all the calls that were made to Finalize.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.FinalizeTxCalls())
-func (mock *StargazerStateDBMock) FinalizeTxCalls() []struct {
+//	len(mockedStargazerStateDB.FinalizeCalls())
+func (mock *StargazerStateDBMock) FinalizeCalls() []struct {
 } {
 	var calls []struct {
 	}
-	mock.lockFinalizeTx.RLock()
-	calls = mock.calls.FinalizeTx
-	mock.lockFinalizeTx.RUnlock()
+	mock.lockFinalize.RLock()
+	calls = mock.calls.Finalize
+	mock.lockFinalize.RUnlock()
 	return calls
 }
 

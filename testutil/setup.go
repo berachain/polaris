@@ -15,6 +15,8 @@
 package testutil
 
 import (
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -28,6 +30,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	db "github.com/tendermint/tm-db"
 
 	"github.com/berachain/stargazer/lib/common"
 
@@ -43,9 +46,27 @@ var (
 	Bob        = common.BytesToAddress([]byte("bob"))
 )
 
-// `NewContext` creates a SDK context and mounts basic SDK modules' kvstores.
+// `NewContext` creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
 	return sdk.NewContext(mock.NewMultiStore(), tmproto.Header{}, false, log.TestingLogger())
+}
+
+// `NewContextWithMultistores` creates a SDK context and mounts basic SDK modules' kvstores.
+func NewContextWithMultistores() sdk.Context {
+	dbm := db.NewMemDB()
+	ms := store.NewCommitMultiStore(dbm)
+
+	ms.MountStoreWithDB(AccKey, storetypes.StoreTypeIAVL, dbm)
+	ms.MountStoreWithDB(BankKey, storetypes.StoreTypeIAVL, dbm)
+	ms.MountStoreWithDB(EvmKey, storetypes.StoreTypeIAVL, dbm)
+	ms.MountStoreWithDB(StakingKey, storetypes.StoreTypeIAVL, dbm)
+
+	err := ms.LoadLatestVersion()
+	if err != nil {
+		panic(err)
+	}
+
+	return sdk.NewContext(ms, tmproto.Header{}, false, log.TestingLogger())
 }
 
 // `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.
@@ -55,7 +76,7 @@ func SetupMinimalKeepers() (
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
-	ctx := NewContext()
+	ctx := NewContextWithMultistores()
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
 		auth.AppModuleBasic{},

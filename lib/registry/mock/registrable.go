@@ -12,21 +12,29 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package mock
 
-import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/services"
-)
+import libtypes "github.com/berachain/stargazer/lib/types"
 
-type ChainService interface{}
+// Assert that `MockRegistrable` implements `Registrable`.
+var _ libtypes.Registrable[string] = &Registrable{}
 
-type TxService interface{}
+type Registrable struct {
+	registerKey string
+	data        string
+}
 
-type QueryService interface{}
+func NewMockRegistrable(registerKey string, data string) *Registrable {
+	return &Registrable{
+		registerKey: registerKey,
+		data:        data,
+	}
+}
 
-type ParamsService interface{}
+func (m Registrable) RegistryKey() string {
+	return m.registerKey
+}
 
-func NewEvmChain(core.Host) ChainService {
-	return &services.Chain{}
+func (m Registrable) Data() string {
+	return m.data
 }

@@ -31,7 +31,12 @@ type Query struct {
 	// other shit
 }
 
-func (q *Query) EthCall(ctx context.Context, data []byte,
-	gascap uint64, coinbase common.Address, chainID int64) *coretypes.Receipt {
+func (q *Query) EthCall(
+	ctx context.Context,
+	data []byte,
+	gascap uint64,
+	coinbase common.Address,
+	chainID int64,
+) *coretypes.Receipt {
 	return &coretypes.Receipt{}
 }

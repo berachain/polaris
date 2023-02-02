@@ -42,9 +42,7 @@ func ApplyMessageAndCommit(
 	}
 
 	// Persist state.
-	if err = evm.StateDB().FinalizeTx(); err != nil {
-		return nil, errors.Wrap(err, "failed to commit stateDB")
-	}
+	evm.StateDB().Finalize()
 
 	return res, nil
 }
@@ -70,8 +68,7 @@ func ApplyMessageWithTracerAndCommit(
 	}
 
 	// Persist state.
-	if err = evm.StateDB().FinalizeTx(); err != nil {
-		return nil, errors.Wrap(err, "failed to commit stateDB")
-	}
+	evm.StateDB().Finalize()
+
 	return res, nil
 }

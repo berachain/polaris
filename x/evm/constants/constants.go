@@ -12,21 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package constants
 
-import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/services"
+const (
+	EvmStoreKey  = "evm"
+	EvmNamespace = "evm"
 )
-
-type ChainService interface{}
-
-type TxService interface{}
-
-type QueryService interface{}
-
-type ParamsService interface{}
-
-func NewEvmChain(core.Host) ChainService {
-	return &services.Chain{}
-}

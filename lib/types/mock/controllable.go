@@ -12,21 +12,25 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package mock
 
-import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/services"
-)
+//go:generate moq -out ./controllable.mock.go -skip-ensure -pkg mock ../ Controllable
 
-type ChainService interface{}
+// `SnapshottableMock` is a mock for the `Snapshottable` interface.
+func NewControllableMock1[K string]() *ControllableMock[K] {
+	return &ControllableMock[K]{
+		RevertToSnapshotFunc: func(n int) {},
+		SnapshotFunc:         func() int { return 0 },
+		RegistryKeyFunc:      func() K { return "object1" },
+		FinalizeFunc:         func() {},
+	}
+}
 
-type TxService interface{}
-
-type QueryService interface{}
-
-type ParamsService interface{}
-
-func NewEvmChain(core.Host) ChainService {
-	return &services.Chain{}
+func NewControllableMock2[K string]() *ControllableMock[K] {
+	return &ControllableMock[K]{
+		RevertToSnapshotFunc: func(n int) {},
+		SnapshotFunc:         func() int { return 0 },
+		RegistryKeyFunc:      func() K { return "object2" },
+		FinalizeFunc:         func() {},
+	}
 }
