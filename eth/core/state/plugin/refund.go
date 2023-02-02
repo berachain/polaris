@@ -27,6 +27,7 @@ const (
 	refundRegistryKey = `refund`
 )
 
+// `refund` implements `libtypes.Controllable`.
 var _ libtypes.Controllable[string] = (*refund)(nil)
 
 // `refund` is a `Store` that tracks the refund counter.
