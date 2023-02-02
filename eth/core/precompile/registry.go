@@ -21,6 +21,8 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
+// CURRENTLY UNUSED -- MOVE THE BUILD CONTAINER LOGIC ELSEWHERE.
+
 // `Registry` stores and provides all stateless, stateful, and dynamic precompile containers. It is
 // a map of Ethereum addresses to precompiled contract containers.
 type Registry map[common.Address]vm.PrecompileContainer
@@ -52,13 +54,7 @@ func (r Registry) Register(contractImpl vm.BasePrecompileImpl) error {
 	if err != nil {
 		return err
 	}
-	r[contractImpl.Address()] = pc
+	r[contractImpl.RegistryKey()] = pc
 
 	return nil
-}
-
-// `lookup` returns a precompile container at the given address, if it exists.
-func (r Registry) lookup(addr common.Address) (vm.PrecompileContainer, bool) {
-	pc, found := r[addr]
-	return pc, found
 }
