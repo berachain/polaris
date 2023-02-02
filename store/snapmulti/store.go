@@ -25,7 +25,7 @@ import (
 
 const (
 	storeRegistryKey    = `snapmultistore`
-	initJournalCapacity = 32
+	initJournalCapacity = 16
 )
 
 // `cacheMultiStore` represents a cached multistore, which is just a map of store keys to its
@@ -37,11 +37,11 @@ type cacheMultiStore map[storetypes.StoreKey]storetypes.CacheKVStore
 // store's lifecycle, any operations done before the first call to snapshot will be enforced on the
 // root `cacheMultiStore`.
 type store struct {
+	// `MultiStore` is the underlying multistore
 	storetypes.MultiStore
-
-	// root is the cacheMultiStore used before the first snapshot is called
+	// `root` is the cacheMultiStore used before the first snapshot is called
 	root cacheMultiStore
-	// journal holds the snapshots of cachemultistores
+	// `journal` holds the snapshots of cachemultistores
 	journal ds.Stack[cacheMultiStore]
 }
 
@@ -114,20 +114,15 @@ func (s *store) RevertToSnapshot(id int) {
 //
 // `Finalize` implements `libtypes.Controllable`.
 func (s *store) Finalize() {
-	// write each cachekv store in the journal to its parent
-	revision := s.journal.Peek()
-	for ; s.journal.Size() > 0; revision = s.journal.Pop() {
-		// Safe from non-determinism, since order in which
-		// we write to the parent kv journal does not matter.
-		//
-		//#nosec:G705
+	// Recursively pop the journal and write each cachekv store to its parent cachekv store.
+	for revision := s.journal.Peek(); s.journal.Size() > 0; revision = s.journal.Pop() {
 		for key, cacheKVStore := range revision {
 			cacheKVStore.Write()
 			delete(revision, key)
 		}
 	}
 
-	// write the root
+	// We must handle the root separately.
 	for key, cacheKVStore := range s.root {
 		cacheKVStore.Write()
 		delete(s.root, key)
