@@ -23,7 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestRefund(t *testing.T) {
+func TestPlugin(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "eth/core/state/plugin")
 }
