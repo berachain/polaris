@@ -81,7 +81,7 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		GetContextFunc: func() context.Context {
 			panic("mock out the GetContext method")
 		},
-		GetLogsFunc: func(hash1 common.Hash, hash2 common.Hash) []*types.Log {
+		GetLogsAndClearFunc: func(hash1 common.Hash) []*types.Log {
 			panic("mock out the GetLogs method")
 		},
 		GetNonceFunc: func(address common.Address) uint64 {
@@ -95,9 +95,6 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		},
 		HasSuicidedFunc: func(address common.Address) bool {
 			panic("mock out the HasSuicided method")
-		},
-		PrepareFunc: func(txHash common.Hash, ti uint) {
-			panic("mock out the Prepare method")
 		},
 		PrepareAccessListFunc: func(sender common.Address, dest *common.Address,
 			precompiles []common.Address, txAccesses types.AccessList) {

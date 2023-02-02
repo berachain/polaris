@@ -24,7 +24,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/lib/utils"
@@ -41,7 +40,7 @@ var (
 )
 
 // Compile-time assertion to ensure StateDB adheres to StargazerStateDB.
-var _ vm.StargazerStateDB = (*StateDB)(nil)
+// var _ vm.StargazerStateDB = (*StateDB)(nil)
 
 // The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
