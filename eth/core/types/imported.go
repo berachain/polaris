@@ -30,7 +30,9 @@ type (
 )
 
 var (
+	BytesToBloom            = types.BytesToBloom
 	CreateBloom             = types.CreateBloom
+	LogsBloom               = types.LogsBloom
 	ReceiptStatusFailed     = types.ReceiptStatusFailed
 	ReceiptStatusSuccessful = types.ReceiptStatusSuccessful
 	MakeSigner              = types.MakeSigner

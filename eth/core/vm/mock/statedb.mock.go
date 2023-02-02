@@ -43,6 +43,9 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			AddressInAccessListFunc: func(addr common.Address) bool {
 //				panic("mock out the AddressInAccessList method")
 //			},
+//			BuildLogsAndClearFunc: func(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
+//				panic("mock out the BuildLogsAndClear method")
+//			},
 //			CreateAccountFunc: func(address common.Address)  {
 //				panic("mock out the CreateAccount method")
 //			},
@@ -75,9 +78,6 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			},
 //			GetContextFunc: func() context.Context {
 //				panic("mock out the GetContext method")
-//			},
-//			GetLogsAndClearFunc: func(txHash common.Hash) []*types.Log {
-//				panic("mock out the GetLogsAndClear method")
 //			},
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
@@ -152,6 +152,9 @@ type StargazerStateDBMock struct {
 	// AddressInAccessListFunc mocks the AddressInAccessList method.
 	AddressInAccessListFunc func(addr common.Address) bool
 
+	// BuildLogsAndClearFunc mocks the BuildLogsAndClear method.
+	BuildLogsAndClearFunc func(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log
+
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
 
@@ -184,9 +187,6 @@ type StargazerStateDBMock struct {
 
 	// GetContextFunc mocks the GetContext method.
 	GetContextFunc func() context.Context
-
-	// GetLogsAndClearFunc mocks the GetLogsAndClear method.
-	GetLogsAndClearFunc func(txHash common.Hash) []*types.Log
 
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
@@ -276,6 +276,17 @@ type StargazerStateDBMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
+		// BuildLogsAndClear holds details about calls to the BuildLogsAndClear method.
+		BuildLogsAndClear []struct {
+			// Hash1 is the hash1 argument value.
+			Hash1 common.Hash
+			// Hash2 is the hash2 argument value.
+			Hash2 common.Hash
+			// V1 is the v1 argument value.
+			V1 uint
+			// V2 is the v2 argument value.
+			V2 uint
+		}
 		// CreateAccount holds details about calls to the CreateAccount method.
 		CreateAccount []struct {
 			// Address is the address argument value.
@@ -330,11 +341,6 @@ type StargazerStateDBMock struct {
 		}
 		// GetContext holds details about calls to the GetContext method.
 		GetContext []struct {
-		}
-		// GetLogsAndClear holds details about calls to the GetLogsAndClear method.
-		GetLogsAndClear []struct {
-			// TxHash is the txHash argument value.
-			TxHash common.Hash
 		}
 		// GetNonce holds details about calls to the GetNonce method.
 		GetNonce []struct {
@@ -439,6 +445,7 @@ type StargazerStateDBMock struct {
 	lockAddRefund              sync.RWMutex
 	lockAddSlotToAccessList    sync.RWMutex
 	lockAddressInAccessList    sync.RWMutex
+	lockBuildLogsAndClear      sync.RWMutex
 	lockCreateAccount          sync.RWMutex
 	lockEmpty                  sync.RWMutex
 	lockExist                  sync.RWMutex
@@ -450,7 +457,6 @@ type StargazerStateDBMock struct {
 	lockGetCodeSize            sync.RWMutex
 	lockGetCommittedState      sync.RWMutex
 	lockGetContext             sync.RWMutex
-	lockGetLogsAndClear        sync.RWMutex
 	lockGetNonce               sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
@@ -701,6 +707,50 @@ func (mock *StargazerStateDBMock) AddressInAccessListCalls() []struct {
 	mock.lockAddressInAccessList.RLock()
 	calls = mock.calls.AddressInAccessList
 	mock.lockAddressInAccessList.RUnlock()
+	return calls
+}
+
+// BuildLogsAndClear calls BuildLogsAndClearFunc.
+func (mock *StargazerStateDBMock) BuildLogsAndClear(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
+	if mock.BuildLogsAndClearFunc == nil {
+		panic("StargazerStateDBMock.BuildLogsAndClearFunc: method is nil but StargazerStateDB.BuildLogsAndClear was just called")
+	}
+	callInfo := struct {
+		Hash1 common.Hash
+		Hash2 common.Hash
+		V1    uint
+		V2    uint
+	}{
+		Hash1: hash1,
+		Hash2: hash2,
+		V1:    v1,
+		V2:    v2,
+	}
+	mock.lockBuildLogsAndClear.Lock()
+	mock.calls.BuildLogsAndClear = append(mock.calls.BuildLogsAndClear, callInfo)
+	mock.lockBuildLogsAndClear.Unlock()
+	return mock.BuildLogsAndClearFunc(hash1, hash2, v1, v2)
+}
+
+// BuildLogsAndClearCalls gets all the calls that were made to BuildLogsAndClear.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.BuildLogsAndClearCalls())
+func (mock *StargazerStateDBMock) BuildLogsAndClearCalls() []struct {
+	Hash1 common.Hash
+	Hash2 common.Hash
+	V1    uint
+	V2    uint
+} {
+	var calls []struct {
+		Hash1 common.Hash
+		Hash2 common.Hash
+		V1    uint
+		V2    uint
+	}
+	mock.lockBuildLogsAndClear.RLock()
+	calls = mock.calls.BuildLogsAndClear
+	mock.lockBuildLogsAndClear.RUnlock()
 	return calls
 }
 
@@ -1051,38 +1101,6 @@ func (mock *StargazerStateDBMock) GetContextCalls() []struct {
 	mock.lockGetContext.RLock()
 	calls = mock.calls.GetContext
 	mock.lockGetContext.RUnlock()
-	return calls
-}
-
-// GetLogsAndClear calls GetLogsAndClearFunc.
-func (mock *StargazerStateDBMock) GetLogsAndClear(txHash common.Hash) []*types.Log {
-	if mock.GetLogsAndClearFunc == nil {
-		panic("StargazerStateDBMock.GetLogsAndClearFunc: method is nil but StargazerStateDB.GetLogsAndClear was just called")
-	}
-	callInfo := struct {
-		TxHash common.Hash
-	}{
-		TxHash: txHash,
-	}
-	mock.lockGetLogsAndClear.Lock()
-	mock.calls.GetLogsAndClear = append(mock.calls.GetLogsAndClear, callInfo)
-	mock.lockGetLogsAndClear.Unlock()
-	return mock.GetLogsAndClearFunc(txHash)
-}
-
-// GetLogsAndClearCalls gets all the calls that were made to GetLogsAndClear.
-// Check the length with:
-//
-//	len(mockedStargazerStateDB.GetLogsAndClearCalls())
-func (mock *StargazerStateDBMock) GetLogsAndClearCalls() []struct {
-	TxHash common.Hash
-} {
-	var calls []struct {
-		TxHash common.Hash
-	}
-	mock.lockGetLogsAndClear.RLock()
-	calls = mock.calls.GetLogsAndClear
-	mock.lockGetLogsAndClear.RUnlock()
 	return calls
 }
 
