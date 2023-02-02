@@ -12,17 +12,17 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package block
+package eth
 
-import (
-	"context"
+import "github.com/ethereum/go-ethereum/common/hexutil"
 
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+const (
+	// `MethodEthHashrate` is the method name of `eth_hashrate`.
+	MethodBlockNumber = "eth_blockNumber"
 )
 
-type CometBlockClient interface {
-	ABCIInfo(context.Context) (*ctypes.ResultABCIInfo, error)
-	Block(ctx context.Context, height *int64) (*ctypes.ResultBlock, error)
-	BlockByHash(ctx context.Context, hash []byte) (*ctypes.ResultBlock, error)
-	BlockResults(ctx context.Context, height *int64) (*ctypes.ResultBlockResults, error)
+// `BlockNumber` returns the number of the latest block.
+func (api *api) BlockNumber() (hexutil.Uint64, error) {
+	api.logger.Debug(MethodBlockNumber)
+	return api.client.LatestBlockNumber()
 }

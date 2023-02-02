@@ -12,24 +12,17 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package eth
+package client
 
 import (
-	"github.com/berachain/stargazer/jsonrpc/cosmos/client"
-	libtypes "github.com/berachain/stargazer/lib/types"
-	"go.uber.org/zap/zapcore"
+	"context"
+
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-// `API` contains the Eth API.
-type api struct {
-	client client.CosmosClient
-	logger libtypes.Logger[zapcore.Field]
-}
-
-// `NewAPI` returns a new `api` object.
-func NewAPI(client client.CosmosClient, logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by design.
-	return &api{
-		client: client,
-		logger: logger,
-	}
+type CometBlockClient interface {
+	ABCIInfo(context.Context) (*ctypes.ResultABCIInfo, error)
+	Block(ctx context.Context, height *int64) (*ctypes.ResultBlock, error)
+	BlockByHash(ctx context.Context, hash []byte) (*ctypes.ResultBlock, error)
+	BlockResults(ctx context.Context, height *int64) (*ctypes.ResultBlockResults, error)
 }

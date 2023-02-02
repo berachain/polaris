@@ -24,13 +24,13 @@ const (
 )
 
 // `Hashrate` returns 0 since there is no mining in Tendermint.
-func (e *api) Hashrate() hexutil.Uint64 {
-	e.logger.Debug(MethodEthHashrate)
+func (api *api) Hashrate() hexutil.Uint64 {
+	api.logger.Debug(MethodEthHashrate)
 	return 0
 }
 
-// `Mining` returns 0 since there is no mining in Tendermint.
-func (e *api) Mining() bool {
-	e.logger.Debug(MethodEthMining)
+// `Mining` returns false since there is no mining in Tendermint.
+func (api *api) Mining() bool {
+	api.logger.Debug(MethodEthMining)
 	return false
 }

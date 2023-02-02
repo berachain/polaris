@@ -17,33 +17,37 @@ package client
 import (
 	"context"
 
-	"github.com/berachain/stargazer/jsonrpc/cosmos/client/block"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/cosmos/cosmos-sdk/client"
 	"go.uber.org/zap"
 )
 
-// `NodeClient` is a wrapper around the Cosmos SDK `client.Context` that implements querying and
+// `CosmosClient` is a wrapper around the Cosmos SDK `client.Context` that implements querying and
 // transaction capabilities for the Cosmos SDK.
-type NodeClient struct {
-	ctx       context.Context
+type CosmosClient struct {
+	// `ctx` is the context instance.
+	ctx context.Context
+	// `clientCtx` is the Cosmos SDK `client.Context` instance.
 	clientCtx client.Context
-	logger    libtypes.Logger[zap.Field]
 
-	blockClient block.Client
+	// `cbCtx` is the `CometBlockClient` context.
+	cbc CometBlockClient
+
+	// `logger` is the logger instance.
+	logger libtypes.Logger[zap.Field]
 }
 
-// `New` creates a new `NodeClient`.
+// `New` creates a new `CosmosClient`.
 func New(
 	ctx context.Context,
 	clientCtx client.Context,
 	logger libtypes.Logger[zap.Field],
-) *NodeClient {
-	return &NodeClient{
-		ctx:         ctx,
-		clientCtx:   clientCtx,
-		logger:      logger,
-		blockClient: utils.MustGetAs[block.Client](clientCtx.Client),
+) *CosmosClient {
+	return &CosmosClient{
+		ctx:       ctx,
+		clientCtx: clientCtx,
+		logger:    logger,
+		cbc:       utils.MustGetAs[CometBlockClient](clientCtx.Client),
 	}
 }

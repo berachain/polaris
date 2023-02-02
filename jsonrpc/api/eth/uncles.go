@@ -20,21 +20,21 @@ import (
 )
 
 // `GetUncleByBlockHashAndIndex` returns nil since there are no uncles in Tendermint.
-func (e *api) GetUncleByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) map[string]interface{} {
+func (*api) GetUncleByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) map[string]interface{} {
 	return nil
 }
 
 // `GetUncleByBlockNumberAndIndex` returns nil since there are no uncles in Tendermint.
-func (e *api) GetUncleByBlockNumberAndIndex(number, idx hexutil.Uint) map[string]interface{} {
+func (*api) GetUncleByBlockNumberAndIndex(number, idx hexutil.Uint) map[string]interface{} {
 	return nil
 }
 
 // `GetUncleCountByBlockHash` returns 0 since there are no uncles in Tendermint.
-func (e *api) GetUncleCountByBlockHash(hash common.Hash) hexutil.Uint {
+func (*api) GetUncleCountByBlockHash(hash common.Hash) hexutil.Uint {
 	return 0
 }
 
 // `GetUncleCountByBlockNumber` returns 0 since there are no uncles in Tendermint.
-func (e *api) GetUncleCountByBlockNumber(blockNum int64) hexutil.Uint {
+func (*api) GetUncleCountByBlockNumber(blockNum int64) hexutil.Uint {
 	return 0
 }

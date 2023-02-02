@@ -12,45 +12,25 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package block
+package client
 
 import (
-	"context"
-
-	"go.uber.org/zap"
-
-	libtypes "github.com/berachain/stargazer/lib/types"
-
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
+	"go.uber.org/zap"
 )
 
-// `Client` is a query client that can be used to gather block information from
-// a Cosmos SDK based blockchain.
-type Client struct {
-	// `ctx` is the context instance.
-	ctx context.Context
-	// `logger` is the logger instance.
-	logger libtypes.Logger[zap.Field]
-	// `cbCtx` is the `CometBlockClient` context.
-	cbc CometBlockClient
-}
-
-// `NewClient` creates a new `Client` instance.
-func NewClient(cbc CometBlockClient) Client {
-	return Client{cbc: cbc}
-}
-
 // `LatestBlockNumber` returns the the latest block number as reported at the application layer.
-func (c *Client) LatestBlockNumber() (uint64, error) {
+func (c *CosmosClient) LatestBlockNumber() (hexutil.Uint64, error) {
 	res, err := c.cbc.ABCIInfo(c.ctx)
 	if err != nil {
 		return 0, err
 	}
-	return uint64(res.Response.LastBlockHeight), nil
+	return hexutil.Uint64(res.Response.LastBlockHeight), nil
 }
 
 // CometBlockByNumber returns a CometBFT-formatted block at a given chain height.
-func (c *Client) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock, error) {
+func (c *CosmosClient) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock, error) {
 	if height <= 0 {
 		// fetch the latest block number from the app state, more accurate than the tendermint block store state.
 		n, err := c.LatestBlockNumber()
