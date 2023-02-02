@@ -25,7 +25,8 @@ import (
 type ControllableEventManager interface {
 	libtypes.Controllable[string]
 
-	sdk.EventManager
+	// returns the most current, valid event manager
+	EventManager() *sdk.EventManager
 }
 
 type ControllableMultiStore interface {

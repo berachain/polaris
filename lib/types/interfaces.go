@@ -42,8 +42,8 @@ type Registry[K comparable, T Registrable[K]] interface {
 	// Get return an item using its ID. It returns nil if the ID does not exist.
 	Get(K) T
 
-	// Register adds an item to the registry.
-	Register(T) error
+	// Register adds an item to the registry, indexed on the item's `RegistryKey`.
+	Register(T)
 
 	// Remove removes an item from the registry.
 	Remove(K)

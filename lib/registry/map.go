@@ -40,13 +40,8 @@ func (mr *mapRegistry[K, T]) Get(id K) T {
 }
 
 // `Register` adds an item to the registry.
-func (mr *mapRegistry[K, T]) Register(item T) error {
-	id := item.RegistryKey()
-	if _, ok := mr.items[id]; ok {
-		return libtypes.ErrObjectAlreadyExists
-	}
-	mr.items[id] = item
-	return nil
+func (mr *mapRegistry[K, T]) Register(item T) {
+	mr.items[item.RegistryKey()] = item
 }
 
 // `Remove` removes an item from the registry.

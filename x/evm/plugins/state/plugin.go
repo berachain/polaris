@@ -64,13 +64,12 @@ var (
 type statePlugin struct {
 	libtypes.Controller[string, libtypes.Controllable[string]]
 
-	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
-	cms ControllableMultiStore
-
 	// We maintain a context in the StateDB, so that we can pass it with the correctly
 	// configured multi-store to the precompiled contracts.
 	ctx sdk.Context
-	cc  sdk.Context
+
+	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
+	cms ControllableMultiStore
 
 	// Store the evm store key for quick lookups to the evm store
 	evmStoreKey storetypes.StoreKey
@@ -92,30 +91,25 @@ func NewPlugin(
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
 ) (ethstate.StatePlugin, error) {
-	// setup the Controllable MultiStore and EventManager
-	cms := snapmulti.NewStoreFrom(ctx.MultiStore())
-	cem := events.NewControllableManagerFrom(ctx)
-
-	// setup the snapshot controller
-	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	err := ctrl.Register(cms)
-	if err != nil {
-		return nil, err
-	}
-	err = ctrl.Register(cem)
-	if err != nil {
-		return nil, err
-	}
-
-	return &statePlugin{
-		Controller:  ctrl,
-		cms:         cms,
-		ctx:         ctx.WithMultiStore(cms).WithEventManager(cem),
+	sp := &statePlugin{
 		evmStoreKey: evmStoreKey,
 		ak:          ak,
 		bk:          bk,
 		evmDenom:    evmDenom,
-	}, nil
+	}
+
+	// setup the Controllable MultiStore and EventManager and attach them to the context
+	sp.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
+	cem := events.NewControllableManager(ctx.EventManager())
+	sp.ctx = ctx.WithMultiStore(sp.cms).WithEventManager(cem.EventManager())
+
+	// setup the snapshot controller
+	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
+	ctrl.Register(sp.cms)
+	ctrl.Register(cem)
+	sp.Controller = ctrl
+
+	return sp, nil
 }
 
 func (sp *statePlugin) RegistryKey() string {
@@ -137,7 +131,7 @@ func (sp *statePlugin) CreateAccount(addr common.Address) {
 	acc := sp.ak.NewAccountWithAddress(sp.ctx, addr[:])
 
 	// save the new account in the account keeper
-	sp.ak.SetAccount(sp.cc, acc)
+	sp.ak.SetAccount(sp.ctx, acc)
 
 	// initialize the code hash to empty
 	sp.cms.GetKVStore(sp.evmStoreKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)

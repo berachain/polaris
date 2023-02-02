@@ -55,26 +55,17 @@ type StateDB struct { //nolint:revive // we live the vibe.
 
 func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (*StateDB, error) {
 	// Build the controller and register the plugins
-	controller := snapshot.NewController[string, libtypes.Controllable[string]]()
-	err := controller.Register(lp)
-	if err != nil {
-		return nil, err
-	}
-	err = controller.Register(rp)
-	if err != nil {
-		return nil, err
-	}
-	err = controller.Register(sp)
-	if err != nil {
-		return nil, err
-	}
+	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
+	ctrl.Register(lp)
+	ctrl.Register(rp)
+	ctrl.Register(sp)
 
 	// Create the `StateDB` and populate the developer provided plugins.
 	return &StateDB{
 		StatePlugin:  sp,
 		LogsPlugin:   lp,
 		RefundPlugin: rp,
-		ctrl:         controller,
+		ctrl:         ctrl,
 		suicides:     make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}, nil
 }
