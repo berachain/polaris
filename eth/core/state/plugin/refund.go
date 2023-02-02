@@ -66,7 +66,7 @@ func (r *refund) SubRefund(gas uint64) {
 //
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (r *refund) Snapshot() int {
-	return r.Size() - 1
+	return r.Size()
 }
 
 // `RevertToSnapshot` reverts the refund counter to the value at the given `snap`.
