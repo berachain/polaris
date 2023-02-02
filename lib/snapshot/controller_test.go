@@ -15,43 +15,34 @@
 package snapshot
 
 import (
-	"testing"
+	libtypes "github.com/berachain/stargazer/lib/types"
+	"github.com/berachain/stargazer/lib/utils"
 
 	typesmock "github.com/berachain/stargazer/lib/types/mock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestSnapshot(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "lib/snapshot")
-}
-
 var _ = Describe("Controller", func() {
-	var ctrl *Controller
-	var object1 *typesmock.SnapshottableMock
-	var object2 *typesmock.SnapshottableMock
+	var ctrl *controller[string, libtypes.Controllable[string]]
+	var object1 *typesmock.ControllableMock[string]
+	var object2 *typesmock.ControllableMock[string]
 
 	BeforeEach(func() {
-		ctrl = NewController()
-		object1 = typesmock.NewSnapshottableMock()
-		object2 = typesmock.NewSnapshottableMock()
+		ctrl = utils.MustGetAs[*controller[string, libtypes.Controllable[string]]](
+			NewController[string, libtypes.Controllable[string]](),
+		)
+		object1 = typesmock.NewControllableMock1()
+		object2 = typesmock.NewControllableMock2()
 	})
 
 	When("adding a new object", func() {
 		BeforeEach(func() {
-			err := ctrl.Register("object1", object1)
-			Expect(err).To(BeNil())
+			Expect(ctrl.Register(object1)).To(BeNil())
 		})
 		It("should add the object", func() {
 			obj := ctrl.Get("object1")
 			Expect(obj).To(Equal(object1))
-		})
-		When("adding a new object with the same name", func() {
-			It("should return an error", func() {
-				err := ctrl.Register("object1", object1)
-				Expect(err).To(MatchError(ErrObjectAlreadyExists))
-			})
 		})
 
 		When("calling Get on an uncontrolled object", func() {
@@ -95,7 +86,7 @@ var _ = Describe("Controller", func() {
 				})
 				When("we start controlling a new object", func() {
 					BeforeEach(func() {
-						Expect(ctrl.Register("object2", object2)).To(BeNil())
+						Expect(ctrl.Register(object2)).Error().NotTo(HaveOccurred())
 					})
 					It("should have the correct number of snapshot calls still", func() {
 						Expect(object1.SnapshotCalls()).To(HaveLen(2))
@@ -126,6 +117,11 @@ var _ = Describe("Controller", func() {
 							Expect(snaps["object1"]).To(Equal(12))
 							Expect(snaps["object2"]).To(Equal(7))
 						})
+						It("should correctly finalize", func() {
+							ctrl.Finalize()
+							Expect(len(object1.FinalizeCalls())).To(Equal(1))
+							Expect(len(object2.FinalizeCalls())).To(Equal(1))
+						})
 						When("we call revert on the controller", func() {
 							It("should have the correct historical revisions", func() {
 								ctrl.RevertToSnapshot(2)
@@ -146,11 +142,6 @@ var _ = Describe("Controller", func() {
 							})
 						})
 					})
-				})
-				It("should not panic on calling finalize", func() {
-					Expect(func() {
-						ctrl.Finalize()
-					}).ToNot(Panic())
 				})
 			})
 		})

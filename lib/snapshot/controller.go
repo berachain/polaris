@@ -17,68 +17,70 @@ package snapshot
 import (
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
+	"github.com/berachain/stargazer/lib/registry"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
 // `initJournalCapacity` is the initial capacity of the `journal` stack.
-const initJournalCapacity = 16
+// TODO: determine better initial capacity.
+const initJournalCapacity = 32
 
-// `Controller` implements the `libtypes.Snapshottable` interface.
-var _ libtypes.Snapshottable = (*Controller)(nil)
+// `revision` is a snapshot revision, which holds all `Controllable`s' snapshot ids.
+// Specifically, it is a map of a `Controllable`'s `RegistryKey` to its corresponding current
+// snapshot revision id.
+type revision[K comparable] map[K]int
 
-// `Controller` conforms to the `libtypes.Snapshottable` interface and is used to sync
-// snapshotting across multiple `libtypes.Snapshottable` objects.
-type Controller struct {
-	keyToSnapshottable map[string]libtypes.Snapshottable
-	journal            ds.Stack[map[string]int]
+// `controller` conforms to the `libtypes.Controller` interface and is used to register and sync
+// snapshotting across multiple `libtypes.Controllable` objects.
+type controller[K comparable, T libtypes.Controllable[K]] struct {
+	// `Registry` stores the `Controllable` objects.
+	libtypes.Registry[K, T]
+
+	// `journal` is a stack of `revision`s. All `Controllable` objects are currently on the
+	// snapshot revision id at the top (`Peek()`) of the journal stack. If the stack is empty, all
+	// `Controllable` objects have no snapshot.
+	journal ds.Stack[revision[K]]
 }
 
 // `NewController` returns a new `Controller` object.
-func NewController() *Controller {
-	return &Controller{
-		keyToSnapshottable: make(map[string]libtypes.Snapshottable),
-		journal:            stack.New[map[string]int](initJournalCapacity),
+func NewController[K comparable, T libtypes.Controllable[K]]() libtypes.Controller[K, T] {
+	return &controller[K, T]{
+		Registry: registry.NewMap[K, T](),
+		journal:  stack.New[revision[K]](initJournalCapacity),
 	}
 }
 
-// `Register` adds a `libtypes.Snapshottable` object to the `Controller`.
-func (c *Controller) Register(key string, object libtypes.Snapshottable) error {
-	if _, ok := c.keyToSnapshottable[key]; ok {
-		return ErrObjectAlreadyExists
+// `Snapshot` takes a snapshot for all controllable objects and returns the controller's snapshot
+// id.
+//
+// `Snapshot` implements `libtypes.Snapshottable`.
+func (c *controller[K, T]) Snapshot() int {
+	newRevision := make(revision[K])
+	for key, controllable := range c.Iterate() {
+		newRevision[key] = controllable.Snapshot()
 	}
-	c.keyToSnapshottable[key] = object
-	return nil
+
+	// push the new revision and return the size BEFORE snapshot
+	return c.journal.Push(newRevision) - 1
 }
 
-// `Get` returns the `libtypes.Snapshottable` object with the given `id`.
-func (c *Controller) Get(key string) libtypes.Snapshottable {
-	return c.keyToSnapshottable[key]
-}
-
-// `Snapshot` returns the current snapshot number.
-func (c *Controller) Snapshot() int {
-	snap := make(map[string]int)
-	for id, store := range c.keyToSnapshottable {
-		snap[id] = store.Snapshot()
+// `RevertToSnapshot` reverts all controllable objects to their own snapshot id corresponding to
+// `id`.
+//
+// `RevertToSnapshot` implements `libtypes.Snapshottable`.
+func (c *controller[K, T]) RevertToSnapshot(id int) {
+	// `id` is the new size of the journal we want to maintain.
+	for key, revertedSnapshot := range c.journal.PopToSize(id) {
+		// revert all `Controllable` objects to their corresponding revision
+		c.Get(key).RevertToSnapshot(revertedSnapshot)
 	}
-	c.journal.Push(snap)
-
-	return c.journal.Size()
 }
 
-// `RevertToSnapshot` reverts all `libtypes.Snapshottable` objects to the snapshot with
-// the given `snap` number.
-func (c *Controller) RevertToSnapshot(revision int) {
-	lastestSnapshot := c.journal.Peek()
-	for id, store := range c.keyToSnapshottable {
-		// Only revert if exists. This is to handle the case where a
-		// `libtypes.Snapshottable` object is added after a snapshot has been taken.
-		if objRevision, ok := lastestSnapshot[id]; ok {
-			store.RevertToSnapshot(objRevision)
-		}
+// `Finalize` writes all the controllables controlled by this controller.
+//
+// `Finalize` implements `libtypes.Controller`.
+func (c *controller[K, T]) Finalize() {
+	for _, controllable := range c.Iterate() {
+		controllable.Finalize()
 	}
-	c.journal.PopToSize(revision)
 }
-
-// `Finalize` is a no-op and is left to be extended by an implementation.
-func (c *Controller) Finalize() {}
