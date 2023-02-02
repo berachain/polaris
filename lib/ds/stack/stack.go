@@ -96,11 +96,6 @@ func (s *stack[T]) PopToSize(newSize int) T {
 	return s.buf[s.size]
 }
 
-// `Slice` implements `Stack`.
-func (s *stack[T]) Slice() []T {
-	return s.buf[:s.size]
-}
-
 // `expandIfRequired` expands the stack if the size is equal to the capacity.
 func (s *stack[T]) expandIfRequired() {
 	if s.size < s.capacity {
