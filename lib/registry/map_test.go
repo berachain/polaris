@@ -33,14 +33,15 @@ var _ = Describe("Registry", func() {
 		BeforeEach(func() {
 			// Register an item.
 			item := mock.NewMockRegistrable("foo", "bar")
-			err := r.Register(item)
-			Expect(err).ToNot(HaveOccurred())
+			r.Register(item)
 		})
 
-		It("should return an error if the item already exists", func() {
+		It("should be a no-op if the item already exists", func() {
 			// Register the same item again.
-			err := r.Register(mock.NewMockRegistrable("foo", "bar"))
-			Expect(err).To(HaveOccurred())
+			mr := mock.NewMockRegistrable("foo", "bar2")
+			r.Register(mr)
+			Expect(len(r.Iterate())).To(Equal(1))
+			Expect(r.Get("foo").Data()).To(Equal("bar2"))
 		})
 
 		It("should be able to get the item", func() {

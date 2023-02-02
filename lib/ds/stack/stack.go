@@ -57,10 +57,11 @@ func (s *stack[T]) PeekAt(index int) T {
 }
 
 // `Push` implements `Stack`.
-func (s *stack[T]) Push(i T) {
+func (s *stack[T]) Push(i T) int {
 	s.expandIfRequired()
 	s.buf[s.size] = i
 	s.size++
+	return s.size
 }
 
 // `Size` implements `Stack`.
@@ -85,13 +86,19 @@ func (s *stack[T]) Pop() T {
 }
 
 // `PopToSize` implements `Stack`.
-func (s *stack[T]) PopToSize(newSize int) {
+func (s *stack[T]) PopToSize(newSize int) T {
 	if newSize < 0 || newSize > s.size {
 		panic("newSize out of bounds")
 	}
 
 	s.size = newSize
 	s.shrinkIfRequired()
+	return s.buf[s.size]
+}
+
+// `Slice` implements `Stack`.
+func (s *stack[T]) Slice() []T {
+	return s.buf[:s.size]
 }
 
 // `expandIfRequired` expands the stack if the size is equal to the capacity.

@@ -13,6 +13,9 @@ import (
 //
 //		// make and configure a mocked types.Controllable
 //		mockedControllable := &ControllableMock{
+//			FinalizeFunc: func()  {
+//				panic("mock out the Finalize method")
+//			},
 //			RegistryKeyFunc: func() K {
 //				panic("mock out the RegistryKey method")
 //			},
@@ -22,9 +25,6 @@ import (
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
 //			},
-//			WriteFunc: func()  {
-//				panic("mock out the Write method")
-//			},
 //		}
 //
 //		// use mockedControllable in code that requires types.Controllable
@@ -32,6 +32,9 @@ import (
 //
 //	}
 type ControllableMock[K comparable] struct {
+	// FinalizeFunc mocks the Finalize method.
+	FinalizeFunc func()
+
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() K
 
@@ -41,11 +44,11 @@ type ControllableMock[K comparable] struct {
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
 
-	// WriteFunc mocks the Write method.
-	WriteFunc func()
-
 	// calls tracks calls to the methods.
 	calls struct {
+		// Finalize holds details about calls to the Finalize method.
+		Finalize []struct {
+		}
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
@@ -57,14 +60,38 @@ type ControllableMock[K comparable] struct {
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
 		}
-		// Write holds details about calls to the Write method.
-		Write []struct {
-		}
 	}
+	lockFinalize         sync.RWMutex
 	lockRegistryKey      sync.RWMutex
 	lockRevertToSnapshot sync.RWMutex
 	lockSnapshot         sync.RWMutex
-	lockWrite            sync.RWMutex
+}
+
+// Finalize calls FinalizeFunc.
+func (mock *ControllableMock[K]) Finalize() {
+	if mock.FinalizeFunc == nil {
+		panic("ControllableMock.FinalizeFunc: method is nil but Controllable.Finalize was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockFinalize.Lock()
+	mock.calls.Finalize = append(mock.calls.Finalize, callInfo)
+	mock.lockFinalize.Unlock()
+	mock.FinalizeFunc()
+}
+
+// FinalizeCalls gets all the calls that were made to Finalize.
+// Check the length with:
+//
+//	len(mockedControllable.FinalizeCalls())
+func (mock *ControllableMock[K]) FinalizeCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockFinalize.RLock()
+	calls = mock.calls.Finalize
+	mock.lockFinalize.RUnlock()
+	return calls
 }
 
 // RegistryKey calls RegistryKeyFunc.
@@ -150,32 +177,5 @@ func (mock *ControllableMock[K]) SnapshotCalls() []struct {
 	mock.lockSnapshot.RLock()
 	calls = mock.calls.Snapshot
 	mock.lockSnapshot.RUnlock()
-	return calls
-}
-
-// Write calls WriteFunc.
-func (mock *ControllableMock[K]) Write() {
-	if mock.WriteFunc == nil {
-		panic("ControllableMock.WriteFunc: method is nil but Controllable.Write was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockWrite.Lock()
-	mock.calls.Write = append(mock.calls.Write, callInfo)
-	mock.lockWrite.Unlock()
-	mock.WriteFunc()
-}
-
-// WriteCalls gets all the calls that were made to Write.
-// Check the length with:
-//
-//	len(mockedControllable.WriteCalls())
-func (mock *ControllableMock[K]) WriteCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockWrite.RLock()
-	calls = mock.calls.Write
-	mock.lockWrite.RUnlock()
 	return calls
 }

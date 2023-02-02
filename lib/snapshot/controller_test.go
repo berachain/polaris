@@ -38,18 +38,11 @@ var _ = Describe("Controller", func() {
 
 	When("adding a new object", func() {
 		BeforeEach(func() {
-			err := ctrl.Register(object1)
-			Expect(err).To(BeNil())
+			ctrl.Register(object1)
 		})
 		It("should add the object", func() {
 			obj := ctrl.Get("object1")
 			Expect(obj).To(Equal(object1))
-		})
-		When("adding a new object with the same name", func() {
-			It("should return an error", func() {
-				err := ctrl.Register(object1)
-				Expect(err).To(MatchError(libtypes.ErrObjectAlreadyExists))
-			})
 		})
 
 		When("calling Get on an uncontrolled object", func() {
@@ -93,7 +86,7 @@ var _ = Describe("Controller", func() {
 				})
 				When("we start controlling a new object", func() {
 					BeforeEach(func() {
-						Expect(ctrl.Register(object2)).To(BeNil())
+						ctrl.Register(object2)
 					})
 					It("should have the correct number of snapshot calls still", func() {
 						Expect(object1.SnapshotCalls()).To(HaveLen(2))
@@ -123,6 +116,11 @@ var _ = Describe("Controller", func() {
 							Expect(snaps).To(HaveLen(2))
 							Expect(snaps["object1"]).To(Equal(12))
 							Expect(snaps["object2"]).To(Equal(7))
+						})
+						It("should correctly finalize", func() {
+							ctrl.Finalize()
+							Expect(len(object1.FinalizeCalls())).To(Equal(1))
+							Expect(len(object2.FinalizeCalls())).To(Equal(1))
 						})
 						When("we call revert on the controller", func() {
 							It("should have the correct historical revisions", func() {

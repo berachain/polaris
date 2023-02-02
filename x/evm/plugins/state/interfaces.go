@@ -25,7 +25,7 @@ import (
 type ControllableMultiStore interface {
 	libtypes.Controllable[string]
 
-	storetypes.CacheMultiStore
+	storetypes.MultiStore
 	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
 }
 

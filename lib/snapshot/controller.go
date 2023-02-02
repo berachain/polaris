@@ -36,7 +36,9 @@ type controller[K comparable, T libtypes.Controllable[K]] struct {
 	// `Registry` stores the `Controllable` objects.
 	libtypes.Registry[K, T]
 
-	// `journal` is a stack of `revision`s.
+	// `journal` is a stack of `revision`s. All `Controllable` objects are currently on the
+	// snapshot revision id at the top (`Peek()`) of the journal stack. If the stack is empty, all
+	// `Controllable` objects have no snapshot.
 	journal ds.Stack[revision[K]]
 }
 
@@ -53,13 +55,13 @@ func NewController[K comparable, T libtypes.Controllable[K]]() libtypes.Controll
 //
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (c *controller[K, T]) Snapshot() int {
-	snap := make(revision[K])
+	newRevision := make(revision[K])
 	for key, controllable := range c.Iterate() {
-		snap[key] = controllable.Snapshot()
+		newRevision[key] = controllable.Snapshot()
 	}
-	c.journal.Push(snap)
 
-	return c.journal.Size()
+	// push the new revision and return the size BEFORE snapshot
+	return c.journal.Push(newRevision) - 1
 }
 
 // `RevertToSnapshot` reverts all controllable objects to their own snapshot id corresponding to
@@ -67,15 +69,11 @@ func (c *controller[K, T]) Snapshot() int {
 //
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (c *controller[K, T]) RevertToSnapshot(id int) {
-	lastestSnapshot := c.journal.Peek()
-	for key, controllable := range c.Iterate() {
-		// Only revert if exists. This is to handle the case where a `libtypes.Controllable` object
-		// is added after a snapshot has been taken.
-		if revision, ok := lastestSnapshot[key]; ok {
-			controllable.RevertToSnapshot(revision)
-		}
+	// `id` is the new size of the journal we want to maintain.
+	for key, revertedSnapshot := range c.journal.PopToSize(id) {
+		// revert all `Controllable` objects to their corresponding revision
+		c.Get(key).RevertToSnapshot(revertedSnapshot)
 	}
-	c.journal.PopToSize(id)
 }
 
 // `Finalize` writes all the controllables controlled by this controller.
@@ -83,6 +81,6 @@ func (c *controller[K, T]) RevertToSnapshot(id int) {
 // `Finalize` implements `libtypes.Controller`.
 func (c *controller[K, T]) Finalize() {
 	for _, controllable := range c.Iterate() {
-		controllable.Write()
+		controllable.Finalize()
 	}
 }
