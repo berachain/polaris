@@ -96,9 +96,6 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		HasSuicidedFunc: func(address common.Address) bool {
 			panic("mock out the HasSuicided method")
 		},
-		PrepareForTxFunc: func(txHash common.Hash) {
-			panic("mock out the Prepare method")
-		},
 		PrepareAccessListFunc: func(sender common.Address, dest *common.Address,
 			precompiles []common.Address, txAccesses types.AccessList) {
 			panic("mock out the PrepareAccessList method")

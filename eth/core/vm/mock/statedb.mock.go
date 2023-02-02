@@ -94,9 +94,6 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			PrepareAccessListFunc: func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
 //				panic("mock out the PrepareAccessList method")
 //			},
-//			PrepareForTxFunc: func(txHash common.Hash)  {
-//				panic("mock out the PrepareForTx method")
-//			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
 //			},
@@ -205,9 +202,6 @@ type StargazerStateDBMock struct {
 
 	// PrepareAccessListFunc mocks the PrepareAccessList method.
 	PrepareAccessListFunc func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
-
-	// PrepareForTxFunc mocks the PrepareForTx method.
-	PrepareForTxFunc func(txHash common.Hash)
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -373,11 +367,6 @@ type StargazerStateDBMock struct {
 			// TxAccesses is the txAccesses argument value.
 			TxAccesses types.AccessList
 		}
-		// PrepareForTx holds details about calls to the PrepareForTx method.
-		PrepareForTx []struct {
-			// TxHash is the txHash argument value.
-			TxHash common.Hash
-		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
 			// N is the n argument value.
@@ -467,7 +456,6 @@ type StargazerStateDBMock struct {
 	lockGetState               sync.RWMutex
 	lockHasSuicided            sync.RWMutex
 	lockPrepareAccessList      sync.RWMutex
-	lockPrepareForTx           sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
@@ -1266,38 +1254,6 @@ func (mock *StargazerStateDBMock) PrepareAccessListCalls() []struct {
 	mock.lockPrepareAccessList.RLock()
 	calls = mock.calls.PrepareAccessList
 	mock.lockPrepareAccessList.RUnlock()
-	return calls
-}
-
-// PrepareForTx calls PrepareForTxFunc.
-func (mock *StargazerStateDBMock) PrepareForTx(txHash common.Hash) {
-	if mock.PrepareForTxFunc == nil {
-		panic("StargazerStateDBMock.PrepareForTxFunc: method is nil but StargazerStateDB.PrepareForTx was just called")
-	}
-	callInfo := struct {
-		TxHash common.Hash
-	}{
-		TxHash: txHash,
-	}
-	mock.lockPrepareForTx.Lock()
-	mock.calls.PrepareForTx = append(mock.calls.PrepareForTx, callInfo)
-	mock.lockPrepareForTx.Unlock()
-	mock.PrepareForTxFunc(txHash)
-}
-
-// PrepareForTxCalls gets all the calls that were made to PrepareForTx.
-// Check the length with:
-//
-//	len(mockedStargazerStateDB.PrepareForTxCalls())
-func (mock *StargazerStateDBMock) PrepareForTxCalls() []struct {
-	TxHash common.Hash
-} {
-	var calls []struct {
-		TxHash common.Hash
-	}
-	mock.lockPrepareForTx.RLock()
-	calls = mock.calls.PrepareForTx
-	mock.lockPrepareForTx.RUnlock()
 	return calls
 }
 
