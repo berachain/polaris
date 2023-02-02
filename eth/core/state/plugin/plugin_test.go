@@ -12,27 +12,18 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+package plugin
 
 import (
-	"math/big"
+	"testing"
 
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/utils"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// Compile-time type assertion.
-var _ vm.CanTransferFunc = canTransfer
-var _ vm.TransferFunc = transfer
-
-// `canTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func canTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
-}
-
-// `transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
-func transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
+func TestPlugin(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "eth/core/state/plugin")
 }
