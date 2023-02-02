@@ -43,13 +43,14 @@ type Registry[K comparable, T Registrable[K]] interface {
 	Get(K) T
 
 	// Register adds an item to the registry, indexed on the item's `RegistryKey`.
-	Register(T)
+	Register(T) error
 
 	// Remove removes an item from the registry.
 	Remove(K)
 
-	// Exists returns true if the item exists in the registry.
-	Exists(K) bool
+	// Exists returns the item and true if the item exists in the registry. If not, the item
+	// returned is nil.
+	Exists(K) (T, bool)
 
 	// Iterate returns an iterable map of the registry.
 	Iterate() map[K]T

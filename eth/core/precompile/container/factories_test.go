@@ -103,7 +103,7 @@ var _ = Describe("Container Factories", func() {
 
 type mockBase struct{}
 
-func (mb *mockBase) Address() common.Address {
+func (mb *mockBase) RegistryKey() common.Address {
 	return common.Address{}
 }
 

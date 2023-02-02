@@ -26,16 +26,14 @@ import (
 )
 
 var _ = Describe("controller", func() {
-	var r precompile.Registry
 	var c *precompile.Controller
 	var mr *mockRunner
 
 	BeforeEach(func() {
-		r = precompile.NewRegistry()
-		err := r.Register(&mockStateless{})
-		Expect(err).To(BeNil())
 		mr = &mockRunner{}
-		c = precompile.NewController(r, mr)
+		c = precompile.NewController(mr)
+		err := c.Register(&mockStateless{})
+		Expect(err).To(BeNil())
 	})
 
 	It("should find and run", func() {
