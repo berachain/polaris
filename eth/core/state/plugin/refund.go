@@ -20,13 +20,6 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
-const (
-	// `initCapacity` is the initial capacity of the `refund`'s snapshot stack.
-	initCapacity = 16
-	// `refundRegistryKey` is the registry key for the `refund` plugin.
-	refundRegistryKey = "refund"
-)
-
 // `refund` is a `Store` that tracks the refund counter.
 type refund struct {
 	ds.Stack[uint64] // journal of historical refunds.
@@ -34,9 +27,8 @@ type refund struct {
 
 // `NewRefund` creates and returns a `refund`.
 func NewRefund() state.RefundPlugin {
-	stack := stack.New[uint64](initCapacity)
 	return &refund{
-		Stack: stack,
+		Stack: stack.New[uint64](initJournalCapacity),
 	}
 }
 

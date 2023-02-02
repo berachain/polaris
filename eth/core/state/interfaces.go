@@ -20,9 +20,21 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
+type LogsPlugin interface {
+	// `RefundPlugin` implements `libtypes.Controllable`.
+	libtypes.Controllable[string]
+	// `Prepare` prepares the state for a txHash
+	PrepareForTx(common.Hash)
+	// `AddLog` adds a log to the state
+	AddLog(*coretypes.Log)
+	// `GetLogsAndClear` returns the logs of the state
+	GetLogsAndClear(common.Hash) []*coretypes.Log
+}
+
 // `RefundPlugin` is a `Store` that tracks the refund counter.
 type RefundPlugin interface {
 	// `RefundPlugin` implements `libtypes.Snapshottable`.
+	// `RefundPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
 	// `GetRefund` returns the current value of the refund counter.
 	GetRefund() uint64
@@ -30,16 +42,4 @@ type RefundPlugin interface {
 	AddRefund(gas uint64)
 	// `SubRefund` subtracts the given `gas` from the refund counter.
 	SubRefund(gas uint64)
-}
-
-// `LogsPlugin` is a `Store` that tracks the block and tx logs.
-type LogsPlugin interface {
-	// `LogsPlugin` implements `libtypes.Snapshottable`.
-	libtypes.Controllable[string]
-	// `Prepare` prepares the state for a txHash
-	Prepare(common.Hash, uint)
-	// `AddLog` adds a log to the state
-	AddLog(*coretypes.Log)
-	// `GetLogs` returns the logs of the state
-	GetLogs(common.Hash, common.Hash) []*coretypes.Log
 }

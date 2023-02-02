@@ -26,17 +26,14 @@ import (
 var _ = Describe("Logs", func() {
 	var l *logs
 	var h1 = common.BytesToHash([]byte{1})
-	var h2 = common.BytesToHash([]byte{2})
 	var a1 = common.BytesToAddress([]byte{3})
 	var a2 = common.BytesToAddress([]byte{4})
-	var ti = uint(10)
 
 	BeforeEach(func() {
 		l = utils.MustGetAs[*logs](NewLogs())
-		l.Prepare(h1, ti)
-		Expect(l.currenTxIndex).To(Equal(ti))
+		Expect(l.Capacity()).To(Equal(32))
+		l.PrepareForTx(h1)
 		Expect(l.currentTxHash).To(Equal(h1))
-		Expect(l.txHashToLogs[h1].Capacity()).To(Equal(32))
 	})
 
 	It("should have the correct registry key", func() {
@@ -46,24 +43,19 @@ var _ = Describe("Logs", func() {
 	When("adding logs", func() {
 		BeforeEach(func() {
 			l.AddLog(&coretypes.Log{Address: a1})
-			logs := l.GetLogs(h1, h2)
-			Expect(len(logs)).To(Equal(1))
-			Expect(logs[0].Address).To(Equal(a1))
-			Expect(logs[0].BlockHash).To(Equal(h2))
+			Expect(l.Size()).To(Equal(1))
+			Expect(l.PeekAt(0).Address).To(Equal(a1))
 		})
 
 		It("should correctly snapshot and revert", func() {
 			id := l.Snapshot()
 
 			l.AddLog(&coretypes.Log{Address: a2})
-			logs := l.GetLogs(h1, h2)
-			Expect(len(logs)).To(Equal(2))
-			Expect(logs[1].Address).To(Equal(a2))
-			Expect(logs[1].BlockHash).To(Equal(h2))
+			Expect(l.Size()).To(Equal(2))
+			Expect(l.PeekAt(1).Address).To(Equal(a2))
 
 			l.RevertToSnapshot(id)
-			logs = l.GetLogs(h1, h2)
-			Expect(len(logs)).To(Equal(1))
+			Expect(l.Size()).To(Equal(1))
 		})
 
 		It("should corrctly finalize", func() {
