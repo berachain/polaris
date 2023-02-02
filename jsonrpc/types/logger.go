@@ -14,7 +14,7 @@
 
 package types
 
-type Logger interface {
+type ZapLogger interface {
 	// Debug logs a message at level Debug on the standard logger.
 	Debug(args ...interface{})
 	// Info logs a message at level Info on the standard logger.

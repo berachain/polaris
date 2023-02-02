@@ -40,7 +40,7 @@ func (api *api) Health() string {
 }
 
 // `RpcHealth` returns if the rpc server is healthy.
-func (api api) RpcHealth() string { //nolint: revive // by design.
+func (api api) RpcHealth() string { //nolint:revive,stylecheck // to make method _rpcHealth.
 	api.logger.Info("node_rpcHealth")
 	return "ok"
 }

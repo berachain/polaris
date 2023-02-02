@@ -27,20 +27,22 @@ import (
 
 // `Service` is a JSON-RPC endpoint service.
 type Service struct {
+	logger *zap.Logger
 	server *server.Service
 }
 
 // `New` is a constructor for `Service`.
 func New(config server.Config, clientCtx client.Context) *Service {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync() //nolint: errcheck // ignore error
 	return &Service{
-		server: server.New(config, clientCtx),
+		logger: logger,
+		server: server.New(config, logger, clientCtx),
 	}
 }
 
 // `Start` starts the service.
 func (s *Service) Start() error {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync() //nolint: errcheck // ignore error
 	// errCh := make(chan error)
 	// 1. Build CosmosClient to connect to node
 	// TODO: implement
@@ -55,15 +57,15 @@ func (s *Service) Start() error {
 	// Wait for interrupt signal or an error to gracefully shutdown the server.
 	var err error
 	select {
-	case s := <-interrupt:
-		logger.Info("app - Run - signal: " + s.String())
+	case sig := <-interrupt:
+		s.logger.Info("app - Run - signal: " + sig.String())
 	case err = <-s.server.Notify():
-		logger.Error(err.Error())
+		s.logger.Error(err.Error())
 	}
 
 	// Shutdown
 	if sErr := s.server.Shutdown(); sErr != nil {
-		logger.Error(sErr.Error())
+		s.logger.Error(sErr.Error())
 		return sErr
 	}
 
