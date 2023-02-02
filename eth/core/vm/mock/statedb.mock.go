@@ -76,8 +76,8 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			GetContextFunc: func() context.Context {
 //				panic("mock out the GetContext method")
 //			},
-//			GetLogsFunc: func(hash1 common.Hash, hash2 common.Hash) []*types.Log {
-//				panic("mock out the GetLogs method")
+//			GetLogsAndClearFunc: func(txHash common.Hash) []*types.Log {
+//				panic("mock out the GetLogsAndClear method")
 //			},
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
@@ -91,11 +91,11 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			HasSuicidedFunc: func(address common.Address) bool {
 //				panic("mock out the HasSuicided method")
 //			},
-//			PrepareFunc: func(txHash common.Hash, ti uint)  {
-//				panic("mock out the Prepare method")
-//			},
 //			PrepareAccessListFunc: func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
 //				panic("mock out the PrepareAccessList method")
+//			},
+//			PrepareForTxFunc: func(txHash common.Hash)  {
+//				panic("mock out the PrepareForTx method")
 //			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
@@ -188,8 +188,8 @@ type StargazerStateDBMock struct {
 	// GetContextFunc mocks the GetContext method.
 	GetContextFunc func() context.Context
 
-	// GetLogsFunc mocks the GetLogs method.
-	GetLogsFunc func(hash1 common.Hash, hash2 common.Hash) []*types.Log
+	// GetLogsAndClearFunc mocks the GetLogsAndClear method.
+	GetLogsAndClearFunc func(txHash common.Hash) []*types.Log
 
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
@@ -203,11 +203,11 @@ type StargazerStateDBMock struct {
 	// HasSuicidedFunc mocks the HasSuicided method.
 	HasSuicidedFunc func(address common.Address) bool
 
-	// PrepareFunc mocks the Prepare method.
-	PrepareFunc func(txHash common.Hash, ti uint)
-
 	// PrepareAccessListFunc mocks the PrepareAccessList method.
 	PrepareAccessListFunc func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
+
+	// PrepareForTxFunc mocks the PrepareForTx method.
+	PrepareForTxFunc func(txHash common.Hash)
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -337,12 +337,10 @@ type StargazerStateDBMock struct {
 		// GetContext holds details about calls to the GetContext method.
 		GetContext []struct {
 		}
-		// GetLogs holds details about calls to the GetLogs method.
-		GetLogs []struct {
-			// Hash1 is the hash1 argument value.
-			Hash1 common.Hash
-			// Hash2 is the hash2 argument value.
-			Hash2 common.Hash
+		// GetLogsAndClear holds details about calls to the GetLogsAndClear method.
+		GetLogsAndClear []struct {
+			// TxHash is the txHash argument value.
+			TxHash common.Hash
 		}
 		// GetNonce holds details about calls to the GetNonce method.
 		GetNonce []struct {
@@ -364,13 +362,6 @@ type StargazerStateDBMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
-		// Prepare holds details about calls to the Prepare method.
-		Prepare []struct {
-			// TxHash is the txHash argument value.
-			TxHash common.Hash
-			// Ti is the ti argument value.
-			Ti uint
-		}
 		// PrepareAccessList holds details about calls to the PrepareAccessList method.
 		PrepareAccessList []struct {
 			// Sender is the sender argument value.
@@ -381,6 +372,11 @@ type StargazerStateDBMock struct {
 			Precompiles []common.Address
 			// TxAccesses is the txAccesses argument value.
 			TxAccesses types.AccessList
+		}
+		// PrepareForTx holds details about calls to the PrepareForTx method.
+		PrepareForTx []struct {
+			// TxHash is the txHash argument value.
+			TxHash common.Hash
 		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
@@ -465,13 +461,13 @@ type StargazerStateDBMock struct {
 	lockGetCodeSize            sync.RWMutex
 	lockGetCommittedState      sync.RWMutex
 	lockGetContext             sync.RWMutex
-	lockGetLogs                sync.RWMutex
+	lockGetLogsAndClear        sync.RWMutex
 	lockGetNonce               sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
 	lockHasSuicided            sync.RWMutex
-	lockPrepare                sync.RWMutex
 	lockPrepareAccessList      sync.RWMutex
+	lockPrepareForTx           sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
@@ -1070,39 +1066,35 @@ func (mock *StargazerStateDBMock) GetContextCalls() []struct {
 	return calls
 }
 
-// GetLogs calls GetLogsFunc.
-func (mock *StargazerStateDBMock) GetLogs(hash1 common.Hash, hash2 common.Hash) []*types.Log {
-	if mock.GetLogsFunc == nil {
-		panic("StargazerStateDBMock.GetLogsFunc: method is nil but StargazerStateDB.GetLogs was just called")
+// GetLogsAndClear calls GetLogsAndClearFunc.
+func (mock *StargazerStateDBMock) GetLogsAndClear(txHash common.Hash) []*types.Log {
+	if mock.GetLogsAndClearFunc == nil {
+		panic("StargazerStateDBMock.GetLogsAndClearFunc: method is nil but StargazerStateDB.GetLogsAndClear was just called")
 	}
 	callInfo := struct {
-		Hash1 common.Hash
-		Hash2 common.Hash
+		TxHash common.Hash
 	}{
-		Hash1: hash1,
-		Hash2: hash2,
+		TxHash: txHash,
 	}
-	mock.lockGetLogs.Lock()
-	mock.calls.GetLogs = append(mock.calls.GetLogs, callInfo)
-	mock.lockGetLogs.Unlock()
-	return mock.GetLogsFunc(hash1, hash2)
+	mock.lockGetLogsAndClear.Lock()
+	mock.calls.GetLogsAndClear = append(mock.calls.GetLogsAndClear, callInfo)
+	mock.lockGetLogsAndClear.Unlock()
+	return mock.GetLogsAndClearFunc(txHash)
 }
 
-// GetLogsCalls gets all the calls that were made to GetLogs.
+// GetLogsAndClearCalls gets all the calls that were made to GetLogsAndClear.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetLogsCalls())
-func (mock *StargazerStateDBMock) GetLogsCalls() []struct {
-	Hash1 common.Hash
-	Hash2 common.Hash
+//	len(mockedStargazerStateDB.GetLogsAndClearCalls())
+func (mock *StargazerStateDBMock) GetLogsAndClearCalls() []struct {
+	TxHash common.Hash
 } {
 	var calls []struct {
-		Hash1 common.Hash
-		Hash2 common.Hash
+		TxHash common.Hash
 	}
-	mock.lockGetLogs.RLock()
-	calls = mock.calls.GetLogs
-	mock.lockGetLogs.RUnlock()
+	mock.lockGetLogsAndClear.RLock()
+	calls = mock.calls.GetLogsAndClear
+	mock.lockGetLogsAndClear.RUnlock()
 	return calls
 }
 
@@ -1233,42 +1225,6 @@ func (mock *StargazerStateDBMock) HasSuicidedCalls() []struct {
 	return calls
 }
 
-// Prepare calls PrepareFunc.
-func (mock *StargazerStateDBMock) Prepare(txHash common.Hash, ti uint) {
-	if mock.PrepareFunc == nil {
-		panic("StargazerStateDBMock.PrepareFunc: method is nil but StargazerStateDB.Prepare was just called")
-	}
-	callInfo := struct {
-		TxHash common.Hash
-		Ti     uint
-	}{
-		TxHash: txHash,
-		Ti:     ti,
-	}
-	mock.lockPrepare.Lock()
-	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
-	mock.lockPrepare.Unlock()
-	mock.PrepareFunc(txHash, ti)
-}
-
-// PrepareCalls gets all the calls that were made to Prepare.
-// Check the length with:
-//
-//	len(mockedStargazerStateDB.PrepareCalls())
-func (mock *StargazerStateDBMock) PrepareCalls() []struct {
-	TxHash common.Hash
-	Ti     uint
-} {
-	var calls []struct {
-		TxHash common.Hash
-		Ti     uint
-	}
-	mock.lockPrepare.RLock()
-	calls = mock.calls.Prepare
-	mock.lockPrepare.RUnlock()
-	return calls
-}
-
 // PrepareAccessList calls PrepareAccessListFunc.
 func (mock *StargazerStateDBMock) PrepareAccessList(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
 	if mock.PrepareAccessListFunc == nil {
@@ -1310,6 +1266,38 @@ func (mock *StargazerStateDBMock) PrepareAccessListCalls() []struct {
 	mock.lockPrepareAccessList.RLock()
 	calls = mock.calls.PrepareAccessList
 	mock.lockPrepareAccessList.RUnlock()
+	return calls
+}
+
+// PrepareForTx calls PrepareForTxFunc.
+func (mock *StargazerStateDBMock) PrepareForTx(txHash common.Hash) {
+	if mock.PrepareForTxFunc == nil {
+		panic("StargazerStateDBMock.PrepareForTxFunc: method is nil but StargazerStateDB.PrepareForTx was just called")
+	}
+	callInfo := struct {
+		TxHash common.Hash
+	}{
+		TxHash: txHash,
+	}
+	mock.lockPrepareForTx.Lock()
+	mock.calls.PrepareForTx = append(mock.calls.PrepareForTx, callInfo)
+	mock.lockPrepareForTx.Unlock()
+	mock.PrepareForTxFunc(txHash)
+}
+
+// PrepareForTxCalls gets all the calls that were made to PrepareForTx.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.PrepareForTxCalls())
+func (mock *StargazerStateDBMock) PrepareForTxCalls() []struct {
+	TxHash common.Hash
+} {
+	var calls []struct {
+		TxHash common.Hash
+	}
+	mock.lockPrepareForTx.RLock()
+	calls = mock.calls.PrepareForTx
+	mock.lockPrepareForTx.RUnlock()
 	return calls
 }
 

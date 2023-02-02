@@ -31,7 +31,6 @@ var _ vm.PrecompileRunner = (*CosmosRunner)(nil)
 type CosmosRunner struct {
 	// `kvGasConfig` is the gas config for execution of kv store operations in native precompiles.
 	kvGasConfig *sdk.GasConfig
-
 	// `transientKVGasConfig` is the gas config for execution transient kv store operations in
 	// native precompiles.
 	transientKVGasConfig *sdk.GasConfig
@@ -48,16 +47,24 @@ func NewCosmosRunner() *CosmosRunner {
 	}
 }
 
-// `WithKVGasConfig` returns a `CosmosRunner` with `kvGasConfig` attached.
-func (cr CosmosRunner) WithKVGasConfig(kvGasConfig *sdk.GasConfig) CosmosRunner {
-	cr.kvGasConfig = kvGasConfig
-	return cr
+// `KVGasConfig` returns the `CosmosRunner`'s `kvGasConfig`.
+func (cr *CosmosRunner) KVGasConfig() *sdk.GasConfig {
+	return cr.kvGasConfig
 }
 
-// `WithTransientKVGasConfig` returns a `CosmosRunner` with `transientKVGasConfig` attached.
-func (cr CosmosRunner) WithTransientKVGasConfig(transientKVGasConfig *sdk.GasConfig) CosmosRunner {
+// `TransientKVGasConfig` returns the `CosmosRunner`'s `transientKVGasConfig`.
+func (cr *CosmosRunner) TransientKVGasConfig() *sdk.GasConfig {
+	return cr.transientKVGasConfig
+}
+
+// `SetKVGasConfig` sets the `CosmosRunner` to have `kvGasConfig`.
+func (cr *CosmosRunner) SetKVGasConfig(kvGasConfig *sdk.GasConfig) {
+	cr.kvGasConfig = kvGasConfig
+}
+
+// `SetTransientKVGasConfig` sets the `CosmosRunner` to have `transientKVGasConfig`.
+func (cr *CosmosRunner) SetTransientKVGasConfig(transientKVGasConfig *sdk.GasConfig) {
 	cr.transientKVGasConfig = transientKVGasConfig
-	return cr
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting

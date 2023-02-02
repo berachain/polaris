@@ -16,57 +16,67 @@ package plugin
 
 import (
 	"github.com/berachain/stargazer/eth/core/state"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
-// `refund` is a `Store` that tracks the refund counter.
-type refund struct {
-	ds.Stack[uint64] // journal of historical refunds.
+// `logs` is a state plugin that tracks Ethereum logs.
+type logs struct {
+	// Reset every tx.
+	ds.Stack[*coretypes.Log] // journal of tx logs
 }
 
-// `NewRefund` creates and returns a `refund`.
-func NewRefund() state.RefundPlugin {
-	return &refund{
-		Stack: stack.New[uint64](initJournalCapacity),
+// `NewLogs` returns a new `Logs` store.
+func NewLogs() state.LogsPlugin {
+	return &logs{
+		Stack: stack.New[*coretypes.Log](initJournalCapacity),
 	}
 }
 
 // `RegistryKey` implements `libtypes.Registrable`.
-func (r *refund) RegistryKey() string {
-	return refundRegistryKey
+func (l *logs) RegistryKey() string {
+	return logsRegistryKey
 }
 
-// `GetRefund` returns the current value of the refund counter.
-func (r *refund) GetRefund() uint64 {
-	// When the refund counter is empty, the stack will return 0 by design.
-	return r.Peek()
+// `AddLog` adds a log to the `Logs` store.
+func (l *logs) AddLog(log *coretypes.Log) {
+	l.Push(log)
 }
 
-// `AddRefund` sets the refund counter to the given `gas`.
-func (r *refund) AddRefund(gas uint64) {
-	r.Push(r.Peek() + gas)
+// `BuildLogsAndClear` returns the logs for the tx with the given metadata.
+func (l *logs) BuildLogsAndClear(
+	txHash common.Hash,
+	blockHash common.Hash,
+	txIndex uint,
+	logIndex uint,
+) []*coretypes.Log {
+	size := l.Size()
+	buf := make([]*coretypes.Log, size)
+	for i := uint(size) - 1; i < maxUint; i-- {
+		buf[i] = l.Pop()
+		buf[i].TxHash = txHash
+		buf[i].BlockHash = blockHash
+		buf[i].TxIndex = txIndex
+		buf[i].Index = logIndex + i
+	}
+	return buf
 }
 
-// `SubRefund` subtracts the given `gas` from the refund counter.
-func (r *refund) SubRefund(gas uint64) {
-	r.Push(r.Peek() - gas)
-}
-
-// `Snapshot` returns the current size of the refund counter, which is used to
-// revert the refund counter to a previous value.
+// `Snapshot` takes a snapshot of the `Logs` store.
 //
 // `Snapshot` implements `libtypes.Snapshottable`.
-func (r *refund) Snapshot() int {
-	return r.Size()
+func (l *logs) Snapshot() int {
+	return l.Size()
 }
 
-// `RevertToSnapshot` reverts the refund counter to the value at the given `snap`.
+// `RevertToSnapshot` reverts the `Logs` store to a given snapshot id.
 //
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (r *refund) RevertToSnapshot(id int) {
-	r.PopToSize(id)
+func (l *logs) RevertToSnapshot(id int) {
+	l.PopToSize(id)
 }
 
 // `Finalize` implements `libtypes.Controllable`.
-func (r *refund) Finalize() {}
+func (l *logs) Finalize() {}

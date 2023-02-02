@@ -51,25 +51,16 @@ type (
 	// additional state transition functionalities.
 	StargazerStateDB interface {
 		GethStateDB
-		PrecompileStateDB
+		libtypes.Finalizeable
 
-		// `Prepare`
-		Prepare(txHash common.Hash, ti uint)
+		// `GetContext` returns the Go context associated to the StateDB.
+		GetContext() context.Context
 
 		// TransferBalance transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
 
-		// `GetLogs`
-		GetLogs(common.Hash, common.Hash) []*coretypes.Log
-
-		Finalize()
-	}
-
-	// `PrecompileStateDB` defines the required function a statedb must implement to support
-	// execution of stateful precompiles.
-	PrecompileStateDB interface {
-		// `GetContext` returns the Go context associated to the StateDB.
-		GetContext() context.Context
+		// `GetLogsAndClear` returns the logs of the tx `txHash`.
+		GetLogsAndClear(txHash common.Hash) []*coretypes.Log
 	}
 
 	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.

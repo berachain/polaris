@@ -18,11 +18,11 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugins/precompile"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
+	"github.com/berachain/stargazer/x/evm/precompile"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -31,7 +31,11 @@ import (
 )
 
 var _ = Describe("cosmos runner", func() {
-	cr := precompile.NewCosmosRunner()
+	var cr *precompile.CosmosRunner
+
+	BeforeEach(func() {
+		cr = precompile.NewCosmosRunner()
+	})
 
 	It("should use correctly consume gas", func() {
 		_, remainingGas, err := cr.Run(&mockStateless{}, &mockSDB{&state.StateDB{}}, []byte{}, addr, new(big.Int), 30, false)
@@ -45,8 +49,13 @@ var _ = Describe("cosmos runner", func() {
 	})
 
 	It("should plug in custom gas configs", func() {
-		*cr = cr.WithKVGasConfig(&sdk.GasConfig{})
-		*cr = cr.WithTransientKVGasConfig(&sdk.GasConfig{})
+		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
+		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
+
+		cr.SetKVGasConfig(&sdk.GasConfig{})
+		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
+		cr.SetTransientKVGasConfig(&sdk.GasConfig{})
+		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
 	})
 })
 
