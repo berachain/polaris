@@ -18,7 +18,6 @@ import (
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
-	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
 const (
@@ -26,9 +25,6 @@ const (
 	initCapacity      = 16
 	refundRegistryKey = `refund`
 )
-
-// `refund` implements `libtypes.Controllable`.
-var _ libtypes.Controllable[string] = (*refund)(nil)
 
 // `refund` is a `Store` that tracks the refund counter.
 type refund struct {
