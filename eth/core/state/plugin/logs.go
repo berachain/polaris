@@ -22,24 +22,16 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
 
-const (
-	// `initLogCapacity` is the initial capacity of the `logs` snapshot stack.
-	initLogCapacity = 32
-	// `logsRegistryKey` is the registry key for the logs plugin.
-	logsRegistryKey = `logs`
-)
-
 // `logs` is a state plugin that tracks Ethereum logs.
 type logs struct {
 	// Reset every tx.
-	ds.Stack[*coretypes.Log]
-	currentTxHash common.Hash
+	ds.Stack[*coretypes.Log] // journal of tx logs
 }
 
 // `NewLogs` returns a new `Logs` store.
 func NewLogs() state.LogsPlugin {
 	return &logs{
-		Stack: stack.New[*coretypes.Log](initLogCapacity),
+		Stack: stack.New[*coretypes.Log](initJournalCapacity),
 	}
 }
 
@@ -48,24 +40,26 @@ func (l *logs) RegistryKey() string {
 	return logsRegistryKey
 }
 
-// `Prepare` prepares the `Logs` store for a new transaction.
-func (l *logs) PrepareForTx(txHash common.Hash) {
-	l.currentTxHash = txHash
-	l.PopToSize(0) // clear the stack for new tx
-}
-
 // `AddLog` adds a log to the `Logs` store.
 func (l *logs) AddLog(log *coretypes.Log) {
-	log.TxHash = l.currentTxHash
 	l.Push(log)
 }
 
-// `GetLogs` returns the Logs for a given transaction hash.
-func (l *logs) GetLogsAndClear(txHash common.Hash) []*coretypes.Log {
+// `BuildLogsAndClear` returns the logs for the tx with the given metadata.
+func (l *logs) BuildLogsAndClear(
+	txHash common.Hash,
+	blockHash common.Hash,
+	txIndex uint,
+	logIndex uint,
+) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
-	for i := size - 1; i >= 0; i-- {
+	for i := uint(size) - 1; i < maxUint; i-- {
 		buf[i] = l.Pop()
+		buf[i].TxHash = txHash
+		buf[i].BlockHash = blockHash
+		buf[i].TxIndex = txIndex
+		buf[i].Index = logIndex + i
 	}
 	return buf
 }

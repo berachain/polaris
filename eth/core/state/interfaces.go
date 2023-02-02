@@ -55,14 +55,12 @@ type StatePlugin interface { //nolint:revive // vibes.
 }
 
 type LogsPlugin interface {
-	// `RefundPlugin` implements `libtypes.Controllable`.
+	// `LogsPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// `Prepare` prepares the state for a txHash
-	PrepareForTx(common.Hash)
 	// `AddLog` adds a log to the state
 	AddLog(*coretypes.Log)
-	// `GetLogsAndClear` returns the logs of the state
-	GetLogsAndClear(common.Hash) []*coretypes.Log
+	// `BuildLogsAndClear` returns the logs of the tx with the given metadata
+	BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
 }
 
 // `RefundPlugin` is a `Store` that tracks the refund counter.

@@ -15,47 +15,55 @@
 package plugin
 
 import (
-	"github.com/berachain/stargazer/eth/core/state"
-
+	"github.com/berachain/stargazer/lib/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Refund", func() {
-	var r state.RefundPlugin
+	var r *refund
 
 	BeforeEach(func() {
-		r = NewRefund()
+		r = utils.MustGetAs[*refund](NewRefund())
 	})
+
 	It("should have the correct registry key", func() {
 		Expect(r.RegistryKey()).To(Equal("refund"))
 	})
+
 	When("adding a refund", func() {
 		BeforeEach(func() {
 			r.AddRefund(1)
 		})
+
 		It("should return the correct refund", func() {
 			Expect(r.GetRefund()).To(Equal(uint64(1)))
 		})
+
 		When("subtracting a refund", func() {
 			BeforeEach(func() {
 				r.SubRefund(1)
 			})
+
 			It("should return the correct refund", func() {
 				Expect(r.GetRefund()).To(BeZero())
 			})
 		})
 	})
+
 	When("pushing an element", func() {
 		BeforeEach(func() {
 			r.AddRefund(1)
 		})
+
 		It("should not be empty", func() {
 			Expect(r.Snapshot()).To(Equal(1))
 		})
+
 		It("should return the correct element", func() {
 			Expect(r.GetRefund()).To(Equal(uint64(1)))
 		})
+
 		When("subbing refund", func() {
 			BeforeEach(func() {
 				r.SubRefund(1)
@@ -65,6 +73,7 @@ var _ = Describe("Refund", func() {
 				Expect(r.GetRefund()).To(BeZero())
 			})
 		})
+
 		When("pushing more elements and snapshotting", func() {
 			BeforeEach(func() {
 				r.AddRefund(2)
@@ -72,23 +81,29 @@ var _ = Describe("Refund", func() {
 				r.AddRefund(3)
 				Expect(r.Snapshot()).To(Equal(3))
 			})
+
 			It("should return the correct element", func() {
 				Expect(r.GetRefund()).To(Equal(uint64(6)))
 			})
+
 			When("subbing an element", func() {
 				BeforeEach(func() {
 					r.SubRefund(3)
 				})
+
 				It("should return the correct element", func() {
 					Expect(r.GetRefund()).To(Equal(uint64(3)))
 				})
+
 				When("subbing an element", func() {
 					BeforeEach(func() {
 						r.SubRefund(3)
 					})
+
 					It("should return the correct element", func() {
 						Expect(r.GetRefund()).To(Equal(uint64(0)))
 					})
+
 					When("taking a snapshot", func() {
 						BeforeEach(func() {
 							Expect(r.Snapshot()).To(Equal(5))
@@ -98,10 +113,12 @@ var _ = Describe("Refund", func() {
 							BeforeEach(func() {
 								r.AddRefund(1)
 							})
+
 							When("reverting to snapshot", func() {
 								BeforeEach(func() {
 									r.RevertToSnapshot(1)
 								})
+
 								It("should return the correct element", func() {
 									Expect(r.GetRefund()).To(Equal(uint64(1)))
 								})
@@ -109,6 +126,7 @@ var _ = Describe("Refund", func() {
 						})
 					})
 				})
+
 				When("finally reverting to snapshot", func() {
 					BeforeEach(func() {
 						r.RevertToSnapshot(0)
@@ -118,11 +136,10 @@ var _ = Describe("Refund", func() {
 						Expect(r.GetRefund()).To(Equal(uint64(0)))
 					})
 				})
+
 				When("finalize", func() {
 					It("should not panic", func() {
-						Expect(func() {
-							r.Finalize()
-						}).ToNot(Panic())
+						Expect(func() { r.Finalize() }).ToNot(Panic())
 					})
 				})
 			})
