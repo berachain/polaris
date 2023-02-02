@@ -35,7 +35,6 @@ type refund struct {
 // `NewRefund` creates and returns a `refund`.
 func NewRefund() state.RefundPlugin {
 	stack := stack.New[uint64](initCapacity)
-	stack.Push(0) // push a 0 onto the stack to initialize the refund to 0.
 	return &refund{
 		Stack: stack,
 	}
