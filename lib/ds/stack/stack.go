@@ -33,11 +33,10 @@ type stack[T any] struct {
 
 // Creates a new, empty stack.
 func New[T any](capacity int) ds.Stack[T] {
-	result := new(stack[T])
-	result.capacity = capacity
-	result.size = 0
-	result.buf = make([]T, capacity)
-	return result
+	return &stack[T]{
+		capacity: capacity,
+		buf:      make([]T, capacity),
+	}
 }
 
 // `Peek` implements `Stack`.
@@ -58,10 +57,11 @@ func (s *stack[T]) PeekAt(index int) T {
 }
 
 // `Push` implements `Stack`.
-func (s *stack[T]) Push(i T) {
+func (s *stack[T]) Push(i T) int {
 	s.expandIfRequired()
 	s.buf[s.size] = i
 	s.size++
+	return s.size
 }
 
 // `Size` implements `Stack`.
@@ -76,18 +76,24 @@ func (s *stack[T]) Capacity() int {
 
 // `Pop` implements `Stack`.
 func (s *stack[T]) Pop() T {
+	if s.size == 0 {
+		var t T
+		return t
+	}
 	s.size--
 	s.shrinkIfRequired()
 	return s.buf[s.size]
 }
 
 // `PopToSize` implements `Stack`.
-func (s *stack[T]) PopToSize(newSize int) {
+func (s *stack[T]) PopToSize(newSize int) T {
 	if newSize > s.size {
 		panic("newSize out of bounds")
 	}
+
 	s.size = newSize
 	s.shrinkIfRequired()
+	return s.buf[s.size]
 }
 
 // `expandIfRequired` expands the stack if the size is equal to the capacity.

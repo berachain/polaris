@@ -38,13 +38,13 @@ func NewManager() *Manager {
 }
 
 // `PopToSize` implements `StackI`.
-func (jm *Manager) PopToSize(newSize int) {
+func (jm *Manager) PopToSize(newSize int) CacheEntry {
 	// Revert and discard all journal entries after and including newSize.
 	for i := jm.Size() - 1; i >= newSize; i-- {
 		jm.Stack.PeekAt(i).Revert()
 	}
 	// Call parent.
-	jm.Stack.PopToSize(newSize)
+	return jm.Stack.PopToSize(newSize)
 }
 
 // `Clone` returns a cloned journal by deep copying each CacheEntry.
