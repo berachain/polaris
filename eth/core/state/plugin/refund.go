@@ -40,7 +40,7 @@ func NewRefund() state.RefundPlugin {
 	}
 }
 
-// `RegistryKey` implements `libtypes.Controllable`.
+// `RegistryKey` implements `libtypes.Registrable`.
 func (r *refund) RegistryKey() string {
 	return refundRegistryKey
 }

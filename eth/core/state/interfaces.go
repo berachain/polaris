@@ -14,7 +14,11 @@
 
 package state
 
-import libtypes "github.com/berachain/stargazer/lib/types"
+import (
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/lib/common"
+	libtypes "github.com/berachain/stargazer/lib/types"
+)
 
 // `RefundPlugin` is a `Store` that tracks the refund counter.
 type RefundPlugin interface {
@@ -26,4 +30,16 @@ type RefundPlugin interface {
 	AddRefund(gas uint64)
 	// `SubRefund` subtracts the given `gas` from the refund counter.
 	SubRefund(gas uint64)
+}
+
+// `LogsPlugin` is a `Store` that tracks the block and tx logs.
+type LogsPlugin interface {
+	// `LogsPlugin` implements `libtypes.Snapshottable`.
+	libtypes.Controllable[string]
+	// `Prepare` prepares the state for a txHash
+	Prepare(common.Hash, uint)
+	// `AddLog` adds a log to the state
+	AddLog(*coretypes.Log)
+	// `GetLogs` returns the logs of the state
+	GetLogs(common.Hash, common.Hash) []*coretypes.Log
 }
