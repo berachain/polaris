@@ -33,9 +33,9 @@ type Slots []Slot
 // `ValidateBasic` performs basic validation of the Storage data structure.
 // It checks for duplicate keys and calls `ValidateBasic` on each `State`.
 func (s Slots) ValidateBasic() error {
-	seenStorage := make(map[string]bool)
+	seenSlots := make(map[string]bool)
 	for i, slot := range s {
-		if seenStorage[slot.Key] {
+		if seenSlots[slot.Key] {
 			return errors.Wrapf(ErrInvalidState, "duplicate state key %d: %s", i, slot.Key)
 		}
 
@@ -43,7 +43,7 @@ func (s Slots) ValidateBasic() error {
 			return err
 		}
 
-		seenStorage[slot.Key] = true
+		seenSlots[slot.Key] = true
 	}
 	return nil
 }
@@ -51,8 +51,8 @@ func (s Slots) ValidateBasic() error {
 // `String` implements `fmt.Stringer`.
 func (s Slots) String() string {
 	var str string
-	for _, state := range s {
-		str += fmt.Sprintf("%s\n", state.String())
+	for _, slot := range s {
+		str += fmt.Sprintf("%s\n", slot.String())
 	}
 
 	return str

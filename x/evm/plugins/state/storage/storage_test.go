@@ -24,8 +24,8 @@ import (
 var _ = Describe("StorageTest", func() {
 	When("storage is empty", func() {
 		It("should not return an error", func() {
-			storage := storage.Slots{}
-			Expect(storage.ValidateBasic()).To(BeNil())
+			slots := storage.Slots{}
+			Expect(slots.ValidateBasic()).To(BeNil())
 		})
 	})
 	When("storage is not empty", func() {
