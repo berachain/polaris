@@ -42,6 +42,10 @@ func New[T any](capacity int) ds.Stack[T] {
 
 // `Peek` implements `Stack`.
 func (s *stack[T]) Peek() T {
+	if s.size == 0 {
+		var t T
+		return t
+	}
 	return s.buf[s.size-1]
 }
 

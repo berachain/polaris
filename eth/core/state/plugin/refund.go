@@ -29,7 +29,7 @@ const (
 
 // `refund` is a `Store` that tracks the refund counter.
 type refund struct {
-	ds.Stack[uint64] // snapshot stack
+	ds.Stack[uint64] // journal of historical refunds.
 }
 
 // `NewRefund` creates and returns a `refund`.
@@ -47,6 +47,7 @@ func (r *refund) RegistryKey() string {
 
 // `GetRefund` returns the current value of the refund counter.
 func (r *refund) GetRefund() uint64 {
+	// When the refund counter is empty, the stack will return 0 by design.
 	return r.Peek()
 }
 
