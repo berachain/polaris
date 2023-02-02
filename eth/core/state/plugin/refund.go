@@ -73,7 +73,7 @@ func (r *refund) Snapshot() int {
 //
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (r *refund) RevertToSnapshot(id int) {
-	r.PopToSize(id + 1)
+	r.PopToSize(id)
 }
 
 // `Finalize` implements `libtypes.Controllable`.
