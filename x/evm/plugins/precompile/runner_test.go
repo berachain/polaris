@@ -64,7 +64,7 @@ type mockStateless struct{}
 
 var addr = common.BytesToAddress([]byte{1})
 
-func (ms *mockStateless) Address() common.Address {
+func (ms *mockStateless) RegistryKey() common.Address {
 	return addr
 }
 

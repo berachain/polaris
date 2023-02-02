@@ -97,7 +97,7 @@ func (sf *StatefulFactory) Build(
 		}
 	}
 
-	return NewStateful(idsToMethods), nil
+	return NewStateful(bci, idsToMethods), nil
 }
 
 // `buildIdsToMethods` builds the stateful precompile container for the given `precompileMethods`

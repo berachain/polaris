@@ -282,7 +282,7 @@ var _ = Describe("StateDB", func() {
 			It("should have reset state", func() {
 				sdb.Reset(ctx)
 				Expect(sdb.GetNonce(alice)).To(Equal(uint64(0)))
-				Expect(sdb.Logs()).To(BeNil())
+				Expect(sdb.GetLogs(common.Hash{}, common.Hash{})).To(BeNil())
 				Expect(sdb.GetRefund()).To(Equal(uint64(0)))
 				Expect(sdb.GetSavedErr()).To(BeNil())
 				Expect(sdb.HasSuicided(alice)).To(BeFalse())
@@ -521,7 +521,7 @@ var _ = Describe("StateDB", func() {
 					})
 				})
 				It("should have the correct log", func() {
-					logs := sdb.Logs()
+					logs := sdb.GetLogs(common.Hash{}, common.Hash{})
 					Expect(logs).To(HaveLen(1))
 					Expect(logs[0].Address).To(Equal(alice))
 					Expect(logs[0].Data).To(Equal(data))
@@ -547,7 +547,7 @@ var _ = Describe("StateDB", func() {
 						})
 					})
 					It("should have the correct logs", func() {
-						logs := sdb.Logs()
+						logs := sdb.GetLogs(common.Hash{}, common.Hash{})
 						Expect(logs).To(HaveLen(2))
 						Expect(logs[1].Address).To(Equal(alice))
 						Expect(logs[1].Data).To(Equal(data))

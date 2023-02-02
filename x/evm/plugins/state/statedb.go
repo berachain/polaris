@@ -162,7 +162,9 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 // Transaction Handling
 // =============================================================================
 
-// Prepare sets the current transaction hash and index and block hash which is
+func (sdb *StateDB) Prepare(txHash common.Hash, ti uint) {}
+
+// PrepareForTransition sets the current transaction hash and index and block hash which is
 // used for logging events.
 func (sdb *StateDB) PrepareForTransition(blockHash, txHash common.Hash, ti, li uint) {
 	sdb.blockHash = blockHash
@@ -492,7 +494,7 @@ func (sdb *StateDB) AddLog(log *coretypes.Log) {
 }
 
 // Logs returns the logs of current transaction.
-func (sdb *StateDB) Logs() []*coretypes.Log {
+func (sdb *StateDB) GetLogs(_, _ common.Hash) []*coretypes.Log {
 	return sdb.logs
 }
 
@@ -561,6 +563,10 @@ func (sdb *StateDB) Commit() error {
 	// the underlying parent store.
 	sdb.cms.CacheMultiStore().Write()
 	return nil
+}
+
+func (sdb *StateDB) Finalize() {
+	_ = sdb.Commit()
 }
 
 // =============================================================================

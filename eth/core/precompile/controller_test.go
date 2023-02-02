@@ -18,32 +18,29 @@ import (
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("controller", func() {
-	var r precompile.Registry
 	var c *precompile.Controller
 	var mr *mockRunner
 
 	BeforeEach(func() {
-		r = precompile.NewRegistry()
-		err := r.Register(&mockStateless{})
-		Expect(err).To(BeNil())
 		mr = &mockRunner{}
-		c = precompile.NewController(r, mr)
+		c = precompile.NewController(mr)
+		err := c.Register(&mockStateless{})
+		Expect(err).To(BeNil())
 	})
 
 	It("should find and run", func() {
 		err := c.PrepareForStateTransition(&mockSdb{&state.StateDB{}})
 		Expect(err).To(BeNil())
 
-		pc, found := c.Exists(addr)
-		Expect(found).To(BeTrue())
+		pc := c.Get(addr)
 		Expect(pc).ToNot(BeNil())
 
 		_, _, err = c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
@@ -53,9 +50,8 @@ var _ = Describe("controller", func() {
 	})
 
 	It("should not find an unregistered", func() {
-		pc, found := c.Exists(common.BytesToAddress([]byte{2}))
+		found := c.Exists(common.BytesToAddress([]byte{2}))
 		Expect(found).To(BeFalse())
-		Expect(pc).To(BeNil())
 	})
 
 	It("should error on incompatible statedb", func() {

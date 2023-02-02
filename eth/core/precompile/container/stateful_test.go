@@ -21,13 +21,13 @@ import (
 	"reflect"
 
 	"github.com/berachain/stargazer/eth/core/precompile/container"
+	"github.com/berachain/stargazer/eth/core/state"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -46,8 +46,8 @@ var _ = Describe("Stateful Container", func() {
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext()
-		sc = container.NewStateful(mockIdsToMethods)
-		empty = container.NewStateful(nil)
+		sc = container.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		empty = container.NewStateful(nil, nil)
 		sdb = &mockSdb{&state.StateDB{}, 0}
 	})
 
