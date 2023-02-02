@@ -21,7 +21,7 @@ import (
 )
 
 type LogsPlugin interface {
-	// `RefundPlugin` implements `libtypes.Controllable`.
+	// `LogsPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
 	// `AddLog` adds a log to the state
 	AddLog(*coretypes.Log)
@@ -31,7 +31,6 @@ type LogsPlugin interface {
 
 // `RefundPlugin` is a `Store` that tracks the refund counter.
 type RefundPlugin interface {
-	// `RefundPlugin` implements `libtypes.Snapshottable`.
 	// `RefundPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
 	// `GetRefund` returns the current value of the refund counter.
