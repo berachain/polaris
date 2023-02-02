@@ -38,7 +38,7 @@ var _ = Describe("Controller", func() {
 
 	When("adding a new object", func() {
 		BeforeEach(func() {
-			_ = ctrl.Register(object1)
+			Expect(ctrl.Register(object1)).To(BeNil())
 		})
 		It("should add the object", func() {
 			obj := ctrl.Get("object1")

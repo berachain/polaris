@@ -20,30 +20,29 @@ import (
 	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/registry"
+	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// Compile-time assertion to ensure `Controller` adheres to `PrecompileController`.
-var _ vm.PrecompileController = (*Controller)(nil)
-
 // `Controller` retrieves and runs precompile containers with an ephemeral context.
 type Controller struct {
+	// `Registry` allows the `Controller` to search for a precompile container at an address.
+	libtypes.Registry[common.Address, vm.PrecompileContainer]
+
 	// `ephemeralSDB` is the StargazerStateDB for a current state transition.
 	ephemeralSDB vm.StargazerStateDB
 
 	// `runner` will run the precompile in a custom precompile environment for a given context.
 	runner vm.PrecompileRunner
-
-	// `registry` allows the `Controller` to search for a precompile container at an address.
-	registry Registry
 }
 
-// `NewController` creates and returns a `Controller` with the given precompile
-// registry and precompile runner.
-func NewController(registry Registry, runner vm.PrecompileRunner) *Controller {
+// `NewController` creates and returns a `Controller` with a new precompile registry and precompile
+// runner.
+func NewController(runner vm.PrecompileRunner) *Controller {
 	return &Controller{
+		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 		runner:   runner,
-		registry: registry,
 	}
 }
 
@@ -58,13 +57,6 @@ func (c *Controller) PrepareForStateTransition(sdb vm.GethStateDB) error {
 
 	c.ephemeralSDB = ssdb
 	return nil
-}
-
-// `Exists` searches the registry at the given `addr` for a precompile container.
-//
-// `Exists` implements `vm.PrecompileController`.
-func (c *Controller) Exists(addr common.Address) (vm.PrecompileContainer, bool) {
-	return c.registry.lookup(addr)
 }
 
 // `Run` runs the precompile container using its runner and its ephemeral context.

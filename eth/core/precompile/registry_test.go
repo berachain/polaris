@@ -66,7 +66,7 @@ type mockBase struct{}
 
 var addr = common.BytesToAddress([]byte{1})
 
-func (mb *mockBase) Address() common.Address {
+func (mb *mockBase) RegistryKey() common.Address {
 	return addr
 }
 

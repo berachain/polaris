@@ -46,8 +46,8 @@ var _ = Describe("Stateful Container", func() {
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext()
-		sc = container.NewStateful(mockIdsToMethods)
-		empty = container.NewStateful(nil)
+		sc = container.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		empty = container.NewStateful(nil, nil)
 		sdb = &mockSdb{&state.StateDB{}, 0}
 	})
 

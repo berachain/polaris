@@ -39,7 +39,7 @@ var _ = Describe("Registry", func() {
 		It("should be a no-op if the item already exists", func() {
 			// Register the same item again.
 			mr := mock.NewMockRegistrable("foo", "bar2")
-			_ = r.Register(mr)
+			Expect(r.Register(mr)).To(BeNil())
 			Expect(len(r.Iterate())).To(Equal(1))
 			Expect(r.Get("foo").Data()).To(Equal("bar2"))
 		})
@@ -61,20 +61,23 @@ var _ = Describe("Registry", func() {
 
 		It("should be able to check if the item exists", func() {
 			// Check if the item exists.
-			exists := r.Exists("foo")
+			item, exists := r.Exists("foo")
+			Expect(item.Data()).To(Equal("bar"))
 			Expect(exists).To(BeTrue())
 
 			// Remove the item.
 			r.Remove("foo")
 
 			// Check if the item exists.
-			exists = r.Exists("foo")
+			item, exists = r.Exists("foo")
+			Expect(item).To(BeNil())
 			Expect(exists).To(BeFalse())
 		})
 
 		It("should be able to check if an item does not exist", func() {
 			// Check an item that does not exist.
-			exists := r.Exists("bar")
+			item, exists := r.Exists("bar")
+			Expect(item).To(BeNil())
 			Expect(exists).To(BeFalse())
 		})
 
