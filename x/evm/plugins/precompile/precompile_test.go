@@ -12,36 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package block
+package precompile
 
 import (
-	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `Builder` is used to build a bloom filter for a block.
-type Builder struct {
-	// logSize uint
-
-	// // Reset every tx.
-	// currentTxHash common.Hash
-	// currenTxIndex uint
-	receipts []*coretypes.Receipt
-}
-
-// `NewBuilder` returns a new bloom builder.
-func NewBuilder() *Builder {
-	return &Builder{
-		receipts: make([]*coretypes.Receipt, 0),
-	}
-}
-
-// `AddLogsToBloom` builds the bloom filter for the provided set of logs.
-// It also adds the bloom filter to the block bloom filter.
-func (bb *Builder) AddReceiptToBlock(r *coretypes.Receipt) {
-	bb.receipts = append(bb.receipts, r)
-}
-
-// `GetBloom` returns the currently built bloom filter.
-func (bb *Builder) BuildBloom() coretypes.Bloom {
-	return coretypes.CreateBloom(bb.receipts)
+func TestPrecompile(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/precompile")
 }
