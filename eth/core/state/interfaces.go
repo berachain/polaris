@@ -12,16 +12,18 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types_test
+package state
 
-import (
-	"testing"
+import libtypes "github.com/berachain/stargazer/lib/types"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
-
-func TestStateTypes(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/state/types")
+// `RefundPlugin` is a `Store` that tracks the refund counter.
+type RefundPlugin interface {
+	// `RefundPlugin` implements `libtypes.Snapshottable`.
+	libtypes.Controllable[string]
+	// `GetRefund` returns the current value of the refund counter.
+	GetRefund() uint64
+	// `AddRefund` sets the refund counter to the given `gas`.
+	AddRefund(gas uint64)
+	// `SubRefund` subtracts the given `gas` from the refund counter.
+	SubRefund(gas uint64)
 }

@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package state
 
 import (
 	"github.com/berachain/stargazer/lib/common"
@@ -34,12 +34,12 @@ func AddressStoragePrefix(address common.Address) []byte {
 	return bz
 }
 
-// `StateKeyFor` defines the full key under which an account state is stored.
-func StateKeyFor(address common.Address, key common.Hash) []byte {
+// `KeyForSlot` defines the full key under which an account state is stored.
+func KeyForSlot(address common.Address, slot common.Hash) []byte {
 	bz := make([]byte, 1+common.AddressLength+common.HashLength)
 	copy(bz, []byte{keyPrefixStorage})
 	copy(bz[1:], address[:])
-	copy(bz[1+common.AddressLength:], key[:])
+	copy(bz[1+common.AddressLength:], slot[:])
 	return bz
 }
 

@@ -22,7 +22,7 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// Compile-time function assertion.
+// Compile-time type assertion.
 var _ vm.CanTransferFunc = canTransfer
 var _ vm.TransferFunc = transfer
 
@@ -32,8 +32,7 @@ func canTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool 
 	return sdb.GetBalance(addr).Cmp(amount) >= 0
 }
 
-// `transfer` subtracts amount from sender and adds amount to recipient using the `vm.GethStateDB`.
+// `transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
 func transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
 	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
 }

@@ -12,42 +12,52 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package mock
 
 import (
-	"fmt"
-	"strings"
+	"math/big"
 
+	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/errors"
-	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// Compile-time interface assertions.
-var _ libtypes.Cloneable[State] = &State{}
-var _ fmt.Stringer = Storage{}
+//go:generate moq -out ./message.mock.go -pkg mock ../ Message
 
-// `NewState` creates a new State instance.
-func NewState(key, value common.Hash) State {
-	return State{
-		Key:   key.Hex(),
-		Value: value.Hex(),
+func NewEmptyMessage() *MessageMock {
+	mockedMessage := &MessageMock{
+		AccessListFunc: func() types.AccessList {
+			return nil
+		},
+		DataFunc: func() []byte {
+			return nil
+		},
+		FromFunc: func() common.Address {
+			return common.Address{}
+		},
+		GasFunc: func() uint64 {
+			return 0
+		},
+		GasFeeCapFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		GasPriceFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		GasTipCapFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
+		IsFakeFunc: func() bool {
+			return false
+		},
+		NonceFunc: func() uint64 {
+			return 0
+		},
+		ToFunc: func() *common.Address {
+			return nil
+		},
+		ValueFunc: func() *big.Int {
+			return big.NewInt(0)
+		},
 	}
-}
-
-// `ValidateBasic` checks to make sure the key is not empty.
-func (s State) ValidateBasic() error {
-	if strings.TrimSpace(s.Key) == "" {
-		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
-	}
-
-	return nil
-}
-
-// `Clone` implements `types.Cloneable`.
-func (s State) Clone() State {
-	return State{
-		Key:   s.Key,
-		Value: s.Value,
-	}
+	return mockedMessage
 }

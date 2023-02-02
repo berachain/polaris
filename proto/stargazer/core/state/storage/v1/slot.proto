@@ -14,12 +14,12 @@
 
 syntax = "proto3";
 
-package stargazer.core.state.types.v1;
+package stargazer.core.state.storage.v1;
 
-option go_package = "github.com/berachain/stargazer/x/evm/plugins/state/types";
+option go_package = "github.com/berachain/stargazer/x/evm/plugins/state/storage";
 
-// `State` represents a single key/value pair of evm state data.
-message State {
+// `Slot` represents a single key/value pair of evm state data.
+message Slot {
   // `key` is the stored key.
   string key = 1;
 

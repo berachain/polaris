@@ -12,33 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package vm
+package constants
 
-import (
-	"github.com/berachain/stargazer/eth/params"
+const (
+	EvmStoreKey  = "evm"
+	EvmNamespace = "evm"
 )
-
-// `EVMFactory` is used to build new Stargazer `EVM`s.
-type EVMFactory struct {
-	// `precompileManager` is responsible for keeping track of the stateful precompile
-	// containers that are available to the EVM and executing them.
-	precompileManager PrecompileManager
-}
-
-// `NewEVMFactory` creates and returns a new `EVMFactory` with the given `precompileManager`.
-func NewEVMFactory(precompileManager PrecompileManager) *EVMFactory {
-	return &EVMFactory{
-		precompileManager: precompileManager,
-	}
-}
-
-// `Build` creates and returns a new `vm.StargazerEVM`.
-func (ef *EVMFactory) Build(
-	ssdb StargazerStateDB,
-	blockCtx BlockContext,
-	chainConfig *params.EthChainConfig,
-	noBaseFee bool,
-) StargazerEVM {
-	return NewStargazerEVM(
-		blockCtx, TxContext{}, ssdb, chainConfig, Config{}, ef.precompileManager)
-}

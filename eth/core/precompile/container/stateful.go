@@ -33,6 +33,8 @@ var _ vm.PrecompileContainer = (*Stateful)(nil)
 
 // `Stateful` is a container for running stateful and dynamic precompiled contracts.
 type Stateful struct {
+	vm.BasePrecompileImpl
+
 	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
@@ -47,9 +49,10 @@ type Stateful struct {
 }
 
 // `NewStateful` creates and returns a new `Stateful` with the given method ids precompile functions map.
-func NewStateful(idsToMethods map[string]*Method) *Stateful {
+func NewStateful(bci vm.BasePrecompileImpl, idsToMethods map[string]*Method) *Stateful {
 	return &Stateful{
-		idsToMethods: idsToMethods,
+		BasePrecompileImpl: bci,
+		idsToMethods:       idsToMethods,
 	}
 }
 
