@@ -139,9 +139,7 @@ var _ = Describe("Refund", func() {
 
 				When("finalize", func() {
 					It("should not panic", func() {
-						Expect(func() {
-							r.Finalize()
-						}).ToNot(Panic())
+						Expect(func() { r.Finalize() }).ToNot(Panic())
 					})
 				})
 			})
