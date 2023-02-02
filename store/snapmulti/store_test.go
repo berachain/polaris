@@ -16,6 +16,7 @@ package snapmulti
 
 import (
 	"reflect"
+	"testing"
 
 	sdkcachekv "github.com/cosmos/cosmos-sdk/store/cachekv"
 	sdkcachemulti "github.com/cosmos/cosmos-sdk/store/cachemulti"
@@ -25,6 +26,11 @@ import (
 	. "github.com/onsi/gomega"
 	dbm "github.com/tendermint/tm-db"
 )
+
+func TestSnapMulti(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "store/snapmulti")
+}
 
 var _ = Describe("Snapmulti Store", func() {
 	var (

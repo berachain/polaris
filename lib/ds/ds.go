@@ -27,14 +27,14 @@ type Stack[Item any] interface {
 	// `PeekAt` returns the Item at the given index.
 	PeekAt(index int) Item
 
-	// `Push` adds a new Item to the top of the stack and returns the new size.
+	// `Push` adds a new Item to the top of the stack. The Size method returns the current
+	// number of entries in the items.
 	Push(i Item) int
 
 	// `Pop` returns the Item at the top of the stack and removes it from the stack.
 	Pop() Item
 
-	// `PopToSize` discards all items entries after and including the given size and returns the
-	// last element that was popped.
+	// `PopToSize` discards all items entries after and including the given size.
 	PopToSize(newSize int) Item
 
 	// `Size` returns the current number of entries in the items.
@@ -42,9 +42,6 @@ type Stack[Item any] interface {
 
 	// `Capacity` returns the size of the allocated buffer for the stack.
 	Capacity() int
-
-	// `Slice` returns the stack in the form of a slice.
-	Slice() []Item
 }
 
 // `CloneableStack` is an interface that extends `Stack` to allow for deep copying.

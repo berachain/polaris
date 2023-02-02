@@ -55,27 +55,24 @@ type StatePlugin interface { //nolint:revive // vibes.
 }
 
 type LogsPlugin interface {
+	// `RefundPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-
 	// `Prepare` prepares the state for a txHash
 	Prepare(common.Hash, uint)
-
 	// `AddLog` adds a log to the state
 	AddLog(*coretypes.Log)
-
 	// `GetLogs` returns the logs of the state
 	GetLogs(common.Hash, common.Hash) []*coretypes.Log
 }
 
+// `RefundPlugin` is a `Store` that tracks the refund counter.
 type RefundPlugin interface {
+	// `RefundPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-
-	// `AddRefund` adds amount to the refund counter
-	AddRefund(uint64)
-
-	// `SubRefund` subtracts amount from the refund counter
-	SubRefund(uint64)
-
-	// `GetRefund` returns the refund counter
+	// `GetRefund` returns the current value of the refund counter.
 	GetRefund() uint64
+	// `AddRefund` sets the refund counter to the given `gas`.
+	AddRefund(gas uint64)
+	// `SubRefund` subtracts the given `gas` from the refund counter.
+	SubRefund(gas uint64)
 }

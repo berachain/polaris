@@ -22,37 +22,41 @@ import (
 
 const (
 	// `initCapacity` is the initial capacity of the `refund`'s snapshot stack.
-	initCapacity      = 16
-	refundRegistryKey = `refund`
+	initCapacity = 16
+	// `refundRegistryKey` is the registry key for the `refund` plugin.
+	refundRegistryKey = "refund"
 )
 
 // `refund` is a `Store` that tracks the refund counter.
 type refund struct {
-	ds.Stack[uint64] // snapshot stack
+	ds.Stack[uint64] // journal of historical refunds.
 }
 
 // `NewRefund` creates and returns a `refund`.
 func NewRefund() state.RefundPlugin {
+	stack := stack.New[uint64](initCapacity)
 	return &refund{
-		Stack: stack.New[uint64](initCapacity),
+		Stack: stack,
 	}
 }
 
+// `RegistryKey` implements `libtypes.Controllable`.
 func (r *refund) RegistryKey() string {
 	return refundRegistryKey
 }
 
-// `Get` returns the current value of the refund counter.
+// `GetRefund` returns the current value of the refund counter.
 func (r *refund) GetRefund() uint64 {
+	// When the refund counter is empty, the stack will return 0 by design.
 	return r.Peek()
 }
 
-// `Set` sets the refund counter to the given `gas`.
+// `AddRefund` sets the refund counter to the given `gas`.
 func (r *refund) AddRefund(gas uint64) {
 	r.Push(r.Peek() + gas)
 }
 
-// `Sub` subtracts the given `gas` from the refund counter.
+// `SubRefund` subtracts the given `gas` from the refund counter.
 func (r *refund) SubRefund(gas uint64) {
 	r.Push(r.Peek() - gas)
 }
