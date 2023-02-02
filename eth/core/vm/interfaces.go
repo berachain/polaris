@@ -56,9 +56,6 @@ type (
 		// `GetContext` returns the Go context associated to the StateDB.
 		GetContext() context.Context
 
-		// `PrepareForTx` prepares the plugins for the new tx.
-		PrepareForTx(txHash common.Hash)
-
 		// TransferBalance transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
 

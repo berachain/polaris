@@ -26,14 +26,15 @@ import (
 var _ = Describe("Logs", func() {
 	var l *logs
 	var h1 = common.BytesToHash([]byte{1})
+	var h2 = common.BytesToHash([]byte{2})
 	var a1 = common.BytesToAddress([]byte{3})
 	var a2 = common.BytesToAddress([]byte{4})
+	var u1 = uint(5)
+	var u2 = uint(6)
 
 	BeforeEach(func() {
 		l = utils.MustGetAs[*logs](NewLogs())
 		Expect(l.Capacity()).To(Equal(32))
-		l.PrepareForTx(h1)
-		Expect(l.currentTxHash).To(Equal(h1))
 	})
 
 	It("should have the correct registry key", func() {
@@ -56,6 +57,16 @@ var _ = Describe("Logs", func() {
 
 			l.RevertToSnapshot(id)
 			Expect(l.Size()).To(Equal(1))
+		})
+
+		It("should correctly build logs", func() {
+			logs := l.BuildLogsAndClear(h1, h2, u1, u2)
+			Expect(len(logs)).To(Equal(1))
+			Expect(logs[0].Address).To(Equal(a1))
+			Expect(logs[0].TxHash).To(Equal(h1))
+			Expect(logs[0].BlockHash).To(Equal(h2))
+			Expect(logs[0].TxIndex).To(Equal(u1))
+			Expect(logs[0].Index).To(Equal(u2))
 		})
 
 		It("should corrctly finalize", func() {
