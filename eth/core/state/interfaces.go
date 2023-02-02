@@ -20,7 +20,7 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `LogsPlugin` defines the interface for tracking logs created during a state transition
+// `LogsPlugin` defines the interface for tracking logs created during a state transition.
 type LogsPlugin interface {
 	// `LogsPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
