@@ -19,15 +19,31 @@ import (
 )
 
 type (
+	// `ExecutionResult` is the result of executing a transaction.
 	ExecutionResult = core.ExecutionResult
-	Message         = core.Message
+
+	// `Message` contains data used ype used to execute transactions.
+	Message = core.Message
 )
 
 var (
-	NewEVMTxContext                 = core.NewEVMTxContext
-	ErrIntrinsicGas                 = core.ErrIntrinsicGas
-	EthIntrinsicGas                 = core.IntrinsicGas
+	// `EthIntrinsicGas` returns the intrinsic gas required to execute a transaction.
+	EthIntrinsicGas = core.IntrinsicGas
+
+	// `NewEVMTxContext` creates a new context for use in the EVM.
+	NewEVMTxContext = core.NewEVMTxContext
+)
+
+var (
+	// `ErrIntrinsicGas` is the error returned when the intrinsic gas is higher than the gas limit.
+	ErrIntrinsicGas = core.ErrIntrinsicGas
+
+	// `ErrInsufficientFundsForTransfer` is the error returned when the account does not have enough funds to transfer.
 	ErrInsufficientFundsForTransfer = core.ErrInsufficientFundsForTransfer
-	ErrInsufficientFunds            = core.ErrInsufficientFunds
-	ErrGasUintOverflow              = core.ErrGasUintOverflow
+
+	// `ErrInsufficientFunds` is the error returned when the account does not have enough funds to execute the transaction.
+	ErrInsufficientFunds = core.ErrInsufficientFunds
+
+	// `ErrInsufficientBalanceForGas` is the error return when gas required to execute a transaction overflows.
+	ErrGasUintOverflow = core.ErrGasUintOverflow
 )

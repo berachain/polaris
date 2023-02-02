@@ -21,6 +21,9 @@ type (
 )
 
 var (
-	RefundQuotient        = params.RefundQuotient
+	// `RefundQuotient` is the refund quotient parameter.
+	RefundQuotient = params.RefundQuotient
+
+	// `RefundQuotientEIP3529` is the refund quotient parameter for EIP-3529.
 	RefundQuotientEIP3529 = params.RefundQuotientEIP3529
 )
