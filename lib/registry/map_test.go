@@ -61,20 +61,20 @@ var _ = Describe("Registry", func() {
 
 		It("should be able to check if the item exists", func() {
 			// Check if the item exists.
-			exists := r.Exists("foo")
+			exists := r.Has("foo")
 			Expect(exists).To(BeTrue())
 
 			// Remove the item.
 			r.Remove("foo")
 
 			// Check if the item exists.
-			exists = r.Exists("foo")
+			exists = r.Has("foo")
 			Expect(exists).To(BeFalse())
 		})
 
 		It("should be able to check if an item does not exist", func() {
 			// Check an item that does not exist.
-			exists := r.Exists("bar")
+			exists := r.Has("bar")
 			Expect(exists).To(BeFalse())
 		})
 

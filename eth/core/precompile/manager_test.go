@@ -12,26 +12,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package precompile
 
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("controller", func() {
-	var c *precompile.Controller
+	var c *manager
 	var mr *mockRunner
 
 	BeforeEach(func() {
 		mr = &mockRunner{}
-		c = precompile.NewController(mr)
+		c = utils.MustGetAs[*manager](NewManager(mr))
 		err := c.Register(&mockStateless{})
 		Expect(err).To(BeNil())
 	})
@@ -50,7 +50,7 @@ var _ = Describe("controller", func() {
 	})
 
 	It("should not find an unregistered", func() {
-		found := c.Exists(common.BytesToAddress([]byte{2}))
+		found := c.Has(common.BytesToAddress([]byte{2}))
 		Expect(found).To(BeFalse())
 	})
 

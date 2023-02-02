@@ -50,8 +50,8 @@ func (mr *mapRegistry[K, T]) Remove(id K) {
 	delete(mr.items, id)
 }
 
-// `Exists` returns true if the item exists in the registry.
-func (mr *mapRegistry[K, T]) Exists(id K) bool {
+// `Has` returns true if the item exists in the registry.
+func (mr *mapRegistry[K, T]) Has(id K) bool {
 	_, ok := mr.items[id]
 	return ok
 }

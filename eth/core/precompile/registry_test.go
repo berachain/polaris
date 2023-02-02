@@ -12,14 +12,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
 	"errors"
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -32,7 +31,7 @@ import (
 )
 
 var _ = Describe("registry", func() {
-	pr := precompile.NewRegistry()
+	pr := NewRegistry()
 
 	It("should error on incorrect precompile types", func() {
 		err := pr.Register(&mockBase{})

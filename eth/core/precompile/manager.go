@@ -25,8 +25,8 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// `Controller` retrieves and runs precompile containers with an ephemeral context.
-type Controller struct {
+// `manager` retrieves and runs precompile containers with an ephemeral context.
+type manager struct {
 	// `Registry` allows the `Controller` to search for a precompile container at an address.
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 
@@ -37,10 +37,10 @@ type Controller struct {
 	runner vm.PrecompileRunner
 }
 
-// `NewController` creates and returns a `Controller` with a new precompile registry and precompile
+// `NewManager` creates and returns a `Controller` with a new precompile registry and precompile
 // runner.
-func NewController(runner vm.PrecompileRunner) *Controller {
-	return &Controller{
+func NewManager(runner vm.PrecompileRunner) vm.PrecompileManager {
+	return &manager{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 		runner:   runner,
 	}
@@ -49,7 +49,7 @@ func NewController(runner vm.PrecompileRunner) *Controller {
 // `PrepareForStateTransition` sets the precompile's native environment statedb.
 //
 // `PrepareForStateTransition` implements `vm.PrecompileController`.
-func (c *Controller) PrepareForStateTransition(sdb vm.GethStateDB) error {
+func (c *manager) PrepareForStateTransition(sdb vm.GethStateDB) error {
 	ssdb, ok := utils.GetAs[vm.StargazerStateDB](sdb)
 	if !ok {
 		return container.ErrIncompatibleStateDB
@@ -62,7 +62,7 @@ func (c *Controller) PrepareForStateTransition(sdb vm.GethStateDB) error {
 // `Run` runs the precompile container using its runner and its ephemeral context.
 //
 // `Run` implements `vm.PrecompileController`.
-func (c *Controller) Run(
+func (c *manager) Run(
 	pc vm.PrecompileContainer, input []byte, caller common.Address,
 	value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {

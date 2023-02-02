@@ -48,8 +48,8 @@ type Registry[K comparable, T Registrable[K]] interface {
 	// Remove removes an item from the registry.
 	Remove(K)
 
-	// Exists returns true if the item exists in the registry.
-	Exists(K) bool
+	// Has returns true if the item exists in the registry.
+	Has(K) bool
 
 	// Iterate returns an iterable map of the registry.
 	Iterate() map[K]T
