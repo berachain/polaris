@@ -3,7 +3,7 @@ module github.com/berachain/stargazer
 go 1.19
 
 // Required for supporting stateful precompiled contracts.
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230202160839-ca260e974759
+replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230202174736-d6fbbb73a2d9
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7

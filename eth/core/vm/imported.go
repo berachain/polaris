@@ -19,19 +19,19 @@ import (
 )
 
 type (
-	AccountRef           = vm.AccountRef
-	BlockContext         = vm.BlockContext
-	CanTransferFunc      = vm.CanTransferFunc
-	ContractRef          = vm.ContractRef
-	Config               = vm.Config
-	EVMLogger            = vm.EVMLogger
-	GethEVM              = vm.EVM
-	GethStateDB          = vm.StateDB
-	GetHashFunc          = vm.GetHashFunc
-	PrecompileContainer  = vm.PrecompiledContract
-	PrecompileController = vm.PrecompileController
-	TransferFunc         = vm.TransferFunc
-	TxContext            = vm.TxContext
+	AccountRef          = vm.AccountRef
+	BlockContext        = vm.BlockContext
+	CanTransferFunc     = vm.CanTransferFunc
+	ContractRef         = vm.ContractRef
+	Config              = vm.Config
+	EVMLogger           = vm.EVMLogger
+	GethEVM             = vm.EVM
+	GethStateDB         = vm.StateDB
+	GetHashFunc         = vm.GetHashFunc
+	PrecompileContainer = vm.PrecompiledContract
+	PrecompileManager   = vm.PrecompileManager
+	TransferFunc        = vm.TransferFunc
+	TxContext           = vm.TxContext
 )
 
 var (
