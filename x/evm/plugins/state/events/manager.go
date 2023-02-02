@@ -15,6 +15,7 @@
 package events
 
 import (
+	libtypes "github.com/berachain/stargazer/lib/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,47 +25,33 @@ const (
 	managerRegistryKey  = `events`
 )
 
-type controllableManager struct {
-	// TODO: better names for these?
-	base *sdk.EventManager // only used to finalize to "parent" ctx EventManager
-	temp *sdk.EventManager // current, most valid event manager
+type manager struct {
+	*sdk.EventManager // pointer to the event manager floating aroundmon the context.
 }
 
-// `NewControllableManagerFrom` creates and returns a controllable event manager from the given
-// Cosmos SDK context `ctx`.
-//
-//nolint:revive // should only be used as a `state.ControllableEventManager`.
-func NewControllableManager(base *sdk.EventManager) *controllableManager {
-	return &controllableManager{
-		base: base,
-		temp: sdk.NewEventManager(),
+// `NewManager` creates and returns a controllable event manager from the given Cosmos SDK context.
+func NewManager(em *sdk.EventManager) libtypes.Controllable[string] {
+	return &manager{
+		EventManager: em,
 	}
 }
 
-// `EventManager` implements `state.ControllableEventManager`.
-func (cm *controllableManager) EventManager() *sdk.EventManager {
-	return cm.temp
-}
-
 // `Registry` implements `libtypes.Registrable`.
-func (cm *controllableManager) RegistryKey() string {
+func (m *manager) RegistryKey() string {
 	return managerRegistryKey
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
-func (cm *controllableManager) Snapshot() int {
-	return len(cm.temp.Events())
+func (m *manager) Snapshot() int {
+	return len(m.Events())
 }
 
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (cm *controllableManager) RevertToSnapshot(id int) {
-	// create new event manager with only the first `id` events
-	newTemp := sdk.NewEventManager()
-	newTemp.EmitEvents(cm.temp.Events()[:id])
-	cm.temp = newTemp
+func (m *manager) RevertToSnapshot(id int) {
+	temp := m.Events()
+	*m.EventManager = *sdk.NewEventManager()
+	m.EmitEvents(temp[:id])
 }
 
 // `Finalize` implements `libtypes.Finalizable`.
-func (cm *controllableManager) Finalize() {
-	cm.base.EmitEvents(cm.temp.Events())
-}
+func (m *manager) Finalize() {}

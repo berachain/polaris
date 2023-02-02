@@ -98,15 +98,14 @@ func NewPlugin(
 		evmDenom:    evmDenom,
 	}
 
-	// setup the Controllable MultiStore and EventManager and attach them to the context
+	// setup the Controllable MultiStore and attach it to the context
 	sp.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
-	cem := events.NewControllableManager(ctx.EventManager())
-	sp.ctx = ctx.WithMultiStore(sp.cms).WithEventManager(cem.EventManager())
+	sp.ctx = ctx.WithMultiStore(sp.cms)
 
 	// setup the snapshot controller
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	ctrl.Register(sp.cms)
-	ctrl.Register(cem)
+	ctrl.Register(events.NewManager(sp.ctx.EventManager()))
 	sp.Controller = ctrl
 
 	return sp, nil

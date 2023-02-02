@@ -22,13 +22,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-type ControllableEventManager interface {
-	libtypes.Controllable[string]
-
-	// returns the most current, valid event manager
-	EventManager() *sdk.EventManager
-}
-
 type ControllableMultiStore interface {
 	libtypes.Controllable[string]
 
