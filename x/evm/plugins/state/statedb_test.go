@@ -29,21 +29,21 @@ import (
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
+	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 )
 
 var alice = testutil.Alice
 var bob = testutil.Bob
 
 var _ = Describe("StateDB", func() {
-	var ak types.AccountKeeper
-	var bk types.BankKeeper
+	var ak state.AccountKeeper
+	var bk state.BankKeeper
 	var ctx sdk.Context
 	var sdb *state.StateDB
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sdb = state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "abera") // TODO: use lf
+		sdb = state.NewSlotDB(ctx, ak, bk, testutil.EvmKey, "abera") // TODO: use lf
 	})
 
 	Describe("TestCreateAccount", func() {
@@ -287,7 +287,7 @@ var _ = Describe("StateDB", func() {
 				Expect(sdb.GetSavedErr()).To(BeNil())
 				Expect(sdb.HasSuicided(alice)).To(BeFalse())
 				// TODO: check the txhash and blockhash stuff
-				Expect(sdb, state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "bera"))
+				Expect(sdb, state.NewSlotDB(ctx, ak, bk, testutil.EvmKey, "bera"))
 			})
 		})
 
@@ -385,24 +385,24 @@ var _ = Describe("StateDB", func() {
 						It("alice should have her code and state wiped, but not bob", func() {
 							Expect(sdb.GetCode(alice)).To(BeNil())
 							Expect(sdb.GetCode(bob)).To(Equal(bobCode))
-							var aliceStorage types.Storage
+							var aliceSlots storage.Slots
 							err := sdb.ForEachStorage(alice,
 								func(key, value common.Hash) bool {
-									aliceStorage = append(aliceStorage,
-										types.NewState(key, value))
+									aliceSlots = append(aliceSlots,
+										storage.NewSlot(key, value))
 									return true
 								})
 							Expect(err).To(BeNil())
-							Expect(len(aliceStorage)).To(BeZero())
+							Expect(len(aliceSlots)).To(BeZero())
 
-							var bobStorage types.Storage
+							var bobSlots storage.Slots
 							err = sdb.ForEachStorage(bob,
 								func(key, value common.Hash) bool {
-									bobStorage = append(bobStorage, types.NewState(key, value))
+									bobSlots = append(bobSlots, storage.NewSlot(key, value))
 									return true
 								})
 							Expect(err).To(BeNil())
-							Expect(len(bobStorage)).To(Equal(10))
+							Expect(len(bobSlots)).To(Equal(10))
 						})
 					})
 
