@@ -24,60 +24,48 @@ import (
 
 const (
 	// `initLogCapacity` is the initial capacity of the `logs` snapshot stack.
-	initLogCapacity = 16
+	initLogCapacity = 32
+	// `logsRegistryKey` is the registry key for the logs plugin.
 	logsRegistryKey = `logs`
 )
 
 // `logs` is a state plugin that tracks Ethereum logs.
 type logs struct {
-	// For the block.
-	txHashToLogs map[common.Hash]ds.Stack[*coretypes.Log]
-	logSize      uint
-
 	// Reset every tx.
+	ds.Stack[*coretypes.Log]
 	currentTxHash common.Hash
-	currenTxIndex uint
 }
 
 // `NewLogs` returns a new `Logs` store.
 func NewLogs() state.LogsPlugin {
 	return &logs{
-		txHashToLogs:  make(map[common.Hash]ds.Stack[*coretypes.Log]),
-		logSize:       0,
-		currentTxHash: common.Hash{},
-		currenTxIndex: 0,
+		Stack: stack.New[*coretypes.Log](initLogCapacity),
 	}
 }
 
+// `RegistryKey` implements `libtypes.Registrable`.
 func (l *logs) RegistryKey() string {
 	return logsRegistryKey
 }
 
 // `Prepare` prepares the `Logs` store for a new transaction.
-func (l *logs) Prepare(txHash common.Hash, ti uint) {
+func (l *logs) PrepareForTx(txHash common.Hash) {
 	l.currentTxHash = txHash
-	l.currenTxIndex = ti
-	l.txHashToLogs[l.currentTxHash] = stack.New[*coretypes.Log](initLogCapacity)
+	l.PopToSize(0) // clear the stack for new tx
 }
 
 // `AddLog` adds a log to the `Logs` store.
 func (l *logs) AddLog(log *coretypes.Log) {
-	logs := l.txHashToLogs[l.currentTxHash]
 	log.TxHash = l.currentTxHash
-	log.TxIndex = l.currenTxIndex
-	log.Index = l.logSize
-	logs.Push(log)
-	l.logSize++
+	l.Push(log)
 }
 
 // `GetLogs` returns the Logs for a given transaction hash.
-func (l *logs) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.Log {
-	logs := l.txHashToLogs[txHash]
-	size := logs.Size()
+func (l *logs) GetLogsAndClear(txHash common.Hash) []*coretypes.Log {
+	size := l.Size()
 	buf := make([]*coretypes.Log, size)
-	for i := 0; i < logs.Size(); i++ {
-		buf[i] = logs.PeekAt(i)
-		buf[i].BlockHash = blockHash
+	for i := size - 1; i >= 0; i-- {
+		buf[i] = l.Pop()
 	}
 	return buf
 }
@@ -86,14 +74,14 @@ func (l *logs) GetLogs(txHash common.Hash, blockHash common.Hash) []*coretypes.L
 //
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (l *logs) Snapshot() int {
-	return l.txHashToLogs[l.currentTxHash].Size()
+	return l.Size()
 }
 
-// `RevertToSnapshot` reverts the `Logs` store to a given snapshot.
+// `RevertToSnapshot` reverts the `Logs` store to a given snapshot id.
 //
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (l *logs) RevertToSnapshot(id int) {
-	l.txHashToLogs[l.currentTxHash].PopToSize(id)
+	l.PopToSize(id)
 }
 
 // `Finalize` implements `libtypes.Controllable`.

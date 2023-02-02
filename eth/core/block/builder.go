@@ -20,6 +20,11 @@ import (
 
 // `Builder` is used to build a bloom filter for a block.
 type Builder struct {
+	// logSize uint
+
+	// // Reset every tx.
+	// currentTxHash common.Hash
+	// currenTxIndex uint
 	receipts []*coretypes.Receipt
 }
 

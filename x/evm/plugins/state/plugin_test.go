@@ -31,7 +31,7 @@ import (
 var alice = testutil.Alice
 var bob = testutil.Bob
 
-var _ = Describe("StateDB", func() {
+var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
 	var bk state.BankKeeper
 	var ctx sdk.Context

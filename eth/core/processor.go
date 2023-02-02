@@ -82,7 +82,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	sp.evm.Reset(txContext, sp.statedb)
 
 	// var err error
-	sp.statedb.Prepare(tx.Hash(), 0)
+	sp.statedb.PrepareForTx(tx.Hash())
 
 	// Apply the state transition.
 	result, err := ApplyMessageAndCommit(sp.evm, msg)
@@ -106,7 +106,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	}
 
 	// Set the receipt logs and create the bloom filter.
-	receipt.Logs = sp.statedb.GetLogs(tx.Hash(), sp.blockHash)
+	receipt.Logs = sp.statedb.GetLogsAndClear(tx.Hash())
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = sp.blockHash
 	receipt.BlockNumber = sp.blockContext.BlockNumber

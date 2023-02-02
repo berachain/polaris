@@ -71,16 +71,6 @@ func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (*StateDB, error
 }
 
 // =============================================================================
-// Transaction Handling
-// =============================================================================
-
-// `Reset` resets the state object to the initial state.
-// TODO: put on the stargazer statedb interface ?
-func (sdb *StateDB) Reset() {
-	panic("implement me")
-}
-
-// =============================================================================
 // Suicide
 // =============================================================================
 
@@ -142,8 +132,10 @@ func (sdb *StateDB) RevertToSnapshot(id int) {
 // Finalize
 // =============================================================================
 
+// `Finalize` deletes the suicided accounts, clears the suicides list, and finalizes all plugins.
 func (sdb *StateDB) Finalize() {
 	sdb.DeleteSuicides(sdb.suicides)
+	sdb.suicides = make([]common.Address, 1)
 	sdb.ctrl.Finalize()
 }
 

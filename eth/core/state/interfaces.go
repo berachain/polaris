@@ -58,11 +58,11 @@ type LogsPlugin interface {
 	// `RefundPlugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
 	// `Prepare` prepares the state for a txHash
-	Prepare(common.Hash, uint)
+	PrepareForTx(common.Hash)
 	// `AddLog` adds a log to the state
 	AddLog(*coretypes.Log)
-	// `GetLogs` returns the logs of the state
-	GetLogs(common.Hash, common.Hash) []*coretypes.Log
+	// `GetLogsAndClear` returns the logs of the state
+	GetLogsAndClear(common.Hash) []*coretypes.Log
 }
 
 // `RefundPlugin` is a `Store` that tracks the refund counter.

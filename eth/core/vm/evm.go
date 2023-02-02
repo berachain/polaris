@@ -16,6 +16,7 @@ package vm
 
 import (
 	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
 // Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.
@@ -51,7 +52,7 @@ func (evm *stargazerEVM) Context() BlockContext {
 }
 
 func (evm *stargazerEVM) StateDB() StargazerStateDB {
-	return evm.GethEVM.StateDB.(StargazerStateDB)
+	return utils.MustGetAs[StargazerStateDB](evm.StateDB)
 }
 
 func (evm *stargazerEVM) SetTracer(tracer EVMLogger) {
