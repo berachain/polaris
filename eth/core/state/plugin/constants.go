@@ -15,9 +15,9 @@
 package plugin
 
 const (
-	// `initJournalCapacity` is the initial capacity of the `refund`'s snapshot stack.
+	// `initJournalCapacity` is the initial capacity of the plugins' journals.
 	initJournalCapacity = 32
-	// `refundRegistryKey` is the registry key for the `refund` plugin.
+	// `refundRegistryKey` is the registry key for the refund plugin.
 	refundRegistryKey = "refund"
 	// `logsRegistryKey` is the registry key for the logs plugin.
 	logsRegistryKey = `logs`
