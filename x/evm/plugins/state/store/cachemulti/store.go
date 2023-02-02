@@ -16,9 +16,9 @@ package cachemulti
 import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
+	"github.com/berachain/stargazer/x/evm/constants"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachekv"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
-	statetypes "github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
 // Compile-time check to ensure `Store` implements `storetypes.CacheMultiStore`.
@@ -76,7 +76,7 @@ func (s *Store) newCacheKVStore(
 	key storetypes.StoreKey,
 	kvstore storetypes.KVStore,
 ) storetypes.CacheKVStore {
-	if key.Name() == statetypes.EvmStoreKey {
+	if key.Name() == constants.EvmStoreKey {
 		return cachekv.NewEvmStore(kvstore, s.JournalMgr)
 	}
 	return cachekv.NewStore(kvstore, s.JournalMgr)

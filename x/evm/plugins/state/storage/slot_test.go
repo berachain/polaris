@@ -12,75 +12,75 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types_test
+package storage_test
 
 import (
 	"math/rand"
 
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
+	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("x/evm/plugins/state/types", func() {
-	var state types.State
+var _ = Describe("x/evm/plugins/state/storage", func() {
+	var slot storage.Slot
 	key := common.Hash{}.Bytes()
 	value := common.Hash{}.Bytes()
 
 	BeforeEach(func() {
 		rand.Read(key)
 		rand.Read(value)
-		state = types.NewState(common.BytesToHash(key), common.BytesToHash(value))
+		slot = storage.NewSlot(common.BytesToHash(key), common.BytesToHash(value))
 	})
 
 	It("should return the correct key", func() {
-		Expect(state.Key).To(Equal(common.BytesToHash(key).Hex()))
+		Expect(slot.Key).To(Equal(common.BytesToHash(key).Hex()))
 	})
 
 	It("should return the correct value", func() {
-		Expect(state.Value).To(Equal(common.BytesToHash(value).Hex()))
+		Expect(slot.Value).To(Equal(common.BytesToHash(value).Hex()))
 	})
 
-	It("should have valid state", func() {
-		Expect(state.ValidateBasic()).To(BeNil())
+	It("should have valid slot", func() {
+		Expect(slot.ValidateBasic()).To(BeNil())
 	})
 
-	When("state key is empty", func() {
+	When("slot key is empty", func() {
 		BeforeEach(func() {
-			state.Key = ""
+			slot.Key = ""
 		})
 
 		It("should return an error", func() {
-			Expect(state.ValidateBasic()).NotTo(BeNil())
+			Expect(slot.ValidateBasic()).NotTo(BeNil())
 		})
 	})
 
-	When("state key has leading or trailing spaces", func() {
-		When("state key is not empty", func() {
+	When("slot key has leading or trailing spaces", func() {
+		When("slot key is not empty", func() {
 			BeforeEach(func() {
-				state.Key = " bingbong "
+				slot.Key = " bingbong "
 			})
 
 			It("should not return an error", func() {
-				Expect(state.ValidateBasic()).To(BeNil())
+				Expect(slot.ValidateBasic()).To(BeNil())
 			})
 		})
 
-		When("state key is empty", func() {
+		When("slot key is empty", func() {
 			BeforeEach(func() {
-				state.Key = "       "
+				slot.Key = "       "
 			})
 
 			It("should return an error", func() {
-				Expect(state.ValidateBasic()).NotTo(BeNil())
+				Expect(slot.ValidateBasic()).NotTo(BeNil())
 			})
 		})
 	})
 
 	It("is cloneable", func() {
-		clone := state.Clone()
-		Expect(clone).To(Equal(state))
-		Expect(&clone).NotTo(BeIdenticalTo(&state))
+		clone := slot.Clone()
+		Expect(clone).To(Equal(slot))
+		Expect(&clone).NotTo(BeIdenticalTo(&slot))
 	})
 })
