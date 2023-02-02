@@ -24,12 +24,14 @@ import (
 )
 
 // Compile-time interface assertions.
-var _ libtypes.Cloneable[Slot] = &Slot{}
-var _ fmt.Stringer = Slots{}
+var (
+	_ libtypes.Cloneable[Slot] = (*Slot)(nil)
+	_ fmt.Stringer             = (*Slot)(nil)
+)
 
 // `NewSlot` creates a new State instance.
-func NewSlot(key, value common.Hash) Slot {
-	return Slot{
+func NewSlot(key, value common.Hash) *Slot {
+	return &Slot{
 		Key:   key.Hex(),
 		Value: value.Hex(),
 	}

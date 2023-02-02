@@ -25,10 +25,10 @@ import (
 var _ libtypes.Cloneable[Slots] = Slots{}
 var _ fmt.Stringer = Slots{}
 
-// `Storage` represents the account Storage map as a slice of single key value
+// `Slots` represents the account Storage map as a slice of single key value
 // State pairs. This helps to ensure that the Storage map can be iterated over
 // deterministically.
-type Slots []Slot
+type Slots []*Slot
 
 // `ValidateBasic` performs basic validation of the Storage data structure.
 // It checks for duplicate keys and calls `ValidateBasic` on each `State`.

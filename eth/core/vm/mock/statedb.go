@@ -81,7 +81,7 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		GetContextFunc: func() context.Context {
 			panic("mock out the GetContext method")
 		},
-		GetLogsAndClearFunc: func(hash1 common.Hash) []*types.Log {
+		BuildLogsAndClearFunc: func(common.Hash, common.Hash, uint, uint) []*types.Log {
 			panic("mock out the GetLogs method")
 		},
 		GetNonceFunc: func(address common.Address) uint64 {

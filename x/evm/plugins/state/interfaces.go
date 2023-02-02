@@ -16,9 +16,18 @@ package state
 
 import (
 	coretypes "github.com/berachain/stargazer/eth/core/types"
+	libtypes "github.com/berachain/stargazer/lib/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
+
+type ControllableMultiStore interface {
+	libtypes.Controllable[string]
+
+	storetypes.MultiStore
+	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
+}
 
 // `AccountKeeper` defines the expected account keeper.
 type AccountKeeper interface {

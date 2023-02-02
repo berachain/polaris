@@ -24,7 +24,7 @@ import (
 )
 
 var _ = Describe("x/evm/plugins/state/storage", func() {
-	var slot storage.Slot
+	var slot *storage.Slot
 	key := common.Hash{}.Bytes()
 	value := common.Hash{}.Bytes()
 

@@ -30,7 +30,7 @@ var _ = Describe("AddressStoragePrefix", func() {
 	})
 })
 
-var _ = Describe("StateKeyFor", func() {
+var _ = Describe("KeyForSlot", func() {
 	It("returns a storage key for a given account and storage slot", func() {
 		address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
 		slot := common.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")

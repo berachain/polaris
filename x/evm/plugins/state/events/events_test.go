@@ -1,4 +1,4 @@
-// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Copyright (C) 2022, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -12,31 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package mock
+package events_test
 
-import "github.com/berachain/stargazer/x/evm/plugins/state/store/journal"
+import (
+	"testing"
 
-// `MockCacheEntry` is a basic CacheEntry which increases num by 1 on `Revert()`.
-type CacheEntry struct {
-	num int
-}
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
 
-// `NewCacheEntry` creates a new `MockCacheEntry`.
-func NewCacheEntry() *CacheEntry {
-	return &CacheEntry{}
-}
-
-// `Revert` implements `CacheEntry`.
-func (m *CacheEntry) Revert() {
-	m.num++
-}
-
-// `Clone` implements `CacheEntry`.
-func (m *CacheEntry) Clone() journal.CacheEntry {
-	return &CacheEntry{num: m.num}
-}
-
-// `RevertCallCount` returns the number of times `Revert` has been called.
-func (m *CacheEntry) RevertCallCount() int {
-	return m.num
+func TestEvents(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/state/events")
 }

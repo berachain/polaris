@@ -59,8 +59,8 @@ type (
 		// TransferBalance transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
 
-		// `GetLogsAndClear` returns the logs of the tx `txHash`.
-		GetLogsAndClear(txHash common.Hash) []*coretypes.Log
+		// `BuildLogsAndClear` builds the logs for the tx with the given metadata.
+		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
 	}
 
 	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
