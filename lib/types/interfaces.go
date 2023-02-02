@@ -43,7 +43,7 @@ type Registry[K comparable, T Registrable[K]] interface {
 	Get(K) T
 
 	// Register adds an item to the registry, indexed on the item's `RegistryKey`.
-	Register(T)
+	Register(T) error
 
 	// Remove removes an item from the registry.
 	Remove(K)
@@ -69,6 +69,7 @@ type Controller[K comparable, T Controllable[K]] interface {
 	Finalizeable
 }
 
+// `Finalizeable` is an interface that defines a `Finalize` method.
 type Finalizeable interface {
 	Finalize()
 }

@@ -43,6 +43,7 @@ type logs struct {
 func NewLogs() state.LogsPlugin {
 	return &logs{
 		txHashToLogs:  make(map[common.Hash]ds.Stack[*coretypes.Log]),
+		logSize:       0,
 		currentTxHash: common.Hash{},
 		currenTxIndex: 0,
 	}

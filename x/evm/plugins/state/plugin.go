@@ -104,8 +104,8 @@ func NewPlugin(
 
 	// setup the snapshot controller
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	ctrl.Register(sp.cms)
-	ctrl.Register(events.NewManager(sp.ctx.EventManager()))
+	_ = ctrl.Register(sp.cms)
+	_ = ctrl.Register(events.NewManager(sp.ctx.EventManager()))
 	sp.Controller = ctrl
 
 	return sp, nil

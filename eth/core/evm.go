@@ -46,6 +46,5 @@ func canTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool 
 
 // `transfer` sends amount from sender to recipient using the evm's `vm.GethStateDB`.
 func transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	// We use `TransferBalance` to use the same logic as the native transfer in x/bank.
 	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
 }
