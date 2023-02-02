@@ -15,17 +15,10 @@
 package utils_test
 
 import (
-	"testing"
-
 	"github.com/berachain/stargazer/lib/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
-func TestUtilsPkg(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "lib/utils")
-}
 
 var _ = Describe("UnsafeStrToBytes", func() {
 	When("given a valid string", func() {

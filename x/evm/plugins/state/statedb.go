@@ -27,9 +27,9 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/x/evm/constants"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachekv"
 	"github.com/berachain/stargazer/x/evm/plugins/state/store/cachemulti"
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
 var (
@@ -77,8 +77,8 @@ type StateDB struct { //nolint: revive // we like the vibe.
 	ethStore cachekv.StateDBCacheKVStore
 
 	// keepers used for balance and account information.
-	ak types.AccountKeeper
-	bk types.BankKeeper
+	ak AccountKeeper
+	bk BankKeeper
 
 	// Any error that occurs during an sdk module read or write is
 	// memoized here and is eventually be returned by `Commit`.
@@ -112,10 +112,10 @@ type StateDB struct { //nolint: revive // we like the vibe.
 }
 
 // returns a *StateDB using the MultiStore belonging to ctx.
-func NewStateDB(
+func NewSlotDB(
 	ctx sdk.Context,
-	ak types.AccountKeeper,
-	bk types.BankKeeper,
+	ak AccountKeeper,
+	bk BankKeeper,
 	storeKey storetypes.StoreKey,
 	evmDenom string,
 ) *StateDB {
@@ -154,7 +154,7 @@ func (sdb *StateDB) CreateAccount(addr common.Address) {
 	sdb.ak.SetAccount(sdb.ctx, acc)
 
 	// initialize the code hash to empty
-	sdb.ethStore.Set(types.CodeHashKeyFor(addr), emptyCodeHashBytes)
+	sdb.ethStore.Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
 // =============================================================================
@@ -189,7 +189,7 @@ func (sdb *StateDB) Reset(ctx sdk.Context) {
 	// sdb.accessList = newAccessList()
 	// sdb.suicides = make([]common.Address, 0)
 	// TODO: unghetto this
-	*sdb = *NewStateDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
+	*sdb = *NewSlotDB(ctx, sdb.ak, sdb.bk, sdb.storeKey, sdb.evmDenom)
 }
 
 // =============================================================================
@@ -209,13 +209,13 @@ func (sdb *StateDB) AddBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
-	if err := sdb.bk.MintCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
+	if err := sdb.bk.MintCoins(sdb.ctx, constants.EvmNamespace, coins); err != nil {
 		sdb.setErrorUnsafe(err)
 		return
 	}
 
 	// Send the coins from the evm module account to the destination address.
-	if err := sdb.bk.SendCoinsFromModuleToAccount(sdb.ctx, types.EvmNamespace, addr[:], coins); err != nil {
+	if err := sdb.bk.SendCoinsFromModuleToAccount(sdb.ctx, constants.EvmNamespace, addr[:], coins); err != nil {
 		sdb.setErrorUnsafe(err)
 	}
 }
@@ -226,13 +226,13 @@ func (sdb *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sdb.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the evm module account.
-	if err := sdb.bk.SendCoinsFromAccountToModule(sdb.ctx, addr[:], types.EvmNamespace, coins); err != nil {
+	if err := sdb.bk.SendCoinsFromAccountToModule(sdb.ctx, addr[:], constants.EvmNamespace, coins); err != nil {
 		sdb.setErrorUnsafe(err)
 		return
 	}
 
 	// Burn the coins from the evm module account.
-	if err := sdb.bk.BurnCoins(sdb.ctx, types.EvmNamespace, coins); err != nil {
+	if err := sdb.bk.BurnCoins(sdb.ctx, constants.EvmNamespace, coins); err != nil {
 		sdb.setErrorUnsafe(err)
 		return
 	}
@@ -287,7 +287,7 @@ func (sdb *StateDB) SetNonce(addr common.Address, nonce uint64) {
 // the code hash of account.
 func (sdb *StateDB) GetCodeHash(addr common.Address) common.Hash {
 	if sdb.ak.HasAccount(sdb.ctx, addr[:]) {
-		if ch := sdb.ethStore.Get(types.CodeHashKeyFor(addr)); ch != nil {
+		if ch := sdb.ethStore.Get(CodeHashKeyFor(addr)); ch != nil {
 			return common.BytesToHash(ch)
 		}
 		return emptyCodeHash
@@ -305,7 +305,7 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 	if (codeHash == common.Hash{}) || codeHash == emptyCodeHash {
 		return nil
 	}
-	return sdb.ethStore.Get(types.CodeKeyFor(codeHash))
+	return sdb.ethStore.Get(CodeKeyFor(codeHash))
 }
 
 // SetCode implements the `GethStateDB` interface by setting the code hash and
@@ -313,12 +313,12 @@ func (sdb *StateDB) GetCode(addr common.Address) []byte {
 func (sdb *StateDB) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
 
-	sdb.ethStore.Set(types.CodeHashKeyFor(addr), codeHash[:])
+	sdb.ethStore.Set(CodeHashKeyFor(addr), codeHash[:])
 	// store or delete code
 	if len(code) == 0 {
-		sdb.ethStore.Delete(types.CodeKeyFor(codeHash))
+		sdb.ethStore.Delete(CodeKeyFor(codeHash))
 	} else {
-		sdb.ethStore.Set(types.CodeKeyFor(codeHash), code)
+		sdb.ethStore.Set(CodeKeyFor(codeHash), code)
 	}
 }
 
@@ -379,7 +379,7 @@ func (sdb *StateDB) getStateFromStore(
 	store storetypes.KVStore,
 	addr common.Address, slot common.Hash,
 ) common.Hash {
-	if value := store.Get(types.StateKeyFor(addr, slot)); value != nil {
+	if value := store.Get(KeyForSlot(addr, slot)); value != nil {
 		return common.BytesToHash(value)
 	}
 	return common.Hash{}
@@ -387,7 +387,7 @@ func (sdb *StateDB) getStateFromStore(
 
 // `SetState` implements the `GethStateDB` interface by setting the state of an
 // address.
-func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
+func (sdb *StateDB) SetState(addr common.Address, slot, value common.Hash) {
 	// For performance reasons, we don't check to ensure the account exists before we execute.
 	// This is reasonably safe since under normal operation, SetState is only ever called by the
 	// SSTORE opcode in the EVM, which will only ever be called on an account that exists, since
@@ -398,12 +398,12 @@ func (sdb *StateDB) SetState(addr common.Address, key, value common.Hash) {
 
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sdb.ethStore.Delete(types.StateKeyFor(addr, key))
+		sdb.ethStore.Delete(KeyForSlot(addr, slot))
 		return
 	}
 
 	// Set the state entry.
-	sdb.ethStore.Set(types.StateKeyFor(addr, key), value[:])
+	sdb.ethStore.Set(KeyForSlot(addr, slot), value[:])
 }
 
 // =============================================================================
@@ -510,7 +510,7 @@ func (sdb *StateDB) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
 ) error {
-	it := sdk.KVStorePrefixIterator(sdb.ethStore, types.AddressStoragePrefix(addr))
+	it := sdk.KVStorePrefixIterator(sdb.ethStore, AddressStoragePrefix(addr))
 	defer it.Close()
 
 	for ; it.Valid(); it.Next() {
@@ -552,7 +552,7 @@ func (sdb *StateDB) Commit() error {
 		}
 
 		// clear the codehash from this account
-		sdb.ethStore.Delete(types.CodeHashKeyFor(suicidalAddr))
+		sdb.ethStore.Delete(CodeHashKeyFor(suicidalAddr))
 
 		// remove auth account
 		sdb.ak.RemoveAccount(sdb.ctx, acct)

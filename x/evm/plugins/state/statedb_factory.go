@@ -19,15 +19,13 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	// "github.com/berachain/stargazer/eth/params".
-	"github.com/berachain/stargazer/x/evm/plugins/state/types"
 )
 
 type StateDBFactory struct { //nolint:revive // the vibes are good.
 	// Cosmos Keeper References
-	ak types.AccountKeeper
-	bk types.BankKeeper
+	ak AccountKeeper
+	bk BankKeeper
 
 	// evmStoreKey is the store key for the EVM store.
 	evmStoreKey storetypes.StoreKey
@@ -36,13 +34,13 @@ type StateDBFactory struct { //nolint:revive // the vibes are good.
 	// evmDenom params.Retriever[params.EVMDenom]
 }
 
-// NewStateDBFactory returns a new StateDBFactory instance.
-func NewStateDBFactory(
-	ak types.AccountKeeper,
-	bk types.BankKeeper,
+// NewSlotDBFactory returns a new StateDBFactory instance.
+func NewSlotDBFactory(
+	ak AccountKeeper,
+	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
 	// evmDenom params.Retriever[params.EVMDenom],
-	logFactory types.EthereumLogFactory,
+	logFactory EthereumLogFactory,
 ) *StateDBFactory {
 	return &StateDBFactory{
 		ak:          ak,
@@ -53,8 +51,8 @@ func NewStateDBFactory(
 	}
 }
 
-// BuildNewStateDB returns a new StateDB instance.
+// BuildNewSlotDB returns a new StateDB instance.
 func (sdf *StateDBFactory) BuildStateDB(ctx context.Context) *StateDB {
-	return NewStateDB(sdk.UnwrapSDKContext(ctx), sdf.ak, sdf.bk, sdf.evmStoreKey, "abera")
+	return NewSlotDB(sdk.UnwrapSDKContext(ctx), sdf.ak, sdf.bk, sdf.evmStoreKey, "abera")
 	// sdf.evmDenom.Get(ctx), sdf.er)
 }
