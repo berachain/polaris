@@ -49,17 +49,17 @@ func (r *refund) RegistryKey() string {
 	return refundRegistryKey
 }
 
-// `Get` returns the current value of the refund counter.
+// `GetRefund` returns the current value of the refund counter.
 func (r *refund) GetRefund() uint64 {
 	return r.Peek()
 }
 
-// `Set` sets the refund counter to the given `gas`.
+// `AddRefund` sets the refund counter to the given `gas`.
 func (r *refund) AddRefund(gas uint64) {
 	r.Push(r.Peek() + gas)
 }
 
-// `Sub` subtracts the given `gas` from the refund counter.
+// `SubRefund` subtracts the given `gas` from the refund counter.
 func (r *refund) SubRefund(gas uint64) {
 	r.Push(r.Peek() - gas)
 }
