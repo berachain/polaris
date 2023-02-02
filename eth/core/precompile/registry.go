@@ -58,9 +58,3 @@ func (r Registry) Register(contractImpl vm.BasePrecompileImpl) error {
 
 	return nil
 }
-
-// `lookup` returns a precompile container at the given address, if it exists.
-func (r Registry) lookup(addr common.Address) (vm.PrecompileContainer, bool) {
-	pc, found := r[addr]
-	return pc, found
-}

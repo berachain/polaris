@@ -56,9 +56,9 @@ type StateDB struct { //nolint:revive // we live the vibe.
 func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (*StateDB, error) {
 	// Build the controller and register the plugins
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	ctrl.Register(lp)
-	ctrl.Register(rp)
-	ctrl.Register(sp)
+	_ = ctrl.Register(lp)
+	_ = ctrl.Register(rp)
+	_ = ctrl.Register(sp)
 
 	// Create the `StateDB` and populate the developer provided plugins.
 	return &StateDB{
