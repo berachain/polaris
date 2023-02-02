@@ -22,7 +22,7 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// Compile-time interface assertion.
+// Compile-time type assertion.
 var _ vm.CanTransferFunc = canTransfer
 var _ vm.TransferFunc = transfer
 
