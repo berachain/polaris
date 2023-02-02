@@ -22,8 +22,9 @@ import (
 
 const (
 	// `initCapacity` is the initial capacity of the `refund`'s snapshot stack.
-	initCapacity      = 16
-	refundRegistryKey = `refund`
+	initCapacity = 16
+	// `refundRegistryKey` is the registry key for the `refund` plugin.
+	refundRegistryKey = "refund"
 )
 
 // `refund` is a `Store` that tracks the refund counter.
