@@ -24,8 +24,8 @@ type api struct {
 	logger libtypes.Logger[zapcore.Field]
 }
 
-func NewAPI() *api { //nolint: revive // by design.
-	return &api{}
+func NewAPI(logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by design.
+	return &api{logger: logger}
 }
 
 // `Namespace` impements the api.Service interface.
@@ -39,8 +39,8 @@ func (api *api) Health() string {
 	return "ok" // todo query the node status
 }
 
-// `RPCHealth` returns if the rpc server is healthy.
-func (api api) RPCHealth() string {
+// `RpcHealth` returns if the rpc server is healthy.
+func (api api) RpcHealth() string { //nolint: revive // by design.
 	api.logger.Info("node_rpcHealth")
 	return "ok"
 }

@@ -15,11 +15,17 @@
 package jsonrpc
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/cosmos/cosmos-sdk/client"
+	"go.uber.org/zap"
 
 	"github.com/berachain/stargazer/jsonrpc/server"
 )
 
+// `Service` is a JSON-RPC endpoint service.
 type Service struct {
 	server *server.Service
 }
@@ -32,12 +38,35 @@ func New(config server.Config, clientCtx client.Context) *Service {
 }
 
 // `Start` starts the service.
-func (s *Service) Start() chan error {
-	errCh := make(chan error)
+func (s *Service) Start() error {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync() //nolint: errcheck // ignore error
+	// errCh := make(chan error)
 	// 1. Build CosmosClient to connect to node
 	// TODO: implement
 
 	// 2. Setup JSONRPC Server to provide endpoint
-	s.server.Start(errCh)
-	return errCh
+	s.server.Start()
+
+	// Waiting signal
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	// Wait for interrupt signal or an error to gracefully shutdown the server.
+	var err error
+	select {
+	case s := <-interrupt:
+		logger.Info("app - Run - signal: " + s.String())
+	case err = <-s.server.Notify():
+		logger.Error(err.Error())
+	}
+
+	// Shutdown
+	if sErr := s.server.Shutdown(); sErr != nil {
+		logger.Error(sErr.Error())
+		return sErr
+	}
+
+	// Ensure that if the switch statement outputs an error, we return it to the CLI.
+	return err
 }

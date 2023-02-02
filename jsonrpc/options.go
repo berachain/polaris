@@ -12,24 +12,4 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package api
-
-import (
-	"github.com/berachain/stargazer/jsonrpc/api/node"
-	"go.uber.org/zap"
-)
-
-// `Service` is an interface that all API services must implement.
-type Service interface {
-	Namespace() string
-}
-
-func Build(namespace string) Service {
-	switch namespace {
-	case "node":
-		return node.NewAPI(zap.NewNop())
-
-	default:
-		return nil
-	}
-}
+package jsonrpc

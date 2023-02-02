@@ -15,47 +15,75 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/berachain/stargazer/jsonrpc/api"
+	"github.com/berachain/stargazer/jsonrpc/api/node"
 	"github.com/cosmos/cosmos-sdk/client"
+	"go.uber.org/zap"
 
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 )
 
 type Service struct {
-	*ethrpc.Server
-	config    Config
-	clientCtx client.Context
+	rpcserver       *ethrpc.Server
+	server          *http.Server
+	notify          chan error
+	shutdownTimeout time.Duration
+	config          Config
+	clientCtx       client.Context
 }
 
 func New(config Config, clientCtx client.Context) *Service {
-	s := ethrpc.NewServer()
-	return &Service{
-		Server:    s,
-		config:    config,
-		clientCtx: clientCtx,
-	}
-}
+	ethrpc := ethrpc.NewServer()
+	api := node.NewAPI(zap.NewNop())
 
-func (s *Service) Start(errCh chan error) {
-	// TODO: move into `./jsonrpc` and add configuration file.
+	err := ethrpc.RegisterName(api.Namespace(), api)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("jsonrpc server listening on", config.rpc.Address)
+
 	httpSrv := &http.Server{
-		Addr:    s.config.rpc.Address,
-		Handler: s,
+		Addr:    config.rpc.Address,
+		Handler: ethrpc,
 		// TODO is this correct?
 		ReadHeaderTimeout: time.Second, // s.config.rpc.HTTPTimeout,
 		// TLSConfig:         s.config.tls.TLSConfig(),
 		WriteTimeout: time.Second, // s.config.rpc.HTTPTimeout,
 	}
 
-	// // TODO: move these to a proper spot
-	// if err := s.RegisterService(node.NewAPI()); err != nil {
-	// 	errCh <- err
-	// 	return
-	// }
+	return &Service{
+		rpcserver:       ethrpc,
+		server:          httpSrv,
+		notify:          make(chan error, 1),
+		config:          config,
+		shutdownTimeout: time.Second,
+		clientCtx:       clientCtx,
+	}
+}
+
+// `Start` stops the service.
+func (s *Service) Start() {
+	// TODO: move into `./jsonrpc` and add configuration file.
+	httpSrv := &http.Server{
+		Addr:    s.config.rpc.Address,
+		Handler: s.rpcserver,
+		// TODO is this correct?
+		ReadHeaderTimeout: time.Second, // s.config.rpc.HTTPTimeout,
+		// TLSConfig:         s.config.tls.TLSConfig(),
+		WriteTimeout: time.Second, // s.config.rpc.HTTPTimeout,
+	}
+
+	// TODO: move these to a proper spot
+	if err := s.RegisterService(node.NewAPI(zap.NewNop())); err != nil {
+		s.notify <- err
+		return
+	}
 
 	httpSrvDone := make(chan struct{}, 1)
 	if err := httpSrv.ListenAndServe(); err != nil {
@@ -67,8 +95,20 @@ func (s *Service) Start(errCh chan error) {
 		//nolint: forbidigo // temp.
 		fmt.Println("failed to start JSON-RPC server", "error", err.Error())
 		// 	fmt.Println("failed to start JSON-RPC server", "error", err.Error())
-		errCh <- err
+		s.notify <- err
 	}
+}
+
+// Notify -.
+func (s *Service) Notify() <-chan error {
+	return s.notify
+}
+
+func (s *Service) Shutdown() error {
+	ctx, cancel := context.WithTimeout(context.Background(), s.shutdownTimeout)
+	defer cancel()
+
+	return s.server.Shutdown(ctx)
 }
 
 // `ClientContext` returns the client context.
@@ -78,5 +118,5 @@ func (s *Service) ClientContext() client.Context {
 
 // `RegisterService` registers a service with the server.
 func (s *Service) RegisterService(service api.Service) error {
-	return s.Server.RegisterName(service.Namespace(), service)
+	return s.rpcserver.RegisterName(service.Namespace(), service)
 }

@@ -34,9 +34,9 @@ func main() {
 var rootCmd = &cobra.Command{
 	Use:   "json-rpc",
 	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
-	Short: "Foundry contract generator",
+	Short: "Ethereum JSON-RPC server",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return <-jsonrpc.New(
+		return jsonrpc.New(
 			*server.DefaultConfig(),
 			client.GetClientContextFromCmd(cmd),
 		).Start()
