@@ -53,9 +53,6 @@ type (
 		GethStateDB
 		libtypes.Finalizeable
 
-		// `GetContext` returns the Go context associated to the StateDB.
-		GetContext() context.Context
-
 		// TransferBalance transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
 

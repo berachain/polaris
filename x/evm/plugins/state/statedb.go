@@ -16,7 +16,6 @@ package state
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"math/big"
 
@@ -134,11 +133,6 @@ func NewSlotDB(
 	sdb.ethStore, _ = utils.GetAs[cachekv.StateDBCacheKVStore](sdb.cms.GetKVStore(sdb.storeKey))
 
 	return sdb
-}
-
-// `GetContext` implements `StargazerStateDB`.
-func (sdb *StateDB) GetContext() context.Context {
-	return sdb.ctx
 }
 
 // ===========================================================================
