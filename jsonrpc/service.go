@@ -64,12 +64,16 @@ func (s *Service) Start() error {
 		s.logger.Error(err.Error())
 	}
 
-	// Shutdown
+	if err != nil {
+		return err
+	}
+
+	// Ensure that if the switch statement outputs an error, we return it to the CLI.
+	// Shutdown the server.
 	if sErr := s.server.Shutdown(); sErr != nil {
 		s.logger.Error(sErr.Error())
 		return sErr
 	}
 
-	// Ensure that if the switch statement outputs an error, we return it to the CLI.
-	return err
+	return nil
 }
