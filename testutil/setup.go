@@ -43,7 +43,7 @@ var (
 	Bob        = common.BytesToAddress([]byte("bob"))
 )
 
-// `NewContext` creates a SDK context and mounts basic SDK modules' kvstores.
+// `NewContext` creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
 	return sdk.NewContext(mock.NewMultiStore(), tmproto.Header{}, false, log.TestingLogger())
 }

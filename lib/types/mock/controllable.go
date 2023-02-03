@@ -12,27 +12,25 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//go:build tools
-// +build tools
+package mock
 
-// This is the canonical way to enforce dependency inclusion in go.mod for tools that are not directly involved in the build process.
-// See
-// https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
+//go:generate moq -out ./controllable.mock.go -skip-ensure -pkg mock ../ Controllable
 
-package tools
+// `ControllableMock` is a mock for the `Controllable` interface.
+func NewControllableMock1[K string]() *ControllableMock[K] {
+	return &ControllableMock[K]{
+		RevertToSnapshotFunc: func(n int) {},
+		SnapshotFunc:         func() int { return 0 },
+		RegistryKeyFunc:      func() K { return "object1" },
+		FinalizeFunc:         func() {},
+	}
+}
 
-// nolint
-// todo: add note: brew install diffutils
-import (
-	_ "github.com/bufbuild/buf/cmd/buf"
-	_ "github.com/cosmos/gosec/v2/cmd/gosec"
-	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
-	_ "github.com/google/addlicense"
-	_ "github.com/incu6us/goimports-reviser/v3"
-	_ "github.com/matryer/moq"
-	_ "github.com/onsi/ginkgo/v2/ginkgo"
-	_ "github.com/securego/gosec/v2/cmd/gosec"
-	_ "github.com/segmentio/golines"
-	_ "golang.org/x/tools/cmd/goimports"
-	_ "golang.org/x/tools/gopls"
-)
+func NewControllableMock2[K string]() *ControllableMock[K] {
+	return &ControllableMock[K]{
+		RevertToSnapshotFunc: func(n int) {},
+		SnapshotFunc:         func() int { return 0 },
+		RegistryKeyFunc:      func() K { return "object2" },
+		FinalizeFunc:         func() {},
+	}
+}
