@@ -18,7 +18,7 @@ import (
 	"github.com/berachain/stargazer/jsonrpc/api/eth"
 	"github.com/berachain/stargazer/jsonrpc/api/node"
 	"github.com/berachain/stargazer/jsonrpc/cosmos"
-	"github.com/berachain/stargazer/jsonrpc/logger"
+	"go.uber.org/zap"
 )
 
 // `Service` is an interface that all API services must implement.
@@ -30,7 +30,7 @@ type Service interface {
 func Build(
 	namespace string,
 	client *cosmos.Client,
-	logger logger.Zap,
+	logger *zap.Logger,
 ) Service {
 	switch namespace {
 	case "node":

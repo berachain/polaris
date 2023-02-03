@@ -20,7 +20,6 @@ import (
 
 	"github.com/berachain/stargazer/jsonrpc/api"
 	"github.com/berachain/stargazer/jsonrpc/cosmos"
-	"github.com/berachain/stargazer/jsonrpc/logger"
 	"github.com/berachain/stargazer/jsonrpc/server/config"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -36,7 +35,7 @@ type Service struct {
 	// `engine` is the gin engine responsible for handling the JSON-RPC requests.
 	engine *gin.Engine
 	// `logger` is the logger for the service.
-	logger logger.Zap
+	logger *zap.Logger
 	// `notify` is the channel that is used to notify the service has stopped.
 	notify chan error
 	// `shutdownTimeout` is the delay between the service being stopped and the HTTP server being shutdown.
@@ -46,7 +45,7 @@ type Service struct {
 }
 
 // `New` returns a new `Service` object.
-func New(ctx context.Context, logger logger.Zap, client *cosmos.Client, cfg config.Server) *Service {
+func New(ctx context.Context, logger *zap.Logger, client *cosmos.Client, cfg config.Server) *Service {
 	// Configure the JSON-RPC API.
 	s := &Service{
 		cosmosClient: client,

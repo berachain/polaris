@@ -20,11 +20,11 @@ import (
 	"time"
 
 	"github.com/berachain/stargazer/jsonrpc/cosmos/config"
-	"github.com/berachain/stargazer/jsonrpc/logger"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	tmjsonclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
+	"go.uber.org/zap"
 )
 
 // `Client` is a wrapper around the Cosmos SDK `client.Context` that implements querying and
@@ -35,14 +35,14 @@ type Client struct {
 	// `clientCtx` is the Cosmos SDK `client.Context` instance.
 	clientCtx client.Context
 	// `logger` is the logger instance.
-	logger logger.Zap
+	logger *zap.Logger
 }
 
 // `New` creates a new `CosmosClient`.
 func New(
 	ctx context.Context,
 	cfg config.RPC,
-	logger logger.Zap,
+	logger *zap.Logger,
 ) *Client {
 	clientCtx, err := CreateClientContext(cfg)
 	if err != nil {

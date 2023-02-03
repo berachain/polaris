@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Copyright (C) 2022, Berachain Foundation. All rights reserved.
+# Copyright (C) 2023, Berachain Foundation. All rights reserved.
 # See the file LICENSE for licensing terms.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -24,7 +24,7 @@ ARG GO_VERSION
 FROM golang:${GO_VERSION} as builder
 
 # Copy our source code into the container
-WORKDIR /berachain
+WORKDIR /jsonrpc
 
 # Copy the go mod and sum files
 COPY go.* ./
@@ -51,7 +51,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     -mod=readonly \
     -ldflags "-w -s -extldflags '-static'" \
     -trimpath \
-    -o /berachain/bin/ \
+    -o /jsonrpc/bin/ \
     ./...
 
 #######################################################
@@ -60,9 +60,9 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM ${RUNNER_IMAGE}
 
-COPY --from=builder /berachain/bin/jsonrpcd /bin/jsonrpcd
+COPY --from=builder /jsonrpc/bin/jsonrpcd /bin/jsonrpcd
 
-ENV HOME /berachain
+ENV HOME /jsonrpc
 WORKDIR $HOME
 
 EXPOSE 8545
