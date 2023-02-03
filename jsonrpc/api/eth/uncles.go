@@ -33,7 +33,7 @@ const (
 	MethodGetUncleCountByBlockNumber = "eth_getUncleCountByBlockNumber"
 )
 
-// `GetUncleByBlockHashAndIndex` returns nil since there are no uncles in Tendermint.
+// `GetUncleByBlockHashAndIndex` returns nil since there are no uncles in CometBFT.
 func (api *api) GetUncleByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) map[string]interface{} {
 	api.logger.Debug(MethodGetUncleByBlockHashAndIndex)
 	return nil
@@ -45,13 +45,13 @@ func (api *api) GetUncleByBlockNumberAndIndex(number, idx hexutil.Uint) map[stri
 	return nil
 }
 
-// `GetUncleCountByBlockHash` returns 0 since there are no uncles in Tendermint.
+// `GetUncleCountByBlockHash` returns 0 since there are no uncles in CometBFT.
 func (api *api) GetUncleCountByBlockHash(hash common.Hash) hexutil.Uint {
 	api.logger.Debug(MethodGetUncleCountByBlockHash)
 	return 0
 }
 
-// `GetUncleCountByBlockNumber` returns 0 since there are no uncles in Tendermint.
+// `GetUncleCountByBlockNumber` returns 0 since there are no uncles in CometBFT.
 func (api *api) GetUncleCountByBlockNumber(blockNum int64) hexutil.Uint {
 	api.logger.Debug(MethodGetUncleCountByBlockNumber)
 	return 0

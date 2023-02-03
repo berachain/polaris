@@ -17,7 +17,7 @@ package eth
 import "github.com/ethereum/go-ethereum/common/hexutil"
 
 const (
-	// `MethodEthHashrate` is the method name of `eth_hashrate`.
+	// `MethodBlockNumber` is the method name of `eth_blockNumber`.
 	MethodBlockNumber = "eth_blockNumber"
 )
 

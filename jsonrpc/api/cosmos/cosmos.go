@@ -16,18 +16,17 @@ package eth
 
 import (
 	"github.com/berachain/stargazer/jsonrpc/cosmos"
-	libtypes "github.com/berachain/stargazer/lib/types"
-	"go.uber.org/zap/zapcore"
+	"github.com/berachain/stargazer/jsonrpc/logger"
 )
 
 // `API` contains the Cosmos API.
 type api struct {
 	client *cosmos.Client
-	logger libtypes.Logger[zapcore.Field]
+	logger logger.Zap
 }
 
 // `NewAPI` returns a new `api` object.
-func NewAPI(client *cosmos.Client, logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by design.
+func NewAPI(client *cosmos.Client, logger logger.Zap) *api { //nolint: revive // by design.
 	return &api{
 		client: client,
 		logger: logger,
