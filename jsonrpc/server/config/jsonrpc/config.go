@@ -31,6 +31,9 @@ type Config struct {
 
 	// MetricsAddress defines the metrics server to listen on.
 	MetricsAddress string `mapstructure:"metrics-address"`
+
+	// `BaseRoute` defines the base path for the JSON-RPC server.
+	BaseRoute string `mapstructure:"base-path"`
 }
 
 // `DefaultConfig` returns the default TLS configuration.
@@ -40,5 +43,6 @@ func DefaultConfig() *Config {
 		Address:        config.DefaultJSONRPCAddress,
 		WSAddress:      config.DefaultJSONRPCWSAddress,
 		MetricsAddress: config.DefaultJSONRPCMetricsAddress,
+		BaseRoute:      config.DefaultJSONRPCBaseRoute,
 	}
 }

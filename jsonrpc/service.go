@@ -15,6 +15,7 @@
 package jsonrpc
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -37,7 +38,7 @@ func New(config server.Config, clientCtx client.Context) *Service {
 	defer logger.Sync() //nolint: errcheck // ignore error
 	return &Service{
 		logger: logger,
-		server: server.New(config, logger, clientCtx),
+		server: server.New(context.Background(), logger, config, clientCtx),
 	}
 }
 

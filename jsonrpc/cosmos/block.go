@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package client
+package cosmos
 
 import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -21,16 +21,16 @@ import (
 )
 
 // `LatestBlockNumber` returns the the latest block number as reported at the application layer.
-func (c *CosmosClient) LatestBlockNumber() (hexutil.Uint64, error) {
-	res, err := c.cbc.ABCIInfo(c.ctx)
+func (c *Client) LatestBlockNumber() (hexutil.Uint64, error) {
+	res, err := c.cmc.ABCIInfo(c.ctx)
 	if err != nil {
 		return 0, err
 	}
 	return hexutil.Uint64(res.Response.LastBlockHeight), nil
 }
 
-// CometBlockByNumber returns a CometBFT-formatted block at a given chain height.
-func (c *CosmosClient) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock, error) {
+// `CometBlockByNumber` returns a CometBFT-formatted block at a given chain height.
+func (c *Client) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock, error) {
 	if height <= 0 {
 		// fetch the latest block number from the app state, more accurate than the tendermint block store state.
 		n, err := c.LatestBlockNumber()
@@ -40,7 +40,7 @@ func (c *CosmosClient) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock
 		height = int64(n)
 	}
 
-	resBlock, err := c.cbc.Block(c.ctx, &height)
+	resBlock, err := c.cmc.Block(c.ctx, &height)
 	if err != nil {
 		c.logger.Debug("CometBlockClient client failed to get block",
 			zap.Int64("height", height), zap.String("error", err.Error()))

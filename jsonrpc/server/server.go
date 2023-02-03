@@ -20,7 +20,9 @@ import (
 	"time"
 
 	"github.com/berachain/stargazer/jsonrpc/api"
+	"github.com/berachain/stargazer/jsonrpc/api/eth"
 	"github.com/berachain/stargazer/jsonrpc/api/node"
+	"github.com/berachain/stargazer/jsonrpc/cosmos"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"go.uber.org/zap"
@@ -29,35 +31,56 @@ import (
 )
 
 type Service struct {
-	rpcserver       *ethrpc.Server
-	server          *http.Server
-	logger          libtypes.Logger[zap.Field]
-	notify          chan error
+	// `cosmosClient` provides the gRPC connection to the Cosmos node.
+	cosmosClient *cosmos.Client
+	// `rpcserver` is the externally facing JSON-RPC Server.
+	rpcserver *ethrpc.Server
+	// `server` is the HTTP server that serves the JSON-RPC server.
+	server *http.Server
+	// `logger` is the logger for the service.
+	logger libtypes.Logger[zap.Field]
+	// `notify` is the channel that is used to notify the service has stopped.
+	notify chan error
+	// `shutdownTimeout` is the delay between the service being stopped and the HTTP server being shutdown.
 	shutdownTimeout time.Duration
-	config          Config
-	clientCtx       client.Context
+	// `config` is the configuration for the service.
+	config Config
 }
 
-func New(config Config, logger libtypes.Logger[zap.Field], clientCtx client.Context) *Service {
+// `New` returns a new `Service` object.
+func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, clientCtx client.Context) *Service {
+	var (
+		mux = http.NewServeMux()
+	)
+
+	// Configure the JSON-RPC API.
 	s := &Service{
-		rpcserver: ethrpc.NewServer(),
-		config:    config,
-		logger:    logger,
-		clientCtx: clientCtx,
-		notify:    make(chan error, 1),
+		cosmosClient: cosmos.New(ctx, clientCtx, logger),
+		rpcserver:    ethrpc.NewServer(),
+		config:       config,
+		logger:       logger,
+		notify:       make(chan error, 1),
 	}
 
+	// Configure the JSON-RPC server.
+	mux.Handle(s.config.rpc.BaseRoute, s.rpcserver)
+
+	// Configure the HTTP server.
 	s.server = &http.Server{
-		Addr:    config.rpc.Address,
-		Handler: s.rpcserver,
-		// TODO is this correct?
-		ReadHeaderTimeout: time.Second, // s.config.rpc.HTTPTimeout,
-		// TLSConfig:         s.config.tls.TLSConfig(),
-		WriteTimeout: time.Second, // s.config.rpc.HTTPTimeout,
+		Addr:              config.rpc.Address,
+		ReadHeaderTimeout: 5 * time.Second,  //nolint:gomnd // TODO: make this configurable
+		ReadTimeout:       10 * time.Second, //nolint:gomnd // TODO: make this configurable
+		WriteTimeout:      10 * time.Second, //nolint:gomnd // TODO: make this configurable
+		Handler:           mux,
 	}
 
 	// TODO: move these to a proper spot
 	if err := s.RegisterAPI(node.NewAPI(logger)); err != nil {
+		panic(err)
+	}
+
+	// TODO: move these to a proper spot
+	if err := s.RegisterAPI(eth.NewAPI(s.cosmosClient, logger)); err != nil {
 		panic(err)
 	}
 
@@ -73,11 +96,12 @@ func (s *Service) Start() {
 	}()
 }
 
-// Notify -.
+// `Notify` returns a channel that is used to notify the service has stopped.
 func (s *Service) Notify() <-chan error {
 	return s.notify
 }
 
+// `Shutdown` stops the service.
 func (s *Service) Shutdown() error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -87,7 +111,7 @@ func (s *Service) Shutdown() error {
 	return s.server.Shutdown(ctx)
 }
 
-// `RegisterService` registers a service with the server.
+// `RegisterAPI` registers a service with the JSON-RPC server.
 func (s *Service) RegisterAPI(service api.Service) error {
 	return s.rpcserver.RegisterName(service.Namespace(), service)
 }

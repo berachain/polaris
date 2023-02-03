@@ -31,4 +31,7 @@ const (
 
 	// `DefaultJSOPNRPCMetricsAddress` is the default address the JSON-RPC Metrics server binds to.
 	DefaultJSONRPCMetricsAddress = "127.0.0.1:6065"
+
+	// `DefaultBaseRoute` is the default base path for the JSON-RPC server.
+	DefaultJSONRPCBaseRoute = "/"
 )
