@@ -16,7 +16,6 @@ package server
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/berachain/stargazer/jsonrpc/api"
@@ -34,9 +33,8 @@ type Service struct {
 	cosmosClient *cosmos.Client
 	// `rpcserver` is the externally facing JSON-RPC Server.
 	rpcserver *ethrpc.Server
-	// `server` is the HTTP server that serves the JSON-RPC server.
-	server  *http.Server
-	gserver *gin.Engine
+	// `engine` is the gin engine responsible for handling the JSON-RPC requests.
+	engine *gin.Engine
 	// `logger` is the logger for the service.
 	logger libtypes.Logger[zap.Field]
 	// `notify` is the channel that is used to notify the service has stopped.
@@ -49,9 +47,6 @@ type Service struct {
 
 // `New` returns a new `Service` object.
 func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, clientCtx client.Context) *Service {
-
-	r := gin.Default()
-
 	// Configure the JSON-RPC API.
 	s := &Service{
 		cosmosClient: cosmos.New(ctx, clientCtx, logger),
@@ -59,11 +54,11 @@ func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, 
 		config:       config,
 		logger:       logger,
 		notify:       make(chan error, 1),
-		gserver:      r,
+		engine:       gin.Default(),
 	}
 
 	// Set the JSON-RPC server to use the BaseRoute.
-	r.Any(s.config.rpc.BaseRoute, gin.WrapH(s.rpcserver))
+	s.engine.Any(s.config.rpc.BaseRoute, gin.WrapH(s.rpcserver))
 
 	// Register the JSON-RPC API namespaces.
 	for _, namespace := range config.rpc.API {
@@ -79,7 +74,7 @@ func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, 
 func (s *Service) Start() {
 	go func() {
 		s.logger.Info("Starting JSON-RPC server at", zap.String("address", s.config.rpc.Address))
-		s.notify <- s.gserver.Run(s.config.rpc.Address)
+		s.notify <- s.engine.Run(s.config.rpc.Address)
 		close(s.notify)
 	}()
 }
