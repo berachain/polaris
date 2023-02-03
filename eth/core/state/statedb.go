@@ -149,15 +149,15 @@ func (sdb *StateDB) PrepareAccessList(
 	precompiles []common.Address,
 	list coretypes.AccessList,
 ) {
-	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+	panic("not supported by Stargazer")
 }
 
 func (sdb *StateDB) AddAddressToAccessList(addr common.Address) {
-	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+	panic("not supported by Stargazer")
 }
 
 func (sdb *StateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
-	panic("not implemented, as accesslists are not valuable in the Cosmos-SDK context")
+	panic("not supported by Stargazer")
 }
 
 func (sdb *StateDB) AddressInAccessList(addr common.Address) bool {
