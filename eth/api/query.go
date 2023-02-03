@@ -12,17 +12,26 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package api
 
-package stargazer.core.state.storage.v1;
+import (
+	"context"
 
-option go_package = "github.com/berachain/stargazer/x/evm/plugin/state/storage";
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/lib/common"
+)
 
-// `Slot` represents a single key/value pair of evm state data.
-message Slot {
-  // `key` is the stored key.
-  string key = 1;
+// StateDBReader
+// VMReader
+// GasStation
 
-  // `value` is the stored value for the given key.
-  string value = 2;
+type Query struct {
+
+	// StateProcessorFactory
+	// other shit
+}
+
+func (q *Query) EthCall(ctx context.Context, data []byte,
+	gascap uint64, coinbase common.Address, chainID int64) *coretypes.Receipt {
+	return &coretypes.Receipt{}
 }

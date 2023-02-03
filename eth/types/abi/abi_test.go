@@ -20,12 +20,12 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/types/abi"
+	"github.com/berachain/stargazer/eth/types/abi"
 )
 
 func TestABI(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "types/abi")
+	RunSpecs(t, "eth/types/abi")
 }
 
 var _ = Describe("ABI Test Suite", func() {
