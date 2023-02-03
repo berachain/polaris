@@ -34,3 +34,7 @@ func (api *api) Mining() bool {
 	api.logger.Debug(MethodEthMining)
 	return false
 }
+
+func (api *api) GetWork() ([]hexutil.Bytes, error) {
+	return nil, nil
+}

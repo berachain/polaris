@@ -26,6 +26,7 @@ type Service interface {
 	Namespace() string
 }
 
+// `Build` returns a new API service based on the given namespace.
 func Build(
 	namespace string,
 	client *cosmos.Client,

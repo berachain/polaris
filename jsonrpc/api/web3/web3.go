@@ -28,7 +28,7 @@ const (
 	MethodSha3 = "web3_sha3"
 )
 
-// `API` the Web3 API.
+// `api` is the Web3 API.
 type api struct {
 	logger libtypes.Logger[zapcore.Field]
 }
