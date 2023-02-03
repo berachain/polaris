@@ -14,7 +14,10 @@
 
 package eth
 
-import "github.com/ethereum/go-ethereum/common/hexutil"
+import (
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+)
 
 const (
 	// `MethodEthHashrate` is the method name of `eth_hashrate`.
@@ -23,18 +26,29 @@ const (
 	MethodEthMining = "eth_mining"
 )
 
-// `Hashrate` returns 0 since there is no mining in Tendermint.
+// `Hashrate` returns 0 since there is no mining in CometBFT.
 func (api *api) Hashrate() hexutil.Uint64 {
 	api.logger.Debug(MethodEthHashrate)
 	return 0
 }
 
-// `Mining` returns false since there is no mining in Tendermint.
+// `Mining` returns false since there is no mining in CometBFT.
 func (api *api) Mining() bool {
 	api.logger.Debug(MethodEthMining)
 	return false
 }
 
+// `GetWork` returns nil since there is no mining in CometBFT.
 func (api *api) GetWork() ([]hexutil.Bytes, error) {
 	return nil, nil
+}
+
+// `SubmitWork` returns false since there is no mining in CometBFT.
+func (api *api) SubmitWork(nonce hexutil.Uint64, headerHash, mixDigest hexutil.Bytes) bool {
+	return false
+}
+
+// `SubmitHashrate` returns false since there is no mining in CometBFT.
+func (api *api) SubmitHashrate(hashrate hexutil.Uint64, id common.Hash) bool {
+	return false
 }
