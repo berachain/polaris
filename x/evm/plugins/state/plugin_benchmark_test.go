@@ -27,9 +27,9 @@ import (
 )
 
 var (
-	numCalls           = 15 // number of times snapshot is called
-	numStoreOpsPerCall = 10 // number of read/write ops on stores during each call
-	numReverts         = 2  // number of times an eth call is reverted in one tx
+	numCalls           = 10000 // number of times snapshot is called
+	numStoreOpsPerCall = 10    // number of read/write ops on stores during each call
+	numReverts         = 2     // number of times an eth call is reverted in one tx
 )
 
 func GetNewStatePlugin() ethstate.StatePlugin {
@@ -51,7 +51,7 @@ func BenchmarkArbitraryStateTransition(b *testing.B) {
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		snapshots := make([]int, 10000)
+		var snapshots []int
 		for c := 0; c < numCalls; c++ {
 			sdb.SetNonce(testutil.Bob, uint64(c+19)) // accStore set
 			sdb.SetState(                            // ethStore set
