@@ -14,7 +14,7 @@
 
 package eth
 
-import "github.com/ethereum/go-ethereum/common/hexutil"
+import "github.com/berachain/stargazer/lib/common/hexutil"
 
 const (
 	// `MethodBlockNumber` is the method name of `eth_blockNumber`.
@@ -24,5 +24,6 @@ const (
 // `BlockNumber` returns the number of the latest block.
 func (api *api) BlockNumber() (hexutil.Uint64, error) {
 	api.logger.Debug(MethodBlockNumber)
-	return api.client.LatestBlockNumber()
+	n, err := api.client.LatestBlockNumber()
+	return hexutil.Uint64(n), err
 }

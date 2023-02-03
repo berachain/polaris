@@ -19,6 +19,7 @@ import (
 )
 
 type (
-	Bytes = hexutil.Bytes
-	Uint  = hexutil.Uint
+	Bytes  = hexutil.Bytes
+	Uint   = hexutil.Uint
+	Uint64 = hexutil.Uint64
 )

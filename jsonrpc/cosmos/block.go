@@ -15,18 +15,17 @@
 package cosmos
 
 import (
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"go.uber.org/zap"
 )
 
 // `LatestBlockNumber` returns the the latest block number as reported at the application layer.
-func (c *Client) LatestBlockNumber() (hexutil.Uint64, error) {
+func (c *Client) LatestBlockNumber() (int64, error) {
 	res, err := c.clientCtx.Client.ABCIInfo(c.ctx)
 	if err != nil {
 		return 0, err
 	}
-	return hexutil.Uint64(res.Response.LastBlockHeight), nil
+	return res.Response.LastBlockHeight, nil
 }
 
 // `CometBlockByNumber` returns a CometBFT-formatted block at a given chain height.
