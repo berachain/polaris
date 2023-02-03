@@ -144,7 +144,7 @@ var _ = Describe("StateTransition", func() {
 				msg.GasFunc = func() uint64 {
 					return 0
 				}
-				_, err := core.ApplyMessageWithTracerCommit(evm, msg, tracer)
+				_, err := core.ApplyMessageWithTracerAndCommit(evm, msg, tracer)
 				Expect(err).To(Not(BeNil()))
 			})
 		})
