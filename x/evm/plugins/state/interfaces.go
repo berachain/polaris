@@ -15,16 +15,16 @@
 package state
 
 import (
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
+// `ControllableMultiStore` defines a cache MultiStore that is controllable (snapshottable and
+// registrable). It also supports getting the committed KV store from the MultiStore.
 type ControllableMultiStore interface {
 	libtypes.Controllable[string]
-
 	storetypes.MultiStore
 	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
 }
@@ -51,8 +51,4 @@ type BankKeeper interface {
 		recipientModule string, amt sdk.Coins) error
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
-}
-
-type EthereumLogFactory interface {
-	BuildLog(event *sdk.Event) (*coretypes.Log, error)
 }

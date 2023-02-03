@@ -23,6 +23,7 @@ import (
 	ethstate "github.com/berachain/stargazer/eth/core/state"
 )
 
+// `PluginFactory` holds the necessary information to build state plugins for the Eth StateDB.
 type PluginFactory struct {
 	// Cosmos Keeper References
 	ak AccountKeeper
@@ -35,12 +36,11 @@ type PluginFactory struct {
 	// evmDenom params.Retriever[params.EVMDenom]
 }
 
-// NewPluginFactory returns a new PluginFactory instance.
+// `NewPluginFactory` returns a new PluginFactory instance.
 func NewPluginFactory(
 	ak AccountKeeper,
 	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
-	logFactory EthereumLogFactory,
 ) *PluginFactory {
 	return &PluginFactory{
 		ak:          ak,
@@ -49,7 +49,7 @@ func NewPluginFactory(
 	}
 }
 
-// Build returns a new StateDB instance.
+// `Build` returns a new state plugin instance.
 func (pf *PluginFactory) Build(ctx context.Context) ethstate.StatePlugin {
 	// TODO: handle error? / ignore it completely?
 	sp, _ := NewPlugin(sdk.UnwrapSDKContext(ctx), pf.ak, pf.bk, pf.evmStoreKey, "abera")

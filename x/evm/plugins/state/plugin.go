@@ -112,6 +112,7 @@ func NewPlugin(
 	return sp, nil
 }
 
+// `RegistryKey` implements `libtypes.Registrable`.
 func (sp *statePlugin) RegistryKey() string {
 	return pluginRegistryKey
 }

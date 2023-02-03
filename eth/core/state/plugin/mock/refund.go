@@ -12,15 +12,34 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package mock
 
-const (
-	// `initJournalCapacity` is the initial capacity of the plugins' journals.
-	initJournalCapacity = 32
-	// `refundRegistryKey` is the registry key for the refund plugin.
-	refundRegistryKey = `refund`
-	// `logsRegistryKey` is the registry key for the logs plugin.
-	logsRegistryKey = `logs`
-	// `maxUint` is used to check that a uint does not underflow.
-	maxUint = ^uint(0)
-)
+//go:generate moq -out ./refund.mock.go -pkg mock ../../ RefundPlugin
+
+// `NewEmptyRefundPlugin` returns an empty `RefundPluginMock`.
+func NewEmptyRefundPlugin() *RefundPluginMock {
+	return &RefundPluginMock{
+		AddRefundFunc: func(gas uint64) {
+			panic("mock out the AddRefund method")
+		},
+		FinalizeFunc: func() {
+			// no-op
+		},
+		GetRefundFunc: func() uint64 {
+			panic("mock out the GetRefund method")
+		},
+		RegistryKeyFunc: func() string {
+			return "emptyrefund"
+		},
+		RevertToSnapshotFunc: func(n int) {
+			// no-op
+		},
+		SnapshotFunc: func() int {
+			// no-op
+			return 0
+		},
+		SubRefundFunc: func(gas uint64) {
+			panic("mock out the SubRefund method")
+		},
+	}
+}

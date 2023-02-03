@@ -33,10 +33,7 @@ var (
 	emptyCodeHash = crypto.Keccak256Hash(nil)
 )
 
-// Compile-time assertion that StateDB implements the vm.StargazerStateDB interface.
-var _ vm.StargazerStateDB = (*StateDB)(nil)
-
-type StateDB struct { //nolint:revive // we live the vibe.
+type stateDB struct { //nolint:revive // we live the vibe.
 	// References to the plugins in the controller.
 	StatePlugin
 	RefundPlugin
@@ -53,15 +50,16 @@ type StateDB struct { //nolint:revive // we live the vibe.
 	suicides []common.Address
 }
 
-func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (*StateDB, error) {
+// `NewStateDB` returns a `StargazerStateDB` with the given plugins.
+func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (vm.StargazerStateDB, error) {
 	// Build the controller and register the plugins
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(lp)
 	_ = ctrl.Register(rp)
 	_ = ctrl.Register(sp)
 
-	// Create the `StateDB` and populate the developer provided plugins.
-	return &StateDB{
+	// Create the `stateDB` and populate the developer provided plugins.
+	return &stateDB{
 		StatePlugin:  sp,
 		LogsPlugin:   lp,
 		RefundPlugin: rp,
@@ -77,7 +75,7 @@ func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (*StateDB, error
 // Suicide implements the StargazerStateDB interface by marking the given address as suicided.
 // This clears the account balance, but the code and state of the address remains available
 // until after Commit is called.
-func (sdb *StateDB) Suicide(addr common.Address) bool {
+func (sdb *stateDB) Suicide(addr common.Address) bool {
 	// only smart contracts can commit suicide
 	ch := sdb.GetCodeHash(addr)
 	if (ch == common.Hash{}) || ch == emptyCodeHash {
@@ -94,7 +92,7 @@ func (sdb *StateDB) Suicide(addr common.Address) bool {
 
 // `HasSuicided` implements the `StargazerStateDB` interface by returning if the contract was suicided
 // in current transaction.
-func (sdb *StateDB) HasSuicided(addr common.Address) bool {
+func (sdb *stateDB) HasSuicided(addr common.Address) bool {
 	for _, suicide := range sdb.suicides {
 		if bytes.Equal(suicide[:], addr[:]) {
 			return true
@@ -107,7 +105,7 @@ func (sdb *StateDB) HasSuicided(addr common.Address) bool {
 // is either non-existent or empty according to the EIP161 epecification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
-func (sdb *StateDB) Empty(addr common.Address) bool {
+func (sdb *stateDB) Empty(addr common.Address) bool {
 	ch := sdb.GetCodeHash(addr)
 	return sdb.GetNonce(addr) == 0 &&
 		(ch == emptyCodeHash || ch == common.Hash{}) &&
@@ -118,13 +116,13 @@ func (sdb *StateDB) Empty(addr common.Address) bool {
 // Snapshot
 // =============================================================================
 
-// `Snapshot` implements `StateDB`.
-func (sdb *StateDB) Snapshot() int {
+// `Snapshot` implements `stateDB`.
+func (sdb *stateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
 }
 
-// `RevertToSnapshot` implements `StateDB`.
-func (sdb *StateDB) RevertToSnapshot(id int) {
+// `RevertToSnapshot` implements `stateDB`.
+func (sdb *stateDB) RevertToSnapshot(id int) {
 	sdb.ctrl.RevertToSnapshot(id)
 }
 
@@ -133,7 +131,7 @@ func (sdb *StateDB) RevertToSnapshot(id int) {
 // =============================================================================
 
 // `Finalize` deletes the suicided accounts, clears the suicides list, and finalizes all plugins.
-func (sdb *StateDB) Finalize() {
+func (sdb *stateDB) Finalize() {
 	sdb.DeleteSuicides(sdb.suicides)
 	sdb.suicides = make([]common.Address, 1)
 	sdb.ctrl.Finalize()
@@ -143,7 +141,7 @@ func (sdb *StateDB) Finalize() {
 // AccessList
 // =============================================================================
 
-func (sdb *StateDB) PrepareAccessList(
+func (sdb *stateDB) PrepareAccessList(
 	sender common.Address,
 	dst *common.Address,
 	precompiles []common.Address,
@@ -152,19 +150,19 @@ func (sdb *StateDB) PrepareAccessList(
 	panic("not supported by Stargazer")
 }
 
-func (sdb *StateDB) AddAddressToAccessList(addr common.Address) {
+func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
 	panic("not supported by Stargazer")
 }
 
-func (sdb *StateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
+func (sdb *stateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
 	panic("not supported by Stargazer")
 }
 
-func (sdb *StateDB) AddressInAccessList(addr common.Address) bool {
+func (sdb *stateDB) AddressInAccessList(addr common.Address) bool {
 	return false
 }
 
-func (sdb *StateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
+func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
 	return false, false
 }
 
@@ -174,4 +172,4 @@ func (sdb *StateDB) SlotInAccessList(addr common.Address, slot common.Hash) (boo
 
 // AddPreimage implements the the `StateDB“ interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
-func (sdb *StateDB) AddPreimage(hash common.Hash, preimage []byte) {}
+func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
