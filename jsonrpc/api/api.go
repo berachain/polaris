@@ -15,7 +15,10 @@
 package api
 
 import (
+	"github.com/berachain/stargazer/jsonrpc/api/eth"
 	"github.com/berachain/stargazer/jsonrpc/api/node"
+	"github.com/berachain/stargazer/jsonrpc/cosmos"
+	libtypes "github.com/berachain/stargazer/lib/types"
 	"go.uber.org/zap"
 )
 
@@ -24,11 +27,16 @@ type Service interface {
 	Namespace() string
 }
 
-func Build(namespace string) Service {
+func Build(
+	namespace string,
+	client *cosmos.Client,
+	logger libtypes.Logger[zap.Field],
+) Service {
 	switch namespace {
 	case "node":
-		return node.NewAPI(zap.NewNop())
-
+		return node.NewAPI(logger)
+	case "eth":
+		return eth.NewAPI(client, logger)
 	default:
 		return nil
 	}

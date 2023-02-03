@@ -14,9 +14,14 @@
 
 package server
 
+import "time"
+
 var (
 	// `DefaultAPINamespaces` is the default namespaces the JSON-RPC server exposes.
-	DefaultAPINamespaces = []string{"eth", "net", "web3"}
+	DefaultAPINamespaces = []string{"eth", "node"}
+
+	// `AllowedAPINamespaces` is the list of namespaces the JSON-RPC server exposes.
+
 )
 
 const (
@@ -31,6 +36,18 @@ const (
 
 	// `DefaultJSOPNRPCMetricsAddress` is the default address the JSON-RPC Metrics server binds to.
 	DefaultJSONRPCMetricsAddress = "127.0.0.1:6065"
+
+	// `DefaultHTTPReadHeaderTimeout` is the default read timeout of http json-rpc server.
+	DefaultHTTPReadHeaderTimeout = 5 * time.Second
+
+	// `DefaultHTTPReadTimeout` is the default read timeout of http json-rpc server.
+	DefaultHTTPReadTimeout = 10 * time.Second
+
+	// `DefaultHTTPWriteTimeout` is the default write timeout of http json-rpc server.
+	DefaultHTTPWriteTimeout = 10 * time.Second
+
+	// `DefaultHTTPIdleTimeout` is the default idle timeout of http json-rpc server.
+	DefaultHTTPIdleTimeout = 120 * time.Second
 
 	// `DefaultBaseRoute` is the default base path for the JSON-RPC server.
 	DefaultJSONRPCBaseRoute = "/"
@@ -59,21 +76,37 @@ type JSONRPCConfig struct {
 	// `WsAddress` defines the WebSocket server to listen on.
 	WSAddress string `mapstructure:"ws-address"`
 
-	// MetricsAddress defines the metrics server to listen on.
+	// `MetricsAddress` defines the metrics server to listen on.
 	MetricsAddress string `mapstructure:"metrics-address"`
 
-	// `BaseRoute` defines the base path for the JSON-RPC server.
+	// `HTTPReadHeaderTimeout` is the read timeout of http json-rpc server.
+	HTTPReadHeaderTimeout time.Duration `mapstructure:"http-read-header-timeout"`
+
+	// `HTTPReadTimeout` is the read timeout of http json-rpc server.
+	HTTPReadTimeout time.Duration `mapstructure:"http-read-timeout"`
+
+	// `HTTPWriteTimeout` is the write timeout of http json-rpc server.
+	HTTPWriteTimeout time.Duration `mapstructure:"http-write-timeout"`
+
+	// HTTPIdleTimeout is the idle timeout of http json-rpc server.
+	HTTPIdleTimeout time.Duration `mapstructure:"http-idle-timeout"`
+
+	// `HTTPBaseRoute` defines the base path for the JSON-RPC server.
 	BaseRoute string `mapstructure:"base-path"`
 }
 
 // `DefaultConfig` returns the default TLS configuration.
 func DefaultJSONRPCConfig() *JSONRPCConfig {
 	return &JSONRPCConfig{
-		API:            DefaultAPINamespaces,
-		Address:        DefaultJSONRPCAddress,
-		WSAddress:      DefaultJSONRPCWSAddress,
-		MetricsAddress: DefaultJSONRPCMetricsAddress,
-		BaseRoute:      DefaultJSONRPCBaseRoute,
+		API:                   DefaultAPINamespaces,
+		Address:               DefaultJSONRPCAddress,
+		WSAddress:             DefaultJSONRPCWSAddress,
+		MetricsAddress:        DefaultJSONRPCMetricsAddress,
+		BaseRoute:             DefaultJSONRPCBaseRoute,
+		HTTPReadHeaderTimeout: DefaultHTTPReadHeaderTimeout,
+		HTTPReadTimeout:       DefaultHTTPReadTimeout,
+		HTTPWriteTimeout:      DefaultHTTPWriteTimeout,
+		HTTPIdleTimeout:       DefaultHTTPIdleTimeout,
 	}
 }
 

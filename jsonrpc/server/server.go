@@ -20,11 +20,10 @@ import (
 	"time"
 
 	"github.com/berachain/stargazer/jsonrpc/api"
-	"github.com/berachain/stargazer/jsonrpc/api/eth"
-	"github.com/berachain/stargazer/jsonrpc/api/node"
 	"github.com/berachain/stargazer/jsonrpc/cosmos"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
@@ -49,9 +48,8 @@ type Service struct {
 
 // `New` returns a new `Service` object.
 func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, clientCtx client.Context) *Service {
-	var (
-		mux = http.NewServeMux()
-	)
+
+	r := gin.Default()
 
 	// Configure the JSON-RPC API.
 	s := &Service{
@@ -62,26 +60,23 @@ func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, 
 		notify:       make(chan error, 1),
 	}
 
-	// Configure the JSON-RPC server.
-	mux.Handle(s.config.rpc.BaseRoute, s.rpcserver)
-
+	// Set the JSON-RPC server to use thea base route.
+	r.Any(s.config.rpc.BaseRoute, gin.WrapH(ethrpc.NewServer()))
+	r.ServeHTTP()
 	// Configure the HTTP server.
 	s.server = &http.Server{
 		Addr:              config.rpc.Address,
 		ReadHeaderTimeout: 5 * time.Second,  //nolint:gomnd // TODO: make this configurable
 		ReadTimeout:       10 * time.Second, //nolint:gomnd // TODO: make this configurable
 		WriteTimeout:      10 * time.Second, //nolint:gomnd // TODO: make this configurable
-		Handler:           mux,
+		Handler:           r,
 	}
 
-	// TODO: move these to a proper spot
-	if err := s.RegisterAPI(node.NewAPI(logger)); err != nil {
-		panic(err)
-	}
-
-	// TODO: move these to a proper spot
-	if err := s.RegisterAPI(eth.NewAPI(s.cosmosClient, logger)); err != nil {
-		panic(err)
+	// Register the JSON-RPC API namespaces.
+	for _, namespace := range config.rpc.API {
+		if err := s.RegisterAPI(api.Build(namespace, s.cosmosClient, logger)); err != nil {
+			panic(err)
+		}
 	}
 
 	return s
