@@ -22,7 +22,6 @@ import (
 	"github.com/berachain/stargazer/jsonrpc/cosmos"
 	"github.com/berachain/stargazer/jsonrpc/logger"
 	"github.com/berachain/stargazer/jsonrpc/server/config"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -47,12 +46,12 @@ type Service struct {
 }
 
 // `New` returns a new `Service` object.
-func New(ctx context.Context, logger logger.Zap, config config.Server, clientCtx client.Context) *Service {
+func New(ctx context.Context, logger logger.Zap, client *cosmos.Client, cfg config.Server) *Service {
 	// Configure the JSON-RPC API.
 	s := &Service{
-		cosmosClient: cosmos.New(ctx, clientCtx, logger),
+		cosmosClient: client,
 		rpcserver:    ethrpc.NewServer(),
-		config:       config,
+		config:       cfg,
 		logger:       logger,
 		notify:       make(chan error, 1),
 		engine:       gin.Default(),
@@ -62,7 +61,7 @@ func New(ctx context.Context, logger logger.Zap, config config.Server, clientCtx
 	s.engine.Any(s.config.BaseRoute, gin.WrapH(s.rpcserver))
 
 	// Register the JSON-RPC API namespaces.
-	for _, namespace := range config.EnableAPIs {
+	for _, namespace := range cfg.EnableAPIs {
 		if err := s.RegisterAPI(api.Build(namespace, s.cosmosClient, logger)); err != nil {
 			panic(err)
 		}

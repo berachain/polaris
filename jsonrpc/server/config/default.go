@@ -22,9 +22,6 @@ var (
 )
 
 const (
-	// `DefaultGRPCAddress` is the default address the gRPC server binds to.
-	DefaultGRPCAddress = "0.0.0.0:9900"
-
 	// `DefaultJSONRPCAddress` is the default address the JSON-RPC server binds to.
 	DefaultJSONRPCAddress = "127.0.0.1:8545"
 

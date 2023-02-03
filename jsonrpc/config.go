@@ -20,6 +20,13 @@ import (
 )
 
 type Config struct {
-	Servers sconfig.Server
-	Client  cconfig.RPC
+	Server sconfig.Server
+	Client cconfig.RPC
+}
+
+func DefaultConfig() *Config {
+	return &Config{
+		Server: *sconfig.DefaultServer(),
+		Client: *cconfig.DefaultRPC(),
+	}
 }

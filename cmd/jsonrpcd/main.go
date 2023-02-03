@@ -17,8 +17,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/berachain/stargazer/jsonrpc/server/config"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 
 	jsonrpc "github.com/berachain/stargazer/jsonrpc"
@@ -37,8 +35,7 @@ var rootCmd = &cobra.Command{
 	Short: "Ethereum JSON-RPC server",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return jsonrpc.New(
-			*config.DefaultServer(),
-			client.GetClientContextFromCmd(cmd),
+			*jsonrpc.DefaultConfig(),
 		).Start()
 	},
 }

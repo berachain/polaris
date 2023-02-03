@@ -14,6 +14,17 @@
 
 package config
 
+const (
+	// `DefaultCMRPCEndpoint` is the default address of the Comet RPC server.
+	DefaultCMRPCEndpoint = "http://0.0.0.0:26657"
+	// `DefaultGRPCAddress` is the default address the gRPC server binds to.
+	DefaultGRPCAddress = "http://0.0.0.0:9900"
+	// `DefaultRPCTimeout` is the default timeout for the RPC server.
+	DefaultRPCTimeout = "10s"
+	// `DefaultChainID` is the default chain ID.
+	DefaultChainID = "berachain_420-1"
+)
+
 type (
 	// RPC defines RPC configuration of both the gRPC and CometBFT nodes.
 	RPC struct {
@@ -23,3 +34,13 @@ type (
 		ChainID       string `mapstructure:"chain-id" validate:"required"`
 	}
 )
+
+// DefaultRPC returns the default RPC configuration.
+func DefaultRPC() *RPC {
+	return &RPC{
+		CMRPCEndpoint: DefaultCMRPCEndpoint,
+		GRPCEndpoint:  DefaultGRPCAddress,
+		RPCTimeout:    DefaultRPCTimeout,
+		ChainID:       DefaultChainID,
+	}
+}

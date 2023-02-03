@@ -16,9 +16,15 @@ package cosmos
 
 import (
 	"context"
+	"os"
+	"time"
 
+	"github.com/berachain/stargazer/jsonrpc/cosmos/config"
 	"github.com/berachain/stargazer/jsonrpc/logger"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	tmjsonclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 )
 
 // `Client` is a wrapper around the Cosmos SDK `client.Context` that implements querying and
@@ -28,8 +34,6 @@ type Client struct {
 	ctx context.Context
 	// `clientCtx` is the Cosmos SDK `client.Context` instance.
 	clientCtx client.Context
-	// `cmclient` is the `CometClient` context.
-	cmc client.TendermintRPC
 	// `logger` is the logger instance.
 	logger logger.Zap
 }
@@ -37,13 +41,58 @@ type Client struct {
 // `New` creates a new `CosmosClient`.
 func New(
 	ctx context.Context,
-	clientCtx client.Context,
+	cfg config.RPC,
 	logger logger.Zap,
 ) *Client {
+	clientCtx, err := CreateClientContext(cfg)
+	if err != nil {
+		panic(err)
+	}
 	return &Client{
 		ctx:       ctx,
 		clientCtx: clientCtx,
 		logger:    logger,
-		// cmc:       utils.MustGetAs[client.TendermintRPC](clientCtx.Client),
 	}
+}
+
+func CreateClientContext(config config.RPC) (client.Context, error) {
+	httpClient, err := tmjsonclient.DefaultHTTPClient(config.CMRPCEndpoint)
+	if err != nil {
+		return client.Context{}, err
+	}
+
+	httpClient.Timeout, err = time.ParseDuration(config.RPCTimeout)
+	if err != nil {
+		return client.Context{}, err
+	}
+	tmRPC, err := rpchttp.NewWithClient(config.CMRPCEndpoint, "/websocket", httpClient)
+	if err != nil {
+		return client.Context{}, err
+	}
+
+	clientCtx := client.Context{
+		ChainID: config.ChainID,
+		// InterfaceRegistry: oc.Encoding.InterfaceRegistry,
+		Output:        os.Stderr,
+		BroadcastMode: flags.BroadcastSync,
+		// TxConfig:          oc.Encoding.TxConfig,
+		// AccountRetriever:  authtypes.AccountRetriever{},
+		// Codec:       oc.Encoding.Codec,
+		// LegacyAmino: oc.Encoding.Amino,
+		// Input:       os.Stdin,
+		NodeURI: config.CMRPCEndpoint,
+		Client:  tmRPC,
+		// Keyring:      kr,
+		// FromAddress:  oc.OracleAddr,
+		// FromName:     keyInfo.Name,
+		// From:         keyInfo.Name,
+		OutputFormat: "json",
+		UseLedger:    false,
+		Simulate:     false,
+		GenerateOnly: false,
+		Offline:      false,
+		SkipConfirm:  true,
+	}
+
+	return clientCtx, nil
 }

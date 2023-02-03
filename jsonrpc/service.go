@@ -20,34 +20,39 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"go.uber.org/zap"
 
+	"github.com/berachain/stargazer/jsonrpc/cosmos"
 	"github.com/berachain/stargazer/jsonrpc/server"
-	"github.com/berachain/stargazer/jsonrpc/server/config"
 )
 
 // `Service` is a JSON-RPC endpoint service.
 type Service struct {
 	logger *zap.Logger
-	server *server.Service
+	server server.Service
+	client cosmos.Client
 }
 
 // `New` is a constructor for `Service`.
-func New(config config.Server, clientCtx client.Context) *Service {
+func New(config Config) *Service {
+	ctx := context.Background()
 	logger, _ := zap.NewProduction()
 	defer logger.Sync() //nolint: errcheck // ignore error
+
+	// errCh := make(chan error)
+	// 1. Build CosmosClient to connect to node
+	// TODO: implement
+
+	client := cosmos.New(ctx, config.Client, logger)
+
 	return &Service{
 		logger: logger,
-		server: server.New(context.Background(), logger, config, clientCtx),
+		server: *server.New(context.Background(), logger, client, config.Server),
 	}
 }
 
 // `Start` starts the service.
 func (s *Service) Start() error {
-	// errCh := make(chan error)
-	// 1. Build CosmosClient to connect to node
-	// TODO: implement
 
 	// 2. Setup JSONRPC Server to provide endpoint
 	s.server.Start()
