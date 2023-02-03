@@ -12,26 +12,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package services
+package api
 
-import (
-	"context"
-
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/common"
-)
-
-// StateDBReader
-// VMReader
-// GasStation
-
-type Query struct {
-
-	// StateProcessorFactory
-	// other shit
-}
-
-func (q *Query) EthCall(ctx context.Context, data []byte,
-	gascap uint64, coinbase common.Address, chainID int64) *coretypes.Receipt {
-	return &coretypes.Receipt{}
+type Chain struct {
+	// host core.Host
 }

@@ -15,8 +15,8 @@
 package evm
 
 import (
+	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/services"
 )
 
 type ChainService interface{}
@@ -27,6 +27,6 @@ type QueryService interface{}
 
 type ParamsService interface{}
 
-func NewEvmChain(core.Host) *services.Chain {
-	return &services.Chain{}
+func NewEvmChain(core.Host) *api.Chain {
+	return &api.Chain{}
 }

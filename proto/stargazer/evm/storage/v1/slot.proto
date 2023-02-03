@@ -14,7 +14,7 @@
 
 syntax = "proto3";
 
-package stargazer.core.state.storage.v1;
+package stargazer.evm.storage.v1;
 
 option go_package = "github.com/berachain/stargazer/x/evm/plugins/state/storage";
 
