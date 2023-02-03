@@ -15,6 +15,7 @@
 package precompile
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/core/precompile/container"
@@ -22,7 +23,6 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/registry"
 	libtypes "github.com/berachain/stargazer/lib/types"
-	"github.com/berachain/stargazer/lib/utils"
 )
 
 // `manager` retrieves and runs precompile containers with an ephemeral context.
@@ -30,8 +30,8 @@ type manager struct {
 	// `Registry` allows the `Controller` to search for a precompile container at an address.
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 
-	// `ephemeralSDB` is the StargazerStateDB for a current state transition.
-	ephemeralSDB vm.StargazerStateDB
+	// `ctx` is the ephemeral native context, updated on every state transition.
+	ctx context.Context
 
 	// `runner` will run the precompile in a custom precompile environment for a given context.
 	runner vm.PrecompileRunner
@@ -46,25 +46,24 @@ func NewManager(runner vm.PrecompileRunner) vm.PrecompileManager {
 	}
 }
 
-// `PrepareForStateTransition` sets the precompile's native environment statedb.
+// `PrepareForStateTransition` sets the precompile's native environment context.
 //
 // `PrepareForStateTransition` implements `vm.PrecompileController`.
-func (c *manager) PrepareForStateTransition(sdb vm.GethStateDB) error {
-	ssdb, ok := utils.GetAs[vm.StargazerStateDB](sdb)
-	if !ok {
-		return container.ErrIncompatibleStateDB
+func (m *manager) PrepareForStateTransition(ctx context.Context) error {
+	if ctx == nil {
+		return container.ErrInvalidContext
 	}
 
-	c.ephemeralSDB = ssdb
+	m.ctx = ctx
 	return nil
 }
 
 // `Run` runs the precompile container using its runner and its ephemeral context.
 //
 // `Run` implements `vm.PrecompileController`.
-func (c *manager) Run(
+func (m *manager) Run(
 	pc vm.PrecompileContainer, input []byte, caller common.Address,
 	value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
-	return c.runner.Run(pc, c.ephemeralSDB, input, caller, value, suppliedGas, readonly)
+	return m.runner.Run(m.ctx, pc, input, caller, value, suppliedGas, readonly)
 }

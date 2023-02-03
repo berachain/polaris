@@ -34,8 +34,8 @@ import (
 )
 
 var _ = Describe("Stateful Container", func() {
-	var sc *container.Stateful
-	var empty *container.Stateful
+	var sc vm.PrecompileContainer
+	var empty vm.PrecompileContainer
 	var ctx context.Context
 	var addr common.Address
 	var readonly bool
@@ -74,46 +74,48 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// empty input
-			_, err := empty.Run(ctx, sdb, blank, addr, value, readonly)
+			_, err := empty.Run(ctx, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
+			// missing statedb
+			_, err = sc.Run(ctx, blank, addr, value, readonly)
+			Expect(err).To(MatchError("statedb is not compatible with Stargazer"))
+			sc.WithStateDB(&mockSdb{})
+
 			// invalid input
-			_, err = sc.Run(ctx, sdb, blank, addr, value, readonly)
+			_, err = sc.Run(ctx, blank, addr, value, readonly)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
-			// missing statedb
-			_, err = sc.Run(ctx, nil, blank, addr, value, readonly)
-			Expect(err).To(MatchError("statedb is not compatible with Stargazer"))
-
 			// method not found
-			_, err = sc.Run(ctx, sdb, badInput, addr, value, readonly)
+			_, err = sc.Run(ctx, badInput, addr, value, readonly)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, sdb, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
+			_, err = sc.Run(ctx, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, sdb, getOutputPartialABI.ID, addr, value, readonly)
+			_, err = sc.Run(ctx, getOutputPartialABI.ID, addr, value, readonly)
 			Expect(err.Error()).To(Equal("err during precompile execution: getOutputPartial"))
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			_, err = sc.Run(ctx, sdb, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
 			Expect(err).To(BeNil())
-			_, err = sc.Run(ctx, sdb, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("should return properly for valid method calls", func() {
+			sc.WithStateDB(sdb)
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
-			ret, err := sc.Run(ctx, sdb, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, append(getOutputABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(BeNil())
 			Expect(sdb.count).To(Equal(2))
 			outputs, err := getOutputABI.Outputs.Unpack(ret)

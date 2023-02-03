@@ -15,6 +15,7 @@
 package precompile
 
 import (
+	"context"
 	"math/big"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -73,7 +74,7 @@ func (cr *CosmosRunner) SetTransientKVGasConfig(transientKVGasConfig *sdk.GasCon
 //
 // `Run` implements `vm.PrecompileRunner`.
 func (cr *CosmosRunner) Run(
-	pc vm.PrecompileContainer, ssdb vm.StargazerStateDB, input []byte,
+	ctx context.Context, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
@@ -83,11 +84,10 @@ func (cr *CosmosRunner) Run(
 
 	// run precompile container
 	ret, err := pc.Run(
-		sdk.UnwrapSDKContext(ssdb.GetContext()).
+		sdk.UnwrapSDKContext(ctx).
 			WithGasMeter(gm).
 			WithKVGasConfig(*cr.kvGasConfig).
 			WithTransientKVGasConfig(*cr.transientKVGasConfig),
-		ssdb,
 		input,
 		caller,
 		value,
