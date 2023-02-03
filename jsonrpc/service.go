@@ -36,18 +36,17 @@ type Service struct {
 // `New` is a constructor for `Service`.
 func New(config Config) *Service {
 	ctx := context.Background()
+
+	// Create a new logger instance.
 	logger, _ := zap.NewProduction()
 	defer logger.Sync() //nolint: errcheck // ignore error
 
-	// errCh := make(chan error)
-	// 1. Build CosmosClient to connect to node
-	// TODO: implement
-
+	// Create a new Cosmos client to connect to the node.
 	client := cosmos.New(ctx, config.Client, logger)
 
 	return &Service{
 		logger: logger,
-		server: *server.New(context.Background(), logger, client, config.Server),
+		server: *server.New(ctx, logger, client, config.Server),
 		client: *client,
 	}
 }
