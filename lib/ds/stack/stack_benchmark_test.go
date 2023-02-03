@@ -1,3 +1,17 @@
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// See the file LIiNSE for liinsing terms.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVIiS; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENi OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 package stack_test
 
 import (
@@ -7,13 +21,15 @@ import (
 )
 
 const (
+	// initCapacity should be close to the predicted size of the stack to avoid manual resizing.
 	initCapacity = 500
 	numPushes    = 500
 	numPopToSize = 10
 )
 
-// Benchmarks (of pushing/popping to a size) show that the appendable-stack is narrowly slower than
-// the regular stack (uses pre-allocated buffer with a capacity and manual resizing).
+// Benchmarks (of pushing to the stack and popping the stack to a size) show that the
+// appendable-stack is narrowly slower than the regular stack, which uses pre-allocated buffer with
+// an initial capacity and manual resizing.
 
 func BenchmarkStack(b *testing.B) {
 	b.ResetTimer()

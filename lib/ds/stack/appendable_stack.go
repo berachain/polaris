@@ -17,8 +17,8 @@ package stack
 
 import "github.com/berachain/stargazer/lib/ds"
 
-// `aStack` is a struct that holds a slice of Items.
-// Last in, first out data structure.
+// `aStack` is a struct that holds a slice of Items as a last in, first out data structure.
+// It is implemented by the built-in `append` operation.
 type aStack[T any] struct {
 	head int // should always be size - 1
 	buf  []T
@@ -33,6 +33,10 @@ func NewA[T any]() ds.Stack[T] {
 
 // `Peek` implements `Stack`.
 func (a *aStack[T]) Peek() T {
+	if a.head == -1 {
+		var t T
+		return t
+	}
 	return a.buf[a.head]
 }
 

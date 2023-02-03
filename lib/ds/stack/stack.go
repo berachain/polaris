@@ -22,19 +22,19 @@ const (
 	two         = 2
 )
 
-// `stack` is a struct that holds a slice of Items.
-// Last in, first out data structure.
+// `stack` is a struct that holds a slice of Items as a last in, first out data structure.
+// It is implemented by pre-allocating a buffer with a capacity.
 type stack[T any] struct {
 	size     int
 	capacity int
 	buf      []T
 }
 
-// Creates a new, empty stack.
-func New[T any](capacity int) ds.Stack[T] {
+// Creates a new, empty stack with the given initial capacity.
+func New[T any](initialCapacity int) ds.Stack[T] {
 	return &stack[T]{
-		capacity: capacity,
-		buf:      make([]T, capacity),
+		capacity: initialCapacity,
+		buf:      make([]T, initialCapacity),
 	}
 }
 
