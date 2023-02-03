@@ -18,14 +18,14 @@ import (
 	"testing"
 
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
+	"github.com/berachain/stargazer/x/evm/plugin/state/storage"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 func TestStorage(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/state/storage")
+	RunSpecs(t, "x/evm/plugin/state/storage")
 }
 
 var _ = Describe("StorageTest", func() {

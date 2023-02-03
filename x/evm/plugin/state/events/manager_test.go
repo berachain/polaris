@@ -17,7 +17,7 @@ package events_test
 import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugins/state/events"
+	"github.com/berachain/stargazer/x/evm/plugin/state/events"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
