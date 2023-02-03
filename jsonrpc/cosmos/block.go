@@ -47,7 +47,7 @@ func (c *Client) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock, erro
 		return nil, err
 	} else if resBlock.Block == nil {
 		c.logger.Debug("CometBlockByNumber: block not found", zap.Int64("height", height))
-		return nil, nil //nolint:nilnil // not finding the block isn't nessarily an error.
+		return nil, ErrBlockNotFound
 	}
 
 	return resBlock, nil

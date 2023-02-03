@@ -67,7 +67,7 @@ func New(ctx context.Context, logger *zap.Logger, client *cosmos.Client, cfg con
 	// Like with gin, we must use middleware to have ethlog output to our logger.
 	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
 		sugared := logger.Sugar()
-		switch r.Lvl { //nolint:exhaustive // combined cases.
+		switch r.Lvl {
 		case ethlog.LvlTrace, ethlog.LvlDebug:
 			sugared.Debug(r.Msg, r.Ctx)
 		case ethlog.LvlInfo, ethlog.LvlWarn:
