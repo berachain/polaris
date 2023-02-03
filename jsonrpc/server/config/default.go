@@ -12,16 +12,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package server
+package config
 
 import "time"
 
 var (
 	// `DefaultAPINamespaces` is the default namespaces the JSON-RPC server exposes.
 	DefaultAPINamespaces = []string{"eth", "node"}
-
-	// `AllowedAPINamespaces` is the list of namespaces the JSON-RPC server exposes.
-
 )
 
 const (
@@ -53,52 +50,10 @@ const (
 	DefaultJSONRPCBaseRoute = "/"
 )
 
-type Config struct {
-	rpc *JSONRPCConfig
-	tls *TLSConfig
-}
-
-func DefaultConfig() *Config {
-	return &Config{
-		rpc: DefaultJSONRPCConfig(),
-		tls: DefaultTLSConfig(),
-	}
-}
-
-// `JSONRPCConfig` defines configuration for the JSON-RPC server.Config struct.
-type JSONRPCConfig struct {
-	// `API` defines a list of JSON-RPC namespaces to be enabled.
-	API []string `mapstructure:"api"`
-
-	// `Address` defines the HTTP server to listen on.
-	Address string `mapstructure:"address"`
-
-	// `WsAddress` defines the WebSocket server to listen on.
-	WSAddress string `mapstructure:"ws-address"`
-
-	// `MetricsAddress` defines the metrics server to listen on.
-	MetricsAddress string `mapstructure:"metrics-address"`
-
-	// `HTTPReadHeaderTimeout` is the read timeout of http json-rpc server.
-	HTTPReadHeaderTimeout time.Duration `mapstructure:"http-read-header-timeout"`
-
-	// `HTTPReadTimeout` is the read timeout of http json-rpc server.
-	HTTPReadTimeout time.Duration `mapstructure:"http-read-timeout"`
-
-	// `HTTPWriteTimeout` is the write timeout of http json-rpc server.
-	HTTPWriteTimeout time.Duration `mapstructure:"http-write-timeout"`
-
-	// HTTPIdleTimeout is the idle timeout of http json-rpc server.
-	HTTPIdleTimeout time.Duration `mapstructure:"http-idle-timeout"`
-
-	// `HTTPBaseRoute` defines the base path for the JSON-RPC server.
-	BaseRoute string `mapstructure:"base-path"`
-}
-
-// `DefaultConfig` returns the default TLS configuration.
-func DefaultJSONRPCConfig() *JSONRPCConfig {
-	return &JSONRPCConfig{
-		API:                   DefaultAPINamespaces,
+// `DefaultServer` returns the default TLS configuration.
+func DefaultServer() *Server {
+	return &Server{
+		EnableAPIs:            DefaultAPINamespaces,
 		Address:               DefaultJSONRPCAddress,
 		WSAddress:             DefaultJSONRPCWSAddress,
 		MetricsAddress:        DefaultJSONRPCMetricsAddress,
@@ -107,16 +62,8 @@ func DefaultJSONRPCConfig() *JSONRPCConfig {
 		HTTPReadTimeout:       DefaultHTTPReadTimeout,
 		HTTPWriteTimeout:      DefaultHTTPWriteTimeout,
 		HTTPIdleTimeout:       DefaultHTTPIdleTimeout,
+		TLSConfig:             DefaultTLSConfig(),
 	}
-}
-
-// `TLSConfig` defines a certificate and matching private key for the server.
-type TLSConfig struct {
-	// `CertPath` the file path for the certificate .pem file
-	CertPath string `mapstructure:"cert-path"`
-
-	// KeyPath the file path for the key .pem file
-	KeyPath string `toml:"key-path"`
 }
 
 // DefaultConfig returns the default TLS configuration.

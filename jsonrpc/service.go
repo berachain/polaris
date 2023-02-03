@@ -24,6 +24,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/berachain/stargazer/jsonrpc/server"
+	"github.com/berachain/stargazer/jsonrpc/server/config"
 )
 
 // `Service` is a JSON-RPC endpoint service.
@@ -33,7 +34,7 @@ type Service struct {
 }
 
 // `New` is a constructor for `Service`.
-func New(config server.Config, clientCtx client.Context) *Service {
+func New(config config.Server, clientCtx client.Context) *Service {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync() //nolint: errcheck // ignore error
 	return &Service{

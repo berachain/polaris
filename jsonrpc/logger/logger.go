@@ -11,34 +11,14 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package main
+
+package logger
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/berachain/stargazer/jsonrpc/server/config"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/spf13/cobra"
-
-	jsonrpc "github.com/berachain/stargazer/jsonrpc"
+	libtypes "github.com/berachain/stargazer/lib/types"
+	"go.uber.org/zap"
 )
 
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		os.Exit(1)
-	}
-}
-
-var rootCmd = &cobra.Command{
-	Use:   "json-rpc",
-	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
-	Short: "Ethereum JSON-RPC server",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return jsonrpc.New(
-			*config.DefaultServer(),
-			client.GetClientContextFromCmd(cmd),
-		).Start()
-	},
+type Zap interface {
+	libtypes.Logger[zap.Field]
 }

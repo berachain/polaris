@@ -11,34 +11,15 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-package main
 
-import (
-	"fmt"
-	"os"
+package config
 
-	"github.com/berachain/stargazer/jsonrpc/server/config"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/spf13/cobra"
-
-	jsonrpc "github.com/berachain/stargazer/jsonrpc"
-)
-
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		os.Exit(1)
+type (
+	// RPC defines RPC configuration of both the gRPC and CometBFT nodes.
+	RPC struct {
+		CMRPCEndpoint string `mapstructure:"cmrpc-endpoint" validate:"required"`
+		GRPCEndpoint  string `mapstructure:"grpc-endpoint" validate:"required"`
+		RPCTimeout    string `mapstructure:"rpc-timeout" validate:"required"`
+		ChainID       string `mapstructure:"chain-id" validate:"required"`
 	}
-}
-
-var rootCmd = &cobra.Command{
-	Use:   "json-rpc",
-	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
-	Short: "Ethereum JSON-RPC server",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return jsonrpc.New(
-			*config.DefaultServer(),
-			client.GetClientContextFromCmd(cmd),
-		).Start()
-	},
-}
+)

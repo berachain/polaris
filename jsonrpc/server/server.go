@@ -20,7 +20,8 @@ import (
 
 	"github.com/berachain/stargazer/jsonrpc/api"
 	"github.com/berachain/stargazer/jsonrpc/cosmos"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"github.com/berachain/stargazer/jsonrpc/logger"
+	"github.com/berachain/stargazer/jsonrpc/server/config"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -36,17 +37,17 @@ type Service struct {
 	// `engine` is the gin engine responsible for handling the JSON-RPC requests.
 	engine *gin.Engine
 	// `logger` is the logger for the service.
-	logger libtypes.Logger[zap.Field]
+	logger logger.Zap
 	// `notify` is the channel that is used to notify the service has stopped.
 	notify chan error
 	// `shutdownTimeout` is the delay between the service being stopped and the HTTP server being shutdown.
 	shutdownTimeout time.Duration
 	// `config` is the configuration for the service.
-	config Config
+	config config.Server
 }
 
 // `New` returns a new `Service` object.
-func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, clientCtx client.Context) *Service {
+func New(ctx context.Context, logger logger.Zap, config config.Server, clientCtx client.Context) *Service {
 	// Configure the JSON-RPC API.
 	s := &Service{
 		cosmosClient: cosmos.New(ctx, clientCtx, logger),
@@ -58,10 +59,10 @@ func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, 
 	}
 
 	// Set the JSON-RPC server to use the BaseRoute.
-	s.engine.Any(s.config.rpc.BaseRoute, gin.WrapH(s.rpcserver))
+	s.engine.Any(s.config.BaseRoute, gin.WrapH(s.rpcserver))
 
 	// Register the JSON-RPC API namespaces.
-	for _, namespace := range config.rpc.API {
+	for _, namespace := range config.EnableAPIs {
 		if err := s.RegisterAPI(api.Build(namespace, s.cosmosClient, logger)); err != nil {
 			panic(err)
 		}
@@ -73,8 +74,8 @@ func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, 
 // `Start` stops the service.
 func (s *Service) Start() {
 	go func() {
-		s.logger.Info("Starting JSON-RPC server at", zap.String("address", s.config.rpc.Address))
-		s.notify <- s.engine.Run(s.config.rpc.Address)
+		s.logger.Info("Starting JSON-RPC server at", zap.String("address", s.config.Address))
+		s.notify <- s.engine.Run(s.config.Address)
 		close(s.notify)
 	}()
 }

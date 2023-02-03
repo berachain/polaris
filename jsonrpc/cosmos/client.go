@@ -17,9 +17,8 @@ package cosmos
 import (
 	"context"
 
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"github.com/berachain/stargazer/jsonrpc/logger"
 	"github.com/cosmos/cosmos-sdk/client"
-	"go.uber.org/zap"
 )
 
 // `Client` is a wrapper around the Cosmos SDK `client.Context` that implements querying and
@@ -32,14 +31,14 @@ type Client struct {
 	// `cmclient` is the `CometClient` context.
 	cmc client.TendermintRPC
 	// `logger` is the logger instance.
-	logger libtypes.Logger[zap.Field]
+	logger logger.Zap
 }
 
 // `New` creates a new `CosmosClient`.
 func New(
 	ctx context.Context,
 	clientCtx client.Context,
-	logger libtypes.Logger[zap.Field],
+	logger logger.Zap,
 ) *Client {
 	return &Client{
 		ctx:       ctx,
