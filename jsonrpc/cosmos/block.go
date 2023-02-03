@@ -15,8 +15,6 @@
 package cosmos
 
 import (
-	"fmt"
-
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"go.uber.org/zap"
@@ -25,7 +23,6 @@ import (
 // `LatestBlockNumber` returns the the latest block number as reported at the application layer.
 func (c *Client) LatestBlockNumber() (hexutil.Uint64, error) {
 	res, err := c.clientCtx.Client.ABCIInfo(c.ctx)
-	fmt.Println(res, err)
 	if err != nil {
 		return 0, err
 	}

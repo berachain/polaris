@@ -48,12 +48,12 @@ func New(config Config) *Service {
 	return &Service{
 		logger: logger,
 		server: *server.New(context.Background(), logger, client, config.Server),
+		client: *client,
 	}
 }
 
 // `Start` starts the service.
 func (s *Service) Start() error {
-
 	// 2. Setup JSONRPC Server to provide endpoint
 	s.server.Start()
 
