@@ -41,15 +41,14 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
-// The StateDB is a very fun and interesting part of the EVM implementation. But if you want to
+// The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
 //
-//  1. You must ensure that the StateDB is only ever used in a single thread. This is because the
-//     StateDB is not thread safe. And there are a bunch of optimizations made that are only safe
-//     to do in a single thread.
-//  2. You must discard the StateDB after use.
-//  3. When accessing or mutating the StateDB, you must ensure that the underlying account exists.
-//     in the AccountKeeper, for performance reasons, this implementation of the StateDB will not
+//  1. You must ensure that the StatePlugin is only ever used in a single thread, because the
+//     StatePlugin is not thread safe. And there are a bunch of optimizations made that are only
+//     safe to do in a single thread.
+//  2. When accessing or mutating the Plugin, you must ensure that the underlying account exists.
+//     In the AccountKeeper, for performance reasons, this implementation of the StateDB will not
 //     create accounts that do not exist. Notably calling `SetState()` on an account that does not
 //     exist is completely possible, and the StateDB will not prevent you doing so. This lazy
 //     creation improves performance a ton, as it prevents calling into the ak on
@@ -57,11 +56,12 @@ var (
 //     accounts that represent smart contracts. Because of this assumption, the only place that we
 //     explicitly create accounts is in `CreateAccount()`, since `CreateAccount()` is called when
 //     deploying a smart contract.
-//  4. Accounts that are sent `evmDenom` coins during an eth transaction, will have an account
+//  3. Accounts that are sent `evmDenom` coins during an eth transaction, will have an account
 //     created for them, automatically by the Bank Module. However, these accounts will have a
 //     codeHash of 0x000... This is because the Bank Module does not know that the account is an
 //     EVM account, and so it does not set the codeHash. This is totally fine, we just need to
-//     check both for both the codeHash being 0x000... as well as the codeHash being 0x567...
+//     check both for both the codeHash being zero (0x000...) as well as the codeHash being empty
+//     (0x567...)
 type statePlugin struct {
 	libtypes.Controller[string, libtypes.Controllable[string]]
 
