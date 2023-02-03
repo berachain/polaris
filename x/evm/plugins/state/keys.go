@@ -20,22 +20,21 @@ import (
 
 const (
 	keyPrefixCode byte = iota
-	keyPrefixHash
 	keyPrefixStorage
 )
 
 // NOTE: we use copy to build keys for max performance: https://github.com/golang/go/issues/55905
 
-// AddressStoragePrefix returns a prefix to iterate over a given account storage.
-func AddressStoragePrefix(address common.Address) []byte {
+// StorageKeyFor returns a prefix to iterate over a given account storage (multiple slots).
+func StorageKeyFor(address common.Address) []byte {
 	bz := make([]byte, 1+common.AddressLength)
 	copy(bz, []byte{keyPrefixStorage})
 	copy(bz[1:], address[:])
 	return bz
 }
 
-// `KeyForSlot` defines the full key under which an account state is stored.
-func KeyForSlot(address common.Address, slot common.Hash) []byte {
+// `SlotKeyFor` defines the full key under which an account storage slot is stored.
+func SlotKeyFor(address common.Address, slot common.Hash) []byte {
 	bz := make([]byte, 1+common.AddressLength+common.HashLength)
 	copy(bz, []byte{keyPrefixStorage})
 	copy(bz[1:], address[:])
@@ -51,7 +50,7 @@ func CodeHashKeyFor(address common.Address) []byte {
 	return bz
 }
 
-// `CodeKeyFor` defines the full key for which a codehash's corresponding code is stored.
+// `CodeKeyFor` defines the full key for which an address codehash's corresponding code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
 	bz := make([]byte, 1+common.HashLength)
 	copy(bz, []byte{keyPrefixCode})

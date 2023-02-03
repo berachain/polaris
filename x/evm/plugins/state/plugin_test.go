@@ -53,6 +53,20 @@ var _ = Describe("State Plugin", func() {
 		It("should have start with zero balance", func() {
 			Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
 		})
+
+		It("should correctly Transfer Balance", func() {
+			sp.AddBalance(alice, big.NewInt(50))
+			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(50)))
+			Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(0)))
+
+			sp.TransferBalance(alice, bob, big.NewInt(25))
+			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(25)))
+			Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(25)))
+
+			// should panic if not enough funds
+			Expect(func() { sp.TransferBalance(alice, bob, big.NewInt(50)) }).To(Panic())
+		})
+
 		Context("TestAddBalance", func() {
 			It("should be able to add zero", func() {
 				Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
@@ -353,7 +367,7 @@ var _ = Describe("State Plugin", func() {
 		// 				It("alice should have her code and state wiped, but not bob", func() {
 		// 					Expect(sp.GetCode(alice)).To(BeNil())
 		// 					Expect(sp.GetCode(bob)).To(Equal(bobCode))
-		// 					var aliceStorage storage.Slots
+		// 					var aliceStorage storage.Storage
 		// 					err := sp.ForEachStorage(alice,
 		// 						func(key, value common.Hash) bool {
 		// 							aliceStorage = append(aliceStorage,
@@ -363,7 +377,7 @@ var _ = Describe("State Plugin", func() {
 		// 					Expect(err).To(BeNil())
 		// 					Expect(len(aliceStorage)).To(BeZero())
 
-		// 					var bobStorage storage.Slots
+		// 					var bobStorage storage.Storage
 		// 					err = sp.ForEachStorage(bob,
 		// 						func(key, value common.Hash) bool {
 		// 							bobStorage = append(bobStorage, NewSlot(key, value))
@@ -377,6 +391,12 @@ var _ = Describe("State Plugin", func() {
 		// 		})
 		// 	})
 		// })
+		Describe("Test ForEachStorage", func() {
+			It("should correctly iterate through storage", func() {
+
+			})
+		})
+
 		Describe("TestAccount", func() {
 			It("account does not exist", func() {
 				Expect(sp.Exist(alice)).To(BeFalse())

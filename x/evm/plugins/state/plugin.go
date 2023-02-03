@@ -304,7 +304,7 @@ func (sp *statePlugin) getStateFromStore(
 	store storetypes.KVStore,
 	addr common.Address, slot common.Hash,
 ) common.Hash {
-	if value := store.Get(KeyForSlot(addr, slot)); value != nil {
+	if value := store.Get(SlotKeyFor(addr, slot)); value != nil {
 		return common.BytesToHash(value)
 	}
 	return common.Hash{}
@@ -322,12 +322,12 @@ func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
 
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sp.cms.GetKVStore(sp.evmStoreKey).Delete(KeyForSlot(addr, key))
+		sp.cms.GetKVStore(sp.evmStoreKey).Delete(SlotKeyFor(addr, key))
 		return
 	}
 
 	// Set the state entry.
-	sp.cms.GetKVStore(sp.evmStoreKey).Set(KeyForSlot(addr, key), value[:])
+	sp.cms.GetKVStore(sp.evmStoreKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
 // =============================================================================
@@ -345,7 +345,7 @@ func (sp *statePlugin) ForEachStorage(
 ) error {
 	it := sdk.KVStorePrefixIterator(
 		sp.cms.GetKVStore(sp.evmStoreKey),
-		AddressStoragePrefix(addr),
+		StorageKeyFor(addr),
 	)
 	defer it.Close()
 
