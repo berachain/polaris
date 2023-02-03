@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package state_test
 
 import (
 	"testing"
@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestPlugin(t *testing.T) {
+func TestState(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state/plugin")
+	RunSpecs(t, "eth/core/state")
 }

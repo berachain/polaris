@@ -12,16 +12,44 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package storage
 
 import (
-	"testing"
+	"fmt"
+	"strings"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/errors"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-func TestPlugin(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state/plugin")
+// Compile-time interface assertions.
+var (
+	_ libtypes.Cloneable[*Slot] = (*Slot)(nil)
+	_ fmt.Stringer              = (*Slot)(nil)
+)
+
+// `NewSlot` creates a new State instance.
+func NewSlot(key, value common.Hash) *Slot {
+	return &Slot{
+		Key:   key.Hex(),
+		Value: value.Hex(),
+	}
+}
+
+// `ValidateBasic` checks to make sure the key is not empty.
+func (s *Slot) ValidateBasic() error {
+	if strings.TrimSpace(s.Key) == "" {
+		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
+	}
+
+	return nil
+}
+
+// `Clone` implements `types.Cloneable`.
+func (s *Slot) Clone() *Slot {
+	return &Slot{
+		Key:   s.Key,
+		Value: s.Value,
+	}
 }
