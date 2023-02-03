@@ -15,7 +15,6 @@
 package state
 
 import (
-	"context"
 	"math/big"
 
 	coretypes "github.com/berachain/stargazer/eth/core/types"
@@ -25,25 +24,30 @@ import (
 
 type StatePlugin interface { //nolint:revive // vibes.
 	libtypes.Controllable[string]
-	GetContext() context.Context
+
 	CreateAccount(common.Address)
 	// Exist reports whether the given account exists in state.
 	// Notably this should also return true for suicided accounts.
 	Exist(common.Address) bool
+
 	GetBalance(common.Address) *big.Int
 	SubBalance(common.Address, *big.Int)
 	AddBalance(common.Address, *big.Int)
 	TransferBalance(common.Address, common.Address, *big.Int)
+
 	GetNonce(common.Address) uint64
 	SetNonce(common.Address, uint64)
+
 	GetCodeHash(common.Address) common.Hash
 	GetCode(common.Address) []byte
 	SetCode(common.Address, []byte)
 	GetCodeSize(common.Address) int
+
 	GetCommittedState(common.Address, common.Hash) common.Hash
 	GetState(common.Address, common.Hash) common.Hash
 	SetState(common.Address, common.Hash, common.Hash)
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
+
 	DeleteSuicides([]common.Address)
 }
 

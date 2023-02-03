@@ -15,11 +15,12 @@
 package vm
 
 import (
+	"context"
+
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/params"
 	libtypes "github.com/berachain/stargazer/lib/types"
 
-	"context"
 	"math/big"
 
 	"github.com/berachain/stargazer/lib/common"
@@ -53,9 +54,6 @@ type (
 		GethStateDB
 		libtypes.Finalizeable
 
-		// `GetContext` returns the Go context associated to the StateDB.
-		GetContext() context.Context
-
 		// TransferBalance transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
 
@@ -66,7 +64,7 @@ type (
 	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
 	PrecompileRunner interface {
 		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
-		Run(pc PrecompileContainer, ssdb StargazerStateDB, input []byte,
+		Run(ctx context.Context, pc PrecompileContainer, input []byte,
 			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 		) (ret []byte, remainingGas uint64, err error)
 	}

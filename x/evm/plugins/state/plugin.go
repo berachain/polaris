@@ -15,7 +15,6 @@
 package state
 
 import (
-	"context"
 	"math/big"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -115,11 +114,6 @@ func NewPlugin(
 
 func (sp *statePlugin) RegistryKey() string {
 	return pluginRegistryKey
-}
-
-// `GetContext` implements `StargazerStateDB`.
-func (sp *statePlugin) GetContext() context.Context {
-	return sp.ctx
 }
 
 // ===========================================================================

@@ -15,7 +15,6 @@
 package mock
 
 import (
-	"context"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -77,9 +76,6 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		},
 		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			panic("mock out the GetCommittedState method")
-		},
-		GetContextFunc: func() context.Context {
-			panic("mock out the GetContext method")
 		},
 		BuildLogsAndClearFunc: func(common.Hash, common.Hash, uint, uint) []*types.Log {
 			panic("mock out the GetLogs method")
