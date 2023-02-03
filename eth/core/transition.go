@@ -22,6 +22,8 @@ import (
 	"github.com/berachain/stargazer/lib/errors"
 )
 
+// `StateTransition` is the main object which takes care of applying a
+// transaction to the current state.
 type StateTransition struct {
 	// An instance of the  Virtual Machine
 	evm vm.StargazerEVM
@@ -38,7 +40,8 @@ type StateTransition struct {
 // Transition Execution
 // =============================================================================
 
-// Create a new state transitioner to process a single transaction.
+// `ApplyMessage` transitions the state by applying the given message to the chain state
+// using the given EVM.
 func ApplyMessage(
 	evm vm.StargazerEVM,
 	msg Message,
@@ -46,7 +49,8 @@ func ApplyMessage(
 	return NewStateTransition(evm, msg).transitionDB()
 }
 
-// Create a new state transitioner to process a single transaction.
+// `ApplyMessageAndCommit` transitions the state by applying the given message to the chain state
+// using the given EVM. It also finalizes the change.
 func ApplyMessageAndCommit(
 	evm vm.StargazerEVM,
 	msg Message,
@@ -62,7 +66,8 @@ func ApplyMessageAndCommit(
 	return res, nil
 }
 
-// Create a new state transitioner to process a single transaction.
+// `ApplyMessageWithTracer` transitions the state by applying the given message to the chain state
+// using the given EVM. Additionally it logs the execution to the given tracer.
 func ApplyMessageWithTracer(
 	evm vm.StargazerEVM,
 	msg Message,
@@ -71,7 +76,8 @@ func ApplyMessageWithTracer(
 	return NewStateTransition(evm, msg).traceTransitionDB(tracer)
 }
 
-// Create a new state transitioner to process a single transaction.
+// `ApplyMessageWithTracerAndCommit` transitions the state by applying the given message to the chain state
+// using the given EVM. Additionally it logs the execution to the given tracer. It also finalizes the change.
 func ApplyMessageWithTracerAndCommit(
 	evm vm.StargazerEVM,
 	msg Message,
