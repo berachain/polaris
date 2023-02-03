@@ -23,5 +23,5 @@ import (
 
 func TestState(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/state")
+	RunSpecs(t, "x/evm/plugin/state")
 }

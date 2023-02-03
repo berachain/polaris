@@ -15,8 +15,6 @@
 package state
 
 import (
-	"bytes"
-
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
@@ -25,14 +23,13 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `StatePlugin` is the plugin that holds the state of the evm.
-
 var (
-	// EmptyCodeHash is the Keccak256 Hash of empty code
+	// `emptyCodeHash` is the Keccak256 Hash of empty code
 	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 	emptyCodeHash = crypto.Keccak256Hash(nil)
 )
 
+// `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
 	// References to the plugins in the controller.
 	StatePlugin
@@ -94,7 +91,7 @@ func (sdb *stateDB) Suicide(addr common.Address) bool {
 // in current transaction.
 func (sdb *stateDB) HasSuicided(addr common.Address) bool {
 	for _, suicide := range sdb.suicides {
-		if bytes.Equal(suicide[:], addr[:]) {
+		if addr == suicide {
 			return true
 		}
 	}

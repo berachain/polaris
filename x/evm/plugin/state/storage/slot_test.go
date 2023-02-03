@@ -18,12 +18,12 @@ import (
 	"math/rand"
 
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
+	"github.com/berachain/stargazer/x/evm/plugin/state/storage"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("x/evm/plugins/state/storage", func() {
+var _ = Describe("x/evm/plugin/state/storage", func() {
 	var slot *storage.Slot
 	key := common.Hash{}.Bytes()
 	value := common.Hash{}.Bytes()

@@ -22,7 +22,7 @@ import (
 	"github.com/berachain/stargazer/eth/core/state/plugin/mock"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
+	"github.com/berachain/stargazer/x/evm/plugin/state"
 	"github.com/ethereum/go-ethereum/common"
 )
 
