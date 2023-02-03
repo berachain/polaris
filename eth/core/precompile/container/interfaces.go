@@ -16,7 +16,7 @@ package container
 
 import (
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/types/abi"
+	"github.com/berachain/stargazer/eth/types/abi"
 )
 
 type (
