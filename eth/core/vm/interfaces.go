@@ -66,7 +66,7 @@ type (
 	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
 	PrecompileRunner interface {
 		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
-		Run(pc PrecompileContainer, ssdb StargazerStateDB, input []byte,
+		Run(ctx context.Context, pc PrecompileContainer, input []byte,
 			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 		) (ret []byte, remainingGas uint64, err error)
 	}
