@@ -12,4 +12,29 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package debug
+package eth
+
+import (
+	"github.com/berachain/stargazer/jsonrpc/cosmos"
+	libtypes "github.com/berachain/stargazer/lib/types"
+	"go.uber.org/zap/zapcore"
+)
+
+// `API` contains the Cosmos API.
+type api struct {
+	client *cosmos.Client
+	logger libtypes.Logger[zapcore.Field]
+}
+
+// `NewAPI` returns a new `api` object.
+func NewAPI(client *cosmos.Client, logger libtypes.Logger[zapcore.Field]) *api { //nolint: revive // by design.
+	return &api{
+		client: client,
+		logger: logger,
+	}
+}
+
+// `Namespace` impements the api.Service interface.
+func (api) Namespace() string {
+	return "cosmos"
+}

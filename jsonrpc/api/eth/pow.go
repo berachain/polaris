@@ -22,8 +22,18 @@ import (
 const (
 	// `MethodEthHashrate` is the method name of `eth_hashrate`.
 	MethodEthHashrate = "eth_hashrate"
+
 	// `MethodEthMining` is the method name of `eth_mining`.
 	MethodEthMining = "eth_mining"
+
+	// `MethodEthGetWork` is the method name of `eth_getWork`.
+	MethodEthGetWork = "eth_getWork"
+
+	// `MethodEthSubmitWork` is the method name of `eth_submitWork`.
+	MethodEthSubmitWork = "eth_submitWork"
+
+	// `MethodEthSubmitHashrate` is the method name of `eth_submitHashrate`.
+	MethodEthSubmitHashrate = "eth_submitHashrate"
 )
 
 // `Hashrate` returns 0 since there is no mining in CometBFT.
@@ -40,15 +50,18 @@ func (api *api) Mining() bool {
 
 // `GetWork` returns nil since there is no mining in CometBFT.
 func (api *api) GetWork() ([]hexutil.Bytes, error) {
+	api.logger.Debug(MethodEthGetWork)
 	return nil, nil
 }
 
 // `SubmitWork` returns false since there is no mining in CometBFT.
 func (api *api) SubmitWork(nonce hexutil.Uint64, headerHash, mixDigest hexutil.Bytes) bool {
+	api.logger.Debug(MethodEthSubmitWork)
 	return false
 }
 
 // `SubmitHashrate` returns false since there is no mining in CometBFT.
 func (api *api) SubmitHashrate(hashrate hexutil.Uint64, id common.Hash) bool {
+	api.logger.Debug(MethodEthSubmitHashrate)
 	return false
 }

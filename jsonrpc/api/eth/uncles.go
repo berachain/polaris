@@ -19,22 +19,40 @@ import (
 	"github.com/berachain/stargazer/lib/common/hexutil"
 )
 
+const (
+	// `MethodGetUncleByBlockHashAndIndex` is the method name of `eth_getUncleByBlockHashAndIndex`.
+	MethodGetUncleByBlockHashAndIndex = "eth_getUncleByBlockHashAndIndex"
+
+	// `MethodGetUncleByBlockNumberAndIndex` is the method name of `eth_getUncleByBlockNumberAndIndex`.
+	MethodGetUncleByBlockNumberAndIndex = "eth_getUncleByBlockNumberAndIndex"
+
+	// `MethodGetUncleCountByBlockHash` is the method name of `eth_getUncleCountByBlockHash`.
+	MethodGetUncleCountByBlockHash = "eth_getUncleCountByBlockHash"
+
+	// `MethodGetUncleCountByBlockNumber` is the method name of `eth_getUncleCountByBlockNumber`.
+	MethodGetUncleCountByBlockNumber = "eth_getUncleCountByBlockNumber"
+)
+
 // `GetUncleByBlockHashAndIndex` returns nil since there are no uncles in Tendermint.
-func (*api) GetUncleByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) map[string]interface{} {
+func (api *api) GetUncleByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) map[string]interface{} {
+	api.logger.Debug(MethodGetUncleByBlockHashAndIndex)
 	return nil
 }
 
-// `GetUncleByBlockNumberAndIndex` returns nil since there are no uncles in Tendermint.
-func (*api) GetUncleByBlockNumberAndIndex(number, idx hexutil.Uint) map[string]interface{} {
+// `GetUncleByBlockNumberAndIndex` returns nil since there are no uncles in CometBFT.
+func (api *api) GetUncleByBlockNumberAndIndex(number, idx hexutil.Uint) map[string]interface{} {
+	api.logger.Debug(MethodGetUncleByBlockNumberAndIndex)
 	return nil
 }
 
 // `GetUncleCountByBlockHash` returns 0 since there are no uncles in Tendermint.
-func (*api) GetUncleCountByBlockHash(hash common.Hash) hexutil.Uint {
+func (api *api) GetUncleCountByBlockHash(hash common.Hash) hexutil.Uint {
+	api.logger.Debug(MethodGetUncleCountByBlockHash)
 	return 0
 }
 
 // `GetUncleCountByBlockNumber` returns 0 since there are no uncles in Tendermint.
-func (*api) GetUncleCountByBlockNumber(blockNum int64) hexutil.Uint {
+func (api *api) GetUncleCountByBlockNumber(blockNum int64) hexutil.Uint {
+	api.logger.Debug(MethodGetUncleCountByBlockNumber)
 	return 0
 }

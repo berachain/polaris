@@ -19,8 +19,8 @@ package api
 // +-----------------------------------------+-----------+
 // |                 Method                  | Supported |
 // +-----------------------------------------+-----------+
-// | web3_clientVersion                      |     Y     |
-// | web3_sha3                               |           |
+// | web3_clientVersion                      |           |
+// | web3_sha3                               |     Y     |
 // | net_version                             |     Y     |
 // | net_listening                           |     Y     |
 // | net_peerCount                           |     Y     |
@@ -37,8 +37,8 @@ package api
 // | eth_getTransactionCount                 |           |
 // | eth_getBlockTransactionCountByHash      |           |
 // | eth_getBlockTransactionCountByNumber    |           |
-// | eth_getUncleCountByBlockHash            |           |
-// | eth_getUncleCountByBlockNumber          |           |
+// | eth_getUncleCountByBlockHash            |     N     |
+// | eth_getUncleCountByBlockNumber          |     N     |
 // | eth_getCode                             |           |
 // | eth_sign                                |           |
 // | eth_signTransaction                     |           |
@@ -52,8 +52,8 @@ package api
 // | eth_getTransactionByBlockHashAndIndex   |           |
 // | eth_getTransactionByBlockNumberAndIndex |           |
 // | eth_getTransactionReceipt               |           |
-// | eth_getUncleByBlockHashAndIndex         |           |
-// | eth_getUncleByBlockNumberAndIndex       |           |
+// | eth_getUncleByBlockHashAndIndex         |     N     |
+// | eth_getUncleByBlockNumberAndIndex       |     N     |
 // | eth_newFilter                           |           |
 // | eth_newBlockFilter                      |           |
 // | eth_newPendingTransactionFilter         |           |
