@@ -59,7 +59,7 @@ func (s *Service) Start() error {
 	var err error
 	select {
 	case sig := <-interrupt:
-		s.logger.Info("app - Run - signal: " + sig.String())
+		s.logger.Info(sig.String())
 	case err = <-s.server.Notify():
 		s.logger.Error(err.Error())
 	}
