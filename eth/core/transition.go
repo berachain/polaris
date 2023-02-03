@@ -207,7 +207,6 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		UsedGas:    st.gasUsed(),
 		Err:        vmErr,
 		ReturnData: ret,
-		// Logs:       st.evm.StateDB.Logs(),
 	}, nil
 }
 
@@ -245,6 +244,9 @@ func (st *StateTransition) gasUsed() uint64 {
 	return st.initialGas - st.gas
 }
 
+// `refundGas` is a helper function that refunds the gas to the sender. It is used
+// to refund unused gas after a transaction has been executed. The refund is capped
+// to a refund quotient.
 func (st *StateTransition) refundGas(refundQuotient uint64) {
 	sdb := st.evm.StateDB()
 	// Apply refund counter, capped to a refund quotient

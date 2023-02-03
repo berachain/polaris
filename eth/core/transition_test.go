@@ -78,6 +78,31 @@ var _ = Describe("StateTransition", func() {
 				Expect(err).To(MatchError(core.ErrIntrinsicGas))
 			})
 		})
+
+		When("We call with a tracer", func() {
+			var tracer *vmmock.EVMLoggerMock
+			BeforeEach(func() {
+				tracer = vmmock.NewEVMLoggerMock()
+				evm.TracerFunc = func() vm.EVMLogger {
+					return tracer
+				}
+			})
+			It("should error if nil tracer", func() {
+				_, err := core.ApplyMessageWithTracer(evm, msg, nil)
+				Expect(err).To(Not(BeNil()))
+			})
+			It("should call create with tracer", func() {
+				msg.GasFunc = func() uint64 {
+					return 53000 // exact intrinsic gas for create after homestead
+				}
+				_, err := core.ApplyMessageWithTracer(evm, msg, tracer)
+				Expect(len(evm.SetTracerCalls())).To(Equal(1))
+				Expect(len(evm.SetDebugCalls())).To(Equal(2))
+				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
+				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
+				Expect(err).To(BeNil())
+			})
+		})
 	})
 
 	When("Contract Call", func() {
