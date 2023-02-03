@@ -26,10 +26,14 @@ import (
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
+	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 )
 
-var alice = testutil.Alice
-var bob = testutil.Bob
+var (
+	alice         = testutil.Alice
+	bob           = testutil.Bob
+	emptyCodeHash = crypto.Keccak256Hash(nil)
+)
 
 var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
@@ -40,6 +44,10 @@ var _ = Describe("State Plugin", func() {
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
 		sp, _ = state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera") // TODO: use lf
+	})
+
+	It("should have the correct registry key", func() {
+		Expect(sp.RegistryKey()).To(Equal("statePlugin"))
 	})
 
 	Describe("TestCreateAccount", func() {
@@ -164,9 +172,18 @@ var _ = Describe("State Plugin", func() {
 			BeforeEach(func() {
 				sp.CreateAccount(alice)
 			})
-			It("should have zero code hash", func() {
-				Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(nil)))
+
+			It("should have empty code hash", func() {
+				Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
 			})
+
+			It("should return empty code hash when account exists but no codehash", func() {
+				addr := ak.NewAccountWithAddress(ctx, bob[:])
+				ak.SetAccount(ctx, addr)
+
+				Expect(sp.GetCodeHash(bob)).To(Equal(emptyCodeHash))
+			})
+
 			When("account has code", func() {
 				BeforeEach(func() {
 					sp.SetCode(alice, []byte("code"))
@@ -178,7 +195,7 @@ var _ = Describe("State Plugin", func() {
 				It("should have empty code hash", func() {
 					sp.SetCode(alice, nil)
 					Expect(sp.GetCode(alice)).To(BeNil())
-					Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(nil)))
+					Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
 				})
 			})
 		})
@@ -301,19 +318,82 @@ var _ = Describe("State Plugin", func() {
 		// 	})
 		// })
 
-		// Describe("TestSuicide", func() {
-		// 	BeforeEach(func() {
-		// 		sp.CreateAccount(alice)
-		// 	})
-		// 	It("cannot suicide eoa", func() {
-		// 		Expect(sp.Suicide(alice)).To(BeFalse())
-		// 		Expect(sp.HasSuicided(alice)).To(BeFalse())
-		// 	})
+		Describe("Test ForEachStorage", func() {
+			// initialAliceBal := big.NewInt(69)
+			// initialBobBal := big.NewInt(420)
+			// bobCode := []byte("bobcode")
 
-		// 	initialAliceBal := big.NewInt(69)
-		// 	initialBobBal := big.NewInt(420)
-		// 	aliceCode := []byte("alicecode")
-		// 	bobCode := []byte("bobcode")
+			BeforeEach(func() {
+				sp.CreateAccount(alice)
+				sp.CreateAccount(bob)
+			})
+
+			// It("cannot suicide eoa", func() {
+			// 	Expect(sp.Suicide(alice)).To(BeFalse())
+			// 	Expect(sp.HasSuicided(alice)).To(BeFalse())
+			// })
+
+			It("should iterate through storage correctly", func() {
+				Expect(sp.GetCode(alice)).To(BeNil())
+				var aliceStorage storage.Storage
+				err := sp.ForEachStorage(alice,
+					func(key, value common.Hash) bool {
+						aliceStorage = append(aliceStorage,
+							storage.NewSlot(key, value))
+						return true
+					})
+				Expect(err).To(BeNil())
+				Expect(len(aliceStorage)).To(BeZero())
+
+				sp.SetState(bob, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
+				var bobStorage storage.Storage
+				err = sp.ForEachStorage(bob,
+					func(key, value common.Hash) bool {
+						bobStorage = append(bobStorage, storage.NewSlot(key, value))
+						return true
+					})
+				Expect(err).To(BeNil())
+				Expect(len(bobStorage)).To(Equal(1))
+				Expect(bobStorage[0].Key).
+					To(Equal("0x0000000000000000000000000000000000000000000000000000000000000001"))
+				Expect(bobStorage[0].Value).
+					To(Equal("0x0000000000000000000000000000000000000000000000000000000000000002"))
+
+				sp.SetState(bob, common.BytesToHash([]byte{3}), common.BytesToHash([]byte{4}))
+				var bobStorage2 storage.Storage
+				i := 0
+				err = sp.ForEachStorage(bob,
+					func(key, value common.Hash) bool {
+						if i > 0 {
+							return false
+						}
+
+						bobStorage2 = append(bobStorage2, storage.NewSlot(key, value))
+						i++
+						return true
+					},
+				)
+				Expect(err).To(BeNil())
+				Expect(len(bobStorage2)).To(Equal(1))
+			})
+		})
+
+		Describe("Test Delete Suicides", func() {
+			aliceCode := []byte("alicecode")
+
+			BeforeEach(func() {
+				sp.CreateAccount(alice)
+				sp.SetCode(alice, aliceCode)
+				sp.SetState(alice, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
+			})
+
+			It("should remove storage/codehash/acct", func() {
+				sp.DeleteSuicides([]common.Address{alice, alice})
+				Expect(ak.HasAccount(ctx, alice[:])).To(BeFalse())
+				Expect(sp.GetCode(alice)).To(BeNil())
+				Expect(sp.GetState(alice, common.BytesToHash([]byte{1}))).To(Equal(common.Hash{}))
+			})
+		})
 
 		// 	When("address has code and balance", func() {
 		// 		BeforeEach(func() {
@@ -360,42 +440,8 @@ var _ = Describe("State Plugin", func() {
 		// 						To(Equal(common.BytesToHash([]byte(fmt.Sprintf("value%d", i)))))
 		// 				}
 		// 			})
-		// 			When("commit is called", func() {
-		// 				BeforeEach(func() {
-		// 					_ = sp.Finalize()
-		// 				})
-		// 				It("alice should have her code and state wiped, but not bob", func() {
-		// 					Expect(sp.GetCode(alice)).To(BeNil())
-		// 					Expect(sp.GetCode(bob)).To(Equal(bobCode))
-		// 					var aliceStorage storage.Storage
-		// 					err := sp.ForEachStorage(alice,
-		// 						func(key, value common.Hash) bool {
-		// 							aliceStorage = append(aliceStorage,
-		// 								NewSlot(key, value))
-		// 							return true
-		// 						})
-		// 					Expect(err).To(BeNil())
-		// 					Expect(len(aliceStorage)).To(BeZero())
-
-		// 					var bobStorage storage.Storage
-		// 					err = sp.ForEachStorage(bob,
-		// 						func(key, value common.Hash) bool {
-		// 							bobStorage = append(bobStorage, NewSlot(key, value))
-		// 							return true
-		// 						})
-		// 					Expect(err).To(BeNil())
-		// 					Expect(len(bobStorage)).To(Equal(10))
-		// 				})
-		// 			})
-
 		// 		})
-		// 	})
-		// })
-		Describe("Test ForEachStorage", func() {
-			It("should correctly iterate through storage", func() {
-
-			})
-		})
+		//  })
 
 		Describe("TestAccount", func() {
 			It("account does not exist", func() {
@@ -423,7 +469,6 @@ var _ = Describe("State Plugin", func() {
 					Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(56)))
 				})
 			})
-
 		})
 
 		Describe("TestSnapshot", func() {
@@ -548,7 +593,6 @@ var _ = Describe("State Plugin", func() {
 		// 			})
 		// 		})
 		// 	})
-		// })
 
 		Describe("TestRevertSnapshot", func() {
 			key := common.BytesToHash([]byte("key"))

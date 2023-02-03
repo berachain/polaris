@@ -237,15 +237,18 @@ func (sp *statePlugin) SetNonce(addr common.Address, nonce uint64) {
 // GetCodeHash implements the `GethStateDB` interface by returning
 // the code hash of account.
 func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
-	if sp.ak.HasAccount(sp.ctx, addr[:]) {
-		if ch := sp.cms.GetKVStore(sp.evmStoreKey).Get(CodeHashKeyFor(addr)); ch != nil {
-			return common.BytesToHash(ch)
-		}
+	if !sp.ak.HasAccount(sp.ctx, addr[:]) {
+		// if account at addr does not exist, return zeros
+		return common.Hash{}
+	}
+
+	ch := sp.cms.GetKVStore(sp.evmStoreKey).Get(CodeHashKeyFor(addr))
+	if ch == nil {
 		// account exists but does not have a codehash, return empty
 		return emptyCodeHash
 	}
-	// if account at addr does not exist, return zeros
-	return common.Hash{}
+
+	return common.BytesToHash(ch)
 }
 
 // GetCode implements the `GethStateDB` interface by returning
@@ -353,8 +356,7 @@ func (sp *statePlugin) ForEachStorage(
 		committedValue := it.Value()
 		if len(committedValue) > 0 {
 			if !cb(common.BytesToHash(it.Key()), common.BytesToHash(committedValue)) {
-				// stop iteration
-				return nil
+				return nil // stop iteration
 			}
 		}
 	}

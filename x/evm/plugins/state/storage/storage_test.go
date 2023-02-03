@@ -15,11 +15,18 @@
 package storage_test
 
 import (
+	"testing"
+
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestStorage(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/state/storage")
+}
 
 var _ = Describe("StorageTest", func() {
 	When("storage is empty", func() {
