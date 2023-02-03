@@ -25,7 +25,7 @@ import (
 )
 
 // `abiPkg` is the package name of the `abi` package.
-const abiPkg = "github.com/berachain/stargazer/types/abi"
+const abiPkg = "github.com/berachain/stargazer/eth/types/abi"
 
 // `Run` generates a golang file representing a `CompiliedContract` from
 // the output of `forge build`.

@@ -22,10 +22,10 @@ import (
 	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
-	"github.com/berachain/stargazer/types/abi"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
