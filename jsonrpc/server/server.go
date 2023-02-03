@@ -86,12 +86,15 @@ func (s *Service) Notify() <-chan error {
 
 // `Shutdown` stops the service.
 func (s *Service) Shutdown() error {
-	ctx, cancel := context.WithTimeout(
+	_, cancel := context.WithTimeout(
 		context.Background(),
 		s.shutdownTimeout,
 	)
 	defer cancel()
-	return s.server.Shutdown(ctx)
+	// Stop the RPC Server
+	s.rpcserver.Stop()
+	// TODO: stop the gin server
+	return nil
 }
 
 // `RegisterAPI` registers a service with the JSON-RPC server.
