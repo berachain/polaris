@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// `API` contains the Cosmos API.
+// `api` contains the Cosmos API.
 type api struct {
 	client *cosmos.Client
 	logger *zap.Logger

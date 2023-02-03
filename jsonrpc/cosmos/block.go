@@ -36,7 +36,7 @@ func (c *Client) CometBlockByNumber(height int64) (*tmrpctypes.ResultBlock, erro
 		if err != nil {
 			return nil, err
 		}
-		height = int64(n)
+		height = n
 	}
 
 	resBlock, err := c.clientCtx.Client.Block(c.ctx, &height)

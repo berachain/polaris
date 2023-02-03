@@ -55,6 +55,7 @@ func New(
 	}
 }
 
+// `CreateClientContext` creates a new `client.Context` instance.
 func CreateClientContext(config config.RPC) (client.Context, error) {
 	httpClient, err := tmjsonclient.DefaultHTTPClient(config.CMRPCEndpoint)
 	if err != nil {
