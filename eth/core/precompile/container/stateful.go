@@ -28,11 +28,8 @@ import (
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
 const NumBytesMethodID = 4
 
-// Compile-time assertion to ensure `Stateful` is a `PrecompileContainer`.
-var _ vm.PrecompileContainer = (*Stateful)(nil)
-
-// `Stateful` is a container for running stateful and dynamic precompiled contracts.
-type Stateful struct {
+// `stateful` is a container for running stateful and dynamic precompiled contracts.
+type stateful struct {
 	vm.BasePrecompileImpl
 
 	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
@@ -41,6 +38,9 @@ type Stateful struct {
 	// (geth abi format). Please check core/precompile/container/method.go for more information.
 	idsToMethods map[string]*Method
 
+	// `gsdb` is used to add logs.
+	gsdb vm.GethStateDB
+
 	// TODO: implement
 	// receive *Method
 
@@ -48,21 +48,28 @@ type Stateful struct {
 	// fallback *Method
 }
 
-// `NewStateful` creates and returns a new `Stateful` with the given method ids precompile functions map.
-func NewStateful(bci vm.BasePrecompileImpl, idsToMethods map[string]*Method) *Stateful {
-	return &Stateful{
+// `NewStateful` creates and returns a new `stateful` with the given method ids precompile functions map.
+func NewStateful(
+	bci vm.BasePrecompileImpl, idsToMethods map[string]*Method,
+) vm.PrecompileContainer {
+	return &stateful{
 		BasePrecompileImpl: bci,
 		idsToMethods:       idsToMethods,
 	}
+}
+
+// `WithStateDB` implements `PrecompileContainer`.
+func (sc *stateful) WithStateDB(gsdb vm.GethStateDB) vm.PrecompileContainer {
+	sc.gsdb = gsdb
+	return sc
 }
 
 // `Run` loads the corresponding precompile method for given input, executes it, and handles
 // output.
 //
 // `Run` implements `PrecompileContainer`.
-func (sc *Stateful) Run(
+func (sc *stateful) Run(
 	ctx context.Context,
-	sdb vm.GethStateDB,
 	input []byte,
 	caller common.Address,
 	value *big.Int,
@@ -71,7 +78,7 @@ func (sc *Stateful) Run(
 	if sc.idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
 	}
-	if sdb == nil {
+	if sc.gsdb == nil {
 		return nil, ErrIncompatibleStateDB
 	}
 	if len(input) < NumBytesMethodID {
@@ -112,7 +119,7 @@ func (sc *Stateful) Run(
 
 	// Add the logs to the logdb if there are no errors in container execution.
 	for _, log := range logs {
-		sdb.AddLog(log)
+		sc.gsdb.AddLog(log)
 	}
 
 	return ret, nil
@@ -121,7 +128,7 @@ func (sc *Stateful) Run(
 // `RequiredGas` checks the Method corresponding to input for the required gas amount.
 //
 // `RequiredGas` implements PrecompileContainer.
-func (sc *Stateful) RequiredGas(input []byte) uint64 {
+func (sc *stateful) RequiredGas(input []byte) uint64 {
 	if sc.idsToMethods == nil || len(input) < NumBytesMethodID {
 		return 0
 	}

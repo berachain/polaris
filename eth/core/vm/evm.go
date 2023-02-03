@@ -15,6 +15,8 @@
 package vm
 
 import (
+	"context"
+
 	"github.com/berachain/stargazer/eth/params"
 )
 
@@ -40,6 +42,11 @@ func NewStargazerEVM(
 			blockCtx, txCtx, stateDB, chainConfig, config, pcmgr,
 		),
 	}
+}
+
+// MUST BE SET before starting the state transition.
+func (evm *stargazerEVM) SetPrecompileManagerContext(ctx context.Context) {
+	_ = evm.PrecompileManager.PrepareForStateTransition(ctx)
 }
 
 func (evm *stargazerEVM) SetTxContext(txCtx TxContext) {
