@@ -35,7 +35,8 @@ type Service struct {
 	// `rpcserver` is the externally facing JSON-RPC Server.
 	rpcserver *ethrpc.Server
 	// `server` is the HTTP server that serves the JSON-RPC server.
-	server *http.Server
+	server  *http.Server
+	gserver *gin.Engine
 	// `logger` is the logger for the service.
 	logger libtypes.Logger[zap.Field]
 	// `notify` is the channel that is used to notify the service has stopped.
@@ -58,19 +59,11 @@ func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, 
 		config:       config,
 		logger:       logger,
 		notify:       make(chan error, 1),
+		gserver:      r,
 	}
 
-	// Set the JSON-RPC server to use thea base route.
-	r.Any(s.config.rpc.BaseRoute, gin.WrapH(ethrpc.NewServer()))
-	r.ServeHTTP()
-	// Configure the HTTP server.
-	s.server = &http.Server{
-		Addr:              config.rpc.Address,
-		ReadHeaderTimeout: 5 * time.Second,  //nolint:gomnd // TODO: make this configurable
-		ReadTimeout:       10 * time.Second, //nolint:gomnd // TODO: make this configurable
-		WriteTimeout:      10 * time.Second, //nolint:gomnd // TODO: make this configurable
-		Handler:           r,
-	}
+	// Set the JSON-RPC server to use the BaseRoute.
+	r.Any(s.config.rpc.BaseRoute, gin.WrapH(s.rpcserver))
 
 	// Register the JSON-RPC API namespaces.
 	for _, namespace := range config.rpc.API {
@@ -86,7 +79,7 @@ func New(ctx context.Context, logger libtypes.Logger[zap.Field], config Config, 
 func (s *Service) Start() {
 	go func() {
 		s.logger.Info("Starting JSON-RPC server at", zap.String("address", s.config.rpc.Address))
-		s.notify <- s.server.ListenAndServe()
+		s.notify <- s.gserver.Run(s.config.rpc.Address)
 		close(s.notify)
 	}()
 }
