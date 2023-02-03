@@ -97,7 +97,7 @@ func New(ctx context.Context, logger *zap.Logger, client *cosmos.Client, cfg con
 // `Start` stops the service.
 func (s *Service) Start() {
 	go func() {
-		s.logger.Info("Starting JSON-RPC server at", zap.String("address", s.config.Address))
+		s.logger.Info("Starting JSON-RPC server at:", zap.String("address", s.config.Address))
 		s.notify <- s.engine.Run(s.config.Address)
 		close(s.notify)
 	}()

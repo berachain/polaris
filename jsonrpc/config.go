@@ -19,11 +19,15 @@ import (
 	sconfig "github.com/berachain/stargazer/jsonrpc/server/config"
 )
 
+// `Config` is the configuration for the JSON-RPC service.
 type Config struct {
+	// `Server` is the configuration for the JSON-RPC server.
 	Server sconfig.Server
+	// `Client` is the configuration for the Cosmos gRPC client.
 	Client cconfig.RPC
 }
 
+// `DefaultConfig` returns a default configuration for the JSON-RPC service.
 func DefaultConfig() *Config {
 	return &Config{
 		Server: *sconfig.DefaultServer(),
