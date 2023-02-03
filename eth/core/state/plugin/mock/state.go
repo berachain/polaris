@@ -129,7 +129,7 @@ func NewEmptyStatePlugin() *StatePluginMock {
 			}
 		},
 		TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-			panic("mock out the TransferBalance method")
+			// no-op
 		},
 	}
 }

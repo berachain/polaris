@@ -51,7 +51,6 @@ var _ = Describe("StateTransition", func() {
 		msg.ToFunc = func() *common.Address {
 			return &common.Address{1}
 		}
-
 	})
 
 	When("Contract Creation", func() {
@@ -79,6 +78,22 @@ var _ = Describe("StateTransition", func() {
 			})
 		})
 
+		It("should call create with commit", func() {
+			msg.GasFunc = func() uint64 {
+				return 53000
+			}
+			_, err := core.ApplyMessageAndCommit(evm, msg)
+			Expect(err).To(BeNil())
+		})
+
+		It("should handle transition error", func() {
+			msg.GasFunc = func() uint64 {
+				return 0
+			}
+			_, err := core.ApplyMessageAndCommit(evm, msg)
+			Expect(err).To(Not(BeNil()))
+		})
+
 		When("We call with a tracer", func() {
 			var tracer *vmmock.EVMLoggerMock
 			BeforeEach(func() {
@@ -101,6 +116,36 @@ var _ = Describe("StateTransition", func() {
 				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
 				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
 				Expect(err).To(BeNil())
+			})
+			It("should call create with tracer and commit", func() {
+				msg.GasFunc = func() uint64 {
+					return 53000 // exact intrinsic gas for create after homestead
+				}
+				sdb = vmmock.NewEmptyStateDB()
+				evm.StateDBFunc = func() vm.StargazerStateDB {
+					return sdb
+				}
+				_, err := core.ApplyMessageWithTracerAndCommit(evm, msg, tracer)
+				Expect(len(evm.SetTracerCalls())).To(Equal(1))
+				Expect(len(evm.SetDebugCalls())).To(Equal(2))
+				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
+				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
+				Expect(err).To(BeNil())
+				Expect(len(sdb.FinalizeCalls())).To(Equal(1))
+			})
+			It("should handle abort error", func() {
+				msg.GasFunc = func() uint64 {
+					return 0
+				}
+				_, err := core.ApplyMessageWithTracer(evm, msg, tracer)
+				Expect(err).To(Not(BeNil()))
+			})
+			It("should handle abort error with commit", func() {
+				msg.GasFunc = func() uint64 {
+					return 0
+				}
+				_, err := core.ApplyMessageWithTracerCommit(evm, msg, tracer)
+				Expect(err).To(Not(BeNil()))
 			})
 		})
 	})
