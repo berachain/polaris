@@ -23,7 +23,7 @@ var (
 	// Variables.
 	baseDockerPath         = "./build/docker/"
 	beradDockerPath        = baseDockerPath + "berad.Dockerfile"
-	jsonrpcDockerPath      = "./jsonrpc/docker/Dockerfile"
+	jsonrpcDockerPath      = "./jsonrpc/Dockerfile"
 	imageName              = "berachain-node"
 	testImageVersion       = "e2e-test-dev"
 	goVersion              = "1.19.4"
