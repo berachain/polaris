@@ -22,13 +22,12 @@ const (
 	two         = 2
 )
 
-// `Stack` is a struct that holds a slice of Items.
+// `stack` is a struct that holds a slice of Items.
 // Last in, first out data structure.
 type stack[T any] struct {
 	size     int
 	capacity int
-
-	buf []T
+	buf      []T
 }
 
 // Creates a new, empty stack.

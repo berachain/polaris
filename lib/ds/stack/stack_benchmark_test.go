@@ -12,12 +12,15 @@ const (
 	numPopToSize = 10
 )
 
-func BenchmarkAStack(b *testing.B) {
+// Benchmarks (of pushing/popping to a size) show that the appendable-stack is narrowly slower than
+// the regular stack (uses pre-allocated buffer with a capacity and manual resizing).
+
+func BenchmarkStack(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		s := stack.NewA[*data]()
+		s := stack.New[*data](initCapacity)
 		for p := 0; p < numPushes; p++ {
 			s.Push(newData())
 		}
@@ -29,12 +32,12 @@ func BenchmarkAStack(b *testing.B) {
 	}
 }
 
-func BenchmarkStack(b *testing.B) {
+func BenchmarkAStack(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		s := stack.New[*data](initCapacity)
+		s := stack.NewA[*data]()
 		for p := 0; p < numPushes; p++ {
 			s.Push(newData())
 		}

@@ -17,22 +17,26 @@ package stack
 
 import "github.com/berachain/stargazer/lib/ds"
 
+// `aStack` is a struct that holds a slice of Items.
+// Last in, first out data structure.
 type aStack[T any] struct {
 	head int // should always be size - 1
-
-	buf []T
+	buf  []T
 }
 
+// Creates a new, empty appendable stack.
 func NewA[T any]() ds.Stack[T] {
 	return &aStack[T]{
 		head: -1,
 	}
 }
 
+// `Peek` implements `Stack`.
 func (a *aStack[T]) Peek() T {
 	return a.buf[a.head]
 }
 
+// `PeekAt` implements `Stack`.
 func (a *aStack[T]) PeekAt(index int) T {
 	if index < 0 || index > a.head {
 		panic("index out of bounds")
@@ -40,21 +44,26 @@ func (a *aStack[T]) PeekAt(index int) T {
 	return a.buf[index]
 }
 
+// `Push` implements `Stack`.
 func (a *aStack[T]) Push(i T) int {
 	a.buf = append(a.buf, i)
 	a.head++
 	return a.head + 1
 }
 
+// `Size` implements `Stack`.
 func (a *aStack[T]) Size() int {
 	return a.head + 1
 }
 
-// same as size, capacity not supported
+// `Capacity` is the same as size.
+//
+// `Capacity` implements `Stack`.
 func (a *aStack[T]) Capacity() int {
 	return a.Size()
 }
 
+// `Pop` implements `Stack`.
 func (a *aStack[T]) Pop() T {
 	if a.head == -1 {
 		var t T
@@ -64,6 +73,7 @@ func (a *aStack[T]) Pop() T {
 	return a.buf[a.head+1]
 }
 
+// `PopToSize` implements `Stack`.
 func (a *aStack[T]) PopToSize(newSize int) T {
 	if newSize < 0 || newSize > a.head+1 {
 		panic("newSize out of bounds")
