@@ -15,7 +15,6 @@
 package state
 
 import (
-	"context"
 	"math/big"
 
 	coretypes "github.com/berachain/stargazer/eth/core/types"
@@ -27,8 +26,6 @@ import (
 // native vm. This also handles removing suicided accounts.
 type StatePlugin interface { //nolint:revive // vibes.
 	libtypes.Controllable[string]
-
-	GetContext() context.Context
 
 	CreateAccount(common.Address)
 	// Exist reports whether the given account exists in state.
