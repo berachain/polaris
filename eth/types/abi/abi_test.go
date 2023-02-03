@@ -25,7 +25,7 @@ import (
 
 func TestABI(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "types/abi")
+	RunSpecs(t, "eth/types/abi")
 }
 
 var _ = Describe("ABI Test Suite", func() {
