@@ -241,9 +241,10 @@ func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
 		if ch := sp.cms.GetKVStore(sp.evmStoreKey).Get(CodeHashKeyFor(addr)); ch != nil {
 			return common.BytesToHash(ch)
 		}
+		// account exists but does not have a codehash, return empty
 		return emptyCodeHash
 	}
-	// if account at addr does not exist, return ZeroCodeHash
+	// if account at addr does not exist, return zeros
 	return common.Hash{}
 }
 
@@ -251,9 +252,8 @@ func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
 // the code of account (nil if not exists).
 func (sp *statePlugin) GetCode(addr common.Address) []byte {
 	codeHash := sp.GetCodeHash(addr)
-	// if account at addr does not exist, GetCodeHash returns ZeroCodeHash so return nil
-	// if codeHash is empty, i.e. crypto.Keccak256(nil), also return nil
 	if (codeHash == common.Hash{}) || codeHash == emptyCodeHash {
+		// if account at addr does not exist or the account  does not have a codehash, return nil
 		return nil
 	}
 	return sp.cms.GetKVStore(sp.evmStoreKey).Get(CodeKeyFor(codeHash))

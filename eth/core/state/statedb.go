@@ -33,7 +33,7 @@ var (
 	emptyCodeHash = crypto.Keccak256Hash(nil)
 )
 
-type stateDB struct { //nolint:revive // we live the vibe.
+type stateDB struct {
 	// References to the plugins in the controller.
 	StatePlugin
 	RefundPlugin
