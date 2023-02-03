@@ -21,6 +21,7 @@ import (
 	"github.com/berachain/stargazer/jsonrpc/api"
 	"github.com/berachain/stargazer/jsonrpc/cosmos"
 	"github.com/berachain/stargazer/jsonrpc/server/config"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -46,15 +47,24 @@ type Service struct {
 
 // `New` returns a new `Service` object.
 func New(ctx context.Context, logger *zap.Logger, client *cosmos.Client, cfg config.Server) *Service {
-	// Configure the JSON-RPC API.
+	// Create the service object.
 	s := &Service{
 		cosmosClient: client,
 		rpcserver:    ethrpc.NewServer(),
 		config:       cfg,
 		logger:       logger,
 		notify:       make(chan error, 1),
-		engine:       gin.Default(),
+		engine:       gin.New(),
 	}
+
+	// Add a ginzap middleware, which:
+	//   - Logs all requests, like a combined access and error log.
+	//   - Logs to stdout.
+	//   - RFC3339 with UTC time format.
+	s.engine.Use(ginzap.Ginzap(logger, time.RFC3339, true))
+
+	// Recovery middleware recovers from any panics and writes a 500 if there was one.
+	s.engine.Use(gin.Recovery())
 
 	// Set the JSON-RPC server to use the BaseRoute.
 	s.engine.Any(s.config.BaseRoute, gin.WrapH(s.rpcserver))
