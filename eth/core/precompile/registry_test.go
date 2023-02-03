@@ -78,10 +78,14 @@ func (ms *mockStateless) RequiredGas(input []byte) uint64 {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, statedb vm.GethStateDB, input []byte,
+	ctx context.Context, input []byte,
 	caller common.Address, value *big.Int, readonly bool,
 ) ([]byte, error) {
 	return nil, nil
+}
+
+func (ms *mockStateless) WithStateDB(vm.GethStateDB) vm.PrecompileContainer {
+	return ms
 }
 
 type mockStateful struct {
