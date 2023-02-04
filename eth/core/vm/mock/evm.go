@@ -53,19 +53,19 @@ func NewStargazerEVM() *StargazerEVMMock {
 			panic("mock out the Reset method")
 		},
 		SetDebugFunc: func(debug bool) {
-			panic("mock out the SetDebug method")
+			// no-op
 		},
 		SetTracerFunc: func(tracer ethereumcorevm.EVMLogger) {
-			panic("mock out the SetTracer method")
+			// no-op
 		},
 		SetTxContextFunc: func(txCtx ethereumcorevm.TxContext) {
-
+			// no-op
 		},
 		StateDBFunc: func() stargazercorevm.StargazerStateDB {
 			return NewEmptyStateDB()
 		},
 		TracerFunc: func() ethereumcorevm.EVMLogger {
-			panic("mock out the Tracer method")
+			return &EVMLoggerMock{}
 		},
 		TxContextFunc: func() ethereumcorevm.TxContext {
 			panic("mock out the TxContext method")
