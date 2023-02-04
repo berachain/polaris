@@ -18,5 +18,66 @@ package main
 
 import (
 	//mage:import
+	"fmt"
+
 	_ "github.com/berachain/stargazer/build/mage"
+
+	"context"
+	"time"
+
+	"github.com/testcontainers/testcontainers-go"
 )
+
+const (
+	defaultHttpPortTcp = "8545/tcp"
+	defaultWsPortTcp   = "8546/tcp"
+)
+
+var (
+	goVersion = "1.19.5"
+	goAlpine  = "golang:1.19.5-alpine3.14"
+)
+
+func main() {
+	ctx := context.Background()
+	req := testcontainers.ContainerRequest{
+		FromDockerfile: testcontainers.FromDockerfile{
+			Context:    "./",
+			Dockerfile: "jsonrpc/Dockerfile",
+			BuildArgs: map[string]*string{
+				"GO_VERSION":   &goVersion,
+				"RUNNER_IMAGE": &goAlpine,
+			},
+			PrintBuildLog: true,
+		},
+		// ExposedPorts: []string{defaultHttpPortTcp, defaultWsPortTcp},
+		// WaitingFor:   wait.ForHTTP("/").WithPort(defaultHttpPortTcp),
+	}
+	redisC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	time.Sleep(time.Second * 15)
+	defer func() {
+		if err := redisC.Terminate(ctx); err != nil {
+			panic(fmt.Sprintf("failed to terminate container: %s", err.Error()))
+		}
+	}()
+}
+
+// func TestWithRedis(t *testing.T) {
+
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+// 	time.Sleep(time.Second * 15)
+// 	defer func() {
+// 		if err := redisC.Terminate(ctx); err != nil {
+// 			t.Fatalf("failed to terminate container: %s", err.Error())
+// 		}
+// 	}()
+// }
