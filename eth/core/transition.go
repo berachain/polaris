@@ -181,14 +181,15 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	//   to ensure that the nonce is getting updated correctly.
 	//
 	if contractCreation {
-		// take over from the evm, as to not
-		// increment the nonce twice.
-		// TODO: Review nonce accounting.
+		// TODO: Review nonce accounting. Leaving the management of the nonce
+		// up to the implementing chain?
 		sdb.SetNonce(sender.Address(), st.msg.Nonce())
 		ret, _, st.gas, vmErr = st.evm.Create(sender,
 			msgData, st.gas, msgValue)
-		sdb.SetNonce(sender.Address(), st.msg.Nonce()+1)
 	} else {
+		// TODO: Review nonce accounting. Leaving the management of the nonce
+		// up to the implementing chain?
+		sdb.SetNonce(sender.Address(), st.msg.Nonce()+1)
 		// It is to deference st.msg.To() here, as it is checked
 		// to be non-nil higher up in this function.
 		ret, st.gas, vmErr = st.evm.Call(sender, *st.msg.To(),
