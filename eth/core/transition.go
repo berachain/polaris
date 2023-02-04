@@ -183,7 +183,6 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	if contractCreation {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
-		sdb.SetNonce(sender.Address(), st.msg.Nonce())
 		ret, _, st.gas, vmErr = st.evm.Create(sender,
 			msgData, st.gas, msgValue)
 	} else {
