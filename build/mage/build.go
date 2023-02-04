@@ -49,7 +49,7 @@ var (
 
 // Runs a series of commonly used commands.
 func All() error {
-	cmds := []func() error{Build, ForgeBuild, Generate, Format, Proto, Lint, Test}
+	cmds := []func() error{Build, Generate, Format, Proto, Lint, Test}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err

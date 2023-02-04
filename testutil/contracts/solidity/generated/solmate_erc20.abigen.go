@@ -2,7 +2,7 @@
 
 package solidity
 
-import abi "github.com/berachain/stargazer/types/abi"
+import abi "github.com/berachain/stargazer/eth/types/abi"
 
 var SolmateERC20Contract abi.CompiliedContract
 

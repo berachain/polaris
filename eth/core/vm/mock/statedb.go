@@ -57,7 +57,7 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 			return false
 		},
 		FinalizeFunc: func() {
-			panic("mock out the Finalize method")
+			// no-op
 		},
 		ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
 			panic("mock out the ForEachStorage method")
@@ -77,7 +77,7 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			panic("mock out the GetCommittedState method")
 		},
-		GetLogsAndClearFunc: func(hash1 common.Hash) []*types.Log {
+		BuildLogsAndClearFunc: func(common.Hash, common.Hash, uint, uint) []*types.Log {
 			panic("mock out the GetLogs method")
 		},
 		GetNonceFunc: func(address common.Address) uint64 {
@@ -122,7 +122,6 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 			panic("mock out the Suicide method")
 		},
 		TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-			panic("mock out the TransferBalance method")
 		},
 	}
 	return mockedStargazerStateDB
