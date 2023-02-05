@@ -20,7 +20,6 @@ import (
 
 	"github.com/docker/go-connections/nat"
 	tc "github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const (
@@ -28,6 +27,11 @@ const (
 	wsPort    = "8546/tcp"
 	imageName = "jsonrpc-server"
 	imageTag  = "dev"
+)
+
+var (
+	goVersion   = "1.19.5"
+	runnerImage = "golang:" + goVersion + "-alpine"
 )
 
 // `Container` is a container for the JSON-RPC server.
@@ -65,11 +69,19 @@ func NewContainer(ctx context.Context, config ContainerConfig) (*Container, erro
 	// Create a request to the container.
 	req := tc.GenericContainerRequest{
 		ContainerRequest: tc.ContainerRequest{
+			FromDockerfile: tc.FromDockerfile{
+				Context:    "../",
+				Dockerfile: "jsonrpc/Dockerfile",
+				BuildArgs: map[string]*string{
+					"GO_VERSION":   &goVersion,
+					"RUNNER_IMAGE": &runnerImage},
+				PrintBuildLog: true,
+			},
 			ExposedPorts: []string{
 				httpPort, wsPort,
 			},
-			Image:      fmt.Sprintf("%s:%s", config.Name, config.ImageTag),
-			WaitingFor: wait.ForLog("Starting"),
+			// Image:      fmt.Sprintf("%s:%s", config.Name, config.ImageTag),
+			// WaitingFor: wait.ForLog("Starting"),
 		},
 		Started: true,
 	}
