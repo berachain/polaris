@@ -94,7 +94,10 @@ func TestUnitRace() error {
 	if err := ForgeBuild(); err != nil {
 		return err
 	}
-	return ginkgoTest(raceArgs...)
+	args := []string{
+		"--skip", ".*integration.*",
+	}
+	return ginkgoTest(append(raceArgs, args...)...)
 }
 
 // Runs the unit tests with benchmarking.
