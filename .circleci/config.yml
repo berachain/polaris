@@ -62,6 +62,11 @@ jobs:
   test-integration:
     executor: machine
     steps:
+      - run:
+          name: Upgrade Golang
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y golang
       - setup
       - run:
           name: Test Integration
