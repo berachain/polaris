@@ -20,6 +20,7 @@ import (
 
 	"github.com/docker/go-connections/nat"
 	tc "github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const (
@@ -80,8 +81,14 @@ func NewContainer(ctx context.Context, config ContainerConfig) (*Container, erro
 			ExposedPorts: []string{
 				httpPort, wsPort,
 			},
-			// Image:      fmt.Sprintf("%s:%s", config.Name, config.ImageTag),
-			// WaitingFor: wait.ForLog("Starting"),
+			WaitingFor: wait.ForListeningPort(httpPort),
+			// TODO: switch to this after websockets confirmed to work.
+			// WaitingFor: (&wait.MultiStrategy{
+			// 	Strategies: []wait.Strategy{
+			// 		wait.ForListeningPort(httpPort),
+			// 		wait.ForListeningPort(wsPort),
+			// 	},
+			// }),
 		},
 		Started: true,
 	}
