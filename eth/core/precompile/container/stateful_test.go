@@ -21,7 +21,6 @@ import (
 	"reflect"
 
 	"github.com/berachain/stargazer/eth/core/precompile/container"
-	"github.com/berachain/stargazer/eth/core/state"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
@@ -48,7 +47,7 @@ var _ = Describe("Stateful Container", func() {
 		ctx = testutil.NewContext()
 		sc = container.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		empty = container.NewStateful(nil, nil)
-		sdb = &mockSdb{&state.StateDB{}, 0}
+		sdb = &mockSdb{nil, 0}
 	})
 
 	Describe("Test Required Gas", func() {
