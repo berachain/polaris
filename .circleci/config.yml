@@ -68,7 +68,8 @@ commands:
   setup: # Setup the test environment
     steps:
       - checkout
-
+      - setup_remote_docker:
+          docker_layer_caching: true
       # Setup Golang
       - restore_cache:
           keys:
