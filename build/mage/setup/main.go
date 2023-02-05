@@ -12,11 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//go:build mage
-
 package main
 
-import (
-	//mage:import
-	_ "github.com/berachain/stargazer/build/mage"
-)
+import "github.com/carolynvs/magex/pkg"
+
+func main() {
+	if err := pkg.EnsureMage(""); err != nil {
+		panic(err)
+	}
+}

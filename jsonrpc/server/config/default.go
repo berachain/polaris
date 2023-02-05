@@ -23,13 +23,13 @@ var (
 
 const (
 	// `DefaultJSONRPCAddress` is the default address the JSON-RPC server binds to.
-	DefaultJSONRPCAddress = "127.0.0.1:8545"
+	DefaultJSONRPCAddress = "0.0.0.0:8545"
 
 	// `DefaultJSONRPCWSAddress` is the default address the JSON-RPC WebSocket server binds to.
-	DefaultJSONRPCWSAddress = "127.0.0.1:8546"
+	DefaultJSONRPCWSAddress = "0.0.0.0:8546"
 
 	// `DefaultJSOPNRPCMetricsAddress` is the default address the JSON-RPC Metrics server binds to.
-	DefaultJSONRPCMetricsAddress = "127.0.0.1:6065"
+	DefaultJSONRPCMetricsAddress = "0.0.0.0:6065"
 
 	// `DefaultHTTPReadHeaderTimeout` is the default read timeout of http json-rpc server.
 	DefaultHTTPReadHeaderTimeout = 5 * time.Second

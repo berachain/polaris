@@ -21,35 +21,36 @@ ARG GO_VERSION
 #######################################################
 
 
-FROM golang:${GO_VERSION} as builder
+FROM golang:${GO_VERSION}-alpine as builder
 
 # Copy our source code into the container
 WORKDIR /jsonrpc
 
-# Copy the go mod and sum files
-COPY go.* ./
+# Install some stuff needed for the build
+RUN set -eux
+RUN apk update && apk add --no-cache musl-dev gcc build-base ca-certificates git;
 
-# Download go dependencies
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/root/go/pkg/mod \
-    go mod download
+# manage dependencies
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 
 # Copy the build folder
 COPY ./build ./build
 
 # Install Mage
-RUN go run build/setup.go
+RUN go run build/mage/setup/main.go
 
 # Copy the remaining files
 COPY . ./
 
+# For go-ethereum
+ENV CGO_ENABLED=1
+
 # Build jsonrpc binary
-# Build berad binary
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/root/go/pkg/mod \
-    go build \
+RUN  go build \
     -mod=readonly \
-    -ldflags "-w -s -extldflags '-static'" \
+    -ldflags "-w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
     -trimpath \
     -o /jsonrpc/bin/ \
     ./...
@@ -69,3 +70,7 @@ EXPOSE 8545
 EXPOSE 8546
 
 ENTRYPOINT ["jsonrpcd"]
+
+
+
+

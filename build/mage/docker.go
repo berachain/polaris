@@ -52,7 +52,7 @@ func DockerBuildJSONRPCServer() error {
 		"-f", jsonrpcDockerPath,
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "RUNNER_IMAGE="+debianStaticImage,
-		"-t", "jsonrpc-server",
+		"-t", "jsonrpc-server:dev",
 		".",
 	)
 }

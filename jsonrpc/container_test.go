@@ -12,11 +12,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//go:build mage
-
-package main
+package jsonrpc
 
 import (
-	//mage:import
-	_ "github.com/berachain/stargazer/build/mage"
+	"context"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
+
+func TestContainer(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Container Suite")
+}
+
+var _ = Describe("Container", func() {
+	var (
+		ctx    context.Context
+		c      *Container
+		config = DefaultContainerConfig()
+	)
+
+	BeforeEach(func() {
+		ctx = context.Background()
+	})
+
+	AfterEach(func() {
+		if c != nil {
+			Expect(c.Terminate(ctx)).To(BeNil())
+		}
+	})
+
+	It("should create a container", func() {
+		var err error
+		c, err = NewContainer(ctx, config)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(c).ToNot(BeNil())
+	})
+})
