@@ -65,9 +65,11 @@ jobs:
       - run:
           name: Upgrade Golang
           command: |
-            sudo add-apt-repository ppa:gophers/go
-            sudo apt-get update
-            sudo apt-get install golang-stable
+            sudo apt update
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository ppa:longsleep/golang-backports -y
+            sudo apt update -y
+            sudo apt install golang-go -y
       - setup
       - run:
           name: Test Integration
