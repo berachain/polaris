@@ -21,7 +21,12 @@ executors:
         environment:
           FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
     resource_class: large
-
+  machine:
+    machine:
+      image: ubuntu-2204:2022.04.2
+    environment:
+      architecture: "amd64"
+      platform: "linux/amd64"
 orbs:
   codecov: codecov/codecov@3.2.4
 
@@ -45,7 +50,6 @@ jobs:
           file: coverage-testunitcover.txt
       - store_test_results:
           path: .
-
   test-unit-race:
     executor: standard
     steps:
@@ -53,6 +57,15 @@ jobs:
       - run:
           name: Test Unit Race
           command: mage testunitrace
+      - store_test_results:
+          path: .
+  test-integration:
+    executor: machine
+    steps:
+      - setup
+      - run:
+          name: Test Integration
+          command: mage testintegrationcover
       - store_test_results:
           path: .
 
@@ -63,6 +76,7 @@ workflows:
       - lint
       - test-unit
       - test-unit-race
+      - test-integration
 
 commands:
   setup: # Setup the test environment

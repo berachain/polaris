@@ -12,42 +12,23 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package jsonrpc
+package main
 
 import (
 	"context"
-	"testing"
+	"time"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/berachain/stargazer/jsonrpc"
 )
 
-func TestContainer(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "jsonrpc:integration")
+func main() {
+	a, b := jsonrpc.NewContainer(context.Background(), jsonrpc.DefaultContainerConfig())
+	if b != nil {
+		panic(b)
+	}
+	x := time.Second
+	err := a.Stop(context.Background(), &x)
+	if err != nil {
+		panic(err)
+	}
 }
-
-var _ = Describe("Container", func() {
-	var (
-		ctx    context.Context
-		c      *Container
-		config = DefaultContainerConfig()
-	)
-
-	BeforeEach(func() {
-		ctx = context.Background()
-	})
-
-	AfterEach(func() {
-		if c != nil {
-			Expect(c.Terminate(ctx)).To(BeNil())
-		}
-	})
-
-	It("should create a container", func() {
-		var err error
-		c, err = NewContainer(ctx, config)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(c).ToNot(BeNil())
-	})
-})

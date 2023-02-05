@@ -75,7 +75,7 @@ func TestUnit() error {
 }
 
 func testUnit() error {
-	return ginkgoTest()
+	return ginkgoTest("--skip", ".*integration.*")
 }
 
 // Runs the unit tests with coverage.
@@ -83,7 +83,10 @@ func TestUnitCover() error {
 	if err := ForgeBuild(); err != nil {
 		return err
 	}
-	return ginkgoTest(coverArgs...)
+	args := []string{
+		"--skip", ".*integration.*",
+	}
+	return ginkgoTest(append(coverArgs, args...)...)
 }
 
 // Runs the unit tests with race detection.
@@ -131,15 +134,16 @@ func TestIntegration() error {
 	if err := ForgeBuild(); err != nil {
 		return err
 	}
+
 	return testIntegration()
 }
 
 func testIntegration() error {
 	args := []string{
 		"-timeout", "30m",
-		"-v",
+		"--focus", ".*integration.*",
 	}
-	return goTest(
+	return ginkgoTest(
 		append(args, packagesIntegration...)...,
 	)
 }
@@ -156,9 +160,9 @@ func testIntegrationCover() error {
 	args := []string{
 		"-timeout", "30m",
 		"-coverprofile=coverage-testIntegrationCover.txt",
-		"-v",
+		"--focus", ".*integration.*",
 	}
-	return goTest(
+	return ginkgoTest(
 		append(args, packagesIntegration...)...,
 	)
 }
