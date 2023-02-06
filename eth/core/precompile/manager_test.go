@@ -29,17 +29,19 @@ var _ = Describe("controller", func() {
 	var c *manager
 	var mr *mockRunner
 	var ctx context.Context
+	var ms *mockSdb
 
 	BeforeEach(func() {
 		mr = &mockRunner{}
+		ms = &mockSdb{}
 		ctx = context.Background()
-		c = utils.MustGetAs[*manager](NewManager(mr))
+		c = utils.MustGetAs[*manager](NewManager(mr, ms))
 		err := c.Register(&mockStateless{})
 		Expect(err).To(BeNil())
 	})
 
 	It("should find and run", func() {
-		err := c.PrepareForStateTransition(ctx)
+		err := c.Reset(ctx)
 		Expect(err).To(BeNil())
 
 		pc := c.Get(addr)
@@ -56,7 +58,7 @@ var _ = Describe("controller", func() {
 	})
 
 	It("should error on incompatible context", func() {
-		err := c.PrepareForStateTransition(nil) //nolint:staticcheck // only for tests.
+		err := c.Reset(nil) //nolint:staticcheck // only for tests.
 		Expect(err.Error()).To(Equal("the context passed in is nil"))
 	})
 })
@@ -68,9 +70,13 @@ type mockRunner struct {
 }
 
 func (mr *mockRunner) Run(
-	ctx context.Context, pc vm.PrecompileContainer, input []byte,
+	ctx context.Context, ldb vm.LogsDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	mr.called = true
 	return nil, 0, nil
+}
+
+type mockSdb struct {
+	vm.StargazerStateDB
 }

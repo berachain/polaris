@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -51,7 +51,5 @@ func NewPluginFactory(
 
 // `Build` returns a new state plugin instance.
 func (pf *PluginFactory) Build(ctx context.Context) ethstate.StatePlugin {
-	// TODO: handle error? / ignore it completely?
-	sp, _ := NewPlugin(sdk.UnwrapSDKContext(ctx), pf.ak, pf.bk, pf.evmStoreKey, "abera")
-	return sp
+	return NewPlugin(sdk.UnwrapSDKContext(ctx), pf.ak, pf.bk, pf.evmStoreKey, "abera")
 }

@@ -18,7 +18,6 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/registry"
@@ -29,33 +28,29 @@ import (
 type manager struct {
 	// `Registry` allows the `Controller` to search for a precompile container at an address.
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
-
 	// `ctx` is the ephemeral native context, updated on every state transition.
 	ctx context.Context
-
 	// `runner` will run the precompile in a custom precompile environment for a given context.
 	runner vm.PrecompileRunner
+	// `ssdb` is a reference to the StateDB used to add logs from the precompile's execution.
+	ssdb vm.StargazerStateDB
 }
 
 // `NewManager` creates and returns a `Controller` with a new precompile registry and precompile
 // runner.
-func NewManager(runner vm.PrecompileRunner) vm.PrecompileManager {
+func NewManager(runner vm.PrecompileRunner, ssdb vm.StargazerStateDB) vm.PrecompileManager {
 	return &manager{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 		runner:   runner,
+		ssdb:     ssdb,
 	}
 }
 
-// `PrepareForStateTransition` sets the precompile's native environment context.
+// `Reset` sets the precompile's native environment context.
 //
-// `PrepareForStateTransition` implements `vm.PrecompileController`.
-func (m *manager) PrepareForStateTransition(ctx context.Context) error {
-	if ctx == nil {
-		return container.ErrInvalidContext
-	}
-
+// `Reset` implements `vm.PrecompileController`.
+func (m *manager) Reset(ctx context.Context) {
 	m.ctx = ctx
-	return nil
 }
 
 // `Run` runs the precompile container using its runner and its ephemeral context.
@@ -65,5 +60,5 @@ func (m *manager) Run(
 	pc vm.PrecompileContainer, input []byte, caller common.Address,
 	value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
-	return m.runner.Run(m.ctx, pc, input, caller, value, suppliedGas, readonly)
+	return m.runner.Run(m.ctx, m.ssdb, pc, input, caller, value, suppliedGas, readonly)
 }

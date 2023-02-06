@@ -79,4 +79,6 @@ func (l *logs) RevertToSnapshot(id int) {
 }
 
 // `Finalize` implements `libtypes.Controllable`.
-func (l *logs) Finalize() {}
+func (l *logs) Finalize() {
+	l.Stack = stack.New[*coretypes.Log](initJournalCapacity)
+}

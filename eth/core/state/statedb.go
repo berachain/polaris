@@ -16,7 +16,6 @@ package state
 
 import (
 	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/lib/snapshot"
@@ -48,7 +47,7 @@ type stateDB struct {
 }
 
 // `NewStateDB` returns a `StargazerStateDB` with the given plugins.
-func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (vm.StargazerStateDB, error) {
+func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (*stateDB, error) {
 	// Build the controller and register the plugins
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(lp)

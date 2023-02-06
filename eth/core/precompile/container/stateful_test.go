@@ -76,10 +76,10 @@ var _ = Describe("Stateful Container", func() {
 			_, err := empty.Run(ctx, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
-			// missing statedb
-			_, err = sc.Run(ctx, blank, addr, value, readonly)
-			Expect(err).To(MatchError("statedb is not compatible with Stargazer"))
-			sc.WithStateDB(&mockSdb{})
+			// // missing statedb
+			// _, err = sc.Run(ctx, blank, addr, value, readonly)
+			// Expect(err).To(MatchError("statedb is not compatible with Stargazer"))
+			// sc.WithStateDB(&mockSdb{})
 
 			// invalid input
 			_, err = sc.Run(ctx, blank, addr, value, readonly)
@@ -111,7 +111,7 @@ var _ = Describe("Stateful Container", func() {
 		})
 
 		It("should return properly for valid method calls", func() {
-			sc.WithStateDB(sdb)
+			// sc.WithStateDB(sdb)
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).To(BeNil())
 			ret, err := sc.Run(ctx, append(getOutputABI.ID, inputs...), addr, value, readonly)

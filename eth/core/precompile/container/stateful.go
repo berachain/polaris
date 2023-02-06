@@ -30,20 +30,18 @@ const NumBytesMethodID = 4
 
 // `stateful` is a container for running stateful and dynamic precompiled contracts.
 type stateful struct {
+	// `BasePrecompileImpl` is the base precompile implementation.
 	vm.BasePrecompileImpl
-
 	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
 	// (geth abi format). Please check core/precompile/container/method.go for more information.
 	idsToMethods map[string]*Method
-
 	// `gsdb` is used to add logs.
 	gsdb vm.GethStateDB
 
 	// TODO: implement
 	// receive *Method
-
 	// TODO: implement
 	// fallback *Method
 }
@@ -58,6 +56,8 @@ func NewStateful(
 	}
 }
 
+// `WithStateDB` sets the stateDB for the container.
+//
 // `WithStateDB` implements `PrecompileContainer`.
 func (sc *stateful) WithStateDB(gsdb vm.GethStateDB) vm.PrecompileContainer {
 	sc.gsdb = gsdb

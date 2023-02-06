@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -15,8 +15,9 @@
 package events
 
 import (
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"github.com/berachain/stargazer/eth/core/vm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 const (
@@ -25,33 +26,77 @@ const (
 	managerRegistryKey  = `events`
 )
 
-type manager struct {
-	*sdk.EventManager // pointer to the event manager floating aroundmon the context.
+type Manager struct {
+	// `EventManager` is the underlying Cosmos SDK event manager floating around on the context.
+	sdk.EventManager
+
+	// semaphore chan struct{}
+
+	// `ldb` is used to add Eth logs.
+	ldb vm.LogsDB
 }
 
 // `NewManager` creates and returns a controllable event manager from the given Cosmos SDK context.
-func NewManager(em *sdk.EventManager) libtypes.Controllable[string] {
-	return &manager{
+func NewManagerFrom(em sdk.EventManager) *Manager {
+	return &Manager{
 		EventManager: em,
 	}
 }
 
+// `BeginPrecompileExecution` is called when a precompile is about to be executed. This function
+// sets the `LogsPlugin` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
+// add logs to the journal.
+func (m *Manager) BeginPrecompileExecution(ldb vm.LogsDB) {
+	m.ldb = ldb
+}
+
+// `EndPrecompileExecution` is called when a precompile has finished executing. This function
+// sets the `LogsPlugin` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
+// to the journal.
+func (m *Manager) EndPrecompileExecution() {
+	m.ldb = nil
+}
+
+// `EmitEvent` overrides the Cosmos SDK's `EventManager.EmitEvent` method to build Eth logs from
+// the emitted event and add them to the journal.
+func (m *Manager) EmitEvent(event sdk.Event) {
+	if m.ldb != nil {
+		m.ldb.AddLog(&coretypes.Log{})
+	}
+	m.EventManager.EmitEvent(event)
+}
+
+// `EmitEvents` overrides the Cosmos SDK's `EventManager.EmitEvents` method to build Eth logs from
+// the emitted events and add them to the journal.
+func (m *Manager) EmitEvents(events sdk.Events) {
+	if m.ldb != nil {
+		for range events {
+			m.ldb.AddLog(&coretypes.Log{})
+		}
+	}
+	m.EventManager.EmitEvents(events)
+}
+
 // `Registry` implements `libtypes.Registrable`.
-func (m *manager) RegistryKey() string {
+func (m *Manager) RegistryKey() string {
 	return managerRegistryKey
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
-func (m *manager) Snapshot() int {
+func (m *Manager) Snapshot() int {
 	return len(m.Events())
 }
 
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (m *manager) RevertToSnapshot(id int) {
+func (m *Manager) RevertToSnapshot(id int) {
 	temp := m.Events()
-	*m.EventManager = *sdk.NewEventManager()
-	m.EmitEvents(temp[:id])
+	m.EventManager = sdk.NewEventManager()
+	// don't add to the logs journal again as the Eth logs plugin will do that, so use the
+	// underlying EventManager to reset the events.
+	m.EventManager.EmitEvents(temp[:id])
 }
 
 // `Finalize` implements `libtypes.Finalizable`.
-func (m *manager) Finalize() {}
+func (m *Manager) Finalize() {
+	// wait for semaphore to hit 0 --> should already be at 0 at this point
+}

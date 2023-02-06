@@ -68,6 +68,9 @@ var _ state.StatePlugin = &StatePluginMock{}
 //			SetCodeFunc: func(address common.Address, bytes []byte)  {
 //				panic("mock out the SetCode method")
 //			},
+//			SetLogsPluginFunc: func(logsPlugin state.LogsPlugin)  {
+//				panic("mock out the SetLogsPlugin method")
+//			},
 //			SetNonceFunc: func(address common.Address, v uint64)  {
 //				panic("mock out the SetNonce method")
 //			},
@@ -137,6 +140,9 @@ type StatePluginMock struct {
 
 	// SetCodeFunc mocks the SetCode method.
 	SetCodeFunc func(address common.Address, bytes []byte)
+
+	// SetLogsPluginFunc mocks the SetLogsPlugin method.
+	SetLogsPluginFunc func(logsPlugin state.LogsPlugin)
 
 	// SetNonceFunc mocks the SetNonce method.
 	SetNonceFunc func(address common.Address, v uint64)
@@ -241,6 +247,11 @@ type StatePluginMock struct {
 			// Bytes is the bytes argument value.
 			Bytes []byte
 		}
+		// SetLogsPlugin holds details about calls to the SetLogsPlugin method.
+		SetLogsPlugin []struct {
+			// LogsPlugin is the logsPlugin argument value.
+			LogsPlugin state.LogsPlugin
+		}
 		// SetNonce holds details about calls to the SetNonce method.
 		SetNonce []struct {
 			// Address is the address argument value.
@@ -293,6 +304,7 @@ type StatePluginMock struct {
 	lockRegistryKey       sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
 	lockSetCode           sync.RWMutex
+	lockSetLogsPlugin     sync.RWMutex
 	lockSetNonce          sync.RWMutex
 	lockSetState          sync.RWMutex
 	lockSnapshot          sync.RWMutex
@@ -819,6 +831,38 @@ func (mock *StatePluginMock) SetCodeCalls() []struct {
 	mock.lockSetCode.RLock()
 	calls = mock.calls.SetCode
 	mock.lockSetCode.RUnlock()
+	return calls
+}
+
+// SetLogsPlugin calls SetLogsPluginFunc.
+func (mock *StatePluginMock) SetLogsPlugin(logsPlugin state.LogsPlugin) {
+	if mock.SetLogsPluginFunc == nil {
+		panic("StatePluginMock.SetLogsPluginFunc: method is nil but StatePlugin.SetLogsPlugin was just called")
+	}
+	callInfo := struct {
+		LogsPlugin state.LogsPlugin
+	}{
+		LogsPlugin: logsPlugin,
+	}
+	mock.lockSetLogsPlugin.Lock()
+	mock.calls.SetLogsPlugin = append(mock.calls.SetLogsPlugin, callInfo)
+	mock.lockSetLogsPlugin.Unlock()
+	mock.SetLogsPluginFunc(logsPlugin)
+}
+
+// SetLogsPluginCalls gets all the calls that were made to SetLogsPlugin.
+// Check the length with:
+//
+//	len(mockedStatePlugin.SetLogsPluginCalls())
+func (mock *StatePluginMock) SetLogsPluginCalls() []struct {
+	LogsPlugin state.LogsPlugin
+} {
+	var calls []struct {
+		LogsPlugin state.LogsPlugin
+	}
+	mock.lockSetLogsPlugin.RLock()
+	calls = mock.calls.SetLogsPlugin
+	mock.lockSetLogsPlugin.RUnlock()
 	return calls
 }
 

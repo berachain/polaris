@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -15,6 +15,7 @@
 package state
 
 import (
+	"context"
 	"math/big"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -72,6 +73,9 @@ type statePlugin struct {
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
 	cms ControllableMultiStore
 
+	// // Store a reference to the event manager, in `ctx` so that we can set the Eth logs plugin.
+	// cem ControllableEventManager
+
 	// Store the evm store key for quick lookups to the evm store
 	evmStoreKey storetypes.StoreKey
 
@@ -91,7 +95,7 @@ func NewPlugin(
 	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
-) (ethstate.StatePlugin, error) {
+) ethstate.StatePlugin {
 	sp := &statePlugin{
 		evmStoreKey: evmStoreKey,
 		ak:          ak,
@@ -99,17 +103,27 @@ func NewPlugin(
 		evmDenom:    evmDenom,
 	}
 
-	// setup the Controllable MultiStore and attach it to the context
+	// setup the Controllable MultiStore and EventManager and attach them to the context
 	sp.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
-	sp.ctx = ctx.WithMultiStore(sp.cms)
+	cem := events.NewManagerFrom(ctx.EventManager())
+	sp.ctx = ctx.WithMultiStore(sp.cms).WithEventManager(cem)
 
 	// setup the snapshot controller
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(sp.cms)
-	_ = ctrl.Register(events.NewManager(sp.ctx.EventManager()))
+	_ = ctrl.Register(cem)
 	sp.Controller = ctrl
 
-	return sp, nil
+	return sp
+}
+
+// `Reset` implements `ethstate.StatePlugin`.
+func (sp *statePlugin) Reset(ctx context.Context) {
+	// reset the Controllable MultiStore and EventManager and attach them to the context
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	sp.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
+	cem := events.NewManagerFrom(sdkCtx.EventManager())
+	sp.ctx = sdkCtx.WithMultiStore(sp.cms).WithEventManager(cem)
 }
 
 // `RegistryKey` implements `libtypes.Registrable`.
@@ -121,7 +135,7 @@ func (sp *statePlugin) RegistryKey() string {
 // Account
 // ===========================================================================
 
-// CreateAccount implements the GethStateDB interface by creating a new account
+// CreateAccount implements the StatePlugin interface by creating a new account
 // in the account keeper. It will allow accounts to be overridden.
 func (sp *statePlugin) CreateAccount(addr common.Address) {
 	acc := sp.ak.NewAccountWithAddress(sp.ctx, addr[:])
@@ -133,7 +147,7 @@ func (sp *statePlugin) CreateAccount(addr common.Address) {
 	sp.cms.GetKVStore(sp.evmStoreKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
-// `Exist` implements the `GethStateDB` interface by reporting whether the given account address
+// `Exist` implements the `StatePlugin` interface by reporting whether the given account address
 // exists in the state. Notably this also returns true for suicided accounts, which is accounted
 // for since, `RemoveAccount()` is not called until Commit.
 func (sp *statePlugin) Exist(addr common.Address) bool {
@@ -144,13 +158,13 @@ func (sp *statePlugin) Exist(addr common.Address) bool {
 // Balance
 // =============================================================================
 
-// GetBalance implements `GethStateDB` interface.
+// GetBalance implements `StatePlugin` interface.
 func (sp *statePlugin) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
 	return sp.bk.GetBalance(sp.ctx, addr[:], sp.evmDenom).Amount.BigInt()
 }
 
-// AddBalance implements the `GethStateDB` interface by adding the given amount
+// AddBalance implements the `StatePlugin` interface by adding the given amount
 // from the account associated with addr. If the account does not exist, it will be
 // created.
 func (sp *statePlugin) AddBalance(addr common.Address, amount *big.Int) {
@@ -169,7 +183,7 @@ func (sp *statePlugin) AddBalance(addr common.Address, amount *big.Int) {
 	}
 }
 
-// SubBalance implements the `GethStateDB` interface by subtracting the given amount
+// SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (sp *statePlugin) SubBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(sp.evmDenom, sdk.NewIntFromBigInt(amount)))
@@ -204,7 +218,7 @@ func (sp *statePlugin) TransferBalance(from, to common.Address, amount *big.Int)
 // Nonce
 // =============================================================================
 
-// GetNonce implements the `GethStateDB` interface by returning the nonce
+// GetNonce implements the `StatePlugin` interface by returning the nonce
 // of an account.
 func (sp *statePlugin) GetNonce(addr common.Address) uint64 {
 	acc := sp.ak.GetAccount(sp.ctx, addr[:])
@@ -214,7 +228,7 @@ func (sp *statePlugin) GetNonce(addr common.Address) uint64 {
 	return acc.GetSequence()
 }
 
-// SetNonce implements the `GethStateDB` interface by setting the nonce
+// SetNonce implements the `StatePlugin` interface by setting the nonce
 // of an account.
 func (sp *statePlugin) SetNonce(addr common.Address, nonce uint64) {
 	// get the account or create a new one if doesn't exist
@@ -234,7 +248,7 @@ func (sp *statePlugin) SetNonce(addr common.Address, nonce uint64) {
 // Code
 // =============================================================================
 
-// GetCodeHash implements the `GethStateDB` interface by returning
+// GetCodeHash implements the `StatePlugin` interface by returning
 // the code hash of account.
 func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
 	if !sp.ak.HasAccount(sp.ctx, addr[:]) {
@@ -251,7 +265,7 @@ func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
 	return common.BytesToHash(ch)
 }
 
-// GetCode implements the `GethStateDB` interface by returning
+// GetCode implements the `StatePlugin` interface by returning
 // the code of account (nil if not exists).
 func (sp *statePlugin) GetCode(addr common.Address) []byte {
 	codeHash := sp.GetCodeHash(addr)
@@ -262,7 +276,7 @@ func (sp *statePlugin) GetCode(addr common.Address) []byte {
 	return sp.cms.GetKVStore(sp.evmStoreKey).Get(CodeKeyFor(codeHash))
 }
 
-// SetCode implements the `GethStateDB` interface by setting the code hash and
+// SetCode implements the `StatePlugin` interface by setting the code hash and
 // code for the given account.
 func (sp *statePlugin) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
@@ -277,8 +291,8 @@ func (sp *statePlugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
-// GetCodeSize implements the `GethStateDB` interface by returning the size of the
-// code associated with the given `GethStateDB`.
+// GetCodeSize implements the `StatePlugin` interface by returning the size of the
+// code associated with the given `StatePlugin`.
 func (sp *statePlugin) GetCodeSize(addr common.Address) int {
 	return len(sp.GetCode(addr))
 }
@@ -287,7 +301,7 @@ func (sp *statePlugin) GetCodeSize(addr common.Address) int {
 // State
 // =============================================================================
 
-// `GetCommittedState` implements the `GethStateDB` interface by returning the
+// `GetCommittedState` implements the `StatePlugin` interface by returning the
 // committed state of slot in the given address.
 func (sp *statePlugin) GetCommittedState(
 	addr common.Address,
@@ -296,7 +310,7 @@ func (sp *statePlugin) GetCommittedState(
 	return sp.getStateFromStore(sp.cms.GetCommittedKVStore(sp.evmStoreKey), addr, slot)
 }
 
-// `GetState` implements the `GethStateDB` interface by returning the current state
+// `GetState` implements the `StatePlugin` interface by returning the current state
 // of slot in the given address.
 func (sp *statePlugin) GetState(addr common.Address, slot common.Hash) common.Hash {
 	return sp.getStateFromStore(sp.cms.GetKVStore(sp.evmStoreKey), addr, slot)
@@ -337,7 +351,7 @@ func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
 // ForEachStorage
 // =============================================================================
 
-// `ForEachStorage` implements the `GethStateDB` interface by iterating through the contract state
+// `ForEachStorage` implements the `StatePlugin` interface by iterating through the contract state
 // contract storage, the iteration order is not defined.
 //
 // Note: We do not support iterating through any storage that is modified before calling

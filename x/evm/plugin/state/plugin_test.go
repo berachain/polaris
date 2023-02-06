@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -43,7 +43,7 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp, _ = state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera") // TODO: use lf
+		sp = state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera") // TODO: use lf
 	})
 
 	It("should have the correct registry key", func() {

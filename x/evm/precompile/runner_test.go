@@ -18,6 +18,8 @@ import (
 	"context"
 	"math/big"
 
+	ethstate "github.com/berachain/stargazer/eth/core/state"
+	pluginmock "github.com/berachain/stargazer/eth/core/state/plugin/mock"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/x/evm/precompile"
@@ -30,19 +32,21 @@ import (
 
 var _ = Describe("cosmos runner", func() {
 	var cr *precompile.CosmosRunner
+	var lp ethstate.LogsPlugin
 
 	BeforeEach(func() {
 		cr = precompile.NewCosmosRunner()
+		lp = pluginmock.NewEmptyLogsPlugin()
 	})
 
 	It("should use correctly consume gas", func() {
-		_, remainingGas, err := cr.Run(sdk.Context{}, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
+		_, remainingGas, err := cr.Run(sdk.Context{}, lp, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
 		Expect(err).To(BeNil())
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 
 	It("should error on insufficient gas", func() {
-		_, _, err := cr.Run(sdk.Context{}, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
+		_, _, err := cr.Run(sdk.Context{}, lp, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
