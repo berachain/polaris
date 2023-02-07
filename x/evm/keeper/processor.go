@@ -37,11 +37,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) 
 	if err != nil {
 		return nil, err
 	}
-
 	k.Logger(sCtx).Info("ProcessTransaction done")
-
-	// Store the receipt in the state
-	k.SetReceipt(sCtx, receipt)
 	return receipt, err
 }
 
@@ -49,12 +45,13 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) 
 func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []abci.ValidatorUpdate {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("EndBlocker")
-	reciepts, bloom, err := k.stateProcessor.Finalize(ctx, uint64(sCtx.BlockHeight()))
+	stargazerBlock, err := k.stateProcessor.Finalize(ctx, uint64(sCtx.BlockHeight()))
 	if err != nil {
 		panic(err)
 	}
-	// TODO: Store receipts and/or logs and/or blocks.
-	_ = reciepts
-	k.SetBlockBloom(sCtx, bloom)
+	err = k.StoreStargazerBlock(sCtx, stargazerBlock)
+	if err != nil {
+		panic(err)
+	}
 	return []abci.ValidatorUpdate{}
 }

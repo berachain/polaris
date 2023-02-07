@@ -19,14 +19,14 @@ import (
 )
 
 var (
-	blockBloomKey = []byte("blockBloom")
-	receiptKey    = []byte("receipt")
-	hashKey       = []byte("hash")
+	blockKey   = []byte("block")
+	receiptKey = []byte("receipt")
+	hashKey    = []byte("hash")
 )
 
-// `BlockBloomKey` returns the key for the block bloom.
-func BlockBloomKey() []byte {
-	return blockBloomKey
+// `BlockKey` returns the key for the block bloom.
+func BlockKey() []byte {
+	return blockKey
 }
 
 // `HashToTxIndexKey` returns the key for a receipt lookup.

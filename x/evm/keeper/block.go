@@ -12,28 +12,38 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//go:build tools
-// +build tools
+package keeper
 
-// This is the canonical way to enforce dependency inclusion in go.mod for tools that are not directly involved in the build process.
-// See
-// https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
-
-package tools
-
-// nolint
-// todo: add note: brew install diffutils
 import (
-	_ "github.com/bufbuild/buf/cmd/buf"
-	_ "github.com/cosmos/gosec/v2/cmd/gosec"
-	_ "github.com/ethereum/go-ethereum/rlp/rlpgen"
-	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
-	_ "github.com/google/addlicense"
-	_ "github.com/incu6us/goimports-reviser/v3"
-	_ "github.com/matryer/moq"
-	_ "github.com/onsi/ginkgo/v2/ginkgo"
-	_ "github.com/securego/gosec/v2/cmd/gosec"
-	_ "github.com/segmentio/golines"
-	_ "golang.org/x/tools/cmd/goimports"
-	_ "golang.org/x/tools/gopls"
+	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/x/evm/storage"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+// `MustStoreStargazerBlock` saves a block to the store.
+func (k *Keeper) StoreStargazerBlock(ctx sdk.Context, block *types.StargazerBlock) error {
+	store := ctx.KVStore(k.storeKey)
+	bz, err := block.MarshalBinary()
+	if err != nil {
+		return err
+	}
+	store.Set(storage.BlockKey(), bz)
+
+	return nil
+}
+
+// `GetStargazerBlock` returns the block from the store at the height specified in the
+// context.
+func (k *Keeper) GetStargazerBlock(ctx sdk.Context) (*types.StargazerBlock, error) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(storage.BlockKey())
+	if bz == nil {
+		return nil, ErrBlockNotFound
+	}
+
+	block := new(types.StargazerBlock)
+	if err := block.UnmarshalBinary(bz); err != nil {
+		return nil, err
+	}
+	return block, nil
+}

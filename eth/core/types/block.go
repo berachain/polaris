@@ -1,0 +1,74 @@
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// See the file LICENSE for licensing terms.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+package types
+
+import (
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/trie"
+)
+
+// import (
+// 	"math"
+// 	"math/big"
+
+// 	"github.com/berachain/stargazer/lib/common"
+// 	"github.com/ethereum/go-ethereum/core/types"
+// 	"github.com/ethereum/go-ethereum/trie"
+// )
+
+//go:generate rlpgen -type StargazerBlock -out block.rlpgen.go -decoder
+
+// `StargazerBlock` represents a ethereum-like block that can be encoded to raw bytes.
+type StargazerBlock struct {
+	*StargazerHeader
+	Transactions Transactions
+}
+
+// `NewStargazerBlock` creates a new EvmBlock from the given header and transactions.
+func NewStargazerBlock(h *StargazerHeader, txs Transactions) *StargazerBlock {
+	b := &StargazerBlock{
+		StargazerHeader: h,
+		Transactions:    txs,
+	}
+
+	if len(txs) == 0 {
+		b.StargazerHeader.TxHash = EmptyRootHash
+		b.StargazerHeader.TxHash = DeriveSha(txs, trie.NewStackTrie(nil))
+	}
+
+	return b
+}
+
+// `UnmarshalBinary` decodes the block from the Ethereum RLP format.
+func (b *StargazerBlock) UnmarshalBinary(data []byte) error {
+	return rlp.DecodeBytes(data, b)
+}
+
+// `MarshalBinary` encodes the block into the Ethereum RLP format.
+func (b *StargazerBlock) MarshalBinary() ([]byte, error) {
+	bz, err := rlp.EncodeToBytes(b)
+	if err != nil {
+		return nil, err
+	}
+	return bz, nil
+}
+
+// `EthBlock` returns the block as an Ethereum Block.
+func (b *StargazerBlock) EthBlock() *Block {
+	if b == nil {
+		return nil
+	}
+	return NewBlock(b.StargazerHeader.Header, b.Transactions, nil, nil, trie.NewStackTrie(nil))
+}

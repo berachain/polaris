@@ -18,18 +18,20 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
+//go:generate rlpgen -type StargazerHeader -out header.rlpgen.go -decoder
+
 // `StargazerHeader` represents a wrapped Ethereum header that allows for specifying a custom
 // blockhash to make it compatible with a non-ethereum chain.
 type StargazerHeader struct {
 	// `Header` is an embedded ethereum header.
 	*Header
-	// `hash` is the cached hash of the header
-	hash common.Hash
+	// `CachedHash` is the cached hash of the header
+	CachedHash common.Hash
 }
 
 // `NewStargazerHeader` returns a `StargazerHeader`.
 func NewStargazerHeader(header *Header, hash common.Hash) *StargazerHeader {
-	return &StargazerHeader{Header: header, hash: hash}
+	return &StargazerHeader{Header: header, CachedHash: hash}
 }
 
 // `Author` returns the address of the original block producer.
@@ -41,13 +43,13 @@ func (h *StargazerHeader) Author() common.Address {
 // to use the cached hash, as the implementing chain might want to use it's real block hash
 // opposed to hashing the "fake" header.
 func (h *StargazerHeader) Hash() common.Hash {
-	if h.hash == (common.Hash{}) {
-		h.hash = h.Header.Hash()
+	if h.CachedHash == (common.Hash{}) {
+		h.CachedHash = h.Header.Hash()
 	}
-	return h.hash
+	return h.CachedHash
 }
 
 // `SetHash` sets the hash of the header.
 func (h *StargazerHeader) SetHash(hash common.Hash) {
-	h.hash = hash
+	h.CachedHash = hash
 }

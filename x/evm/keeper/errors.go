@@ -14,24 +14,6 @@
 
 package keeper
 
-import (
-	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/x/evm/storage"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+import "errors"
 
-// `SetBlockBloom` sets the block bloom at the given height.
-func (k *Keeper) SetBlockBloom(ctx sdk.Context, bloom types.Bloom) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(storage.BlockBloomKey(), bloom.Bytes())
-}
-
-// `GetBlockBloom` returns the block bloom at the given height.
-func (k *Keeper) GetBlockBloom(ctx sdk.Context) types.Bloom {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(storage.BlockBloomKey())
-	if bz == nil {
-		return types.Bloom{}
-	}
-	return types.BytesToBloom(bz)
-}
+var ErrBlockNotFound = errors.New("block not found")

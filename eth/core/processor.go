@@ -37,11 +37,12 @@ type StateProcessor struct {
 	statedb vm.StargazerStateDB
 
 	// the blockHash of the current block being processed
-	block        *StargazerEVMBlock
+	blockHeader  *types.StargazerHeader
 	blockContext vm.BlockContext
 
 	// `receipts` are stored in the state processor to be returned to the caller.
-	receipts types.Receipts
+	receipts     types.Receipts
+	transactions types.Transactions
 }
 
 // `NewStateProcessor` creates a new state processor.
@@ -59,14 +60,15 @@ func NewStateProcessor(
 // `Prepare` prepares the state processor for processing a block.
 func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// Build a block to use throughout the evm.
-	sp.block = NewStargazerEVMBlock(sp.host.StargazerHeaderAtHeight(ctx, height), nil)
+	// NOTE: sp.blockHeader.Bloom is nil here, but it is set in `Finalize`.
+	sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 
 	// Build a new EVM to use for this block.
 	sp.evm = sp.vmf.Build(
 		sp.statedb,
 		NewEVMBlockContext(
 			ctx,
-			sp.block.StargazerHeader,
+			sp.blockHeader,
 			sp.host,
 		),
 		sp.config,
@@ -110,16 +112,15 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	}
 
 	// Set the receipt logs and create the bloom filter.
-	receipt.BlockHash = sp.block.Hash()
+	receipt.BlockHash = sp.blockHeader.Hash()
 	receipt.BlockNumber = sp.blockContext.BlockNumber
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
 		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), uint(0),
 	)
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 
-	receipt.TransactionIndex = uint(len(sp.block.Transactions))
-	sp.block.Transactions = append(sp.block.Transactions, tx)
-
+	receipt.TransactionIndex = uint(len(sp.transactions))
+	sp.transactions = append(sp.transactions, tx)
 	sp.receipts = append(sp.receipts, receipt)
 
 	// need to update information about the current block
@@ -127,10 +128,13 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 }
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
-func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (types.Receipts, types.Bloom, error) {
-	// block := types.NewBlockWithHeader(&types.Header{
-	// 	Number: sp.blockContext.BlockNumber,
-	// }
+func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (*types.StargazerBlock, error) {
+	// Set the bloom filter in the header.
+	sp.blockHeader.Bloom = types.CreateBloom(sp.receipts)
 
-	return sp.receipts, types.CreateBloom(sp.receipts), nil
+	// Return a finalized block.
+	return types.NewStargazerBlock(
+		sp.blockHeader,
+		sp.transactions,
+	), nil
 }

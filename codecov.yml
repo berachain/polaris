@@ -30,6 +30,7 @@ ignore:
   - "**/*.pb.gw.go"
   - "**/*.pb.pulsar.go"
   - "**/*.abigen.go"
+  - "**/*.rlpgen.go"
   - "**/*.mock.go"
   - "**/proto"
   - "build/"
