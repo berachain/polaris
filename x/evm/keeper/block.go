@@ -37,10 +37,10 @@ func (k *Keeper) SetStargazerBlockForCurrentHeight(
 // `GetStargazerBlock` returns the block from the store at the height specified in the context.
 func (k *Keeper) GetStargazerBlockAtHeight(
 	ctx sdk.Context,
-	blockNumber uint64,
+	height uint64,
 ) (*types.StargazerBlock, error) {
 	// Retrieve multi-store at the given height.
-	cms, err := ctx.MultiStore().CacheMultiStoreWithVersion(int64(blockNumber))
+	cms, err := ctx.MultiStore().CacheMultiStoreWithVersion(int64(height))
 	if err != nil {
 		return nil, err
 	}
