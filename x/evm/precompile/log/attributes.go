@@ -136,6 +136,16 @@ func ConvertInt64(attributeValue string) (any, error) {
 // Helpers
 // ==============================================================================
 
+// `validateAttributes` validates an incoming Cosmos `event`. Specifically, it verifies that the
+// number of attributes provided by the Cosmos `event` are adequate for it's corresponding
+// Ethereum events.
+func validateAttributes(pl *precompileLog, event *sdk.Event) error {
+	if len(event.Attributes) < len(pl.indexedInputs)+len(pl.nonIndexedInputs) {
+		return ErrNotEnoughAttributes
+	}
+	return nil
+}
+
 // `searchAttributesForArg` does a linear search through the given slice `attributes` for any
 // attribute having a key that matches an Ethereum input `argName`. This function returns the index
 // where `argName` was found or -1 if `argName` was not found.

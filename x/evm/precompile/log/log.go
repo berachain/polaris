@@ -38,7 +38,7 @@ type precompileLog struct {
 	nonIndexedInputs abi.Arguments
 }
 
-// `NewPrecompileLog` returns a new `precompileLog` with the given `precompileAddress` and
+// `newPrecompileLog` returns a new `precompileLog` with the given `precompileAddress` and
 // `abiEvent`. It separates the indexed and non-indexed arguments of the event.
 func newPrecompileLog(precompileAddr common.Address, abiEvent abi.Event) *precompileLog {
 	return &precompileLog{

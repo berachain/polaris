@@ -32,10 +32,9 @@ type (
 )
 
 var (
-	MakeTopics  = abi.MakeTopics
-	NewEvent    = abi.NewEvent
-	NewType     = abi.NewType
-	ToCamelCase = abi.ToCamelCase
+	MakeTopics = abi.MakeTopics
+	NewEvent   = abi.NewEvent
+	NewType    = abi.NewType
 )
 
 // `ToMixedCase` converts a under_score formatted string to mixedCase format (camelCase with the

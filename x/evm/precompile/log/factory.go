@@ -84,13 +84,3 @@ func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
 
 	return log, nil
 }
-
-// `validateAttributes` validates an incoming Cosmos `event`. Specifically, it verifies that the
-// number of attributes provided by the Cosmos `event` are adequate for it's corresponding
-// Ethereum events.
-func validateAttributes(pl *precompileLog, event *sdk.Event) error {
-	if len(event.Attributes) < len(pl.indexedInputs)+len(pl.nonIndexedInputs) {
-		return ErrNotEnoughAttributes
-	}
-	return nil
-}
