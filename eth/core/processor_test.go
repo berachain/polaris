@@ -16,13 +16,24 @@ package core_test
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/core/mock"
+	"github.com/berachain/stargazer/lib/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	ethsecp256k1 "github.com/berachain/stargazer/lib/crypto"
+)
+
+var (
+	william = common.HexToAddress("0x123")
+	key, _  = ethsecp256k1.GenerateEthKey()
+	signer  = types.LatestSignerForChainID(params.MainnetChainConfig.ChainID)
 )
 
 var _ = Describe("StateProcessor", func() {
@@ -34,12 +45,56 @@ var _ = Describe("StateProcessor", func() {
 		sp   = core.NewStateProcessor(params.MainnetChainConfig, host)
 	)
 
-	Context("when calling prepare", func() {
-
-		It("should return an error if the state is missing", func() {
-			// evm.StateDB = nil
+	Context("Empty block", func() {
+		BeforeEach(func() {
 			sp.Prepare(context.Background(), 0)
-			Expect(len(host.StargazerHeaderAtHeightCalls())).To(Equal(1))
+			It("should return an error if the state is missing", func() {
+				Expect(len(host.StargazerHeaderAtHeightCalls())).To(Equal(1))
+			})
+
+			It("should build a an empty block", func() {
+				block, err := sp.Finalize(context.Background(), 0)
+				Expect(err).To(BeNil())
+				Expect(block).ToNot(BeNil())
+				Expect(len(block.Transactions)).To(Equal(0))
+			})
+		})
+	})
+
+	Context("Block with transactions", func() {
+		BeforeEach(func() {
+			sp.Prepare(context.Background(), params.MainnetChainConfig.LondonBlock.Uint64()+1)
+		})
+
+		It("should error on an unsigned transaction", func() {
+			tx := types.NewTx(&types.LegacyTx{
+				Nonce:    0,
+				GasPrice: big.NewInt(0),
+				Gas:      100000,
+				To:       &william,
+				Value:    big.NewInt(0),
+				Data:     []byte{},
+				V:        big.NewInt(0),
+				R:        big.NewInt(0),
+				S:        big.NewInt(0),
+			})
+			receipt, err := sp.ProcessTransaction(context.Background(), tx)
+			Expect(err).ToNot(BeNil())
+			Expect(receipt).To(BeNil())
+		})
+
+		It("should not error on a signed transaction", func() {
+			txData := &types.LegacyTx{
+				Nonce:    0,
+				To:       &william,
+				Gas:      100000,
+				GasPrice: big.NewInt(2),
+				Data:     []byte("abcdef"),
+			}
+			signedTx := types.MustSignNewTx(key, signer, txData)
+			_, err := sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).To(BeNil())
+			// Expect(receipt).To(BeNil())
 		})
 	})
 })

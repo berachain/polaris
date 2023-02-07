@@ -29,17 +29,21 @@ type (
 	Transactions = types.Transactions
 	Header       = types.Header
 	BlockNonce   = types.BlockNonce
+	DynamicFeeTx = types.DynamicFeeTx
+	LegacyTx     = types.LegacyTx
 )
 
 var (
-	BytesToBloom   = types.BytesToBloom
-	CreateBloom    = types.CreateBloom
-	MakeSigner     = types.MakeSigner
-	LogsBloom      = types.LogsBloom
-	DeriveSha      = types.DeriveSha
-	NewBlock       = types.NewBlock
-	EmptyRootHash  = types.EmptyRootHash
-	EmptyUncleHash = types.EmptyUncleHash
+	BytesToBloom     = types.BytesToBloom
+	CreateBloom      = types.CreateBloom
+	MakeSigner       = types.MakeSigner
+	LogsBloom        = types.LogsBloom
+	DeriveSha        = types.DeriveSha
+	NewBlock         = types.NewBlock
+	EmptyRootHash    = types.EmptyRootHash
+	EmptyUncleHash   = types.EmptyUncleHash
+	SignTx           = types.SignTx
+	NewEIP2930Signer = types.NewEIP2930Signer
 )
 var (
 	ReceiptStatusFailed     = types.ReceiptStatusFailed
