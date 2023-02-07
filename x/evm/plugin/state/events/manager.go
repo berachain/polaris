@@ -15,12 +15,10 @@
 package events
 
 import (
-	"fmt"
-
 	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 const (
@@ -34,13 +32,10 @@ const (
 type manager struct {
 	// `EventManager` is the underlying Cosmos SDK event manager floating around on the context.
 	*sdk.EventManager
-	// semaphore chan struct{}
 	// `ldb` is the reference to the StateDB for adding Eth logs during precompile execution.
 	ldb precompile.LogsDB
 	// `plf` is used to build Eth logs from Cosmos events.
 	plf PrecompileLogFactory
-	// `logger` is used to log errors when building Eth logs from Cosmos events.
-	logger tmlog.Logger
 }
 
 // `NewManager` creates and returns a controllable event manager from the given Cosmos SDK context.
@@ -55,18 +50,16 @@ func NewManagerFrom(em sdk.EventManagerI, plf PrecompileLogFactory) *manager {
 
 // `BeginPrecompileExecution` is called when a precompile is about to be executed. This function
 // sets the `LogsPlugin` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
-// add logs to the journal. It also sets the logger for logging errors from building Eth logs.
-func (m *manager) BeginPrecompileExecution(ldb precompile.LogsDB, logger tmlog.Logger) {
+// add logs to the journal.
+func (m *manager) BeginPrecompileExecution(ldb precompile.LogsDB) {
 	m.ldb = ldb
-	m.logger = logger
 }
 
 // `EndPrecompileExecution` is called when a precompile has finished executing. This function
 // sets the `LogsPlugin` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
-// to the journal. It also sets the logger to nil.
+// to the journal.
 func (m *manager) EndPrecompileExecution() {
 	m.ldb = nil
-	m.logger = nil
 }
 
 // `EmitEvent` overrides the Cosmos SDK's `EventManager.EmitEvent` method to build Eth logs from
@@ -76,13 +69,7 @@ func (m *manager) EmitEvent(event sdk.Event) {
 
 	// add the event to the logs journal if in precompile execution
 	if m.ldb != nil {
-		log, err := m.plf.Build(&event)
-		if err != nil {
-			m.logger.Error(
-				fmt.Sprintf("cannot convert Cosmos event %s to Eth log: %e\n", event.Type, err),
-			)
-		}
-		m.ldb.AddLog(log)
+		m.convertToLog(&event)
 	}
 }
 
@@ -94,15 +81,7 @@ func (m *manager) EmitEvents(events sdk.Events) {
 	// add the events to the logs journal if in precompile execution
 	if m.ldb != nil {
 		for i := range events {
-			log, err := m.plf.Build(&events[i])
-			if err != nil {
-				m.logger.Error(
-					fmt.Sprintf(
-						"cannot convert Cosmos event %s to Eth log: %e\n", events[i].Type, err,
-					),
-				)
-			}
-			m.ldb.AddLog(log)
+			m.convertToLog(&events[i])
 		}
 	}
 }
@@ -131,6 +110,13 @@ func (m *manager) RevertToSnapshot(id int) {
 }
 
 // `Finalize` implements `libtypes.Finalizable`.
-func (m *manager) Finalize() {
-	// wait for semaphore to hit 0 --> should already be at 0 at this point
+func (m *manager) Finalize() {}
+
+// `convertToLog` builds an Eth log from the given Cosmos event and adds it to the logs journal.
+func (m *manager) convertToLog(event *sdk.Event) {
+	log, err := m.plf.Build(event)
+	if err != nil {
+		panic(errors.Wrapf(err, "cannot convert Cosmos event %s to Eth log", event.Type))
+	}
+	m.ldb.AddLog(log)
 }

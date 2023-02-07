@@ -15,8 +15,9 @@
 package events_test
 
 import (
-	libtypes "github.com/berachain/stargazer/lib/types"
+	precompilemock "github.com/berachain/stargazer/eth/core/precompile/mock"
 	"github.com/berachain/stargazer/testutil"
+	"github.com/berachain/stargazer/x/evm/plugin/state"
 	"github.com/berachain/stargazer/x/evm/plugin/state/events"
 	"github.com/berachain/stargazer/x/evm/plugin/state/events/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,25 +27,26 @@ import (
 )
 
 var _ = Describe("Manager", func() {
-	var cem libtypes.Controllable[string]
+	var cem state.ControllableEventManager
 	var ctx sdk.Context
+	var ldb *precompilemock.LogsDBMock
 
-	It("should correctly control the event manager", func() {
+	BeforeEach(func() {
+		ldb = precompilemock.NewLogsDB()
 		ctx = testutil.NewContext()
-
-		// before the sdb tx
 		ctx.EventManager().EmitEvent(sdk.NewEvent("1"))
 
-		// sdb setup
 		cem = events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory())
-
-		// check the controllable event manager is hooked up to context
+		ctx = ctx.WithEventManager(cem)
 		Expect(len(ctx.EventManager().Events())).To(Equal(1))
+		Expect(cem.Events()).To(HaveLen(1))
+	})
 
-		// chcek registry key
+	It("should have the right registry key", func() {
 		Expect(cem.RegistryKey()).To(Equal("events"))
+	})
 
-		// add to event manager
+	It("should correctly snapshot/revert", func() {
 		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
 		Expect(len(ctx.EventManager().Events())).To(Equal(2))
 
@@ -54,5 +56,45 @@ var _ = Describe("Manager", func() {
 
 		cem.RevertToSnapshot(snap)
 		Expect(len(ctx.EventManager().Events())).To(Equal(2))
+	})
+
+	It("should not build eth logs when not in precompile", func() {
+		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
+		Expect(len(ctx.EventManager().Events())).To(Equal(2))
+		Expect(len(ldb.AddLogCalls())).To(Equal(0))
+
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent("3"),
+			sdk.NewEvent("4"),
+		})
+		Expect(len(ctx.EventManager().Events())).To(Equal(4))
+		Expect(len(ldb.AddLogCalls())).To(Equal(0))
+	})
+
+	It("should panic when building eth logs fails", func() {
+		cem.BeginPrecompileExecution(ldb)
+
+		Expect(func() {
+			ctx.EventManager().EmitEvent(sdk.NewEvent("non-eth-event"))
+		}).To(Panic())
+	})
+
+	It("should build eth logs from cosmos events during precompile", func() {
+		cem.BeginPrecompileExecution(ldb)
+
+		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
+		Expect(len(ctx.EventManager().Events())).To(Equal(2))
+		Expect(len(ldb.AddLogCalls())).To(Equal(1))
+
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent("3"),
+			sdk.NewEvent("4"),
+		})
+		Expect(len(ctx.EventManager().Events())).To(Equal(4))
+		Expect(len(ldb.AddLogCalls())).To(Equal(3))
+
+		cem.EndPrecompileExecution()
+
+		Expect(func() { cem.Finalize() }).ToNot(Panic())
 	})
 })

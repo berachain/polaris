@@ -14,22 +14,14 @@
 
 package mock
 
-import (
-	"errors"
+import coretypes "github.com/ethereum/go-ethereum/core/types"
 
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+//go:generate moq -out ./logsdb.mock.go -pkg mock ../ LogsDB
 
-//go:generate moq -out ./log_factory.mock.go -pkg mock ../ PrecompileLogFactory
-
-func NewPrecompileLogFactory() *PrecompileLogFactoryMock {
-	return &PrecompileLogFactoryMock{
-		BuildFunc: func(event *sdk.Event) (*coretypes.Log, error) {
-			if event.Type == "non-eth-event" {
-				return nil, errors.New("event is not eth")
-			}
-			return &coretypes.Log{}, nil
+func NewLogsDB() *LogsDBMock {
+	return &LogsDBMock{
+		AddLogFunc: func(log *coretypes.Log) {
+			// no-op
 		},
 	}
 }

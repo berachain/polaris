@@ -20,7 +20,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 // `ControllableEventManager` defines a cache EventManager that is controllable (snapshottable
@@ -29,7 +28,7 @@ import (
 type ControllableEventManager interface {
 	libtypes.Controllable[string]
 	sdk.EventManagerI
-	BeginPrecompileExecution(precompile.LogsDB, tmlog.Logger)
+	BeginPrecompileExecution(precompile.LogsDB)
 	EndPrecompileExecution()
 }
 
