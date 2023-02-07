@@ -26,18 +26,27 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-// `StargazerHeaderAtHeight`.
+// `StargazerHeaderAtHeight` returns the stargazer header at the given height.
 func (k *Keeper) StargazerHeaderAtHeight(ctx context.Context, height uint64) *types.StargazerHeader {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	if sCtx.BlockHeight() == int64(height) {
+	if uint64(sCtx.BlockHeight()) == height {
+		// If the current block height is the same as the requested height, then we assume that the
+		// block has not been written to the store yet. In this case, we build and return a header
+		// from the sdk.Context.
 		return k.EthHeaderFromSdkContext(sCtx, types.Bloom{}, nil)
+	} else if uint64(sCtx.BlockHeight()) < height {
+		// If the current block height is less than the requested height, then we assume that the
+		// block has been written to the store. In this case, we return the header from the store.
+		stargazerBlock, _ := k.GetStargazerBlockAtHeight(sCtx, height)
+		return stargazerBlock.StargazerHeader
 	}
-	stargazerBlock, _ := k.GetStargazerBlockAtHeight(sCtx, height)
-	return stargazerBlock.StargazerHeader
+	// If the current block height is greater than the requested height, then we can't really query can we.
+	// In this case, we return an empty header.
+	return &types.StargazerHeader{}
 }
 
 // `EthHeaderFromSdkContext` builds an ethereum style block header from an `sdk.Context`, `Bloom` and `baseFee`.
-func (k *Keeper) EthHeaderFromSdkContext(ctx sdk.Context, bloom types.Bloom, baseFee *big.Int) *types.StargazerHeader {
+func (k *Keeper) EthHeaderFromCosmosContext(ctx sdk.Context, bloom types.Bloom, baseFee *big.Int) *types.StargazerHeader {
 	cometHeader := ctx.BlockHeader()
 	txHash := types.EmptyRootHash
 	if len(cometHeader.DataHash) == 0 {
@@ -63,30 +72,12 @@ func (k *Keeper) EthHeaderFromSdkContext(ctx sdk.Context, bloom types.Bloom, bas
 			Nonce:       types.BlockNonce{},
 			BaseFee:     baseFee,
 		},
-		k.BlockHashFromSdkContext(ctx),
+		k.BlockHashFromCosmosContext(ctx),
 	)
 }
 
-// // `StargazerHeaderAtHeight` returns the header at the given height.
-// func (k Keeper) StargazerBlockHashAtHeight(gctx context.Context, height uint64) common.Hash {
-// 	ctx := sdk.UnwrapSDKContext(gctx)
-// 	if height > math.MaxInt64 {
-// 		panic("height is greater than max int64")
-// 	}
-// 	h := int64(height)
-// 	ctxHeight := ctx.BlockHeight()
-// 	switch {
-// 	case ctxHeight == h:
-// 		return k.BlockHashFromSdkContext(ctx)
-// 	case ctxHeight > h:
-// 		return k.BlockHashFromHistoricalInfo(ctx, h)
-// 	default:
-// 		return common.Hash{}
-// 	}
-// }
-
-// `HashFromSdkContext` extracts the block hash from the Cosmos context.
-func (k *Keeper) BlockHashFromSdkContext(ctx sdk.Context) common.Hash {
+// `BlockHashFromSdkContext` extracts the block hash from a Cosmos context.
+func (k *Keeper) BlockHashFromCosmosContext(ctx sdk.Context) common.Hash {
 	headerHash := ctx.HeaderHash()
 	if len(headerHash) != 0 {
 		return common.BytesToHash(headerHash)
@@ -96,28 +87,10 @@ func (k *Keeper) BlockHashFromSdkContext(ctx sdk.Context) common.Hash {
 	contextBlockHeader := ctx.BlockHeader()
 	header, err := tmtypes.HeaderFromProto(&contextBlockHeader)
 	if err != nil {
-		k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
+		k.Logger(ctx).Error("failed to cast comet header from proto", "error", err)
 		return common.Hash{}
 	}
 
 	headerHash = header.Hash()
 	return common.BytesToHash(headerHash)
 }
-
-// // `HashFromSdkContext` extracts the block has using historical information saved
-// // in the staking keeper.
-// func (k *Keeper) BlockHashFromHistoricalInfo(ctx sdk.Context, height int64) common.Hash {
-// 	histInfo, found := k.stakingKeeper.GetHistoricalInfo(ctx, height)
-// 	if !found {
-// 		k.Logger(ctx).Debug("historical info not found", "height", height)
-// 		return common.Hash{}
-// 	}
-
-// 	header, err := tmtypes.HeaderFromProto(&histInfo.Header)
-// 	if err != nil {
-// 		k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
-// 		return common.Hash{}
-// 	}
-
-// 	return common.BytesToHash(header.Hash())
-// }
