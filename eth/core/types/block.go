@@ -19,24 +19,15 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 )
 
-// import (
-// 	"math"
-// 	"math/big"
-
-// 	"github.com/berachain/stargazer/lib/common"
-// 	"github.com/ethereum/go-ethereum/core/types"
-// 	"github.com/ethereum/go-ethereum/trie"
-// )
-
-//go:generate rlpgen -type StargazerBlock -out block.rlpgen.go -decoder
-
 // `StargazerBlock` represents a ethereum-like block that can be encoded to raw bytes.
+//
+//go:generate rlpgen -type StargazerBlock -out block.rlpgen.go -decoder
 type StargazerBlock struct {
 	*StargazerHeader
 	Transactions Transactions
 }
 
-// `NewStargazerBlock` creates a new EvmBlock from the given header and transactions.
+// `NewStargazerBlock` creates a new StargazerBlock from the given header and transactions.
 func NewStargazerBlock(h *StargazerHeader, txs Transactions) *StargazerBlock {
 	b := &StargazerBlock{
 		StargazerHeader: h,
@@ -51,7 +42,7 @@ func NewStargazerBlock(h *StargazerHeader, txs Transactions) *StargazerBlock {
 	return b
 }
 
-// `UnmarshalBinary` decodes the block from the Ethereum RLP format.
+// `UnmarshalBinary` decodes a block from the Ethereum RLP format.
 func (b *StargazerBlock) UnmarshalBinary(data []byte) error {
 	return rlp.DecodeBytes(data, b)
 }

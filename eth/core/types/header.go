@@ -18,10 +18,10 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-//go:generate rlpgen -type StargazerHeader -out header.rlpgen.go -decoder
-
 // `StargazerHeader` represents a wrapped Ethereum header that allows for specifying a custom
 // blockhash to make it compatible with a non-ethereum chain.
+//
+//go:generate rlpgen -type StargazerHeader -out header.rlpgen.go -decoder
 type StargazerHeader struct {
 	// `Header` is an embedded ethereum header.
 	*Header
