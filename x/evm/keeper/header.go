@@ -33,7 +33,7 @@ func (k *Keeper) StargazerHeaderAtHeight(ctx context.Context, height uint64) *ty
 		// If the current block height is the same as the requested height, then we assume that the
 		// block has not been written to the store yet. In this case, we build and return a header
 		// from the sdk.Context.
-		return k.EthHeaderFromSdkContext(sCtx, types.Bloom{}, nil)
+		return k.EthHeaderFromCosmosContext(sCtx, types.Bloom{}, nil)
 	} else if uint64(sCtx.BlockHeight()) < height {
 		// If the current block height is less than the requested height, then we assume that the
 		// block has been written to the store. In this case, we return the header from the store.
@@ -46,7 +46,9 @@ func (k *Keeper) StargazerHeaderAtHeight(ctx context.Context, height uint64) *ty
 }
 
 // `EthHeaderFromSdkContext` builds an ethereum style block header from an `sdk.Context`, `Bloom` and `baseFee`.
-func (k *Keeper) EthHeaderFromCosmosContext(ctx sdk.Context, bloom types.Bloom, baseFee *big.Int) *types.StargazerHeader {
+func (k *Keeper) EthHeaderFromCosmosContext(
+	ctx sdk.Context, bloom types.Bloom, baseFee *big.Int,
+) *types.StargazerHeader {
 	cometHeader := ctx.BlockHeader()
 	txHash := types.EmptyRootHash
 	if len(cometHeader.DataHash) == 0 {
@@ -91,6 +93,5 @@ func (k *Keeper) BlockHashFromCosmosContext(ctx sdk.Context) common.Hash {
 		return common.Hash{}
 	}
 
-	headerHash = header.Hash()
-	return common.BytesToHash(headerHash)
+	return common.BytesToHash(header.Hash())
 }
