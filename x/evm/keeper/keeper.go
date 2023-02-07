@@ -18,6 +18,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/x/evm/constants"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -29,9 +30,9 @@ var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
-	key storetypes.StoreKey
+	storeKey storetypes.StoreKey
 
-	// `stakingKeeper` is a reference to a cosmos-sdk staking keeper.
+	stateProcessor *core.StateProcessor
 	// It is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
 	stakingKeeper StakingKeeper
@@ -39,13 +40,16 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
-	key storetypes.StoreKey,
+	storeKey storetypes.StoreKey,
 	stakingKeeper StakingKeeper,
 ) *Keeper {
-	return &Keeper{
-		key:           key,
+	k := &Keeper{
+		storeKey:      storeKey,
 		stakingKeeper: stakingKeeper,
 	}
+	config := params.EthChainConfig{}
+	k.stateProcessor = core.NewStateProcessor(&config, k)
+	return k
 }
 
 // `Logger` returns a module-specific logger.

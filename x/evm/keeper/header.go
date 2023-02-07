@@ -33,7 +33,7 @@ func (k *Keeper) StargazerHeaderAtHeight(ctx context.Context, height uint64) *ty
 		// TODO: right now logs bloom is empty and basefee is nil as this is only used for the
 		// creating the evm context, which doesn't need the bloom or basefee. If we need to
 		// use this for other purposes, we need to update this.
-		return k.EthHeaderFromSdkContext(sCtx, types.Bloom{}, nil)
+		return k.EthHeaderFromSdkContext(sCtx, k.GetBlockBloom(sCtx, height), nil)
 	}
 	// Todo: handle handle historical for BLOCKHASH OPCODE
 	return &types.StargazerHeader{}

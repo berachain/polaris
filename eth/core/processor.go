@@ -44,6 +44,7 @@ type StateProcessor struct {
 	receipts types.Receipts
 }
 
+// `NewStateProcessor` creates a new state processor.
 func NewStateProcessor(
 	config *params.EthChainConfig,
 	host StargazerHostChain,
@@ -55,6 +56,7 @@ func NewStateProcessor(
 	}
 }
 
+// `Prepare` prepares the state processor for processing a block.
 func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// Build a block to use throughout the evm.
 	sp.block = NewStargazerEVMBlock(sp.host.StargazerHeaderAtHeight(ctx, height), nil)
@@ -67,7 +69,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 			sp.block.StargazerHeader,
 			sp.host,
 		),
-		&params.EthChainConfig{},
+		sp.config,
 		false,
 	)
 
@@ -75,6 +77,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	sp.statedb = sp.evm.StateDB()
 }
 
+// `ProcessTransaction` applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
 	msg, err := tx.AsMessage(types.MakeSigner(sp.config, sp.blockContext.BlockNumber), sp.blockContext.BaseFee)
 	if err != nil {
@@ -115,17 +118,19 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 
 	receipt.TransactionIndex = uint(len(sp.block.Transactions))
-
 	sp.block.Transactions = append(sp.block.Transactions, tx)
 
 	sp.receipts = append(sp.receipts, receipt)
+
+	// need to update information about the current block
 	return receipt, nil
 }
 
+// `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (types.Receipts, types.Bloom, error) {
 	// block := types.NewBlockWithHeader(&types.Header{
 	// 	Number: sp.blockContext.BlockNumber,
-	// })
+	// }
 
 	return sp.receipts, types.CreateBloom(sp.receipts), nil
 }
