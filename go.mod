@@ -6,7 +6,6 @@ go 1.19
 replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230203013416-fe0db7703f93
 
 require (
-	cosmossdk.io/api v0.2.6
 	github.com/bufbuild/buf v1.7.0
 	github.com/carolynvs/magex v0.9.0
 	github.com/cosmos/cosmos-sdk v0.47.0-rc2
@@ -35,6 +34,7 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.1 // indirect
+	cosmossdk.io/api v0.2.6 // indirect
 	cosmossdk.io/core v0.3.2 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.3 // indirect
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
