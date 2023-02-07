@@ -15,6 +15,7 @@
 package storage
 
 import (
+	"github.com/berachain/stargazer/lib/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -27,6 +28,10 @@ var (
 // `BlockKey` returns the key for the block bloom.
 func BlockKey() []byte {
 	return blockKey
+}
+
+func BlockHashToHeightKey(hash common.Hash) []byte {
+	return append(hashKey, hash[:]...)
 }
 
 // `HashToTxIndexKey` returns the key for a receipt lookup.

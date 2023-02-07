@@ -16,8 +16,10 @@ package keeper
 
 import (
 	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/x/evm/storage"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // `MustStoreStargazerBlock` saves a block to the store.
@@ -30,7 +32,11 @@ func (k *Keeper) SetStargazerBlockForCurrentHeight(
 	if err != nil {
 		return err
 	}
+	// Store the block at the block key.
 	store.Set(storage.BlockKey(), bz)
+
+	// Store a mapping of block hashes to block heights.
+	store.Set(storage.BlockHashToHeightKey(block.Hash()), sdk.Uint64ToBigEndian(block.Number.Uint64()))
 	return nil
 }
 
@@ -58,4 +64,42 @@ func (k *Keeper) GetStargazerBlockAtHeight(
 		return nil, err
 	}
 	return block, nil
+}
+
+// `GetStargazerBlockByHash` returns the block from the store with a given hash.
+func (k *Keeper) GetStargazerBlockByHash(
+	ctx sdk.Context,
+	hash common.Hash,
+) (*types.StargazerBlock, error) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(storage.BlockHashToHeightKey(hash))
+	if bz == nil {
+		return nil, ErrBlockNotFound
+	}
+	height := sdk.BigEndianToUint64(bz)
+	return k.GetStargazerBlockAtHeight(ctx, height)
+}
+
+// `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
+// matching the given block number.
+func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number *hexutil.Big) *hexutil.Uint {
+	stargazerBlock, err := k.GetStargazerBlockAtHeight(ctx, number.ToInt().Uint64())
+	if err != nil {
+		return nil
+	}
+
+	count := hexutil.Uint(len(stargazerBlock.Transactions))
+	return &count
+}
+
+// `GetBlockTransactionCountByHash` returns the number of transactions in a block from a block
+// matching the given block hash.
+func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash common.Hash) *hexutil.Uint {
+	stargazerBlock, err := k.GetStargazerBlockByHash(ctx, hash)
+	if err != nil {
+		return nil
+	}
+
+	count := hexutil.Uint(len(stargazerBlock.Transactions))
+	return &count
 }
