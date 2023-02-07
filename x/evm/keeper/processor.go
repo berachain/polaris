@@ -32,12 +32,21 @@ func (k *Keeper) BeginBlocker(ctx context.Context, req *abci.RequestBeginBlock) 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("ProcessTransaction")
+	k.Logger(sCtx).Info("Begin ProcessTransaction()")
+
+	// Process the transaction and return the receipt.
 	receipt, err := k.stateProcessor.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
-	k.Logger(sCtx).Info("ProcessTransaction done")
+	// Consume gas and update the cumulative gas used.
+	// TODO: gonna need hella tests to ensure gas is being consumed properly
+	// TODO: should the receipt be updated with the gas used IN the Processor?
+	sCtx.GasMeter().ConsumeGas(receipt.GasUsed, "ethereum tx")
+	// The BlockGasMeter won't have updated yet? need to check math
+	receipt.CumulativeGasUsed = sCtx.BlockGasMeter().GasConsumed() + receipt.GasUsed
+
+	k.Logger(sCtx).Info("End ProcessTransaction()")
 	return receipt, err
 }
 

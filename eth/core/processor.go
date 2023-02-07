@@ -21,6 +21,7 @@ import (
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 )
 
@@ -97,7 +98,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	}
 
 	// Build Receipt
-	receipt := &types.Receipt{Type: tx.Type() /*, PostState: root, CumulativeGasUsed: *usedGas*/}
+	receipt := &types.Receipt{Type: tx.Type(), PostState: common.Hash{}.Bytes()}
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
 	} else {

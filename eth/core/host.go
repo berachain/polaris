@@ -20,6 +20,7 @@ import (
 	"github.com/berachain/stargazer/eth/core/types"
 )
 
+// `StargazerHostChain` defines the methods that the chain running the Stargazer EVM must implement.
 type StargazerHostChain interface {
 	// `StargazerHeaderAtHeight` returns the StargazerHeader at the given height.
 	StargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader

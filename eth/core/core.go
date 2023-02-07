@@ -13,11 +13,3 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package core
-
-type ChainService interface {
-	// "Progressing the chain"
-	// csp StateProcessor
-}
-
-type QuerierService struct {
-}
