@@ -25,6 +25,10 @@ import (
 	"github.com/berachain/stargazer/lib/crypto"
 )
 
+const (
+	initLen = 512
+)
+
 type StateProcessor struct {
 	// The Host provides the underlying application the EVM is running in
 	// as well an underlying consensus engine.
@@ -37,12 +41,11 @@ type StateProcessor struct {
 	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
 
-	// the blockHash of the current block being processed
-	blockHeader  *types.StargazerHeader
-	blockContext vm.BlockContext
-
-	// `receipts` are stored in the state processor to be returned to the caller.
-	receipts     types.Receipts
+	// `blockHash` of the current block being processed
+	blockHeader *types.StargazerHeader
+	// `receipts` of the current block being processed
+	receipts types.Receipts
+	// `transactions` of the current block being processed
 	transactions types.Transactions
 }
 
@@ -63,6 +66,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// Build a block to use throughout the evm.
 	// NOTE: sp.blockHeader.Bloom is nil here, but it is set in `Finalize`.
 	sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
+	sp.receipts = make(types.Receipts, initLen)
+	sp.transactions = make(types.Transactions, initLen)
 
 	// Build a new EVM to use for this block.
 	sp.evm = sp.vmf.Build(
@@ -82,7 +87,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
-	msg, err := tx.AsMessage(types.MakeSigner(sp.config, sp.blockContext.BlockNumber), sp.blockContext.BaseFee)
+	msg, err := tx.AsMessage(types.MakeSigner(sp.config, sp.blockHeader.Number), sp.blockHeader.BaseFee)
 	if err != nil {
 		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
@@ -114,7 +119,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// Set the receipt logs and create the bloom filter.
 	receipt.BlockHash = sp.blockHeader.Hash()
-	receipt.BlockNumber = sp.blockContext.BlockNumber
+	receipt.BlockNumber = sp.blockHeader.Number
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
 		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), uint(0),
 	)
@@ -130,7 +135,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (*types.StargazerBlock, error) {
-	// Set the bloom filter in the header.
+	// Set the header's bloom.
 	sp.blockHeader.Bloom = types.CreateBloom(sp.receipts)
 
 	// Return a finalized block.
