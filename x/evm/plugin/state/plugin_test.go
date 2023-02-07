@@ -50,6 +50,22 @@ var _ = Describe("State Plugin", func() {
 		Expect(sp.RegistryKey()).To(Equal("statePlugin"))
 	})
 
+	Describe("TestReset", func() {
+		It("should reset", func() {
+			sp.CreateAccount(alice)
+			sp.AddBalance(alice, big.NewInt(50))
+			sp.SetCode(alice, []byte{1, 2, 3})
+			sp.SetState(alice, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
+
+			sp.Reset(testutil.NewContext())
+
+			Expect(sp.Exist(alice)).To(BeFalse())
+			Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
+			Expect(sp.GetCode(alice)).To(BeEmpty())
+			Expect(sp.GetState(alice, common.BytesToHash([]byte{1}))).To(Equal(common.Hash{}))
+		})
+	})
+
 	Describe("TestCreateAccount", func() {
 		It("should create account", func() {
 			sp.CreateAccount(alice)
