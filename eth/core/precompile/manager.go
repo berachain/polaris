@@ -31,14 +31,13 @@ type manager struct {
 	// `ctx` is the ephemeral native context, updated on every state transition.
 	ctx context.Context
 	// `runner` will run the precompile in a custom precompile environment for a given context.
-	runner vm.PrecompileRunner
-	// `ldb` is a reference to the StateDB used to add logs from the precompile's execution.
-	ldb vm.LogsDB
+	runner Runner
+	// `ldb` is a reference to the StateDB used to add Eth logs from the precompile's execution.
+	ldb LogsDB
 }
 
-// `NewManager` creates and returns a `Controller` with a new precompile registry and precompile
-// runner.
-func NewManager(runner vm.PrecompileRunner, ldb vm.StargazerStateDB) vm.PrecompileManager {
+// `NewManager` creates and returns a `Controller` with a native precompile runner and logs DB.
+func NewManager(runner Runner, ldb LogsDB) vm.PrecompileManager {
 	return &manager{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 		runner:   runner,

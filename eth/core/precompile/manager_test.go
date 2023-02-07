@@ -64,7 +64,7 @@ type mockRunner struct {
 }
 
 func (mr *mockRunner) Run(
-	ctx context.Context, ldb vm.LogsDB, pc vm.PrecompileContainer, input []byte,
+	ctx context.Context, ldb LogsDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	mr.called = true

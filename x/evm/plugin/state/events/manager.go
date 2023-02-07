@@ -15,7 +15,7 @@
 package events
 
 import (
-	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/lib/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	coretypes "github.com/ethereum/go-ethereum/core/types"
@@ -35,8 +35,8 @@ type Manager struct {
 
 	// semaphore chan struct{}
 
-	// `ldb` is used to add Eth logs.
-	ldb vm.LogsDB
+	// `ldb` is the reference to the StateDB, used to add Eth logs.
+	ldb precompile.LogsDB
 }
 
 // `NewManager` creates and returns a controllable event manager from the given Cosmos SDK context.
@@ -49,7 +49,7 @@ func NewManagerFrom(em sdk.EventManagerI) *Manager {
 // `BeginPrecompileExecution` is called when a precompile is about to be executed. This function
 // sets the `LogsPlugin` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
 // add logs to the journal.
-func (m *Manager) BeginPrecompileExecution(ldb vm.LogsDB) {
+func (m *Manager) BeginPrecompileExecution(ldb precompile.LogsDB) {
 	m.ldb = ldb
 }
 

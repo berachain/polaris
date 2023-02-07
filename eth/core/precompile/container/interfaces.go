@@ -23,7 +23,7 @@ type (
 	// `AbstractFactory` is an interface that all precompile container factories must adhere to.
 	AbstractFactory interface {
 		// `Build` builds and returns the precompile container for the type of container/factory.
-		Build(bci vm.BasePrecompileImpl) (vm.PrecompileContainer, error)
+		Build(vm.RegistrablePrecompile) (vm.PrecompileContainer, error)
 	}
 )
 
@@ -33,7 +33,7 @@ type (
 	// stateless in nature. This requires a deterministic gas count, `RequiredGas`, and an
 	// executable function `Run`.
 	StatelessPrecompileImpl interface {
-		vm.BasePrecompileImpl
+		vm.RegistrablePrecompile
 
 		vm.PrecompileContainer
 	}
@@ -41,7 +41,7 @@ type (
 	// `StatefulPrecompileImpl` is the interface for all stateful precompiled contracts, which must
 	// expose their ABI methods and precompile methods for stateful execution.
 	StatefulPrecompileImpl interface {
-		vm.BasePrecompileImpl
+		vm.RegistrablePrecompile
 
 		// `ABIMethods` should return a map of Ethereum method names to Go-Ethereum abi `Method`
 		// structs. NOTE: this can be directly loaded from the `Methods` field of a Go-Ethereum ABI

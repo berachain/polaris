@@ -63,21 +63,7 @@ type (
 		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
 	}
 
-	// `LogsDB` defines the required function to add a log to the StateDB.
-	LogsDB interface {
-		// `AddLog` adds a log to the logs database.
-		AddLog(*coretypes.Log)
-	}
-
-	// `PrecompileRunner` defines the required function of a vm-specific precompile runner.
-	PrecompileRunner interface {
-		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
-		Run(ctx context.Context, ldb LogsDB, pc PrecompileContainer, input []byte,
-			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
-		) (ret []byte, remainingGas uint64, err error)
-	}
-
-	// `BasePrecompileImpl` is a type for the base precompile implementation, which only needs to
+	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs to
 	// provide an Ethereum address of where its contract is found.
-	BasePrecompileImpl = libtypes.Registrable[common.Address]
+	RegistrablePrecompile = libtypes.Registrable[common.Address]
 )
