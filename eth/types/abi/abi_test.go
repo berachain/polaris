@@ -88,6 +88,8 @@ var _ = Describe("ABI Test Suite", func() {
 			Expect(abi.ToUnderScore("Creation4Height")).To(Equal("creation4_height"))
 			Expect(abi.ToUnderScore("creationHeight")).To(Equal("creation_height"))
 			Expect(abi.ToUnderScore("creationHeightArg")).To(Equal("creation_height_arg"))
+			Expect(abi.ToUnderScore("creation")).To(Equal("creation"))
+			Expect(abi.ToUnderScore("creation_height")).To(Equal("creation_height"))
 		})
 	})
 })

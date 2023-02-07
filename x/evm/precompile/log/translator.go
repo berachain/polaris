@@ -103,10 +103,8 @@ func (f *Factory) makeData(pl *precompileLog, event *sdk.Event) ([]byte, error) 
 // attribute key.
 func (f *Factory) getValueDecoder(attrKey string) (valueDecoder, error) {
 	// try custom precompile event attributes
-	if f.customValueDecoders != nil {
-		if customDecoder, found := f.customValueDecoders[attrKey]; found {
-			return customDecoder, nil
-		}
+	if customDecoder, found := f.customValueDecoders[attrKey]; found {
+		return customDecoder, nil
 	}
 
 	// try default Cosmos SDK event attributes

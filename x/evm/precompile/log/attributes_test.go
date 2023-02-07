@@ -27,7 +27,7 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 )
 
-var _ = Describe("Attributes Test Suite", func() {
+var _ = Describe("Attributes", func() {
 	var gethValue any
 	var err error
 
