@@ -73,11 +73,6 @@ var _ = Describe("Stateful Container", func() {
 			_, err := empty.Run(ctx, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
-			// // missing statedb
-			// _, err = sc.Run(ctx, blank, addr, value, readonly)
-			// Expect(err).To(MatchError("statedb is not compatible with Stargazer"))
-			// sc.WithStateDB(&mockSdb{})
-
 			// invalid input
 			_, err = sc.Run(ctx, blank, addr, value, readonly)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))

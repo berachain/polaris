@@ -32,17 +32,17 @@ type manager struct {
 	ctx context.Context
 	// `runner` will run the precompile in a custom precompile environment for a given context.
 	runner vm.PrecompileRunner
-	// `ssdb` is a reference to the StateDB used to add logs from the precompile's execution.
-	ssdb vm.StargazerStateDB
+	// `ldb` is a reference to the StateDB used to add logs from the precompile's execution.
+	ldb vm.LogsDB
 }
 
 // `NewManager` creates and returns a `Controller` with a new precompile registry and precompile
 // runner.
-func NewManager(runner vm.PrecompileRunner, ssdb vm.StargazerStateDB) vm.PrecompileManager {
+func NewManager(runner vm.PrecompileRunner, ldb vm.StargazerStateDB) vm.PrecompileManager {
 	return &manager{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 		runner:   runner,
-		ssdb:     ssdb,
+		ldb:      ldb,
 	}
 }
 
@@ -60,5 +60,5 @@ func (m *manager) Run(
 	pc vm.PrecompileContainer, input []byte, caller common.Address,
 	value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
-	return m.runner.Run(m.ctx, m.ssdb, pc, input, caller, value, suppliedGas, readonly)
+	return m.runner.Run(m.ctx, m.ldb, pc, input, caller, value, suppliedGas, readonly)
 }

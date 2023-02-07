@@ -74,3 +74,26 @@ func (mr *mockRunner) Run(
 type mockSdb struct {
 	vm.StargazerStateDB
 }
+
+type mockBase struct{}
+
+var addr = common.BytesToAddress([]byte{1})
+
+func (mb *mockBase) RegistryKey() common.Address {
+	return addr
+}
+
+type mockStateless struct {
+	*mockBase
+}
+
+func (ms *mockStateless) RequiredGas(input []byte) uint64 {
+	return 0
+}
+
+func (ms *mockStateless) Run(
+	ctx context.Context, input []byte,
+	caller common.Address, value *big.Int, readonly bool,
+) ([]byte, error) {
+	return nil, nil
+}
