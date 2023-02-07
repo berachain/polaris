@@ -15,10 +15,11 @@
 package keeper
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/x/evm/storage"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `MustStoreStargazerBlock` saves a block to the store.
