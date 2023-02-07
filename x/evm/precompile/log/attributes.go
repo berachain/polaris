@@ -29,10 +29,8 @@ import (
 const (
 	// `intBase` is the base `int`s are parsed in, 10.
 	intBase = 10
-
 	// `int64Bits` is the number of bits stored in a variabe of `int64` type.
 	int64Bits = 64
-
 	// `notFound` is a default return value for searches in which an item was not found.
 	notFound = -1
 )
@@ -42,7 +40,6 @@ type (
 	// type `any`) for a given event attribute value (of type `string`). Event attribute values may
 	// require unique decodings based on their underlying string encoding.
 	valueDecoder func(attributeValue string) (ethPrimitive any, err error)
-
 	// `ValueDecoders` is a type that represents a map of event attribute keys to value decoder
 	// functions.
 	ValueDecoders map[string]valueDecoder

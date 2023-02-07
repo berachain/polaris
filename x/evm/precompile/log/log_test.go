@@ -17,6 +17,9 @@ package log
 import (
 	"testing"
 
+	"github.com/berachain/stargazer/eth/types/abi"
+	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -24,4 +27,55 @@ import (
 func TestLog(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "x/evm/precompile/log")
+}
+
+var _ = Describe("precompileLog", func() {
+	It("should properly create a new precompile log", func() {
+		var pl *precompileLog
+		Expect(func() {
+			pl = newPrecompileLog(common.BytesToAddress([]byte{1}), mockDefaultAbiEvent())
+		}).ToNot(Panic())
+		Expect(pl.RegistryKey()).To(Equal("cancel_unbonding_delegation"))
+		Expect(pl.id).To(Equal(crypto.Keccak256Hash(
+			[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
+		)))
+		Expect(pl.precompileAddr).To(Equal(common.BytesToAddress([]byte{1})))
+		Expect(len(pl.indexedInputs)).To(Equal(2))
+		Expect(len(pl.nonIndexedInputs)).To(Equal(2))
+	})
+})
+
+// MOCKS BELOW.
+
+func mockDefaultAbiEvent() abi.Event {
+	addrType, _ := abi.NewType("address", "address", nil)
+	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
+	int64Type, _ := abi.NewType("int64", "int64", nil)
+	return abi.NewEvent(
+		"CancelUnbondingDelegation",
+		"CancelUnbondingDelegation",
+		false,
+		abi.Arguments{
+			{
+				Name:    "validator",
+				Type:    addrType,
+				Indexed: true,
+			},
+			{
+				Name:    "delegator",
+				Type:    addrType,
+				Indexed: true,
+			},
+			{
+				Name:    "amount",
+				Type:    uint256Type,
+				Indexed: false,
+			},
+			{
+				Name:    "creationHeight",
+				Type:    int64Type,
+				Indexed: false,
+			},
+		},
+	)
 }
