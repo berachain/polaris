@@ -12,4 +12,34 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package core_test
+
+import (
+	"context"
+
+	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/eth/core/mock"
+	"github.com/ethereum/go-ethereum/params"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("StateProcessor", func() {
+	var (
+		// evm *vmmock.StargazerEVMMock
+		// sdb  *vmmock.StargazerStateDBMock
+		// msg  = new(mock.MessageMock)
+		host = mock.NewMockHost()
+		sp   = core.NewStateProcessor(params.MainnetChainConfig, host)
+	)
+
+	Context("when calling prepare", func() {
+
+		It("should return an error if the state is missing", func() {
+			// evm.StateDB = nil
+			sp.Prepare(context.Background(), 0)
+			Expect(len(host.StargazerHeaderAtHeightCalls())).To(Equal(1))
+		})
+	})
+})

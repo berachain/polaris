@@ -46,7 +46,7 @@ func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, chai
 		Coinbase:    header.Coinbase,
 		BlockNumber: new(big.Int).Set(header.Number),
 		Time:        new(big.Int).SetUint64(header.Time),
-		Difficulty:  new(big.Int).Set(header.Difficulty),
+		Difficulty:  new(big.Int), // not used by stargazer.
 		BaseFee:     baseFee,
 		GasLimit:    header.GasLimit,
 		Random:      &common.Hash{}, // TODO: find a source of randomness

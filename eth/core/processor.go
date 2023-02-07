@@ -18,11 +18,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
+
+	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
 )
 
 const (
@@ -31,13 +34,13 @@ const (
 
 type StateProcessor struct {
 	// The Host provides the underlying application the EVM is running in
-	// as well an underlying consensus engine.
+	// as well an underlying consensus engine
 	host StargazerHostChain
 
 	// Contextual Variables (updated once per block)
 	// signer types.Signer
 	config  *params.EthChainConfig
-	vmf     vm.EVMFactory
+	vmf     *vm.EVMFactory
 	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
 
@@ -57,7 +60,7 @@ func NewStateProcessor(
 	return &StateProcessor{
 		config: config,
 		host:   host,
-		vmf:    *vm.NewEVMFactory(nil),
+		vmf:    vm.NewEVMFactory(precompile.NewManager(nil)),
 	}
 }
 
@@ -68,6 +71,9 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 	sp.receipts = make(types.Receipts, initLen)
 	sp.transactions = make(types.Transactions, initLen)
+
+	// TODO fix
+	sp.statedb = vmmock.NewEmptyStateDB()
 
 	// Build a new EVM to use for this block.
 	sp.evm = sp.vmf.Build(
