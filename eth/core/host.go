@@ -14,4 +14,13 @@
 
 package core
 
-type Host interface{}
+import (
+	"context"
+
+	"github.com/berachain/stargazer/eth/core/types"
+)
+
+type StargazerHostChain interface {
+	// `StargazerHeaderAtHeight` returns the StargazerHeader at the given height.
+	StargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
+}

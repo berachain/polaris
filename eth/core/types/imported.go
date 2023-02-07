@@ -19,7 +19,29 @@ import (
 )
 
 type (
-	AccessList = types.AccessList
-	Log        = types.Log
-	Receipt    = types.Receipt
+	AccessList   = types.AccessList
+	Block        = types.Block
+	Bloom        = types.Bloom
+	Log          = types.Log
+	Receipt      = types.Receipt
+	Receipts     = types.Receipts
+	Transaction  = types.Transaction
+	Transactions = types.Transactions
+	Header       = types.Header
+	BlockNonce   = types.BlockNonce
+)
+
+var (
+	BytesToBloom   = types.BytesToBloom
+	CreateBloom    = types.CreateBloom
+	MakeSigner     = types.MakeSigner
+	LogsBloom      = types.LogsBloom
+	DeriveSha      = types.DeriveSha
+	NewBlock       = types.NewBlock
+	EmptyRootHash  = types.EmptyRootHash
+	EmptyUncleHash = types.EmptyUncleHash
+)
+var (
+	ReceiptStatusFailed     = types.ReceiptStatusFailed
+	ReceiptStatusSuccessful = types.ReceiptStatusSuccessful
 )

@@ -15,8 +15,10 @@
 package core
 
 import (
+	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
@@ -25,6 +27,64 @@ import (
 // Compile-time type assertion.
 var _ vm.CanTransferFunc = canTransfer
 var _ vm.TransferFunc = transfer
+
+// `NewEVMBlockContext` creates a new context for use in the EVM.
+func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, chain StargazerHostChain) vm.BlockContext {
+	var (
+		baseFee *big.Int
+	)
+
+	// Copy the baseFee to avoid side effects.
+	if header.BaseFee != nil {
+		baseFee = new(big.Int).Set(header.BaseFee)
+	}
+
+	return vm.BlockContext{
+		CanTransfer: canTransfer,
+		Transfer:    transfer,
+		GetHash:     GetHashFn(ctx, header, chain),
+		Coinbase:    header.Coinbase,
+		BlockNumber: new(big.Int).Set(header.Number),
+		Time:        new(big.Int).SetUint64(header.Time),
+		Difficulty:  new(big.Int).Set(header.Difficulty),
+		BaseFee:     baseFee,
+		GasLimit:    header.GasLimit,
+		Random:      &common.Hash{}, // TODO: find a source of randomness
+	}
+}
+
+// `GetHashFn` returns a GetHashFunc which retrieves header hashes by number.
+func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerHostChain) func(n uint64) common.Hash {
+	// Cache will initially contain [refHash.parent],
+	// Then fill up with [refHash.p, refHash.pp, refHash.ppp, ...]
+	var cache []common.Hash
+
+	return func(n uint64) common.Hash {
+		// If there's no hash cache yet, make one
+		if len(cache) == 0 {
+			cache = append(cache, ref.ParentHash)
+		}
+		if idx := ref.Number.Uint64() - n - 1; idx < uint64(len(cache)) {
+			return cache[idx]
+		}
+		// No luck in the cache, but we can start iterating from the last element we already know
+		var lastKnownHash common.Hash
+		lastKnownNumber := ref.Number.Uint64() - uint64(len(cache))
+		for {
+			header := chain.StargazerHeaderAtHeight(ctx, lastKnownNumber)
+			if header == nil {
+				break
+			}
+			cache = append(cache, header.ParentHash)
+			lastKnownHash = header.ParentHash
+			lastKnownNumber = header.Number.Uint64() - 1
+			if n == lastKnownNumber {
+				return lastKnownHash
+			}
+		}
+		return common.Hash{}
+	}
+}
 
 // `canTransfer` checks whether there are enough funds in the address' account to make a transfer.
 // NOTE: This does not take the necessary gas in to account to make the transfer valid.

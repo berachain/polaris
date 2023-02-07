@@ -27,6 +27,6 @@ type QueryService interface{}
 
 type ParamsService interface{}
 
-func NewEvmChain(core.Host) *api.Chain {
+func NewEvmChain(core.StargazerHostChain) *api.Chain {
 	return &api.Chain{}
 }
