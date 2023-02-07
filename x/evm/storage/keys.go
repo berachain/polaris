@@ -20,26 +20,21 @@ import (
 
 var (
 	blockBloomKey = []byte("blockBloom")
-	recieptKey    = []byte("receipt")
+	receiptKey    = []byte("receipt")
 	hashKey       = []byte("hash")
 )
 
-// `HeightToBlockBloomKey` returns the key for the block bloom at the given height.`.
-func HeightToBlockBloomKey(height uint64) []byte {
-	return append(blockBloomKey, sdk.Uint64ToBigEndian(height)...)
+// `BlockBloomKey` returns the key for the block bloom.
+func BlockBloomKey() []byte {
+	return blockBloomKey
 }
 
-// `HashToBlockNumberTxIndexKey` returns the key for a receipt lookup.
-func HashToBlockNumberTxIndexKey(h []byte) []byte {
+// `HashToTxIndexKey` returns the key for a receipt lookup.
+func HashToTxIndexKey(h []byte) []byte {
 	return append(hashKey, h...)
 }
 
-// `BlockNumberTxIndexToReciept` returns the key for the receipt lookup for a given block.
-func BlockNumberTxIndexToReciept(blockNumber uint64, txIndex uint64) []byte {
-	return append(recieptKey, BlockNumberTxIndexKeyPrefix(blockNumber, txIndex)...)
-}
-
-// `BlockNumberTxIndexToHash` returns the key for the hash lookup for a given block.
-func BlockNumberTxIndexKeyPrefix(blockNumber uint64, txIndex uint64) []byte {
-	return append(sdk.Uint64ToBigEndian(blockNumber), sdk.Uint64ToBigEndian(txIndex)...)
+// `TxIndexToRecieptKey` returns the key for the receipt lookup for a given block.
+func TxIndexToRecieptKey(txIndex uint64) []byte {
+	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
 }

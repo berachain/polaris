@@ -21,15 +21,15 @@ import (
 )
 
 // `SetBlockBloom` sets the block bloom at the given height.
-func (k *Keeper) SetBlockBloom(ctx sdk.Context, bloom types.Bloom, height uint64) {
+func (k *Keeper) SetBlockBloom(ctx sdk.Context, bloom types.Bloom) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(storage.HeightToBlockBloomKey(height), bloom.Bytes())
+	store.Set(storage.BlockBloomKey(), bloom.Bytes())
 }
 
 // `GetBlockBloom` returns the block bloom at the given height.
-func (k *Keeper) GetBlockBloom(ctx sdk.Context, height uint64) types.Bloom {
+func (k *Keeper) GetBlockBloom(ctx sdk.Context) types.Bloom {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(storage.HeightToBlockBloomKey(height))
+	bz := store.Get(storage.BlockBloomKey())
 	if bz == nil {
 		return types.Bloom{}
 	}

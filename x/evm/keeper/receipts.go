@@ -21,23 +21,28 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// SetReceipt stores the receipt indexed by the block number and tx index.
+// SetReceipt stores the receipt indexed by the tx index.
 func (k *Keeper) SetReceipt(ctx sdk.Context, receipt *types.Receipt) {
 	bz, err := receipt.MarshalBinary()
 	if err != nil {
 		panic(err)
 	}
 
-	receiptKey := storage.BlockNumberTxIndexKeyPrefix(receipt.BlockNumber.Uint64(), uint64(receipt.TransactionIndex))
-	// Store the receipt indexed by block number and tx index for efficient iteration.
+	// We need to store the receipt for the block numer + tx index for efficient iteration., but
+	// we also need to allow for a way to lookup a receipt by hash.
+	receiptKey := storage.TxIndexToRecieptKey(
+		uint64(receipt.TransactionIndex),
+	)
+	// Store the receiptKey in the store with a key of the tx hash.
+	ctx.KVStore(k.storeKey).Set(storage.HashToTxIndexKey(receipt.TxHash.Bytes()), receiptKey)
+
+	// Store the receipt indexed by tx index.
 	ctx.KVStore(k.storeKey).Set(receiptKey, bz)
-	// Store the prefix key for the receipt indexed by tx hash for efficient lookup.
-	ctx.KVStore(k.storeKey).Set(storage.HashToBlockNumberTxIndexKey(receipt.TxHash.Bytes()), receiptKey)
 }
 
 // `GetReceipt` gets the receipt indexed by the receipt hash.
-func (k *Keeper) GetReceipt(ctx sdk.Context, blockNumber, txIndex uint64) *types.Receipt {
-	receiptKey := storage.BlockNumberTxIndexKeyPrefix(blockNumber, txIndex)
+func (k *Keeper) GetReceipt(ctx sdk.Context, txIndex uint64) *types.Receipt {
+	receiptKey := storage.TxIndexToRecieptKey(txIndex)
 	bz := ctx.KVStore(k.storeKey).Get(receiptKey)
 	if bz == nil {
 		return nil
@@ -51,7 +56,7 @@ func (k *Keeper) GetReceipt(ctx sdk.Context, blockNumber, txIndex uint64) *types
 
 // `GetReceiptByTxHash` gets the receipt indexed by the transaction hash.
 func (k *Keeper) GetReceiptByTxHash(ctx sdk.Context, txHash common.Hash) *types.Receipt {
-	receiptKey := ctx.KVStore(k.storeKey).Get(storage.HashToBlockNumberTxIndexKey(txHash.Bytes()))
+	receiptKey := ctx.KVStore(k.storeKey).Get(storage.HashToTxIndexKey(txHash.Bytes()))
 	if receiptKey == nil {
 		return nil
 	}

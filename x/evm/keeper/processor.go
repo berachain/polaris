@@ -55,6 +55,6 @@ func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []ab
 	}
 	// TODO: Store receipts and/or logs and/or blocks.
 	_ = reciepts
-	k.SetBlockBloom(sCtx, bloom, uint64(sCtx.BlockHeight()))
+	k.SetBlockBloom(sCtx, bloom)
 	return []abci.ValidatorUpdate{}
 }
