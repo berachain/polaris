@@ -19,7 +19,6 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/x/evm/storage"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // `MustStoreStargazerBlock` saves a block to the store.
@@ -82,24 +81,22 @@ func (k *Keeper) GetStargazerBlockByHash(
 
 // `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
 // matching the given block number.
-func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number *hexutil.Big) *hexutil.Uint {
-	stargazerBlock, err := k.GetStargazerBlockAtHeight(ctx, number.ToInt().Uint64())
+func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint32 {
+	stargazerBlock, err := k.GetStargazerBlockAtHeight(ctx, number)
 	if err != nil {
-		return nil
+		return 0
 	}
 
-	count := hexutil.Uint(len(stargazerBlock.Transactions))
-	return &count
+	return uint32(len(stargazerBlock.Transactions))
 }
 
 // `GetBlockTransactionCountByHash` returns the number of transactions in a block from a block
 // matching the given block hash.
-func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash common.Hash) *hexutil.Uint {
+func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash common.Hash) uint32 {
 	stargazerBlock, err := k.GetStargazerBlockByHash(ctx, hash)
 	if err != nil {
-		return nil
+		return 0
 	}
 
-	count := hexutil.Uint(len(stargazerBlock.Transactions))
-	return &count
+	return uint32(len(stargazerBlock.Transactions))
 }
