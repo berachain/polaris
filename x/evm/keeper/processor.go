@@ -17,9 +17,9 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/api/tendermint/abci"
 	"github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
