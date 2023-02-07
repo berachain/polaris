@@ -23,6 +23,7 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugin/state/events"
+	"github.com/berachain/stargazer/x/evm/plugin/state/events/mock"
 	"github.com/berachain/stargazer/x/evm/precompile"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,7 +41,9 @@ var _ = Describe("cosmos runner", func() {
 		cr = precompile.NewCosmosRunner()
 		ldb = &mockLDB{}
 		ctx = testutil.NewContext()
-		ctx = ctx.WithEventManager(events.NewManagerFrom(ctx.EventManager()))
+		ctx = ctx.WithEventManager(
+			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
+		)
 	})
 
 	It("should use correctly consume gas", func() {

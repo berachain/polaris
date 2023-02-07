@@ -73,8 +73,8 @@ type statePlugin struct {
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
 	cms ControllableMultiStore
 
-	// // Store a reference to the event manager, in `ctx` so that we can set the Eth logs plugin.
-	// cem ControllableEventManager
+	// Store a reference to the Precompile Log Factory, which builds Eth logs from Cosmos events
+	plf events.PrecompileLogFactory
 
 	// Store the evm store key for quick lookups to the evm store
 	evmStoreKey storetypes.StoreKey
@@ -103,9 +103,12 @@ func NewPlugin(
 		evmDenom:    evmDenom,
 	}
 
+	// TODO: setup the PrecompileLogFactory here? or higher up?
+	sp.plf = nil
+
 	// setup the Controllable MultiStore and EventManager and attach them to the context
 	sp.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
-	cem := events.NewManagerFrom(ctx.EventManager())
+	cem := events.NewManagerFrom(ctx.EventManager(), sp.plf)
 	sp.ctx = ctx.WithMultiStore(sp.cms).WithEventManager(cem)
 
 	// setup the snapshot controller
@@ -122,7 +125,7 @@ func (sp *statePlugin) Reset(ctx context.Context) {
 	// reset the Controllable MultiStore and EventManager and attach them to the context
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	sp.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
-	cem := events.NewManagerFrom(sdkCtx.EventManager())
+	cem := events.NewManagerFrom(sdkCtx.EventManager(), sp.plf)
 	sp.ctx = sdkCtx.WithMultiStore(sp.cms).WithEventManager(cem)
 }
 

@@ -18,6 +18,7 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugin/state/events"
+	"github.com/berachain/stargazer/x/evm/plugin/state/events/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -35,7 +36,7 @@ var _ = Describe("Manager", func() {
 		ctx.EventManager().EmitEvent(sdk.NewEvent("1"))
 
 		// sdb setup
-		cem = events.NewManagerFrom(ctx.EventManager())
+		cem = events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory())
 
 		// check the controllable event manager is hooked up to context
 		Expect(len(ctx.EventManager().Events())).To(Equal(1))

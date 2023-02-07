@@ -59,7 +59,8 @@ type (
 		// `TransferBalance` transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
 
-		// `BuildLogsAndClear` builds the logs for the tx with the given metadata.
+		// `BuildLogsAndClear` builds the logs for the tx with the given metadata. NOTE: must be
+		// called after `Finalize`.
 		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
 	}
 

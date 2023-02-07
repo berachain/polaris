@@ -87,8 +87,8 @@ func (cr *CosmosRunner) Run(
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager()) // TODO: this panics!
-	cem.BeginPrecompileExecution(ldb)
+	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager()) // TODO: okay to panic here?
+	cem.BeginPrecompileExecution(ldb, sdkCtx.Logger())
 
 	// run precompile container
 	ret, err := pc.Run(
