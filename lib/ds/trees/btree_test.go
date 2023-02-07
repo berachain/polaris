@@ -29,7 +29,7 @@ import (
 
 func TestSuite(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cachekv/internal")
+	RunSpecs(t, "lib/ds/trees")
 }
 
 var _ = Describe("GetSetDelete", func() {
