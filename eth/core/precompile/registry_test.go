@@ -20,7 +20,6 @@ import (
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/core/precompile/container"
-	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/lib/common"
@@ -138,10 +137,10 @@ func getOutput(
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) ([]any, []*types.Log, error) {
+) ([]any, error) {
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, nil, errors.New("cast error")
+		return nil, errors.New("cast error")
 	}
 
 	return []any{
@@ -151,5 +150,5 @@ func getOutput(
 				TimeStamp:      str,
 			},
 		},
-	}, nil, nil
+	}, nil
 }

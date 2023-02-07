@@ -27,7 +27,7 @@ import (
 // as Eth logs.
 type ControllableEventManager interface {
 	libtypes.Controllable[string]
-	sdk.EventManager
+	sdk.EventManagerI
 	BeginPrecompileExecution(vm.LogsDB)
 	EndPrecompileExecution()
 }

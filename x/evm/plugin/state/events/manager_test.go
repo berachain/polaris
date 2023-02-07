@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Controllable Manager", func() {
+var _ = Describe("Manager", func() {
 	var cem libtypes.Controllable[string]
 	var ctx sdk.Context
 

@@ -21,7 +21,6 @@ import (
 	"reflect"
 
 	"github.com/berachain/stargazer/eth/core/precompile/container"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
@@ -41,13 +40,11 @@ var _ = Describe("Stateful Container", func() {
 	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
-	var sdb *mockSdb
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext()
 		sc = container.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		empty = container.NewStateful(nil, nil)
-		sdb = &mockSdb{nil, 0}
 	})
 
 	Describe("Test Required Gas", func() {
@@ -116,7 +113,6 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err).To(BeNil())
 			ret, err := sc.Run(ctx, append(getOutputABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(BeNil())
-			Expect(sdb.count).To(Equal(2))
 			outputs, err := getOutputABI.Outputs.Unpack(ret)
 			Expect(err).To(BeNil())
 			Expect(len(outputs)).To(Equal(1))
@@ -165,15 +161,6 @@ var (
 	}
 )
 
-type mockSdb struct {
-	vm.StargazerStateDB
-	count int
-}
-
-func (ms *mockSdb) AddLog(log *coretypes.Log) {
-	ms.count++
-}
-
 type mockObject struct {
 	CreationHeight *big.Int
 	TimeStamp      string
@@ -185,10 +172,10 @@ func getOutput(
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) ([]any, []*coretypes.Log, error) {
+) ([]any, error) {
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, nil, errors.New("cast error")
+		return nil, errors.New("cast error")
 	}
 	return []any{
 		[]mockObject{
@@ -197,7 +184,7 @@ func getOutput(
 				TimeStamp:      str,
 			},
 		},
-	}, []*coretypes.Log{{}, {}}, nil
+	}, nil
 }
 
 func getOutputPartial(
@@ -206,8 +193,8 @@ func getOutputPartial(
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) ([]any, []*coretypes.Log, error) {
-	return nil, nil, errors.New("err during precompile execution")
+) ([]any, error) {
+	return nil, errors.New("err during precompile execution")
 }
 
 func contractFuncAddrInput(
@@ -216,12 +203,12 @@ func contractFuncAddrInput(
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) ([]any, []*coretypes.Log, error) {
+) ([]any, error) {
 	_, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, nil, errors.New("cast error")
+		return nil, errors.New("cast error")
 	}
-	return []any{"invalid - should be *big.Int here"}, nil, nil
+	return []any{"invalid - should be *big.Int here"}, nil
 }
 
 func contractFuncStrInput(
@@ -230,11 +217,11 @@ func contractFuncStrInput(
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) ([]any, []*coretypes.Log, error) {
+) ([]any, error) {
 	addr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, nil, errors.New("cast error")
+		return nil, errors.New("cast error")
 	}
 	ans := big.NewInt(int64(len(addr)))
-	return []any{ans}, nil, nil
+	return []any{ans}, nil
 }

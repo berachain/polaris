@@ -18,10 +18,11 @@ import (
 	"context"
 	"math/big"
 
-	ethstate "github.com/berachain/stargazer/eth/core/state"
-	pluginmock "github.com/berachain/stargazer/eth/core/state/plugin/mock"
+	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/testutil"
+	"github.com/berachain/stargazer/x/evm/plugin/state/events"
 	"github.com/berachain/stargazer/x/evm/precompile"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,21 +33,24 @@ import (
 
 var _ = Describe("cosmos runner", func() {
 	var cr *precompile.CosmosRunner
-	var lp ethstate.LogsPlugin
+	var ldb *mockLDB
+	var ctx sdk.Context
 
 	BeforeEach(func() {
 		cr = precompile.NewCosmosRunner()
-		lp = pluginmock.NewEmptyLogsPlugin()
+		ldb = &mockLDB{}
+		ctx = testutil.NewContext()
+		ctx = ctx.WithEventManager(events.NewManagerFrom(ctx.EventManager()))
 	})
 
 	It("should use correctly consume gas", func() {
-		_, remainingGas, err := cr.Run(sdk.Context{}, lp, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
+		_, remainingGas, err := cr.Run(ctx, ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
 		Expect(err).To(BeNil())
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 
 	It("should error on insufficient gas", func() {
-		_, _, err := cr.Run(sdk.Context{}, lp, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
+		_, _, err := cr.Run(ctx, ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
@@ -62,6 +66,12 @@ var _ = Describe("cosmos runner", func() {
 })
 
 // MOCKS BELOW.
+
+type mockLDB struct{}
+
+func (m *mockLDB) AddLog(*types.Log) {
+	// no-op
+}
 
 type mockStateless struct{}
 

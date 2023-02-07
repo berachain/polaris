@@ -37,8 +37,6 @@ type stateful struct {
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
 	// (geth abi format). Please check core/precompile/container/method.go for more information.
 	idsToMethods map[string]*Method
-	// `gsdb` is used to add logs.
-	gsdb vm.GethStateDB
 
 	// TODO: implement
 	// receive *Method
@@ -56,14 +54,6 @@ func NewStateful(
 	}
 }
 
-// `WithStateDB` sets the stateDB for the container.
-//
-// `WithStateDB` implements `PrecompileContainer`.
-func (sc *stateful) WithStateDB(gsdb vm.GethStateDB) vm.PrecompileContainer {
-	sc.gsdb = gsdb
-	return sc
-}
-
 // `Run` loads the corresponding precompile method for given input, executes it, and handles
 // output.
 //
@@ -77,9 +67,6 @@ func (sc *stateful) Run(
 ) ([]byte, error) {
 	if sc.idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
-	}
-	if sc.gsdb == nil {
-		return nil, ErrIncompatibleStateDB
 	}
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
@@ -98,7 +85,7 @@ func (sc *stateful) Run(
 	}
 
 	// Execute the method registered with the given signature with the given args.
-	vals, logs, err := method.Execute(
+	vals, err := method.Execute(
 		ctx,
 		caller,
 		value,
@@ -115,11 +102,6 @@ func (sc *stateful) Run(
 	ret, err := method.AbiMethod.Outputs.Pack(vals...)
 	if err != nil {
 		return nil, err
-	}
-
-	// Add the logs to the logdb if there are no errors in container execution.
-	for _, log := range logs {
-		sc.gsdb.AddLog(log)
 	}
 
 	return ret, nil

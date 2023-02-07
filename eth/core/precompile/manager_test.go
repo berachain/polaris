@@ -41,13 +41,12 @@ var _ = Describe("controller", func() {
 	})
 
 	It("should find and run", func() {
-		err := c.Reset(ctx)
-		Expect(err).To(BeNil())
+		c.Reset(ctx)
 
 		pc := c.Get(addr)
 		Expect(pc).ToNot(BeNil())
 
-		_, _, err = c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
+		_, _, err := c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
 		Expect(err).To(BeNil())
 		Expect(mr.called).To(BeTrue())
 	})
@@ -55,11 +54,6 @@ var _ = Describe("controller", func() {
 	It("should not find an unregistered", func() {
 		found := c.Has(common.BytesToAddress([]byte{2}))
 		Expect(found).To(BeFalse())
-	})
-
-	It("should error on incompatible context", func() {
-		err := c.Reset(nil) //nolint:staticcheck // only for tests.
-		Expect(err.Error()).To(Equal("the context passed in is nil"))
 	})
 })
 

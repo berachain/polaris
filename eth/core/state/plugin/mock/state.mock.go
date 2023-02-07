@@ -4,6 +4,7 @@
 package mock
 
 import (
+	"context"
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
@@ -62,14 +63,14 @@ var _ state.StatePlugin = &StatePluginMock{}
 //			RegistryKeyFunc: func() string {
 //				panic("mock out the RegistryKey method")
 //			},
+//			ResetFunc: func(contextMoqParam context.Context)  {
+//				panic("mock out the Reset method")
+//			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
 //			},
 //			SetCodeFunc: func(address common.Address, bytes []byte)  {
 //				panic("mock out the SetCode method")
-//			},
-//			SetLogsPluginFunc: func(logsPlugin state.LogsPlugin)  {
-//				panic("mock out the SetLogsPlugin method")
 //			},
 //			SetNonceFunc: func(address common.Address, v uint64)  {
 //				panic("mock out the SetNonce method")
@@ -135,14 +136,14 @@ type StatePluginMock struct {
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() string
 
+	// ResetFunc mocks the Reset method.
+	ResetFunc func(contextMoqParam context.Context)
+
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
 
 	// SetCodeFunc mocks the SetCode method.
 	SetCodeFunc func(address common.Address, bytes []byte)
-
-	// SetLogsPluginFunc mocks the SetLogsPlugin method.
-	SetLogsPluginFunc func(logsPlugin state.LogsPlugin)
 
 	// SetNonceFunc mocks the SetNonce method.
 	SetNonceFunc func(address common.Address, v uint64)
@@ -235,6 +236,11 @@ type StatePluginMock struct {
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
+		// Reset holds details about calls to the Reset method.
+		Reset []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
 			// N is the n argument value.
@@ -246,11 +252,6 @@ type StatePluginMock struct {
 			Address common.Address
 			// Bytes is the bytes argument value.
 			Bytes []byte
-		}
-		// SetLogsPlugin holds details about calls to the SetLogsPlugin method.
-		SetLogsPlugin []struct {
-			// LogsPlugin is the logsPlugin argument value.
-			LogsPlugin state.LogsPlugin
 		}
 		// SetNonce holds details about calls to the SetNonce method.
 		SetNonce []struct {
@@ -302,9 +303,9 @@ type StatePluginMock struct {
 	lockGetNonce          sync.RWMutex
 	lockGetState          sync.RWMutex
 	lockRegistryKey       sync.RWMutex
+	lockReset             sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
 	lockSetCode           sync.RWMutex
-	lockSetLogsPlugin     sync.RWMutex
 	lockSetNonce          sync.RWMutex
 	lockSetState          sync.RWMutex
 	lockSnapshot          sync.RWMutex
@@ -766,6 +767,38 @@ func (mock *StatePluginMock) RegistryKeyCalls() []struct {
 	return calls
 }
 
+// Reset calls ResetFunc.
+func (mock *StatePluginMock) Reset(contextMoqParam context.Context) {
+	if mock.ResetFunc == nil {
+		panic("StatePluginMock.ResetFunc: method is nil but StatePlugin.Reset was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
+	mock.lockReset.Lock()
+	mock.calls.Reset = append(mock.calls.Reset, callInfo)
+	mock.lockReset.Unlock()
+	mock.ResetFunc(contextMoqParam)
+}
+
+// ResetCalls gets all the calls that were made to Reset.
+// Check the length with:
+//
+//	len(mockedStatePlugin.ResetCalls())
+func (mock *StatePluginMock) ResetCalls() []struct {
+	ContextMoqParam context.Context
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+	}
+	mock.lockReset.RLock()
+	calls = mock.calls.Reset
+	mock.lockReset.RUnlock()
+	return calls
+}
+
 // RevertToSnapshot calls RevertToSnapshotFunc.
 func (mock *StatePluginMock) RevertToSnapshot(n int) {
 	if mock.RevertToSnapshotFunc == nil {
@@ -831,38 +864,6 @@ func (mock *StatePluginMock) SetCodeCalls() []struct {
 	mock.lockSetCode.RLock()
 	calls = mock.calls.SetCode
 	mock.lockSetCode.RUnlock()
-	return calls
-}
-
-// SetLogsPlugin calls SetLogsPluginFunc.
-func (mock *StatePluginMock) SetLogsPlugin(logsPlugin state.LogsPlugin) {
-	if mock.SetLogsPluginFunc == nil {
-		panic("StatePluginMock.SetLogsPluginFunc: method is nil but StatePlugin.SetLogsPlugin was just called")
-	}
-	callInfo := struct {
-		LogsPlugin state.LogsPlugin
-	}{
-		LogsPlugin: logsPlugin,
-	}
-	mock.lockSetLogsPlugin.Lock()
-	mock.calls.SetLogsPlugin = append(mock.calls.SetLogsPlugin, callInfo)
-	mock.lockSetLogsPlugin.Unlock()
-	mock.SetLogsPluginFunc(logsPlugin)
-}
-
-// SetLogsPluginCalls gets all the calls that were made to SetLogsPlugin.
-// Check the length with:
-//
-//	len(mockedStatePlugin.SetLogsPluginCalls())
-func (mock *StatePluginMock) SetLogsPluginCalls() []struct {
-	LogsPlugin state.LogsPlugin
-} {
-	var calls []struct {
-		LogsPlugin state.LogsPlugin
-	}
-	mock.lockSetLogsPlugin.RLock()
-	calls = mock.calls.SetLogsPlugin
-	mock.lockSetLogsPlugin.RUnlock()
 	return calls
 }
 

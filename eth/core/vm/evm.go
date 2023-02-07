@@ -15,8 +15,6 @@
 package vm
 
 import (
-	"context"
-
 	"github.com/berachain/stargazer/eth/params"
 )
 
@@ -42,11 +40,6 @@ func NewStargazerEVM(
 			blockCtx, txCtx, stateDB, chainConfig, config, pcmgr,
 		),
 	}
-}
-
-// MUST BE CALLED EVERY TIME THE EVM IS REUSED, I.E. BEFORE EVERY TRANSACTION.
-func (evm *stargazerEVM) ResetPrecompileManager(ctx context.Context) {
-	_ = evm.PrecompileManager.Reset(ctx)
 }
 
 func (evm *stargazerEVM) SetTxContext(txCtx TxContext) {

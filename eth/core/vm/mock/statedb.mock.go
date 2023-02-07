@@ -4,6 +4,7 @@
 package mock
 
 import (
+	"context"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -89,6 +90,9 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			},
 //			PrepareAccessListFunc: func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
 //				panic("mock out the PrepareAccessList method")
+//			},
+//			ResetFunc: func(contextMoqParam context.Context)  {
+//				panic("mock out the Reset method")
 //			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
@@ -195,6 +199,9 @@ type StargazerStateDBMock struct {
 
 	// PrepareAccessListFunc mocks the PrepareAccessList method.
 	PrepareAccessListFunc func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
+
+	// ResetFunc mocks the Reset method.
+	ResetFunc func(contextMoqParam context.Context)
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -363,6 +370,11 @@ type StargazerStateDBMock struct {
 			// TxAccesses is the txAccesses argument value.
 			TxAccesses types.AccessList
 		}
+		// Reset holds details about calls to the Reset method.
+		Reset []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
 			// N is the n argument value.
@@ -451,6 +463,7 @@ type StargazerStateDBMock struct {
 	lockGetState               sync.RWMutex
 	lockHasSuicided            sync.RWMutex
 	lockPrepareAccessList      sync.RWMutex
+	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
@@ -1234,6 +1247,38 @@ func (mock *StargazerStateDBMock) PrepareAccessListCalls() []struct {
 	mock.lockPrepareAccessList.RLock()
 	calls = mock.calls.PrepareAccessList
 	mock.lockPrepareAccessList.RUnlock()
+	return calls
+}
+
+// Reset calls ResetFunc.
+func (mock *StargazerStateDBMock) Reset(contextMoqParam context.Context) {
+	if mock.ResetFunc == nil {
+		panic("StargazerStateDBMock.ResetFunc: method is nil but StargazerStateDB.Reset was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
+	mock.lockReset.Lock()
+	mock.calls.Reset = append(mock.calls.Reset, callInfo)
+	mock.lockReset.Unlock()
+	mock.ResetFunc(contextMoqParam)
+}
+
+// ResetCalls gets all the calls that were made to Reset.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.ResetCalls())
+func (mock *StargazerStateDBMock) ResetCalls() []struct {
+	ContextMoqParam context.Context
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+	}
+	mock.lockReset.RLock()
+	calls = mock.calls.Reset
+	mock.lockReset.RUnlock()
 	return calls
 }
 

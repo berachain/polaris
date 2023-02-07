@@ -16,6 +16,7 @@ package events
 
 import (
 	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/lib/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -26,9 +27,11 @@ const (
 	managerRegistryKey  = `events`
 )
 
+// `Manager` is a controllable event manager that can be used to Cosmos events to the Eth logs
+// journal.
 type Manager struct {
 	// `EventManager` is the underlying Cosmos SDK event manager floating around on the context.
-	sdk.EventManager
+	*sdk.EventManager
 
 	// semaphore chan struct{}
 
@@ -37,9 +40,9 @@ type Manager struct {
 }
 
 // `NewManager` creates and returns a controllable event manager from the given Cosmos SDK context.
-func NewManagerFrom(em sdk.EventManager) *Manager {
+func NewManagerFrom(em sdk.EventManagerI) *Manager {
 	return &Manager{
-		EventManager: em,
+		EventManager: utils.MustGetAs[*sdk.EventManager](em),
 	}
 }
 
@@ -89,11 +92,15 @@ func (m *Manager) Snapshot() int {
 
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (m *Manager) RevertToSnapshot(id int) {
-	temp := m.Events()
-	m.EventManager = sdk.NewEventManager()
+	// only get the events up to the snapshot id
+	revertTo := m.Events()[:id]
+
+	// modify the EventManager on the underlying Cosmos SDK context
+	*m.EventManager = *sdk.NewEventManager()
+
 	// don't add to the logs journal again as the Eth logs plugin will do that, so use the
 	// underlying EventManager to reset the events.
-	m.EventManager.EmitEvents(temp[:id])
+	m.EventManager.EmitEvents(revertTo)
 }
 
 // `Finalize` implements `libtypes.Finalizable`.
