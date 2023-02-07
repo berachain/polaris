@@ -49,7 +49,7 @@ func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []ab
 	if err != nil {
 		panic(err)
 	}
-	err = k.StoreStargazerBlock(sCtx, stargazerBlock)
+	err = k.SetStargazerBlockForCurrentHeight(sCtx, stargazerBlock)
 	if err != nil {
 		panic(err)
 	}

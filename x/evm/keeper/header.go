@@ -30,14 +30,10 @@ import (
 func (k *Keeper) StargazerHeaderAtHeight(ctx context.Context, height uint64) *types.StargazerHeader {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	if sCtx.BlockHeight() == int64(height) {
-		// TODO: right now logs bloom is empty and basefee is nil as this is only used for the
-		// creating the evm context, which doesn't need the bloom or basefee. If we need to
-		// use this for other purposes, we need to update this.
-		stargazerBlock, _ := k.GetStargazerBlock(sCtx)
-		return k.EthHeaderFromSdkContext(sCtx, stargazerBlock.Bloom, nil)
+		return k.EthHeaderFromSdkContext(sCtx, types.Bloom{}, nil)
 	}
-	// // Todo: handle handle historical for BLOCKHASH OPCODE
-	return &types.StargazerHeader{}
+	stargazerBlock, _ := k.GetStargazerBlockAtHeight(sCtx, height)
+	return stargazerBlock.StargazerHeader
 }
 
 // `EthHeaderFromSdkContext` builds an ethereum style block header from an `sdk.Context`, `Bloom` and `baseFee`.

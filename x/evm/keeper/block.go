@@ -21,28 +21,40 @@ import (
 )
 
 // `MustStoreStargazerBlock` saves a block to the store.
-func (k *Keeper) StoreStargazerBlock(ctx sdk.Context, block *types.StargazerBlock) error {
+func (k *Keeper) SetStargazerBlockForCurrentHeight(
+	ctx sdk.Context,
+	block *types.StargazerBlock,
+) error {
 	store := ctx.KVStore(k.storeKey)
 	bz, err := block.MarshalBinary()
 	if err != nil {
 		return err
 	}
 	store.Set(storage.BlockKey(), bz)
-
 	return nil
 }
 
-// `GetStargazerBlock` returns the block from the store at the height specified in the
-// context.
-func (k *Keeper) GetStargazerBlock(ctx sdk.Context) (*types.StargazerBlock, error) {
-	store := ctx.KVStore(k.storeKey)
+// `GetStargazerBlock` returns the block from the store at the height specified in the context.
+func (k *Keeper) GetStargazerBlockAtHeight(
+	ctx sdk.Context,
+	blockNumber uint64,
+) (*types.StargazerBlock, error) {
+	// Retrieve multi-store at the given height.
+	cms, err := ctx.MultiStore().CacheMultiStoreWithVersion(int64(blockNumber))
+	if err != nil {
+		return nil, err
+	}
+
+	// Retrieve the value of the store at the given height.
+	store := ctx.WithMultiStore(cms).KVStore(k.storeKey)
 	bz := store.Get(storage.BlockKey())
 	if bz == nil {
 		return nil, ErrBlockNotFound
 	}
 
+	// Unmarshal the retrieved block.
 	block := new(types.StargazerBlock)
-	if err := block.UnmarshalBinary(bz); err != nil {
+	if err = block.UnmarshalBinary(bz); err != nil {
 		return nil, err
 	}
 	return block, nil
