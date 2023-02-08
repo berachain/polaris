@@ -34,7 +34,7 @@ type StateProcessor struct {
 	host StargazerHostChain
 
 	// Contextual Variables (updated once per block)
-	// signer types.Signer
+	signer  types.Signer
 	config  *params.EthChainConfig
 	vmf     *vm.EVMFactory
 	evm     vm.StargazerEVM
@@ -69,6 +69,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	sp.transactions = types.Transactions{}
 	// todo: use a real state db
 	sp.statedb = vmmock.NewEmptyStateDB()
+	sp.signer = types.MakeSigner(sp.config, sp.blockHeader.Number)
 
 	// Build a new EVM to use for this block.
 	sp.evm = sp.vmf.Build(
@@ -88,7 +89,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
-	msg, err := tx.AsMessage(types.MakeSigner(sp.config, sp.blockHeader.Number), sp.blockHeader.BaseFee)
+	msg, err := tx.AsMessage(sp.signer, sp.blockHeader.BaseFee)
 	if err != nil {
 		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
