@@ -154,7 +154,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	)
 
 	// Ensure that the intrinsic gas is consumed.
-	if err := st.ConsumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
+	if err := st.consumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
 		return nil, err
 	}
 
@@ -277,9 +277,9 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	// gas fee deduction in the AnteHandler, as the native state transition does that.
 }
 
-// `EthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
+// `consumeEthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
 // its given data.
-func (st *StateTransition) ConsumeEthIntrinsicGas(
+func (st *StateTransition) consumeEthIntrinsicGas(
 	isContractCreation bool, isHomestead, isEIP2028 bool,
 ) error {
 	var gas uint64
@@ -329,6 +329,7 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 		gas += uint64(accessList.StorageKeys()) * params.TxAccessListStorageKeyGas
 	}
 
+	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
 	if err := st.gp.ConsumeGas(gas); err != nil {
 		return fmt.Errorf("%w: have %d, want %d", core.ErrIntrinsicGas, st.gp.GasRemaining(), gas)
 	}
