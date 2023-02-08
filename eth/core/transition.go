@@ -152,11 +152,17 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		contractCreation = st.msg.To() == nil
 	)
 
-	// Consume the starting gas for the raw transaction
+	// Consume the starting gas for the raw transaction.
 	if contractCreation && rules.IsHomestead {
-		st.gp.ConsumeGas(params.TxGasContractCreation)
+		err := st.gp.ConsumeGas(params.TxGasContractCreation)
+		if err != nil {
+			return nil, err
+		}
 	} else {
-		st.gp.ConsumeGas(params.TxGas)
+		err := st.gp.ConsumeGas(params.TxGas)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	intrinsicGas, err := st.EthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul)
