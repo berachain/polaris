@@ -27,5 +27,5 @@ type StargazerHostChain interface {
 	StargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
 
 	// `CumulativeGasUsed` returns the cumulative gas used at the given point in time.
-	CumulativeGasUsed(context.Context) uint64
+	CumulativeGasUsed(context.Context, uint64) uint64
 }

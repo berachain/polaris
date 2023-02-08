@@ -60,8 +60,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // `CumulativeGasUsed` returns the cumulative gas used in the current block.
-func (k *Keeper) CumulativeGasUsed(ctx context.Context) uint64 {
-	var cumulativeGasUsed uint64
+func (k *Keeper) CumulativeGasUsed(ctx context.Context, gasUsed uint64) uint64 {
+	cumulativeGasUsed := gasUsed
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	if sCtx.BlockGasMeter() != nil {
 		limit := sCtx.BlockGasMeter().Limit()

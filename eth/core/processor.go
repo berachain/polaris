@@ -107,7 +107,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
 		PostState:         nil, // TODO: Should we do something with PostState?
-		CumulativeGasUsed: sp.host.CumulativeGasUsed(ctx) + result.UsedGas,
+		CumulativeGasUsed: sp.host.CumulativeGasUsed(ctx, result.UsedGas),
 		TxHash:            tx.Hash(),
 		GasUsed:           result.UsedGas,
 		BlockHash:         sp.blockHeader.Hash(),
@@ -131,7 +131,6 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	)
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 	receipt.TransactionIndex = uint(len(sp.transactions))
-
 	// Update the block information.
 	sp.transactions = append(sp.transactions, tx)
 	sp.receipts = append(sp.receipts, receipt)
@@ -141,7 +140,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (*types.StargazerBlock, error) {
 	// Update the block header with information regarding the final state of the block.
-	sp.blockHeader.GasUsed = sp.host.CumulativeGasUsed(ctx)
+	sp.blockHeader.GasUsed = sp.host.CumulativeGasUsed(ctx, 0)
 	sp.blockHeader.Bloom = types.CreateBloom(sp.receipts)
 
 	// Return a finalized block.
