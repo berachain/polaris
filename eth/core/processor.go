@@ -40,7 +40,7 @@ type StateProcessor struct {
 	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
 
-	// `blockHash` of the current block being processed
+	// `blockHeader` of the current block being processed
 	blockHeader *types.StargazerHeader
 	// `receipts` of the current block being processed
 	receipts types.Receipts
@@ -67,7 +67,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 	sp.receipts = types.Receipts{}
 	sp.transactions = types.Transactions{}
-
+	// todo: use a real state db
 	sp.statedb = vmmock.NewEmptyStateDB()
 
 	// Build a new EVM to use for this block.
