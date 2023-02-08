@@ -156,8 +156,8 @@ var _ = Describe("Factory", func() {
 
 			badCvd = make(ValueDecoders)
 			badCvd["custom_validator"] = func(val string) (any, error) {
-				valAddress, err := sdk.ValAddressFromBech32(val)
-				if err != nil {
+				valAddress, err2 := sdk.ValAddressFromBech32(val)
+				if err2 != nil {
 					return nil, err
 				}
 				return common.ValAddressToEthAddress(valAddress), nil
