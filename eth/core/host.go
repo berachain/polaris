@@ -25,4 +25,7 @@ import (
 type StargazerHostChain interface {
 	// `StargazerHeaderAtHeight` returns the StargazerHeader at the given height.
 	StargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
+
+	// `CumulativeGasUsed` returns the cumulative gas used at the given point in time.
+	CumulativeGasUsed(context.Context) uint64
 }

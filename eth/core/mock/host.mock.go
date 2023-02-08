@@ -20,6 +20,9 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //
 //		// make and configure a mocked core.StargazerHostChain
 //		mockedStargazerHostChain := &StargazerHostChainMock{
+//			CumulativeGasUsedFunc: func(contextMoqParam context.Context) uint64 {
+//				panic("mock out the CumulativeGasUsed method")
+//			},
 //			StargazerHeaderAtHeightFunc: func(contextMoqParam context.Context, v uint64) *types.StargazerHeader {
 //				panic("mock out the StargazerHeaderAtHeight method")
 //			},
@@ -30,11 +33,19 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //
 //	}
 type StargazerHostChainMock struct {
+	// CumulativeGasUsedFunc mocks the CumulativeGasUsed method.
+	CumulativeGasUsedFunc func(contextMoqParam context.Context) uint64
+
 	// StargazerHeaderAtHeightFunc mocks the StargazerHeaderAtHeight method.
 	StargazerHeaderAtHeightFunc func(contextMoqParam context.Context, v uint64) *types.StargazerHeader
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// CumulativeGasUsed holds details about calls to the CumulativeGasUsed method.
+		CumulativeGasUsed []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+		}
 		// StargazerHeaderAtHeight holds details about calls to the StargazerHeaderAtHeight method.
 		StargazerHeaderAtHeight []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -43,7 +54,40 @@ type StargazerHostChainMock struct {
 			V uint64
 		}
 	}
+	lockCumulativeGasUsed       sync.RWMutex
 	lockStargazerHeaderAtHeight sync.RWMutex
+}
+
+// CumulativeGasUsed calls CumulativeGasUsedFunc.
+func (mock *StargazerHostChainMock) CumulativeGasUsed(contextMoqParam context.Context) uint64 {
+	if mock.CumulativeGasUsedFunc == nil {
+		panic("StargazerHostChainMock.CumulativeGasUsedFunc: method is nil but StargazerHostChain.CumulativeGasUsed was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
+	mock.lockCumulativeGasUsed.Lock()
+	mock.calls.CumulativeGasUsed = append(mock.calls.CumulativeGasUsed, callInfo)
+	mock.lockCumulativeGasUsed.Unlock()
+	return mock.CumulativeGasUsedFunc(contextMoqParam)
+}
+
+// CumulativeGasUsedCalls gets all the calls that were made to CumulativeGasUsed.
+// Check the length with:
+//
+//	len(mockedStargazerHostChain.CumulativeGasUsedCalls())
+func (mock *StargazerHostChainMock) CumulativeGasUsedCalls() []struct {
+	ContextMoqParam context.Context
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+	}
+	mock.lockCumulativeGasUsed.RLock()
+	calls = mock.calls.CumulativeGasUsed
+	mock.lockCumulativeGasUsed.RUnlock()
+	return calls
 }
 
 // StargazerHeaderAtHeight calls StargazerHeaderAtHeightFunc.

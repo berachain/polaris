@@ -38,6 +38,9 @@ func NewMockHost() *StargazerHostChainMock {
 				CachedHash: common.Hash{123},
 			}
 		},
+		CumulativeGasUsedFunc: func(contextMoqParam context.Context) uint64 {
+			return 0
+		},
 	}
 	return mockedStargazerHostChain
 }

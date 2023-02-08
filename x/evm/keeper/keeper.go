@@ -15,6 +15,8 @@
 package keeper
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/eth/core"
@@ -55,4 +57,19 @@ func NewKeeper(
 // `Logger` returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", constants.EvmNamespace)
+}
+
+// `CumulativeGasUsed` returns the cumulative gas used in the current block.
+func (k *Keeper) CumulativeGasUsed(ctx context.Context) uint64 {
+	var cumulativeGasUsed uint64
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	if sCtx.BlockGasMeter() != nil {
+		limit := sCtx.BlockGasMeter().Limit()
+		cumulativeGasUsed += sCtx.BlockGasMeter().GasConsumed()
+		if cumulativeGasUsed > limit {
+			cumulativeGasUsed = limit
+		}
+	}
+
+	return cumulativeGasUsed
 }
