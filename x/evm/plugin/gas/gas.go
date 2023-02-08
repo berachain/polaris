@@ -51,7 +51,9 @@ func (p *Plugin) Setup() error {
 func (p *Plugin) SetGasLimit(gas uint64) error {
 	// Copy the current gas consumed and reset the gas meter.
 	consumed := p.gasMeter.GasConsumed()
+	// The gas meter is reset to the new limit.
 	p.gasMeter = types.NewGasMeter(gas)
+	// Re-consume the gas that was already consumed.
 	return p.ConsumeGas(consumed)
 }
 
