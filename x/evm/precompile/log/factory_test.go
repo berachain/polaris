@@ -15,6 +15,7 @@
 package log
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/berachain/stargazer/eth/types/abi"
@@ -131,7 +132,47 @@ var _ = Describe("Factory", func() {
 			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: invalid_arg"))
 		})
 
+		It("should error on decoders returning errors", func() {
+			badCvd := make(ValueDecoders)
+			badCvd["custom_amount"] = func(val string) (any, error) {
+				coin, err := sdk.ParseCoinNormalized(val)
+				if err != nil {
+					return nil, err
+				}
+				return coin.Amount.BigInt(), nil
+			}
+			badCvd["custom_validator"] = func(val string) (any, error) {
+				return nil, errors.New("invalid validator address")
+			}
+			f.RegisterEvent(common.BytesToAddress([]byte{0x03}), mockCustomAbiEvent(), badCvd)
+			event := sdk.NewEvent(
+				"custom_unbonding_delegation",
+				sdk.NewAttribute("custom_validator", valAddr.String()),
+				sdk.NewAttribute("custom_amount", amt.String()),
+			)
+			log, err := f.Build(&event)
+			Expect(log).To(BeNil())
+			Expect(err.Error()).To(Equal("invalid validator address"))
+
+			badCvd = make(ValueDecoders)
+			badCvd["custom_validator"] = func(val string) (any, error) {
+				valAddress, err := sdk.ValAddressFromBech32(val)
+				if err != nil {
+					return nil, err
+				}
+				return common.ValAddressToEthAddress(valAddress), nil
+			}
+			badCvd["custom_amount"] = func(val string) (any, error) {
+				return nil, errors.New("invalid amount")
+			}
+			f.RegisterEvent(common.BytesToAddress([]byte{0x03}), mockCustomAbiEvent(), badCvd)
+			log, err = f.Build(&event)
+			Expect(log).To(BeNil())
+			Expect(err.Error()).To(Equal("invalid amount"))
+		})
+
 		It("should not find attribute key", func() {
+			f.RegisterEvent(common.BytesToAddress([]byte{0x03}), mockCustomAbiEvent(), cvd)
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
