@@ -32,10 +32,9 @@ type (
 )
 
 var (
-	MakeTopics  = abi.MakeTopics
-	NewEvent    = abi.NewEvent
-	NewType     = abi.NewType
-	ToCamelCase = abi.ToCamelCase
+	MakeTopics = abi.MakeTopics
+	NewEvent   = abi.NewEvent
+	NewType    = abi.NewType
 )
 
 // `ToMixedCase` converts a under_score formatted string to mixedCase format (camelCase with the
@@ -50,9 +49,22 @@ func ToMixedCase(input string) string {
 	return strings.Join(parts, "")
 }
 
+// `ToUnderScore` converts a mixedCase formatted string to under_score format. This function is
+// inspired by the geth `abi.ToCamelCase` function, but has the opposite behavior.
+func ToUnderScore(input string) string {
+	var output string
+	for i, s := range input {
+		if i > 0 && s >= 'A' && s <= 'Z' {
+			output += "_"
+		}
+		output += string(s)
+	}
+	return strings.ToLower(output)
+}
+
 // `GetIndexed` extracts indexed arguments from a set of arguments. Will panic if more than 3
 // indexed arguments are provided by the inputs ABI.
-func GetIndexed(args abi.Arguments) (abi.Arguments, error) {
+func GetIndexed(args abi.Arguments) abi.Arguments {
 	var indexed abi.Arguments
 	for _, arg := range args {
 		if arg.Indexed {
@@ -61,8 +73,8 @@ func GetIndexed(args abi.Arguments) (abi.Arguments, error) {
 	}
 
 	if len(indexed) > maxIndexedArgs {
-		return nil, ErrTooManyIndexedArgs
+		panic(ErrTooManyIndexedArgs)
 	}
 
-	return indexed, nil
+	return indexed
 }

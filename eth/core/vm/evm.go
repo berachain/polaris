@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -15,8 +15,6 @@
 package vm
 
 import (
-	"context"
-
 	"github.com/berachain/stargazer/eth/params"
 )
 
@@ -42,11 +40,6 @@ func NewStargazerEVM(
 			blockCtx, txCtx, stateDB, chainConfig, config, pcmgr,
 		),
 	}
-}
-
-// MUST BE SET before starting the state transition.
-func (evm *stargazerEVM) SetPrecompileManagerContext(ctx context.Context) {
-	_ = evm.PrecompileManager.PrepareForStateTransition(ctx)
 }
 
 func (evm *stargazerEVM) SetTxContext(txCtx TxContext) {

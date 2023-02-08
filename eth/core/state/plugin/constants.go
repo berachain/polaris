@@ -21,6 +21,4 @@ const (
 	refundRegistryKey = `refund`
 	// `logsRegistryKey` is the registry key for the logs plugin.
 	logsRegistryKey = `logs`
-	// `maxUint` is used to check that a uint does not underflow.
-	maxUint = ^uint(0)
 )

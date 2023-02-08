@@ -29,23 +29,24 @@ var _ = Describe("controller", func() {
 	var c *manager
 	var mr *mockRunner
 	var ctx context.Context
+	var ms *mockSdb
 
 	BeforeEach(func() {
 		mr = &mockRunner{}
+		ms = &mockSdb{}
 		ctx = context.Background()
-		c = utils.MustGetAs[*manager](NewManager(mr))
+		c = utils.MustGetAs[*manager](NewManager(mr, ms))
 		err := c.Register(&mockStateless{})
 		Expect(err).To(BeNil())
 	})
 
 	It("should find and run", func() {
-		err := c.PrepareForStateTransition(ctx)
-		Expect(err).To(BeNil())
+		c.Reset(ctx)
 
 		pc := c.Get(addr)
 		Expect(pc).ToNot(BeNil())
 
-		_, _, err = c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
+		_, _, err := c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
 		Expect(err).To(BeNil())
 		Expect(mr.called).To(BeTrue())
 	})
@@ -53,11 +54,6 @@ var _ = Describe("controller", func() {
 	It("should not find an unregistered", func() {
 		found := c.Has(common.BytesToAddress([]byte{2}))
 		Expect(found).To(BeFalse())
-	})
-
-	It("should error on incompatible context", func() {
-		err := c.PrepareForStateTransition(nil) //nolint:staticcheck // only for tests.
-		Expect(err.Error()).To(Equal("the context passed in is nil"))
 	})
 })
 
@@ -68,9 +64,36 @@ type mockRunner struct {
 }
 
 func (mr *mockRunner) Run(
-	ctx context.Context, pc vm.PrecompileContainer, input []byte,
+	ctx context.Context, ldb LogsDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	mr.called = true
 	return nil, 0, nil
+}
+
+type mockSdb struct {
+	vm.StargazerStateDB
+}
+
+type mockBase struct{}
+
+var addr = common.BytesToAddress([]byte{1})
+
+func (mb *mockBase) RegistryKey() common.Address {
+	return addr
+}
+
+type mockStateless struct {
+	*mockBase
+}
+
+func (ms *mockStateless) RequiredGas(input []byte) uint64 {
+	return 0
+}
+
+func (ms *mockStateless) Run(
+	ctx context.Context, input []byte,
+	caller common.Address, value *big.Int, readonly bool,
+) ([]byte, error) {
+	return nil, nil
 }

@@ -12,16 +12,15 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state_test
+package events
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func TestState(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state")
+// `PrecompileLogFactory` is used to build an Ethereum log from a Cosmos event.
+type PrecompileLogFactory interface {
+	// `Build` builds an Ethereum log from a Cosmos event.
+	Build(*sdk.Event) (*coretypes.Log, error)
 }

@@ -69,4 +69,6 @@ func (r *refund) RevertToSnapshot(id int) {
 }
 
 // `Finalize` implements `libtypes.Controllable`.
-func (r *refund) Finalize() {}
+func (r *refund) Finalize() {
+	r.Stack = stack.New[uint64](initJournalCapacity)
+}

@@ -15,6 +15,8 @@
 package plugin
 
 import (
+	"math"
+
 	"github.com/berachain/stargazer/eth/core/state"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
@@ -54,7 +56,7 @@ func (l *logs) BuildLogsAndClear(
 ) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
-	for i := uint(size) - 1; i < maxUint; i-- {
+	for i := uint(size) - 1; i < math.MaxUint; i-- {
 		buf[i] = l.Pop()
 		buf[i].TxHash = txHash
 		buf[i].BlockHash = blockHash
@@ -79,4 +81,6 @@ func (l *logs) RevertToSnapshot(id int) {
 }
 
 // `Finalize` implements `libtypes.Controllable`.
-func (l *logs) Finalize() {}
+func (l *logs) Finalize() {
+	l.Stack = stack.New[*coretypes.Log](initJournalCapacity)
+}

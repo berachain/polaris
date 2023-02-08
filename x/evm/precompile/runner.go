@@ -18,17 +18,20 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/x/evm/plugin/state"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
 // Compile-time assertion to ensure `CosmosRunner` adheres to `vm.PrecompileRunner`.
-var _ vm.PrecompileRunner = (*CosmosRunner)(nil)
+var _ precompile.Runner = (*CosmosRunner)(nil)
 
-// `CosmosRunner` runs precompile containers in a Cosmos environment for a given context.
+// `CosmosRunner` runs precompile containers in a Cosmos environment with the given gas configs.
 type CosmosRunner struct {
 	// `kvGasConfig` is the gas config for execution of kv store operations in native precompiles.
 	kvGasConfig *sdk.GasConfig
@@ -74,7 +77,7 @@ func (cr *CosmosRunner) SetTransientKVGasConfig(transientKVGasConfig *sdk.GasCon
 //
 // `Run` implements `vm.PrecompileRunner`.
 func (cr *CosmosRunner) Run(
-	ctx context.Context, pc vm.PrecompileContainer, input []byte,
+	ctx context.Context, ldb precompile.LogsDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
@@ -82,9 +85,14 @@ func (cr *CosmosRunner) Run(
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
+	// begin precompile execution => begin emitting Cosmos event as Eth logs
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager()) // TODO: okay to panic here?
+	cem.BeginPrecompileExecution(ldb)
+
 	// run precompile container
 	ret, err := pc.Run(
-		sdk.UnwrapSDKContext(ctx).
+		sdkCtx.
 			WithGasMeter(gm).
 			WithKVGasConfig(*cr.kvGasConfig).
 			WithTransientKVGasConfig(*cr.transientKVGasConfig),
@@ -93,6 +101,9 @@ func (cr *CosmosRunner) Run(
 		value,
 		readonly,
 	)
+
+	// end precompile execution => stop emitting Cosmos event as Eth logs
+	cem.EndPrecompileExecution()
 
 	// handle overconsumption of gas
 	if gm.GasConsumed() > suppliedGas {
