@@ -263,91 +263,14 @@ var _ = Describe("State Plugin", func() {
 				It("should exist", func() {
 					Expect(sp.Exist(alice)).To(BeTrue())
 				})
-				// When("suicided", func() {
-				// 	BeforeEach(func() {
-				// 		// Only contracts can be suicided
-				// 		sp.SetCode(alice, []byte("code"))
-				// 		Expect(sp.Suicide(alice)).To(BeTrue())
-				// 	})
-				// 	It("should still exist", func() {
-				// 		Expect(sp.Exist(alice)).To(BeTrue())
-				// 	})
-				// 	When("commit", func() {
-				// 		BeforeEach(func() {
-				// 			Expect(sp.Finalize()).To(BeNil())
-				// 		})
-				// 		It("should not exist", func() {
-				// 			Expect(sp.Exist(alice)).To(BeFalse())
-				// 		})
-				// 	})
-				// })
 			})
 		})
 
-		// Describe("TestReset", func() {
-		// 	BeforeEach(func() {
-		// 		sp.AddRefund(1000)
-		// 		sp.AddLog(&coretypes.Log{})
-		// 		sp.Prepare(common.Hash{1}, 3)
-
-		// 		sp.CreateAccount(alice)
-		// 		sp.SetCode(alice, []byte("code"))
-		// 		sp.Suicide(alice)
-		// 	})
-		// 	It("should have reset state", func() {
-		// 		sp.Reset(ctx)
-		// 		Expect(sp.GetNonce(alice)).To(Equal(uint64(0)))
-		// 		Expect(sp.Logs()).To(BeNil())
-		// 		Expect(sp.GetRefund()).To(Equal(uint64(0)))
-		// 		Expect(sp.GetSavedErr()).To(BeNil())
-		// 		Expect(sp.HasSuicided(alice)).To(BeFalse())
-		// 		// TODO: check the txhash and blockhash stuff
-		// 		Expect(sp, state.NewStateDB(ctx, ak, bk, testutil.EvmKey, "bera"))
-		// 	})
-		// })
-
-		// Describe("TestEmpty", func() {
-		// 	When("account does not exist", func() {
-		// 		It("should return true", func() {
-		// 			Expect(sp.Empty(alice)).To(BeTrue())
-		// 		})
-		// 	})
-		// 	When("account exists", func() {
-		// 		BeforeEach(func() {
-		// 			sp.CreateAccount(alice)
-		// 		})
-		// 		It("new account", func() {
-		// 			Expect(sp.Empty(alice)).To(BeTrue())
-		// 		})
-		// 		It("has a balance", func() {
-		// 			sp.AddBalance(alice, big.NewInt(1))
-		// 			Expect(sp.Empty(alice)).To(BeFalse())
-		// 		})
-		// 		It("has a nonce", func() {
-		// 			sp.SetNonce(alice, 1)
-		// 			Expect(sp.Empty(alice)).To(BeFalse())
-		// 		})
-		// 		It("has code", func() {
-		// 			sp.SetCode(alice, []byte{0x69})
-		// 			Expect(sp.Empty(alice)).To(BeFalse())
-		// 		})
-		// 	})
-		// })
-
 		Describe("Test ForEachStorage", func() {
-			// initialAliceBal := big.NewInt(69)
-			// initialBobBal := big.NewInt(420)
-			// bobCode := []byte("bobcode")
-
 			BeforeEach(func() {
 				sp.CreateAccount(alice)
 				sp.CreateAccount(bob)
 			})
-
-			// It("cannot suicide eoa", func() {
-			// 	Expect(sp.Suicide(alice)).To(BeFalse())
-			// 	Expect(sp.HasSuicided(alice)).To(BeFalse())
-			// })
 
 			It("should iterate through storage correctly", func() {
 				Expect(sp.GetCode(alice)).To(BeNil())
@@ -410,54 +333,6 @@ var _ = Describe("State Plugin", func() {
 				Expect(sp.GetState(alice, common.BytesToHash([]byte{1}))).To(Equal(common.Hash{}))
 			})
 		})
-
-		// 	When("address has code and balance", func() {
-		// 		BeforeEach(func() {
-		// 			sp.SetCode(alice, aliceCode)
-		// 			sp.SetCode(bob, bobCode)
-		// 			sp.AddBalance(alice, initialAliceBal)
-		// 			sp.AddBalance(bob, initialBobBal)
-		// 			// Give Alice some state
-		// 			for i := 0; i < 5; i++ {
-		// 				sp.SetState(alice, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))),
-		// 					common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
-		// 			}
-		// 			// Give Bob some state
-		// 			for i := 5; i < 15; i++ {
-		// 				sp.SetState(bob, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))),
-		// 					common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
-		// 			}
-		// 		})
-		// 		When("alice commits suicide", func() {
-		// 			BeforeEach(func() {
-		// 				Expect(sp.Suicide(alice)).To(BeTrue())
-		// 				Expect(sp.HasSuicided(alice)).To(BeTrue())
-		// 			})
-		// 			It("alice should be marked as suicidal, but not bob", func() {
-		// 				Expect(sp.HasSuicided(alice)).To(BeTrue())
-		// 				Expect(sp.HasSuicided(bob)).To(BeFalse())
-		// 			})
-		// 			It("alice should have her balance set to 0", func() {
-		// 				Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
-		// 				Expect(sp.GetBalance(bob)).To(Equal(initialBobBal))
-		// 			})
-		// 			It("both alice and bob should have their code and state untouched", func() {
-		// 				Expect(sp.GetCode(alice)).To(Equal(aliceCode))
-		// 				Expect(sp.GetCode(bob)).To(Equal(bobCode))
-		// 				for i := 0; i < 5; i++ {
-		// 					Expect(sp.GetState(alice,
-		// 						common.BytesToHash([]byte(fmt.Sprintf("key%d", i))))).
-		// 						To(Equal(common.BytesToHash([]byte(fmt.Sprintf("value%d", i)))))
-		// 				}
-
-		// 				for i := 5; i < 15; i++ {
-		// 					Expect(sp.GetState(bob,
-		// 						common.BytesToHash([]byte(fmt.Sprintf("key%d", i))))).
-		// 						To(Equal(common.BytesToHash([]byte(fmt.Sprintf("value%d", i)))))
-		// 				}
-		// 			})
-		// 		})
-		//  })
 
 		Describe("TestAccount", func() {
 			It("account does not exist", func() {
@@ -525,90 +400,6 @@ var _ = Describe("State Plugin", func() {
 				Expect(sp.GetState(alice, key)).To(Equal(common.Hash{}))
 			})
 		})
-
-		// Describe("Test Refund", func() {
-		// 	It("simple refund", func() {
-		// 		sp.AddRefund(10)
-		// 		Expect(sp.GetRefund()).To(Equal(uint64(10)))
-		// 		sp.AddRefund(200)
-		// 		Expect(sp.GetRefund()).To(Equal(uint64(210)))
-		// 	})
-
-		// 	It("nested refund", func() {
-		// 		sp.AddRefund(uint64(10))
-		// 		sp.SubRefund(uint64(5))
-		// 		Expect(sp.GetRefund()).To(Equal(uint64(5)))
-		// 	})
-
-		// 	It("negative refund", func() {
-		// 		sp.AddRefund(5)
-		// 		Expect(func() { sp.SubRefund(10) }).To(Panic())
-		// 	})
-		// })
-		// Describe("Test Log", func() {
-		// 	txHash := common.BytesToHash([]byte("tx"))
-		// 	blockHash := common.BytesToHash([]byte("block"))
-		// 	data := []byte("bing bong bananas")
-		// 	blockNumber := uint64(13)
-
-		// 	BeforeEach(func() {
-		// 		sp.Prepare(txHash, 0)
-		// 	})
-		// 	When("We add a log to the state", func() {
-		// 		BeforeEach(func() {
-
-		// 			sp.AddLog(&coretypes.Log{
-		// 				Address:     alice,
-		// 				Topics:      []common.Hash{},
-		// 				Data:        data,
-		// 				BlockNumber: blockNumber,
-		// 				TxHash:      txHash,
-		// 				TxIndex:     0,
-		// 				BlockHash:   blockHash,
-		// 				Index:       0,
-		// 				Removed:     false,
-		// 			})
-		// 		})
-		// 		It("should have the correct log", func() {
-		// 			logs := sp.GetLogs(txHash, blockHash)
-		// 			Expect(logs).To(HaveLen(1))
-		// 			Expect(logs[0].Address).To(Equal(alice))
-		// 			Expect(logs[0].Data).To(Equal(data))
-		// 			Expect(logs[0].BlockNumber).To(Equal(blockNumber))
-		// 			Expect(logs[0].TxHash).To(Equal(txHash))
-		// 			Expect(logs[0].TxIndex).To(Equal(uint(0)))
-		// 			Expect(logs[0].BlockHash).To(Equal(blockHash))
-		// 			Expect(logs[0].Index).To(Equal(uint(0)))
-		// 			Expect(logs[0].Removed).To(BeFalse())
-		// 		})
-		// 		When("we add a second log", func() {
-		// 			BeforeEach(func() {
-		// 				sp.AddLog(&coretypes.Log{
-		// 					Address:     alice,
-		// 					Topics:      []common.Hash{},
-		// 					Data:        data,
-		// 					BlockNumber: blockNumber,
-		// 					TxHash:      txHash,
-		// 					TxIndex:     0,
-		// 					BlockHash:   blockHash,
-		// 					Index:       1,
-		// 					Removed:     false,
-		// 				})
-		// 			})
-		// 			It("should have the correct logs", func() {
-		// 				logs := sp.GetLogs(txHash, blockHash)
-		// 				Expect(logs).To(HaveLen(2))
-		// 				Expect(logs[1].Address).To(Equal(alice))
-		// 				Expect(logs[1].Data).To(Equal(data))
-		// 				Expect(logs[1].BlockNumber).To(Equal(blockNumber))
-		// 				Expect(logs[1].TxHash).To(Equal(txHash))
-		// 				Expect(logs[1].TxIndex).To(Equal(uint(0)))
-		// 				Expect(logs[1].BlockHash).To(Equal(blockHash))
-		// 				Expect(logs[1].Index).To(Equal(uint(1)))
-		// 				Expect(logs[1].Removed).To(BeFalse())
-		// 			})
-		// 		})
-		// 	})
 
 		Describe("TestRevertSnapshot", func() {
 			key := common.BytesToHash([]byte("key"))
