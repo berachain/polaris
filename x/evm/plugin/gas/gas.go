@@ -48,9 +48,9 @@ func (p *Plugin) Setup() error {
 }
 
 // `SetGasLimit` resets the gas limit of the underlying GasMeter.
-func (p *Plugin) SetGasLimit(gas uint64) error {
+func (p *Plugin) SetGasLimit(limit uint64) error {
 	consumed := p.gasMeter.GasConsumed()
-	p.gasMeter = types.NewGasMeter(gas)
+	p.gasMeter = types.NewGasMeter(limit)
 	return p.ConsumeGas(consumed)
 }
 
