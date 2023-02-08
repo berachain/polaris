@@ -15,6 +15,7 @@
 package mock
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -95,6 +96,9 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		PrepareAccessListFunc: func(sender common.Address, dest *common.Address,
 			precompiles []common.Address, txAccesses types.AccessList) {
 
+		},
+		ResetFunc: func(contextMoqParam context.Context) {
+			// no-op
 		},
 		RevertToSnapshotFunc: func(n int) {
 
