@@ -22,7 +22,6 @@ import (
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 
 	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
@@ -105,11 +104,14 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
 
-	// TODO: Should we do something with PostState?
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
-		PostState:         common.Hash{}.Bytes(),
+		PostState:         nil, // TODO: Should we do something with PostState?
 		CumulativeGasUsed: sp.host.CumulativeGasUsed(ctx) + result.UsedGas,
+		TxHash:            tx.Hash(),
+		GasUsed:           result.UsedGas,
+		BlockHash:         sp.blockHeader.Hash(),
+		BlockNumber:       sp.blockHeader.Number,
 	}
 
 	if result.Failed() {
@@ -117,8 +119,6 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	} else {
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
-	receipt.TxHash = tx.Hash()
-	receipt.GasUsed = result.UsedGas
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
@@ -126,8 +126,6 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	}
 
 	// Set the receipt logs and create the bloom filter.
-	receipt.BlockHash = sp.blockHeader.Hash()
-	receipt.BlockNumber = sp.blockHeader.Number
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
 		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), uint(0),
 	)
