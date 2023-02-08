@@ -37,4 +37,6 @@ var (
 	ErrInsufficientFunds = core.ErrInsufficientFunds
 	// `ErrInsufficientBalanceForGas` is the error return when gas required to execute a transaction overflows.
 	ErrGasUintOverflow = core.ErrGasUintOverflow
+	// `ErrIntrinsicGas` is the error returned when the transaction does not have enough gas to cover the intrinsic cost.
+	ErrIntrinsicGas = core.ErrIntrinsicGas
 )
