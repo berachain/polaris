@@ -34,7 +34,7 @@ type StateProcessor struct {
 
 	// Contextual Variables (updated once per block)
 	signer  types.Signer
-	config  *params.EthChainConfigfir
+	config  *params.EthChainConfig
 	vmf     *vm.EVMFactory
 	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
