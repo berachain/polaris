@@ -15,6 +15,7 @@
 package state
 
 import (
+	"github.com/berachain/stargazer/eth/core/state/journal"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
@@ -31,15 +32,15 @@ var (
 
 // `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
-	// References to the plugins in the controller.
+	// StatePlugin is injected by the chain running the Stargazer EVM.
 	StatePlugin
 
-	// The controller is used to manage snapshots and reverts.
-	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
-
-	// Journals
+	// Journals built internally and required for the stateDB.
 	LogsJournal
 	RefundJournal
+
+	// `ctrl` is used to manage snapshots and reverts.
+	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -49,8 +50,12 @@ type stateDB struct {
 	suicides []common.Address
 }
 
-// `NewStateDB` returns a `vm.StargazerStateDB` with the given plugins.
-func NewStateDB(sp StatePlugin, lj LogsJournal, rj RefundJournal) (vm.StargazerStateDB, error) {
+// `NewStateDB` returns a `vm.StargazerStateDB` with the given `StatePlugin`.
+func NewStateDB(sp StatePlugin) (vm.StargazerStateDB, error) {
+	// Build the journals required for the stateDB
+	lj := journal.NewLogs()
+	rj := journal.NewRefund()
+
 	// Build the controller and register the plugins
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(lj)

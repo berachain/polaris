@@ -17,7 +17,6 @@ package journal
 import (
 	"math"
 
-	"github.com/berachain/stargazer/eth/core/state"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/ds"
@@ -30,8 +29,8 @@ type logs struct {
 	ds.Stack[*coretypes.Log] // journal of tx logs
 }
 
-// `NewLogs` returns a new `Logs` store.
-func NewLogs() state.LogsJournal {
+// `NewLogs` returns a new `logs` journal.
+func NewLogs() *logs {
 	return &logs{
 		Stack: stack.New[*coretypes.Log](initJournalCapacity),
 	}

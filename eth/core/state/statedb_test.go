@@ -36,11 +36,7 @@ var _ = Describe("StateDB", func() {
 
 	BeforeEach(func() {
 		var err error
-		sdb, err = state.NewStateDB(
-			mock.NewEmptyStatePlugin(),
-			mock.NewEmptyLogsJournal(),
-			mock.NewEmptyRefundJournal(),
-		)
+		sdb, err = state.NewStateDB(mock.NewEmptyStatePlugin())
 		Expect(err).To(BeNil())
 	})
 

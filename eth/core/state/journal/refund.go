@@ -15,7 +15,6 @@
 package journal
 
 import (
-	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
@@ -25,8 +24,8 @@ type refund struct {
 	ds.Stack[uint64] // journal of historical refunds.
 }
 
-// `NewRefund` creates and returns a `refund`.
-func NewRefund() state.RefundJournal {
+// `NewRefund` creates and returns a `refund` journal.
+func NewRefund() *refund {
 	return &refund{
 		Stack: stack.New[uint64](initJournalCapacity),
 	}
