@@ -16,6 +16,7 @@ package core
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
@@ -151,23 +152,20 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		contractCreation = st.msg.To() == nil
 	)
 
-	// To account for intrinsic gas, refund up to
-	// 21000 gas.
-	if st.gp.GasUsed() >= params.TxGas {
-		st.gp.RefundGas(params.TxGas)
+	// Consume the starting gas for the raw transaction
+	if contractCreation && rules.IsHomestead {
+		st.gp.ConsumeGas(params.TxGasContractCreation)
 	} else {
-		// Reset gas consumption to 0, let the EVM take over.
-		st.gp.RefundGas(st.gp.GasUsed())
+		st.gp.ConsumeGas(params.TxGas)
 	}
 
-	intrinsicGas, err := EthIntrinsicGas(msgData, st.msg.AccessList(),
-		contractCreation, rules.IsHomestead, rules.IsIstanbul)
+	intrinsicGas, err := st.EthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul)
 	if err != nil {
 		return nil, err
 	}
 
 	if err = st.gp.ConsumeGas(intrinsicGas); err != nil {
-		return nil, fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gp.GasRemaining(), intrinsicGas)
+		return nil, fmt.Errorf("%w: have %d, want %d", err, st.gp.GasRemaining(), intrinsicGas)
 	}
 
 	// Check to ensure the sender has the funds to cover the value being sent.
@@ -175,6 +173,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msgFrom.Hex())
 	}
 
+	// Stargazer does not support access lists.
 	// if rules.IsBerlin {
 	// 	sdb.PrepareAccessList(
 	// 		msgFrom,
@@ -274,7 +273,7 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	st.gp.RefundGas(refund)
 
 	// In Geth, we would have refunded the cost of the unused gas to the sender here.
-	// However, in <NAME> we do this in the StateProcessor, since currently, gas fees
+	// However, in Stargazer we do this in the StateProcessor, since currently, gas fees
 	// are deducted in the AnteHandler and not in TransitionDB.
 
 	// TODO: we could potentially add the gas cost refund here, since we do have access to a
@@ -286,4 +285,41 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	// Moving buyGas and refundGas to here however... would open the door to potentially using
 	// the Geth/Erigon state transition code, which would be nice. We would then just do no
 	// gas fee deduction in the AnteHandler, as the native state transition does that.
+}
+
+func (st *StateTransition) EthIntrinsicGas(
+	isContractCreation bool, isHomestead, isEIP2028 bool,
+) (uint64, error) {
+	// Do NOT set the starting gas here as it has already been consumed by the gas plugin.
+	var gas uint64
+	// Bump the required gas by the amount of transactional data
+	if data := st.msg.Data(); len(data) > 0 {
+		// Zero and non-zero bytes are priced differently
+		var nz uint64
+		for _, byt := range data {
+			if byt != 0 {
+				nz++
+			}
+		}
+		// Make sure we don't exceed uint64 for all data combinations
+		nonZeroGas := params.TxDataNonZeroGasFrontier
+		if isEIP2028 {
+			nonZeroGas = params.TxDataNonZeroGasEIP2028
+		}
+		if (math.MaxUint64-gas)/nonZeroGas < nz {
+			return 0, ErrGasUintOverflow
+		}
+		gas += nz * nonZeroGas
+
+		z := uint64(len(data)) - nz
+		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
+			return 0, ErrGasUintOverflow
+		}
+		gas += z * params.TxDataZeroGas
+	}
+	if accessList := st.msg.AccessList(); accessList != nil {
+		gas += uint64(len(accessList)) * params.TxAccessListAddressGas
+		gas += uint64(accessList.StorageKeys()) * params.TxAccessListStorageKeyGas
+	}
+	return gas, nil
 }

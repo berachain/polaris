@@ -66,7 +66,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 	sp.receipts = types.Receipts{}
 	sp.transactions = types.Transactions{}
-	// todo: use a real state db
+	// TODO: use a real state db
 	sp.statedb = vmmock.NewEmptyStateDB()
 	sp.signer = types.MakeSigner(sp.config, sp.blockHeader.Number)
 
