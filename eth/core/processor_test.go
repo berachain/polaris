@@ -31,9 +31,16 @@ import (
 )
 
 var (
-	william = common.HexToAddress("0x123")
-	key, _  = ethsecp256k1.GenerateEthKey()
-	signer  = types.LatestSignerForChainID(params.MainnetChainConfig.ChainID)
+	william      = common.HexToAddress("0x123")
+	key, _       = ethsecp256k1.GenerateEthKey()
+	signer       = types.LatestSignerForChainID(params.MainnetChainConfig.ChainID)
+	legacyTxData = &types.LegacyTx{
+		Nonce:    0,
+		To:       &william,
+		Gas:      100000,
+		GasPrice: big.NewInt(2),
+		Data:     []byte("abcdef"),
+	}
 )
 
 var _ = Describe("StateProcessor", func() {
@@ -41,8 +48,9 @@ var _ = Describe("StateProcessor", func() {
 		// evm *vmmock.StargazerEVMMock
 		// sdb  *vmmock.StargazerStateDBMock
 		// msg  = new(mock.MessageMock)
-		host = mock.NewMockHost()
-		sp   = core.NewStateProcessor(params.MainnetChainConfig, host)
+		host        = mock.NewMockHost()
+		sp          = core.NewStateProcessor(params.MainnetChainConfig, host)
+		blockNumber = params.MainnetChainConfig.LondonBlock.Uint64() + 1
 	)
 
 	Context("Empty block", func() {
@@ -63,38 +71,47 @@ var _ = Describe("StateProcessor", func() {
 
 	Context("Block with transactions", func() {
 		BeforeEach(func() {
-			sp.Prepare(context.Background(), params.MainnetChainConfig.LondonBlock.Uint64()+1)
+			sp.Prepare(context.Background(), blockNumber)
 		})
 
 		It("should error on an unsigned transaction", func() {
-			tx := types.NewTx(&types.LegacyTx{
-				Nonce:    0,
-				GasPrice: big.NewInt(0),
-				Gas:      100000,
-				To:       &william,
-				Value:    big.NewInt(0),
-				Data:     []byte{},
-				V:        big.NewInt(0),
-				R:        big.NewInt(0),
-				S:        big.NewInt(0),
-			})
-			receipt, err := sp.ProcessTransaction(context.Background(), tx)
+			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
 			Expect(err).ToNot(BeNil())
 			Expect(receipt).To(BeNil())
+			block, err := sp.Finalize(context.Background(), blockNumber)
+			Expect(err).To(BeNil())
+			Expect(block).ToNot(BeNil())
+			Expect(len(block.Transactions)).To(Equal(0))
 		})
 
 		It("should not error on a signed transaction", func() {
-			txData := &types.LegacyTx{
-				Nonce:    0,
-				To:       &william,
-				Gas:      100000,
-				GasPrice: big.NewInt(2),
-				Data:     []byte("abcdef"),
-			}
-			signedTx := types.MustSignNewTx(key, signer, txData)
-			_, err := sp.ProcessTransaction(context.Background(), signedTx)
+			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
+			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
-			// Expect(receipt).To(BeNil())
+			Expect(result).ToNot(BeNil())
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
+			Expect(result.BlockNumber).To(Equal(big.NewInt(int64(blockNumber))))
+			Expect(result.TransactionIndex).To(Equal(uint(0)))
+			Expect(result.TxHash.Hex()).To(Equal(signedTx.Hash().Hex()))
+			Expect(result.GasUsed).ToNot(BeZero())
+			block, err := sp.Finalize(context.Background(), blockNumber)
+			Expect(err).To(BeNil())
+			Expect(block).ToNot(BeNil())
+			Expect(len(block.Transactions)).To(Equal(1))
+		})
+
+		It("should add a contract address to the receipt", func() {
+			legacyTxDataCopy := *legacyTxData
+			legacyTxDataCopy.To = nil
+			signedTx := types.MustSignNewTx(key, signer, &legacyTxDataCopy)
+			result, err := sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).To(BeNil())
+			Expect(result).ToNot(BeNil())
+			Expect(result.ContractAddress).ToNot(BeNil())
+			block, err := sp.Finalize(context.Background(), blockNumber)
+			Expect(err).To(BeNil())
+			Expect(block).ToNot(BeNil())
+			Expect(len(block.Transactions)).To(Equal(1))
 		})
 	})
 })

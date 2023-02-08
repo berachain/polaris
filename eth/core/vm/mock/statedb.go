@@ -27,28 +27,28 @@ import (
 func NewEmptyStateDB() *StargazerStateDBMock {
 	mockedStargazerStateDB := &StargazerStateDBMock{
 		AddAddressToAccessListFunc: func(addr common.Address) {
-			panic("mock out the AddAddressToAccessList method")
+
 		},
 		AddBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
-			panic("mock out the AddBalance method")
+
 		},
 		AddLogFunc: func(log *types.Log) {
-			panic("mock out the AddLog method")
+
 		},
 		AddPreimageFunc: func(hash common.Hash, bytes []byte) {
-			panic("mock out the AddPreimage method")
+
 		},
 		AddRefundFunc: func(v uint64) {
-			panic("mock out the AddRefund method")
+
 		},
 		AddSlotToAccessListFunc: func(addr common.Address, slot common.Hash) {
-			panic("mock out the AddSlotToAccessList method")
+
 		},
 		AddressInAccessListFunc: func(addr common.Address) bool {
-			panic("mock out the AddressInAccessList method")
+			return false
 		},
 		CreateAccountFunc: func(address common.Address) {
-			panic("mock out the CreateAccount method")
+
 		},
 		EmptyFunc: func(address common.Address) bool {
 			return true

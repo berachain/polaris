@@ -39,7 +39,6 @@ var _ = Describe("StateTransition", func() {
 		msg = mock.NewEmptyMessage()
 		evm = vmmock.NewStargazerEVM()
 		sdb, _ = evm.StateDB().(*vmmock.StargazerStateDBMock)
-		_ = sdb
 		msg.FromFunc = func() common.Address {
 			return testutil.Alice
 		}

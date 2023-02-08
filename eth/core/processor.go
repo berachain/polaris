@@ -28,10 +28,6 @@ import (
 	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
 )
 
-const (
-	initLen = 512
-)
-
 type StateProcessor struct {
 	// The Host provides the underlying application the EVM is running in
 	// as well an underlying consensus engine
@@ -69,10 +65,9 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// Build a block to use throughout the evm.
 	// NOTE: sp.blockHeader.Bloom is nil here, but it is set in `Finalize`.
 	sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
-	sp.receipts = make(types.Receipts, initLen)
-	sp.transactions = make(types.Transactions, initLen)
+	sp.receipts = types.Receipts{}
+	sp.transactions = types.Transactions{}
 
-	// TODO fix
 	sp.statedb = vmmock.NewEmptyStateDB()
 
 	// Build a new EVM to use for this block.
@@ -108,7 +103,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
 
-	// Build Receipt
+	// TODO: Should we do something with PostState?
 	receipt := &types.Receipt{Type: tx.Type(), PostState: common.Hash{}.Bytes()}
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
@@ -130,12 +125,11 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), uint(0),
 	)
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
-
 	receipt.TransactionIndex = uint(len(sp.transactions))
+
+	// Update the block information.
 	sp.transactions = append(sp.transactions, tx)
 	sp.receipts = append(sp.receipts, receipt)
-
-	// need to update information about the current block
 	return receipt, nil
 }
 
