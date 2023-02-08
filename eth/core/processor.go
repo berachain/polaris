@@ -50,12 +50,13 @@ type StateProcessor struct {
 // `NewStateProcessor` creates a new state processor.
 func NewStateProcessor(
 	config *params.EthChainConfig,
+	statedb vm.StargazerStateDB,
 	host StargazerHostChain,
 ) *StateProcessor {
 	return &StateProcessor{
 		config: config,
 		host:   host,
-		vmf:    vm.NewEVMFactory(precompile.NewManager(nil, nil)),
+		vmf:    vm.NewEVMFactory(precompile.NewManager(host.GetPrecompilePlugin(), statedb)),
 	}
 }
 

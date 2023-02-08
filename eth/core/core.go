@@ -13,3 +13,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package core
+
+type Blockchain struct {
+	// `csp` is the canonical, persistent state processor that runs the EVM.
+	csp *StateProcessor
+}
