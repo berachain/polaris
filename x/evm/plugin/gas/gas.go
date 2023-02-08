@@ -22,6 +22,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/types"
 )
 
+// `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
+const gasMeterDescriptor = `stargazer-gas-plugin`
+
 // Compile-time interface assertions.
 var _ core.GasPlugin = (*Plugin)(nil)
 
@@ -59,13 +62,13 @@ func (p *Plugin) ConsumeGas(amount uint64) error {
 	} else if newConsumed > p.gasMeter.Limit() {
 		return errors.New("out of gas")
 	}
-	p.gasMeter.ConsumeGas(amount, "stargazer-gas-plugin")
+	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
 
 // `RefundGas` implements the core.GasPlugin interface.
 func (p *Plugin) RefundGas(amount uint64) {
-	p.gasMeter.RefundGas(amount, "stargazer-gas-plugin")
+	p.gasMeter.RefundGas(amount, gasMeterDescriptor)
 }
 
 // `GasRemaining` implements the core.GasPlugin interface.
