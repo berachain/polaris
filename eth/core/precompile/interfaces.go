@@ -12,16 +12,29 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state_test
+package precompile
 
 import (
-	"testing"
+	"context"
+	"math/big"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/lib/common"
 )
 
-func TestState(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state")
-}
+// `LogsDB` defines the required function to add a log to the StateDB.
+type (
+	LogsDB interface {
+		// `AddLog` adds a log to the database.
+		AddLog(*coretypes.Log)
+	}
+
+	// `Runner` defines the required function of a vm-specific precompile runner.
+	Runner interface {
+		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
+		Run(ctx context.Context, ldb LogsDB, pc vm.PrecompileContainer, input []byte,
+			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
+		) (ret []byte, remainingGas uint64, err error)
+	}
+)

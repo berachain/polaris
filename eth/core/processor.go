@@ -56,7 +56,7 @@ func NewStateProcessor(
 	return &StateProcessor{
 		config: config,
 		host:   host,
-		vmf:    vm.NewEVMFactory(precompile.NewManager(nil)),
+		vmf:    vm.NewEVMFactory(precompile.NewManager(nil, nil)),
 	}
 }
 

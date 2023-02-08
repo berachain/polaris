@@ -34,8 +34,7 @@ var (
 
 func GetNewStatePlugin() ethstate.StatePlugin {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
-	sp, _ := state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera")
-	return sp
+	return state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera")
 }
 
 func GetNewStateDB() vm.StargazerStateDB {

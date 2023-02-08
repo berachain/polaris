@@ -4,6 +4,7 @@
 package mock
 
 import (
+	"context"
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
@@ -61,6 +62,9 @@ var _ state.StatePlugin = &StatePluginMock{}
 //			},
 //			RegistryKeyFunc: func() string {
 //				panic("mock out the RegistryKey method")
+//			},
+//			ResetFunc: func(contextMoqParam context.Context)  {
+//				panic("mock out the Reset method")
 //			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
@@ -131,6 +135,9 @@ type StatePluginMock struct {
 
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() string
+
+	// ResetFunc mocks the Reset method.
+	ResetFunc func(contextMoqParam context.Context)
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -229,6 +236,11 @@ type StatePluginMock struct {
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
+		// Reset holds details about calls to the Reset method.
+		Reset []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
 			// N is the n argument value.
@@ -291,6 +303,7 @@ type StatePluginMock struct {
 	lockGetNonce          sync.RWMutex
 	lockGetState          sync.RWMutex
 	lockRegistryKey       sync.RWMutex
+	lockReset             sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
 	lockSetCode           sync.RWMutex
 	lockSetNonce          sync.RWMutex
@@ -751,6 +764,38 @@ func (mock *StatePluginMock) RegistryKeyCalls() []struct {
 	mock.lockRegistryKey.RLock()
 	calls = mock.calls.RegistryKey
 	mock.lockRegistryKey.RUnlock()
+	return calls
+}
+
+// Reset calls ResetFunc.
+func (mock *StatePluginMock) Reset(contextMoqParam context.Context) {
+	if mock.ResetFunc == nil {
+		panic("StatePluginMock.ResetFunc: method is nil but StatePlugin.Reset was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
+	mock.lockReset.Lock()
+	mock.calls.Reset = append(mock.calls.Reset, callInfo)
+	mock.lockReset.Unlock()
+	mock.ResetFunc(contextMoqParam)
+}
+
+// ResetCalls gets all the calls that were made to Reset.
+// Check the length with:
+//
+//	len(mockedStatePlugin.ResetCalls())
+func (mock *StatePluginMock) ResetCalls() []struct {
+	ContextMoqParam context.Context
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+	}
+	mock.lockReset.RLock()
+	calls = mock.calls.Reset
+	mock.lockReset.RUnlock()
 	return calls
 }
 

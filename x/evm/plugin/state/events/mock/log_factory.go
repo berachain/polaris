@@ -12,16 +12,24 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state_test
+package mock
 
 import (
-	"testing"
+	"errors"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func TestState(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state")
+//go:generate moq -out ./log_factory.mock.go -pkg mock ../ PrecompileLogFactory
+
+func NewPrecompileLogFactory() *PrecompileLogFactoryMock {
+	return &PrecompileLogFactoryMock{
+		BuildFunc: func(event *sdk.Event) (*coretypes.Log, error) {
+			if event.Type == "non-eth-event" {
+				return nil, errors.New("event is not eth")
+			}
+			return &coretypes.Log{}, nil
+		},
+	}
 }

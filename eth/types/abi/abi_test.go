@@ -74,16 +74,22 @@ var _ = Describe("ABI Test Suite", func() {
 					Indexed: true,
 				},
 			}
-			args, err := abi.GetIndexed(allArgs)
-			Expect(err).To(BeNil())
+			args := abi.GetIndexed(allArgs)
 			Expect(args).To(Equal(indexedArgs))
 		})
 
-		It("should return an error if more than 3 indexed args are given", func() {
-			allArgs = append(allArgs, abi.Argument{Indexed: true})
-			args, err := abi.GetIndexed(allArgs)
-			Expect(args).To(BeNil())
-			Expect(err).To(Equal(abi.ErrTooManyIndexedArgs))
+		It("should panic if more than 3 indexed args are given", func() {
+			Expect(func() { abi.GetIndexed(append(allArgs, abi.Argument{Indexed: true})) }).To(Panic())
+		})
+	})
+
+	Describe("Test ToUnderScore", func() {
+		It("should correctly convert mixedCase strings to under_score", func() {
+			Expect(abi.ToUnderScore("Creation4Height")).To(Equal("creation4_height"))
+			Expect(abi.ToUnderScore("creationHeight")).To(Equal("creation_height"))
+			Expect(abi.ToUnderScore("creationHeightArg")).To(Equal("creation_height_arg"))
+			Expect(abi.ToUnderScore("creation")).To(Equal("creation"))
+			Expect(abi.ToUnderScore("creation_height")).To(Equal("creation_height"))
 		})
 	})
 })

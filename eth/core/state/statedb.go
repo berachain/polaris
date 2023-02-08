@@ -47,7 +47,7 @@ type stateDB struct {
 	suicides []common.Address
 }
 
-// `NewStateDB` returns a `StargazerStateDB` with the given plugins.
+// `NewStateDB` returns a `vm.StargazerStateDB` with the given plugins.
 func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (vm.StargazerStateDB, error) {
 	// Build the controller and register the plugins
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()

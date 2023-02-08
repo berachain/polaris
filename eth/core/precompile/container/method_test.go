@@ -22,7 +22,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/berachain/stargazer/eth/core/precompile/container"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/lib/common"
 )
@@ -117,6 +116,6 @@ func mockExecutable(
 	value *big.Int,
 	readonly bool,
 	args ...any,
-) ([]any, []*coretypes.Log, error) {
-	return nil, nil, nil
+) ([]any, error) {
+	return nil, nil
 }

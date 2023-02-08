@@ -15,17 +15,33 @@
 package state
 
 import (
+	"github.com/berachain/stargazer/eth/core/precompile"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
+// `ControllableEventManager` defines a cache EventManager that is controllable (snapshottable
+// and registrable). It also supports precompile execution by allowing the caller to native events
+// as Eth logs.
+type ControllableEventManager interface {
+	libtypes.Controllable[string]
+	sdk.EventManagerI
+
+	// `BeginPrecompileExecution` begins a precompile execution by setting the logs DB.
+	BeginPrecompileExecution(precompile.LogsDB)
+	// `EndPrecompileExecution` ends a precompile execution by resetting the logs DB to nil.
+	EndPrecompileExecution()
+}
+
 // `ControllableMultiStore` defines a cache MultiStore that is controllable (snapshottable and
 // registrable). It also supports getting the committed KV store from the MultiStore.
 type ControllableMultiStore interface {
 	libtypes.Controllable[string]
 	storetypes.MultiStore
+
+	// `GetCommittedKVStore` returns the committed KV store from the MultiStore.
 	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
 }
 

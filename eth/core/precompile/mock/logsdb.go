@@ -12,16 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state_test
+package mock
 
-import (
-	"testing"
+import coretypes "github.com/ethereum/go-ethereum/core/types"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
+//go:generate moq -out ./logsdb.mock.go -pkg mock ../ LogsDB
 
-func TestState(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state")
+func NewLogsDB() *LogsDBMock {
+	return &LogsDBMock{
+		AddLogFunc: func(log *coretypes.Log) {
+			// no-op
+		},
+	}
 }

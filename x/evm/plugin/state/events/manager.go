@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Berachain Foundation. All rights reserved.
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // See the file LICENSE for licensing terms.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -15,7 +15,9 @@
 package events
 
 import (
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/berachain/stargazer/lib/errors"
+	"github.com/berachain/stargazer/lib/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -25,14 +27,62 @@ const (
 	managerRegistryKey  = `events`
 )
 
+// `manager` is a controllable event manager that supports snapshots and reverts for emitted Cosmos
+// events. During precompile execution, it is also used to Cosmos events to the Eth logs journal.
 type manager struct {
-	*sdk.EventManager // pointer to the event manager floating aroundmon the context.
+	// `EventManager` is the underlying Cosmos SDK event manager floating around on the context.
+	*sdk.EventManager
+	// `ldb` is the reference to the StateDB for adding Eth logs during precompile execution.
+	ldb precompile.LogsDB
+	// `plf` is used to build Eth logs from Cosmos events.
+	plf PrecompileLogFactory
 }
 
 // `NewManager` creates and returns a controllable event manager from the given Cosmos SDK context.
-func NewManager(em *sdk.EventManager) libtypes.Controllable[string] {
+//
+//nolint:revive // only used as a `state.ControllableEventManager`.
+func NewManagerFrom(em sdk.EventManagerI, plf PrecompileLogFactory) *manager {
 	return &manager{
-		EventManager: em,
+		EventManager: utils.MustGetAs[*sdk.EventManager](em),
+		plf:          plf,
+	}
+}
+
+// `BeginPrecompileExecution` is called when a precompile is about to be executed. This function
+// sets the `LogsPlugin` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
+// add logs to the journal.
+func (m *manager) BeginPrecompileExecution(ldb precompile.LogsDB) {
+	m.ldb = ldb
+}
+
+// `EndPrecompileExecution` is called when a precompile has finished executing. This function
+// sets the `LogsPlugin` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
+// to the journal.
+func (m *manager) EndPrecompileExecution() {
+	m.ldb = nil
+}
+
+// `EmitEvent` overrides the Cosmos SDK's `EventManager.EmitEvent` method to build Eth logs from
+// the emitted event and add them to the journal.
+func (m *manager) EmitEvent(event sdk.Event) {
+	m.EventManager.EmitEvent(event)
+
+	// add the event to the logs journal if in precompile execution
+	if m.ldb != nil {
+		m.convertToLog(&event)
+	}
+}
+
+// `EmitEvents` overrides the Cosmos SDK's `EventManager.EmitEvents` method to build Eth logs from
+// the emitted events and add them to the journal.
+func (m *manager) EmitEvents(events sdk.Events) {
+	m.EventManager.EmitEvents(events)
+
+	// add the events to the logs journal if in precompile execution
+	if m.ldb != nil {
+		for i := range events {
+			m.convertToLog(&events[i])
+		}
 	}
 }
 
@@ -48,10 +98,25 @@ func (m *manager) Snapshot() int {
 
 // `RevertToSnapshot` implements `libtypes.Snapshottable`.
 func (m *manager) RevertToSnapshot(id int) {
-	temp := m.Events()
+	// only get the events up to the snapshot id
+	revertTo := m.Events()[:id]
+
+	// modify the EventManager on the underlying Cosmos SDK context
 	*m.EventManager = *sdk.NewEventManager()
-	m.EmitEvents(temp[:id])
+
+	// don't add to the logs journal again as the Eth logs plugin will do that, so use the
+	// underlying EventManager to reset the events.
+	m.EventManager.EmitEvents(revertTo)
 }
 
 // `Finalize` implements `libtypes.Finalizable`.
 func (m *manager) Finalize() {}
+
+// `convertToLog` builds an Eth log from the given Cosmos event and adds it to the logs journal.
+func (m *manager) convertToLog(event *sdk.Event) {
+	log, err := m.plf.Build(event)
+	if err != nil {
+		panic(errors.Wrapf(err, "cannot convert Cosmos event %s to Eth log", event.Type))
+	}
+	m.ldb.AddLog(log)
+}

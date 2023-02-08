@@ -30,38 +30,25 @@ const NumBytesMethodID = 4
 
 // `stateful` is a container for running stateful and dynamic precompiled contracts.
 type stateful struct {
-	vm.BasePrecompileImpl
-
+	// `RegistrablePrecompile` is the base precompile implementation.
+	vm.RegistrablePrecompile
 	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
 	// (geth abi format). Please check core/precompile/container/method.go for more information.
 	idsToMethods map[string]*Method
-
-	// `gsdb` is used to add logs.
-	gsdb vm.GethStateDB
-
-	// TODO: implement
-	// receive *Method
-
-	// TODO: implement
-	// fallback *Method
+	// receive      *Method // TODO: implement
+	// fallback     *Method // TODO: implement
 }
 
 // `NewStateful` creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
-	bci vm.BasePrecompileImpl, idsToMethods map[string]*Method,
+	rp vm.RegistrablePrecompile, idsToMethods map[string]*Method,
 ) vm.PrecompileContainer {
 	return &stateful{
-		BasePrecompileImpl: bci,
-		idsToMethods:       idsToMethods,
+		RegistrablePrecompile: rp,
+		idsToMethods:          idsToMethods,
 	}
-}
-
-// `WithStateDB` implements `PrecompileContainer`.
-func (sc *stateful) WithStateDB(gsdb vm.GethStateDB) vm.PrecompileContainer {
-	sc.gsdb = gsdb
-	return sc
 }
 
 // `Run` loads the corresponding precompile method for given input, executes it, and handles
@@ -77,9 +64,6 @@ func (sc *stateful) Run(
 ) ([]byte, error) {
 	if sc.idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
-	}
-	if sc.gsdb == nil {
-		return nil, ErrIncompatibleStateDB
 	}
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
@@ -98,7 +82,7 @@ func (sc *stateful) Run(
 	}
 
 	// Execute the method registered with the given signature with the given args.
-	vals, logs, err := method.Execute(
+	vals, err := method.Execute(
 		ctx,
 		caller,
 		value,
@@ -115,11 +99,6 @@ func (sc *stateful) Run(
 	ret, err := method.AbiMethod.Outputs.Pack(vals...)
 	if err != nil {
 		return nil, err
-	}
-
-	// Add the logs to the logdb if there are no errors in container execution.
-	for _, log := range logs {
-		sc.gsdb.AddLog(log)
 	}
 
 	return ret, nil
