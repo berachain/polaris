@@ -28,8 +28,7 @@ import (
 )
 
 type StateProcessor struct {
-	// The Host provides the underlying application the EVM is running in
-	// as well an underlying consensus engine
+	// `host` provides the underlying chain the EVM is running on
 	host StargazerHostChain
 
 	// Contextual Variables (updated once per block)

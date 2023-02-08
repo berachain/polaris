@@ -57,7 +57,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", constants.EvmNamespace)
 }
 
-func (k Keeper) GetChainPlugin() core.ChainPlugin {
+func (k Keeper) GetBlockPlugin() core.BlockPlugin {
 	return nil
 }
 

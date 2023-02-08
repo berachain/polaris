@@ -12,10 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package journal
 
 import (
-	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/stack"
 )
@@ -25,8 +24,10 @@ type refund struct {
 	ds.Stack[uint64] // journal of historical refunds.
 }
 
-// `NewRefund` creates and returns a `refund`.
-func NewRefund() state.RefundPlugin {
+// `NewRefund` creates and returns a `refund` journal.
+//
+//nolint:revive // only used as a `state.RefundJournal`.
+func NewRefund() *refund {
 	return &refund{
 		Stack: stack.New[uint64](initJournalCapacity),
 	}

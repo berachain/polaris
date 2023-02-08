@@ -12,12 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package journal
 
 import (
 	"math"
 
-	"github.com/berachain/stargazer/eth/core/state"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/ds"
@@ -30,8 +29,10 @@ type logs struct {
 	ds.Stack[*coretypes.Log] // journal of tx logs
 }
 
-// `NewLogs` returns a new `Logs` store.
-func NewLogs() state.LogsPlugin {
+// `NewLogs` returns a new `logs` journal.
+//
+//nolint:revive // only used as a `state.LogsJournal`.
+func NewLogs() *logs {
 	return &logs{
 		Stack: stack.New[*coretypes.Log](initJournalCapacity),
 	}

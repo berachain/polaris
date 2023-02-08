@@ -12,37 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package mock
+package journal
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-//go:generate moq -out ./logs.mock.go -pkg mock ../../ LogsPlugin
-
-// `NewEmptyLogsPlugin` returns an empty `LogsPluginMock`.
-func NewEmptyLogsPlugin() *LogsPluginMock {
-	// make and configure a mocked state.LogsPlugin
-	return &LogsPluginMock{
-		AddLogFunc: func(log *types.Log) {
-			panic("mock out the AddLog method")
-		},
-		BuildLogsAndClearFunc: func(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
-			panic("mock out the BuildLogsAndClear method")
-		},
-		FinalizeFunc: func() {
-			// no-op
-		},
-		RegistryKeyFunc: func() string {
-			return "emptylogs"
-		},
-		RevertToSnapshotFunc: func(n int) {
-			// no-op
-		},
-		SnapshotFunc: func() int {
-			// no-op
-			return 0
-		},
-	}
+func TestJournal(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "eth/core/state/journal")
 }

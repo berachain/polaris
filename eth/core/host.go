@@ -14,12 +14,49 @@
 
 package core
 
-// `StargazerHostChain` defines the methods that the chain running the
-// Stargazer EVM must implement.
+import (
+	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/berachain/stargazer/eth/core/state"
+)
+
+// `StargazerHostChain` defines the plugins that the chain running Stargazer EVM must implement.
 type StargazerHostChain interface {
-	GetChainPlugin() ChainPlugin
+	GetBlockPlugin() BlockPlugin
 	GetGasPlugin() GasPlugin
 	GetStatePlugin() StatePlugin
 	GetPrecompilePlugin() PrecompilePlugin
 	GetConfigurationPlugin() ConfigurationPlugin
 }
+
+// The following plugins must be implemented by the chain running Stargazer EVM and exposed via the
+// `StargazerHostChain` interface.
+type (
+	BlockPlugin interface {
+		BasePlugin
+	}
+
+	GasPlugin interface {
+		BasePlugin
+		ConsumeGas(amount uint64) error
+		RefundGas(amount uint64)
+		GasRemaining() uint64
+		GasUsed() uint64
+		CumulativeGasUsed() uint64
+		SetGasLimit(limit uint64) error
+	}
+
+	StatePlugin = state.StatePlugin
+
+	PrecompilePlugin interface {
+		BasePlugin
+		precompile.Runner
+	}
+
+	ConfigurationPlugin interface {
+		BasePlugin
+	}
+
+	BasePlugin interface {
+		Setup() error
+	}
+)

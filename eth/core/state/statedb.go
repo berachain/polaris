@@ -15,6 +15,7 @@
 package state
 
 import (
+	"github.com/berachain/stargazer/eth/core/state/journal"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
@@ -31,12 +32,14 @@ var (
 
 // `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
-	// References to the plugins in the controller.
+	// StatePlugin is injected by the chain running the Stargazer EVM.
 	StatePlugin
-	RefundPlugin
-	LogsPlugin
 
-	// The controller is used to manage the plugins
+	// Journals built internally and required for the stateDB.
+	LogsJournal
+	RefundJournal
+
+	// `ctrl` is used to manage snapshots and reverts.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
@@ -47,21 +50,25 @@ type stateDB struct {
 	suicides []common.Address
 }
 
-// `NewStateDB` returns a `vm.StargazerStateDB` with the given plugins.
-func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (vm.StargazerStateDB, error) {
+// `NewStateDB` returns a `vm.StargazerStateDB` with the given `StatePlugin`.
+func NewStateDB(sp StatePlugin) (vm.StargazerStateDB, error) {
+	// Build the journals required for the stateDB
+	lj := journal.NewLogs()
+	rj := journal.NewRefund()
+
 	// Build the controller and register the plugins
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	_ = ctrl.Register(lp)
-	_ = ctrl.Register(rp)
+	_ = ctrl.Register(lj)
+	_ = ctrl.Register(rj)
 	_ = ctrl.Register(sp)
 
 	// Create the `stateDB` and populate the developer provided plugins.
 	return &stateDB{
-		StatePlugin:  sp,
-		LogsPlugin:   lp,
-		RefundPlugin: rp,
-		ctrl:         ctrl,
-		suicides:     make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		StatePlugin:   sp,
+		LogsJournal:   lj,
+		RefundJournal: rj,
+		ctrl:          ctrl,
+		suicides:      make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}, nil
 }
 
