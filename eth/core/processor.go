@@ -33,12 +33,12 @@ type StateProcessor struct {
 	host StargazerHostChain
 
 	// Contextual Variables (updated once per block)
-	signer  types.Signer
-	config  *params.EthChainConfig
-	vmf     *vm.EVMFactory
-	evm     vm.StargazerEVM
-	statedb vm.StargazerStateDB
-
+	signer    types.Signer
+	config    *params.EthChainConfig
+	vmf       *vm.EVMFactory
+	evm       vm.StargazerEVM
+	statedb   vm.StargazerStateDB
+	gasPlugin GasPlugin
 	// `blockHeader` of the current block being processed
 	blockHeader *types.StargazerHeader
 	// `receipts` of the current block being processed
@@ -106,13 +106,13 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	}
 
 	receipt := &types.Receipt{
-		Type:      tx.Type(),
-		PostState: nil, // TODO: Should we do something with PostState?
-		// CumulativeGasUsed: sp.host.CumulativeGasUsed(ctx, result.UsedGas),
-		TxHash:      tx.Hash(),
-		GasUsed:     result.UsedGas,
-		BlockHash:   sp.blockHeader.Hash(),
-		BlockNumber: sp.blockHeader.Number,
+		Type:              tx.Type(),
+		PostState:         nil,                              // TODO: Should we do something with PostState?
+		CumulativeGasUsed: sp.gasPlugin.CumulativeGasUsed(), // UsedGas was added in ApplyMessage
+		TxHash:            tx.Hash(),
+		GasUsed:           result.UsedGas,
+		BlockHash:         sp.blockHeader.Hash(),
+		BlockNumber:       sp.blockHeader.Number,
 	}
 
 	if result.Failed() {

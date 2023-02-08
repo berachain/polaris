@@ -39,12 +39,6 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) 
 	if err != nil {
 		return nil, err
 	}
-	// Consume gas and update the cumulative gas used.
-	// TODO: gonna need hella tests to ensure gas is being consumed properly
-	// TODO: should the receipt be updated with the gas used IN the Processor?
-	sCtx.GasMeter().ConsumeGas(receipt.GasUsed, "ethereum tx")
-	// The BlockGasMeter won't have updated yet? need to check math
-	receipt.CumulativeGasUsed = sCtx.BlockGasMeter().GasConsumed() + receipt.GasUsed
 
 	k.Logger(sCtx).Info("End ProcessTransaction()")
 	return receipt, err
