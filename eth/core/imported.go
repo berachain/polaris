@@ -26,15 +26,11 @@ type (
 )
 
 var (
-	// `EthIntrinsicGas` returns the intrinsic gas required to execute a transaction.
-	EthIntrinsicGas = core.IntrinsicGas
 	// `NewEVMTxContext` creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
 )
 
 var (
-	// `ErrIntrinsicGas` is the error returned when the intrinsic gas is higher than the gas limit.
-	ErrIntrinsicGas = core.ErrIntrinsicGas
 	// `ErrInsufficientFundsForTransfer` is the error returned when the account does not have enough funds to transfer.
 	ErrInsufficientFundsForTransfer = core.ErrInsufficientFundsForTransfer
 	// `ErrInsufficientFunds` is the error returned when the account does not have enough funds to execute the transaction.

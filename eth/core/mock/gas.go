@@ -16,23 +16,32 @@ package mock
 
 // const testBaseFee = 69
 
-//go:generate moq -out ./host.mock.go -pkg mock ../ StargazerHostChain
+//go:generate moq -out ./gas.mock.go -pkg mock ../ GasPlugin
 
-func NewMockHost() *StargazerHostChainMock {
+func NewGasPluginMock() *GasPluginMock {
 	// make and configure a mocked core.StargazerHostChain
-	mockedStargazerHostChain := &StargazerHostChainMock{
-		// StargazerHeaderAtHeightFunc: func(contextMoqParam context.Context, v uint64) *types.StargazerHeader {
-		// 	return &types.StargazerHeader{
-		// 		Header: &types.Header{
-		// 			Number:  big.NewInt(int64(v)),
-		// 			BaseFee: big.NewInt(testBaseFee),
-		// 		},
-		// 		CachedHash: common.Hash{123},
-		// 	}
-		// },
-		// CumulativeGasUsedFunc: func(contextMoqParam context.Context, gasUsed uint64) uint64 {
-		// 	return 0
-		// },
+	mockedGasPlugin := &GasPluginMock{
+		ConsumeGasFunc: func(amount uint64) error {
+			return nil
+		},
+		CumulativeGasUsedFunc: func() uint64 {
+			return 0
+		},
+		GasRemainingFunc: func() uint64 {
+			return 0
+		},
+		GasUsedFunc: func() uint64 {
+			return 0
+		},
+		RefundGasFunc: func(amount uint64) {
+			// no-op
+		},
+		SetGasLimitFunc: func(amount uint64) error {
+			return nil
+		},
+		SetupFunc: func() error {
+			return nil
+		},
 	}
-	return mockedStargazerHostChain
+	return mockedGasPlugin
 }

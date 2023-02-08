@@ -63,10 +63,10 @@ func NewStateProcessor(
 func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// Build a block to use throughout the evm.
 	// NOTE: sp.blockHeader.Bloom is nil here, but it is set in `Finalize`.
-	sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
+	// sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 	sp.receipts = types.Receipts{}
 	sp.transactions = types.Transactions{}
-	// todo: use a real state db
+	// TODO: use a real state db
 	sp.statedb = vmmock.NewEmptyStateDB()
 	sp.signer = types.MakeSigner(sp.config, sp.blockHeader.Number)
 
@@ -99,19 +99,19 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	sp.evm.Reset(txContext, sp.statedb)
 
 	// Apply the state transition.
-	result, err := ApplyMessageAndCommit(sp.evm, msg)
+	result, err := ApplyMessageAndCommit(sp.evm, nil, msg)
 	if err != nil {
 		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
 
 	receipt := &types.Receipt{
-		Type:              tx.Type(),
-		PostState:         nil, // TODO: Should we do something with PostState?
-		CumulativeGasUsed: sp.host.CumulativeGasUsed(ctx, result.UsedGas),
-		TxHash:            tx.Hash(),
-		GasUsed:           result.UsedGas,
-		BlockHash:         sp.blockHeader.Hash(),
-		BlockNumber:       sp.blockHeader.Number,
+		Type:      tx.Type(),
+		PostState: nil, // TODO: Should we do something with PostState?
+		// CumulativeGasUsed: sp.host.CumulativeGasUsed(ctx, result.UsedGas),
+		TxHash:      tx.Hash(),
+		GasUsed:     result.UsedGas,
+		BlockHash:   sp.blockHeader.Hash(),
+		BlockNumber: sp.blockHeader.Number,
 	}
 
 	if result.Failed() {
@@ -140,7 +140,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (*types.StargazerBlock, error) {
 	// Update the block header with information regarding the final state of the block.
-	sp.blockHeader.GasUsed = sp.host.CumulativeGasUsed(ctx, 0)
+	// sp.blockHeader.GasUsed = sp.host.CumulativeGasUsed(ctx, 0)
 	sp.blockHeader.Bloom = types.CreateBloom(sp.receipts)
 
 	// Return a finalized block.
