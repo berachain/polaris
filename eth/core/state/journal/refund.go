@@ -25,6 +25,8 @@ type refund struct {
 }
 
 // `NewRefund` creates and returns a `refund` journal.
+//
+//nolint:revive // only used as a `state.RefundJournal`.
 func NewRefund() *refund {
 	return &refund{
 		Stack: stack.New[uint64](initJournalCapacity),

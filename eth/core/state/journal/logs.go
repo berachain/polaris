@@ -30,6 +30,8 @@ type logs struct {
 }
 
 // `NewLogs` returns a new `logs` journal.
+//
+//nolint:revive // only used as a `state.LogsJournal`.
 func NewLogs() *logs {
 	return &logs{
 		Stack: stack.New[*coretypes.Log](initJournalCapacity),
