@@ -15,6 +15,9 @@
 package gas
 
 import (
+	"errors"
+	"math"
+
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/cosmos/cosmos-sdk/store/types"
 )
@@ -31,7 +34,7 @@ type Plugin struct {
 // `NewPlugin` creates a new instance of the gas plugin.
 func NewPlugin(gasMeter, blockGasMeter types.GasMeter) *Plugin {
 	return &Plugin{
-		gasMeter:      gasMeter,
+		gasMeter:      types.NewInfiniteGasMeter(),
 		blockGasMeter: blockGasMeter,
 	}
 }
@@ -41,8 +44,21 @@ func (p *Plugin) Setup() error {
 	return nil
 }
 
+// `SetGasLimit` resets the gas limit of the underlying GasMeter.
+func (p *Plugin) SetGasLimit(gas uint64) error {
+	consumed := p.gasMeter.GasConsumed()
+	p.gasMeter = types.NewGasMeter(gas)
+	return p.ConsumeGas(consumed)
+}
+
 // `ConsumeGas` implements the core.GasPlugin interface.
 func (p *Plugin) ConsumeGas(amount uint64) error {
+	// We don't want to panic if we overflow so we do some safety checks.
+	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
+		return core.ErrGasUintOverflow
+	} else if newConsumed > p.gasMeter.Limit() {
+		return errors.New("out of gas")
+	}
 	p.gasMeter.ConsumeGas(amount, "stargazer-gas-plugin")
 	return nil
 }
@@ -52,8 +68,13 @@ func (p *Plugin) RefundGas(amount uint64) {
 	p.gasMeter.RefundGas(amount, "stargazer-gas-plugin")
 }
 
-// `GasConsumed` implements the core.GasPlugin interface.
-func (p *Plugin) GasConsumed() uint64 {
+// `GasRemaining` implements the core.GasPlugin interface.
+func (p *Plugin) GasRemaining() uint64 {
+	return p.gasMeter.GasRemaining()
+}
+
+// `GasUsed` implements the core.GasPlugin interface.
+func (p *Plugin) GasUsed() uint64 {
 	return p.gasMeter.GasConsumed()
 }
 
@@ -67,4 +88,14 @@ func (p *Plugin) CumulativeGasUsed() uint64 {
 	}
 
 	return used
+}
+
+// addUint64Overflow performs the addition operation on two uint64 integers and
+// returns a boolean on whether or not the result overflows.
+func addUint64Overflow(a, b uint64) (uint64, bool) {
+	if math.MaxUint64-a < b {
+		return 0, true
+	}
+
+	return a + b, false
 }

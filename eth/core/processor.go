@@ -99,7 +99,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	sp.evm.Reset(txContext, sp.statedb)
 
 	// Apply the state transition.
-	result, err := ApplyMessageAndCommit(sp.evm, msg)
+	result, err := ApplyMessageAndCommit(sp.evm, nil, msg)
 	if err != nil {
 		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}

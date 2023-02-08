@@ -12,22 +12,36 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package params
+package mock
 
-import "github.com/ethereum/go-ethereum/params"
+// const testBaseFee = 69
 
-type (
-	EthChainConfig = params.ChainConfig
-	Rules          = params.Rules
-)
+//go:generate moq -out ./gas.mock.go -pkg mock ../ GasPlugin
 
-var (
-	// `RefundQuotient` is the refund quotient parameter.
-	RefundQuotient = params.RefundQuotient
-
-	// `RefundQuotientEIP3529` is the refund quotient parameter for EIP-3529.
-	RefundQuotientEIP3529 = params.RefundQuotientEIP3529
-
-	// `TxGas` is the amount of gas that is refunded for a transaction.
-	TxGas = params.TxGas
-)
+func NewGasPluginMock() *GasPluginMock {
+	// make and configure a mocked core.StargazerHostChain
+	mockedGasPlugin := &GasPluginMock{
+		ConsumeGasFunc: func(amount uint64) error {
+			return nil
+		},
+		CumulativeGasUsedFunc: func() uint64 {
+			return 0
+		},
+		GasRemainingFunc: func() uint64 {
+			return 0
+		},
+		GasUsedFunc: func() uint64 {
+			return 0
+		},
+		RefundGasFunc: func(amount uint64) {
+			// no-op
+		},
+		SetGasLimitFunc: func(amount uint64) error {
+			return nil
+		},
+		SetupFunc: func() error {
+			return nil
+		},
+	}
+	return mockedGasPlugin
+}
