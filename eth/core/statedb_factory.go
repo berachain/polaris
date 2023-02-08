@@ -15,21 +15,25 @@
 package core
 
 import (
+	"github.com/berachain/stargazer/eth/core/state"
+	"github.com/berachain/stargazer/eth/core/state/plugin"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/params"
 )
 
-type Blockchain struct {
-	// `csp` is the canonical, persistent state processor that runs the EVM.
-	csp *StateProcessor
+type StateDBFactory struct {
+	sp StatePlugin
+	lp state.LogsPlugin
+	rp state.RefundPlugin
 }
 
-func NewBlockchain(config *params.EthChainConfig, host StargazerHostChain) *Blockchain {
-	return &Blockchain{
-		csp: NewStateProcessor(config, nil, host),
+func NewStateDBFactory(sp StatePlugin) *StateDBFactory {
+	return &StateDBFactory{
+		sp: sp,
+		lp: plugin.NewLogs(),
+		rp: plugin.NewRefund(),
 	}
 }
 
-func (b *Blockchain) BuildStateProcessor(statedb vm.StargazerStateDB) *StateProcessor {
-	return NewStateProcessor(b.csp.config, statedb, b.csp.host)
+func (f *StateDBFactory) Build() (vm.StargazerStateDB, error) {
+	return state.NewStateDB(f.sp, f.lp, f.rp)
 }
