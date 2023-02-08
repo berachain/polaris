@@ -12,6 +12,10 @@ type (
 
 	GasPlugin interface {
 		BasePlugin
+		ConsumeGas(amount uint64) error
+		RefundGas(amount uint64)
+		GasConsumed() uint64
+		CumulativeGasUsed() uint64
 	}
 
 	StatePlugin = state.StatePlugin
