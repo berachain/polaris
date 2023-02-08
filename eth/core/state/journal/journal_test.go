@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestPlugin(t *testing.T) {
+func TestJournal(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state/plugin")
+	RunSpecs(t, "eth/core/state/journal")
 }

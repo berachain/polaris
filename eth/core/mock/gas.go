@@ -12,29 +12,36 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package mock
 
-import (
-	"github.com/ethereum/go-ethereum/core"
-)
+// const testBaseFee = 69
 
-type (
-	// `ExecutionResult` is the result of executing a transaction.
-	ExecutionResult = core.ExecutionResult
-	// `Message` contains data used ype used to execute transactions.
-	Message = core.Message
-)
+//go:generate moq -out ./gas.mock.go -pkg mock ../ GasPlugin
 
-var (
-	// `NewEVMTxContext` creates a new context for use in the EVM.
-	NewEVMTxContext = core.NewEVMTxContext
-)
-
-var (
-	// `ErrInsufficientFundsForTransfer` is the error returned when the account does not have enough funds to transfer.
-	ErrInsufficientFundsForTransfer = core.ErrInsufficientFundsForTransfer
-	// `ErrInsufficientFunds` is the error returned when the account does not have enough funds to execute the transaction.
-	ErrInsufficientFunds = core.ErrInsufficientFunds
-	// `ErrInsufficientBalanceForGas` is the error return when gas required to execute a transaction overflows.
-	ErrGasUintOverflow = core.ErrGasUintOverflow
-)
+func NewGasPluginMock() *GasPluginMock {
+	// make and configure a mocked core.StargazerHostChain
+	mockedGasPlugin := &GasPluginMock{
+		ConsumeGasFunc: func(amount uint64) error {
+			return nil
+		},
+		CumulativeGasUsedFunc: func() uint64 {
+			return 0
+		},
+		GasRemainingFunc: func() uint64 {
+			return 0
+		},
+		GasUsedFunc: func() uint64 {
+			return 0
+		},
+		RefundGasFunc: func(amount uint64) {
+			// no-op
+		},
+		SetGasLimitFunc: func(amount uint64) error {
+			return nil
+		},
+		SetupFunc: func() error {
+			return nil
+		},
+	}
+	return mockedGasPlugin
+}

@@ -16,6 +16,7 @@ package core
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
@@ -32,8 +33,7 @@ type StateTransition struct {
 	msg Message
 
 	// Gas consumption tracking
-	gas        uint64
-	initialGas uint64
+	gp GasPlugin
 }
 
 // =============================================================================
@@ -44,18 +44,20 @@ type StateTransition struct {
 // using the given EVM.
 func ApplyMessage(
 	evm vm.StargazerEVM,
+	gp GasPlugin,
 	msg Message,
 ) (*ExecutionResult, error) {
-	return NewStateTransition(evm, msg).transitionDB()
+	return NewStateTransition(evm, gp, msg).transitionDB()
 }
 
 // `ApplyMessageAndCommit` transitions the state by applying the given message to the chain state
 // using the given EVM. It also finalizes the change.
 func ApplyMessageAndCommit(
 	evm vm.StargazerEVM,
+	gp GasPlugin,
 	msg Message,
 ) (*ExecutionResult, error) {
-	res, err := NewStateTransition(evm, msg).transitionDB()
+	res, err := NewStateTransition(evm, gp, msg).transitionDB()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to TransitionDB")
 	}
@@ -70,20 +72,22 @@ func ApplyMessageAndCommit(
 // using the given EVM. Additionally it logs the execution to the given tracer.
 func ApplyMessageWithTracer(
 	evm vm.StargazerEVM,
+	gp GasPlugin,
 	msg Message,
 	tracer vm.EVMLogger,
 ) (*ExecutionResult, error) {
-	return NewStateTransition(evm, msg).traceTransitionDB(tracer)
+	return NewStateTransition(evm, gp, msg).traceTransitionDB(tracer)
 }
 
 // `ApplyMessageWithTracerAndCommit` transitions the state by applying the given message to the chain state
 // using the given EVM. Additionally it logs the execution to the given tracer. It also finalizes the change.
 func ApplyMessageWithTracerAndCommit(
 	evm vm.StargazerEVM,
+	gp GasPlugin,
 	msg Message,
 	tracer vm.EVMLogger,
 ) (*ExecutionResult, error) {
-	res, err := ApplyMessageWithTracer(evm, msg, tracer)
+	res, err := ApplyMessageWithTracer(evm, gp, msg, tracer)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to TransitionDB")
 	}
@@ -99,17 +103,21 @@ func ApplyMessageWithTracerAndCommit(
 // =============================================================================
 
 // NewStateTransition creates a new state transition object.
-func NewStateTransition(evm vm.StargazerEVM, msg Message) *StateTransition {
+func NewStateTransition(evm vm.StargazerEVM, gp GasPlugin, msg Message) *StateTransition {
 	// Configure transaction config from the message.
 	evm.SetTxContext(vm.TxContext{
 		Origin:   msg.From(),
 		GasPrice: msg.GasPrice(),
 	})
+
+	// Setup the gas plugin with the message gas limit.
+	// TODO handle error?
+	_ = gp.SetGasLimit(msg.Gas())
+
 	return &StateTransition{
-		evm:        evm,
-		msg:        msg,
-		gas:        msg.Gas(),
-		initialGas: msg.Gas(),
+		evm: evm,
+		msg: msg,
+		gp:  gp,
 	}
 }
 
@@ -144,22 +152,17 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		contractCreation = st.msg.To() == nil
 	)
 
-	gas, err := EthIntrinsicGas(msgData, st.msg.AccessList(),
-		contractCreation, rules.IsHomestead, rules.IsIstanbul)
-
-	if err != nil {
+	// Ensure that the intrinsic gas is consumed.
+	if err := st.ConsumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
 		return nil, err
 	}
-	if st.gas < gas {
-		return nil, fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gas, gas)
-	}
-	st.gas -= gas
 
 	// Check to ensure the sender has the funds to cover the value being sent.
 	if msgValue.Sign() > 0 && !ctx.CanTransfer(sdb, msgFrom, msgValue) {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msgFrom.Hex())
 	}
 
+	// Stargazer does not support access lists.
 	// if rules.IsBerlin {
 	// 	sdb.PrepareAccessList(
 	// 		msgFrom,
@@ -180,19 +183,25 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	// - this is probably not required, but adds a safety measure,
 	//   to ensure that the nonce is getting updated correctly.
 	//
+	var postExecutionGas uint64
 	if contractCreation {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
-		ret, _, st.gas, vmErr = st.evm.Create(sender,
-			msgData, st.gas, msgValue)
+		ret, _, postExecutionGas, vmErr = st.evm.Create(sender,
+			msgData, st.gp.GasRemaining(), msgValue)
 	} else {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
 		sdb.SetNonce(sender.Address(), st.msg.Nonce()+1)
 		// It is to deference st.msg.To() here, as it is checked
 		// to be non-nil higher up in this function.
-		ret, st.gas, vmErr = st.evm.Call(sender, *st.msg.To(),
-			msgData, st.gas, msgValue)
+		ret, postExecutionGas, vmErr = st.evm.Call(sender, *st.msg.To(),
+			msgData, st.gp.GasRemaining(), msgValue)
+	}
+
+	// Consume the gas used by the EVM execution.
+	if err := st.gp.ConsumeGas(st.gp.GasRemaining() - postExecutionGas); err != nil {
+		return nil, err
 	}
 
 	if !rules.IsLondon {
@@ -204,7 +213,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}
 
 	return &ExecutionResult{
-		UsedGas:    st.gasUsed(),
+		UsedGas:    st.gp.GasUsed(),
 		Err:        vmErr,
 		ReturnData: ret,
 	}, nil
@@ -227,10 +236,10 @@ func (st *StateTransition) traceTransitionDB(tracer vm.EVMLogger) (*ExecutionRes
 
 	// Capture the starting gas for the tracer, we can skip the check for debug mode that is
 	// present in geth, as we already know that the EVM is in debug mode from the lines above.
-	st.evm.Tracer().CaptureTxStart(st.initialGas)
+	st.evm.Tracer().CaptureTxStart(st.gp.GasRemaining())
 	defer func() {
 		// After execution is completed we need to capture gas remaining.
-		st.evm.Tracer().CaptureTxEnd(st.gas)
+		st.evm.Tracer().CaptureTxEnd(st.gp.GasRemaining())
 		// We also take the EVM out of debug mode as this allows us to optimize the normal
 		// execution mode by being able to skip setting debug to false in that code path.
 		st.evm.SetDebug(false)
@@ -240,24 +249,20 @@ func (st *StateTransition) traceTransitionDB(tracer vm.EVMLogger) (*ExecutionRes
 	return st.transitionDB()
 }
 
-func (st *StateTransition) gasUsed() uint64 {
-	return st.initialGas - st.gas
-}
-
 // `refundGas` is a helper function that refunds the gas to the sender. It is used
 // to refund unused gas after a transaction has been executed. The refund is capped
 // to a refund quotient.
 func (st *StateTransition) refundGas(refundQuotient uint64) {
 	sdb := st.evm.StateDB()
 	// Apply refund counter, capped to a refund quotient
-	refund := st.gasUsed() / refundQuotient
+	refund := st.gp.GasUsed() / refundQuotient
 	if refund > sdb.GetRefund() {
 		refund = sdb.GetRefund()
 	}
-	st.gas += refund
+	st.gp.RefundGas(refund)
 
 	// In Geth, we would have refunded the cost of the unused gas to the sender here.
-	// However, in <NAME> we do this in the StateProcessor, since currently, gas fees
+	// However, in Stargazer we do this in the StateProcessor, since currently, gas fees
 	// are deducted in the AnteHandler and not in TransitionDB.
 
 	// TODO: we could potentially add the gas cost refund here, since we do have access to a
@@ -269,4 +274,63 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	// Moving buyGas and refundGas to here however... would open the door to potentially using
 	// the Geth/Erigon state transition code, which would be nice. We would then just do no
 	// gas fee deduction in the AnteHandler, as the native state transition does that.
+}
+
+// `EthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
+// its given data.
+func (st *StateTransition) ConsumeEthIntrinsicGas(
+	isContractCreation bool, isHomestead, isEIP2028 bool,
+) error {
+	var gas uint64
+	// Consume the starting gas for the raw transaction.
+	gasUsed := st.gp.GasUsed()
+	if isContractCreation && isHomestead {
+		// If the meter has not yet consumed 53000 gas, we
+		// want to make the gasPlugin consumes the delta.
+		if gasUsed <= params.TxGasContractCreation {
+			gas = params.TxGasContractCreation - gasUsed
+		}
+	} else {
+		// If the meter has not yet consumed 21000 gas, we
+		// want to make the gasPlugin consumes the delta.
+		if gasUsed <= params.TxGas {
+			gas = params.TxGas - gasUsed
+		}
+	}
+
+	// Bump the required gas by the amount of transactional data
+	if data := st.msg.Data(); len(data) > 0 {
+		// Zero and non-zero bytes are priced differently
+		var nz uint64
+		for _, byt := range data {
+			if byt != 0 {
+				nz++
+			}
+		}
+		// Make sure we don't exceed uint64 for all data combinations
+		nonZeroGas := params.TxDataNonZeroGasFrontier
+		if isEIP2028 {
+			nonZeroGas = params.TxDataNonZeroGasEIP2028
+		}
+		if (math.MaxUint64-gas)/nonZeroGas < nz {
+			return ErrGasUintOverflow
+		}
+		gas += nz * nonZeroGas
+
+		z := uint64(len(data)) - nz
+		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
+			return ErrGasUintOverflow
+		}
+		gas += z * params.TxDataZeroGas
+	}
+	if accessList := st.msg.AccessList(); accessList != nil {
+		gas += uint64(len(accessList)) * params.TxAccessListAddressGas
+		gas += uint64(accessList.StorageKeys()) * params.TxAccessListStorageKeyGas
+	}
+
+	if err := st.gp.ConsumeGas(gas); err != nil {
+		return fmt.Errorf("%w: have %d, want %d", err, st.gp.GasRemaining(), gas)
+	}
+
+	return nil
 }
