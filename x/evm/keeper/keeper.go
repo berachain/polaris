@@ -48,7 +48,7 @@ func NewKeeper(
 		stakingKeeper: stakingKeeper,
 	}
 	config := params.EthChainConfig{}
-	k.stateProcessor = core.NewStateProcessor(&config, k)
+	k.stateProcessor = core.NewStateProcessor(&config, nil, k)
 	return k
 }
 
