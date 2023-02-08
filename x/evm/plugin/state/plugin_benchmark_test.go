@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	ethstate "github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/state/plugin/mock"
+	"github.com/berachain/stargazer/eth/core/state/journal/mock"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugin/state"
@@ -39,7 +39,7 @@ func GetNewStatePlugin() ethstate.StatePlugin {
 
 func GetNewStateDB() vm.StargazerStateDB {
 	sdb, _ := ethstate.NewStateDB(
-		GetNewStatePlugin(), mock.NewEmptyLogsPlugin(), mock.NewEmptyRefundPlugin(),
+		GetNewStatePlugin(), mock.NewEmptyLogsJournal(), mock.NewEmptyRefundJournal(),
 	)
 	return sdb
 }

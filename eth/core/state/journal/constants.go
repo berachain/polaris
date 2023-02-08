@@ -12,16 +12,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package journal
 
-import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+const (
+	// `initJournalCapacity` is the initial capacity of the plugins' journals.
+	initJournalCapacity = 32
+	// `refundRegistryKey` is the registry key for the refund plugin.
+	refundRegistryKey = `refund`
+	// `logsRegistryKey` is the registry key for the logs plugin.
+	logsRegistryKey = `logs`
 )
-
-func TestPlugin(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/state/plugin")
-}

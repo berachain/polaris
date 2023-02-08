@@ -16,24 +16,24 @@ package core
 
 import (
 	"github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/state/plugin"
+	plugin "github.com/berachain/stargazer/eth/core/state/journal"
 	"github.com/berachain/stargazer/eth/core/vm"
 )
 
 type StateDBFactory struct {
 	sp StatePlugin
-	lp state.LogsPlugin
-	rp state.RefundPlugin
+	lj state.LogsJournal
+	rj state.RefundJournal
 }
 
 func NewStateDBFactory(sp StatePlugin) *StateDBFactory {
 	return &StateDBFactory{
 		sp: sp,
-		lp: plugin.NewLogs(),
-		rp: plugin.NewRefund(),
+		lj: plugin.NewLogs(),
+		rj: plugin.NewRefund(),
 	}
 }
 
 func (f *StateDBFactory) Build() (vm.StargazerStateDB, error) {
-	return state.NewStateDB(f.sp, f.lp, f.rp)
+	return state.NewStateDB(f.sp, f.lj, f.rj)
 }

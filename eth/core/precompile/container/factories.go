@@ -52,9 +52,9 @@ func NewStatelessFactory() *StatelessFactory {
 //
 // `Build` implements `AbstractFactory`.
 func (sf *StatelessFactory) Build(
-	rp vm.RegistrablePrecompile,
+	rj vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
-	pc, ok := utils.GetAs[StatelessPrecompileImpl](rp)
+	pc, ok := utils.GetAs[StatelessPrecompileImpl](rj)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statelessContainerName)
 	}
@@ -79,9 +79,9 @@ func NewStatefulFactory() *StatefulFactory {
 //
 // `Build` implements `AbstractFactory`.
 func (sf *StatefulFactory) Build(
-	rp vm.RegistrablePrecompile,
+	rj vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
-	sci, ok := utils.GetAs[StatefulPrecompileImpl](rp)
+	sci, ok := utils.GetAs[StatefulPrecompileImpl](rj)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
@@ -97,7 +97,7 @@ func (sf *StatefulFactory) Build(
 		}
 	}
 
-	return NewStateful(rp, idsToMethods), nil
+	return NewStateful(rj, idsToMethods), nil
 }
 
 // `buildIdsToMethods` builds the stateful precompile container for the given `precompileMethods`
@@ -161,9 +161,9 @@ func NewDynamicFactory() *DynamicFactory {
 //
 // `Build` implements `AbstractFactory`.
 func (dcf *DynamicFactory) Build(
-	rp vm.RegistrablePrecompile,
+	rj vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
-	dci, ok := utils.GetAs[DynamicPrecompileImpl](rp)
+	dci, ok := utils.GetAs[DynamicPrecompileImpl](rj)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerName)
 	}

@@ -33,11 +33,13 @@ var (
 type stateDB struct {
 	// References to the plugins in the controller.
 	StatePlugin
-	RefundPlugin
-	LogsPlugin
 
-	// The controller is used to manage the plugins
+	// The controller is used to manage snapshots and reverts.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
+
+	// Journals
+	LogsJournal
+	RefundJournal
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
 	// for the code and state to still be accessible even after the account has been deleted.
@@ -48,20 +50,20 @@ type stateDB struct {
 }
 
 // `NewStateDB` returns a `vm.StargazerStateDB` with the given plugins.
-func NewStateDB(sp StatePlugin, lp LogsPlugin, rp RefundPlugin) (vm.StargazerStateDB, error) {
+func NewStateDB(sp StatePlugin, lj LogsJournal, rj RefundJournal) (vm.StargazerStateDB, error) {
 	// Build the controller and register the plugins
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	_ = ctrl.Register(lp)
-	_ = ctrl.Register(rp)
+	_ = ctrl.Register(lj)
+	_ = ctrl.Register(rj)
 	_ = ctrl.Register(sp)
 
 	// Create the `stateDB` and populate the developer provided plugins.
 	return &stateDB{
-		StatePlugin:  sp,
-		LogsPlugin:   lp,
-		RefundPlugin: rp,
-		ctrl:         ctrl,
-		suicides:     make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		StatePlugin:   sp,
+		LogsJournal:   lj,
+		RefundJournal: rj,
+		ctrl:          ctrl,
+		suicides:      make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}, nil
 }
 

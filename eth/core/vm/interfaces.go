@@ -19,7 +19,6 @@ import (
 	"github.com/berachain/stargazer/eth/params"
 	libtypes "github.com/berachain/stargazer/lib/types"
 
-	"context"
 	"math/big"
 
 	"github.com/berachain/stargazer/lib/common"
@@ -28,6 +27,7 @@ import (
 type (
 	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support additional
 	// state transition functionalities.
+	// TODO: change this.
 	StargazerEVM interface {
 		Reset(txCtx TxContext, sdb GethStateDB)
 		Create(caller ContractRef, code []byte,
@@ -54,7 +54,7 @@ type (
 		libtypes.Finalizeable
 
 		// `Reset` resets the context for the new transaction.
-		Reset(context.Context)
+		libtypes.Resettable
 
 		// `TransferBalance` transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)

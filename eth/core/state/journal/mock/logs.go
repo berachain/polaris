@@ -14,22 +14,28 @@
 
 package mock
 
-//go:generate moq -out ./refund.mock.go -pkg mock ../../ RefundPlugin
+import (
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+)
 
-// `NewEmptyRefundPlugin` returns an empty `RefundPluginMock`.
-func NewEmptyRefundPlugin() *RefundPluginMock {
-	return &RefundPluginMock{
-		AddRefundFunc: func(gas uint64) {
-			panic("mock out the AddRefund method")
+//go:generate moq -out ./logs.mock.go -pkg mock ../../ LogsJournal
+
+// `NewEmptyLogsJournal` returns an empty `LogsJournalMock`.
+func NewEmptyLogsJournal() *LogsJournalMock {
+	// make and configure a mocked state.LogsJournal
+	return &LogsJournalMock{
+		AddLogFunc: func(log *types.Log) {
+			panic("mock out the AddLog method")
+		},
+		BuildLogsAndClearFunc: func(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
+			panic("mock out the BuildLogsAndClear method")
 		},
 		FinalizeFunc: func() {
 			// no-op
 		},
-		GetRefundFunc: func() uint64 {
-			panic("mock out the GetRefund method")
-		},
 		RegistryKeyFunc: func() string {
-			return "emptyrefund"
+			return "emptylogs"
 		},
 		RevertToSnapshotFunc: func(n int) {
 			// no-op
@@ -37,9 +43,6 @@ func NewEmptyRefundPlugin() *RefundPluginMock {
 		SnapshotFunc: func() int {
 			// no-op
 			return 0
-		},
-		SubRefundFunc: func(gas uint64) {
-			panic("mock out the SubRefund method")
 		},
 	}
 }

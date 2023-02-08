@@ -43,10 +43,10 @@ type stateful struct {
 
 // `NewStateful` creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
-	rp vm.RegistrablePrecompile, idsToMethods map[string]*Method,
+	rj vm.RegistrablePrecompile, idsToMethods map[string]*Method,
 ) vm.PrecompileContainer {
 	return &stateful{
-		RegistrablePrecompile: rp,
+		RegistrablePrecompile: rj,
 		idsToMethods:          idsToMethods,
 	}
 }

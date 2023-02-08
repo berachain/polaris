@@ -8,16 +8,16 @@ import (
 	"sync"
 )
 
-// Ensure, that RefundPluginMock does implement state.RefundPlugin.
+// Ensure, that RefundJournalMock does implement state.RefundJournal.
 // If this is not the case, regenerate this file with moq.
-var _ state.RefundPlugin = &RefundPluginMock{}
+var _ state.RefundJournal = &RefundJournalMock{}
 
-// RefundPluginMock is a mock implementation of state.RefundPlugin.
+// RefundJournalMock is a mock implementation of state.RefundJournal.
 //
-//	func TestSomethingThatUsesRefundPlugin(t *testing.T) {
+//	func TestSomethingThatUsesRefundJournal(t *testing.T) {
 //
-//		// make and configure a mocked state.RefundPlugin
-//		mockedRefundPlugin := &RefundPluginMock{
+//		// make and configure a mocked state.RefundJournal
+//		mockedRefundJournal := &RefundJournalMock{
 //			AddRefundFunc: func(gas uint64)  {
 //				panic("mock out the AddRefund method")
 //			},
@@ -41,11 +41,11 @@ var _ state.RefundPlugin = &RefundPluginMock{}
 //			},
 //		}
 //
-//		// use mockedRefundPlugin in code that requires state.RefundPlugin
+//		// use mockedRefundJournal in code that requires state.RefundJournal
 //		// and then make assertions.
 //
 //	}
-type RefundPluginMock struct {
+type RefundJournalMock struct {
 	// AddRefundFunc mocks the AddRefund method.
 	AddRefundFunc func(gas uint64)
 
@@ -107,9 +107,9 @@ type RefundPluginMock struct {
 }
 
 // AddRefund calls AddRefundFunc.
-func (mock *RefundPluginMock) AddRefund(gas uint64) {
+func (mock *RefundJournalMock) AddRefund(gas uint64) {
 	if mock.AddRefundFunc == nil {
-		panic("RefundPluginMock.AddRefundFunc: method is nil but RefundPlugin.AddRefund was just called")
+		panic("RefundJournalMock.AddRefundFunc: method is nil but RefundJournal.AddRefund was just called")
 	}
 	callInfo := struct {
 		Gas uint64
@@ -125,8 +125,8 @@ func (mock *RefundPluginMock) AddRefund(gas uint64) {
 // AddRefundCalls gets all the calls that were made to AddRefund.
 // Check the length with:
 //
-//	len(mockedRefundPlugin.AddRefundCalls())
-func (mock *RefundPluginMock) AddRefundCalls() []struct {
+//	len(mockedRefundJournal.AddRefundCalls())
+func (mock *RefundJournalMock) AddRefundCalls() []struct {
 	Gas uint64
 } {
 	var calls []struct {
@@ -139,9 +139,9 @@ func (mock *RefundPluginMock) AddRefundCalls() []struct {
 }
 
 // Finalize calls FinalizeFunc.
-func (mock *RefundPluginMock) Finalize() {
+func (mock *RefundJournalMock) Finalize() {
 	if mock.FinalizeFunc == nil {
-		panic("RefundPluginMock.FinalizeFunc: method is nil but RefundPlugin.Finalize was just called")
+		panic("RefundJournalMock.FinalizeFunc: method is nil but RefundJournal.Finalize was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -154,8 +154,8 @@ func (mock *RefundPluginMock) Finalize() {
 // FinalizeCalls gets all the calls that were made to Finalize.
 // Check the length with:
 //
-//	len(mockedRefundPlugin.FinalizeCalls())
-func (mock *RefundPluginMock) FinalizeCalls() []struct {
+//	len(mockedRefundJournal.FinalizeCalls())
+func (mock *RefundJournalMock) FinalizeCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -166,9 +166,9 @@ func (mock *RefundPluginMock) FinalizeCalls() []struct {
 }
 
 // GetRefund calls GetRefundFunc.
-func (mock *RefundPluginMock) GetRefund() uint64 {
+func (mock *RefundJournalMock) GetRefund() uint64 {
 	if mock.GetRefundFunc == nil {
-		panic("RefundPluginMock.GetRefundFunc: method is nil but RefundPlugin.GetRefund was just called")
+		panic("RefundJournalMock.GetRefundFunc: method is nil but RefundJournal.GetRefund was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -181,8 +181,8 @@ func (mock *RefundPluginMock) GetRefund() uint64 {
 // GetRefundCalls gets all the calls that were made to GetRefund.
 // Check the length with:
 //
-//	len(mockedRefundPlugin.GetRefundCalls())
-func (mock *RefundPluginMock) GetRefundCalls() []struct {
+//	len(mockedRefundJournal.GetRefundCalls())
+func (mock *RefundJournalMock) GetRefundCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -193,9 +193,9 @@ func (mock *RefundPluginMock) GetRefundCalls() []struct {
 }
 
 // RegistryKey calls RegistryKeyFunc.
-func (mock *RefundPluginMock) RegistryKey() string {
+func (mock *RefundJournalMock) RegistryKey() string {
 	if mock.RegistryKeyFunc == nil {
-		panic("RefundPluginMock.RegistryKeyFunc: method is nil but RefundPlugin.RegistryKey was just called")
+		panic("RefundJournalMock.RegistryKeyFunc: method is nil but RefundJournal.RegistryKey was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -208,8 +208,8 @@ func (mock *RefundPluginMock) RegistryKey() string {
 // RegistryKeyCalls gets all the calls that were made to RegistryKey.
 // Check the length with:
 //
-//	len(mockedRefundPlugin.RegistryKeyCalls())
-func (mock *RefundPluginMock) RegistryKeyCalls() []struct {
+//	len(mockedRefundJournal.RegistryKeyCalls())
+func (mock *RefundJournalMock) RegistryKeyCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -220,9 +220,9 @@ func (mock *RefundPluginMock) RegistryKeyCalls() []struct {
 }
 
 // RevertToSnapshot calls RevertToSnapshotFunc.
-func (mock *RefundPluginMock) RevertToSnapshot(n int) {
+func (mock *RefundJournalMock) RevertToSnapshot(n int) {
 	if mock.RevertToSnapshotFunc == nil {
-		panic("RefundPluginMock.RevertToSnapshotFunc: method is nil but RefundPlugin.RevertToSnapshot was just called")
+		panic("RefundJournalMock.RevertToSnapshotFunc: method is nil but RefundJournal.RevertToSnapshot was just called")
 	}
 	callInfo := struct {
 		N int
@@ -238,8 +238,8 @@ func (mock *RefundPluginMock) RevertToSnapshot(n int) {
 // RevertToSnapshotCalls gets all the calls that were made to RevertToSnapshot.
 // Check the length with:
 //
-//	len(mockedRefundPlugin.RevertToSnapshotCalls())
-func (mock *RefundPluginMock) RevertToSnapshotCalls() []struct {
+//	len(mockedRefundJournal.RevertToSnapshotCalls())
+func (mock *RefundJournalMock) RevertToSnapshotCalls() []struct {
 	N int
 } {
 	var calls []struct {
@@ -252,9 +252,9 @@ func (mock *RefundPluginMock) RevertToSnapshotCalls() []struct {
 }
 
 // Snapshot calls SnapshotFunc.
-func (mock *RefundPluginMock) Snapshot() int {
+func (mock *RefundJournalMock) Snapshot() int {
 	if mock.SnapshotFunc == nil {
-		panic("RefundPluginMock.SnapshotFunc: method is nil but RefundPlugin.Snapshot was just called")
+		panic("RefundJournalMock.SnapshotFunc: method is nil but RefundJournal.Snapshot was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -267,8 +267,8 @@ func (mock *RefundPluginMock) Snapshot() int {
 // SnapshotCalls gets all the calls that were made to Snapshot.
 // Check the length with:
 //
-//	len(mockedRefundPlugin.SnapshotCalls())
-func (mock *RefundPluginMock) SnapshotCalls() []struct {
+//	len(mockedRefundJournal.SnapshotCalls())
+func (mock *RefundJournalMock) SnapshotCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -279,9 +279,9 @@ func (mock *RefundPluginMock) SnapshotCalls() []struct {
 }
 
 // SubRefund calls SubRefundFunc.
-func (mock *RefundPluginMock) SubRefund(gas uint64) {
+func (mock *RefundJournalMock) SubRefund(gas uint64) {
 	if mock.SubRefundFunc == nil {
-		panic("RefundPluginMock.SubRefundFunc: method is nil but RefundPlugin.SubRefund was just called")
+		panic("RefundJournalMock.SubRefundFunc: method is nil but RefundJournal.SubRefund was just called")
 	}
 	callInfo := struct {
 		Gas uint64
@@ -297,8 +297,8 @@ func (mock *RefundPluginMock) SubRefund(gas uint64) {
 // SubRefundCalls gets all the calls that were made to SubRefund.
 // Check the length with:
 //
-//	len(mockedRefundPlugin.SubRefundCalls())
-func (mock *RefundPluginMock) SubRefundCalls() []struct {
+//	len(mockedRefundJournal.SubRefundCalls())
+func (mock *RefundJournalMock) SubRefundCalls() []struct {
 	Gas uint64
 } {
 	var calls []struct {

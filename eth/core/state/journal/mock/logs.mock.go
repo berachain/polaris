@@ -10,16 +10,16 @@ import (
 	"sync"
 )
 
-// Ensure, that LogsPluginMock does implement state.LogsPlugin.
+// Ensure, that LogsJournalMock does implement state.LogsJournal.
 // If this is not the case, regenerate this file with moq.
-var _ state.LogsPlugin = &LogsPluginMock{}
+var _ state.LogsJournal = &LogsJournalMock{}
 
-// LogsPluginMock is a mock implementation of state.LogsPlugin.
+// LogsJournalMock is a mock implementation of state.LogsJournal.
 //
-//	func TestSomethingThatUsesLogsPlugin(t *testing.T) {
+//	func TestSomethingThatUsesLogsJournal(t *testing.T) {
 //
-//		// make and configure a mocked state.LogsPlugin
-//		mockedLogsPlugin := &LogsPluginMock{
+//		// make and configure a mocked state.LogsJournal
+//		mockedLogsJournal := &LogsJournalMock{
 //			AddLogFunc: func(log *types.Log)  {
 //				panic("mock out the AddLog method")
 //			},
@@ -40,11 +40,11 @@ var _ state.LogsPlugin = &LogsPluginMock{}
 //			},
 //		}
 //
-//		// use mockedLogsPlugin in code that requires state.LogsPlugin
+//		// use mockedLogsJournal in code that requires state.LogsJournal
 //		// and then make assertions.
 //
 //	}
-type LogsPluginMock struct {
+type LogsJournalMock struct {
 	// AddLogFunc mocks the AddLog method.
 	AddLogFunc func(log *types.Log)
 
@@ -105,9 +105,9 @@ type LogsPluginMock struct {
 }
 
 // AddLog calls AddLogFunc.
-func (mock *LogsPluginMock) AddLog(log *types.Log) {
+func (mock *LogsJournalMock) AddLog(log *types.Log) {
 	if mock.AddLogFunc == nil {
-		panic("LogsPluginMock.AddLogFunc: method is nil but LogsPlugin.AddLog was just called")
+		panic("LogsJournalMock.AddLogFunc: method is nil but LogsJournal.AddLog was just called")
 	}
 	callInfo := struct {
 		Log *types.Log
@@ -123,8 +123,8 @@ func (mock *LogsPluginMock) AddLog(log *types.Log) {
 // AddLogCalls gets all the calls that were made to AddLog.
 // Check the length with:
 //
-//	len(mockedLogsPlugin.AddLogCalls())
-func (mock *LogsPluginMock) AddLogCalls() []struct {
+//	len(mockedLogsJournal.AddLogCalls())
+func (mock *LogsJournalMock) AddLogCalls() []struct {
 	Log *types.Log
 } {
 	var calls []struct {
@@ -137,9 +137,9 @@ func (mock *LogsPluginMock) AddLogCalls() []struct {
 }
 
 // BuildLogsAndClear calls BuildLogsAndClearFunc.
-func (mock *LogsPluginMock) BuildLogsAndClear(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
+func (mock *LogsJournalMock) BuildLogsAndClear(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
 	if mock.BuildLogsAndClearFunc == nil {
-		panic("LogsPluginMock.BuildLogsAndClearFunc: method is nil but LogsPlugin.BuildLogsAndClear was just called")
+		panic("LogsJournalMock.BuildLogsAndClearFunc: method is nil but LogsJournal.BuildLogsAndClear was just called")
 	}
 	callInfo := struct {
 		Hash1 common.Hash
@@ -161,8 +161,8 @@ func (mock *LogsPluginMock) BuildLogsAndClear(hash1 common.Hash, hash2 common.Ha
 // BuildLogsAndClearCalls gets all the calls that were made to BuildLogsAndClear.
 // Check the length with:
 //
-//	len(mockedLogsPlugin.BuildLogsAndClearCalls())
-func (mock *LogsPluginMock) BuildLogsAndClearCalls() []struct {
+//	len(mockedLogsJournal.BuildLogsAndClearCalls())
+func (mock *LogsJournalMock) BuildLogsAndClearCalls() []struct {
 	Hash1 common.Hash
 	Hash2 common.Hash
 	V1    uint
@@ -181,9 +181,9 @@ func (mock *LogsPluginMock) BuildLogsAndClearCalls() []struct {
 }
 
 // Finalize calls FinalizeFunc.
-func (mock *LogsPluginMock) Finalize() {
+func (mock *LogsJournalMock) Finalize() {
 	if mock.FinalizeFunc == nil {
-		panic("LogsPluginMock.FinalizeFunc: method is nil but LogsPlugin.Finalize was just called")
+		panic("LogsJournalMock.FinalizeFunc: method is nil but LogsJournal.Finalize was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -196,8 +196,8 @@ func (mock *LogsPluginMock) Finalize() {
 // FinalizeCalls gets all the calls that were made to Finalize.
 // Check the length with:
 //
-//	len(mockedLogsPlugin.FinalizeCalls())
-func (mock *LogsPluginMock) FinalizeCalls() []struct {
+//	len(mockedLogsJournal.FinalizeCalls())
+func (mock *LogsJournalMock) FinalizeCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -208,9 +208,9 @@ func (mock *LogsPluginMock) FinalizeCalls() []struct {
 }
 
 // RegistryKey calls RegistryKeyFunc.
-func (mock *LogsPluginMock) RegistryKey() string {
+func (mock *LogsJournalMock) RegistryKey() string {
 	if mock.RegistryKeyFunc == nil {
-		panic("LogsPluginMock.RegistryKeyFunc: method is nil but LogsPlugin.RegistryKey was just called")
+		panic("LogsJournalMock.RegistryKeyFunc: method is nil but LogsJournal.RegistryKey was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -223,8 +223,8 @@ func (mock *LogsPluginMock) RegistryKey() string {
 // RegistryKeyCalls gets all the calls that were made to RegistryKey.
 // Check the length with:
 //
-//	len(mockedLogsPlugin.RegistryKeyCalls())
-func (mock *LogsPluginMock) RegistryKeyCalls() []struct {
+//	len(mockedLogsJournal.RegistryKeyCalls())
+func (mock *LogsJournalMock) RegistryKeyCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -235,9 +235,9 @@ func (mock *LogsPluginMock) RegistryKeyCalls() []struct {
 }
 
 // RevertToSnapshot calls RevertToSnapshotFunc.
-func (mock *LogsPluginMock) RevertToSnapshot(n int) {
+func (mock *LogsJournalMock) RevertToSnapshot(n int) {
 	if mock.RevertToSnapshotFunc == nil {
-		panic("LogsPluginMock.RevertToSnapshotFunc: method is nil but LogsPlugin.RevertToSnapshot was just called")
+		panic("LogsJournalMock.RevertToSnapshotFunc: method is nil but LogsJournal.RevertToSnapshot was just called")
 	}
 	callInfo := struct {
 		N int
@@ -253,8 +253,8 @@ func (mock *LogsPluginMock) RevertToSnapshot(n int) {
 // RevertToSnapshotCalls gets all the calls that were made to RevertToSnapshot.
 // Check the length with:
 //
-//	len(mockedLogsPlugin.RevertToSnapshotCalls())
-func (mock *LogsPluginMock) RevertToSnapshotCalls() []struct {
+//	len(mockedLogsJournal.RevertToSnapshotCalls())
+func (mock *LogsJournalMock) RevertToSnapshotCalls() []struct {
 	N int
 } {
 	var calls []struct {
@@ -267,9 +267,9 @@ func (mock *LogsPluginMock) RevertToSnapshotCalls() []struct {
 }
 
 // Snapshot calls SnapshotFunc.
-func (mock *LogsPluginMock) Snapshot() int {
+func (mock *LogsJournalMock) Snapshot() int {
 	if mock.SnapshotFunc == nil {
-		panic("LogsPluginMock.SnapshotFunc: method is nil but LogsPlugin.Snapshot was just called")
+		panic("LogsJournalMock.SnapshotFunc: method is nil but LogsJournal.Snapshot was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -282,8 +282,8 @@ func (mock *LogsPluginMock) Snapshot() int {
 // SnapshotCalls gets all the calls that were made to Snapshot.
 // Check the length with:
 //
-//	len(mockedLogsPlugin.SnapshotCalls())
-func (mock *LogsPluginMock) SnapshotCalls() []struct {
+//	len(mockedLogsJournal.SnapshotCalls())
+func (mock *LogsJournalMock) SnapshotCalls() []struct {
 } {
 	var calls []struct {
 	}

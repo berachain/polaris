@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package plugin
+package journal
 
 import (
 	"math"
@@ -31,7 +31,7 @@ type logs struct {
 }
 
 // `NewLogs` returns a new `Logs` store.
-func NewLogs() state.LogsPlugin {
+func NewLogs() state.LogsJournal {
 	return &logs{
 		Stack: stack.New[*coretypes.Log](initJournalCapacity),
 	}

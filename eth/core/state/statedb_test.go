@@ -18,7 +18,7 @@ import (
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/state/plugin/mock"
+	"github.com/berachain/stargazer/eth/core/state/journal/mock"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/testutil"
 
@@ -38,8 +38,8 @@ var _ = Describe("StateDB", func() {
 		var err error
 		sdb, err = state.NewStateDB(
 			mock.NewEmptyStatePlugin(),
-			mock.NewEmptyLogsPlugin(),
-			mock.NewEmptyRefundPlugin(),
+			mock.NewEmptyLogsJournal(),
+			mock.NewEmptyRefundJournal(),
 		)
 		Expect(err).To(BeNil())
 	})

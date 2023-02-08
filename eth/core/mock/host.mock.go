@@ -19,8 +19,8 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //
 //		// make and configure a mocked core.StargazerHostChain
 //		mockedStargazerHostChain := &StargazerHostChainMock{
-//			GetChainPluginFunc: func() core.ChainPlugin {
-//				panic("mock out the GetChainPlugin method")
+//			GetBlockPluginFunc: func() core.BlockPlugin {
+//				panic("mock out the GetBlockPlugin method")
 //			},
 //			GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
 //				panic("mock out the GetConfigurationPlugin method")
@@ -41,8 +41,8 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //
 //	}
 type StargazerHostChainMock struct {
-	// GetChainPluginFunc mocks the GetChainPlugin method.
-	GetChainPluginFunc func() core.ChainPlugin
+	// GetBlockPluginFunc mocks the GetBlockPlugin method.
+	GetBlockPluginFunc func() core.BlockPlugin
 
 	// GetConfigurationPluginFunc mocks the GetConfigurationPlugin method.
 	GetConfigurationPluginFunc func() core.ConfigurationPlugin
@@ -58,8 +58,8 @@ type StargazerHostChainMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// GetChainPlugin holds details about calls to the GetChainPlugin method.
-		GetChainPlugin []struct {
+		// GetBlockPlugin holds details about calls to the GetBlockPlugin method.
+		GetBlockPlugin []struct {
 		}
 		// GetConfigurationPlugin holds details about calls to the GetConfigurationPlugin method.
 		GetConfigurationPlugin []struct {
@@ -74,37 +74,37 @@ type StargazerHostChainMock struct {
 		GetStatePlugin []struct {
 		}
 	}
-	lockGetChainPlugin         sync.RWMutex
+	lockGetBlockPlugin         sync.RWMutex
 	lockGetConfigurationPlugin sync.RWMutex
 	lockGetGasPlugin           sync.RWMutex
 	lockGetPrecompilePlugin    sync.RWMutex
 	lockGetStatePlugin         sync.RWMutex
 }
 
-// GetChainPlugin calls GetChainPluginFunc.
-func (mock *StargazerHostChainMock) GetChainPlugin() core.ChainPlugin {
-	if mock.GetChainPluginFunc == nil {
-		panic("StargazerHostChainMock.GetChainPluginFunc: method is nil but StargazerHostChain.GetChainPlugin was just called")
+// GetBlockPlugin calls GetBlockPluginFunc.
+func (mock *StargazerHostChainMock) GetBlockPlugin() core.BlockPlugin {
+	if mock.GetBlockPluginFunc == nil {
+		panic("StargazerHostChainMock.GetBlockPluginFunc: method is nil but StargazerHostChain.GetBlockPlugin was just called")
 	}
 	callInfo := struct {
 	}{}
-	mock.lockGetChainPlugin.Lock()
-	mock.calls.GetChainPlugin = append(mock.calls.GetChainPlugin, callInfo)
-	mock.lockGetChainPlugin.Unlock()
-	return mock.GetChainPluginFunc()
+	mock.lockGetBlockPlugin.Lock()
+	mock.calls.GetBlockPlugin = append(mock.calls.GetBlockPlugin, callInfo)
+	mock.lockGetBlockPlugin.Unlock()
+	return mock.GetBlockPluginFunc()
 }
 
-// GetChainPluginCalls gets all the calls that were made to GetChainPlugin.
+// GetBlockPluginCalls gets all the calls that were made to GetBlockPlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.GetChainPluginCalls())
-func (mock *StargazerHostChainMock) GetChainPluginCalls() []struct {
+//	len(mockedStargazerHostChain.GetBlockPluginCalls())
+func (mock *StargazerHostChainMock) GetBlockPluginCalls() []struct {
 } {
 	var calls []struct {
 	}
-	mock.lockGetChainPlugin.RLock()
-	calls = mock.calls.GetChainPlugin
-	mock.lockGetChainPlugin.RUnlock()
+	mock.lockGetBlockPlugin.RLock()
+	calls = mock.calls.GetBlockPlugin
+	mock.lockGetBlockPlugin.RUnlock()
 	return calls
 }
 

@@ -12,38 +12,34 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package mock
 
-import (
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/core/state"
-)
+//go:generate moq -out ./refund.mock.go -pkg mock ../../ RefundJournal
 
-type (
-	ChainPlugin interface {
-		BasePlugin
+// `NewEmptyRefundJournal` returns an empty `RefundJournalMock`.
+func NewEmptyRefundJournal() *RefundJournalMock {
+	return &RefundJournalMock{
+		AddRefundFunc: func(gas uint64) {
+			panic("mock out the AddRefund method")
+		},
+		FinalizeFunc: func() {
+			// no-op
+		},
+		GetRefundFunc: func() uint64 {
+			panic("mock out the GetRefund method")
+		},
+		RegistryKeyFunc: func() string {
+			return "emptyrefund"
+		},
+		RevertToSnapshotFunc: func(n int) {
+			// no-op
+		},
+		SnapshotFunc: func() int {
+			// no-op
+			return 0
+		},
+		SubRefundFunc: func(gas uint64) {
+			panic("mock out the SubRefund method")
+		},
 	}
-
-	GasPlugin interface {
-		BasePlugin
-		ConsumeGas(amount uint64) error
-		RefundGas(amount uint64)
-		GasConsumed() uint64
-		CumulativeGasUsed() uint64
-	}
-
-	StatePlugin = state.StatePlugin
-
-	PrecompilePlugin interface {
-		BasePlugin
-		precompile.Runner
-	}
-
-	ConfigurationPlugin interface {
-		BasePlugin
-	}
-
-	BasePlugin interface {
-		Setup() error
-	}
-)
+}
