@@ -96,6 +96,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// Create a new context to be used in the EVM environment.
 	txContext := NewEVMTxContext(msg)
+	sp.statedb.Reset(ctx)
 	sp.evm.Reset(txContext, sp.statedb)
 
 	// Apply the state transition.
