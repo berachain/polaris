@@ -21,6 +21,7 @@ import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/lib/errors"
+	"github.com/ethereum/go-ethereum/core"
 )
 
 // `StateTransition` is the main object which takes care of applying a
@@ -329,7 +330,7 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 	}
 
 	if err := st.gp.ConsumeGas(gas); err != nil {
-		return fmt.Errorf("%w: have %d, want %d", err, st.gp.GasRemaining(), gas)
+		return fmt.Errorf("%w: have %d, want %d", core.ErrIntrinsicGas, st.gp.GasRemaining(), gas)
 	}
 
 	return nil

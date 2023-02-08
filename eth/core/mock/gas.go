@@ -14,34 +14,52 @@
 
 package mock
 
-// const testBaseFee = 69
+import "errors"
 
-//go:generate moq -out ./gas.mock.go -pkg mock ../ GasPlugin
+type GasPluginMock struct {
+	gasUsed  uint64
+	gasLimit uint64
+}
 
-func NewGasPluginMock() *GasPluginMock {
-	// make and configure a mocked core.StargazerHostChain
-	mockedGasPlugin := &GasPluginMock{
-		ConsumeGasFunc: func(amount uint64) error {
-			return nil
-		},
-		CumulativeGasUsedFunc: func() uint64 {
-			return 0
-		},
-		GasRemainingFunc: func() uint64 {
-			return 0
-		},
-		GasUsedFunc: func() uint64 {
-			return 0
-		},
-		RefundGasFunc: func(amount uint64) {
-			// no-op
-		},
-		SetGasLimitFunc: func(amount uint64) error {
-			return nil
-		},
-		SetupFunc: func() error {
-			return nil
-		},
+func NewGasPluginMock(gasLimit uint64) *GasPluginMock {
+	return &GasPluginMock{
+		gasLimit: gasLimit,
 	}
-	return mockedGasPlugin
+}
+
+func (w *GasPluginMock) Setup() error {
+	return nil
+}
+
+func (w *GasPluginMock) ConsumeGas(amount uint64) error {
+	if w.gasUsed+amount > w.gasLimit {
+		return errors.New("gas limit exceeded")
+	}
+	w.gasUsed += amount
+	return nil
+}
+
+func (w *GasPluginMock) CumulativeGasUsed() uint64 {
+	return w.gasUsed
+}
+
+func (w *GasPluginMock) GasRemaining() uint64 {
+	return w.gasLimit - w.gasUsed
+}
+
+func (w *GasPluginMock) GasUsed() uint64 {
+	return w.gasUsed
+}
+
+func (w *GasPluginMock) RefundGas(amount uint64) {
+	if w.gasUsed < amount {
+		w.gasUsed = 0
+	} else {
+		w.gasUsed -= amount
+	}
+}
+
+func (w *GasPluginMock) SetGasLimit(amount uint64) error {
+	w.gasLimit = amount
+	return nil
 }
