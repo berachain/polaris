@@ -293,6 +293,8 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	// gas fee deduction in the AnteHandler, as the native state transition does that.
 }
 
+// `EthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
+// its given data.
 func (st *StateTransition) EthIntrinsicGas(
 	isContractCreation bool, isHomestead, isEIP2028 bool,
 ) (uint64, error) {
