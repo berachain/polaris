@@ -152,26 +152,9 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		contractCreation = st.msg.To() == nil
 	)
 
-	// Consume the starting gas for the raw transaction.
-	if contractCreation && rules.IsHomestead {
-		err := st.gp.ConsumeGas(params.TxGasContractCreation)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		err := st.gp.ConsumeGas(params.TxGas)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	intrinsicGas, err := st.EthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul)
-	if err != nil {
+	// Ensure that the intrinsic gas is consumed.
+	if err := st.ConsumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
 		return nil, err
-	}
-
-	if err = st.gp.ConsumeGas(intrinsicGas); err != nil {
-		return nil, fmt.Errorf("%w: have %d, want %d", err, st.gp.GasRemaining(), intrinsicGas)
 	}
 
 	// Check to ensure the sender has the funds to cover the value being sent.
@@ -217,7 +200,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}
 
 	// Consume the gas used by the EVM execution.
-	if err = st.gp.ConsumeGas(st.gp.GasRemaining() - postExecutionGas); err != nil {
+	if err := st.gp.ConsumeGas(st.gp.GasRemaining() - postExecutionGas); err != nil {
 		return nil, err
 	}
 
@@ -295,11 +278,26 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 
 // `EthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
 // its given data.
-func (st *StateTransition) EthIntrinsicGas(
+func (st *StateTransition) ConsumeEthIntrinsicGas(
 	isContractCreation bool, isHomestead, isEIP2028 bool,
-) (uint64, error) {
-	// Do NOT set the starting gas here as it has already been consumed by the gas plugin.
+) error {
 	var gas uint64
+	// Consume the starting gas for the raw transaction.
+	gasUsed := st.gp.GasUsed()
+	if isContractCreation && isHomestead {
+		// If the meter has not yet consumed 53000 gas, we
+		// want to make the gasPlugin consumes the delta.
+		if gasUsed <= params.TxGasContractCreation {
+			gas = params.TxGasContractCreation - gasUsed
+		}
+	} else {
+		// If the meter has not yet consumed 21000 gas, we
+		// want to make the gasPlugin consumes the delta.
+		if gasUsed <= params.TxGas {
+			gas = params.TxGas - gasUsed
+		}
+	}
+
 	// Bump the required gas by the amount of transactional data
 	if data := st.msg.Data(); len(data) > 0 {
 		// Zero and non-zero bytes are priced differently
@@ -315,13 +313,13 @@ func (st *StateTransition) EthIntrinsicGas(
 			nonZeroGas = params.TxDataNonZeroGasEIP2028
 		}
 		if (math.MaxUint64-gas)/nonZeroGas < nz {
-			return 0, ErrGasUintOverflow
+			return ErrGasUintOverflow
 		}
 		gas += nz * nonZeroGas
 
 		z := uint64(len(data)) - nz
 		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
-			return 0, ErrGasUintOverflow
+			return ErrGasUintOverflow
 		}
 		gas += z * params.TxDataZeroGas
 	}
@@ -329,5 +327,10 @@ func (st *StateTransition) EthIntrinsicGas(
 		gas += uint64(len(accessList)) * params.TxAccessListAddressGas
 		gas += uint64(accessList.StorageKeys()) * params.TxAccessListStorageKeyGas
 	}
-	return gas, nil
+
+	if err := st.gp.ConsumeGas(gas); err != nil {
+		return fmt.Errorf("%w: have %d, want %d", err, st.gp.GasRemaining(), gas)
+	}
+
+	return nil
 }
