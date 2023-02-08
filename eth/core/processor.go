@@ -67,7 +67,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 	sp.receipts = types.Receipts{}
 	sp.transactions = types.Transactions{}
-	// todo: use a real state db
+	// TODO: use a real state db
 	sp.statedb = vmmock.NewEmptyStateDB()
 	sp.signer = types.MakeSigner(sp.config, sp.blockHeader.Number)
 
@@ -100,7 +100,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	sp.evm.Reset(txContext, sp.statedb)
 
 	// Apply the state transition.
-	result, err := ApplyMessageAndCommit(sp.evm, msg)
+	result, err := ApplyMessageAndCommit(sp.evm, nil, msg)
 	if err != nil {
 		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}

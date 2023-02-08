@@ -26,9 +26,11 @@ type (
 
 	GasPlugin interface {
 		BasePlugin
+		SetGasLimit(amount uint64) error
 		ConsumeGas(amount uint64) error
 		RefundGas(amount uint64)
-		GasConsumed() uint64
+		GasRemaining() uint64
+		GasUsed() uint64
 		CumulativeGasUsed() uint64
 	}
 
