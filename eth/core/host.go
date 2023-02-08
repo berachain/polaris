@@ -14,18 +14,12 @@
 
 package core
 
-import (
-	"context"
-
-	"github.com/berachain/stargazer/eth/core/types"
-)
-
 // `StargazerHostChain` defines the methods that the chain running the
 // Stargazer EVM must implement.
 type StargazerHostChain interface {
-	// `StargazerHeaderAtHeight` returns the StargazerHeader at the given height.
-	StargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
-
-	// `CumulativeGasUsed` returns the cumulative gas used at the given point in time.
-	CumulativeGasUsed(context.Context, uint64) uint64
+	GetChainPlugin() ChainPlugin
+	GetGasPlugin() GasPlugin
+	GetStatePlugin() StatePlugin
+	GetPrecompilePlugin() PrecompilePlugin
+	GetConfigurationPlugin() ConfigurationPlugin
 }
