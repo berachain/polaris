@@ -28,31 +28,49 @@ import (
 type StatePlugin interface { //nolint:revive // vibes.
 	libtypes.Controllable[string]
 
+	// `Reset` resets the state with the given `context`.
 	Reset(context.Context)
 
+	// `CreateAccount` creates an account with the given `address`.
 	CreateAccount(common.Address)
-	// Exist reports whether the given account exists in state.
-	// Notably this should also return true for suicided accounts.
+	// `Exist` reports whether the given account exists in state. Notably this should also return
+	// true for suicided accounts.
 	Exist(common.Address) bool
 
+	// `GetBalance` returns the balance of the given account.
 	GetBalance(common.Address) *big.Int
+	// `AddBalance` adds amount to the given account.
 	SubBalance(common.Address, *big.Int)
+	// `SubBalance` subtracts amount from the given account.
 	AddBalance(common.Address, *big.Int)
+	// `TransferBalance` transfers amount from one account to the other.
 	TransferBalance(common.Address, common.Address, *big.Int)
 
+	// `GetNonce` returns the nonce of the given account.
 	GetNonce(common.Address) uint64
+	// `SetNonce` sets the nonce of the given account.
 	SetNonce(common.Address, uint64)
 
+	// `GetCodeHash` returns the code hash of the given account.
 	GetCodeHash(common.Address) common.Hash
+	// `GetCode` returns the code associated with a given account.
 	GetCode(common.Address) []byte
+	// `SetCode` sets the code associated with a given account.
 	SetCode(common.Address, []byte)
+	// `GetCodeSize` returns the size of the code associated with a given account.
 	GetCodeSize(common.Address) int
 
+	// `GetCommittedState` returns the committed value from account storage.
 	GetCommittedState(common.Address, common.Hash) common.Hash
+	// `GetState` returns the value from account storage.
 	GetState(common.Address, common.Hash) common.Hash
+	// `SetState` sets the value for a given key in account storage.
 	SetState(common.Address, common.Hash, common.Hash)
+	// `ForEachStorage` iterates over the storage of an account and calls the given callback
+	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
 
+	// `DeleteSuicides` removes the given accounts from the state.
 	DeleteSuicides([]common.Address)
 }
 

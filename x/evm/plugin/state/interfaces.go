@@ -28,7 +28,10 @@ import (
 type ControllableEventManager interface {
 	libtypes.Controllable[string]
 	sdk.EventManagerI
+
+	// `BeginPrecompileExecution` begins a precompile execution by setting the logs DB.
 	BeginPrecompileExecution(precompile.LogsDB)
+	// `EndPrecompileExecution` ends a precompile execution by resetting the logs DB to nil.
 	EndPrecompileExecution()
 }
 
@@ -37,6 +40,8 @@ type ControllableEventManager interface {
 type ControllableMultiStore interface {
 	libtypes.Controllable[string]
 	storetypes.MultiStore
+
+	// `GetCommittedKVStore` returns the committed KV store from the MultiStore.
 	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
 }
 

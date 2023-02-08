@@ -20,7 +20,7 @@ import (
 )
 
 // `PrecompileLogFactory` is used to build an Ethereum log from a Cosmos event.
-// TODO: rename?
 type PrecompileLogFactory interface {
+	// `Build` builds an Ethereum log from a Cosmos event.
 	Build(*sdk.Event) (*coretypes.Log, error)
 }

@@ -138,7 +138,7 @@ func (sp *statePlugin) RegistryKey() string {
 // Account
 // ===========================================================================
 
-// CreateAccount implements the StatePlugin interface by creating a new account
+// CreateAccount implements the `StatePlugin` interface by creating a new account
 // in the account keeper. It will allow accounts to be overridden.
 func (sp *statePlugin) CreateAccount(addr common.Address) {
 	acc := sp.ak.NewAccountWithAddress(sp.ctx, addr[:])

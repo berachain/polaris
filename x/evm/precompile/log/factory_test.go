@@ -131,7 +131,7 @@ var _ = Describe("Factory", func() {
 			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: invalid_arg"))
 		})
 
-		It("should not the attribute key", func() {
+		It("should not find attribute key", func() {
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
