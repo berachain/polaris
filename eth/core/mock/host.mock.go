@@ -4,9 +4,8 @@
 package mock
 
 import (
-	"context"
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/eth/core/state"
 	"sync"
 )
 
@@ -20,11 +19,20 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //
 //		// make and configure a mocked core.StargazerHostChain
 //		mockedStargazerHostChain := &StargazerHostChainMock{
-//			CumulativeGasUsedFunc: func(contextMoqParam context.Context, v uint64) uint64 {
-//				panic("mock out the CumulativeGasUsed method")
+//			GetChainPluginFunc: func() core.ChainPlugin {
+//				panic("mock out the GetChainPlugin method")
 //			},
-//			StargazerHeaderAtHeightFunc: func(contextMoqParam context.Context, v uint64) *types.StargazerHeader {
-//				panic("mock out the StargazerHeaderAtHeight method")
+//			GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
+//				panic("mock out the GetConfigurationPlugin method")
+//			},
+//			GetGasPluginFunc: func() core.GasPlugin {
+//				panic("mock out the GetGasPlugin method")
+//			},
+//			GetPrecompilePluginFunc: func() core.PrecompilePlugin {
+//				panic("mock out the GetPrecompilePlugin method")
+//			},
+//			GetStatePluginFunc: func() state.StatePlugin {
+//				panic("mock out the GetStatePlugin method")
 //			},
 //		}
 //
@@ -33,101 +41,177 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //
 //	}
 type StargazerHostChainMock struct {
-	// CumulativeGasUsedFunc mocks the CumulativeGasUsed method.
-	CumulativeGasUsedFunc func(contextMoqParam context.Context, v uint64) uint64
+	// GetChainPluginFunc mocks the GetChainPlugin method.
+	GetChainPluginFunc func() core.ChainPlugin
 
-	// StargazerHeaderAtHeightFunc mocks the StargazerHeaderAtHeight method.
-	StargazerHeaderAtHeightFunc func(contextMoqParam context.Context, v uint64) *types.StargazerHeader
+	// GetConfigurationPluginFunc mocks the GetConfigurationPlugin method.
+	GetConfigurationPluginFunc func() core.ConfigurationPlugin
+
+	// GetGasPluginFunc mocks the GetGasPlugin method.
+	GetGasPluginFunc func() core.GasPlugin
+
+	// GetPrecompilePluginFunc mocks the GetPrecompilePlugin method.
+	GetPrecompilePluginFunc func() core.PrecompilePlugin
+
+	// GetStatePluginFunc mocks the GetStatePlugin method.
+	GetStatePluginFunc func() state.StatePlugin
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// CumulativeGasUsed holds details about calls to the CumulativeGasUsed method.
-		CumulativeGasUsed []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-			// V is the v argument value.
-			V uint64
+		// GetChainPlugin holds details about calls to the GetChainPlugin method.
+		GetChainPlugin []struct {
 		}
-		// StargazerHeaderAtHeight holds details about calls to the StargazerHeaderAtHeight method.
-		StargazerHeaderAtHeight []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-			// V is the v argument value.
-			V uint64
+		// GetConfigurationPlugin holds details about calls to the GetConfigurationPlugin method.
+		GetConfigurationPlugin []struct {
+		}
+		// GetGasPlugin holds details about calls to the GetGasPlugin method.
+		GetGasPlugin []struct {
+		}
+		// GetPrecompilePlugin holds details about calls to the GetPrecompilePlugin method.
+		GetPrecompilePlugin []struct {
+		}
+		// GetStatePlugin holds details about calls to the GetStatePlugin method.
+		GetStatePlugin []struct {
 		}
 	}
-	lockCumulativeGasUsed       sync.RWMutex
-	lockStargazerHeaderAtHeight sync.RWMutex
+	lockGetChainPlugin         sync.RWMutex
+	lockGetConfigurationPlugin sync.RWMutex
+	lockGetGasPlugin           sync.RWMutex
+	lockGetPrecompilePlugin    sync.RWMutex
+	lockGetStatePlugin         sync.RWMutex
 }
 
-// CumulativeGasUsed calls CumulativeGasUsedFunc.
-func (mock *StargazerHostChainMock) CumulativeGasUsed(contextMoqParam context.Context, v uint64) uint64 {
-	if mock.CumulativeGasUsedFunc == nil {
-		panic("StargazerHostChainMock.CumulativeGasUsedFunc: method is nil but StargazerHostChain.CumulativeGasUsed was just called")
+// GetChainPlugin calls GetChainPluginFunc.
+func (mock *StargazerHostChainMock) GetChainPlugin() core.ChainPlugin {
+	if mock.GetChainPluginFunc == nil {
+		panic("StargazerHostChainMock.GetChainPluginFunc: method is nil but StargazerHostChain.GetChainPlugin was just called")
 	}
 	callInfo := struct {
-		ContextMoqParam context.Context
-		V               uint64
-	}{
-		ContextMoqParam: contextMoqParam,
-		V:               v,
-	}
-	mock.lockCumulativeGasUsed.Lock()
-	mock.calls.CumulativeGasUsed = append(mock.calls.CumulativeGasUsed, callInfo)
-	mock.lockCumulativeGasUsed.Unlock()
-	return mock.CumulativeGasUsedFunc(contextMoqParam, v)
+	}{}
+	mock.lockGetChainPlugin.Lock()
+	mock.calls.GetChainPlugin = append(mock.calls.GetChainPlugin, callInfo)
+	mock.lockGetChainPlugin.Unlock()
+	return mock.GetChainPluginFunc()
 }
 
-// CumulativeGasUsedCalls gets all the calls that were made to CumulativeGasUsed.
+// GetChainPluginCalls gets all the calls that were made to GetChainPlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.CumulativeGasUsedCalls())
-func (mock *StargazerHostChainMock) CumulativeGasUsedCalls() []struct {
-	ContextMoqParam context.Context
-	V               uint64
+//	len(mockedStargazerHostChain.GetChainPluginCalls())
+func (mock *StargazerHostChainMock) GetChainPluginCalls() []struct {
 } {
 	var calls []struct {
-		ContextMoqParam context.Context
-		V               uint64
 	}
-	mock.lockCumulativeGasUsed.RLock()
-	calls = mock.calls.CumulativeGasUsed
-	mock.lockCumulativeGasUsed.RUnlock()
+	mock.lockGetChainPlugin.RLock()
+	calls = mock.calls.GetChainPlugin
+	mock.lockGetChainPlugin.RUnlock()
 	return calls
 }
 
-// StargazerHeaderAtHeight calls StargazerHeaderAtHeightFunc.
-func (mock *StargazerHostChainMock) StargazerHeaderAtHeight(contextMoqParam context.Context, v uint64) *types.StargazerHeader {
-	if mock.StargazerHeaderAtHeightFunc == nil {
-		panic("StargazerHostChainMock.StargazerHeaderAtHeightFunc: method is nil but StargazerHostChain.StargazerHeaderAtHeight was just called")
+// GetConfigurationPlugin calls GetConfigurationPluginFunc.
+func (mock *StargazerHostChainMock) GetConfigurationPlugin() core.ConfigurationPlugin {
+	if mock.GetConfigurationPluginFunc == nil {
+		panic("StargazerHostChainMock.GetConfigurationPluginFunc: method is nil but StargazerHostChain.GetConfigurationPlugin was just called")
 	}
 	callInfo := struct {
-		ContextMoqParam context.Context
-		V               uint64
-	}{
-		ContextMoqParam: contextMoqParam,
-		V:               v,
-	}
-	mock.lockStargazerHeaderAtHeight.Lock()
-	mock.calls.StargazerHeaderAtHeight = append(mock.calls.StargazerHeaderAtHeight, callInfo)
-	mock.lockStargazerHeaderAtHeight.Unlock()
-	return mock.StargazerHeaderAtHeightFunc(contextMoqParam, v)
+	}{}
+	mock.lockGetConfigurationPlugin.Lock()
+	mock.calls.GetConfigurationPlugin = append(mock.calls.GetConfigurationPlugin, callInfo)
+	mock.lockGetConfigurationPlugin.Unlock()
+	return mock.GetConfigurationPluginFunc()
 }
 
-// StargazerHeaderAtHeightCalls gets all the calls that were made to StargazerHeaderAtHeight.
+// GetConfigurationPluginCalls gets all the calls that were made to GetConfigurationPlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.StargazerHeaderAtHeightCalls())
-func (mock *StargazerHostChainMock) StargazerHeaderAtHeightCalls() []struct {
-	ContextMoqParam context.Context
-	V               uint64
+//	len(mockedStargazerHostChain.GetConfigurationPluginCalls())
+func (mock *StargazerHostChainMock) GetConfigurationPluginCalls() []struct {
 } {
 	var calls []struct {
-		ContextMoqParam context.Context
-		V               uint64
 	}
-	mock.lockStargazerHeaderAtHeight.RLock()
-	calls = mock.calls.StargazerHeaderAtHeight
-	mock.lockStargazerHeaderAtHeight.RUnlock()
+	mock.lockGetConfigurationPlugin.RLock()
+	calls = mock.calls.GetConfigurationPlugin
+	mock.lockGetConfigurationPlugin.RUnlock()
+	return calls
+}
+
+// GetGasPlugin calls GetGasPluginFunc.
+func (mock *StargazerHostChainMock) GetGasPlugin() core.GasPlugin {
+	if mock.GetGasPluginFunc == nil {
+		panic("StargazerHostChainMock.GetGasPluginFunc: method is nil but StargazerHostChain.GetGasPlugin was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetGasPlugin.Lock()
+	mock.calls.GetGasPlugin = append(mock.calls.GetGasPlugin, callInfo)
+	mock.lockGetGasPlugin.Unlock()
+	return mock.GetGasPluginFunc()
+}
+
+// GetGasPluginCalls gets all the calls that were made to GetGasPlugin.
+// Check the length with:
+//
+//	len(mockedStargazerHostChain.GetGasPluginCalls())
+func (mock *StargazerHostChainMock) GetGasPluginCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetGasPlugin.RLock()
+	calls = mock.calls.GetGasPlugin
+	mock.lockGetGasPlugin.RUnlock()
+	return calls
+}
+
+// GetPrecompilePlugin calls GetPrecompilePluginFunc.
+func (mock *StargazerHostChainMock) GetPrecompilePlugin() core.PrecompilePlugin {
+	if mock.GetPrecompilePluginFunc == nil {
+		panic("StargazerHostChainMock.GetPrecompilePluginFunc: method is nil but StargazerHostChain.GetPrecompilePlugin was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetPrecompilePlugin.Lock()
+	mock.calls.GetPrecompilePlugin = append(mock.calls.GetPrecompilePlugin, callInfo)
+	mock.lockGetPrecompilePlugin.Unlock()
+	return mock.GetPrecompilePluginFunc()
+}
+
+// GetPrecompilePluginCalls gets all the calls that were made to GetPrecompilePlugin.
+// Check the length with:
+//
+//	len(mockedStargazerHostChain.GetPrecompilePluginCalls())
+func (mock *StargazerHostChainMock) GetPrecompilePluginCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetPrecompilePlugin.RLock()
+	calls = mock.calls.GetPrecompilePlugin
+	mock.lockGetPrecompilePlugin.RUnlock()
+	return calls
+}
+
+// GetStatePlugin calls GetStatePluginFunc.
+func (mock *StargazerHostChainMock) GetStatePlugin() state.StatePlugin {
+	if mock.GetStatePluginFunc == nil {
+		panic("StargazerHostChainMock.GetStatePluginFunc: method is nil but StargazerHostChain.GetStatePlugin was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetStatePlugin.Lock()
+	mock.calls.GetStatePlugin = append(mock.calls.GetStatePlugin, callInfo)
+	mock.lockGetStatePlugin.Unlock()
+	return mock.GetStatePluginFunc()
+}
+
+// GetStatePluginCalls gets all the calls that were made to GetStatePlugin.
+// Check the length with:
+//
+//	len(mockedStargazerHostChain.GetStatePluginCalls())
+func (mock *StargazerHostChainMock) GetStatePluginCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetStatePlugin.RLock()
+	calls = mock.calls.GetStatePlugin
+	mock.lockGetStatePlugin.RUnlock()
 	return calls
 }
