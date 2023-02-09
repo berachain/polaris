@@ -40,8 +40,9 @@ var _ = Describe("plugin", func() {
 
 	It("correctly consume, refund, and report cumulative in the same block", func() {
 		// tx 1
-		p.SetGasLimit(txGasLimit)
-		err := p.ConsumeGas(500)
+		err := p.SetGasLimit(txGasLimit)
+		Expect(err).To(BeNil())
+		err = p.ConsumeGas(500)
 		Expect(err).To(BeNil())
 		Expect(p.GasUsed()).To(Equal(uint64(500)))
 		Expect(p.GasRemaining()).To(Equal(uint64(500)))
@@ -54,7 +55,8 @@ var _ = Describe("plugin", func() {
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
-		p.SetGasLimit(txGasLimit)
+		err = p.SetGasLimit(txGasLimit)
+		Expect(err).To(BeNil())
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
 		err = p.ConsumeGas(1000)
 		Expect(err).To(BeNil())
@@ -66,7 +68,8 @@ var _ = Describe("plugin", func() {
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 3
-		p.SetGasLimit(txGasLimit)
+		err = p.SetGasLimit(txGasLimit)
+		Expect(err).To(BeNil())
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
 		err = p.ConsumeGas(1000) // tx 3 should fail but no error here (250 over block limit)
 		Expect(err).To(BeNil())
@@ -77,16 +80,18 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should error on overconsumption in tx", func() {
-		p.SetGasLimit(txGasLimit)
-		err := p.ConsumeGas(1000)
+		err := p.SetGasLimit(txGasLimit)
+		Expect(err).To(BeNil())
+		err = p.ConsumeGas(1000)
 		Expect(err).To(BeNil())
 		err = p.ConsumeGas(1)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
 	It("should error on uint64 overflow", func() {
-		p.SetGasLimit(math.MaxUint64)
-		err := p.ConsumeGas(math.MaxUint64)
+		err := p.SetGasLimit(math.MaxUint64)
+		Expect(err).To(BeNil())
+		err = p.ConsumeGas(math.MaxUint64)
 		Expect(err).To(BeNil())
 		err = p.ConsumeGas(1)
 		Expect(err.Error()).To(Equal("gas uint64 overflow"))

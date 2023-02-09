@@ -20,7 +20,7 @@ import (
 
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/x/evm/plugins"
-	"github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -39,7 +39,7 @@ func NewPluginFrom(ctx sdk.Context) core.GasPlugin {
 	}
 }
 
-// `Setup` implements the core.GasPlugin interface.
+// `Reset` implements the core.GasPlugin interface.
 func (p *plugin) Reset(ctx context.Context) {
 	p.Context = sdk.UnwrapSDKContext(ctx)
 }
@@ -48,7 +48,7 @@ func (p *plugin) Reset(ctx context.Context) {
 func (p *plugin) SetGasLimit(limit uint64) error {
 	consumed := p.GasMeter().GasConsumed()
 	// The gas meter is reset to the new limit.
-	p.Context = p.WithGasMeter(types.NewGasMeter(limit))
+	p.Context = p.WithGasMeter(storetypes.NewGasMeter(limit))
 	// Re-consume the gas that was already consumed.
 	return p.ConsumeGas(consumed)
 }
