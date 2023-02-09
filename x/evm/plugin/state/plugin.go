@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	pluginRegistryKey = `plugin`
+	pluginRegistryKey = `statePlugin`
 	EvmNamespace      = `evm`
 )
 
@@ -309,24 +309,13 @@ func (p *plugin) GetCommittedState(
 	addr common.Address,
 	slot common.Hash,
 ) common.Hash {
-	return p.getStateFromStore(p.cms.GetCommittedKVStore(p.evmStoreKey), addr, slot)
+	return getStateFromStore(p.cms.GetCommittedKVStore(p.evmStoreKey), addr, slot)
 }
 
 // `GetState` implements the `StatePlugin` interface by returning the current state
 // of slot in the given address.
 func (p *plugin) GetState(addr common.Address, slot common.Hash) common.Hash {
-	return p.getStateFromStore(p.cms.GetKVStore(p.evmStoreKey), addr, slot)
-}
-
-// `getStateFromStore` returns the current state of the slot in the given address.
-func (p *plugin) getStateFromStore(
-	store storetypes.KVStore,
-	addr common.Address, slot common.Hash,
-) common.Hash {
-	if value := store.Get(SlotKeyFor(addr, slot)); value != nil {
-		return common.BytesToHash(value)
-	}
-	return common.Hash{}
+	return getStateFromStore(p.cms.GetKVStore(p.evmStoreKey), addr, slot)
 }
 
 // `SetState` sets the state of an address.
@@ -402,4 +391,15 @@ func (p *plugin) DeleteSuicides(suicides []common.Address) {
 		// remove auth account
 		p.ak.RemoveAccount(p.ctx, acct)
 	}
+}
+
+// `getStateFromStore` returns the current state of the slot in the given address.
+func getStateFromStore(
+	store storetypes.KVStore,
+	addr common.Address, slot common.Hash,
+) common.Hash {
+	if value := store.Get(SlotKeyFor(addr, slot)); value != nil {
+		return common.BytesToHash(value)
+	}
+	return common.Hash{}
 }
