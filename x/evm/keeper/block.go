@@ -24,6 +24,10 @@ import (
 	storeutils "github.com/berachain/stargazer/store/utils"
 )
 
+// ===========================================================================
+// Stargazer Block
+// ===========================================================================
+
 // `MustStoreStargazerBlock` saves a block to the store.
 func (k *Keeper) SetStargazerBlockForCurrentHeight(
 	ctx sdk.Context,
@@ -34,8 +38,11 @@ func (k *Keeper) SetStargazerBlockForCurrentHeight(
 	if err != nil {
 		return err
 	}
-	// Store the block at the block key.
+	// Store the full block at the block key.
 	store.Set(storage.BlockKey(), bz)
+	// Store the number of transactions in the block.
+	store.Set(storage.BlockNumTxKey(), sdk.Uint64ToBigEndian(uint64(len(block.Transactions))))
+
 	// Store a mapping of block hashes to block heights.
 	store.Set(storage.BlockHashToHeightKey(block.Hash()), sdk.Uint64ToBigEndian(block.Number.Uint64()))
 	return nil
@@ -73,6 +80,10 @@ func (k *Keeper) GetStargazerBlockByHash(
 	height := sdk.BigEndianToUint64(bz)
 	return k.GetStargazerBlockAtHeight(ctx, height)
 }
+
+// ===========================================================================
+// Transactions
+// ===========================================================================
 
 // `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
 // matching the given block number.

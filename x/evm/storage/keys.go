@@ -20,10 +20,10 @@ import (
 )
 
 var (
-	blockKey   = []byte("block")
-	receiptKey = []byte("receipt")
-	hashKey    = []byte("hash")
-	
+	blockKey      = []byte("block")
+	receiptKey    = []byte("receipt")
+	hashKey       = []byte("hash")
+	blockNumTxKey = []byte("block_num_tx")
 )
 
 // `BlockKey` returns the key for the block bloom.
