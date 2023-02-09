@@ -17,10 +17,10 @@ package state
 import (
 	"context"
 
+	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/x/evm/plugin/state/events"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	ethstate "github.com/berachain/stargazer/eth/core/state"
 )
 
 // `PluginFactory` holds the necessary information to build state plugins for the Eth StateDB.
@@ -32,6 +32,8 @@ type PluginFactory struct {
 	// evmStoreKey is the store key for the EVM store.
 	evmStoreKey storetypes.StoreKey
 
+	plf events.PrecompileLogFactory
+
 	// evmDenom is the denom used for EVM transactions.
 	// evmDenom params.Retriever[params.EVMDenom]
 }
@@ -41,15 +43,17 @@ func NewPluginFactory(
 	ak AccountKeeper,
 	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
+	plf events.PrecompileLogFactory,
 ) *PluginFactory {
 	return &PluginFactory{
 		ak:          ak,
 		bk:          bk,
 		evmStoreKey: evmStoreKey,
+		plf:         plf,
 	}
 }
 
 // `Build` returns a new state plugin instance.
-func (pf *PluginFactory) Build(ctx context.Context) ethstate.Plugin {
-	return NewPlugin(sdk.UnwrapSDKContext(ctx), pf.ak, pf.bk, pf.evmStoreKey, "abera")
+func (pf *PluginFactory) Build(ctx context.Context) core.StatePlugin {
+	return NewPlugin(sdk.UnwrapSDKContext(ctx), pf.ak, pf.bk, pf.evmStoreKey, "abera", pf.plf)
 }

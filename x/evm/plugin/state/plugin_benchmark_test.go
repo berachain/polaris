@@ -31,13 +31,9 @@ var (
 	numReverts         = 2     // number of times an eth call is reverted in one tx
 )
 
-func GetNewStatePlugin() ethstate.Plugin {
-	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
-	return state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera")
-}
-
 func GetNewStateDB() vm.StargazerStateDB {
-	sdb, _ := ethstate.NewStateDB(GetNewStatePlugin())
+	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
+	sdb, _ := ethstate.NewStateDB(state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil))
 	return sdb
 }
 

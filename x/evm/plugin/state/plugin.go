@@ -21,7 +21,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethstate "github.com/berachain/stargazer/eth/core/state"
+	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/lib/snapshot"
@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	pluginRegistryKey = `statePlugin`
+	pluginRegistryKey = `plugin`
 	EvmNamespace      = `evm`
 )
 
@@ -63,7 +63,7 @@ var (
 //     EVM account, and so it does not set the codeHash. This is totally fine, we just need to
 //     check both for both the codeHash being zero (0x000...) as well as the codeHash being empty
 //     (0x567...)
-type statePlugin struct {
+type plugin struct {
 	libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// We maintain a context in the StateDB, so that we can pass it with the correctly
@@ -88,49 +88,48 @@ type statePlugin struct {
 	evmDenom string // TODO: get from params ( we have a store so like why not )
 }
 
-// returns a *statePlugin using the MultiStore belonging to ctx.
+// `NewPlugin` returns a plugin with the given context and keepers.
 func NewPlugin(
 	ctx sdk.Context,
 	ak AccountKeeper,
 	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
-) ethstate.Plugin {
-	sp := &statePlugin{
+	plf events.PrecompileLogFactory,
+) core.StatePlugin {
+	p := &plugin{
 		evmStoreKey: evmStoreKey,
 		ak:          ak,
 		bk:          bk,
 		evmDenom:    evmDenom,
+		plf:         plf,
 	}
 
-	// TODO: setup the PrecompileLogFactory here? or higher up?
-	sp.plf = nil
-
 	// setup the Controllable MultiStore and EventManager and attach them to the context
-	sp.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
-	cem := events.NewManagerFrom(ctx.EventManager(), sp.plf)
-	sp.ctx = ctx.WithMultiStore(sp.cms).WithEventManager(cem)
+	p.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
+	cem := events.NewManagerFrom(ctx.EventManager(), p.plf)
+	p.ctx = ctx.WithMultiStore(p.cms).WithEventManager(cem)
 
 	// setup the snapshot controller
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	_ = ctrl.Register(sp.cms)
+	_ = ctrl.Register(p.cms)
 	_ = ctrl.Register(cem)
-	sp.Controller = ctrl
+	p.Controller = ctrl
 
-	return sp
+	return p
 }
 
-// `Reset` implements `ethstate.Plugin`.
-func (sp *statePlugin) Reset(ctx context.Context) {
+// `Reset` implements `core.StatePlugin`.
+func (p *plugin) Reset(ctx context.Context) {
 	// reset the Controllable MultiStore and EventManager and attach them to the context
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	sp.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
-	cem := events.NewManagerFrom(sdkCtx.EventManager(), sp.plf)
-	sp.ctx = sdkCtx.WithMultiStore(sp.cms).WithEventManager(cem)
+	p.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
+	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
+	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
 }
 
 // `RegistryKey` implements `libtypes.Registrable`.
-func (sp *statePlugin) RegistryKey() string {
+func (p *plugin) RegistryKey() string {
 	return pluginRegistryKey
 }
 
@@ -140,21 +139,21 @@ func (sp *statePlugin) RegistryKey() string {
 
 // CreateAccount implements the `StatePlugin` interface by creating a new account
 // in the account keeper. It will allow accounts to be overridden.
-func (sp *statePlugin) CreateAccount(addr common.Address) {
-	acc := sp.ak.NewAccountWithAddress(sp.ctx, addr[:])
+func (p *plugin) CreateAccount(addr common.Address) {
+	acc := p.ak.NewAccountWithAddress(p.ctx, addr[:])
 
 	// save the new account in the account keeper
-	sp.ak.SetAccount(sp.ctx, acc)
+	p.ak.SetAccount(p.ctx, acc)
 
 	// initialize the code hash to empty
-	sp.cms.GetKVStore(sp.evmStoreKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
+	p.cms.GetKVStore(p.evmStoreKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
 // `Exist` implements the `StatePlugin` interface by reporting whether the given account address
 // exists in the state. Notably this also returns true for suicided accounts, which is accounted
 // for since, `RemoveAccount()` is not called until Commit.
-func (sp *statePlugin) Exist(addr common.Address) bool {
-	return sp.ak.HasAccount(sp.ctx, addr[:])
+func (p *plugin) Exist(addr common.Address) bool {
+	return p.ak.HasAccount(p.ctx, addr[:])
 }
 
 // =============================================================================
@@ -162,25 +161,25 @@ func (sp *statePlugin) Exist(addr common.Address) bool {
 // =============================================================================
 
 // GetBalance implements `StatePlugin` interface.
-func (sp *statePlugin) GetBalance(addr common.Address) *big.Int {
+func (p *plugin) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
-	return sp.bk.GetBalance(sp.ctx, addr[:], sp.evmDenom).Amount.BigInt()
+	return p.bk.GetBalance(p.ctx, addr[:], p.evmDenom).Amount.BigInt()
 }
 
 // AddBalance implements the `StatePlugin` interface by adding the given amount
 // from the account associated with addr. If the account does not exist, it will be
 // created.
-func (sp *statePlugin) AddBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(sp.evmDenom, sdk.NewIntFromBigInt(amount)))
+func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
+	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
-	if err := sp.bk.MintCoins(sp.ctx, EvmNamespace, coins); err != nil {
+	if err := p.bk.MintCoins(p.ctx, EvmNamespace, coins); err != nil {
 		panic(err)
 	}
 
 	// Send the coins from the evm module account to the destination address.
-	if err := sp.bk.SendCoinsFromModuleToAccount(
-		sp.ctx, EvmNamespace, addr[:], coins,
+	if err := p.bk.SendCoinsFromModuleToAccount(
+		p.ctx, EvmNamespace, addr[:], coins,
 	); err != nil {
 		panic(err)
 	}
@@ -188,29 +187,29 @@ func (sp *statePlugin) AddBalance(addr common.Address, amount *big.Int) {
 
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
-func (sp *statePlugin) SubBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(sp.evmDenom, sdk.NewIntFromBigInt(amount)))
+func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
+	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the evm module account.
-	if err := sp.bk.SendCoinsFromAccountToModule(
-		sp.ctx, addr[:], EvmNamespace, coins,
+	if err := p.bk.SendCoinsFromAccountToModule(
+		p.ctx, addr[:], EvmNamespace, coins,
 	); err != nil {
 		panic(err)
 	}
 
 	// Burn the coins from the evm module account.
-	if err := sp.bk.BurnCoins(sp.ctx, EvmNamespace, coins); err != nil {
+	if err := p.bk.BurnCoins(p.ctx, EvmNamespace, coins); err != nil {
 		panic(err)
 	}
 }
 
 // `TransferBalance` sends the given amount from one account to another. It will
 // error if the sender does not have enough funds to send.
-func (sp *statePlugin) TransferBalance(from, to common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(sp.evmDenom, sdk.NewIntFromBigInt(amount)))
+func (p *plugin) TransferBalance(from, to common.Address, amount *big.Int) {
+	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the destination address.
-	if err := sp.bk.SendCoins(sp.ctx, from[:], to[:], coins); err != nil {
+	if err := p.bk.SendCoins(p.ctx, from[:], to[:], coins); err != nil {
 		// This is safe to panic as the error is only returned if the sender does
 		// not have enough funds to send, which should be guarded by `CanTransfer`.
 		panic(err)
@@ -223,8 +222,8 @@ func (sp *statePlugin) TransferBalance(from, to common.Address, amount *big.Int)
 
 // GetNonce implements the `StatePlugin` interface by returning the nonce
 // of an account.
-func (sp *statePlugin) GetNonce(addr common.Address) uint64 {
-	acc := sp.ak.GetAccount(sp.ctx, addr[:])
+func (p *plugin) GetNonce(addr common.Address) uint64 {
+	acc := p.ak.GetAccount(p.ctx, addr[:])
 	if acc == nil {
 		return 0
 	}
@@ -233,18 +232,18 @@ func (sp *statePlugin) GetNonce(addr common.Address) uint64 {
 
 // SetNonce implements the `StatePlugin` interface by setting the nonce
 // of an account.
-func (sp *statePlugin) SetNonce(addr common.Address, nonce uint64) {
+func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 	// get the account or create a new one if doesn't exist
-	acc := sp.ak.GetAccount(sp.ctx, addr[:])
+	acc := p.ak.GetAccount(p.ctx, addr[:])
 	if acc == nil {
-		acc = sp.ak.NewAccountWithAddress(sp.ctx, addr[:])
+		acc = p.ak.NewAccountWithAddress(p.ctx, addr[:])
 	}
 
 	if err := acc.SetSequence(nonce); err != nil {
 		panic(err)
 	}
 
-	sp.ak.SetAccount(sp.ctx, acc)
+	p.ak.SetAccount(p.ctx, acc)
 }
 
 // =============================================================================
@@ -253,13 +252,13 @@ func (sp *statePlugin) SetNonce(addr common.Address, nonce uint64) {
 
 // GetCodeHash implements the `StatePlugin` interface by returning
 // the code hash of account.
-func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
-	if !sp.ak.HasAccount(sp.ctx, addr[:]) {
+func (p *plugin) GetCodeHash(addr common.Address) common.Hash {
+	if !p.ak.HasAccount(p.ctx, addr[:]) {
 		// if account at addr does not exist, return zeros
 		return common.Hash{}
 	}
 
-	ch := sp.cms.GetKVStore(sp.evmStoreKey).Get(CodeHashKeyFor(addr))
+	ch := p.cms.GetKVStore(p.evmStoreKey).Get(CodeHashKeyFor(addr))
 	if ch == nil {
 		// account exists but does not have a codehash, return empty
 		return emptyCodeHash
@@ -270,20 +269,20 @@ func (sp *statePlugin) GetCodeHash(addr common.Address) common.Hash {
 
 // GetCode implements the `StatePlugin` interface by returning
 // the code of account (nil if not exists).
-func (sp *statePlugin) GetCode(addr common.Address) []byte {
-	codeHash := sp.GetCodeHash(addr)
+func (p *plugin) GetCode(addr common.Address) []byte {
+	codeHash := p.GetCodeHash(addr)
 	if (codeHash == common.Hash{}) || codeHash == emptyCodeHash {
 		// if account at addr does not exist or the account  does not have a codehash, return nil
 		return nil
 	}
-	return sp.cms.GetKVStore(sp.evmStoreKey).Get(CodeKeyFor(codeHash))
+	return p.cms.GetKVStore(p.evmStoreKey).Get(CodeKeyFor(codeHash))
 }
 
 // SetCode implements the `StatePlugin` interface by setting the code hash and
 // code for the given account.
-func (sp *statePlugin) SetCode(addr common.Address, code []byte) {
+func (p *plugin) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
-	ethStore := sp.cms.GetKVStore(sp.evmStoreKey)
+	ethStore := p.cms.GetKVStore(p.evmStoreKey)
 	ethStore.Set(CodeHashKeyFor(addr), codeHash[:])
 
 	// store or delete code
@@ -296,8 +295,8 @@ func (sp *statePlugin) SetCode(addr common.Address, code []byte) {
 
 // GetCodeSize implements the `StatePlugin` interface by returning the size of the
 // code associated with the given `StatePlugin`.
-func (sp *statePlugin) GetCodeSize(addr common.Address) int {
-	return len(sp.GetCode(addr))
+func (p *plugin) GetCodeSize(addr common.Address) int {
+	return len(p.GetCode(addr))
 }
 
 // =============================================================================
@@ -306,21 +305,21 @@ func (sp *statePlugin) GetCodeSize(addr common.Address) int {
 
 // `GetCommittedState` implements the `StatePlugin` interface by returning the
 // committed state of slot in the given address.
-func (sp *statePlugin) GetCommittedState(
+func (p *plugin) GetCommittedState(
 	addr common.Address,
 	slot common.Hash,
 ) common.Hash {
-	return sp.getStateFromStore(sp.cms.GetCommittedKVStore(sp.evmStoreKey), addr, slot)
+	return p.getStateFromStore(p.cms.GetCommittedKVStore(p.evmStoreKey), addr, slot)
 }
 
 // `GetState` implements the `StatePlugin` interface by returning the current state
 // of slot in the given address.
-func (sp *statePlugin) GetState(addr common.Address, slot common.Hash) common.Hash {
-	return sp.getStateFromStore(sp.cms.GetKVStore(sp.evmStoreKey), addr, slot)
+func (p *plugin) GetState(addr common.Address, slot common.Hash) common.Hash {
+	return p.getStateFromStore(p.cms.GetKVStore(p.evmStoreKey), addr, slot)
 }
 
 // `getStateFromStore` returns the current state of the slot in the given address.
-func (sp *statePlugin) getStateFromStore(
+func (p *plugin) getStateFromStore(
 	store storetypes.KVStore,
 	addr common.Address, slot common.Hash,
 ) common.Hash {
@@ -331,7 +330,7 @@ func (sp *statePlugin) getStateFromStore(
 }
 
 // `SetState` sets the state of an address.
-func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
+func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 	// For performance reasons, we don't check to ensure the account exists before we execute.
 	// This is reasonably safe since under normal operation, SetState is only ever called by the
 	// SSTORE opcode in the EVM, which will only ever be called on an account that exists, since
@@ -342,12 +341,12 @@ func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
 
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		sp.cms.GetKVStore(sp.evmStoreKey).Delete(SlotKeyFor(addr, key))
+		p.cms.GetKVStore(p.evmStoreKey).Delete(SlotKeyFor(addr, key))
 		return
 	}
 
 	// Set the state entry.
-	sp.cms.GetKVStore(sp.evmStoreKey).Set(SlotKeyFor(addr, key), value[:])
+	p.cms.GetKVStore(p.evmStoreKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
 // =============================================================================
@@ -359,12 +358,12 @@ func (sp *statePlugin) SetState(addr common.Address, key, value common.Hash) {
 //
 // Note: We do not support iterating through any storage that is modified before calling
 // `ForEachStorage`; only committed state is iterated through.
-func (sp *statePlugin) ForEachStorage(
+func (p *plugin) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
 ) error {
 	it := sdk.KVStorePrefixIterator(
-		sp.cms.GetKVStore(sp.evmStoreKey),
+		p.cms.GetKVStore(p.evmStoreKey),
 		StorageKeyFor(addr),
 	)
 	defer it.Close()
@@ -382,25 +381,25 @@ func (sp *statePlugin) ForEachStorage(
 }
 
 // `DeleteSuicides` manually deletes the given suicidal accounts.
-func (sp *statePlugin) DeleteSuicides(suicides []common.Address) {
+func (p *plugin) DeleteSuicides(suicides []common.Address) {
 	for _, suicidalAddr := range suicides {
-		acct := sp.ak.GetAccount(sp.ctx, suicidalAddr[:])
+		acct := p.ak.GetAccount(p.ctx, suicidalAddr[:])
 		if acct == nil {
 			// handles the double suicide case
 			continue
 		}
 
 		// clear storage
-		_ = sp.ForEachStorage(suicidalAddr,
+		_ = p.ForEachStorage(suicidalAddr,
 			func(key, _ common.Hash) bool {
-				sp.SetState(suicidalAddr, key, common.Hash{})
+				p.SetState(suicidalAddr, key, common.Hash{})
 				return true
 			})
 
 		// clear the codehash from this account
-		sp.cms.GetKVStore(sp.evmStoreKey).Delete(CodeHashKeyFor(suicidalAddr))
+		p.cms.GetKVStore(p.evmStoreKey).Delete(CodeHashKeyFor(suicidalAddr))
 
 		// remove auth account
-		sp.ak.RemoveAccount(sp.ctx, acct)
+		p.ak.RemoveAccount(p.ctx, acct)
 	}
 }
