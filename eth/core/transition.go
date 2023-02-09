@@ -163,7 +163,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msgFrom.Hex())
 	}
 
-	// Stargazer does not support access lists.
+	// TODO: handle access list
 	// if rules.IsBerlin {
 	// 	sdb.PrepareAccessList(
 	// 		msgFrom,
