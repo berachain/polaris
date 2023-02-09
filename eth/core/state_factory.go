@@ -16,7 +16,6 @@ package core
 
 import (
 	"github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 )
 
@@ -31,10 +30,6 @@ func NewStateFactory(config *params.EthChainConfig, host StargazerHostChain) *St
 		config: config,
 		host:   host,
 	}
-}
-
-func (sf *StateFactory) BuildStateDB() vm.StargazerStateDB {
-	return state.NewStateDB(sf.host.GetStatePlugin())
 }
 
 func (sf *StateFactory) BuildStateProcessor() *StateProcessor {
