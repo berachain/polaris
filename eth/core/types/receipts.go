@@ -12,30 +12,30 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package key
+package types
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+//go:generate rlpgen -type StargazerReceipts -out receipts.rlpgen.go -decoder
 
-var (
-	// `Block` is key for the block bloom.
-	blockKey = []byte("block")
+const initLen = 64
 
-	// receiptKey = []byte("receipt")
-	// hashKey    = []byte("hash").
-)
-
-func BlockAtHeight(height uint64) []byte {
-	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
+// `StargazerReceipts` is a slice of *ReceiptForStorage.
+type StargazerReceipts struct {
+	Receipts []*ReceiptForStorage
 }
 
-// `HashToTxIndex` returns the key for a receipt lookup.
-// func HashToTxIndex(h []byte) []byte {
-// 	return append(hashKey, h...)
-// }
+// `NewStargazerReceipts` creates a new list of receipts.
+func NewStargazerReceipts() *StargazerReceipts {
+	return &StargazerReceipts{
+		Receipts: make([]*ReceiptForStorage, initLen),
+	}
+}
 
-// // `TxIndexToReciept` returns the key for the receipt lookup for a given block.
-// func TxIndexToReciept(txIndex uint64) []byte {
-// 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
-// }
+// `Append` appends a receipt to the list of receipts.
+func (sr *StargazerReceipts) Append(r *ReceiptForStorage) {
+	sr.Receipts = append(sr.Receipts, r)
+}
+
+// `Len` returns the number of receipts in the list.
+func (sr *StargazerReceipts) Len() uint {
+	return uint(len(sr.Receipts))
+}

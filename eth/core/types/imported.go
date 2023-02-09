@@ -19,19 +19,20 @@ import (
 )
 
 type (
-	AccessList   = types.AccessList
-	Block        = types.Block
-	Bloom        = types.Bloom
-	Log          = types.Log
-	Receipt      = types.Receipt
-	Receipts     = types.Receipts
-	Transaction  = types.Transaction
-	Transactions = types.Transactions
-	Header       = types.Header
-	BlockNonce   = types.BlockNonce
-	DynamicFeeTx = types.DynamicFeeTx
-	LegacyTx     = types.LegacyTx
-	Signer       = types.Signer
+	AccessList        = types.AccessList
+	Block             = types.Block
+	Bloom             = types.Bloom
+	Log               = types.Log
+	Receipt           = types.Receipt
+	Receipts          = types.Receipts
+	ReceiptForStorage = types.ReceiptForStorage
+	Transaction       = types.Transaction
+	Transactions      = types.Transactions
+	Header            = types.Header
+	BlockNonce        = types.BlockNonce
+	DynamicFeeTx      = types.DynamicFeeTx
+	LegacyTx          = types.LegacyTx
+	Signer            = types.Signer
 )
 
 var (

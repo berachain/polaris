@@ -15,8 +15,11 @@
 package core
 
 import (
+	"context"
+
 	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
+	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/params"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
@@ -28,6 +31,9 @@ type StargazerHostChain interface {
 	GetStatePlugin() StatePlugin
 	GetPrecompilePlugin() PrecompilePlugin
 	GetConfigurationPlugin() ConfigurationPlugin
+
+	// Temporary
+	GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
 }
 
 // The following plugins must be implemented by the chain running Stargazer EVM and exposed via the
@@ -41,6 +47,7 @@ type (
 		libtypes.Resettable
 		ConsumeGas(amount uint64) error
 		RefundGas(amount uint64)
+
 		GasRemaining() uint64
 		GasUsed() uint64
 		CumulativeGasUsed() uint64

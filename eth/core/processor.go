@@ -36,16 +36,10 @@ type StateProcessor struct {
 	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
 
-	// `blockHeader` of the current block being processed
-	blockHeader *types.StargazerHeader
-	// `receipts` of the current block being processed
-	receipts types.Receipts
-	// all the logs of the block, indexed by tx index
-	logs [][]*types.Log
+	// `block` represents the current block being processed.
+	block *types.StargazerBlock
 	// `logIndex` is the index of the current log in the current block
 	logIndex uint
-	// `transactions` of the current block being processed
-	transactions types.Transactions
 }
 
 // `NewStateProcessor` creates a new state processor.
@@ -65,21 +59,21 @@ func NewStateProcessor(
 // `Prepare` prepares the state processor for processing a block.
 func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// Build a block to use throughout the evm.
-	// NOTE: sp.blockHeader.Bloom is nil here, but it is set in `Finalize`.
-	// sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
-	sp.receipts = types.Receipts{}
+	sp.block = &types.StargazerBlock{
+		StargazerHeader: sp.host.GetStargazerHeaderAtHeight(ctx, height),
+		Transactions:    make([]*types.Transaction, 0),
+		Receipts:        make([]*types.Receipt, 0),
+	}
 	sp.logIndex = 0
-	sp.logs = make([][]*types.Log, 0)
-	sp.transactions = types.Transactions{}
 	sp.statedb.Reset(ctx)
-	sp.signer = types.MakeSigner(sp.config, sp.blockHeader.Number)
+	sp.signer = types.MakeSigner(sp.config, sp.block.Number)
 
 	// Build a new EVM to use for this block.
 	sp.evm = sp.vmf.Build(
 		sp.statedb,
 		NewEVMBlockContext(
 			ctx,
-			sp.blockHeader,
+			sp.block.StargazerHeader,
 			sp.host,
 		),
 		sp.config,
@@ -89,7 +83,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
-	msg, err := tx.AsMessage(sp.signer, sp.blockHeader.BaseFee)
+	msg, err := tx.AsMessage(sp.signer, sp.block.BaseFee)
 	if err != nil {
 		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
@@ -111,9 +105,9 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		PostState:        nil, // TODO: Should we do something with PostState?
 		TxHash:           tx.Hash(),
 		GasUsed:          result.UsedGas,
-		BlockHash:        sp.blockHeader.Hash(),
-		BlockNumber:      sp.blockHeader.Number,
-		TransactionIndex: uint(len(sp.transactions)),
+		BlockHash:        sp.block.Hash(),
+		BlockNumber:      sp.block.Number,
+		TransactionIndex: uint(len(sp.block.Receipts)),
 	}
 
 	// Gas from this transaction was added to the gasPlugin in `ApplyMessageAndCommit`
@@ -134,27 +128,23 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// Set the receipt logs and create the bloom filter.
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
-		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), sp.logIndex,
+		receipt.TxHash, receipt.BlockHash, uint(len(sp.block.Receipts)), sp.logIndex,
 	)
-	sp.logs = append(sp.logs, receipt.Logs)
+	// sp.logs = append(sp.logs, receipt.Logs)
 	sp.logIndex += uint(len(receipt.Logs))
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 
 	// Update the block information.
-	sp.transactions = append(sp.transactions, tx)
-	sp.receipts = append(sp.receipts, receipt)
+	sp.block.Transactions = append(sp.block.Transactions, tx)
+	sp.block.Receipts = append(sp.block.Receipts, receipt)
+	// sp.receipts.Append((*types.ReceiptForStorage)(receipt))
 	return receipt, nil
 }
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (*types.StargazerBlock, error) {
-	// Update the block header with information regarding the final state of the block.
-	sp.blockHeader.GasUsed = sp.host.GetGasPlugin().CumulativeGasUsed()
-	sp.blockHeader.Bloom = types.CreateBloom(sp.receipts)
-
-	// Return a finalized block.
-	return types.NewStargazerBlock(
-		sp.blockHeader,
-		sp.transactions,
-	), nil
+	sp.block.SetGasUsed(sp.host.GetGasPlugin().CumulativeGasUsed())
+	sp.block.CreateBloom()
+	sp.block.SetReceiptHash()
+	return sp.block, nil
 }

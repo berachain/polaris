@@ -16,6 +16,7 @@ package types
 
 import (
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // `StargazerHeader` represents a wrapped Ethereum header that allows for specifying a custom
@@ -37,6 +38,20 @@ func NewStargazerHeader(header *Header, hash common.Hash) *StargazerHeader {
 // `Author` returns the address of the original block producer.
 func (h *StargazerHeader) Author() common.Address {
 	return h.Coinbase
+}
+
+// `UnmarshalBinary` decodes a block from the Ethereum RLP format.
+func (h *StargazerHeader) UnmarshalBinary(data []byte) error {
+	return rlp.DecodeBytes(data, h)
+}
+
+// `MarshalBinary` encodes the block into the Ethereum RLP format.
+func (h *StargazerHeader) MarshalBinary() ([]byte, error) {
+	bz, err := rlp.EncodeToBytes(h)
+	if err != nil {
+		return nil, err
+	}
+	return bz, nil
 }
 
 // `Hash` returns the block hash of the header, we override the geth implementation

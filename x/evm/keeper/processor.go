@@ -48,13 +48,15 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) 
 func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []abci.ValidatorUpdate {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("EndBlocker")
+
+	// Finalize the stargazer block and retrieve it from the processor.
 	stargazerBlock, err := k.stateProcessor.Finalize(ctx, uint64(sCtx.BlockHeight()))
 	if err != nil {
 		panic(err)
 	}
-	err = k.SetStargazerBlockForCurrentHeight(sCtx, stargazerBlock)
-	if err != nil {
-		panic(err)
-	}
+
+	// Save the historical stargazer block.
+	k.TrackHistoricalStargazerBlocks(sCtx, stargazerBlock)
+
 	return []abci.ValidatorUpdate{}
 }
