@@ -48,7 +48,7 @@ func (f *Factory) RegisterEvent(
 ) {
 	// register the ABI Event as a precompile log
 	_ = f.events.Register(newPrecompileLog(moduleEthAddress, abiEvent))
-	// register the event's cusotom value decoders, if any are provided
+	// register the event's custom value decoders, if any are provided
 	for attr, decoder := range customValueDecoders {
 		f.customValueDecoders[attr] = decoder
 	}

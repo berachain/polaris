@@ -28,15 +28,12 @@ type Blockchain struct {
 	sf *StateFactory
 }
 
-func NewBlockchain(config *params.EthChainConfig, host StargazerHostChain) (*Blockchain, error) {
+func NewBlockchain(config *params.EthChainConfig, host StargazerHostChain) *Blockchain {
 	sf := NewStateFactory(config, host)
-	csp, err := sf.BuildStateProcessor()
-	if err != nil {
-		return nil, err
-	}
+	csp := sf.BuildStateProcessor()
 
 	return &Blockchain{
 		sf:  sf,
 		csp: csp,
-	}, nil
+	}
 }

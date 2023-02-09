@@ -33,14 +33,10 @@ func NewStateFactory(config *params.EthChainConfig, host StargazerHostChain) *St
 	}
 }
 
-func (sf *StateFactory) BuildStateDB() (vm.StargazerStateDB, error) {
+func (sf *StateFactory) BuildStateDB() vm.StargazerStateDB {
 	return state.NewStateDB(sf.host.GetStatePlugin())
 }
 
-func (sf *StateFactory) BuildStateProcessor() (*StateProcessor, error) {
-	sdb, err := sf.BuildStateDB()
-	if err != nil {
-		return nil, err
-	}
-	return NewStateProcessor(sf.config, sdb, sf.host), nil
+func (sf *StateFactory) BuildStateProcessor() *StateProcessor {
+	return NewStateProcessor(sf.config, state.NewStateDB(sf.host.GetStatePlugin()), sf.host)
 }

@@ -33,8 +33,7 @@ var (
 
 func GetNewStateDB() vm.StargazerStateDB {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
-	sdb, _ := ethstate.NewStateDB(state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil))
-	return sdb
+	return ethstate.NewStateDB(state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil))
 }
 
 func BenchmarkArbitraryStateTransition(b *testing.B) {

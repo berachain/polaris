@@ -51,7 +51,7 @@ type stateDB struct {
 }
 
 // `NewStateDB` returns a `vm.StargazerStateDB` with the given `StatePlugin`.
-func NewStateDB(sp Plugin) (vm.StargazerStateDB, error) {
+func NewStateDB(sp Plugin) vm.StargazerStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
@@ -68,7 +68,7 @@ func NewStateDB(sp Plugin) (vm.StargazerStateDB, error) {
 		RefundJournal: rj,
 		ctrl:          ctrl,
 		suicides:      make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
-	}, nil
+	}
 }
 
 // =============================================================================

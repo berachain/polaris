@@ -23,8 +23,6 @@ import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/lib/crypto"
-
-	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
 )
 
 type StateProcessor struct {
@@ -55,9 +53,10 @@ func NewStateProcessor(
 	host StargazerHostChain,
 ) *StateProcessor {
 	return &StateProcessor{
-		config: config,
-		host:   host,
-		vmf:    vm.NewEVMFactory(precompile.NewManager(host.GetPrecompilePlugin(), statedb)),
+		config:  config,
+		host:    host,
+		statedb: statedb,
+		vmf:     vm.NewEVMFactory(precompile.NewManager(host.GetPrecompilePlugin(), statedb)),
 	}
 }
 
@@ -69,8 +68,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	sp.receipts = types.Receipts{}
 	sp.logIndex = 0
 	sp.transactions = types.Transactions{}
-	// TODO: use a real state db
-	sp.statedb = vmmock.NewEmptyStateDB()
+	sp.statedb.Reset(ctx)
 	sp.signer = types.MakeSigner(sp.config, sp.blockHeader.Number)
 
 	// Build a new EVM to use for this block.
@@ -84,9 +82,6 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 		sp.config,
 		false,
 	)
-
-	// Store direct pointers to structs in the evm in order to save a little computation.
-	sp.statedb = sp.evm.StateDB()
 }
 
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.

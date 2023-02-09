@@ -35,9 +35,7 @@ var _ = Describe("StateDB", func() {
 	var sdb vm.StargazerStateDB
 
 	BeforeEach(func() {
-		var err error
-		sdb, err = state.NewStateDB(mock.NewEmptyStatePlugin())
-		Expect(err).To(BeNil())
+		sdb = state.NewStateDB(mock.NewEmptyStatePlugin())
 	})
 
 	It("Should suicide correctly", func() {
