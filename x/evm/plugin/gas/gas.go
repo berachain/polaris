@@ -83,6 +83,10 @@ func (p *Plugin) GasUsed() uint64 {
 	return p.GasMeter().GasConsumed()
 }
 
+// `CumulativeGasUsed` returns the cumulative gas used during the current block. If the cumulative
+// gas used is greater than the block gas limit, it returns the block gas limit, but the tx will
+// still fail in `runTx`.
+//
 // `CumulativeGasUsed` implements the core.GasPlugin interface.
 func (p *Plugin) CumulativeGasUsed() uint64 {
 	used := p.GasMeter().GasConsumed()
