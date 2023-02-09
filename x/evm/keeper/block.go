@@ -53,7 +53,7 @@ func (k *Keeper) GetStargazerBlockAtHeight(
 	ctx sdk.Context,
 	height uint64,
 ) (*types.StargazerBlock, error) {
-	bz := storeutils.KVStoreReaderAtHeight(ctx, k.storeKey, int64(height)).Get(storage.BlockKey())
+	bz := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(height)).Get(storage.BlockKey())
 	if bz == nil {
 		return nil, ErrBlockNotFound
 	}
@@ -71,9 +71,6 @@ func (k *Keeper) GetStargazerBlockByHash(
 	ctx sdk.Context,
 	hash common.Hash,
 ) (*types.StargazerBlock, error) {
-	// Because older blocks are not present on the current version of the IAVL tree,
-	// we have to determine the height at which this block has was stored. In order
-	// to retrieve the block.
 	bz := ctx.KVStore(k.storeKey).Get(storage.BlockHashToHeightKey(hash))
 	if bz == nil {
 		return nil, ErrBlockNotFound
@@ -88,7 +85,7 @@ func (k *Keeper) GetStargazerBlockByHash(
 // `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
 // matching the given block number.
 func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint64 {
-	store := storeutils.KVStoreReaderAtHeight(ctx, k.storeKey, int64(number))
+	store := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(number))
 	return sdk.BigEndianToUint64(store.Get(storage.BlockNumTxKey()))
 }
 
@@ -99,6 +96,6 @@ func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash c
 	if bz == nil {
 		return 0
 	}
-
+	// Now that we have recovered the height from the block hash, we can go and query using it.
 	return k.GetStargazerBlockTransactionCountByNumber(ctx, sdk.BigEndianToUint64(bz))
 }

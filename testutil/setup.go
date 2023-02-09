@@ -48,6 +48,10 @@ func NewContext() sdk.Context {
 	return sdk.NewContext(mock.NewMultiStore(), tmproto.Header{}, false, log.TestingLogger())
 }
 
+func NewContextWithMultiStore(ms sdk.MultiStore) sdk.Context {
+	return sdk.NewContext(ms, tmproto.Header{}, false, log.TestingLogger())
+}
+
 // `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.
 func SetupMinimalKeepers() (
 	sdk.Context,
