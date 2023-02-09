@@ -19,7 +19,23 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func GetKVStoreAtHeight(ctx sdk.Context, storeKey storetypes.StoreKey, height int64) sdk.KVStore {
+// `KVStoreReader` is a subset of the `KVStore` interface that only exposes read
+// methods.
+type KVStoreReader interface {
+	// Get returns nil if key doesn't exist. Panics on nil key.
+	Get(key []byte) []byte
+
+	// Has checks if a key exists. Panics on nil key.
+	Has(key []byte) bool
+}
+
+// `KVStoreReaderAtHeight` returns a KVStoreReader at a given height. If the height is greater
+// than or equal to the current height, the reader will be at the latest height.
+func KVStoreReaderAtHeight(ctx sdk.Context, storeKey storetypes.StoreKey, height int64) KVStoreReader {
+	if ctx.BlockHeight() >= height {
+		return ctx.KVStore(storeKey)
+	}
+
 	cms, err := ctx.MultiStore().CacheMultiStoreWithVersion(height)
 	if err != nil {
 		panic(err)
