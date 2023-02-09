@@ -87,22 +87,18 @@ func (k *Keeper) GetStargazerBlockByHash(
 
 // `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
 // matching the given block number.
-func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint32 {
-	stargazerBlock, err := k.GetStargazerBlockAtHeight(ctx, number)
-	if err != nil {
-		return 0
-	}
-
-	return uint32(len(stargazerBlock.Transactions))
+func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint64 {
+	store := storeutils.KVStoreReaderAtHeight(ctx, k.storeKey, int64(number))
+	return sdk.BigEndianToUint64(store.Get(storage.BlockNumTxKey()))
 }
 
 // `GetBlockTransactionCountByHash` returns the number of transactions in a block from a block
 // matching the given block hash.
-func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash common.Hash) uint32 {
-	stargazerBlock, err := k.GetStargazerBlockByHash(ctx, hash)
-	if err != nil {
+func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash common.Hash) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(storage.BlockHashToHeightKey(hash))
+	if bz == nil {
 		return 0
 	}
 
-	return uint32(len(stargazerBlock.Transactions))
+	return k.GetStargazerBlockTransactionCountByNumber(ctx, sdk.BigEndianToUint64(bz))
 }
