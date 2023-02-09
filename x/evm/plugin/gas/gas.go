@@ -64,6 +64,7 @@ func (p *Plugin) ConsumeGas(amount uint64) error {
 	} else if newConsumed > p.gasMeter.Limit() {
 		return errors.New("out of gas")
 	}
+	// Only consume the gas if we know it is safe to consume in order to avoid panic.
 	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
