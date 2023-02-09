@@ -30,7 +30,7 @@ import (
 
 func TestUtils(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "utils")
+	RunSpecs(t, "store/utils")
 }
 
 var testKey = storetypes.NewKVStoreKey("test")
