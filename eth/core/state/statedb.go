@@ -39,7 +39,7 @@ type stateDB struct {
 	LogsJournal
 	RefundJournal
 
-	// `ctrl` is used to manage snapshots and reverts.
+	// `ctrl` is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
@@ -56,13 +56,12 @@ func NewStateDB(sp StatePlugin) (vm.StargazerStateDB, error) {
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
 
-	// Build the controller and register the plugins
+	// Build the controller and register the plugins and journals
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(lj)
 	_ = ctrl.Register(rj)
 	_ = ctrl.Register(sp)
 
-	// Create the `stateDB` and populate the developer provided plugins.
 	return &stateDB{
 		StatePlugin:   sp,
 		LogsJournal:   lj,
