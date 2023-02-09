@@ -42,6 +42,8 @@ type StateProcessor struct {
 	blockHeader *types.StargazerHeader
 	// `receipts` of the current block being processed
 	receipts types.Receipts
+	// `logIndex` is the index of the current log in the current block
+	logIndex uint
 	// `transactions` of the current block being processed
 	transactions types.Transactions
 }
@@ -65,6 +67,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// NOTE: sp.blockHeader.Bloom is nil here, but it is set in `Finalize`.
 	// sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 	sp.receipts = types.Receipts{}
+	sp.logIndex = 0
 	sp.transactions = types.Transactions{}
 	// TODO: use a real state db
 	sp.statedb = vmmock.NewEmptyStateDB()
@@ -133,8 +136,9 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// Set the receipt logs and create the bloom filter.
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
-		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), uint(0),
+		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), sp.logIndex,
 	)
+	sp.logIndex += uint(len(receipt.Logs))
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 
 	// Update the block information.

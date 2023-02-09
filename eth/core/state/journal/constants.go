@@ -15,8 +15,9 @@
 package journal
 
 const (
-	// `initJournalCapacity` is the initial capacity of the plugins' journals.
-	initJournalCapacity = 32
+	// `initCapacity` is the initial capacity of the journals.
+	// TODO: determine appropriate value.
+	initCapacity = 32
 	// `refundRegistryKey` is the registry key for the refund plugin.
 	refundRegistryKey = `refund`
 	// `logsRegistryKey` is the registry key for the logs plugin.

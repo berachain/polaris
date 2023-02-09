@@ -17,18 +17,30 @@ package core
 import (
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/eth/params"
 )
 
-type StateDBFactory struct {
-	sp StatePlugin
+type StateFactory struct {
+	config *params.EthChainConfig
+
+	host StargazerHostChain
 }
 
-func NewStateDBFactory(sp StatePlugin) *StateDBFactory {
-	return &StateDBFactory{
-		sp: sp,
+func NewStateFactory(config *params.EthChainConfig, host StargazerHostChain) *StateFactory {
+	return &StateFactory{
+		config: config,
+		host:   host,
 	}
 }
 
-func (f *StateDBFactory) Build() (vm.StargazerStateDB, error) {
-	return state.NewStateDB(f.sp)
+func (sf *StateFactory) BuildStateDB() (vm.StargazerStateDB, error) {
+	return state.NewStateDB(sf.host.GetStatePlugin())
+}
+
+func (sf *StateFactory) BuildStateProcessor() (*StateProcessor, error) {
+	sdb, err := sf.BuildStateDB()
+	if err != nil {
+		return nil, err
+	}
+	return NewStateProcessor(sf.config, sdb, sf.host), nil
 }

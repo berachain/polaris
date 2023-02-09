@@ -34,7 +34,7 @@ type logs struct {
 //nolint:revive // only used as a `state.LogsJournal`.
 func NewLogs() *logs {
 	return &logs{
-		Stack: stack.New[*coretypes.Log](initJournalCapacity),
+		Stack: stack.New[*coretypes.Log](initCapacity),
 	}
 }
 
@@ -83,5 +83,5 @@ func (l *logs) RevertToSnapshot(id int) {
 
 // `Finalize` implements `libtypes.Controllable`.
 func (l *logs) Finalize() {
-	l.Stack = stack.New[*coretypes.Log](initJournalCapacity)
+	l.Stack = stack.New[*coretypes.Log](initCapacity)
 }

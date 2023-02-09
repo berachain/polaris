@@ -29,7 +29,7 @@ type refund struct {
 //nolint:revive // only used as a `state.RefundJournal`.
 func NewRefund() *refund {
 	return &refund{
-		Stack: stack.New[uint64](initJournalCapacity),
+		Stack: stack.New[uint64](initCapacity),
 	}
 }
 
@@ -71,5 +71,5 @@ func (r *refund) RevertToSnapshot(id int) {
 
 // `Finalize` implements `libtypes.Controllable`.
 func (r *refund) Finalize() {
-	r.Stack = stack.New[uint64](initJournalCapacity)
+	r.Stack = stack.New[uint64](initCapacity)
 }
