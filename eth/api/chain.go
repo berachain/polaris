@@ -14,6 +14,8 @@
 
 package api
 
-type Chain struct {
-	// host core.Host
+// `Chain` defines the methods that the Stargazer Ethereum API exposes. This is the only interface
+// that an implementing chain should use.
+// TODO: rename.
+type Chain interface {
 }

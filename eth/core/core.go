@@ -18,8 +18,8 @@ import (
 	"github.com/berachain/stargazer/eth/params"
 )
 
-// TODO: Compile time assertion that `Blockchain` implements `API`.
-// var _ API = &Blockchain{}
+// TODO: Compile time assertion that `Blockchain` implements `Chain`.
+// var _ api.Chain = &Blockchain{}
 
 type Blockchain struct {
 	// `csp` is the canonical, persistent state processor that runs the EVM.
