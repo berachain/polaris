@@ -48,7 +48,7 @@ func (p *plugin) Reset(ctx context.Context) {
 func (p *plugin) SetGasLimit(limit uint64) error {
 	consumed := p.GasMeter().GasConsumed()
 	// The gas meter is reset to the new limit.
-	p.Context = p.Context.WithGasMeter(types.NewGasMeter(limit))
+	p.Context = p.WithGasMeter(types.NewGasMeter(limit))
 	// Re-consume the gas that was already consumed.
 	return p.ConsumeGas(consumed)
 }
@@ -86,13 +86,10 @@ func (p *plugin) GasUsed() uint64 {
 //
 // `CumulativeGasUsed` implements the core.GasPlugin interface.
 func (p *plugin) CumulativeGasUsed() uint64 {
-	used := p.GasMeter().GasConsumed()
-	limit := p.BlockGasMeter().Limit()
-	used += p.BlockGasMeter().GasConsumed()
-	if used > limit {
+	used := p.GasUsed() + p.BlockGasMeter().GasConsumed()
+	if limit := p.BlockGasMeter().Limit(); used > limit {
 		used = limit
 	}
-
 	return used
 }
 
