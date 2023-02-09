@@ -12,11 +12,30 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package gas
 
-import "errors"
+import (
+	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/testutil"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
-var (
-	// `ErrOutOfGas` is returned when the precompile execution runs out of gas.
-	ErrOutOfGas = errors.New("out of gas")
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+var _ = Describe("plugin", func() {
+	var ctx sdk.Context
+	var p *plugin
+
+	BeforeEach(func() {
+		ctx = testutil.NewContext()
+		p = utils.MustGetAs[*plugin](NewPluginFrom(ctx))
+	})
+
+	It("correctly consume, refund gas and reset", func() {
+		p.SetGasLimit(uint64(1000))
+		p.ConsumeGas(500)
+		Expect(p.GasUsed()).To(Equal(uint64(500)))
+		Expect(p.GasRemaining()).To(Equal(uint64(500)))
+	})
+})

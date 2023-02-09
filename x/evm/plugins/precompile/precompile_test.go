@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package events_test
+package precompile
 
 import (
 	"testing"
@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestEvents(t *testing.T) {
+func TestPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugin/state/events")
+	RunSpecs(t, "x/evm/plugins/precompile")
 }

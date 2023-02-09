@@ -23,8 +23,8 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugin/state/events"
-	"github.com/berachain/stargazer/x/evm/plugin/state/events/mock"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events/mock"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -32,7 +32,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("cosmos runner", func() {
+var _ = Describe("plugin", func() {
 	var p *plugin
 	var ldb *mockLDB
 	var ctx sdk.Context

@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/x/evm/plugin/state/events"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

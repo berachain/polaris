@@ -25,8 +25,8 @@ import (
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugin/state"
-	"github.com/berachain/stargazer/x/evm/plugin/state/storage"
+	"github.com/berachain/stargazer/x/evm/plugins/state"
+	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 )
 
 var (

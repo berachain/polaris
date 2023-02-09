@@ -12,16 +12,11 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state_test
+package plugins
 
-import (
-	"testing"
+import "errors"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+var (
+	// `ErrOutOfGas` is returned when the precompile execution runs out of gas.
+	ErrOutOfGas = errors.New("out of gas")
 )
-
-func TestState(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugin/state")
-}

@@ -12,17 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package gas
 
-package stargazer.evm.storage.v1;
+import (
+	"testing"
 
-option go_package = "github.com/berachain/stargazer/x/evm/plugins/state/storage";
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
 
-// `Slot` represents a single key/value pair of evm state data.
-message Slot {
-  // `key` is the stored key.
-  string key = 1;
-
-  // `value` is the stored value for the given key.
-  string value = 2;
+func TestGas(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/gas")
 }

@@ -16,10 +16,10 @@ package gas
 
 import (
 	"context"
-	"errors"
 	"math"
 
 	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -59,7 +59,7 @@ func (p *plugin) ConsumeGas(amount uint64) error {
 	if newConsumed, overflow := addUint64Overflow(p.GasMeter().GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.GasMeter().Limit() {
-		return errors.New("out of gas")
+		return plugins.ErrOutOfGas
 	}
 	p.GasMeter().ConsumeGas(amount, gasMeterDescriptor)
 	return nil

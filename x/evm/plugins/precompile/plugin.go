@@ -18,7 +18,8 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/x/evm/plugin/state"
+	"github.com/berachain/stargazer/x/evm/plugins"
+	"github.com/berachain/stargazer/x/evm/plugins/state"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/eth/core"
@@ -77,7 +78,7 @@ func (p *plugin) Run(
 
 	// handle overconsumption of gas
 	if gm.GasConsumed() > suppliedGas {
-		return nil, 0, ErrOutOfGas
+		return nil, 0, plugins.ErrOutOfGas
 	}
 
 	// valid precompile gas consumption => return supplied gas

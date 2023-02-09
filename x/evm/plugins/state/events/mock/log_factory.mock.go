@@ -4,7 +4,7 @@
 package mock
 
 import (
-	"github.com/berachain/stargazer/x/evm/plugin/state/events"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/types"
 	"sync"
