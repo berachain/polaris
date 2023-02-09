@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package storage
+package key
 
 import (
 	"github.com/berachain/stargazer/lib/common"
@@ -20,31 +20,23 @@ import (
 )
 
 var (
-	blockKey      = []byte("block")
-	receiptKey    = []byte("receipt")
-	hashKey       = []byte("hash")
-	blockNumTxKey = []byte("block_num_tx")
+	// `Block` is key for the block bloom.
+	Block      = []byte("block")
+	BlockNumTx = []byte("block_num_tx")
+	receiptKey = []byte("receipt")
+	hashKey    = []byte("hash")
 )
 
-// `BlockKey` returns the key for the block bloom.
-func BlockKey() []byte {
-	return blockKey
-}
-
-func BlockNumTxKey() []byte {
-	return blockNumTxKey
-}
-
-func BlockHashToHeightKey(hash common.Hash) []byte {
+func BlockHashToHeight(hash common.Hash) []byte {
 	return append(hashKey, hash[:]...)
 }
 
-// `HashToTxIndexKey` returns the key for a receipt lookup.
-func HashToTxIndexKey(h []byte) []byte {
+// `HashToTxIndex` returns the key for a receipt lookup.
+func HashToTxIndex(h []byte) []byte {
 	return append(hashKey, h...)
 }
 
-// `TxIndexToRecieptKey` returns the key for the receipt lookup for a given block.
-func TxIndexToRecieptKey(txIndex uint64) []byte {
+// `TxIndexToReciept` returns the key for the receipt lookup for a given block.
+func TxIndexToReciept(txIndex uint64) []byte {
 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
 }

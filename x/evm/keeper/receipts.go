@@ -17,7 +17,7 @@ package keeper
 import (
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/storage"
+	"github.com/berachain/stargazer/x/evm/key"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -30,11 +30,11 @@ func (k *Keeper) SetReceipt(ctx sdk.Context, receipt *types.Receipt) {
 
 	// We need to store the receipt for the block numer + tx index for efficient iteration., but
 	// we also need to allow for a way to lookup a receipt by hash.
-	receiptKey := storage.TxIndexToRecieptKey(
+	receiptKey := key.TxIndexToReciept(
 		uint64(receipt.TransactionIndex),
 	)
 	// Store the receiptKey in the store with a key of the tx hash.
-	ctx.KVStore(k.storeKey).Set(storage.HashToTxIndexKey(receipt.TxHash.Bytes()), receiptKey)
+	ctx.KVStore(k.storeKey).Set(key.HashToTxIndex(receipt.TxHash.Bytes()), receiptKey)
 
 	// Store the receipt indexed by tx index.
 	ctx.KVStore(k.storeKey).Set(receiptKey, bz)
@@ -42,7 +42,7 @@ func (k *Keeper) SetReceipt(ctx sdk.Context, receipt *types.Receipt) {
 
 // `GetReceipt` gets the receipt indexed by the receipt hash.
 func (k *Keeper) GetReceipt(ctx sdk.Context, txIndex uint64) *types.Receipt {
-	receiptKey := storage.TxIndexToRecieptKey(txIndex)
+	receiptKey := key.TxIndexToReciept(txIndex)
 	bz := ctx.KVStore(k.storeKey).Get(receiptKey)
 	if bz == nil {
 		return nil
@@ -56,7 +56,7 @@ func (k *Keeper) GetReceipt(ctx sdk.Context, txIndex uint64) *types.Receipt {
 
 // `GetReceiptByTxHash` gets the receipt indexed by the transaction hash.
 func (k *Keeper) GetReceiptByTxHash(ctx sdk.Context, txHash common.Hash) *types.Receipt {
-	receiptKey := ctx.KVStore(k.storeKey).Get(storage.HashToTxIndexKey(txHash.Bytes()))
+	receiptKey := ctx.KVStore(k.storeKey).Get(key.HashToTxIndex(txHash.Bytes()))
 	if receiptKey == nil {
 		return nil
 	}

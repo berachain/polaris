@@ -19,7 +19,7 @@ import (
 
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/x/evm/storage"
+	"github.com/berachain/stargazer/x/evm/key"
 
 	storeutils "github.com/berachain/stargazer/store/utils"
 )
@@ -39,12 +39,12 @@ func (k *Keeper) SetStargazerBlockForCurrentHeight(
 		return err
 	}
 	// Store the full block at the block key. (Overrides the old spot on the tree.)
-	store.Set(storage.BlockKey(), bz)
+	store.Set(key.Block, bz)
 	// Store the number of transactions in the block. (Overrides the old spot on the tree.)
-	store.Set(storage.BlockNumTxKey(), sdk.Uint64ToBigEndian(uint64(len(block.Transactions))))
+	store.Set(key.BlockNumTx, sdk.Uint64ToBigEndian(uint64(len(block.Transactions))))
 
 	// Store a mapping of block hashes to block heights. (Grows over time)
-	store.Set(storage.BlockHashToHeightKey(block.Hash()), sdk.Uint64ToBigEndian(block.Number.Uint64()))
+	store.Set(key.BlockHashToHeight(block.Hash()), sdk.Uint64ToBigEndian(block.Number.Uint64()))
 	return nil
 }
 
@@ -53,7 +53,7 @@ func (k *Keeper) GetStargazerBlockAtHeight(
 	ctx sdk.Context,
 	height uint64,
 ) (*types.StargazerBlock, error) {
-	bz := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(height)).Get(storage.BlockKey())
+	bz := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(height)).Get(key.Block)
 	if bz == nil {
 		return nil, ErrBlockNotFound
 	}
@@ -71,7 +71,7 @@ func (k *Keeper) GetStargazerBlockByHash(
 	ctx sdk.Context,
 	hash common.Hash,
 ) (*types.StargazerBlock, error) {
-	bz := ctx.KVStore(k.storeKey).Get(storage.BlockHashToHeightKey(hash))
+	bz := ctx.KVStore(k.storeKey).Get(key.BlockHashToHeight(hash))
 	if bz == nil {
 		return nil, ErrBlockNotFound
 	}
@@ -86,13 +86,13 @@ func (k *Keeper) GetStargazerBlockByHash(
 // matching the given block number.
 func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint64 {
 	store := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(number))
-	return sdk.BigEndianToUint64(store.Get(storage.BlockNumTxKey()))
+	return sdk.BigEndianToUint64(store.Get(key.BlockNumTx))
 }
 
 // `GetBlockTransactionCountByHash` returns the number of transactions in a block from a block
 // matching the given block hash.
 func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash common.Hash) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(storage.BlockHashToHeightKey(hash))
+	bz := ctx.KVStore(k.storeKey).Get(key.BlockHashToHeight(hash))
 	if bz == nil {
 		return 0
 	}
