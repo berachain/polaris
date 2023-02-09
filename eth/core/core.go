@@ -15,21 +15,28 @@
 package core
 
 import (
-	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 )
+
+// TODO: Compile time assertion that `Blockchain` implements `API`.
+// var _ API = &Blockchain{}
 
 type Blockchain struct {
 	// `csp` is the canonical, persistent state processor that runs the EVM.
 	csp *StateProcessor
+	// sf is the state factory that builds state processors and statedbs.
+	sf *StateFactory
 }
 
-func NewBlockchain(config *params.EthChainConfig, host StargazerHostChain) *Blockchain {
-	return &Blockchain{
-		csp: NewStateProcessor(config, nil, host),
+func NewBlockchain(config *params.EthChainConfig, host StargazerHostChain) (*Blockchain, error) {
+	sf := NewStateFactory(config, host)
+	csp, err := sf.BuildStateProcessor()
+	if err != nil {
+		return nil, err
 	}
-}
 
-func (b *Blockchain) BuildStateProcessor(statedb vm.StargazerStateDB) *StateProcessor {
-	return NewStateProcessor(b.csp.config, statedb, b.csp.host)
+	return &Blockchain{
+		sf:  sf,
+		csp: csp,
+	}, nil
 }
