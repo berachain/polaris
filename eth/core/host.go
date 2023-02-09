@@ -30,14 +30,14 @@ type StargazerHostChain interface {
 }
 
 // The following plugins must be implemented by the chain running Stargazer EVM and exposed via the
-// `StargazerHostChain` interface.
+// `StargazerHostChain` interface. All plugins should be resettable with a given context.
 type (
 	BlockPlugin interface {
-		BasePlugin
+		libtypes.Resettable
 	}
 
 	GasPlugin interface {
-		BasePlugin
+		libtypes.Resettable
 		ConsumeGas(amount uint64) error
 		RefundGas(amount uint64)
 		GasRemaining() uint64
@@ -51,10 +51,6 @@ type (
 	PrecompilePlugin = precompile.Plugin
 
 	ConfigurationPlugin interface {
-		BasePlugin
-	}
-
-	BasePlugin interface {
 		libtypes.Resettable
 	}
 )

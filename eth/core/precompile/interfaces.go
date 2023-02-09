@@ -23,17 +23,18 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `LogsDB` defines the required function to add a log to the StateDB. This ensures a precompile
-// runner can only add logs to the StateDB and not modify any other state on the StateDB.
 type (
+	// `LogsDB` defines the required function to add a log to the StateDB. This ensures a precompile
+	// runner can only add logs to the StateDB and not modify any other state on the StateDB.
 	LogsDB interface {
 		// `AddLog` adds a log to the StateDB.
 		AddLog(*coretypes.Log)
 	}
 
+	// `Plugin` defines the required functions that a precompile plugin must implement.
 	Plugin interface {
 		libtypes.Resettable
-		// `Run` runs a precompile container with the given context and returns the remaining gas.
+		// `Run` runs a precompile container with its natives context and returns the remaining gas.
 		Run(ldb LogsDB, pc vm.PrecompileContainer, input []byte,
 			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 		) (ret []byte, remainingGas uint64, err error)
