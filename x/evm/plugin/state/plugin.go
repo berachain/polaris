@@ -95,7 +95,7 @@ func NewPlugin(
 	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
-) ethstate.StatePlugin {
+) ethstate.Plugin {
 	sp := &statePlugin{
 		evmStoreKey: evmStoreKey,
 		ak:          ak,
@@ -120,7 +120,7 @@ func NewPlugin(
 	return sp
 }
 
-// `Reset` implements `ethstate.StatePlugin`.
+// `Reset` implements `ethstate.Plugin`.
 func (sp *statePlugin) Reset(ctx context.Context) {
 	// reset the Controllable MultiStore and EventManager and attach them to the context
 	sdkCtx := sdk.UnwrapSDKContext(ctx)

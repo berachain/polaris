@@ -32,8 +32,8 @@ var (
 
 // `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
-	// StatePlugin is injected by the chain running the Stargazer EVM.
-	StatePlugin
+	// Plugin is injected by the chain running the Stargazer EVM.
+	Plugin
 
 	// Journals built internally and required for the stateDB.
 	LogsJournal
@@ -51,7 +51,7 @@ type stateDB struct {
 }
 
 // `NewStateDB` returns a `vm.StargazerStateDB` with the given `StatePlugin`.
-func NewStateDB(sp StatePlugin) (vm.StargazerStateDB, error) {
+func NewStateDB(sp Plugin) (vm.StargazerStateDB, error) {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
@@ -63,7 +63,7 @@ func NewStateDB(sp StatePlugin) (vm.StargazerStateDB, error) {
 	_ = ctrl.Register(sp)
 
 	return &stateDB{
-		StatePlugin:   sp,
+		Plugin:        sp,
 		LogsJournal:   lj,
 		RefundJournal: rj,
 		ctrl:          ctrl,

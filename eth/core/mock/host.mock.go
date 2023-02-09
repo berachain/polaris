@@ -5,6 +5,7 @@ package mock
 
 import (
 	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
 	"sync"
 )
@@ -28,10 +29,10 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //			GetGasPluginFunc: func() core.GasPlugin {
 //				panic("mock out the GetGasPlugin method")
 //			},
-//			GetPrecompilePluginFunc: func() core.PrecompilePlugin {
+//			GetPrecompilePluginFunc: func() precompile.Plugin {
 //				panic("mock out the GetPrecompilePlugin method")
 //			},
-//			GetStatePluginFunc: func() state.StatePlugin {
+//			GetStatePluginFunc: func() state.Plugin {
 //				panic("mock out the GetStatePlugin method")
 //			},
 //		}
@@ -51,10 +52,10 @@ type StargazerHostChainMock struct {
 	GetGasPluginFunc func() core.GasPlugin
 
 	// GetPrecompilePluginFunc mocks the GetPrecompilePlugin method.
-	GetPrecompilePluginFunc func() core.PrecompilePlugin
+	GetPrecompilePluginFunc func() precompile.Plugin
 
 	// GetStatePluginFunc mocks the GetStatePlugin method.
-	GetStatePluginFunc func() state.StatePlugin
+	GetStatePluginFunc func() state.Plugin
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -163,7 +164,7 @@ func (mock *StargazerHostChainMock) GetGasPluginCalls() []struct {
 }
 
 // GetPrecompilePlugin calls GetPrecompilePluginFunc.
-func (mock *StargazerHostChainMock) GetPrecompilePlugin() core.PrecompilePlugin {
+func (mock *StargazerHostChainMock) GetPrecompilePlugin() precompile.Plugin {
 	if mock.GetPrecompilePluginFunc == nil {
 		panic("StargazerHostChainMock.GetPrecompilePluginFunc: method is nil but StargazerHostChain.GetPrecompilePlugin was just called")
 	}
@@ -190,7 +191,7 @@ func (mock *StargazerHostChainMock) GetPrecompilePluginCalls() []struct {
 }
 
 // GetStatePlugin calls GetStatePluginFunc.
-func (mock *StargazerHostChainMock) GetStatePlugin() state.StatePlugin {
+func (mock *StargazerHostChainMock) GetStatePlugin() state.Plugin {
 	if mock.GetStatePluginFunc == nil {
 		panic("StargazerHostChainMock.GetStatePluginFunc: method is nil but StargazerHostChain.GetStatePlugin was just called")
 	}

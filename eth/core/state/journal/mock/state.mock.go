@@ -11,16 +11,16 @@ import (
 	"sync"
 )
 
-// Ensure, that StatePluginMock does implement state.StatePlugin.
+// Ensure, that PluginMock does implement state.Plugin.
 // If this is not the case, regenerate this file with moq.
-var _ state.StatePlugin = &StatePluginMock{}
+var _ state.Plugin = &PluginMock{}
 
-// StatePluginMock is a mock implementation of state.StatePlugin.
+// PluginMock is a mock implementation of state.Plugin.
 //
-//	func TestSomethingThatUsesStatePlugin(t *testing.T) {
+//	func TestSomethingThatUsesPlugin(t *testing.T) {
 //
-//		// make and configure a mocked state.StatePlugin
-//		mockedStatePlugin := &StatePluginMock{
+//		// make and configure a mocked state.Plugin
+//		mockedPlugin := &PluginMock{
 //			AddBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the AddBalance method")
 //			},
@@ -89,11 +89,11 @@ var _ state.StatePlugin = &StatePluginMock{}
 //			},
 //		}
 //
-//		// use mockedStatePlugin in code that requires state.StatePlugin
+//		// use mockedPlugin in code that requires state.Plugin
 //		// and then make assertions.
 //
 //	}
-type StatePluginMock struct {
+type PluginMock struct {
 	// AddBalanceFunc mocks the AddBalance method.
 	AddBalanceFunc func(address common.Address, intMoqParam *big.Int)
 
@@ -314,9 +314,9 @@ type StatePluginMock struct {
 }
 
 // AddBalance calls AddBalanceFunc.
-func (mock *StatePluginMock) AddBalance(address common.Address, intMoqParam *big.Int) {
+func (mock *PluginMock) AddBalance(address common.Address, intMoqParam *big.Int) {
 	if mock.AddBalanceFunc == nil {
-		panic("StatePluginMock.AddBalanceFunc: method is nil but StatePlugin.AddBalance was just called")
+		panic("PluginMock.AddBalanceFunc: method is nil but Plugin.AddBalance was just called")
 	}
 	callInfo := struct {
 		Address     common.Address
@@ -334,8 +334,8 @@ func (mock *StatePluginMock) AddBalance(address common.Address, intMoqParam *big
 // AddBalanceCalls gets all the calls that were made to AddBalance.
 // Check the length with:
 //
-//	len(mockedStatePlugin.AddBalanceCalls())
-func (mock *StatePluginMock) AddBalanceCalls() []struct {
+//	len(mockedPlugin.AddBalanceCalls())
+func (mock *PluginMock) AddBalanceCalls() []struct {
 	Address     common.Address
 	IntMoqParam *big.Int
 } {
@@ -350,9 +350,9 @@ func (mock *StatePluginMock) AddBalanceCalls() []struct {
 }
 
 // CreateAccount calls CreateAccountFunc.
-func (mock *StatePluginMock) CreateAccount(address common.Address) {
+func (mock *PluginMock) CreateAccount(address common.Address) {
 	if mock.CreateAccountFunc == nil {
-		panic("StatePluginMock.CreateAccountFunc: method is nil but StatePlugin.CreateAccount was just called")
+		panic("PluginMock.CreateAccountFunc: method is nil but Plugin.CreateAccount was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -368,8 +368,8 @@ func (mock *StatePluginMock) CreateAccount(address common.Address) {
 // CreateAccountCalls gets all the calls that were made to CreateAccount.
 // Check the length with:
 //
-//	len(mockedStatePlugin.CreateAccountCalls())
-func (mock *StatePluginMock) CreateAccountCalls() []struct {
+//	len(mockedPlugin.CreateAccountCalls())
+func (mock *PluginMock) CreateAccountCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -382,9 +382,9 @@ func (mock *StatePluginMock) CreateAccountCalls() []struct {
 }
 
 // DeleteSuicides calls DeleteSuicidesFunc.
-func (mock *StatePluginMock) DeleteSuicides(addresss []common.Address) {
+func (mock *PluginMock) DeleteSuicides(addresss []common.Address) {
 	if mock.DeleteSuicidesFunc == nil {
-		panic("StatePluginMock.DeleteSuicidesFunc: method is nil but StatePlugin.DeleteSuicides was just called")
+		panic("PluginMock.DeleteSuicidesFunc: method is nil but Plugin.DeleteSuicides was just called")
 	}
 	callInfo := struct {
 		Addresss []common.Address
@@ -400,8 +400,8 @@ func (mock *StatePluginMock) DeleteSuicides(addresss []common.Address) {
 // DeleteSuicidesCalls gets all the calls that were made to DeleteSuicides.
 // Check the length with:
 //
-//	len(mockedStatePlugin.DeleteSuicidesCalls())
-func (mock *StatePluginMock) DeleteSuicidesCalls() []struct {
+//	len(mockedPlugin.DeleteSuicidesCalls())
+func (mock *PluginMock) DeleteSuicidesCalls() []struct {
 	Addresss []common.Address
 } {
 	var calls []struct {
@@ -414,9 +414,9 @@ func (mock *StatePluginMock) DeleteSuicidesCalls() []struct {
 }
 
 // Exist calls ExistFunc.
-func (mock *StatePluginMock) Exist(address common.Address) bool {
+func (mock *PluginMock) Exist(address common.Address) bool {
 	if mock.ExistFunc == nil {
-		panic("StatePluginMock.ExistFunc: method is nil but StatePlugin.Exist was just called")
+		panic("PluginMock.ExistFunc: method is nil but Plugin.Exist was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -432,8 +432,8 @@ func (mock *StatePluginMock) Exist(address common.Address) bool {
 // ExistCalls gets all the calls that were made to Exist.
 // Check the length with:
 //
-//	len(mockedStatePlugin.ExistCalls())
-func (mock *StatePluginMock) ExistCalls() []struct {
+//	len(mockedPlugin.ExistCalls())
+func (mock *PluginMock) ExistCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -446,9 +446,9 @@ func (mock *StatePluginMock) ExistCalls() []struct {
 }
 
 // Finalize calls FinalizeFunc.
-func (mock *StatePluginMock) Finalize() {
+func (mock *PluginMock) Finalize() {
 	if mock.FinalizeFunc == nil {
-		panic("StatePluginMock.FinalizeFunc: method is nil but StatePlugin.Finalize was just called")
+		panic("PluginMock.FinalizeFunc: method is nil but Plugin.Finalize was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -461,8 +461,8 @@ func (mock *StatePluginMock) Finalize() {
 // FinalizeCalls gets all the calls that were made to Finalize.
 // Check the length with:
 //
-//	len(mockedStatePlugin.FinalizeCalls())
-func (mock *StatePluginMock) FinalizeCalls() []struct {
+//	len(mockedPlugin.FinalizeCalls())
+func (mock *PluginMock) FinalizeCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -473,9 +473,9 @@ func (mock *StatePluginMock) FinalizeCalls() []struct {
 }
 
 // ForEachStorage calls ForEachStorageFunc.
-func (mock *StatePluginMock) ForEachStorage(address common.Address, fn func(common.Hash, common.Hash) bool) error {
+func (mock *PluginMock) ForEachStorage(address common.Address, fn func(common.Hash, common.Hash) bool) error {
 	if mock.ForEachStorageFunc == nil {
-		panic("StatePluginMock.ForEachStorageFunc: method is nil but StatePlugin.ForEachStorage was just called")
+		panic("PluginMock.ForEachStorageFunc: method is nil but Plugin.ForEachStorage was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -493,8 +493,8 @@ func (mock *StatePluginMock) ForEachStorage(address common.Address, fn func(comm
 // ForEachStorageCalls gets all the calls that were made to ForEachStorage.
 // Check the length with:
 //
-//	len(mockedStatePlugin.ForEachStorageCalls())
-func (mock *StatePluginMock) ForEachStorageCalls() []struct {
+//	len(mockedPlugin.ForEachStorageCalls())
+func (mock *PluginMock) ForEachStorageCalls() []struct {
 	Address common.Address
 	Fn      func(common.Hash, common.Hash) bool
 } {
@@ -509,9 +509,9 @@ func (mock *StatePluginMock) ForEachStorageCalls() []struct {
 }
 
 // GetBalance calls GetBalanceFunc.
-func (mock *StatePluginMock) GetBalance(address common.Address) *big.Int {
+func (mock *PluginMock) GetBalance(address common.Address) *big.Int {
 	if mock.GetBalanceFunc == nil {
-		panic("StatePluginMock.GetBalanceFunc: method is nil but StatePlugin.GetBalance was just called")
+		panic("PluginMock.GetBalanceFunc: method is nil but Plugin.GetBalance was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -527,8 +527,8 @@ func (mock *StatePluginMock) GetBalance(address common.Address) *big.Int {
 // GetBalanceCalls gets all the calls that were made to GetBalance.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetBalanceCalls())
-func (mock *StatePluginMock) GetBalanceCalls() []struct {
+//	len(mockedPlugin.GetBalanceCalls())
+func (mock *PluginMock) GetBalanceCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -541,9 +541,9 @@ func (mock *StatePluginMock) GetBalanceCalls() []struct {
 }
 
 // GetCode calls GetCodeFunc.
-func (mock *StatePluginMock) GetCode(address common.Address) []byte {
+func (mock *PluginMock) GetCode(address common.Address) []byte {
 	if mock.GetCodeFunc == nil {
-		panic("StatePluginMock.GetCodeFunc: method is nil but StatePlugin.GetCode was just called")
+		panic("PluginMock.GetCodeFunc: method is nil but Plugin.GetCode was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -559,8 +559,8 @@ func (mock *StatePluginMock) GetCode(address common.Address) []byte {
 // GetCodeCalls gets all the calls that were made to GetCode.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetCodeCalls())
-func (mock *StatePluginMock) GetCodeCalls() []struct {
+//	len(mockedPlugin.GetCodeCalls())
+func (mock *PluginMock) GetCodeCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -573,9 +573,9 @@ func (mock *StatePluginMock) GetCodeCalls() []struct {
 }
 
 // GetCodeHash calls GetCodeHashFunc.
-func (mock *StatePluginMock) GetCodeHash(address common.Address) common.Hash {
+func (mock *PluginMock) GetCodeHash(address common.Address) common.Hash {
 	if mock.GetCodeHashFunc == nil {
-		panic("StatePluginMock.GetCodeHashFunc: method is nil but StatePlugin.GetCodeHash was just called")
+		panic("PluginMock.GetCodeHashFunc: method is nil but Plugin.GetCodeHash was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -591,8 +591,8 @@ func (mock *StatePluginMock) GetCodeHash(address common.Address) common.Hash {
 // GetCodeHashCalls gets all the calls that were made to GetCodeHash.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetCodeHashCalls())
-func (mock *StatePluginMock) GetCodeHashCalls() []struct {
+//	len(mockedPlugin.GetCodeHashCalls())
+func (mock *PluginMock) GetCodeHashCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -605,9 +605,9 @@ func (mock *StatePluginMock) GetCodeHashCalls() []struct {
 }
 
 // GetCodeSize calls GetCodeSizeFunc.
-func (mock *StatePluginMock) GetCodeSize(address common.Address) int {
+func (mock *PluginMock) GetCodeSize(address common.Address) int {
 	if mock.GetCodeSizeFunc == nil {
-		panic("StatePluginMock.GetCodeSizeFunc: method is nil but StatePlugin.GetCodeSize was just called")
+		panic("PluginMock.GetCodeSizeFunc: method is nil but Plugin.GetCodeSize was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -623,8 +623,8 @@ func (mock *StatePluginMock) GetCodeSize(address common.Address) int {
 // GetCodeSizeCalls gets all the calls that were made to GetCodeSize.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetCodeSizeCalls())
-func (mock *StatePluginMock) GetCodeSizeCalls() []struct {
+//	len(mockedPlugin.GetCodeSizeCalls())
+func (mock *PluginMock) GetCodeSizeCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -637,9 +637,9 @@ func (mock *StatePluginMock) GetCodeSizeCalls() []struct {
 }
 
 // GetCommittedState calls GetCommittedStateFunc.
-func (mock *StatePluginMock) GetCommittedState(address common.Address, hash common.Hash) common.Hash {
+func (mock *PluginMock) GetCommittedState(address common.Address, hash common.Hash) common.Hash {
 	if mock.GetCommittedStateFunc == nil {
-		panic("StatePluginMock.GetCommittedStateFunc: method is nil but StatePlugin.GetCommittedState was just called")
+		panic("PluginMock.GetCommittedStateFunc: method is nil but Plugin.GetCommittedState was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -657,8 +657,8 @@ func (mock *StatePluginMock) GetCommittedState(address common.Address, hash comm
 // GetCommittedStateCalls gets all the calls that were made to GetCommittedState.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetCommittedStateCalls())
-func (mock *StatePluginMock) GetCommittedStateCalls() []struct {
+//	len(mockedPlugin.GetCommittedStateCalls())
+func (mock *PluginMock) GetCommittedStateCalls() []struct {
 	Address common.Address
 	Hash    common.Hash
 } {
@@ -673,9 +673,9 @@ func (mock *StatePluginMock) GetCommittedStateCalls() []struct {
 }
 
 // GetNonce calls GetNonceFunc.
-func (mock *StatePluginMock) GetNonce(address common.Address) uint64 {
+func (mock *PluginMock) GetNonce(address common.Address) uint64 {
 	if mock.GetNonceFunc == nil {
-		panic("StatePluginMock.GetNonceFunc: method is nil but StatePlugin.GetNonce was just called")
+		panic("PluginMock.GetNonceFunc: method is nil but Plugin.GetNonce was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -691,8 +691,8 @@ func (mock *StatePluginMock) GetNonce(address common.Address) uint64 {
 // GetNonceCalls gets all the calls that were made to GetNonce.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetNonceCalls())
-func (mock *StatePluginMock) GetNonceCalls() []struct {
+//	len(mockedPlugin.GetNonceCalls())
+func (mock *PluginMock) GetNonceCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -705,9 +705,9 @@ func (mock *StatePluginMock) GetNonceCalls() []struct {
 }
 
 // GetState calls GetStateFunc.
-func (mock *StatePluginMock) GetState(address common.Address, hash common.Hash) common.Hash {
+func (mock *PluginMock) GetState(address common.Address, hash common.Hash) common.Hash {
 	if mock.GetStateFunc == nil {
-		panic("StatePluginMock.GetStateFunc: method is nil but StatePlugin.GetState was just called")
+		panic("PluginMock.GetStateFunc: method is nil but Plugin.GetState was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -725,8 +725,8 @@ func (mock *StatePluginMock) GetState(address common.Address, hash common.Hash) 
 // GetStateCalls gets all the calls that were made to GetState.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetStateCalls())
-func (mock *StatePluginMock) GetStateCalls() []struct {
+//	len(mockedPlugin.GetStateCalls())
+func (mock *PluginMock) GetStateCalls() []struct {
 	Address common.Address
 	Hash    common.Hash
 } {
@@ -741,9 +741,9 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 }
 
 // RegistryKey calls RegistryKeyFunc.
-func (mock *StatePluginMock) RegistryKey() string {
+func (mock *PluginMock) RegistryKey() string {
 	if mock.RegistryKeyFunc == nil {
-		panic("StatePluginMock.RegistryKeyFunc: method is nil but StatePlugin.RegistryKey was just called")
+		panic("PluginMock.RegistryKeyFunc: method is nil but Plugin.RegistryKey was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -756,8 +756,8 @@ func (mock *StatePluginMock) RegistryKey() string {
 // RegistryKeyCalls gets all the calls that were made to RegistryKey.
 // Check the length with:
 //
-//	len(mockedStatePlugin.RegistryKeyCalls())
-func (mock *StatePluginMock) RegistryKeyCalls() []struct {
+//	len(mockedPlugin.RegistryKeyCalls())
+func (mock *PluginMock) RegistryKeyCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -768,9 +768,9 @@ func (mock *StatePluginMock) RegistryKeyCalls() []struct {
 }
 
 // Reset calls ResetFunc.
-func (mock *StatePluginMock) Reset(contextMoqParam context.Context) {
+func (mock *PluginMock) Reset(contextMoqParam context.Context) {
 	if mock.ResetFunc == nil {
-		panic("StatePluginMock.ResetFunc: method is nil but StatePlugin.Reset was just called")
+		panic("PluginMock.ResetFunc: method is nil but Plugin.Reset was just called")
 	}
 	callInfo := struct {
 		ContextMoqParam context.Context
@@ -786,8 +786,8 @@ func (mock *StatePluginMock) Reset(contextMoqParam context.Context) {
 // ResetCalls gets all the calls that were made to Reset.
 // Check the length with:
 //
-//	len(mockedStatePlugin.ResetCalls())
-func (mock *StatePluginMock) ResetCalls() []struct {
+//	len(mockedPlugin.ResetCalls())
+func (mock *PluginMock) ResetCalls() []struct {
 	ContextMoqParam context.Context
 } {
 	var calls []struct {
@@ -800,9 +800,9 @@ func (mock *StatePluginMock) ResetCalls() []struct {
 }
 
 // RevertToSnapshot calls RevertToSnapshotFunc.
-func (mock *StatePluginMock) RevertToSnapshot(n int) {
+func (mock *PluginMock) RevertToSnapshot(n int) {
 	if mock.RevertToSnapshotFunc == nil {
-		panic("StatePluginMock.RevertToSnapshotFunc: method is nil but StatePlugin.RevertToSnapshot was just called")
+		panic("PluginMock.RevertToSnapshotFunc: method is nil but Plugin.RevertToSnapshot was just called")
 	}
 	callInfo := struct {
 		N int
@@ -818,8 +818,8 @@ func (mock *StatePluginMock) RevertToSnapshot(n int) {
 // RevertToSnapshotCalls gets all the calls that were made to RevertToSnapshot.
 // Check the length with:
 //
-//	len(mockedStatePlugin.RevertToSnapshotCalls())
-func (mock *StatePluginMock) RevertToSnapshotCalls() []struct {
+//	len(mockedPlugin.RevertToSnapshotCalls())
+func (mock *PluginMock) RevertToSnapshotCalls() []struct {
 	N int
 } {
 	var calls []struct {
@@ -832,9 +832,9 @@ func (mock *StatePluginMock) RevertToSnapshotCalls() []struct {
 }
 
 // SetCode calls SetCodeFunc.
-func (mock *StatePluginMock) SetCode(address common.Address, bytes []byte) {
+func (mock *PluginMock) SetCode(address common.Address, bytes []byte) {
 	if mock.SetCodeFunc == nil {
-		panic("StatePluginMock.SetCodeFunc: method is nil but StatePlugin.SetCode was just called")
+		panic("PluginMock.SetCodeFunc: method is nil but Plugin.SetCode was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -852,8 +852,8 @@ func (mock *StatePluginMock) SetCode(address common.Address, bytes []byte) {
 // SetCodeCalls gets all the calls that were made to SetCode.
 // Check the length with:
 //
-//	len(mockedStatePlugin.SetCodeCalls())
-func (mock *StatePluginMock) SetCodeCalls() []struct {
+//	len(mockedPlugin.SetCodeCalls())
+func (mock *PluginMock) SetCodeCalls() []struct {
 	Address common.Address
 	Bytes   []byte
 } {
@@ -868,9 +868,9 @@ func (mock *StatePluginMock) SetCodeCalls() []struct {
 }
 
 // SetNonce calls SetNonceFunc.
-func (mock *StatePluginMock) SetNonce(address common.Address, v uint64) {
+func (mock *PluginMock) SetNonce(address common.Address, v uint64) {
 	if mock.SetNonceFunc == nil {
-		panic("StatePluginMock.SetNonceFunc: method is nil but StatePlugin.SetNonce was just called")
+		panic("PluginMock.SetNonceFunc: method is nil but Plugin.SetNonce was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -888,8 +888,8 @@ func (mock *StatePluginMock) SetNonce(address common.Address, v uint64) {
 // SetNonceCalls gets all the calls that were made to SetNonce.
 // Check the length with:
 //
-//	len(mockedStatePlugin.SetNonceCalls())
-func (mock *StatePluginMock) SetNonceCalls() []struct {
+//	len(mockedPlugin.SetNonceCalls())
+func (mock *PluginMock) SetNonceCalls() []struct {
 	Address common.Address
 	V       uint64
 } {
@@ -904,9 +904,9 @@ func (mock *StatePluginMock) SetNonceCalls() []struct {
 }
 
 // SetState calls SetStateFunc.
-func (mock *StatePluginMock) SetState(address common.Address, hash1 common.Hash, hash2 common.Hash) {
+func (mock *PluginMock) SetState(address common.Address, hash1 common.Hash, hash2 common.Hash) {
 	if mock.SetStateFunc == nil {
-		panic("StatePluginMock.SetStateFunc: method is nil but StatePlugin.SetState was just called")
+		panic("PluginMock.SetStateFunc: method is nil but Plugin.SetState was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -926,8 +926,8 @@ func (mock *StatePluginMock) SetState(address common.Address, hash1 common.Hash,
 // SetStateCalls gets all the calls that were made to SetState.
 // Check the length with:
 //
-//	len(mockedStatePlugin.SetStateCalls())
-func (mock *StatePluginMock) SetStateCalls() []struct {
+//	len(mockedPlugin.SetStateCalls())
+func (mock *PluginMock) SetStateCalls() []struct {
 	Address common.Address
 	Hash1   common.Hash
 	Hash2   common.Hash
@@ -944,9 +944,9 @@ func (mock *StatePluginMock) SetStateCalls() []struct {
 }
 
 // Snapshot calls SnapshotFunc.
-func (mock *StatePluginMock) Snapshot() int {
+func (mock *PluginMock) Snapshot() int {
 	if mock.SnapshotFunc == nil {
-		panic("StatePluginMock.SnapshotFunc: method is nil but StatePlugin.Snapshot was just called")
+		panic("PluginMock.SnapshotFunc: method is nil but Plugin.Snapshot was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -959,8 +959,8 @@ func (mock *StatePluginMock) Snapshot() int {
 // SnapshotCalls gets all the calls that were made to Snapshot.
 // Check the length with:
 //
-//	len(mockedStatePlugin.SnapshotCalls())
-func (mock *StatePluginMock) SnapshotCalls() []struct {
+//	len(mockedPlugin.SnapshotCalls())
+func (mock *PluginMock) SnapshotCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -971,9 +971,9 @@ func (mock *StatePluginMock) SnapshotCalls() []struct {
 }
 
 // SubBalance calls SubBalanceFunc.
-func (mock *StatePluginMock) SubBalance(address common.Address, intMoqParam *big.Int) {
+func (mock *PluginMock) SubBalance(address common.Address, intMoqParam *big.Int) {
 	if mock.SubBalanceFunc == nil {
-		panic("StatePluginMock.SubBalanceFunc: method is nil but StatePlugin.SubBalance was just called")
+		panic("PluginMock.SubBalanceFunc: method is nil but Plugin.SubBalance was just called")
 	}
 	callInfo := struct {
 		Address     common.Address
@@ -991,8 +991,8 @@ func (mock *StatePluginMock) SubBalance(address common.Address, intMoqParam *big
 // SubBalanceCalls gets all the calls that were made to SubBalance.
 // Check the length with:
 //
-//	len(mockedStatePlugin.SubBalanceCalls())
-func (mock *StatePluginMock) SubBalanceCalls() []struct {
+//	len(mockedPlugin.SubBalanceCalls())
+func (mock *PluginMock) SubBalanceCalls() []struct {
 	Address     common.Address
 	IntMoqParam *big.Int
 } {
@@ -1007,9 +1007,9 @@ func (mock *StatePluginMock) SubBalanceCalls() []struct {
 }
 
 // TransferBalance calls TransferBalanceFunc.
-func (mock *StatePluginMock) TransferBalance(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
+func (mock *PluginMock) TransferBalance(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
 	if mock.TransferBalanceFunc == nil {
-		panic("StatePluginMock.TransferBalanceFunc: method is nil but StatePlugin.TransferBalance was just called")
+		panic("PluginMock.TransferBalanceFunc: method is nil but Plugin.TransferBalance was just called")
 	}
 	callInfo := struct {
 		Address1    common.Address
@@ -1029,8 +1029,8 @@ func (mock *StatePluginMock) TransferBalance(address1 common.Address, address2 c
 // TransferBalanceCalls gets all the calls that were made to TransferBalance.
 // Check the length with:
 //
-//	len(mockedStatePlugin.TransferBalanceCalls())
-func (mock *StatePluginMock) TransferBalanceCalls() []struct {
+//	len(mockedPlugin.TransferBalanceCalls())
+func (mock *PluginMock) TransferBalanceCalls() []struct {
 	Address1    common.Address
 	Address2    common.Address
 	IntMoqParam *big.Int

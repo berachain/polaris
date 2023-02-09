@@ -27,28 +27,25 @@ import (
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
 const gasMeterDescriptor = `stargazer-gas-plugin`
 
-// Compile-time interface assertions.
-var _ core.GasPlugin = (*Plugin)(nil)
-
-// `Plugin implements the core.GasPlugin interface.`.
-type Plugin struct {
+// `plugin` uses the SDK context gas meters (tx and block) to manage gas consumption.
+type plugin struct {
 	sdk.Context
 }
 
 // `NewPluginFrom` creates a new instance of the gas plugin from a given context.
-func NewPluginFrom(ctx sdk.Context) *Plugin {
-	return &Plugin{
+func NewPluginFrom(ctx sdk.Context) core.GasPlugin {
+	return &plugin{
 		Context: ctx,
 	}
 }
 
 // `Setup` implements the core.GasPlugin interface.
-func (p *Plugin) Reset(ctx context.Context) {
+func (p *plugin) Reset(ctx context.Context) {
 	p.Context = sdk.UnwrapSDKContext(ctx)
 }
 
 // `SetGasLimit` resets the gas limit of the underlying GasMeter.
-func (p *Plugin) SetGasLimit(limit uint64) error {
+func (p *plugin) SetGasLimit(limit uint64) error {
 	consumed := p.GasMeter().GasConsumed()
 	// The gas meter is reset to the new limit.
 	p.Context = p.Context.WithGasMeter(types.NewGasMeter(limit))
@@ -57,7 +54,7 @@ func (p *Plugin) SetGasLimit(limit uint64) error {
 }
 
 // `ConsumeGas` implements the core.GasPlugin interface.
-func (p *Plugin) ConsumeGas(amount uint64) error {
+func (p *plugin) ConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	if newConsumed, overflow := addUint64Overflow(p.GasMeter().GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
@@ -69,17 +66,17 @@ func (p *Plugin) ConsumeGas(amount uint64) error {
 }
 
 // `RefundGas` implements the core.GasPlugin interface.
-func (p *Plugin) RefundGas(amount uint64) {
+func (p *plugin) RefundGas(amount uint64) {
 	p.GasMeter().RefundGas(amount, gasMeterDescriptor)
 }
 
 // `GasRemaining` implements the core.GasPlugin interface.
-func (p *Plugin) GasRemaining() uint64 {
+func (p *plugin) GasRemaining() uint64 {
 	return p.GasMeter().GasRemaining()
 }
 
 // `GasUsed` implements the core.GasPlugin interface.
-func (p *Plugin) GasUsed() uint64 {
+func (p *plugin) GasUsed() uint64 {
 	return p.GasMeter().GasConsumed()
 }
 
@@ -88,7 +85,7 @@ func (p *Plugin) GasUsed() uint64 {
 // still fail in `runTx`.
 //
 // `CumulativeGasUsed` implements the core.GasPlugin interface.
-func (p *Plugin) CumulativeGasUsed() uint64 {
+func (p *plugin) CumulativeGasUsed() uint64 {
 	used := p.GasMeter().GasConsumed()
 	limit := p.BlockGasMeter().Limit()
 	used += p.BlockGasMeter().GasConsumed()

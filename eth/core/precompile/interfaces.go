@@ -15,25 +15,26 @@
 package precompile
 
 import (
-	"context"
 	"math/big"
 
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `LogsDB` defines the required function to add a log to the StateDB.
+// `LogsDB` defines the required function to add a log to the StateDB. This ensures a precompile
+// runner can only add logs to the StateDB and not modify any other state on the StateDB.
 type (
 	LogsDB interface {
-		// `AddLog` adds a log to the database.
+		// `AddLog` adds a log to the StateDB.
 		AddLog(*coretypes.Log)
 	}
 
-	// `Runner` defines the required function of a vm-specific precompile runner.
-	Runner interface {
-		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
-		Run(ctx context.Context, ldb LogsDB, pc vm.PrecompileContainer, input []byte,
+	Plugin interface {
+		libtypes.Resettable
+		// `Run` runs a precompile container with the given context and returns the remaining gas.
+		Run(ldb LogsDB, pc vm.PrecompileContainer, input []byte,
 			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 		) (ret []byte, remainingGas uint64, err error)
 	}

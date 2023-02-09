@@ -46,12 +46,9 @@ type (
 		SetGasLimit(limit uint64) error
 	}
 
-	StatePlugin = state.StatePlugin
+	StatePlugin = state.Plugin
 
-	PrecompilePlugin interface {
-		BasePlugin
-		precompile.Runner
-	}
+	PrecompilePlugin = precompile.Plugin
 
 	ConfigurationPlugin interface {
 		BasePlugin

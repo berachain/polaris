@@ -23,5 +23,5 @@ import (
 
 func TestPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/precompile")
+	RunSpecs(t, "x/evm/plugin/precompile")
 }
