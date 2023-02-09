@@ -22,9 +22,9 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `StatePlugin` is a plugin which tracks the accounts (balances, nonces, codes, states) in the
-// native vm. This also handles removing suicided accounts.
-type StatePlugin interface { //nolint:revive // vibes.
+// `Plugin` is a plugin which tracks the accounts (balances, nonces, codes, states) in the native
+// vm. This also handles removing suicided accounts.
+type Plugin interface {
 	libtypes.Controllable[string]
 	// `Reset` resets the state with the given `context`.
 	libtypes.Resettable

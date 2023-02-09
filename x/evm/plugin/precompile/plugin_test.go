@@ -12,7 +12,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
@@ -21,8 +21,8 @@ import (
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugin/precompile"
 	"github.com/berachain/stargazer/x/evm/plugin/state/events"
 	"github.com/berachain/stargazer/x/evm/plugin/state/events/mock"
 
@@ -33,38 +33,28 @@ import (
 )
 
 var _ = Describe("cosmos runner", func() {
-	var cr *precompile.CosmosRunner
+	var p *plugin
 	var ldb *mockLDB
 	var ctx sdk.Context
 
 	BeforeEach(func() {
-		cr = precompile.NewCosmosRunner()
-		ldb = &mockLDB{}
 		ctx = testutil.NewContext()
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
+		p = utils.MustGetAs[*plugin](NewPluginFrom(ctx))
+		ldb = &mockLDB{}
 	})
 
 	It("should use correctly consume gas", func() {
-		_, remainingGas, err := cr.Run(ctx, ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
+		_, remainingGas, err := p.Run(ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
 		Expect(err).To(BeNil())
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 
 	It("should error on insufficient gas", func() {
-		_, _, err := cr.Run(ctx, ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
+		_, _, err := p.Run(ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
-	})
-
-	It("should plug in custom gas configs", func() {
-		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
-		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
-
-		cr.SetKVGasConfig(&sdk.GasConfig{})
-		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
-		cr.SetTransientKVGasConfig(&sdk.GasConfig{})
-		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
 	})
 })
 

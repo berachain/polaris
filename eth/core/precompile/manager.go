@@ -15,7 +15,6 @@
 package precompile
 
 import (
-	"context"
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -28,28 +27,19 @@ import (
 type manager struct {
 	// `Registry` allows the `Controller` to search for a precompile container at an address.
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
-	// `ctx` is the ephemeral native context, updated on every state transition.
-	ctx context.Context
-	// `runner` will run the precompile in a custom precompile environment for a given context.
-	runner Runner
+	// `Plugin` will run the precompile in a custom precompile environment with its own context.
+	Plugin
 	// `ldb` is a reference to the StateDB used to add Eth logs from the precompile's execution.
 	ldb LogsDB
 }
 
 // `NewManager` creates and returns a `Controller` with a native precompile runner and logs DB.
-func NewManager(runner Runner, ldb LogsDB) vm.PrecompileManager {
+func NewManager(plugin Plugin, ldb LogsDB) vm.PrecompileManager {
 	return &manager{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
-		runner:   runner,
+		Plugin:   plugin,
 		ldb:      ldb,
 	}
-}
-
-// `Reset` sets the precompile's native environment context.
-//
-// `Reset` implements `vm.PrecompileController`.
-func (m *manager) Reset(ctx context.Context) {
-	m.ctx = ctx
 }
 
 // `Run` runs the precompile container using its runner and its ephemeral context.
@@ -59,5 +49,5 @@ func (m *manager) Run(
 	pc vm.PrecompileContainer, input []byte, caller common.Address,
 	value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
-	return m.runner.Run(m.ctx, m.ldb, pc, input, caller, value, suppliedGas, readonly)
+	return m.Plugin.Run(m.ldb, pc, input, caller, value, suppliedGas, readonly)
 }

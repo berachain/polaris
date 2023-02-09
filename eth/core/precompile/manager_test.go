@@ -27,15 +27,15 @@ import (
 
 var _ = Describe("controller", func() {
 	var c *manager
-	var mr *mockRunner
+	var mp *mockPlugin
 	var ctx context.Context
 	var ms *mockSdb
 
 	BeforeEach(func() {
-		mr = &mockRunner{}
+		mp = &mockPlugin{}
 		ms = &mockSdb{}
 		ctx = context.Background()
-		c = utils.MustGetAs[*manager](NewManager(mr, ms))
+		c = utils.MustGetAs[*manager](NewManager(mp, ms))
 		err := c.Register(&mockStateless{})
 		Expect(err).To(BeNil())
 	})
@@ -48,7 +48,7 @@ var _ = Describe("controller", func() {
 
 		_, _, err := c.Run(pc, []byte{}, addr, new(big.Int), 10, true)
 		Expect(err).To(BeNil())
-		Expect(mr.called).To(BeTrue())
+		Expect(mp.called).To(BeTrue())
 	})
 
 	It("should not find an unregistered", func() {
@@ -59,15 +59,17 @@ var _ = Describe("controller", func() {
 
 // MOCKS BELOW.
 
-type mockRunner struct {
+type mockPlugin struct {
 	called bool
 }
 
-func (mr *mockRunner) Run(
-	ctx context.Context, ldb LogsDB, pc vm.PrecompileContainer, input []byte,
+func (mp *mockPlugin) Reset(context.Context) {}
+
+func (mp *mockPlugin) Run(
+	ldb LogsDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
-	mr.called = true
+	mp.called = true
 	return nil, 0, nil
 }
 

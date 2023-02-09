@@ -31,7 +31,7 @@ var (
 	numReverts         = 2     // number of times an eth call is reverted in one tx
 )
 
-func GetNewStatePlugin() ethstate.StatePlugin {
+func GetNewStatePlugin() ethstate.Plugin {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
 	return state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera")
 }

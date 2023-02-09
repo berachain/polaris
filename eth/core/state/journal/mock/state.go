@@ -21,7 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-//go:generate moq -out ./state.mock.go -pkg mock ../../ StatePlugin
+//go:generate moq -out ./state.mock.go -pkg mock ../../ Plugin
 
 var Accounts map[common.Address]*Account
 
@@ -32,9 +32,9 @@ type Account struct {
 }
 
 // `NewEmptyStatePlugin` returns an empty `StatePluginMock`.
-func NewEmptyStatePlugin() *StatePluginMock {
+func NewEmptyStatePlugin() *PluginMock {
 	Accounts = make(map[common.Address]*Account)
-	return &StatePluginMock{
+	return &PluginMock{
 		AddBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
 			if _, ok := Accounts[address]; !ok {
 				panic("acct doesnt exist")

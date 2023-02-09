@@ -50,6 +50,6 @@ func NewPluginFactory(
 }
 
 // `Build` returns a new state plugin instance.
-func (pf *PluginFactory) Build(ctx context.Context) ethstate.StatePlugin {
+func (pf *PluginFactory) Build(ctx context.Context) ethstate.Plugin {
 	return NewPlugin(sdk.UnwrapSDKContext(ctx), pf.ak, pf.bk, pf.evmStoreKey, "abera")
 }
