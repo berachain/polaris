@@ -17,6 +17,7 @@ package core
 import (
 	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
 // `StargazerHostChain` defines the plugins that the chain running Stargazer EVM must implement.
@@ -57,6 +58,6 @@ type (
 	}
 
 	BasePlugin interface {
-		Setup() error
+		libtypes.Resettable
 	}
 )

@@ -110,5 +110,6 @@ func (cr *CosmosRunner) Run(
 		return nil, 0, ErrOutOfGas
 	}
 
+	// valid precompile gas consumption => return supplied gas
 	return ret, suppliedGas - gm.GasConsumed(), err
 }

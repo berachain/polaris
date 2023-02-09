@@ -14,7 +14,10 @@
 
 package mock
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 type GasPluginMock struct {
 	gasUsed  uint64
@@ -27,8 +30,8 @@ func NewGasPluginMock(gasLimit uint64) *GasPluginMock {
 	}
 }
 
-func (w *GasPluginMock) Setup() error {
-	return nil
+func (w *GasPluginMock) Reset(context.Context) {
+	// no-op
 }
 
 func (w *GasPluginMock) ConsumeGas(amount uint64) error {

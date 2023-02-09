@@ -15,11 +15,13 @@
 package gas
 
 import (
+	"context"
 	"errors"
 	"math"
 
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
@@ -30,28 +32,26 @@ var _ core.GasPlugin = (*Plugin)(nil)
 
 // `Plugin implements the core.GasPlugin interface.`.
 type Plugin struct {
-	gasMeter      types.GasMeter
-	blockGasMeter types.GasMeter
+	sdk.Context
 }
 
-// `NewPlugin` creates a new instance of the gas plugin.
-func NewPlugin(gasMeter, blockGasMeter types.GasMeter) *Plugin {
+// `NewPluginFrom` creates a new instance of the gas plugin from a given context.
+func NewPluginFrom(ctx sdk.Context) *Plugin {
 	return &Plugin{
-		gasMeter:      types.NewInfiniteGasMeter(),
-		blockGasMeter: blockGasMeter,
+		Context: ctx,
 	}
 }
 
 // `Setup` implements the core.GasPlugin interface.
-func (p *Plugin) Setup() error {
-	return nil
+func (p *Plugin) Reset(ctx context.Context) {
+	p.Context = sdk.UnwrapSDKContext(ctx)
 }
 
 // `SetGasLimit` resets the gas limit of the underlying GasMeter.
 func (p *Plugin) SetGasLimit(limit uint64) error {
-	consumed := p.gasMeter.GasConsumed()
+	consumed := p.GasMeter().GasConsumed()
 	// The gas meter is reset to the new limit.
-	p.gasMeter = types.NewGasMeter(limit)
+	p.Context = p.Context.WithGasMeter(types.NewGasMeter(limit))
 	// Re-consume the gas that was already consumed.
 	return p.ConsumeGas(consumed)
 }
@@ -59,35 +59,35 @@ func (p *Plugin) SetGasLimit(limit uint64) error {
 // `ConsumeGas` implements the core.GasPlugin interface.
 func (p *Plugin) ConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
-	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
+	if newConsumed, overflow := addUint64Overflow(p.GasMeter().GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
-	} else if newConsumed > p.gasMeter.Limit() {
+	} else if newConsumed > p.GasMeter().Limit() {
 		return errors.New("out of gas")
 	}
-	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
+	p.GasMeter().ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
 
 // `RefundGas` implements the core.GasPlugin interface.
 func (p *Plugin) RefundGas(amount uint64) {
-	p.gasMeter.RefundGas(amount, gasMeterDescriptor)
+	p.GasMeter().RefundGas(amount, gasMeterDescriptor)
 }
 
 // `GasRemaining` implements the core.GasPlugin interface.
 func (p *Plugin) GasRemaining() uint64 {
-	return p.gasMeter.GasRemaining()
+	return p.GasMeter().GasRemaining()
 }
 
 // `GasUsed` implements the core.GasPlugin interface.
 func (p *Plugin) GasUsed() uint64 {
-	return p.gasMeter.GasConsumed()
+	return p.GasMeter().GasConsumed()
 }
 
 // `CumulativeGasUsed` implements the core.GasPlugin interface.
 func (p *Plugin) CumulativeGasUsed() uint64 {
-	used := p.gasMeter.GasConsumed()
-	limit := p.blockGasMeter.Limit()
-	used += p.blockGasMeter.GasConsumed()
+	used := p.GasMeter().GasConsumed()
+	limit := p.BlockGasMeter().Limit()
+	used += p.BlockGasMeter().GasConsumed()
 	if used > limit {
 		used = limit
 	}
@@ -95,8 +95,8 @@ func (p *Plugin) CumulativeGasUsed() uint64 {
 	return used
 }
 
-// addUint64Overflow performs the addition operation on two uint64 integers and
-// returns a boolean on whether or not the result overflows.
+// `addUint64Overflow` performs the addition operation on two uint64 integers and returns a boolean
+// on whether or not the result overflows.
 func addUint64Overflow(a, b uint64) (uint64, bool) {
 	if math.MaxUint64-a < b {
 		return 0, true
