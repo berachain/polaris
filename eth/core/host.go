@@ -17,6 +17,7 @@ package core
 import (
 	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
+	"github.com/berachain/stargazer/eth/params"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
@@ -52,5 +53,8 @@ type (
 
 	ConfigurationPlugin interface {
 		libtypes.Resettable
+		BaseFee() uint64
+		ChainConfig() *params.ChainConfig
+		UpdateChainConfig(*params.ChainConfig)
 	}
 )

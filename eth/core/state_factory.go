@@ -20,12 +20,12 @@ import (
 )
 
 type StateFactory struct {
-	config *params.EthChainConfig
+	config *params.ChainConfig
 
 	host StargazerHostChain
 }
 
-func NewStateFactory(config *params.EthChainConfig, host StargazerHostChain) *StateFactory {
+func NewStateFactory(config *params.ChainConfig, host StargazerHostChain) *StateFactory {
 	return &StateFactory{
 		config: config,
 		host:   host,

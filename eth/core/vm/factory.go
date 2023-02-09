@@ -36,7 +36,7 @@ func NewEVMFactory(precompileManager PrecompileManager) *EVMFactory {
 func (ef *EVMFactory) Build(
 	ssdb StargazerStateDB,
 	blockCtx BlockContext,
-	chainConfig *params.EthChainConfig,
+	chainConfig *params.ChainConfig,
 	noBaseFee bool,
 ) StargazerEVM {
 	return NewStargazerEVM(

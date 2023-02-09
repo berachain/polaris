@@ -44,7 +44,7 @@ type (
 		TxContext() TxContext
 		Tracer() EVMLogger
 		Context() BlockContext
-		ChainConfig() *params.EthChainConfig
+		ChainConfig() *params.ChainConfig
 	}
 
 	// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to support

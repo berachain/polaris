@@ -31,7 +31,7 @@ type StateProcessor struct {
 
 	// Contextual Variables (updated once per block)
 	signer  types.Signer
-	config  *params.EthChainConfig
+	config  *params.ChainConfig
 	vmf     *vm.EVMFactory
 	evm     vm.StargazerEVM
 	statedb vm.StargazerStateDB
@@ -40,6 +40,8 @@ type StateProcessor struct {
 	blockHeader *types.StargazerHeader
 	// `receipts` of the current block being processed
 	receipts types.Receipts
+	// all the logs of the block, indexed by tx index
+	logs [][]*types.Log
 	// `logIndex` is the index of the current log in the current block
 	logIndex uint
 	// `transactions` of the current block being processed
@@ -48,7 +50,7 @@ type StateProcessor struct {
 
 // `NewStateProcessor` creates a new state processor.
 func NewStateProcessor(
-	config *params.EthChainConfig,
+	config *params.ChainConfig,
 	statedb vm.StargazerStateDB,
 	host StargazerHostChain,
 ) *StateProcessor {
@@ -67,6 +69,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// sp.blockHeader = sp.host.StargazerHeaderAtHeight(ctx, height)
 	sp.receipts = types.Receipts{}
 	sp.logIndex = 0
+	sp.logs = make([][]*types.Log, 0)
 	sp.transactions = types.Transactions{}
 	sp.statedb.Reset(ctx)
 	sp.signer = types.MakeSigner(sp.config, sp.blockHeader.Number)
@@ -133,6 +136,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
 		receipt.TxHash, receipt.BlockHash, uint(len(sp.receipts)), sp.logIndex,
 	)
+	sp.logs = append(sp.logs, receipt.Logs)
 	sp.logIndex += uint(len(receipt.Logs))
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 

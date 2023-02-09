@@ -31,7 +31,7 @@ func NewStargazerEVM(
 	blockCtx BlockContext,
 	txCtx TxContext,
 	stateDB StargazerStateDB,
-	chainConfig *params.EthChainConfig,
+	chainConfig *params.ChainConfig,
 	config Config,
 	pcmgr PrecompileManager,
 ) StargazerEVM {

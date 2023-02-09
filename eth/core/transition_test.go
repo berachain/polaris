@@ -187,8 +187,8 @@ var _ = Describe("StateTransition", func() {
 
 			When("we are not in london", func() {
 				It("should call and cap refund properly", func() {
-					evm.ChainConfigFunc = func() *params.EthChainConfig {
-						return &params.EthChainConfig{
+					evm.ChainConfigFunc = func() *params.ChainConfig {
+						return &params.ChainConfig{
 							LondonBlock:    big.NewInt(1000000000),
 							HomesteadBlock: big.NewInt(0),
 						}

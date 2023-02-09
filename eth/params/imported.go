@@ -17,8 +17,8 @@ package params
 import "github.com/ethereum/go-ethereum/params"
 
 type (
-	EthChainConfig = params.ChainConfig
-	Rules          = params.Rules
+	ChainConfig = params.ChainConfig
+	Rules       = params.Rules
 )
 
 var (

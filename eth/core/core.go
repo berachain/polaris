@@ -28,7 +28,7 @@ type Blockchain struct {
 	sf *StateFactory
 }
 
-func NewBlockchain(config *params.EthChainConfig, host StargazerHostChain) *Blockchain {
+func NewBlockchain(config *params.ChainConfig, host StargazerHostChain) *Blockchain {
 	sf := NewStateFactory(config, host)
 	csp := sf.BuildStateProcessor()
 
