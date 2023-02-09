@@ -97,7 +97,6 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	txContext := NewEVMTxContext(msg)
 	sp.statedb.Reset(ctx)
 	sp.evm.Reset(txContext, sp.statedb)
-
 	// Apply the state transition.
 	result, err := ApplyMessageAndCommit(sp.evm, nil, msg)
 	if err != nil {
