@@ -128,6 +128,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}
 
 	// Ensure that the intrinsic gas is consumed.
+	// TODO: Handle updated gas requirements for Shanghai.
 	if err := st.consumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
 		return nil, err
 	}

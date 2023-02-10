@@ -18,9 +18,7 @@ import (
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/core/vm"
-	stargazercorevm "github.com/berachain/stargazer/eth/core/vm"
 	"github.com/ethereum/go-ethereum/common"
-	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -28,7 +26,7 @@ import (
 
 func NewStargazerEVM() *StargazerEVMMock {
 	mockedStargazerEVM := &StargazerEVMMock{
-		CallFunc: func(caller ethereumcorevm.ContractRef, addr common.Address,
+		CallFunc: func(caller vm.ContractRef, addr common.Address,
 			input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
 			return []byte{}, 0, nil
 		},
@@ -41,22 +39,22 @@ func NewStargazerEVM() *StargazerEVMMock {
 		ConfigFunc: func() vm.Config {
 			return vm.Config{}
 		},
-		ContextFunc: func() ethereumcorevm.BlockContext {
-			return stargazercorevm.BlockContext{
-				CanTransfer: func(db stargazercorevm.GethStateDB, addr common.Address, amount *big.Int) bool {
+		ContextFunc: func() vm.BlockContext {
+			return vm.BlockContext{
+				CanTransfer: func(db vm.GethStateDB, addr common.Address, amount *big.Int) bool {
 					return true
 				},
 				BlockNumber: big.NewInt(1), // default to block == 1 to pass all forks,
 			}
 		},
-		CreateFunc: func(caller ethereumcorevm.ContractRef, code []byte,
+		CreateFunc: func(caller vm.ContractRef, code []byte,
 			gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 			return []byte{}, common.Address{}, 0, nil
 		},
-		SetTxContextFunc: func(txCtx ethereumcorevm.TxContext) {
+		SetTxContextFunc: func(txCtx vm.TxContext) {
 			// no-op
 		},
-		StateDBFunc: func() stargazercorevm.StargazerStateDB {
+		StateDBFunc: func() vm.StargazerStateDB {
 			return NewEmptyStateDB()
 		},
 	}
