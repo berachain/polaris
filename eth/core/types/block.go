@@ -15,6 +15,8 @@
 package types
 
 import (
+	"unsafe"
+
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
@@ -26,11 +28,11 @@ import (
 type StargazerBlock struct {
 	*StargazerHeader
 	Transactions Transactions
-	Receipts     Receipts
+	Receipts     StargazerReceipts
 }
 
 // `NewStargazerBlock` creates a new StargazerBlock from the given header and transactions.
-func NewStargazerBlock(h *StargazerHeader, txs Transactions, rs Receipts) *StargazerBlock {
+func NewStargazerBlock(h *StargazerHeader, txs Transactions, rs StargazerReceipts) *StargazerBlock {
 	b := &StargazerBlock{
 		StargazerHeader: h,
 		Transactions:    txs,
@@ -45,15 +47,20 @@ func (b *StargazerBlock) SetGasUsed(gas uint64) {
 }
 
 func (b *StargazerBlock) SetReceiptHash() {
-	if len(b.Receipts) > 0 {
-		b.StargazerHeader.ReceiptHash = types.DeriveSha(b.Receipts, trie.NewStackTrie(nil))
+	if b.Receipts.Len() > 0 {
+		b.StargazerHeader.ReceiptHash = DeriveSha(
+			//#nosec:G103
+			*(*(Receipts))((unsafe.Pointer(&b.Receipts.Receipts))),
+			trie.NewStackTrie(nil))
 	} else {
 		b.StargazerHeader.ReceiptHash = EmptyRootHash
 	}
 }
 
+// `CreateBloom` creates the bloom filter for the block.
 func (b *StargazerBlock) CreateBloom() {
-	b.StargazerHeader.Bloom = types.CreateBloom(b.Receipts)
+	//#nosec:G103
+	b.StargazerHeader.Bloom = types.CreateBloom(*(*(Receipts))((unsafe.Pointer(&b.Receipts.Receipts))))
 }
 
 // `UnmarshalBinary` decodes a block from the Ethereum RLP format.

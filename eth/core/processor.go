@@ -68,7 +68,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	sp.block = &types.StargazerBlock{
 		StargazerHeader: sp.bp.GetStargazerHeaderAtHeight(ctx, height),
 		Transactions:    make([]*types.Transaction, 0),
-		Receipts:        make([]*types.Receipt, 0),
+		Receipts:        *types.NewStargazerReceipts(),
 	}
 	sp.logIndex = 0
 
@@ -113,7 +113,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		GasUsed:          result.UsedGas,
 		BlockHash:        sp.block.Hash(),
 		BlockNumber:      sp.block.Number,
-		TransactionIndex: uint(len(sp.block.Receipts)),
+		TransactionIndex: sp.block.Receipts.Len(),
 	}
 
 	// Gas from this transaction was added to the gasPlugin in `ApplyMessageAndCommit`
@@ -134,14 +134,14 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// Set the receipt logs and create the bloom filter.
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
-		receipt.TxHash, receipt.BlockHash, uint(len(sp.block.Receipts)), sp.logIndex,
+		receipt.TxHash, receipt.BlockHash, sp.block.Receipts.Len(), sp.logIndex,
 	)
 	sp.logIndex += uint(len(receipt.Logs))
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 
 	// Update the block information.
 	sp.block.Transactions = append(sp.block.Transactions, tx)
-	sp.block.Receipts = append(sp.block.Receipts, receipt)
+	sp.block.Receipts.Append(receipt)
 	// sp.receipts.Append((*types.ReceiptForStorage)(receipt))
 	return receipt, nil
 }

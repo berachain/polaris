@@ -4,11 +4,9 @@
 package mock
 
 import (
-	"context"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/types"
 	"sync"
 )
 
@@ -34,9 +32,6 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //			GetPrecompilePluginFunc: func() precompile.Plugin {
 //				panic("mock out the GetPrecompilePlugin method")
 //			},
-//			GetStargazerHeaderAtHeightFunc: func(contextMoqParam context.Context, v uint64) *types.StargazerHeader {
-//				panic("mock out the GetStargazerHeaderAtHeight method")
-//			},
 //			GetStatePluginFunc: func() state.Plugin {
 //				panic("mock out the GetStatePlugin method")
 //			},
@@ -59,9 +54,6 @@ type StargazerHostChainMock struct {
 	// GetPrecompilePluginFunc mocks the GetPrecompilePlugin method.
 	GetPrecompilePluginFunc func() precompile.Plugin
 
-	// GetStargazerHeaderAtHeightFunc mocks the GetStargazerHeaderAtHeight method.
-	GetStargazerHeaderAtHeightFunc func(contextMoqParam context.Context, v uint64) *types.StargazerHeader
-
 	// GetStatePluginFunc mocks the GetStatePlugin method.
 	GetStatePluginFunc func() state.Plugin
 
@@ -79,23 +71,15 @@ type StargazerHostChainMock struct {
 		// GetPrecompilePlugin holds details about calls to the GetPrecompilePlugin method.
 		GetPrecompilePlugin []struct {
 		}
-		// GetStargazerHeaderAtHeight holds details about calls to the GetStargazerHeaderAtHeight method.
-		GetStargazerHeaderAtHeight []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-			// V is the v argument value.
-			V uint64
-		}
 		// GetStatePlugin holds details about calls to the GetStatePlugin method.
 		GetStatePlugin []struct {
 		}
 	}
-	lockGetBlockPlugin             sync.RWMutex
-	lockGetConfigurationPlugin     sync.RWMutex
-	lockGetGasPlugin               sync.RWMutex
-	lockGetPrecompilePlugin        sync.RWMutex
-	lockGetStargazerHeaderAtHeight sync.RWMutex
-	lockGetStatePlugin             sync.RWMutex
+	lockGetBlockPlugin         sync.RWMutex
+	lockGetConfigurationPlugin sync.RWMutex
+	lockGetGasPlugin           sync.RWMutex
+	lockGetPrecompilePlugin    sync.RWMutex
+	lockGetStatePlugin         sync.RWMutex
 }
 
 // GetBlockPlugin calls GetBlockPluginFunc.
@@ -203,42 +187,6 @@ func (mock *StargazerHostChainMock) GetPrecompilePluginCalls() []struct {
 	mock.lockGetPrecompilePlugin.RLock()
 	calls = mock.calls.GetPrecompilePlugin
 	mock.lockGetPrecompilePlugin.RUnlock()
-	return calls
-}
-
-// GetStargazerHeaderAtHeight calls GetStargazerHeaderAtHeightFunc.
-func (mock *StargazerHostChainMock) GetStargazerHeaderAtHeight(contextMoqParam context.Context, v uint64) *types.StargazerHeader {
-	if mock.GetStargazerHeaderAtHeightFunc == nil {
-		panic("StargazerHostChainMock.GetStargazerHeaderAtHeightFunc: method is nil but StargazerHostChain.GetStargazerHeaderAtHeight was just called")
-	}
-	callInfo := struct {
-		ContextMoqParam context.Context
-		V               uint64
-	}{
-		ContextMoqParam: contextMoqParam,
-		V:               v,
-	}
-	mock.lockGetStargazerHeaderAtHeight.Lock()
-	mock.calls.GetStargazerHeaderAtHeight = append(mock.calls.GetStargazerHeaderAtHeight, callInfo)
-	mock.lockGetStargazerHeaderAtHeight.Unlock()
-	return mock.GetStargazerHeaderAtHeightFunc(contextMoqParam, v)
-}
-
-// GetStargazerHeaderAtHeightCalls gets all the calls that were made to GetStargazerHeaderAtHeight.
-// Check the length with:
-//
-//	len(mockedStargazerHostChain.GetStargazerHeaderAtHeightCalls())
-func (mock *StargazerHostChainMock) GetStargazerHeaderAtHeightCalls() []struct {
-	ContextMoqParam context.Context
-	V               uint64
-} {
-	var calls []struct {
-		ContextMoqParam context.Context
-		V               uint64
-	}
-	mock.lockGetStargazerHeaderAtHeight.RLock()
-	calls = mock.calls.GetStargazerHeaderAtHeight
-	mock.lockGetStargazerHeaderAtHeight.RUnlock()
 	return calls
 }
 
