@@ -73,6 +73,13 @@ func (obj *StargazerBlock) EncodeRLP(_w io.Writer) error {
 		}
 	}
 	w.ListEnd(_tmp4)
+	_tmp6 := w.List()
+	for _, _tmp7 := range obj.Receipts {
+		if err := _tmp7.EncodeRLP(w); err != nil {
+			return err
+		}
+	}
+	w.ListEnd(_tmp6)
 	w.ListEnd(_tmp0)
 	return w.Flush()
 }
@@ -225,6 +232,22 @@ func (obj *StargazerBlock) DecodeRLP(dec *rlp.Stream) error {
 			return err
 		}
 		_tmp0.Transactions = _tmp20
+		// Receipts:
+		var _tmp22 []*types.Receipt
+		if _, err := dec.List(); err != nil {
+			return err
+		}
+		for dec.MoreDataInList() {
+			_tmp23 := new(types.Receipt)
+			if err := _tmp23.DecodeRLP(dec); err != nil {
+				return err
+			}
+			_tmp22 = append(_tmp22, _tmp23)
+		}
+		if err := dec.ListEnd(); err != nil {
+			return err
+		}
+		_tmp0.Receipts = _tmp22
 		if err := dec.ListEnd(); err != nil {
 			return err
 		}

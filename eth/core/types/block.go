@@ -15,6 +15,7 @@
 package types
 
 import (
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 )
@@ -25,21 +26,34 @@ import (
 type StargazerBlock struct {
 	*StargazerHeader
 	Transactions Transactions
+	Receipts     Receipts
 }
 
 // `NewStargazerBlock` creates a new StargazerBlock from the given header and transactions.
-func NewStargazerBlock(h *StargazerHeader, txs Transactions) *StargazerBlock {
+func NewStargazerBlock(h *StargazerHeader, txs Transactions, rs Receipts) *StargazerBlock {
 	b := &StargazerBlock{
 		StargazerHeader: h,
 		Transactions:    txs,
-	}
-
-	if len(txs) == 0 {
-		b.StargazerHeader.TxHash = EmptyRootHash
-		b.StargazerHeader.TxHash = DeriveSha(txs, trie.NewStackTrie(nil))
+		Receipts:        rs,
 	}
 
 	return b
+}
+
+func (b *StargazerBlock) SetGasUsed(gas uint64) {
+	b.GasUsed = gas
+}
+
+func (b *StargazerBlock) SetReceiptHash() {
+	if len(b.Receipts) > 0 {
+		b.StargazerHeader.ReceiptHash = types.DeriveSha(b.Receipts, trie.NewStackTrie(nil))
+	} else {
+		b.StargazerHeader.ReceiptHash = EmptyRootHash
+	}
+}
+
+func (b *StargazerBlock) CreateBloom() {
+	b.StargazerHeader.Bloom = types.CreateBloom(b.Receipts)
 }
 
 // `UnmarshalBinary` decodes a block from the Ethereum RLP format.

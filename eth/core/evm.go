@@ -54,7 +54,7 @@ func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, chai
 }
 
 // `GetHashFn` returns a GetHashFunc which retrieves header hashes by number.
-func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerHostChain) func(n uint64) common.Hash {
+func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerHostChain) vm.GetHashFunc {
 	// Cache will initially contain [refHash.parent],
 	// Then fill up with [refHash.p, refHash.pp, refHash.ppp, ...]
 	var cache []common.Hash
@@ -68,20 +68,20 @@ func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerH
 			return cache[idx]
 		}
 		// No luck in the cache, but we can start iterating from the last element we already know
-		// var lastKnownHash common.Hash
-		// lastKnownNumber := ref.Number.Uint64() - uint64(len(cache))
-		// for {
-		// header := chain.StargazerHeaderAtHeight(ctx, lastKnownNumber)
-		// if header == nil {
-		// 	break
-		// }
-		// cache = append(cache, header.ParentHash)
-		// lastKnownHash = header.ParentHash
-		// lastKnownNumber = header.Number.Uint64() - 1
-		// if n == lastKnownNumber {
-		// 	return lastKnownHash
-		// }
-		// }
+		var lastKnownHash common.Hash
+		lastKnownNumber := ref.Number.Uint64() - uint64(len(cache))
+		for {
+			header := chain.GetStargazerHeaderAtHeight(ctx, lastKnownNumber)
+			if header == nil {
+				break
+			}
+			cache = append(cache, header.ParentHash)
+			lastKnownHash = header.ParentHash
+			lastKnownNumber = header.Number.Uint64() - 1
+			if n == lastKnownNumber {
+				return lastKnownHash
+			}
+		}
 		return common.Hash{}
 	}
 }

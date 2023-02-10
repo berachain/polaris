@@ -14,34 +14,29 @@
 
 package utils
 
-import (
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+// // `KVStoreReader` is a subset of the `KVStore` interface that only exposes read
+// // methods.
+// type KVStoreReader interface {
+// 	// Get returns nil if key doesn't exist. Panics on nil key.
+// 	Get(key []byte) []byte
 
-// `KVStoreReader` is a subset of the `KVStore` interface that only exposes read
-// methods.
-type KVStoreReader interface {
-	// Get returns nil if key doesn't exist. Panics on nil key.
-	Get(key []byte) []byte
+// 	// Has checks if a key exists. Panics on nil key.
+// 	Has(key []byte) bool
+// }
 
-	// Has checks if a key exists. Panics on nil key.
-	Has(key []byte) bool
-}
-
-// `KVStoreReaderAtBlockHeight` returns a KVStoreReader at a given height. If the height is greater
-// than or equal to the current height, the reader will be at the latest height. We return the store
-// with the modified height as a `KVStoreReader` since it does not make any sense to return a `KVStore`
-// since we cannot update historical versions of the tree.
-func KVStoreReaderAtBlockHeight(ctx sdk.Context, storeKey storetypes.StoreKey, height int64) KVStoreReader {
-	if height >= ctx.BlockHeight() {
-		return ctx.KVStore(storeKey)
-	}
-
-	// `version` is 1-indexed, so we need to increment the height by 1.
-	cms, err := ctx.MultiStore().CacheMultiStoreWithVersion(height + 1)
-	if err != nil {
-		panic(err)
-	}
-	return ctx.WithMultiStore(cms).KVStore(storeKey)
-}
+// // `KVStoreReaderAtBlockHeight` returns a KVStoreReader at a given height. If the height is greater
+// // than or equal to the current height, the reader will be at the latest height. We return the store
+// // with the modified height as a `KVStoreReader` since it does not make any sense to return a `KVStore`
+// // since we cannot update historical versions of the tree.
+// func KVStoreReaderAtBlockHeight(ctx sdk.Context, storeKey storetypes.StoreKey, height int64) KVStoreReader {
+// 	if height >= ctx.BlockHeight() {
+// 		return ctx.KVStore(storeKey)
+// 	}
+// 	fmt.Println("KVStoreReaderAtBlockHeight", height, ctx.BlockHeight())
+// 	cms, ok := ctx.MultiStore().(storetypes.CommitMultiStore)
+// 	if !ok {
+// 		panic("REE")
+// 	}
+// 	cms.LoadVersion(height)
+// 	return ctx.WithMultiStore(cms).KVStore(storeKey)
+// }
