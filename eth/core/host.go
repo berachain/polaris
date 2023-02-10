@@ -23,6 +23,7 @@ import libtypes "github.com/berachain/stargazer/lib/types"
 // The following plugins MUST be implemented by the chain running Stargazer EVM and exposed via the
 // `StargazerHostChain` interface. All plugins should be resettable with a given context.
 type (
+	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.
 	GasPlugin interface {
 		// `GasPlugin` implements `libtypes.Resettable`. Calling Reset() MUST reset the GasPlugin to a
 		// default state.
