@@ -23,6 +23,6 @@ import (
 // `GetFnName` returns the name of a function `fn`.
 func GetFnName(fn any) string {
 	fullName := runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
-	brokenUpName := strings.Split(fullName, ".") // guarantees len(broknUpName) >= 1
+	brokenUpName := strings.Split(fullName, ".") // guarantees len(brokenUpName) >= 1
 	return brokenUpName[len(brokenUpName)-1]
 }
