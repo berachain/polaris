@@ -18,12 +18,14 @@ import (
 	"unsafe"
 )
 
+// `initLen` is the initial length of the list of receipts.
 const initLen = 64
 
-// `StargazerReceipts` is a slice of *ReceiptForStorage.
-//
 //go:generate rlpgen -type StargazerReceipts -out receipts.rlpgen.go -decoder
+
+// `StargazerReceipts` is a slice of *ReceiptForStorage.
 type StargazerReceipts struct {
+	// `Receipts` is a list of `ReceiptForStorage`s, each of which represent a transaction receipt.
 	Receipts []*ReceiptForStorage
 }
 
@@ -34,10 +36,9 @@ func NewStargazerReceipts() *StargazerReceipts {
 	}
 }
 
-// Length returns the number of receipts in the list.
+// `StargazerReceiptsFromReceipts` converts a list of `Receipt`s to a `StargazerReceipts`.
 func StargazerReceiptsFromReceipts(receipts []*Receipt) *StargazerReceipts {
-	// The use of unsafe pointer here is safe simce ReceiptForStorage is
-	// simply an alias of Receipt.
+	// The use of unsafe pointer here is safe since `ReceiptForStorage` is an alias of `Receipt`.
 	return &StargazerReceipts{
 		//#nosec:G103
 		Receipts: *(*([]*ReceiptForStorage))((unsafe.Pointer(&receipts))),
