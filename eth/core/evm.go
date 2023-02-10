@@ -29,7 +29,7 @@ var _ vm.CanTransferFunc = canTransfer
 var _ vm.TransferFunc = transfer
 
 // `NewEVMBlockContext` creates a new context for use in the EVM.
-func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, chain StargazerHostChain) vm.BlockContext {
+func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, bp BlockPlugin) vm.BlockContext {
 	var (
 		baseFee *big.Int
 	)
@@ -42,7 +42,7 @@ func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, chai
 	return vm.BlockContext{
 		CanTransfer: canTransfer,
 		Transfer:    transfer,
-		GetHash:     GetHashFn(ctx, header, chain),
+		GetHash:     GetHashFn(ctx, header, bp),
 		Coinbase:    header.Coinbase,
 		BlockNumber: new(big.Int).Set(header.Number),
 		Time:        new(big.Int).SetUint64(header.Time),
@@ -54,7 +54,7 @@ func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, chai
 }
 
 // `GetHashFn` returns a GetHashFunc which retrieves header hashes by number.
-func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerHostChain) vm.GetHashFunc {
+func GetHashFn(ctx context.Context, ref *types.StargazerHeader, bp BlockPlugin) vm.GetHashFunc {
 	// Cache will initially contain [refHash.parent],
 	// Then fill up with [refHash.p, refHash.pp, refHash.ppp, ...]
 	var cache []common.Hash
@@ -71,7 +71,7 @@ func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerH
 		var lastKnownHash common.Hash
 		lastKnownNumber := ref.Number.Uint64() - uint64(len(cache))
 		for {
-			header := chain.GetStargazerHeaderAtHeight(ctx, lastKnownNumber)
+			header := bp.GetStargazerHeaderAtHeight(ctx, lastKnownNumber)
 			if header == nil {
 				break
 			}

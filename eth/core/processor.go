@@ -27,8 +27,10 @@ import (
 
 // “.
 type StateProcessor struct {
-	// `host` provides the underlying chain the EVM is running on
-	host StargazerHostChain // TODO: replace host with required plugins
+	// `bp` provides block functions from the underlying chain the EVM is running on
+	bp BlockPlugin
+	// `gp` provides gas functions from the underlying chain the EVM is running on
+	gp GasPlugin
 	// `signer` is the signer used to verify transaction signatures.
 	signer types.Signer
 	// `config` is the chain configuration.
@@ -52,8 +54,9 @@ func NewStateProcessor(
 	host StargazerHostChain,
 ) *StateProcessor {
 	return &StateProcessor{
+		bp:      host.GetBlockPlugin(),
+		gp:      host.GetGasPlugin(),
 		config:  config,
-		host:    host,
 		statedb: statedb,
 		vmf:     vm.NewEVMFactory(precompile.NewManager(host.GetPrecompilePlugin(), statedb)),
 	}
@@ -63,7 +66,7 @@ func NewStateProcessor(
 func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// Build a block object so we can track that status of the block as we process it.
 	sp.block = &types.StargazerBlock{
-		StargazerHeader: sp.host.GetStargazerHeaderAtHeight(ctx, height),
+		StargazerHeader: sp.bp.GetStargazerHeaderAtHeight(ctx, height),
 		Transactions:    make([]*types.Transaction, 0),
 		Receipts:        make([]*types.Receipt, 0),
 	}
@@ -78,7 +81,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 		NewEVMBlockContext(
 			ctx,
 			sp.block.StargazerHeader,
-			sp.host,
+			sp.bp,
 		),
 		sp.config,
 		sp.block.BaseFee.Int64() != 0,
@@ -98,8 +101,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	sp.evm.Reset(txContext, sp.statedb)
 
 	// Apply the state transition.
-	gp := sp.host.GetGasPlugin()
-	result, err := ApplyMessageAndCommit(sp.evm, gp, msg)
+	result, err := ApplyMessageAndCommit(sp.evm, sp.gp, msg)
 	if err != nil {
 		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
@@ -117,7 +119,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	// Gas from this transaction was added to the gasPlugin in `ApplyMessageAndCommit`
 	// And thus CumulativeGasUsed should include gas from all prior transactions in the
 	// block, plus the gas consumed during this one.
-	receipt.CumulativeGasUsed = gp.CumulativeGasUsed()
+	receipt.CumulativeGasUsed = sp.gp.CumulativeGasUsed()
 
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
@@ -146,7 +148,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (*types.StargazerBlock, error) {
-	sp.block.SetGasUsed(sp.host.GetGasPlugin().CumulativeGasUsed())
+	sp.block.SetGasUsed(sp.gp.CumulativeGasUsed())
 	sp.block.CreateBloom()
 	sp.block.SetReceiptHash()
 	return sp.block, nil

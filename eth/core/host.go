@@ -31,9 +31,6 @@ type StargazerHostChain interface {
 	GetStatePlugin() StatePlugin
 	GetPrecompilePlugin() PrecompilePlugin
 	GetConfigurationPlugin() ConfigurationPlugin
-
-	// Temporary -- move to block plugin
-	GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
 }
 
 // =============================================================================
@@ -47,6 +44,7 @@ type (
 	// support the `BlockPlugin` interface.
 	BlockPlugin interface {
 		libtypes.Resettable
+		GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
 		BaseFee() uint64
 	}
 
