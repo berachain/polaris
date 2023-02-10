@@ -25,17 +25,20 @@ import (
 	"github.com/berachain/stargazer/lib/crypto"
 )
 
+// “.
 type StateProcessor struct {
 	// `host` provides the underlying chain the EVM is running on
 	host StargazerHostChain
-
-	// Contextual Variables (updated once per block)
-	signer  types.Signer
-	config  *params.ChainConfig
-	vmf     *vm.EVMFactory
-	evm     vm.StargazerEVM
+	// `signer` is the signer used to verify transaction signatures.
+	signer types.Signer
+	// `config` is the chain configuration.
+	config *params.ChainConfig
+	// `vmf` is the EVM factory that is used to create new EVMs.
+	vmf *vm.EVMFactory
+	// `evm ` is the EVM that is used to process transactions.
+	evm vm.StargazerEVM
+	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
-
 	// `block` represents the current block being processed.
 	block *types.StargazerBlock
 	// `logIndex` is the index of the current log in the current block
@@ -58,14 +61,15 @@ func NewStateProcessor(
 
 // `Prepare` prepares the state processor for processing a block.
 func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
-	// Build a block to use throughout the evm.
+	// Build a block object so we can track that status of the block as we process it.
 	sp.block = &types.StargazerBlock{
 		StargazerHeader: sp.host.GetStargazerHeaderAtHeight(ctx, height),
 		Transactions:    make([]*types.Transaction, 0),
 		Receipts:        make([]*types.Receipt, 0),
 	}
 	sp.logIndex = 0
-	sp.statedb.Reset(ctx)
+
+	// We must re-create the signer since we are processing a new block and the block number has increased.
 	sp.signer = types.MakeSigner(sp.config, sp.block.Number)
 
 	// Build a new EVM to use for this block.
@@ -77,7 +81,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 			sp.host,
 		),
 		sp.config,
-		false,
+		sp.block.BaseFee.Int64() != 0,
 	)
 }
 
@@ -88,7 +92,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
 
-	// Create a new context to be used in the EVM environment.
+	// Create a new context to be used in the EVM environment. We also must reset the StateDB as well as the EVM.
 	txContext := NewEVMTxContext(msg)
 	sp.statedb.Reset(ctx)
 	sp.evm.Reset(txContext, sp.statedb)
@@ -130,7 +134,6 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
 		receipt.TxHash, receipt.BlockHash, uint(len(sp.block.Receipts)), sp.logIndex,
 	)
-	// sp.logs = append(sp.logs, receipt.Logs)
 	sp.logIndex += uint(len(receipt.Logs))
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 

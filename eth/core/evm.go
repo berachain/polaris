@@ -54,7 +54,7 @@ func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, chai
 }
 
 // `GetHashFn` returns a GetHashFunc which retrieves header hashes by number.
-func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerHostChain) func(n uint64) common.Hash {
+func GetHashFn(ctx context.Context, ref *types.StargazerHeader, chain StargazerHostChain) vm.GetHashFunc {
 	// Cache will initially contain [refHash.parent],
 	// Then fill up with [refHash.p, refHash.pp, refHash.ppp, ...]
 	var cache []common.Hash
