@@ -85,6 +85,7 @@ type (
 		libtypes.Resettable
 		ChainConfig() *params.ChainConfig
 		UpdateChainConfig(*params.ChainConfig)
+		ExtraEips() []int
 	}
 )
 

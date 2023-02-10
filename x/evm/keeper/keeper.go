@@ -16,9 +16,9 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/x/evm/constants"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -47,8 +47,8 @@ func NewKeeper(
 		storeKey:      storeKey,
 		stakingKeeper: stakingKeeper,
 	}
-	config := params.ChainConfig{}
-	k.stateProcessor = core.NewStateProcessor(&config, nil, k)
+	// TODO: remove state processor from here.
+	k.stateProcessor = core.NewStateProcessor(k, nil, vm.Config{}, false)
 	return k
 }
 

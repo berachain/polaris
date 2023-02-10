@@ -17,9 +17,8 @@ package mock
 import (
 	"math/big"
 
-	stargazercorevm "github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/ethereum/go-ethereum/common"
-	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -27,7 +26,7 @@ import (
 
 func NewStargazerEVM() *StargazerEVMMock {
 	mockedStargazerEVM := &StargazerEVMMock{
-		CallFunc: func(caller ethereumcorevm.ContractRef, addr common.Address,
+		CallFunc: func(caller vm.ContractRef, addr common.Address,
 			input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
 			return []byte{}, 0, nil
 		},
@@ -37,38 +36,26 @@ func NewStargazerEVM() *StargazerEVMMock {
 				HomesteadBlock: big.NewInt(0),
 			}
 		},
-		ContextFunc: func() ethereumcorevm.BlockContext {
-			return stargazercorevm.BlockContext{
-				CanTransfer: func(db stargazercorevm.GethStateDB, addr common.Address, amount *big.Int) bool {
+		ConfigFunc: func() vm.Config {
+			return vm.Config{}
+		},
+		ContextFunc: func() vm.BlockContext {
+			return vm.BlockContext{
+				CanTransfer: func(db vm.GethStateDB, addr common.Address, amount *big.Int) bool {
 					return true
 				},
 				BlockNumber: big.NewInt(1), // default to block == 1 to pass all forks,
 			}
 		},
-		CreateFunc: func(caller ethereumcorevm.ContractRef, code []byte,
+		CreateFunc: func(caller vm.ContractRef, code []byte,
 			gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 			return []byte{}, common.Address{}, 0, nil
 		},
-		ResetFunc: func(txCtx ethereumcorevm.TxContext, sdb ethereumcorevm.StateDB) {
-			panic("mock out the Reset method")
-		},
-		SetDebugFunc: func(debug bool) {
+		SetTxContextFunc: func(txCtx vm.TxContext) {
 			// no-op
 		},
-		SetTracerFunc: func(tracer ethereumcorevm.EVMLogger) {
-			// no-op
-		},
-		SetTxContextFunc: func(txCtx ethereumcorevm.TxContext) {
-			// no-op
-		},
-		StateDBFunc: func() stargazercorevm.StargazerStateDB {
+		StateDBFunc: func() vm.StargazerStateDB {
 			return NewEmptyStateDB()
-		},
-		TracerFunc: func() ethereumcorevm.EVMLogger {
-			return &EVMLoggerMock{}
-		},
-		TxContextFunc: func() ethereumcorevm.TxContext {
-			panic("mock out the TxContext method")
 		},
 	}
 	return mockedStargazerEVM

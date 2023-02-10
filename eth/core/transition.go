@@ -42,21 +42,12 @@ type StateTransition struct {
 // =============================================================================
 
 // `ApplyMessage` transitions the state by applying the given message to the chain state
-// using the given EVM.
+// using the given EVM. It also finalizes the change.
 func ApplyMessage(
 	evm vm.StargazerEVM,
 	gp GasPlugin,
 	msg Message,
-) (*ExecutionResult, error) {
-	return NewStateTransition(evm, gp, msg).transitionDB()
-}
-
-// `ApplyMessageAndCommit` transitions the state by applying the given message to the chain state
-// using the given EVM. It also finalizes the change.
-func ApplyMessageAndCommit(
-	evm vm.StargazerEVM,
-	gp GasPlugin,
-	msg Message,
+	commit bool,
 ) (*ExecutionResult, error) {
 	res, err := NewStateTransition(evm, gp, msg).transitionDB()
 	if err != nil {
@@ -64,37 +55,9 @@ func ApplyMessageAndCommit(
 	}
 
 	// Persist state.
-	evm.StateDB().Finalize()
-
-	return res, nil
-}
-
-// `ApplyMessageWithTracer` transitions the state by applying the given message to the chain state
-// using the given EVM. Additionally it logs the execution to the given tracer.
-func ApplyMessageWithTracer(
-	evm vm.StargazerEVM,
-	gp GasPlugin,
-	msg Message,
-	tracer vm.EVMLogger,
-) (*ExecutionResult, error) {
-	return NewStateTransition(evm, gp, msg).traceTransitionDB(tracer)
-}
-
-// `ApplyMessageWithTracerAndCommit` transitions the state by applying the given message to the chain state
-// using the given EVM. Additionally it logs the execution to the given tracer. It also finalizes the change.
-func ApplyMessageWithTracerAndCommit(
-	evm vm.StargazerEVM,
-	gp GasPlugin,
-	msg Message,
-	tracer vm.EVMLogger,
-) (*ExecutionResult, error) {
-	res, err := ApplyMessageWithTracer(evm, gp, msg, tracer)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to TransitionDB")
+	if commit {
+		evm.StateDB().Finalize()
 	}
-
-	// Persist state.
-	evm.StateDB().Finalize()
 
 	return res, nil
 }
@@ -151,9 +114,21 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		)
 		sdb              = st.evm.StateDB()
 		contractCreation = st.msg.To() == nil
+		tracer           = st.evm.Config().Tracer
 	)
 
+	if tracer != nil && st.evm.Config().Debug {
+		// Capture the starting gas for the tracer, we can skip the check for debug mode that is
+		// present in geth, as we already know that the EVM is in debug mode from the lines above.
+		tracer.CaptureTxStart(st.gp.GasRemaining())
+		defer func() {
+			// After execution is completed we need to capture gas remaining.
+			tracer.CaptureTxEnd(st.gp.GasRemaining())
+		}()
+	}
+
 	// Ensure that the intrinsic gas is consumed.
+	// TODO: Handle updated gas requirements for Shanghai.
 	if err := st.consumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
 		return nil, err
 	}
@@ -218,36 +193,6 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		Err:        vmErr,
 		ReturnData: ret,
 	}, nil
-}
-
-// `traceTransitionDB` is wrapper around `TransitionDB` that adds a tracer to the EVM
-// and switches it to debug mode. The tracer is used to capture the execution trace
-// of the message in the EVM. After execution it captures the gas remaining and
-// returns the execution result, while also setting the EVM back to non-debug mode.
-func (st *StateTransition) traceTransitionDB(tracer vm.EVMLogger) (*ExecutionResult, error) {
-	// Add a safety check to ensure that the tracer is not nil, as this will cause
-	// a panic in the EVM.
-	if tracer == nil {
-		return nil, fmt.Errorf("invalid tracer")
-	}
-
-	// Apply the supplied tracer to the EVM as well as switch it to debug mode.
-	st.evm.SetTracer(tracer)
-	st.evm.SetDebug(true)
-
-	// Capture the starting gas for the tracer, we can skip the check for debug mode that is
-	// present in geth, as we already know that the EVM is in debug mode from the lines above.
-	st.evm.Tracer().CaptureTxStart(st.gp.GasRemaining())
-	defer func() {
-		// After execution is completed we need to capture gas remaining.
-		st.evm.Tracer().CaptureTxEnd(st.gp.GasRemaining())
-		// We also take the EVM out of debug mode as this allows us to optimize the normal
-		// execution mode by being able to skip setting debug to false in that code path.
-		st.evm.SetDebug(false)
-	}()
-
-	// Perform the state machine execution
-	return st.transitionDB()
 }
 
 // `refundGas` is a helper function that refunds the gas to the sender. It is used
