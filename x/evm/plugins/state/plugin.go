@@ -27,7 +27,7 @@ import (
 	"github.com/berachain/stargazer/lib/snapshot"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/store/snapmulti"
-	"github.com/berachain/stargazer/x/evm/plugin/state/events"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 )
 
 const (

@@ -14,4 +14,40 @@
 
 package core
 
-type Host interface{}
+import libtypes "github.com/berachain/stargazer/lib/types"
+
+// =============================================================================
+// Mandatory Plugins
+// =============================================================================
+
+// The following plugins MUST be implemented by the chain running Stargazer EVM and exposed via the
+// `StargazerHostChain` interface. All plugins should be resettable with a given context.
+type (
+	GasPlugin interface {
+		// `GasPlugin` implements `libtypes.Resettable`. Calling Reset() MUST reset the GasPlugin to a
+		// default state.
+		libtypes.Resettable
+
+		// `ConsumeGas` MUST consume the supplied amount of gas. It MUST not panic due to a GasOverflow
+		// and must return core.ErrOutOfGas if the amount of gas remaining is less than the amount
+		// requested.
+		ConsumeGas(uint64) error
+
+		// `RefundGas` MUST refund the supplied amount of gas. It MUST not panic.
+		RefundGas(uint64)
+
+		// `GasRemaining` MUST return the amount of gas remaining. It MUST not panic.
+		GasRemaining() uint64
+
+		// `GasUsed` MUST return the amount of gas used during the current transaction. It MUST not panic.
+		GasUsed() uint64
+
+		// `CumulativeGasUsed` MUST return the amount of gas used during the current block. The value returned
+		// MUST include any gas consumed during this transaction. It MUST not panic.
+		CumulativeGasUsed() uint64
+
+		// `MaxFeePerGas` MUST set the maximum amount of gas that can be consumed by the meter. It MUST not panic, but
+		// instead, return an error, if the new gas limit is less than the currently consumed amount of gas.
+		SetGasLimit(uint64) error
+	}
+)
