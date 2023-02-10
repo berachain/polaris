@@ -18,6 +18,7 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/berachain/stargazer/eth/core"
 	ethstate "github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/testutil"
@@ -30,6 +31,11 @@ var (
 	numStoreOpsPerCall = 10    // number of read/write ops on stores during each call
 	numReverts         = 2     // number of times an eth call is reverted in one tx
 )
+
+func GetNewStatePlugin() core.StatePlugin {
+	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
+	return state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil)
+}
 
 func GetNewStateDB() vm.StargazerStateDB {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
