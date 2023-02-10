@@ -15,6 +15,8 @@
 package snapshot
 
 import (
+	"testing"
+
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 
@@ -22,6 +24,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestSnapshot(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "lib/snapshot")
+}
 
 var _ = Describe("Controller", func() {
 	var ctrl *controller[string, libtypes.Controllable[string]]

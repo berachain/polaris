@@ -26,7 +26,7 @@ import (
 
 func TestLog(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/precompile/log")
+	RunSpecs(t, "x/evm/plugins/precompile/log")
 }
 
 var _ = Describe("precompileLog", func() {

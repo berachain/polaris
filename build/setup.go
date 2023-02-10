@@ -34,10 +34,10 @@ var (
 	ginkgo           = "github.com/onsi/ginkgo/v2/ginkgo"
 	golines          = "github.com/segmentio/golines"
 	goimports        = "golang.org/x/tools/cmd/goimports"
-	gopls            = "golang.org/x/tools/gopls"
+	rlpgen           = "github.com/ethereum/go-ethereum/rlp/rlpgen"
 
 	allTools = []string{buf, gosec, golangcilint, addlicense,
-		goimportsReviser, moq, ginkgo, golines, goimports, gopls}
+		goimportsReviser, moq, ginkgo, golines, goimports, rlpgen}
 )
 
 // Setup runs the setup script for the current OS.
