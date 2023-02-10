@@ -29,7 +29,6 @@ type (
 	// state transition functionalities.
 	// TODO: change this.
 	StargazerEVM interface {
-		Reset(txCtx TxContext, sdb GethStateDB)
 		Create(caller ContractRef, code []byte,
 			gas uint64, value *big.Int,
 		) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
@@ -37,6 +36,7 @@ type (
 			gas uint64, value *big.Int,
 		) (ret []byte, leftOverGas uint64, err error)
 
+		SetBlockContext(blockCtx BlockContext)
 		SetTxContext(txCtx TxContext)
 		SetTracer(tracer EVMLogger)
 		SetDebug(debug bool)

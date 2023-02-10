@@ -34,8 +34,8 @@ var _ ethcorevm.StargazerEVM = &StargazerEVMMock{}
 //			CreateFunc: func(caller ethereumcorevm.ContractRef, code []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 //				panic("mock out the Create method")
 //			},
-//			ResetFunc: func(txCtx ethereumcorevm.TxContext, sdb ethereumcorevm.StateDB)  {
-//				panic("mock out the Reset method")
+//			SetBlockContextFunc: func(blockCtx ethereumcorevm.BlockContext)  {
+//				panic("mock out the SetBlockContext method")
 //			},
 //			SetDebugFunc: func(debug bool)  {
 //				panic("mock out the SetDebug method")
@@ -74,8 +74,8 @@ type StargazerEVMMock struct {
 	// CreateFunc mocks the Create method.
 	CreateFunc func(caller ethereumcorevm.ContractRef, code []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error)
 
-	// ResetFunc mocks the Reset method.
-	ResetFunc func(txCtx ethereumcorevm.TxContext, sdb ethereumcorevm.StateDB)
+	// SetBlockContextFunc mocks the SetBlockContext method.
+	SetBlockContextFunc func(blockCtx ethereumcorevm.BlockContext)
 
 	// SetDebugFunc mocks the SetDebug method.
 	SetDebugFunc func(debug bool)
@@ -127,12 +127,10 @@ type StargazerEVMMock struct {
 			// Value is the value argument value.
 			Value *big.Int
 		}
-		// Reset holds details about calls to the Reset method.
-		Reset []struct {
-			// TxCtx is the txCtx argument value.
-			TxCtx ethereumcorevm.TxContext
-			// Sdb is the sdb argument value.
-			Sdb ethereumcorevm.StateDB
+		// SetBlockContext holds details about calls to the SetBlockContext method.
+		SetBlockContext []struct {
+			// BlockCtx is the blockCtx argument value.
+			BlockCtx ethereumcorevm.BlockContext
 		}
 		// SetDebug holds details about calls to the SetDebug method.
 		SetDebug []struct {
@@ -159,17 +157,17 @@ type StargazerEVMMock struct {
 		TxContext []struct {
 		}
 	}
-	lockCall         sync.RWMutex
-	lockChainConfig  sync.RWMutex
-	lockContext      sync.RWMutex
-	lockCreate       sync.RWMutex
-	lockReset        sync.RWMutex
-	lockSetDebug     sync.RWMutex
-	lockSetTracer    sync.RWMutex
-	lockSetTxContext sync.RWMutex
-	lockStateDB      sync.RWMutex
-	lockTracer       sync.RWMutex
-	lockTxContext    sync.RWMutex
+	lockCall            sync.RWMutex
+	lockChainConfig     sync.RWMutex
+	lockContext         sync.RWMutex
+	lockCreate          sync.RWMutex
+	lockSetBlockContext sync.RWMutex
+	lockSetDebug        sync.RWMutex
+	lockSetTracer       sync.RWMutex
+	lockSetTxContext    sync.RWMutex
+	lockStateDB         sync.RWMutex
+	lockTracer          sync.RWMutex
+	lockTxContext       sync.RWMutex
 }
 
 // Call calls CallFunc.
@@ -318,39 +316,35 @@ func (mock *StargazerEVMMock) CreateCalls() []struct {
 	return calls
 }
 
-// Reset calls ResetFunc.
-func (mock *StargazerEVMMock) Reset(txCtx ethereumcorevm.TxContext, sdb ethereumcorevm.StateDB) {
-	if mock.ResetFunc == nil {
-		panic("StargazerEVMMock.ResetFunc: method is nil but StargazerEVM.Reset was just called")
+// SetBlockContext calls SetBlockContextFunc.
+func (mock *StargazerEVMMock) SetBlockContext(blockCtx ethereumcorevm.BlockContext) {
+	if mock.SetBlockContextFunc == nil {
+		panic("StargazerEVMMock.SetBlockContextFunc: method is nil but StargazerEVM.SetBlockContext was just called")
 	}
 	callInfo := struct {
-		TxCtx ethereumcorevm.TxContext
-		Sdb   ethereumcorevm.StateDB
+		BlockCtx ethereumcorevm.BlockContext
 	}{
-		TxCtx: txCtx,
-		Sdb:   sdb,
+		BlockCtx: blockCtx,
 	}
-	mock.lockReset.Lock()
-	mock.calls.Reset = append(mock.calls.Reset, callInfo)
-	mock.lockReset.Unlock()
-	mock.ResetFunc(txCtx, sdb)
+	mock.lockSetBlockContext.Lock()
+	mock.calls.SetBlockContext = append(mock.calls.SetBlockContext, callInfo)
+	mock.lockSetBlockContext.Unlock()
+	mock.SetBlockContextFunc(blockCtx)
 }
 
-// ResetCalls gets all the calls that were made to Reset.
+// SetBlockContextCalls gets all the calls that were made to SetBlockContext.
 // Check the length with:
 //
-//	len(mockedStargazerEVM.ResetCalls())
-func (mock *StargazerEVMMock) ResetCalls() []struct {
-	TxCtx ethereumcorevm.TxContext
-	Sdb   ethereumcorevm.StateDB
+//	len(mockedStargazerEVM.SetBlockContextCalls())
+func (mock *StargazerEVMMock) SetBlockContextCalls() []struct {
+	BlockCtx ethereumcorevm.BlockContext
 } {
 	var calls []struct {
-		TxCtx ethereumcorevm.TxContext
-		Sdb   ethereumcorevm.StateDB
+		BlockCtx ethereumcorevm.BlockContext
 	}
-	mock.lockReset.RLock()
-	calls = mock.calls.Reset
-	mock.lockReset.RUnlock()
+	mock.lockSetBlockContext.RLock()
+	calls = mock.calls.SetBlockContext
+	mock.lockSetBlockContext.RUnlock()
 	return calls
 }
 

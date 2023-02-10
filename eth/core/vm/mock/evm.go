@@ -49,10 +49,10 @@ func NewStargazerEVM() *StargazerEVMMock {
 			gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 			return []byte{}, common.Address{}, 0, nil
 		},
-		ResetFunc: func(txCtx ethereumcorevm.TxContext, sdb ethereumcorevm.StateDB) {
-			panic("mock out the Reset method")
-		},
 		SetDebugFunc: func(debug bool) {
+			// no-op
+		},
+		SetBlockContextFunc: func(blockCtx ethereumcorevm.BlockContext) {
 			// no-op
 		},
 		SetTracerFunc: func(tracer ethereumcorevm.EVMLogger) {

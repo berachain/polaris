@@ -35,8 +35,6 @@ type StateProcessor struct {
 	signer types.Signer
 	// `config` is the chain configuration.
 	config *params.ChainConfig
-	// `vmf` is the EVM factory that is used to create new EVMs.
-	vmf *vm.EVMFactory
 	// `evm ` is the EVM that is used to process transactions.
 	evm vm.StargazerEVM
 	// `statedb` is the state database that is used to mange state during transactions.
@@ -45,6 +43,9 @@ type StateProcessor struct {
 	block *types.StargazerBlock
 	// `logIndex` is the index of the current log in the current block
 	logIndex uint
+	// `precompileManager` is responsible for keeping track of the stateful precompile
+	// containers that are available to the EVM and executing them.
+	precompileManager vm.PrecompileManager
 }
 
 // `NewStateProcessor` creates a new state processor.
@@ -53,13 +54,17 @@ func NewStateProcessor(
 	statedb vm.StargazerStateDB,
 	host StargazerHostChain,
 ) *StateProcessor {
-	return &StateProcessor{
-		bp:      host.GetBlockPlugin(),
-		gp:      host.GetGasPlugin(),
-		config:  config,
-		statedb: statedb,
-		vmf:     vm.NewEVMFactory(precompile.NewManager(host.GetPrecompilePlugin(), statedb)),
+	sp := &StateProcessor{
+		bp:                host.GetBlockPlugin(),
+		gp:                host.GetGasPlugin(),
+		config:            config,
+		statedb:           statedb,
+		precompileManager: precompile.NewManager(host.GetPrecompilePlugin(), statedb),
 	}
+	sp.evm = vm.NewStargazerEVM(
+		vm.BlockContext{}, vm.TxContext{}, sp.statedb, sp.config, vm.Config{}, sp.precompileManager,
+	)
+	return sp
 }
 
 // `Prepare` prepares the state processor for processing a block.
@@ -75,17 +80,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
 	// We must re-create the signer since we are processing a new block and the block number has increased.
 	sp.signer = types.MakeSigner(sp.config, sp.block.Number)
 
-	// Build a new EVM to use for this block.
-	sp.evm = sp.vmf.Build(
-		sp.statedb,
-		NewEVMBlockContext(
-			ctx,
-			sp.block.StargazerHeader,
-			sp.bp,
-		),
-		sp.config,
-		sp.block.BaseFee.Int64() != 0,
-	)
+	// Setup the EVM for this block.
+	sp.evm.SetBlockContext(NewEVMBlockContext(ctx, sp.block.StargazerHeader, sp.bp))
 }
 
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.
@@ -98,7 +94,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	// Create a new context to be used in the EVM environment. We also must reset the StateDB as well as the EVM.
 	txContext := NewEVMTxContext(msg)
 	sp.statedb.Reset(ctx)
-	sp.evm.Reset(txContext, sp.statedb)
+	sp.evm.SetTxContext(txContext)
 
 	// Apply the state transition.
 	result, err := ApplyMessageAndCommit(sp.evm, sp.gp, msg)
