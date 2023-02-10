@@ -109,7 +109,7 @@ func GoImportsLint() error {
 // Run `gosec`.
 func Gosec() error {
 	PrintMageName()
-	return goRun(gosec, "./...")
+	return goRun(gosec, "-exclude-generated", "./...")
 }
 
 // Run `addlicense`.
