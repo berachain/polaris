@@ -27,7 +27,8 @@ import (
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
 const gasMeterDescriptor = `stargazer-gas-plugin`
 
-// `plugin` uses the SDK context gas meters (tx and block) to manage gas consumption.
+// `plugin` wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
+// to implement the core.GasPlugin interface.
 type plugin struct {
 	sdk.Context
 }
