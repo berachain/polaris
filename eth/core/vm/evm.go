@@ -54,18 +54,6 @@ func (evm *stargazerEVM) StateDB() StargazerStateDB {
 	return evm.GethEVM.StateDB.(StargazerStateDB)
 }
 
-func (evm *stargazerEVM) SetTracer(tracer EVMLogger) {
-	evm.Config.Tracer = tracer
-}
-
-func (evm *stargazerEVM) SetDebug(debug bool) {
-	evm.Config.Debug = debug
-}
-
-func (evm *stargazerEVM) Tracer() EVMLogger {
-	return evm.Config.Tracer
-}
-
-func (evm *stargazerEVM) TxContext() TxContext {
-	return evm.GethEVM.TxContext
+func (evm *stargazerEVM) Config() Config {
+	return evm.GethEVM.Config
 }

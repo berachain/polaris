@@ -25,9 +25,8 @@ import (
 )
 
 type (
-	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support additional
-	// state transition functionalities.
-	// TODO: change this.
+	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support
+	// additional state transition functionalities.
 	StargazerEVM interface {
 		Create(caller ContractRef, code []byte,
 			gas uint64, value *big.Int,
@@ -36,13 +35,9 @@ type (
 			gas uint64, value *big.Int,
 		) (ret []byte, leftOverGas uint64, err error)
 
-		SetBlockContext(blockCtx BlockContext)
 		SetTxContext(txCtx TxContext)
-		SetTracer(tracer EVMLogger)
-		SetDebug(debug bool)
 		StateDB() StargazerStateDB
-		TxContext() TxContext
-		Tracer() EVMLogger
+		Config() Config
 		Context() BlockContext
 		ChainConfig() *params.ChainConfig
 	}

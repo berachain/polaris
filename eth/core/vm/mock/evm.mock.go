@@ -28,32 +28,20 @@ var _ ethcorevm.StargazerEVM = &StargazerEVMMock{}
 //			ChainConfigFunc: func() *params.ChainConfig {
 //				panic("mock out the ChainConfig method")
 //			},
+//			ConfigFunc: func() ethereumcorevm.Config {
+//				panic("mock out the Config method")
+//			},
 //			ContextFunc: func() ethereumcorevm.BlockContext {
 //				panic("mock out the Context method")
 //			},
 //			CreateFunc: func(caller ethereumcorevm.ContractRef, code []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 //				panic("mock out the Create method")
 //			},
-//			SetBlockContextFunc: func(blockCtx ethereumcorevm.BlockContext)  {
-//				panic("mock out the SetBlockContext method")
-//			},
-//			SetDebugFunc: func(debug bool)  {
-//				panic("mock out the SetDebug method")
-//			},
-//			SetTracerFunc: func(tracer ethereumcorevm.EVMLogger)  {
-//				panic("mock out the SetTracer method")
-//			},
 //			SetTxContextFunc: func(txCtx ethereumcorevm.TxContext)  {
 //				panic("mock out the SetTxContext method")
 //			},
 //			StateDBFunc: func() ethcorevm.StargazerStateDB {
 //				panic("mock out the StateDB method")
-//			},
-//			TracerFunc: func() ethereumcorevm.EVMLogger {
-//				panic("mock out the Tracer method")
-//			},
-//			TxContextFunc: func() ethereumcorevm.TxContext {
-//				panic("mock out the TxContext method")
 //			},
 //		}
 //
@@ -68,32 +56,20 @@ type StargazerEVMMock struct {
 	// ChainConfigFunc mocks the ChainConfig method.
 	ChainConfigFunc func() *params.ChainConfig
 
+	// ConfigFunc mocks the Config method.
+	ConfigFunc func() ethereumcorevm.Config
+
 	// ContextFunc mocks the Context method.
 	ContextFunc func() ethereumcorevm.BlockContext
 
 	// CreateFunc mocks the Create method.
 	CreateFunc func(caller ethereumcorevm.ContractRef, code []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error)
 
-	// SetBlockContextFunc mocks the SetBlockContext method.
-	SetBlockContextFunc func(blockCtx ethereumcorevm.BlockContext)
-
-	// SetDebugFunc mocks the SetDebug method.
-	SetDebugFunc func(debug bool)
-
-	// SetTracerFunc mocks the SetTracer method.
-	SetTracerFunc func(tracer ethereumcorevm.EVMLogger)
-
 	// SetTxContextFunc mocks the SetTxContext method.
 	SetTxContextFunc func(txCtx ethereumcorevm.TxContext)
 
 	// StateDBFunc mocks the StateDB method.
 	StateDBFunc func() ethcorevm.StargazerStateDB
-
-	// TracerFunc mocks the Tracer method.
-	TracerFunc func() ethereumcorevm.EVMLogger
-
-	// TxContextFunc mocks the TxContext method.
-	TxContextFunc func() ethereumcorevm.TxContext
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -113,6 +89,9 @@ type StargazerEVMMock struct {
 		// ChainConfig holds details about calls to the ChainConfig method.
 		ChainConfig []struct {
 		}
+		// Config holds details about calls to the Config method.
+		Config []struct {
+		}
 		// Context holds details about calls to the Context method.
 		Context []struct {
 		}
@@ -127,21 +106,6 @@ type StargazerEVMMock struct {
 			// Value is the value argument value.
 			Value *big.Int
 		}
-		// SetBlockContext holds details about calls to the SetBlockContext method.
-		SetBlockContext []struct {
-			// BlockCtx is the blockCtx argument value.
-			BlockCtx ethereumcorevm.BlockContext
-		}
-		// SetDebug holds details about calls to the SetDebug method.
-		SetDebug []struct {
-			// Debug is the debug argument value.
-			Debug bool
-		}
-		// SetTracer holds details about calls to the SetTracer method.
-		SetTracer []struct {
-			// Tracer is the tracer argument value.
-			Tracer ethereumcorevm.EVMLogger
-		}
 		// SetTxContext holds details about calls to the SetTxContext method.
 		SetTxContext []struct {
 			// TxCtx is the txCtx argument value.
@@ -150,24 +114,14 @@ type StargazerEVMMock struct {
 		// StateDB holds details about calls to the StateDB method.
 		StateDB []struct {
 		}
-		// Tracer holds details about calls to the Tracer method.
-		Tracer []struct {
-		}
-		// TxContext holds details about calls to the TxContext method.
-		TxContext []struct {
-		}
 	}
-	lockCall            sync.RWMutex
-	lockChainConfig     sync.RWMutex
-	lockContext         sync.RWMutex
-	lockCreate          sync.RWMutex
-	lockSetBlockContext sync.RWMutex
-	lockSetDebug        sync.RWMutex
-	lockSetTracer       sync.RWMutex
-	lockSetTxContext    sync.RWMutex
-	lockStateDB         sync.RWMutex
-	lockTracer          sync.RWMutex
-	lockTxContext       sync.RWMutex
+	lockCall         sync.RWMutex
+	lockChainConfig  sync.RWMutex
+	lockConfig       sync.RWMutex
+	lockContext      sync.RWMutex
+	lockCreate       sync.RWMutex
+	lockSetTxContext sync.RWMutex
+	lockStateDB      sync.RWMutex
 }
 
 // Call calls CallFunc.
@@ -245,6 +199,33 @@ func (mock *StargazerEVMMock) ChainConfigCalls() []struct {
 	return calls
 }
 
+// Config calls ConfigFunc.
+func (mock *StargazerEVMMock) Config() ethereumcorevm.Config {
+	if mock.ConfigFunc == nil {
+		panic("StargazerEVMMock.ConfigFunc: method is nil but StargazerEVM.Config was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockConfig.Lock()
+	mock.calls.Config = append(mock.calls.Config, callInfo)
+	mock.lockConfig.Unlock()
+	return mock.ConfigFunc()
+}
+
+// ConfigCalls gets all the calls that were made to Config.
+// Check the length with:
+//
+//	len(mockedStargazerEVM.ConfigCalls())
+func (mock *StargazerEVMMock) ConfigCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockConfig.RLock()
+	calls = mock.calls.Config
+	mock.lockConfig.RUnlock()
+	return calls
+}
+
 // Context calls ContextFunc.
 func (mock *StargazerEVMMock) Context() ethereumcorevm.BlockContext {
 	if mock.ContextFunc == nil {
@@ -316,102 +297,6 @@ func (mock *StargazerEVMMock) CreateCalls() []struct {
 	return calls
 }
 
-// SetBlockContext calls SetBlockContextFunc.
-func (mock *StargazerEVMMock) SetBlockContext(blockCtx ethereumcorevm.BlockContext) {
-	if mock.SetBlockContextFunc == nil {
-		panic("StargazerEVMMock.SetBlockContextFunc: method is nil but StargazerEVM.SetBlockContext was just called")
-	}
-	callInfo := struct {
-		BlockCtx ethereumcorevm.BlockContext
-	}{
-		BlockCtx: blockCtx,
-	}
-	mock.lockSetBlockContext.Lock()
-	mock.calls.SetBlockContext = append(mock.calls.SetBlockContext, callInfo)
-	mock.lockSetBlockContext.Unlock()
-	mock.SetBlockContextFunc(blockCtx)
-}
-
-// SetBlockContextCalls gets all the calls that were made to SetBlockContext.
-// Check the length with:
-//
-//	len(mockedStargazerEVM.SetBlockContextCalls())
-func (mock *StargazerEVMMock) SetBlockContextCalls() []struct {
-	BlockCtx ethereumcorevm.BlockContext
-} {
-	var calls []struct {
-		BlockCtx ethereumcorevm.BlockContext
-	}
-	mock.lockSetBlockContext.RLock()
-	calls = mock.calls.SetBlockContext
-	mock.lockSetBlockContext.RUnlock()
-	return calls
-}
-
-// SetDebug calls SetDebugFunc.
-func (mock *StargazerEVMMock) SetDebug(debug bool) {
-	if mock.SetDebugFunc == nil {
-		panic("StargazerEVMMock.SetDebugFunc: method is nil but StargazerEVM.SetDebug was just called")
-	}
-	callInfo := struct {
-		Debug bool
-	}{
-		Debug: debug,
-	}
-	mock.lockSetDebug.Lock()
-	mock.calls.SetDebug = append(mock.calls.SetDebug, callInfo)
-	mock.lockSetDebug.Unlock()
-	mock.SetDebugFunc(debug)
-}
-
-// SetDebugCalls gets all the calls that were made to SetDebug.
-// Check the length with:
-//
-//	len(mockedStargazerEVM.SetDebugCalls())
-func (mock *StargazerEVMMock) SetDebugCalls() []struct {
-	Debug bool
-} {
-	var calls []struct {
-		Debug bool
-	}
-	mock.lockSetDebug.RLock()
-	calls = mock.calls.SetDebug
-	mock.lockSetDebug.RUnlock()
-	return calls
-}
-
-// SetTracer calls SetTracerFunc.
-func (mock *StargazerEVMMock) SetTracer(tracer ethereumcorevm.EVMLogger) {
-	if mock.SetTracerFunc == nil {
-		panic("StargazerEVMMock.SetTracerFunc: method is nil but StargazerEVM.SetTracer was just called")
-	}
-	callInfo := struct {
-		Tracer ethereumcorevm.EVMLogger
-	}{
-		Tracer: tracer,
-	}
-	mock.lockSetTracer.Lock()
-	mock.calls.SetTracer = append(mock.calls.SetTracer, callInfo)
-	mock.lockSetTracer.Unlock()
-	mock.SetTracerFunc(tracer)
-}
-
-// SetTracerCalls gets all the calls that were made to SetTracer.
-// Check the length with:
-//
-//	len(mockedStargazerEVM.SetTracerCalls())
-func (mock *StargazerEVMMock) SetTracerCalls() []struct {
-	Tracer ethereumcorevm.EVMLogger
-} {
-	var calls []struct {
-		Tracer ethereumcorevm.EVMLogger
-	}
-	mock.lockSetTracer.RLock()
-	calls = mock.calls.SetTracer
-	mock.lockSetTracer.RUnlock()
-	return calls
-}
-
 // SetTxContext calls SetTxContextFunc.
 func (mock *StargazerEVMMock) SetTxContext(txCtx ethereumcorevm.TxContext) {
 	if mock.SetTxContextFunc == nil {
@@ -468,59 +353,5 @@ func (mock *StargazerEVMMock) StateDBCalls() []struct {
 	mock.lockStateDB.RLock()
 	calls = mock.calls.StateDB
 	mock.lockStateDB.RUnlock()
-	return calls
-}
-
-// Tracer calls TracerFunc.
-func (mock *StargazerEVMMock) Tracer() ethereumcorevm.EVMLogger {
-	if mock.TracerFunc == nil {
-		panic("StargazerEVMMock.TracerFunc: method is nil but StargazerEVM.Tracer was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockTracer.Lock()
-	mock.calls.Tracer = append(mock.calls.Tracer, callInfo)
-	mock.lockTracer.Unlock()
-	return mock.TracerFunc()
-}
-
-// TracerCalls gets all the calls that were made to Tracer.
-// Check the length with:
-//
-//	len(mockedStargazerEVM.TracerCalls())
-func (mock *StargazerEVMMock) TracerCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockTracer.RLock()
-	calls = mock.calls.Tracer
-	mock.lockTracer.RUnlock()
-	return calls
-}
-
-// TxContext calls TxContextFunc.
-func (mock *StargazerEVMMock) TxContext() ethereumcorevm.TxContext {
-	if mock.TxContextFunc == nil {
-		panic("StargazerEVMMock.TxContextFunc: method is nil but StargazerEVM.TxContext was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockTxContext.Lock()
-	mock.calls.TxContext = append(mock.calls.TxContext, callInfo)
-	mock.lockTxContext.Unlock()
-	return mock.TxContextFunc()
-}
-
-// TxContextCalls gets all the calls that were made to TxContext.
-// Check the length with:
-//
-//	len(mockedStargazerEVM.TxContextCalls())
-func (mock *StargazerEVMMock) TxContextCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockTxContext.RLock()
-	calls = mock.calls.TxContext
-	mock.lockTxContext.RUnlock()
 	return calls
 }

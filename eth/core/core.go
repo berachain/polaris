@@ -15,6 +15,7 @@
 package core
 
 import (
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 )
 
@@ -31,7 +32,7 @@ type Blockchain struct {
 
 func NewBlockchain(config *params.ChainConfig, host StargazerHostChain) *Blockchain {
 	sf := NewStateFactory(config, host)
-	csp := sf.BuildStateProcessor()
+	csp := sf.BuildStateProcessor(vm.Config{}, true)
 
 	return &Blockchain{
 		host: host,

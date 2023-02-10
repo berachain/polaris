@@ -16,6 +16,7 @@ package core
 
 import (
 	"github.com/berachain/stargazer/eth/core/state"
+	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 )
 
@@ -32,6 +33,6 @@ func NewStateFactory(config *params.ChainConfig, host StargazerHostChain) *State
 	}
 }
 
-func (sf *StateFactory) BuildStateProcessor() *StateProcessor {
-	return NewStateProcessor(sf.config, state.NewStateDB(sf.host.GetStatePlugin()), sf.host)
+func (sf *StateFactory) BuildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
+	return NewStateProcessor(sf.host, state.NewStateDB(sf.host.GetStatePlugin()), vmConfig, commit)
 }
