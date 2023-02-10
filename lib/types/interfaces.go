@@ -73,6 +73,7 @@ type Controller[K comparable, T Controllable[K]] interface {
 
 // `Finalizeable` is an interface that defines a `Finalize` method.
 type Finalizeable interface {
+	// `Finalize` finalizes the state of the object.
 	Finalize()
 }
 

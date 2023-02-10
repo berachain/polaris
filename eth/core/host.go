@@ -48,6 +48,7 @@ type (
 		BaseFee() uint64
 	}
 
+	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.
 	GasPlugin interface {
 		// `GasPlugin` implements `libtypes.Resettable`. Calling Reset() MUST reset the GasPlugin to a
 		// default state.

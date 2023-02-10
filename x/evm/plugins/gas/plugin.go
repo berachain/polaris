@@ -19,7 +19,7 @@ import (
 	"math"
 
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/x/evm/plugins"
+	"github.com/berachain/stargazer/eth/core/vm"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -27,7 +27,8 @@ import (
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
 const gasMeterDescriptor = `stargazer-gas-plugin`
 
-// `plugin` uses the SDK context gas meters (tx and block) to manage gas consumption.
+// `plugin` wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
+// to implement the core.GasPlugin interface.
 type plugin struct {
 	sdk.Context
 }
@@ -59,7 +60,7 @@ func (p *plugin) ConsumeGas(amount uint64) error {
 	if newConsumed, overflow := addUint64Overflow(p.GasMeter().GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.GasMeter().Limit() {
-		return plugins.ErrOutOfGas
+		return vm.ErrOutOfGas
 	}
 	p.GasMeter().ConsumeGas(amount, gasMeterDescriptor)
 	return nil
