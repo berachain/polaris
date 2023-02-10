@@ -23,13 +23,12 @@ import (
 
 // ===========================================================================
 // Stargazer Block Tracking
-// ===========================================================================
+// ===========================================================================.
+const entryNum = 256
 
 // TrackHistoricalStargazerBlocks saves the latest historical-info and deletes the oldest
 // heights that are below pruning height.
 func (k Keeper) TrackHistoricalStargazerBlocks(ctx sdk.Context, block *types.StargazerBlock) {
-	entryNum := 256
-
 	// Prune store to ensure we only have parameter-defined historical entries.
 	// In most cases, this will involve removing a single historical entry.
 	// In the rare scenario when the historical entries gets reduced to a lower value k'
