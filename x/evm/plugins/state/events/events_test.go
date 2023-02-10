@@ -12,21 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package evm
+package events_test
 
 import (
-	"github.com/berachain/stargazer/eth/api"
-	"github.com/berachain/stargazer/eth/core"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-type ChainService interface{}
-
-type TxService interface{}
-
-type QueryService interface{}
-
-type ParamsService interface{}
-
-func NewEvmChain(core.Host) *api.Chain {
-	return &api.Chain{}
+func TestEvents(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/state/events")
 }

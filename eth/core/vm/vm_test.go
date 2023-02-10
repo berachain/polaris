@@ -23,5 +23,5 @@ import (
 
 func TestVM(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "core/vm")
+	RunSpecs(t, "eth/core/vm")
 }

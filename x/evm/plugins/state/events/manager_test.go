@@ -17,9 +17,9 @@ package events_test
 import (
 	precompilemock "github.com/berachain/stargazer/eth/core/precompile/mock"
 	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugin/state"
-	"github.com/berachain/stargazer/x/evm/plugin/state/events"
-	"github.com/berachain/stargazer/x/evm/plugin/state/events/mock"
+	"github.com/berachain/stargazer/x/evm/plugins/state"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"

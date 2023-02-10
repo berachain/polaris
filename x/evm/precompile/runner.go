@@ -18,7 +18,7 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/x/evm/plugin/state"
+	"github.com/berachain/stargazer/x/evm/plugins/state"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -107,7 +107,7 @@ func (cr *CosmosRunner) Run(
 
 	// handle overconsumption of gas
 	if gm.GasConsumed() > suppliedGas {
-		return nil, 0, ErrOutOfGas
+		return nil, 0, vm.ErrOutOfGas
 	}
 
 	return ret, suppliedGas - gm.GasConsumed(), err
