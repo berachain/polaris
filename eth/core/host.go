@@ -32,7 +32,7 @@ type StargazerHostChain interface {
 	GetPrecompilePlugin() PrecompilePlugin
 	GetConfigurationPlugin() ConfigurationPlugin
 
-	// Temporary
+	// Temporary -- move to block plugin
 	GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
 }
 

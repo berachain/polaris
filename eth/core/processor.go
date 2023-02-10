@@ -28,7 +28,7 @@ import (
 // “.
 type StateProcessor struct {
 	// `host` provides the underlying chain the EVM is running on
-	host StargazerHostChain
+	host StargazerHostChain // TODO: replace host with required plugins
 	// `signer` is the signer used to verify transaction signatures.
 	signer types.Signer
 	// `config` is the chain configuration.

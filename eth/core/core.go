@@ -22,6 +22,7 @@ import (
 // var _ api.Chain = &Blockchain{}
 
 type Blockchain struct {
+	host StargazerHostChain
 	// `csp` is the canonical, persistent state processor that runs the EVM.
 	csp *StateProcessor
 	// sf is the state factory that builds state processors and statedbs.
@@ -33,7 +34,8 @@ func NewBlockchain(config *params.ChainConfig, host StargazerHostChain) *Blockch
 	csp := sf.BuildStateProcessor()
 
 	return &Blockchain{
-		sf:  sf,
-		csp: csp,
+		host: host,
+		sf:   sf,
+		csp:  csp,
 	}
 }
