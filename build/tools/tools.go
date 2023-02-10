@@ -35,5 +35,4 @@ import (
 	_ "github.com/securego/gosec/v2/cmd/gosec"
 	_ "github.com/segmentio/golines"
 	_ "golang.org/x/tools/cmd/goimports"
-	_ "golang.org/x/tools/gopls"
 )
