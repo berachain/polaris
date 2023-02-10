@@ -323,6 +323,9 @@ func (st *StateTransition) consumeEthIntrinsicGas(
 			return ErrGasUintOverflow
 		}
 		gas += z * params.TxDataZeroGas
+
+		// TODO: EIP-3860 dynamic transaction pricing
+		// https://github.com/ethereum/go-ethereum/commit/793f0f9ec860f6f51e0cec943a268c10863097c7
 	}
 	if accessList := st.msg.AccessList(); accessList != nil {
 		gas += uint64(len(accessList)) * params.TxAccessListAddressGas
