@@ -39,7 +39,7 @@ var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
 	var bk state.BankKeeper
 	var ctx sdk.Context
-	var sp ethstate.StatePlugin
+	var sp ethstate.Plugin
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()

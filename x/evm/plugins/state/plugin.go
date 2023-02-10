@@ -95,7 +95,7 @@ func NewPlugin(
 	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
-) ethstate.StatePlugin {
+) ethstate.Plugin {
 	sp := &statePlugin{
 		evmStoreKey: evmStoreKey,
 		ak:          ak,

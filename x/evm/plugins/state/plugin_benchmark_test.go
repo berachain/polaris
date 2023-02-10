@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	ethstate "github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/state/plugin/mock"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
@@ -32,16 +31,14 @@ var (
 	numReverts         = 2     // number of times an eth call is reverted in one tx
 )
 
-func GetNewStatePlugin() ethstate.StatePlugin {
+func GetNewStatePlugin() ethstate.Plugin {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
 	return state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera")
 }
 
 func GetNewStateDB() vm.StargazerStateDB {
-	sdb, _ := ethstate.NewStateDB(
-		GetNewStatePlugin(), mock.NewEmptyLogsPlugin(), mock.NewEmptyRefundPlugin(),
-	)
-	return sdb
+	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
+	return ethstate.NewStateDB(state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera"))
 }
 
 func BenchmarkArbitraryStateTransition(b *testing.B) {

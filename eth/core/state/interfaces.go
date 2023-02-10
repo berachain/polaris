@@ -15,7 +15,6 @@
 package state
 
 import (
-	"context"
 	"math/big"
 
 	coretypes "github.com/berachain/stargazer/eth/core/types"
@@ -23,13 +22,12 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `StatePlugin` is a plugin which tracks the accounts (balances, nonces, codes, states) in the
-// native vm. This also handles removing suicided accounts.
-type StatePlugin interface { //nolint:revive // vibes.
+// `Plugin` is a plugin which tracks the accounts (balances, nonces, codes, states) in the native
+// vm. This also handles removing suicided accounts.
+type Plugin interface {
 	libtypes.Controllable[string]
-
 	// `Reset` resets the state with the given `context`.
-	Reset(context.Context)
+	libtypes.Resettable
 
 	// `CreateAccount` creates an account with the given `address`.
 	CreateAccount(common.Address)
@@ -74,9 +72,9 @@ type StatePlugin interface { //nolint:revive // vibes.
 	DeleteSuicides([]common.Address)
 }
 
-// `LogsPlugin` defines the interface for tracking logs created during a state transition.
-type LogsPlugin interface {
-	// `LogsPlugin` implements `libtypes.Controllable`.
+// `LogsJournal` defines the interface for tracking logs created during a state transition.
+type LogsJournal interface {
+	// `LogsJournal` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
 	// `AddLog` adds a log to the state
 	AddLog(*coretypes.Log)
@@ -84,9 +82,9 @@ type LogsPlugin interface {
 	BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
 }
 
-// `RefundPlugin` is a `Store` that tracks the refund counter.
-type RefundPlugin interface {
-	// `RefundPlugin` implements `libtypes.Controllable`.
+// `RefundJournal` is a `Store` that tracks the refund counter.
+type RefundJournal interface {
+	// `RefundJournal` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
 	// `GetRefund` returns the current value of the refund counter.
 	GetRefund() uint64
