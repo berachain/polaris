@@ -17,7 +17,6 @@ package types
 import (
 	"unsafe"
 
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 )
@@ -42,10 +41,12 @@ func NewStargazerBlock(h *StargazerHeader, txs Transactions, rs StargazerReceipt
 	return b
 }
 
+// `SetGasUsed` sets the gas used of the block.
 func (b *StargazerBlock) SetGasUsed(gas uint64) {
 	b.GasUsed = gas
 }
 
+// `SetReceiptHash` sets the receipt hash of the block.
 func (b *StargazerBlock) SetReceiptHash() {
 	if b.Receipts.Len() > 0 {
 		b.StargazerHeader.ReceiptHash = DeriveSha(
@@ -59,8 +60,7 @@ func (b *StargazerBlock) SetReceiptHash() {
 
 // `CreateBloom` creates the bloom filter for the block.
 func (b *StargazerBlock) CreateBloom() {
-	//#nosec:G103
-	b.StargazerHeader.Bloom = types.CreateBloom(*(*(Receipts))((unsafe.Pointer(&b.Receipts.Receipts))))
+	b.StargazerHeader.Bloom = b.Receipts.Bloom()
 }
 
 // `UnmarshalBinary` decodes a block from the Ethereum RLP format.

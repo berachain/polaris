@@ -16,12 +16,32 @@ package types_test
 
 import (
 	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Receipts", func() {
 	var sr *types.StargazerReceipts
+
+	// NOTE: The test receipts purposely have their Bloom values left empty.
+	testReceipt1 := &types.Receipt{
+		Type: 1,
+		Logs: []*types.Log{
+			{Address: common.BytesToAddress([]byte{1})},
+			{Address: common.BytesToAddress([]byte{2})},
+		},
+	}
+
+	testReceipt2 := &types.Receipt{
+		Type: 2,
+		Logs: []*types.Log{
+			{Address: common.BytesToAddress([]byte{3})},
+			{Address: common.BytesToAddress([]byte{4})},
+		},
+	}
+
+	// testReceipts := types.Receipts{testReceipt1, testReceipt2}
 
 	BeforeEach(func() {
 		sr = types.NewStargazerReceipts()
@@ -30,14 +50,14 @@ var _ = Describe("Receipts", func() {
 	It("should append and return the right length", func() {
 		Expect(sr.Len()).To(Equal(uint(0)))
 
-		sr.Append(&types.Receipt{Type: uint8(0)})
+		sr.Append(testReceipt1)
 		Expect(sr.Len()).To(Equal(uint(1)))
 
-		sr.Append(&types.Receipt{Type: uint8(1)})
+		sr.Append(testReceipt2)
 		Expect(sr.Len()).To(Equal(uint(2)))
 
-		Expect(sr.Receipts[0].Type).To(Equal(uint8(0)))
-		Expect(sr.Receipts[1].Type).To(Equal(uint8(1)))
+		Expect(sr.Receipts[0].Type).To(Equal(uint8(1)))
+		Expect(sr.Receipts[1].Type).To(Equal(uint8(2)))
 
 		Expect(func() { _ = sr.Receipts[2] }).To(Panic())
 	})
@@ -49,5 +69,11 @@ var _ = Describe("Receipts", func() {
 		Expect(stargazerReceipts.Len()).To(Equal(uint(2)))
 		Expect(stargazerReceipts.Receipts[0].Type).To(Equal(uint8(0)))
 		Expect(stargazerReceipts.Receipts[1].Type).To(Equal(uint8(1)))
+	})
+
+	It("bloom filter should be equivalent to the one from the receipts", func() {
+		sr.Append(testReceipt1)
+		sr.Append(testReceipt2)
+		// Expect(sr.Bloom()).To(Equal(types.CreateBloom(testReceipts)))
 	})
 })

@@ -16,6 +16,8 @@ package types
 
 import (
 	"unsafe"
+
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 // `initCapacity` is the initial capacity of the list of receipts.
@@ -38,9 +40,8 @@ func NewStargazerReceipts() *StargazerReceipts {
 
 // `StargazerReceiptsFromReceipts` converts a list of `Receipt`s to a `StargazerReceipts`.
 func StargazerReceiptsFromReceipts(receipts Receipts) *StargazerReceipts {
-	// The use of unsafe pointer here is safe since `ReceiptForStorage` is an alias of `Receipt`.
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
 	return &StargazerReceipts{
-		//#nosec:G103
 		Receipts: *(*([]*ReceiptForStorage))((unsafe.Pointer(&receipts))),
 	}
 }
@@ -49,6 +50,12 @@ func StargazerReceiptsFromReceipts(receipts Receipts) *StargazerReceipts {
 func (sr *StargazerReceipts) Append(r *Receipt) {
 	//#nosec:G103
 	sr.Receipts = append(sr.Receipts, ((*ReceiptForStorage)(unsafe.Pointer(r))))
+}
+
+// `Bloom` returns the bloom filter of the list of receipts.
+func (sr *StargazerReceipts) Bloom() Bloom {
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	return types.CreateBloom(*(*(Receipts))((unsafe.Pointer(&sr.Receipts))))
 }
 
 // `Len` returns the number of receipts in the list.

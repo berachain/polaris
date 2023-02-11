@@ -64,21 +64,26 @@ var _ = Describe("Block", func() {
 		Expect(sb.StargazerHeader.Bloom).To(Equal(types.CreateBloom(r)))
 	})
 
-	It("should work", func() {
+	It("should set gas used", func() {
 		sb.SetGasUsed(uint64(100))
 		Expect(sb.GasUsed).To(Equal(uint64(100)))
-
+	})
+	It("should set receipt hash", func() {
 		sb.SetReceiptHash()
 		Expect(sb.ReceiptHash).To(Equal(types.DeriveSha(
 			//#nosec:G103
 			*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))), trie.NewStackTrie(nil),
 		)))
-
+	})
+	It("should set block bloom", func() {
+		// Should set
 		sb.CreateBloom()
 		Expect(sb.StargazerHeader.Bloom).To(Equal(
 			types.CreateBloom(*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))))),
 		)
-
+	})
+	It("should be marshallable", func() {
+		sb.CreateBloom()
 		data, err := sb.MarshalBinary()
 		Expect(err).To(BeNil())
 		sb2 := &types.StargazerBlock{}
