@@ -25,12 +25,13 @@ import (
 )
 
 var _ = Describe("Block", func() {
+	var r types.Receipts
 	var sr *types.StargazerReceipts
 	var sh *types.StargazerHeader
 	var sb *types.StargazerBlock
 
 	BeforeEach(func() {
-		sr = types.StargazerReceiptsFromReceipts(types.Receipts{
+		r = types.Receipts{
 			{
 				Type: 1,
 				Logs: []*types.Log{
@@ -45,7 +46,8 @@ var _ = Describe("Block", func() {
 					{Address: common.BytesToAddress([]byte{4})},
 				},
 			},
-		})
+		}
+		sr = types.StargazerReceiptsFromReceipts(r)
 		sh = types.NewEmptyStargazerHeader()
 		sb = types.NewStargazerBlock(
 			sh,
@@ -55,6 +57,11 @@ var _ = Describe("Block", func() {
 			},
 			*sr,
 		)
+	})
+
+	It("should conform to the standard create bloom", func() {
+		sb.CreateBloom()
+		Expect(sb.StargazerHeader.Bloom).To(Equal(types.CreateBloom(r)))
 	})
 
 	It("should work", func() {
@@ -78,6 +85,7 @@ var _ = Describe("Block", func() {
 		err = sb2.UnmarshalBinary(data)
 		Expect(err).To(BeNil())
 		Expect(sb2.Bloom).To(Equal(sb.Bloom))
+		Expect(sb2.Bloom).To(Equal(types.CreateBloom(r))) // conforms to standard create bloom
 	})
 
 	It("should set to empty root hash on no receipts", func() {
