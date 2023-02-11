@@ -14,25 +14,46 @@
 
 package types
 
+import (
+	"unsafe"
+)
+
+// `initCapacity` is the initial capacity of the list of receipts.
+const initCapacity = 64
+
+// `StargazerReceipts` is a slice of `*ReceiptForStorage` receipts.
+//
 //go:generate rlpgen -type StargazerReceipts -out receipts.rlpgen.go -decoder
-
-const initLen = 64
-
-// `StargazerReceipts` is a slice of *ReceiptForStorage.
 type StargazerReceipts struct {
+	// `Receipts` is a list of `ReceiptForStorage`s, each of which represent a transaction receipt.
 	Receipts []*ReceiptForStorage
 }
 
-// `NewStargazerReceipts` creates a new list of receipts.
+// `NewStargazerReceipts` creates and returns a `StargazerReceipts` with a list of receipts.
 func NewStargazerReceipts() *StargazerReceipts {
 	return &StargazerReceipts{
-		Receipts: make([]*ReceiptForStorage, initLen),
+		Receipts: make([]*ReceiptForStorage, 0, initCapacity),
+	}
+}
+
+// `StargazerReceiptsFromReceipts` converts a list of `Receipt`s to a `StargazerReceipts`.
+func StargazerReceiptsFromReceipts(receipts Receipts) *StargazerReceipts {
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	return &StargazerReceipts{
+		Receipts: *(*([]*ReceiptForStorage))((unsafe.Pointer(&receipts))),
 	}
 }
 
 // `Append` appends a receipt to the list of receipts.
-func (sr *StargazerReceipts) Append(r *ReceiptForStorage) {
-	sr.Receipts = append(sr.Receipts, r)
+func (sr *StargazerReceipts) Append(r *Receipt) {
+	//#nosec:G103
+	sr.Receipts = append(sr.Receipts, ((*ReceiptForStorage)(unsafe.Pointer(r))))
+}
+
+// `Bloom` returns the bloom filter of the list of receipts.
+func (sr *StargazerReceipts) Bloom() Bloom {
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	return CreateBloom(*(*(Receipts))((unsafe.Pointer(&sr.Receipts))))
 }
 
 // `Len` returns the number of receipts in the list.

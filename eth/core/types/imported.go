@@ -46,6 +46,7 @@ var (
 	EmptyUncleHash   = types.EmptyUncleHash
 	SignTx           = types.SignTx
 	NewEIP2930Signer = types.NewEIP2930Signer
+	NewTx            = types.NewTx
 )
 var (
 	ReceiptStatusFailed     = types.ReceiptStatusFailed
