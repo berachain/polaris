@@ -15,17 +15,73 @@
 package types_test
 
 import (
+	"unsafe"
+
+	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/trie"
 	. "github.com/onsi/ginkgo/v2"
-	// . "github.com/onsi/gomega"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Block", func() {
-	// var sr types.StargazerReceipts
+	var sr *types.StargazerReceipts
+	var sh *types.StargazerHeader
+	var sb *types.StargazerBlock
 
-	// var sb *types.StargazerBlock
+	BeforeEach(func() {
+		sr = types.StargazerReceiptsFromReceipts(types.Receipts{
+			{
+				Type: 1,
+				Logs: []*types.Log{
+					{Address: common.BytesToAddress([]byte{1})},
+					{Address: common.BytesToAddress([]byte{2})},
+				},
+			},
+			{
+				Type: 2,
+				Logs: []*types.Log{
+					{Address: common.BytesToAddress([]byte{3})},
+					{Address: common.BytesToAddress([]byte{4})},
+				},
+			},
+		})
+		sh = types.NewEmptyStargazerHeader()
+		sb = types.NewStargazerBlock(
+			sh,
+			types.Transactions{
+				types.NewTx(&types.DynamicFeeTx{}),
+				types.NewTx(&types.LegacyTx{}),
+			},
+			*sr,
+		)
+	})
 
-	// BeforeEach(func() {
-	// 	sb = types.NewStargazerBlock()
-	// })
+	It("should work", func() {
+		sb.SetGasUsed(uint64(100))
+		Expect(sb.GasUsed).To(Equal(uint64(100)))
 
+		sb.SetReceiptHash()
+		Expect(sb.ReceiptHash).To(Equal(types.DeriveSha(
+			*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))), trie.NewStackTrie(nil), //#nosec:G103
+		)))
+
+		sb.CreateBloom()
+		Expect(sb.StargazerHeader.Bloom).To(Equal(
+			types.CreateBloom(*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))))),
+		)
+
+		data, err := sb.MarshalBinary()
+		Expect(err).To(BeNil())
+		sb2 := &types.StargazerBlock{}
+		err = sb2.UnmarshalBinary(data)
+		Expect(err).To(BeNil())
+		Expect(sb2.Bloom).To(Equal(sb.Bloom))
+	})
+
+	It("should set to empty root hash on no receipts", func() {
+		b := types.NewStargazerBlock(sh, types.Transactions{}, *types.NewStargazerReceipts())
+		b.SetReceiptHash()
+		Expect(b.ReceiptHash).To(Equal(types.EmptyRootHash))
+	})
 })
