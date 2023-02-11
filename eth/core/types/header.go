@@ -30,7 +30,12 @@ type StargazerHeader struct {
 	CachedHash common.Hash
 }
 
-// `NewStargazerHeader` returns a `StargazerHeader`.
+// `NewEmptyStargazerHeader` returns an empty `StargazerHeader`.
+func NewEmptyStargazerHeader() *StargazerHeader {
+	return &StargazerHeader{Header: &Header{}}
+}
+
+// `NewStargazerHeader` returns a `StargazerHeader` with the given `header` and `hash`.
 func NewStargazerHeader(header *Header, hash common.Hash) *StargazerHeader {
 	return &StargazerHeader{Header: header, CachedHash: hash}
 }
