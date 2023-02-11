@@ -17,8 +17,8 @@ package mock
 import (
 	"math/big"
 
+	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/crypto"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 //go:generate moq -out ./state.mock.go -pkg mock ../../ Plugin
