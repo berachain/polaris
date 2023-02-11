@@ -63,7 +63,8 @@ var _ = Describe("Block", func() {
 
 		sb.SetReceiptHash()
 		Expect(sb.ReceiptHash).To(Equal(types.DeriveSha(
-			*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))), trie.NewStackTrie(nil), //#nosec:G103
+			//#nosec:G103
+			*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))), trie.NewStackTrie(nil),
 		)))
 
 		sb.CreateBloom()

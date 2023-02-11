@@ -49,7 +49,8 @@ func (b *StargazerBlock) SetGasUsed(gas uint64) {
 func (b *StargazerBlock) SetReceiptHash() {
 	if b.Receipts.Len() > 0 {
 		b.StargazerHeader.ReceiptHash = DeriveSha(
-			*(*(Receipts))((unsafe.Pointer(&b.Receipts.Receipts))), trie.NewStackTrie(nil), //#nosec:G103
+			//#nosec:G103
+			*(*(Receipts))((unsafe.Pointer(&b.Receipts.Receipts))), trie.NewStackTrie(nil),
 		)
 	} else {
 		b.StargazerHeader.ReceiptHash = EmptyRootHash
