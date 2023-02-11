@@ -41,7 +41,7 @@ func (k *Keeper) GetStargazerHeaderAtHeight(ctx context.Context, height uint64) 
 	// block has not been written to the store yet. In this case, we build and return a header
 	// from the sdk.Context.
 	if uint64(sCtx.BlockHeight()) == height {
-		return k.StargazerHeaderFromCosmosContext(sCtx, types.Bloom{}, k.BaseFee(ctx))
+		return k.StargazerHeaderFromCosmosContext(sCtx, k.BaseFee(ctx))
 	}
 
 	// If the current block height is less than (or technically also greater than) the requested
@@ -57,7 +57,7 @@ func (k *Keeper) GetStargazerHeaderAtHeight(ctx context.Context, height uint64) 
 // `StargazerHeaderFromCosmosContext` builds an ethereum style block header from an
 // `sdk.Context`, `Bloom` and `baseFee`.
 func (k *Keeper) StargazerHeaderFromCosmosContext(
-	ctx sdk.Context, bloom types.Bloom, baseFee *big.Int,
+	ctx sdk.Context, baseFee *big.Int,
 ) *types.StargazerHeader {
 	cometHeader := ctx.BlockHeader()
 
@@ -105,12 +105,12 @@ func (k *Keeper) StargazerHeaderFromCosmosContext(
 			// `Extra` is unused in Stargazer.
 			Extra: []byte(nil),
 		},
-		k.BlockHashFromCosmosContext(ctx),
+		blockHashFromCosmosContext(ctx),
 	)
 }
 
-// `BlockHashFromSdkContext` extracts the block hash from a Cosmos context.
-func (k *Keeper) BlockHashFromCosmosContext(ctx sdk.Context) common.Hash {
+// `blockHashFromSdkContext` extracts the block hash from a Cosmos context.
+func blockHashFromCosmosContext(ctx sdk.Context) common.Hash {
 	headerHash := ctx.HeaderHash()
 	if len(headerHash) != 0 {
 		return common.BytesToHash(headerHash)
@@ -120,7 +120,6 @@ func (k *Keeper) BlockHashFromCosmosContext(ctx sdk.Context) common.Hash {
 	contextBlockHeader := ctx.BlockHeader()
 	header, err := tmtypes.HeaderFromProto(&contextBlockHeader)
 	if err != nil {
-		k.Logger(ctx).Error("failed to cast comet header from proto", "error", err)
 		return common.Hash{}
 	}
 
