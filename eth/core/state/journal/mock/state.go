@@ -17,7 +17,7 @@ package mock
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/ethereum/go-ethereum/common"
 )
 

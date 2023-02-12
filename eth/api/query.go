@@ -17,8 +17,8 @@ package api
 import (
 	"context"
 
+	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/common"
 )
 
 // StateDBReader

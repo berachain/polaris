@@ -15,8 +15,8 @@
 package log
 
 import (
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/common"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 

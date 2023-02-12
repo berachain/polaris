@@ -22,7 +22,7 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/eth/common"
 )
 
 type (

@@ -15,9 +15,9 @@
 package log
 
 import (
+	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/registry"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

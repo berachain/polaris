@@ -21,9 +21,9 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/berachain/stargazer/eth/common"
 	ethstate "github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/lib/snapshot"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/store/snapmulti"
