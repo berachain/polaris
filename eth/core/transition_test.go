@@ -18,12 +18,12 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/core/mock"
 	"github.com/berachain/stargazer/eth/core/vm"
 	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/testutil"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

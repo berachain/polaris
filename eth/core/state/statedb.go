@@ -15,11 +15,11 @@
 package state
 
 import (
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/state/journal"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/lib/snapshot"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )

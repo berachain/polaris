@@ -22,12 +22,12 @@ import (
 	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/eth/crypto"
 )
 
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
 type StateProcessor struct {
-	// `mtx` is used to make sure we don't abandon an in-process state transition.
+	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the previous one.
 	mtx sync.Mutex
 	// `bp` provides block functions from the underlying chain the EVM is running on
 	bp BlockPlugin

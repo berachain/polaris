@@ -17,8 +17,8 @@ package mock
 import (
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/common"
 )
 
 //go:generate moq -out ./message.mock.go -pkg mock ../ Message

@@ -20,9 +20,9 @@ import (
 	"math/big"
 	"reflect"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"

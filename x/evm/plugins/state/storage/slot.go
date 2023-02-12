@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/lib/errors"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )

@@ -21,10 +21,10 @@ import (
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
 )
 

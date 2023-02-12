@@ -20,8 +20,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/common"
 
 	tmtypes "github.com/tendermint/tendermint/types"
 )

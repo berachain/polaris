@@ -21,9 +21,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/crypto"
+	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	"github.com/berachain/stargazer/x/evm/plugins/state/storage"

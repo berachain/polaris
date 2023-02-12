@@ -18,7 +18,7 @@ package keeper
 // 	"context"
 // 	"math"
 
-// 	"github.com/berachain/stargazer/lib/common"
+// 	"github.com/berachain/stargazer/eth/common"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 // 	tmtypes "github.com/tendermint/tendermint/types"
