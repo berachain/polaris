@@ -15,6 +15,7 @@
 package core_test
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/core"
@@ -32,12 +33,12 @@ var _ = Describe("StateTransition", func() {
 	var (
 		evm *vmmock.StargazerEVMMock
 		sdb *vmmock.StargazerStateDBMock
-		msg = new(mock.MessageMock)
+		msg mock.MessageMock
 		gp  = mock.NewGasPluginMock(0)
 	)
 
 	BeforeEach(func() {
-		msg = mock.NewEmptyMessage()
+		msg = *mock.NewEmptyMessage()
 		evm = vmmock.NewStargazerEVM()
 		sdb, _ = evm.StateDB().(*vmmock.StargazerStateDBMock)
 		msg.FromFunc = func() common.Address {
@@ -51,6 +52,8 @@ var _ = Describe("StateTransition", func() {
 		msg.ToFunc = func() *common.Address {
 			return &common.Address{1}
 		}
+
+		gp = mock.NewGasPluginMock(0)
 	})
 
 	When("Contract Creation", func() {
@@ -63,7 +66,7 @@ var _ = Describe("StateTransition", func() {
 			msg.GasFunc = func() uint64 {
 				return 53000 // exact intrinsic gas for create after homestead
 			}
-			res, err := core.ApplyMessage(evm, gp, msg, true)
+			res, err := core.ApplyMessage(evm, gp, &msg, true)
 			Expect(len(evm.CreateCalls())).To(Equal(1))
 			Expect(res.UsedGas).To(Equal(uint64(53000)))
 			Expect(err).To(BeNil())
@@ -73,7 +76,7 @@ var _ = Describe("StateTransition", func() {
 				return 53000 - 1
 			}
 			It("should return error", func() {
-				_, err := core.ApplyMessage(evm, gp, msg, true)
+				_, err := core.ApplyMessage(evm, gp, &msg, true)
 				Expect(err).To(MatchError(core.ErrIntrinsicGas))
 			})
 		})
@@ -82,7 +85,7 @@ var _ = Describe("StateTransition", func() {
 			msg.GasFunc = func() uint64 {
 				return 53000
 			}
-			_, err := core.ApplyMessage(evm, gp, msg, true)
+			_, err := core.ApplyMessage(evm, gp, &msg, true)
 			Expect(err).To(BeNil())
 		})
 
@@ -90,20 +93,29 @@ var _ = Describe("StateTransition", func() {
 			msg.GasFunc = func() uint64 {
 				return 0
 			}
-			_, err := core.ApplyMessage(evm, gp, msg, true)
+			_, err := core.ApplyMessage(evm, gp, &msg, true)
 			Expect(err).To(Not(BeNil()))
 		})
 
 		When("We call with a tracer", func() {
-			It("should error if nil tracer", func() {
-				_, err := core.ApplyMessage(evm, gp, msg, false)
-				Expect(err).To(Not(BeNil()))
+			var tracer *vmmock.EVMLoggerMock
+			BeforeEach(func() {
+				tracer = vmmock.NewEVMLoggerMock()
+				evm.ConfigFunc = func() vm.Config {
+					return vm.Config{
+						Debug:  true,
+						Tracer: tracer,
+					}
+				}
 			})
+
 			It("should call create with tracer", func() {
 				msg.GasFunc = func() uint64 {
 					return 53000 // exact intrinsic gas for create after homestead
 				}
-				_, err := core.ApplyMessage(evm, gp, msg, false)
+				_, err := core.ApplyMessage(evm, gp, &msg, false)
+				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
+				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
 				Expect(err).To(BeNil())
 			})
 			It("should call create with tracer and commit", func() {
@@ -114,22 +126,28 @@ var _ = Describe("StateTransition", func() {
 				evm.StateDBFunc = func() vm.StargazerStateDB {
 					return sdb
 				}
-				_, err := core.ApplyMessage(evm, gp, msg, true)
+				_, err := core.ApplyMessage(evm, gp, &msg, true)
 				Expect(err).To(BeNil())
+				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
+				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
 				Expect(len(sdb.FinalizeCalls())).To(Equal(1))
 			})
 			It("should handle abort error", func() {
 				msg.GasFunc = func() uint64 {
 					return 0
 				}
-				_, err := core.ApplyMessage(evm, gp, msg, false)
+				_, err := core.ApplyMessage(evm, gp, &msg, false)
+				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
+				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
 				Expect(err).To(Not(BeNil()))
 			})
 			It("should handle abort error with commit", func() {
 				msg.GasFunc = func() uint64 {
 					return 0
 				}
-				_, err := core.ApplyMessage(evm, gp, msg, true)
+				_, err := core.ApplyMessage(evm, gp, &msg, true)
+				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
+				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
 				Expect(err).To(Not(BeNil()))
 			})
 		})
@@ -163,7 +181,7 @@ var _ = Describe("StateTransition", func() {
 			})
 			When("we are in london", func() {
 				It("should call call", func() {
-					res, err := core.ApplyMessage(evm, gp, msg, true)
+					res, err := core.ApplyMessage(evm, gp, &msg, true)
 					Expect(len(evm.CallCalls())).To(Equal(1))
 					Expect(res.UsedGas).To(Equal(uint64(16000))) // refund is capped to 1/5th
 					Expect(err).To(BeNil())
@@ -178,7 +196,7 @@ var _ = Describe("StateTransition", func() {
 							HomesteadBlock: big.NewInt(0),
 						}
 					}
-					res, err := core.ApplyMessage(evm, gp, msg, true)
+					res, err := core.ApplyMessage(evm, gp, &msg, true)
 					Expect(len(evm.CallCalls())).To(Equal(1))
 					Expect(res.UsedGas).To(Equal(uint64(10000))) // refund is capped to 1/2
 					Expect(err).To(BeNil())
@@ -196,8 +214,37 @@ var _ = Describe("StateTransition", func() {
 					},
 				}
 			}
-			_, err := core.ApplyMessage(evm, gp, msg, true)
+			_, err := core.ApplyMessage(evm, gp, &msg, true)
 			Expect(err).To(MatchError(core.ErrInsufficientFundsForTransfer))
+		})
+		When("the message has data", func() {
+			It("should cost more gas", func() {
+				msg.GasFunc = func() uint64 {
+					return 6969699669
+				}
+
+				msg.DataFunc = func() []byte {
+					return []byte{1, 2, 3}
+				}
+
+				// Call the intrinsic gas function with data
+				st := core.NewStateTransition(evm, gp, &msg)
+				Expect(gp.SetGasLimit(10000000)).To(BeNil())
+				Expect(st.ConsumeEthIntrinsicGas(true, true, true)).To(BeNil())
+				consumedWithData := gp.CumulativeGasUsed()
+
+				// Reset the gas meter.
+				gp.Reset(context.Background())
+
+				// Call the intrinsic gas function with no data
+				msg.DataFunc = func() []byte {
+					return []byte{}
+				}
+				Expect(st.ConsumeEthIntrinsicGas(true, true, true)).To(BeNil())
+
+				// We expect that the call with Data will consume more gas.
+				Expect(consumedWithData).To(BeNumerically(">", gp.CumulativeGasUsed()))
+			})
 		})
 	})
 })

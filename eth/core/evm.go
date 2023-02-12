@@ -24,10 +24,6 @@ import (
 	"github.com/berachain/stargazer/lib/utils"
 )
 
-// Compile-time type assertion.
-var _ vm.CanTransferFunc = canTransfer
-var _ vm.TransferFunc = transfer
-
 // `NewEVMBlockContext` creates a new context for use in the EVM.
 func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, bp BlockPlugin) vm.BlockContext {
 	var (

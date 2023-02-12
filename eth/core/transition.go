@@ -129,7 +129,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 
 	// Ensure that the intrinsic gas is consumed.
 	// TODO: Handle updated gas requirements for Shanghai.
-	if err := st.consumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
+	if err := st.ConsumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
 		return nil, err
 	}
 
@@ -224,7 +224,7 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 
 // `consumeEthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
 // its given data.
-func (st *StateTransition) consumeEthIntrinsicGas(
+func (st *StateTransition) ConsumeEthIntrinsicGas(
 	isContractCreation bool, isHomestead, isEIP2028 bool,
 ) error {
 	var gas uint64

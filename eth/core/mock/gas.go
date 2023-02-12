@@ -31,7 +31,7 @@ func NewGasPluginMock(gasLimit uint64) *GasPluginMock {
 }
 
 func (w *GasPluginMock) Reset(context.Context) {
-	// no-op
+	w.gasUsed = 0
 }
 
 func (w *GasPluginMock) ConsumeGas(amount uint64) error {
@@ -64,7 +64,7 @@ func (w *GasPluginMock) RefundGas(amount uint64) {
 
 func (w *GasPluginMock) SetGasLimit(amount uint64) error {
 	w.gasLimit = amount
-	if w.gasLimit > w.gasUsed {
+	if w.gasLimit < w.gasUsed {
 		return errors.New("gas limit is below currently consumed")
 	}
 	return nil

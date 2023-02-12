@@ -26,8 +26,12 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
+// temp.
+const bf = int64(1e9)
+
+// `BaseFee` returns the base fee for the current block.
+// TODO: implement properly with DynamicFee Module of some kind.
 func (k *Keeper) BaseFee(ctx context.Context) *big.Int {
-	var bf int64 = 100000
 	return big.NewInt(bf)
 }
 
@@ -90,7 +94,7 @@ func (k *Keeper) StargazerHeaderFromCosmosContext(
 			Time: uint64(cometHeader.Time.UTC().Unix()),
 			// `BaseFee` is set to the block base fee.
 			BaseFee: baseFee,
-			// `RecieptHash` set to empty. It is filled during `Finalize` in the StateProcessor.
+			// `ReceiptHash` set to empty. It is filled during `Finalize` in the StateProcessor.
 			ReceiptHash: common.Hash{},
 			// `Bloom` is set to empty. It is filled during `Finalize` in the StateProcessor.
 			Bloom: types.Bloom{},
