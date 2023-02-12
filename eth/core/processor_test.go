@@ -20,10 +20,10 @@ import (
 )
 
 var (
-// william      = common.HexToAddress("0x123")
-// key, _       = ethsecp256k1.GenerateEthKey()
-// signer       = types.LatestSignerForChainID(params.MainnetChainConfig.ChainID)
-//
+// william = common.HexToAddress("0x123")
+// key, _  = ethsecp256k1.GenerateEthKey()
+// signer  = types.LatestSignerForChainID(params.MainnetChainConfig.ChainID)
+
 //	legacyTxData = &types.LegacyTx{
 //		Nonce:    0,
 //		To:       &william,

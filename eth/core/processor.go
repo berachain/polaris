@@ -17,6 +17,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/types"
@@ -26,6 +27,8 @@ import (
 
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
 type StateProcessor struct {
+	// `mtx` is used to make sure we don't abandon an in-process state transition.
+	mtx sync.Mutex
 	// `bp` provides block functions from the underlying chain the EVM is running on
 	bp BlockPlugin
 	// `gp` provides gas functions from the underlying chain the EVM is running on
@@ -58,6 +61,7 @@ func NewStateProcessor(
 	commit bool,
 ) *StateProcessor {
 	sp := &StateProcessor{
+		mtx:               sync.Mutex{},
 		bp:                host.GetBlockPlugin(),
 		gp:                host.GetGasPlugin(),
 		cp:                host.GetConfigurationPlugin(),
@@ -72,10 +76,14 @@ func NewStateProcessor(
 }
 
 // `Prepare` prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, height uint64) {
+func (sp *StateProcessor) Prepare(ctx context.Context, header *types.StargazerHeader) {
+	// We lock the state processor as a safety measure to ensure that Prepare is not called again
+	// before finalize.
+	sp.mtx.Lock()
+
 	// Build a block object so we can track that status of the block as we process it.
 	sp.block = &types.StargazerBlock{
-		StargazerHeader: sp.bp.GetStargazerHeaderAtHeight(ctx, height),
+		StargazerHeader: header,
 		Transactions:    make([]*types.Transaction, 0),
 		Receipts:        *types.NewStargazerReceipts(),
 	}
@@ -152,12 +160,14 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	// Update the block information.
 	sp.block.Transactions = append(sp.block.Transactions, tx)
 	sp.block.Receipts.Append(receipt)
-	// sp.receipts.Append((*types.ReceiptForStorage)(receipt))
 	return receipt, nil
 }
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
-func (sp *StateProcessor) Finalize(ctx context.Context, height uint64) (*types.StargazerBlock, error) {
+func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
+	// We unlock the state processor to ensure that the state is consistent.
+	defer sp.mtx.Unlock()
+
 	sp.block.SetGasUsed(sp.gp.CumulativeGasUsed())
 	sp.block.CreateBloom()
 	sp.block.SetReceiptHash()

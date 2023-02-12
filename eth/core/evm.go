@@ -22,7 +22,18 @@ import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/common"
 	"github.com/berachain/stargazer/lib/utils"
+	"github.com/ethereum/go-ethereum/consensus"
 )
+
+// ChainContext supports retrieving headers and consensus parameters from the
+// current blockchain to be used during transaction processing.
+type ChainContext interface {
+	// Engine retrieves the chain's consensus engine.
+	Engine() consensus.Engine
+
+	// GetHeader returns the header corresponding to the hash/number argument pair.
+	GetHeader(common.Hash, uint64) *types.Header
+}
 
 // `NewEVMBlockContext` creates a new context for use in the EVM.
 func NewEVMBlockContext(ctx context.Context, header *types.StargazerHeader, bp BlockPlugin) vm.BlockContext {

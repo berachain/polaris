@@ -14,8 +14,13 @@
 
 package api
 
+import (
+	"context"
+)
+
 // `Chain` defines the methods that the Stargazer Ethereum API exposes. This is the only interface
 // that an implementing chain should use.
 // TODO: rename.
 type Chain interface {
+	PrepareForBlock(ctx context.Context)
 }

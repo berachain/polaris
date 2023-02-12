@@ -26,7 +26,7 @@ import (
 func (k *Keeper) BeginBlocker(ctx context.Context, req *abci.RequestBeginBlock) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("BeginBlocker")
-	k.stateProcessor.Prepare(ctx, uint64(sCtx.BlockHeight()))
+	k.stateProcessor.Prepare(ctx, k.GetStargazerHeaderAtHeight(ctx, uint64(sCtx.BlockHeight())))
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
@@ -50,7 +50,7 @@ func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []ab
 	k.Logger(sCtx).Info("EndBlocker")
 
 	// Finalize the stargazer block and retrieve it from the processor.
-	stargazerBlock, err := k.stateProcessor.Finalize(ctx, uint64(sCtx.BlockHeight()))
+	stargazerBlock, err := k.stateProcessor.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}
