@@ -15,6 +15,7 @@
 package crypto
 
 import (
+	"github.com/berachain/stargazer/eth/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
@@ -44,13 +45,13 @@ var _ = Describe("PrivKey", func() {
 		addr := privKey.PubKey().Address()
 		key, err := privKey.ToECDSA()
 		Expect(err).To(BeNil())
-		expectedAddr := PubkeyToAddress(key.PublicKey)
+		expectedAddr := crypto.PubkeyToAddress(key.PublicKey)
 		Expect(expectedAddr.Bytes()).To(Equal(addr.Bytes()))
 	})
 
 	It("validates signing bytes", func() {
 		msg := []byte("hello world")
-		sigHash := Keccak256Hash(msg)
+		sigHash := crypto.Keccak256Hash(msg)
 		expectedSig, err := secp256k1.Sign(sigHash.Bytes(), privKey.Bytes())
 		Expect(err).To(BeNil())
 
@@ -85,7 +86,7 @@ var _ = Describe("PrivKey_PubKey", func() {
 
 	It("validates signature", func() {
 		msg := []byte("hello world")
-		sigHash := Keccak256Hash(msg)
+		sigHash := crypto.Keccak256Hash(msg)
 		sig, err := privKey.Sign(sigHash.Bytes())
 		Expect(err).To(BeNil())
 

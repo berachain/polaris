@@ -20,8 +20,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/berachain/stargazer/eth/common"
 	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
-	"github.com/berachain/stargazer/lib/common"
 )
 
 var _ = Describe("EVM Test Suite", func() {

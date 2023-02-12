@@ -18,9 +18,9 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/common"
-	"github.com/berachain/stargazer/lib/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

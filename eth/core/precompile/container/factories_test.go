@@ -18,10 +18,10 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/common"
 	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
 
 	. "github.com/onsi/ginkgo/v2"

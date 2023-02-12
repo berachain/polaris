@@ -24,7 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/berachain/stargazer/lib/common"
+	"github.com/berachain/stargazer/eth/common"
 )
 
 var _ = Describe("Attributes", func() {

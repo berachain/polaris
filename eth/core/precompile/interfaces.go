@@ -18,9 +18,9 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/common"
 )
 
 // `LogsDB` defines the required function to add a log to the StateDB.

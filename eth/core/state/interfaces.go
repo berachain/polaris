@@ -17,8 +17,8 @@ package state
 import (
 	"math/big"
 
+	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/common"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 

@@ -19,6 +19,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/subtle"
 
+	"github.com/berachain/stargazer/eth/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
 )
@@ -45,12 +46,12 @@ var _ cryptotypes.PubKey = &EthSecp256K1PubKey{}
 // `Address` returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.
 func (pubKey EthSecp256K1PubKey) Address() tmcrypto.Address {
-	pubk, err := DecompressPubkey(pubKey.Key)
+	pubk, err := crypto.DecompressPubkey(pubKey.Key)
 	if err != nil {
 		return nil
 	}
 
-	return tmcrypto.Address(PubkeyToAddress(*pubk).Bytes())
+	return tmcrypto.Address(crypto.PubkeyToAddress(*pubk).Bytes())
 }
 
 // `Bytes` returns the raw bytes of the ECDSA public key.
@@ -74,13 +75,13 @@ func (pubKey EthSecp256K1PubKey) Equals(other cryptotypes.PubKey) bool {
 // `VerifySignature` verifies that the ECDSA public key created a given signature over
 // the provided message. The signature should be in [R || S] format.
 func (pubKey EthSecp256K1PubKey) VerifySignature(msg, sig []byte) bool {
-	if len(sig) == SignatureLength {
+	if len(sig) == crypto.SignatureLength {
 		// remove recovery ID (V) if contained in the signature
 		sig = sig[:len(sig)-1]
 	}
 
 	// The signature needs to be in [R || S] format when provided to VerifySignature.
-	return VerifySignature(pubKey.Key, Keccak256Hash(msg).Bytes(), sig)
+	return crypto.VerifySignature(pubKey.Key, crypto.Keccak256Hash(msg).Bytes(), sig)
 }
 
 // =====================================================================================================
@@ -96,13 +97,13 @@ var _ cryptotypes.PrivKey = &EthSecp256K1PrivKey{}
 // `GenerateKey` generates a new random private key. It returns an error upon
 // failure.
 func GenerateKey() (*EthSecp256K1PrivKey, error) {
-	priv, err := GenerateEthKey()
+	priv, err := crypto.GenerateEthKey()
 	if err != nil {
 		return nil, err
 	}
 
 	return &EthSecp256K1PrivKey{
-		Key: FromECDSA(priv),
+		Key: crypto.FromECDSA(priv),
 	}, nil
 }
 
@@ -122,7 +123,7 @@ func (privKey EthSecp256K1PrivKey) PubKey() cryptotypes.PubKey {
 	}
 
 	return &EthSecp256K1PubKey{
-		Key: CompressPubkey(&ecdsaPrivKey.PublicKey),
+		Key: crypto.CompressPubkey(&ecdsaPrivKey.PublicKey),
 	}
 }
 
@@ -145,10 +146,10 @@ func (privKey EthSecp256K1PrivKey) Sign(digestBz []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	return EthSign(digestBz, key)
+	return crypto.EthSign(digestBz, key)
 }
 
 // `ToECDSA` returns the ECDSA private key as a reference to ecdsa.PrivateKey type.
 func (privKey EthSecp256K1PrivKey) ToECDSA() (*ecdsa.PrivateKey, error) {
-	return ToECDSA(privKey.Bytes())
+	return crypto.ToECDSA(privKey.Bytes())
 }
