@@ -45,22 +45,22 @@ func (k *Keeper) GetStargazerHeaderAtHeight(ctx context.Context, height uint64) 
 	// block has not been written to the store yet. In this case, we build and return a header
 	// from the sdk.Context.
 	if uint64(sCtx.BlockHeight()) == height {
-		return k.StargazerHeaderFromCosmosContext(sCtx, k.BaseFee(ctx))
+		return k.GetStargazerHeaderFromCosmosContext(sCtx, k.BaseFee(ctx))
 	}
 
 	// If the current block height is less than (or technically also greater than) the requested
 	// height, then we assume that the block has been written to the store. In this case, we
 	// return the header from the store.
-	stargazerBlock, found := k.GetStargazerBlockAtHeight(sCtx, height)
+	b, found := k.GetStargazerBlockAtHeight(sCtx, height)
 	if !found {
 		return &types.StargazerHeader{}
 	}
-	return stargazerBlock.StargazerHeader
+	return b.StargazerHeader
 }
 
 // `StargazerHeaderFromCosmosContext` builds an ethereum style block header from an
 // `sdk.Context`, `Bloom` and `baseFee`.
-func (k *Keeper) StargazerHeaderFromCosmosContext(
+func (k *Keeper) GetStargazerHeaderFromCosmosContext(
 	ctx sdk.Context, baseFee *big.Int,
 ) *types.StargazerHeader {
 	cometHeader := ctx.BlockHeader()
