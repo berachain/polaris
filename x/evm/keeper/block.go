@@ -24,19 +24,22 @@ import (
 // ===========================================================================
 // Stargazer Block Tracking
 // ===========================================================================.
-const entryNum = 256
+
+// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set to
+// 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
+const numHistoricalBlocks int64 = 256
 
 // TrackHistoricalStargazerBlocks saves the latest historical-info and deletes the oldest
 // heights that are below pruning height.
 func (k Keeper) TrackHistoricalStargazerBlocks(ctx sdk.Context, block *types.StargazerBlock) {
-	// Prune store to ensure we only have parameter-defined historical entries.
-	// In most cases, this will involve removing a single historical entry.
-	// In the rare scenario when the historical entries gets reduced to a lower value k'
-	// from the original value k. k - k' entries must be deleted from the store.
+	// Prune the store to ensure we only maintain the last numHistoricalBlocks.
+	// In most cases, this will involve removing a single block from the store.
+	// In the rare scenario when the historical blocks gets reduced to a lower value k'
+	// from the original value k. k - k' blocks must be deleted from the store.
 	// Since the entries to be deleted are always in a continuous range, we can iterate
 	// over the historical entries starting from the most recent version to be pruned
 	// and then return at the first empty entry.
-	for i := ctx.BlockHeight() - int64(entryNum); i >= 0; i-- {
+	for i := ctx.BlockHeight() - numHistoricalBlocks; i >= 0; i-- {
 		toPrune, found := k.GetStargazerBlockAtHeight(ctx, uint64(i))
 		if found {
 			if err := k.PruneStargazerBlock(ctx, toPrune); err != nil {
@@ -46,14 +49,10 @@ func (k Keeper) TrackHistoricalStargazerBlocks(ctx sdk.Context, block *types.Sta
 			break
 		}
 	}
-	if err := k.SetLatestStargazerBlock(ctx, block); err != nil {
+	if err := k.SetStargazerBlock(ctx, block); err != nil {
 		panic(err)
 	}
 }
-
-// ===========================================================================
-// Stargazer Block By Height
-// ===========================================================================
 
 // `GetStargazerBlock` returns the block from the store at the height specified in the context.
 func (k *Keeper) GetStargazerBlockAtHeight(
@@ -73,8 +72,8 @@ func (k *Keeper) GetStargazerBlockAtHeight(
 	return block, true
 }
 
-// `MustStoreStargazerBlock` saves a block to the store.
-func (k *Keeper) SetLatestStargazerBlock(
+// `SetStargazerBlock` saves a block to the store.
+func (k *Keeper) SetStargazerBlock(
 	ctx sdk.Context,
 	block *types.StargazerBlock,
 ) error {
@@ -102,46 +101,3 @@ func (k *Keeper) PruneStargazerBlock(
 	// to persist at the application layer in order to query by hash. (TODO? Tendermint?)
 	return nil
 }
-
-// ===========================================================================
-// Stargazer Block By Hash
-// ===========================================================================
-
-// // `GetStargazerBlockByHash` returns the block from the store with a given hash.
-// func (k *Keeper) GetStargazerBlockByHash(
-// 	ctx sdk.Context,
-// 	hash common.Hash,
-// ) (*types.StargazerBlock, bool) {
-// 	bz := ctx.KVStore(k.storeKey).Get(key.BlockHashToHeight(hash))
-// 	if bz == nil {
-// 		return nil, false
-// 	}
-// 	return k.GetStargazerBlockAtHeight(ctx, sdk.BigEndianToUint64(bz))
-// }
-
-// ===========================================================================
-// Transactions
-// ===========================================================================
-
-// `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
-// matching the given block number.
-func (k *Keeper) GetStargazerBlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint64 {
-	// store := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(number))
-	block, found := k.GetStargazerBlockAtHeight(ctx, number)
-	if !found {
-		return 0
-	}
-
-	return uint64(len(block.Transactions))
-}
-
-// // `GetBlockTransactionCountByHash` returns the number of transactions in a block from a block
-// // matching the given block hash.
-// func (k *Keeper) GetStargazerBlockTransactionCountByHash(ctx sdk.Context, hash common.Hash) uint64 {
-// 	bz := ctx.KVStore(k.storeKey).Get(key.BlockHashToHeight(hash))
-// 	if bz == nil {
-// 		return 0
-// 	}
-// 	// Now that we have recovered the height from the block hash, we can go and query using it.
-// 	return k.GetStargazerBlockTransactionCountByNumber(ctx, sdk.BigEndianToUint64(bz))
-// }

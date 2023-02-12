@@ -40,6 +40,23 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) 
 		return nil, err
 	}
 
+	// TODO: note if we get a Block Error out of gas here, we need the transaction to be included
+	// in the block. This is because the transaction was included in the block, but something
+	// happened to put it into a situation where it really should have, this will traditionally
+	// cause the cosmos transaction to fail, which is correct, but not what we want here. What
+	// we need to do, is edit the gas consumption to consume the remaining gas in the block,
+	//  modifying the receipt, and return a failed EVM tx, but a successful cosmos tx.
+
+	// TODO: Need to emit event to create a map of TendermintHash EthereumTxHash mapping
+	// TODO: BUT should we just yeet receipts into tendermint? (TMHash -> Receipt)
+	// This would give us Tendermint Hash -> Receipt mapping.
+	// https://github.com/evmos/ethermint/issues/1075
+	// https://github.com/crypto-org-chain/cronos/issues/455
+	// TODO: figure out how the tendermint indexer works.
+	// 	Indexer DB: Key: ethereum_tx.ethereumTxHash/{ETH_HASH}/{res.Height}/{res.Index}, Value: tm hash.
+	// Indexer DB: Key: tm hash, Value: abci.TxResult.
+	// State DB: Key: abciResponsesKey:{height}, Value: tmstate.ABCIResponses.
+	// TODO: We don't have access to the TM TxHash in the state machine?
 	k.Logger(sCtx).Info("End ProcessTransaction()")
 	return receipt, err
 }
@@ -57,6 +74,7 @@ func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []ab
 
 	// Save the historical stargazer block.
 	k.TrackHistoricalStargazerBlocks(sCtx, stargazerBlock)
+	// TODO: should we just yeet stargazer blocks into tendermint event filter? (sans receipts)?
 
 	return []abci.ValidatorUpdate{}
 }
