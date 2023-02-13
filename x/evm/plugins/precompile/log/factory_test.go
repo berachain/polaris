@@ -21,6 +21,7 @@ import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/eth/types/abi"
+	libeth "github.com/berachain/stargazer/lib/eth"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -160,7 +161,7 @@ var _ = Describe("Factory", func() {
 				if err2 != nil {
 					return nil, err
 				}
-				return common.ValAddressToEthAddress(valAddress), nil
+				return libeth.ValAddressToEthAddress(valAddress), nil
 			}
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
@@ -224,7 +225,7 @@ var cvd = ValueDecoders{
 		if err != nil {
 			return nil, err
 		}
-		return common.ValAddressToEthAddress(valAddress), nil
+		return libeth.ValAddressToEthAddress(valAddress), nil
 	},
 	"custom_amount": func(val string) (any, error) {
 		coin, err := sdk.ParseCoinNormalized(val)

@@ -12,28 +12,29 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package common
+package eth
 
 import (
+	"github.com/berachain/stargazer/eth/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.
-func AccAddressToEthAddress(accAddress sdk.AccAddress) Address {
-	return BytesToAddress(accAddress)
+func AccAddressToEthAddress(accAddress sdk.AccAddress) common.Address {
+	return common.BytesToAddress(accAddress)
 }
 
 // `ValAddressToEthAddress` converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
-func ValAddressToEthAddress(valAddress sdk.ValAddress) Address {
-	return BytesToAddress(valAddress)
+func ValAddressToEthAddress(valAddress sdk.ValAddress) common.Address {
+	return common.BytesToAddress(valAddress)
 }
 
-// `EthAddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
-func EthAddressToAccAddress(ethAddress Address) sdk.AccAddress {
+// `AddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
+func AddressToAccAddress(ethAddress common.Address) sdk.AccAddress {
 	return ethAddress.Bytes()
 }
 
-// `EthAddressToValAddress` converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
-func EthAddressToValAddress(ethAddress Address) sdk.ValAddress {
+// `AddressToValAddress` converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
+func AddressToValAddress(ethAddress common.Address) sdk.ValAddress {
 	return ethAddress.Bytes()
 }
