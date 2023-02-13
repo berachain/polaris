@@ -25,6 +25,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/berachain/stargazer/eth/common"
+	libeth "github.com/berachain/stargazer/lib/eth"
 )
 
 var _ = Describe("Attributes", func() {
@@ -56,7 +57,7 @@ var _ = Describe("Attributes", func() {
 			Expect(err).To(BeNil())
 			valAddrVal, ok := gethValue.(common.Address)
 			Expect(ok).To(BeTrue())
-			Expect(valAddrVal).To(Equal(common.ValAddressToEthAddress(valAddr)))
+			Expect(valAddrVal).To(Equal(libeth.ValAddressToEthAddress(valAddr)))
 		})
 
 		It("should correctly convert AccAddress to common.Address", func() {
@@ -65,7 +66,7 @@ var _ = Describe("Attributes", func() {
 			Expect(err).To(BeNil())
 			accAddrVal, ok := gethValue.(common.Address)
 			Expect(ok).To(BeTrue())
-			Expect(accAddrVal).To(Equal(common.AccAddressToEthAddress(accAddr)))
+			Expect(accAddrVal).To(Equal(libeth.AccAddressToEthAddress(accAddr)))
 		})
 	})
 
