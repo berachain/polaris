@@ -20,8 +20,8 @@ import (
 	"crypto/subtle"
 
 	"github.com/berachain/stargazer/eth/crypto"
+	tmcrypto "github.com/cometbft/cometbft/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	tmcrypto "github.com/tendermint/tendermint/crypto"
 )
 
 const (

@@ -18,9 +18,9 @@ import (
 	"context"
 	"math"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/core/vm"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

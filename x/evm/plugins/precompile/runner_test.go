@@ -18,6 +18,7 @@ import (
 	"context"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -61,9 +62,9 @@ var _ = Describe("cosmos runner", func() {
 		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
 		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
 
-		cr.SetKVGasConfig(&sdk.GasConfig{})
+		cr.SetKVGasConfig(&storetypes.GasConfig{})
 		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
-		cr.SetTransientKVGasConfig(&sdk.GasConfig{})
+		cr.SetTransientKVGasConfig(&storetypes.GasConfig{})
 		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
 	})
 })

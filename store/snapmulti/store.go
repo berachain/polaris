@@ -19,8 +19,8 @@ import (
 	"github.com/berachain/stargazer/lib/ds/stack"
 	"github.com/berachain/stargazer/lib/utils"
 
-	"github.com/cosmos/cosmos-sdk/store/cachekv"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/store/cachekv"
+	storetypes "cosmossdk.io/store/types"
 )
 
 const (

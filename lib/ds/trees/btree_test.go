@@ -20,8 +20,8 @@ import (
 
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/trees"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
-	dbm "github.com/tendermint/tm-db"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
