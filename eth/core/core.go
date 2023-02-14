@@ -31,9 +31,9 @@ type blockchain struct {
 }
 
 // `NewChain` creates and returns a `blockchain` with the given EVM chain configuration and
-// host chain.
+// host chain. TODO: return public, exported `api.Chain` interface instead of `*blockchain`.
 //
-// TODO: return public, exported `api.Chain` interface instead of `*blockchain`.
+//nolint:revive // will be changed.
 func NewChain(config *params.ChainConfig, host StargazerHostChain) *blockchain {
 	bc := &blockchain{
 		host:   host,
