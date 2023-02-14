@@ -15,20 +15,20 @@ replace (
 
 require (
 	cosmossdk.io/api v0.3.0
-	cosmossdk.io/client/v2 v2.0.0-20230214134047-cb23af6d9731
+	cosmossdk.io/client/v2 v2.0.0-20230214212615-dfb3271cddef
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/log v0.0.0
 	cosmossdk.io/math v1.0.0-beta.6
-	cosmossdk.io/simapp v0.0.0-20230214182345-86eca4c72bd2
-	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
-	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/simapp v0.0.0-20230214212615-dfb3271cddef
+	cosmossdk.io/store v0.0.0-20230214212615-dfb3271cddef
+	cosmossdk.io/tools/confix v0.0.0-20230214212615-dfb3271cddef
 	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/feegrant v0.0.0-20230214182345-86eca4c72bd2
-	cosmossdk.io/x/upgrade v0.0.0-20230214182345-86eca4c72bd2
-	github.com/bufbuild/buf v1.7.0
+	cosmossdk.io/x/feegrant v0.0.0-20230214212615-dfb3271cddef
+	cosmossdk.io/x/upgrade v0.0.0-20230214212615-dfb3271cddef
+	github.com/bufbuild/buf v1.9.0
 	github.com/carolynvs/magex v0.9.0
-	github.com/cometbft/cometbft v0.0.0-20230203130311-387422ac220d
+	github.com/cometbft/cometbft v0.34.27-alpha.1
 	github.com/cosmos/cosmos-db v1.0.0-rc.1
 	github.com/cosmos/cosmos-sdk v0.48.0
 	github.com/cosmos/gogoproto v1.4.4
@@ -41,13 +41,12 @@ require (
 	github.com/magefile/mage v1.14.0
 	github.com/matryer/moq v0.3.0
 	github.com/onsi/ginkgo/v2 v2.7.0
-	github.com/onsi/gomega v1.24.1
+	github.com/onsi/gomega v1.26.0
 	github.com/securego/gosec/v2 v2.14.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
-	github.com/stretchr/testify v1.8.1
 	github.com/tidwall/btree v1.6.0
 	golang.org/x/tools v0.5.0
 	google.golang.org/protobuf v1.28.2-0.20230208135220-49eaa78c6c9c
@@ -82,6 +81,7 @@ require (
 	github.com/OpenPeeDeeP/depguard v1.1.1 // indirect
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/VictoriaMetrics/fastcache v1.6.0 // indirect
+	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/alexkohler/prealloc v1.0.0 // indirect
@@ -102,6 +102,7 @@ require (
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/bufbuild/connect-go v1.0.0 // indirect
+	github.com/bufbuild/protocompile v0.1.0 // indirect
 	github.com/butuzov/ireturn v0.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -232,8 +233,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jdxcode/netrc v0.0.0-20210204082910-926c7f70242a // indirect
 	github.com/jgautheron/goconst v1.5.1 // indirect
-	github.com/jhump/protocompile v0.0.0-20220216033700-d705409f108f // indirect
-	github.com/jhump/protoreflect v1.12.1-0.20220721211354-060cc04fc18b // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -328,6 +327,7 @@ require (
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
@@ -355,6 +355,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.36.3 // indirect
 	go.opentelemetry.io/otel v1.11.0 // indirect
+	go.opentelemetry.io/otel/metric v0.32.3 // indirect
 	go.opentelemetry.io/otel/trace v1.11.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
