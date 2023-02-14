@@ -18,39 +18,51 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/berachain/stargazer/simapp"
 	"github.com/berachain/stargazer/simapp/cmd"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-func TestInitCmd(t *testing.T) {
-	rootCmd := cmd.NewRootCmd()
-	rootCmd.SetArgs([]string{
-		"init",        // Test the init cmd
-		"simapp-test", // Moniker
-		fmt.Sprintf("--%s=%s", cli.FlagOverwrite, "true"), // Overwrite genesis.json, in case it already exists
-	})
-
-	require.NoError(t, svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome))
+func TestCmd(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "simapp/cmd")
 }
 
-func TestHomeFlagRegistration(t *testing.T) {
-	homeDir := "/tmp/foo"
+var _ = Describe("Init command", func() {
+	It("should initialize the app with given options", func() {
+		rootCmd := cmd.NewRootCmd()
+		rootCmd.SetArgs([]string{
+			"init",        // Test the init cmd
+			"simapp-test", // Moniker
+			fmt.Sprintf("--%s=%s", cli.FlagOverwrite, "true"), // Overwrite genesis.json, in case it already exists
+		})
 
-	rootCmd := cmd.NewRootCmd()
-	rootCmd.SetArgs([]string{
-		"query",
-		fmt.Sprintf("--%s", flags.FlagHome),
-		homeDir,
+		err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome)
+		Expect(err).To(BeNil())
 	})
+})
 
-	require.NoError(t, svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome))
+var _ = Describe("Home flag registration", func() {
+	It("should set home directory correctly", func() {
+		homeDir := "/tmp/foo"
 
-	result, err := rootCmd.Flags().GetString(flags.FlagHome)
-	require.NoError(t, err)
-	require.Equal(t, result, homeDir)
-}
+		rootCmd := cmd.NewRootCmd()
+		rootCmd.SetArgs([]string{
+			"query",
+			fmt.Sprintf("--%s", flags.FlagHome),
+			homeDir,
+		})
+
+		err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome)
+		Expect(err).To(BeNil())
+
+		result, err := rootCmd.Flags().GetString(flags.FlagHome)
+		Expect(err).To(BeNil())
+		Expect(result).To(Equal(homeDir))
+	})
+})
