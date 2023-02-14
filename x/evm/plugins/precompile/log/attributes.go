@@ -23,7 +23,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/berachain/stargazer/eth/types/abi"
-	libeth "github.com/berachain/stargazer/lib/eth"
+	"github.com/berachain/stargazer/x/evm/utils"
 )
 
 const (
@@ -104,7 +104,7 @@ func ConvertValAddressFromBech32(attributeValue string) (any, error) {
 		return nil, err
 	}
 	// convert the sdk.ValAddress to common.Address
-	return libeth.ValAddressToEthAddress(valAddress), nil
+	return utils.ValAddressToEthAddress(valAddress), nil
 }
 
 // `ConvertAccAddressFromBech32` converts a bech32 string representing an account address to a
@@ -118,7 +118,7 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 		return nil, err
 	}
 	// convert the sdk.AccAddress to common.Address
-	return libeth.AccAddressToEthAddress(accAddress), nil
+	return utils.AccAddressToEthAddress(accAddress), nil
 }
 
 // `ConvertInt64` converts a creation height (from the Cosmos SDK staking module) `string`
