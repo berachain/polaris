@@ -273,7 +273,7 @@ github.com/cockroachdb/pebble v0.0.0-20230203182935-f2e58dc4a0e1 h1:g6MDPQ7X2UK1
 github.com/cockroachdb/pebble v0.0.0-20230203182935-f2e58dc4a0e1/go.mod h1:Nb5lgvnQ2+oGlE/EyZy4+2/CxRh9KfvCXnag1vtpxVM=
 github.com/cockroachdb/redact v1.1.3 h1:AKZds10rFSIj7qADf0g46UixK8NNLwWTNdCIGS5wfSQ=
 github.com/cockroachdb/redact v1.1.3/go.mod h1:BVNblN9mBWFyMyqK1k3AAiSxhvhfK2oOZZ2lK+dpvRg=
-github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd/go.mod h1:sE/e/2PUdi/liOCUjSTXgM1o87ZssimdTWN964YiIeI=
+github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd/go.mod h1:sE/e/2PUdi/liOCUjSTXgM1o87ZsstargazerdTWN964YiIeI=
 github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0/go.mod h1:4Zcjuz89kmFXt9morQgcfYZAYZ5n8WHjt81YYWIwtTM=
 github.com/cometbft/cometbft v0.0.0-20230203130311-387422ac220d h1:akhMrKe9V6+f+K8Brq3Cx+I2kRIizVsnU6+frARVTzo=
 github.com/cometbft/cometbft v0.0.0-20230203130311-387422ac220d/go.mod h1:EZUXFIzOBV/rscOektBL3X4FI5zHpu7tQMNNMwzv4ac=
