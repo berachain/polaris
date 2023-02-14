@@ -24,68 +24,74 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `StargazerHostChain` defines the plugins that the chain running Stargazer EVM must implement.
+// `StargazerHostChain` defines the plugins that the chain running Stargazer EVM should implement.
 type StargazerHostChain interface {
+	// `GetBlockPlugin` returns the `BlockPlugin` of the Stargazer host chain.
 	GetBlockPlugin() BlockPlugin
-	GetGasPlugin() GasPlugin
-	GetStatePlugin() StatePlugin
-	GetPrecompilePlugin() PrecompilePlugin
+	// `GetConfigurationPlugin` returns the `ConfigurationPlugin` of the Stargazer host chain.
 	GetConfigurationPlugin() ConfigurationPlugin
+	// `GetGasPlugin` returns the `GasPlugin` of the Stargazer host chain.
+	GetGasPlugin() GasPlugin
+	// `GetPrecompilePlugin` returns the OPTIONAL `PrecompilePlugin` of the Stargazer host chain.
+	GetPrecompilePlugin() PrecompilePlugin
+	// `GetStatePlugin` returns the `StatePlugin` of the Stargazer host chain.
+	GetStatePlugin() StatePlugin
 }
 
 // =============================================================================
 // Mandatory Plugins
 // =============================================================================
 
-// The following plugins MUST be implemented by the chain running Stargazer EVM and exposed via the
+// The following plugins should be implemented by the chain running Stargazer EVM and exposed via the
 // `StargazerHostChain` interface. All plugins should be resettable with a given context.
 type (
-	// `BlockPlugin` defines the methods that the chain running Stargazer EVM must implement to\
+	// `BlockPlugin` defines the methods that the chain running Stargazer EVM should implement to\
 	// support the `BlockPlugin` interface.
 	BlockPlugin interface {
 		libtypes.Resettable
+		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
 		GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
+		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}
 
 	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.
 	GasPlugin interface {
-		// `GasPlugin` implements `libtypes.Resettable`. Calling Reset() MUST reset the GasPlugin to a
-		// default state.
+		// `GasPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the GasPlugin
+		// to a default state.
 		libtypes.Resettable
-
-		// `ConsumeGas` MUST consume the supplied amount of gas. It MUST not panic due to a GasOverflow
-		// and must return core.ErrOutOfGas if the amount of gas remaining is less than the amount
-		// requested.
+		// `ConsumeGas` consumes the supplied amount of gas. It should not panic due to a
+		// GasOverflow and should return core.ErrOutOfGas if the amount of gas remaining is less
+		// than the amount requested.
 		ConsumeGas(uint64) error
-
-		// `RefundGas` MUST refund the supplied amount of gas. It MUST not panic.
+		// `RefundGas` refunds the supplied amount of gas. It should not panic.
 		RefundGas(uint64)
-
-		// `GasRemaining` MUST return the amount of gas remaining. It MUST not panic.
+		// `GasRemaining` returns the amount of gas remaining. It should not panic.
 		GasRemaining() uint64
-
-		// `GasUsed` MUST return the amount of gas used during the current transaction. It MUST not panic.
+		// `GasUsed` returns the amount of gas used during the current transaction. It should not
+		// panic.
 		GasUsed() uint64
-
-		// `CumulativeGasUsed` MUST return the amount of gas used during the current block. The value returned
-		// MUST include any gas consumed during this transaction. It MUST not panic.
+		// `CumulativeGasUsed` returnsthe amount of gas used during the current block. The value
+		// returned should include any gas consumed during this transaction. It should not panic.
 		CumulativeGasUsed() uint64
-
-		// `MaxFeePerGas` MUST set the maximum amount of gas that can be consumed by the meter. It MUST not panic, but
-		// instead, return an error, if the new gas limit is less than the currently consumed amount of gas.
+		// `MaxFeePerGas` should set the maximum amount of gas that can be consumed by the meter.
+		// It should not panic, but instead, return an error, if the new gas limit is less than the
+		// currently consumed amount of gas.
 		SetGasLimit(uint64) error
 	}
 
-	// `StatePlugin` defines the methods that the chain running Stargazer EVM must implement.
+	// `StatePlugin` defines the methods that the chain running Stargazer EVM should implement.
 	StatePlugin = state.Plugin
 
-	// `ConfigurationPlugin` defines the methods that the chain running Stargazer EVM must implement
-	// in order to configuration the parameters of the Stargazer EVM.
+	// `ConfigurationPlugin` defines the methods that the chain running Stargazer EVM should
+	// implement in order to configuration the parameters of the Stargazer EVM.
 	ConfigurationPlugin interface {
 		libtypes.Resettable
+		// `ChainConfig` returns the current chain configuration of the Stargazer EVM.
 		ChainConfig() *params.ChainConfig
+		// `UpdateChainConfig` updates the chain configuration of the Stargazer EVM.
 		UpdateChainConfig(*params.ChainConfig)
+		// `ExtraEips` returns the extra EIPs that the Stargazer EVM supports.
 		ExtraEips() []int
 	}
 )
@@ -96,9 +102,8 @@ type (
 
 // `The following plugins are OPTIONAL to be implemented by the chain running Stargazer EVM.
 type (
-	// `PrecompilePlugin` defines the methods that the chain running Stargazer EVM must implement
-	// in order to support running their own stateful precompiled contracts.
-	//
-	// Implementing this plugin is optional.
+	// `PrecompilePlugin` defines the methods that the chain running Stargazer EVM should implement
+	// in order to support running their own stateful precompiled contracts. Implementing this
+	// plugin is optional.
 	PrecompilePlugin = precompile.Plugin
 )
