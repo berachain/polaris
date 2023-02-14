@@ -40,15 +40,15 @@ require (
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
 	github.com/matryer/moq v0.3.0
-	github.com/onsi/ginkgo/v2 v2.7.0
-	github.com/onsi/gomega v1.24.1
-	github.com/securego/gosec/v2 v2.14.0
+	github.com/onsi/ginkgo/v2 v2.8.1
+	github.com/onsi/gomega v1.26.0
+	github.com/securego/gosec/v2 v2.15.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/tidwall/btree v1.6.0
-	golang.org/x/tools v0.5.0
+	golang.org/x/tools v0.6.0
 	google.golang.org/protobuf v1.28.2-0.20230208135220-49eaa78c6c9c
 )
 
@@ -362,7 +362,7 @@ require (
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/exp v0.0.0-20230203172020-98cc5a0785f9 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20221031165847-c99f073a8326 // indirect
-	golang.org/x/mod v0.7.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.6.0 // indirect
 	golang.org/x/oauth2 v0.4.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
