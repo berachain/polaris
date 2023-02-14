@@ -40,7 +40,6 @@ jobs:
       - run:
           name: Lint
           command: mage lint
-
   test-unit:
     executor: standard
     steps:
@@ -52,7 +51,6 @@ jobs:
           file: coverage-testunitcover.txt
       - store_test_results:
           path: .
-
   test-unit-race:
     executor: standard
     steps:
