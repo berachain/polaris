@@ -12,37 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package state
+package evm
 
-import (
-	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	libtypes "github.com/berachain/stargazer/lib/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
-// `ControllableEventManager` defines a cache EventManager that is controllable (snapshottable
-// and registrable). It also supports precompile execution by allowing the caller to native events
-// as Eth logs.
-type ControllableEventManager interface {
-	libtypes.Controllable[string]
-	sdk.EventManagerI
-
-	// `BeginPrecompileExecution` begins a precompile execution by setting the logs DB.
-	BeginPrecompileExecution(precompile.LogsDB)
-	// `EndPrecompileExecution` ends a precompile execution by resetting the logs DB to nil.
-	EndPrecompileExecution()
-}
-
-// `ControllableMultiStore` defines a cache MultiStore that is controllable (snapshottable and
-// registrable). It also supports getting the committed KV store from the MultiStore.
-type ControllableMultiStore interface {
-	libtypes.Controllable[string]
-	storetypes.MultiStore
-
-	// `GetCommittedKVStore` returns the committed KV store from the MultiStore.
-	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
-}
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
 // `AccountKeeper` defines the expected account keeper.
 type AccountKeeper interface {
@@ -67,3 +39,5 @@ type BankKeeper interface {
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
+
+type StakingKeeper interface{}

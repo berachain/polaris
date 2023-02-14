@@ -12,9 +12,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package constants
+package types
 
 const (
-	EvmStoreKey  = "evm"
-	EvmNamespace = "evm"
+	StoreKey   = "evm"
+	ModuleName = "evm"
 )
