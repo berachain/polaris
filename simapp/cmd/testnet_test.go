@@ -39,14 +39,23 @@ import (
 )
 
 var _ = Describe("Testnet command", func() {
+	var home string
+	var dir *os.File
+	BeforeEach(func() {
+		home = os.TempDir()
+		dir = os.NewFile(0, os.DevNull)
+		v, _ := dir.ReadDir(-1)
+		if len(v) == 0 {
+			os.RemoveAll(home)
+		}
+	})
+
 	It("should generate a testnet with given options", func() {
-		home := os.TempDir()
 		encodingConfig := moduletestutil.MakeTestEncodingConfig(staking.AppModuleBasic{},
 			auth.AppModuleBasic{})
 		logger := log.NewNopLogger()
 		cfg, err := genutiltest.CreateDefaultCometConfig(home)
 		Expect(err).To(BeNil())
-
 		err = genutiltest.ExecInitCmd(simapp.ModuleBasics, home, encodingConfig.Codec)
 		Expect(err).To(BeNil())
 

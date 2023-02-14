@@ -16,6 +16,7 @@ package cmd_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/berachain/stargazer/simapp"
@@ -35,6 +36,9 @@ func TestCmd(t *testing.T) {
 
 var _ = Describe("Init command", func() {
 	It("should initialize the app with given options", func() {
+		stdout := os.Stdout
+		defer func() { os.Stdout = stdout }()
+		os.Stdout = os.NewFile(0, os.DevNull)
 		rootCmd := cmd.NewRootCmd()
 		rootCmd.SetArgs([]string{
 			"init",        // Test the init cmd
@@ -49,7 +53,11 @@ var _ = Describe("Init command", func() {
 
 var _ = Describe("Home flag registration", func() {
 	It("should set home directory correctly", func() {
-		homeDir := "/tmp/foo"
+		// Redirect standard out to null
+		stdout := os.Stdout
+		defer func() { os.Stdout = stdout }()
+		os.Stdout = os.NewFile(0, os.DevNull)
+		homeDir := os.TempDir()
 
 		rootCmd := cmd.NewRootCmd()
 		rootCmd.SetArgs([]string{
