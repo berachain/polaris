@@ -12,27 +12,23 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package core
+package state
 
 import (
-	"github.com/berachain/stargazer/eth/core/state"
+	"math/big"
+
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/lib/utils"
 )
 
-type StateFactory struct {
-	config *params.ChainConfig
-
-	host StargazerHostChain
+// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
+// NOTE: This does not take the necessary gas in to account to make the transfer valid.
+func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
+	return sdb.GetBalance(addr).Cmp(amount) >= 0
 }
 
-func NewStateFactory(config *params.ChainConfig, host StargazerHostChain) *StateFactory {
-	return &StateFactory{
-		config: config,
-		host:   host,
-	}
-}
-
-func (sf *StateFactory) BuildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
-	return NewStateProcessor(sf.host, state.NewStateDB(sf.host.GetStatePlugin()), vmConfig, commit)
+// `Transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
+func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
+	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
 }

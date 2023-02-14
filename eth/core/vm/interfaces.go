@@ -28,17 +28,23 @@ type (
 	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support
 	// additional state transition functionalities.
 	StargazerEVM interface {
-		Create(caller ContractRef, code []byte,
-			gas uint64, value *big.Int,
+		// `Create` creates a new contract using the given code and returns the contract address.
+		Create(
+			caller ContractRef, code []byte, gas uint64, value *big.Int,
 		) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
-		Call(caller ContractRef, addr common.Address, input []byte,
-			gas uint64, value *big.Int,
+		// `Call` executes the given contract with the given input data and returns the output.
+		Call(
+			caller ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int,
 		) (ret []byte, leftOverGas uint64, err error)
-
+		// `SetTxContext` sets the transaction context for the new transaction.
 		SetTxContext(txCtx TxContext)
+		// `StateDB` returns the `StateDB` attached to this `StargazerEVM`.
 		StateDB() StargazerStateDB
+		// `Config` returns the `Config` attached to this `StargazerEVM`.
 		Config() Config
+		// `Context` returns the `BlockContext` attached to this `StargazerEVM`.
 		Context() BlockContext
+		// `ChainConfig` returns the `ChainConfig` attached to this `StargazerEVM`.
 		ChainConfig() *params.ChainConfig
 	}
 
@@ -47,13 +53,10 @@ type (
 	StargazerStateDB interface {
 		GethStateDB
 		libtypes.Finalizeable
-
 		// `Reset` resets the context for the new transaction.
 		libtypes.Resettable
-
 		// `TransferBalance` transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
-
 		// `BuildLogsAndClear` builds the logs for the tx with the given metadata. NOTE: must be
 		// called after `Finalize`.
 		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log

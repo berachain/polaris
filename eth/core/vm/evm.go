@@ -16,10 +16,8 @@ package vm
 
 import (
 	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/lib/utils"
 )
-
-// Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.
-var _ StargazerEVM = (*stargazerEVM)(nil)
 
 // `StargazerEVM` is the wrapper for the Go-Ethereum EVM.
 type stargazerEVM struct {
@@ -42,18 +40,22 @@ func NewStargazerEVM(
 	}
 }
 
+// `SetTxContext` implements `StargazerEVM`.
 func (evm *stargazerEVM) SetTxContext(txCtx TxContext) {
 	evm.GethEVM.TxContext = txCtx
 }
 
+// `Context` implements `StargazerEVM`.
 func (evm *stargazerEVM) Context() BlockContext {
 	return evm.GethEVM.Context
 }
 
+// `StateDB` implements `StargazerEVM`.
 func (evm *stargazerEVM) StateDB() StargazerStateDB {
-	return evm.GethEVM.StateDB.(StargazerStateDB)
+	return utils.MustGetAs[StargazerStateDB](evm.GethEVM.StateDB)
 }
 
+// `Config` implements `StargazerEVM`.
 func (evm *stargazerEVM) Config() Config {
 	return evm.GethEVM.Config
 }

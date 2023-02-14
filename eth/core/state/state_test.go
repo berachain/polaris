@@ -15,8 +15,12 @@
 package state_test
 
 import (
+	"math/big"
 	"testing"
 
+	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/core/state"
+	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -25,3 +29,68 @@ func TestState(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "eth/core/state")
 }
+
+var _ = Describe("EVM Test Suite", func() {
+	var sdb *vmmock.StargazerStateDBMock
+	var addr common.Address
+
+	BeforeEach(func() {
+		sdb = vmmock.NewEmptyStateDB()
+	})
+
+	Context("Test CanTransfer", func() {
+		It("should return true if the account has enough balance", func() {
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(100)
+			}
+			ok := state.CanTransfer(sdb, addr, big.NewInt(100))
+			Expect(ok).To(BeTrue())
+		})
+
+		It("should return false if the account does not have enough balance", func() {
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(100)
+			}
+			ok := state.CanTransfer(sdb, addr, big.NewInt(101))
+			Expect(ok).To(BeFalse())
+		})
+	})
+
+	Context("Test Transfer", func() {
+		It("should state.Transfer the amount if the account has enough balance", func() {
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(100)
+			}
+			sdb.SubBalanceFunc = func(addr common.Address, amount *big.Int) {
+				sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+					return big.NewInt(0)
+				}
+			}
+			sdb.AddBalanceFunc = func(addr common.Address, amount *big.Int) {
+				sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+					return big.NewInt(100)
+				}
+			}
+			state.Transfer(sdb, addr, addr, big.NewInt(100))
+			Expect(sdb.GetBalanceFunc(addr).Cmp(big.NewInt(100))).To(Equal(0))
+		})
+
+		It("should not state.Transfer the amount if the account does not have enough balance", func() {
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(100)
+			}
+			sdb.SubBalanceFunc = func(addr common.Address, amount *big.Int) {
+				sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+					return big.NewInt(0)
+				}
+			}
+			sdb.AddBalanceFunc = func(addr common.Address, amount *big.Int) {
+				sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+					return big.NewInt(100)
+				}
+			}
+			state.Transfer(sdb, addr, addr, big.NewInt(101))
+			Expect(sdb.GetBalanceFunc(addr).Cmp(big.NewInt(100))).To(Equal(0))
+		})
+	})
+})

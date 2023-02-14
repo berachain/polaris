@@ -129,3 +129,41 @@ var _ = Describe("StateProcessor", func() {
 		})
 	})
 })
+
+var _ = Describe("EVM Test Suite", func() {
+	// var host *mock.StargazerHostChainMock
+
+	// hash1 := common.Hash{1}
+	// hash2 := common.Hash{2}
+	// hash3 := common.Hash{3}
+	// hash4 := common.Hash{4}
+
+	// currentHeader := &types.StargazerHeader{
+	// 	Header: &types.Header{
+	// 		Number:     big.NewInt(int64(123)),
+	// 		BaseFee:    big.NewInt(69),
+	// 		ParentHash: common.Hash{111},
+	// 	},
+	// 	CachedHash: common.Hash{1},
+	// }
+
+	Context("TestGetHashFunc", func() {
+		BeforeEach(func() {
+			// host = mock.NewMockHost()
+		})
+		// It("should return the correct hash", func() {
+		// 	host.StargazerHeaderAtHeightFunc = func(ctx context.Context, height uint64) *types.StargazerHeader {
+		// 		return &types.StargazerHeader{
+		// 			Header: &types.Header{
+		// 				Number:     big.NewInt(int64(height)),
+		// 				BaseFee:    big.NewInt(69),
+		// 				ParentHash: common.Hash{123},
+		// 			},
+		// 			CachedHash: crypto.Keccak256Hash([]byte{byte(height)}),
+		// 		}
+		// 	}
+		// 	hash := core.GetHashFn(context.Background(), currentHeader, host)
+		// 	Expect(hash(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
+		// })
+	})
+})

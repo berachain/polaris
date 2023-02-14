@@ -17,9 +17,12 @@ package core
 import (
 	"context"
 	"fmt"
+	"math/big"
 	"sync"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/crypto"
@@ -27,7 +30,8 @@ import (
 
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
 type StateProcessor struct {
-	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the previous one.
+	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the
+	// previous one.
 	mtx sync.Mutex
 	// `bp` provides block functions from the underlying chain the EVM is running on
 	bp BlockPlugin
@@ -75,6 +79,10 @@ func NewStateProcessor(
 	return sp
 }
 
+// ==============================================================================
+// Block, Tx Lifecycle
+// ==============================================================================
+
 // `Prepare` prepares the state processor for processing a block.
 func (sp *StateProcessor) Prepare(ctx context.Context, header *types.StargazerHeader) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
@@ -97,8 +105,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, header *types.StargazerHe
 	newConfig := sp.evm.Config()
 	newConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
-		NewEVMBlockContext(ctx, sp.block.StargazerHeader, sp.bp),
-		NewEVMTxContext(nil),
+		sp.newEVMBlockContext(ctx),
+		vm.TxContext{},
 		sp.statedb,
 		chainConfig,
 		newConfig,
@@ -113,10 +121,10 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
 
-	// Create a new context to be used in the EVM environment. We also must reset the StateDB as well as the EVM.
+	// Create a new context to be used in the EVM environment. We also must reset the StateDB.
 	txContext := NewEVMTxContext(msg)
-	sp.statedb.Reset(ctx)
 	sp.evm.SetTxContext(txContext)
+	sp.statedb.Reset(ctx)
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, sp.gp, msg, sp.commit)
@@ -172,4 +180,63 @@ func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, 
 	sp.block.CreateBloom()
 	sp.block.SetReceiptHash()
 	return sp.block, nil
+}
+
+// ===========================================================================
+// Utilities
+// ===========================================================================
+
+// `newEVMBlockContext` creates a new block context for use in the EVM.
+func (sp *StateProcessor) newEVMBlockContext(ctx context.Context) vm.BlockContext {
+	var baseFee *big.Int
+	// Copy the baseFee to avoid side effects.
+	if sp.block.StargazerHeader.BaseFee != nil {
+		baseFee = new(big.Int).Set(sp.block.StargazerHeader.BaseFee)
+	}
+
+	return vm.BlockContext{
+		CanTransfer: state.CanTransfer,
+		Transfer:    state.Transfer,
+		GetHash:     sp.getHashFn(ctx),
+		Coinbase:    sp.block.StargazerHeader.Coinbase,
+		BlockNumber: new(big.Int).Set(sp.block.StargazerHeader.Number),
+		Time:        new(big.Int).SetUint64(sp.block.StargazerHeader.Time),
+		Difficulty:  new(big.Int), // not used by stargazer.
+		BaseFee:     baseFee,
+		GasLimit:    sp.block.StargazerHeader.GasLimit,
+		Random:      &common.Hash{}, // TODO: find a source of randomness
+	}
+}
+
+// `getHashFn` returns a `GetHashFunc` which retrieves header hashes by number.
+func (sp *StateProcessor) getHashFn(ctx context.Context) vm.GetHashFunc {
+	// Cache will initially contain [refHash.parent],
+	// Then fill up with [refHash.p, refHash.pp, refHash.ppp, ...]
+	var cache []common.Hash
+
+	return func(n uint64) common.Hash {
+		// If there's no hash cache yet, make one
+		if len(cache) == 0 {
+			cache = append(cache, sp.block.StargazerHeader.ParentHash)
+		}
+		if idx := sp.block.StargazerHeader.Number.Uint64() - n - 1; idx < uint64(len(cache)) {
+			return cache[idx]
+		}
+		// No luck in the cache, but we can start iterating from the last element we already know
+		var lastKnownHash common.Hash
+		lastKnownNumber := sp.block.StargazerHeader.Number.Uint64() - uint64(len(cache))
+		for {
+			header := sp.bp.GetStargazerHeaderAtHeight(ctx, lastKnownNumber)
+			if header == nil {
+				break
+			}
+			cache = append(cache, header.ParentHash)
+			lastKnownHash = header.ParentHash
+			lastKnownNumber = header.Number.Uint64() - 1
+			if n == lastKnownNumber {
+				return lastKnownHash
+			}
+		}
+		return common.Hash{}
+	}
 }
