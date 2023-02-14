@@ -26,6 +26,13 @@ orbs:
   codecov: codecov/codecov@3.2.4
 
 jobs:
+  build:
+    executor: standard
+    steps:
+      - setup
+      - run:
+          name: Build
+          command: mage build
   lint:
     executor: standard
     steps:
@@ -33,7 +40,6 @@ jobs:
       - run:
           name: Lint
           command: mage lint
-
   test-unit:
     executor: standard
     steps:
@@ -45,7 +51,6 @@ jobs:
           file: coverage-testunitcover.txt
       - store_test_results:
           path: .
-
   test-unit-race:
     executor: standard
     steps:
@@ -59,7 +64,7 @@ jobs:
 workflows:
   build_lint_test:
     jobs:
-      # - build
+      - build
       - lint
       - test-unit
       - test-unit-race
@@ -68,7 +73,6 @@ commands:
   setup: # Setup the test environment
     steps:
       - checkout
-
       # Setup Golang
       - restore_cache:
           keys:
@@ -76,12 +80,10 @@ commands:
           paths:
             - "/home/circleci/go/pkg/mod"
             - "/home/circleci/go/pkg/bin"
-
       - run:
           name: Install Go Dependencies
           command: |
             go mod download
-
       - run:
           name: Install Go Tools
           command: |
@@ -89,20 +91,17 @@ commands:
             source "$BASH_ENV"
             go install github.com/magefile/mage
             go install github.com/onsi/ginkgo/v2/ginkgo
-
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
             - "/home/circleci/go/pkg/mod"
             - "/home/circleci/go/pkg/bin"
-
       # Setup Foundry
       - restore_cache:
           keys:
             - foundry-${FOUNDRY_COMMIT}
           paths:
             - "/home/circleci/.foundry/bin"
-
       - run:
           name: Install Foundryup
           command: |
@@ -110,7 +109,6 @@ commands:
             echo 'export PATH=/home/circleci/.foundry/bin:"$PATH"' >> "$BASH_ENV"
             source "$BASH_ENV"
             foundryup
-
       - save_cache:
           key: foundry-${FOUNDRY_COMMIT}
           paths:

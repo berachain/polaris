@@ -54,6 +54,7 @@ func Proto() error {
 
 // Generate protobuf source files.
 func ProtoGen() error {
+	PrintMageName()
 	dir, err := os.Getwd()
 	if err != nil {
 		return err
@@ -66,6 +67,7 @@ func ProtoGen() error {
 
 // Check that the generated protobuf source files are up to date.
 func ProtoGenCheck() error {
+	PrintMageName()
 	if err := ProtoGen(); err != nil {
 		return err
 	}
@@ -77,11 +79,13 @@ func ProtoGenCheck() error {
 
 // Format .proto files.
 func ProtoFormat() error {
+	PrintMageName()
 	return bufWrapper(bufFormat)
 }
 
 // Lint .proto files.
 func ProtoLint() error {
+	PrintMageName()
 	return bufWrapper(bufLint)
 }
 
