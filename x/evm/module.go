@@ -17,59 +17,59 @@ package evm
 import (
 	"encoding/json"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-
-	"cosmossdk.io/core/appmodule"
-
 	"github.com/berachain/stargazer/x/evm/keeper"
 	"github.com/berachain/stargazer/x/evm/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 )
 
-// ConsensusVersion defines the current x/evm module consensus version.
+// `ConsensusVersion` defines the current x/evm module consensus version.
 const ConsensusVersion = 1
 
 var (
 	_ module.BeginBlockAppModule = AppModule{}
+	_ module.EndBlockAppModule   = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
 	_ module.AppModuleSimulation = AppModule{}
 )
 
-// AppModuleBasic defines the basic application module used by the mint module.
+// ==============================================================================
+// AppModuleBasic
+// ==============================================================================
+
+// `AppModuleBasic` defines the basic application module used by the mint module.
 type AppModuleBasic struct{}
 
-var _ module.AppModuleBasic = AppModuleBasic{}
-
-// Name returns the mint module's name.
+// `Name` returns the mint module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the mint module's types on the given LegacyAmino codec.
+// `RegisterLegacyAminoCodec` registers the mint module's types on the given LegacyAmino codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	// types.RegisterLegacyAminoCodec(cdc)
 }
 
-// RegisterInterfaces registers the module's interface types.
+// `RegisterInterfaces` registers the module's interface types.
 func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
 	// types.RegisterInterfaces(r)
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the mint
+// `DefaultGenesis` returns default genesis state as raw bytes for the mint
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return json.RawMessage{}
 	// return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-// ValidateGenesis performs genesis state validation for the mint module.
+// `ValidateGenesis` performs genesis state validation for the mint module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	// var data types.GenesisState
 	// if err := cdc.UnmarshalJSON(bz, &data); err != nil {
@@ -79,23 +79,27 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	// return types.ValidateGenesis(data)
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the mint module.
+// `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the mint module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
 	// if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
 	// 	panic(err)
 	// }
 }
 
-// GetTxCmd returns no root tx command for the mint module.
+// `GetTxCmd` returns no root tx command for the mint module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
 
-// GetQueryCmd returns the root query command for the mint module.
+// `GetQueryCmd` returns the root query command for the mint module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return nil
 	// return cli.GetQueryCmd()
 }
 
-// AppModule implements an application module for the mint module.
+// ==============================================================================
+// AppModule
+// ==============================================================================
+
+// `AppModule` implements an application module for the mint module.
 type AppModule struct {
 	AppModuleBasic
 	keeper     *keeper.Keeper
@@ -122,30 +126,23 @@ func NewAppModule(
 	}
 }
 
-var _ appmodule.AppModule = AppModule{}
-
-// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+// `IsOnePerModuleType` implements the depinject.OnePerModuleType interface.
 func (am AppModule) IsOnePerModuleType() {}
 
-// IsAppModule implements the appmodule.AppModule interface.
+// `IsAppModule` implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
 
-// Name returns the mint module's name.
-func (AppModule) Name() string {
-	return types.ModuleName
-}
-
-// RegisterInvariants registers the mint module invariants.
+// `RegisterInvariants` registers the mint module invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// RegisterServices registers a gRPC query service to respond to the
+// `RegisterServices` registers a gRPC query service to respond to the
 // module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-// InitGenesis performs genesis initialization for the mint module. It returns
+// `InitGenesis` performs genesis initialization for the mint module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	// var genesisState types.GenesisState
@@ -155,7 +152,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the mint
+// `ExportGenesis` returns the exported genesis state as raw bytes for the mint
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	// gs := am.keeper.ExportGenesis(ctx)
@@ -163,15 +160,23 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return json.RawMessage{}
 }
 
-// ConsensusVersion implements AppModule/ConsensusVersion.
+// `ConsensusVersion` implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// BeginBlock returns the begin blocker for the mint module.
+// `BeginBlock` returns the begin blocker for the mint module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	// BeginBlocker(ctx, am.keeper, am.inflationCalculator)
 }
 
-// AppModuleSimulation functions
+// `EndBlock` returns the end blocker for the mint module. It returns no validator
+// updates.
+func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	return []abci.ValidatorUpdate{}
+}
+
+// ==============================================================================
+// AppModuleSimulation
+// ==============================================================================
 
 // GenerateGenesisState creates a randomized GenState of the mint module.
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
@@ -193,7 +198,3 @@ func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
 func (AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
 	return nil
 }
-
-//
-// App Wiring Setup
-//
