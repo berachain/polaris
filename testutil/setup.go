@@ -17,7 +17,7 @@ package testutil
 import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -45,7 +45,7 @@ var (
 
 // `NewContext` creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
-	return sdk.NewContext(mock.NewMultiStore(), tmproto.Header{}, false, log.TestingLogger())
+	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.TestingLogger())
 }
 
 // `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.

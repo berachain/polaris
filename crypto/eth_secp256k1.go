@@ -20,7 +20,7 @@ import (
 	"crypto/subtle"
 
 	"github.com/berachain/stargazer/eth/crypto"
-	tmcrypto "github.com/cometbft/cometbft/crypto"
+	cometcrypto "github.com/cometbft/cometbft/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
@@ -45,13 +45,13 @@ var _ cryptotypes.PubKey = &EthSecp256K1PubKey{}
 
 // `Address` returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.
-func (pubKey EthSecp256K1PubKey) Address() tmcrypto.Address {
+func (pubKey EthSecp256K1PubKey) Address() cometcrypto.Address {
 	pubk, err := crypto.DecompressPubkey(pubKey.Key)
 	if err != nil {
 		return nil
 	}
 
-	return tmcrypto.Address(crypto.PubkeyToAddress(*pubk).Bytes())
+	return cometcrypto.Address(crypto.PubkeyToAddress(*pubk).Bytes())
 }
 
 // `Bytes` returns the raw bytes of the ECDSA public key.
