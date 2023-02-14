@@ -26,6 +26,13 @@ orbs:
   codecov: codecov/codecov@3.2.4
 
 jobs:
+  build:
+    executor: standard
+    steps:
+      - setup
+      - run:
+          name: Build
+          command: mage build
   lint:
     executor: standard
     steps:
@@ -59,7 +66,7 @@ jobs:
 workflows:
   build_lint_test:
     jobs:
-      # - build
+      - build
       - lint
       - test-unit
       - test-unit-race
