@@ -18,7 +18,7 @@ import (
 	"context"
 	"math/big"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/eth/common"
@@ -363,7 +363,7 @@ func (sp *statePlugin) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
 ) error {
-	it := sdk.KVStorePrefixIterator(
+	it := storetypes.KVStorePrefixIterator(
 		sp.cms.GetKVStore(sp.evmStoreKey),
 		StorageKeyFor(addr),
 	)

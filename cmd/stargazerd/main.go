@@ -12,23 +12,27 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package main
 
-package stargazer.crypto.v1;
+import (
+	"os"
 
-option go_package = "github.com/berachain/stargazer/crypto";
+	"github.com/berachain/stargazer/simapp"
+	"github.com/berachain/stargazer/simapp/cmd"
+	"github.com/cosmos/cosmos-sdk/server"
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+)
 
-// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
-// CometBFT's `PubKey` interface. It represents the 33-byte compressed public
-// key format.
-message EthSecp256k1PubKey {
-  // `key` is the public key in byte form.
-  bytes key = 1;
-}
+func main() {
+	rootCmd := cmd.NewRootCmd()
+	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
+		//nolint: errorlint // uhh fix?
+		switch e := err.(type) {
+		case server.ErrorCode:
+			os.Exit(e.Code)
 
-// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
-// CometBFT's `PrivateKey` interface.
-message EthSecp256k1PrivKey {
-  // `key` is the private key in byte form.
-  bytes key = 1;
+		default:
+			os.Exit(1)
+		}
+	}
 }

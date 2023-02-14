@@ -18,8 +18,8 @@ import (
 	"context"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/berachain/stargazer/eth/common"
@@ -34,10 +34,10 @@ var _ precompile.Runner = (*CosmosRunner)(nil)
 // `CosmosRunner` runs precompile containers in a Cosmos environment with the given gas configs.
 type CosmosRunner struct {
 	// `kvGasConfig` is the gas config for execution of kv store operations in native precompiles.
-	kvGasConfig *sdk.GasConfig
+	kvGasConfig *storetypes.GasConfig
 	// `transientKVGasConfig` is the gas config for execution transient kv store operations in
 	// native precompiles.
-	transientKVGasConfig *sdk.GasConfig
+	transientKVGasConfig *storetypes.GasConfig
 }
 
 // `NewCosmosRunner` creates and returns a `CosmosRunner` with the SDK default gas configs.
@@ -52,22 +52,22 @@ func NewCosmosRunner() *CosmosRunner {
 }
 
 // `KVGasConfig` returns the `CosmosRunner`'s `kvGasConfig`.
-func (cr *CosmosRunner) KVGasConfig() *sdk.GasConfig {
+func (cr *CosmosRunner) KVGasConfig() *storetypes.GasConfig {
 	return cr.kvGasConfig
 }
 
 // `TransientKVGasConfig` returns the `CosmosRunner`'s `transientKVGasConfig`.
-func (cr *CosmosRunner) TransientKVGasConfig() *sdk.GasConfig {
+func (cr *CosmosRunner) TransientKVGasConfig() *storetypes.GasConfig {
 	return cr.transientKVGasConfig
 }
 
 // `SetKVGasConfig` sets the `CosmosRunner` to have `kvGasConfig`.
-func (cr *CosmosRunner) SetKVGasConfig(kvGasConfig *sdk.GasConfig) {
+func (cr *CosmosRunner) SetKVGasConfig(kvGasConfig *storetypes.GasConfig) {
 	cr.kvGasConfig = kvGasConfig
 }
 
 // `SetTransientKVGasConfig` sets the `CosmosRunner` to have `transientKVGasConfig`.
-func (cr *CosmosRunner) SetTransientKVGasConfig(transientKVGasConfig *sdk.GasConfig) {
+func (cr *CosmosRunner) SetTransientKVGasConfig(transientKVGasConfig *storetypes.GasConfig) {
 	cr.transientKVGasConfig = transientKVGasConfig
 }
 
@@ -81,7 +81,7 @@ func (cr *CosmosRunner) Run(
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
-	gm := sdk.NewInfiniteGasMeter()
+	gm := storetypes.NewInfiniteGasMeter()
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 

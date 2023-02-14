@@ -15,6 +15,9 @@
 package testutil
 
 import (
+	storetypes "cosmossdk.io/store/types"
+	"github.com/cometbft/cometbft/libs/log"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -26,26 +29,23 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/berachain/stargazer/eth/common"
-
 	mock "github.com/berachain/stargazer/testutil/mock"
 )
 
 var (
-	AccKey     = sdk.NewKVStoreKey("acc")
-	BankKey    = sdk.NewKVStoreKey("bank")
-	EvmKey     = sdk.NewKVStoreKey("evm")
-	StakingKey = sdk.NewKVStoreKey("staking")
+	AccKey     = storetypes.NewKVStoreKey("acc")
+	BankKey    = storetypes.NewKVStoreKey("bank")
+	EvmKey     = storetypes.NewKVStoreKey("evm")
+	StakingKey = storetypes.NewKVStoreKey("staking")
 	Alice      = common.BytesToAddress([]byte("alice"))
 	Bob        = common.BytesToAddress([]byte("bob"))
 )
 
 // `NewContext` creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
-	return sdk.NewContext(mock.NewMultiStore(), tmproto.Header{}, false, log.TestingLogger())
+	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.TestingLogger())
 }
 
 // `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.

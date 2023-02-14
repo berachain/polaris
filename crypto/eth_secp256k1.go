@@ -20,8 +20,8 @@ import (
 	"crypto/subtle"
 
 	"github.com/berachain/stargazer/eth/crypto"
+	cmcrypto "github.com/cometbft/cometbft/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	tmcrypto "github.com/tendermint/tendermint/crypto"
 )
 
 const (
@@ -45,13 +45,13 @@ var _ cryptotypes.PubKey = &EthSecp256K1PubKey{}
 
 // `Address` returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.
-func (pubKey EthSecp256K1PubKey) Address() tmcrypto.Address {
+func (pubKey EthSecp256K1PubKey) Address() cmcrypto.Address {
 	pubk, err := crypto.DecompressPubkey(pubKey.Key)
 	if err != nil {
 		return nil
 	}
 
-	return tmcrypto.Address(crypto.PubkeyToAddress(*pubk).Bytes())
+	return cmcrypto.Address(crypto.PubkeyToAddress(*pubk).Bytes())
 }
 
 // `Bytes` returns the raw bytes of the ECDSA public key.

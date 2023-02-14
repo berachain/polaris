@@ -17,23 +17,23 @@ package gas
 import (
 	"math"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var _ = Describe("plugin", func() {
 	var ctx sdk.Context
 	var p *plugin
-	var blockGasMeter sdk.GasMeter
+	var blockGasMeter storetypes.GasMeter
 	var txGasLimit = uint64(1000)
 
 	BeforeEach(func() {
 		// new block
-		blockGasMeter = sdk.NewGasMeter(uint64(2000))
+		blockGasMeter = storetypes.NewGasMeter(uint64(2000))
 		ctx = testutil.NewContext().WithBlockGasMeter(blockGasMeter)
 		p = utils.MustGetAs[*plugin](NewPluginFrom(ctx))
 	})

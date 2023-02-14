@@ -17,10 +17,10 @@ package log
 import (
 	"strconv"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/x/evm/utils"

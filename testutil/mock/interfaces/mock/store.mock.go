@@ -4,9 +4,9 @@
 package mock
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/testutil/mock/interfaces"
-	"github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/tendermint/tm-db"
+	"github.com/cosmos/cosmos-db"
 	"io"
 	"sync"
 )
@@ -21,34 +21,34 @@ var _ interfaces.MultiStore = &MultiStoreMock{}
 //
 //		// make and configure a mocked interfaces.MultiStore
 //		mockedMultiStore := &MultiStoreMock{
-//			CacheMultiStoreFunc: func() types.CacheMultiStore {
+//			CacheMultiStoreFunc: func() storetypes.CacheMultiStore {
 //				panic("mock out the CacheMultiStore method")
 //			},
-//			CacheMultiStoreWithVersionFunc: func(version int64) (types.CacheMultiStore, error) {
+//			CacheMultiStoreWithVersionFunc: func(version int64) (storetypes.CacheMultiStore, error) {
 //				panic("mock out the CacheMultiStoreWithVersion method")
 //			},
-//			CacheWrapFunc: func() types.CacheWrap {
+//			CacheWrapFunc: func() storetypes.CacheWrap {
 //				panic("mock out the CacheWrap method")
 //			},
-//			CacheWrapWithTraceFunc: func(w io.Writer, tc types.TraceContext) types.CacheWrap {
+//			CacheWrapWithTraceFunc: func(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap {
 //				panic("mock out the CacheWrapWithTrace method")
 //			},
-//			GetKVStoreFunc: func(storeKey types.StoreKey) types.KVStore {
+//			GetKVStoreFunc: func(storeKey storetypes.StoreKey) storetypes.KVStore {
 //				panic("mock out the GetKVStore method")
 //			},
-//			GetStoreFunc: func(storeKey types.StoreKey) types.Store {
+//			GetStoreFunc: func(storeKey storetypes.StoreKey) storetypes.Store {
 //				panic("mock out the GetStore method")
 //			},
-//			GetStoreTypeFunc: func() types.StoreType {
+//			GetStoreTypeFunc: func() storetypes.StoreType {
 //				panic("mock out the GetStoreType method")
 //			},
 //			LatestVersionFunc: func() int64 {
 //				panic("mock out the LatestVersion method")
 //			},
-//			SetTracerFunc: func(w io.Writer) types.MultiStore {
+//			SetTracerFunc: func(w io.Writer) storetypes.MultiStore {
 //				panic("mock out the SetTracer method")
 //			},
-//			SetTracingContextFunc: func(traceContext types.TraceContext) types.MultiStore {
+//			SetTracingContextFunc: func(traceContext storetypes.TraceContext) storetypes.MultiStore {
 //				panic("mock out the SetTracingContext method")
 //			},
 //			TracingEnabledFunc: func() bool {
@@ -62,34 +62,34 @@ var _ interfaces.MultiStore = &MultiStoreMock{}
 //	}
 type MultiStoreMock struct {
 	// CacheMultiStoreFunc mocks the CacheMultiStore method.
-	CacheMultiStoreFunc func() types.CacheMultiStore
+	CacheMultiStoreFunc func() storetypes.CacheMultiStore
 
 	// CacheMultiStoreWithVersionFunc mocks the CacheMultiStoreWithVersion method.
-	CacheMultiStoreWithVersionFunc func(version int64) (types.CacheMultiStore, error)
+	CacheMultiStoreWithVersionFunc func(version int64) (storetypes.CacheMultiStore, error)
 
 	// CacheWrapFunc mocks the CacheWrap method.
-	CacheWrapFunc func() types.CacheWrap
+	CacheWrapFunc func() storetypes.CacheWrap
 
 	// CacheWrapWithTraceFunc mocks the CacheWrapWithTrace method.
-	CacheWrapWithTraceFunc func(w io.Writer, tc types.TraceContext) types.CacheWrap
+	CacheWrapWithTraceFunc func(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap
 
 	// GetKVStoreFunc mocks the GetKVStore method.
-	GetKVStoreFunc func(storeKey types.StoreKey) types.KVStore
+	GetKVStoreFunc func(storeKey storetypes.StoreKey) storetypes.KVStore
 
 	// GetStoreFunc mocks the GetStore method.
-	GetStoreFunc func(storeKey types.StoreKey) types.Store
+	GetStoreFunc func(storeKey storetypes.StoreKey) storetypes.Store
 
 	// GetStoreTypeFunc mocks the GetStoreType method.
-	GetStoreTypeFunc func() types.StoreType
+	GetStoreTypeFunc func() storetypes.StoreType
 
 	// LatestVersionFunc mocks the LatestVersion method.
 	LatestVersionFunc func() int64
 
 	// SetTracerFunc mocks the SetTracer method.
-	SetTracerFunc func(w io.Writer) types.MultiStore
+	SetTracerFunc func(w io.Writer) storetypes.MultiStore
 
 	// SetTracingContextFunc mocks the SetTracingContext method.
-	SetTracingContextFunc func(traceContext types.TraceContext) types.MultiStore
+	SetTracingContextFunc func(traceContext storetypes.TraceContext) storetypes.MultiStore
 
 	// TracingEnabledFunc mocks the TracingEnabled method.
 	TracingEnabledFunc func() bool
@@ -112,17 +112,17 @@ type MultiStoreMock struct {
 			// W is the w argument value.
 			W io.Writer
 			// Tc is the tc argument value.
-			Tc types.TraceContext
+			Tc storetypes.TraceContext
 		}
 		// GetKVStore holds details about calls to the GetKVStore method.
 		GetKVStore []struct {
 			// StoreKey is the storeKey argument value.
-			StoreKey types.StoreKey
+			StoreKey storetypes.StoreKey
 		}
 		// GetStore holds details about calls to the GetStore method.
 		GetStore []struct {
 			// StoreKey is the storeKey argument value.
-			StoreKey types.StoreKey
+			StoreKey storetypes.StoreKey
 		}
 		// GetStoreType holds details about calls to the GetStoreType method.
 		GetStoreType []struct {
@@ -138,7 +138,7 @@ type MultiStoreMock struct {
 		// SetTracingContext holds details about calls to the SetTracingContext method.
 		SetTracingContext []struct {
 			// TraceContext is the traceContext argument value.
-			TraceContext types.TraceContext
+			TraceContext storetypes.TraceContext
 		}
 		// TracingEnabled holds details about calls to the TracingEnabled method.
 		TracingEnabled []struct {
@@ -158,7 +158,7 @@ type MultiStoreMock struct {
 }
 
 // CacheMultiStore calls CacheMultiStoreFunc.
-func (mock *MultiStoreMock) CacheMultiStore() types.CacheMultiStore {
+func (mock *MultiStoreMock) CacheMultiStore() storetypes.CacheMultiStore {
 	if mock.CacheMultiStoreFunc == nil {
 		panic("MultiStoreMock.CacheMultiStoreFunc: method is nil but MultiStore.CacheMultiStore was just called")
 	}
@@ -185,7 +185,7 @@ func (mock *MultiStoreMock) CacheMultiStoreCalls() []struct {
 }
 
 // CacheMultiStoreWithVersion calls CacheMultiStoreWithVersionFunc.
-func (mock *MultiStoreMock) CacheMultiStoreWithVersion(version int64) (types.CacheMultiStore, error) {
+func (mock *MultiStoreMock) CacheMultiStoreWithVersion(version int64) (storetypes.CacheMultiStore, error) {
 	if mock.CacheMultiStoreWithVersionFunc == nil {
 		panic("MultiStoreMock.CacheMultiStoreWithVersionFunc: method is nil but MultiStore.CacheMultiStoreWithVersion was just called")
 	}
@@ -217,7 +217,7 @@ func (mock *MultiStoreMock) CacheMultiStoreWithVersionCalls() []struct {
 }
 
 // CacheWrap calls CacheWrapFunc.
-func (mock *MultiStoreMock) CacheWrap() types.CacheWrap {
+func (mock *MultiStoreMock) CacheWrap() storetypes.CacheWrap {
 	if mock.CacheWrapFunc == nil {
 		panic("MultiStoreMock.CacheWrapFunc: method is nil but MultiStore.CacheWrap was just called")
 	}
@@ -244,13 +244,13 @@ func (mock *MultiStoreMock) CacheWrapCalls() []struct {
 }
 
 // CacheWrapWithTrace calls CacheWrapWithTraceFunc.
-func (mock *MultiStoreMock) CacheWrapWithTrace(w io.Writer, tc types.TraceContext) types.CacheWrap {
+func (mock *MultiStoreMock) CacheWrapWithTrace(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap {
 	if mock.CacheWrapWithTraceFunc == nil {
 		panic("MultiStoreMock.CacheWrapWithTraceFunc: method is nil but MultiStore.CacheWrapWithTrace was just called")
 	}
 	callInfo := struct {
 		W  io.Writer
-		Tc types.TraceContext
+		Tc storetypes.TraceContext
 	}{
 		W:  w,
 		Tc: tc,
@@ -267,11 +267,11 @@ func (mock *MultiStoreMock) CacheWrapWithTrace(w io.Writer, tc types.TraceContex
 //	len(mockedMultiStore.CacheWrapWithTraceCalls())
 func (mock *MultiStoreMock) CacheWrapWithTraceCalls() []struct {
 	W  io.Writer
-	Tc types.TraceContext
+	Tc storetypes.TraceContext
 } {
 	var calls []struct {
 		W  io.Writer
-		Tc types.TraceContext
+		Tc storetypes.TraceContext
 	}
 	mock.lockCacheWrapWithTrace.RLock()
 	calls = mock.calls.CacheWrapWithTrace
@@ -280,12 +280,12 @@ func (mock *MultiStoreMock) CacheWrapWithTraceCalls() []struct {
 }
 
 // GetKVStore calls GetKVStoreFunc.
-func (mock *MultiStoreMock) GetKVStore(storeKey types.StoreKey) types.KVStore {
+func (mock *MultiStoreMock) GetKVStore(storeKey storetypes.StoreKey) storetypes.KVStore {
 	if mock.GetKVStoreFunc == nil {
 		panic("MultiStoreMock.GetKVStoreFunc: method is nil but MultiStore.GetKVStore was just called")
 	}
 	callInfo := struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}{
 		StoreKey: storeKey,
 	}
@@ -300,10 +300,10 @@ func (mock *MultiStoreMock) GetKVStore(storeKey types.StoreKey) types.KVStore {
 //
 //	len(mockedMultiStore.GetKVStoreCalls())
 func (mock *MultiStoreMock) GetKVStoreCalls() []struct {
-	StoreKey types.StoreKey
+	StoreKey storetypes.StoreKey
 } {
 	var calls []struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}
 	mock.lockGetKVStore.RLock()
 	calls = mock.calls.GetKVStore
@@ -312,12 +312,12 @@ func (mock *MultiStoreMock) GetKVStoreCalls() []struct {
 }
 
 // GetStore calls GetStoreFunc.
-func (mock *MultiStoreMock) GetStore(storeKey types.StoreKey) types.Store {
+func (mock *MultiStoreMock) GetStore(storeKey storetypes.StoreKey) storetypes.Store {
 	if mock.GetStoreFunc == nil {
 		panic("MultiStoreMock.GetStoreFunc: method is nil but MultiStore.GetStore was just called")
 	}
 	callInfo := struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}{
 		StoreKey: storeKey,
 	}
@@ -332,10 +332,10 @@ func (mock *MultiStoreMock) GetStore(storeKey types.StoreKey) types.Store {
 //
 //	len(mockedMultiStore.GetStoreCalls())
 func (mock *MultiStoreMock) GetStoreCalls() []struct {
-	StoreKey types.StoreKey
+	StoreKey storetypes.StoreKey
 } {
 	var calls []struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}
 	mock.lockGetStore.RLock()
 	calls = mock.calls.GetStore
@@ -344,7 +344,7 @@ func (mock *MultiStoreMock) GetStoreCalls() []struct {
 }
 
 // GetStoreType calls GetStoreTypeFunc.
-func (mock *MultiStoreMock) GetStoreType() types.StoreType {
+func (mock *MultiStoreMock) GetStoreType() storetypes.StoreType {
 	if mock.GetStoreTypeFunc == nil {
 		panic("MultiStoreMock.GetStoreTypeFunc: method is nil but MultiStore.GetStoreType was just called")
 	}
@@ -398,7 +398,7 @@ func (mock *MultiStoreMock) LatestVersionCalls() []struct {
 }
 
 // SetTracer calls SetTracerFunc.
-func (mock *MultiStoreMock) SetTracer(w io.Writer) types.MultiStore {
+func (mock *MultiStoreMock) SetTracer(w io.Writer) storetypes.MultiStore {
 	if mock.SetTracerFunc == nil {
 		panic("MultiStoreMock.SetTracerFunc: method is nil but MultiStore.SetTracer was just called")
 	}
@@ -430,12 +430,12 @@ func (mock *MultiStoreMock) SetTracerCalls() []struct {
 }
 
 // SetTracingContext calls SetTracingContextFunc.
-func (mock *MultiStoreMock) SetTracingContext(traceContext types.TraceContext) types.MultiStore {
+func (mock *MultiStoreMock) SetTracingContext(traceContext storetypes.TraceContext) storetypes.MultiStore {
 	if mock.SetTracingContextFunc == nil {
 		panic("MultiStoreMock.SetTracingContextFunc: method is nil but MultiStore.SetTracingContext was just called")
 	}
 	callInfo := struct {
-		TraceContext types.TraceContext
+		TraceContext storetypes.TraceContext
 	}{
 		TraceContext: traceContext,
 	}
@@ -450,10 +450,10 @@ func (mock *MultiStoreMock) SetTracingContext(traceContext types.TraceContext) t
 //
 //	len(mockedMultiStore.SetTracingContextCalls())
 func (mock *MultiStoreMock) SetTracingContextCalls() []struct {
-	TraceContext types.TraceContext
+	TraceContext storetypes.TraceContext
 } {
 	var calls []struct {
-		TraceContext types.TraceContext
+		TraceContext storetypes.TraceContext
 	}
 	mock.lockSetTracingContext.RLock()
 	calls = mock.calls.SetTracingContext
@@ -498,34 +498,34 @@ var _ interfaces.CacheMultiStore = &CacheMultiStoreMock{}
 //
 //		// make and configure a mocked interfaces.CacheMultiStore
 //		mockedCacheMultiStore := &CacheMultiStoreMock{
-//			CacheMultiStoreFunc: func() types.CacheMultiStore {
+//			CacheMultiStoreFunc: func() storetypes.CacheMultiStore {
 //				panic("mock out the CacheMultiStore method")
 //			},
-//			CacheMultiStoreWithVersionFunc: func(version int64) (types.CacheMultiStore, error) {
+//			CacheMultiStoreWithVersionFunc: func(version int64) (storetypes.CacheMultiStore, error) {
 //				panic("mock out the CacheMultiStoreWithVersion method")
 //			},
-//			CacheWrapFunc: func() types.CacheWrap {
+//			CacheWrapFunc: func() storetypes.CacheWrap {
 //				panic("mock out the CacheWrap method")
 //			},
-//			CacheWrapWithTraceFunc: func(w io.Writer, tc types.TraceContext) types.CacheWrap {
+//			CacheWrapWithTraceFunc: func(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap {
 //				panic("mock out the CacheWrapWithTrace method")
 //			},
-//			GetKVStoreFunc: func(storeKey types.StoreKey) types.KVStore {
+//			GetKVStoreFunc: func(storeKey storetypes.StoreKey) storetypes.KVStore {
 //				panic("mock out the GetKVStore method")
 //			},
-//			GetStoreFunc: func(storeKey types.StoreKey) types.Store {
+//			GetStoreFunc: func(storeKey storetypes.StoreKey) storetypes.Store {
 //				panic("mock out the GetStore method")
 //			},
-//			GetStoreTypeFunc: func() types.StoreType {
+//			GetStoreTypeFunc: func() storetypes.StoreType {
 //				panic("mock out the GetStoreType method")
 //			},
 //			LatestVersionFunc: func() int64 {
 //				panic("mock out the LatestVersion method")
 //			},
-//			SetTracerFunc: func(w io.Writer) types.MultiStore {
+//			SetTracerFunc: func(w io.Writer) storetypes.MultiStore {
 //				panic("mock out the SetTracer method")
 //			},
-//			SetTracingContextFunc: func(traceContext types.TraceContext) types.MultiStore {
+//			SetTracingContextFunc: func(traceContext storetypes.TraceContext) storetypes.MultiStore {
 //				panic("mock out the SetTracingContext method")
 //			},
 //			TracingEnabledFunc: func() bool {
@@ -542,34 +542,34 @@ var _ interfaces.CacheMultiStore = &CacheMultiStoreMock{}
 //	}
 type CacheMultiStoreMock struct {
 	// CacheMultiStoreFunc mocks the CacheMultiStore method.
-	CacheMultiStoreFunc func() types.CacheMultiStore
+	CacheMultiStoreFunc func() storetypes.CacheMultiStore
 
 	// CacheMultiStoreWithVersionFunc mocks the CacheMultiStoreWithVersion method.
-	CacheMultiStoreWithVersionFunc func(version int64) (types.CacheMultiStore, error)
+	CacheMultiStoreWithVersionFunc func(version int64) (storetypes.CacheMultiStore, error)
 
 	// CacheWrapFunc mocks the CacheWrap method.
-	CacheWrapFunc func() types.CacheWrap
+	CacheWrapFunc func() storetypes.CacheWrap
 
 	// CacheWrapWithTraceFunc mocks the CacheWrapWithTrace method.
-	CacheWrapWithTraceFunc func(w io.Writer, tc types.TraceContext) types.CacheWrap
+	CacheWrapWithTraceFunc func(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap
 
 	// GetKVStoreFunc mocks the GetKVStore method.
-	GetKVStoreFunc func(storeKey types.StoreKey) types.KVStore
+	GetKVStoreFunc func(storeKey storetypes.StoreKey) storetypes.KVStore
 
 	// GetStoreFunc mocks the GetStore method.
-	GetStoreFunc func(storeKey types.StoreKey) types.Store
+	GetStoreFunc func(storeKey storetypes.StoreKey) storetypes.Store
 
 	// GetStoreTypeFunc mocks the GetStoreType method.
-	GetStoreTypeFunc func() types.StoreType
+	GetStoreTypeFunc func() storetypes.StoreType
 
 	// LatestVersionFunc mocks the LatestVersion method.
 	LatestVersionFunc func() int64
 
 	// SetTracerFunc mocks the SetTracer method.
-	SetTracerFunc func(w io.Writer) types.MultiStore
+	SetTracerFunc func(w io.Writer) storetypes.MultiStore
 
 	// SetTracingContextFunc mocks the SetTracingContext method.
-	SetTracingContextFunc func(traceContext types.TraceContext) types.MultiStore
+	SetTracingContextFunc func(traceContext storetypes.TraceContext) storetypes.MultiStore
 
 	// TracingEnabledFunc mocks the TracingEnabled method.
 	TracingEnabledFunc func() bool
@@ -595,17 +595,17 @@ type CacheMultiStoreMock struct {
 			// W is the w argument value.
 			W io.Writer
 			// Tc is the tc argument value.
-			Tc types.TraceContext
+			Tc storetypes.TraceContext
 		}
 		// GetKVStore holds details about calls to the GetKVStore method.
 		GetKVStore []struct {
 			// StoreKey is the storeKey argument value.
-			StoreKey types.StoreKey
+			StoreKey storetypes.StoreKey
 		}
 		// GetStore holds details about calls to the GetStore method.
 		GetStore []struct {
 			// StoreKey is the storeKey argument value.
-			StoreKey types.StoreKey
+			StoreKey storetypes.StoreKey
 		}
 		// GetStoreType holds details about calls to the GetStoreType method.
 		GetStoreType []struct {
@@ -621,7 +621,7 @@ type CacheMultiStoreMock struct {
 		// SetTracingContext holds details about calls to the SetTracingContext method.
 		SetTracingContext []struct {
 			// TraceContext is the traceContext argument value.
-			TraceContext types.TraceContext
+			TraceContext storetypes.TraceContext
 		}
 		// TracingEnabled holds details about calls to the TracingEnabled method.
 		TracingEnabled []struct {
@@ -645,7 +645,7 @@ type CacheMultiStoreMock struct {
 }
 
 // CacheMultiStore calls CacheMultiStoreFunc.
-func (mock *CacheMultiStoreMock) CacheMultiStore() types.CacheMultiStore {
+func (mock *CacheMultiStoreMock) CacheMultiStore() storetypes.CacheMultiStore {
 	if mock.CacheMultiStoreFunc == nil {
 		panic("CacheMultiStoreMock.CacheMultiStoreFunc: method is nil but CacheMultiStore.CacheMultiStore was just called")
 	}
@@ -672,7 +672,7 @@ func (mock *CacheMultiStoreMock) CacheMultiStoreCalls() []struct {
 }
 
 // CacheMultiStoreWithVersion calls CacheMultiStoreWithVersionFunc.
-func (mock *CacheMultiStoreMock) CacheMultiStoreWithVersion(version int64) (types.CacheMultiStore, error) {
+func (mock *CacheMultiStoreMock) CacheMultiStoreWithVersion(version int64) (storetypes.CacheMultiStore, error) {
 	if mock.CacheMultiStoreWithVersionFunc == nil {
 		panic("CacheMultiStoreMock.CacheMultiStoreWithVersionFunc: method is nil but CacheMultiStore.CacheMultiStoreWithVersion was just called")
 	}
@@ -704,7 +704,7 @@ func (mock *CacheMultiStoreMock) CacheMultiStoreWithVersionCalls() []struct {
 }
 
 // CacheWrap calls CacheWrapFunc.
-func (mock *CacheMultiStoreMock) CacheWrap() types.CacheWrap {
+func (mock *CacheMultiStoreMock) CacheWrap() storetypes.CacheWrap {
 	if mock.CacheWrapFunc == nil {
 		panic("CacheMultiStoreMock.CacheWrapFunc: method is nil but CacheMultiStore.CacheWrap was just called")
 	}
@@ -731,13 +731,13 @@ func (mock *CacheMultiStoreMock) CacheWrapCalls() []struct {
 }
 
 // CacheWrapWithTrace calls CacheWrapWithTraceFunc.
-func (mock *CacheMultiStoreMock) CacheWrapWithTrace(w io.Writer, tc types.TraceContext) types.CacheWrap {
+func (mock *CacheMultiStoreMock) CacheWrapWithTrace(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap {
 	if mock.CacheWrapWithTraceFunc == nil {
 		panic("CacheMultiStoreMock.CacheWrapWithTraceFunc: method is nil but CacheMultiStore.CacheWrapWithTrace was just called")
 	}
 	callInfo := struct {
 		W  io.Writer
-		Tc types.TraceContext
+		Tc storetypes.TraceContext
 	}{
 		W:  w,
 		Tc: tc,
@@ -754,11 +754,11 @@ func (mock *CacheMultiStoreMock) CacheWrapWithTrace(w io.Writer, tc types.TraceC
 //	len(mockedCacheMultiStore.CacheWrapWithTraceCalls())
 func (mock *CacheMultiStoreMock) CacheWrapWithTraceCalls() []struct {
 	W  io.Writer
-	Tc types.TraceContext
+	Tc storetypes.TraceContext
 } {
 	var calls []struct {
 		W  io.Writer
-		Tc types.TraceContext
+		Tc storetypes.TraceContext
 	}
 	mock.lockCacheWrapWithTrace.RLock()
 	calls = mock.calls.CacheWrapWithTrace
@@ -767,12 +767,12 @@ func (mock *CacheMultiStoreMock) CacheWrapWithTraceCalls() []struct {
 }
 
 // GetKVStore calls GetKVStoreFunc.
-func (mock *CacheMultiStoreMock) GetKVStore(storeKey types.StoreKey) types.KVStore {
+func (mock *CacheMultiStoreMock) GetKVStore(storeKey storetypes.StoreKey) storetypes.KVStore {
 	if mock.GetKVStoreFunc == nil {
 		panic("CacheMultiStoreMock.GetKVStoreFunc: method is nil but CacheMultiStore.GetKVStore was just called")
 	}
 	callInfo := struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}{
 		StoreKey: storeKey,
 	}
@@ -787,10 +787,10 @@ func (mock *CacheMultiStoreMock) GetKVStore(storeKey types.StoreKey) types.KVSto
 //
 //	len(mockedCacheMultiStore.GetKVStoreCalls())
 func (mock *CacheMultiStoreMock) GetKVStoreCalls() []struct {
-	StoreKey types.StoreKey
+	StoreKey storetypes.StoreKey
 } {
 	var calls []struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}
 	mock.lockGetKVStore.RLock()
 	calls = mock.calls.GetKVStore
@@ -799,12 +799,12 @@ func (mock *CacheMultiStoreMock) GetKVStoreCalls() []struct {
 }
 
 // GetStore calls GetStoreFunc.
-func (mock *CacheMultiStoreMock) GetStore(storeKey types.StoreKey) types.Store {
+func (mock *CacheMultiStoreMock) GetStore(storeKey storetypes.StoreKey) storetypes.Store {
 	if mock.GetStoreFunc == nil {
 		panic("CacheMultiStoreMock.GetStoreFunc: method is nil but CacheMultiStore.GetStore was just called")
 	}
 	callInfo := struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}{
 		StoreKey: storeKey,
 	}
@@ -819,10 +819,10 @@ func (mock *CacheMultiStoreMock) GetStore(storeKey types.StoreKey) types.Store {
 //
 //	len(mockedCacheMultiStore.GetStoreCalls())
 func (mock *CacheMultiStoreMock) GetStoreCalls() []struct {
-	StoreKey types.StoreKey
+	StoreKey storetypes.StoreKey
 } {
 	var calls []struct {
-		StoreKey types.StoreKey
+		StoreKey storetypes.StoreKey
 	}
 	mock.lockGetStore.RLock()
 	calls = mock.calls.GetStore
@@ -831,7 +831,7 @@ func (mock *CacheMultiStoreMock) GetStoreCalls() []struct {
 }
 
 // GetStoreType calls GetStoreTypeFunc.
-func (mock *CacheMultiStoreMock) GetStoreType() types.StoreType {
+func (mock *CacheMultiStoreMock) GetStoreType() storetypes.StoreType {
 	if mock.GetStoreTypeFunc == nil {
 		panic("CacheMultiStoreMock.GetStoreTypeFunc: method is nil but CacheMultiStore.GetStoreType was just called")
 	}
@@ -885,7 +885,7 @@ func (mock *CacheMultiStoreMock) LatestVersionCalls() []struct {
 }
 
 // SetTracer calls SetTracerFunc.
-func (mock *CacheMultiStoreMock) SetTracer(w io.Writer) types.MultiStore {
+func (mock *CacheMultiStoreMock) SetTracer(w io.Writer) storetypes.MultiStore {
 	if mock.SetTracerFunc == nil {
 		panic("CacheMultiStoreMock.SetTracerFunc: method is nil but CacheMultiStore.SetTracer was just called")
 	}
@@ -917,12 +917,12 @@ func (mock *CacheMultiStoreMock) SetTracerCalls() []struct {
 }
 
 // SetTracingContext calls SetTracingContextFunc.
-func (mock *CacheMultiStoreMock) SetTracingContext(traceContext types.TraceContext) types.MultiStore {
+func (mock *CacheMultiStoreMock) SetTracingContext(traceContext storetypes.TraceContext) storetypes.MultiStore {
 	if mock.SetTracingContextFunc == nil {
 		panic("CacheMultiStoreMock.SetTracingContextFunc: method is nil but CacheMultiStore.SetTracingContext was just called")
 	}
 	callInfo := struct {
-		TraceContext types.TraceContext
+		TraceContext storetypes.TraceContext
 	}{
 		TraceContext: traceContext,
 	}
@@ -937,10 +937,10 @@ func (mock *CacheMultiStoreMock) SetTracingContext(traceContext types.TraceConte
 //
 //	len(mockedCacheMultiStore.SetTracingContextCalls())
 func (mock *CacheMultiStoreMock) SetTracingContextCalls() []struct {
-	TraceContext types.TraceContext
+	TraceContext storetypes.TraceContext
 } {
 	var calls []struct {
-		TraceContext types.TraceContext
+		TraceContext storetypes.TraceContext
 	}
 	mock.lockSetTracingContext.RLock()
 	calls = mock.calls.SetTracingContext
@@ -1012,10 +1012,10 @@ var _ interfaces.KVStore = &KVStoreMock{}
 //
 //		// make and configure a mocked interfaces.KVStore
 //		mockedKVStore := &KVStoreMock{
-//			CacheWrapFunc: func() types.CacheWrap {
+//			CacheWrapFunc: func() storetypes.CacheWrap {
 //				panic("mock out the CacheWrap method")
 //			},
-//			CacheWrapWithTraceFunc: func(w io.Writer, tc types.TraceContext) types.CacheWrap {
+//			CacheWrapWithTraceFunc: func(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap {
 //				panic("mock out the CacheWrapWithTrace method")
 //			},
 //			DeleteFunc: func(key []byte)  {
@@ -1024,7 +1024,7 @@ var _ interfaces.KVStore = &KVStoreMock{}
 //			GetFunc: func(key []byte) []byte {
 //				panic("mock out the Get method")
 //			},
-//			GetStoreTypeFunc: func() types.StoreType {
+//			GetStoreTypeFunc: func() storetypes.StoreType {
 //				panic("mock out the GetStoreType method")
 //			},
 //			HasFunc: func(key []byte) bool {
@@ -1047,10 +1047,10 @@ var _ interfaces.KVStore = &KVStoreMock{}
 //	}
 type KVStoreMock struct {
 	// CacheWrapFunc mocks the CacheWrap method.
-	CacheWrapFunc func() types.CacheWrap
+	CacheWrapFunc func() storetypes.CacheWrap
 
 	// CacheWrapWithTraceFunc mocks the CacheWrapWithTrace method.
-	CacheWrapWithTraceFunc func(w io.Writer, tc types.TraceContext) types.CacheWrap
+	CacheWrapWithTraceFunc func(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(key []byte)
@@ -1059,7 +1059,7 @@ type KVStoreMock struct {
 	GetFunc func(key []byte) []byte
 
 	// GetStoreTypeFunc mocks the GetStoreType method.
-	GetStoreTypeFunc func() types.StoreType
+	GetStoreTypeFunc func() storetypes.StoreType
 
 	// HasFunc mocks the Has method.
 	HasFunc func(key []byte) bool
@@ -1083,7 +1083,7 @@ type KVStoreMock struct {
 			// W is the w argument value.
 			W io.Writer
 			// Tc is the tc argument value.
-			Tc types.TraceContext
+			Tc storetypes.TraceContext
 		}
 		// Delete holds details about calls to the Delete method.
 		Delete []struct {
@@ -1137,7 +1137,7 @@ type KVStoreMock struct {
 }
 
 // CacheWrap calls CacheWrapFunc.
-func (mock *KVStoreMock) CacheWrap() types.CacheWrap {
+func (mock *KVStoreMock) CacheWrap() storetypes.CacheWrap {
 	if mock.CacheWrapFunc == nil {
 		panic("KVStoreMock.CacheWrapFunc: method is nil but KVStore.CacheWrap was just called")
 	}
@@ -1164,13 +1164,13 @@ func (mock *KVStoreMock) CacheWrapCalls() []struct {
 }
 
 // CacheWrapWithTrace calls CacheWrapWithTraceFunc.
-func (mock *KVStoreMock) CacheWrapWithTrace(w io.Writer, tc types.TraceContext) types.CacheWrap {
+func (mock *KVStoreMock) CacheWrapWithTrace(w io.Writer, tc storetypes.TraceContext) storetypes.CacheWrap {
 	if mock.CacheWrapWithTraceFunc == nil {
 		panic("KVStoreMock.CacheWrapWithTraceFunc: method is nil but KVStore.CacheWrapWithTrace was just called")
 	}
 	callInfo := struct {
 		W  io.Writer
-		Tc types.TraceContext
+		Tc storetypes.TraceContext
 	}{
 		W:  w,
 		Tc: tc,
@@ -1187,11 +1187,11 @@ func (mock *KVStoreMock) CacheWrapWithTrace(w io.Writer, tc types.TraceContext) 
 //	len(mockedKVStore.CacheWrapWithTraceCalls())
 func (mock *KVStoreMock) CacheWrapWithTraceCalls() []struct {
 	W  io.Writer
-	Tc types.TraceContext
+	Tc storetypes.TraceContext
 } {
 	var calls []struct {
 		W  io.Writer
-		Tc types.TraceContext
+		Tc storetypes.TraceContext
 	}
 	mock.lockCacheWrapWithTrace.RLock()
 	calls = mock.calls.CacheWrapWithTrace
@@ -1264,7 +1264,7 @@ func (mock *KVStoreMock) GetCalls() []struct {
 }
 
 // GetStoreType calls GetStoreTypeFunc.
-func (mock *KVStoreMock) GetStoreType() types.StoreType {
+func (mock *KVStoreMock) GetStoreType() storetypes.StoreType {
 	if mock.GetStoreTypeFunc == nil {
 		panic("KVStoreMock.GetStoreTypeFunc: method is nil but KVStore.GetStoreType was just called")
 	}
