@@ -21,7 +21,6 @@ import (
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/trees"
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/stretchr/testify/require"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -198,15 +197,14 @@ var _ = Describe("Copy", func() {
 
 func verifyIterator(itr dbm.Iterator, expected []int64, _ string) {
 	i := 0
-	t := GinkgoT()
 	for itr.Valid() {
 		key := itr.Key()
-		require.Equal(t, expected[i], bytes2Int64(key), "iterator: %d mismatches", i)
+		Expect(expected[i]).To(Equal(bytes2Int64(key)))
 		itr.Next()
 		i++
 	}
-	require.Equal(t, i, len(expected), "expected to have fully iterated over all the elements in iter")
-	require.NoError(t, itr.Close())
+	Expect(i).To(Equal(len(expected)))
+	Expect(itr.Close()).To(BeNil())
 }
 
 func int642Bytes(i int64) []byte {
