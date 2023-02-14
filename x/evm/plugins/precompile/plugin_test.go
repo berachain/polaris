@@ -18,6 +18,7 @@ import (
 	"context"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -55,6 +56,16 @@ var _ = Describe("plugin", func() {
 	It("should error on insufficient gas", func() {
 		_, _, err := p.Run(ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
+	})
+
+	It("should plug in custom gas configs", func() {
+		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
+		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
+
+		cr.SetKVGasConfig(&storetypes.GasConfig{})
+		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
+		cr.SetTransientKVGasConfig(&storetypes.GasConfig{})
+		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
 	})
 })
 

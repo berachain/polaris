@@ -15,13 +15,12 @@
 package trees_test
 
 import (
+	"encoding/binary"
 	"testing"
 
 	"github.com/berachain/stargazer/lib/ds"
 	"github.com/berachain/stargazer/lib/ds/trees"
-	"github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
+	dbm "github.com/cosmos/cosmos-db"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -196,23 +195,24 @@ var _ = Describe("Copy", func() {
 
 })
 
-func verifyIterator(itr types.Iterator, expected []int64, _ string) {
+func verifyIterator(itr dbm.Iterator, expected []int64, _ string) {
 	i := 0
-	t := GinkgoT()
 	for itr.Valid() {
 		key := itr.Key()
-		require.Equal(t, expected[i], bytes2Int64(key), "iterator: %d mismatches", i)
+		Expect(expected[i]).To(Equal(bytes2Int64(key)))
 		itr.Next()
 		i++
 	}
-	require.Equal(t, i, len(expected), "expected to have fully iterated over all the elements in iter")
-	require.NoError(t, itr.Close())
+	Expect(i).To(Equal(len(expected)))
+	Expect(itr.Close()).To(BeNil())
 }
 
 func int642Bytes(i int64) []byte {
-	return sdk.Uint64ToBigEndian(uint64(i))
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, uint64(i))
+	return b
 }
 
 func bytes2Int64(buf []byte) int64 {
-	return int64(sdk.BigEndianToUint64(buf))
+	return int64(binary.BigEndian.Uint64(buf))
 }

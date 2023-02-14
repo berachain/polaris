@@ -28,7 +28,7 @@ var (
 	forgeFmt   = mi.RunCmdV("forge", "fmt")
 
 	// Directories.
-	testContractsDir = "./testutil/contracts/solidity"
+	testContractsDir = "./eth/testutil/contracts/solidity"
 	// precompileContractsDir = "./pkg/dahlia/pkg/core/vm/precompile/contracts".
 	allForgeDirs = []string{testContractsDir /*, precompileContractsDir*/}
 )

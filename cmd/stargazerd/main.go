@@ -12,29 +12,27 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package eth
+package main
 
 import (
-	"github.com/berachain/stargazer/eth/common"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"os"
+
+	"github.com/berachain/stargazer/simapp"
+	"github.com/berachain/stargazer/simapp/cmd"
+	"github.com/cosmos/cosmos-sdk/server"
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
-// `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.
-func AccAddressToEthAddress(accAddress sdk.AccAddress) common.Address {
-	return common.BytesToAddress(accAddress)
-}
+func main() {
+	rootCmd := cmd.NewRootCmd()
+	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
+		//nolint: errorlint // uhh fix?
+		switch e := err.(type) {
+		case server.ErrorCode:
+			os.Exit(e.Code)
 
-// `ValAddressToEthAddress` converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
-func ValAddressToEthAddress(valAddress sdk.ValAddress) common.Address {
-	return common.BytesToAddress(valAddress)
-}
-
-// `AddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
-func AddressToAccAddress(ethAddress common.Address) sdk.AccAddress {
-	return ethAddress.Bytes()
-}
-
-// `AddressToValAddress` converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
-func AddressToValAddress(ethAddress common.Address) sdk.ValAddress {
-	return ethAddress.Bytes()
+		default:
+			os.Exit(1)
+		}
+	}
 }

@@ -23,9 +23,8 @@ import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/precompile/container"
 	"github.com/berachain/stargazer/eth/core/vm"
+	solidity "github.com/berachain/stargazer/eth/testutil/contracts/solidity/generated"
 	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/testutil"
-	solidity "github.com/berachain/stargazer/testutil/contracts/solidity/generated"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -42,7 +41,7 @@ var _ = Describe("Stateful Container", func() {
 	var badInput = []byte{1, 2, 3, 4}
 
 	BeforeEach(func() {
-		ctx = testutil.NewContext()
+		ctx = context.Background()
 		sc = container.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		empty = container.NewStateful(nil, nil)
 	})

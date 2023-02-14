@@ -16,7 +16,7 @@ package ds
 
 import (
 	libtypes "github.com/berachain/stargazer/lib/types"
-	dbm "github.com/tendermint/tm-db"
+	dbm "github.com/cosmos/cosmos-db"
 )
 
 // `Stack` is an interface represent a FILO data structure.

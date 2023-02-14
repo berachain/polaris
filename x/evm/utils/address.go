@@ -12,23 +12,29 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+package utils
 
-package stargazer.crypto.v1;
+import (
+	"github.com/berachain/stargazer/eth/common"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
-option go_package = "github.com/berachain/stargazer/crypto";
-
-// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
-// CometBFT's `PubKey` interface. It represents the 33-byte compressed public
-// key format.
-message EthSecp256k1PubKey {
-  // `key` is the public key in byte form.
-  bytes key = 1;
+// `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.
+func AccAddressToEthAddress(accAddress sdk.AccAddress) common.Address {
+	return common.BytesToAddress(accAddress)
 }
 
-// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
-// CometBFT's `PrivateKey` interface.
-message EthSecp256k1PrivKey {
-  // `key` is the private key in byte form.
-  bytes key = 1;
+// `ValAddressToEthAddress` converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
+func ValAddressToEthAddress(valAddress sdk.ValAddress) common.Address {
+	return common.BytesToAddress(valAddress)
+}
+
+// `AddressToAccAddress` converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
+func AddressToAccAddress(ethAddress common.Address) sdk.AccAddress {
+	return ethAddress.Bytes()
+}
+
+// `AddressToValAddress` converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
+func AddressToValAddress(ethAddress common.Address) sdk.ValAddress {
+	return ethAddress.Bytes()
 }

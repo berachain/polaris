@@ -24,7 +24,6 @@ import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/testutil"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -42,7 +41,7 @@ var _ = Describe("StateTransition", func() {
 		evm = vmmock.NewStargazerEVM()
 		sdb, _ = evm.StateDB().(*vmmock.StargazerStateDBMock)
 		msg.FromFunc = func() common.Address {
-			return testutil.Alice
+			return common.Address{1}
 		}
 
 		msg.GasPriceFunc = func() *big.Int {

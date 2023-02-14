@@ -21,11 +21,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/berachain/stargazer/eth/common"
-	libeth "github.com/berachain/stargazer/lib/eth"
+	"github.com/berachain/stargazer/x/evm/utils"
 )
 
 var _ = Describe("Attributes", func() {
@@ -57,7 +57,7 @@ var _ = Describe("Attributes", func() {
 			Expect(err).To(BeNil())
 			valAddrVal, ok := gethValue.(common.Address)
 			Expect(ok).To(BeTrue())
-			Expect(valAddrVal).To(Equal(libeth.ValAddressToEthAddress(valAddr)))
+			Expect(valAddrVal).To(Equal(utils.ValAddressToEthAddress(valAddr)))
 		})
 
 		It("should correctly convert AccAddress to common.Address", func() {
@@ -66,7 +66,7 @@ var _ = Describe("Attributes", func() {
 			Expect(err).To(BeNil())
 			accAddrVal, ok := gethValue.(common.Address)
 			Expect(ok).To(BeTrue())
-			Expect(accAddrVal).To(Equal(libeth.AccAddressToEthAddress(accAddr)))
+			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))
 		})
 	})
 

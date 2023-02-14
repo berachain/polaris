@@ -20,10 +20,9 @@ import (
 	"sort"
 	"sync"
 
+	"cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/testutil/mock/interfaces"
 	"github.com/berachain/stargazer/testutil/mock/interfaces/mock"
-	"github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // MultiStore is a simple multistore used for testing.
@@ -39,7 +38,7 @@ type CachedMultiStore struct {
 }
 
 // NewMultiStore returns a new Multistore instance used for testing.
-func NewMultiStore() sdk.MultiStore {
+func NewMultiStore() types.MultiStore {
 	ms := MultiStore{
 		kvstore:        map[string]interfaces.KVStore{},
 		MultiStoreMock: &mock.MultiStoreMock{},
@@ -140,7 +139,7 @@ func (t *TestKVStore) CacheWrap() types.CacheWrap {
 }
 
 // CacheWrapWithTrace is not implemented.
-func (t TestKVStore) CacheWrapWithTrace(_ io.Writer, _ sdk.TraceContext) types.CacheWrap {
+func (t TestKVStore) CacheWrapWithTrace(_ io.Writer, _ types.TraceContext) types.CacheWrap {
 	panic("implement me")
 }
 
@@ -185,7 +184,7 @@ func (t TestKVStore) Delete(key []byte) {
 }
 
 // Iterator returns an interator over the given key domain.
-func (t TestKVStore) Iterator(start, end []byte) sdk.Iterator {
+func (t TestKVStore) Iterator(start, end []byte) types.Iterator {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
@@ -193,7 +192,7 @@ func (t TestKVStore) Iterator(start, end []byte) sdk.Iterator {
 }
 
 // ReverseIterator returns an iterator that iterates over all keys in the given domain in reverse order.
-func (t TestKVStore) ReverseIterator(start, end []byte) sdk.Iterator {
+func (t TestKVStore) ReverseIterator(start, end []byte) types.Iterator {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 

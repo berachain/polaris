@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"errors"
 
-	dbm "github.com/tendermint/tm-db"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/tidwall/btree"
 )
 
@@ -28,7 +28,7 @@ var _ dbm.Iterator = (*memIterator)(nil)
 // if value is nil, means it was deleted.
 // Implements Iterator.
 type memIterator struct {
-	iter btree.GenericIter[item]
+	iter btree.IterG[item]
 
 	start     []byte
 	end       []byte
