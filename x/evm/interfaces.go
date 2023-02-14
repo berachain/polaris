@@ -40,4 +40,5 @@ type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
+// `StakingKeeper` defines the expected staking keeper.
 type StakingKeeper interface{}

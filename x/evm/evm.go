@@ -17,11 +17,8 @@ package evm
 import (
 	modulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
 	"cosmossdk.io/core/appmodule"
-
 	"cosmossdk.io/depinject"
-
 	store "cosmossdk.io/store/types"
-
 	"github.com/berachain/stargazer/x/evm/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -34,6 +31,7 @@ func init() {
 	)
 }
 
+// `DepInjectInput` is the input for the dep inject framework.
 type DepInjectInput struct {
 	depinject.In
 
@@ -46,6 +44,7 @@ type DepInjectInput struct {
 	StakingKeeper StakingKeeper
 }
 
+// `DepInjectOutput` is the output for the dep inject framework.
 type DepInjectOutput struct {
 	depinject.Out
 	Keeper *keeper.Keeper
