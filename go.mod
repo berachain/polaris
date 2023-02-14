@@ -5,21 +5,32 @@ go 1.19
 // Required for supporting stateful precompiled contracts.
 replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230206231937-0d5324b7a630
 
+// Various replaces needed to resolve conflicts until 0.48 branch cut.
+replace (
+	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/x/nft => cosmossdk.io/x/nft v0.0.0-20230214182345-86eca4c72bd2
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230214182345-86eca4c72bd2
+)
+
 require (
 	cosmossdk.io/api v0.3.0
 	cosmossdk.io/client/v2 v2.0.0-20230214134047-cb23af6d9731
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
-	cosmossdk.io/log v0.0.0-20230214134047-cb23af6d9731
-	cosmossdk.io/store v0.0.0-20230206092147-e03195e4b8a7
-	cosmossdk.io/x/evidence v0.0.0-20230214134047-cb23af6d9731
-	cosmossdk.io/x/feegrant v0.0.0-20230214134047-cb23af6d9731
-	cosmossdk.io/x/upgrade v0.0.0-20230214134047-cb23af6d9731
+	cosmossdk.io/log v0.0.0
+	cosmossdk.io/math v1.0.0-beta.6
+	cosmossdk.io/simapp v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/x/evidence v0.1.0
+	cosmossdk.io/x/feegrant v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/x/upgrade v0.0.0-20230214182345-86eca4c72bd2
 	github.com/bufbuild/buf v1.7.0
 	github.com/carolynvs/magex v0.9.0
 	github.com/cometbft/cometbft v0.0.0-20230203130311-387422ac220d
 	github.com/cosmos/cosmos-db v1.0.0-rc.1
-	github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230214134047-cb23af6d9731
+	github.com/cosmos/cosmos-sdk v0.48.0
 	github.com/cosmos/gogoproto v1.4.4
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/dave/jennifer v1.6.0
@@ -34,6 +45,9 @@ require (
 	github.com/securego/gosec/v2 v2.14.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cobra v1.6.1
+	github.com/spf13/pflag v1.0.5
+	github.com/spf13/viper v1.15.0
+	github.com/stretchr/testify v1.8.1
 	github.com/tidwall/btree v1.6.0
 	golang.org/x/tools v0.5.0
 	google.golang.org/protobuf v1.28.2-0.20230208135220-49eaa78c6c9c
@@ -48,7 +62,7 @@ require (
 	cloud.google.com/go/storage v1.27.0 // indirect
 	cosmossdk.io/collections v0.0.0-20230204135315-697871069999 // indirect
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
-	cosmossdk.io/math v1.0.0-beta.6 // indirect
+	cosmossdk.io/x/nft v0.0.0-20230113085233-fae3332d62fc // indirect
 	cosmossdk.io/x/tx v0.2.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -111,7 +125,9 @@ require (
 	github.com/cosmos/iavl v0.20.0-alpha3 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
+	github.com/creachadair/atomicfile v0.2.8 // indirect
 	github.com/creachadair/taskgroup v0.4.2 // indirect
+	github.com/creachadair/tomledit v0.0.24 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
 	github.com/daixiang0/gci v0.8.1 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
@@ -309,12 +325,9 @@ require (
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.15.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
