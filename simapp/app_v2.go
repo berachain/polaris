@@ -1,8 +1,21 @@
-//go:build !app_v1
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// See the file LICENSE for licensing terms.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package simapp
 
 import (
+	// config files.
 	_ "embed"
 	"io"
 	"os"
@@ -36,6 +49,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+
+	// required for now.
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -71,7 +86,7 @@ import (
 )
 
 var (
-	// DefaultNodeHome default home directories for the application daemon
+	// DefaultNodeHome default home directories for the application daemon.
 	DefaultNodeHome string
 
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -141,6 +156,7 @@ type SimApp struct {
 	sm *module.SimulationManager
 }
 
+//nolint:gochecknoinits // its okay.
 func init() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -151,7 +167,7 @@ func init() {
 }
 
 // NewSimApp returns a reference to an initialized SimApp.
-func NewSimApp(
+func NewSimApp( //nolint: funlen // from sdk.
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -260,7 +276,8 @@ func NewSimApp(
 	// NOTE: this is not required apps that don't use the simulator for fuzz testing
 	// transactions
 	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
+		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper,
+			authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
 	}
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 
@@ -268,8 +285,10 @@ func NewSimApp(
 
 	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
 	// By default, when using app wiring enabled module, this is not required.
-	// For instance, the upgrade module will set automatically the module version map in its init genesis thanks to app wiring.
-	// However, when registering a module manually (i.e. that does not support app wiring), the module version map
+	// For instance, the upgrade module will set automatically the module version map in its init
+	// genesis thanks to app wiring.
+	// However, when registering a module manually (i.e. that does not support app wiring),
+	// the module version map
 	// must be set manually as follow. The upgrade module will de-duplicate the module version map.
 	//
 	// app.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
@@ -284,7 +303,7 @@ func NewSimApp(
 	return app
 }
 
-// Name returns the name of the App
+// Name returns the name of the App.
 func (app *SimApp) Name() string { return app.BaseApp.Name() }
 
 // LegacyAmino returns SimApp's amino codec.
@@ -303,12 +322,12 @@ func (app *SimApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns SimApp's InterfaceRegistry
+// InterfaceRegistry returns SimApp's InterfaceRegistry.
 func (app *SimApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns SimApp's TxConfig
+// TxConfig returns SimApp's TxConfig.
 func (app *SimApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
@@ -349,7 +368,7 @@ func (app *SimApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	return subspace
 }
 
-// SimulationManager implements the SimulationApp interface
+// SimulationManager implements the SimulationApp interface.
 func (app *SimApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
