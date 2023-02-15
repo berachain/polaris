@@ -20,8 +20,6 @@ import (
 
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
-	ethstate "github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 )
@@ -37,40 +35,35 @@ func GetNewStatePlugin() core.StatePlugin {
 	return state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil)
 }
 
-func GetNewStateDB() vm.StargazerStateDB {
-	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
-	return ethstate.NewStateDB(state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil))
-}
-
 func BenchmarkArbitraryStateTransition(b *testing.B) {
-	sdb := GetNewStateDB()
+	sp := GetNewStatePlugin()
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
 		var snapshots []int
 		for c := 0; c < numCalls; c++ {
-			sdb.SetNonce(testutil.Bob, uint64(c+19)) // accStore set
-			sdb.SetState(                            // ethStore set
+			sp.SetNonce(testutil.Bob, uint64(c+19)) // accStore set
+			sp.SetState(                            // ethStore set
 				testutil.Alice,
 				common.BytesToHash([]byte{byte(c + 11)}),
 				common.BytesToHash([]byte{byte(c + 22)}),
 			)
 
-			snapshots = append(snapshots, sdb.Snapshot())
+			snapshots = append(snapshots, sp.Snapshot())
 			for s := 0; s < numStoreOpsPerCall; s++ {
-				sdb.GetBalance(testutil.Alice)               // bankStore read
-				sdb.AddBalance(testutil.Bob, big.NewInt(10)) // bankStore write
-				sdb.GetCode(testutil.Alice)                  // ethStore read
+				sp.GetBalance(testutil.Alice)               // bankStore read
+				sp.AddBalance(testutil.Bob, big.NewInt(10)) // bankStore write
+				sp.GetCode(testutil.Alice)                  // ethStore read
 			}
 			if c > 0 && numReverts > 0 && c%(numCalls/numReverts) == 0 {
-				sdb.RevertToSnapshot(snapshots[len(snapshots)/2])
+				sp.RevertToSnapshot(snapshots[len(snapshots)/2])
 			}
 
-			sdb.Suicide(testutil.Alice) // will invoke a delete
+			sp.DeleteSuicides([]common.Address{testutil.Alice}) // will invoke a delete
 		}
 
 		// commit only once
-		sdb.Finalize()
+		sp.Finalize()
 	}
 }

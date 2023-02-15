@@ -17,7 +17,6 @@ package core
 import (
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/params"
 )
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
@@ -26,26 +25,23 @@ type blockchain struct {
 	host StargazerHostChain
 	// `csp` is the canonical, persistent state processor that runs the EVM.
 	csp *StateProcessor
-	// config is the state factory that builds state processors and statedbs.
-	config *params.ChainConfig
 }
 
 // `NewChain` creates and returns a `blockchain` with the given EVM chain configuration and
 // host chain. TODO: return public, exported `api.Chain` interface instead of `*blockchain`.
 //
 //nolint:revive // will be changed.
-func NewChain(config *params.ChainConfig, host StargazerHostChain) *blockchain {
+func NewChain(host StargazerHostChain) *blockchain {
 	bc := &blockchain{
-		host:   host,
-		config: config,
+		host: host,
 	}
 
-	bc.csp = bc.BuildStateProcessor(vm.Config{}, true)
+	bc.csp = bc.buildStateProcessor(vm.Config{}, true)
 	return bc
 }
 
-// `BuildStateProcessor` builds and returns a `StateProcessor` with the given EVM configuration and
+// `buildStateProcessor` builds and returns a `StateProcessor` with the given EVM configuration and
 // commit flag.
-func (bc *blockchain) BuildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
+func (bc *blockchain) buildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
 	return NewStateProcessor(bc.host, state.NewStateDB(bc.host.GetStatePlugin()), vmConfig, commit)
 }

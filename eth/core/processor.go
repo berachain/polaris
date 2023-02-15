@@ -43,6 +43,8 @@ type StateProcessor struct {
 	signer types.Signer
 	// `evm ` is the EVM that is used to process transactions.
 	evm vm.StargazerEVM
+	// `vmConfig` is the configuration for the EVM.
+	vmConfig vm.Config
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
 	// `block` represents the current block being processed.
@@ -69,18 +71,11 @@ func NewStateProcessor(
 		bp:                host.GetBlockPlugin(),
 		gp:                host.GetGasPlugin(),
 		cp:                host.GetConfigurationPlugin(),
+		vmConfig:          vmConfig,
 		statedb:           statedb,
 		precompileManager: precompile.NewManager(host.GetPrecompilePlugin(), statedb),
 		commit:            commit,
 	}
-	sp.evm = vm.NewStargazerEVM(
-		vm.BlockContext{},
-		vm.TxContext{},
-		sp.statedb,
-		sp.cp.ChainConfig(),
-		vmConfig,
-		sp.precompileManager,
-	)
 	return sp
 }
 
@@ -103,14 +98,13 @@ func (sp *StateProcessor) Prepare(ctx context.Context, header *types.StargazerHe
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
 
 	// Setup the EVM for this block.
-	newConfig := sp.evm.Config()
-	newConfig.ExtraEips = sp.cp.ExtraEips()
+	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
 		sp.newEVMBlockContext(ctx),
 		vm.TxContext{},
 		sp.statedb,
 		chainConfig,
-		newConfig,
+		sp.vmConfig,
 		sp.precompileManager,
 	)
 }
