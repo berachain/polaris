@@ -42,12 +42,14 @@ type StargazerHostChain interface {
 // Mandatory Plugins
 // =============================================================================
 
-// The following plugins should be implemented by the chain running Stargazer EVM and exposed via the
-// `StargazerHostChain` interface. All plugins should be resettable with a given context.
+// The following plugins should be implemented by the chain running Stargazer EVM and exposed via
+// the `StargazerHostChain` interface. All plugins should be resettable with a given context.
 type (
-	// `BlockPlugin` defines the methods that the chain running Stargazer EVM should implement to\
+	// `BlockPlugin` defines the methods that the chain running Stargazer EVM should implement to
 	// support the `BlockPlugin` interface.
 	BlockPlugin interface {
+		// `BlockPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the
+		// `BlockPlugin` to a default state.
 		libtypes.Resettable
 		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
 		GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
@@ -57,12 +59,12 @@ type (
 
 	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.
 	GasPlugin interface {
-		// `GasPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the GasPlugin
-		// to a default state.
+		// `GasPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the
+		// `GasPlugin` to a default state.
 		libtypes.Resettable
 		// `ConsumeGas` consumes the supplied amount of gas. It should not panic due to a
-		// GasOverflow and should return core.ErrOutOfGas if the amount of gas remaining is less
-		// than the amount requested.
+		// `GasOverflow` and should return `core.ErrOutOfGas` if the amount of gas remaining is
+		// less than the amount requested.
 		ConsumeGas(uint64) error
 		// `RefundGas` refunds the supplied amount of gas. It should not panic.
 		RefundGas(uint64)
@@ -86,6 +88,8 @@ type (
 	// `ConfigurationPlugin` defines the methods that the chain running Stargazer EVM should
 	// implement in order to configuration the parameters of the Stargazer EVM.
 	ConfigurationPlugin interface {
+		// `ConfigurationPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the
+		// `ConfigurationPlugin` to a default state.
 		libtypes.Resettable
 		// `ChainConfig` returns the current chain configuration of the Stargazer EVM.
 		ChainConfig() *params.ChainConfig
