@@ -15,8 +15,6 @@
 package types_test
 
 import (
-	"unsafe"
-
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/ethereum/go-ethereum/trie"
@@ -26,11 +24,15 @@ import (
 
 var _ = Describe("Block", func() {
 	var r types.Receipts
-	var sr *types.StargazerReceipts
+	var txs types.Transactions
 	var sh *types.StargazerHeader
 	var sb *types.StargazerBlock
 
 	BeforeEach(func() {
+		txs = types.Transactions{
+			types.NewTx(&types.DynamicFeeTx{}),
+			types.NewTx(&types.LegacyTx{}),
+		}
 		r = types.Receipts{
 			{
 				Type: 1,
@@ -47,55 +49,48 @@ var _ = Describe("Block", func() {
 				},
 			},
 		}
-		sr = types.StargazerReceiptsFromReceipts(r)
 		sh = types.NewEmptyStargazerHeader()
-		sb = types.NewStargazerBlock(
-			sh,
-			types.Transactions{
-				types.NewTx(&types.DynamicFeeTx{}),
-				types.NewTx(&types.LegacyTx{}),
-			},
-			*sr,
-		)
-	})
-
-	It("should conform to the standard create bloom", func() {
-		sb.CreateBloom()
-		Expect(sb.StargazerHeader.Bloom).To(Equal(types.CreateBloom(r)))
+		sb = types.NewStargazerBlock(sh)
 	})
 
 	It("should set gas used", func() {
 		sb.SetGasUsed(uint64(100))
 		Expect(sb.GasUsed).To(Equal(uint64(100)))
 	})
-	It("should set receipt hash", func() {
-		sb.SetReceiptHash()
-		Expect(sb.ReceiptHash).To(Equal(types.DeriveSha(
-			//#nosec:G103
-			*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))), trie.NewStackTrie(nil),
-		)))
-	})
-	It("should set block bloom", func() {
-		// Should set
-		sb.CreateBloom()
-		Expect(sb.StargazerHeader.Bloom).To(Equal(
-			types.CreateBloom(*(*(types.Receipts))((unsafe.Pointer(&sr.Receipts))))),
-		)
-	})
+
 	It("should be marshallable", func() {
-		sb.CreateBloom()
+		sb.Bloom = types.CreateBloom(r)
 		data, err := sb.MarshalBinary()
 		Expect(err).To(BeNil())
 		sb2 := &types.StargazerBlock{}
 		err = sb2.UnmarshalBinary(data)
 		Expect(err).To(BeNil())
 		Expect(sb2.Bloom).To(Equal(sb.Bloom))
-		Expect(sb2.Bloom).To(Equal(types.CreateBloom(r))) // conforms to standard create bloom
+		Expect(sb2.Bloom).To(Equal(types.CreateBloom(r)))
 	})
 
-	It("should set to empty root hash on no receipts", func() {
-		b := types.NewStargazerBlock(sh, types.Transactions{}, *types.NewStargazerReceipts())
-		b.SetReceiptHash()
-		Expect(b.ReceiptHash).To(Equal(types.EmptyRootHash))
+	When("building a block", func() {
+		BeforeEach(func() {
+			Expect(sb.TxIndex()).To(Equal(uint(0)))
+
+			sb.AppendTx(txs[0], r[0])
+			Expect(sb.TxIndex()).To(Equal(uint(1)))
+
+			sb.AppendTx(txs[1], r[1])
+			Expect(sb.TxIndex()).To(Equal(uint(2)))
+		})
+
+		It("should convert receipts to storage receipts", func() {
+			sr := sb.GetReceiptsForStorage()
+			Expect(len(sr)).To(Equal(len(r)))
+			Expect(sr[0].Logs).To(Equal(r[0].Logs))
+			Expect(sr[1].Logs).To(Equal(r[1].Logs))
+		})
+
+		It("should return an Eth block", func() {
+			b := sb.EthBlock()
+			Expect(b.Transactions()).To(Equal(txs))
+			Expect(types.DeriveSha(r, trie.NewStackTrie(nil))).To(Equal(b.ReceiptHash()))
+		})
 	})
 })

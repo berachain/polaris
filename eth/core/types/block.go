@@ -21,66 +21,74 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 )
 
+// `initialTransactionsCapacity` is the initial capacity of the transactions, receipts slice.
+// TODO: figre out optimal value.
+const initialTransactionsCapacity = 256
+
 // `StargazerBlock` represents a ethereum-like block that can be encoded to raw bytes.
 //
 //go:generate rlpgen -type StargazerBlock -out block.rlpgen.go -decoder
 type StargazerBlock struct {
 	*StargazerHeader
 	Transactions Transactions
-	Receipts     StargazerReceipts
+	Receipts     Receipts
 }
 
-// `NewStargazerBlock` creates a new StargazerBlock from the given header and transactions.
-func NewStargazerBlock(h *StargazerHeader, txs Transactions, rs StargazerReceipts) *StargazerBlock {
-	b := &StargazerBlock{
-		StargazerHeader: h,
-		Transactions:    txs,
-		Receipts:        rs,
+// `NewStargazerBlock` creates a new StargazerBlock from the given header.
+func NewStargazerBlock(header *StargazerHeader) *StargazerBlock {
+	return &StargazerBlock{
+		StargazerHeader: header,
+		Transactions:    make(Transactions, 0, initialTransactionsCapacity),
+		Receipts:        make(Receipts, 0, initialTransactionsCapacity),
 	}
-
-	return b
 }
 
 // `SetGasUsed` sets the gas used of the block.
-func (b *StargazerBlock) SetGasUsed(gas uint64) {
-	b.GasUsed = gas
+func (sb *StargazerBlock) SetGasUsed(gas uint64) {
+	sb.GasUsed = gas
 }
 
-// `SetReceiptHash` sets the receipt hash of the block.
-func (b *StargazerBlock) SetReceiptHash() {
-	if b.Receipts.Len() > 0 {
-		b.StargazerHeader.ReceiptHash = DeriveSha(
-			//#nosec:G103
-			*(*(Receipts))((unsafe.Pointer(&b.Receipts.Receipts))), trie.NewStackTrie(nil),
-		)
-	} else {
-		b.StargazerHeader.ReceiptHash = EmptyRootHash
-	}
+// `TxIndex` returns the current transaction index in the block.
+func (sb *StargazerBlock) TxIndex() uint {
+	return uint(len(sb.Transactions))
 }
 
-// `CreateBloom` creates the bloom filter for the block.
-func (b *StargazerBlock) CreateBloom() {
-	b.StargazerHeader.Bloom = b.Receipts.Bloom()
+// `AppendTx` appends a transaction and receipt to the block.
+func (sb *StargazerBlock) AppendTx(tx *Transaction, receipt *Receipt) {
+	sb.Transactions = append(sb.Transactions, tx)
+	sb.Receipts = append(sb.Receipts, receipt)
 }
 
 // `UnmarshalBinary` decodes a block from the Ethereum RLP format.
-func (b *StargazerBlock) UnmarshalBinary(data []byte) error {
-	return rlp.DecodeBytes(data, b)
+func (sb *StargazerBlock) UnmarshalBinary(data []byte) error {
+	return rlp.DecodeBytes(data, sb)
 }
 
 // `MarshalBinary` encodes the block into the Ethereum RLP format.
-func (b *StargazerBlock) MarshalBinary() ([]byte, error) {
-	bz, err := rlp.EncodeToBytes(b)
+func (sb *StargazerBlock) MarshalBinary() ([]byte, error) {
+	bz, err := rlp.EncodeToBytes(sb)
 	if err != nil {
 		return nil, err
 	}
 	return bz, nil
 }
 
+// `GetReceiptsForStorage` converts a list of `Receipt`s to a `StargazerReceipts`.
+func (sb *StargazerBlock) GetReceiptsForStorage() []*ReceiptForStorage {
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	return *(*[]*ReceiptForStorage)(unsafe.Pointer(&sb.Receipts))
+}
+
 // `EthBlock` returns the block as an Ethereum Block.
-func (b *StargazerBlock) EthBlock() *Block {
-	if b == nil {
+func (sb *StargazerBlock) EthBlock() *Block {
+	if sb == nil {
 		return nil
 	}
-	return NewBlock(b.StargazerHeader.Header, b.Transactions, nil, nil, trie.NewStackTrie(nil))
+	return NewBlock(
+		sb.StargazerHeader.Header,
+		sb.Transactions,
+		nil,
+		sb.Receipts,
+		trie.NewStackTrie(nil),
+	)
 }

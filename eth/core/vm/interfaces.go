@@ -59,7 +59,9 @@ type (
 		TransferBalance(common.Address, common.Address, *big.Int)
 		// `BuildLogsAndClear` builds the logs for the tx with the given metadata. NOTE: must be
 		// called after `Finalize`.
-		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
+		BuildLogsAndClear(
+			txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint,
+		) []*coretypes.Log
 	}
 
 	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs to
