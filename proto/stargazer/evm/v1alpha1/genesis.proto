@@ -12,4 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package keeper
+syntax = "proto3";
+package stargazer.evm.v1alpha1;
+
+import "gogoproto/gogo.proto";
+import "stargazer/evm/v1alpha1/evm.proto";
+
+option go_package = "github.com/berachain/stargazer/x/evm/types";
+
+// GenesisState defines the evm module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

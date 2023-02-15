@@ -12,26 +12,19 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-coverage:
-  status:
-    # Learn more at https://docs.codecov.io/docs/commit-status
-    project:
-      default:
-        threshold: 2% # allow this much decrease on project
-        target: 50% # yeah we gonna need to get this up LOL
-    patch: off
-comment:
-  layout: "reach, diff, files"
-  behavior: default # update if exists else create new
-  require_changes: true
+# this script is for generating protobuf files for the new google.golang.org/protobuf API
 
-ignore:
-  - "**/*.pb.go"
-  - "**/*.pb.gw.go"
-  - "**/*.pulsar.go"
-  - "**/*.abigen.go"
-  - "**/*.rlpgen.go"
-  - "**/*.mock.go"
-  - "**/proto"
-  - "build/"
-  - "cmd/"
+set -eo pipefail
+
+protoc_install_gopulsar() {
+  go install github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar@latest
+  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+}
+
+protoc_install_gopulsar
+
+echo "Cleaning API directory"
+(cd api; find ./ -type f \( -iname \*.pulsar.go -o -iname \*.pb.go -o -iname \*.cosmos_orm.go -o -iname \*.pb.gw.go \) -delete; find . -empty -type d -delete; cd ..)
+
+echo "Generating API module"
+(cd proto; buf generate --template buf.gen.pulsar.yaml)

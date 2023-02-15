@@ -33,19 +33,20 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 
 	stateProcessor *core.StateProcessor
+
 	// It is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
-	stakingKeeper StakingKeeper
+	// StakingKeeper
+
+	authority string
 }
 
 // NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
-	storeKey storetypes.StoreKey,
-	stakingKeeper StakingKeeper,
+	authority string,
 ) *Keeper {
 	k := &Keeper{
-		storeKey:      storeKey,
-		stakingKeeper: stakingKeeper,
+		authority: authority,
 	}
 	// TODO: remove state processor from here.
 	k.stateProcessor = core.NewStateProcessor(k, nil, vm.Config{}, false)

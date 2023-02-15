@@ -28,11 +28,11 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/store/snapmulti"
 	"github.com/berachain/stargazer/x/evm/plugins/state/events"
+	types "github.com/berachain/stargazer/x/evm/types"
 )
 
 const (
 	pluginRegistryKey = `statePlugin`
-	EvmNamespace      = `evm`
 )
 
 var (
@@ -173,13 +173,13 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
-	if err := p.bk.MintCoins(p.ctx, EvmNamespace, coins); err != nil {
+	if err := p.bk.MintCoins(p.ctx, types.ModuleName, coins); err != nil {
 		panic(err)
 	}
 
 	// Send the coins from the evm module account to the destination address.
 	if err := p.bk.SendCoinsFromModuleToAccount(
-		p.ctx, EvmNamespace, addr[:], coins,
+		p.ctx, types.ModuleName, addr[:], coins,
 	); err != nil {
 		panic(err)
 	}
@@ -192,13 +192,13 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 
 	// Send the coins from the source address to the evm module account.
 	if err := p.bk.SendCoinsFromAccountToModule(
-		p.ctx, addr[:], EvmNamespace, coins,
+		p.ctx, addr[:], types.ModuleName, coins,
 	); err != nil {
 		panic(err)
 	}
 
 	// Burn the coins from the evm module account.
-	if err := p.bk.BurnCoins(p.ctx, EvmNamespace, coins); err != nil {
+	if err := p.bk.BurnCoins(p.ctx, types.ModuleName, coins); err != nil {
 		panic(err)
 	}
 }
