@@ -26,7 +26,6 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 )
@@ -35,10 +34,10 @@ import (
 const ConsensusVersion = 1
 
 var (
+	_ module.HasServices         = AppModule{}
 	_ module.BeginBlockAppModule = AppModule{}
 	_ module.EndBlockAppModule   = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
-	_ module.AppModuleSimulation = AppModule{}
 )
 
 // ==============================================================================
@@ -107,7 +106,7 @@ type AppModule struct {
 	bankKeeper BankKeeper
 }
 
-// NewAppModule creates a new AppModule object.
+// `NewAppModule` creates a new AppModule object.
 func NewAppModule(
 	keeper *keeper.Keeper,
 	ak AccountKeeper,
@@ -167,29 +166,4 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 // updates.
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
-}
-
-// ==============================================================================
-// AppModuleSimulation
-// ==============================================================================
-
-// GenerateGenesisState creates a randomized GenState of the evm module.
-func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
-	// simulation.RandomizedGenState(simState)
-}
-
-// ProposalMsgs returns msgs used for governance proposals for simulations.
-func (AppModule) ProposalMsgs(simState module.SimulationState) []simtypes.WeightedProposalMsg {
-	// return simulation.ProposalMsgs()
-	return nil
-}
-
-// RegisterStoreDecoder registers a decoder for evm module's types.
-func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
-	// sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
-}
-
-// WeightedOperations doesn't return any evm module operation.
-func (AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
-	return nil
 }
