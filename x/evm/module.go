@@ -16,6 +16,7 @@ package evm
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/berachain/stargazer/x/evm/keeper"
 	"github.com/berachain/stargazer/x/evm/types"
@@ -65,18 +66,16 @@ func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
 // `DefaultGenesis` returns default genesis state as raw bytes for the evm
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return nil
-	// return cdc.MustMarshalJSON(types.DefaultGenesisState())
+	return cdc.MustMarshalJSON(types.DefaultGenesis())
 }
 
 // `ValidateGenesis` performs genesis state validation for the evm module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	// var data types.GenesisState
-	// if err := cdc.UnmarshalJSON(bz, &data); err != nil {
-	// 	return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	// }
-	return nil
-	// return types.ValidateGenesis(data)
+	var data types.GenesisState
+	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
+	return types.ValidateGenesis(data)
 }
 
 // `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the evm module.
