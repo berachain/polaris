@@ -1,0 +1,55 @@
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// See the file LICENSE for licensing terms.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+syntax = "proto3";
+package stargazer.evm.v1alpha1;
+
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "stargazer/evm/v1alpha1/evm.proto";
+
+option go_package = "github.com/berachain/stargazer/x/evm/types";
+
+// Msg defines the x/evm Msg service.
+service MsgService {
+  option (cosmos.msg.v1.service) = true;
+
+  // `UpdateParams` defines a governance operation for updating the x/evm module
+  // parameters. The authority is defaults to the x/gov module account.
+  //
+  // Since: cosmos-sdk 0.47
+  rpc UpdateParams(UpdateParamsRequest) returns (UpdateParamsResponse);
+}
+
+// `UpdateParamsRequest` is the Msg/UpdateParams request type.
+//
+// Since: cosmos-sdk 0.47
+message UpdateParamsRequest {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // params defines the x/evm parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// `UpdateParamsResponse` defines the response structure for executing a
+// UpdateParamsResponse message.
+//
+// Since: cosmos-sdk 0.47
+message UpdateParamsResponse {}
