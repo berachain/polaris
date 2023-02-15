@@ -20,7 +20,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/x/evm/constants"
+	"github.com/berachain/stargazer/x/evm/types"
 
 	"github.com/cometbft/cometbft/libs/log"
 )
@@ -32,11 +32,12 @@ type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
 
+	// TODO: replace with the Chain interface.
 	stateProcessor *core.StateProcessor
 
-	// It is used to retrieve infofrmation about the current / past
+	// sk is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
-	// StakingKeeper
+	// sk StakingKeeper
 
 	authority string
 }
@@ -47,6 +48,7 @@ func NewKeeper(
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
+		storeKey:  storetypes.NewKVStoreKey(types.StoreKey),
 	}
 	// TODO: remove state processor from here.
 	k.stateProcessor = core.NewStateProcessor(k, nil, vm.Config{}, false)
@@ -55,7 +57,7 @@ func NewKeeper(
 
 // `Logger` returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", constants.EvmNamespace)
+	return ctx.Logger().With("module", types.ModuleName)
 }
 
 func (k Keeper) GetBlockPlugin() core.BlockPlugin {
