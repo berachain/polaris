@@ -89,6 +89,11 @@ func (sp *StateProcessor) Prepare(ctx context.Context, header *types.StargazerHe
 	// before finalize.
 	sp.mtx.Lock()
 
+	// Reset the plugins for the new block.
+	sp.bp.Reset(ctx)
+	sp.gp.Reset(ctx)
+	sp.cp.Reset(ctx)
+
 	// Build a block object so we can track that status of the block as we process it.
 	sp.block = types.NewStargazerBlock(header)
 	sp.logIndex = 0
@@ -116,10 +121,12 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
 	}
 
-	// Create a new context to be used in the EVM environment. We also must reset the StateDB.
+	// Create a new context to be used in the EVM environment. We also must reset the StateDB and
+	// precompile manager, which reset the state and precompile plugins, for the tx.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
 	sp.statedb.Reset(ctx)
+	sp.precompileManager.Reset(ctx)
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, sp.gp, msg, sp.commit)

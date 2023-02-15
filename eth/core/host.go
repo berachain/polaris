@@ -93,8 +93,6 @@ type (
 		libtypes.Resettable
 		// `ChainConfig` returns the current chain configuration of the Stargazer EVM.
 		ChainConfig() *params.ChainConfig
-		// `UpdateChainConfig` updates the chain configuration of the Stargazer EVM.
-		UpdateChainConfig(*params.ChainConfig)
 		// `ExtraEips` returns the extra EIPs that the Stargazer EVM supports.
 		ExtraEips() []int
 	}
