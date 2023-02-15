@@ -16,10 +16,14 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 
 	storetypes "cosmossdk.io/store/types"
+	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/x/evm/plugins/gas"
+	"github.com/berachain/stargazer/x/evm/plugins/precompile"
+	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
+	"github.com/berachain/stargazer/x/evm/plugins/state"
 	"github.com/berachain/stargazer/x/evm/types"
 
 	"github.com/cometbft/cometbft/libs/log"
@@ -32,14 +36,20 @@ type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
 
-	// TODO: replace with the Chain interface.
-	stateProcessor *core.StateProcessor
+	ethChain api.Chain
 
 	// sk is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
 	// sk StakingKeeper
 
 	authority string
+
+	// plugins
+	bp core.BlockPlugin
+	cp core.ConfigurationPlugin
+	gp core.GasPlugin
+	pp core.PrecompilePlugin
+	sp core.StatePlugin
 }
 
 // NewKeeper creates new instances of the stargazer Keeper.
@@ -50,32 +60,41 @@ func NewKeeper(
 		authority: authority,
 		storeKey:  storetypes.NewKVStoreKey(types.StoreKey),
 	}
-	// TODO: remove state processor from here.
-	k.stateProcessor = core.NewStateProcessor(k, nil, vm.Config{}, false)
+	k.ethChain = core.NewChain(k)
 	return k
 }
 
 // `Logger` returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
 }
 
-func (k Keeper) GetBlockPlugin() core.BlockPlugin {
-	return nil
+func (k *Keeper) InitPlugins(ctx sdk.Context, ak state.AccountKeeper, bk state.BankKeeper) {
+	// k.bp = nil
+	// k.cp = nil
+	k.gp = gas.NewPluginFrom(ctx)
+	k.pp = precompile.NewPluginFrom(ctx)
+	plf := precompilelog.NewFactory()
+	// TODO: register precompile events/logs
+	k.sp = state.NewPlugin(ctx, ak, bk, k.storeKey, types.ModuleName, plf)
 }
 
-func (k Keeper) GetPrecompilePlugin() core.PrecompilePlugin {
-	return nil
+func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
+	return k.bp
 }
 
-func (k Keeper) GetStatePlugin() core.StatePlugin {
-	return nil
+func (k *Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
+	return k.cp
 }
 
-func (k Keeper) GetGasPlugin() core.GasPlugin {
-	return nil
+func (k *Keeper) GetGasPlugin() core.GasPlugin {
+	return k.gp
 }
 
-func (k Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
-	return nil
+func (k *Keeper) GetPrecompilePlugin() core.PrecompilePlugin {
+	return k.pp
+}
+
+func (k *Keeper) GetStatePlugin() core.StatePlugin {
+	return k.sp
 }

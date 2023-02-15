@@ -30,7 +30,7 @@ func NewGasPluginMock(gasLimit uint64) *GasPluginMock {
 	}
 }
 
-func (w *GasPluginMock) Reset(context.Context) {
+func (w *GasPluginMock) Prepare(context.Context) {
 	w.gasUsed = 0
 }
 

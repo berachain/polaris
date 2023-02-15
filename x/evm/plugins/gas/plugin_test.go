@@ -52,7 +52,7 @@ var _ = Describe("plugin", func() {
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 1
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p.Prepare(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
 		err = p.SetGasLimit(txGasLimit)
@@ -65,7 +65,7 @@ var _ = Describe("plugin", func() {
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
 		blockGasMeter.ConsumeGas(1000, "") // finalize tx 2
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p.Prepare(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 3
 		err = p.SetGasLimit(txGasLimit)

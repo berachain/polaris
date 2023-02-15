@@ -77,8 +77,16 @@ type Finalizeable interface {
 	Finalize()
 }
 
-// `Resettable` is an interface that defines a `Reset` method.
+// `Resettable` is an interface that defines a `Reset` method. The `Reset` method is usually used
+// to reset the state per transaction.
 type Resettable interface {
 	// `Reset` resets the state of the object with the new given context.
 	Reset(context.Context)
+}
+
+// `Preparable` is an interface that defines a `Prepare` method. The `Prepare` method is usually
+// used to prepare the state per block.
+type Preparable interface {
+	// `Prepare` prepares the state of the object with the new given context.
+	Prepare(context.Context)
 }

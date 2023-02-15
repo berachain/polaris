@@ -165,6 +165,7 @@ var _ = Describe("StateTransition", func() {
 				return 100000
 			}
 		})
+
 		Context("Gas Refund", func() {
 			BeforeEach(func() {
 				sdb.GetRefundFunc = func() uint64 {
@@ -178,6 +179,7 @@ var _ = Describe("StateTransition", func() {
 					return []byte{}, 80000, nil
 				}
 			})
+
 			When("we are in london", func() {
 				It("should call call", func() {
 					res, err := core.ApplyMessage(evm, gp, &msg, true)
@@ -233,7 +235,7 @@ var _ = Describe("StateTransition", func() {
 				consumedWithData := gp.CumulativeGasUsed()
 
 				// Reset the gas meter.
-				gp.Reset(context.Background())
+				gp.Prepare(context.Background())
 
 				// Call the intrinsic gas function with no data
 				msg.DataFunc = func() []byte {

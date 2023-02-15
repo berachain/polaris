@@ -48,9 +48,9 @@ type (
 	// `BlockPlugin` defines the methods that the chain running Stargazer EVM should implement to
 	// support the `BlockPlugin` interface.
 	BlockPlugin interface {
-		// `BlockPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the
+		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `BlockPlugin` to a default state.
-		libtypes.Resettable
+		libtypes.Preparable
 		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
 		GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
 		// `BaseFee` returns the base fee of the current block.
@@ -59,9 +59,9 @@ type (
 
 	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.
 	GasPlugin interface {
-		// `GasPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the
+		// `GasPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `GasPlugin` to a default state.
-		libtypes.Resettable
+		libtypes.Preparable
 		// `ConsumeGas` consumes the supplied amount of gas. It should not panic due to a
 		// `GasOverflow` and should return `core.ErrOutOfGas` if the amount of gas remaining is
 		// less than the amount requested.
@@ -88,9 +88,9 @@ type (
 	// `ConfigurationPlugin` defines the methods that the chain running Stargazer EVM should
 	// implement in order to configuration the parameters of the Stargazer EVM.
 	ConfigurationPlugin interface {
-		// `ConfigurationPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the
-		// `ConfigurationPlugin` to a default state.
-		libtypes.Resettable
+		// `ConfigurationPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset
+		// the `ConfigurationPlugin` to a default state.
+		libtypes.Preparable
 		// `ChainConfig` returns the current chain configuration of the Stargazer EVM.
 		ChainConfig() *params.ChainConfig
 		// `ExtraEips` returns the extra EIPs that the Stargazer EVM supports.
