@@ -26,7 +26,7 @@ type blockchain struct {
 	host StargazerHostChain
 	// `csp` is the canonical, persistent state processor that runs the EVM.
 	csp *StateProcessor
-	// sf is the state factory that builds state processors and statedbs.
+	// config is the state factory that builds state processors and statedbs.
 	config *params.ChainConfig
 }
 

@@ -74,7 +74,12 @@ func NewStateProcessor(
 		commit:            commit,
 	}
 	sp.evm = vm.NewStargazerEVM(
-		vm.BlockContext{}, vm.TxContext{}, sp.statedb, nil, vmConfig, sp.precompileManager,
+		vm.BlockContext{},
+		vm.TxContext{},
+		sp.statedb,
+		sp.cp.ChainConfig(),
+		vmConfig,
+		sp.precompileManager,
 	)
 	return sp
 }
