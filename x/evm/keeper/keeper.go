@@ -13,3 +13,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package keeper
+
+type Keeper struct{}
+
+func NewKeeper(
+	authority string,
+) *Keeper {
+	return &Keeper{}
+}
