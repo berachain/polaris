@@ -1,0 +1,191 @@
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// See the file LICENSE for licensing terms.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+package config
+
+import (
+	"time"
+
+	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
+	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
+	authzmodulev1 "cosmossdk.io/api/cosmos/authz/module/v1"
+	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
+	capabilitymodulev1 "cosmossdk.io/api/cosmos/capability/module/v1"
+	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
+	crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
+	distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
+	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
+	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
+	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
+	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
+	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
+	mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
+	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
+	slashingmodulev1 "cosmossdk.io/api/cosmos/slashing/module/v1"
+	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
+	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
+	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
+	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
+	"cosmossdk.io/core/appconfig"
+	evidencetypes "cosmossdk.io/x/evidence/types"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"google.golang.org/protobuf/types/known/durationpb"
+
+	"cosmossdk.io/x/feegrant"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/cosmos/cosmos-sdk/x/group"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	evmmodulev1 "github.com/berachain/stargazer/api/stargazer/evm/module/v1"
+	evmtypes "github.com/berachain/stargazer/x/evm/types"
+)
+
+var (
+	// module account permissions.
+	ModuleAccPerms = []*authmodulev1.ModuleAccountPermission{
+		{Account: authtypes.FeeCollectorName},
+		{Account: distrtypes.ModuleName},
+		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
+		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
+	}
+
+	// blocked account addresses.
+	BlockAccAddrs = []string{
+		authtypes.FeeCollectorName,
+		distrtypes.ModuleName,
+		minttypes.ModuleName,
+		stakingtypes.BondedPoolName,
+		stakingtypes.NotBondedPoolName,
+		// We allow the following module accounts to receive funds:
+		// govtypes.ModuleName
+	}
+
+	DefaultModule = []*appv1alpha1.ModuleConfig{
+		{
+			Name:   runtime.ModuleName,
+			Config: appconfig.WrapAny(DefaultRuntime),
+		},
+		{
+			Name: authtypes.ModuleName,
+			Config: appconfig.WrapAny(&authmodulev1.Module{
+				Bech32Prefix:             "cosmos",
+				ModuleAccountPermissions: ModuleAccPerms,
+				// By default modules authority is the governance module. This is configurable with the following:
+				// Authority: "group", // A custom module authority can be set using a module name
+				// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
+			}),
+		},
+		{
+			Name:   vestingtypes.ModuleName,
+			Config: appconfig.WrapAny(&vestingmodulev1.Module{}),
+		},
+		{
+			Name: banktypes.ModuleName,
+			Config: appconfig.WrapAny(&bankmodulev1.Module{
+				BlockedModuleAccountsOverride: BlockAccAddrs,
+			}),
+		},
+		{
+			Name:   stakingtypes.ModuleName,
+			Config: appconfig.WrapAny(&stakingmodulev1.Module{}),
+		},
+		{
+			Name:   slashingtypes.ModuleName,
+			Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
+		},
+		{
+			Name:   paramstypes.ModuleName,
+			Config: appconfig.WrapAny(&paramsmodulev1.Module{}),
+		},
+		{
+			Name:   "tx",
+			Config: appconfig.WrapAny(&txconfigv1.Config{}),
+		},
+		{
+			Name:   genutiltypes.ModuleName,
+			Config: appconfig.WrapAny(&genutilmodulev1.Module{}),
+		},
+		{
+			Name:   authz.ModuleName,
+			Config: appconfig.WrapAny(&authzmodulev1.Module{}),
+		},
+		{
+			Name:   upgradetypes.ModuleName,
+			Config: appconfig.WrapAny(&upgrademodulev1.Module{}),
+		},
+		{
+			Name:   distrtypes.ModuleName,
+			Config: appconfig.WrapAny(&distrmodulev1.Module{}),
+		},
+		{
+			Name: capabilitytypes.ModuleName,
+			Config: appconfig.WrapAny(&capabilitymodulev1.Module{
+				SealKeeper: true,
+			}),
+		},
+		{
+			Name:   evidencetypes.ModuleName,
+			Config: appconfig.WrapAny(&evidencemodulev1.Module{}),
+		},
+		{
+			Name:   minttypes.ModuleName,
+			Config: appconfig.WrapAny(&mintmodulev1.Module{}),
+		},
+		{
+			Name: group.ModuleName,
+			Config: appconfig.WrapAny(&groupmodulev1.Module{
+				//nolint:gomnd // its okay.
+				MaxExecutionPeriod: durationpb.New(time.Second * 1209600),
+				//nolint:gomnd // its okay.
+				MaxMetadataLen: 255,
+			}),
+		},
+		{
+			Name:   feegrant.ModuleName,
+			Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
+		},
+		{
+			Name:   govtypes.ModuleName,
+			Config: appconfig.WrapAny(&govmodulev1.Module{}),
+		},
+		{
+			Name:   crisistypes.ModuleName,
+			Config: appconfig.WrapAny(&crisismodulev1.Module{}),
+		},
+		{
+			Name:   consensustypes.ModuleName,
+			Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
+		},
+		{
+			Name:   evmtypes.ModuleName,
+			Config: appconfig.WrapAny(&evmmodulev1.Module{}),
+		},
+	}
+)

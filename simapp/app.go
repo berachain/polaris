@@ -21,6 +21,8 @@ import (
 	"os"
 	"path/filepath"
 
+	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
+	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/log"
 	dbm "github.com/cosmos/cosmos-db"
 
@@ -84,6 +86,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	simappconfig "github.com/berachain/stargazer/simapp/config"
 	"github.com/berachain/stargazer/x/evm"
 	evmkeeper "github.com/berachain/stargazer/x/evm/keeper"
 )
@@ -120,6 +123,10 @@ var (
 		consensus.AppModuleBasic{},
 		evm.AppModuleBasic{},
 	)
+	// application configuration (used by depinject).
+	AppConfig = appconfig.Compose(&appv1alpha1.Config{
+		Modules: simappconfig.DefaultModule,
+	})
 )
 
 var (
@@ -396,7 +403,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 // NOTE: This is solely to be used for testing purposes.
 func GetMaccPerms() map[string][]string {
 	dup := make(map[string][]string)
-	for _, perms := range moduleAccPerms {
+	for _, perms := range simappconfig.ModuleAccPerms {
 		dup[perms.Account] = perms.Permissions
 	}
 
@@ -407,8 +414,8 @@ func GetMaccPerms() map[string][]string {
 func BlockedAddresses() map[string]bool {
 	result := make(map[string]bool)
 
-	if len(blockAccAddrs) > 0 {
-		for _, addr := range blockAccAddrs {
+	if len(simappconfig.BlockAccAddrs) > 0 {
+		for _, addr := range simappconfig.BlockAccAddrs {
 			result[addr] = true
 		}
 	} else {
