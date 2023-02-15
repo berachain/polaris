@@ -64,8 +64,8 @@ cosmossdk.io/log v0.0.0-20230214182345-86eca4c72bd2 h1:SbH2aTV8zcHyCvrYc7v21sTbo
 cosmossdk.io/log v0.0.0-20230214182345-86eca4c72bd2/go.mod h1:MyvZ6k9eL0azI/yf8m5gqsM8PgbtFmqjire1OxUMkmc=
 cosmossdk.io/math v1.0.0-beta.6 h1:WF29SiFYNde5eYvqO2kdOM9nYbDb44j3YW5B8M1m9KE=
 cosmossdk.io/math v1.0.0-beta.6/go.mod h1:gUVtWwIzfSXqcOT+lBVz2jyjfua8DoBdzRsIyaUAT/8=
-cosmossdk.io/simapp v0.0.0-20230214182345-86eca4c72bd2 h1:wXjo1yfN+SHNxK+EIj7sUPkI4tpWMLyfM0oaEtwguP0=
-cosmossdk.io/simapp v0.0.0-20230214182345-86eca4c72bd2/go.mod h1:0HfzrF33NpuQ8cmvyk7Aj+84s4yLxf53DtIWBKBnI/Q=
+cosmossdk.io/simapp v0.0.0-20230215155505-b3f95061fade h1:m9GRhfysMS0CeuM+/ALX7QL3o/mnmUZMFCQu0OYHlyE=
+cosmossdk.io/simapp v0.0.0-20230215155505-b3f95061fade/go.mod h1:0HfzrF33NpuQ8cmvyk7Aj+84s4yLxf53DtIWBKBnI/Q=
 cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2 h1:JaMFmIua3acsBfJjCO7203UCx68mqYWHNlMkcNWTxDM=
 cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2/go.mod h1:1H+sGpsDsxhmy9P1hHsvbzUlhtL9Y+IOw5d2TDo6M6o=
 cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2 h1:9et6cxtYvx2aPfni1C52oLXCgMsHrh/4yis3X5Y78vk=
@@ -601,8 +601,8 @@ github.com/golangci/revgrep v0.0.0-20220804021717-745bb2f7c2e6/go.mod h1:0AKcRCk
 github.com/golangci/unconvert v0.0.0-20180507085042-28b1c447d1f4 h1:zwtduBRr5SSWhqsYNgcuWO2kFlpdOZbP0+yRjmvPGys=
 github.com/golangci/unconvert v0.0.0-20180507085042-28b1c447d1f4/go.mod h1:Izgrg8RkN3rCIMLGE9CyYmU9pY2Jer6DgANEnZ/L/cQ=
 github.com/gomodule/redigo v1.7.1-0.20190724094224-574c33c3df38/go.mod h1:B4C85qUVwatsJoIUNIfCRsp7qO0iAmpGFZ4EELWSbC4=
-github.com/google/addlicense v1.1.0 h1:tbfMjUu31H8CEn9/pJW+H9Ywh44K9ESx1jpSr1asSFc=
-github.com/google/addlicense v1.1.0/go.mod h1:Sm/DHu7Jk+T5miFHHehdIjbi4M5+dJDRS3Cq0rncIxA=
+github.com/google/addlicense v1.1.1 h1:jpVf9qPbU8rz5MxKo7d+RMcNHkqxi4YJi/laauX4aAE=
+github.com/google/addlicense v1.1.1/go.mod h1:Sm/DHu7Jk+T5miFHHehdIjbi4M5+dJDRS3Cq0rncIxA=
 github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
 github.com/google/btree v1.0.0/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
 github.com/google/btree v1.1.2 h1:xf4v41cLI2Z6FxbKm+8Bu+m8ifhj15JuZ9sa0jZCMUU=

@@ -20,7 +20,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/log v0.0.0
 	cosmossdk.io/math v1.0.0-beta.6
-	cosmossdk.io/simapp v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/simapp v0.0.0-20230215155505-b3f95061fade
 	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/evidence v0.1.0
@@ -36,7 +36,7 @@ require (
 	github.com/dave/jennifer v1.6.0
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/golangci/golangci-lint v1.50.1
-	github.com/google/addlicense v1.1.0
+	github.com/google/addlicense v1.1.1
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
 	github.com/matryer/moq v0.3.0
