@@ -63,7 +63,7 @@ func (obj *StargazerBlock) EncodeRLP(_w io.Writer) error {
 			}
 			w.ListEnd(_tmp2)
 		}
-		w.WriteBytes(obj.StargazerHeader.CachedHash[:])
+		w.WriteBytes(obj.StargazerHeader.HostHash[:])
 		w.ListEnd(_tmp1)
 	}
 	_tmp4 := w.List()
@@ -205,12 +205,12 @@ func (obj *StargazerBlock) DecodeRLP(dec *rlp.Stream) error {
 				}
 			}
 			_tmp1.Header = &_tmp2
-			// CachedHash:
+			// HostHash:
 			var _tmp19 common.Hash
 			if err := dec.ReadBytes(_tmp19[:]); err != nil {
 				return err
 			}
-			_tmp1.CachedHash = _tmp19
+			_tmp1.HostHash = _tmp19
 			if err := dec.ListEnd(); err != nil {
 				return err
 			}
