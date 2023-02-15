@@ -21,7 +21,6 @@ package keeper
 // 	"github.com/berachain/stargazer/eth/common"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-// 	tmtypes "github.com/tendermint/tendermint/types"
 // )
 
 // //===============================================================

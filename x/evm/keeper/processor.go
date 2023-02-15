@@ -19,11 +19,10 @@ import (
 
 	"github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
-func (k *Keeper) BeginBlocker(ctx context.Context, req *abci.RequestBeginBlock) {
+func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("BeginBlocker")
 	k.stateProcessor.Prepare(ctx, k.GetStargazerHeaderAtHeight(ctx, uint64(sCtx.BlockHeight())))
@@ -62,7 +61,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) 
 }
 
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
-func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (k *Keeper) EndBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("EndBlocker")
 
@@ -75,6 +74,4 @@ func (k *Keeper) EndBlocker(ctx context.Context, req *abci.RequestEndBlock) []ab
 	// Save the historical stargazer block.
 	k.TrackHistoricalStargazerBlocks(sCtx, stargazerBlock)
 	// TODO: should we just yeet stargazer blocks into tendermint event filter? (sans receipts)?
-
-	return []abci.ValidatorUpdate{}
 }

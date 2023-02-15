@@ -8,7 +8,6 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0
 // Various replaces needed to resolve conflicts until 0.48 branch cut.
 replace (
 	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230214182345-86eca4c72bd2
-	cosmossdk.io/store => cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/nft => cosmossdk.io/x/nft v0.0.0-20230214182345-86eca4c72bd2
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230214182345-86eca4c72bd2
@@ -48,7 +47,6 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
-	github.com/tendermint/tendermint v0.35.9
 	github.com/tidwall/btree v1.6.0
 	golang.org/x/tools v0.6.0
 	google.golang.org/protobuf v1.28.2-0.20230208135220-49eaa78c6c9c
@@ -100,7 +98,6 @@ require (
 	github.com/bombsimon/wsl/v3 v3.3.0 // indirect
 	github.com/breml/bidichk v0.2.3 // indirect
 	github.com/breml/errchkjson v0.3.0 // indirect
-	github.com/btcsuite/btcd v0.22.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/bufbuild/connect-go v1.5.0 // indirect
 	github.com/bufbuild/protocompile v0.2.0 // indirect
@@ -283,7 +280,6 @@ require (
 	github.com/nbutton23/zxcvbn-go v0.0.0-20210217022336-fa2cb2858354 // indirect
 	github.com/nishanths/exhaustive v0.8.3 // indirect
 	github.com/nishanths/predeclared v0.2.2 // indirect
-	github.com/oasisprotocol/curve25519-voi v0.0.0-20210609091139-0a56a4bca00b // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
