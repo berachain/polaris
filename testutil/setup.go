@@ -48,8 +48,8 @@ func NewContext() sdk.Context {
 	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.TestingLogger())
 }
 
-func NewContextWithMultiStore(ms sdk.MultiStore) sdk.Context {
-	return sdk.NewContext(ms, tmproto.Header{}, false, log.TestingLogger())
+func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
+	return sdk.NewContext(ms, cometproto.Header{}, false, log.TestingLogger())
 }
 
 // `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.
