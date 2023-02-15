@@ -352,7 +352,7 @@ func (p *plugin) ForEachStorage(
 	cb func(key, value common.Hash) bool,
 ) error {
 	it := storetypes.KVStorePrefixIterator(
-		sp.cms.GetKVStore(sp.evmStoreKey),
+		p.cms.GetKVStore(p.evmStoreKey),
 		StorageKeyFor(addr),
 	)
 	defer it.Close()

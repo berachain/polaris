@@ -44,7 +44,10 @@ var _ = Describe("Testnet command", func() {
 	BeforeEach(func() {
 		home = os.TempDir()
 		dir = os.NewFile(0, os.DevNull)
-		v, _ := dir.ReadDir(-1)
+		v, err := dir.ReadDir(-1)
+		if err == nil {
+			Expect(dir.Seek(0, 0)).To(BeNil())
+		}
 		if len(v) == 0 {
 			os.RemoveAll(home)
 		}

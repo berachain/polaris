@@ -59,13 +59,13 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should plug in custom gas configs", func() {
-		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
-		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
+		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
+		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
 
-		cr.SetKVGasConfig(&storetypes.GasConfig{})
-		Expect(cr.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
-		cr.SetTransientKVGasConfig(&storetypes.GasConfig{})
-		Expect(cr.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
+		p.Context = p.WithKVGasConfig(storetypes.GasConfig{})
+		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
+		p.Context = p.WithTransientKVGasConfig(storetypes.GasConfig{})
+		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
 	})
 })
 

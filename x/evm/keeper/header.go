@@ -23,7 +23,7 @@ import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
 
-	tmtypes "github.com/tendermint/tendermint/types"
+	cbft "github.com/cometbft/cometbft/types"
 )
 
 // temp.
@@ -122,7 +122,7 @@ func blockHashFromCosmosContext(ctx sdk.Context) common.Hash {
 
 	// only recompute the hash if not set (eg: checkTxState)
 	contextBlockHeader := ctx.BlockHeader()
-	header, err := tmtypes.HeaderFromProto(&contextBlockHeader)
+	header, err := cbft.HeaderFromProto(&contextBlockHeader)
 	if err != nil {
 		return common.Hash{}
 	}

@@ -18,6 +18,7 @@ import (
 	"context"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -55,7 +56,7 @@ func (p *plugin) Run(
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
-	gm := sdk.NewInfiniteGasMeter()
+	gm := storetypes.NewInfiniteGasMeter()
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 

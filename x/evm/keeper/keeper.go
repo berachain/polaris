@@ -18,11 +18,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/x/evm/constants"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 )
 
 // Compile-time interface assertions.

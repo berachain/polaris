@@ -37,7 +37,7 @@ var (
 	packagesEvm         = mi.GoListFilter(true, "evm")
 )
 
-// Starts a node and builds it if necessary.
+// Starts a testnet and builds it if necessary.
 func Start() error {
 	if err := Build(); err != nil {
 		return err
@@ -45,9 +45,9 @@ func Start() error {
 	return StartNoBuild()
 }
 
-// Starts a node without building it.
+// Starts a testnet without building it.
 func StartNoBuild() error {
-	return sh.RunV("./build/scripts/run-local-dev.sh")
+	return sh.RunV("./bin/stargazerd", "testnet", "start")
 }
 
 // Runs all main tests.
