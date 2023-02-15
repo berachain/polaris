@@ -144,7 +144,7 @@ var _ = Describe("EVM Test Suite", func() {
 	// 		BaseFee:    big.NewInt(69),
 	// 		ParentHash: common.Hash{111},
 	// 	},
-	// 	CachedHash: common.Hash{1},
+	// 	HostHash: common.Hash{1},
 	// }
 
 	Context("TestGetHashFunc", func() {
@@ -159,7 +159,7 @@ var _ = Describe("EVM Test Suite", func() {
 		// 				BaseFee:    big.NewInt(69),
 		// 				ParentHash: common.Hash{123},
 		// 			},
-		// 			CachedHash: crypto.Keccak256Hash([]byte{byte(height)}),
+		// 			HostHash: crypto.Keccak256Hash([]byte{byte(height)}),
 		// 		}
 		// 	}
 		// 	hash := core.GetHashFn(context.Background(), currentHeader, host)

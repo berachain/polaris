@@ -27,7 +27,7 @@ func NewMockHost() *StargazerHostChainMock {
 		// 			Number:  big.NewInt(int64(v)),
 		// 			BaseFee: big.NewInt(testBaseFee),
 		// 		},
-		// 		CachedHash: common.Hash{123},
+		// 		HostHash: common.Hash{123},
 		// 	}
 		// },
 		// CumulativeGasUsedFunc: func(contextMoqParam context.Context, gasUsed uint64) uint64 {
