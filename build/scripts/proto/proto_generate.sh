@@ -43,4 +43,4 @@ cd ../
 
 # go mod tidy
 
-# ./build/scripts/proto/pulsar_generate.sh
+./build/scripts/proto/proto_generate_pulsar.sh

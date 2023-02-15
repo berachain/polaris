@@ -12,4 +12,28 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package keeper
+syntax = "proto3";
+package stargazer.evm.v1alpha1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "stargazer/evm/v1alpha1/evm.proto";
+
+option go_package = "github.com/berachain/stargazer/x/evm/types";
+
+// Query provides defines the gRPC querier service.
+service QueryService {
+  // Params returns the total set of evm parameters.
+  rpc Params(ParamsRequest) returns (ParamsResponse) {
+    option (google.api.http).get = "/stargazer/evm/v1/params";
+  }
+}
+
+// ParamsRequest is the request type for the Query/Params RPC method.
+message ParamsRequest {}
+
+// ParamsResponse is the response type for the Query/Params RPC method.
+message ParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

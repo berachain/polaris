@@ -15,10 +15,10 @@
 package evm
 
 import (
-	modulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
+	modulev1 "github.com/berachain/stargazer/api/stargazer/evm/module/v1"
 	"github.com/berachain/stargazer/x/evm/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"

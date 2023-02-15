@@ -16,6 +16,7 @@ package testutil
 
 import (
 	"cosmossdk.io/core/appconfig"
+	_ "github.com/berachain/stargazer/x/evm"          // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/auth"           // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import as blank for app wiring
 	_ "github.com/cosmos/cosmos-sdk/x/bank"           // import as blank for app wiring
@@ -43,6 +44,9 @@ import (
 	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
+	evmmodulev1 "github.com/berachain/stargazer/api/stargazer/evm/module/v1"
+
+	evmtypes "github.com/berachain/stargazer/x/evm/types"
 )
 
 var AppConfig = appconfig.Compose(&appv1alpha1.Config{
@@ -110,6 +114,10 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 		{
 			Name:   minttypes.ModuleName,
 			Config: appconfig.WrapAny(&mintmodulev1.Module{}),
+		},
+		{
+			Name:   evmtypes.ModuleName,
+			Config: appconfig.WrapAny(&evmmodulev1.Module{}),
 		},
 	},
 })

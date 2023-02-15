@@ -44,15 +44,15 @@ var (
 // AppModuleBasic
 // ==============================================================================
 
-// `AppModuleBasic` defines the basic application module used by the mint module.
+// `AppModuleBasic` defines the basic application module used by the evm module.
 type AppModuleBasic struct{}
 
-// `Name` returns the mint module's name.
+// `Name` returns the evm module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// `RegisterLegacyAminoCodec` registers the mint module's types on the given LegacyAmino codec.
+// `RegisterLegacyAminoCodec` registers the evm module's types on the given LegacyAmino codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	// types.RegisterLegacyAminoCodec(cdc)
 }
@@ -62,14 +62,14 @@ func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
 	// types.RegisterInterfaces(r)
 }
 
-// `DefaultGenesis` returns default genesis state as raw bytes for the mint
+// `DefaultGenesis` returns default genesis state as raw bytes for the evm
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return json.RawMessage{}
+	return nil
 	// return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-// `ValidateGenesis` performs genesis state validation for the mint module.
+// `ValidateGenesis` performs genesis state validation for the evm module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	// var data types.GenesisState
 	// if err := cdc.UnmarshalJSON(bz, &data); err != nil {
@@ -79,27 +79,28 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	// return types.ValidateGenesis(data)
 }
 
-// `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the mint module.
+// `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the evm module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
 	// if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
 	// 	panic(err)
 	// }
 }
 
-// `GetTxCmd` returns no root tx command for the mint module.
-func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
+// `GetTxCmd` returns no root tx command for the evm module.
+func (AppModuleBasic) GetTxCmd() *cobra.Command {
+	return nil
+}
 
-// `GetQueryCmd` returns the root query command for the mint module.
+// `GetQueryCmd` returns the root query command for the evm module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return nil
-	// return cli.GetQueryCmd()
 }
 
 // ==============================================================================
 // AppModule
 // ==============================================================================
 
-// `AppModule` implements an application module for the mint module.
+// `AppModule` implements an application module for the evm module.
 type AppModule struct {
 	AppModuleBasic
 	keeper     *keeper.Keeper
@@ -107,17 +108,12 @@ type AppModule struct {
 	bankKeeper BankKeeper
 }
 
-// NewAppModule creates a new AppModule object. If the InflationCalculationFn
-// argument is nil, then the SDK's default inflation function will be used.
+// NewAppModule creates a new AppModule object.
 func NewAppModule(
 	keeper *keeper.Keeper,
 	ak AccountKeeper,
 	bk BankKeeper,
 ) AppModule {
-	// if ic == nil {
-	// 	ic = types.DefaultInflationCalculationFn
-	// }
-
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,
@@ -132,7 +128,7 @@ func (am AppModule) IsOnePerModuleType() {}
 // `IsAppModule` implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
 
-// `RegisterInvariants` registers the mint module invariants.
+// `RegisterInvariants` registers the evm module invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // `RegisterServices` registers a gRPC query service to respond to the
@@ -142,7 +138,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-// `InitGenesis` performs genesis initialization for the mint module. It returns
+// `InitGenesis` performs genesis initialization for the evm module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	// var genesisState types.GenesisState
@@ -152,7 +148,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	return []abci.ValidatorUpdate{}
 }
 
-// `ExportGenesis` returns the exported genesis state as raw bytes for the mint
+// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	// gs := am.keeper.ExportGenesis(ctx)
@@ -163,12 +159,12 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 // `ConsensusVersion` implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// `BeginBlock` returns the begin blocker for the mint module.
+// `BeginBlock` returns the begin blocker for the evm module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	// BeginBlocker(ctx, am.keeper, am.inflationCalculator)
 }
 
-// `EndBlock` returns the end blocker for the mint module. It returns no validator
+// `EndBlock` returns the end blocker for the evm module. It returns no validator
 // updates.
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
@@ -178,7 +174,7 @@ func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.Validato
 // AppModuleSimulation
 // ==============================================================================
 
-// GenerateGenesisState creates a randomized GenState of the mint module.
+// GenerateGenesisState creates a randomized GenState of the evm module.
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	// simulation.RandomizedGenState(simState)
 }
@@ -189,12 +185,12 @@ func (AppModule) ProposalMsgs(simState module.SimulationState) []simtypes.Weight
 	return nil
 }
 
-// RegisterStoreDecoder registers a decoder for mint module's types.
+// RegisterStoreDecoder registers a decoder for evm module's types.
 func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
 	// sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
 }
 
-// WeightedOperations doesn't return any mint module operation.
+// WeightedOperations doesn't return any evm module operation.
 func (AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
 	return nil
 }

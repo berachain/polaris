@@ -61,6 +61,9 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	evmmodulev1 "github.com/berachain/stargazer/api/stargazer/evm/module/v1"
+	evmtypes "github.com/berachain/stargazer/x/evm/types"
 )
 
 var (
@@ -101,6 +104,7 @@ var (
 						upgradetypes.ModuleName,
 						capabilitytypes.ModuleName,
 						minttypes.ModuleName,
+						evmtypes.ModuleName,
 						distrtypes.ModuleName,
 						slashingtypes.ModuleName,
 						evidencetypes.ModuleName,
@@ -112,6 +116,7 @@ var (
 						crisistypes.ModuleName,
 						govtypes.ModuleName,
 						stakingtypes.ModuleName,
+						evmtypes.ModuleName,
 						genutiltypes.ModuleName,
 						feegrant.ModuleName,
 						group.ModuleName,
@@ -137,6 +142,7 @@ var (
 						slashingtypes.ModuleName,
 						govtypes.ModuleName,
 						minttypes.ModuleName,
+						evmtypes.ModuleName,
 						crisistypes.ModuleName,
 						genutiltypes.ModuleName,
 						evidencetypes.ModuleName,
@@ -245,6 +251,10 @@ var (
 			{
 				Name:   consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
+			},
+			{
+				Name:   evmtypes.ModuleName,
+				Config: appconfig.WrapAny(&evmmodulev1.Module{}),
 			},
 		},
 	})

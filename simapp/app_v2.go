@@ -83,6 +83,9 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	"github.com/berachain/stargazer/x/evm"
+	evmkeeper "github.com/berachain/stargazer/x/evm/keeper"
 )
 
 var (
@@ -115,6 +118,7 @@ var (
 		groupmodule.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		consensus.AppModuleBasic{},
+		evm.AppModuleBasic{},
 	)
 )
 
@@ -151,6 +155,9 @@ type SimApp struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
+
+	// stargazer keepers
+	EVMKeeper *evmkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -250,6 +257,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		&app.FeeGrantKeeper,
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
+		&app.EVMKeeper,
 	); err != nil {
 		panic(err)
 	}
