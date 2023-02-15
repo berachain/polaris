@@ -192,5 +192,8 @@ pkg/**/.*.yaml
 # forge
 */**/solidity-files-cache.json
 
+# cosmos
+.testnets/
+
 # xml
 *.xml
