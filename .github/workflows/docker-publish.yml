@@ -37,10 +37,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Get tag
-        id: repository
-        run: echo "tag=$(git describe --tags HEAD)" > $GITHUB_ENV
-
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
