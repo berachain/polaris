@@ -40,7 +40,7 @@ func NewPluginFrom(ctx sdk.Context) core.GasPlugin {
 	}
 }
 
-// `Reset` implements the core.GasPlugin interface.
+// `Prepare` implements the core.GasPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
 	p.Context = sdk.UnwrapSDKContext(ctx)
 }

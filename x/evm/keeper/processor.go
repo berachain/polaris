@@ -25,7 +25,7 @@ import (
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("BeginBlocker")
-	k.ethChain.Prepare(ctx, k.GetStargazerHeaderAtHeight(ctx, uint64(sCtx.BlockHeight())))
+	k.ethChain.Prepare(ctx, sCtx.BlockHeight())
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
@@ -72,6 +72,6 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	}
 
 	// Save the historical stargazer block.
+	// TODO: change to storing headers only.
 	k.TrackHistoricalStargazerBlocks(sCtx, stargazerBlock)
-	// TODO: should we just yeet stargazer blocks into tendermint event filter? (sans receipts)?
 }

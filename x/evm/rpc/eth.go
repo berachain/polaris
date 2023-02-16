@@ -38,8 +38,9 @@ func (eb *EthReaderBackend) BlockNumber(ctx sdk.Context) uint64 {
 }
 
 // `GetBlockByNumber` is used to implement the `eth_getBlockByNumber` JSON-RPCÍ.
-func (eb *EthReaderBackend) GetBlockByNumber(ctx sdk.Context,
-	number uint64, fullTx bool) (*types.StargazerBlock, error) {
+func (eb *EthReaderBackend) GetBlockByNumber(
+	ctx sdk.Context, number uint64, fullTx bool,
+) (*types.StargazerBlock, error) {
 	return &types.StargazerBlock{}, nil
 }
 
@@ -52,5 +53,5 @@ func (eb *EthReaderBackend) BlockTransactionCountByNumber(ctx sdk.Context, numbe
 		return 0
 	}
 
-	return uint64(len(block.Transactions))
+	return uint64(block.TxIndex())
 }

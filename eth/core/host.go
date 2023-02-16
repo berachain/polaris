@@ -15,8 +15,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -52,7 +50,7 @@ type (
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
-		GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
+		GetStargazerHeaderAtHeight(int64) *types.StargazerHeader
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}
