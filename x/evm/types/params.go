@@ -23,25 +23,33 @@ import (
 
 // `DefaultParams` contains the default values for all parameters.
 func DefaultParams() *Params {
+	return &Params{
+		EvmDenom:    "abera",
+		ExtraEIPs:   []int64{},
+		ChainConfig: chainConfig{*params.DefaultChainConfig}.ToProtoStruct(),
+	}
+}
+
+// `chainConfig` is a wrapper around `params.ChainConfig` to provide compatibility
+// with gogoproto types.Struct.
+type chainConfig struct {
+	params.ChainConfig
+}
+
+// `ToProtoStruct` marshals the `params.ChainConfig` to JSON and then unmarshals it to
+// a `params.ChainConfig`.
+func (c chainConfig) ToProtoStruct() types.Struct {
+	// Marshal to JSON
 	bz, err := json.Marshal(params.DefaultChainConfig)
 	if err != nil {
 		panic(err)
 	}
 
+	// Unmarshal to the protobuf struct.
 	var chainConfig types.Struct
 	err = chainConfig.Unmarshal(bz)
-
 	if err != nil {
 		panic(err)
 	}
-
-	return &Params{
-		EvmDenom:    "abera",
-		ExtraEIPs:   []int64{},
-		ChainConfig: chainConfig,
-	}
-}
-
-type ProtoChainConfig struct {
-	params.ChainConfig
+	return chainConfig
 }
