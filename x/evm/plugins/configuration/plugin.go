@@ -12,16 +12,36 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
-package stargazer.evm.v1alpha1;
+package configuration
 
-import "gogoproto/gogo.proto";
-import "stargazer/evm/v1alpha1/params.proto";
+import (
+	"context"
 
-option go_package = "github.com/berachain/stargazer/x/evm/types";
+	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/eth/params"
+)
 
-// GenesisState defines the evm module's genesis state.
-message GenesisState {
-  // params defines all the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+// `plugin` implements the core.ConfigurationPlugin interface.
+type plugin struct {
+	ctx context.Context
+}
+
+// `NewPlugin` returns a new plugin instance.
+func NewPlugin() core.ConfigurationPlugin {
+	return &plugin{}
+}
+
+// `Prepare` implements the core.ConfigurationPlugin interface.
+func (p *plugin) Prepare(ctx context.Context) {
+	p.ctx = ctx
+}
+
+// `ChainConfig` implements the core.ConfigurationPlugin interface.
+func (p *plugin) ChainConfig() *params.ChainConfig {
+	return params.DefaultChainConfig
+}
+
+// `ExtraEips` implements the core.ConfigurationPlugin interface.
+func (p *plugin) ExtraEips() []int {
+	return []int{}
 }

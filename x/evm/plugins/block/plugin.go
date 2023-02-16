@@ -42,10 +42,9 @@ type plugin struct {
 	shg stargazerHeaderGetter
 }
 
-// `NewPluginFrom` creates a new instance of the block plugin from the given context.
-func NewPluginFrom(ctx sdk.Context, shg stargazerHeaderGetter) core.BlockPlugin {
+// `NewPlugin` creates a new instance of the block plugin from the given context.
+func NewPlugin(shg stargazerHeaderGetter) core.BlockPlugin {
 	return &plugin{
-		ctx: ctx,
 		shg: shg,
 	}
 }

@@ -18,7 +18,7 @@ package stargazer.evm.v1alpha1;
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "stargazer/evm/v1alpha1/evm.proto";
+import "stargazer/evm/v1alpha1/params.proto";
 
 option go_package = "github.com/berachain/stargazer/x/evm/types";
 

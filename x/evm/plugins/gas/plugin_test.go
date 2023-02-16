@@ -36,7 +36,8 @@ var _ = Describe("plugin", func() {
 		// new block
 		blockGasMeter = storetypes.NewGasMeter(blockGasLimit)
 		ctx = testutil.NewContext().WithBlockGasMeter(blockGasMeter)
-		p = utils.MustGetAs[*plugin](NewPluginFrom(ctx))
+		p = utils.MustGetAs[*plugin](NewPlugin())
+		p.Reset(ctx)
 		p.Prepare(ctx)
 	})
 

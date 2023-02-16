@@ -62,8 +62,8 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	k := keeper.NewKeeper(
 		// in.Key,
 		// in.StakingKeeper,
-		// in.AccountKeeper,
-		// in.BankKeeper,
+		in.AccountKeeper,
+		in.BankKeeper,
 		authority.String(),
 	)
 

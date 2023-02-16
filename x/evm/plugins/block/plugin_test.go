@@ -32,7 +32,7 @@ var _ = Describe("Block Plugin", func() {
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
-		p = utils.MustGetAs[*plugin](NewPluginFrom(ctx, &mockSHG{}))
+		p = utils.MustGetAs[*plugin](NewPlugin(&mockSHG{}))
 		p.Prepare(ctx)
 	})
 
@@ -54,6 +54,6 @@ type mockSHG struct {
 }
 
 func (m *mockSHG) GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool) {
-	m.calls += 1
+	m.calls++
 	return nil, false
 }

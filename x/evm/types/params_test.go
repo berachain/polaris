@@ -12,10 +12,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
-package stargazer.evm.v1alpha1;
+package types
 
-option go_package = "github.com/berachain/stargazer/x/evm/types";
+import (
+	"math/big"
 
-// Params defines the parameters for the x/evm module.
-message Params {}
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Test Params", func() {
+	It("should marshal correctly", func() {
+		params := DefaultParams()
+		ethConfig := params.EthereumChainConfig()
+		Expect(ethConfig.ChainID).To(Equal(big.NewInt(42069)))
+	})
+})

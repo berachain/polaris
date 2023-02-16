@@ -21,13 +21,15 @@ import (
 	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/x/evm/plugins/block"
+	"github.com/berachain/stargazer/x/evm/plugins/configuration"
 	"github.com/berachain/stargazer/x/evm/plugins/gas"
 	"github.com/berachain/stargazer/x/evm/plugins/precompile"
-	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	"github.com/berachain/stargazer/x/evm/types"
 
 	"github.com/cometbft/cometbft/libs/log"
+
+	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
 )
 
 // Compile-time interface assertions.
@@ -55,35 +57,35 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
+	ak state.AccountKeeper,
+	bk state.BankKeeper,
 	authority string,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
 		storeKey:  storetypes.NewKVStoreKey(types.StoreKey),
 	}
+	k.bp = block.NewPlugin(k)
+
+	k.cp = configuration.NewPlugin()
+
+	k.gp = gas.NewPlugin()
+
+	k.pp = precompile.NewPlugin()
+	// TODO: register precompiles
+
+	plf := precompilelog.NewFactory()
+	// TODO: register precompile events/logs
+
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
 	k.ethChain = core.NewChain(k)
+
 	return k
 }
 
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
-}
-
-func (k *Keeper) InitPlugins(ctx sdk.Context, ak state.AccountKeeper, bk state.BankKeeper) {
-	k.bp = block.NewPluginFrom(ctx, k)
-
-	// k.cp = nil
-
-	k.gp = gas.NewPluginFrom(ctx)
-
-	k.pp = precompile.NewPluginFrom(ctx)
-	// TODO: register precompiles
-
-	plf := precompilelog.NewFactory()
-	// TODO: register precompile events/logs
-
-	k.sp = state.NewPlugin(ctx, ak, bk, k.storeKey, types.ModuleName, plf)
 }
 
 func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
