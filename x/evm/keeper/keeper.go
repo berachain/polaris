@@ -21,6 +21,7 @@ import (
 	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/x/evm/plugins/block"
+	"github.com/berachain/stargazer/x/evm/plugins/configuration"
 	"github.com/berachain/stargazer/x/evm/plugins/gas"
 	"github.com/berachain/stargazer/x/evm/plugins/precompile"
 	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
@@ -73,7 +74,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k *Keeper) InitPlugins(ctx sdk.Context, ak state.AccountKeeper, bk state.BankKeeper) {
 	k.bp = block.NewPluginFrom(ctx, k)
 
-	// k.cp = nil
+	k.cp = configuration.NewPluginFrom(ctx)
 
 	k.gp = gas.NewPluginFrom(ctx)
 

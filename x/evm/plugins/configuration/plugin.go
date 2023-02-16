@@ -12,35 +12,36 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package configuration
 
 import (
-	"encoding/json"
+	"context"
 
+	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/cosmos/gogoproto/types"
 )
 
-// `DefaultParams` contains the default values for all parameters.
-func DefaultParams() *Params {
-	bz, err := json.Marshal(params.DefaultChainConfig)
-	if err != nil {
-		panic(err)
-	}
-
-	var chainConfig types.Struct
-	err = chainConfig.Unmarshal(bz)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return &Params{
-		EvmDenom:    "abera",
-		ChainConfig: chainConfig,
-	}
+// `plugin` implements the core.ConfigurationPlugin interface.
+type plugin struct {
+	ctx context.Context
 }
 
-type ProtoChainConfig struct {
-	params.ChainConfig
+// `NewPluginFrom` returns a new plugin instance.
+func NewPluginFrom(ctx context.Context) core.ConfigurationPlugin {
+	return &plugin{}
+}
+
+// `Prepare` implements the core.ConfigurationPlugin interface.
+func (p *plugin) Prepare(ctx context.Context) {
+	p.ctx = ctx
+}
+
+// `ChainConfig` implements the core.ConfigurationPlugin interface.
+func (p *plugin) ChainConfig() *params.ChainConfig {
+	return params.DefaultChainConfig
+}
+
+// `ExtraEips` implements the core.ConfigurationPlugin interface.
+func (p *plugin) ExtraEips() []int {
+	return []int{}
 }
