@@ -43,7 +43,7 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			AddressInAccessListFunc: func(addr common.Address) bool {
 //				panic("mock out the AddressInAccessList method")
 //			},
-//			BuildLogsAndClearFunc: func(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
+//			BuildLogsAndClearFunc: func(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log {
 //				panic("mock out the BuildLogsAndClear method")
 //			},
 //			CreateAccountFunc: func(address common.Address)  {
@@ -153,7 +153,7 @@ type StargazerStateDBMock struct {
 	AddressInAccessListFunc func(addr common.Address) bool
 
 	// BuildLogsAndClearFunc mocks the BuildLogsAndClear method.
-	BuildLogsAndClearFunc func(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log
+	BuildLogsAndClearFunc func(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log
 
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
@@ -278,14 +278,14 @@ type StargazerStateDBMock struct {
 		}
 		// BuildLogsAndClear holds details about calls to the BuildLogsAndClear method.
 		BuildLogsAndClear []struct {
-			// Hash1 is the hash1 argument value.
-			Hash1 common.Hash
-			// Hash2 is the hash2 argument value.
-			Hash2 common.Hash
-			// V1 is the v1 argument value.
-			V1 uint
-			// V2 is the v2 argument value.
-			V2 uint
+			// TxHash is the txHash argument value.
+			TxHash common.Hash
+			// BlockHash is the blockHash argument value.
+			BlockHash common.Hash
+			// TxIndex is the txIndex argument value.
+			TxIndex uint
+			// LogIndex is the logIndex argument value.
+			LogIndex uint
 		}
 		// CreateAccount holds details about calls to the CreateAccount method.
 		CreateAccount []struct {
@@ -713,25 +713,25 @@ func (mock *StargazerStateDBMock) AddressInAccessListCalls() []struct {
 }
 
 // BuildLogsAndClear calls BuildLogsAndClearFunc.
-func (mock *StargazerStateDBMock) BuildLogsAndClear(hash1 common.Hash, hash2 common.Hash, v1 uint, v2 uint) []*types.Log {
+func (mock *StargazerStateDBMock) BuildLogsAndClear(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log {
 	if mock.BuildLogsAndClearFunc == nil {
 		panic("StargazerStateDBMock.BuildLogsAndClearFunc: method is nil but StargazerStateDB.BuildLogsAndClear was just called")
 	}
 	callInfo := struct {
-		Hash1 common.Hash
-		Hash2 common.Hash
-		V1    uint
-		V2    uint
+		TxHash    common.Hash
+		BlockHash common.Hash
+		TxIndex   uint
+		LogIndex  uint
 	}{
-		Hash1: hash1,
-		Hash2: hash2,
-		V1:    v1,
-		V2:    v2,
+		TxHash:    txHash,
+		BlockHash: blockHash,
+		TxIndex:   txIndex,
+		LogIndex:  logIndex,
 	}
 	mock.lockBuildLogsAndClear.Lock()
 	mock.calls.BuildLogsAndClear = append(mock.calls.BuildLogsAndClear, callInfo)
 	mock.lockBuildLogsAndClear.Unlock()
-	return mock.BuildLogsAndClearFunc(hash1, hash2, v1, v2)
+	return mock.BuildLogsAndClearFunc(txHash, blockHash, txIndex, logIndex)
 }
 
 // BuildLogsAndClearCalls gets all the calls that were made to BuildLogsAndClear.
@@ -739,16 +739,16 @@ func (mock *StargazerStateDBMock) BuildLogsAndClear(hash1 common.Hash, hash2 com
 //
 //	len(mockedStargazerStateDB.BuildLogsAndClearCalls())
 func (mock *StargazerStateDBMock) BuildLogsAndClearCalls() []struct {
-	Hash1 common.Hash
-	Hash2 common.Hash
-	V1    uint
-	V2    uint
+	TxHash    common.Hash
+	BlockHash common.Hash
+	TxIndex   uint
+	LogIndex  uint
 } {
 	var calls []struct {
-		Hash1 common.Hash
-		Hash2 common.Hash
-		V1    uint
-		V2    uint
+		TxHash    common.Hash
+		BlockHash common.Hash
+		TxIndex   uint
+		LogIndex  uint
 	}
 	mock.lockBuildLogsAndClear.RLock()
 	calls = mock.calls.BuildLogsAndClear
