@@ -36,9 +36,11 @@ import (
 var _ storetypes.CommitKVStore = (*Store)(nil)
 
 // TODO: Upgrade this implementation to use a tree based structure to store the data off-chain.
+// TODO: Replace TransientStoreType with a new type?
 
 // `Store` represents a store used for storing persistent data off-chain while also
-// utilizing the multistore. We must register this store with the.
+// utilizing the multistore. We must register this store with the multistore as a transient store,
+// in order to ensure that we don't include the contents of this store in the chain's AppHash.
 type Store struct {
 	*cachekv.Store
 }
@@ -71,14 +73,12 @@ func (st *Store) LastCommitID() storetypes.CommitID {
 	return storetypes.CommitID{}
 }
 
-// `SetPruning` panics as pruning options should be provided at initialization
-// since IAVl accepts pruning options directly.
+// `SetPruning` panics seen we don't prune this store.
 func (st *Store) SetPruning(_ pruningtypes.PruningOptions) {
 	panic("cannot set pruning options on the offchainkv")
 }
 
-// `GetPruning` panics as pruning options should be provided at initialization
-// since IAVl accepts pruning options directly.
+// `GetPruning` panics seen we don't prune this store.
 func (st *Store) GetPruning() pruningtypes.PruningOptions {
 	panic("cannot get pruning options on the offchainkv")
 }
