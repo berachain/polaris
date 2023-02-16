@@ -89,7 +89,7 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should error on uint64 overflow", func() {
-		p.Context = p.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
+		p.blockGasMeter = storetypes.NewInfiniteGasMeter()
 		err := p.SetGasLimit(math.MaxUint64)
 		Expect(err).To(BeNil())
 		err = p.ConsumeGas(math.MaxUint64)

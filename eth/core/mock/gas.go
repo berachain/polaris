@@ -35,6 +35,10 @@ func (w *GasPluginMock) Prepare(context.Context) {
 	w.gasUsed = 0
 }
 
+func (w *GasPluginMock) Reset(context.Context) {
+	w.gasUsed = 0
+}
+
 func (w *GasPluginMock) ConsumeGas(amount uint64) error {
 	if w.gasUsed+amount > w.gasLimit {
 		return errors.New("gas limit exceeded")

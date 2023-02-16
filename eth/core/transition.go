@@ -99,6 +99,8 @@ func NewStateTransition(evm vm.StargazerEVM, gp GasPlugin, msg Message) *StateTr
 //  5. Checking that the EVM did not use more gas than was supplied
 //  6. Calculating and applying any gas refunds, if applicable
 //  7. Updating the sender's nonce in the state database (sdb)
+//
+//nolint:funlen // all this code is logically contagious.
 func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	var (
 		msgFrom  = st.msg.From()
@@ -178,7 +180,9 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		if errors.Is(err, ErrBlockOutOfGas) {
 			// If consuming the amount of gas would exceed the block limit, we should
 			// consume up to the limit here.
-			if err = st.gp.ConsumeGasToBlockLimit(); err != nil {
+			// Cumulative gas used should be equal to the gas consumed in the block thus far,
+			// INCLUDING the gas consumed as part of the Intrinsic gas calculation above.
+			if err = st.gp.ConsumeGas(st.gp.BlockGasLimit() - st.gp.CumulativeGasUsed()); err != nil {
 				return nil, err
 			}
 		} else {
@@ -214,19 +218,7 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	}
 	st.gp.RefundGas(refund)
 
-	// In Geth, we would have refunded the cost of the unused gas to the sender here.
-	// However, in Stargazer we do this in the StateProcessor, since currently, gas fees
-	// are deducted in the AnteHandler and not in TransitionDB.
-
-	// TODO: we could potentially add the gas cost refund here, since we do have access to a
-	// bank keeper from the statedb. Though it really doesn't matter since unless we are calling
-	// this in a block, none of the state is persisted anyways.
-	// Ante Handler + Refund in StateProcessor, does sort of make more sense, since we only do
-	// the coin math during a block and not on queries.
-
-	// Moving buyGas and refundGas to here however... would open the door to potentially using
-	// the Geth/Erigon state transition code, which would be nice. We would then just do no
-	// gas fee deduction in the AnteHandler, as the native state transition does that.
+	// Stargazer does not handle the actual token refund, just the gas refund.
 }
 
 // `consumeEthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
