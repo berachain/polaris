@@ -20,8 +20,9 @@ import (
 )
 
 type GasPluginMock struct {
-	gasUsed  uint64
-	gasLimit uint64
+	gasUsed       uint64
+	gasLimit      uint64
+	blockGasLimit uint64
 }
 
 func NewGasPluginMock(gasLimit uint64) *GasPluginMock {
@@ -34,7 +35,11 @@ func (w *GasPluginMock) Prepare(context.Context) {
 	w.gasUsed = 0
 }
 
-func (w *GasPluginMock) ConsumeGas(amount uint64) error {
+func (w *GasPluginMock) Reset(context.Context) {
+	w.gasUsed = 0
+}
+
+func (w *GasPluginMock) TxConsumeGas(amount uint64) error {
 	if w.gasUsed+amount > w.gasLimit {
 		return errors.New("gas limit exceeded")
 	}
@@ -46,15 +51,15 @@ func (w *GasPluginMock) CumulativeGasUsed() uint64 {
 	return w.gasUsed
 }
 
-func (w *GasPluginMock) GasRemaining() uint64 {
+func (w *GasPluginMock) TxGasRemaining() uint64 {
 	return w.gasLimit - w.gasUsed
 }
 
-func (w *GasPluginMock) GasUsed() uint64 {
+func (w *GasPluginMock) TxGasUsed() uint64 {
 	return w.gasUsed
 }
 
-func (w *GasPluginMock) RefundGas(amount uint64) {
+func (w *GasPluginMock) TxRefundGas(amount uint64) {
 	if w.gasUsed < amount {
 		w.gasUsed = 0
 	} else {
@@ -62,10 +67,23 @@ func (w *GasPluginMock) RefundGas(amount uint64) {
 	}
 }
 
-func (w *GasPluginMock) SetGasLimit(amount uint64) error {
+func (w *GasPluginMock) SetTxGasLimit(amount uint64) error {
 	w.gasLimit = amount
 	if w.gasLimit < w.gasUsed {
 		return errors.New("gas limit is below currently consumed")
 	}
+	return nil
+}
+
+func (w *GasPluginMock) SetBlockGasLimit(amount uint64) {
+	w.blockGasLimit = amount
+}
+
+func (w *GasPluginMock) BlockGasLimit() uint64 {
+	return w.blockGasLimit
+}
+
+func (w *GasPluginMock) ConsumeGasToBlockLimit() error {
+	w.gasUsed = w.blockGasLimit
 	return nil
 }

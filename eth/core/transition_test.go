@@ -230,7 +230,7 @@ var _ = Describe("StateTransition", func() {
 
 				// Call the intrinsic gas function with data
 				st := core.NewStateTransition(evm, gp, &msg)
-				Expect(gp.SetGasLimit(10000000)).To(BeNil())
+				Expect(gp.SetTxGasLimit(10000000)).To(BeNil())
 				Expect(st.ConsumeEthIntrinsicGas(true, true, true)).To(BeNil())
 				consumedWithData := gp.CumulativeGasUsed()
 

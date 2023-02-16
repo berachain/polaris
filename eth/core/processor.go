@@ -93,9 +93,14 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 
 	// Build a block object so we can track that status of the block as we process it.
 	sp.block = types.NewStargazerBlock(sp.bp.GetStargazerHeaderAtHeight(height))
-	chainConfig := sp.cp.ChainConfig()
+
+	// Ensure that the gas plugin and header are in sync.
+	if sp.block.GasLimit != sp.gp.BlockGasLimit() {
+		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.block.GasLimit, sp.gp.BlockGasLimit()))
+	}
 
 	// We must re-create the signer since we are processing a new block and the block number has increased.
+	chainConfig := sp.cp.ChainConfig()
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
 
 	// Setup the EVM for this block.
@@ -123,6 +128,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	sp.evm.SetTxContext(txContext)
 	sp.statedb.Reset(ctx)
 	sp.pp.Reset(ctx)
+	sp.gp.Reset(ctx)
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, sp.gp, msg, sp.commit)
@@ -138,13 +144,23 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 		BlockHash:        sp.block.Hash(),
 		BlockNumber:      sp.block.Number,
 		TransactionIndex: sp.block.TxIndex(),
+		// Gas from this transaction was added to the gasPlugin in `ApplyMessageAndCommit`
+		// And thus CumulativeGasUsed should include gas from all prior transactions in the
+		// block, plus the gas consumed during this one.
+		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
 	}
 
-	// Gas from this transaction was added to the gasPlugin in `ApplyMessageAndCommit`
-	// And thus CumulativeGasUsed should include gas from all prior transactions in the
-	// block, plus the gas consumed during this one.
-	receipt.CumulativeGasUsed = sp.gp.CumulativeGasUsed()
+	// Protect the chain from getting into an invalid state.
+	if (receipt.CumulativeGasUsed > sp.block.GasLimit) && (sp.block.GasLimit != 0) {
+		panic(
+			fmt.Sprintf(
+				"cumulative gas used %d is greater than block gas limit %d",
+				receipt.CumulativeGasUsed, sp.block.GasLimit,
+			),
+		)
+	}
 
+	// Update the receipt based on the receipt of the transaction.
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
 	} else {

@@ -30,68 +30,81 @@ const gasMeterDescriptor = `stargazer-gas-plugin`
 // `plugin` wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
 // to implement the core.GasPlugin interface.
 type plugin struct {
-	sdk.Context
+	gasMeter      storetypes.GasMeter
+	blockGasMeter storetypes.GasMeter
 }
 
 // `NewPluginFrom` creates a new instance of the gas plugin from a given context.
 func NewPluginFrom(ctx sdk.Context) core.GasPlugin {
 	return &plugin{
-		Context: ctx,
+		ctx.GasMeter(), ctx.BlockGasMeter(),
 	}
 }
 
 // `Prepare` implements the core.GasPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.Context = sdk.UnwrapSDKContext(ctx)
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	p.gasMeter = sCtx.GasMeter()
+	p.blockGasMeter = sCtx.BlockGasMeter()
+}
+
+// `Reset` implements the core.GasPlugin interface.
+func (p *plugin) Reset(ctx context.Context) {
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	p.gasMeter = sCtx.GasMeter()
+	p.blockGasMeter = sCtx.BlockGasMeter()
 }
 
 // `SetGasLimit` resets the gas limit of the underlying GasMeter.
-func (p *plugin) SetGasLimit(limit uint64) error {
-	consumed := p.GasMeter().GasConsumed()
+func (p *plugin) SetTxGasLimit(limit uint64) error {
+	consumed := p.gasMeter.GasConsumed()
 	// The gas meter is reset to the new limit.
-	p.Context = p.WithGasMeter(storetypes.NewGasMeter(limit))
+	p.gasMeter = storetypes.NewGasMeter(limit)
 	// Re-consume the gas that was already consumed.
-	return p.ConsumeGas(consumed)
+	return p.TxConsumeGas(consumed)
 }
 
-// `ConsumeGas` implements the core.GasPlugin interface.
-func (p *plugin) ConsumeGas(amount uint64) error {
+// `BlockGasLimit` implements the core.GasPlugin interface.
+func (p *plugin) BlockGasLimit() uint64 {
+	return p.blockGasMeter.Limit()
+}
+
+// `TxConsumeGas` implements the core.GasPlugin interface.
+func (p *plugin) TxConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
-	if newConsumed, overflow := addUint64Overflow(p.GasMeter().GasConsumed(), amount); overflow {
+	//nolint:gocritic // can't convert cleanly.
+	if newConsumed, overflow := addUint64Overflow(p.TxGasUsed(), amount); overflow {
 		return core.ErrGasUintOverflow
-	} else if newConsumed > p.GasMeter().Limit() {
+	} else if newConsumed > p.gasMeter.Limit() {
 		return vm.ErrOutOfGas
+	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
+		return core.ErrBlockOutOfGas
 	}
-	p.GasMeter().ConsumeGas(amount, gasMeterDescriptor)
+	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
 
-// `RefundGas` implements the core.GasPlugin interface.
-func (p *plugin) RefundGas(amount uint64) {
-	p.GasMeter().RefundGas(amount, gasMeterDescriptor)
+// `TxRefundGas` implements the core.GasPlugin interface.
+func (p *plugin) TxRefundGas(amount uint64) {
+	p.gasMeter.RefundGas(amount, gasMeterDescriptor)
 }
 
-// `GasRemaining` implements the core.GasPlugin interface.
-func (p *plugin) GasRemaining() uint64 {
-	return p.GasMeter().GasRemaining()
+// `TxGasRemaining` implements the core.GasPlugin interface.
+func (p *plugin) TxGasRemaining() uint64 {
+	return p.gasMeter.GasRemaining()
 }
 
-// `GasUsed` implements the core.GasPlugin interface.
-func (p *plugin) GasUsed() uint64 {
-	return p.GasMeter().GasConsumed()
+// `TxGasUsed` implements the core.GasPlugin interface.
+func (p *plugin) TxGasUsed() uint64 {
+	return p.gasMeter.GasConsumed()
 }
 
 // `CumulativeGasUsed` returns the cumulative gas used during the current block. If the cumulative
-// gas used is greater than the block gas limit, it returns the block gas limit, but the tx will
-// still fail in `runTx`.
+// gas used is greater than the block gas limit, we expect for Stargazer to handle it.
 //
 // `CumulativeGasUsed` implements the core.GasPlugin interface.
 func (p *plugin) CumulativeGasUsed() uint64 {
-	used := p.GasUsed() + p.BlockGasMeter().GasConsumed()
-	if limit := p.BlockGasMeter().Limit(); used > limit {
-		used = limit
-	}
-	return used
+	return p.TxGasUsed() + p.blockGasMeter.GasConsumed()
 }
 
 // `addUint64Overflow` performs the addition operation on two uint64 integers and returns a boolean
