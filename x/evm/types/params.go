@@ -14,7 +14,34 @@
 
 package types
 
+import (
+	"encoding/json"
+
+	"github.com/berachain/stargazer/eth/params"
+	"github.com/cosmos/gogoproto/types"
+)
+
+// protojson.Marshal from a proto.Message and protojson.Unmarshal into a structpb.Value.
 // `DefaultParams` contains the default values for all parameters.
 func DefaultParams() *Params {
-	return &Params{}
+	bz, err := json.Marshal(params.DefaultChainConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	var chainConfig types.Struct
+	err = chainConfig.Unmarshal(bz)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &Params{
+		EvmDenom:    "abera",
+		ChainConfig: chainConfig,
+	}
+}
+
+type ProtoChainConfig struct {
+	params.ChainConfig
 }

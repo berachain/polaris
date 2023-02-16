@@ -15,7 +15,27 @@
 syntax = "proto3";
 package stargazer.evm.v1alpha1;
 
+import "gogoproto/gogo.proto";
+import "google/protobuf/struct.proto";
+
 option go_package = "github.com/berachain/stargazer/x/evm/types";
 
-// Params defines the parameters for the x/evm module.
-message Params {}
+// `Params` defines the parameters for the x/evm module.
+message Params {
+  // `evm_denom` represents the token denomination used as the native token
+  // within the EVM.
+  string evm_denom = 1 [(gogoproto.moretags) = "yaml:\"evm_denom\""];
+
+  // `extra_eips` defines a list of additional EIPs for the vm.Config
+  repeated int64 extra_eips = 2 [
+    (gogoproto.customname) = "ExtraEIPs",
+    (gogoproto.moretags) = "yaml:\"extra_eips\""
+  ];
+
+  // `chain_config` represents the ethereum chain config for the stargazer
+  // EVM
+  google.protobuf.Struct chain_config = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"chain_config\""
+  ];
+}
