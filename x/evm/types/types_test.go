@@ -12,19 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package types_test
 
 import (
-	"math/big"
+	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Test Params", func() {
-	It("should marshal correctly", func() {
-		params := DefaultParams()
-		ethConfig := params.EthereumChainConfig()
-		Expect(ethConfig.ChainID).To(Equal(big.NewInt(42069)))
-	})
-})
+func TestTypes(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/types")
+}

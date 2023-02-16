@@ -16,7 +16,6 @@ syntax = "proto3";
 package stargazer.evm.v1alpha1;
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/struct.proto";
 
 option go_package = "github.com/berachain/stargazer/x/evm/types";
 
@@ -34,8 +33,5 @@ message Params {
 
   // `chain_config` represents the ethereum chain config for the stargazer
   // EVM
-  google.protobuf.Struct chain_config = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.moretags) = "yaml:\"chain_config\""
-  ];
+  string chain_config = 3 [(gogoproto.moretags) = "yaml:\"chain_config\""];
 }

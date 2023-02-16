@@ -12,19 +12,25 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package types
+package lib
 
-import (
-	"math/big"
+import "encoding/json"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
+// `MustMarshalJSON` is a helper function that marshals JSON.
+func MustMarshalJSON[T any](v T) []byte {
+	b, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return b
+}
 
-var _ = Describe("Test Params", func() {
-	It("should marshal correctly", func() {
-		params := DefaultParams()
-		ethConfig := params.EthereumChainConfig()
-		Expect(ethConfig.ChainID).To(Equal(big.NewInt(42069)))
-	})
-})
+// `MustUnmarshalJSON` is a helper function that unmarshals JSON.
+func MustUnmarshalJSON[T any](b []byte) *T {
+	v := new(T)
+	err := json.Unmarshal(b, v)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
