@@ -4,27 +4,27 @@
 package mock
 
 import (
-	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 	"github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )
 
-// Ensure, that LogsDBMock does implement precompile.LogsDB.
+// Ensure, that LogsDBMock does implement events.LogsDB.
 // If this is not the case, regenerate this file with moq.
-var _ precompile.LogsDB = &LogsDBMock{}
+var _ events.LogsDB = &LogsDBMock{}
 
-// LogsDBMock is a mock implementation of precompile.LogsDB.
+// LogsDBMock is a mock implementation of events.LogsDB.
 //
 //	func TestSomethingThatUsesLogsDB(t *testing.T) {
 //
-//		// make and configure a mocked precompile.LogsDB
+//		// make and configure a mocked events.LogsDB
 //		mockedLogsDB := &LogsDBMock{
 //			AddLogFunc: func(log *types.Log)  {
 //				panic("mock out the AddLog method")
 //			},
 //		}
 //
-//		// use mockedLogsDB in code that requires precompile.LogsDB
+//		// use mockedLogsDB in code that requires events.LogsDB
 //		// and then make assertions.
 //
 //	}

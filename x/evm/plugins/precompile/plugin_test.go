@@ -20,7 +20,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/lib/utils"
 	"github.com/berachain/stargazer/testutil"
@@ -35,7 +34,7 @@ import (
 
 var _ = Describe("plugin", func() {
 	var p *plugin
-	var ldb *mockLDB
+	var sdb *mockSDB
 	var ctx sdk.Context
 
 	BeforeEach(func() {
@@ -44,17 +43,17 @@ var _ = Describe("plugin", func() {
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
 		p = utils.MustGetAs[*plugin](NewPluginFrom(ctx))
-		ldb = &mockLDB{}
+		sdb = &mockSDB{}
 	})
 
 	It("should use correctly consume gas", func() {
-		_, remainingGas, err := p.Run(ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
+		_, remainingGas, err := p.Run(sdb, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
 		Expect(err).To(BeNil())
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 
 	It("should error on insufficient gas", func() {
-		_, _, err := p.Run(ldb, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
+		_, _, err := p.Run(sdb, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
@@ -71,10 +70,8 @@ var _ = Describe("plugin", func() {
 
 // MOCKS BELOW.
 
-type mockLDB struct{}
-
-func (m *mockLDB) AddLog(*types.Log) {
-	// no-op
+type mockSDB struct {
+	vm.GethStateDB
 }
 
 type mockStateless struct{}

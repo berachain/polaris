@@ -21,7 +21,6 @@ import (
 	"sync"
 
 	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -39,6 +38,9 @@ type StateProcessor struct {
 	gp GasPlugin
 	// `cp` provides configuration functions from the underlying chain the EVM is running on
 	cp ConfigurationPlugin
+	// `pp` is responsible for keeping track of the stateful precompile containers that are
+	// available to the EVM and executing them.
+	pp PrecompilePlugin
 	// `signer` is the signer used to verify transaction signatures.
 	signer types.Signer
 	// `evm ` is the EVM that is used to process transactions.
@@ -49,11 +51,6 @@ type StateProcessor struct {
 	statedb vm.StargazerStateDB
 	// `block` represents the current block being processed.
 	block *types.StargazerBlock
-	// `logIndex` is the index of the current log in the current block
-	logIndex uint
-	// `precompileManager` is responsible for keeping track of the stateful precompile
-	// containers that are available to the EVM and executing them.
-	precompileManager vm.PrecompileManager
 	// `commit` indicates whether the state processor should commit the state after processing a tx
 	commit bool
 }
@@ -67,14 +64,14 @@ func NewStateProcessor(
 	commit bool,
 ) *StateProcessor {
 	sp := &StateProcessor{
-		mtx:               sync.Mutex{},
-		bp:                host.GetBlockPlugin(),
-		gp:                host.GetGasPlugin(),
-		cp:                host.GetConfigurationPlugin(),
-		vmConfig:          vmConfig,
-		statedb:           statedb,
-		precompileManager: precompile.NewManager(host.GetPrecompilePlugin(), statedb),
-		commit:            commit,
+		mtx:      sync.Mutex{},
+		bp:       host.GetBlockPlugin(),
+		gp:       host.GetGasPlugin(),
+		cp:       host.GetConfigurationPlugin(),
+		pp:       host.GetPrecompilePlugin(),
+		vmConfig: vmConfig,
+		statedb:  statedb,
+		commit:   commit,
 	}
 	return sp
 }
@@ -96,7 +93,6 @@ func (sp *StateProcessor) Prepare(ctx context.Context, header *types.StargazerHe
 
 	// Build a block object so we can track that status of the block as we process it.
 	sp.block = types.NewStargazerBlock(header)
-	sp.logIndex = 0
 	chainConfig := sp.cp.ChainConfig()
 
 	// We must re-create the signer since we are processing a new block and the block number has increased.
@@ -110,7 +106,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, header *types.StargazerHe
 		sp.statedb,
 		chainConfig,
 		sp.vmConfig,
-		sp.precompileManager,
+		sp.pp,
 	)
 }
 
@@ -126,7 +122,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
 	sp.statedb.Reset(ctx)
-	sp.precompileManager.Reset(ctx)
+	sp.pp.Reset(ctx)
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, sp.gp, msg, sp.commit)
@@ -162,9 +158,8 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// Set the receipt logs and create the bloom filter.
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
-		receipt.TxHash, receipt.BlockHash, uint(len(sp.block.Receipts)), sp.logIndex,
+		receipt.TxHash, receipt.BlockHash, sp.block.TxIndex(), sp.block.LogIndex(),
 	)
-	sp.logIndex += uint(len(receipt.Logs))
 	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
 
 	// Update the block information.
@@ -177,7 +172,7 @@ func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, 
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
-	sp.block.SetGasUsed(sp.gp.CumulativeGasUsed())
+	sp.block.Finalize(sp.gp.CumulativeGasUsed())
 	return sp.block, nil
 }
 

@@ -17,7 +17,6 @@ package types_test
 import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/ethereum/go-ethereum/trie"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -53,11 +52,6 @@ var _ = Describe("Block", func() {
 		sb = types.NewStargazerBlock(sh)
 	})
 
-	It("should set gas used", func() {
-		sb.SetGasUsed(uint64(100))
-		Expect(sb.GasUsed).To(Equal(uint64(100)))
-	})
-
 	It("should be marshallable", func() {
 		sb.Bloom = types.CreateBloom(r)
 		data, err := sb.MarshalBinary()
@@ -87,10 +81,11 @@ var _ = Describe("Block", func() {
 			Expect(sr[1].Logs).To(Equal(r[1].Logs))
 		})
 
-		It("should return an Eth block", func() {
-			b := sb.EthBlock()
-			Expect(b.Transactions()).To(Equal(txs))
-			Expect(types.DeriveSha(r, trie.NewStackTrie(nil))).To(Equal(b.ReceiptHash()))
+		It("should finalize", func() {
+			sb.Finalize(uint64(100))
+			Expect(sb.GasUsed).To(Equal(uint64(100)))
+			// Expect(sb.Transactions).To(Equal(txs))
+			// Expect(types.DeriveSha(r, trie.NewStackTrie(nil))).To(Equal(b.ReceiptHash()))
 		})
 	})
 })

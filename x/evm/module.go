@@ -143,6 +143,9 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	// cdc.MustUnmarshalJSON(data, &genesisState)
 
 	// am.keeper.InitGenesis(ctx, am.accKeeper, &genesisState)
+
+	am.keeper.InitPlugins(ctx, am.accKeeper, am.bankKeeper)
+
 	return []abci.ValidatorUpdate{}
 }
 

@@ -12,31 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package precompile
+package mock
 
 import (
-	"math/big"
-
-	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
-	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-type (
-	// `LogsDB` defines the required function to add a log to the StateDB. This ensures a precompile
-	// runner can only add logs to the StateDB and not modify any other state on the StateDB.
-	LogsDB interface {
-		// `AddLog` adds a log to the StateDB.
-		AddLog(*coretypes.Log)
-	}
+//go:generate moq -out ./logsdb.mock.go -pkg mock ../ LogsDB
 
-	// `Plugin` defines the required functions that a precompile plugin must implement.
-	Plugin interface {
-		libtypes.Resettable
-		// `Run` runs a precompile container with its natives context and returns the remaining gas.
-		Run(ldb LogsDB, pc vm.PrecompileContainer, input []byte,
-			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
-		) (ret []byte, remainingGas uint64, err error)
+func NewEmptyLogsDB() *LogsDBMock {
+	return &LogsDBMock{
+		AddLogFunc: func(log *coretypes.Log) {},
 	}
-)
+}

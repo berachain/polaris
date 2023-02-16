@@ -24,20 +24,23 @@ import (
 
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/lib/registry"
+	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/lib/utils"
 )
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
 	sdk.Context
+	libtypes.Registry[common.Address, vm.PrecompileContainer]
 }
 
 // `NewPluginFrom` creates and returns a `plugin` with the given context.
 func NewPluginFrom(ctx sdk.Context) core.PrecompilePlugin {
 	return &plugin{
-		Context: ctx,
+		Context:  ctx,
+		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 	}
 }
 
@@ -52,7 +55,7 @@ func (p *plugin) Reset(ctx context.Context) {
 //
 // `Run` implements `core.PrecompilePlugin`.
 func (p *plugin) Run(
-	ldb precompile.LogsDB, pc vm.PrecompileContainer, input []byte,
+	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
@@ -62,7 +65,7 @@ func (p *plugin) Run(
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
 	cem := utils.MustGetAs[state.ControllableEventManager](p.Context.EventManager())
-	cem.BeginPrecompileExecution(ldb)
+	cem.BeginPrecompileExecution(sdb)
 
 	// run precompile container
 	ret, err := pc.Run(

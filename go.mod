@@ -3,7 +3,7 @@ module github.com/berachain/stargazer
 go 1.19
 
 // Required for supporting stateful precompiled contracts.
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230210173429-62f77548da9a
+replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230216002851-6096143235f0
 
 // Various replaces needed to resolve conflicts until 0.48 branch cut.
 replace (
@@ -30,13 +30,16 @@ require (
 	github.com/carolynvs/magex v0.9.0
 	github.com/cometbft/cometbft v0.0.0-20230203130311-387422ac220d
 	github.com/cosmos/cosmos-db v1.0.0-rc.1
+	github.com/cosmos/cosmos-proto v1.0.0-beta.1
 	github.com/cosmos/cosmos-sdk v0.48.0
 	github.com/cosmos/gogoproto v1.4.4
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/dave/jennifer v1.6.0
 	github.com/ethereum/go-ethereum v1.10.26
+	github.com/golang/protobuf v1.5.2
 	github.com/golangci/golangci-lint v1.51.1
 	github.com/google/addlicense v1.1.1
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
 	github.com/matryer/moq v0.3.0
@@ -49,6 +52,8 @@ require (
 	github.com/spf13/viper v1.15.0
 	github.com/tidwall/btree v1.6.0
 	golang.org/x/tools v0.6.0
+	google.golang.org/genproto v0.0.0-20230202175211-008b39050e57
+	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.2-0.20230208135220-49eaa78c6c9c
 )
 
@@ -117,7 +122,6 @@ require (
 	github.com/cometbft/cometbft-db v0.7.0 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
-	github.com/cosmos/cosmos-proto v1.0.0-beta.1 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v0.20.0-alpha3 // indirect
@@ -183,7 +187,6 @@ require (
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/golangci/check v0.0.0-20180506172741-cfe4005ccda2 // indirect
 	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect
@@ -212,7 +215,6 @@ require (
 	github.com/gostaticanalysis/forcetypeassert v0.1.0 // indirect
 	github.com/gostaticanalysis/nilerr v0.1.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
@@ -374,8 +376,6 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.107.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20230202175211-008b39050e57 // indirect
-	google.golang.org/grpc v1.53.0 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect

@@ -32,6 +32,8 @@ type StargazerBlock struct {
 	*StargazerHeader
 	Transactions Transactions
 	Receipts     Receipts
+	// `logIndex` is the index of the current log in the current block
+	logIndex uint
 }
 
 // `NewStargazerBlock` creates a new StargazerBlock from the given header.
@@ -43,20 +45,20 @@ func NewStargazerBlock(header *StargazerHeader) *StargazerBlock {
 	}
 }
 
-// `SetGasUsed` sets the gas used of the block.
-func (sb *StargazerBlock) SetGasUsed(gas uint64) {
-	sb.GasUsed = gas
-}
-
 // `TxIndex` returns the current transaction index in the block.
 func (sb *StargazerBlock) TxIndex() uint {
 	return uint(len(sb.Transactions))
+}
+
+func (sb *StargazerBlock) LogIndex() uint {
+	return sb.logIndex
 }
 
 // `AppendTx` appends a transaction and receipt to the block.
 func (sb *StargazerBlock) AppendTx(tx *Transaction, receipt *Receipt) {
 	sb.Transactions = append(sb.Transactions, tx)
 	sb.Receipts = append(sb.Receipts, receipt)
+	sb.logIndex += uint(len(receipt.Logs))
 }
 
 // `UnmarshalBinary` decodes a block from the Ethereum RLP format.
@@ -79,16 +81,17 @@ func (sb *StargazerBlock) GetReceiptsForStorage() []*ReceiptForStorage {
 	return *(*[]*ReceiptForStorage)(unsafe.Pointer(&sb.Receipts))
 }
 
-// `EthBlock` returns the block as an Ethereum Block.
-func (sb *StargazerBlock) EthBlock() *Block {
-	if sb == nil {
-		return nil
+// `Finalize` sets the gas used, transaction hash, receipt hash, and optionally bloom of the block
+// header.
+func (sb *StargazerBlock) Finalize(gasUsed uint64) {
+	hasher := trie.NewStackTrie(nil)
+	sb.Header.GasUsed = gasUsed
+	if len(sb.Transactions) == 0 {
+		sb.Header.TxHash = EmptyRootHash
+		sb.Header.ReceiptHash = EmptyRootHash
+	} else {
+		sb.Header.TxHash = DeriveSha(sb.Transactions, hasher)
+		sb.Header.ReceiptHash = DeriveSha(sb.Receipts, hasher)
+		sb.Header.Bloom = CreateBloom(sb.Receipts)
 	}
-	return NewBlock(
-		sb.StargazerHeader.Header,
-		sb.Transactions,
-		nil,
-		sb.Receipts,
-		trie.NewStackTrie(nil),
-	)
 }

@@ -41,7 +41,6 @@ var (
 	MakeSigner       = types.MakeSigner
 	LogsBloom        = types.LogsBloom
 	DeriveSha        = types.DeriveSha
-	NewBlock         = types.NewBlock
 	EmptyRootHash    = types.EmptyRootHash
 	EmptyUncleHash   = types.EmptyUncleHash
 	SignTx           = types.SignTx
