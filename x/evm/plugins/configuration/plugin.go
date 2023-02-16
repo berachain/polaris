@@ -26,8 +26,8 @@ type plugin struct {
 	ctx context.Context
 }
 
-// `NewPluginFrom` returns a new plugin instance.
-func NewPluginFrom(ctx context.Context) core.ConfigurationPlugin {
+// `NewPlugin` returns a new plugin instance.
+func NewPlugin() core.ConfigurationPlugin {
 	return &plugin{}
 }
 

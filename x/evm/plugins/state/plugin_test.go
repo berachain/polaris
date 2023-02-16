@@ -43,7 +43,8 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil) // TODO: use lf
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, "abera", nil) // TODO: use lf
+		sp.Reset(ctx)
 	})
 
 	It("should have the correct registry key", func() {

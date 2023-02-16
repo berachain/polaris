@@ -36,10 +36,9 @@ type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 }
 
-// `NewPluginFrom` creates and returns a `plugin` with the given context.
-func NewPluginFrom(ctx sdk.Context) core.PrecompilePlugin {
+// `NewPlugin` creates and returns a `plugin` with the given context.
+func NewPlugin() core.PrecompilePlugin {
 	return &plugin{
-		Context:  ctx,
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 	}
 }

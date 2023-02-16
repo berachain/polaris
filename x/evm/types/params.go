@@ -19,11 +19,21 @@ import (
 	enclib "github.com/berachain/stargazer/lib/encoding"
 )
 
+const (
+	// `DefaultEvmDenom` is the default EVM denom.
+	DefaultEvmDenom = "abera"
+)
+
+var (
+	// `DefaultExtraEIPs` is the default extra EIPs.
+	DefaultExtraEIPs = []int64{}
+)
+
 // `DefaultParams` contains the default values for all parameters.
 func DefaultParams() *Params {
 	return &Params{
-		EvmDenom:    "abera",
-		ExtraEIPs:   []int64{},
+		EvmDenom:    DefaultEvmDenom,
+		ExtraEIPs:   DefaultExtraEIPs,
 		ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
 	}
 }

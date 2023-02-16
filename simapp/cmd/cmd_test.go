@@ -17,6 +17,7 @@ package cmd_test
 import (
 	"fmt"
 	"os"
+	"testing"
 
 	"github.com/berachain/stargazer/simapp"
 	"github.com/berachain/stargazer/simapp/cmd"
@@ -28,10 +29,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// func TestCmd(t *testing.T) {
-// 	RegisterFailHandler(Fail)
-// 	RunSpecs(t, "simapp/cmd")
-// }
+func TestCmd(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "simapp/cmd:integration")
+}
 
 var _ = Describe("Init command", func() {
 	It("should initialize the app with given options", func() {

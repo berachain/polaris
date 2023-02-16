@@ -37,9 +37,8 @@ type plugin struct {
 	shg StargazerHeaderGetter
 }
 
-func NewPluginFrom(ctx sdk.Context, shg StargazerHeaderGetter) core.BlockPlugin {
+func NewPlugin(shg StargazerHeaderGetter) core.BlockPlugin {
 	return &plugin{
-		ctx: ctx,
 		shg: shg,
 	}
 }
