@@ -32,7 +32,9 @@ var (
 
 func GetNewStatePlugin() core.StatePlugin {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
-	return state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera", nil)
+	sp := state.NewPlugin(ak, bk, testutil.EvmKey, "abera", nil)
+	sp.Reset(ctx)
+	return sp
 }
 
 func BenchmarkArbitraryStateTransition(b *testing.B) {

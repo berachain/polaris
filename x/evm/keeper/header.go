@@ -74,10 +74,7 @@ func (k *Keeper) GetStargazerHeader(ctx sdk.Context, height int64) (*types.Starg
 }
 
 // `SetStargazerHeader` saves a block to the store.
-func (k *Keeper) SetStargazerHeader(
-	ctx sdk.Context,
-	header *types.StargazerHeader,
-) error {
+func (k *Keeper) SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), key.SGHeaderPrefix)
 	bz, err := header.MarshalBinary()
 	if err != nil {

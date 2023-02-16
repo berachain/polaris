@@ -22,17 +22,19 @@ import (
 )
 
 func TestUtils(t *testing.T) {
+	_ = t
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "store/utils")
 }
 
 // var testKey = storetypes.NewKVStoreKey("test")
 
-// var _ = Describe("TestKVStoreReaderAtHeight", func() {
-// 	var (
-// 		ctx sdk.Context
-// 		ms  = store.NewCommitMultiStore(dbm.NewMemDB())
-// 	)
+var _ = Describe("TestKVStoreReaderAtHeight", func() {
+	// var (
+	// 	ctx sdk.Context
+	// 	ms  = store.NewCommitMultiStore(dbm.NewMemDB())
+	// )
+})
 
 // 	BeforeEach(func() {
 // 		ms.MountStoreWithDB(testKey, storetypes.StoreTypeIAVL, dbm.NewMemDB())

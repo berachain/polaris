@@ -90,7 +90,6 @@ type plugin struct {
 
 // `NewPlugin` returns a plugin with the given context and keepers.
 func NewPlugin(
-	ctx sdk.Context,
 	ak AccountKeeper,
 	bk BankKeeper,
 	evmStoreKey storetypes.StoreKey,
@@ -105,17 +104,6 @@ func NewPlugin(
 		plf:         plf,
 	}
 
-	// setup the Controllable MultiStore and EventManager and attach them to the context
-	p.cms = snapmulti.NewStoreFrom(ctx.MultiStore())
-	cem := events.NewManagerFrom(ctx.EventManager(), p.plf)
-	p.ctx = ctx.WithMultiStore(p.cms).WithEventManager(cem)
-
-	// setup the snapshot controller
-	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	_ = ctrl.Register(p.cms)
-	_ = ctrl.Register(cem)
-	p.Controller = ctrl
-
 	return p
 }
 
@@ -126,6 +114,12 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
 	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
+
+	// setup the snapshot controller
+	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
+	_ = ctrl.Register(p.cms)
+	_ = ctrl.Register(cem)
+	p.Controller = ctrl
 }
 
 // `RegistryKey` implements `libtypes.Registrable`.

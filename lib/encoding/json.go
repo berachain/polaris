@@ -12,16 +12,25 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
-package stargazer.evm.v1alpha1;
+package encoding
 
-import "gogoproto/gogo.proto";
-import "stargazer/evm/v1alpha1/params.proto";
+import "encoding/json"
 
-option go_package = "github.com/berachain/stargazer/x/evm/types";
+// `MustMarshalJSON` is a helper function that marshals JSON.
+func MustMarshalJSON[T any](v T) []byte {
+	b, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return b
+}
 
-// GenesisState defines the evm module's genesis state.
-message GenesisState {
-  // params defines all the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+// `MustUnmarshalJSON` is a helper function that unmarshals JSON.
+func MustUnmarshalJSON[T any](b []byte) *T {
+	v := new(T)
+	err := json.Unmarshal(b, v)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }

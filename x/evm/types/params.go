@@ -14,7 +14,31 @@
 
 package types
 
+import (
+	"github.com/berachain/stargazer/eth/params"
+	enclib "github.com/berachain/stargazer/lib/encoding"
+)
+
+const (
+	// `DefaultEvmDenom` is the default EVM denom.
+	DefaultEvmDenom = "abera"
+)
+
+var (
+	// `DefaultExtraEIPs` is the default extra EIPs.
+	DefaultExtraEIPs = []int64{}
+)
+
 // `DefaultParams` contains the default values for all parameters.
 func DefaultParams() *Params {
-	return &Params{}
+	return &Params{
+		EvmDenom:    DefaultEvmDenom,
+		ExtraEIPs:   DefaultExtraEIPs,
+		ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+	}
+}
+
+// `EthereumChainConfig` returns the chain config as a struct.
+func (p *Params) EthereumChainConfig() *params.ChainConfig {
+	return enclib.MustUnmarshalJSON[params.ChainConfig]([]byte(p.ChainConfig))
 }

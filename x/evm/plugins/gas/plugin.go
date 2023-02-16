@@ -34,11 +34,9 @@ type plugin struct {
 	blockGasMeter storetypes.GasMeter
 }
 
-// `NewPluginFrom` creates a new instance of the gas plugin from a given context.
-func NewPluginFrom(ctx sdk.Context) core.GasPlugin {
-	return &plugin{
-		ctx.GasMeter(), ctx.BlockGasMeter(),
-	}
+// `NewPlugin` creates a new instance of the gas plugin from a given context.
+func NewPlugin() core.GasPlugin {
+	return &plugin{}
 }
 
 // `Prepare` implements the core.GasPlugin interface.

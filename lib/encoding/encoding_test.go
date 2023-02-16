@@ -12,16 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
-package stargazer.evm.v1alpha1;
+package encoding_test
 
-import "gogoproto/gogo.proto";
-import "stargazer/evm/v1alpha1/params.proto";
+import (
+	"testing"
 
-option go_package = "github.com/berachain/stargazer/x/evm/types";
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
 
-// GenesisState defines the evm module's genesis state.
-message GenesisState {
-  // params defines all the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+func TestEncoding(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "lib/encoding")
 }
