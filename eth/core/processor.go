@@ -124,20 +124,25 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	sp.statedb.Reset(ctx)
 	sp.pp.Reset(ctx)
 
-	// Apply the state transition.
-	result, err := ApplyMessage(sp.evm, sp.gp, msg, sp.commit)
-	if err != nil {
-		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
-	}
-
 	receipt := &types.Receipt{
 		Type:             tx.Type(),
 		PostState:        nil, // TODO: Should we do something with PostState?
 		TxHash:           tx.Hash(),
-		GasUsed:          result.UsedGas,
 		BlockHash:        sp.block.Hash(),
 		BlockNumber:      sp.block.Number,
 		TransactionIndex: sp.block.TxIndex(),
+	}
+
+	// Apply the state transition.
+	result, err := ApplyMessage(sp.evm, sp.gp, msg)
+	if err != nil {
+		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
+	}
+
+	if result.Failed() {
+		receipt.Status = types.ReceiptStatusFailed
+	} else {
+		receipt.Status = types.ReceiptStatusSuccessful
 	}
 
 	// Gas from this transaction was added to the gasPlugin in `ApplyMessageAndCommit`
@@ -145,11 +150,21 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	// block, plus the gas consumed during this one.
 	receipt.CumulativeGasUsed = sp.gp.CumulativeGasUsed()
 
-	if result.Failed() {
+	// If we are over the gas limit for this block we don't want to fail the transaction in the host
+	// chain, but we want to cap the gas consumption here.
+	if receipt.CumulativeGasUsed > sp.block.GasLimit {
+		// We refund gas up to the gas limit, so that total amount consumed by the
+		// transaction does not over consume the gas limit.
+		overConsumptionDelta := receipt.CumulativeGasUsed - sp.block.GasLimit
+		sp.gp.RefundGas(overConsumptionDelta)
+		// We then set the cumulative gas used to the cumulative gas used to the gas
+		// limit for this block.
+		receipt.CumulativeGasUsed = sp.gp.CumulativeGasUsed()
 		receipt.Status = types.ReceiptStatusFailed
-	} else {
-		receipt.Status = types.ReceiptStatusSuccessful
 	}
+
+	// We can read from the gas meter now that we have checked for exceeding the block gas.
+	receipt.GasUsed = sp.gp.GasUsed()
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
@@ -164,6 +179,12 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 
 	// Update the block information.
 	sp.block.AppendTx(tx, receipt)
+
+	// If commit is enabled and everything is good, we finalize the state.
+	if sp.commit && receipt.Status == types.ReceiptStatusSuccessful {
+		sp.evm.StateDB().Finalize()
+	}
+
 	return receipt, nil
 }
 
@@ -185,19 +206,19 @@ func (sp *StateProcessor) newEVMBlockContext() vm.BlockContext {
 	var baseFee *big.Int
 	// Copy the baseFee to avoid side effects.
 	if sp.block.StargazerHeader.BaseFee != nil {
-		baseFee = new(big.Int).Set(sp.block.StargazerHeader.BaseFee)
+		baseFee = new(big.Int).Set(sp.block.BaseFee)
 	}
 
 	return vm.BlockContext{
 		CanTransfer: state.CanTransfer,
 		Transfer:    state.Transfer,
 		GetHash:     sp.getHashFn(),
-		Coinbase:    sp.block.StargazerHeader.Coinbase,
-		BlockNumber: new(big.Int).Set(sp.block.StargazerHeader.Number),
-		Time:        new(big.Int).SetUint64(sp.block.StargazerHeader.Time),
+		Coinbase:    sp.block.Coinbase,
+		BlockNumber: new(big.Int).Set(sp.block.Number),
+		Time:        new(big.Int).SetUint64(sp.block.Time),
 		Difficulty:  new(big.Int), // not used by stargazer.
 		BaseFee:     baseFee,
-		GasLimit:    sp.block.StargazerHeader.GasLimit,
+		GasLimit:    sp.block.GasLimit,
 		Random:      &common.Hash{}, // TODO: find a source of randomness
 	}
 }
@@ -211,14 +232,14 @@ func (sp *StateProcessor) getHashFn() vm.GetHashFunc {
 	return func(n uint64) common.Hash {
 		// If there's no hash cache yet, make one
 		if len(cache) == 0 {
-			cache = append(cache, sp.block.StargazerHeader.ParentHash)
+			cache = append(cache, sp.block.ParentHash)
 		}
-		if idx := sp.block.StargazerHeader.Number.Uint64() - n - 1; idx < uint64(len(cache)) {
+		if idx := sp.block.Number.Uint64() - n - 1; idx < uint64(len(cache)) {
 			return cache[idx]
 		}
 		// No luck in the cache, but we can start iterating from the last element we already know
 		var lastKnownHash common.Hash
-		lastKnownNumber := sp.block.StargazerHeader.Number.Uint64() - uint64(len(cache))
+		lastKnownNumber := sp.block.Number.Uint64() - uint64(len(cache))
 		for {
 			header := sp.bp.GetStargazerHeaderAtHeight(int64(lastKnownNumber))
 			if header == nil {

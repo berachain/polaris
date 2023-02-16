@@ -47,16 +47,10 @@ func ApplyMessage(
 	evm vm.StargazerEVM,
 	gp GasPlugin,
 	msg Message,
-	commit bool,
 ) (*ExecutionResult, error) {
 	res, err := NewStateTransition(evm, gp, msg).transitionDB()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to TransitionDB")
-	}
-
-	// Persist state.
-	if commit {
-		evm.StateDB().Finalize()
 	}
 
 	return res, nil

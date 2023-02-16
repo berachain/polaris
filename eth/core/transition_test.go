@@ -65,7 +65,7 @@ var _ = Describe("StateTransition", func() {
 			msg.GasFunc = func() uint64 {
 				return 53000 // exact intrinsic gas for create after homestead
 			}
-			res, err := core.ApplyMessage(evm, gp, &msg, true)
+			res, err := core.ApplyMessage(evm, gp, &msg)
 			Expect(len(evm.CreateCalls())).To(Equal(1))
 			Expect(res.UsedGas).To(Equal(uint64(53000)))
 			Expect(err).To(BeNil())
@@ -75,7 +75,7 @@ var _ = Describe("StateTransition", func() {
 				return 53000 - 1
 			}
 			It("should return error", func() {
-				_, err := core.ApplyMessage(evm, gp, &msg, true)
+				_, err := core.ApplyMessage(evm, gp, &msg)
 				Expect(err).To(MatchError(core.ErrIntrinsicGas))
 			})
 		})
@@ -84,7 +84,7 @@ var _ = Describe("StateTransition", func() {
 			msg.GasFunc = func() uint64 {
 				return 53000
 			}
-			_, err := core.ApplyMessage(evm, gp, &msg, true)
+			_, err := core.ApplyMessage(evm, gp, &msg)
 			Expect(err).To(BeNil())
 		})
 
@@ -92,7 +92,7 @@ var _ = Describe("StateTransition", func() {
 			msg.GasFunc = func() uint64 {
 				return 0
 			}
-			_, err := core.ApplyMessage(evm, gp, &msg, true)
+			_, err := core.ApplyMessage(evm, gp, &msg)
 			Expect(err).To(Not(BeNil()))
 		})
 
@@ -112,12 +112,12 @@ var _ = Describe("StateTransition", func() {
 				msg.GasFunc = func() uint64 {
 					return 53000 // exact intrinsic gas for create after homestead
 				}
-				_, err := core.ApplyMessage(evm, gp, &msg, false)
+				_, err := core.ApplyMessage(evm, gp, &msg)
 				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
 				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
 				Expect(err).To(BeNil())
 			})
-			It("should call create with tracer and commit", func() {
+			It("should call create with tracer", func() {
 				msg.GasFunc = func() uint64 {
 					return 53000 // exact intrinsic gas for create after homestead
 				}
@@ -125,26 +125,16 @@ var _ = Describe("StateTransition", func() {
 				evm.StateDBFunc = func() vm.StargazerStateDB {
 					return sdb
 				}
-				_, err := core.ApplyMessage(evm, gp, &msg, true)
+				_, err := core.ApplyMessage(evm, gp, &msg)
 				Expect(err).To(BeNil())
 				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
 				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
-				Expect(len(sdb.FinalizeCalls())).To(Equal(1))
 			})
 			It("should handle abort error", func() {
 				msg.GasFunc = func() uint64 {
 					return 0
 				}
-				_, err := core.ApplyMessage(evm, gp, &msg, false)
-				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
-				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
-				Expect(err).To(Not(BeNil()))
-			})
-			It("should handle abort error with commit", func() {
-				msg.GasFunc = func() uint64 {
-					return 0
-				}
-				_, err := core.ApplyMessage(evm, gp, &msg, true)
+				_, err := core.ApplyMessage(evm, gp, &msg)
 				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
 				Expect(len(tracer.CaptureTxEndCalls())).To(Equal(1))
 				Expect(err).To(Not(BeNil()))
@@ -182,7 +172,7 @@ var _ = Describe("StateTransition", func() {
 
 			When("we are in london", func() {
 				It("should call call", func() {
-					res, err := core.ApplyMessage(evm, gp, &msg, true)
+					res, err := core.ApplyMessage(evm, gp, &msg)
 					Expect(len(evm.CallCalls())).To(Equal(1))
 					Expect(res.UsedGas).To(Equal(uint64(16000))) // refund is capped to 1/5th
 					Expect(err).To(BeNil())
@@ -197,7 +187,7 @@ var _ = Describe("StateTransition", func() {
 							HomesteadBlock: big.NewInt(0),
 						}
 					}
-					res, err := core.ApplyMessage(evm, gp, &msg, true)
+					res, err := core.ApplyMessage(evm, gp, &msg)
 					Expect(len(evm.CallCalls())).To(Equal(1))
 					Expect(res.UsedGas).To(Equal(uint64(10000))) // refund is capped to 1/2
 					Expect(err).To(BeNil())
@@ -215,7 +205,7 @@ var _ = Describe("StateTransition", func() {
 					},
 				}
 			}
-			_, err := core.ApplyMessage(evm, gp, &msg, true)
+			_, err := core.ApplyMessage(evm, gp, &msg)
 			Expect(err).To(MatchError(core.ErrInsufficientFundsForTransfer))
 		})
 		When("the message has data", func() {
