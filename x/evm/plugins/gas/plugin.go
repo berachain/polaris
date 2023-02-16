@@ -54,17 +54,29 @@ func (p *plugin) SetGasLimit(limit uint64) error {
 	return p.ConsumeGas(consumed)
 }
 
+// `BlockGasLimit` implements the core.GasPlugin interface.
+func (p *plugin) BlockGasLimit() uint64 {
+	return p.BlockGasMeter().Limit()
+}
+
 // `ConsumeGas` implements the core.GasPlugin interface.
 func (p *plugin) ConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
-	// ``
-	if newConsumed, overflow := addUint64Overflow(p.GasMeter().GasConsumed(), amount); overflow {
+	//nolint:gocritic // can't convert cleanly.
+	if newConsumed, overflow := addUint64Overflow(p.GasUsed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.GasMeter().Limit() {
 		return vm.ErrOutOfGas
+	} else if newConsumed > p.BlockGasMeter().Limit()-p.BlockGasMeter().GasConsumed() {
+		return core.ErrBlockOutOfGas
 	}
 	p.GasMeter().ConsumeGas(amount, gasMeterDescriptor)
 	return nil
+}
+
+// `ConsumeGasToLimit` implements the core.GasPlugin interface.
+func (p *plugin) ConsumeGasToBlockLimit() error {
+	return p.ConsumeGas(p.BlockGasMeter().Limit() - p.GasUsed())
 }
 
 // `RefundGas` implements the core.GasPlugin interface.

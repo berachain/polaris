@@ -33,7 +33,7 @@ var _ = Describe("plugin", func() {
 
 	BeforeEach(func() {
 		// new block
-		blockGasMeter = storetypes.NewGasMeter(uint64(2000))
+		blockGasMeter = storetypes.NewGasMeter(uint64(5000))
 		ctx = testutil.NewContext().WithBlockGasMeter(blockGasMeter)
 		p = utils.MustGetAs[*plugin](NewPluginFrom(ctx))
 	})
@@ -89,6 +89,7 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should error on uint64 overflow", func() {
+		p.Context = p.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 		err := p.SetGasLimit(math.MaxUint64)
 		Expect(err).To(BeNil())
 		err = p.ConsumeGas(math.MaxUint64)

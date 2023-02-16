@@ -15,13 +15,13 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/errors"
-	"github.com/ethereum/go-ethereum/core"
+	errorslib "github.com/berachain/stargazer/lib/errors"
 )
 
 // `StateTransition` is the main object which takes care of applying a
@@ -47,12 +47,16 @@ func ApplyMessage(
 	evm vm.StargazerEVM,
 	gp GasPlugin,
 	msg Message,
+	commit bool,
 ) (*ExecutionResult, error) {
 	res, err := NewStateTransition(evm, gp, msg).transitionDB()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to TransitionDB")
+		return nil, errorslib.Wrap(err, "failed to TransitionDB")
 	}
 
+	if commit && !res.Failed() {
+		evm.StateDB().Finalize()
+	}
 	return res, nil
 }
 
@@ -100,7 +104,6 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		msgFrom  = st.msg.From()
 		msgValue = st.msg.Value()
 		ctx      = st.evm.Context()
-		msgData  = st.msg.Data()
 		sender   = vm.AccountRef(msgFrom)
 		rules    = st.evm.ChainConfig().Rules(
 			ctx.BlockNumber,
@@ -143,8 +146,9 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	// }
 
 	var (
-		ret   []byte // return bytes from evm execution
-		vmErr error  // vm errors don't effect consensus and are therefore not passed to err
+		ret              []byte // return bytes from evm execution
+		vmErr            error  // vm errors don't effect consensus and are therefore not passed to err
+		postExecutionGas uint64
 	)
 
 	// take over the nonce management from evm:
@@ -153,12 +157,11 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	// - this is probably not required, but adds a safety measure,
 	//   to ensure that the nonce is getting updated correctly.
 	//
-	var postExecutionGas uint64
 	if contractCreation {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
 		ret, _, postExecutionGas, vmErr = st.evm.Create(sender,
-			msgData, st.gp.GasRemaining(), msgValue)
+			st.msg.Data(), st.gp.GasRemaining(), msgValue)
 	} else {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
@@ -166,12 +169,22 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		// It is to deference st.msg.To() here, as it is checked
 		// to be non-nil higher up in this function.
 		ret, postExecutionGas, vmErr = st.evm.Call(sender, *st.msg.To(),
-			msgData, st.gp.GasRemaining(), msgValue)
+			st.msg.Data(), st.gp.GasRemaining(), msgValue)
 	}
 
 	// Consume the gas used by the EVM execution.
 	if err := st.gp.ConsumeGas(st.gp.GasRemaining() - postExecutionGas); err != nil {
-		return nil, err
+		vmErr = vm.ErrOutOfGas
+		if errors.Is(err, ErrBlockOutOfGas) {
+			// If consuming the amount of gas would exceed the block limit, we should
+			// consume up to the limit here.
+			if err = st.gp.ConsumeGasToBlockLimit(); err != nil {
+				return nil, err
+			}
+		} else {
+			// If we error here for any other reason, we should return a consensus breaking error.
+			return nil, err
+		}
 	}
 
 	if !rules.IsLondon {
@@ -273,7 +286,7 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
 	if err := st.gp.ConsumeGas(gas); err != nil {
-		return fmt.Errorf("%w: have %d, want %d", core.ErrIntrinsicGas, st.gp.GasRemaining(), gas)
+		return fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gp.GasRemaining(), gas)
 	}
 
 	return nil

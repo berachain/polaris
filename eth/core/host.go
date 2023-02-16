@@ -62,8 +62,11 @@ type (
 		libtypes.Preparable
 		// `ConsumeGas` consumes the supplied amount of gas. It should not panic due to a
 		// `GasOverflow` and should return `core.ErrOutOfGas` if the amount of gas remaining is
-		// less than the amount requested.
+		// less than the amount requested. If the requested amount is greater than the amount of
+		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
 		ConsumeGas(uint64) error
+		// `ConsumedGas` consumes the delta between the current gas used and the block limit.
+		ConsumeGasToBlockLimit() error
 		// `RefundGas` refunds the supplied amount of gas. It should not panic.
 		RefundGas(uint64)
 		// `GasRemaining` returns the amount of gas remaining. It should not panic.
@@ -78,6 +81,8 @@ type (
 		// It should not panic, but instead, return an error, if the new gas limit is less than the
 		// currently consumed amount of gas.
 		SetGasLimit(uint64) error
+		// `BlockGasLimit` returns the gas limit of the current block. It should not panic.
+		BlockGasLimit() uint64
 	}
 
 	// `StatePlugin` defines the methods that the chain running Stargazer EVM should implement.

@@ -20,8 +20,9 @@ import (
 )
 
 type GasPluginMock struct {
-	gasUsed  uint64
-	gasLimit uint64
+	gasUsed       uint64
+	gasLimit      uint64
+	blockGasLimit uint64
 }
 
 func NewGasPluginMock(gasLimit uint64) *GasPluginMock {
@@ -67,5 +68,18 @@ func (w *GasPluginMock) SetGasLimit(amount uint64) error {
 	if w.gasLimit < w.gasUsed {
 		return errors.New("gas limit is below currently consumed")
 	}
+	return nil
+}
+
+func (w *GasPluginMock) SetBlockGasLimit(amount uint64) {
+	w.blockGasLimit = amount
+}
+
+func (w *GasPluginMock) BlockGasLimit() uint64 {
+	return w.blockGasLimit
+}
+
+func (w *GasPluginMock) ConsumeGasToBlockLimit() error {
+	w.gasUsed = w.blockGasLimit
 	return nil
 }

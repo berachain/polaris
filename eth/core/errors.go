@@ -12,16 +12,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package block_test
+package core
 
-import (
-	"testing"
+import "errors"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
-
-func TestBlockPlugin(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/block")
-}
+var ErrBlockOutOfGas = errors.New("block is out of gas")
