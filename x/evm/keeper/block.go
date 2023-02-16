@@ -59,7 +59,7 @@ func (k Keeper) TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.St
 
 // `GetStargazerBlock` returns the block from the store at the height specified in the context.
 func (k *Keeper) GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), key.HeaderPrefix)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), key.SGHeaderPrefix)
 	bz := store.Get(big.NewInt(height).Bytes())
 	if bz == nil {
 		return nil, false
@@ -78,7 +78,7 @@ func (k *Keeper) SetStargazerHeader(
 	ctx sdk.Context,
 	header *types.StargazerHeader,
 ) error {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), key.HeaderPrefix)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), key.SGHeaderPrefix)
 	bz, err := header.MarshalBinary()
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (k *Keeper) SetStargazerHeader(
 
 // `PruneStargazerHeader` prunes a stargazer block from the store.
 func (k *Keeper) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), key.HeaderPrefix)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), key.SGHeaderPrefix)
 	store.Delete(header.Number.Bytes())
 	// Notably, we don't delete the store key mapping hash to height as we want this
 	// to persist at the application layer in order to query by hash. (TODO? Tendermint?)

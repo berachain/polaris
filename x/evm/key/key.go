@@ -15,8 +15,8 @@
 package key
 
 var (
-	// `HeaderPrefix` is the prefix for storing headers.
-	HeaderPrefix = []byte("block")
+	// `SGHeaderPrefix` is the prefix for storing headers.
+	SGHeaderPrefix = []byte("block")
 
 	// receiptKey = []byte("receipt")
 	// hashKey    = []byte("hash").
