@@ -28,19 +28,19 @@ import (
 // TODO: change this.
 const bf = int64(1e9)
 
-type StargazerBlockGetter interface {
-	GetStargazerBlockAtHeight(ctx sdk.Context, height uint64) (*coretypes.StargazerBlock, bool)
+type StargazerHeaderGetter interface {
+	GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool)
 }
 
 type plugin struct {
 	ctx sdk.Context
-	sbg StargazerBlockGetter
+	shg StargazerHeaderGetter
 }
 
-func NewPluginFrom(ctx sdk.Context, sbg StargazerBlockGetter) core.BlockPlugin {
+func NewPluginFrom(ctx sdk.Context, shg StargazerHeaderGetter) core.BlockPlugin {
 	return &plugin{
 		ctx: ctx,
-		sbg: sbg,
+		shg: shg,
 	}
 }
 
@@ -59,22 +59,22 @@ func (p *plugin) GetStargazerHeaderAtHeight(height int64) *coretypes.StargazerHe
 	// block has not been written to the store yet. In this case, we build and return a header
 	// from the sdk.Context.
 	if p.ctx.BlockHeight() == height {
-		return p.GetStargazerHeaderFromCosmosContext()
+		return p.getStargazerHeaderFromCosmosContext()
 	}
 
 	// If the current block height is less than (or technically also greater than) the requested
 	// height, then we assume that the block has been written to the store. In this case, we
 	// return the header from the store.
-	b, found := p.sbg.GetStargazerBlockAtHeight(p.ctx, uint64(height))
-	if !found {
-		return &coretypes.StargazerHeader{}
+	if header, found := p.shg.GetStargazerHeader(p.ctx, height); found {
+		return header
 	}
-	return b.StargazerHeader
+
+	return &coretypes.StargazerHeader{}
 }
 
-// `StargazerHeaderFromCosmosContext` builds an ethereum style block header from an
+// `getStargazerHeaderFromCosmosContext` builds an ethereum style block header from an
 // `sdk.Context`, `Bloom` and `baseFee`.
-func (p *plugin) GetStargazerHeaderFromCosmosContext() *coretypes.StargazerHeader {
+func (p *plugin) getStargazerHeaderFromCosmosContext() *coretypes.StargazerHeader {
 	cometHeader := p.ctx.BlockHeader()
 
 	// We retrieve the `TxHash` from the `DataHash` field of the `sdk.Context` opposed to deriving it

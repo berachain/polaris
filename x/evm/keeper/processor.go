@@ -17,7 +17,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/berachain/stargazer/eth/core/types"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -29,7 +29,7 @@ func (k *Keeper) BeginBlocker(ctx context.Context) {
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
-func (k *Keeper) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("Begin ProcessTransaction()")
 
@@ -71,7 +71,6 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 		panic(err)
 	}
 
-	// Save the historical stargazer block.
-	// TODO: change to storing headers only.
-	k.TrackHistoricalStargazerBlocks(sCtx, stargazerBlock)
+	// Save the historical stargazer header.
+	k.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)
 }
