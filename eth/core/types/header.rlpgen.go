@@ -59,7 +59,6 @@ func (obj *StargazerHeader) EncodeRLP(_w io.Writer) error {
 		}
 		w.ListEnd(_tmp1)
 	}
-	w.WriteBytes(obj.HostHash[:])
 	w.ListEnd(_tmp0)
 	return w.Flush()
 }
@@ -179,12 +178,6 @@ func (obj *StargazerHeader) DecodeRLP(dec *rlp.Stream) error {
 			}
 		}
 		_tmp0.Header = &_tmp1
-		// HostHash:
-		var _tmp18 common.Hash
-		if err := dec.ReadBytes(_tmp18[:]); err != nil {
-			return err
-		}
-		_tmp0.HostHash = _tmp18
 		if err := dec.ListEnd(); err != nil {
 			return err
 		}

@@ -30,8 +30,8 @@ const initialTransactionsCapacity = 256
 //go:generate rlpgen -type StargazerBlock -out block.rlpgen.go -decoder
 type StargazerBlock struct {
 	*StargazerHeader
-	Transactions Transactions
-	Receipts     Receipts
+	txs      Transactions
+	receipts Receipts
 	// `logIndex` is the index of the current log in the current block
 	logIndex uint
 }
@@ -40,14 +40,14 @@ type StargazerBlock struct {
 func NewStargazerBlock(header *StargazerHeader) *StargazerBlock {
 	return &StargazerBlock{
 		StargazerHeader: header,
-		Transactions:    make(Transactions, 0, initialTransactionsCapacity),
-		Receipts:        make(Receipts, 0, initialTransactionsCapacity),
+		txs:             make(Transactions, 0, initialTransactionsCapacity),
+		receipts:        make(Receipts, 0, initialTransactionsCapacity),
 	}
 }
 
 // `TxIndex` returns the current transaction index in the block.
 func (sb *StargazerBlock) TxIndex() uint {
-	return uint(len(sb.Transactions))
+	return uint(len(sb.txs))
 }
 
 func (sb *StargazerBlock) LogIndex() uint {
@@ -56,8 +56,8 @@ func (sb *StargazerBlock) LogIndex() uint {
 
 // `AppendTx` appends a transaction and receipt to the block.
 func (sb *StargazerBlock) AppendTx(tx *Transaction, receipt *Receipt) {
-	sb.Transactions = append(sb.Transactions, tx)
-	sb.Receipts = append(sb.Receipts, receipt)
+	sb.txs = append(sb.txs, tx)
+	sb.receipts = append(sb.receipts, receipt)
 	sb.logIndex += uint(len(receipt.Logs))
 }
 
@@ -78,7 +78,7 @@ func (sb *StargazerBlock) MarshalBinary() ([]byte, error) {
 // `GetReceiptsForStorage` converts a list of `Receipt`s to a `StargazerReceipts`.
 func (sb *StargazerBlock) GetReceiptsForStorage() []*ReceiptForStorage {
 	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	return *(*[]*ReceiptForStorage)(unsafe.Pointer(&sb.Receipts))
+	return *(*[]*ReceiptForStorage)(unsafe.Pointer(&sb.receipts))
 }
 
 // `Finalize` sets the gas used, transaction hash, receipt hash, and optionally bloom of the block
@@ -86,12 +86,12 @@ func (sb *StargazerBlock) GetReceiptsForStorage() []*ReceiptForStorage {
 func (sb *StargazerBlock) Finalize(gasUsed uint64) {
 	hasher := trie.NewStackTrie(nil)
 	sb.Header.GasUsed = gasUsed
-	if len(sb.Transactions) == 0 {
+	if len(sb.txs) == 0 {
 		sb.Header.TxHash = EmptyRootHash
 		sb.Header.ReceiptHash = EmptyRootHash
 	} else {
-		sb.Header.TxHash = DeriveSha(sb.Transactions, hasher)
-		sb.Header.ReceiptHash = DeriveSha(sb.Receipts, hasher)
-		sb.Header.Bloom = CreateBloom(sb.Receipts)
+		sb.Header.TxHash = DeriveSha(sb.txs, hasher)
+		sb.Header.ReceiptHash = DeriveSha(sb.receipts, hasher)
+		sb.Header.Bloom = CreateBloom(sb.receipts)
 	}
 }

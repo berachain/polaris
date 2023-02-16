@@ -26,8 +26,8 @@ import (
 type StargazerHeader struct {
 	// `Header` is an embedded ethereum header.
 	*Header
-	// `HostHash` is the block hash on the host chain.
-	HostHash common.Hash
+	// `hostHash` is the block hash on the host chain.
+	hostHash common.Hash
 }
 
 // `NewEmptyStargazerHeader` returns an empty `StargazerHeader`.
@@ -37,7 +37,7 @@ func NewEmptyStargazerHeader() *StargazerHeader {
 
 // `NewStargazerHeader` returns a `StargazerHeader` with the given `header` and `hash`.
 func NewStargazerHeader(header *Header, hash common.Hash) *StargazerHeader {
-	return &StargazerHeader{Header: header, HostHash: hash}
+	return &StargazerHeader{Header: header, hostHash: hash}
 }
 
 // `Author` returns the address of the original block producer.
@@ -63,13 +63,13 @@ func (h *StargazerHeader) MarshalBinary() ([]byte, error) {
 // to use the hash of the host chain, as the implementing chain might want to use it's
 // real block hash opposed to hashing the "fake" header.
 func (h *StargazerHeader) Hash() common.Hash {
-	if h.HostHash == (common.Hash{}) {
-		h.HostHash = h.Header.Hash()
+	if h.hostHash == (common.Hash{}) {
+		h.hostHash = h.Header.Hash()
 	}
-	return h.HostHash
+	return h.hostHash
 }
 
 // `SetHash` sets the hash of the header.
 func (h *StargazerHeader) SetHash(hash common.Hash) {
-	h.HostHash = hash
+	h.hostHash = hash
 }
