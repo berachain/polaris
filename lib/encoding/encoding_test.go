@@ -23,5 +23,5 @@ import (
 
 func TestEncoding(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/lib/encoding")
+	RunSpecs(t, "lib/encoding")
 }
