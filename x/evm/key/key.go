@@ -14,21 +14,17 @@
 
 package key
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
 var (
-	// `Block` is key for the block bloom.
-	blockKey = []byte("block")
+	// `HeaderPrefix` is the prefix for storing headers.
+	HeaderPrefix = []byte("block")
 
 	// receiptKey = []byte("receipt")
 	// hashKey    = []byte("hash").
 )
 
-func BlockAtHeight(height uint64) []byte {
-	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
-}
+// func BlockAtHeight(height uint64) []byte {
+// 	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
+// }
 
 // `HashToTxIndex` returns the key for a receipt lookup.
 // func HashToTxIndex(h []byte) []byte {

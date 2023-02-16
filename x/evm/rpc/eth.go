@@ -14,50 +14,42 @@
 
 package rpc
 
-import (
-	"errors"
-
-	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/x/evm/keeper"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
 // `EthReaderBackend` is the backend for the `eth` namespace of the JSON-RPC API.
 // It is only able to retrieve information about the current state of the chain by
 // number. For querying data by hash, one must determine the block number that the
 // data is stored at and then query by number.
-type EthReaderBackend struct {
-	k keeper.Keeper
-}
+// type EthReaderBackend struct {
+// 	k keeper.Keeper
+// }
 
 // ==============================================================================
 // EthReaderBackend
 // ==============================================================================
 
-// `BlockNumber` implements the `eth_blockNumber` JSON-RPC method.
-func (eb *EthReaderBackend) BlockNumber(ctx sdk.Context) uint64 {
-	return uint64(ctx.BlockHeight())
-}
+// // `BlockNumber` implements the `eth_blockNumber` JSON-RPC method.
+// func (eb *EthReaderBackend) BlockNumber(ctx sdk.Context) uint64 {
+// 	return uint64(ctx.BlockHeight())
+// }
 
-// `GetBlockByNumber` is used to implement the `eth_getBlockByNumber` JSON-RPCÍ.
-func (eb *EthReaderBackend) GetBlockByNumber(
-	ctx sdk.Context, number uint64, fullTx bool,
-) (*types.StargazerBlock, error) {
-	block, found := eb.k.GetStargazerBlockAtHeight(ctx, number)
-	if !found {
-		return nil, errors.New("no block found")
-	}
-	return block, nil
-}
+// // `GetBlockByNumber` is used to implement the `eth_getBlockByNumber` JSON-RPCÍ.
+// func (eb *EthReaderBackend) GetBlockByNumber(
+// 	ctx sdk.Context, number uint64, fullTx bool,
+// ) (*types.StargazerBlock, error) {
+// 	block, found := eb.k.GetStargazerBlockAtHeight(ctx, number)
+// 	if !found {
+// 		return nil, errors.New("no block found")
+// 	}
+// 	return block, nil
+// }
 
-// `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
-// matching the given block number.
-func (eb *EthReaderBackend) BlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint64 {
-	// store := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(number))
-	block, found := eb.k.GetStargazerBlockAtHeight(ctx, number)
-	if !found {
-		return 0
-	}
+// // `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
+// // matching the given block number.
+// func (eb *EthReaderBackend) BlockTransactionCountByNumber(ctx sdk.Context, number uint64) uint64 {
+// 	// store := storeutils.KVStoreReaderAtBlockHeight(ctx, k.storeKey, int64(number))
+// 	block, found := eb.k.GetStargazerBlockAtHeight(ctx, number)
+// 	if !found {
+// 		return 0
+// 	}
 
-	return uint64(block.TxIndex())
-}
+// 	return uint64(block.TxIndex())
+// }
