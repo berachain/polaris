@@ -77,7 +77,7 @@ func (p *plugin) TxConsumeGas(amount uint64) error {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.gasMeter.Limit() {
 		return vm.ErrOutOfGas
-	} else if newConsumed > p.blockGasMeter.Limit()-p.blockGasMeter.GasConsumed() {
+	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
 		return core.ErrBlockOutOfGas
 	}
 	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
