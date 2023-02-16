@@ -63,23 +63,8 @@ func (obj *StargazerBlock) EncodeRLP(_w io.Writer) error {
 			}
 			w.ListEnd(_tmp2)
 		}
-		w.WriteBytes(obj.StargazerHeader.HostHash[:])
 		w.ListEnd(_tmp1)
 	}
-	_tmp4 := w.List()
-	for _, _tmp5 := range obj.Transactions {
-		if err := _tmp5.EncodeRLP(w); err != nil {
-			return err
-		}
-	}
-	w.ListEnd(_tmp4)
-	_tmp6 := w.List()
-	for _, _tmp7 := range obj.Receipts {
-		if err := _tmp7.EncodeRLP(w); err != nil {
-			return err
-		}
-	}
-	w.ListEnd(_tmp6)
 	w.ListEnd(_tmp0)
 	return w.Flush()
 }
@@ -205,49 +190,11 @@ func (obj *StargazerBlock) DecodeRLP(dec *rlp.Stream) error {
 				}
 			}
 			_tmp1.Header = &_tmp2
-			// HostHash:
-			var _tmp19 common.Hash
-			if err := dec.ReadBytes(_tmp19[:]); err != nil {
-				return err
-			}
-			_tmp1.HostHash = _tmp19
 			if err := dec.ListEnd(); err != nil {
 				return err
 			}
 		}
 		_tmp0.StargazerHeader = &_tmp1
-		// Transactions:
-		var _tmp20 []*types.Transaction
-		if _, err := dec.List(); err != nil {
-			return err
-		}
-		for dec.MoreDataInList() {
-			_tmp21 := new(types.Transaction)
-			if err := _tmp21.DecodeRLP(dec); err != nil {
-				return err
-			}
-			_tmp20 = append(_tmp20, _tmp21)
-		}
-		if err := dec.ListEnd(); err != nil {
-			return err
-		}
-		_tmp0.Transactions = _tmp20
-		// Receipts:
-		var _tmp22 []*types.Receipt
-		if _, err := dec.List(); err != nil {
-			return err
-		}
-		for dec.MoreDataInList() {
-			_tmp23 := new(types.Receipt)
-			if err := _tmp23.DecodeRLP(dec); err != nil {
-				return err
-			}
-			_tmp22 = append(_tmp22, _tmp23)
-		}
-		if err := dec.ListEnd(); err != nil {
-			return err
-		}
-		_tmp0.Receipts = _tmp22
 		if err := dec.ListEnd(); err != nil {
 			return err
 		}

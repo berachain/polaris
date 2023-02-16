@@ -42,7 +42,7 @@ var (
 	moq = "github.com/matryer/moq"
 
 	// Variables and Helpers.
-	cmds       = []string{"stargazerd"}
+	cmds       = []string{"jsonrpcd", "stargazerd"}
 	production = false
 	statically = false
 )

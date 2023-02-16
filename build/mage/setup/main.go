@@ -12,26 +12,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package key
+package main
 
-var (
-	// `SGHeaderPrefix` is the prefix for storing headers.
-	SGHeaderPrefix = []byte("block")
+import "github.com/carolynvs/magex/pkg"
 
-	// receiptKey = []byte("receipt")
-	// hashKey    = []byte("hash").
-)
-
-// func BlockAtHeight(height uint64) []byte {
-// 	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
-// }
-
-// `HashToTxIndex` returns the key for a receipt lookup.
-// func HashToTxIndex(h []byte) []byte {
-// 	return append(hashKey, h...)
-// }
-
-// // `TxIndexToReciept` returns the key for the receipt lookup for a given block.
-// func TxIndexToReciept(txIndex uint64) []byte {
-// 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
-// }
+func main() {
+	if err := pkg.EnsureMage(""); err != nil {
+		panic(err)
+	}
+}

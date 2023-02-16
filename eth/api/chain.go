@@ -26,7 +26,7 @@ import (
 type Chain interface {
 	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
 	// the block.
-	Prepare(ctx context.Context, header *types.StargazerHeader)
+	Prepare(ctx context.Context, height int64)
 	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error)

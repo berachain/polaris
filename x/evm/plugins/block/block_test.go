@@ -12,26 +12,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package key
+package block_test
 
-var (
-	// `SGHeaderPrefix` is the prefix for storing headers.
-	SGHeaderPrefix = []byte("block")
+import (
+	"testing"
 
-	// receiptKey = []byte("receipt")
-	// hashKey    = []byte("hash").
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// func BlockAtHeight(height uint64) []byte {
-// 	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
-// }
-
-// `HashToTxIndex` returns the key for a receipt lookup.
-// func HashToTxIndex(h []byte) []byte {
-// 	return append(hashKey, h...)
-// }
-
-// // `TxIndexToReciept` returns the key for the receipt lookup for a given block.
-// func TxIndexToReciept(txIndex uint64) []byte {
-// 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
-// }
+func TestBlockPlugin(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/block")
+}

@@ -12,26 +12,37 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package key
+package log
 
-var (
-	// `SGHeaderPrefix` is the prefix for storing headers.
-	SGHeaderPrefix = []byte("block")
+import "github.com/ethereum/go-ethereum/log"
 
-	// receiptKey = []byte("receipt")
-	// hashKey    = []byte("hash").
+type (
+	// `Record` is a log record.
+	Record = log.Record
 )
 
-// func BlockAtHeight(height uint64) []byte {
-// 	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
-// }
+var (
+	// `Root` is the root logger.
+	Root = log.Root
 
-// `HashToTxIndex` returns the key for a receipt lookup.
-// func HashToTxIndex(h []byte) []byte {
-// 	return append(hashKey, h...)
-// }
+	// `LvlTrace` is the trace log level.
+	LvlTrace = log.LvlTrace
 
-// // `TxIndexToReciept` returns the key for the receipt lookup for a given block.
-// func TxIndexToReciept(txIndex uint64) []byte {
-// 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
-// }
+	// `LvlDebug` is the debug log level.
+	LvlDebug = log.LvlDebug
+
+	// `LvlInfo` is the info log level.
+	LvlInfo = log.LvlInfo
+
+	// `LvlWarn` is the warn log level.
+	LvlWarn = log.LvlWarn
+
+	// `LvlError` is the error log level.
+	LvlError = log.LvlError
+
+	// `LvlCrit` is the critical log level.
+	LvlCrit = log.LvlCrit
+
+	// `FuncHandler` is a log handler.
+	FuncHandler = log.FuncHandler
+)

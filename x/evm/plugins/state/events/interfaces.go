@@ -30,7 +30,7 @@ type (
 	// precompile runner can only add logs to the StateDB and not modify any other state on the
 	// StateDB.
 	LogsDB interface {
-		// `Add` adds a log to the database.
+		// `AddLog` adds a log to the database.
 		AddLog(*coretypes.Log)
 	}
 )

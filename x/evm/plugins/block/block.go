@@ -12,72 +12,84 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package keeper
+package block
 
 import (
 	"context"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/types"
-
+	"github.com/berachain/stargazer/eth/core"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
 	cbft "github.com/cometbft/cometbft/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// temp.
+// TODO: change this.
 const bf = int64(1e9)
+
+type StargazerHeaderGetter interface {
+	GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool)
+}
+
+type plugin struct {
+	ctx sdk.Context
+	shg StargazerHeaderGetter
+}
+
+func NewPluginFrom(ctx sdk.Context, shg StargazerHeaderGetter) core.BlockPlugin {
+	return &plugin{
+		ctx: ctx,
+		shg: shg,
+	}
+}
+
+func (p *plugin) Prepare(ctx context.Context) {
+	p.ctx = sdk.UnwrapSDKContext(ctx)
+}
 
 // `BaseFee` returns the base fee for the current block.
 // TODO: implement properly with DynamicFee Module of some kind.
-func (k *Keeper) BaseFee(ctx context.Context) *big.Int {
-	return big.NewInt(bf)
+func (p *plugin) BaseFee() uint64 {
+	return uint64(bf)
 }
 
-// `GetStargazerHeaderAtHeight` returns the stargazer header at the given height.
-//
-// NOTE: If the stargazer height is equal to the current height, the logs bloom, receipt hash and
-// cumulative gas used will be empty.
-func (k *Keeper) GetStargazerHeaderAtHeight(ctx context.Context, height uint64) *types.StargazerHeader {
-	sCtx := sdk.UnwrapSDKContext(ctx)
+func (p *plugin) GetStargazerHeaderAtHeight(height int64) *coretypes.StargazerHeader {
 	// If the current block height is the same as the requested height, then we assume that the
 	// block has not been written to the store yet. In this case, we build and return a header
 	// from the sdk.Context.
-	if uint64(sCtx.BlockHeight()) == height {
-		return k.GetStargazerHeaderFromCosmosContext(sCtx, k.BaseFee(ctx))
+	if p.ctx.BlockHeight() == height {
+		return p.getStargazerHeaderFromCosmosContext()
 	}
 
 	// If the current block height is less than (or technically also greater than) the requested
 	// height, then we assume that the block has been written to the store. In this case, we
 	// return the header from the store.
-	b, found := k.GetStargazerBlockAtHeight(sCtx, height)
-	if !found {
-		return &types.StargazerHeader{}
+	if header, found := p.shg.GetStargazerHeader(p.ctx, height); found {
+		return header
 	}
-	return b.StargazerHeader
+
+	return &coretypes.StargazerHeader{}
 }
 
-// `StargazerHeaderFromCosmosContext` builds an ethereum style block header from an
+// `getStargazerHeaderFromCosmosContext` builds an ethereum style block header from an
 // `sdk.Context`, `Bloom` and `baseFee`.
-func (k *Keeper) GetStargazerHeaderFromCosmosContext(
-	ctx sdk.Context, baseFee *big.Int,
-) *types.StargazerHeader {
-	cometHeader := ctx.BlockHeader()
+func (p *plugin) getStargazerHeaderFromCosmosContext() *coretypes.StargazerHeader {
+	cometHeader := p.ctx.BlockHeader()
 
 	// We retrieve the `TxHash` from the `DataHash` field of the `sdk.Context` opposed to deriving it
 	// from solely the ethereum transaction information.
-	txHash := types.EmptyRootHash
+	txHash := coretypes.EmptyRootHash
 	if len(cometHeader.DataHash) == 0 {
 		txHash = common.BytesToHash(cometHeader.DataHash)
 	}
 
-	return types.NewStargazerHeader(
-		&types.Header{
+	return coretypes.NewStargazerHeader(
+		&coretypes.Header{
 			// `ParentHash` is set to the hash of the previous block.
 			ParentHash: common.BytesToHash(cometHeader.LastBlockId.Hash),
 			// `UncleHash` is set empty as CometBFT does not have uncles.
-			UncleHash: types.EmptyUncleHash,
+			UncleHash: coretypes.EmptyUncleHash,
 			// TODO: Use staking keeper to get the operator address.
 			Coinbase: common.BytesToAddress(cometHeader.ProposerAddress),
 			// `Root` is set to the hash of the state after the transactions are applied.
@@ -89,15 +101,15 @@ func (k *Keeper) GetStargazerHeaderFromCosmosContext(
 			// We simply map the cosmos "BlockHeight" to the ethereum "BlockNumber".
 			Number: big.NewInt(cometHeader.Height),
 			// `GasLimit` is set to the block gas limit.
-			GasLimit: ctx.BlockGasMeter().Limit(),
+			GasLimit: p.ctx.BlockGasMeter().Limit(),
 			// `Time` is set to the block timestamp.
 			Time: uint64(cometHeader.Time.UTC().Unix()),
 			// `BaseFee` is set to the block base fee.
-			BaseFee: baseFee,
+			BaseFee: big.NewInt(int64(p.BaseFee())),
 			// `ReceiptHash` set to empty. It is filled during `Finalize` in the StateProcessor.
 			ReceiptHash: common.Hash{},
 			// `Bloom` is set to empty. It is filled during `Finalize` in the StateProcessor.
-			Bloom: types.Bloom{},
+			Bloom: coretypes.Bloom{},
 			// `GasUsed` is set to 0. It is filled during `Finalize` in the StateProcessor.
 			GasUsed: 0,
 			// `Difficulty` is set to 0 as it is only used in PoW consensus.
@@ -105,11 +117,11 @@ func (k *Keeper) GetStargazerHeaderFromCosmosContext(
 			// `MixDigest` is set empty as it is only used in PoW consensus.
 			MixDigest: common.Hash{},
 			// `Nonce` is set empty as it is only used in PoW consensus.
-			Nonce: types.BlockNonce{},
+			Nonce: coretypes.BlockNonce{},
 			// `Extra` is unused in Stargazer.
 			Extra: []byte(nil),
 		},
-		blockHashFromCosmosContext(ctx),
+		blockHashFromCosmosContext(p.ctx),
 	)
 }
 

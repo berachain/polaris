@@ -12,26 +12,42 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package key
+package jsonrpc
 
-var (
-	// `SGHeaderPrefix` is the prefix for storing headers.
-	SGHeaderPrefix = []byte("block")
+import (
+	"context"
+	"testing"
 
-	// receiptKey = []byte("receipt")
-	// hashKey    = []byte("hash").
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// func BlockAtHeight(height uint64) []byte {
-// 	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
-// }
+func TestContainer(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "jsonrpc:integration")
+}
 
-// `HashToTxIndex` returns the key for a receipt lookup.
-// func HashToTxIndex(h []byte) []byte {
-// 	return append(hashKey, h...)
-// }
+var _ = Describe("Container", func() {
+	var (
+		ctx    context.Context
+		c      *Container
+		config = DefaultContainerConfig()
+	)
 
-// // `TxIndexToReciept` returns the key for the receipt lookup for a given block.
-// func TxIndexToReciept(txIndex uint64) []byte {
-// 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
-// }
+	BeforeEach(func() {
+		ctx = context.Background()
+	})
+
+	AfterEach(func() {
+		if c != nil {
+			Expect(c.Terminate(ctx)).To(BeNil())
+		}
+	})
+
+	It("should create a container", func() {
+		var err error
+		c, err = NewContainer(ctx, config)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(c).ToNot(BeNil())
+	})
+})

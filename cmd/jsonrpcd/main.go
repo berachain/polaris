@@ -11,27 +11,31 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+package main
 
-package key
+import (
+	"fmt"
+	"os"
 
-var (
-	// `SGHeaderPrefix` is the prefix for storing headers.
-	SGHeaderPrefix = []byte("block")
+	"github.com/spf13/cobra"
 
-	// receiptKey = []byte("receipt")
-	// hashKey    = []byte("hash").
+	jsonrpc "github.com/berachain/stargazer/jsonrpc"
 )
 
-// func BlockAtHeight(height uint64) []byte {
-// 	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
-// }
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
+		os.Exit(1)
+	}
+}
 
-// `HashToTxIndex` returns the key for a receipt lookup.
-// func HashToTxIndex(h []byte) []byte {
-// 	return append(hashKey, h...)
-// }
-
-// // `TxIndexToReciept` returns the key for the receipt lookup for a given block.
-// func TxIndexToReciept(txIndex uint64) []byte {
-// 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
-// }
+var rootCmd = &cobra.Command{
+	Use:   "jsonrpcd",
+	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
+	Short: "Ethereum JSON-RPC server",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return jsonrpc.New(
+			*jsonrpc.DefaultConfig(),
+		).Start()
+	},
+}

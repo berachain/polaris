@@ -15,13 +15,13 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/errors"
-	"github.com/ethereum/go-ethereum/core"
+	errorslib "github.com/berachain/stargazer/lib/errors"
 )
 
 // `StateTransition` is the main object which takes care of applying a
@@ -51,14 +51,12 @@ func ApplyMessage(
 ) (*ExecutionResult, error) {
 	res, err := NewStateTransition(evm, gp, msg).transitionDB()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to TransitionDB")
+		return nil, errorslib.Wrap(err, "failed to TransitionDB")
 	}
 
-	// Persist state.
-	if commit {
+	if commit && !res.Failed() {
 		evm.StateDB().Finalize()
 	}
-
 	return res, nil
 }
 
@@ -76,7 +74,7 @@ func NewStateTransition(evm vm.StargazerEVM, gp GasPlugin, msg Message) *StateTr
 
 	// Setup the gas plugin with the message gas limit.
 	// TODO handle error?
-	_ = gp.SetGasLimit(msg.Gas())
+	_ = gp.SetTxGasLimit(msg.Gas())
 
 	return &StateTransition{
 		evm: evm,
@@ -101,12 +99,13 @@ func NewStateTransition(evm vm.StargazerEVM, gp GasPlugin, msg Message) *StateTr
 //  5. Checking that the EVM did not use more gas than was supplied
 //  6. Calculating and applying any gas refunds, if applicable
 //  7. Updating the sender's nonce in the state database (sdb)
+//
+//nolint:funlen // all this code is logically contagious.
 func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	var (
 		msgFrom  = st.msg.From()
 		msgValue = st.msg.Value()
 		ctx      = st.evm.Context()
-		msgData  = st.msg.Data()
 		sender   = vm.AccountRef(msgFrom)
 		rules    = st.evm.ChainConfig().Rules(
 			ctx.BlockNumber,
@@ -120,10 +119,10 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	if tracer != nil && st.evm.Config().Debug {
 		// Capture the starting gas for the tracer, we can skip the check for debug mode that is
 		// present in geth, as we already know that the EVM is in debug mode from the lines above.
-		tracer.CaptureTxStart(st.gp.GasRemaining())
+		tracer.CaptureTxStart(st.gp.TxGasRemaining())
 		defer func() {
 			// After execution is completed we need to capture gas remaining.
-			tracer.CaptureTxEnd(st.gp.GasRemaining())
+			tracer.CaptureTxEnd(st.gp.TxGasRemaining())
 		}()
 	}
 
@@ -149,8 +148,9 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	// }
 
 	var (
-		ret   []byte // return bytes from evm execution
-		vmErr error  // vm errors don't effect consensus and are therefore not passed to err
+		ret              []byte // return bytes from evm execution
+		vmErr            error  // vm errors don't effect consensus and are therefore not passed to err
+		postExecutionGas uint64
 	)
 
 	// take over the nonce management from evm:
@@ -159,12 +159,11 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	// - this is probably not required, but adds a safety measure,
 	//   to ensure that the nonce is getting updated correctly.
 	//
-	var postExecutionGas uint64
 	if contractCreation {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
 		ret, _, postExecutionGas, vmErr = st.evm.Create(sender,
-			msgData, st.gp.GasRemaining(), msgValue)
+			st.msg.Data(), st.gp.TxGasRemaining(), msgValue)
 	} else {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
@@ -172,12 +171,24 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		// It is to deference st.msg.To() here, as it is checked
 		// to be non-nil higher up in this function.
 		ret, postExecutionGas, vmErr = st.evm.Call(sender, *st.msg.To(),
-			msgData, st.gp.GasRemaining(), msgValue)
+			st.msg.Data(), st.gp.TxGasRemaining(), msgValue)
 	}
 
 	// Consume the gas used by the EVM execution.
-	if err := st.gp.ConsumeGas(st.gp.GasRemaining() - postExecutionGas); err != nil {
-		return nil, err
+	if err := st.gp.TxConsumeGas(st.gp.TxGasRemaining() - postExecutionGas); err != nil {
+		vmErr = vm.ErrOutOfGas
+		if errors.Is(err, ErrBlockOutOfGas) {
+			// If consuming the amount of gas would exceed the block limit, we should
+			// consume up to the limit here.
+			// Cumulative gas used should be equal to the gas consumed in the block thus far,
+			// INCLUDING the gas consumed as part of the Intrinsic gas calculation above.
+			if err = st.gp.TxConsumeGas(st.gp.BlockGasLimit() - st.gp.CumulativeGasUsed()); err != nil {
+				return nil, err
+			}
+		} else {
+			// If we error here for any other reason, we should return a consensus breaking error.
+			return nil, err
+		}
 	}
 
 	if !rules.IsLondon {
@@ -189,7 +200,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}
 
 	return &ExecutionResult{
-		UsedGas:    st.gp.GasUsed(),
+		UsedGas:    st.gp.TxGasUsed(),
 		Err:        vmErr,
 		ReturnData: ret,
 	}, nil
@@ -201,25 +212,13 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 func (st *StateTransition) refundGas(refundQuotient uint64) {
 	sdb := st.evm.StateDB()
 	// Apply refund counter, capped to a refund quotient
-	refund := st.gp.GasUsed() / refundQuotient
+	refund := st.gp.TxGasUsed() / refundQuotient
 	if refund > sdb.GetRefund() {
 		refund = sdb.GetRefund()
 	}
-	st.gp.RefundGas(refund)
+	st.gp.TxRefundGas(refund)
 
-	// In Geth, we would have refunded the cost of the unused gas to the sender here.
-	// However, in Stargazer we do this in the StateProcessor, since currently, gas fees
-	// are deducted in the AnteHandler and not in TransitionDB.
-
-	// TODO: we could potentially add the gas cost refund here, since we do have access to a
-	// bank keeper from the statedb. Though it really doesn't matter since unless we are calling
-	// this in a block, none of the state is persisted anyways.
-	// Ante Handler + Refund in StateProcessor, does sort of make more sense, since we only do
-	// the coin math during a block and not on queries.
-
-	// Moving buyGas and refundGas to here however... would open the door to potentially using
-	// the Geth/Erigon state transition code, which would be nice. We would then just do no
-	// gas fee deduction in the AnteHandler, as the native state transition does that.
+	// Stargazer does not handle the actual token refund, just the gas refund.
 }
 
 // `consumeEthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
@@ -229,7 +228,7 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 ) error {
 	var gas uint64
 	// Consume the starting gas for the raw transaction.
-	gasUsed := st.gp.GasUsed()
+	gasUsed := st.gp.TxGasUsed()
 	if isContractCreation && isHomestead {
 		// If the meter has not yet consumed 53000 gas, we
 		// want to make the gasPlugin consumes the delta.
@@ -278,8 +277,8 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 	}
 
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
-	if err := st.gp.ConsumeGas(gas); err != nil {
-		return fmt.Errorf("%w: have %d, want %d", core.ErrIntrinsicGas, st.gp.GasRemaining(), gas)
+	if err := st.gp.TxConsumeGas(gas); err != nil {
+		return fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gp.TxGasRemaining(), gas)
 	}
 
 	return nil

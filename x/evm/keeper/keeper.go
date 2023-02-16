@@ -20,6 +20,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/x/evm/plugins/block"
 	"github.com/berachain/stargazer/x/evm/plugins/gas"
 	"github.com/berachain/stargazer/x/evm/plugins/precompile"
 	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
@@ -70,12 +71,18 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 func (k *Keeper) InitPlugins(ctx sdk.Context, ak state.AccountKeeper, bk state.BankKeeper) {
-	// k.bp = nil
+	k.bp = block.NewPluginFrom(ctx, k)
+
 	// k.cp = nil
+
 	k.gp = gas.NewPluginFrom(ctx)
+
 	k.pp = precompile.NewPluginFrom(ctx)
+	// TODO: register precompiles
+
 	plf := precompilelog.NewFactory()
 	// TODO: register precompile events/logs
+
 	k.sp = state.NewPlugin(ctx, ak, bk, k.storeKey, types.ModuleName, plf)
 }
 

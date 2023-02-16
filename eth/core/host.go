@@ -15,8 +15,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -52,7 +50,7 @@ type (
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
-		GetStargazerHeaderAtHeight(context.Context, uint64) *types.StargazerHeader
+		GetStargazerHeaderAtHeight(int64) *types.StargazerHeader
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}
@@ -62,24 +60,31 @@ type (
 		// `GasPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `GasPlugin` to a default state.
 		libtypes.Preparable
+		// `GasPlugin` implements `libtypes.Resettable`. Calling `Reset` should reset the
+		// `GasPlugin` to a default state
+		libtypes.Resettable
 		// `ConsumeGas` consumes the supplied amount of gas. It should not panic due to a
 		// `GasOverflow` and should return `core.ErrOutOfGas` if the amount of gas remaining is
-		// less than the amount requested.
-		ConsumeGas(uint64) error
+		// less than the amount requested. If the requested amount is greater than the amount of
+		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
+		TxConsumeGas(uint64) error
 		// `RefundGas` refunds the supplied amount of gas. It should not panic.
-		RefundGas(uint64)
+		TxRefundGas(uint64)
 		// `GasRemaining` returns the amount of gas remaining. It should not panic.
-		GasRemaining() uint64
+		TxGasRemaining() uint64
 		// `GasUsed` returns the amount of gas used during the current transaction. It should not
 		// panic.
-		GasUsed() uint64
-		// `CumulativeGasUsed` returnsthe amount of gas used during the current block. The value
-		// returned should include any gas consumed during this transaction. It should not panic.
-		CumulativeGasUsed() uint64
+		TxGasUsed() uint64
 		// `MaxFeePerGas` should set the maximum amount of gas that can be consumed by the meter.
 		// It should not panic, but instead, return an error, if the new gas limit is less than the
 		// currently consumed amount of gas.
-		SetGasLimit(uint64) error
+		SetTxGasLimit(uint64) error
+
+		// `CumulativeGasUsed` returns the amount of gas used during the current block. The value
+		// returned should include any gas consumed during this transaction. It should not panic.
+		CumulativeGasUsed() uint64
+		// `BlockGasLimit` returns the gas limit of the current block. It should not panic.
+		BlockGasLimit() uint64
 	}
 
 	// `StatePlugin` defines the methods that the chain running Stargazer EVM should implement.

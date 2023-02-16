@@ -12,26 +12,24 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package key
+package jsonrpc
 
-var (
-	// `SGHeaderPrefix` is the prefix for storing headers.
-	SGHeaderPrefix = []byte("block")
-
-	// receiptKey = []byte("receipt")
-	// hashKey    = []byte("hash").
+import (
+	sconfig "github.com/berachain/stargazer/jsonrpc/server/config"
 )
 
-// func BlockAtHeight(height uint64) []byte {
-// 	return append(blockKey, sdk.Uint64ToBigEndian(height)...)
-// }
+// `Config` is the configuration for the JSON-RPC service.
+type Config struct {
+	// `Server` is the configuration for the JSON-RPC server.
+	Server sconfig.Server
+	// `Client` is the configuration for the Cosmos gRPC client.
+	// Client cconfig.RPC
+}
 
-// `HashToTxIndex` returns the key for a receipt lookup.
-// func HashToTxIndex(h []byte) []byte {
-// 	return append(hashKey, h...)
-// }
-
-// // `TxIndexToReciept` returns the key for the receipt lookup for a given block.
-// func TxIndexToReciept(txIndex uint64) []byte {
-// 	return append(receiptKey, sdk.Uint64ToBigEndian(txIndex)...)
-// }
+// `DefaultConfig` returns a default configuration for the JSON-RPC service.
+func DefaultConfig() *Config {
+	return &Config{
+		Server: *sconfig.DefaultServer(),
+		// Client: *cconfig.DefaultRPC(),
+	}
+}

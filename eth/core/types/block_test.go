@@ -17,6 +17,7 @@ package types_test
 import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/ethereum/go-ethereum/trie"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -66,12 +67,15 @@ var _ = Describe("Block", func() {
 	When("building a block", func() {
 		BeforeEach(func() {
 			Expect(sb.TxIndex()).To(Equal(uint(0)))
+			Expect(sb.LogIndex()).To(Equal(uint(0)))
 
 			sb.AppendTx(txs[0], r[0])
 			Expect(sb.TxIndex()).To(Equal(uint(1)))
+			Expect(sb.LogIndex()).To(Equal(uint(2)))
 
 			sb.AppendTx(txs[1], r[1])
 			Expect(sb.TxIndex()).To(Equal(uint(2)))
+			Expect(sb.LogIndex()).To(Equal(uint(4)))
 		})
 
 		It("should convert receipts to storage receipts", func() {
@@ -84,8 +88,17 @@ var _ = Describe("Block", func() {
 		It("should finalize", func() {
 			sb.Finalize(uint64(100))
 			Expect(sb.GasUsed).To(Equal(uint64(100)))
-			// Expect(sb.Transactions).To(Equal(txs))
-			// Expect(types.DeriveSha(r, trie.NewStackTrie(nil))).To(Equal(b.ReceiptHash()))
+			Expect(sb.TxHash).To(Equal(types.DeriveSha(txs, trie.NewStackTrie(nil))))
+			Expect(sb.ReceiptHash).To(Equal(types.DeriveSha(r, trie.NewStackTrie(nil))))
+			Expect(sb.Bloom).To(Equal(types.CreateBloom(r)))
+		})
+
+		It("should finalize empty txs", func() {
+			sb2 := types.NewStargazerBlock(sh)
+			sb2.Finalize(uint64(0))
+			Expect(sb2.GasUsed).To(Equal(uint64(0)))
+			Expect(sb2.TxHash).To(Equal(types.EmptyRootHash))
+			Expect(sb2.ReceiptHash).To(Equal(types.EmptyRootHash))
 		})
 	})
 })
