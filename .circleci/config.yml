@@ -21,7 +21,12 @@ executors:
         environment:
           FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
     resource_class: xlarge
-
+  machine:
+      machine:
+        image: ubuntu-2204:2022.04.2
+      environment:
+        architecture: "amd64"
+        platform: "linux/amd64"
 orbs:
   codecov: codecov/codecov@3.2.4
 
@@ -60,6 +65,24 @@ jobs:
           command: mage testunitrace
       - store_test_results:
           path: .
+  test-integration:
+    executor: machine
+    steps:
+      - run:
+          name: Upgrade Golang
+          command: |
+            sudo rm -rf $(which go)
+            sudo apt update
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository ppa:longsleep/golang-backports -y
+            sudo apt update -y
+            sudo apt install golang-go -y
+      - setup
+      - run:
+          name: Test Integration
+          command: mage testintegrationcover
+      - store_test_results:
+          path: .
 
 workflows:
   build_lint_test:
@@ -68,6 +91,7 @@ workflows:
       - lint
       - test-unit
       - test-unit-race
+      - test-integration
 
 commands:
   setup: # Setup the test environment
