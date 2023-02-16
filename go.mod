@@ -22,7 +22,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/log v0.0.0
 	cosmossdk.io/math v1.0.0-beta.6
-	cosmossdk.io/simapp v0.0.0-20230215155505-b3f95061fade
+	cosmossdk.io/simapp v0.0.0-20230216151323-c884e276f2c4
 	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/evidence v0.1.0
@@ -40,7 +40,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/gin-contrib/zap v0.1.0
-	github.com/gin-gonic/gin v1.8.1
+	github.com/gin-gonic/gin v1.8.2
 	github.com/golang/protobuf v1.5.2
 	github.com/golangci/golangci-lint v1.51.1
 	github.com/google/addlicense v1.1.1
