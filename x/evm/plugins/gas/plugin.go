@@ -56,12 +56,12 @@ func (p *plugin) Reset(ctx context.Context) {
 }
 
 // `SetGasLimit` resets the gas limit of the underlying GasMeter.
-func (p *plugin) SetGasLimit(limit uint64) error {
+func (p *plugin) SetTxGasLimit(limit uint64) error {
 	consumed := p.gasMeter.GasConsumed()
 	// The gas meter is reset to the new limit.
 	p.gasMeter = storetypes.NewGasMeter(limit)
 	// Re-consume the gas that was already consumed.
-	return p.ConsumeGas(consumed)
+	return p.TxConsumeGas(consumed)
 }
 
 // `BlockGasLimit` implements the core.GasPlugin interface.
@@ -69,11 +69,11 @@ func (p *plugin) BlockGasLimit() uint64 {
 	return p.blockGasMeter.Limit()
 }
 
-// `ConsumeGas` implements the core.GasPlugin interface.
-func (p *plugin) ConsumeGas(amount uint64) error {
+// `TxConsumeGas` implements the core.GasPlugin interface.
+func (p *plugin) TxConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	//nolint:gocritic // can't convert cleanly.
-	if newConsumed, overflow := addUint64Overflow(p.GasUsed(), amount); overflow {
+	if newConsumed, overflow := addUint64Overflow(p.TxGasUsed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.gasMeter.Limit() {
 		return vm.ErrOutOfGas
@@ -84,18 +84,18 @@ func (p *plugin) ConsumeGas(amount uint64) error {
 	return nil
 }
 
-// `RefundGas` implements the core.GasPlugin interface.
-func (p *plugin) RefundGas(amount uint64) {
+// `TxRefundGas` implements the core.GasPlugin interface.
+func (p *plugin) TxRefundGas(amount uint64) {
 	p.gasMeter.RefundGas(amount, gasMeterDescriptor)
 }
 
-// `GasRemaining` implements the core.GasPlugin interface.
-func (p *plugin) GasRemaining() uint64 {
+// `TxGasRemaining` implements the core.GasPlugin interface.
+func (p *plugin) TxGasRemaining() uint64 {
 	return p.gasMeter.GasRemaining()
 }
 
-// `GasUsed` implements the core.GasPlugin interface.
-func (p *plugin) GasUsed() uint64 {
+// `TxGasUsed` implements the core.GasPlugin interface.
+func (p *plugin) TxGasUsed() uint64 {
 	return p.gasMeter.GasConsumed()
 }
 
@@ -104,7 +104,7 @@ func (p *plugin) GasUsed() uint64 {
 //
 // `CumulativeGasUsed` implements the core.GasPlugin interface.
 func (p *plugin) CumulativeGasUsed() uint64 {
-	return p.GasUsed() + p.blockGasMeter.GasConsumed()
+	return p.TxGasUsed() + p.blockGasMeter.GasConsumed()
 }
 
 // `addUint64Overflow` performs the addition operation on two uint64 integers and returns a boolean

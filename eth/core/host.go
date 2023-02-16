@@ -67,21 +67,22 @@ type (
 		// `GasOverflow` and should return `core.ErrOutOfGas` if the amount of gas remaining is
 		// less than the amount requested. If the requested amount is greater than the amount of
 		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
-		ConsumeGas(uint64) error
+		TxConsumeGas(uint64) error
 		// `RefundGas` refunds the supplied amount of gas. It should not panic.
-		RefundGas(uint64)
+		TxRefundGas(uint64)
 		// `GasRemaining` returns the amount of gas remaining. It should not panic.
-		GasRemaining() uint64
+		TxGasRemaining() uint64
 		// `GasUsed` returns the amount of gas used during the current transaction. It should not
 		// panic.
-		GasUsed() uint64
-		// `CumulativeGasUsed` returnsthe amount of gas used during the current block. The value
-		// returned should include any gas consumed during this transaction. It should not panic.
-		CumulativeGasUsed() uint64
+		TxGasUsed() uint64
 		// `MaxFeePerGas` should set the maximum amount of gas that can be consumed by the meter.
 		// It should not panic, but instead, return an error, if the new gas limit is less than the
 		// currently consumed amount of gas.
-		SetGasLimit(uint64) error
+		SetTxGasLimit(uint64) error
+
+		// `CumulativeGasUsed` returns the amount of gas used during the current block. The value
+		// returned should include any gas consumed during this transaction. It should not panic.
+		CumulativeGasUsed() uint64
 		// `BlockGasLimit` returns the gas limit of the current block. It should not panic.
 		BlockGasLimit() uint64
 	}

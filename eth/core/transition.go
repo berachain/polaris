@@ -74,7 +74,7 @@ func NewStateTransition(evm vm.StargazerEVM, gp GasPlugin, msg Message) *StateTr
 
 	// Setup the gas plugin with the message gas limit.
 	// TODO handle error?
-	_ = gp.SetGasLimit(msg.Gas())
+	_ = gp.SetTxGasLimit(msg.Gas())
 
 	return &StateTransition{
 		evm: evm,
@@ -119,10 +119,10 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	if tracer != nil && st.evm.Config().Debug {
 		// Capture the starting gas for the tracer, we can skip the check for debug mode that is
 		// present in geth, as we already know that the EVM is in debug mode from the lines above.
-		tracer.CaptureTxStart(st.gp.GasRemaining())
+		tracer.CaptureTxStart(st.gp.TxGasRemaining())
 		defer func() {
 			// After execution is completed we need to capture gas remaining.
-			tracer.CaptureTxEnd(st.gp.GasRemaining())
+			tracer.CaptureTxEnd(st.gp.TxGasRemaining())
 		}()
 	}
 
@@ -163,7 +163,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
 		ret, _, postExecutionGas, vmErr = st.evm.Create(sender,
-			st.msg.Data(), st.gp.GasRemaining(), msgValue)
+			st.msg.Data(), st.gp.TxGasRemaining(), msgValue)
 	} else {
 		// TODO: Review nonce accounting. Leaving the management of the nonce
 		// up to the implementing chain?
@@ -171,18 +171,18 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		// It is to deference st.msg.To() here, as it is checked
 		// to be non-nil higher up in this function.
 		ret, postExecutionGas, vmErr = st.evm.Call(sender, *st.msg.To(),
-			st.msg.Data(), st.gp.GasRemaining(), msgValue)
+			st.msg.Data(), st.gp.TxGasRemaining(), msgValue)
 	}
 
 	// Consume the gas used by the EVM execution.
-	if err := st.gp.ConsumeGas(st.gp.GasRemaining() - postExecutionGas); err != nil {
+	if err := st.gp.TxConsumeGas(st.gp.TxGasRemaining() - postExecutionGas); err != nil {
 		vmErr = vm.ErrOutOfGas
 		if errors.Is(err, ErrBlockOutOfGas) {
 			// If consuming the amount of gas would exceed the block limit, we should
 			// consume up to the limit here.
 			// Cumulative gas used should be equal to the gas consumed in the block thus far,
 			// INCLUDING the gas consumed as part of the Intrinsic gas calculation above.
-			if err = st.gp.ConsumeGas(st.gp.BlockGasLimit() - st.gp.CumulativeGasUsed()); err != nil {
+			if err = st.gp.TxConsumeGas(st.gp.BlockGasLimit() - st.gp.CumulativeGasUsed()); err != nil {
 				return nil, err
 			}
 		} else {
@@ -200,7 +200,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}
 
 	return &ExecutionResult{
-		UsedGas:    st.gp.GasUsed(),
+		UsedGas:    st.gp.TxGasUsed(),
 		Err:        vmErr,
 		ReturnData: ret,
 	}, nil
@@ -212,11 +212,11 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 func (st *StateTransition) refundGas(refundQuotient uint64) {
 	sdb := st.evm.StateDB()
 	// Apply refund counter, capped to a refund quotient
-	refund := st.gp.GasUsed() / refundQuotient
+	refund := st.gp.TxGasUsed() / refundQuotient
 	if refund > sdb.GetRefund() {
 		refund = sdb.GetRefund()
 	}
-	st.gp.RefundGas(refund)
+	st.gp.TxRefundGas(refund)
 
 	// Stargazer does not handle the actual token refund, just the gas refund.
 }
@@ -228,7 +228,7 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 ) error {
 	var gas uint64
 	// Consume the starting gas for the raw transaction.
-	gasUsed := st.gp.GasUsed()
+	gasUsed := st.gp.TxGasUsed()
 	if isContractCreation && isHomestead {
 		// If the meter has not yet consumed 53000 gas, we
 		// want to make the gasPlugin consumes the delta.
@@ -277,8 +277,8 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 	}
 
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
-	if err := st.gp.ConsumeGas(gas); err != nil {
-		return fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gp.GasRemaining(), gas)
+	if err := st.gp.TxConsumeGas(gas); err != nil {
+		return fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gp.TxGasRemaining(), gas)
 	}
 
 	return nil
