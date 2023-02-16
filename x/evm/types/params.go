@@ -37,6 +37,7 @@ func DefaultParams() *Params {
 
 	return &Params{
 		EvmDenom:    "abera",
+		ExtraEIPs:   []int64{},
 		ChainConfig: chainConfig,
 	}
 }
