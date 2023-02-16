@@ -26,39 +26,52 @@ import (
 )
 
 // TODO: change this.
-const bf = int64(1e9)
+const bf = uint64(1e9)
 
-type StargazerHeaderGetter interface {
+// `stargazerHeaderGetter` is an interface that defines the `GetStargazerHeader` method.
+type stargazerHeaderGetter interface {
+	// `GetStargazerHeader` returns the stargazer header at the given height.
 	GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool)
 }
 
+// `plugin` keeps track of stargazer blocks via headers.
 type plugin struct {
+	// `ctx` is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
-	shg StargazerHeaderGetter
+	// `shg` is the stargazer header getter, used for accessing stargazer headers.
+	shg stargazerHeaderGetter
 }
 
-func NewPlugin(shg StargazerHeaderGetter) core.BlockPlugin {
+// `NewPlugin` creates a new instance of the block plugin from the given context.
+func NewPlugin(shg stargazerHeaderGetter) core.BlockPlugin {
 	return &plugin{
 		shg: shg,
 	}
 }
 
+// `Prepare` implements core.BlockPlugin.
 func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
 
 // `BaseFee` returns the base fee for the current block.
 // TODO: implement properly with DynamicFee Module of some kind.
+//
+// `BaseFee` implements core.BlockPlugin.
 func (p *plugin) BaseFee() uint64 {
-	return uint64(bf)
+	return bf
 }
 
+// `GetStargazerHeader` returns the stargazer header at the given height, using the plugin's
+// context.
+//
+// `GetStargazerHeader` implements core.BlockPlugin.
 func (p *plugin) GetStargazerHeaderAtHeight(height int64) *coretypes.StargazerHeader {
 	// If the current block height is the same as the requested height, then we assume that the
 	// block has not been written to the store yet. In this case, we build and return a header
 	// from the sdk.Context.
 	if p.ctx.BlockHeight() == height {
-		return p.getStargazerHeaderFromCosmosContext()
+		return p.getStargazerHeaderFromCurrentContext()
 	}
 
 	// If the current block height is less than (or technically also greater than) the requested
@@ -71,9 +84,9 @@ func (p *plugin) GetStargazerHeaderAtHeight(height int64) *coretypes.StargazerHe
 	return &coretypes.StargazerHeader{}
 }
 
-// `getStargazerHeaderFromCosmosContext` builds an ethereum style block header from an
-// `sdk.Context`, `Bloom` and `baseFee`.
-func (p *plugin) getStargazerHeaderFromCosmosContext() *coretypes.StargazerHeader {
+// `getStargazerHeaderFromCurrentContext` builds an ethereum style block header from the current
+// context.
+func (p *plugin) getStargazerHeaderFromCurrentContext() *coretypes.StargazerHeader {
 	cometHeader := p.ctx.BlockHeader()
 
 	// We retrieve the `TxHash` from the `DataHash` field of the `sdk.Context` opposed to deriving it
@@ -124,7 +137,7 @@ func (p *plugin) getStargazerHeaderFromCosmosContext() *coretypes.StargazerHeade
 	)
 }
 
-// `blockHashFromSdkContext` extracts the block hash from a Cosmos context.
+// `blockHashFromSdkContext` extracts the block hash from the given Cosmos SDK context.
 func blockHashFromCosmosContext(ctx sdk.Context) common.Hash {
 	headerHash := ctx.HeaderHash()
 	if len(headerHash) != 0 {
