@@ -15,6 +15,8 @@
 package rpc
 
 import (
+	"errors"
+
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/x/evm/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,7 +43,11 @@ func (eb *EthReaderBackend) BlockNumber(ctx sdk.Context) uint64 {
 func (eb *EthReaderBackend) GetBlockByNumber(
 	ctx sdk.Context, number uint64, fullTx bool,
 ) (*types.StargazerBlock, error) {
-	return &types.StargazerBlock{}, nil
+	block, found := eb.k.GetStargazerBlockAtHeight(ctx, number)
+	if !found {
+		return nil, errors.New("no block found")
+	}
+	return block, nil
 }
 
 // `GetStargazerBlockTransactionCountByNumber` returns the number of transactions in a block from a block
