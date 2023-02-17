@@ -25,7 +25,7 @@ executors:
     docker:
       - image: cimg/go:1.19
         environment:
-          FOUNDRY_COMMIT: 3d5f03836dc5820ba95dadd736d0b17a3c7b4583
+          FOUNDRY_COMMIT: e2fa2b5f8940d283f54df1ec701967276a934e97
     resource_class: xlarge
   machine:
       machine:
