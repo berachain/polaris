@@ -33,7 +33,7 @@ var _ = Describe("StateTransition", func() {
 		evm *vmmock.StargazerEVMMock
 		sdb *vmmock.StargazerStateDBMock
 		msg mock.MessageMock
-		gp  = mock.NewGasPluginMock(0)
+		gp  *mock.GasPluginMock
 	)
 
 	BeforeEach(func() {
@@ -52,7 +52,7 @@ var _ = Describe("StateTransition", func() {
 			return &common.Address{1}
 		}
 
-		gp = mock.NewGasPluginMock(0)
+		gp = mock.NewGasPluginMock()
 	})
 
 	When("Contract Creation", func() {
@@ -60,8 +60,11 @@ var _ = Describe("StateTransition", func() {
 			msg.ToFunc = func() *common.Address {
 				return nil
 			}
+			gp.SetBlockGasLimit(1000000)
+			gp.Prepare(context.Background())
 		})
 		It("should call create", func() {
+			gp.Reset(context.Background())
 			msg.GasFunc = func() uint64 {
 				return 53000 // exact intrinsic gas for create after homestead
 			}
@@ -75,12 +78,14 @@ var _ = Describe("StateTransition", func() {
 				return 53000 - 1
 			}
 			It("should return error", func() {
+				gp.Reset(context.Background())
 				_, err := core.ApplyMessage(evm, gp, &msg, true)
 				Expect(err).To(MatchError(core.ErrIntrinsicGas))
 			})
 		})
 
 		It("should call create with commit", func() {
+			gp.Reset(context.Background())
 			msg.GasFunc = func() uint64 {
 				return 53000
 			}
@@ -89,6 +94,7 @@ var _ = Describe("StateTransition", func() {
 		})
 
 		It("should handle transition error", func() {
+			gp.Reset(context.Background())
 			msg.GasFunc = func() uint64 {
 				return 0
 			}
@@ -106,6 +112,7 @@ var _ = Describe("StateTransition", func() {
 						Tracer: tracer,
 					}
 				}
+				gp.Reset(context.Background())
 			})
 
 			It("should call create with tracer", func() {
@@ -164,6 +171,8 @@ var _ = Describe("StateTransition", func() {
 			msg.GasFunc = func() uint64 {
 				return 100000
 			}
+			gp.SetBlockGasLimit(1000000)
+			gp.Prepare(context.Background())
 		})
 
 		Context("Gas Refund", func() {
@@ -178,6 +187,7 @@ var _ = Describe("StateTransition", func() {
 					input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
 					return []byte{}, 80000, nil
 				}
+				gp.Reset(context.Background())
 			})
 
 			When("we are in london", func() {
@@ -204,7 +214,9 @@ var _ = Describe("StateTransition", func() {
 				})
 			})
 		})
+
 		It("should check to ensure required funds are available", func() {
+			gp.Reset(context.Background())
 			msg.ValueFunc = func() *big.Int {
 				return big.NewInt(1)
 			}
@@ -218,8 +230,45 @@ var _ = Describe("StateTransition", func() {
 			_, err := core.ApplyMessage(evm, gp, &msg, true)
 			Expect(err).To(MatchError(core.ErrInsufficientFundsForTransfer))
 		})
+
+		It("should error on block gas limit", func() {
+			gp.Reset(context.Background())
+
+			msg.GasFunc = func() uint64 {
+				return 1000000 / 2
+			}
+			evm.CallFunc = func(
+				caller vm.ContractRef,
+				addr common.Address, input []byte,
+				gas uint64,
+				value *big.Int,
+			) ([]byte, uint64, error) {
+				return nil, 0, nil
+			}
+			_, err := core.ApplyMessage(evm, gp, &msg, false)
+			Expect(err).To(BeNil())
+
+			gp.Reset(context.Background())
+			msg.GasFunc = func() uint64 {
+				return 1000000/2 + 1
+			}
+			evm.CallFunc = func(
+				caller vm.ContractRef,
+				addr common.Address, input []byte,
+				gas uint64,
+				value *big.Int,
+			) ([]byte, uint64, error) {
+				return nil, 0, nil
+			}
+			_, err = core.ApplyMessage(evm, gp, &msg, false)
+			Expect(err).To(BeNil())
+			Expect(gp.CumulativeGasUsed()).To(Equal(uint64(1000000)))
+		})
+
 		When("the message has data", func() {
 			It("should cost more gas", func() {
+				gp.Reset(context.Background())
+
 				msg.GasFunc = func() uint64 {
 					return 6969699669
 				}
