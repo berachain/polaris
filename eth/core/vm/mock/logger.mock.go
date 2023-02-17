@@ -9,7 +9,6 @@ import (
 	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
 	"math/big"
 	"sync"
-	"time"
 )
 
 // Ensure, that EVMLoggerMock does implement ethcorevm.EVMLogger.
@@ -22,7 +21,7 @@ var _ ethcorevm.EVMLogger = &EVMLoggerMock{}
 //
 //		// make and configure a mocked ethcorevm.EVMLogger
 //		mockedEVMLogger := &EVMLoggerMock{
-//			CaptureEndFunc: func(output []byte, gasUsed uint64, t time.Duration, err error)  {
+//			CaptureEndFunc: func(output []byte, gasUsed uint64, err error)  {
 //				panic("mock out the CaptureEnd method")
 //			},
 //			CaptureEnterFunc: func(typ ethereumcorevm.OpCode, from common.Address, to common.Address, input []byte, gas uint64, value *big.Int)  {
@@ -54,7 +53,7 @@ var _ ethcorevm.EVMLogger = &EVMLoggerMock{}
 //	}
 type EVMLoggerMock struct {
 	// CaptureEndFunc mocks the CaptureEnd method.
-	CaptureEndFunc func(output []byte, gasUsed uint64, t time.Duration, err error)
+	CaptureEndFunc func(output []byte, gasUsed uint64, err error)
 
 	// CaptureEnterFunc mocks the CaptureEnter method.
 	CaptureEnterFunc func(typ ethereumcorevm.OpCode, from common.Address, to common.Address, input []byte, gas uint64, value *big.Int)
@@ -85,8 +84,6 @@ type EVMLoggerMock struct {
 			Output []byte
 			// GasUsed is the gasUsed argument value.
 			GasUsed uint64
-			// T is the t argument value.
-			T time.Duration
 			// Err is the err argument value.
 			Err error
 		}
@@ -189,25 +186,23 @@ type EVMLoggerMock struct {
 }
 
 // CaptureEnd calls CaptureEndFunc.
-func (mock *EVMLoggerMock) CaptureEnd(output []byte, gasUsed uint64, t time.Duration, err error) {
+func (mock *EVMLoggerMock) CaptureEnd(output []byte, gasUsed uint64, err error) {
 	if mock.CaptureEndFunc == nil {
 		panic("EVMLoggerMock.CaptureEndFunc: method is nil but EVMLogger.CaptureEnd was just called")
 	}
 	callInfo := struct {
 		Output  []byte
 		GasUsed uint64
-		T       time.Duration
 		Err     error
 	}{
 		Output:  output,
 		GasUsed: gasUsed,
-		T:       t,
 		Err:     err,
 	}
 	mock.lockCaptureEnd.Lock()
 	mock.calls.CaptureEnd = append(mock.calls.CaptureEnd, callInfo)
 	mock.lockCaptureEnd.Unlock()
-	mock.CaptureEndFunc(output, gasUsed, t, err)
+	mock.CaptureEndFunc(output, gasUsed, err)
 }
 
 // CaptureEndCalls gets all the calls that were made to CaptureEnd.
@@ -217,13 +212,11 @@ func (mock *EVMLoggerMock) CaptureEnd(output []byte, gasUsed uint64, t time.Dura
 func (mock *EVMLoggerMock) CaptureEndCalls() []struct {
 	Output  []byte
 	GasUsed uint64
-	T       time.Duration
 	Err     error
 } {
 	var calls []struct {
 		Output  []byte
 		GasUsed uint64
-		T       time.Duration
 		Err     error
 	}
 	mock.lockCaptureEnd.RLock()

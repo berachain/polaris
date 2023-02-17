@@ -8,6 +8,7 @@ import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 	"math/big"
 	"sync"
 )
@@ -85,11 +86,14 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
+//			GetTransientStateFunc: func(addr common.Address, key common.Hash) common.Hash {
+//				panic("mock out the GetTransientState method")
+//			},
 //			HasSuicidedFunc: func(address common.Address) bool {
 //				panic("mock out the HasSuicided method")
 //			},
-//			PrepareAccessListFunc: func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
-//				panic("mock out the PrepareAccessList method")
+//			PrepareFunc: func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
+//				panic("mock out the Prepare method")
 //			},
 //			ResetFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Reset method")
@@ -105,6 +109,9 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			},
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
+//			},
+//			SetTransientStateFunc: func(addr common.Address, key common.Hash, value common.Hash)  {
+//				panic("mock out the SetTransientState method")
 //			},
 //			SlotInAccessListFunc: func(addr common.Address, slot common.Hash) (bool, bool) {
 //				panic("mock out the SlotInAccessList method")
@@ -194,11 +201,14 @@ type StargazerStateDBMock struct {
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
+	// GetTransientStateFunc mocks the GetTransientState method.
+	GetTransientStateFunc func(addr common.Address, key common.Hash) common.Hash
+
 	// HasSuicidedFunc mocks the HasSuicided method.
 	HasSuicidedFunc func(address common.Address) bool
 
-	// PrepareAccessListFunc mocks the PrepareAccessList method.
-	PrepareAccessListFunc func(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
+	// PrepareFunc mocks the Prepare method.
+	PrepareFunc func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
 
 	// ResetFunc mocks the Reset method.
 	ResetFunc func(contextMoqParam context.Context)
@@ -214,6 +224,9 @@ type StargazerStateDBMock struct {
 
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
+
+	// SetTransientStateFunc mocks the SetTransientState method.
+	SetTransientStateFunc func(addr common.Address, key common.Hash, value common.Hash)
 
 	// SlotInAccessListFunc mocks the SlotInAccessList method.
 	SlotInAccessListFunc func(addr common.Address, slot common.Hash) (bool, bool)
@@ -354,15 +367,26 @@ type StargazerStateDBMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
+		// GetTransientState holds details about calls to the GetTransientState method.
+		GetTransientState []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Key is the key argument value.
+			Key common.Hash
+		}
 		// HasSuicided holds details about calls to the HasSuicided method.
 		HasSuicided []struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
-		// PrepareAccessList holds details about calls to the PrepareAccessList method.
-		PrepareAccessList []struct {
+		// Prepare holds details about calls to the Prepare method.
+		Prepare []struct {
+			// Rules is the rules argument value.
+			Rules params.Rules
 			// Sender is the sender argument value.
 			Sender common.Address
+			// Coinbase is the coinbase argument value.
+			Coinbase common.Address
 			// Dest is the dest argument value.
 			Dest *common.Address
 			// Precompiles is the precompiles argument value.
@@ -402,6 +426,15 @@ type StargazerStateDBMock struct {
 			Hash1 common.Hash
 			// Hash2 is the hash2 argument value.
 			Hash2 common.Hash
+		}
+		// SetTransientState holds details about calls to the SetTransientState method.
+		SetTransientState []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Key is the key argument value.
+			Key common.Hash
+			// Value is the value argument value.
+			Value common.Hash
 		}
 		// SlotInAccessList holds details about calls to the SlotInAccessList method.
 		SlotInAccessList []struct {
@@ -461,13 +494,15 @@ type StargazerStateDBMock struct {
 	lockGetNonce               sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
+	lockGetTransientState      sync.RWMutex
 	lockHasSuicided            sync.RWMutex
-	lockPrepareAccessList      sync.RWMutex
+	lockPrepare                sync.RWMutex
 	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
 	lockSetState               sync.RWMutex
+	lockSetTransientState      sync.RWMutex
 	lockSlotInAccessList       sync.RWMutex
 	lockSnapshot               sync.RWMutex
 	lockSubBalance             sync.RWMutex
@@ -1174,6 +1209,42 @@ func (mock *StargazerStateDBMock) GetStateCalls() []struct {
 	return calls
 }
 
+// GetTransientState calls GetTransientStateFunc.
+func (mock *StargazerStateDBMock) GetTransientState(addr common.Address, key common.Hash) common.Hash {
+	if mock.GetTransientStateFunc == nil {
+		panic("StargazerStateDBMock.GetTransientStateFunc: method is nil but StargazerStateDB.GetTransientState was just called")
+	}
+	callInfo := struct {
+		Addr common.Address
+		Key  common.Hash
+	}{
+		Addr: addr,
+		Key:  key,
+	}
+	mock.lockGetTransientState.Lock()
+	mock.calls.GetTransientState = append(mock.calls.GetTransientState, callInfo)
+	mock.lockGetTransientState.Unlock()
+	return mock.GetTransientStateFunc(addr, key)
+}
+
+// GetTransientStateCalls gets all the calls that were made to GetTransientState.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.GetTransientStateCalls())
+func (mock *StargazerStateDBMock) GetTransientStateCalls() []struct {
+	Addr common.Address
+	Key  common.Hash
+} {
+	var calls []struct {
+		Addr common.Address
+		Key  common.Hash
+	}
+	mock.lockGetTransientState.RLock()
+	calls = mock.calls.GetTransientState
+	mock.lockGetTransientState.RUnlock()
+	return calls
+}
+
 // HasSuicided calls HasSuicidedFunc.
 func (mock *StargazerStateDBMock) HasSuicided(address common.Address) bool {
 	if mock.HasSuicidedFunc == nil {
@@ -1206,47 +1277,55 @@ func (mock *StargazerStateDBMock) HasSuicidedCalls() []struct {
 	return calls
 }
 
-// PrepareAccessList calls PrepareAccessListFunc.
-func (mock *StargazerStateDBMock) PrepareAccessList(sender common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
-	if mock.PrepareAccessListFunc == nil {
-		panic("StargazerStateDBMock.PrepareAccessListFunc: method is nil but StargazerStateDB.PrepareAccessList was just called")
+// Prepare calls PrepareFunc.
+func (mock *StargazerStateDBMock) Prepare(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
+	if mock.PrepareFunc == nil {
+		panic("StargazerStateDBMock.PrepareFunc: method is nil but StargazerStateDB.Prepare was just called")
 	}
 	callInfo := struct {
+		Rules       params.Rules
 		Sender      common.Address
+		Coinbase    common.Address
 		Dest        *common.Address
 		Precompiles []common.Address
 		TxAccesses  types.AccessList
 	}{
+		Rules:       rules,
 		Sender:      sender,
+		Coinbase:    coinbase,
 		Dest:        dest,
 		Precompiles: precompiles,
 		TxAccesses:  txAccesses,
 	}
-	mock.lockPrepareAccessList.Lock()
-	mock.calls.PrepareAccessList = append(mock.calls.PrepareAccessList, callInfo)
-	mock.lockPrepareAccessList.Unlock()
-	mock.PrepareAccessListFunc(sender, dest, precompiles, txAccesses)
+	mock.lockPrepare.Lock()
+	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
+	mock.lockPrepare.Unlock()
+	mock.PrepareFunc(rules, sender, coinbase, dest, precompiles, txAccesses)
 }
 
-// PrepareAccessListCalls gets all the calls that were made to PrepareAccessList.
+// PrepareCalls gets all the calls that were made to Prepare.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.PrepareAccessListCalls())
-func (mock *StargazerStateDBMock) PrepareAccessListCalls() []struct {
+//	len(mockedStargazerStateDB.PrepareCalls())
+func (mock *StargazerStateDBMock) PrepareCalls() []struct {
+	Rules       params.Rules
 	Sender      common.Address
+	Coinbase    common.Address
 	Dest        *common.Address
 	Precompiles []common.Address
 	TxAccesses  types.AccessList
 } {
 	var calls []struct {
+		Rules       params.Rules
 		Sender      common.Address
+		Coinbase    common.Address
 		Dest        *common.Address
 		Precompiles []common.Address
 		TxAccesses  types.AccessList
 	}
-	mock.lockPrepareAccessList.RLock()
-	calls = mock.calls.PrepareAccessList
-	mock.lockPrepareAccessList.RUnlock()
+	mock.lockPrepare.RLock()
+	calls = mock.calls.Prepare
+	mock.lockPrepare.RUnlock()
 	return calls
 }
 
@@ -1423,6 +1502,46 @@ func (mock *StargazerStateDBMock) SetStateCalls() []struct {
 	mock.lockSetState.RLock()
 	calls = mock.calls.SetState
 	mock.lockSetState.RUnlock()
+	return calls
+}
+
+// SetTransientState calls SetTransientStateFunc.
+func (mock *StargazerStateDBMock) SetTransientState(addr common.Address, key common.Hash, value common.Hash) {
+	if mock.SetTransientStateFunc == nil {
+		panic("StargazerStateDBMock.SetTransientStateFunc: method is nil but StargazerStateDB.SetTransientState was just called")
+	}
+	callInfo := struct {
+		Addr  common.Address
+		Key   common.Hash
+		Value common.Hash
+	}{
+		Addr:  addr,
+		Key:   key,
+		Value: value,
+	}
+	mock.lockSetTransientState.Lock()
+	mock.calls.SetTransientState = append(mock.calls.SetTransientState, callInfo)
+	mock.lockSetTransientState.Unlock()
+	mock.SetTransientStateFunc(addr, key, value)
+}
+
+// SetTransientStateCalls gets all the calls that were made to SetTransientState.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.SetTransientStateCalls())
+func (mock *StargazerStateDBMock) SetTransientStateCalls() []struct {
+	Addr  common.Address
+	Key   common.Hash
+	Value common.Hash
+} {
+	var calls []struct {
+		Addr  common.Address
+		Key   common.Hash
+		Value common.Hash
+	}
+	mock.lockSetTransientState.RLock()
+	calls = mock.calls.SetTransientState
+	mock.lockSetTransientState.RUnlock()
 	return calls
 }
 

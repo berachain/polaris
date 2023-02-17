@@ -99,10 +99,6 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		HasSuicidedFunc: func(address common.Address) bool {
 			return false
 		},
-		PrepareAccessListFunc: func(sender common.Address, dest *common.Address,
-			precompiles []common.Address, txAccesses types.AccessList) {
-
-		},
 		ResetFunc: func(contextMoqParam context.Context) {
 			// no-op
 		},
