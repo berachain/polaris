@@ -18,27 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package abi
+package plugins
 
 import (
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/common/hexutil"
+	"github.com/berachain/stargazer/x/evm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// `CompiliedContract` is a contract that has been compiled.
-type CompiliedContract struct {
-	ABI ABI
-	Bin hexutil.Bytes
-}
-
-// `BuildCompiledContract` builds a `CompiledContract` from an ABI string and a bytecode string.
-func BuildCompiledContract(abiStr, bytecode string) CompiliedContract {
-	var parsedAbi ABI
-	if err := parsedAbi.UnmarshalJSON([]byte(abiStr)); err != nil {
-		panic(err)
-	}
-	return CompiliedContract{
-		ABI: parsedAbi,
-		Bin: common.Hex2Bytes(bytecode),
-	}
+// `BaseCosmosStargazer` represents the base class that all x/evm implements of
+// the Stargazer plugins must implement. This is mainly to ensure that the plugins
+// are able to own their own state and genesis.
+type BaseCosmosStargazer interface {
+	InitGenesis(sdk.Context, *types.GenesisState)
+	ExportGenesis(sdk.Context, *types.GenesisState)
 }

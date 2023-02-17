@@ -18,16 +18,30 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package configuration
 
-// `DefaultGenesis` is the default genesis state.
-func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		Params: *DefaultParams(),
+import (
+	"github.com/berachain/stargazer/x/evm/types"
+)
+
+// `GetParams` is used to get the params for the evm module.
+func (p *plugin) GetParams() types.Params {
+	bz := p.paramsStore.Get(paramsPrefix)
+	if bz == nil {
+		return types.Params{}
 	}
+	var params types.Params
+	if err := params.Unmarshal(bz); err != nil {
+		panic(err)
+	}
+	return params
 }
 
-// `ValidateGenesis` is used to validate the genesis state.
-func ValidateGenesis(data GenesisState) error {
-	return data.Params.ValidateBasic()
+// `SetParams` is used to set the params for the evm module.
+func (p *plugin) SetParams(params *types.Params) {
+	bz, err := params.Marshal()
+	if err != nil {
+		panic(err)
+	}
+	p.paramsStore.Set(paramsPrefix, bz)
 }

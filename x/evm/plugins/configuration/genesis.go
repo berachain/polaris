@@ -18,16 +18,23 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package configuration
 
-// `DefaultGenesis` is the default genesis state.
-func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		Params: *DefaultParams(),
-	}
+import (
+	"github.com/berachain/stargazer/x/evm/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// `InitGenesis` performs genesis initialization for the evm module. It returns
+// no validator updates.
+func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
+	p.Prepare(ctx)
+	p.SetParams(&genesisState.Params)
 }
 
-// `ValidateGenesis` is used to validate the genesis state.
-func ValidateGenesis(data GenesisState) error {
-	return data.Params.ValidateBasic()
+// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
+// module.
+func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
+	p.Prepare(ctx)
+	genesisState.Params = p.GetParams()
 }

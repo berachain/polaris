@@ -128,11 +128,11 @@ var _ = Describe("Stateful Container", func() {
 // MOCKS BELOW.
 
 var (
-	mock                = solidity.MockPrecompileInterface
-	getOutputABI        = mock.ABI.Methods["getOutput"]
-	getOutputPartialABI = mock.ABI.Methods["getOutputPartial"]
-	contractFuncAddrABI = mock.ABI.Methods["contractFunc"]
-	contractFuncStrABI  = mock.ABI.Methods["contractFuncStr"]
+	mock, _             = solidity.MockPrecompileMetaData.GetAbi()
+	getOutputABI        = mock.Methods["getOutput"]
+	getOutputPartialABI = mock.Methods["getOutputPartial"]
+	contractFuncAddrABI = mock.Methods["contractFunc"]
+	contractFuncStrABI  = mock.Methods["contractFuncStr"]
 	mockIdsToMethods    = map[string]*container.Method{
 		utils.UnsafeBytesToStr(getOutputABI.ID): {
 			AbiSig:      getOutputABI.Sig,

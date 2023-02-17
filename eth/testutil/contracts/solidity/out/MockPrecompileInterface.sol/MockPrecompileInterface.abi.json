@@ -1,0 +1,90 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "contractFunc",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "ans",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "str",
+        "type": "string"
+      }
+    ],
+    "name": "contractFuncStr",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "str",
+        "type": "string"
+      }
+    ],
+    "name": "getOutput",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "creationHeight",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "timeStamp",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct MockPrecompileInterface.Object[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getOutputPartial",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "creationHeight",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "timeStamp",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct MockPrecompileInterface.Object",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

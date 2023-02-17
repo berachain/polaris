@@ -33,6 +33,7 @@ import (
 	"github.com/berachain/stargazer/lib/snapshot"
 	libtypes "github.com/berachain/stargazer/lib/types"
 	"github.com/berachain/stargazer/store/snapmulti"
+	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 	types "github.com/berachain/stargazer/x/evm/types"
 )
@@ -47,6 +48,15 @@ var (
 	emptyCodeHash      = crypto.Keccak256Hash(nil)
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
+
+// `plugin` implements the `Plugin` interface.
+var _ Plugin = (*plugin)(nil)
+
+// `Plugin` is the interface that must be implemented by the plugin.
+type Plugin interface {
+	plugins.BaseCosmosStargazer
+	core.StatePlugin
+}
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
 // join circus you need to know the rules. So here thet are:
@@ -101,7 +111,7 @@ func NewPlugin(
 	evmStoreKey storetypes.StoreKey,
 	evmDenom string,
 	plf events.PrecompileLogFactory,
-) core.StatePlugin {
+) Plugin {
 	p := &plugin{
 		evmStoreKey: evmStoreKey,
 		ak:          ak,

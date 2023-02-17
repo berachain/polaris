@@ -18,16 +18,12 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+//nolint:gomnd // register with cosmos errors.
 package types
 
-// `DefaultGenesis` is the default genesis state.
-func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		Params: *DefaultParams(),
-	}
-}
+import sdkerrors "cosmossdk.io/errors"
 
-// `ValidateGenesis` is used to validate the genesis state.
-func ValidateGenesis(data GenesisState) error {
-	return data.Params.ValidateBasic()
-}
+var (
+	ErrNoEvmDenom  = sdkerrors.Register(ModuleName, 1, "evm denom not set")
+	ErrNoExtraEIPs = sdkerrors.Register(ModuleName, 2, "extra eips not set")
+)

@@ -18,16 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package state
 
-// `DefaultGenesis` is the default genesis state.
-func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		Params: *DefaultParams(),
-	}
-}
+import (
+	"github.com/berachain/stargazer/x/evm/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
-// `ValidateGenesis` is used to validate the genesis state.
-func ValidateGenesis(data GenesisState) error {
-	return data.Params.ValidateBasic()
-}
+func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
+
+func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
