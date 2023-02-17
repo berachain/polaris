@@ -168,7 +168,7 @@ func TestIntegrationCover() error {
 func testIntegrationCover() error {
 	args := []string{
 		"-timeout", "30m",
-		"-coverprofile=coverage-testIntegrationCover.txt",
+		"-coverprofile=coverage-testintegrationcover.txt",
 		"--focus", ".*integration.*",
 	}
 	return ginkgoTest(
