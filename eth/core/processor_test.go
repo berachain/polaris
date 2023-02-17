@@ -42,6 +42,8 @@ var (
 		GasPrice: big.NewInt(2),
 		Data:     []byte("abcdef"),
 	}
+	//nolint:lll // used in tests.
+	// revertableTxCode = abi.BuildCompiledContract("[{\"stateMutability\":\"payable\",\"type\":\"receive\"}]", "0x6080604052348015600f57600080fd5b5060888061001e6000396000f3fe608060405236604d5760405162461bcd60e51b81526020600482015260166024820152750a4caeccae4e8c2c4d8caa8f07440e4caeccae4e8a8f60531b604482015260640160405180910390fd5b600080fdfea2646970667358221220628e121b81e382b660e717ff3872565894935982ffb8af68633b5aaee02e1f3064736f6c63430008110033").Bin
 )
 
 var _ = Describe("StateProcessor", func() {
@@ -176,12 +178,18 @@ var _ = Describe("StateProcessor", func() {
 		})
 
 		It("should mark a receipt with a virtual machine error as failed", func() {
+			// sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+			// 	return big.NewInt(100)
+			// }
 			// sdb.GetCodeFunc = func(addr common.Address) []byte {
-			// 	return solidity.RevertableTx.Bin
+			// 	return revertableTxCode
+			// 	// return solidity.RevertableTx.Bin
 			// }
 			// sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
-			// 	return crypto.Keccak256Hash(solidity.RevertableTx.Bin)
+			// 	return crypto.Keccak256Hash(revertableTxCode)
+			// 	// return crypto.Keccak256Hash(solidity.RevertableTx.Bin)
 			// }
+			// legacyTxData.Value = big.NewInt(1)
 			// signedTx := types.MustSignNewTx(key, signer, legacyTxData)
 			// result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			// Expect(err).To(BeNil())
@@ -207,40 +215,74 @@ var _ = Describe("StateProcessor", func() {
 	})
 })
 
-var _ = Describe("EVM Test Suite", func() {
-	// var host *mock.StargazerHostChainMock
+var _ = Describe("Stargazer", func() {
+	var (
+		sdb           *vmmock.StargazerStateDBMock
+		host          *mock.StargazerHostChainMock
+		bp            *mock.BlockPluginMock
+		gp            *mock.GasPluginMock
+		cp            *mock.ConfigurationPluginMock
+		pp            *mock.PrecompilePluginMock
+		sp            *core.StateProcessor
+		blockGasLimit uint64
+	)
 
-	// hash1 := common.Hash{1}
-	// hash2 := common.Hash{2}
-	// hash3 := common.Hash{3}
-	// hash4 := common.Hash{4}
+	BeforeEach(func() {
+		sdb = vmmock.NewEmptyStateDB()
+		host = mock.NewMockHost()
+		bp = &mock.BlockPluginMock{}
+		gp = mock.NewGasPluginMock()
+		cp = &mock.ConfigurationPluginMock{}
+		pp = &mock.PrecompilePluginMock{}
+		host.GetBlockPluginFunc = func() core.BlockPlugin {
+			return bp
+		}
+		host.GetGasPluginFunc = func() core.GasPlugin {
+			return gp
+		}
+		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
+			return cp
+		}
+		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
+			return pp
+		}
+		sp = core.NewStateProcessor(host, sdb, vm.Config{}, true)
+		Expect(sp).ToNot(BeNil())
+		blockGasLimit = 1000000
 
-	// currentHeader := &types.StargazerHeader{
-	// 	Header: &types.Header{
-	// 		Number:     big.NewInt(int64(123)),
-	// 		BaseFee:    big.NewInt(69),
-	// 		ParentHash: common.Hash{111},
-	// 	},
-	// 	HostHash: common.Hash{1},
-	// }
+		bp.PrepareFunc = func(ctx context.Context) {
+			// no-op
+		}
+		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+			return types.NewStargazerHeader(
+				&types.Header{
+					Number:     big.NewInt(height + 1),
+					BaseFee:    big.NewInt(69),
+					GasLimit:   blockGasLimit,
+					ParentHash: crypto.Keccak256Hash([]byte{byte(height)}),
+				},
+				crypto.Keccak256Hash([]byte{byte(height)}),
+			)
+		}
+		cp.PrepareFunc = func(ctx context.Context) {
+			// no-op
+		}
+		cp.ChainConfigFunc = func() *params.ChainConfig {
+			return params.DefaultChainConfig
+		}
+		cp.ExtraEipsFunc = func() []int {
+			return []int{}
+		}
+		pp.HasFunc = func(addr common.Address) bool {
+			return false
+		}
 
-	Context("TestGetHashFunc", func() {
-		BeforeEach(func() {
-			// host = mock.NewMockHost()
-		})
-		// It("should return the correct hash", func() {
-		// 	host.StargazerHeaderAtHeightFunc = func(ctx context.Context, height uint64) *types.StargazerHeader {
-		// 		return &types.StargazerHeader{
-		// 			Header: &types.Header{
-		// 				Number:     big.NewInt(int64(height)),
-		// 				BaseFee:    big.NewInt(69),
-		// 				ParentHash: common.Hash{123},
-		// 			},
-		// 			HostHash: crypto.Keccak256Hash([]byte{byte(height)}),
-		// 		}
-		// 	}
-		// 	hash := core.GetHashFn(context.Background(), currentHeader, host)
-		// 	Expect(hash(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
-		// })
+		gp.SetBlockGasLimit(blockGasLimit)
+		sp.Prepare(context.Background(), 0)
+	})
+
+	It("should return the correct hash", func() {
+		hashFn := sp.GetHashFn()
+		Expect(hashFn(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
 	})
 })

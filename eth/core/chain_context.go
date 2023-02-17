@@ -12,13 +12,31 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package mock
+package core
 
-// const testBaseFee = 69
+import (
+	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/ethereum/go-ethereum/consensus"
+)
 
-//go:generate moq -out ./host.mock.go -pkg mock ../ StargazerHostChain
+// Compile-time interface assertion.
+var _ ChainContext = (*chainContext)(nil)
 
-func NewMockHost() *StargazerHostChainMock {
-	// make and configure a mocked core.StargazerHostChain
-	return &StargazerHostChainMock{}
+// `chainContext` is a wrapper around `StateProcessor` that implements the `ChainContext` interface.
+type chainContext struct {
+	*StateProcessor
+}
+
+// `GetHeader` returns the header for the given hash and height. This is used by the `GetHashFn`.
+func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
+	if header := cc.StateProcessor.bp.GetStargazerHeaderAtHeight(int64(height)); header != nil {
+		return header.Header
+	}
+	return nil
+}
+
+// `Engine` returns the consensus engine. For our use case, this never gets called.
+func (cc *chainContext) Engine() consensus.Engine {
+	return nil
 }
