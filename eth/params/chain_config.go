@@ -40,8 +40,6 @@ var DefaultChainConfig = &ChainConfig{
 	ArrowGlacierBlock:             big.NewInt(0),
 	GrayGlacierBlock:              big.NewInt(0),
 	MergeNetsplitBlock:            big.NewInt(0),
-	ShanghaiBlock:                 big.NewInt(0),
-	CancunBlock:                   big.NewInt(0),
 	TerminalTotalDifficulty:       big.NewInt(0),
 	TerminalTotalDifficultyPassed: true,
 	Ethash:                        nil,
