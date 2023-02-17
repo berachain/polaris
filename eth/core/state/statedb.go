@@ -159,27 +159,32 @@ func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
 	panic("not supported by Stargazer")
 }
 
+// TODO: implement `AddSlotToAccessList`
 func (sdb *stateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
 	panic("not supported by Stargazer")
 }
 
+// TODO: implement `AddressInAccessList`
 func (sdb *stateDB) AddressInAccessList(addr common.Address) bool {
 	return false
 }
 
+// TODO: implement `SlotInAccessList`
 func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
 	return false, false
 }
 
-// we are not enabling EIP1153, so this is a no-op.
+// TODO: `GetTransientState` implements the `StargazerStateDB` interface by returning the transient state
 func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
 	panic("not supported by Stargazer")
 }
 
+// TODO: `SetTransientState` implements the `StargazerStateDB` interface by setting the transient state
 func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
 	panic("not supported by Stargazer")
 }
 
+// TODO: `Prepare` implements the `StargazerStateDB` interface by preparing the stateDB for a new transaction.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	panic("not supported by Stargazer")

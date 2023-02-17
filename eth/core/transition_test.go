@@ -66,7 +66,7 @@ var _ = Describe("StateTransition", func() {
 			msg.ToFunc = func() *common.Address {
 				return nil
 			}
-			gp.SetBlockGasLimit(1000000000)
+			gp.SetBlockGasLimit(1000000)
 			gp.Prepare(context.Background())
 		})
 		It("should call create", func() {

@@ -111,9 +111,9 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		msgValue = st.msg.Value()
 		ctx      = st.evm.Context()
 		sender   = vm.AccountRef(msgFrom)
-		rules    = st.evm.ChainConfig().Rules(st.evm.Context().BlockNumber,
-			st.evm.Context().Random != nil,
-			st.evm.Context().Time,
+		rules    = st.evm.ChainConfig().Rules(ctx.BlockNumber,
+			ctx.Random != nil,
+			ctx.Time,
 		)
 		sdb              = st.evm.StateDB()
 		contractCreation = st.msg.To() == nil
@@ -238,7 +238,6 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 		return liberrors.Wrap(err, "failed to calculate intrinsic gas")
 	}
 
-	// Consume the extra gas for the transaction
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
 	if gasUsed := st.gp.TxGasUsed(); gasUsed < gas {
 		if err = st.gp.TxConsumeGas(gas - gasUsed); err != nil {
