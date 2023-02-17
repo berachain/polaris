@@ -22,8 +22,6 @@ package core
 
 import (
 	"errors"
-	"fmt"
-	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
