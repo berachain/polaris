@@ -22,12 +22,11 @@ package core
 
 import (
 	"errors"
-	"fmt"
 	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
-	errorslib "github.com/berachain/stargazer/lib/errors"
+	liberrors "github.com/berachain/stargazer/lib/errors"
 )
 
 // `StateTransition` is the main object which takes care of applying a
@@ -57,7 +56,7 @@ func ApplyMessage(
 ) (*ExecutionResult, error) {
 	res, err := NewStateTransition(evm, gp, msg).transitionDB()
 	if err != nil {
-		return nil, errorslib.Wrap(err, "failed to TransitionDB")
+		return nil, liberrors.Wrap(err, "failed to TransitionDB")
 	}
 
 	if commit && !res.Failed() {
@@ -140,7 +139,7 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 
 	// Check to ensure the sender has the funds to cover the value being sent.
 	if msgValue.Sign() > 0 && !ctx.CanTransfer(sdb, msgFrom, msgValue) {
-		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msgFrom.Hex())
+		return nil, liberrors.Wrapf(ErrInsufficientFundsForTransfer, "address %v", msgFrom.Hex())
 	}
 
 	// Stargazer does not support access lists.
@@ -284,7 +283,12 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
 	if err := st.gp.TxConsumeGas(gas); err != nil {
-		return fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gp.TxGasRemaining(), gas)
+		return liberrors.Wrapf(
+			liberrors.Wrap(ErrIntrinsicGas, err.Error()),
+			"have %d, need %d",
+			st.gp.TxGasRemaining(),
+			gas,
+		)
 	}
 
 	return nil

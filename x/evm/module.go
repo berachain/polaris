@@ -22,8 +22,8 @@ package evm
 
 import (
 	"encoding/json"
-	"fmt"
 
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/x/evm/keeper"
 	"github.com/berachain/stargazer/x/evm/types"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -78,7 +78,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+		return errors.Wrapf(err, "failed to unmarshal %s genesis state", types.ModuleName)
 	}
 	return types.ValidateGenesis(data)
 }
