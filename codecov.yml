@@ -21,6 +21,7 @@ coverage:
         flags: 
           - unit
           - integration
+
     patch: off
 
 
@@ -28,9 +29,10 @@ comment:                  # this is a top-level key
   layout: "reach, diff, flags, files"
   behavior: default
   require_changes: false  # if true: only post the comment if coverage changes
+  show_carryforward_flags: true
 
 flag_management:
-  default_rules: # the rules that will be followed for any flag added, generally
+  default_rules: # the rules that will be followed for any flag added, gepushnerally
     carryforward: true # carryforward will carry the flag forward to the next commit
 
 ignore:
