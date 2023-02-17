@@ -210,7 +210,7 @@ func (sp *StateProcessor) newEVMBlockContext() vm.BlockContext {
 		GetHash:     sp.getHashFn(),
 		Coinbase:    sp.block.StargazerHeader.Coinbase,
 		BlockNumber: new(big.Int).Set(sp.block.StargazerHeader.Number),
-		Time:        new(big.Int).SetUint64(sp.block.StargazerHeader.Time),
+		Time:        sp.block.StargazerHeader.Header.Time,
 		Difficulty:  new(big.Int), // not used by stargazer.
 		BaseFee:     baseFee,
 		GasLimit:    sp.block.StargazerHeader.GasLimit,

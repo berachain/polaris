@@ -108,14 +108,11 @@ func NewStateTransition(evm vm.StargazerEVM, gp GasPlugin, msg Message) *StateTr
 //nolint:funlen // all this code is logically contagious.
 func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	var (
-		msgFrom  = st.msg.From()
-		msgValue = st.msg.Value()
-		ctx      = st.evm.Context()
-		sender   = vm.AccountRef(msgFrom)
-		rules    = st.evm.ChainConfig().Rules(
-			ctx.BlockNumber,
-			ctx.Random != nil,
-		)
+		msgFrom          = st.msg.From()
+		msgValue         = st.msg.Value()
+		ctx              = st.evm.Context()
+		sender           = vm.AccountRef(msgFrom)
+		rules            = st.evm.ChainConfig().Rules(st.evm.Context().BlockNumber, st.evm.Context().Random != nil, st.evm.Context().Time)
 		sdb              = st.evm.StateDB()
 		contractCreation = st.msg.To() == nil
 		tracer           = st.evm.Config().Tracer
@@ -141,6 +138,8 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msgFrom.Hex())
 	}
 
+	// TODO: Prepare does both , prepare access list and reset transient storage, handle this in future
+	//
 	// Stargazer does not support access lists.
 	// if rules.IsBerlin {
 	// 	sdb.PrepareAccessList(
