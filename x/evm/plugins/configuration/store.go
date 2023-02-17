@@ -21,51 +21,27 @@
 package configuration
 
 import (
-	"context"
-
-	"cosmossdk.io/store/prefix"
-	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/x/evm/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var (
-	paramsPrefix = []byte("params")
-)
-
-// `plugin` implements the core.ConfigurationPlugin interface.
-type plugin struct {
-	evmStoreKey storetypes.StoreKey
-	paramsStore storetypes.KVStore
-}
-
-// `NewPlugin` returns a new plugin instance.
-func NewPlugin() core.ConfigurationPlugin {
-	return &plugin{}
-}
-
-// `Prepare` implements the core.ConfigurationPlugin interface.
-func (p *plugin) Prepare(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.evmStoreKey), paramsPrefix)
-}
-
-// `ChainConfig` implements the core.ConfigurationPlugin interface.
-func (p *plugin) ChainConfig() *params.ChainConfig {
+// `GetParams` is used to get the cosmos params for the evm module.
+func (p *plugin) GetParams() types.Params {
 	bz := p.paramsStore.Get(paramsPrefix)
 	if bz == nil {
-		return nil
+		return *types.DefaultParams()
 	}
 	var params types.Params
 	if err := params.Unmarshal(bz); err != nil {
 		panic(err)
 	}
-	return params.EthereumChainConfig()
+	return params
 }
 
-// `ExtraEips` implements the core.ConfigurationPlugin interface.
-func (p *plugin) ExtraEips() []int {
-	return []int{}
+// `SetParams` is used to set the cosmos params for the evm module.
+func (p *plugin) SetParams(params types.Params) {
+	bz, err := params.Marshal()
+	if err != nil {
+		panic(err)
+	}
+	p.paramsStore.Set(paramsPrefix, bz)
 }
