@@ -73,16 +73,16 @@ var _ = Describe("StateTransition", func() {
 			gp.Reset(context.Background())
 
 			msg.GasFunc = func() uint64 {
-				return 106000 // exact intrinsic gas for create after homestead
+				return 53000 // exact intrinsic gas for create after homestead
 			}
 			res, err := core.ApplyMessage(evm, gp, &msg, true)
-			Expect(res.UsedGas).To(Equal(uint64(106000)))
+			Expect(res.UsedGas).To(Equal(uint64(53000)))
 			Expect(len(evm.CreateCalls())).To(Equal(1))
 			Expect(err).To(BeNil())
 		})
 		When("we have less than the intrinsic gas", func() {
 			msg.GasFunc = func() uint64 {
-				return 106000 - 1
+				return 53000 - 1
 			}
 			It("should return error", func() {
 				gp.Reset(context.Background())
@@ -94,7 +94,7 @@ var _ = Describe("StateTransition", func() {
 		It("should call create with commit", func() {
 			gp.Reset(context.Background())
 			msg.GasFunc = func() uint64 {
-				return 106000
+				return 53000
 			}
 			_, err := core.ApplyMessage(evm, gp, &msg, true)
 			Expect(err).To(BeNil())
@@ -124,7 +124,7 @@ var _ = Describe("StateTransition", func() {
 
 			It("should call create with tracer", func() {
 				msg.GasFunc = func() uint64 {
-					return 106000 // exact intrinsic gas for create after homestead
+					return 53000 // exact intrinsic gas for create after homestead
 				}
 				_, err := core.ApplyMessage(evm, gp, &msg, false)
 				Expect(len(tracer.CaptureTxStartCalls())).To(Equal(1))
@@ -133,7 +133,7 @@ var _ = Describe("StateTransition", func() {
 			})
 			It("should call create with tracer and commit", func() {
 				msg.GasFunc = func() uint64 {
-					return 106000 // exact intrinsic gas for create after homestead
+					return 53000 // exact intrinsic gas for create after homestead
 				}
 				sdb = vmmock.NewEmptyStateDB()
 				evm.StateDBFunc = func() vm.StargazerStateDB {

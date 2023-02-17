@@ -232,35 +232,23 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 func (st *StateTransition) ConsumeEthIntrinsicGas(
 	isContractCreation bool, isHomestead, isEIP2028 bool, isEIP3860 bool,
 ) error {
-	var gas uint64
-	gasUsed := st.gp.TxGasUsed()
-
 	// Consume the intrinsic gas for the transaction from the EVM
 	gas, err := EthIntrinsicGas(st.msg.Data(), st.msg.AccessList(), isContractCreation, isHomestead, isEIP2028, isEIP3860)
-
 	if err != nil {
 		return liberrors.Wrap(err, "failed to calculate intrinsic gas")
 	}
 
 	// Consume the extra gas for the transaction
-	if isContractCreation && isHomestead {
-		if gasUsed < params.TxGasContractCreation {
-			gas += (params.TxGasContractCreation - gasUsed)
-		}
-	} else {
-		if gasUsed < params.TxGas {
-			gas += (params.TxGas - gasUsed)
-		}
-	}
-
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
-	if err = st.gp.TxConsumeGas(gas); err != nil {
-		return liberrors.Wrapf(
-			liberrors.Wrap(ErrIntrinsicGas, err.Error()),
-			"have %d, need %d",
-			st.gp.TxGasRemaining(),
-			gas,
-		)
+	if gasUsed := st.gp.TxGasUsed(); gasUsed < gas {
+		if err = st.gp.TxConsumeGas(gas - gasUsed); err != nil {
+			return liberrors.Wrapf(
+				liberrors.Wrap(ErrIntrinsicGas, err.Error()),
+				"have %d, need %d",
+				st.gp.TxGasRemaining(),
+				gas,
+			)
+		}
 	}
 
 	return nil
