@@ -17,59 +17,65 @@ package mock
 import (
 	"context"
 	"errors"
+
+	"github.com/berachain/stargazer/eth/core"
 )
 
 type GasPluginMock struct {
-	gasUsed       uint64
-	gasLimit      uint64
+	txGasUsed     uint64
+	blockGasUsed  uint64
+	txGasLimit    uint64
 	blockGasLimit uint64
 }
 
-func NewGasPluginMock(gasLimit uint64) *GasPluginMock {
-	return &GasPluginMock{
-		gasLimit: gasLimit,
-	}
+func NewGasPluginMock() *GasPluginMock {
+	return &GasPluginMock{}
 }
 
 func (w *GasPluginMock) Prepare(context.Context) {
-	w.gasUsed = 0
+	w.blockGasUsed = 0
 }
 
 func (w *GasPluginMock) Reset(context.Context) {
-	w.gasUsed = 0
+	w.txGasUsed = 0
 }
 
 func (w *GasPluginMock) TxConsumeGas(amount uint64) error {
-	if w.gasUsed+amount > w.gasLimit {
+	if w.txGasUsed+amount > w.txGasLimit {
 		return errors.New("gas limit exceeded")
 	}
-	w.gasUsed += amount
+	if w.blockGasUsed+amount > w.blockGasLimit {
+		return core.ErrBlockOutOfGas
+	}
+
+	w.txGasUsed += amount
+	w.blockGasUsed += amount
 	return nil
 }
 
 func (w *GasPluginMock) CumulativeGasUsed() uint64 {
-	return w.gasUsed
+	return w.blockGasUsed
 }
 
 func (w *GasPluginMock) TxGasRemaining() uint64 {
-	return w.gasLimit - w.gasUsed
+	return w.txGasLimit - w.txGasUsed
 }
 
 func (w *GasPluginMock) TxGasUsed() uint64 {
-	return w.gasUsed
+	return w.txGasUsed
 }
 
 func (w *GasPluginMock) TxRefundGas(amount uint64) {
-	if w.gasUsed < amount {
-		w.gasUsed = 0
+	if w.txGasUsed < amount {
+		w.txGasUsed = 0
 	} else {
-		w.gasUsed -= amount
+		w.txGasUsed -= amount
 	}
 }
 
 func (w *GasPluginMock) SetTxGasLimit(amount uint64) error {
-	w.gasLimit = amount
-	if w.gasLimit < w.gasUsed {
+	w.txGasLimit = amount
+	if w.txGasLimit < w.txGasUsed {
 		return errors.New("gas limit is below currently consumed")
 	}
 	return nil
@@ -84,6 +90,12 @@ func (w *GasPluginMock) BlockGasLimit() uint64 {
 }
 
 func (w *GasPluginMock) ConsumeGasToBlockLimit() error {
-	w.gasUsed = w.blockGasLimit
+	delta := w.blockGasLimit - w.blockGasUsed
+	if w.txGasUsed+delta > w.txGasLimit {
+		return errors.New("tx gas limit exceeded")
+	}
+
+	w.txGasUsed += delta
+	w.blockGasUsed += delta
 	return nil
 }
