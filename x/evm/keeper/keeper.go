@@ -39,7 +39,7 @@ import (
 	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
 )
 
-// Compile-time interface assertions.
+// Compile-time interface assertion.
 var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {

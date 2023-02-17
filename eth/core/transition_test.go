@@ -251,8 +251,9 @@ var _ = Describe("StateTransition", func() {
 			) ([]byte, uint64, error) {
 				return nil, 0, nil
 			}
-			_, err := core.ApplyMessage(evm, gp, &msg, false)
+			res, err := core.ApplyMessage(evm, gp, &msg, false)
 			Expect(err).To(BeNil())
+			Expect(res.Err).To(BeNil())
 
 			gp.Reset(context.Background())
 			msg.GasFunc = func() uint64 {
@@ -266,8 +267,9 @@ var _ = Describe("StateTransition", func() {
 			) ([]byte, uint64, error) {
 				return nil, 0, nil
 			}
-			_, err = core.ApplyMessage(evm, gp, &msg, false)
+			res, err = core.ApplyMessage(evm, gp, &msg, false)
 			Expect(err).To(BeNil())
+			Expect(res.Err.Error()).To(Equal("out of gas"))
 			Expect(gp.CumulativeGasUsed()).To(Equal(uint64(1000000)))
 		})
 
