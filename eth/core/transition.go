@@ -242,11 +242,11 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 	// Consume the extra gas for the transaction
 	if isContractCreation && isHomestead {
 		if gasUsed < params.TxGasContractCreation {
-			gas = gas + (params.TxGasContractCreation - gasUsed)
+			gas += (params.TxGasContractCreation - gasUsed)
 		}
 	} else {
 		if gasUsed < params.TxGas {
-			gas = gas + (params.TxGas - gasUsed)
+			gas += (params.TxGas - gasUsed)
 		}
 	}
 

@@ -153,6 +153,8 @@ func (sdb *stateDB) Finalize() {
 // =============================================================================
 // AccessList
 // =============================================================================
+
+// TODO: implement `AddAddressToAccessList`.
 func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
 	panic("not supported by Stargazer")
 }
@@ -169,7 +171,7 @@ func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (boo
 	return false, false
 }
 
-// we are not enabling EIP1153, so this is a no-op
+// we are not enabling EIP1153, so this is a no-op.
 func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
 	panic("not supported by Stargazer")
 }
