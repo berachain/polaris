@@ -18,30 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package configuration
+package configuration_test
 
 import (
-	"github.com/berachain/stargazer/x/evm/types"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `GetParams` is used to get the cosmos params for the evm module.
-func (p *plugin) GetParams() types.Params {
-	bz := p.paramsStore.Get(paramsPrefix)
-	if bz == nil {
-		return types.Params{}
-	}
-	var params types.Params
-	if err := params.Unmarshal(bz); err != nil {
-		panic(err)
-	}
-	return params
-}
-
-// `SetParams` is used to set the cosmos params for the evm module.
-func (p *plugin) SetParams(params types.Params) {
-	bz, err := params.Marshal()
-	if err != nil {
-		panic(err)
-	}
-	p.paramsStore.Set(paramsPrefix, bz)
+func TestConfigurationPlugin(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/configuration")
 }
