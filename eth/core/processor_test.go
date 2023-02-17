@@ -42,8 +42,6 @@ var (
 		GasPrice: big.NewInt(2),
 		Data:     []byte("abcdef"),
 	}
-	//nolint:lll // used in tests.
-	// revertableTxCode = abi.BuildCompiledContract("[{\"stateMutability\":\"payable\",\"type\":\"receive\"}]", "0x6080604052348015600f57600080fd5b5060888061001e6000396000f3fe608060405236604d5760405162461bcd60e51b81526020600482015260166024820152750a4caeccae4e8c2c4d8caa8f07440e4caeccae4e8a8f60531b604482015260640160405180910390fd5b600080fdfea2646970667358221220628e121b81e382b660e717ff3872565894935982ffb8af68633b5aaee02e1f3064736f6c63430008110033").Bin
 )
 
 var _ = Describe("StateProcessor", func() {
