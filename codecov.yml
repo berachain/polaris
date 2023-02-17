@@ -16,24 +16,19 @@ coverage:
   status:
     project:
       default:
-        threshold: 2% # allow this much decrease on project
-        target: 50% # yeah we gonna need to get this up LOL
+        threshold: 2%
+        target: 50%
         flags: 
           - unit
           - integration
 
     patch: off
 
-
-comment:                  # this is a top-level key
+comment:
   layout: "reach, diff, flags, files"
   behavior: default
-  require_changes: false  # if true: only post the comment if coverage changes
+  require_changes: false
   show_carryforward_flags: true
-
-flag_management:
-  default_rules: # the rules that will be followed for any flag added, gepushnerally
-    carryforward: true # carryforward will carry the flag forward to the next commit
 
 ignore:
   - "**/*.pb.go"
