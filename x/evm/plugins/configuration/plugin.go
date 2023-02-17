@@ -27,7 +27,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/x/evm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -54,18 +53,14 @@ func (p *plugin) Prepare(ctx context.Context) {
 
 // `ChainConfig` implements the core.ConfigurationPlugin interface.
 func (p *plugin) ChainConfig() *params.ChainConfig {
-	bz := p.paramsStore.Get(paramsPrefix)
-	if bz == nil {
-		return nil
-	}
-	var params types.Params
-	if err := params.Unmarshal(bz); err != nil {
-		panic(err)
-	}
-	return params.EthereumChainConfig()
+	return p.GetParams().EthereumChainConfig()
 }
 
 // `ExtraEips` implements the core.ConfigurationPlugin interface.
 func (p *plugin) ExtraEips() []int {
-	return []int{}
+	eips := make([]int, 0)
+	for _, e := range p.GetParams().ExtraEIPs {
+		eips = append(eips, int(e))
+	}
+	return eips
 }

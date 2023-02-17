@@ -86,7 +86,7 @@ var _ = Describe("Plugin", func() {
 				ExtraEIPs:   []int64{123},
 				ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
 			}
-			p.SetParams(params)
+			p.SetParams(&params)
 
 			var storedParams types.Params
 			bz := p.paramsStore.Get(paramsPrefix)

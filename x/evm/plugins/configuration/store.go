@@ -24,7 +24,7 @@ import (
 	"github.com/berachain/stargazer/x/evm/types"
 )
 
-// `GetParams` is used to get the cosmos params for the evm module.
+// `GetParams` is used to get the params for the evm module.
 func (p *plugin) GetParams() types.Params {
 	bz := p.paramsStore.Get(paramsPrefix)
 	if bz == nil {
@@ -37,8 +37,8 @@ func (p *plugin) GetParams() types.Params {
 	return params
 }
 
-// `SetParams` is used to set the cosmos params for the evm module.
-func (p *plugin) SetParams(params types.Params) {
+// `SetParams` is used to set the params for the evm module.
+func (p *plugin) SetParams(params *types.Params) {
 	bz, err := params.Marshal()
 	if err != nil {
 		panic(err)

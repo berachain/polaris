@@ -21,6 +21,8 @@
 package types
 
 import (
+	"encoding/json"
+
 	"github.com/berachain/stargazer/eth/params"
 	enclib "github.com/berachain/stargazer/lib/encoding"
 )
@@ -45,6 +47,21 @@ func DefaultParams() *Params {
 }
 
 // `EthereumChainConfig` returns the chain config as a struct.
-func (p *Params) EthereumChainConfig() *params.ChainConfig {
+func (p Params) EthereumChainConfig() *params.ChainConfig {
+	if p.ChainConfig == "" {
+		return nil
+	}
 	return enclib.MustUnmarshalJSON[params.ChainConfig]([]byte(p.ChainConfig))
+}
+
+// `ValidateBasic` is used to validate the parameters.
+func (p *Params) ValidateBasic() error {
+	if p.EvmDenom == "" {
+		return ErrNoEvmDenom
+	}
+	if p.ExtraEIPs == nil {
+		return ErrNoExtraEIPs
+	}
+	_, err := json.Marshal(p.ChainConfig)
+	return err
 }
