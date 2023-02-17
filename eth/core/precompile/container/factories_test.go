@@ -34,7 +34,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var (
+	mockPrecompile, _ = solidity.MockPrecompileMetaData.GetAbi()
+)
+
 var _ = Describe("Container Factories", func() {
+
 	Context("Stateless Container Factory", func() {
 		var scf *container.StatelessFactory
 
@@ -138,7 +143,7 @@ type mockStateful struct {
 
 func (ms *mockStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
-		"getOutput": solidity.MockPrecompileInterface.ABI.Methods["getOutput"],
+		"getOutput": mockPrecompile.Methods["getOutput"],
 	}
 }
 
@@ -158,8 +163,8 @@ type badMockStateful struct {
 
 func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
-		"getOutput":        solidity.MockPrecompileInterface.ABI.Methods["getOutput"],
-		"getOutputPartial": solidity.MockPrecompileInterface.ABI.Methods["getOutputPartial"],
+		"getOutput":        mock.Methods["getOutput"],
+		"getOutputPartial": mock.Methods["getOutputPartial"],
 	}
 }
 
