@@ -18,16 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package configuration_test
 
-// `DefaultGenesis` is the default genesis state.
-func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		Params: *DefaultParams(),
-	}
-}
+import (
+	"testing"
 
-// `ValidateGenesis` is used to validate the genesis state.
-func ValidateGenesis(data GenesisState) error {
-	return data.Params.ValidateBasic()
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestConfigurationPlugin(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/configuration")
 }

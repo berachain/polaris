@@ -21,6 +21,7 @@ import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/x/evm/plugins"
 	cbft "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -34,6 +35,15 @@ type stargazerHeaderGetter interface {
 	GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool)
 }
 
+// `plugin` implements the `Plugin` interface.
+var _ Plugin = (*plugin)(nil)
+
+// `Plugin` is the interface that must be implemented by the plugin.
+type Plugin interface {
+	plugins.BaseCosmosStargazer
+	core.BlockPlugin
+}
+
 // `plugin` keeps track of stargazer blocks via headers.
 type plugin struct {
 	// `ctx` is the current block context, used for accessing current block info and kv stores.
@@ -43,7 +53,7 @@ type plugin struct {
 }
 
 // `NewPlugin` creates a new instance of the block plugin from the given context.
-func NewPlugin(shg stargazerHeaderGetter) core.BlockPlugin {
+func NewPlugin(shg stargazerHeaderGetter) Plugin {
 	return &plugin{
 		shg: shg,
 	}

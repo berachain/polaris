@@ -18,16 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package plugins
 
-// `DefaultGenesis` is the default genesis state.
-func DefaultGenesis() *GenesisState {
-	return &GenesisState{
-		Params: *DefaultParams(),
-	}
-}
+import (
+	"github.com/berachain/stargazer/x/evm/types"
 
-// `ValidateGenesis` is used to validate the genesis state.
-func ValidateGenesis(data GenesisState) error {
-	return data.Params.ValidateBasic()
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// `BaseCosmosStargazer` represents the base class that all x/evm implements of
+// the Stargazer plugins must implement. This is mainly to ensure that the plugins
+// are able to own their own state and genesis.
+type BaseCosmosStargazer interface {
+	InitGenesis(sdk.Context, *types.GenesisState)
+	ExportGenesis(sdk.Context, *types.GenesisState)
 }

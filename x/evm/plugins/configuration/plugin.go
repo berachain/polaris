@@ -23,31 +23,54 @@ package configuration
 import (
 	"context"
 
+	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/x/evm/plugins"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+var (
+	paramsPrefix = []byte("params")
+)
+
+// `plugin` implements the `Plugin` interface.
+var _ Plugin = (*plugin)(nil)
+
+// `Plugin` is the interface that must be implemented by the plugin.
+type Plugin interface {
+	plugins.BaseCosmosStargazer
+	core.ConfigurationPlugin
+}
 
 // `plugin` implements the core.ConfigurationPlugin interface.
 type plugin struct {
-	ctx context.Context
+	evmStoreKey storetypes.StoreKey
+	paramsStore storetypes.KVStore
 }
 
 // `NewPlugin` returns a new plugin instance.
-func NewPlugin() core.ConfigurationPlugin {
+func NewPlugin() Plugin {
 	return &plugin{}
 }
 
 // `Prepare` implements the core.ConfigurationPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.ctx = ctx
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.evmStoreKey), paramsPrefix)
 }
 
 // `ChainConfig` implements the core.ConfigurationPlugin interface.
 func (p *plugin) ChainConfig() *params.ChainConfig {
-	return params.DefaultChainConfig
+	return p.GetParams().EthereumChainConfig()
 }
 
 // `ExtraEips` implements the core.ConfigurationPlugin interface.
 func (p *plugin) ExtraEips() []int {
-	return []int{}
+	eips := make([]int, 0)
+	for _, e := range p.GetParams().ExtraEIPs {
+		eips = append(eips, int(e))
+	}
+	return eips
 }
