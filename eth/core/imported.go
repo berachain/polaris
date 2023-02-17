@@ -45,4 +45,6 @@ var (
 	ErrGasUintOverflow = core.ErrGasUintOverflow
 	// `ErrIntrinsicGas` is the error returned when the transaction does not have enough gas to cover the intrinsic cost.
 	ErrIntrinsicGas = core.ErrIntrinsicGas
+	// `IntrinsicGas` is the intrinsic gas of a transaction.
+	EthIntrinsicGas = core.IntrinsicGas
 )

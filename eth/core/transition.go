@@ -23,7 +23,6 @@ package core
 import (
 	"errors"
 	"fmt"
-	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
@@ -230,56 +229,27 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 // `consumeEthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
 // its given data.
 func (st *StateTransition) ConsumeEthIntrinsicGas(
-	isContractCreation bool, isHomestead, isEIP2028 bool,
+	isContractCreation bool, isHomestead, isEIP2028 bool, isEIP3860 bool,
 ) error {
 	var gas uint64
-	// Consume the starting gas for the raw transaction.
 	gasUsed := st.gp.TxGasUsed()
+
+	// Consume the intrinsic gas for the transaction from the EVM
+	gas, err := EthIntrinsicGas(st.msg.Data(), st.msg.AccessList(), isContractCreation, isHomestead, isEIP2028, isEIP3860)
+
+	if err != nil {
+		return errorslib.Wrap(err, "failed to calculate intrinsic gas")
+	}
+
+	// Consume the extra gas for the transaction
 	if isContractCreation && isHomestead {
-		// If the meter has not yet consumed 53000 gas, we
-		// want to make the gasPlugin consumes the delta.
-		if gasUsed <= params.TxGasContractCreation {
-			gas = params.TxGasContractCreation - gasUsed
+		if gasUsed < params.TxGasContractCreation {
+			gas = gas + (params.TxGasContractCreation - gasUsed)
 		}
 	} else {
-		// If the meter has not yet consumed 21000 gas, we
-		// want to make the gasPlugin consumes the delta.
-		if gasUsed <= params.TxGas {
-			gas = params.TxGas - gasUsed
+		if gasUsed < params.TxGas {
+			gas = gas + (params.TxGas - gasUsed)
 		}
-	}
-
-	// Bump the required gas by the amount of transactional data
-	if data := st.msg.Data(); len(data) > 0 {
-		// Zero and non-zero bytes are priced differently
-		var nz uint64
-		for _, byt := range data {
-			if byt != 0 {
-				nz++
-			}
-		}
-		// Make sure we don't exceed uint64 for all data combinations
-		nonZeroGas := params.TxDataNonZeroGasFrontier
-		if isEIP2028 {
-			nonZeroGas = params.TxDataNonZeroGasEIP2028
-		}
-		if (math.MaxUint64-gas)/nonZeroGas < nz {
-			return ErrGasUintOverflow
-		}
-		gas += nz * nonZeroGas
-
-		z := uint64(len(data)) - nz
-		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
-			return ErrGasUintOverflow
-		}
-		gas += z * params.TxDataZeroGas
-
-		// TODO: EIP-3860 dynamic transaction pricing
-		// https://github.com/ethereum/go-ethereum/commit/793f0f9ec860f6f51e0cec943a268c10863097c7
-	}
-	if accessList := st.msg.AccessList(); accessList != nil {
-		gas += uint64(len(accessList)) * params.TxAccessListAddressGas
-		gas += uint64(accessList.StorageKeys()) * params.TxAccessListStorageKeyGas
 	}
 
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
