@@ -27,12 +27,22 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/x/evm/plugins"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
 	paramsPrefix = []byte("params")
 )
+
+// `plugin` implements the `Plugin` interface.
+var _ Plugin = (*plugin)(nil)
+
+// `Plugin` is the interface that must be implemented by the plugin.
+type Plugin interface {
+	plugins.BaseCosmosStargazer
+	core.ConfigurationPlugin
+}
 
 // `plugin` implements the core.ConfigurationPlugin interface.
 type plugin struct {
@@ -41,7 +51,7 @@ type plugin struct {
 }
 
 // `NewPlugin` returns a new plugin instance.
-func NewPlugin() core.ConfigurationPlugin {
+func NewPlugin() Plugin {
 	return &plugin{}
 }
 
