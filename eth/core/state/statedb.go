@@ -23,7 +23,7 @@ package state
 import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/state/journal"
-	"github.com/berachain/stargazer/eth/core/types"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/eth/params"
@@ -180,7 +180,8 @@ func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Has
 	panic("not supported by Stargazer")
 }
 
-func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
+func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
+	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	panic("not supported by Stargazer")
 }
 

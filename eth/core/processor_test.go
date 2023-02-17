@@ -38,7 +38,7 @@ var (
 	legacyTxData = &types.LegacyTx{
 		Nonce:    0,
 		To:       &william,
-		Gas:      100000,
+		Gas:      106096,
 		GasPrice: big.NewInt(2),
 		Data:     []byte("abcdef"),
 	}

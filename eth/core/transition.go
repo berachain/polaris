@@ -107,11 +107,14 @@ func NewStateTransition(evm vm.StargazerEVM, gp GasPlugin, msg Message) *StateTr
 //nolint:funlen // all this code is logically contagious.
 func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	var (
-		msgFrom          = st.msg.From()
-		msgValue         = st.msg.Value()
-		ctx              = st.evm.Context()
-		sender           = vm.AccountRef(msgFrom)
-		rules            = st.evm.ChainConfig().Rules(st.evm.Context().BlockNumber, st.evm.Context().Random != nil, st.evm.Context().Time)
+		msgFrom  = st.msg.From()
+		msgValue = st.msg.Value()
+		ctx      = st.evm.Context()
+		sender   = vm.AccountRef(msgFrom)
+		rules    = st.evm.ChainConfig().Rules(st.evm.Context().BlockNumber,
+			st.evm.Context().Random != nil,
+			st.evm.Context().Time,
+		)
 		sdb              = st.evm.StateDB()
 		contractCreation = st.msg.To() == nil
 		tracer           = st.evm.Config().Tracer
@@ -128,7 +131,8 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}
 
 	// Ensure that the intrinsic gas is consumed.
-	if err := st.ConsumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul, rules.IsShanghai); err != nil {
+	if err := st.ConsumeEthIntrinsicGas(contractCreation,
+		rules.IsHomestead, rules.IsIstanbul, rules.IsShanghai); err != nil {
 		return nil, err
 	}
 
@@ -235,7 +239,7 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 	gas, err := EthIntrinsicGas(st.msg.Data(), st.msg.AccessList(), isContractCreation, isHomestead, isEIP2028, isEIP3860)
 
 	if err != nil {
-		return errorslib.Wrap(err, "failed to calculate intrinsic gas")
+		return liberrors.Wrap(err, "failed to calculate intrinsic gas")
 	}
 
 	// Consume the extra gas for the transaction
@@ -250,7 +254,7 @@ func (st *StateTransition) ConsumeEthIntrinsicGas(
 	}
 
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
-	if err := st.gp.TxConsumeGas(gas); err != nil {
+	if err = st.gp.TxConsumeGas(gas); err != nil {
 		return liberrors.Wrapf(
 			liberrors.Wrap(ErrIntrinsicGas, err.Error()),
 			"have %d, need %d",
