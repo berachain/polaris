@@ -48,4 +48,6 @@ var (
 	TxGasContractCreation = params.TxGasContractCreation
 	// `TxGas` is the amount of gas that is refunded for a transaction.
 	TxGas = params.TxGas
+	// `MainnetChainConfig` is the chain parameters to run a node on the main network.
+	MainnetChainConfig = params.MainnetChainConfig
 )

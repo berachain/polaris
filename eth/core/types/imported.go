@@ -42,16 +42,18 @@ type (
 )
 
 var (
-	BytesToBloom     = types.BytesToBloom
-	CreateBloom      = types.CreateBloom
-	MakeSigner       = types.MakeSigner
-	LogsBloom        = types.LogsBloom
-	DeriveSha        = types.DeriveSha
-	EmptyRootHash    = types.EmptyRootHash
-	EmptyUncleHash   = types.EmptyUncleHash
-	SignTx           = types.SignTx
-	NewEIP2930Signer = types.NewEIP2930Signer
-	NewTx            = types.NewTx
+	BytesToBloom           = types.BytesToBloom
+	CreateBloom            = types.CreateBloom
+	MakeSigner             = types.MakeSigner
+	LogsBloom              = types.LogsBloom
+	DeriveSha              = types.DeriveSha
+	EmptyRootHash          = types.EmptyRootHash
+	EmptyUncleHash         = types.EmptyUncleHash
+	SignTx                 = types.SignTx
+	NewEIP2930Signer       = types.NewEIP2930Signer
+	NewTx                  = types.NewTx
+	LatestSignerForChainID = types.LatestSignerForChainID
+	MustSignNewTx          = types.MustSignNewTx
 )
 var (
 	ReceiptStatusFailed     = types.ReceiptStatusFailed

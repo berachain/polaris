@@ -23,10 +23,10 @@ package simapp
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	storetypes "cosmossdk.io/store/types"
+	"github.com/berachain/stargazer/lib/errors"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -152,12 +152,12 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 
 		if err = app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
 			// never called as BeforeDelegationCreated always returns nil
-			panic(fmt.Errorf("error while incrementing period: %w", err))
+			panic(errors.Wrap(err, "error while incrementing period"))
 		}
 
 		if err = app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
 			// never called as AfterDelegationModified always returns nil
-			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
+			panic(errors.Wrap(err, "error while creating a new delegation period record"))
 		}
 	}
 
