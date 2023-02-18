@@ -27,6 +27,8 @@ import (
 
 	"github.com/berachain/stargazer/eth/crypto"
 	cmcrypto "github.com/cometbft/cometbft/crypto"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
@@ -35,9 +37,15 @@ const (
 	PrivKeyNumBytes = 32
 	// `PubKeyNumBytes` defines the length of the PubKey byte array.
 	PubKeyNumBytes = PrivKeyNumBytes + 1
-	// `KeyType` is the string constant for the secp256k1 algorithm.
-	KeyType = "eth_secp256k1"
+	// `KeyType` is the constant for the secp256k1 algorithm.
+	KeyType = hd.PubKeyType("eth_secp256k1")
 )
+
+// `RegisterInterfaces` allows registering the eth_secp256k1 interface types with an interface registry.
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &EthSecp256K1PubKey{})
+	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &EthSecp256K1PrivKey{})
+}
 
 // =====================================================================================================
 // Public Key
@@ -70,7 +78,7 @@ func (pubKey EthSecp256K1PubKey) Bytes() []byte {
 
 // `Type` returns eth_secp256k1.
 func (pubKey EthSecp256K1PubKey) Type() string {
-	return KeyType
+	return string(KeyType)
 }
 
 // `Equals` returns true if the pubkey type is the same and their bytes are deeply equal.
@@ -140,7 +148,7 @@ func (privKey EthSecp256K1PrivKey) Equals(other cryptotypes.LedgerPrivKey) bool 
 
 // `Type` returns eth_secp256k1.
 func (privKey EthSecp256K1PrivKey) Type() string {
-	return KeyType
+	return string(KeyType)
 }
 
 // `Sign` creates a recoverable ECDSA signature on the secp256k1 curve over the
