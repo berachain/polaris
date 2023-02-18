@@ -20,5 +20,27 @@
 
 package mock
 
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-//go:generate moq -out ./state_plugin.mock.go -pkg mock ../ StatePlugin
+import (
+	"context"
+
+	"github.com/berachain/stargazer/eth/core/types"
+)
+
+const testBaseFee = 69
+
+//go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
+func NewBlockPluginMock() *BlockPluginMock {
+	// make and configure a mocked core.BlockPlugin
+	mockedBlockPlugin := &BlockPluginMock{
+		BaseFeeFunc: func() uint64 {
+			return testBaseFee
+		},
+		GetStargazerHeaderAtHeightFunc: func(n int64) *types.StargazerHeader {
+			panic("mock out the GetStargazerHeaderAtHeight method")
+		},
+		PrepareFunc: func(contextMoqParam context.Context) {
+			// no-op
+		},
+	}
+	return mockedBlockPlugin
+}
