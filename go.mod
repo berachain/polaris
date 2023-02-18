@@ -20,6 +20,7 @@ require (
 	cosmossdk.io/client/v2 v2.0.0-20230214134047-cb23af6d9731
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
+	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v0.0.0
 	cosmossdk.io/math v1.0.0-beta.6
 	cosmossdk.io/simapp v0.0.0-20230217170540-497dc2cb78bb
@@ -72,7 +73,6 @@ require (
 	cloud.google.com/go/iam v0.11.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cosmossdk.io/collections v0.0.0-20230204135315-697871069999 // indirect
-	cosmossdk.io/errors v1.0.0-beta.7 // indirect
 	cosmossdk.io/x/nft v0.0.0-20230113085233-fae3332d62fc // indirect
 	cosmossdk.io/x/tx v0.2.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
@@ -169,9 +169,8 @@ require (
 	github.com/fjl/memsize v0.0.0-20190710130421-bcb5799ab5e5 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
-	github.com/getsentry/sentry-go v0.18.0 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20190607065134-2772fd86a8ff // indirect
-	github.com/getsentry/sentry-go v0.17.0 // indirect
+	github.com/getsentry/sentry-go v0.18.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-chi/chi/v5 v5.0.8 // indirect
 	github.com/go-critic/go-critic v0.6.5 // indirect
@@ -342,7 +341,6 @@ require (
 	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
 	github.com/rakyll/statik v0.1.7 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/rjeczalik/notify v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect
 	github.com/rs/zerolog v1.29.0 // indirect
@@ -365,7 +363,7 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
-	github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4 // indirect
+	github.com/status-im/keycard-go v0.2.0 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
@@ -382,12 +380,12 @@ require (
 	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/tomarrell/wrapcheck/v2 v2.8.0 // indirect
 	github.com/tommy-muehle/go-mnd/v2 v2.5.1 // indirect
-	github.com/tyler-smith/go-bip39 v1.0.1-0.20181017060643-dbb3b84ba2ef // indirect
+	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/ultraware/funlen v0.0.3 // indirect
 	github.com/ultraware/whitespace v0.0.5 // indirect
-	github.com/urfave/cli/v2 v2.10.2 // indirect
+	github.com/urfave/cli/v2 v2.17.2-0.20221006022127-8f469abc00aa // indirect
 	github.com/uudashr/gocognit v1.0.6 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
