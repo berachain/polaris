@@ -71,12 +71,13 @@ var _ = Describe("StateTransition", func() {
 		})
 		It("should call create", func() {
 			gp.Reset(context.Background())
+
 			msg.GasFunc = func() uint64 {
 				return 53000 // exact intrinsic gas for create after homestead
 			}
 			res, err := core.ApplyMessage(evm, gp, &msg, true)
-			Expect(len(evm.CreateCalls())).To(Equal(1))
 			Expect(res.UsedGas).To(Equal(uint64(53000)))
+			Expect(len(evm.CreateCalls())).To(Equal(1))
 			Expect(err).To(BeNil())
 		})
 		When("we have less than the intrinsic gas", func() {
@@ -251,8 +252,9 @@ var _ = Describe("StateTransition", func() {
 			) ([]byte, uint64, error) {
 				return nil, 0, nil
 			}
-			_, err := core.ApplyMessage(evm, gp, &msg, false)
+			res, err := core.ApplyMessage(evm, gp, &msg, false)
 			Expect(err).To(BeNil())
+			Expect(res.Err).To(BeNil())
 
 			gp.Reset(context.Background())
 			msg.GasFunc = func() uint64 {
@@ -266,8 +268,9 @@ var _ = Describe("StateTransition", func() {
 			) ([]byte, uint64, error) {
 				return nil, 0, nil
 			}
-			_, err = core.ApplyMessage(evm, gp, &msg, false)
+			res, err = core.ApplyMessage(evm, gp, &msg, false)
 			Expect(err).To(BeNil())
+			Expect(res.Err.Error()).To(Equal("out of gas"))
 			Expect(gp.CumulativeGasUsed()).To(Equal(uint64(1000000)))
 		})
 
@@ -286,7 +289,7 @@ var _ = Describe("StateTransition", func() {
 				// Call the intrinsic gas function with data
 				st := core.NewStateTransition(evm, gp, &msg)
 				Expect(gp.SetTxGasLimit(10000000)).To(BeNil())
-				Expect(st.ConsumeEthIntrinsicGas(true, true, true)).To(BeNil())
+				Expect(st.ConsumeEthIntrinsicGas(true, true, true, false)).To(BeNil())
 				consumedWithData := gp.CumulativeGasUsed()
 
 				// Reset the gas meter.
@@ -296,7 +299,37 @@ var _ = Describe("StateTransition", func() {
 				msg.DataFunc = func() []byte {
 					return []byte{}
 				}
-				Expect(st.ConsumeEthIntrinsicGas(true, true, true)).To(BeNil())
+				Expect(st.ConsumeEthIntrinsicGas(true, true, true, false)).To(BeNil())
+
+				// We expect that the call with Data will consume more gas.
+				Expect(consumedWithData).To(BeNumerically(">", gp.CumulativeGasUsed()))
+			})
+
+			It("should cost more gas, shanghai fork", func() {
+				gp.Reset(context.Background())
+
+				msg.GasFunc = func() uint64 {
+					return 6969699669
+				}
+
+				msg.DataFunc = func() []byte {
+					return []byte{1, 2, 3}
+				}
+
+				// Call the intrinsic gas function with data
+				st := core.NewStateTransition(evm, gp, &msg)
+				Expect(gp.SetTxGasLimit(10000000)).To(BeNil())
+				Expect(st.ConsumeEthIntrinsicGas(true, true, true, true)).To(BeNil())
+				consumedWithData := gp.CumulativeGasUsed()
+
+				// Reset the gas meter.
+				gp.Prepare(context.Background())
+
+				// Call the intrinsic gas function with no data
+				msg.DataFunc = func() []byte {
+					return []byte{}
+				}
+				Expect(st.ConsumeEthIntrinsicGas(true, true, true, true)).To(BeNil())
 
 				// We expect that the call with Data will consume more gas.
 				Expect(consumedWithData).To(BeNumerically(">", gp.CumulativeGasUsed()))

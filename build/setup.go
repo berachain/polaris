@@ -41,9 +41,10 @@ var (
 	golines          = "github.com/segmentio/golines"
 	goimports        = "golang.org/x/tools/cmd/goimports"
 	rlpgen           = "github.com/ethereum/go-ethereum/rlp/rlpgen"
+	abigen           = "github.com/ethereum/go-ethereum/cmd/abigen"
 
 	allTools = []string{buf, gosec, golangcilint, addlicense,
-		goimportsReviser, moq, ginkgo, golines, goimports, rlpgen}
+		goimportsReviser, moq, ginkgo, golines, goimports, rlpgen, abigen}
 )
 
 // Setup runs the setup script for the current OS.

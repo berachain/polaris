@@ -27,11 +27,21 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/x/evm/plugins"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
 const gasMeterDescriptor = `stargazer-gas-plugin`
+
+// `plugin` implements the `Plugin` interface.
+var _ Plugin = (*plugin)(nil)
+
+// `Plugin` is the interface that must be implemented by the plugin.
+type Plugin interface {
+	plugins.BaseCosmosStargazer
+	core.GasPlugin
+}
 
 // `plugin` wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
 // to implement the core.GasPlugin interface.
@@ -41,7 +51,7 @@ type plugin struct {
 }
 
 // `NewPlugin` creates a new instance of the gas plugin from a given context.
-func NewPlugin() core.GasPlugin {
+func NewPlugin() Plugin {
 	return &plugin{}
 }
 

@@ -30,6 +30,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/berachain/stargazer/lib/errors"
 	cmtconfig "github.com/cometbft/cometbft/config"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/types"
@@ -505,7 +506,7 @@ func writeFile(name string, dir string, contents []byte) error {
 
 	//#nosec:G301 // from sdk.
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return fmt.Errorf("could not create directory %q: %w", dir, err)
+		return errors.Wrapf(err, "could not create directory %q", dir)
 	}
 
 	//#nosec:G306 // from sdk.

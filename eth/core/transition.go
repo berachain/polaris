@@ -22,12 +22,10 @@ package core
 
 import (
 	"errors"
-	"fmt"
-	"math"
 
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
-	errorslib "github.com/berachain/stargazer/lib/errors"
+	liberrors "github.com/berachain/stargazer/lib/errors"
 )
 
 // `StateTransition` is the main object which takes care of applying a
@@ -57,7 +55,7 @@ func ApplyMessage(
 ) (*ExecutionResult, error) {
 	res, err := NewStateTransition(evm, gp, msg).transitionDB()
 	if err != nil {
-		return nil, errorslib.Wrap(err, "failed to TransitionDB")
+		return nil, liberrors.Wrap(err, "failed to TransitionDB")
 	}
 
 	if commit && !res.Failed() {
@@ -113,9 +111,9 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 		msgValue = st.msg.Value()
 		ctx      = st.evm.Context()
 		sender   = vm.AccountRef(msgFrom)
-		rules    = st.evm.ChainConfig().Rules(
-			ctx.BlockNumber,
+		rules    = st.evm.ChainConfig().Rules(ctx.BlockNumber,
 			ctx.Random != nil,
+			ctx.Time,
 		)
 		sdb              = st.evm.StateDB()
 		contractCreation = st.msg.To() == nil
@@ -133,16 +131,18 @@ func (st *StateTransition) transitionDB() (*ExecutionResult, error) {
 	}
 
 	// Ensure that the intrinsic gas is consumed.
-	// TODO: Handle updated gas requirements for Shanghai.
-	if err := st.ConsumeEthIntrinsicGas(contractCreation, rules.IsHomestead, rules.IsIstanbul); err != nil {
+	if err := st.ConsumeEthIntrinsicGas(contractCreation,
+		rules.IsHomestead, rules.IsIstanbul, rules.IsShanghai); err != nil {
 		return nil, err
 	}
 
 	// Check to ensure the sender has the funds to cover the value being sent.
 	if msgValue.Sign() > 0 && !ctx.CanTransfer(sdb, msgFrom, msgValue) {
-		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msgFrom.Hex())
+		return nil, liberrors.Wrapf(ErrInsufficientFundsForTransfer, "address %v", msgFrom.Hex())
 	}
 
+	// TODO: Prepare does both , prepare access list and reset transient storage, handle this in future
+	//
 	// Stargazer does not support access lists.
 	// if rules.IsBerlin {
 	// 	sdb.PrepareAccessList(
@@ -230,61 +230,24 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 // `consumeEthIntrinsicGas` is a helper function that calculates the intrinsic gas for the message with
 // its given data.
 func (st *StateTransition) ConsumeEthIntrinsicGas(
-	isContractCreation bool, isHomestead, isEIP2028 bool,
+	isContractCreation bool, isHomestead, isEIP2028 bool, isEIP3860 bool,
 ) error {
-	var gas uint64
-	// Consume the starting gas for the raw transaction.
-	gasUsed := st.gp.TxGasUsed()
-	if isContractCreation && isHomestead {
-		// If the meter has not yet consumed 53000 gas, we
-		// want to make the gasPlugin consumes the delta.
-		if gasUsed <= params.TxGasContractCreation {
-			gas = params.TxGasContractCreation - gasUsed
-		}
-	} else {
-		// If the meter has not yet consumed 21000 gas, we
-		// want to make the gasPlugin consumes the delta.
-		if gasUsed <= params.TxGas {
-			gas = params.TxGas - gasUsed
-		}
-	}
-
-	// Bump the required gas by the amount of transactional data
-	if data := st.msg.Data(); len(data) > 0 {
-		// Zero and non-zero bytes are priced differently
-		var nz uint64
-		for _, byt := range data {
-			if byt != 0 {
-				nz++
-			}
-		}
-		// Make sure we don't exceed uint64 for all data combinations
-		nonZeroGas := params.TxDataNonZeroGasFrontier
-		if isEIP2028 {
-			nonZeroGas = params.TxDataNonZeroGasEIP2028
-		}
-		if (math.MaxUint64-gas)/nonZeroGas < nz {
-			return ErrGasUintOverflow
-		}
-		gas += nz * nonZeroGas
-
-		z := uint64(len(data)) - nz
-		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
-			return ErrGasUintOverflow
-		}
-		gas += z * params.TxDataZeroGas
-
-		// TODO: EIP-3860 dynamic transaction pricing
-		// https://github.com/ethereum/go-ethereum/commit/793f0f9ec860f6f51e0cec943a268c10863097c7
-	}
-	if accessList := st.msg.AccessList(); accessList != nil {
-		gas += uint64(len(accessList)) * params.TxAccessListAddressGas
-		gas += uint64(accessList.StorageKeys()) * params.TxAccessListStorageKeyGas
+	// Consume the intrinsic gas for the transaction from the EVM
+	gas, err := EthIntrinsicGas(st.msg.Data(), st.msg.AccessList(), isContractCreation, isHomestead, isEIP2028, isEIP3860)
+	if err != nil {
+		return liberrors.Wrap(err, "failed to calculate intrinsic gas")
 	}
 
 	// Now that we have calculated the intrinsic gas, we can consume it using the gas plugin.
-	if err := st.gp.TxConsumeGas(gas); err != nil {
-		return fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gp.TxGasRemaining(), gas)
+	if gasUsed := st.gp.TxGasUsed(); gasUsed < gas {
+		if err = st.gp.TxConsumeGas(gas - gasUsed); err != nil {
+			return liberrors.Wrapf(
+				liberrors.Wrap(ErrIntrinsicGas, err.Error()),
+				"have %d, need %d",
+				st.gp.TxGasRemaining(),
+				gas,
+			)
+		}
 	}
 
 	return nil

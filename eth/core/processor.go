@@ -25,6 +25,7 @@ import (
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/crypto"
+	"github.com/berachain/stargazer/lib/errors"
 )
 
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
@@ -32,6 +33,7 @@ type StateProcessor struct {
 	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the
 	// previous one.
 	mtx sync.Mutex
+
 	// `bp` provides block functions from the underlying chain the EVM is running on
 	bp BlockPlugin
 	// `gp` provides gas functions from the underlying chain the EVM is running on
@@ -41,18 +43,20 @@ type StateProcessor struct {
 	// `pp` is responsible for keeping track of the stateful precompile containers that are
 	// available to the EVM and executing them.
 	pp PrecompilePlugin
-	// `signer` is the signer used to verify transaction signatures.
-	signer types.Signer
-	// `evm ` is the EVM that is used to process transactions.
-	evm vm.StargazerEVM
+
 	// `vmConfig` is the configuration for the EVM.
 	vmConfig vm.Config
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
-	// `block` represents the current block being processed.
-	block *types.StargazerBlock
 	// `commit` indicates whether the state processor should commit the state after processing a tx
 	commit bool
+
+	// `signer` is the signer used to verify transaction signatures.
+	signer types.Signer
+	// `evm ` is the EVM that is used to process transactions.
+	evm vm.StargazerEVM
+	// `block` represents the current block being processed.
+	block *types.StargazerBlock
 }
 
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
@@ -106,7 +110,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	// Setup the EVM for this block.
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
-		sp.newEVMBlockContext(),
+		sp.NewEVMBlockContext(),
 		vm.TxContext{},
 		sp.statedb,
 		chainConfig,
@@ -116,14 +120,17 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 }
 
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.
-func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+func (sp *StateProcessor) ProcessTransaction(
+	ctx context.Context, tx *types.Transaction,
+) (*types.Receipt, error) {
 	msg, err := tx.AsMessage(sp.signer, sp.block.BaseFee)
 	if err != nil {
-		return nil, fmt.Errorf("could not apply tx %d [%v]: %w", 0, tx.Hash().Hex(), err)
+		return nil, errors.Wrapf(err, "could not apply tx %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
 	// Create a new context to be used in the EVM environment. We also must reset the StateDB and
-	// precompile manager, which resets the state and precompile plugins, for the tx.
+	// precompile manager, which resets the state and precompile plugins, and gas plugin for the
+	// tx.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
 	sp.statedb.Reset(ctx)
@@ -133,7 +140,7 @@ func (sp *StateProcessor) ProcessTransaction(ctx context.Context, tx *types.Tran
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, sp.gp, msg, sp.commit)
 	if err != nil {
-		return nil, fmt.Errorf("could apply message %d [%v]: %w", 0, tx.Hash().Hex(), err)
+		return nil, errors.Wrapf(err, "could not apply message %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
 	receipt := &types.Receipt{
@@ -196,57 +203,29 @@ func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, 
 // Utilities
 // ===========================================================================
 
-// `newEVMBlockContext` creates a new block context for use in the EVM.
-func (sp *StateProcessor) newEVMBlockContext() vm.BlockContext {
+// `NewEVMBlockContext` creates a new block context for use in the EVM.
+func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
 	var baseFee *big.Int
 	// Copy the baseFee to avoid side effects.
-	if sp.block.StargazerHeader.BaseFee != nil {
-		baseFee = new(big.Int).Set(sp.block.StargazerHeader.BaseFee)
+	if sp.block.BaseFee != nil {
+		baseFee = new(big.Int).Set(sp.block.BaseFee)
 	}
 
 	return vm.BlockContext{
 		CanTransfer: state.CanTransfer,
 		Transfer:    state.Transfer,
-		GetHash:     sp.getHashFn(),
-		Coinbase:    sp.block.StargazerHeader.Coinbase,
+		GetHash:     sp.GetHashFn(),
+		Coinbase:    sp.block.Coinbase,
 		BlockNumber: new(big.Int).Set(sp.block.StargazerHeader.Number),
-		Time:        new(big.Int).SetUint64(sp.block.StargazerHeader.Time),
+		Time:        sp.block.StargazerHeader.Header.Time,
 		Difficulty:  new(big.Int), // not used by stargazer.
 		BaseFee:     baseFee,
-		GasLimit:    sp.block.StargazerHeader.GasLimit,
+		GasLimit:    sp.block.GasLimit,
 		Random:      &common.Hash{}, // TODO: find a source of randomness
 	}
 }
 
-// `getHashFn` returns a `GetHashFunc` which retrieves header hashes by number.
-func (sp *StateProcessor) getHashFn() vm.GetHashFunc {
-	// Cache will initially contain [refHash.parent],
-	// Then fill up with [refHash.p, refHash.pp, refHash.ppp, ...]
-	var cache []common.Hash
-
-	return func(n uint64) common.Hash {
-		// If there's no hash cache yet, make one
-		if len(cache) == 0 {
-			cache = append(cache, sp.block.StargazerHeader.ParentHash)
-		}
-		if idx := sp.block.StargazerHeader.Number.Uint64() - n - 1; idx < uint64(len(cache)) {
-			return cache[idx]
-		}
-		// No luck in the cache, but we can start iterating from the last element we already know
-		var lastKnownHash common.Hash
-		lastKnownNumber := sp.block.StargazerHeader.Number.Uint64() - uint64(len(cache))
-		for {
-			header := sp.bp.GetStargazerHeaderAtHeight(int64(lastKnownNumber))
-			if header == nil {
-				break
-			}
-			cache = append(cache, header.ParentHash)
-			lastKnownHash = header.ParentHash
-			lastKnownNumber = header.Number.Uint64() - 1
-			if n == lastKnownNumber {
-				return lastKnownHash
-			}
-		}
-		return common.Hash{}
-	}
+// `GetHashFn` returns a `GetHashFunc` which retrieves header hashes by number.
+func (sp *StateProcessor) GetHashFn() vm.GetHashFunc {
+	return GetHashFn(sp.block.Header, &chainContext{sp})
 }

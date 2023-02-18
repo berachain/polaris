@@ -29,5 +29,5 @@ func DefaultGenesis() *GenesisState {
 
 // `ValidateGenesis` is used to validate the genesis state.
 func ValidateGenesis(data GenesisState) error {
-	return nil
+	return data.Params.ValidateBasic()
 }

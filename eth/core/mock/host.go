@@ -20,19 +20,5 @@ package mock
 
 func NewMockHost() *StargazerHostChainMock {
 	// make and configure a mocked core.StargazerHostChain
-	mockedStargazerHostChain := &StargazerHostChainMock{
-		// StargazerHeaderAtHeightFunc: func(contextMoqParam context.Context, v uint64) *types.StargazerHeader {
-		// 	return &types.StargazerHeader{
-		// 		Header: &types.Header{
-		// 			Number:  big.NewInt(int64(v)),
-		// 			BaseFee: big.NewInt(testBaseFee),
-		// 		},
-		// 		HostHash: common.Hash{123},
-		// 	}
-		// },
-		// CumulativeGasUsedFunc: func(contextMoqParam context.Context, gasUsed uint64) uint64 {
-		// 	return 0
-		// },
-	}
-	return mockedStargazerHostChain
+	return &StargazerHostChainMock{}
 }

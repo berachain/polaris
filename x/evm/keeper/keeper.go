@@ -26,6 +26,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/berachain/stargazer/x/evm/plugins/block"
 	"github.com/berachain/stargazer/x/evm/plugins/configuration"
 	"github.com/berachain/stargazer/x/evm/plugins/gas"
@@ -38,7 +39,7 @@ import (
 	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
 )
 
-// Compile-time interface assertions.
+// Compile-time interface assertion.
 var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
@@ -54,11 +55,11 @@ type Keeper struct {
 	authority string
 
 	// plugins
-	bp core.BlockPlugin
-	cp core.ConfigurationPlugin
-	gp core.GasPlugin
-	pp core.PrecompilePlugin
-	sp core.StatePlugin
+	bp block.Plugin
+	cp configuration.Plugin
+	gp gas.Plugin
+	pp precompile.Plugin
+	sp state.Plugin
 }
 
 // NewKeeper creates new instances of the stargazer Keeper.
@@ -112,4 +113,14 @@ func (k *Keeper) GetPrecompilePlugin() core.PrecompilePlugin {
 
 func (k *Keeper) GetStatePlugin() core.StatePlugin {
 	return k.sp
+}
+
+func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
+	return []plugins.BaseCosmosStargazer{
+		k.bp,
+		k.cp,
+		k.gp,
+		k.pp,
+		k.sp,
+	}
 }

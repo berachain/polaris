@@ -26,6 +26,7 @@ import (
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/crypto"
+	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/lib/snapshot"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
@@ -44,6 +45,7 @@ type stateDB struct {
 	// Journals built internally and required for the stateDB.
 	LogsJournal
 	RefundJournal
+	//TODO: Add a journal for the `accesslist journal` slice.
 
 	// `ctrl` is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
@@ -63,6 +65,8 @@ func NewStateDB(sp Plugin) vm.StargazerStateDB {
 	rj := journal.NewRefund()
 
 	// Build the controller and register the plugins and journals
+
+	// TODO: journal registration
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(lj)
 	_ = ctrl.Register(rj)
@@ -150,29 +154,40 @@ func (sdb *stateDB) Finalize() {
 // AccessList
 // =============================================================================
 
-func (sdb *stateDB) PrepareAccessList(
-	sender common.Address,
-	dst *common.Address,
-	precompiles []common.Address,
-	list coretypes.AccessList,
-) {
-	panic("not supported by Stargazer")
-}
-
+// TODO: implement `AddAddressToAccessList`.
 func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
 	panic("not supported by Stargazer")
 }
 
+// TODO: implement `AddSlotToAccessList`
 func (sdb *stateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
 	panic("not supported by Stargazer")
 }
 
+// TODO: implement `AddressInAccessList`
 func (sdb *stateDB) AddressInAccessList(addr common.Address) bool {
 	return false
 }
 
+// TODO: implement `SlotInAccessList`
 func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
 	return false, false
+}
+
+// TODO: `GetTransientState` implements the `StargazerStateDB` interface by returning the transient state
+func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
+	panic("not supported by Stargazer")
+}
+
+// TODO: `SetTransientState` implements the `StargazerStateDB` interface by setting the transient state
+func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
+	panic("not supported by Stargazer")
+}
+
+// TODO: `Prepare` implements the `StargazerStateDB` interface by preparing the stateDB for a new transaction.
+func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
+	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
+	panic("not supported by Stargazer")
 }
 
 // =============================================================================

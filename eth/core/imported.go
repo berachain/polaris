@@ -29,11 +29,15 @@ type (
 	ExecutionResult = core.ExecutionResult
 	// `Message` contains data used ype used to execute transactions.
 	Message = core.Message
+	// `ChainContext` provides information about the current blockchain to the EVM.
+	ChainContext = core.ChainContext
 )
 
 var (
 	// `NewEVMTxContext` creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
+	// `GetHashFn` returns a GetHashFunc.
+	GetHashFn = core.GetHashFn
 )
 
 var (
@@ -45,4 +49,6 @@ var (
 	ErrGasUintOverflow = core.ErrGasUintOverflow
 	// `ErrIntrinsicGas` is the error returned when the transaction does not have enough gas to cover the intrinsic cost.
 	ErrIntrinsicGas = core.ErrIntrinsicGas
+	// `IntrinsicGas` is the intrinsic gas of a transaction.
+	EthIntrinsicGas = core.IntrinsicGas
 )

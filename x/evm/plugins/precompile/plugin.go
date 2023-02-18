@@ -19,6 +19,7 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
+	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -36,8 +37,17 @@ type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 }
 
+// `plugin` implements the `Plugin` interface.
+var _ Plugin = (*plugin)(nil)
+
+// `Plugin` is the interface that must be implemented by the plugin.
+type Plugin interface {
+	plugins.BaseCosmosStargazer
+	core.PrecompilePlugin
+}
+
 // `NewPlugin` creates and returns a `plugin` with the given context.
-func NewPlugin() core.PrecompilePlugin {
+func NewPlugin() Plugin {
 	return &plugin{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 	}

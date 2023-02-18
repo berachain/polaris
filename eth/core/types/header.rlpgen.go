@@ -47,7 +47,8 @@ func (obj *StargazerHeader) EncodeRLP(_w io.Writer) error {
 		w.WriteBytes(obj.Header.MixDigest[:])
 		w.WriteBytes(obj.Header.Nonce[:])
 		_tmp2 := obj.Header.BaseFee != nil
-		if _tmp2 {
+		_tmp3 := obj.Header.WithdrawalsHash != nil
+		if _tmp2 || _tmp3 {
 			if obj.Header.BaseFee == nil {
 				w.Write(rlp.EmptyString)
 			} else {
@@ -55,6 +56,13 @@ func (obj *StargazerHeader) EncodeRLP(_w io.Writer) error {
 					return rlp.ErrNegativeBigInt
 				}
 				w.WriteBigInt(obj.Header.BaseFee)
+			}
+		}
+		if _tmp3 {
+			if obj.Header.WithdrawalsHash == nil {
+				w.Write([]byte{0x80})
+			} else {
+				w.WriteBytes(obj.Header.WithdrawalsHash[:])
 			}
 		}
 		w.ListEnd(_tmp1)
@@ -172,6 +180,14 @@ func (obj *StargazerHeader) DecodeRLP(dec *rlp.Stream) error {
 					return err
 				}
 				_tmp1.BaseFee = _tmp17
+				// WithdrawalsHash:
+				if dec.MoreDataInList() {
+					var _tmp18 common.Hash
+					if err := dec.ReadBytes(_tmp18[:]); err != nil {
+						return err
+					}
+					_tmp1.WithdrawalsHash = &_tmp18
+				}
 			}
 			if err := dec.ListEnd(); err != nil {
 				return err

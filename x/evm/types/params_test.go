@@ -22,7 +22,7 @@ import (
 )
 
 var _ = Describe("Test Params", func() {
-	It("should marshal correctly", func() {
+	It("should marshal chain config correctly", func() {
 		params := DefaultParams()
 		ethConfig := params.EthereumChainConfig()
 		Expect(ethConfig.ChainID).To(Equal(big.NewInt(42069)))

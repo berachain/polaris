@@ -22,7 +22,6 @@ package mock
 
 import (
 	"math/big"
-	"time"
 
 	"github.com/berachain/stargazer/eth/common"
 	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
@@ -32,9 +31,6 @@ import (
 
 func NewEVMLoggerMock() *EVMLoggerMock {
 	mockedEVMLogger := &EVMLoggerMock{
-		CaptureEndFunc: func(output []byte, gasUsed uint64, t time.Duration, err error) {
-			// no-op
-		},
 		CaptureEnterFunc: func(typ ethereumcorevm.OpCode,
 			from common.Address, to common.Address, input []byte, gas uint64, value *big.Int) {
 			// no-op

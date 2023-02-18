@@ -20,5 +20,6 @@
 
 package solidity
 
-//go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/SolmateERC20.sol/SolmateERC20.json ./generated/solmate_erc20.abigen.go SolmateERC20Contract
-//go:generate go run github.com/berachain/stargazer/cmd/abigen solidity ./out/MockPrecompileInterface.sol/MockPrecompileInterface.json ./generated/mock_precompile_interface.abigen.go MockPrecompileInterface
+//go:generate abigen --pkg generated --abi ./out/SolmateERC20.sol/SolmateERC20.abi.json --bin ./out/SolmateERC20.sol/SolmateERC20.bin --out ./generated/solmate_erc20.abigen.go --type SolmateERC20
+//go:generate abigen --pkg generated --abi ./out/MockPrecompileInterface.sol/MockPrecompileInterface.abi.json --out ./generated/mock_precompile_interface.abigen.go --type MockPrecompile
+//go:generate abigen --pkg generated --abi ./out/RevertableTx.sol/RevertableTx.abi.json --bin ./out/RevertableTx.sol/RevertableTx.bin --out ./generated/revertable_tx.abigen.go --type RevertableTx

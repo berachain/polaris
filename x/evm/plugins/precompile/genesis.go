@@ -18,34 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package main
+package precompile
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/berachain/stargazer/cmd/abigen/generator"
-	"github.com/spf13/cobra"
+	"github.com/berachain/stargazer/x/evm/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		os.Exit(1)
-	}
-}
+func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
 
-const numRootArgs = 4
-
-var rootCmd = &cobra.Command{
-	Use:   "abigen <packageName> <inputFile>, <outputFile> <varName>",
-	Args:  cobra.MatchAll(cobra.ExactArgs(numRootArgs), cobra.OnlyValidArgs),
-	Short: "Foundry contract generator",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		packageName := args[0]
-		inputFile := args[1]
-		outputPath := args[2]
-		varName := args[3]
-		return generator.Run(packageName, inputFile, outputPath, varName)
-	},
-}
+func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
