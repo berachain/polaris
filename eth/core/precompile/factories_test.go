@@ -157,6 +157,14 @@ func (ms *mockStateful) PrecompileMethods() precompile.Methods {
 	}
 }
 
+func (ms *mockStateful) ABIEvents() map[string]abi.Event {
+	return nil
+}
+
+func (ms *mockStateful) CustomValueDecoders() precompile.ValueDecoders {
+	return nil
+}
+
 type badMockStateful struct {
 	*mockStateful
 }
