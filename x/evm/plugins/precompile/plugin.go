@@ -37,9 +37,6 @@ type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 }
 
-// `plugin` implements the `Plugin` interface.
-var _ Plugin = (*plugin)(nil)
-
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosStargazer

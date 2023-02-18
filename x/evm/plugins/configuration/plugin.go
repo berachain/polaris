@@ -31,12 +31,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var (
-	paramsPrefix = []byte("params")
-)
-
-// `plugin` implements the `Plugin` interface.
-var _ Plugin = (*plugin)(nil)
+var paramsPrefix = []byte("params")
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {

@@ -34,9 +34,6 @@ import (
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
 const gasMeterDescriptor = `stargazer-gas-plugin`
 
-// `plugin` implements the `Plugin` interface.
-var _ Plugin = (*plugin)(nil)
-
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosStargazer

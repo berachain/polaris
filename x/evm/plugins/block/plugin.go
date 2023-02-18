@@ -35,9 +35,6 @@ type stargazerHeaderGetter interface {
 	GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool)
 }
 
-// `plugin` implements the `Plugin` interface.
-var _ Plugin = (*plugin)(nil)
-
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosStargazer

@@ -18,14 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package container_test
+package precompile_test
 
 import (
 	"context"
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile/container"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/vm"
 	solidity "github.com/berachain/stargazer/eth/testutil/contracts/solidity/generated"
 	"github.com/berachain/stargazer/eth/types/abi"
@@ -41,10 +41,10 @@ var (
 var _ = Describe("Container Factories", func() {
 
 	Context("Stateless Container Factory", func() {
-		var scf *container.StatelessFactory
+		var scf *precompile.StatelessFactory
 
 		BeforeEach(func() {
-			scf = container.NewStatelessFactory()
+			scf = precompile.NewStatelessFactory()
 		})
 
 		It("should build stateless precompile containers", func() {
@@ -53,15 +53,15 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{})
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatelessContainerImpl"))
+			Expect(err.Error()).To(Equal("StatelessContainerImpl: this precompile contract implementation is not implemented"))
 		})
 	})
 
 	Context("Stateful Container Factory", func() {
-		var scf *container.StatefulFactory
+		var scf *precompile.StatefulFactory
 
 		BeforeEach(func() {
-			scf = container.NewStatefulFactory()
+			scf = precompile.NewStatefulFactory()
 		})
 
 		It("should correctly build stateful containers and log events", func() {
@@ -70,20 +70,20 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockStateless{&mockBase{}})
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatefulContainerImpl"))
+			Expect(err.Error()).To(Equal("StatefulContainerImpl: this precompile contract implementation is not implemented"))
 		})
 	})
 
 	Context("Bad Stateful Container", func() {
-		var scf *container.StatefulFactory
+		var scf *precompile.StatefulFactory
 
 		BeforeEach(func() {
-			scf = container.NewStatefulFactory()
+			scf = precompile.NewStatefulFactory()
 		})
 
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}})
-			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
+			Expect(err.Error()).To(Equal("getOutputPartial(): this ABI method does not have a corresponding precompile method"))
 		})
 
 		It("should error on invalid precompile methods", func() {
@@ -93,10 +93,10 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Dynamic Container Factory", func() {
-		var dcf *container.DynamicFactory
+		var dcf *precompile.DynamicFactory
 
 		BeforeEach(func() {
-			dcf = container.NewDynamicFactory()
+			dcf = precompile.NewDynamicFactory()
 		})
 
 		It("should properly build dynamic container", func() {
@@ -105,7 +105,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = dcf.Build(&mockStateful{&mockBase{}})
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: DynamicContainerImpl"))
+			Expect(err.Error()).To(Equal("DynamicContainerImpl: this precompile contract implementation is not implemented"))
 		})
 	})
 })
@@ -147,8 +147,8 @@ func (ms *mockStateful) ABIMethods() map[string]abi.Method {
 	}
 }
 
-func (ms *mockStateful) PrecompileMethods() container.Methods {
-	return container.Methods{
+func (ms *mockStateful) PrecompileMethods() precompile.Methods {
+	return precompile.Methods{
 		{
 			AbiSig:      "getOutput(string)",
 			Execute:     getOutput,
@@ -172,8 +172,8 @@ type invalidMockStateful struct {
 	*mockStateful
 }
 
-func (ims *invalidMockStateful) PrecompileMethods() container.Methods {
-	return container.Methods{
+func (ims *invalidMockStateful) PrecompileMethods() precompile.Methods {
+	return precompile.Methods{
 		{
 			AbiSig:      "getOutput(string)",
 			RequiredGas: 1,

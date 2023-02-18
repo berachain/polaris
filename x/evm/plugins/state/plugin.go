@@ -38,9 +38,7 @@ import (
 	types "github.com/berachain/stargazer/x/evm/types"
 )
 
-const (
-	pluginRegistryKey = `statePlugin`
-)
+const pluginRegistryKey = `statePlugin`
 
 var (
 	// EmptyCodeHash is the code hash of an empty code
@@ -48,9 +46,6 @@ var (
 	emptyCodeHash      = crypto.Keccak256Hash(nil)
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
-
-// `plugin` implements the `Plugin` interface.
-var _ Plugin = (*plugin)(nil)
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
@@ -112,15 +107,13 @@ func NewPlugin(
 	evmDenom string,
 	plf events.PrecompileLogFactory,
 ) Plugin {
-	p := &plugin{
+	return &plugin{
 		evmStoreKey: evmStoreKey,
 		ak:          ak,
 		bk:          bk,
 		evmDenom:    evmDenom,
 		plf:         plf,
 	}
-
-	return p
 }
 
 // `Reset` implements `core.StatePlugin`.

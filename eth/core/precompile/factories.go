@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package container
+package precompile
 
 import (
 	"github.com/berachain/stargazer/eth/core/vm"

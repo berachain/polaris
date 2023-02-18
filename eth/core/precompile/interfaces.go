@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package container
+package precompile
 
 import (
 	"github.com/berachain/stargazer/eth/core/vm"
@@ -57,6 +57,16 @@ type (
 		// `PrecompileMethods` should return all the stateful precompile's functions (and each of
 		// their required gas).
 		PrecompileMethods() Methods
+
+		// `ABIEvents()` should return a map of Ethereum event names to Go-Ethereum abi `Event`.
+		// NOTE: this can be directly loaded from the `Events` field of a Go-Ethereum ABI struct,
+		// which can be built for a solidity library, interface, or contract.
+		ABIEvents() map[string]abi.Event
+
+		// `CustomValueDecoders` should return a map of event attribute keys to value decoder
+		// functions. This is used to decode event attribute values that require custom decoding
+		// logic.
+		CustomValueDecoders() ValueDecoders
 	}
 
 	// `DynamicPrecompileImpl` is the interface for all dynamic stateful precompiled contracts.
@@ -66,4 +76,14 @@ type (
 		// `Name` should return a string name of the dynamic contract.
 		Name() string
 	}
+)
+
+type (
+	// `ValueDecoder` is a type of function that returns a geth compatible, eth primitive type (as
+	// type `any`) for a given event attribute value (of type `string`). Event attribute values may
+	// require unique decodings based on their underlying string encoding.
+	ValueDecoder func(attributeValue string) (ethPrimitive any, err error)
+	// `ValueDecoders` is a type that represents a map of event attribute keys to value decoder
+	// functions.
+	ValueDecoders map[string]ValueDecoder
 )

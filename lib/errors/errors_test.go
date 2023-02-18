@@ -40,7 +40,7 @@ var _ = Describe("Wrap", func() {
 	When("we call Wrap", func() {
 		It("should match", func() {
 			err := liberrors.Wrap(_error, "myErrorMessage")
-			Expect(err.Error()).To(Equal("myFunkyError123: myErrorMessage"))
+			Expect(err.Error()).To(Equal("myErrorMessage: myFunkyError123"))
 			Expect(errors.Unwrap(err)).To(Equal(_error))
 		})
 	})
@@ -52,14 +52,14 @@ var _ = Describe("Wrap", func() {
 		})
 
 		It("should match", func() {
-			Expect(err.Error()).To(Equal("myFunkyError123: myErrorMessage 456"))
+			Expect(err.Error()).To(Equal("myErrorMessage 456: myFunkyError123"))
 			Expect(errors.Unwrap(err)).To(Equal(_error))
 		})
 
 		When("we wrap again", func() {
 			It("should match", func() {
 				err2 := liberrors.Wrapf(err, "myErrorMessage2 %s", "789")
-				Expect(err2.Error()).To(Equal("myFunkyError123: myErrorMessage 456: myErrorMessage2 789"))
+				Expect(err2.Error()).To(Equal("myErrorMessage2 789: myErrorMessage 456: myFunkyError123"))
 				Expect(errors.Unwrap(err2)).To(Equal(err))
 				Expect(errors.Unwrap(errors.Unwrap(err2))).To(Equal(_error))
 			})

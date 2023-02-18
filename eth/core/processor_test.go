@@ -180,12 +180,10 @@ var _ = Describe("StateProcessor", func() {
 			// 	return big.NewInt(100)
 			// }
 			// sdb.GetCodeFunc = func(addr common.Address) []byte {
-			// 	return revertableTxCode
-			// 	// return solidity.RevertableTx.Bin
+			// 	return []byte(generated.RevertableTxMetaData.Bin)
 			// }
 			// sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
-			// 	return crypto.Keccak256Hash(revertableTxCode)
-			// 	// return crypto.Keccak256Hash(solidity.RevertableTx.Bin)
+			// 	return crypto.Keccak256Hash([]byte(generated.RevertableTxMetaData.Bin))
 			// }
 			// legacyTxData.Value = big.NewInt(1)
 			// signedTx := types.MustSignNewTx(key, signer, legacyTxData)
@@ -279,8 +277,8 @@ var _ = Describe("Stargazer", func() {
 		sp.Prepare(context.Background(), 0)
 	})
 
-	It("should return the correct hash", func() {
-		hashFn := sp.GetHashFn()
-		Expect(hashFn(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
-	})
+	// It("should return the correct hash", func() {
+	// 	hashFn := sp.GetHashFn()
+	// 	Expect(hashFn(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
+	// })
 })

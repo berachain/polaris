@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package container_test
+package precompile_test
 
 import (
 	"context"
@@ -27,7 +27,7 @@ import (
 	"reflect"
 
 	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile/container"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/vm"
 	solidity "github.com/berachain/stargazer/eth/testutil/contracts/solidity/generated"
 	"github.com/berachain/stargazer/lib/utils"
@@ -48,8 +48,8 @@ var _ = Describe("Stateful Container", func() {
 
 	BeforeEach(func() {
 		ctx = context.Background()
-		sc = container.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
-		empty = container.NewStateful(nil, nil)
+		sc = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		empty = precompile.NewStateful(nil, nil)
 	})
 
 	Describe("Test Required Gas", func() {
@@ -92,7 +92,7 @@ var _ = Describe("Stateful Container", func() {
 
 			// precompile exec error
 			_, err = sc.Run(ctx, getOutputPartialABI.ID, addr, value, readonly)
-			Expect(err.Error()).To(Equal("err during precompile execution: getOutputPartial"))
+			Expect(err.Error()).To(Equal("getOutputPartial: err during precompile execution"))
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
@@ -133,7 +133,7 @@ var (
 	getOutputPartialABI = mock.Methods["getOutputPartial"]
 	contractFuncAddrABI = mock.Methods["contractFunc"]
 	contractFuncStrABI  = mock.Methods["contractFuncStr"]
-	mockIdsToMethods    = map[string]*container.Method{
+	mockIdsToMethods    = map[string]*precompile.Method{
 		utils.UnsafeBytesToStr(getOutputABI.ID): {
 			AbiSig:      getOutputABI.Sig,
 			AbiMethod:   &getOutputABI,

@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package container_test
+package precompile_test
 
 import (
 	"context"
@@ -28,14 +28,14 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile/container"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/types/abi"
 )
 
 var _ = Describe("Method", func() {
 	Context("Basic - ValidateBasic Tests", func() {
 		It("should error on missing Abi function signature", func() {
-			methodMissingSig := &container.Method{
+			methodMissingSig := &precompile.Method{
 				Execute:     mockExecutable,
 				RequiredGas: 10,
 			}
@@ -44,7 +44,7 @@ var _ = Describe("Method", func() {
 		})
 
 		It("should error on missing precompile executable", func() {
-			methodMissingFunc := &container.Method{
+			methodMissingFunc := &precompile.Method{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
 			}
@@ -53,7 +53,7 @@ var _ = Describe("Method", func() {
 		})
 
 		It("should error on given abi method", func() {
-			methodMissingFunc := &container.Method{
+			methodMissingFunc := &precompile.Method{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
 				Execute:     mockExecutable,
@@ -65,7 +65,7 @@ var _ = Describe("Method", func() {
 	})
 
 	Context("Abi Signature verification - ValidateBasic tests", func() {
-		var method = &container.Method{
+		var method = &precompile.Method{
 			Execute:     mockExecutable,
 			RequiredGas: 10,
 		}
