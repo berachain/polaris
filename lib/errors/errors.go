@@ -23,9 +23,9 @@ package errors
 import "fmt"
 
 func Wrap(err error, desc string) error {
-	return fmt.Errorf("%w: %s", err, desc)
+	return fmt.Errorf("%s: %w", desc, err)
 }
 
 func Wrapf(err error, format string, args ...interface{}) error {
-	return fmt.Errorf("%w: %s", err, fmt.Sprintf(format, args...))
+	return fmt.Errorf("%s: %w", fmt.Sprintf(format, args...), err)
 }

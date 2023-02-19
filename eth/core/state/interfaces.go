@@ -31,6 +31,7 @@ import (
 // `Plugin` is a plugin which tracks the accounts (balances, nonces, codes, states) in the native
 // vm. This also handles removing suicided accounts.
 type Plugin interface {
+	// `Plugin` implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
 	// `Reset` resets the state with the given `context`.
 	libtypes.Resettable

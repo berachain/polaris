@@ -21,26 +21,69 @@
 package precompile
 
 import (
-	"context"
-	"math/big"
-
-	"github.com/berachain/stargazer/eth/common"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
+	"github.com/berachain/stargazer/eth/types/abi"
 )
 
-// `LogsDB` defines the required function to add a log to the StateDB.
 type (
-	LogsDB interface {
-		// `AddLog` adds a log to the database.
-		AddLog(*coretypes.Log)
+	// `AbstractFactory` is an interface that all precompile container factories must adhere to.
+	AbstractFactory interface {
+		// `Build` builds and returns the precompile container for the type of container/factory.
+		Build(vm.RegistrablePrecompile) (vm.PrecompileContainer, error)
+	}
+)
+
+type (
+	// `StatelessPrecompileImpl` is the interface for all stateless precompiled contract
+	// implementations. A stateless contract must provide its own precompile container, as it is
+	// stateless in nature. This requires a deterministic gas count, `RequiredGas`, and an
+	// executable function `Run`.
+	StatelessPrecompileImpl interface {
+		vm.RegistrablePrecompile
+
+		vm.PrecompileContainer
 	}
 
-	// `Runner` defines the required function of a vm-specific precompile runner.
-	Runner interface {
-		// `Run` runs a precompile container with the given statedb and returns the remaining gas.
-		Run(ctx context.Context, ldb LogsDB, pc vm.PrecompileContainer, input []byte,
-			caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
-		) (ret []byte, remainingGas uint64, err error)
+	// `StatefulPrecompileImpl` is the interface for all stateful precompiled contracts, which must
+	// expose their ABI methods and precompile methods for stateful execution.
+	StatefulPrecompileImpl interface {
+		vm.RegistrablePrecompile
+
+		// `ABIMethods` should return a map of Ethereum method names to Go-Ethereum abi `Method`
+		// structs. NOTE: this can be directly loaded from the `Methods` field of a Go-Ethereum ABI
+		// struct, which can be built for a solidity interface or contract.
+		ABIMethods() map[string]abi.Method
+
+		// `PrecompileMethods` should return all the stateful precompile's functions (and each of
+		// their required gas).
+		PrecompileMethods() Methods
+
+		// `ABIEvents()` should return a map of Ethereum event names to Go-Ethereum abi `Event`.
+		// NOTE: this can be directly loaded from the `Events` field of a Go-Ethereum ABI struct,
+		// which can be built for a solidity library, interface, or contract.
+		ABIEvents() map[string]abi.Event
+
+		// `CustomValueDecoders` should return a map of event attribute keys to value decoder
+		// functions. This is used to decode event attribute values that require custom decoding
+		// logic.
+		CustomValueDecoders() ValueDecoders
 	}
+
+	// `DynamicPrecompileImpl` is the interface for all dynamic stateful precompiled contracts.
+	DynamicPrecompileImpl interface {
+		StatefulPrecompileImpl
+
+		// `Name` should return a string name of the dynamic contract.
+		Name() string
+	}
+)
+
+type (
+	// `ValueDecoder` is a type of function that returns a geth compatible, eth primitive type (as
+	// type `any`) for a given event attribute value (of type `string`). Event attribute values may
+	// require unique decodings based on their underlying string encoding.
+	ValueDecoder func(attributeValue string) (ethPrimitive any, err error)
+	// `ValueDecoders` is a type that represents a map of event attribute keys to value decoder
+	// functions.
+	ValueDecoders map[string]ValueDecoder
 )

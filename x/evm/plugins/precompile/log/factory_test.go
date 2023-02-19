@@ -25,6 +25,7 @@ import (
 	"strconv"
 
 	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/eth/types/abi"
 	utils "github.com/berachain/stargazer/x/evm/utils"
@@ -136,11 +137,11 @@ var _ = Describe("Factory", func() {
 			)
 			log, err := f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: invalid_arg"))
+			Expect(err.Error()).To(Equal("invalid_arg: no value decoder function is found for event attribute key"))
 		})
 
 		It("should error on decoders returning errors", func() {
-			badCvd := make(ValueDecoders)
+			badCvd := make(precompile.ValueDecoders)
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				coin, err := sdk.ParseCoinNormalized(val)
 				if err != nil {
@@ -161,7 +162,7 @@ var _ = Describe("Factory", func() {
 			Expect(log).To(BeNil())
 			Expect(err.Error()).To(Equal("invalid validator address"))
 
-			badCvd = make(ValueDecoders)
+			badCvd = make(precompile.ValueDecoders)
 			badCvd["custom_validator"] = func(val string) (any, error) {
 				valAddress, err2 := sdk.ValAddressFromBech32(val)
 				if err2 != nil {
@@ -187,7 +188,7 @@ var _ = Describe("Factory", func() {
 			)
 			log, err := f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: customAmount"))
+			Expect(err.Error()).To(Equal("customAmount: this Ethereum event argument has no matching Cosmos attribute key"))
 
 			event = sdk.NewEvent(
 				"custom_unbonding_delegation",
@@ -196,7 +197,7 @@ var _ = Describe("Factory", func() {
 			)
 			log, err = f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: customValidator"))
+			Expect(err.Error()).To(Equal("customValidator: this Ethereum event argument has no matching Cosmos attribute key"))
 		})
 	})
 })
@@ -225,7 +226,7 @@ func mockCustomAbiEvent() abi.Event {
 	)
 }
 
-var cvd = ValueDecoders{
+var cvd = precompile.ValueDecoders{
 	"custom_validator": func(val string) (any, error) {
 		valAddress, err := sdk.ValAddressFromBech32(val)
 		if err != nil {

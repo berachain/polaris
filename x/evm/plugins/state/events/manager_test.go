@@ -18,7 +18,6 @@
 package events_test
 
 import (
-	precompilemock "github.com/berachain/stargazer/eth/core/precompile/mock"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	"github.com/berachain/stargazer/x/evm/plugins/state/events"
@@ -32,10 +31,11 @@ import (
 var _ = Describe("Manager", func() {
 	var cem state.ControllableEventManager
 	var ctx sdk.Context
-	var ldb *precompilemock.LogsDBMock
+	var ldb *mock.LogsDBMock
 
 	BeforeEach(func() {
-		ldb = precompilemock.NewLogsDB()
+		ldb = mock.NewEmptyLogsDB()
+
 		ctx = testutil.NewContext()
 		ctx.EventManager().EmitEvent(sdk.NewEvent("1"))
 

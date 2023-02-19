@@ -47,7 +47,7 @@ func Lint() error {
 
 // Run all formatters.
 func Format() error {
-	cmds := []func() error{Golines, GolangCiLintFix, License, GoImports, ProtoFormat}
+	cmds := []func() error{Golines, License, GolangCiLintFix, GoImports, ProtoFormat}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err

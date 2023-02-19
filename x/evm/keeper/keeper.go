@@ -20,10 +20,111 @@
 
 package keeper
 
-type Keeper struct{}
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	storetypes "cosmossdk.io/store/types"
+	"github.com/berachain/stargazer/eth"
+	"github.com/berachain/stargazer/eth/api"
+	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/x/evm/plugins"
+	"github.com/berachain/stargazer/x/evm/plugins/block"
+	"github.com/berachain/stargazer/x/evm/plugins/configuration"
+	"github.com/berachain/stargazer/x/evm/plugins/gas"
+	"github.com/berachain/stargazer/x/evm/plugins/precompile"
+	"github.com/berachain/stargazer/x/evm/plugins/state"
+	"github.com/berachain/stargazer/x/evm/types"
+
+	"github.com/cometbft/cometbft/libs/log"
+
+	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
+)
+
+// Compile-time interface assertion.
+var _ core.StargazerHostChain = (*Keeper)(nil)
+
+type Keeper struct {
+	// The (unexposed) key used to access the store from the Context.
+	storeKey storetypes.StoreKey
+
+	ethChain api.Chain
+
+	// sk is used to retrieve infofrmation about the current / past
+	// blocks and associated validator information.
+	// sk StakingKeeper
+
+	authority string
+
+	// plugins
+	bp block.Plugin
+	cp configuration.Plugin
+	gp gas.Plugin
+	pp precompile.Plugin
+	sp state.Plugin
+}
+
+// NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
+	ak state.AccountKeeper,
+	bk state.BankKeeper,
 	authority string,
 ) *Keeper {
-	return &Keeper{}
+	k := &Keeper{
+		authority: authority,
+		storeKey:  storetypes.NewKVStoreKey(types.StoreKey),
+	}
+
+	k.bp = block.NewPlugin(k)
+
+	k.cp = configuration.NewPlugin()
+
+	k.gp = gas.NewPlugin()
+
+	k.pp = precompile.NewPlugin()
+	// TODO: register precompiles
+
+	plf := precompilelog.NewFactory()
+	// TODO: register precompile events/logs
+
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
+
+	k.ethChain = eth.NewStargazerProvider(k, nil)
+	// TODO: provide cosmos ctx logger.
+
+	return k
+}
+
+// `Logger` returns a module-specific logger.
+func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", types.ModuleName)
+}
+
+func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
+	return k.bp
+}
+
+func (k *Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
+	return k.cp
+}
+
+func (k *Keeper) GetGasPlugin() core.GasPlugin {
+	return k.gp
+}
+
+func (k *Keeper) GetPrecompilePlugin() core.PrecompilePlugin {
+	return k.pp
+}
+
+func (k *Keeper) GetStatePlugin() core.StatePlugin {
+	return k.sp
+}
+
+func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
+	return []plugins.BaseCosmosStargazer{
+		k.bp,
+		k.cp,
+		k.gp,
+		k.pp,
+		k.sp,
+	}
 }
