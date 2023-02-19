@@ -126,7 +126,7 @@ func (p *plugin) getStargazerHeaderFromCurrentContext() *coretypes.StargazerHead
 			// We simply map the cosmos "BlockHeight" to the ethereum "BlockNumber".
 			Number: big.NewInt(cometHeader.Height),
 			// `GasLimit` is set to the block gas limit.
-			GasLimit: p.ctx.BlockGasMeter().Limit(),
+			GasLimit: blockGasLimitFromCosmosContext(p.ctx),
 			// `Time` is set to the block timestamp.
 			Time: uint64(cometHeader.Time.UTC().Unix()),
 			// `BaseFee` is set to the block base fee.
@@ -150,19 +150,44 @@ func (p *plugin) getStargazerHeaderFromCurrentContext() *coretypes.StargazerHead
 	)
 }
 
-// `blockHashFromSdkContext` extracts the block hash from the given Cosmos SDK context.
+// blockHashFromCosmosContext returns the block hash from the provided Cosmos SDK context.
+// If the context contains a valid header hash, it is converted to a common.Hash and returned.
+// Otherwise, if the header hash is not set (e.g., for checkTxState), the hash is computed
+// from the context's block header and returned as a common.Hash. If the block header is invalid,
+// the function returns an empty common.Hash and logs an error.
 func blockHashFromCosmosContext(ctx sdk.Context) common.Hash {
+	// Check if the context contains a header hash
 	headerHash := ctx.HeaderHash()
 	if len(headerHash) != 0 {
 		return common.BytesToHash(headerHash)
 	}
 
-	// only recompute the hash if not set (eg: checkTxState)
+	// If the header hash is not set, compute the hash from the context's block header
 	contextBlockHeader := ctx.BlockHeader()
 	header, err := cbft.HeaderFromProto(&contextBlockHeader)
 	if err != nil {
+		// If the block header is invalid, return an empty hash
 		return common.Hash{}
 	}
 
+	// Convert the computed hash to a common.Hash and return it
 	return common.BytesToHash(header.Hash())
+}
+
+// `blockGasLimitFromCosmosContext` returns the maximum gas limit for the current block, as defined
+// by either the block gas meter or the consensus parameters if the gas meter is not set or is an
+// InfiniteGasMeter. If neither the gas meter nor the consensus parameters are available, it
+// returns 0. This shouldn't be an issue in practice but we include this function for completeness
+// defensive programming purposes.
+func blockGasLimitFromCosmosContext(ctx sdk.Context) uint64 {
+	blockGasMeter := ctx.BlockGasMeter()
+	if blockGasMeter == nil || blockGasMeter.Limit() == 0 {
+		cp := ctx.ConsensusParams()
+		if cp == nil || cp.Block == nil {
+			return 0
+		}
+		return uint64(cp.Block.MaxGas)
+	}
+
+	return blockGasMeter.Limit()
 }

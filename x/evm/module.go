@@ -21,12 +21,14 @@
 package evm
 
 import (
+	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/x/evm/keeper"
 	"github.com/berachain/stargazer/x/evm/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -62,7 +64,8 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // `RegisterInterfaces` registers the module's interface types.
 func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
-	// types.RegisterInterfaces(r)
+	r.RegisterImplementations((*cryptotypes.PubKey)(nil), &crypto.EthSecp256K1PubKey{})
+	r.RegisterImplementations((*cryptotypes.PrivKey)(nil), &crypto.EthSecp256K1PrivKey{})
 }
 
 // `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the evm module.
