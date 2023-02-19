@@ -26,6 +26,7 @@ import (
 	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
 	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/eth/testutil/contracts/solidity/generated"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -176,38 +177,45 @@ var _ = Describe("StateProcessor", func() {
 		})
 
 		It("should mark a receipt with a virtual machine error as failed", func() {
-			// sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
-			// 	return big.NewInt(100)
-			// }
-			// sdb.GetCodeFunc = func(addr common.Address) []byte {
-			// 	return []byte(generated.RevertableTxMetaData.Bin)
-			// }
-			// sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
-			// 	return crypto.Keccak256Hash([]byte(generated.RevertableTxMetaData.Bin))
-			// }
-			// legacyTxData.Value = big.NewInt(1)
-			// signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-			// result, err := sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).To(BeNil())
-			// Expect(result).ToNot(BeNil())
-			// Expect(result.Status).To(Equal(types.ReceiptStatusFailed))
-			// block, err := sp.Finalize(context.Background())
-			// Expect(err).To(BeNil())
-			// Expect(block).ToNot(BeNil())
-			// Expect(block.TxIndex()).To(Equal(uint(1)))
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(100)
+			}
+			sdb.GetCodeFunc = func(addr common.Address) []byte {
+				return []byte(generated.RevertableTxMetaData.Bin)
+			}
+			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
+				return crypto.Keccak256Hash([]byte(generated.RevertableTxMetaData.Bin))
+			}
+			legacyTxData.Value = big.NewInt(1)
+			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
+			result, err := sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).To(BeNil())
+			Expect(result).ToNot(BeNil())
+			Expect(result.Status).To(Equal(types.ReceiptStatusFailed))
+			block, err := sp.Finalize(context.Background())
+			Expect(err).To(BeNil())
+			Expect(block).ToNot(BeNil())
+			Expect(block.TxIndex()).To(Equal(uint(1)))
 		})
 
-		It("should not include consensus breaking transactions", func() {
-			// signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-			// result, err := sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).To(BeNil())
-			// Expect(result).ToNot(BeNil())
-			// Expect(result.Status).To(Equal(types.ReceiptStatusFailed))
-			// block, err := sp.Finalize(context.Background(), blockNumber)
-			// Expect(err).To(BeNil())
-			// Expect(block).ToNot(BeNil())
-			// Expect(len(block.Transactions)).To(Equal(1))
-		})
+		// It("should panic when block gas limit is exceeded", func() {
+		// 	blockGasLimit = uint64(20000)
+		// 	bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+		// 		header := types.NewEmptyStargazerHeader()
+		// 		header.GasLimit = blockGasLimit
+		// 		header.BaseFee = big.NewInt(1)
+		// 		header.Coinbase = common.BytesToAddress([]byte{2})
+		// 		header.Number = big.NewInt(int64(blockNumber))
+		// 		header.Time = uint64(3)
+		// 		return header
+		// 	}
+		// 	gp.SetBlockGasLimit(blockGasLimit)
+
+		// 	signedTx := types.MustSignNewTx(key, signer, legacyTxData)
+		// 	Expect(func() {
+		// 		sp.ProcessTransaction(context.Background(), signedTx)
+		// 	}).To(Panic())
+		// })
 	})
 })
 

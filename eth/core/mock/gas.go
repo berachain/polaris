@@ -49,12 +49,11 @@ func (w *GasPluginMock) TxConsumeGas(amount uint64) error {
 	}
 
 	w.txGasUsed += amount
-	w.blockGasUsed += amount
 	return nil
 }
 
 func (w *GasPluginMock) CumulativeGasUsed() uint64 {
-	return w.blockGasUsed
+	return w.txGasUsed + w.blockGasUsed
 }
 
 func (w *GasPluginMock) TxGasRemaining() uint64 {
