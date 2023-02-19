@@ -23,6 +23,7 @@ package mock
 import (
 	"context"
 
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/params"
 )
 
@@ -38,6 +39,9 @@ func NewConfigurationPluginMock() *ConfigurationPluginMock {
 		},
 		ExtraEipsFunc: func() []int {
 			return []int{}
+		},
+		FeeCollectorFunc: func() *common.Address {
+			return &common.Address{}
 		},
 		PrepareFunc: func(contextMoqParam context.Context) {
 			// no-op

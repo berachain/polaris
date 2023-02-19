@@ -55,11 +55,11 @@ var _ = Describe("plugin", func() {
 		Expect(err).To(BeNil())
 		err = p.TxConsumeGas(500)
 		Expect(err).To(BeNil())
-		Expect(p.TxGasUsed()).To(Equal(uint64(500)))
-		Expect(p.TxGasRemaining()).To(Equal(uint64(500)))
+		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(500)))
+		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(500)))
 
-		p.TxRefundGas(250)
-		Expect(p.TxGasUsed()).To(Equal(uint64(250)))
+		p.gasMeter.RefundGas(250, "test")
+		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 1
 
@@ -71,8 +71,8 @@ var _ = Describe("plugin", func() {
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
 		err = p.TxConsumeGas(1000)
 		Expect(err).To(BeNil())
-		Expect(p.TxGasUsed()).To(Equal(uint64(1000)))
-		Expect(p.TxGasRemaining()).To(Equal(uint64(0)))
+		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(1000)))
+		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(0)))
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
 		blockGasMeter.ConsumeGas(1000, "") // finalize tx 2
 
@@ -84,8 +84,8 @@ var _ = Describe("plugin", func() {
 		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
 		err = p.TxConsumeGas(250)
 		Expect(err).To(BeNil())
-		Expect(p.TxGasUsed()).To(Equal(uint64(250)))
-		Expect(p.TxGasRemaining()).To(Equal(uint64(750)))
+		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
+		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(750)))
 		Expect(p.CumulativeGasUsed()).To(Equal(blockGasLimit))
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 3
 	})

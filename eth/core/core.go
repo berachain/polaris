@@ -21,7 +21,6 @@
 package core
 
 import (
-	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/vm"
 )
@@ -35,7 +34,7 @@ type blockchain struct {
 }
 
 // `NewChain` creates and returns a `api.Chain` with the given EVM chain configuration and host.
-func NewChain(host StargazerHostChain) api.Chain {
+func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
 		host: host,
 	}

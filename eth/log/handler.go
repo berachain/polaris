@@ -18,34 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package log
 
-import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/state"
-)
-
-// const testBaseFee = 69
-
-//go:generate moq -out ./host.mock.go -pkg mock ../ StargazerHostChain
-
-func NewMockHost() *StargazerHostChainMock {
-	mockedStargazerHostChain := &StargazerHostChainMock{
-		GetBlockPluginFunc: func() core.BlockPlugin {
-			panic("mock out the GetBlockPlugin method")
-		},
-		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
-			return NewConfigurationPluginMock()
-		},
-		GetGasPluginFunc: func() core.GasPlugin {
-			return NewGasPluginMock()
-		},
-		GetPrecompilePluginFunc: func() core.PrecompilePlugin {
-			panic("mock out the GetStatePlugin method")
-		},
-		GetStatePluginFunc: func() state.Plugin {
-			panic("mock out the GetStatePlugin method")
-		},
-	}
-	return mockedStargazerHostChain
-}
+type Handler = func(r *Record) error

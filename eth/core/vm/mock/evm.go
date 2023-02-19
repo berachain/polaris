@@ -42,17 +42,6 @@ func NewStargazerEVM() *StargazerEVMMock {
 				HomesteadBlock: big.NewInt(0),
 			}
 		},
-		ConfigFunc: func() vm.Config {
-			return vm.Config{}
-		},
-		ContextFunc: func() vm.BlockContext {
-			return vm.BlockContext{
-				CanTransfer: func(db vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-					return true
-				},
-				BlockNumber: big.NewInt(1), // default to block == 1 to pass all forks,
-			}
-		},
 		CreateFunc: func(caller vm.ContractRef, code []byte,
 			gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 			return []byte{}, common.Address{}, 0, nil

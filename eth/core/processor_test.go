@@ -23,6 +23,7 @@ package core_test
 import (
 	"context"
 	"math/big"
+	"time"
 
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
@@ -38,13 +39,13 @@ import (
 )
 
 var (
-	william = common.HexToAddress("0x123")
-	key, _  = crypto.GenerateEthKey()
-	signer  = types.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+	dummyContract = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
+	key, _        = crypto.GenerateEthKey()
+	signer        = types.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 
 	legacyTxData = &types.LegacyTx{
 		Nonce:    0,
-		To:       &william,
+		To:       &dummyContract,
 		Gas:      100000,
 		GasPrice: big.NewInt(2),
 		Data:     []byte("abcdef"),
@@ -71,9 +72,9 @@ var _ = Describe("StateProcessor", func() {
 		sdb = vmmock.NewEmptyStateDB()
 		// msg = mock.NewEmptyMessage()
 		host = mock.NewMockHost()
-		bp = &mock.BlockPluginMock{}
+		bp = mock.NewBlockPluginMock()
 		gp = mock.NewGasPluginMock()
-		cp = &mock.ConfigurationPluginMock{}
+		cp = mock.NewConfigurationPluginMock()
 		pp = &mock.PrecompilePluginMock{}
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
@@ -92,9 +93,6 @@ var _ = Describe("StateProcessor", func() {
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.PrepareFunc = func(ctx context.Context) {
-			// no-op
-		}
 		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
 			header := types.NewEmptyStargazerHeader()
 			header.GasLimit = blockGasLimit
@@ -102,19 +100,19 @@ var _ = Describe("StateProcessor", func() {
 			header.Coinbase = common.BytesToAddress([]byte{2})
 			header.Number = big.NewInt(int64(blockNumber))
 			header.Time = uint64(3)
+			header.Difficulty = new(big.Int)
+			header.MixDigest = common.BytesToHash([]byte{})
 			return header
-		}
-		cp.PrepareFunc = func(ctx context.Context) {
-			// no-op
-		}
-		cp.ChainConfigFunc = func() *params.ChainConfig {
-			return params.DefaultChainConfig
-		}
-		cp.ExtraEipsFunc = func() []int {
-			return []int{}
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
+		}
+
+		sdb.PrepareFunc = func(rules params.Rules, sender common.Address,
+			coinbase common.Address, dest *common.Address,
+			precompiles []common.Address, txAccesses types.AccessList,
+		) {
+			// no-op
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
@@ -154,6 +152,9 @@ var _ = Describe("StateProcessor", func() {
 
 		It("should not error on a signed transaction", func() {
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(200000)
+			}
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
@@ -171,6 +172,9 @@ var _ = Describe("StateProcessor", func() {
 		It("should add a contract address to the receipt", func() {
 			legacyTxDataCopy := *legacyTxData
 			legacyTxDataCopy.To = nil
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(200000)
+			}
 			signedTx := types.MustSignNewTx(key, signer, &legacyTxDataCopy)
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
@@ -184,15 +188,24 @@ var _ = Describe("StateProcessor", func() {
 
 		It("should mark a receipt with a virtual machine error as failed", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
-				return big.NewInt(100)
+				return big.NewInt(200000)
 			}
 			sdb.GetCodeFunc = func(addr common.Address) []byte {
+				if addr != dummyContract {
+					return nil
+				}
 				return []byte(generated.RevertableTxMetaData.Bin)
 			}
 			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
+				if addr != dummyContract {
+					return common.Hash{}
+				}
 				return crypto.Keccak256Hash([]byte(generated.RevertableTxMetaData.Bin))
 			}
-			legacyTxData.Value = big.NewInt(1)
+			sdb.ExistFunc = func(addr common.Address) bool {
+				return addr == dummyContract
+			}
+			legacyTxData.Value = big.NewInt(0)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
@@ -240,9 +253,9 @@ var _ = Describe("Stargazer", func() {
 	BeforeEach(func() {
 		sdb = vmmock.NewEmptyStateDB()
 		host = mock.NewMockHost()
-		bp = &mock.BlockPluginMock{}
+		bp = mock.NewBlockPluginMock()
 		gp = mock.NewGasPluginMock()
-		cp = &mock.ConfigurationPluginMock{}
+		cp = mock.NewConfigurationPluginMock()
 		pp = &mock.PrecompilePluginMock{}
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
@@ -260,9 +273,6 @@ var _ = Describe("Stargazer", func() {
 		Expect(sp).ToNot(BeNil())
 		blockGasLimit = 1000000
 
-		bp.PrepareFunc = func(ctx context.Context) {
-			// no-op
-		}
 		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
 			return types.NewStargazerHeader(
 				&types.Header{
@@ -270,18 +280,12 @@ var _ = Describe("Stargazer", func() {
 					BaseFee:    big.NewInt(69),
 					GasLimit:   blockGasLimit,
 					ParentHash: crypto.Keccak256Hash([]byte{byte(height)}),
+					Time:       uint64(time.Now().Unix()),
+					Difficulty: big.NewInt(0),
+					MixDigest:  common.Hash{},
 				},
 				crypto.Keccak256Hash([]byte{byte(height)}),
 			)
-		}
-		cp.PrepareFunc = func(ctx context.Context) {
-			// no-op
-		}
-		cp.ChainConfigFunc = func() *params.ChainConfig {
-			return params.DefaultChainConfig
-		}
-		cp.ExtraEipsFunc = func() []int {
-			return []int{}
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
@@ -291,8 +295,8 @@ var _ = Describe("Stargazer", func() {
 		sp.Prepare(context.Background(), 0)
 	})
 
-	// It("should return the correct hash", func() {
-	// 	hashFn := sp.GetHashFn()
-	// 	Expect(hashFn(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
-	// })
+	It("should return the correct hash", func() {
+		// hashFn := sp.GetHashFn()
+		// Expect(hashFn(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
+	})
 })

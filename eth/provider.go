@@ -18,45 +18,27 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package vm
+package eth
 
 import (
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/utils"
+	"github.com/berachain/stargazer/eth/api"
+	"github.com/berachain/stargazer/eth/core"
+	ethlog "github.com/berachain/stargazer/eth/log"
 )
 
-// `StargazerEVM` is the wrapper for the Go-Ethereum EVM.
-type stargazerEVM struct {
-	*GethEVM
-}
-
-// `NewStargazerEVM` creates and returns a new `StargazerEVM`.
-func NewStargazerEVM(
-	blockCtx BlockContext,
-	txCtx TxContext,
-	stateDB StargazerStateDB,
-	chainConfig *params.ChainConfig,
-	config Config,
-	pcmgr PrecompileManager,
-) StargazerEVM {
-	return &stargazerEVM{
-		GethEVM: NewGethEVMWithPrecompiles(
-			blockCtx, txCtx, stateDB, chainConfig, config, pcmgr,
-		),
+// `NewStargazerProvider` creates a new `StargazerEVM` instance for use on an underlying blockchain.
+func NewStargazerProvider(
+	host core.StargazerHostChain,
+	logHandler ethlog.Handler,
+) api.Chain {
+	// When creating a Stargazer EVM, we allow the implementing chain
+	// to specify their own log handler. If logHandler is nil then we
+	// we use the default geth log handler.
+	if logHandler != nil {
+		// Root is a global in geth that is used by the evm to emit logs.
+		ethlog.Root().SetHandler(ethlog.FuncHandler(logHandler))
 	}
-}
+	// TODO: check for RPC and setup an JSONRPC if needed
 
-// `UnderlyingEVM` implements `StargazerEVM`.
-func (evm *stargazerEVM) UnderlyingEVM() *GethEVM {
-	return evm.GethEVM
-}
-
-// `SetTxContext` implements `StargazerEVM`.
-func (evm *stargazerEVM) SetTxContext(txCtx TxContext) {
-	evm.GethEVM.TxContext = txCtx
-}
-
-// `StateDB` implements `StargazerEVM`.
-func (evm *stargazerEVM) StateDB() StargazerStateDB {
-	return utils.MustGetAs[StargazerStateDB](evm.GethEVM.StateDB)
+	return core.NewChain(host)
 }
