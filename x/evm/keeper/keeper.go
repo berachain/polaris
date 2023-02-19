@@ -24,6 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	storetypes "cosmossdk.io/store/types"
+	"github.com/berachain/stargazer/eth"
 	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/x/evm/plugins"
@@ -72,6 +73,7 @@ func NewKeeper(
 		authority: authority,
 		storeKey:  storetypes.NewKVStoreKey(types.StoreKey),
 	}
+
 	k.bp = block.NewPlugin(k)
 
 	k.cp = configuration.NewPlugin()
@@ -85,7 +87,9 @@ func NewKeeper(
 	// TODO: register precompile events/logs
 
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
-	k.ethChain = core.NewChain(k)
+
+	k.ethChain = eth.NewStargazerProvider(k, nil)
+	// TODO: provide cosmos ctx logger.
 
 	return k
 }

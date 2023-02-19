@@ -216,25 +216,6 @@ var _ = Describe("StateProcessor", func() {
 			Expect(block).ToNot(BeNil())
 			Expect(block.TxIndex()).To(Equal(uint(1)))
 		})
-
-		// It("should panic when block gas limit is exceeded", func() {
-		// 	blockGasLimit = uint64(20000)
-		// 	bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
-		// 		header := types.NewEmptyStargazerHeader()
-		// 		header.GasLimit = blockGasLimit
-		// 		header.BaseFee = big.NewInt(1)
-		// 		header.Coinbase = common.BytesToAddress([]byte{2})
-		// 		header.Number = big.NewInt(int64(blockNumber))
-		// 		header.Time = uint64(3)
-		// 		return header
-		// 	}
-		// 	gp.SetBlockGasLimit(blockGasLimit)
-
-		// 	signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-		// 	Expect(func() {
-		// 		sp.ProcessTransaction(context.Background(), signedTx)
-		// 	}).To(Panic())
-		// })
 	})
 })
 
@@ -276,10 +257,10 @@ var _ = Describe("Stargazer", func() {
 		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
 			return types.NewStargazerHeader(
 				&types.Header{
-					Number:     big.NewInt(height + 1),
+					Number:     big.NewInt(height),
 					BaseFee:    big.NewInt(69),
 					GasLimit:   blockGasLimit,
-					ParentHash: crypto.Keccak256Hash([]byte{byte(height)}),
+					ParentHash: common.BytesToHash([]byte{uint8(height) - 1}),
 					Time:       uint64(time.Now().Unix()),
 					Difficulty: big.NewInt(0),
 					MixDigest:  common.Hash{},
@@ -292,11 +273,31 @@ var _ = Describe("Stargazer", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), 0)
 	})
 
-	It("should return the correct hash", func() {
-		// hashFn := sp.GetHashFn()
-		// Expect(hashFn(112)).To(Equal(crypto.Keccak256Hash([]byte{byte(112)})))
+	It("should return empty hash", func() {
+		sp.Prepare(context.Background(), 100)
+		hashFn := sp.GetHashFn()
+		Expect(hashFn(100)).To(Equal(common.Hash{}))
+
+		_, err := sp.Finalize(context.Background())
+		Expect(err).To(BeNil())
+
+		sp.Prepare(context.Background(), 100)
+		hashFn = sp.GetHashFn()
+		Expect(hashFn(101)).To(Equal(common.Hash{}))
+	})
+
+	It("should return correct hash", func() {
+		sp.Prepare(context.Background(), 100)
+		hashFn := sp.GetHashFn()
+		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
+
+		_, err := sp.Finalize(context.Background())
+		Expect(err).To(BeNil())
+
+		sp.Prepare(context.Background(), 101)
+		hashFn = sp.GetHashFn()
+		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
 	})
 })

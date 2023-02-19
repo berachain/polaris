@@ -32,9 +32,7 @@ import (
 
 //nolint:gochecknoinits // GRRRR fix later.
 func init() {
-	appmodule.Register(&modulev1.Module{},
-		appmodule.Provide(ProvideModule),
-	)
+	appmodule.Register(&modulev1.Module{}, appmodule.Provide(ProvideModule))
 }
 
 // `DepInjectInput` is the input for the dep inject framework.
