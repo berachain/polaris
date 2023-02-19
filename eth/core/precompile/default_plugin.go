@@ -30,8 +30,9 @@ import (
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
-// `defaultPlugin` is the default precompile plugin, should any chain running Stargazer EVM not implement
-// their own precompile plugin.
+// `defaultPlugin` is the default precompile plugin, should any chain running Stargazer EVM not
+// implement their own precompile plugin. Notably, this plugin can only run the default stateless
+// precompiles provided by Go-Ethereum.
 type defaultPlugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 }
@@ -55,11 +56,13 @@ func (dp *defaultPlugin) Run(
 	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
-	if pc.RequiredGas(input) > suppliedGas {
+	gasCost := pc.RequiredGas(input)
+	if gasCost > suppliedGas {
 		return nil, 0, vm.ErrOutOfGas
 	}
 
-	ret, err := pc.Run(context.Background(), input, caller, value, readonly)
+	suppliedGas -= gasCost
+	output, err := pc.Run(context.Background(), input, caller, value, readonly)
 
-	return ret, suppliedGas - pc.RequiredGas(input), err
+	return output, suppliedGas, err
 }
