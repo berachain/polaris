@@ -21,13 +21,31 @@
 package precompile_test
 
 import (
-	"testing"
+	"context"
 
+	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestPrecompile(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/core/precompile")
-}
+var _ = Describe("Default Plugin", func() {
+	var dp precompile.Plugin
+
+	BeforeEach(func() {
+		dp = precompile.NewDefaultPlugin()
+	})
+
+	It("should reset", func() {
+		Expect(func() { dp.Reset(context.Background()) }).ToNot(Panic())
+	})
+
+	When("running a stateless contract", func() {
+		It("should run out of gas", func() {
+			ret, remainingGas, err := dp.Run(nil, &mockStateless{&mockBase{}}, nil, common.Address{}, nil, 5, false)
+			Expect(ret).To(BeNil())
+			Expect(remainingGas).To(Equal(uint64(0)))
+			Expect(err.Error()).To(Equal("out of gas"))
+		})
+	})
+})
