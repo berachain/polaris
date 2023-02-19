@@ -20,5 +20,28 @@
 
 package mock
 
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-//go:generate moq -out ./state_plugin.mock.go -pkg mock ../ StatePlugin
+import (
+	"context"
+
+	"github.com/berachain/stargazer/eth/params"
+)
+
+// const testBaseFee = 69
+
+//go:generate moq -out ./config_plugin.mock.go -pkg mock ../ ConfigurationPlugin
+
+func NewConfigurationPluginMock() *ConfigurationPluginMock {
+	// make and configure a mocked core.ConfigurationPlugin
+	mockedConfigurationPlugin := &ConfigurationPluginMock{
+		ChainConfigFunc: func() *params.ChainConfig {
+			return params.DefaultChainConfig
+		},
+		ExtraEipsFunc: func() []int {
+			return []int{}
+		},
+		PrepareFunc: func(contextMoqParam context.Context) {
+			// no-op
+		},
+	}
+	return mockedConfigurationPlugin
+}
