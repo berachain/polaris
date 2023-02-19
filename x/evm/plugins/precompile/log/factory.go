@@ -22,6 +22,7 @@ package log
 
 import (
 	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/lib/registry"
@@ -36,21 +37,21 @@ type Factory struct {
 	events libtypes.Registry[string, *precompileLog]
 	// `customValueDecoders` is a map of Cosmos attribute keys to attribute value decoder
 	// functions for custom events.
-	customValueDecoders ValueDecoders
+	customValueDecoders precompile.ValueDecoders
 }
 
 // `NewFactory` returns a `Factory` with an empty events registry and custom value decoders map.
 func NewFactory() *Factory {
 	return &Factory{
 		events:              registry.NewMap[string, *precompileLog](),
-		customValueDecoders: make(ValueDecoders),
+		customValueDecoders: make(precompile.ValueDecoders),
 	}
 }
 
 // `RegisterEvent` registers an Ethereum event, and optionally its custom attribute value decoders,
 // with the factory.
 func (f *Factory) RegisterEvent(
-	moduleEthAddress common.Address, abiEvent abi.Event, customValueDecoders ValueDecoders,
+	moduleEthAddress common.Address, abiEvent abi.Event, customValueDecoders precompile.ValueDecoders,
 ) {
 	// register the ABI Event as a precompile log
 	_ = f.events.Register(newPrecompileLog(moduleEthAddress, abiEvent))

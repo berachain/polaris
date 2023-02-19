@@ -41,7 +41,6 @@ type (
 )
 
 var (
-	NewGethEVM                = vm.NewEVM
 	NewGethEVMWithPrecompiles = vm.NewEVMWithPrecompiles
 	ErrOutOfGas               = vm.ErrOutOfGas
 )

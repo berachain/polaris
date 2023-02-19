@@ -29,22 +29,37 @@ type (
 	ExecutionResult = core.ExecutionResult
 	// `Message` contains data used ype used to execute transactions.
 	Message = core.Message
+	// `ChainContext` provides information about the current blockchain to the EVM.
+	ChainContext = core.ChainContext
+	// `NewTxsEvent`.
+	NewTxsEvent      = core.NewTxsEvent
+	RemovedLogsEvent = core.RemovedLogsEvent
+	ChainEvent       = core.ChainEvent
+	ChainHeadEvent   = core.ChainHeadEvent
+	ChainSideEvent   = core.ChainSideEvent
+	GasPool          = core.GasPool
 )
 
 var (
-	// `EthIntrinsicGas` returns the intrinsic gas required to execute a transaction.
-	EthIntrinsicGas = core.IntrinsicGas
 	// `NewEVMTxContext` creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
+	// `NewEVMBlockContext` creates a new block context for a given header.
+	NewEVMBlockContext = core.NewEVMBlockContext
+	// `GetHashFn` returns a GetHashFunc.
+	GetHashFn = core.GetHashFn
+	// `ApplyMessage` puts a message through the EVM.
+	ApplyMessage = core.ApplyMessage
 )
 
 var (
-	// `ErrIntrinsicGas` is the error returned when the intrinsic gas is higher than the gas limit.
-	ErrIntrinsicGas = core.ErrIntrinsicGas
 	// `ErrInsufficientFundsForTransfer` is the error returned when the account does not have enough funds to transfer.
 	ErrInsufficientFundsForTransfer = core.ErrInsufficientFundsForTransfer
 	// `ErrInsufficientFunds` is the error returned when the account does not have enough funds to execute the transaction.
 	ErrInsufficientFunds = core.ErrInsufficientFunds
 	// `ErrInsufficientBalanceForGas` is the error return when gas required to execute a transaction overflows.
 	ErrGasUintOverflow = core.ErrGasUintOverflow
+	// `ErrIntrinsicGas` is the error returned when the transaction does not have enough gas to cover the intrinsic cost.
+	ErrIntrinsicGas = core.ErrIntrinsicGas
+	// `IntrinsicGas` is the intrinsic gas of a transaction.
+	EthIntrinsicGas = core.IntrinsicGas
 )

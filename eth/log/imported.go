@@ -25,6 +25,9 @@ import "github.com/ethereum/go-ethereum/log"
 type (
 	// `Record` is a log record.
 	Record = log.Record
+
+	// `Logger` defines the logger interface.
+	Logger = log.Logger
 )
 
 var (

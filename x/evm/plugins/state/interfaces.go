@@ -22,8 +22,8 @@ package state
 
 import (
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/core/precompile"
 	libtypes "github.com/berachain/stargazer/lib/types"
+	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -35,7 +35,7 @@ type ControllableEventManager interface {
 	sdk.EventManagerI
 
 	// `BeginPrecompileExecution` begins a precompile execution by setting the logs DB.
-	BeginPrecompileExecution(precompile.LogsDB)
+	BeginPrecompileExecution(events.LogsDB)
 	// `EndPrecompileExecution` ends a precompile execution by resetting the logs DB to nil.
 	EndPrecompileExecution()
 }

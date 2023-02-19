@@ -22,8 +22,8 @@ package jsonrpc
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/berachain/stargazer/lib/errors"
 	"github.com/docker/go-connections/nat"
 	tc "github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -102,26 +102,26 @@ func NewContainer(ctx context.Context, config ContainerConfig) (*Container, erro
 	// Create a container from the request.
 	container, err := tc.GenericContainer(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("getting request provider: %w", err)
+		return nil, errors.Wrap(err, "getting request provider")
 	}
 
 	// Retrieve the host mapped to the container.
 	host, err := container.Host(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("getting host for: %w", err)
+		return nil, errors.Wrap(err, "getting host")
 	}
 
 	// Retrieve the port on the host mapped to the JSON-RPC HTTP port in the container.
 	mappedHTTPPort, err := container.MappedPort(ctx, nat.Port(httpPort))
 	if err != nil {
-		return nil, fmt.Errorf("getting mapped port for (%s): %w", httpPort, err)
+		return nil, errors.Wrapf(err, "getting mapped port for (%s)", httpPort)
 	}
 	config.MappedHTTP = mappedHTTPPort.Port()
 
 	// Retrieve the port on the host mapped to the JSON-RPC WS port in the container.
 	mappedWSPort, err := container.MappedPort(ctx, nat.Port(wsPort+"/tcp"))
 	if err != nil {
-		return nil, fmt.Errorf("getting mapped port for (%s): %w", wsPort, err)
+		return nil, errors.Wrapf(err, "getting mapped port for (%s)", wsPort)
 	}
 	config.MappedWS = mappedWSPort.Port()
 

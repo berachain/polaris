@@ -22,10 +22,8 @@ package vm
 
 import (
 	"github.com/berachain/stargazer/eth/params"
+	"github.com/berachain/stargazer/lib/utils"
 )
-
-// Compile-time assertion to ensure `StargazerEVM` implements `VMInterface`.
-var _ StargazerEVM = (*stargazerEVM)(nil)
 
 // `StargazerEVM` is the wrapper for the Go-Ethereum EVM.
 type stargazerEVM struct {
@@ -37,7 +35,7 @@ func NewStargazerEVM(
 	blockCtx BlockContext,
 	txCtx TxContext,
 	stateDB StargazerStateDB,
-	chainConfig *params.EthChainConfig,
+	chainConfig *params.ChainConfig,
 	config Config,
 	pcmgr PrecompileManager,
 ) StargazerEVM {
@@ -48,30 +46,17 @@ func NewStargazerEVM(
 	}
 }
 
+// `UnderlyingEVM` implements `StargazerEVM`.
+func (evm *stargazerEVM) UnderlyingEVM() *GethEVM {
+	return evm.GethEVM
+}
+
+// `SetTxContext` implements `StargazerEVM`.
 func (evm *stargazerEVM) SetTxContext(txCtx TxContext) {
 	evm.GethEVM.TxContext = txCtx
 }
 
-func (evm *stargazerEVM) Context() BlockContext {
-	return evm.GethEVM.Context
-}
-
+// `StateDB` implements `StargazerEVM`.
 func (evm *stargazerEVM) StateDB() StargazerStateDB {
-	return evm.GethEVM.StateDB.(StargazerStateDB)
-}
-
-func (evm *stargazerEVM) SetTracer(tracer EVMLogger) {
-	evm.Config.Tracer = tracer
-}
-
-func (evm *stargazerEVM) SetDebug(debug bool) {
-	evm.Config.Debug = debug
-}
-
-func (evm *stargazerEVM) Tracer() EVMLogger {
-	return evm.Config.Tracer
-}
-
-func (evm *stargazerEVM) TxContext() TxContext {
-	return evm.GethEVM.TxContext
+	return utils.MustGetAs[StargazerStateDB](evm.GethEVM.StateDB)
 }

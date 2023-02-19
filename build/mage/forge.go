@@ -29,7 +29,7 @@ import (
 
 var (
 	// Commands.
-	forgeBuild = mi.RunCmdV("forge", "build")
+	forgeBuild = mi.RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi")
 	forgeClean = mi.RunCmdV("forge", "clean")
 	forgeTest  = mi.RunCmdV("forge", "test")
 	forgeFmt   = mi.RunCmdV("forge", "fmt")
