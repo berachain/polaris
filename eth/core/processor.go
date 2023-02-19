@@ -76,14 +76,13 @@ func NewStateProcessor(
 		bp:       host.GetBlockPlugin(),
 		gp:       host.GetGasPlugin(),
 		cp:       host.GetConfigurationPlugin(),
+		pp:       host.GetPrecompilePlugin(),
 		vmConfig: vmConfig,
 		statedb:  statedb,
 		commit:   commit,
 	}
 
-	if pp := host.GetPrecompilePlugin(); pp != nil {
-		sp.pp = pp
-	} else {
+	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
 	}
 	// TODO: register Geth default stateless precompile contracts.
