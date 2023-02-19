@@ -84,7 +84,7 @@ func (p *plugin) BlockGasLimit() uint64 {
 func (p *plugin) TxConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	//nolint:gocritic // can't convert cleanly.
-	if newConsumed, overflow := addUint64Overflow(p.TxGasUsed(), amount); overflow {
+	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.gasMeter.Limit() {
 		return vm.ErrOutOfGas
@@ -95,27 +95,12 @@ func (p *plugin) TxConsumeGas(amount uint64) error {
 	return nil
 }
 
-// `TxRefundGas` implements the core.GasPlugin interface.
-func (p *plugin) TxRefundGas(amount uint64) {
-	p.gasMeter.RefundGas(amount, gasMeterDescriptor)
-}
-
-// `TxGasRemaining` implements the core.GasPlugin interface.
-func (p *plugin) TxGasRemaining() uint64 {
-	return p.gasMeter.GasRemaining()
-}
-
-// `TxGasUsed` implements the core.GasPlugin interface.
-func (p *plugin) TxGasUsed() uint64 {
-	return p.gasMeter.GasConsumed()
-}
-
 // `CumulativeGasUsed` returns the cumulative gas used during the current block. If the cumulative
 // gas used is greater than the block gas limit, we expect for Stargazer to handle it.
 //
 // `CumulativeGasUsed` implements the core.GasPlugin interface.
 func (p *plugin) CumulativeGasUsed() uint64 {
-	return p.TxGasUsed() + p.blockGasMeter.GasConsumed()
+	return p.gasMeter.GasConsumed() + p.blockGasMeter.GasConsumed()
 }
 
 // `addUint64Overflow` performs the addition operation on two uint64 integers and returns a boolean

@@ -23,11 +23,8 @@ package core
 import (
 	"context"
 	"fmt"
-	"math/big"
 	"sync"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/crypto"
@@ -143,42 +140,39 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.pp.Reset(ctx)
 	sp.gp.Reset(ctx)
 
+	// Set the gasPool to have the remaining gas in the block.
+	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
+	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
+	if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
+		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+	}
+
 	// Apply the state transition.
-	result, err := ApplyMessage(sp.evm, sp.gp, msg, sp.commit)
+	result, err := ApplyMessage(sp.evm.UnderlyingEVM(), msg, &gasPool)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply message %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
-	receipt := &types.Receipt{
-		Type:             tx.Type(),
-		PostState:        nil, // TODO: Should we do something with PostState?
-		TxHash:           tx.Hash(),
-		GasUsed:          result.UsedGas,
-		BlockHash:        sp.block.Hash(),
-		BlockNumber:      sp.block.Number,
-		TransactionIndex: sp.block.TxIndex(),
-		// Gas from this transaction was added to the gasPlugin in `ApplyMessageAndCommit`
-		// And thus CumulativeGasUsed should include gas from all prior transactions in the
-		// block, plus the gas consumed during this one.
-		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
+	// Consume the gas used by the state tranisition.
+	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {
+		return nil, errors.Wrapf(err, "could not consume gas used %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
-	// Protect the chain from getting into an invalid state.
-	if (receipt.CumulativeGasUsed > sp.block.GasLimit) && (sp.block.GasLimit != 0) {
-		panic(
-			fmt.Sprintf(
-				"cumulative gas used %d is greater than block gas limit %d",
-				receipt.CumulativeGasUsed, sp.block.GasLimit,
-			),
-		)
+	// if the result didn't produce a consensus error then we can properly commit the state.
+	if sp.commit {
+		sp.evm.StateDB().Finalize()
 	}
 
-	// Update the receipt based on the receipt of the transaction.
+	// Create a new receipt for the transaction, storing the intermediate root and gas used
+	// by the tx.
+	receipt := &types.Receipt{Type: tx.Type(), PostState: nil, CumulativeGasUsed: sp.gp.CumulativeGasUsed()}
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
 	} else {
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
+	receipt.TxHash = tx.Hash()
+	receipt.GasUsed = result.UsedGas
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
@@ -189,10 +183,15 @@ func (sp *StateProcessor) ProcessTransaction(
 	receipt.Logs = sp.statedb.BuildLogsAndClear(
 		receipt.TxHash, receipt.BlockHash, sp.block.TxIndex(), sp.block.LogIndex(),
 	)
-	receipt.Bloom = types.BytesToBloom(types.LogsBloom(receipt.Logs))
+	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
+	receipt.BlockHash = sp.block.Hash()
+	receipt.BlockNumber = sp.block.Number
+	receipt.TransactionIndex = sp.block.TxIndex()
 
 	// Update the block information.
 	sp.block.AppendTx(tx, receipt)
+
+	// Return receipt to the caller.
 	return receipt, nil
 }
 
@@ -211,24 +210,11 @@ func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, 
 
 // `NewEVMBlockContext` creates a new block context for use in the EVM.
 func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
-	var baseFee *big.Int
-	// Copy the baseFee to avoid side effects.
-	if sp.block.BaseFee != nil {
-		baseFee = new(big.Int).Set(sp.block.BaseFee)
+	feeCollector := sp.cp.FeeCollector()
+	if feeCollector == nil {
+		feeCollector = &sp.block.Coinbase
 	}
-
-	return vm.BlockContext{
-		CanTransfer: state.CanTransfer,
-		Transfer:    state.Transfer,
-		GetHash:     sp.GetHashFn(),
-		Coinbase:    sp.block.Coinbase,
-		BlockNumber: new(big.Int).Set(sp.block.StargazerHeader.Number),
-		Time:        sp.block.StargazerHeader.Header.Time,
-		Difficulty:  new(big.Int), // not used by stargazer.
-		BaseFee:     baseFee,
-		GasLimit:    sp.block.GasLimit,
-		Random:      &common.Hash{}, // TODO: find a source of randomness
-	}
+	return NewEVMBlockContext(sp.block.Header, &chainContext{sp}, feeCollector)
 }
 
 // `GetHashFn` returns a `GetHashFunc` which retrieves header hashes by number.

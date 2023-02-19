@@ -46,11 +46,6 @@ func NewStargazerHeader(header *Header, hash common.Hash) *StargazerHeader {
 	return &StargazerHeader{Header: header, hostHash: hash}
 }
 
-// `Author` returns the address of the original block producer.
-func (h *StargazerHeader) Author() common.Address {
-	return h.Coinbase
-}
-
 // `UnmarshalBinary` decodes a block from the Ethereum RLP format.
 func (h *StargazerHeader) UnmarshalBinary(data []byte) error {
 	return rlp.DecodeBytes(data, h)
@@ -63,6 +58,11 @@ func (h *StargazerHeader) MarshalBinary() ([]byte, error) {
 		return nil, err
 	}
 	return bz, nil
+}
+
+// `Author` returns the address of the original block producer.
+func (h *StargazerHeader) Author() common.Address {
+	return h.Coinbase
 }
 
 // `Hash` returns the block hash of the header, we override the geth implementation

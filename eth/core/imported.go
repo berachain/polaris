@@ -31,13 +31,24 @@ type (
 	Message = core.Message
 	// `ChainContext` provides information about the current blockchain to the EVM.
 	ChainContext = core.ChainContext
+	// `NewTxsEvent`.
+	NewTxsEvent      = core.NewTxsEvent
+	RemovedLogsEvent = core.RemovedLogsEvent
+	ChainEvent       = core.ChainEvent
+	ChainHeadEvent   = core.ChainHeadEvent
+	ChainSideEvent   = core.ChainSideEvent
+	GasPool          = core.GasPool
 )
 
 var (
 	// `NewEVMTxContext` creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
+	// `NewEVMBlockContext` creates a new block context for a given header.
+	NewEVMBlockContext = core.NewEVMBlockContext
 	// `GetHashFn` returns a GetHashFunc.
 	GetHashFn = core.GetHashFn
+	// `ApplyMessage` puts a message through the EVM.
+	ApplyMessage = core.ApplyMessage
 )
 
 var (

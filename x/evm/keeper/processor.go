@@ -68,9 +68,9 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// App-side mempool good project.
 
 	// TODO: In theory, the TendermintTxHash is the Sha256 hash of the fully populated
-	// EthereumMsgTx (after from and hash and stuff are filled in). This should be doable at the
-	// application layer, and means that given an EthereumHash we can calculate a TendermintHash.
-	// But not vice versa.
+	// EthereumMsgTx (after from and hash and stuff are filled in).
+	// This should be doable at the application layer, and means that given an EthereumHash
+	// we can calculate a TendermintHash. But not vice versa.
 	k.Logger(sCtx).Info("End ProcessTransaction()")
 	return receipt, err
 }

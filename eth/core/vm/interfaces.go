@@ -46,12 +46,9 @@ type (
 		SetTxContext(txCtx TxContext)
 		// `StateDB` returns the `StateDB` attached to this `StargazerEVM`.
 		StateDB() StargazerStateDB
-		// `Config` returns the `Config` attached to this `StargazerEVM`.
-		Config() Config
-		// `Context` returns the `BlockContext` attached to this `StargazerEVM`.
-		Context() BlockContext
 		// `ChainConfig` returns the `ChainConfig` attached to this `StargazerEVM`.
 		ChainConfig() *params.ChainConfig
+		UnderlyingEVM() *GethEVM
 	}
 
 	// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to support

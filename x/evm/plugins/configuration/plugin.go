@@ -25,6 +25,7 @@ import (
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/x/evm/plugins"
@@ -68,4 +69,9 @@ func (p *plugin) ExtraEips() []int {
 		eips = append(eips, int(e))
 	}
 	return eips
+}
+
+// `FeeCollector` implements the core.ConfigurationPlugin interface.
+func (p *plugin) FeeCollector() *common.Address {
+	return &common.Address{}
 }
