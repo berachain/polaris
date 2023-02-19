@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/crypto"
@@ -75,11 +76,18 @@ func NewStateProcessor(
 		bp:       host.GetBlockPlugin(),
 		gp:       host.GetGasPlugin(),
 		cp:       host.GetConfigurationPlugin(),
-		pp:       host.GetPrecompilePlugin(),
 		vmConfig: vmConfig,
 		statedb:  statedb,
 		commit:   commit,
 	}
+
+	if pp := host.GetPrecompilePlugin(); pp != nil {
+		sp.pp = pp
+	} else {
+		sp.pp = precompile.NewDefaultPlugin()
+	}
+	// TODO: register Geth default stateless precompile contracts.
+
 	return sp
 }
 
