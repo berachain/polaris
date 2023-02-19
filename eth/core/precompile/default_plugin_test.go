@@ -25,9 +25,12 @@ import (
 
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core/precompile"
+	"github.com/ethereum/go-ethereum/core/vm"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+const precompInput = `a8b53bdf3306a35a7103ab5504a0c9b492295564b6202b1942a84ef300107281000000000000000000000000000000000000000000000000000000000000001b307835653165303366353363653138623737326363623030393366663731663366353366356337356237346463623331613835616138623838393262346538621122334455667788991011121314151617181920212223242526272829303132`
 
 var _ = Describe("Default Plugin", func() {
 	var dp precompile.Plugin
@@ -46,6 +49,13 @@ var _ = Describe("Default Plugin", func() {
 			Expect(ret).To(BeNil())
 			Expect(remainingGas).To(Equal(uint64(0)))
 			Expect(err.Error()).To(Equal("out of gas"))
+		})
+
+		It("should run a geth contract", func() {
+			pc := vm.PrecompiledContractsHomestead[common.BytesToAddress([]byte{1})]
+			_, remainingGas, err := dp.Run(nil, pc, []byte(precompInput), common.Address{}, nil, 3000, true)
+			Expect(remainingGas).To(Equal(uint64(0)))
+			Expect(err).To(BeNil())
 		})
 	})
 })
