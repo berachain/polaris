@@ -1,4 +1,19 @@
 //nolint:lll
-//go:generate abigen --abi ../out/staking.sol/IStakingModule.abi.json --pkg staking --type Interface --out ../staking/contract.abigen.go
-//go:generate abigen --abi ../out/staking.sol/StakingEvents.abi.json --pkg staking --type Events --out ../staking/events.abigen.go
+//go:generate go run github.com/berachain/stargazer/cmd/abigen staking ../contracts/solidity/out/staking.sol/StakingEvents.json  ../staking/contract.abigen.go StakingEvents
+//go:generate go run github.com/berachain/stargazer/cmd/abigen staking ../contracts/solidity/out/staking.sol/IStakingModule.json ../staking/contract.abigen.go IStakingModule
+
 package staking
+
+import (
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+)
+
+var (
+	cosmosEventTypes = []string{
+		stakingtypes.EventTypeDelegate,
+		stakingtypes.EventTypeRedelegate,
+		stakingtypes.EventTypeCreateValidator,
+		stakingtypes.EventTypeUnbond,
+		stakingtypes.EventTypeCancelUnbondingDelegation,
+	}
+)

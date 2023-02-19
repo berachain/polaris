@@ -36,8 +36,7 @@ var (
 
 	// Directories.
 	testContractsDir = "./eth/testutil/contracts/solidity"
-	// precompileContractsDir = "./pkg/dahlia/pkg/core/vm/precompile/contracts".
-	allForgeDirs = []string{testContractsDir /*, precompileContractsDir*/}
+	allForgeDirs     = []string{testContractsDir, precompileContractsDir}
 )
 
 // Runs `forge build` in all smart contract directories.
