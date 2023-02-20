@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/ethereum/go-ethereum/common"
 	"sync"
 )
 
@@ -22,6 +23,12 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //		mockedBlockPlugin := &BlockPluginMock{
 //			BaseFeeFunc: func() uint64 {
 //				panic("mock out the BaseFee method")
+//			},
+//			GetStargazerBlockAtHeightFunc: func(n int64) *types.StargazerBlock {
+//				panic("mock out the GetStargazerBlockAtHeight method")
+//			},
+//			GetStargazerBlockByHashFunc: func(hash common.Hash) *types.StargazerBlock {
+//				panic("mock out the GetStargazerBlockByHash method")
 //			},
 //			GetStargazerHeaderAtHeightFunc: func(n int64) *types.StargazerHeader {
 //				panic("mock out the GetStargazerHeaderAtHeight method")
@@ -39,6 +46,12 @@ type BlockPluginMock struct {
 	// BaseFeeFunc mocks the BaseFee method.
 	BaseFeeFunc func() uint64
 
+	// GetStargazerBlockAtHeightFunc mocks the GetStargazerBlockAtHeight method.
+	GetStargazerBlockAtHeightFunc func(n int64) *types.StargazerBlock
+
+	// GetStargazerBlockByHashFunc mocks the GetStargazerBlockByHash method.
+	GetStargazerBlockByHashFunc func(hash common.Hash) *types.StargazerBlock
+
 	// GetStargazerHeaderAtHeightFunc mocks the GetStargazerHeaderAtHeight method.
 	GetStargazerHeaderAtHeightFunc func(n int64) *types.StargazerHeader
 
@@ -49,6 +62,16 @@ type BlockPluginMock struct {
 	calls struct {
 		// BaseFee holds details about calls to the BaseFee method.
 		BaseFee []struct {
+		}
+		// GetStargazerBlockAtHeight holds details about calls to the GetStargazerBlockAtHeight method.
+		GetStargazerBlockAtHeight []struct {
+			// N is the n argument value.
+			N int64
+		}
+		// GetStargazerBlockByHash holds details about calls to the GetStargazerBlockByHash method.
+		GetStargazerBlockByHash []struct {
+			// Hash is the hash argument value.
+			Hash common.Hash
 		}
 		// GetStargazerHeaderAtHeight holds details about calls to the GetStargazerHeaderAtHeight method.
 		GetStargazerHeaderAtHeight []struct {
@@ -62,6 +85,8 @@ type BlockPluginMock struct {
 		}
 	}
 	lockBaseFee                    sync.RWMutex
+	lockGetStargazerBlockAtHeight  sync.RWMutex
+	lockGetStargazerBlockByHash    sync.RWMutex
 	lockGetStargazerHeaderAtHeight sync.RWMutex
 	lockPrepare                    sync.RWMutex
 }
@@ -90,6 +115,70 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 	mock.lockBaseFee.RLock()
 	calls = mock.calls.BaseFee
 	mock.lockBaseFee.RUnlock()
+	return calls
+}
+
+// GetStargazerBlockAtHeight calls GetStargazerBlockAtHeightFunc.
+func (mock *BlockPluginMock) GetStargazerBlockAtHeight(n int64) *types.StargazerBlock {
+	if mock.GetStargazerBlockAtHeightFunc == nil {
+		panic("BlockPluginMock.GetStargazerBlockAtHeightFunc: method is nil but BlockPlugin.GetStargazerBlockAtHeight was just called")
+	}
+	callInfo := struct {
+		N int64
+	}{
+		N: n,
+	}
+	mock.lockGetStargazerBlockAtHeight.Lock()
+	mock.calls.GetStargazerBlockAtHeight = append(mock.calls.GetStargazerBlockAtHeight, callInfo)
+	mock.lockGetStargazerBlockAtHeight.Unlock()
+	return mock.GetStargazerBlockAtHeightFunc(n)
+}
+
+// GetStargazerBlockAtHeightCalls gets all the calls that were made to GetStargazerBlockAtHeight.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.GetStargazerBlockAtHeightCalls())
+func (mock *BlockPluginMock) GetStargazerBlockAtHeightCalls() []struct {
+	N int64
+} {
+	var calls []struct {
+		N int64
+	}
+	mock.lockGetStargazerBlockAtHeight.RLock()
+	calls = mock.calls.GetStargazerBlockAtHeight
+	mock.lockGetStargazerBlockAtHeight.RUnlock()
+	return calls
+}
+
+// GetStargazerBlockByHash calls GetStargazerBlockByHashFunc.
+func (mock *BlockPluginMock) GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock {
+	if mock.GetStargazerBlockByHashFunc == nil {
+		panic("BlockPluginMock.GetStargazerBlockByHashFunc: method is nil but BlockPlugin.GetStargazerBlockByHash was just called")
+	}
+	callInfo := struct {
+		Hash common.Hash
+	}{
+		Hash: hash,
+	}
+	mock.lockGetStargazerBlockByHash.Lock()
+	mock.calls.GetStargazerBlockByHash = append(mock.calls.GetStargazerBlockByHash, callInfo)
+	mock.lockGetStargazerBlockByHash.Unlock()
+	return mock.GetStargazerBlockByHashFunc(hash)
+}
+
+// GetStargazerBlockByHashCalls gets all the calls that were made to GetStargazerBlockByHash.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.GetStargazerBlockByHashCalls())
+func (mock *BlockPluginMock) GetStargazerBlockByHashCalls() []struct {
+	Hash common.Hash
+} {
+	var calls []struct {
+		Hash common.Hash
+	}
+	mock.lockGetStargazerBlockByHash.RLock()
+	calls = mock.calls.GetStargazerBlockByHash
+	mock.lockGetStargazerBlockByHash.RUnlock()
 	return calls
 }
 

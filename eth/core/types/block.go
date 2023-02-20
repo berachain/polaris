@@ -87,6 +87,18 @@ func (sb *StargazerBlock) GetReceiptsForStorage() []*ReceiptForStorage {
 	return *(*[]*ReceiptForStorage)(unsafe.Pointer(&sb.receipts))
 }
 
+// `GetReceipts` returns the receipts of the block.
+func (sb *StargazerBlock) GetReceipts() Receipts {
+	// TODO: fill bloom if empty (for old blocks) that were
+	// marshaled without bloom.
+	return sb.receipts
+}
+
+// `GetTransactions` returns the transactions of the block.
+func (sb *StargazerBlock) GetTransactions() Transactions {
+	return sb.txs
+}
+
 // `Finalize` sets the gas used, transaction hash, receipt hash, and optionally bloom of the block
 // header.
 func (sb *StargazerBlock) Finalize(gasUsed uint64) {
@@ -107,5 +119,5 @@ func (sb *StargazerBlock) EthBlock() *Block {
 	if sb == nil {
 		return nil
 	}
-	return NewBlock(sb.Header, sb.txs, nil, nil, trie.NewStackTrie(nil))
+	return NewBlock(sb.Header, sb.txs, nil, sb.receipts, trie.NewStackTrie(nil))
 }

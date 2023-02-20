@@ -58,6 +58,10 @@ type (
 		libtypes.Preparable
 		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
 		GetStargazerHeaderAtHeight(int64) *types.StargazerHeader
+		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
+		GetStargazerBlockAtHeight(int64) *types.StargazerBlock
+		// `GetStargazerBlockByHash` returns the block at the given block hash.
+		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}
@@ -105,6 +109,10 @@ type (
 		// to be the operator address of the proposer, but we want the coinbase in the BlockContext
 		// to be the FeeCollectorAccount.
 		FeeCollector() *common.Address
+	}
+
+	TxPoolPlugin interface {
+		// TODO
 	}
 )
 
