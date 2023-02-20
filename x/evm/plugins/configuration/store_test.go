@@ -42,7 +42,7 @@ var _ = Describe("Plugin", func() {
 		ctx = testutil.NewContext()
 		storeKey := storetypes.NewKVStoreKey("evm")
 		p = &plugin{
-			evmStoreKey: storeKey,
+			storeKey:    storeKey,
 			paramsStore: ctx.KVStore(storeKey),
 		}
 	})

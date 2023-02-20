@@ -42,19 +42,21 @@ type Plugin interface {
 
 // `plugin` implements the core.ConfigurationPlugin interface.
 type plugin struct {
-	evmStoreKey storetypes.StoreKey
+	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
 }
 
 // `NewPlugin` returns a new plugin instance.
-func NewPlugin() Plugin {
-	return &plugin{}
+func NewPlugin(storeKey storetypes.StoreKey) Plugin {
+	return &plugin{
+		storeKey: storeKey,
+	}
 }
 
 // `Prepare` implements the core.ConfigurationPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.evmStoreKey), paramsPrefix)
+	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.storeKey), paramsPrefix)
 }
 
 // `ChainConfig` implements the core.ConfigurationPlugin interface.

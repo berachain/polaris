@@ -55,7 +55,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 		plugin.InitGenesis(ctx, &genesisState)
 	}
 
-	// TODO: MOVE THIS
+	// TODO: MOVE THIS, THIS IS A HORRIBLE SPOT
 	err := am.keeper.GetStargazer().StartRPC()
 	if err != nil {
 		panic(err)

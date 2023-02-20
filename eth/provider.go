@@ -21,7 +21,6 @@
 package eth
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -67,7 +66,7 @@ func (p *StargazerProvider) StartRPC() error {
 	if err != nil {
 		return err
 	}
-	
+
 	// TODO: handle graceful shutdown.
 	go func() {
 		p.rpcService.Start()
@@ -77,13 +76,11 @@ func (p *StargazerProvider) StartRPC() error {
 		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 		// Wait for interrupt signal or an error to gracefully shutdown the server.
-		var err error
 		select {
 		case sig := <-interrupt:
-			fmt.Println(sig.String())
+			_ = sig // todo fix
 		case err = <-p.rpcService.Notify():
-			// s.logger.Error(err.Error())
-			fmt.Println(err.Error())
+			panic(err) // todo fix
 		}
 
 		// Ensure that if the switch statement outputs an error, we return it to the CLI.

@@ -22,7 +22,6 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/berachain/stargazer/eth/rpc/config"
 	"github.com/ethereum/go-ethereum/ethapi"
@@ -80,7 +79,8 @@ func NewService(cfg config.Server, backend ethapi.Backend) (*Service, error) {
 // `Start` stops the service.
 func (s *Service) Start() {
 	go func() {
-		fmt.Println("Starting JSON-RPC server at:", s.config.Address)
+		// TODO:FIX
+		// fmt.Println("Starting JSON-RPC server at:", s.config.Address)
 		s.notify <- s.engine.Run(s.config.Address)
 		close(s.notify)
 	}()
