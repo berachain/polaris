@@ -169,12 +169,20 @@ func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 
 // `CurrentHeader` returns the current header from the local chain.
 func (b *backend) CurrentHeader() *types.Header {
-	return b.chain.CurrentHeader().Header
+	header := b.chain.CurrentHeader()
+	if header == nil {
+		return nil
+	}
+	return header.Header
 }
 
 // `CurrentBlock` returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Block {
-	return b.chain.CurrentBlock().EthBlock()
+	block := b.chain.CurrentBlock()
+	if block == nil {
+		return nil
+	}
+	return block.EthBlock()
 }
 
 // `BlockByNumber` returns the block identified by `number`.
@@ -423,20 +431,15 @@ func (b *backend) stargazerBlockByNumberOrHash(ctx context.Context,
 func (b *backend) stargazerBlockByNumber(_ context.Context, number BlockNumber) *types.StargazerBlock {
 	//nolint:exhaustive // finish later.
 	switch number {
-	// Pending and Latest are the same since no Pow?
+	// Pending and latest are the same in stargazer.
 	case PendingBlockNumber:
 	case LatestBlockNumber:
-		// We just read the current processing block off the canonical
-		// state processor.
 		return b.chain.CurrentBlock()
 	case FinalizedBlockNumber:
-		// current block minus 1
-		// return b.chain.FinalizedBlock().EthBlock()
 	case SafeBlockNumber:
-		// current block minus 1
-		// return /b.chain.FinalizedBlock().EthBlock()
+		return b.chain.FinalizedBlock()
 	case EarliestBlockNumber:
-		// on mainnet, this doesn't even exist?
+		// no-op, since we are querying block 0, which is done below.
 	}
 	return b.chain.Host().GetBlockPlugin().GetStargazerBlockAtHeight(number.Int64())
 }

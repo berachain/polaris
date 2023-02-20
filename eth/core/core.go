@@ -60,3 +60,7 @@ func (bc *blockchain) CurrentHeader() *types.StargazerHeader {
 func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
 	return bc.StateProcessor.block
 }
+
+func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
+	return bc.StateProcessor.block
+}
