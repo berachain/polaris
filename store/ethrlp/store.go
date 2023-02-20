@@ -33,30 +33,30 @@ type EthereumRlpEncoded interface {
 	UnmarshalBinary([]byte) error
 }
 
-// `EthereumRlpStore` is a wrapper around the underlying store that allows to store and retrieve,
+// `EthereumRlpStore` is a wrapper around the parent store that allows to store and retrieve,
 // implement `EthereumRlpEncoded` interface.
 type EthereumRlpStore[T EthereumRlpEncoded] struct {
-	underlying storetypes.KVStore
+	parent storetypes.KVStore
 }
 
-// `NewRlpEncodedStore` creates a new instance of `EthereumRlpStore` from provided underlying store and key prefix.
-func NewRlpEncodedStore[T EthereumRlpEncoded](underlying storetypes.KVStore, keyPrefix []byte) *EthereumRlpStore[T] {
-	return &EthereumRlpStore[T]{underlying: prefix.NewStore(underlying, keyPrefix)}
+// `NewRlpEncodedStore` creates a new instance of `EthereumRlpStore` from provided parent store and key prefix.
+func NewRlpEncodedStore[T EthereumRlpEncoded](parent storetypes.KVStore, keyPrefix []byte) *EthereumRlpStore[T] {
+	return &EthereumRlpStore[T]{parent: prefix.NewStore(parent, keyPrefix)}
 }
 
-// `Set` stores the provided data in the underlying store.
+// `Set` stores the provided data in the parent store.
 func (rlps *EthereumRlpStore[T]) Set(data T) {
 	bz, err := data.MarshalBinary()
 	if err != nil {
 		// ctx.Logger().Error("MarshalBinary for block. Failed to update offchain storagae", "err", err)
 		return
 	}
-	rlps.underlying.Set(data.Hash().Bytes(), bz)
+	rlps.parent.Set(data.Hash().Bytes(), bz)
 }
 
-// `Get` retrieves the unmarshalled data from the underlying store.
+// `Get` retrieves the unmarshalled data from the parent store.
 func (rlps *EthereumRlpStore[T]) Get(key []byte) (*T, bool) {
-	bz := rlps.underlying.Get(key)
+	bz := rlps.parent.Get(key)
 	if bz == nil {
 		return nil, false
 	}

@@ -28,25 +28,25 @@ import (
 
 // `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
 func (k *Keeper) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.StargazerBlock) {
-	underlying := k.offChainKv
+	parent := k.offChainKv
 
-	blockStore := ethrlp.NewRlpEncodedStore[*coretypes.StargazerBlock](underlying, []byte("blocks"))
+	blockStore := ethrlp.NewRlpEncodedStore[*coretypes.StargazerBlock](parent, []byte("blocks"))
 	blockStore.Set(block)
 
 	// adding txns to kv.
-	txStore := ethrlp.NewRlpEncodedStore[*coretypes.Transaction](underlying, []byte("tx"))
+	txStore := ethrlp.NewRlpEncodedStore[*coretypes.Transaction](parent, []byte("tx"))
 	for _, tx := range block.GetTransactions() {
 		txStore.Set(tx)
 	}
 
 	version := block.Number
-	lastVersion := underlying.Get(versionKeyPrefix)
+	lastVersion := parent.Get(versionKeyPrefix)
 	if sdk.BigEndianToUint64(lastVersion) != version.Uint64()-1 {
 		panic("REEE")
 	}
-	underlying.Set(versionKeyPrefix, sdk.Uint64ToBigEndian(uint64(version.Int64())))
+	parent.Set(versionKeyPrefix, sdk.Uint64ToBigEndian(uint64(version.Int64())))
 	// flush the underlying buffer to disk.
-	underlying.Write()
+	parent.Write()
 }
 
 var versionKeyPrefix = []byte("version")
