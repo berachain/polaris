@@ -39,12 +39,22 @@ import (
 	"github.com/ethereum/go-ethereum/core/bloombits"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/rpc"
 
 	errorslib "github.com/berachain/stargazer/lib/errors"
 )
+
+var DefaultGasPriceOracleConfig = gasprice.Config{
+	Blocks:           20,
+	Percentile:       60,
+	MaxHeaderHistory: 256,
+	MaxBlockHistory:  256,
+	Default:          big.NewInt(1000000000),
+	MaxPrice:         big.NewInt(1000000000000000000),
+}
 
 // Compile-time type assertion.
 var _ Backend = (*backend)(nil)
@@ -53,6 +63,7 @@ var _ Backend = (*backend)(nil)
 type backend struct {
 	chain     api.Chain
 	rpcConfig *config.Server
+	gpo       *gasprice.Oracle
 }
 
 // ==============================================================================
@@ -61,41 +72,44 @@ type backend struct {
 
 // `NewBackend` returns a new `Backend` object.
 func NewBackend(chain api.Chain, rpcConfig *config.Server) Backend {
-	return &backend{
+	b := &backend{
 		chain:     chain,
 		rpcConfig: rpcConfig,
 	}
+	b.gpo = gasprice.NewOracle(b, DefaultGasPriceOracleConfig)
+	return b
 }
 
 // ==============================================================================
 // General Ethereum API
 // ==============================================================================
 
+// `SyncProgress` returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
-	// TODO: Implement your code here
+	// Consider implementing this in the future.
 	return ethereum.SyncProgress{
-		CurrentBlock: 1000000,
-		HighestBlock: 2000000,
+		CurrentBlock: 0,
+		HighestBlock: 0,
 	}
 }
 
+// `SuggestGasTipCap` returns the recommended gas tip cap for a new transaction.
 func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
-	// TODO: Implement your code here
-	return big.NewInt(1000000000), nil
+	return b.gpo.SuggestTipCap(ctx)
 }
 
+// `FeeHistory` returns the base fee and gas used history of the last N blocks.
 func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
-	// TODO: Implement your code here
-	return big.NewInt(1000000000), nil, nil, nil, nil
+	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
+// `ChainDb` is unused in Stargazer.
 func (b *backend) ChainDb() ethdb.Database { //nolint:stylecheck // conforms to interface.
-	// TODO: is this implementable? (I don't think we need it tho tbh)
-	panic("not implemented")
+	panic("not implemented in stargazer")
 }
 
-// `AccountManager` stargazer does not have an account manager.
+// `AccountManager` is unused in Stargazer.
 func (b *backend) AccountManager() *accounts.Manager {
 	panic("not implemented")
 }
