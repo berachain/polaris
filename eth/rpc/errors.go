@@ -22,4 +22,7 @@ package rpc
 
 import "errors"
 
-var ErrBlockNotFound = errors.New("block not found, is your node pruned?")
+var (
+	ErrBlockNotFound    = errors.New("block not found, is your node pruned?")
+	ErrHashNotCanonical = errors.New("hash not canonical")
+)

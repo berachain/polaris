@@ -358,6 +358,9 @@ func (b *backend) Engine() consensus.Engine {
 func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 	number BlockNumber,
 ) (*types.Body, error) {
+	if number < 0 || hash == (common.Hash{}) {
+		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
+	}
 	block, err := b.BlockByNumberOrHash(ctx, rpc.BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if err != nil {
 		return nil, err
@@ -425,6 +428,9 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 		// If the has is found, we have the canonical chain.
 		if block.Hash() == hash {
 			return block, nil
+		}
+		if blockNrOrHash.RequireCanonical {
+			return nil, errorslib.Wrapf(ErrHashNotCanonical, "hash [%s]", hash.String())
 		}
 		// If not we try to query by number as a backup.
 	}
