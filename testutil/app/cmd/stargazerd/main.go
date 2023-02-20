@@ -21,28 +21,24 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-
-	jsonrpc "github.com/berachain/stargazer/jsonrpc"
+	simapp "github.com/berachain/stargazer/testutil/app"
+	"github.com/berachain/stargazer/testutil/app/cmd/stargazerd/cmd"
+	"github.com/cosmos/cosmos-sdk/server"
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
-		os.Exit(1)
-	}
-}
+	rootCmd := cmd.NewRootCmd()
+	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
+		//nolint: errorlint // uhh fix?
+		switch e := err.(type) {
+		case server.ErrorCode:
+			os.Exit(e.Code)
 
-var rootCmd = &cobra.Command{
-	Use:   "jsonrpcd",
-	Args:  cobra.MatchAll(cobra.ExactArgs(0), cobra.OnlyValidArgs),
-	Short: "Ethereum JSON-RPC server",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return jsonrpc.New(
-			*jsonrpc.DefaultConfig(),
-		).Start()
-	},
+		default:
+			os.Exit(1)
+		}
+	}
 }
