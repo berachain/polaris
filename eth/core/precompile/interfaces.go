@@ -23,13 +23,18 @@ package precompile
 import (
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/types/abi"
+	libtypes "github.com/berachain/stargazer/lib/types"
 )
 
 type (
-	// `AbstractFactory` is an interface that all precompile container factories must adhere to.
-	AbstractFactory interface {
-		// `Build` builds and returns the precompile container for the type of container/factory.
-		Build(vm.RegistrablePrecompile) (vm.PrecompileContainer, error)
+	// `Plugin` defines the methods that the chain running Stargazer EVM should implement in order
+	// to support running their own stateful precompiled contracts. Implementing this plugin is
+	// optional.
+	Plugin interface {
+		// `Reset` sets the native precompile context before beginning a state transition.
+		libtypes.Resettable
+		// `PrecompileManager` is the manager for the native precompiles.
+		vm.PrecompileManager
 	}
 )
 

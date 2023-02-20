@@ -22,9 +22,9 @@ package core
 
 import (
 	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/params"
 	libtypes "github.com/berachain/stargazer/lib/types"
 )
@@ -117,10 +117,5 @@ type (
 	// `PrecompilePlugin` defines the methods that the chain running Stargazer EVM should implement
 	// in order to support running their own stateful precompiled contracts. Implementing this
 	// plugin is optional.
-	PrecompilePlugin interface {
-		// `Reset` sets the native precompile context before beginning a state transition.
-		libtypes.Resettable
-		// `PrecompileManager` is the manager for the native precompiles.
-		vm.PrecompileManager
-	}
+	PrecompilePlugin = precompile.Plugin
 )
