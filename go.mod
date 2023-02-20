@@ -16,7 +16,7 @@ replace (
 )
 
 require (
-	cosmossdk.io/api v0.3.0
+	cosmossdk.io/api v0.3.1
 	cosmossdk.io/client/v2 v2.0.0-20230214134047-cb23af6d9731
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
