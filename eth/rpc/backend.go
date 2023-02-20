@@ -169,17 +169,25 @@ func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 
 // `CurrentHeader` returns the current header from the local chain.
 func (b *backend) CurrentHeader() *types.Header {
-	return b.chain.CurrentHeader().Header
+	header := b.chain.CurrentHeader()
+	if header == nil {
+		return nil
+	}
+	return header.Header
 }
 
 // `CurrentBlock` returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Block {
-	return b.chain.CurrentBlock().EthBlock()
+	block := b.chain.CurrentBlock()
+	if block == nil {
+		return nil
+	}
+	return block.EthBlock()
 }
 
 // `BlockByNumber` returns the block identified by `number`.
 func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types.Block, error) {
-	block := b.stargazerBlockByNumber(ctx, number)
+	block := b.stargazerBlockByNumber(number)
 	if block == nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "number [%d]", number)
 	}
@@ -188,7 +196,7 @@ func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types
 
 // `BlockByHash` returns the block with the given hash.
 func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Block, error) {
-	block := b.stargazerBlockByHash(ctx, hash)
+	block := b.stargazerBlockByHash(hash)
 	if block == nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
 	}
@@ -199,7 +207,7 @@ func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Blo
 func (b *backend) BlockByNumberOrHash(ctx context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Block, error) {
-	block, err := b.stargazerBlockByNumberOrHash(ctx, blockNrOrHash)
+	block, err := b.stargazerBlockByNumberOrHash(blockNrOrHash)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +234,7 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 
 // `GetReceipts` returns the receipts for the given block hash.
 func (b *backend) GetReceipts(ctx context.Context, hash common.Hash) (types.Receipts, error) {
-	block := b.stargazerBlockByHash(ctx, hash)
+	block := b.stargazerBlockByHash(hash)
 	if block != nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
 	}
@@ -348,7 +356,7 @@ func (b *backend) GetLogs(ctx context.Context, blockHash common.Hash,
 	number uint64,
 ) ([][]*types.Log, error) {
 	bn := BlockNumber(number)
-	block, err := b.stargazerBlockByNumberOrHash(ctx, BlockNumberOrHash{
+	block, err := b.stargazerBlockByNumberOrHash(BlockNumberOrHash{
 		BlockNumber: &bn,
 		BlockHash:   &blockHash,
 	})
@@ -394,16 +402,14 @@ func (b *backend) ServiceFilter(ctx context.Context, session *bloombits.MatcherS
 // TODO: consider actually using the context?
 
 // `stargazerBlockByNumberOrHash` returns the block identified by `number` or `hash`.
-func (b *backend) stargazerBlockByNumberOrHash(ctx context.Context,
-	blockNrOrHash BlockNumberOrHash,
-) (*types.StargazerBlock, error) {
+func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) (*types.StargazerBlock, error) {
 	// First we try to get the block by number
 	if blockNr, ok := blockNrOrHash.Number(); ok {
-		return b.stargazerBlockByNumber(ctx, blockNr), nil
+		return b.stargazerBlockByNumber(blockNr), nil
 	}
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		_ = hash
-		block := b.stargazerBlockByHash(ctx, hash)
+		block := b.stargazerBlockByHash(hash)
 		if block == nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
 		}
@@ -420,27 +426,23 @@ func (b *backend) stargazerBlockByNumberOrHash(ctx context.Context,
 }
 
 // `stargazerBlockByNumber` returns the stargazer block identified by `number.
-func (b *backend) stargazerBlockByNumber(_ context.Context, number BlockNumber) *types.StargazerBlock {
+func (b *backend) stargazerBlockByNumber(number BlockNumber) *types.StargazerBlock {
 	//nolint:exhaustive // finish later.
 	switch number {
-	// Pending and Latest are the same since no Pow?
+	// Pending and latest are the same in stargazer.
 	case PendingBlockNumber:
 	case LatestBlockNumber:
-		// We just read the current processing block off the canonical
-		// state processor.
 		return b.chain.CurrentBlock()
 	case FinalizedBlockNumber:
-		// current block minus 1
-		// return b.chain.FinalizedBlock().EthBlock()
 	case SafeBlockNumber:
-		// current block minus 1
-		// return /b.chain.FinalizedBlock().EthBlock()
+		return b.chain.FinalizedBlock()
 	case EarliestBlockNumber:
-		// on mainnet, this doesn't even exist?
+		// no-op, since we are querying block 0, which is done below.
 	}
 	return b.chain.Host().GetBlockPlugin().GetStargazerBlockAtHeight(number.Int64())
 }
 
-func (b *backend) stargazerBlockByHash(_ context.Context, hash common.Hash) *types.StargazerBlock {
+// `stargazerBlockByHash` returns the stargazer block identified by `hash`.
+func (b *backend) stargazerBlockByHash(hash common.Hash) *types.StargazerBlock {
 	return b.chain.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
 }

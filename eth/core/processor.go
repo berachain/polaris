@@ -61,6 +61,8 @@ type StateProcessor struct {
 	evm vm.StargazerEVM
 	// `block` represents the current block being processed.
 	block *types.StargazerBlock
+	// `finalizedBlock` represents the block that was last finalized by the state processor.
+	finalizedBlock *types.StargazerBlock
 }
 
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
@@ -99,6 +101,11 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
+
+	// If we are processing a new block, then we assume that the previous was finalized.
+	// TODO: ensure this is safe. We could build the block in theory by querying the
+	// block plugin at height -1 too.
+	sp.finalizedBlock = sp.block
 
 	// Prepare the plugins for the new block.
 	sp.bp.Prepare(ctx)

@@ -34,7 +34,7 @@ import (
 
 	"cosmossdk.io/simapp/params"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
-	"github.com/berachain/stargazer/simapp"
+	simapp "github.com/berachain/stargazer/testutil/app"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
