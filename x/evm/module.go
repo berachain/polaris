@@ -132,11 +132,12 @@ func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 // `BeginBlock` returns the begin blocker for the evm module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
-	// BeginBlocker(ctx, am.keeper, am.inflationCalculator)
+	am.keeper.BeginBlocker(ctx)
 }
 
 // `EndBlock` returns the end blocker for the evm module. It returns no validator
 // updates.
-func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	am.keeper.EndBlocker(ctx)
 	return []abci.ValidatorUpdate{}
 }

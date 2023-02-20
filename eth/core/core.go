@@ -22,6 +22,7 @@ package core
 
 import (
 	"github.com/berachain/stargazer/eth/core/state"
+	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 )
 
@@ -51,4 +52,11 @@ func (bc *blockchain) Host() StargazerHostChain {
 // commit flag.
 func (bc *blockchain) buildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
 	return NewStateProcessor(bc.host, state.NewStateDB(bc.host.GetStatePlugin()), vmConfig, commit)
+}
+
+func (bc *blockchain) CurrentHeader() *types.StargazerHeader {
+	return bc.StateProcessor.block.StargazerHeader
+}
+func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
+	return bc.StateProcessor.block
 }

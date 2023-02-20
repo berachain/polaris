@@ -222,8 +222,6 @@ cosmossdk.io/x/evidence v0.0.0-20230214182345-86eca4c72bd2 h1:kErE8bp9IsP5adZk15
 cosmossdk.io/x/evidence v0.0.0-20230214182345-86eca4c72bd2/go.mod h1:zmStBj+LAB4pa4TQzYOLQYD6kWVCn9Doir9eTbQUx9Y=
 cosmossdk.io/x/feegrant v0.0.0-20230214182345-86eca4c72bd2 h1:pADtNWxxkhmdPfSOas7iTFGtD3RceN0Q8GwK1fsGIcc=
 cosmossdk.io/x/feegrant v0.0.0-20230214182345-86eca4c72bd2/go.mod h1:T3SwSquZou+qcQF3hgfbBxQmHof79h+/Q8Xk5DlcjZc=
-cosmossdk.io/x/nft v0.0.0-20230214182345-86eca4c72bd2 h1:GmYEYDYc1sSXYK+0r+tZzf3oIJJG6oKKLb10AoPuBlA=
-cosmossdk.io/x/nft v0.0.0-20230214182345-86eca4c72bd2/go.mod h1:NgMLom7ixUtI6+MZ3neP57TYHppt6ayYg/nJvlDqnB0=
 cosmossdk.io/x/tx v0.2.0 h1:53f5TIXhpPYJGMm47SUslcV2i8JNBEN3eE08BmxE/Zg=
 cosmossdk.io/x/tx v0.2.0/go.mod h1:CTko7wgt7aBdbxOesZ+Wo1uO/03ueKzIQ0iI323Rqgk=
 cosmossdk.io/x/upgrade v0.0.0-20230214182345-86eca4c72bd2 h1:bmI+UH5DEQQbN9zvn+eDPUSPyvJsbhjKs/bbtjxLNgo=

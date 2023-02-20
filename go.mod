@@ -22,7 +22,6 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v0.0.0
-	cosmossdk.io/math v1.0.0-beta.6
 	cosmossdk.io/simapp v0.0.0-20230217170540-497dc2cb78bb
 	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
@@ -53,7 +52,6 @@ require (
 	github.com/securego/gosec/v2 v2.15.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cobra v1.6.1
-	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/testcontainers/testcontainers-go v0.18.0
 	github.com/tidwall/btree v1.6.0
@@ -73,7 +71,7 @@ require (
 	cloud.google.com/go/iam v0.11.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cosmossdk.io/collections v0.0.0-20230204135315-697871069999 // indirect
-	cosmossdk.io/x/nft v0.0.0-20230113085233-fae3332d62fc // indirect
+	cosmossdk.io/math v1.0.0-beta.6 // indirect
 	cosmossdk.io/x/tx v0.2.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -362,6 +360,7 @@ require (
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect

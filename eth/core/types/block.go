@@ -101,3 +101,11 @@ func (sb *StargazerBlock) Finalize(gasUsed uint64) {
 		sb.Header.Bloom = CreateBloom(sb.receipts)
 	}
 }
+
+// `EthBlock` represents a ethereum-like block that can be encoded to raw bytes.
+func (sb *StargazerBlock) EthBlock() *Block {
+	if sb == nil {
+		return nil
+	}
+	return NewBlock(sb.Header, sb.txs, nil, nil, trie.NewStackTrie(nil))
+}

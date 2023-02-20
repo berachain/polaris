@@ -62,7 +62,8 @@ func (p *StargazerProvider) StartRPC() error {
 	// We need to start the RPC service so that the Stargazer EVM can
 	// make RPC calls to the underlying blockchain.
 	// TODO: gate behind configuration
-	p.rpcService, err = rpc.NewService(*config.DefaultServer(), rpc.NewBackend(p.Chain))
+	rpcConfig := config.DefaultServer()
+	p.rpcService, err = rpc.NewService(*rpcConfig, rpc.NewBackend(p.Chain, rpcConfig))
 	if err != nil {
 		return err
 	}

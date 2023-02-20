@@ -33,4 +33,11 @@ type (
 	Server            = rpc.Server
 )
 
-var NewServer = rpc.NewServer
+var (
+	NewServer            = rpc.NewServer
+	SafeBlockNumber      = rpc.SafeBlockNumber
+	FinalizedBlockNumber = rpc.FinalizedBlockNumber
+	LatestBlockNumber    = rpc.LatestBlockNumber
+	PendingBlockNumber   = rpc.PendingBlockNumber
+	EarliestBlockNumber  = rpc.EarliestBlockNumber
+)

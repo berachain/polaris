@@ -32,6 +32,8 @@ import (
 // TODO: rename.
 type Chain interface {
 	Host() core.StargazerHostChain
+	CurrentHeader() *types.StargazerHeader
+	CurrentBlock() *types.StargazerBlock
 
 	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
 	// the block.

@@ -71,7 +71,7 @@ func NewKeeper(
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
-		storeKey:  storetypes.NewKVStoreKey(types.StoreKey),
+		storeKey:  storeKey,
 	}
 
 	k.bp = block.NewPlugin(k)

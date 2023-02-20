@@ -57,6 +57,16 @@ type (
 
 		// `TLSConfig` defines the TLS configuration for the JSON-RPC server.
 		TLSConfig *TLSConfig `mapstructure:"tls-config"`
+
+		// RPCGasCap is the global gas cap for eth-call variants.
+		RPCGasCap uint64 `mapstructure:"rpc-gas-cap"`
+
+		// RPCEVMTimeout is the global timeout for eth-call.
+		RPCEVMTimeout time.Duration `mapstructure:"rpc-evm-timeout"`
+
+		// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
+		// send-transaction variants. The unit is ether.
+		RPCTxFeeCap float64 `mapstructure:"rpc-tx-fee-cap"`
 	}
 
 	// `TLSConfig` defines a certificate and matching private key for the server.
