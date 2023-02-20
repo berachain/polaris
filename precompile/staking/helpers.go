@@ -1,0 +1,181 @@
+package staking
+
+import (
+	"context"
+	"errors"
+	"math/big"
+
+	"github.com/berachain/stargazer/eth/common"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+)
+
+func (c *Contract) delegationHelper(
+	ctx context.Context,
+	caller common.Address,
+	val sdk.ValAddress,
+) ([]any, error) {
+	res, err := c.querier.Delegation(ctx, &stakingtypes.QueryDelegationRequest{
+		DelegatorAddr: sdk.AccAddress(caller.Bytes()).String(),
+		ValidatorAddr: val.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	delegation := res.GetDelegationResponse()
+	if delegation == nil {
+		return nil, err
+	}
+
+	return []any{delegation.Balance.Amount.BigInt()}, nil
+}
+
+func (c *Contract) getUnbondingDelegationHelper(
+	ctx context.Context,
+	caller common.Address,
+	val sdk.ValAddress,
+) ([]any, error) {
+	res, err := c.querier.UnbondingDelegation(ctx, &stakingtypes.QueryUnbondingDelegationRequest{
+		DelegatorAddr: sdk.AccAddress(caller.Bytes()).String(),
+		ValidatorAddr: val.String(),
+	})
+	if err != nil {
+		return nil, errors.New("unbonding delegation not found")
+	}
+
+	return []any{res}, nil
+}
+
+// Returns the list of redelegations as a []stakingtypes.RedelegationEntry
+func (c *Contract) GetRedelegationsHelper(
+	ctx context.Context,
+	caller common.Address,
+	srcValidator sdk.ValAddress,
+	dstValidator sdk.ValAddress,
+) ([]any, error) {
+	rsp, err := c.querier.Redelegations(
+		ctx,
+		&stakingtypes.QueryRedelegationsRequest{
+			DelegatorAddr:    sdk.AccAddress(caller.Bytes()).String(),
+			SrcValidatorAddr: srcValidator.String(),
+			DstValidatorAddr: dstValidator.String(),
+		},
+	)
+
+	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
+	for _, r := range rsp.GetRedelegationResponses() {
+		redel := r.GetRedelegation()
+		if redel.DelegatorAddress == sdk.AccAddress(caller.Bytes()).String() &&
+			redel.ValidatorSrcAddress == srcValidator.String() &&
+			redel.ValidatorDstAddress == dstValidator.String() {
+			redelegationEntryResponses = r.GetEntries()
+			break
+		}
+	}
+	redelegationEntries := make(
+		[]stakingtypes.RedelegationEntry, 0, len(redelegationEntryResponses),
+	)
+	for _, entryRsp := range redelegationEntryResponses {
+		redelegationEntries = append(redelegationEntries, entryRsp.GetRedelegationEntry())
+	}
+
+	return []any{redelegationEntries}, err
+}
+
+func (c *Contract) delegateHelper(
+	ctx context.Context,
+	caller common.Address,
+	amount *big.Int,
+	validatorAddress sdk.ValAddress,
+) error {
+	denom, err := c.bondDenom(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
+		sdk.AccAddress(caller.Bytes()),
+		validatorAddress,
+		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
+	))
+	return err
+}
+
+func (c *Contract) undelegateHelper(
+	ctx context.Context,
+	caller common.Address,
+	amount *big.Int,
+	val sdk.ValAddress,
+) error {
+	denom, err := c.bondDenom(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
+		sdk.AccAddress(caller.Bytes()),
+		val,
+		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
+	))
+
+	return err
+}
+
+func (c *Contract) beginRedelegateHelper(
+	ctx context.Context,
+	caller common.Address,
+	amount *big.Int,
+	srcVal, dstVal sdk.ValAddress,
+) error {
+	bondDenom, err := c.bondDenom(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.msgServer.BeginRedelegate(
+		ctx,
+		stakingtypes.NewMsgBeginRedelegate(
+			sdk.AccAddress(caller.Bytes()),
+			srcVal,
+			dstVal,
+			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
+		),
+	)
+
+	return err
+}
+
+func (c *Contract) cancelUnbondingDelegationHelper(
+	ctx context.Context,
+	caller common.Address,
+	amount *big.Int,
+	val sdk.ValAddress,
+	creationHeight int64,
+) error {
+	bondDenom, err := c.bondDenom(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.msgServer.CancelUnbondingDelegation(
+		ctx,
+		stakingtypes.NewMsgCancelUnbondingDelegation(
+			sdk.AccAddress(caller.Bytes()),
+			val,
+			creationHeight,
+			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
+		),
+	)
+
+	return err
+}
+
+func (c *Contract) bondDenom(ctx context.Context) (string, error) {
+	res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})
+	if err != nil {
+		return "", err
+	}
+
+	return res.Params.BondDenom, nil
+}
