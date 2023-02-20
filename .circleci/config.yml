@@ -23,7 +23,7 @@ version: 2.1
 executors:
   standard:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.20.1
         environment:
           FOUNDRY_COMMIT: e2fa2b5f8940d283f54df1ec701967276a934e97
     resource_class: xlarge
