@@ -24,6 +24,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"runtime"
 
 	"github.com/carolynvs/magex/pkg"
 	"github.com/magefile/mage/sh"
@@ -57,15 +58,19 @@ func main() {
 	}
 
 	// Coming soon
-	// // Run the setup script for the current OS.
-	// switch os := runtime.GOOS; os {
-	// case "darwin":
-	// 	err = setupMac()
-	// case "linux":
-	// 	err = setupLinux()
-	// default:
-	// 	err = fmt.Errorf("ngmi unsupported OS")
-	// }
+	// Run the setup script for the current OS.
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		err = setupMac()
+	case "linux":
+		err = setupLinux()
+	default:
+		err = fmt.Errorf("ngmi unsupported OS")
+	}
+
+	if err != nil {
+		panic(err)
+	}
 
 	if err = setupGoDeps(); err != nil {
 		panic(err)
@@ -85,12 +90,12 @@ func setupGoDeps() error {
 	return nil
 }
 
-// // setupMac runs the setup script for macOS.
-// func setupMac() error {
-// 	return fmt.Errorf("mac setup coming soon")
-// }
+// setupMac runs the setup script for macOS.
+func setupMac() error {
+	return sh.Run("brew", "install", "--verbose", "./build/go.rb")
+}
 
-// // setupLinux runs the setup script for Linux.
-// func setupLinux() error {
-// 	return fmt.Errorf("linux setup coming soon")
-// }
+// setupLinux runs the setup script for Linux.
+func setupLinux() error {
+	return fmt.Errorf("linux setup coming soon")
+}
