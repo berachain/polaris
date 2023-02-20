@@ -49,7 +49,7 @@ var (
 	moq = "github.com/matryer/moq"
 
 	// Variables and Helpers.
-	cmds       = []string{"jsonrpcd", "stargazerd"}
+	cmds       = []string{"stargazerd"}
 	production = false
 	statically = false
 )
@@ -63,6 +63,17 @@ func All() error {
 		}
 	}
 	return nil
+}
+
+func BuildStargazerApp() error {
+	cmd := "stargazerd"
+	args := []string{
+		generateBuildTags(),
+		generateLinkerFlags(production, statically),
+		"-o", generateOutDirectory(cmd),
+		"./testutil/app/cmd/" + cmd,
+	}
+	return goBuild(args...)
 }
 
 // Runs `go build` on the entire project.

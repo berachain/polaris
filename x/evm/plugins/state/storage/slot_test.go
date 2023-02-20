@@ -21,7 +21,7 @@
 package storage_test
 
 import (
-	"math/rand"
+	"crypto/rand"
 
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/x/evm/plugins/state/storage"

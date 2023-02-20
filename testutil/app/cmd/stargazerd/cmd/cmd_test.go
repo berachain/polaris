@@ -25,8 +25,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/berachain/stargazer/simapp"
-	"github.com/berachain/stargazer/simapp/cmd"
+	simapp "github.com/berachain/stargazer/testutil/app"
+	"github.com/berachain/stargazer/testutil/app/cmd/stargazerd/cmd"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
