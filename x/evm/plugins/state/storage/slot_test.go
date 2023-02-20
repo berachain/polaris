@@ -35,8 +35,8 @@ var _ = Describe("x/evm/plugins/state/storage", func() {
 	value := common.Hash{}.Bytes()
 
 	BeforeEach(func() {
-		rand.Read(key)
-		rand.Read(value)
+		_ = rand.Read(key)
+		_ = rand.Read(value)
 		slot = storage.NewSlot(common.BytesToHash(key), common.BytesToHash(value))
 	})
 

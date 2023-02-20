@@ -83,7 +83,7 @@ func (p *plugin) BlockGasLimit() uint64 {
 // `TxConsumeGas` implements the core.GasPlugin interface.
 func (p *plugin) TxConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
-	
+
 	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.gasMeter.Limit() {
