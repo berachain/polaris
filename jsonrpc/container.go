@@ -37,7 +37,7 @@ const (
 )
 
 var (
-	goVersion   = "1.19.5"
+	goVersion   = "1.20.1"
 	runnerImage = "golang:" + goVersion + "-alpine"
 )
 
