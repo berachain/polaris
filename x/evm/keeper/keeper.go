@@ -96,7 +96,7 @@ func NewKeeper(
 	// TODO: provide cosmos ctx logger.
 
 	// TODO: parameterize kv store.
-	k.offChainKv = offchain.NewOffChainKVStore("indexer", appOpts)
+	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
 
 	return k
 }

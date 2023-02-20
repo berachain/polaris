@@ -36,6 +36,7 @@ type EthereumRlpEncoded interface {
 // `EthereumRlpStore` is a wrapper around the parent store that allows to store and retrieve,
 // implement `EthereumRlpEncoded` interface.
 type EthereumRlpStore[T EthereumRlpEncoded] struct {
+	storetypes.KVStore
 	parent storetypes.KVStore
 }
 
