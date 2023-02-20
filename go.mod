@@ -22,8 +22,6 @@ require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v0.0.0
 	cosmossdk.io/simapp v0.0.0-20230217170540-497dc2cb78bb
-	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
-	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
 	cosmossdk.io/store v0.0.0-20230219145338-9553bf1eec78
 	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/evidence v0.1.0
@@ -52,6 +50,7 @@ require (
 	github.com/onsi/gomega v1.27.0
 	github.com/securego/gosec/v2 v2.15.0
 	github.com/segmentio/golines v0.11.0
+	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.15.0
 	github.com/testcontainers/testcontainers-go v0.18.0
@@ -72,7 +71,7 @@ require (
 	cloud.google.com/go/iam v0.11.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cosmossdk.io/collections v0.0.0-20230204135315-697871069999 // indirect
-	cosmossdk.io/math v1.0.0-beta.6 // indirect
+	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4 // indirect
 	cosmossdk.io/x/tx v0.2.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -359,7 +358,6 @@ require (
 	github.com/sonatard/noctx v0.0.1 // indirect
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
-	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect

@@ -49,8 +49,8 @@ type Store struct {
 	*cachekv.Store
 }
 
-// `New` creates a new store and connects it to an file system based database located at:
-// <flags.FlagHome/data/<name>.
+// `NewOffChainKVStore` creates a new store and connects it to an file
+// system based database located at: <flags.FlagHome/data/<name>.
 func NewOffChainKVStore(name string, appOpts types.AppOptions) *Store {
 	dbDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", name)
 	db, err := dbm.NewDB(name, server.GetAppDBBackend(appOpts), dbDir)
@@ -58,6 +58,13 @@ func NewOffChainKVStore(name string, appOpts types.AppOptions) *Store {
 		panic(err)
 	}
 
+	return &Store{
+		cachekv.NewStore(&dbadapter.Store{DB: db}),
+	}
+}
+
+// `NewOffChainKVStoreFromDB` creates a new store and connects it to the provided database.
+func NewOffChainKVStoreFromDB(db dbm.DB) *Store {
 	return &Store{
 		cachekv.NewStore(&dbadapter.Store{DB: db}),
 	}

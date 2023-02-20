@@ -26,7 +26,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth"
 	"github.com/berachain/stargazer/eth/core"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/store/offchain"
 	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/berachain/stargazer/x/evm/plugins/block"
@@ -46,10 +45,7 @@ var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
-	storeKey              storetypes.StoreKey
-	lastestStargazerBlock *coretypes.StargazerBlock
-	ethChain              api.Chain
-
+	storeKey   storetypes.StoreKey
 	stargazer  *eth.StargazerProvider
 	offChainKv *offchain.Store
 

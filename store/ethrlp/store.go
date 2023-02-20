@@ -33,7 +33,8 @@ type EthereumRlpEncoded interface {
 	UnmarshalBinary([]byte) error
 }
 
-// `EthereumRlpStore` is a wrapper around the underlying store that allows to store and retrieve, implement `EthereumRlpEncoded` interface.
+// `EthereumRlpStore` is a wrapper around the underlying store that allows to store and retrieve,
+// implement `EthereumRlpEncoded` interface.
 type EthereumRlpStore[T EthereumRlpEncoded] struct {
 	underlying storetypes.KVStore
 }
@@ -47,7 +48,6 @@ func NewRlpEncodedStore[T EthereumRlpEncoded](underlying storetypes.KVStore, key
 func (rlps *EthereumRlpStore[T]) Set(data T) {
 	bz, err := data.MarshalBinary()
 	if err != nil {
-		// TODO: operate in mode without offchain storage if this fails
 		// ctx.Logger().Error("MarshalBinary for block. Failed to update offchain storagae", "err", err)
 		return
 	}

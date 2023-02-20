@@ -26,7 +26,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// TODO: implement/use caching here.
+// `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
 func (k *Keeper) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.StargazerBlock) {
 	underlying := k.offChainKv
 
@@ -35,7 +35,7 @@ func (k *Keeper) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 
 	// adding txns to kv.
 	txStore := ethrlp.NewRlpEncodedStore[*coretypes.Transaction](underlying, []byte("tx"))
-	for _, tx := range k.lastestStargazerBlock.GetTransactions() {
+	for _, tx := range block.GetTransactions() {
 		txStore.Set(tx)
 	}
 
@@ -45,7 +45,8 @@ func (k *Keeper) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 		panic("REEE")
 	}
 	underlying.Set(versionKeyPrefix, sdk.Uint64ToBigEndian(uint64(version.Int64())))
-	k.lastestStargazerBlock = nil
+	// flush the underlying buffer to disk.
+	underlying.Write()
 }
 
 var versionKeyPrefix = []byte("version")
