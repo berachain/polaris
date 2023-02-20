@@ -21,8 +21,6 @@
 package evm
 
 import (
-	"fmt"
-
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
@@ -66,8 +64,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
-
-	fmt.Println(in.AppOpts)
 
 	k := keeper.NewKeeper(
 		in.Key,
