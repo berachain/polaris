@@ -26,6 +26,8 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth"
 	"github.com/berachain/stargazer/eth/core"
+	coretypes "github.com/berachain/stargazer/eth/core/types"
+	"github.com/berachain/stargazer/store/offchain"
 	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/berachain/stargazer/x/evm/plugins/block"
 	"github.com/berachain/stargazer/x/evm/plugins/configuration"
@@ -44,9 +46,12 @@ var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
-	storeKey storetypes.StoreKey
+	storeKey              storetypes.StoreKey
+	lastestStargazerBlock *coretypes.StargazerBlock
+	ethChain              api.Chain
 
-	stargazer *eth.StargazerProvider
+	stargazer  *eth.StargazerProvider
+	offChainKv *offchain.Store
 
 	// sk is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
@@ -90,6 +95,9 @@ func NewKeeper(
 
 	k.stargazer = eth.NewStargazerProvider(k, nil)
 	// TODO: provide cosmos ctx logger.
+
+	// TODO: parameterize kv store.
+	k.offChainKv = offchain.NewOffChainKVStore("indexer", nil)
 
 	return k
 }

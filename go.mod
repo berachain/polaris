@@ -23,6 +23,8 @@ require (
 	cosmossdk.io/log v0.0.0
 	cosmossdk.io/simapp v0.0.0-20230217170540-497dc2cb78bb
 	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
+	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
+	cosmossdk.io/store v0.0.0-20230219145338-9553bf1eec78
 	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/evidence v0.1.0
 	cosmossdk.io/x/feegrant v0.0.0-20230214182345-86eca4c72bd2
