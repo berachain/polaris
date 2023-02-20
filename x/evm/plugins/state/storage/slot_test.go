@@ -21,8 +21,6 @@
 package storage_test
 
 import (
-	"crypto/rand"
-
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/x/evm/plugins/state/storage"
 	. "github.com/onsi/ginkgo/v2"
@@ -31,12 +29,10 @@ import (
 
 var _ = Describe("x/evm/plugins/state/storage", func() {
 	var slot *storage.Slot
-	key := common.Hash{}.Bytes()
-	value := common.Hash{}.Bytes()
+	key := common.Hash{222}.Bytes()
+	value := common.Hash{111}.Bytes()
 
 	BeforeEach(func() {
-		_ = rand.Read(key)
-		_ = rand.Read(value)
 		slot = storage.NewSlot(common.BytesToHash(key), common.BytesToHash(value))
 	})
 
