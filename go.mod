@@ -11,7 +11,6 @@ replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013
 replace (
 	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230214182345-86eca4c72bd2
-	cosmossdk.io/x/nft => cosmossdk.io/x/nft v0.0.0-20230214182345-86eca4c72bd2
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230214182345-86eca4c72bd2
 )
 
