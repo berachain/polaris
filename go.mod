@@ -22,8 +22,8 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v0.0.0
-	cosmossdk.io/math v1.0.0-beta.6
-	cosmossdk.io/simapp v0.0.0-20230217170540-497dc2cb78bb
+	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
+	cosmossdk.io/simapp v0.0.0-20230220152935-67f04e629623
 	cosmossdk.io/store v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/tools/confix v0.0.0-20230214182345-86eca4c72bd2
 	cosmossdk.io/x/evidence v0.1.0
@@ -35,7 +35,7 @@ require (
 	github.com/cosmos/cosmos-db v1.0.0-rc.1
 	github.com/cosmos/cosmos-proto v1.0.0-beta.1
 	github.com/cosmos/cosmos-sdk v0.48.0
-	github.com/cosmos/gogoproto v1.4.4
+	github.com/cosmos/gogoproto v1.4.5
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/docker/go-connections v0.4.0
 	github.com/ethereum/go-ethereum v1.10.26
@@ -72,7 +72,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v0.11.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
-	cosmossdk.io/collections v0.0.0-20230204135315-697871069999 // indirect
+	cosmossdk.io/collections v0.0.0-20230214153846-b6c6e4e99177 // indirect
 	cosmossdk.io/x/nft v0.0.0-20230113085233-fae3332d62fc // indirect
 	cosmossdk.io/x/tx v0.2.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
@@ -123,7 +123,7 @@ require (
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/cockroachdb/errors v1.9.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
-	github.com/cockroachdb/pebble v0.0.0-20230209160836-829675f94811 // indirect
+	github.com/cockroachdb/pebble v0.0.0-20230217215838-f01d8eff3f8b // indirect
 	github.com/cockroachdb/redact v1.1.3 // indirect
 	github.com/cometbft/cometbft-db v0.7.0 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
@@ -131,7 +131,7 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/iavl v0.20.0-alpha3 // indirect
+	github.com/cosmos/iavl v0.21.0-alpha.1 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/creachadair/atomicfile v0.2.8 // indirect
@@ -332,7 +332,7 @@ require (
 	github.com/polyfloyd/go-errorlint v1.0.6 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
-	github.com/prometheus/common v0.39.0 // indirect
+	github.com/prometheus/common v0.40.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/prometheus/tsdb v0.7.1 // indirect
 	github.com/quasilyte/go-ruleguard v0.3.18 // indirect
@@ -403,7 +403,7 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
-	golang.org/x/exp v0.0.0-20230206171751-46f607a40771 // indirect
+	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb // indirect
 	golang.org/x/exp/typeparams v0.0.0-20221208152030-732eee02a75a // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
