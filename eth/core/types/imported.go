@@ -28,6 +28,7 @@ type (
 	AccessList        = types.AccessList
 	Block             = types.Block
 	Bloom             = types.Bloom
+	Body              = types.Body
 	Log               = types.Log
 	Receipt           = types.Receipt
 	Receipts          = types.Receipts

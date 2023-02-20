@@ -21,16 +21,24 @@
 package eth
 
 import (
+	"github.com/berachain/stargazer/eth/rpc"
+	"github.com/berachain/stargazer/eth/rpc/config"
+
 	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
 	ethlog "github.com/berachain/stargazer/eth/log"
 )
 
+type StargazerProvider struct {
+	api.Chain
+	rpcService *rpc.Service
+}
+
 // `NewStargazerProvider` creates a new `StargazerEVM` instance for use on an underlying blockchain.
 func NewStargazerProvider(
 	host core.StargazerHostChain,
 	logHandler ethlog.Handler,
-) api.Chain {
+) *StargazerProvider {
 	// When creating a Stargazer EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
@@ -38,7 +46,26 @@ func NewStargazerProvider(
 		// Root is a global in geth that is used by the evm to emit logs.
 		ethlog.Root().SetHandler(ethlog.FuncHandler(logHandler))
 	}
-	// TODO: check for RPC and setup an JSONRPC if needed
 
-	return core.NewChain(host)
+	return &StargazerProvider{
+		Chain: core.NewChain(host),
+	}
+}
+
+// `StartRPC` starts the RPC service for the Stargazer EVM.
+func (p *StargazerProvider) StartRPC() error {
+	var err error
+	// We need to start the RPC service so that the Stargazer EVM can
+	// make RPC calls to the underlying blockchain.
+	// TODO: gate behind configuration
+	p.rpcService, err = rpc.NewService(*config.DefaultServer(), rpc.NewBackend(p.Chain))
+	if err != nil {
+		return err
+	}
+	// TODO: handle graceful shutdown.
+	go func() {
+		p.rpcService.Start()
+	}()
+
+	return nil
 }

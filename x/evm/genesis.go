@@ -54,6 +54,12 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	for _, plugin := range am.keeper.GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genesisState)
 	}
+
+	// TODO: MOVE THIS
+	err := am.keeper.GetStargazer().StartRPC()
+	if err != nil {
+		panic(err)
+	}
 	return []abci.ValidatorUpdate{}
 }
 

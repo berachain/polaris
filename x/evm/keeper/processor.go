@@ -31,7 +31,7 @@ import (
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("BeginBlocker")
-	k.ethChain.Prepare(ctx, sCtx.BlockHeight())
+	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
@@ -40,7 +40,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	k.Logger(sCtx).Info("Begin ProcessTransaction()")
 
 	// Process the transaction and return the receipt.
-	receipt, err := k.ethChain.ProcessTransaction(ctx, tx)
+	receipt, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	k.Logger(sCtx).Info("EndBlocker")
 
 	// Finalize the stargazer block and retrieve it from the processor.
-	stargazerBlock, err := k.ethChain.Finalize(ctx)
+	stargazerBlock, err := k.stargazer.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}

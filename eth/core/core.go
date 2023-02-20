@@ -42,6 +42,11 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	return bc
 }
 
+// `Host` returns the host chain that the Stargazer EVM is running on.
+func (bc *blockchain) Host() StargazerHostChain {
+	return bc.host
+}
+
 // `buildStateProcessor` builds and returns a `StateProcessor` with the given EVM configuration and
 // commit flag.
 func (bc *blockchain) buildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {

@@ -25,7 +25,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth"
-	"github.com/berachain/stargazer/eth/api"
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/berachain/stargazer/x/evm/plugins/block"
@@ -47,7 +46,7 @@ type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
 
-	ethChain api.Chain
+	stargazer *eth.StargazerProvider
 
 	// sk is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
@@ -88,7 +87,7 @@ func NewKeeper(
 
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
 
-	k.ethChain = eth.NewStargazerProvider(k, nil)
+	k.stargazer = eth.NewStargazerProvider(k, nil)
 	// TODO: provide cosmos ctx logger.
 
 	return k
@@ -117,6 +116,10 @@ func (k *Keeper) GetPrecompilePlugin() core.PrecompilePlugin {
 
 func (k *Keeper) GetStatePlugin() core.StatePlugin {
 	return k.sp
+}
+
+func (k *Keeper) GetStargazer() *eth.StargazerProvider {
+	return k.stargazer
 }
 
 func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
