@@ -37,7 +37,7 @@ import (
 
 func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "testutil/app/cmd/stargazerd/cmd:integration")ß
+	RunSpecs(t, "testutil/app/cmd/stargazerd/cmd:integration")
 }
 
 var _ = Describe("Init command", func() {
