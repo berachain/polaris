@@ -70,7 +70,7 @@ func NewKeeper(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	authority string,
-	AppOpts servertypes.AppOptions,
+	appOpts servertypes.AppOptions,
 
 ) *Keeper {
 	k := &Keeper{
@@ -96,7 +96,7 @@ func NewKeeper(
 	// TODO: provide cosmos ctx logger.
 
 	// TODO: parameterize kv store.
-	k.offChainKv = offchain.NewOffChainKVStore("indexer", AppOpts)
+	k.offChainKv = offchain.NewOffChainKVStore("indexer", appOpts)
 
 	return k
 }
