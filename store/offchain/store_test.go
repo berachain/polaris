@@ -45,7 +45,6 @@ var _ = Describe("offchainStore", func() {
 	)
 
 	It("checks for write to buffer", func() {
-		Expect(store.Get(byte1)).To(Equal(byte2))
 		store.Set(byte1, byte2)
 		store.Set(byte3, byte4)
 		Expect(store.Get(byte1)).To(Equal(byte2))
