@@ -71,8 +71,69 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 			RequiredGas: baseGas,
 		},
 		&precompile.Method{
-			AbiSig:  "getDelegation(string)",
-			Execute: c.GetDelegationStringInput,
+			AbiSig:      "getDelegation(string)",
+			Execute:     c.GetDelegationStringInput,
+			RequiredGas: baseGas,
+		},
+		&precompile.Method{
+			AbiSig:      "getUnbondingDelegation(address)",
+			Execute:     c.GetUnbondingDelegationAddrInput,
+			RequiredGas: baseGas,
+		},
+		&precompile.Method{
+			AbiSig:      "getUnbondingDelegation(string)",
+			Execute:     c.GetUnbondingDelegationStringInput,
+			RequiredGas: baseGas,
+		},
+		&precompile.Method{
+			AbiSig:      "getRedelegations(address,address)",
+			Execute:     c.GetRedelegationsAddrInput,
+			RequiredGas: baseGas,
+		},
+		&precompile.Method{
+			AbiSig:      "getRedelegations(string,string)",
+			Execute:     c.GetRedelegationsStringInput,
+			RequiredGas: baseGas,
+		},
+		&precompile.Method{
+			AbiSig:      "delegate(address,uint256)",
+			Execute:     c.DelegateAddrInput,
+			RequiredGas: 1000,
+		},
+		&precompile.Method{
+			AbiSig:      "delegate(string,uint256)",
+			Execute:     c.DelegateStringInput,
+			RequiredGas: 1000,
+		},
+		&precompile.Method{
+			AbiSig:      "undelegate(address,uint256)",
+			Execute:     c.UndelegateAddrInput,
+			RequiredGas: 1000,
+		},
+		&precompile.Method{
+			AbiSig:      "undelegate(string,uint256)",
+			Execute:     c.UndelegateStringInput,
+			RequiredGas: 1000,
+		},
+		&precompile.Method{
+			AbiSig:      "beginRedelegate(address,address,uint256)",
+			Execute:     c.BeginRedelegateAddrInput,
+			RequiredGas: 1000,
+		},
+		&precompile.Method{
+			AbiSig:      "beginRedelegate(string,string,uint256)",
+			Execute:     c.BeginRedelegateStringInput,
+			RequiredGas: 1000,
+		},
+		&precompile.Method{
+			AbiSig:      "cancelUnbondingDelegation(address,uint256,int64)",
+			Execute:     c.CancelUnbondingDelegationAddrInput,
+			RequiredGas: 1000,
+		},
+		&precompile.Method{
+			AbiSig:      "cancelUnbondingDelegation(string,uint256,int64)",
+			Execute:     c.CancelUnbondingDelegationStringInput,
+			RequiredGas: 1000,
 		},
 	}
 }
