@@ -34,6 +34,12 @@ const (
 	dynamicContainerName   = `DynamicContainerImpl`
 )
 
+// `AbstractFactory` is an interface that all precompile container factories must adhere to.
+type AbstractFactory interface {
+	// `Build` builds and returns the precompile container for the type of container/factory.
+	Build(vm.RegistrablePrecompile) (vm.PrecompileContainer, error)
+}
+
 // Compile-time assertions to ensure these container factories adhere to `AbstractFactory`.
 var (
 	_ AbstractFactory = (*StatelessFactory)(nil)

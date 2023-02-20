@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/eth/core/vm"
 	"github.com/berachain/stargazer/eth/crypto"
@@ -80,6 +81,12 @@ func NewStateProcessor(
 		statedb:  statedb,
 		commit:   commit,
 	}
+
+	if sp.pp == nil {
+		sp.pp = precompile.NewDefaultPlugin()
+	}
+	// TODO: register Geth default stateless precompile contracts.
+
 	return sp
 }
 

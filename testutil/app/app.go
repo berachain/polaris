@@ -92,7 +92,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	simappconfig "github.com/berachain/stargazer/simapp/config"
+	simappconfig "github.com/berachain/stargazer/testutil/app/config"
 	"github.com/berachain/stargazer/x/evm"
 	evmkeeper "github.com/berachain/stargazer/x/evm/keeper"
 )

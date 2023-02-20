@@ -52,11 +52,39 @@ var (
 	}
 )
 
+var _ = Describe("StateProcessor no precompile plugin", func() {
+	It("should use the default plugin if none is provided", func() {
+		host := mock.NewMockHost()
+		bp := mock.NewBlockPluginMock()
+		gp := mock.NewGasPluginMock()
+		gp.SetBlockGasLimit(1000000)
+		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+			header := types.NewEmptyStargazerHeader()
+			header.GasLimit = 1000000
+			header.Number = new(big.Int)
+			header.Difficulty = new(big.Int)
+			return header
+		}
+		host.GetBlockPluginFunc = func() core.BlockPlugin {
+			return bp
+		}
+		host.GetGasPluginFunc = func() core.GasPlugin {
+			return gp
+		}
+		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
+			return mock.NewConfigurationPluginMock()
+		}
+		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
+			return nil
+		}
+		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
+		Expect(func() { sp.Prepare(context.Background(), 0) }).ToNot(Panic())
+	})
+})
+
 var _ = Describe("StateProcessor", func() {
 	var (
-		// evm         *vmmock.StargazerEVMMock
-		sdb *vmmock.StargazerStateDBMock
-		// msg         *mock.MessageMock
+		sdb           *vmmock.StargazerStateDBMock
 		host          *mock.StargazerHostChainMock
 		bp            *mock.BlockPluginMock
 		gp            *mock.GasPluginMock
@@ -68,9 +96,7 @@ var _ = Describe("StateProcessor", func() {
 	)
 
 	BeforeEach(func() {
-		// evm = vmmock.NewStargazerEVM()
 		sdb = vmmock.NewEmptyStateDB()
-		// msg = mock.NewEmptyMessage()
 		host = mock.NewMockHost()
 		bp = mock.NewBlockPluginMock()
 		gp = mock.NewGasPluginMock()

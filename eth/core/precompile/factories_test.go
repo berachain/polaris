@@ -123,7 +123,7 @@ type mockStateless struct {
 }
 
 func (ms *mockStateless) RequiredGas(input []byte) uint64 {
-	return 0
+	return 10
 }
 
 func (ms *mockStateless) Run(
