@@ -64,6 +64,7 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
+	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	authority string,
@@ -75,7 +76,7 @@ func NewKeeper(
 
 	k.bp = block.NewPlugin(k)
 
-	k.cp = configuration.NewPlugin()
+	k.cp = configuration.NewPlugin(storeKey)
 
 	k.gp = gas.NewPlugin()
 

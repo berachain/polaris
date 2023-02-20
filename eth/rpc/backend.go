@@ -116,7 +116,9 @@ func (b *backend) SetHead(number uint64) {
 func (b *backend) HeaderByNumber(ctx context.Context,
 	number BlockNumber) (*types.Header, error) {
 	// Implement your code here
-	return &types.Header{}, nil
+	return &types.Header{
+		Number: big.NewInt(1000000),
+	}, nil
 	// return b.chain.GetBlockPlugin().GetStargazerHeaderAtHeight(number.Int64()).Header, nil
 }
 

@@ -21,6 +21,11 @@
 package eth
 
 import (
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/berachain/stargazer/eth/rpc"
 	"github.com/berachain/stargazer/eth/rpc/config"
 
@@ -62,9 +67,35 @@ func (p *StargazerProvider) StartRPC() error {
 	if err != nil {
 		return err
 	}
+	
 	// TODO: handle graceful shutdown.
 	go func() {
 		p.rpcService.Start()
+
+		// Waiting signal
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+		// Wait for interrupt signal or an error to gracefully shutdown the server.
+		var err error
+		select {
+		case sig := <-interrupt:
+			fmt.Println(sig.String())
+		case err = <-p.rpcService.Notify():
+			// s.logger.Error(err.Error())
+			fmt.Println(err.Error())
+		}
+
+		// Ensure that if the switch statement outputs an error, we return it to the CLI.
+		if err != nil {
+			panic(err)
+		}
+
+		// Shutdown the server.
+		if sErr := p.rpcService.Shutdown(); sErr != nil {
+			// s.logger.Error(sErr.Error()/
+			panic(err)
+		}
 	}()
 
 	return nil
