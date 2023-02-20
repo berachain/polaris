@@ -444,6 +444,7 @@ func (b *backend) stargazerBlockByNumber(_ context.Context, number BlockNumber) 
 	return b.chain.Host().GetBlockPlugin().GetStargazerBlockAtHeight(number.Int64())
 }
 
+// `stargazerBlockByHash` returns the stargazer block identified by `hash`.
 func (b *backend) stargazerBlockByHash(_ context.Context, hash common.Hash) *types.StargazerBlock {
 	return b.chain.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
 }
