@@ -28,7 +28,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/berachain/stargazer/eth/common"
-	ethstate "github.com/berachain/stargazer/eth/core/state"
+	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/crypto"
 	"github.com/berachain/stargazer/testutil"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
@@ -45,11 +45,12 @@ var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
 	var bk state.BankKeeper
 	var ctx sdk.Context
-	var sp ethstate.Plugin
+	var sp core.StatePlugin
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ctx, ak, bk, testutil.EvmKey, "abera") // TODO: use lf
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, "abera", nil) // TODO: use lf
+		sp.Reset(ctx)
 	})
 
 	It("should have the correct registry key", func() {

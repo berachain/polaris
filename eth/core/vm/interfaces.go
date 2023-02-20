@@ -25,32 +25,30 @@ import (
 	"github.com/berachain/stargazer/eth/params"
 	libtypes "github.com/berachain/stargazer/lib/types"
 
-	"context"
 	"math/big"
 
 	"github.com/berachain/stargazer/eth/common"
 )
 
 type (
-	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support additional
-	// state transition functionalities.
+	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support
+	// additional state transition functionalities.
 	StargazerEVM interface {
-		Reset(txCtx TxContext, sdb GethStateDB)
-		Create(caller ContractRef, code []byte,
-			gas uint64, value *big.Int,
+		// `Create` creates a new contract using the given code and returns the contract address.
+		Create(
+			caller ContractRef, code []byte, gas uint64, value *big.Int,
 		) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
-		Call(caller ContractRef, addr common.Address, input []byte,
-			gas uint64, value *big.Int,
+		// `Call` executes the given contract with the given input data and returns the output.
+		Call(
+			caller ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int,
 		) (ret []byte, leftOverGas uint64, err error)
-
+		// `SetTxContext` sets the transaction context for the new transaction.
 		SetTxContext(txCtx TxContext)
-		SetTracer(tracer EVMLogger)
-		SetDebug(debug bool)
+		// `StateDB` returns the `StateDB` attached to this `StargazerEVM`.
 		StateDB() StargazerStateDB
-		TxContext() TxContext
-		Tracer() EVMLogger
-		Context() BlockContext
-		ChainConfig() *params.EthChainConfig
+		// `ChainConfig` returns the `ChainConfig` attached to this `StargazerEVM`.
+		ChainConfig() *params.ChainConfig
+		UnderlyingEVM() *GethEVM
 	}
 
 	// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to support
@@ -58,16 +56,15 @@ type (
 	StargazerStateDB interface {
 		GethStateDB
 		libtypes.Finalizeable
-
 		// `Reset` resets the context for the new transaction.
-		Reset(context.Context)
-
+		libtypes.Resettable
 		// `TransferBalance` transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
-
 		// `BuildLogsAndClear` builds the logs for the tx with the given metadata. NOTE: must be
 		// called after `Finalize`.
-		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
+		BuildLogsAndClear(
+			txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint,
+		) []*coretypes.Log
 	}
 
 	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs to

@@ -21,15 +21,14 @@
 package evm
 
 import (
-	"encoding/json"
-	"fmt"
-
+	"github.com/berachain/stargazer/crypto"
 	"github.com/berachain/stargazer/x/evm/keeper"
 	"github.com/berachain/stargazer/x/evm/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -65,22 +64,8 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // `RegisterInterfaces` registers the module's interface types.
 func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
-	// types.RegisterInterfaces(r)
-}
-
-// `DefaultGenesis` returns default genesis state as raw bytes for the evm
-// module.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesis())
-}
-
-// `ValidateGenesis` performs genesis state validation for the evm module.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var data types.GenesisState
-	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	}
-	return types.ValidateGenesis(data)
+	r.RegisterImplementations((*cryptotypes.PubKey)(nil), &crypto.EthSecp256K1PubKey{})
+	r.RegisterImplementations((*cryptotypes.PrivKey)(nil), &crypto.EthSecp256K1PrivKey{})
 }
 
 // `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the evm module.
@@ -140,24 +125,6 @@ func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
-}
-
-// `InitGenesis` performs genesis initialization for the evm module. It returns
-// no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
-	// var genesisState types.GenesisState
-	// cdc.MustUnmarshalJSON(data, &genesisState)
-
-	// am.keeper.InitGenesis(ctx, am.accKeeper, &genesisState)
-	return []abci.ValidatorUpdate{}
-}
-
-// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
-// module.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	// gs := am.keeper.ExportGenesis(ctx)
-	// return cdc.MustMarshalJSON(gs)
-	return json.RawMessage{}
 }
 
 // `ConsensusVersion` implements AppModule/ConsensusVersion.

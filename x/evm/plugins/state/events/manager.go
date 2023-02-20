@@ -21,7 +21,6 @@
 package events
 
 import (
-	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/lib/errors"
 	"github.com/berachain/stargazer/lib/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -39,7 +38,7 @@ type manager struct {
 	// `EventManager` is the underlying Cosmos SDK event manager floating around on the context.
 	*sdk.EventManager
 	// `ldb` is the reference to the StateDB for adding Eth logs during precompile execution.
-	ldb precompile.LogsDB
+	ldb LogsDB
 	// `plf` is used to build Eth logs from Cosmos events.
 	plf PrecompileLogFactory
 }
@@ -55,14 +54,14 @@ func NewManagerFrom(em sdk.EventManagerI, plf PrecompileLogFactory) *manager {
 }
 
 // `BeginPrecompileExecution` is called when a precompile is about to be executed. This function
-// sets the `LogsPlugin` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
+// sets the `LogsDB` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
 // add logs to the journal.
-func (m *manager) BeginPrecompileExecution(ldb precompile.LogsDB) {
+func (m *manager) BeginPrecompileExecution(ldb LogsDB) {
 	m.ldb = ldb
 }
 
 // `EndPrecompileExecution` is called when a precompile has finished executing. This function
-// sets the `LogsPlugin` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
+// sets the `LogsDB` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
 // to the journal.
 func (m *manager) EndPrecompileExecution() {
 	m.ldb = nil

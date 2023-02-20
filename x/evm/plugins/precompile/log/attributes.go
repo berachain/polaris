@@ -28,6 +28,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/x/evm/utils"
 )
@@ -41,16 +42,6 @@ const (
 	notFound = -1
 )
 
-type (
-	// `valueDecoder` is a type of function that returns a geth compatible, eth primitive type (as
-	// type `any`) for a given event attribute value (of type `string`). Event attribute values may
-	// require unique decodings based on their underlying string encoding.
-	valueDecoder func(attributeValue string) (ethPrimitive any, err error)
-	// `ValueDecoders` is a type that represents a map of event attribute keys to value decoder
-	// functions.
-	ValueDecoders map[string]valueDecoder
-)
-
 // ==============================================================================
 // Default Attribute Value Decoder Getter
 // ==============================================================================
@@ -58,7 +49,7 @@ type (
 // `defaultCosmosValueDecoders` is a map of default Cosmos event attribute value decoder functions
 // for the default Cosmos SDK event `attributeKey`s. NOTE: only the event attributes of default
 // Cosmos SDK modules (bank, staking) are supported by this function.
-var defaultCosmosValueDecoders = ValueDecoders{
+var defaultCosmosValueDecoders = precompile.ValueDecoders{
 	sdk.AttributeKeyAmount:                  ConvertSdkCoin,
 	stakingtypes.AttributeKeyValidator:      ConvertValAddressFromBech32,
 	stakingtypes.AttributeKeySrcValidator:   ConvertValAddressFromBech32,
@@ -80,15 +71,15 @@ var defaultCosmosValueDecoders = ValueDecoders{
 // Compile-time assertions to ensure that the default attribute value decoder functions are
 // valueDecoders.
 var (
-	_ valueDecoder = ConvertSdkCoin
-	_ valueDecoder = ConvertValAddressFromBech32
-	_ valueDecoder = ConvertAccAddressFromBech32
-	_ valueDecoder = ConvertInt64
+	_ precompile.ValueDecoder = ConvertSdkCoin
+	_ precompile.ValueDecoder = ConvertValAddressFromBech32
+	_ precompile.ValueDecoder = ConvertAccAddressFromBech32
+	_ precompile.ValueDecoder = ConvertInt64
 )
 
 // `ConvertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
 //
-// `ConvertSdkCoin` is a `valueDecoder`.
+// `ConvertSdkCoin` is a `precompile.ValueDecoder`.
 func ConvertSdkCoin(attributeValue string) (any, error) {
 	// extract the sdk.Coin from string value
 	coin, err := sdk.ParseCoinNormalized(attributeValue)
@@ -102,7 +93,7 @@ func ConvertSdkCoin(attributeValue string) (any, error) {
 // `ConvertValAddressFromBech32` converts a bech32 string representing a validator address to a
 // `common.Address`.
 //
-// `ConvertValAddressFromBech32` is a `valueDecoder`.
+// `ConvertValAddressFromBech32` is a `precompile.ValueDecoder`.
 func ConvertValAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value
 	valAddress, err := sdk.ValAddressFromBech32(attributeValue)
@@ -116,7 +107,7 @@ func ConvertValAddressFromBech32(attributeValue string) (any, error) {
 // `ConvertAccAddressFromBech32` converts a bech32 string representing an account address to a
 // `common.Address`.
 //
-// `ConvertAccAddressFromBech32` is a `valueDecoder`.
+// `ConvertAccAddressFromBech32` is a `precompile.ValueDecoder`.
 func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value
 	accAddress, err := sdk.AccAddressFromBech32(attributeValue)
@@ -130,7 +121,7 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 // `ConvertInt64` converts a creation height (from the Cosmos SDK staking module) `string`
 // to an `int64`.
 //
-// `ConvertInt64` is a `valueDecoder`.
+// `ConvertInt64` is a `precompile.ValueDecoder`.
 func ConvertInt64(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, int64Bits)
 }

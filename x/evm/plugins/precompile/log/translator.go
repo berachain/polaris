@@ -22,6 +22,7 @@ package log
 
 import (
 	"github.com/berachain/stargazer/eth/common"
+	"github.com/berachain/stargazer/eth/core/precompile"
 	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/lib/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -107,7 +108,7 @@ func (f *Factory) makeData(pl *precompileLog, event *sdk.Event) ([]byte, error) 
 
 // `getValueDecoder` returns an attribute value decoder function for a certain Cosmos event
 // attribute key.
-func (f *Factory) getValueDecoder(attrKey string) (valueDecoder, error) {
+func (f *Factory) getValueDecoder(attrKey string) (precompile.ValueDecoder, error) {
 	// try custom precompile event attributes
 	if customDecoder, found := f.customValueDecoders[attrKey]; found {
 		return customDecoder, nil
