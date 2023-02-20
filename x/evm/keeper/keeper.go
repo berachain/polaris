@@ -34,6 +34,7 @@ import (
 	"github.com/berachain/stargazer/x/evm/plugins/precompile"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	"github.com/berachain/stargazer/x/evm/types"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
 	"github.com/cometbft/cometbft/libs/log"
 
@@ -69,6 +70,8 @@ func NewKeeper(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	authority string,
+	AppOpts servertypes.AppOptions,
+
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -93,7 +96,7 @@ func NewKeeper(
 	// TODO: provide cosmos ctx logger.
 
 	// TODO: parameterize kv store.
-	k.offChainKv = offchain.NewOffChainKVStore("indexer", nil)
+	k.offChainKv = offchain.NewOffChainKVStore("indexer", AppOpts)
 
 	return k
 }
