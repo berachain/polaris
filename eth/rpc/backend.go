@@ -399,28 +399,28 @@ func (b *backend) ServiceFilter(ctx context.Context, session *bloombits.MatcherS
 // Stargazer Helpers
 // ==============================================================================
 
-// TODO: consider actually using the context?
-
 // `stargazerBlockByNumberOrHash` returns the block identified by `number` or `hash`.
 func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) (*types.StargazerBlock, error) {
-	// First we try to get the block by number
-	if blockNr, ok := blockNrOrHash.Number(); ok {
-		return b.stargazerBlockByNumber(blockNr), nil
-	}
+	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		_ = hash
 		block := b.stargazerBlockByHash(hash)
 		if block == nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
 		}
-		// if blockNrOrHash.RequireCanonical && b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
-		// 	return nil, errors.New("hash is not currently canonical")
-		// }
-		// block := b.eth.blockchain.GetBlock(hash, header.Number.Uint64())
-		// if block == nil {
-		// 	return nil, errors.New("header found, but block body is missing")
-		// }
-		// return block, nil
+
+		// If the has is found, we have the canonical chain.
+		if block.Hash() == hash {
+			return block, nil
+		}
+		// If not we try to query by number as a backup.
+	}
+
+	// Then we try to get the block by number
+	if blockNr, ok := blockNrOrHash.Number(); ok {
+		block := b.stargazerBlockByNumber(blockNr)
+		if block == nil {
+			return nil, errorslib.Wrapf(ErrBlockNotFound, "number [%d]", blockNr)
+		}
 	}
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
