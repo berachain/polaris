@@ -92,17 +92,10 @@ func Build() error {
 		return err
 	}
 
-	for _, cmd := range cmds {
-		args := []string{
-			generateBuildTags(),
-			generateLinkerFlags(production, statically),
-			"-o", generateOutDirectory(cmd),
-			generateCmdToBuild(cmd),
-		}
-		if err = goBuild(args...); err != nil {
-			return err
-		}
+	if err = BuildStargazerApp(); err != nil {
+		return err
 	}
+
 	return nil
 }
 
