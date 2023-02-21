@@ -726,6 +726,178 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
+
+		When("GetUnbondingDelegationAddrInput", func() {
+			It("should fail if address is not a common.Address", func() {
+				res, err := contract.GetUnbondingDelegationAddrInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					"common.BytesToAddress(val.Bytes())",
+				)
+				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(res).To(BeNil())
+			})
+
+			It("should succeed", func() {
+				// Undelegate.
+				amount, ok := new(big.Int).SetString("1", 10)
+				Expect(ok).To(BeTrue())
+				_, err := contract.UndelegateAddrInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					false,
+					common.BytesToAddress(val.Bytes()),
+					amount,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				res, err := contract.GetUnbondingDelegationAddrInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					common.BytesToAddress(val.Bytes()),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
+		})
+
+		When("GetUnbondingDelegationStringInput", func() {
+			It("should fail if address is not a string", func() {
+				res, err := contract.GetUnbondingDelegationStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					10,
+				)
+				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if address is not a bech32 address", func() {
+				res, err := contract.GetUnbondingDelegationStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					"0x",
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("should succeed", func() {
+				// Undelegate.
+				amount, ok := new(big.Int).SetString("1", 10)
+				Expect(ok).To(BeTrue())
+				_, err := contract.UndelegateAddrInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					false,
+					common.BytesToAddress(val.Bytes()),
+					amount,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				res, err := contract.GetUnbondingDelegationStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					val.String(),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
+		})
+
+		When("GetRedelegationsAddrInput", func() {
+			It("should fail if address is not a common.Address", func() {
+				res, err := contract.GetRedelegationsAddrInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					"common.BytesToAddress(val.Bytes())",
+					common.BytesToAddress(val.Bytes()),
+				)
+				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if dst address is not a common.Address", func() {
+				res, err := contract.GetRedelegationsAddrInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					common.BytesToAddress(val.Bytes()),
+					"common.BytesToAddress(val.Bytes())",
+				)
+				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(res).To(BeNil())
+			})
+		})
+
+		When("GetRedelegationsStringInput", func() {
+			It("should fail if src address is not a string", func() {
+				res, err := contract.GetRedelegationsStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					10,
+					otherVal.String(),
+				)
+				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if dst address is not a string", func() {
+				res, err := contract.GetRedelegationsStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					val.String(),
+					10,
+				)
+				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if src address is not a bech32 address", func() {
+				res, err := contract.GetRedelegationsStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					"0x",
+					otherVal.String(),
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if dst address is not a bech32 address", func() {
+				res, err := contract.GetRedelegationsStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					val.String(),
+					"0x",
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+		})
 	})
 })
 
