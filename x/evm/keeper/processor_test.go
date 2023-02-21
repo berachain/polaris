@@ -24,17 +24,17 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/common"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/crypto"
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/keeper"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
-	"github.com/berachain/stargazer/x/evm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/testutil"
+	"pkg.berachain.dev/stargazer/x/evm/keeper"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 var (
