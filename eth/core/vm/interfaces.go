@@ -21,13 +21,13 @@
 package vm
 
 import (
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/params"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/params"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 type (

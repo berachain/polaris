@@ -24,8 +24,8 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 //go:generate moq -out ./statedb.mock.go -pkg mock ../ StargazerStateDB

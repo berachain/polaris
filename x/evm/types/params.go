@@ -23,8 +23,8 @@ package types
 import (
 	"encoding/json"
 
-	"github.com/berachain/stargazer/eth/params"
-	enclib "github.com/berachain/stargazer/lib/encoding"
+	"pkg.berachain.dev/stargazer/eth/params"
+	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 )
 
 const (

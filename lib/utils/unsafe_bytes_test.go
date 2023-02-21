@@ -21,9 +21,9 @@
 package utils_test
 
 import (
-	"github.com/berachain/stargazer/lib/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 var _ = Describe("UnsafeStrToBytes", func() {

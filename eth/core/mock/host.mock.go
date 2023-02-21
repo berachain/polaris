@@ -4,9 +4,9 @@
 package mock
 
 import (
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/core/state"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/core/state"
 	"sync"
 )
 

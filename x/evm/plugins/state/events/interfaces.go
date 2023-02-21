@@ -21,8 +21,8 @@
 package events
 
 import (
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 type (

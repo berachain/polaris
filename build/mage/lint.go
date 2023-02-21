@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"strings"
 
-	mi "github.com/berachain/stargazer/build/mage/internal"
+	mi "pkg.berachain.dev/stargazer/build/mage/internal"
 )
 
 const (
@@ -94,7 +94,7 @@ func GoImports() error {
 			"-recursive", "-rm-unused",
 			"-use-cache", "-output",
 			"-company-prefixes", "github.com/berachain",
-			"\"write\"", "-project-name", "github.com/berachain/stargazer", dir); err != nil {
+			"\"write\"", "-project-name", "pkg.berachain.dev/stargazer", dir); err != nil {
 			return err
 		}
 	}
