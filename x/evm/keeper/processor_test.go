@@ -87,8 +87,14 @@ var _ = Describe("Processor", func() {
 		})
 
 		It("should panic on nil, empty transaction", func() {
-			Expect(func() { k.ProcessTransaction(ctx, nil) }).To(Panic())
-			Expect(func() { k.ProcessTransaction(ctx, &coretypes.Transaction{}) }).To(Panic())
+			Expect(func() {
+				_, err := k.ProcessTransaction(ctx, nil)
+				Expect(err).ToNot(BeNil())
+			}).To(Panic())
+			Expect(func() {
+				_, err := k.ProcessTransaction(ctx, &coretypes.Transaction{})
+				Expect(err).ToNot(BeNil())
+			}).To(Panic())
 		})
 
 		It("should handle legacy tx", func() {
