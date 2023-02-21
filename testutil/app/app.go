@@ -26,9 +26,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"pkg.berachain.dev/stargazer/x/evm"
-	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
-
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appconfig"
@@ -88,7 +85,10 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
+	"pkg.berachain.dev/stargazer/x/evm"
+	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
 )
 
 var (
