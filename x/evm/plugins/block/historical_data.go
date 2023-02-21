@@ -21,8 +21,6 @@
 package block
 
 import (
-	"fmt"
-
 	"cosmossdk.io/store/prefix"
 	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
@@ -39,12 +37,11 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 	numBz := sdk.Uint64ToBigEndian(uint64(block.Number.Int64()))
 	blockStore.Set(block.Hash().Bytes(), numBz)
 	blockStore.Set(numBz, bz)
-	fmt.Println("BLOCKHASH", block.Hash().Hex())
 
 	// adding txns to kv.
 	txStore := prefix.NewStore(p.offchainStore, []byte("tx"))
 	for _, tx := range block.GetTransactions() {
-		bz, err := tx.MarshalBinary()
+		bz, err = tx.MarshalBinary()
 		if err != nil {
 			panic(err)
 		}
@@ -75,13 +72,11 @@ func (p *plugin) GetStargazerBlockByNumber(number int64) *coretypes.StargazerBlo
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("BLOCK", block)
 	return &block
 }
 
 // `GetStargazerBlockByHash` returns the stargazer header at the given hash.
 func (p *plugin) GetStargazerBlockByHash(hash common.Hash) *coretypes.StargazerBlock {
-	fmt.Println("BLOCKHASH", hash.Hex())
 	blockStore := prefix.NewStore(p.offchainStore, []byte("blocks"))
 	bz := blockStore.Get(hash.Bytes())
 	if bz == nil {
