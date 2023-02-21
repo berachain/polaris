@@ -21,7 +21,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v0.0.0
-	cosmossdk.io/simapp v0.0.0-20230220203919-8a46a3d4fecd
+	cosmossdk.io/simapp v0.0.0-20230221144543-25de9de537f3
 	cosmossdk.io/store v0.0.0-20230220203919-8a46a3d4fecd
 	cosmossdk.io/tools/confix v0.0.0-20230220203919-8a46a3d4fecd
 	cosmossdk.io/x/evidence v0.1.0
@@ -33,7 +33,7 @@ require (
 	github.com/cosmos/cosmos-db v1.0.0-rc.1
 	github.com/cosmos/cosmos-proto v1.0.0-beta.1
 	github.com/cosmos/cosmos-sdk v0.48.0
-	github.com/cosmos/gogoproto v1.4.5
+	github.com/cosmos/gogoproto v1.4.6
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/ethereum/go-ethereum v1.11.1
 	github.com/golang/protobuf v1.5.2
@@ -43,7 +43,7 @@ require (
 	github.com/incu6us/goimports-reviser/v3 v3.3.0
 	github.com/magefile/mage v1.14.0
 	github.com/matryer/moq v0.3.0
-	github.com/onsi/ginkgo/v2 v2.8.1
+	github.com/onsi/ginkgo/v2 v2.8.3
 	github.com/onsi/gomega v1.27.1
 	github.com/securego/gosec/v2 v2.15.0
 	github.com/segmentio/golines v0.11.0
