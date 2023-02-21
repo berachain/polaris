@@ -25,17 +25,17 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/mock"
-	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
-	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
-	"github.com/berachain/stargazer/eth/crypto"
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/eth/testutil/contracts/solidity/generated"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/mock"
+	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	vmmock "pkg.berachain.dev/stargazer/eth/core/vm/mock"
+	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
 )
 
 var (

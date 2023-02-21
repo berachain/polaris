@@ -21,9 +21,9 @@
 package eth
 
 import (
-	"github.com/berachain/stargazer/eth/api"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/log"
+	"pkg.berachain.dev/stargazer/eth/api"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/log"
 )
 
 // `NewStargazerProvider` creates a new `StargazerEVM` instance for use on an underlying blockchain.

@@ -20,7 +20,7 @@
 
 package mock
 
-import libtypes "github.com/berachain/stargazer/lib/types"
+import libtypes "pkg.berachain.dev/stargazer/lib/types"
 
 //go:generate moq -out ./cloneable.mock.go -pkg mock ../ Cloneable
 

@@ -21,14 +21,14 @@
 package state
 
 import (
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/state/journal"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/crypto"
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/snapshot"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/state/journal"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/lib/snapshot"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 var (

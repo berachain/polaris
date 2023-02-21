@@ -21,10 +21,10 @@
 package precompile
 
 import (
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/errors"
-	"github.com/berachain/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 const (

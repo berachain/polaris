@@ -21,8 +21,8 @@
 package gas
 
 import (
-	"github.com/berachain/stargazer/x/evm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // `InitGenesis` is a no-op for the gas plugin.

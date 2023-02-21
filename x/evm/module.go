@@ -21,9 +21,6 @@
 package evm
 
 import (
-	"github.com/berachain/stargazer/crypto"
-	"github.com/berachain/stargazer/x/evm/keeper"
-	"github.com/berachain/stargazer/x/evm/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -33,6 +30,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
+	"pkg.berachain.dev/stargazer/crypto"
+	"pkg.berachain.dev/stargazer/x/evm/keeper"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // `ConsensusVersion` defines the current x/evm module consensus version.

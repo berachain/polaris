@@ -5,8 +5,8 @@ package mock
 
 import (
 	"context"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/types"
 	"sync"
 )
 

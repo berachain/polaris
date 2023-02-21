@@ -5,9 +5,9 @@ package mock
 
 import (
 	"context"
-	"github.com/berachain/stargazer/eth/core/state"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+	"pkg.berachain.dev/stargazer/eth/core/state"
 	"sync"
 )
 

@@ -24,7 +24,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/berachain/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core"
 )
 
 type GasPluginMock struct {

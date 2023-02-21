@@ -21,11 +21,11 @@
 package crypto
 
 import (
-	"github.com/berachain/stargazer/eth/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
 var _ = Describe("PrivKey", func() {

@@ -23,7 +23,7 @@ package api
 import (
 	"context"
 
-	"github.com/berachain/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 // `Chain` defines the methods that the Stargazer Ethereum API exposes. This is the only interface
