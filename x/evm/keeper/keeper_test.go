@@ -29,5 +29,5 @@ import (
 
 func TestKeeper(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper")
+	RunSpecs(t, "x/evm/keeper")
 }

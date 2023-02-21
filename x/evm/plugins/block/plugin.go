@@ -33,7 +33,7 @@ import (
 )
 
 // TODO: change this.
-const bf = uint64(1e9)
+const bf = uint64(1)
 
 // `stargazerHeaderGetter` is an interface that defines the `GetStargazerHeader` method.
 type stargazerHeaderGetter interface {

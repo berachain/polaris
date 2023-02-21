@@ -187,7 +187,7 @@ func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Has
 // TODO: `Prepare` implements the `StargazerStateDB` interface by preparing the stateDB for a new transaction.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
-	panic("not supported by Stargazer")
+	// no-op
 }
 
 // =============================================================================

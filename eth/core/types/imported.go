@@ -55,6 +55,7 @@ var (
 	LatestSignerForChainID = types.LatestSignerForChainID
 	MustSignNewTx          = types.MustSignNewTx
 )
+
 var (
 	ReceiptStatusFailed     = types.ReceiptStatusFailed
 	ReceiptStatusSuccessful = types.ReceiptStatusSuccessful

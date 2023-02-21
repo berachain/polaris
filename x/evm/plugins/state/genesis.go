@@ -25,6 +25,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
+func (p *plugin) InitGenesis(ctx sdk.Context, _ *types.GenesisState) {
+	p.Reset(ctx)
+}
 
 func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}

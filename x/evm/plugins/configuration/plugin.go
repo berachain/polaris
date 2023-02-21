@@ -29,6 +29,7 @@ import (
 	"github.com/berachain/stargazer/eth/core"
 	"github.com/berachain/stargazer/eth/params"
 	"github.com/berachain/stargazer/x/evm/plugins"
+	"github.com/berachain/stargazer/x/evm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -38,6 +39,8 @@ var paramsPrefix = []byte("params")
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.ConfigurationPlugin
+	SetParams(params *types.Params)
+	GetParams() *types.Params
 }
 
 // `plugin` implements the core.ConfigurationPlugin interface.
@@ -47,8 +50,10 @@ type plugin struct {
 }
 
 // `NewPlugin` returns a new plugin instance.
-func NewPlugin() Plugin {
-	return &plugin{}
+func NewPlugin(evmStoreKey storetypes.StoreKey) Plugin {
+	return &plugin{
+		evmStoreKey: evmStoreKey,
+	}
 }
 
 // `Prepare` implements the core.ConfigurationPlugin interface.

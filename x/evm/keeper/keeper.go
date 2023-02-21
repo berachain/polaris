@@ -76,7 +76,7 @@ func NewKeeper(
 
 	k.bp = block.NewPlugin(k)
 
-	k.cp = configuration.NewPlugin()
+	k.cp = configuration.NewPlugin(k.storeKey)
 
 	k.gp = gas.NewPlugin()
 
