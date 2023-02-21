@@ -1,3 +1,23 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
 package staking_test
 
 import (
@@ -111,7 +131,7 @@ var _ = Describe("Staking", func() {
 			validator, _ = validator.AddTokensFromDel(sdk.NewIntFromBigInt(amount))
 			otherValidator, _ = otherValidator.AddTokensFromDel(sdk.NewIntFromBigInt(amount))
 			validator = stakingkeeper.TestingUpdateValidator(&sk, ctx, validator, true)
-			otherValidator = stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
+			stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
 
 			delegation := stakingkeepertypes.NewDelegation(del, val, math.LegacyNewDec(9))
 			sk.SetDelegation(ctx, delegation)
@@ -124,7 +144,8 @@ var _ = Describe("Staking", func() {
 			// Set the denom.
 			defaultParams := stakingkeepertypes.DefaultParams()
 			defaultParams.BondDenom = "stake"
-			sk.SetParams(ctx, defaultParams)
+			err = sk.SetParams(ctx, defaultParams)
+			Expect(err).ToNot(HaveOccurred())
 
 		})
 
@@ -157,7 +178,7 @@ var _ = Describe("Staking", func() {
 			It("should succeed", func() {
 				amountToDelegate, ok := new(big.Int).SetString("22000000000000000000", 10)
 				Expect(ok).To(BeTrue())
-				FundAccount(
+				err := FundAccount(
 					ctx,
 					bk,
 					del,
@@ -168,8 +189,9 @@ var _ = Describe("Staking", func() {
 						),
 					),
 				)
+				Expect(err).ToNot(HaveOccurred())
 
-				_, err := contract.DelegateAddrInput(
+				_, err = contract.DelegateAddrInput(
 					ctx,
 					caller,
 					big.NewInt(0),
@@ -223,7 +245,7 @@ var _ = Describe("Staking", func() {
 			It("should succeed", func() {
 				amountToDelegate, ok := new(big.Int).SetString("22000000000000000000", 10)
 				Expect(ok).To(BeTrue())
-				FundAccount(
+				err := FundAccount(
 					ctx,
 					bk,
 					del,
@@ -234,8 +256,9 @@ var _ = Describe("Staking", func() {
 						),
 					),
 				)
+				Expect(err).ToNot(HaveOccurred())
 
-				_, err := contract.DelegateStringInput(
+				_, err = contract.DelegateStringInput(
 					ctx,
 					caller,
 					big.NewInt(0),
@@ -661,6 +684,20 @@ var _ = Describe("Staking", func() {
 				Expect(res).To(BeNil())
 			})
 
+			It("should fail if the address is not a bech32 address", func() {
+				res, err := contract.CancelUnbondingDelegationStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					false,
+					"0x",
+					big.NewInt(1),
+					int64(1),
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
 			It("should succeed", func() {
 				creationHeight := ctx.BlockHeight()
 				amount, ok := new(big.Int).SetString("1", 10)
@@ -693,6 +730,8 @@ var _ = Describe("Staking", func() {
 })
 
 func FundAccount(ctx sdk.Context, bk bankkeeper.BaseKeeper, account sdk.AccAddress, coins sdk.Coins) error {
-	bk.MintCoins(ctx, stakingkeepertypes.ModuleName, coins)
+	if err := bk.MintCoins(ctx, stakingkeepertypes.ModuleName, coins); err != nil {
+		return err
+	}
 	return bk.SendCoinsFromModuleToAccount(ctx, stakingkeepertypes.ModuleName, account, coins)
 }
