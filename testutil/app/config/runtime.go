@@ -23,10 +23,8 @@ package config
 import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	evidencetypes "cosmossdk.io/x/evidence/types"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
-
 	"cosmossdk.io/x/feegrant"
-
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"

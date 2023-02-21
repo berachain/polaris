@@ -26,6 +26,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/tidwall/btree"
+
 	"pkg.berachain.dev/stargazer/lib/ds"
 )
 

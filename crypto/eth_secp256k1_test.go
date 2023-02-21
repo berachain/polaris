@@ -25,6 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 

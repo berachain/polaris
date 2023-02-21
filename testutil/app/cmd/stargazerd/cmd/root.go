@@ -27,15 +27,10 @@ import (
 	"os"
 
 	"cosmossdk.io/log"
-	cmtcfg "github.com/cometbft/cometbft/config"
-	dbm "github.com/cosmos/cosmos-db"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
 	"cosmossdk.io/simapp/params"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
-	simapp "pkg.berachain.dev/stargazer/testutil/app"
-
+	cmtcfg "github.com/cometbft/cometbft/config"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -55,6 +50,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	simapp "pkg.berachain.dev/stargazer/testutil/app"
 )
 
 // NewRootCmd creates a new root command for stargazerd. It is called once in the

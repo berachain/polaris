@@ -26,6 +26,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	liberrors "pkg.berachain.dev/stargazer/lib/errors"
 )
 

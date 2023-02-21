@@ -26,8 +26,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -35,6 +33,8 @@ import (
 	"pkg.berachain.dev/stargazer/lib/registry"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 )
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
