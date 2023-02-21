@@ -85,7 +85,7 @@ func GoImports() error {
 	// everything but ignore the tools folder
 	var x = make([]string, 0)
 	for _, dir := range mi.GoListFilter(true, "build/tools") {
-		stripped := strings.ReplaceAll(dir, "github.com/berachain", "")
+		stripped := strings.ReplaceAll(dir, "pkg.berachain.dev", "")
 		x = append(x, stripped)
 	}
 
@@ -93,7 +93,7 @@ func GoImports() error {
 		if err := goRun(goimports,
 			"-recursive", "-rm-unused",
 			"-use-cache", "-output",
-			"-company-prefixes", "github.com/berachain",
+			"-company-prefixes", "pkg.berachain.dev",
 			"\"write\"", "-project-name", "pkg.berachain.dev/stargazer", dir); err != nil {
 			return err
 		}

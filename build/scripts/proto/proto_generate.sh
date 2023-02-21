@@ -45,7 +45,7 @@ done
 
 # move proto files to the right places
 cp -r pkg.berachain.dev/stargazer/* ../
-rm -rf github.com
+rm -rf pkg.berachain.dev
 
 cd ../
 

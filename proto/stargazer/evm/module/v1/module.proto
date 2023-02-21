@@ -26,7 +26,7 @@ import "cosmos/app/v1alpha1/module.proto";
 
 // Module is the config object of the evm module.
 message Module {
-  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/berachain/stargazer/x/evm"};
+  option (cosmos.app.v1alpha1.module) = {go_import: "pkg.berachain.dev/stargazer/x/evm"};
 
   // authority defines the custom module authority. If not set, defaults to the governance module.
   string authority = 1;
