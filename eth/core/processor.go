@@ -113,7 +113,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	sp.gp.Prepare(ctx)
 
 	// Build a block object so we can track that status of the block as we process it.
-	sp.block = types.NewStargazerBlock(sp.bp.GetStargazerHeaderAtHeight(height))
+	sp.block = types.NewStargazerBlock(sp.bp.GetStargazerHeaderByNumber(height))
 
 	// Ensure that the gas plugin and header are in sync.
 	if sp.block.GasLimit != sp.gp.BlockGasLimit() {

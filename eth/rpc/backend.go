@@ -459,7 +459,7 @@ func (b *backend) stargazerBlockByNumber(number BlockNumber) *types.StargazerBlo
 	case EarliestBlockNumber:
 		// no-op, since we are querying block 0, which is done below.
 	}
-	return b.chain.Host().GetBlockPlugin().GetStargazerBlockAtHeight(number.Int64())
+	return b.chain.Host().GetBlockPlugin().GetStargazerBlockByNumber(number.Int64())
 }
 
 // `stargazerBlockByHash` returns the stargazer block identified by `hash`.

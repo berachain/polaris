@@ -47,7 +47,7 @@ var _ = Describe("Block Plugin", func() {
 	})
 
 	It("should get the header at current height", func() {
-		header := p.GetStargazerHeaderAtHeight(ctx.BlockHeight())
+		header := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
 		Expect(header.Hash()).To(Equal(header.Header.Hash()))
 		Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
 	})

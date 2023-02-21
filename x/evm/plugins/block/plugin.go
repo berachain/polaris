@@ -79,7 +79,7 @@ func (p *plugin) BaseFee() uint64 {
 // context.
 //
 // `GetStargazerHeader` implements core.BlockPlugin.
-func (p *plugin) GetStargazerHeaderAtHeight(height int64) *coretypes.StargazerHeader {
+func (p *plugin) GetStargazerHeaderByNumber(height int64) *coretypes.StargazerHeader {
 	// If the current block height is the same as the requested height, then we assume that the
 	// block has not been written to the store yet. In this case, we build and return a header
 	// from the sdk.Context.

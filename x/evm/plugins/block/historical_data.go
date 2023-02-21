@@ -26,7 +26,7 @@ import (
 )
 
 // `GetStargazerHeader` returns the stargazer header at the given height.
-func (p *plugin) GetStargazerBlockAtHeight(height int64) *coretypes.StargazerBlock {
+func (p *plugin) GetStargazerBlockByNumber(height int64) *coretypes.StargazerBlock {
 	// Get the stargazer header at the given height.
 	// header, ok := p.shg.GetStargazerHeader(p.ctx, height)
 	// if !ok {
