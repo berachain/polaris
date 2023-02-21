@@ -22,9 +22,9 @@ package block
 
 import (
 	"cosmossdk.io/store/prefix"
-	"github.com/berachain/stargazer/eth/common"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 // `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.

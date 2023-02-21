@@ -26,10 +26,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/errors"
-	"github.com/berachain/stargazer/lib/errors/debug"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/lib/errors/debug"
 )
 
 /**

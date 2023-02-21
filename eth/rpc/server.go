@@ -23,8 +23,8 @@ package rpc
 import (
 	"context"
 
-	"github.com/berachain/stargazer/eth/rpc/config"
 	"github.com/ethereum/go-ethereum/ethapi"
+	"pkg.berachain.dev/stargazer/eth/rpc/config"
 
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/gin-gonic/gin"

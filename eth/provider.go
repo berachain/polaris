@@ -25,12 +25,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/berachain/stargazer/eth/rpc"
-	"github.com/berachain/stargazer/eth/rpc/config"
+	"pkg.berachain.dev/stargazer/eth/rpc"
+	"pkg.berachain.dev/stargazer/eth/rpc/config"
 
-	"github.com/berachain/stargazer/eth/api"
-	"github.com/berachain/stargazer/eth/core"
-	ethlog "github.com/berachain/stargazer/eth/log"
+	"pkg.berachain.dev/stargazer/eth/api"
+	"pkg.berachain.dev/stargazer/eth/core"
+	ethlog "pkg.berachain.dev/stargazer/eth/log"
 )
 
 type StargazerProvider struct {

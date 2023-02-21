@@ -67,8 +67,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmmodulev1 "github.com/berachain/stargazer/api/stargazer/evm/module/v1"
-	evmtypes "github.com/berachain/stargazer/x/evm/types"
+	evmmodulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
+	evmtypes "pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 var (

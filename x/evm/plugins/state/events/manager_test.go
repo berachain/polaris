@@ -18,11 +18,11 @@
 package events_test
 
 import (
-	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
-	"github.com/berachain/stargazer/x/evm/plugins/state/events"
-	"github.com/berachain/stargazer/x/evm/plugins/state/events/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/stargazer/testutil"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -24,10 +24,10 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/registry"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/registry"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 // `defaultPlugin` is the default precompile plugin, should any chain running Stargazer EVM not

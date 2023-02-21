@@ -22,13 +22,13 @@ package block
 
 import (
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/common"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/utils"
-	offchain "github.com/berachain/stargazer/store/offchain"
-	"github.com/berachain/stargazer/testutil"
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
+	offchain "pkg.berachain.dev/stargazer/store/offchain"
+	"pkg.berachain.dev/stargazer/testutil"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -27,12 +27,6 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/berachain/stargazer/eth/api"
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/eth/rpc/config"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/consensus"
@@ -43,8 +37,14 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/rpc"
+	"pkg.berachain.dev/stargazer/eth/api"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/eth/rpc/config"
 
-	errorslib "github.com/berachain/stargazer/lib/errors"
+	errorslib "pkg.berachain.dev/stargazer/lib/errors"
 )
 
 var DefaultGasPriceOracleConfig = gasprice.Config{

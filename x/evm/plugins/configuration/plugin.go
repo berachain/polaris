@@ -25,11 +25,11 @@ import (
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/x/evm/plugins"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/x/evm/plugins"
 )
 
 var paramsPrefix = []byte("params")

@@ -27,15 +27,15 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/crypto"
-	"github.com/berachain/stargazer/lib/snapshot"
-	libtypes "github.com/berachain/stargazer/lib/types"
-	"github.com/berachain/stargazer/store/snapmulti"
-	"github.com/berachain/stargazer/x/evm/plugins"
-	"github.com/berachain/stargazer/x/evm/plugins/state/events"
-	types "github.com/berachain/stargazer/x/evm/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/lib/snapshot"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/store/snapmulti"
+	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
+	types "pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 const pluginRegistryKey = `statePlugin`

@@ -21,9 +21,9 @@
 package snapmulti
 
 import (
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/stack"
-	"github.com/berachain/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/stack"
+	"pkg.berachain.dev/stargazer/lib/utils"
 
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"

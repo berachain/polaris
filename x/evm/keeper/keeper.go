@@ -24,21 +24,21 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/store/offchain"
-	"github.com/berachain/stargazer/x/evm/plugins"
-	"github.com/berachain/stargazer/x/evm/plugins/block"
-	"github.com/berachain/stargazer/x/evm/plugins/configuration"
-	"github.com/berachain/stargazer/x/evm/plugins/gas"
-	"github.com/berachain/stargazer/x/evm/plugins/precompile"
-	"github.com/berachain/stargazer/x/evm/plugins/state"
-	"github.com/berachain/stargazer/x/evm/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"pkg.berachain.dev/stargazer/eth"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/store/offchain"
+	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/gas"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 
 	"github.com/cometbft/cometbft/libs/log"
 
-	precompilelog "github.com/berachain/stargazer/x/evm/plugins/precompile/log"
+	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 )
 
 // Compile-time interface assertion.

@@ -23,7 +23,7 @@ package ethrlp
 import (
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 // `EthereumRlpEncoded` is an interface that should be used to work with all ethereum rlp encoded data.

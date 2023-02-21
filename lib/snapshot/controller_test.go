@@ -23,12 +23,12 @@ package snapshot
 import (
 	"testing"
 
-	libtypes "github.com/berachain/stargazer/lib/types"
-	"github.com/berachain/stargazer/lib/utils"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
 
-	typesmock "github.com/berachain/stargazer/lib/types/mock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	typesmock "pkg.berachain.dev/stargazer/lib/types/mock"
 )
 
 func TestSnapshot(t *testing.T) {

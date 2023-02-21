@@ -23,14 +23,14 @@ package configuration
 import (
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/testutil"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 
-	enclib "github.com/berachain/stargazer/lib/encoding"
+	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 )
 
 var _ = Describe("Plugin", func() {

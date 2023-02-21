@@ -24,5 +24,5 @@ package main
 
 import (
 	//mage:import
-	_ "github.com/berachain/stargazer/build/mage"
+	_ "pkg.berachain.dev/stargazer/build/mage"
 )

@@ -21,9 +21,9 @@
 package core
 
 import (
-	"github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/core/state"
+	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 )
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.

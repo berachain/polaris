@@ -25,10 +25,10 @@ import (
 	"math"
 
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/core"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/x/evm/plugins"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/x/evm/plugins"
 )
 
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.

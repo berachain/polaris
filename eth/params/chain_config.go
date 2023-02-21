@@ -23,7 +23,7 @@ package params
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 const DefaultEIP155ChainID = 42069
