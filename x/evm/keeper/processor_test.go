@@ -37,20 +37,6 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-var (
-	dummyContract = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-	key, _        = crypto.GenerateEthKey()
-	signer        = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-
-	legacyTxData = &coretypes.LegacyTx{
-		Nonce:    0,
-		To:       &dummyContract,
-		Gas:      100000,
-		GasPrice: big.NewInt(2),
-		Data:     []byte("abcdef"),
-	}
-)
-
 var _ = Describe("Processor", func() {
 	var (
 		k             *keeper.Keeper
@@ -68,12 +54,6 @@ var _ = Describe("Processor", func() {
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
-		tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
-		addr, err := signer.Sender(tx)
-		Expect(err).To(BeNil())
-		k.GetStatePlugin().CreateAccount(addr)
-		k.GetStatePlugin().AddBalance(addr, big.NewInt(10000000))
-		k.GetStatePlugin().Finalize()
 
 		// before every block
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(blockGasLimit))
@@ -98,6 +78,27 @@ var _ = Describe("Processor", func() {
 		})
 
 		It("should handle legacy tx", func() {
+			// setup state for legacy tx
+			dummyContract := common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
+			key, _ := crypto.GenerateEthKey()
+			signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+			tx = coretypes.MustSignNewTx(
+				key,
+				signer,
+				&coretypes.LegacyTx{
+					Nonce:    0,
+					To:       &dummyContract,
+					Gas:      100000,
+					GasPrice: big.NewInt(2),
+					Data:     []byte("abcdef"),
+				},
+			)
+			addr, err := signer.Sender(tx)
+			Expect(err).To(BeNil())
+			k.GetStatePlugin().CreateAccount(addr)
+			k.GetStatePlugin().AddBalance(addr, big.NewInt(10000000))
+			k.GetStatePlugin().Finalize()
+
 			// process tx
 			receipt, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).To(BeNil())
