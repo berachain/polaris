@@ -54,13 +54,17 @@ func (bc *blockchain) buildStateProcessor(vmConfig vm.Config, commit bool) *Stat
 	return NewStateProcessor(bc.host, state.NewStateDB(bc.host.GetStatePlugin()), vmConfig, commit)
 }
 
+// `CurrentHeader` returns the current header of the blockchain.
 func (bc *blockchain) CurrentHeader() *types.StargazerHeader {
 	return bc.StateProcessor.block.StargazerHeader
 }
+
+// `CurrentBlock` returns the current block of the blockchain.
 func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
 	return bc.StateProcessor.block
 }
 
+// `CurrentTransaction` returns the last finalized block of the blockchain.
 func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
-	return bc.StateProcessor.block
+	return bc.StateProcessor.finalizedBlock
 }
