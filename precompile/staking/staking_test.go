@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package staking_test
+package staking
 
 import (
 	"math/big"
@@ -28,7 +28,6 @@ import (
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/types/abi"
 	"github.com/berachain/stargazer/precompile/contracts/solidity/generated"
-	"github.com/berachain/stargazer/precompile/staking"
 	"github.com/berachain/stargazer/testutil"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -67,12 +66,12 @@ var _ = Describe("Staking", func() {
 
 		ctx sdk.Context
 
-		contract *staking.Contract
+		contract *Contract
 	)
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
-		contract = staking.NewContract(&sk)
+		contract = NewContract(&sk)
 	})
 
 	When("AbiMethods", func() {
@@ -158,7 +157,7 @@ var _ = Describe("Staking", func() {
 					true,
 					"0x",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -171,7 +170,7 @@ var _ = Describe("Staking", func() {
 					common.BytesToAddress(val.Bytes()),
 					"amount",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -212,7 +211,7 @@ var _ = Describe("Staking", func() {
 					false,
 					90909,
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -225,7 +224,7 @@ var _ = Describe("Staking", func() {
 					val.String(),
 					"amount",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -279,7 +278,7 @@ var _ = Describe("Staking", func() {
 					true,
 					"0x",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -305,7 +304,7 @@ var _ = Describe("Staking", func() {
 					true,
 					10,
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -344,7 +343,7 @@ var _ = Describe("Staking", func() {
 					"0x",
 					big.NewInt(0),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -357,7 +356,7 @@ var _ = Describe("Staking", func() {
 					common.BytesToAddress(val.Bytes()),
 					"amount",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -384,7 +383,7 @@ var _ = Describe("Staking", func() {
 					90909,
 					big.NewInt(0),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -397,7 +396,7 @@ var _ = Describe("Staking", func() {
 					val.String(),
 					"amount",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -438,7 +437,7 @@ var _ = Describe("Staking", func() {
 					common.BytesToAddress(val.Bytes()),
 					big.NewInt(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -452,7 +451,7 @@ var _ = Describe("Staking", func() {
 					10,
 					big.NewInt(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -466,7 +465,7 @@ var _ = Describe("Staking", func() {
 					common.BytesToAddress(val.Bytes()),
 					"amount",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -495,7 +494,7 @@ var _ = Describe("Staking", func() {
 					val.String(),
 					big.NewInt(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -509,7 +508,7 @@ var _ = Describe("Staking", func() {
 					10,
 					big.NewInt(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -523,7 +522,7 @@ var _ = Describe("Staking", func() {
 					otherVal.String(),
 					"amount",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -580,7 +579,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(1),
 					int64(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -594,7 +593,7 @@ var _ = Describe("Staking", func() {
 					"amount",
 					int64(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -608,7 +607,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(1),
 					"height",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidInt64))
+				Expect(err).To(MatchError(ErrInvalidInt64))
 				Expect(res).To(BeNil())
 			})
 
@@ -652,7 +651,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(1),
 					int64(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -666,7 +665,7 @@ var _ = Describe("Staking", func() {
 					"amount",
 					int64(1),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidBigInt))
+				Expect(err).To(MatchError(ErrInvalidBigInt))
 				Expect(res).To(BeNil())
 			})
 
@@ -680,7 +679,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(1),
 					"height",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidInt64))
+				Expect(err).To(MatchError(ErrInvalidInt64))
 				Expect(res).To(BeNil())
 			})
 
@@ -736,7 +735,7 @@ var _ = Describe("Staking", func() {
 					true,
 					"common.BytesToAddress(val.Bytes())",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -775,7 +774,7 @@ var _ = Describe("Staking", func() {
 					true,
 					10,
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -827,7 +826,7 @@ var _ = Describe("Staking", func() {
 					"common.BytesToAddress(val.Bytes())",
 					common.BytesToAddress(val.Bytes()),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 
@@ -840,7 +839,7 @@ var _ = Describe("Staking", func() {
 					common.BytesToAddress(val.Bytes()),
 					"common.BytesToAddress(val.Bytes())",
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidValidatorAddr))
+				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
 			})
 		})
@@ -855,7 +854,7 @@ var _ = Describe("Staking", func() {
 					10,
 					otherVal.String(),
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -868,7 +867,7 @@ var _ = Describe("Staking", func() {
 					val.String(),
 					10,
 				)
-				Expect(err).To(MatchError(staking.ErrInvalidString))
+				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
@@ -896,6 +895,118 @@ var _ = Describe("Staking", func() {
 				)
 				Expect(err).To(HaveOccurred())
 				Expect(res).To(BeNil())
+			})
+
+			When("Calling Helper Methods", func() {
+				When("delegationHelper", func() {
+					It("should fail if caller address is wrong", func() {
+						_, err := contract.delegationHelper(
+							ctx,
+							common.BytesToAddress([]byte("")),
+							val,
+						)
+						Expect(err).To(HaveOccurred())
+					})
+
+					It("should fail if there is no delegation", func() {
+						_, err := contract.delegationHelper(
+							ctx,
+							caller,
+							otherVal,
+						)
+						Expect(err).To(HaveOccurred())
+					})
+
+					It("should succeed", func() {
+						_, err := contract.delegationHelper(
+							ctx,
+							caller,
+							val,
+						)
+						Expect(err).ToNot(HaveOccurred())
+					})
+				})
+
+				When("getUnbondingDelegationHelper", func() {
+					It("should fail if caller address is wrong", func() {
+						_, err := contract.getUnbondingDelegationHelper(
+							ctx,
+							common.BytesToAddress([]byte("")),
+							val,
+						)
+						Expect(err).To(HaveOccurred())
+					})
+
+					It("should fail if there is no unbonding delegation", func() {
+						_, err := contract.getUnbondingDelegationHelper(
+							ctx,
+							caller,
+							otherVal,
+						)
+						Expect(err).To(HaveOccurred())
+					})
+
+					It("should succeed", func() {
+						// Undelegate.
+						amount, ok := new(big.Int).SetString("1", 10)
+						Expect(ok).To(BeTrue())
+						_, err := contract.UndelegateAddrInput(
+							ctx,
+							caller,
+							big.NewInt(0),
+							false,
+							common.BytesToAddress(val.Bytes()),
+							amount,
+						)
+						Expect(err).ToNot(HaveOccurred())
+
+						_, err = contract.getUnbondingDelegationHelper(
+							ctx,
+							caller,
+							val,
+						)
+						Expect(err).ToNot(HaveOccurred())
+					})
+				})
+
+				When("getRedelegationHelper", func() {
+					It("should fail if caller address is wrong", func() {
+						_, err := contract.getRedelegationsHelper(
+							ctx,
+							common.BytesToAddress([]byte("")),
+							val,
+							otherVal,
+						)
+						Expect(err).To(HaveOccurred())
+					})
+
+					It("should fail if there is no redelegation", func() {
+						_, err := contract.getRedelegationsHelper(
+							ctx,
+							caller,
+							val,
+							otherVal,
+						)
+						Expect(err).To(HaveOccurred())
+					})
+
+					It("should succeed", func() {
+						// Redelegate.
+						amount, ok := new(big.Int).SetString("1", 10)
+						Expect(ok).To(BeTrue())
+
+						_, err := contract.BeginRedelegateAddrInput(
+							ctx,
+							caller,
+							big.NewInt(0),
+							false,
+							common.BytesToAddress(val.Bytes()),
+							common.BytesToAddress(otherVal.Bytes()),
+							amount,
+						)
+						Expect(err).ToNot(HaveOccurred())
+					})
+				})
 			})
 		})
 	})

@@ -230,7 +230,7 @@ func (c *Contract) GetRedelegationsAddrInput(
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.GetRedelegationsHelper(ctx, caller, sdk.ValAddress(srcVal.Bytes()), sdk.ValAddress(dstVal.Bytes()))
+	return c.getRedelegationsHelper(ctx, caller, sdk.ValAddress(srcVal.Bytes()), sdk.ValAddress(dstVal.Bytes()))
 }
 
 func (c *Contract) GetRedelegationsStringInput(
@@ -258,7 +258,7 @@ func (c *Contract) GetRedelegationsStringInput(
 		return nil, err
 	}
 
-	return c.GetRedelegationsHelper(ctx, caller, src, dst)
+	return c.getRedelegationsHelper(ctx, caller, src, dst)
 }
 
 func (c *Contract) DelegateAddrInput(

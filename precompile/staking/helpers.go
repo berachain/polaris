@@ -68,7 +68,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 }
 
 // Returns the list of redelegations as a []stakingtypes.RedelegationEntry.
-func (c *Contract) GetRedelegationsHelper(
+func (c *Contract) getRedelegationsHelper(
 	ctx context.Context,
 	caller common.Address,
 	srcValidator sdk.ValAddress,
