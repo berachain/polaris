@@ -25,7 +25,9 @@ import (
 	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
 	"github.com/berachain/stargazer/lib/utils"
+	offchain "github.com/berachain/stargazer/store/offchain"
 	"github.com/berachain/stargazer/testutil"
+	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -38,7 +40,7 @@ var _ = Describe("Block Plugin", func() {
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
-		p = utils.MustGetAs[*plugin](NewPlugin(&mockSHG{}))
+		p = utils.MustGetAs[*plugin](NewPlugin(&mockSHG{}, offchain.NewFromDB(dbm.NewMemDB())))
 		p.Prepare(ctx)
 	})
 
@@ -47,7 +49,7 @@ var _ = Describe("Block Plugin", func() {
 	})
 
 	It("should get the header at current height", func() {
-		header := p.GetStargazerHeaderAtHeight(ctx.BlockHeight())
+		header := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
 		Expect(header.Hash()).To(Equal(header.Header.Hash()))
 		Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
 	})

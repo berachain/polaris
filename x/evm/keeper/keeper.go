@@ -26,6 +26,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth"
 	"github.com/berachain/stargazer/eth/core"
+	"github.com/berachain/stargazer/store/offchain"
 	"github.com/berachain/stargazer/x/evm/plugins"
 	"github.com/berachain/stargazer/x/evm/plugins/block"
 	"github.com/berachain/stargazer/x/evm/plugins/configuration"
@@ -33,6 +34,7 @@ import (
 	"github.com/berachain/stargazer/x/evm/plugins/precompile"
 	"github.com/berachain/stargazer/x/evm/plugins/state"
 	"github.com/berachain/stargazer/x/evm/types"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
 	"github.com/cometbft/cometbft/libs/log"
 
@@ -44,9 +46,9 @@ var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
-	storeKey storetypes.StoreKey
-
-	stargazer *eth.StargazerProvider
+	storeKey   storetypes.StoreKey
+	stargazer  *eth.StargazerProvider
+	offChainKv *offchain.Store
 
 	// sk is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
@@ -68,13 +70,18 @@ func NewKeeper(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	authority string,
+	appOpts servertypes.AppOptions,
+
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
 		storeKey:  storeKey,
 	}
 
-	k.bp = block.NewPlugin(k)
+	// TODO: parameterize kv store.
+	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+
+	k.bp = block.NewPlugin(k, k.offChainKv)
 
 	k.cp = configuration.NewPlugin(storeKey)
 

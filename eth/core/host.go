@@ -56,10 +56,10 @@ type (
 		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
-		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
-		GetStargazerHeaderAtHeight(int64) *types.StargazerHeader
-		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
-		GetStargazerBlockAtHeight(int64) *types.StargazerBlock
+		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
+		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
+		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
+		GetStargazerBlockByNumber(int64) *types.StargazerBlock
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
 		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
 		// `BaseFee` returns the base fee of the current block.

@@ -27,6 +27,8 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 )
 
+// var _ ethapi.Block = &StargazerBlock{}
+
 // `initialTransactionsCapacity` is the initial capacity of the transactions, receipts slice.
 // TODO: figre out optimal value.
 const initialTransactionsCapacity = 256
@@ -103,14 +105,14 @@ func (sb *StargazerBlock) GetTransactions() Transactions {
 // header.
 func (sb *StargazerBlock) Finalize(gasUsed uint64) {
 	hasher := trie.NewStackTrie(nil)
-	sb.Header.GasUsed = gasUsed
+	sb.StargazerHeader.GasUsed = gasUsed
 	if len(sb.txs) == 0 {
-		sb.Header.TxHash = EmptyRootHash
-		sb.Header.ReceiptHash = EmptyRootHash
+		sb.StargazerHeader.TxHash = EmptyRootHash
+		sb.StargazerHeader.ReceiptHash = EmptyRootHash
 	} else {
-		sb.Header.TxHash = DeriveSha(sb.txs, hasher)
-		sb.Header.ReceiptHash = DeriveSha(sb.receipts, hasher)
-		sb.Header.Bloom = CreateBloom(sb.receipts)
+		sb.StargazerHeader.TxHash = DeriveSha(sb.txs, hasher)
+		sb.StargazerHeader.ReceiptHash = DeriveSha(sb.receipts, hasher)
+		sb.StargazerHeader.Bloom = CreateBloom(sb.receipts)
 	}
 }
 
@@ -119,5 +121,6 @@ func (sb *StargazerBlock) EthBlock() *Block {
 	if sb == nil {
 		return nil
 	}
-	return NewBlock(sb.Header, sb.txs, nil, sb.receipts, trie.NewStackTrie(nil))
+	eb := NewBlock(sb.Header, sb.txs, nil, sb.receipts, trie.NewStackTrie(nil))
+	return eb
 }

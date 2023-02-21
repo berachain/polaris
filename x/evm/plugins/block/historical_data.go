@@ -21,36 +21,66 @@
 package block
 
 import (
+	"cosmossdk.io/store/prefix"
 	"github.com/berachain/stargazer/eth/common"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// `GetStargazerHeader` returns the stargazer header at the given height.
-func (p *plugin) GetStargazerBlockAtHeight(height int64) *coretypes.StargazerBlock {
-	// Get the stargazer header at the given height.
-	// header, ok := p.shg.GetStargazerHeader(p.ctx, height)
-	// if !ok {
-	// 	return nil, fmt.Errorf("stargazer header not found at height %d", height)
-	// }
-	// // Get the stargazer block at the given height.
-	// block, ok := p.shg.GetStargazerBlock(p.ctx, height)
-	// if !ok {
-	// 	return nil, fmt.Errorf("stargazer block not found at height %d", height)
-	// }
-	// // Return the stargazer block.
-	// return &StargazerBlock{
-	// 	Header: header,
-	// 	Block:  block,
-	// }, nil
-	return nil
+// `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
+func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.StargazerBlock) {
+	blockStore := prefix.NewStore(p.offchainStore, []byte("blocks"))
+	bz, err := block.MarshalBinary()
+	if err != nil {
+		panic(err)
+	}
+	numBz := sdk.Uint64ToBigEndian(uint64(block.Number.Int64()))
+	blockStore.Set(block.Hash().Bytes(), numBz)
+	blockStore.Set(numBz, bz)
+
+	// adding txns to kv.
+	txStore := prefix.NewStore(p.offchainStore, []byte("tx"))
+	for _, tx := range block.GetTransactions() {
+		bz, err = tx.MarshalBinary()
+		if err != nil {
+			panic(err)
+		}
+		txStore.Set(tx.Hash().Bytes(), bz)
+	}
+
+	version := block.Number
+	lastVersion := p.offchainStore.Get(versionKeyPrefix)
+	if sdk.BigEndianToUint64(lastVersion) != version.Uint64()-1 {
+		panic(err)
+	}
+	p.offchainStore.Set(versionKeyPrefix, sdk.Uint64ToBigEndian(uint64(version.Int64())))
+	// flush the underlying buffer to disk.
+	p.offchainStore.Write()
 }
 
+var versionKeyPrefix = []byte("version")
+
+// `GetStargazerBlockByNumber` returns the stargazer header at the given height.
+func (p *plugin) GetStargazerBlockByNumber(number int64) *coretypes.StargazerBlock {
+	blockStore := prefix.NewStore(p.offchainStore, []byte("blocks"))
+	bz := blockStore.Get(sdk.Uint64ToBigEndian(uint64(number)))
+	if bz == nil {
+		return nil
+	}
+	var block coretypes.StargazerBlock
+	err := block.UnmarshalBinary(bz)
+	if err != nil {
+		panic(err)
+	}
+	return &block
+}
+
+// `GetStargazerBlockByHash` returns the stargazer header at the given hash.
 func (p *plugin) GetStargazerBlockByHash(hash common.Hash) *coretypes.StargazerBlock {
-	// // Get the stargazer header at the given height.
-	// header, ok := p.shg.GetStargazerHeaderByHash(p.ctx, hash)
-	// if !ok {
-	// 	return nil
-	// }
-	// Return the stargazer block.
-	return nil
+	blockStore := prefix.NewStore(p.offchainStore, []byte("blocks"))
+	bz := blockStore.Get(hash.Bytes())
+	if bz == nil {
+		return nil
+	}
+	return p.GetStargazerBlockByNumber(int64(sdk.BigEndianToUint64(bz)))
 }

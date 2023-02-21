@@ -18,29 +18,44 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package offchain
 
 import (
-	"context"
+	"testing"
 
-	"github.com/berachain/stargazer/eth/core/types"
+	"github.com/cosmos/cosmos-sdk/testutil/sims"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-const testBaseFee = 69
-
-//go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
-func NewBlockPluginMock() *BlockPluginMock {
-	// make and configure a mocked core.BlockPlugin
-	mockedBlockPlugin := &BlockPluginMock{
-		BaseFeeFunc: func() uint64 {
-			return testBaseFee
-		},
-		GetStargazerHeaderByNumberFunc: func(n int64) *types.StargazerHeader {
-			panic("mock out the GetStargazerHeaderByNumber method")
-		},
-		PrepareFunc: func(contextMoqParam context.Context) {
-			// no-op
-		},
-	}
-	return mockedBlockPlugin
+func TestOffchain(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "store/offchain")
 }
+
+var _ = Describe("offchainStore", func() {
+	var (
+		byte1 = []byte{1}
+		byte2 = []byte{2}
+		byte3 = []byte{3}
+		byte4 = []byte{4}
+		dbDir = sims.NewAppOptionsWithFlagHome("/tmp/berachain")
+		name  = "indexer-test"
+		store = NewOffChainKVStore(name, dbDir)
+	)
+
+	It("checks for write to buffer", func() {
+		store.Set(byte1, byte2)
+		store.Set(byte3, byte4)
+		Expect(store.Get(byte1)).To(Equal(byte2))
+		Expect(store.Get(byte3)).To(Equal(byte4))
+	})
+
+	It("checks for write to disk", func() {
+		store.Set(byte1, byte2)
+		store.Set(byte2, byte3)
+		store.Write()
+		store.Delete(byte1)
+		Expect(store.Has(byte1)).Should(BeFalse())
+	})
+})
