@@ -78,8 +78,8 @@ func SetupMinimalKeepers() (
 		AccKey,
 		authtypes.ProtoBaseAccount,
 		map[string][]string{
-			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner},
-			stakingtypes.BondedPoolName:    {authtypes.Minter, authtypes.Burner},
+			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
+			stakingtypes.BondedPoolName:    {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			"evm":                          {authtypes.Minter, authtypes.Burner},
 			"staking":                      {authtypes.Minter, authtypes.Burner},
 		},
