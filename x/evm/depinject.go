@@ -26,6 +26,7 @@ import (
 	store "cosmossdk.io/store/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 )

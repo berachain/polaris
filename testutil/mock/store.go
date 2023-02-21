@@ -27,6 +27,7 @@ import (
 	"sync"
 
 	"cosmossdk.io/store/types"
+
 	"pkg.berachain.dev/stargazer/testutil/mock/interfaces"
 	"pkg.berachain.dev/stargazer/testutil/mock/interfaces/mock"
 )

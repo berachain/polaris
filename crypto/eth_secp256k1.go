@@ -27,6 +27,7 @@ import (
 
 	cmcrypto "github.com/cometbft/cometbft/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
 	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 

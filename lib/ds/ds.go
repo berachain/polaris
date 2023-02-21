@@ -22,6 +22,7 @@ package ds
 
 import (
 	dbm "github.com/cosmos/cosmos-db"
+
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 

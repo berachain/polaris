@@ -26,6 +26,7 @@ import (
 
 	cbft "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
