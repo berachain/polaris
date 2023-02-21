@@ -25,11 +25,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/crypto"
-	"github.com/berachain/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/lib/errors"
 )
 
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.

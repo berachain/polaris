@@ -24,9 +24,9 @@ import (
 	"encoding/binary"
 	"testing"
 
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/trees"
 	dbm "github.com/cosmos/cosmos-db"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/trees"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

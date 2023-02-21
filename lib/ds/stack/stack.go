@@ -15,7 +15,7 @@
 //nolint:ireturn // Stack uses generics.
 package stack
 
-import "github.com/berachain/stargazer/lib/ds"
+import "pkg.berachain.dev/stargazer/lib/ds"
 
 const (
 	resizeRatio = 2

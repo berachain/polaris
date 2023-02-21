@@ -23,8 +23,8 @@ package mock
 import (
 	"context"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/params"
 )
 
 // const testBaseFee = 69

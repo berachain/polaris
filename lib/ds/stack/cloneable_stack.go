@@ -21,8 +21,8 @@
 package stack
 
 import (
-	"github.com/berachain/stargazer/lib/ds"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 // `cloneableStack` is a struct that holds a slice of CacheEntry instances.

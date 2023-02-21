@@ -4,10 +4,10 @@
 package mock
 
 import (
-	"github.com/berachain/stargazer/eth/core"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
+	"pkg.berachain.dev/stargazer/eth/core"
 	"sync"
 )
 

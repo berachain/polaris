@@ -26,9 +26,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/state"
-	vmmock "github.com/berachain/stargazer/eth/core/vm/mock"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/state"
+	vmmock "pkg.berachain.dev/stargazer/eth/core/vm/mock"
 )
 
 var _ = Describe("Transfers", func() {

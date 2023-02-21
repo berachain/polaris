@@ -21,8 +21,8 @@
 package journal
 
 import (
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/stack"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/stack"
 )
 
 // `refund` is a `Store` that tracks the refund counter.

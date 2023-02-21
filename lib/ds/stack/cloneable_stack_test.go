@@ -24,9 +24,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/stack"
-	typesmock "github.com/berachain/stargazer/lib/types/mock"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/stack"
+	typesmock "pkg.berachain.dev/stargazer/lib/types/mock"
 )
 
 var _ = Describe("Cloneable Stack", func() {

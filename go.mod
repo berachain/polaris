@@ -1,4 +1,4 @@
-module github.com/berachain/stargazer
+module pkg.berachain.dev/stargazer
 
 go 1.20
 

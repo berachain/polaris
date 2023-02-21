@@ -26,7 +26,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "stargazer/evm/v1alpha1/params.proto";
 
-option go_package = "github.com/berachain/stargazer/x/evm/types";
+option go_package = "pkg.berachain.dev/stargazer/x/evm/types";
 
 // Msg defines the x/evm Msg service.
 service MsgService {

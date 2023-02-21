@@ -24,10 +24,10 @@ import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
-	modulev1 "github.com/berachain/stargazer/api/stargazer/evm/module/v1"
-	"github.com/berachain/stargazer/x/evm/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
+	"pkg.berachain.dev/stargazer/x/evm/keeper"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.

@@ -26,8 +26,8 @@ import (
 	"log"
 
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/lib/errors"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"pkg.berachain.dev/stargazer/lib/errors"
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

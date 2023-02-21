@@ -21,12 +21,12 @@
 package core
 
 import (
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/core/state"
-	"github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/params"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/core/state"
+	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/params"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 // `StargazerHostChain` defines the plugins that the chain running Stargazer EVM should implement.

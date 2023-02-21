@@ -21,10 +21,10 @@
 package snapshot
 
 import (
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/stack"
-	"github.com/berachain/stargazer/lib/registry"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/stack"
+	"pkg.berachain.dev/stargazer/lib/registry"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 // `initJournalCapacity` is the initial capacity of the `journal` stack.

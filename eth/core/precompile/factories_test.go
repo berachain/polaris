@@ -24,11 +24,11 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/core/vm"
-	solidity "github.com/berachain/stargazer/eth/testutil/contracts/solidity/generated"
-	"github.com/berachain/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	solidity "pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
