@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint: forbidigo // good project.
+//nolint:forbidigo // good project.
 package mage
 
 import (
