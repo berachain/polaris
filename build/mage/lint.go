@@ -22,6 +22,9 @@ package mage
 
 import (
 	"fmt"
+	"strings"
+
+	mi "pkg.berachain.dev/stargazer/build/mage/internal"
 )
 
 const (
@@ -79,9 +82,24 @@ func Golines() error {
 
 func GoImports() error {
 	PrintMageName()
-	if err := goRun(goimports, "-company-prefixes", "pkg.berachain.dev", "-project-name", "pkg.berachain.dev/stargazer", "./..."); err != nil {
-		return err
+	// everything but ignore the tools folder
+	var x = make([]string, 0)
+	for _, dir := range mi.GoListFilter(true, "build/tools") {
+		stripped := strings.ReplaceAll(dir, "pkg.berachain.dev", "")
+		x = append(x, stripped)
 	}
+
+	for _, dir := range x {
+		if err := goRun(goimports,
+			"-company-prefixes", "pkg.berachain.dev",
+			"\"write\"", "-project-name", "pkg.berachain.dev/stargazer", dir+"/..."); err != nil {
+			return err
+		}
+	}
+
+	// if err := goRun(goimports, "./...", "-company-prefixes", "pkg.berachain.dev"); err != nil {
+	// 	return err
+	// }
 	return nil
 }
 
