@@ -24,10 +24,10 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/ethapi"
-	"pkg.berachain.dev/stargazer/eth/rpc/config"
-
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/gin-gonic/gin"
+
+	"pkg.berachain.dev/stargazer/eth/rpc/config"
 )
 
 type Service struct {

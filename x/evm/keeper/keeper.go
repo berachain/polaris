@@ -21,10 +21,11 @@
 package keeper
 
 import (
+	storetypes "cosmossdk.io/store/types"
+	"github.com/cometbft/cometbft/libs/log"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	storetypes "cosmossdk.io/store/types"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/store/offchain"
@@ -33,12 +34,9 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/gas"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
+	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/types"
-
-	"github.com/cometbft/cometbft/libs/log"
-
-	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 )
 
 // Compile-time interface assertion.

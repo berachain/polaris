@@ -23,17 +23,14 @@ package offchain
 import (
 	"path/filepath"
 
+	cachekv "cosmossdk.io/store/cachekv"
 	"cosmossdk.io/store/dbadapter"
 	storetypes "cosmossdk.io/store/types"
-
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/spf13/cast"
-
-	dbm "github.com/cosmos/cosmos-db"
-
-	cachekv "cosmossdk.io/store/cachekv"
 )
 
 // Compile-time checks to ensure types are correct.
