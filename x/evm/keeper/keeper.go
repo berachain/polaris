@@ -78,7 +78,10 @@ func NewKeeper(
 		storeKey:  storeKey,
 	}
 
-	k.bp = block.NewPlugin(k)
+	// TODO: parameterize kv store.
+	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+
+	k.bp = block.NewPlugin(k, k.offChainKv)
 
 	k.cp = configuration.NewPlugin(storeKey)
 
@@ -94,9 +97,6 @@ func NewKeeper(
 
 	k.stargazer = eth.NewStargazerProvider(k, nil)
 	// TODO: provide cosmos ctx logger.
-
-	// TODO: parameterize kv store.
-	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
 
 	return k
 }

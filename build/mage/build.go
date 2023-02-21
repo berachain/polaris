@@ -124,14 +124,13 @@ func Install() error {
 		return err
 	}
 
-	// Build all commands.
-	for _, cmd := range cmds {
-		err := goInstall(generateCmdToBuild(cmd))
-		if err != nil {
-			return err
-		}
+	args := []string{
+		generateBuildTags(),
+		generateLinkerFlags(production, statically),
+		"./testutil/app/cmd/stargazerd",
 	}
-	return nil
+
+	return goInstall(args...)
 }
 
 // Runs `go generate` on the entire project.

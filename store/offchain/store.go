@@ -63,8 +63,8 @@ func NewOffChainKVStore(name string, appOpts types.AppOptions) *Store {
 	}
 }
 
-// `NewOffChainKVStoreFromDB` creates a new store and connects it to the provided database.
-func NewOffChainKVStoreFromDB(db dbm.DB) *Store {
+// `NewFromDB` creates a new store and connects it to the provided database.
+func NewFromDB(db dbm.DB) *Store {
 	return &Store{
 		cachekv.NewStore(&dbadapter.Store{DB: db}),
 	}

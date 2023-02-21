@@ -24,6 +24,7 @@ import (
 	"context"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/berachain/stargazer/eth/common"
 	"github.com/berachain/stargazer/eth/core"
 	coretypes "github.com/berachain/stargazer/eth/core/types"
@@ -44,6 +45,7 @@ type stargazerHeaderGetter interface {
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosStargazer
+	UpdateOffChainStorage(sdk.Context, *coretypes.StargazerBlock)
 	core.BlockPlugin
 }
 
@@ -53,12 +55,16 @@ type plugin struct {
 	ctx sdk.Context
 	// `shg` is the stargazer header getter, used for accessing stargazer headers.
 	shg stargazerHeaderGetter
+
+	//  `offchainStore` is the offchain store, used for accessing offchain data.
+	offchainStore storetypes.CacheKVStore
 }
 
 // `NewPlugin` creates a new instance of the block plugin from the given context.
-func NewPlugin(shg stargazerHeaderGetter) Plugin {
+func NewPlugin(shg stargazerHeaderGetter, offchainStore storetypes.CacheKVStore) Plugin {
 	return &plugin{
-		shg: shg,
+		shg:           shg,
+		offchainStore: offchainStore,
 	}
 }
 

@@ -90,7 +90,7 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	k.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)
 
 	// TODO: this is sketchy and needs to be refactored later.
-	go k.UpdateOffChainStorage(sCtx, stargazerBlock)
+	go k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
 
 	// do all the off chain storage
 	// probably in a go routine
