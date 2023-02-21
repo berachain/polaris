@@ -120,11 +120,5 @@ func (k *Keeper) GetStatePlugin() core.StatePlugin {
 }
 
 func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
-	return []plugins.BaseCosmosStargazer{
-		k.bp,
-		k.cp,
-		k.gp,
-		k.pp,
-		k.sp,
-	}
+	return []plugins.BaseCosmosStargazer{k.bp, k.cp, k.gp, k.pp, k.sp}
 }

@@ -18,6 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package log
+package keeper_test
 
-type Handler = func(r *Record) error
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestKeeper(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Keeper")
+}
