@@ -46,25 +46,26 @@ func NewRlpEncodedStore[T EthereumRlpEncoded](parent storetypes.KVStore, keyPref
 }
 
 // `Set` stores the provided data in the parent store.
-func (rlps *EthereumRlpStore[T]) Set(data T) {
+func (rlps *EthereumRlpStore[T]) Set(key []byte, data T) {
 	bz, err := data.MarshalBinary()
 	if err != nil {
 		// ctx.Logger().Error("MarshalBinary for block. Failed to update offchain storagae", "err", err)
 		return
 	}
-	rlps.parent.Set(data.Hash().Bytes(), bz)
+	rlps.parent.Set(key, bz)
 }
 
 // `Get` retrieves the unmarshalled data from the parent store.
-func (rlps *EthereumRlpStore[T]) Get(key []byte) (*T, bool) {
+func (rlps *EthereumRlpStore[T]) Get(key []byte) (T, bool) {
+	var t T
 	bz := rlps.parent.Get(key)
 	if bz == nil {
-		return nil, false
+		return t, false
 	}
-	var data T
-	err := data.UnmarshalBinary(bz)
+
+	err := t.UnmarshalBinary(bz)
 	if err != nil {
-		return nil, false
+		return t, false
 	}
-	return &data, true
+	return t, true
 }

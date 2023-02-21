@@ -163,11 +163,11 @@ func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*type
 
 // `HeaderByHash` returns the block header with the given hash.
 func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error) {
-	block, err := b.BlockByHash(ctx, hash)
-	if err != nil {
-		return nil, err
+	block := b.stargazerBlockByHash(hash)
+	if block == nil {
+		return nil, ErrBlockNotFound
 	}
-	return block.Header(), nil
+	return block.EthBlock().Header(), nil
 }
 
 // `HeaderByNumberOrHash` returns the header identified by `number` or `hash`.
@@ -225,6 +225,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
+
 	return block.EthBlock(), nil
 }
 

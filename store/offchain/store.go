@@ -52,7 +52,7 @@ type Store struct {
 // `NewOffChainKVStore` creates a new store and connects it to an file
 // system based database located at: <flags.FlagHome/data/<name>.
 func NewOffChainKVStore(name string, appOpts types.AppOptions) *Store {
-	dbDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", name)
+	dbDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data")
 	db, err := dbm.NewDB(name, server.GetAppDBBackend(appOpts), dbDir)
 	if err != nil {
 		panic(err)

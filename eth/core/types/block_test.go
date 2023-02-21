@@ -107,4 +107,12 @@ var _ = Describe("Block", func() {
 			Expect(sb2.ReceiptHash).To(Equal(types.EmptyRootHash))
 		})
 	})
+	// When("building an eth block", func() {
+	// 	It("should be marshallable", func() {
+	// 		sb.SetHash(common.BytesToHash([]byte{1}))
+	// 		Expect(sb.Hash()).To(Equal(common.BytesToHash([]byte{1})))
+	// 		ethBlock := sb.EthBlock()
+	// 		Expect(ethBlock.Hash()).To(Equal(common.BytesToHash([]byte{1})))
+	// 	})
+	// })
 })
