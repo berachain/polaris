@@ -320,12 +320,6 @@ func (p *plugin) GetCodeSize(addr common.Address) int {
 	return len(p.GetCode(addr))
 }
 
-func (p *plugin) SetCodeHash(addr common.Address, code []byte) {
-	codeHash := crypto.Keccak256Hash(code)
-	ethStore := p.cms.GetKVStore(p.evmStoreKey)
-	ethStore.Set(CodeHashKeyFor(addr), codeHash[:])
-}
-
 // =============================================================================
 // State
 // =============================================================================

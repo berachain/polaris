@@ -33,6 +33,7 @@ import (
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/storage"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 var (
@@ -220,6 +221,18 @@ var _ = Describe("State Plugin", func() {
 					Expect(sp.GetCode(alice)).To(BeNil())
 					Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
 				})
+				It("should iterate properly", func() {
+					var cr types.CodeRecord
+					sp.IterateCode(func(addr common.Address, code []byte) bool {
+						cr.Address = addr.Hex()
+						cr.Code = code
+						return true // stop iteration
+					})
+
+					Expect(cr.Address).To(Equal(alice.Hex()))
+					Expect(cr.Code).To(Equal([]byte("code")))
+				})
+
 			})
 		})
 	})
@@ -235,6 +248,25 @@ var _ = Describe("State Plugin", func() {
 
 			It("should have state", func() {
 				Expect(sp.GetState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
+			})
+
+			It("should iterate over committed state", func() {
+				// Set the state to a contract and slot.
+				sp.Reset(ctx)
+				sp.SetState(alice, common.Hash{3}, common.Hash{2})
+				sp.Finalize()
+
+				var sr types.StateRecord
+				sp.IterateState(func(addr common.Address, key, value common.Hash) bool {
+					sr.Address = addr.Hex()
+					sr.Slot = key.Bytes()
+					sr.Value = value.Bytes()
+					return true // stop iteration
+				})
+
+				Expect(sr.Address).To(Equal(alice.Hex()))
+				Expect(sr.Slot).To(Equal(common.Hash{3}.Bytes()))
+				Expect(sr.Value).To(Equal(common.Hash{2}.Bytes()))
 			})
 
 			It("should have state changed", func() {
