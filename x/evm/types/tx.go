@@ -53,6 +53,7 @@ func newEthereumTxRequest(
 			GasPrice: gasPrice,
 			Data:     input,
 		}
+		//nolint:govet // not a tautoology.
 	case accesses != nil && gasFeeCap != nil && gasTipCap != nil:
 		txData = &coretypes.DynamicFeeTx{
 			ChainID:   chainID,

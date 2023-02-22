@@ -18,8 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//go:generate abigen --pkg generated staking ../contracts/solidity/out/staking.sol/IStakingModule.json --out ./generated/staking.abigen.go --type StakingModule
-
 package staking
 
 import (
