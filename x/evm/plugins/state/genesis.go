@@ -41,6 +41,8 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 		value := common.BytesToHash(sr.Value)
 		p.SetState(addr, slot, value)
 	}
+
+	p.Finalize()
 }
 
 func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
