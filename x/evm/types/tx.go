@@ -83,7 +83,11 @@ func (etr *EthTransactionRequest) GetSender() (common.Address, error) {
 
 // `GetGas` returns the gas limit of the transaction.
 func (etr *EthTransactionRequest) GetGas() uint64 {
-	return etr.AsTransaction().Gas()
+	tx := etr.AsTransaction()
+	if tx == nil {
+		return 0
+	}
+	return tx.Gas()
 }
 
 // `GetGasPrice` returns the gas price of the transaction.
