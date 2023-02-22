@@ -31,3 +31,11 @@ func DefaultGenesis() *GenesisState {
 func ValidateGenesis(data GenesisState) error {
 	return data.Params.ValidateBasic()
 }
+
+// `NewGenesisState` creates a new `GenesisState` object and returns a pointer to it.
+func NewGenesisState(params Params, crs []CodeRecord) *GenesisState {
+	return &GenesisState{
+		Params:      params,
+		CodeRecords: crs,
+	}
+}

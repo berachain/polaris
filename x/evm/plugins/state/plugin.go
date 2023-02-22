@@ -296,6 +296,26 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
+func (p *plugin) IterateCode(fn func(addr common.Address, code []byte) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetKVStore(p.evmStoreKey),
+		[]byte{keyPrefixCode},
+	)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		k := it.Key()
+		// Only iterate over keys that are addresses + 1 byte.
+		if len(k) == common.AddressLength+1 {
+			addr := AddressFromCodeHashKey(k)
+			code := p.GetCode(addr)
+			if fn(addr, code) {
+				break
+			}
+		}
+	}
+}
+
 // GetCodeSize implements the `StatePlugin` interface by returning the size of the
 // code associated with the given `StatePlugin`.
 func (p *plugin) GetCodeSize(addr common.Address) int {

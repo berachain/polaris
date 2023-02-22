@@ -56,10 +56,18 @@ func CodeHashKeyFor(address common.Address) []byte {
 	return bz
 }
 
+func AddressFromCodeHashKey(key []byte) common.Address {
+	return common.BytesToAddress(key[1:])
+}
+
 // `CodeKeyFor` defines the full key for which an address codehash's corresponding code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
 	bz := make([]byte, 1+common.HashLength)
 	copy(bz, []byte{keyPrefixCode})
 	copy(bz[1:], codeHash[:])
 	return bz
+}
+
+func CodeHashFromKey(key []byte) common.Hash {
+	return common.BytesToHash(key[1:])
 }

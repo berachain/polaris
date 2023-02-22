@@ -23,9 +23,30 @@ package state
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
+func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
+	p.Reset(ctx)
 
-func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
+	for _, cr := range data.CodeRecords {
+		addr := common.HexToAddress(cr.Address)
+		p.SetCode(addr, cr.Code)
+	}
+}
+
+func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
+	p.Reset(ctx)
+
+	// Iterate over all the code records and add them to the genesis state.
+	p.IterateCode(func(addr common.Address, code []byte) bool {
+		data.CodeRecords = append(data.CodeRecords, types.CodeRecord{
+			Address: addr.Hex(),
+			Code:    code,
+		})
+		return false
+	})
+
+	p.Finalize()
+}

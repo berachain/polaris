@@ -30,4 +30,16 @@ option go_package = "pkg.berachain.dev/stargazer/x/evm/types";
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
+
+  // CodeRecords defines all the code records of the evm state plugin.
+  repeated CodeRecord code_records = 2 [(gogoproto.nullable) = false];
+}
+
+// `CodeRecord` defines the code record of the evm state plugin.
+message CodeRecord {
+  // `address` is the address of the contract, this is in format of hex string.
+  string address = 1;
+
+  // `code` is the code of the contract, this is in the format of byte slice.
+  bytes code = 2;
 }

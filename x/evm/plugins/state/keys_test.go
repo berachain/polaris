@@ -49,12 +49,20 @@ var _ = Describe("SlotKeyFor", func() {
 	})
 })
 
-var _ = Describe("CodeHashKeyFo or a given account", func() {
+var _ = Describe("CodeHashKeyFor or a given account", func() {
 	address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
 	key := CodeHashKeyFor(address)
 	Expect(key).To(HaveLen(1 + common.AddressLength))
 	Expect(key[0]).To(Equal(keyPrefixCode))
 	Expect(key[1:]).To(Equal(address.Bytes()))
+})
+
+var _ = Describe("AddressFromCodeHashKey", func() {
+	address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
+	key := CodeHashKeyFor(address)
+
+	address2 := AddressFromCodeHashKey(key)
+	Expect(address2).To(Equal(address))
 })
 
 var _ = Describe("CodeKeyFor", func() {
@@ -64,5 +72,15 @@ var _ = Describe("CodeKeyFor", func() {
 		Expect(key).To(HaveLen(1 + common.HashLength))
 		Expect(key[0]).To(Equal(keyPrefixCode))
 		Expect(key[1:]).To(Equal(address.Bytes()))
+	})
+})
+
+var _ = Describe("CodeHashFromKey", func() {
+	It("returns a code hash", func() {
+		address := common.HexToHash("0x1234567890abcdef1234567890abcdef12345678")
+		key := CodeKeyFor(address)
+
+		address2 := CodeHashFromKey(key)
+		Expect(address2).To(Equal(address))
 	})
 })
