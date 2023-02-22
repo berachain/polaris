@@ -21,8 +21,6 @@
 package rpc
 
 import (
-	"context"
-
 	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/gin-gonic/gin"
@@ -76,30 +74,10 @@ func NewService(cfg config.Server, backend ethapi.Backend) (*Service, error) {
 	return s, nil
 }
 
-// `Start` stops the service.
-func (s *Service) Start() {
-	go func() {
-		// TODO:FIX
-		// fmt.Println("Starting JSON-RPC server at:", s.config.Address)
-		s.notify <- s.engine.Run(s.config.Address)
-		close(s.notify)
-	}()
+func (s *Service) GetHTTP() *Server {
+	return s.http
 }
 
-// `Notify` returns a channel that is used to notify the service has stopped.
-func (s *Service) Notify() <-chan error {
-	return s.notify
-}
-
-// `Shutdown` stops the service.
-func (s *Service) Shutdown() error {
-	_, cancel := context.WithTimeout(
-		context.Background(),
-		s.config.ShutdownTimeout,
-	)
-	defer cancel()
-	// Stop the RPC Server
-	s.http.Stop()
-	s.ws.Stop()
-	return nil
+func (s *Service) GetWS() *Server {
+	return s.ws
 }

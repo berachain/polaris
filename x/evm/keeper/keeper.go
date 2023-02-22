@@ -28,6 +28,8 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
+	ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
+	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
@@ -36,6 +38,7 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
 	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -44,9 +47,10 @@ var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
-	storeKey   storetypes.StoreKey
-	stargazer  *eth.StargazerProvider
-	offChainKv *offchain.Store
+	storeKey    storetypes.StoreKey
+	stargazer   *eth.StargazerProvider
+	offChainKv  *offchain.Store
+	rpcProvider evmrpc.Provider
 
 	// sk is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
@@ -91,8 +95,11 @@ func NewKeeper(
 	// TODO: register precompile events/logs
 
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
-
+	rpcConfig := *ethrpcconfig.DefaultServer()
 	k.stargazer = eth.NewStargazerProvider(k, nil)
+
+	k.rpcProvider = evmrpc.NewProvider(rpcConfig, ethrpc.NewBackend(k.stargazer, &rpcConfig))
+
 	// TODO: provide cosmos ctx logger.
 
 	return k
@@ -139,4 +146,8 @@ func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
 		k.pp,
 		k.sp,
 	}
+}
+
+func (k *Keeper) GetRPCProvider() evmrpc.Provider {
+	return k.rpcProvider
 }

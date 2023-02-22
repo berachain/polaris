@@ -90,6 +90,7 @@ import (
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
+	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
 var (
@@ -398,8 +399,9 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	// TODO: Register JSONRPC Server here.
-	// evm.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router)
+	if err := evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider()); err != nil {
+		panic(err)
+	}
 }
 
 // GetMaccPerms returns a copy of the module account permissions

@@ -29,8 +29,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
+
+var RpcService = ethrpc.NewBackend(nil, nil)
 
 // `DefaultGenesis` returns default genesis state as raw bytes for the evm
 // module.
@@ -54,12 +57,6 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	for _, plugin := range am.keeper.GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genesisState)
-	}
-
-	// TODO: MOVE THIS, THIS IS A HORRIBLE SPOT
-	err := am.keeper.GetStargazer().StartRPC()
-	if err != nil {
-		panic(err)
 	}
 	return []abci.ValidatorUpdate{}
 }

@@ -27,7 +27,7 @@ import (
 
 // `GetAPIs` returns a list of the available APIs.
 func GetAPIs(apiBackend ethapi.Backend) []rpc.API {
-	nonceLock := new(ethapi.AddrLocker)
+	// nonceLock := new(ethapi.AddrLocker)
 	return []rpc.API{
 		{
 			Namespace: "eth",
@@ -35,10 +35,12 @@ func GetAPIs(apiBackend ethapi.Backend) []rpc.API {
 		}, {
 			Namespace: "eth",
 			Service:   ethapi.NewBlockChainAPI(apiBackend),
-		}, {
-			Namespace: "eth",
-			Service:   ethapi.NewTransactionAPI(apiBackend, nonceLock),
-		}, {
+		},
+		// {
+		// 	Namespace: "eth",
+		// 	Service:   ethapi.NewTransactionAPI(apiBackend, nonceLock),
+		// },
+		{
 			Namespace: "txpool",
 			Service:   ethapi.NewTxPoolAPI(apiBackend),
 		}, {
