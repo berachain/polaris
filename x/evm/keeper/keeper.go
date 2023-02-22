@@ -69,7 +69,6 @@ func NewKeeper(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,

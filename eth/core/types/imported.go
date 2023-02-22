@@ -39,6 +39,7 @@ type (
 	BlockNonce        = types.BlockNonce
 	DynamicFeeTx      = types.DynamicFeeTx
 	LegacyTx          = types.LegacyTx
+	TxData            = types.TxData
 	Signer            = types.Signer
 )
 

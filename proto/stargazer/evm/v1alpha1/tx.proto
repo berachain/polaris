@@ -32,11 +32,32 @@ option go_package = "pkg.berachain.dev/stargazer/x/evm/types";
 service MsgService {
   option (cosmos.msg.v1.service) = true;
 
+  // EthTransaction defines a method submitting Ethereum transactions.
+  rpc EthTransaction(EthTransactionRequest) returns (EthTransactionResponse);
+
   // `UpdateParams` defines a governance operation for updating the x/evm module
   // parameters. The authority is defaults to the x/gov module account.
   //
   // Since: cosmos-sdk 0.47
   rpc UpdateParams(UpdateParamsRequest) returns (UpdateParamsResponse);
+}
+
+// EthTransactionRequest encapsulates an Ethereum transaction as an SDK message.
+message EthTransactionRequest {
+  option (gogoproto.goproto_getters) = false;
+  // data is inner transaction data of the Ethereum transaction
+  string data = 1;
+  // from is the ethereum signer address in hex format. This address value is checked
+  // against the address derived from the signature (V, R, S) using the
+  // secp256k1 elliptic curve
+  string from = 2;
+}
+
+// EthTransactionResponse defines the Msg/EthereumTx response type.
+message EthTransactionResponse {
+  option (gogoproto.goproto_getters) = false;
+  // `receipt` represents the json-encoded string of the ethereum receipt.
+  string receipt = 1;
 }
 
 // `UpdateParamsRequest` is the Msg/UpdateParams request type.
