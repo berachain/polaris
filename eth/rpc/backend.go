@@ -106,7 +106,7 @@ func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock Bloc
 
 // `ChainDb` is unused in Stargazer.
 func (b *backend) ChainDb() ethdb.Database { //nolint:stylecheck // conforms to interface.
-	panic("not implemented in stargazer")
+	return ethdb.Database(nil)
 }
 
 // `AccountManager` is unused in Stargazer.

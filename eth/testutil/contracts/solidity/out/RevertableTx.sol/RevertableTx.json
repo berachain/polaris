@@ -7,12 +7,12 @@
   ],
   "bytecode": {
     "object": "0x6080604052348015600f57600080fd5b50608b80601d6000396000f3fe6080604052348015600f57600080fd5b5060405162461bcd60e51b81526020600482015260166024820152750a4caeccae4e8c2c4d8caa8f07440e4caeccae4e8a8f60531b604482015260640160405180910390fdfea2646970667358221220a070ec07a971811820a3b4f000999d327881d71cea0f1f57255ee3c2a963807364736f6c63430008110033",
-    "sourceMap": "58:99:0:-:0;;;;;;;;;;;;;;;;;;;",
+    "sourceMap": "58:99:2:-:0;;;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
     "object": "0x6080604052348015600f57600080fd5b5060405162461bcd60e51b81526020600482015260166024820152750a4caeccae4e8c2c4d8caa8f07440e4caeccae4e8a8f60531b604482015260640160405180910390fdfea2646970667358221220a070ec07a971811820a3b4f000999d327881d71cea0f1f57255ee3c2a963807364736f6c63430008110033",
-    "sourceMap": "58:99:0:-:0;;;;;;;;;;;;-1:-1:-1;116:32:0;;-1:-1:-1;;;116:32:0;;216:2:1;116:32:0;;;198:21:1;255:2;235:18;;;228:30;-1:-1:-1;;;274:18:1;;;267:52;336:18;;116:32:0;;;;;;",
+    "sourceMap": "58:99:2:-:0;;;;;;;;;;;;-1:-1:-1;116:32:2;;-1:-1:-1;;;116:32:2;;216:2:4;116:32:2;;;198:21:4;255:2;235:18;;;228:30;-1:-1:-1;;;274:18:4;;;267:52;336:18;;116:32:2;;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
@@ -74,19 +74,19 @@
   },
   "ast": {
     "absolutePath": "src/RevertableTx.sol",
-    "id": 11,
+    "id": 434,
     "exportedSymbols": {
       "RevertableTx": [
-        10
+        433
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:125:0",
+    "src": "32:125:2",
     "nodes": [
       {
-        "id": 1,
+        "id": 424,
         "nodeType": "PragmaDirective",
-        "src": "32:24:0",
+        "src": "32:24:2",
         "nodes": [],
         "literals": [
           "solidity",
@@ -96,19 +96,19 @@
         ]
       },
       {
-        "id": 10,
+        "id": 433,
         "nodeType": "ContractDefinition",
-        "src": "58:99:0",
+        "src": "58:99:2",
         "nodes": [
           {
-            "id": 9,
+            "id": 432,
             "nodeType": "FunctionDefinition",
-            "src": "86:69:0",
+            "src": "86:69:2",
             "nodes": [],
             "body": {
-              "id": 8,
+              "id": 431,
               "nodeType": "Block",
-              "src": "106:49:0",
+              "src": "106:49:2",
               "nodes": [],
               "statements": [
                 {
@@ -116,14 +116,14 @@
                     "arguments": [
                       {
                         "hexValue": "52657665727461626c6554783a207265766572745478",
-                        "id": 5,
+                        "id": 428,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "123:24:0",
+                        "src": "123:24:2",
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_42ae3bbf074a4f09b3eac34cdc600e3dd2e019660bb62ff77fa365d81e99dd64",
                           "typeString": "literal_string \"RevertableTx: revertTx\""
@@ -138,7 +138,7 @@
                           "typeString": "literal_string \"RevertableTx: revertTx\""
                         }
                       ],
-                      "id": 4,
+                      "id": 427,
                       "name": "revert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -146,13 +146,13 @@
                         -19
                       ],
                       "referencedDeclaration": -19,
-                      "src": "116:6:0",
+                      "src": "116:6:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (string memory) pure"
                       }
                     },
-                    "id": 6,
+                    "id": 429,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -161,16 +161,16 @@
                     "nameLocations": [],
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "116:32:0",
+                    "src": "116:32:2",
                     "tryCall": false,
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 7,
+                  "id": 430,
                   "nodeType": "ExpressionStatement",
-                  "src": "116:32:0"
+                  "src": "116:32:2"
                 }
               ]
             },
@@ -180,18 +180,18 @@
             "name": "",
             "nameLocation": "-1:-1:-1",
             "parameters": {
-              "id": 2,
+              "id": 425,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "94:2:0"
+              "src": "94:2:2"
             },
             "returnParameters": {
-              "id": 3,
+              "id": 426,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "106:0:0"
+              "src": "106:0:2"
             },
-            "scope": 10,
+            "scope": 433,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -204,15 +204,15 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          10
+          433
         ],
         "name": "RevertableTx",
-        "nameLocation": "67:12:0",
-        "scope": 11,
+        "nameLocation": "67:12:2",
+        "scope": 434,
         "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 0
+  "id": 2
 }
