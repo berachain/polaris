@@ -102,11 +102,6 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	// before finalize.
 	sp.mtx.Lock()
 
-	// If we are processing a new block, then we assume that the previous was finalized.
-	// TODO: ensure this is safe. We could build the block in theory by querying the
-	// block plugin
-	sp.finalizedBlock = sp.block
-
 	// Prepare the plugins for the new block.
 	sp.bp.Prepare(ctx)
 	sp.cp.Prepare(ctx)

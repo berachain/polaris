@@ -27,23 +27,23 @@ import (
 
 // `CurrentHeader` returns the current header of the blockchain.
 func (bc *blockchain) CurrentHeader() *types.StargazerHeader {
-	return bc.StateProcessor.block.StargazerHeader
+	return bc.processor.block.StargazerHeader
 }
 
 // `CurrentBlock` returns the current block of the blockchain.
 func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
-	if bc.StateProcessor.block != nil {
-		bc.blockCache.Add(bc.StateProcessor.block.Hash(), bc.StateProcessor.block)
+	if bc.processor.block != nil {
+		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
 	}
-	return bc.StateProcessor.block
+	return bc.processor.block
 }
 
 // `CurrentTransaction` returns the last finalized block of the blockchain.
 func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
-	if bc.StateProcessor.finalizedBlock != nil {
-		bc.blockCache.Add(bc.StateProcessor.finalizedBlock.Hash(), bc.StateProcessor.finalizedBlock)
+	if bc.processor.finalizedBlock != nil {
+		bc.blockCache.Add(bc.processor.finalizedBlock.Hash(), bc.processor.finalizedBlock)
 	}
-	return bc.StateProcessor.finalizedBlock
+	return bc.processor.finalizedBlock
 }
 
 // GetBlock retrieves a block from the database by hash and number,
