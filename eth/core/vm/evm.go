@@ -21,8 +21,8 @@
 package vm
 
 import (
-	"github.com/berachain/stargazer/eth/params"
-	"github.com/berachain/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 // `StargazerEVM` is the wrapper for the Go-Ethereum EVM.

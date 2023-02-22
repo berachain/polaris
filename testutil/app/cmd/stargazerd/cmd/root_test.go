@@ -25,14 +25,14 @@ import (
 	"os"
 	"testing"
 
-	simapp "github.com/berachain/stargazer/testutil/app"
-	"github.com/berachain/stargazer/testutil/app/cmd/stargazerd/cmd"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	simapp "pkg.berachain.dev/stargazer/testutil/app"
+	"pkg.berachain.dev/stargazer/testutil/app/cmd/stargazerd/cmd"
 )
 
 func TestCmd(t *testing.T) {

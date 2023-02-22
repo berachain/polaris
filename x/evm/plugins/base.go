@@ -21,9 +21,9 @@
 package plugins
 
 import (
-	"github.com/berachain/stargazer/x/evm/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // `BaseCosmosStargazer` represents the base class that all x/evm implements of

@@ -21,8 +21,9 @@
 package utils
 
 import (
-	"github.com/berachain/stargazer/eth/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 // `AccAddressToEthAddress` converts a Cosmos SDK `AccAddress` to an Ethereum `Address`.

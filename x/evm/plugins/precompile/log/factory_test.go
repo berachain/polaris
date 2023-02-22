@@ -24,14 +24,15 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/crypto"
-	"github.com/berachain/stargazer/eth/types/abi"
-	utils "github.com/berachain/stargazer/x/evm/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	utils "pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
 var _ = Describe("Factory", func() {

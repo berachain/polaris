@@ -23,9 +23,9 @@ package state
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 // `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.

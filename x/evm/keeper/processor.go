@@ -23,8 +23,9 @@ package keeper
 import (
 	"context"
 
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.

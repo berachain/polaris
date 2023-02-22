@@ -21,8 +21,9 @@
 package precompile
 
 import (
-	"github.com/berachain/stargazer/x/evm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}

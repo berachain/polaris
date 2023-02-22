@@ -21,9 +21,10 @@
 package events
 
 import (
-	"github.com/berachain/stargazer/lib/errors"
-	"github.com/berachain/stargazer/lib/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 const (

@@ -23,11 +23,12 @@ package log
 import (
 	"testing"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/crypto"
-	"github.com/berachain/stargazer/eth/types/abi"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
 )
 
 func TestLog(t *testing.T) {

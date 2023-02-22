@@ -27,9 +27,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
 )
 
 var _ = Describe("Method", func() {

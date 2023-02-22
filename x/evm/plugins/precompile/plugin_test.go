@@ -25,17 +25,16 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/testutil"
-	"github.com/berachain/stargazer/x/evm/plugins/state/events"
-	"github.com/berachain/stargazer/x/evm/plugins/state/events/mock"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/testutil"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events/mock"
 )
 
 var _ = Describe("plugin", func() {

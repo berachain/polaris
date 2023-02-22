@@ -4,7 +4,7 @@
 package mock
 
 import (
-	"github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/lib/types"
 	"sync"
 )
 

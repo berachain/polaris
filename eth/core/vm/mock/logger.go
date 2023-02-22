@@ -23,8 +23,9 @@ package mock
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
 	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
+
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 //go:generate moq -out ./logger.mock.go -pkg mock ../ EVMLogger

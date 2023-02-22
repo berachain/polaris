@@ -28,9 +28,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/x/evm/utils"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
 const (

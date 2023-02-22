@@ -21,13 +21,14 @@
 package log
 
 import (
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/registry"
-	libtypes "github.com/berachain/stargazer/lib/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/lib/registry"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 // `Factory` is a `PrecompileLogFactory` that builds Ethereum logs from Cosmos events. All Ethereum

@@ -23,10 +23,8 @@ package config
 import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	evidencetypes "cosmossdk.io/x/evidence/types"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
-
 	"cosmossdk.io/x/feegrant"
-
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -43,7 +41,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmtypes "github.com/berachain/stargazer/x/evm/types"
+	evmtypes "pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // DefaultRuntime represents a standard default runtime configuration.

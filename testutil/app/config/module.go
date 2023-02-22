@@ -45,11 +45,8 @@ import (
 	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
 	"cosmossdk.io/core/appconfig"
 	evidencetypes "cosmossdk.io/x/evidence/types"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
-	"google.golang.org/protobuf/types/known/durationpb"
-
 	"cosmossdk.io/x/feegrant"
-
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -66,9 +63,10 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"google.golang.org/protobuf/types/known/durationpb"
 
-	evmmodulev1 "github.com/berachain/stargazer/api/stargazer/evm/module/v1"
-	evmtypes "github.com/berachain/stargazer/x/evm/types"
+	evmmodulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
+	evmtypes "pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 var (

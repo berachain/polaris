@@ -4,11 +4,11 @@
 package mock
 
 import (
-	ethcorevm "github.com/berachain/stargazer/eth/core/vm"
 	"github.com/ethereum/go-ethereum/common"
 	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"math/big"
+	ethcorevm "pkg.berachain.dev/stargazer/eth/core/vm"
 	"sync"
 )
 

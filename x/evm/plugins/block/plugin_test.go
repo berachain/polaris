@@ -22,14 +22,14 @@ package block
 
 import (
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/eth/common"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/testutil"
 )
 
 var _ = Describe("Block Plugin", func() {

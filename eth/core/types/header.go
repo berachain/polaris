@@ -21,8 +21,9 @@
 package types
 
 import (
-	"github.com/berachain/stargazer/eth/common"
 	"github.com/ethereum/go-ethereum/rlp"
+
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 // `StargazerHeader` represents a wrapped Ethereum header that allows for specifying a custom

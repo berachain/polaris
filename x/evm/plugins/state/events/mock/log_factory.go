@@ -23,8 +23,9 @@ package mock
 import (
 	"errors"
 
-	coretypes "github.com/berachain/stargazer/eth/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 //go:generate moq -out ./log_factory.mock.go -pkg mock ../ PrecompileLogFactory

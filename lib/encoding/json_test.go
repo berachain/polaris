@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	enclib "github.com/berachain/stargazer/lib/encoding"
+	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 )
 
 var _ = Describe("MustMarshalJSON", func() {

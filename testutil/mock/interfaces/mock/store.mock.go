@@ -5,9 +5,9 @@ package mock
 
 import (
 	storetypes "cosmossdk.io/store/types"
-	"github.com/berachain/stargazer/testutil/mock/interfaces"
 	"github.com/cosmos/cosmos-db"
 	"io"
+	"pkg.berachain.dev/stargazer/testutil/mock/interfaces"
 	"sync"
 )
 

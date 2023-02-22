@@ -26,7 +26,7 @@ import (
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/berachain/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 // ===========================================================================

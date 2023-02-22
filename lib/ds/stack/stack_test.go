@@ -26,8 +26,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/stack"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/stack"
 )
 
 func TestStack(t *testing.T) {

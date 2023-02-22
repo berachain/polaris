@@ -23,9 +23,9 @@ package mock
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 )
 
 //go:generate moq -out ./evm.mock.go -pkg mock ../ StargazerEVM

@@ -25,9 +25,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/subtle"
 
-	"github.com/berachain/stargazer/eth/crypto"
 	cmcrypto "github.com/cometbft/cometbft/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
+	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
 const (

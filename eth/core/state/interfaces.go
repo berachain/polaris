@@ -23,9 +23,9 @@ package state
 import (
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 // `Plugin` is a plugin which tracks the accounts (balances, nonces, codes, states) in the native

@@ -22,9 +22,10 @@ package state
 
 import (
 	storetypes "cosmossdk.io/store/types"
-	libtypes "github.com/berachain/stargazer/lib/types"
-	"github.com/berachain/stargazer/x/evm/plugins/state/events"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
 )
 
 // `ControllableEventManager` defines a cache EventManager that is controllable (snapshottable

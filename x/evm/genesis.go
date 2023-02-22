@@ -24,11 +24,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/berachain/stargazer/x/evm/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // `DefaultGenesis` returns default genesis state as raw bytes for the evm

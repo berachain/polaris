@@ -24,14 +24,13 @@ import (
 	"math/big"
 	"strconv"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/x/evm/utils"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
 var _ = Describe("Attributes", func() {

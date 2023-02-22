@@ -23,10 +23,10 @@ package journal
 import (
 	"math"
 
-	"github.com/berachain/stargazer/eth/common"
-	coretypes "github.com/berachain/stargazer/eth/core/types"
-	"github.com/berachain/stargazer/lib/ds"
-	"github.com/berachain/stargazer/lib/ds/stack"
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/stack"
 )
 
 // `logs` is a state plugin that tracks Ethereum logs.

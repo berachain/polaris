@@ -21,9 +21,9 @@
 package log
 
 import (
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/types/abi"
-	libtypes "github.com/berachain/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 // Compile-time assertion.

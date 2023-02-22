@@ -21,11 +21,12 @@
 package types_test
 
 import (
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/types"
 	"github.com/ethereum/go-ethereum/trie"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 var _ = Describe("Block", func() {

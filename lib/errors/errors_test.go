@@ -24,9 +24,10 @@ import (
 	"errors"
 	"testing"
 
-	liberrors "github.com/berachain/stargazer/lib/errors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	liberrors "pkg.berachain.dev/stargazer/lib/errors"
 )
 
 func TestErrorsLib(t *testing.T) {

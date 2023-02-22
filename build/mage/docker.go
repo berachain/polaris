@@ -20,7 +20,7 @@
 
 package mage
 
-import mi "github.com/berachain/stargazer/build/mage/internal"
+import mi "pkg.berachain.dev/stargazer/build/mage/internal"
 
 var (
 	// Commands.
