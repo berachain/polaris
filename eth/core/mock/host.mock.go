@@ -35,6 +35,9 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //			GetStatePluginFunc: func() state.Plugin {
 //				panic("mock out the GetStatePlugin method")
 //			},
+//			GetTxPoolPluginFunc: func() core.TxPoolPlugin {
+//				panic("mock out the GetTxPoolPlugin method")
+//			},
 //		}
 //
 //		// use mockedStargazerHostChain in code that requires core.StargazerHostChain
@@ -57,6 +60,9 @@ type StargazerHostChainMock struct {
 	// GetStatePluginFunc mocks the GetStatePlugin method.
 	GetStatePluginFunc func() state.Plugin
 
+	// GetTxPoolPluginFunc mocks the GetTxPoolPlugin method.
+	GetTxPoolPluginFunc func() core.TxPoolPlugin
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// GetBlockPlugin holds details about calls to the GetBlockPlugin method.
@@ -74,12 +80,16 @@ type StargazerHostChainMock struct {
 		// GetStatePlugin holds details about calls to the GetStatePlugin method.
 		GetStatePlugin []struct {
 		}
+		// GetTxPoolPlugin holds details about calls to the GetTxPoolPlugin method.
+		GetTxPoolPlugin []struct {
+		}
 	}
 	lockGetBlockPlugin         sync.RWMutex
 	lockGetConfigurationPlugin sync.RWMutex
 	lockGetGasPlugin           sync.RWMutex
 	lockGetPrecompilePlugin    sync.RWMutex
 	lockGetStatePlugin         sync.RWMutex
+	lockGetTxPoolPlugin        sync.RWMutex
 }
 
 // GetBlockPlugin calls GetBlockPluginFunc.
@@ -214,5 +224,32 @@ func (mock *StargazerHostChainMock) GetStatePluginCalls() []struct {
 	mock.lockGetStatePlugin.RLock()
 	calls = mock.calls.GetStatePlugin
 	mock.lockGetStatePlugin.RUnlock()
+	return calls
+}
+
+// GetTxPoolPlugin calls GetTxPoolPluginFunc.
+func (mock *StargazerHostChainMock) GetTxPoolPlugin() core.TxPoolPlugin {
+	if mock.GetTxPoolPluginFunc == nil {
+		panic("StargazerHostChainMock.GetTxPoolPluginFunc: method is nil but StargazerHostChain.GetTxPoolPlugin was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetTxPoolPlugin.Lock()
+	mock.calls.GetTxPoolPlugin = append(mock.calls.GetTxPoolPlugin, callInfo)
+	mock.lockGetTxPoolPlugin.Unlock()
+	return mock.GetTxPoolPluginFunc()
+}
+
+// GetTxPoolPluginCalls gets all the calls that were made to GetTxPoolPlugin.
+// Check the length with:
+//
+//	len(mockedStargazerHostChain.GetTxPoolPluginCalls())
+func (mock *StargazerHostChainMock) GetTxPoolPluginCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetTxPoolPlugin.RLock()
+	calls = mock.calls.GetTxPoolPlugin
+	mock.lockGetTxPoolPlugin.RUnlock()
 	return calls
 }

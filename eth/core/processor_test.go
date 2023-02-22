@@ -27,6 +27,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/mock"
@@ -89,7 +90,7 @@ var _ = Describe("StateProcessor", func() {
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
 			header := types.NewEmptyStargazerHeader()
 			header.GasLimit = blockGasLimit
 			header.BaseFee = big.NewInt(1)
@@ -230,7 +231,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		bp := mock.NewBlockPluginMock()
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
-		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
 			header := types.NewEmptyStargazerHeader()
 			header.GasLimit = 1000000
 			header.Number = new(big.Int)
@@ -289,7 +290,7 @@ var _ = Describe("GetHashFn", func() {
 		Expect(sp).ToNot(BeNil())
 		blockGasLimit = 1000000
 
-		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
 			return types.NewStargazerHeader(
 				&types.Header{
 					Number:     big.NewInt(height),

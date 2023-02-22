@@ -28,6 +28,7 @@ type (
 	AccessList        = types.AccessList
 	Block             = types.Block
 	Bloom             = types.Bloom
+	Body              = types.Body
 	Log               = types.Log
 	Receipt           = types.Receipt
 	Receipts          = types.Receipts
@@ -38,6 +39,7 @@ type (
 	BlockNonce        = types.BlockNonce
 	DynamicFeeTx      = types.DynamicFeeTx
 	LegacyTx          = types.LegacyTx
+	TxData            = types.TxData
 	Signer            = types.Signer
 )
 
@@ -54,6 +56,7 @@ var (
 	NewTx                  = types.NewTx
 	LatestSignerForChainID = types.LatestSignerForChainID
 	MustSignNewTx          = types.MustSignNewTx
+	NewBlock               = types.NewBlock
 )
 
 var (

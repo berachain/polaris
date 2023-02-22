@@ -25,11 +25,11 @@ import (
 	"testing"
 
 	dbm "github.com/cosmos/cosmos-db"
-	"pkg.berachain.dev/stargazer/lib/ds"
-	"pkg.berachain.dev/stargazer/lib/ds/trees"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/lib/ds"
+	"pkg.berachain.dev/stargazer/lib/ds/trees"
 )
 
 func TestSuite(t *testing.T) {

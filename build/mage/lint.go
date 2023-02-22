@@ -18,6 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+//nolint:forbidigo // good project.
 package mage
 
 import (
@@ -84,20 +85,24 @@ func GoImports() error {
 	PrintMageName()
 	// everything but ignore the tools folder
 	var x = make([]string, 0)
-	for _, dir := range mi.GoListFilter(true, "build/tools") {
-		stripped := strings.ReplaceAll(dir, "pkg.berachain.dev", "")
+	for _, dir := range mi.GoListFilter(false, "build") {
+		stripped := strings.ReplaceAll(dir, "pkg.berachain.dev/stargazer", "")
 		x = append(x, stripped)
 	}
 
 	for _, dir := range x {
+		fmt.Println(dir)
 		if err := goRun(goimports,
 			"-recursive", "-rm-unused",
-			"-use-cache", "-output",
 			"-company-prefixes", "pkg.berachain.dev",
-			"\"write\"", "-project-name", "pkg.berachain.dev/stargazer", dir); err != nil {
+			"-project-name", "pkg.berachain.dev/stargazer", "."+dir); err != nil {
 			return err
 		}
 	}
+
+	// if err := goRun(goimports, "./...", "-company-prefixes", "pkg.berachain.dev"); err != nil {
+	// 	return err
+	// }
 	return nil
 }
 

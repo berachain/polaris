@@ -54,7 +54,7 @@ func Start() error {
 
 // Starts a testnet without building it.
 func StartNoBuild() error {
-	return sh.RunV("./bin/stargazerd", "testnet", "start")
+	return sh.RunV("./init.sh")
 }
 
 // Runs all main tests.

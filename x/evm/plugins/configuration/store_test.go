@@ -25,11 +25,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"pkg.berachain.dev/stargazer/eth/params"
+	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/types"
-
-	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 )
 
 var _ = Describe("Plugin", func() {
@@ -42,7 +42,7 @@ var _ = Describe("Plugin", func() {
 		ctx = testutil.NewContext()
 		storeKey := storetypes.NewKVStoreKey("evm")
 		p = &plugin{
-			evmStoreKey: storeKey,
+			storeKey:    storeKey,
 			paramsStore: ctx.KVStore(storeKey),
 		}
 	})

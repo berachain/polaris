@@ -24,6 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 )
@@ -107,4 +108,12 @@ var _ = Describe("Block", func() {
 			Expect(sb2.ReceiptHash).To(Equal(types.EmptyRootHash))
 		})
 	})
+	// When("building an eth block", func() {
+	// 	It("should be marshallable", func() {
+	// 		sb.SetHash(common.BytesToHash([]byte{1}))
+	// 		Expect(sb.Hash()).To(Equal(common.BytesToHash([]byte{1})))
+	// 		ethBlock := sb.EthBlock()
+	// 		Expect(ethBlock.Hash()).To(Equal(common.BytesToHash([]byte{1})))
+	// 	})
+	// })
 })

@@ -24,6 +24,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
@@ -31,7 +32,7 @@ import (
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.Logger(sCtx).Info("BeginBlocker")
-	k.ethChain.Prepare(ctx, sCtx.BlockHeight())
+	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
@@ -40,7 +41,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	k.Logger(sCtx).Info("Begin ProcessTransaction()")
 
 	// Process the transaction and return the receipt.
-	receipt, err := k.ethChain.ProcessTransaction(ctx, tx)
+	receipt, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -52,25 +53,6 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// we need to do, is edit the gas consumption to consume the remaining gas in the block,
 	//  modifying the receipt, and return a failed EVM tx, but a successful cosmos tx.
 
-	// TODO: Need to emit event to create a map of TendermintHash EthereumTxHash mapping
-	// TODO: BUT should we just yeet receipts into tendermint? (TMHash -> Receipt)
-	// This would give us Tendermint Hash -> Receipt mapping.
-	// https://github.com/evmos/ethermint/issues/1075
-	// https://github.com/crypto-org-chain/cronos/issues/455
-	// TODO: figure out how the tendermint indexer works.
-	// 	Indexer DB: Key: ethereum_tx.ethereumTxHash/{ETH_HASH}/{res.Height}/{res.Index}, Value: tm hash.
-	// Indexer DB: Key: tm hash, Value: abci.TxResult.
-	// State DB: Key: abciResponsesKey:{height}, Value: tmstate.ABCIResponses.
-	// TODO: We don't have access to the TM TxHash in the state machine?
-	// But we do have access to the ethereum tx hash.
-	// We could expose a get txn by hash in our app side mempool that allows use to query the txn by hash.
-	// Basically just have a cache of eth hashes in the mempool.
-	// App-side mempool good project.
-
-	// TODO: In theory, the TendermintTxHash is the Sha256 hash of the fully populated
-	// EthereumMsgTx (after from and hash and stuff are filled in).
-	// This should be doable at the application layer, and means that given an EthereumHash
-	// we can calculate a TendermintHash. But not vice versa.
 	k.Logger(sCtx).Info("End ProcessTransaction()")
 	return receipt, err
 }
@@ -81,11 +63,15 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	k.Logger(sCtx).Info("EndBlocker")
 
 	// Finalize the stargazer block and retrieve it from the processor.
-	stargazerBlock, err := k.ethChain.Finalize(ctx)
+	stargazerBlock, err := k.stargazer.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	// Save the historical stargazer header.
+	// Save the historical stargazer header in the IAVL Tree.
 	k.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)
+
+	// TODO: this is sketchy and needs to be refactored later.
+	// Save the block data to the off-chain storage.
+	go k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
 }
