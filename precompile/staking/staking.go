@@ -38,10 +38,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-var (
-	_ precompile.StatefulPrecompileImpl = (*Contract)(nil)
-)
+var _ precompile.StatefulPrecompileImpl = (*Contract)(nil)
 
+// `Contract` is the precompile contract for the staking module.
 type Contract struct {
 	vm.PrecompileContainer
 
@@ -194,6 +193,7 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 	return c.getUnbondingDelegationHelper(ctx, caller, sdk.ValAddress(val.Bytes()))
 }
 
+// `GetUnbondingDelegationStringInput` implements the `getUnbondingDelegation(string)` method.
 func (c *Contract) GetUnbondingDelegationStringInput(
 	ctx context.Context,
 	caller common.Address,
@@ -214,6 +214,7 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 	return c.getUnbondingDelegationHelper(ctx, caller, val)
 }
 
+// `GetRedelegationsAddrInput` implements the `getRedelegations(address,address)` method.
 func (c *Contract) GetRedelegationsAddrInput(
 	ctx context.Context,
 	caller common.Address,
@@ -233,6 +234,7 @@ func (c *Contract) GetRedelegationsAddrInput(
 	return c.getRedelegationsHelper(ctx, caller, sdk.ValAddress(srcVal.Bytes()), sdk.ValAddress(dstVal.Bytes()))
 }
 
+// `GetRedelegationsStringInput` implements the `getRedelegations(string,string)` method.
 func (c *Contract) GetRedelegationsStringInput(
 	ctx context.Context,
 	caller common.Address,
@@ -261,6 +263,7 @@ func (c *Contract) GetRedelegationsStringInput(
 	return c.getRedelegationsHelper(ctx, caller, src, dst)
 }
 
+// `DelegateAddrInput` implements the `delegate(address,uint256)` method.
 func (c *Contract) DelegateAddrInput(
 	ctx context.Context,
 	caller common.Address,
@@ -280,6 +283,7 @@ func (c *Contract) DelegateAddrInput(
 	return nil, c.delegateHelper(ctx, caller, amount, sdk.ValAddress(val.Bytes()))
 }
 
+// `DelegateStringInput` implements the `delegate(string,uint256)` method.
 func (c *Contract) DelegateStringInput(
 	ctx context.Context,
 	caller common.Address,
@@ -304,6 +308,7 @@ func (c *Contract) DelegateStringInput(
 	return nil, c.delegateHelper(ctx, caller, amount, val)
 }
 
+// `UndelegateAddrInput` implements the `undelegate(address,uint256)` method.
 func (c *Contract) UndelegateAddrInput(
 	ctx context.Context,
 	caller common.Address,
@@ -323,6 +328,7 @@ func (c *Contract) UndelegateAddrInput(
 	return nil, c.undelegateHelper(ctx, caller, amount, sdk.ValAddress(val.Bytes()))
 }
 
+// `UndelegateStringInput` implements the `undelegate(string,uint256)` method.
 func (c *Contract) UndelegateStringInput(
 	ctx context.Context,
 	caller common.Address,
@@ -347,6 +353,7 @@ func (c *Contract) UndelegateStringInput(
 	return nil, c.undelegateHelper(ctx, caller, amount, val)
 }
 
+// `BeginRedelegateAddrInput` implements the `beginRedelegate(address,address,uint256)` method.
 func (c *Contract) BeginRedelegateAddrInput(
 	ctx context.Context,
 	caller common.Address,
@@ -376,6 +383,7 @@ func (c *Contract) BeginRedelegateAddrInput(
 	)
 }
 
+// `BeginRedelegateStringInput` implements the `beginRedelegate(string,string,uint256)` method.
 func (c *Contract) BeginRedelegateStringInput(
 	ctx context.Context,
 	caller common.Address,
@@ -408,6 +416,7 @@ func (c *Contract) BeginRedelegateStringInput(
 	return nil, c.beginRedelegateHelper(ctx, caller, amount, src, dst)
 }
 
+// `CancelRedelegateAddrInput` implements the `cancelRedelegate(address,address,uint256,int64)` method.
 func (c *Contract) CancelUnbondingDelegationAddrInput(
 	ctx context.Context,
 	caller common.Address,
@@ -431,6 +440,7 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, sdk.ValAddress(val.Bytes()), creationHeight)
 }
 
+// `CancelRedelegateStringInput` implements the `cancelRedelegate(string,string,uint256,int64)` method.
 func (c *Contract) CancelUnbondingDelegationStringInput(
 	ctx context.Context,
 	caller common.Address,

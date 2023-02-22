@@ -30,6 +30,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+// `delegationHelper` is the helper function for `getDelegation`.
 func (c *Contract) delegationHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -51,6 +52,7 @@ func (c *Contract) delegationHelper(
 	return []any{delegation.Balance.Amount.BigInt()}, nil
 }
 
+// `getUnbondingDelegationHelper` is the helper function for `getUnbondingDelegation`.
 func (c *Contract) getUnbondingDelegationHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -67,7 +69,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 	return []any{res}, nil
 }
 
-// Returns the list of redelegations as a []stakingtypes.RedelegationEntry.
+// `getRedelegationsHelper` is the helper function for `getRedelegations
 func (c *Contract) getRedelegationsHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -103,6 +105,7 @@ func (c *Contract) getRedelegationsHelper(
 	return []any{redelegationEntries}, err
 }
 
+// `delegateHelper` is the helper function for `delegate`.
 func (c *Contract) delegateHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -122,6 +125,7 @@ func (c *Contract) delegateHelper(
 	return err
 }
 
+// `undelegateHelper` is the helper function for `undelegate`.
 func (c *Contract) undelegateHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -142,6 +146,7 @@ func (c *Contract) undelegateHelper(
 	return err
 }
 
+// `beginRedelegateHelper` is the helper function for `beginRedelegate`.
 func (c *Contract) beginRedelegateHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -166,6 +171,7 @@ func (c *Contract) beginRedelegateHelper(
 	return err
 }
 
+// `cancelRedelegateHelper` is the helper function for `cancelRedelegate`.
 func (c *Contract) cancelUnbondingDelegationHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -191,6 +197,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 	return err
 }
 
+// `bondDenom` returns the bond denom from the staking module.
 func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 	res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})
 	if err != nil {
