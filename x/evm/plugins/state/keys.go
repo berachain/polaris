@@ -27,6 +27,7 @@ import (
 const (
 	keyPrefixCode byte = iota
 	keyPrefixStorage
+	keyPrefixCodeHash
 )
 
 // NOTE: we use copy to build keys for max performance: https://github.com/golang/go/issues/55905
@@ -66,17 +67,12 @@ func AddressFromSlotKey(key []byte) common.Address {
 // `CodeHashKeyFor` defines the full key under which an addreses codehash is stored.
 func CodeHashKeyFor(address common.Address) []byte {
 	bz := make([]byte, 1+common.AddressLength)
-	copy(bz, []byte{keyPrefixCode})
+	copy(bz, []byte{keyPrefixCodeHash})
 	copy(bz[1:], address[:])
 	return bz
 }
 
-// `AddressFromCodeHashKey` returns the address from a codehash key.
-func AddressFromCodeHashKey(key []byte) common.Address {
-	return common.BytesToAddress(key[1:])
-}
-
-// `CodeKeyFor` defines the full key for which an address codehash's corresponding code is stored.
+// `CodeKeyFor` defines the full key under which an addreses code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
 	bz := make([]byte, 1+common.HashLength)
 	copy(bz, []byte{keyPrefixCode})
@@ -84,6 +80,12 @@ func CodeKeyFor(codeHash common.Hash) []byte {
 	return bz
 }
 
+// `CodeHashFromKey` returns the code hash from a code hash key.
 func CodeHashFromKey(key []byte) common.Hash {
 	return common.BytesToHash(key[1:])
+}
+
+// `AddressFromCodeHashKey` returns the address from a code hash key.
+func AddressFromCodeHashKey(key []byte) common.Address {
+	return common.BytesToAddress(key[1:])
 }

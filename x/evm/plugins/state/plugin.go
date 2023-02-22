@@ -300,19 +300,16 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 func (p *plugin) IterateCode(fn func(addr common.Address, code []byte) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetKVStore(p.evmStoreKey),
-		[]byte{keyPrefixCode},
+		[]byte{keyPrefixCodeHash},
 	)
 	defer it.Close()
 
 	for ; it.Valid(); it.Next() {
-		k := it.Key()
-		// Only iterate over keys that are addresses + 1 byte.
-		if len(k) == common.AddressLength+1 {
-			addr := AddressFromCodeHashKey(k)
-			code := p.GetCode(addr)
-			if fn(addr, code) {
-				break
-			}
+		k := it.Key() // CodeHashKeyFor(addr)
+		addr := AddressFromCodeHashKey(k)
+		code := p.GetCode(addr)
+		if fn(addr, code) {
+			break
 		}
 	}
 }
@@ -321,6 +318,12 @@ func (p *plugin) IterateCode(fn func(addr common.Address, code []byte) bool) {
 // code associated with the given `StatePlugin`.
 func (p *plugin) GetCodeSize(addr common.Address) int {
 	return len(p.GetCode(addr))
+}
+
+func (p *plugin) SetCodeHash(addr common.Address, code []byte) {
+	codeHash := crypto.Keccak256Hash(code)
+	ethStore := p.cms.GetKVStore(p.evmStoreKey)
+	ethStore.Set(CodeHashKeyFor(addr), codeHash[:])
 }
 
 // =============================================================================

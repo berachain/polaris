@@ -76,7 +76,7 @@ var _ = Describe("CodeHashKeyFor or a given account", func() {
 	address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
 	key := CodeHashKeyFor(address)
 	Expect(key).To(HaveLen(1 + common.AddressLength))
-	Expect(key[0]).To(Equal(keyPrefixCode))
+	Expect(key[0]).To(Equal(keyPrefixCodeHash))
 	Expect(key[1:]).To(Equal(address.Bytes()))
 })
 
