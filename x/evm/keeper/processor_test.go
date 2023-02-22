@@ -66,8 +66,7 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before every block
-		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000)).
-			WithKVGasConfig(storetypes.GasConfig{})
+		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000))
 		k.BeginBlocker(ctx)
 	})
 
