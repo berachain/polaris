@@ -9,27 +9,28 @@ replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013
 
 // Various replaces needed to resolve conflicts until 0.48 branch cut.
 replace (
-	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230220203919-8a46a3d4fecd
-	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230220203919-8a46a3d4fecd
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230220203919-8a46a3d4fecd
+	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230222022124-77660ec452b6
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230222022124-77660ec452b6
 )
 
 require (
 	cosmossdk.io/api v0.3.1
-	cosmossdk.io/client/v2 v2.0.0-20230220203919-8a46a3d4fecd
+	cosmossdk.io/client/v2 v2.0.0-20230222022124-77660ec452b6
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v0.0.0
-	cosmossdk.io/simapp v0.0.0-20230221144543-25de9de537f3
-	cosmossdk.io/store v0.0.0-20230220203919-8a46a3d4fecd
-	cosmossdk.io/tools/confix v0.0.0-20230220203919-8a46a3d4fecd
+	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
+	cosmossdk.io/simapp v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/store v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/tools/confix v0.0.0-20230222022124-77660ec452b6
 	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/feegrant v0.0.0-20230220203919-8a46a3d4fecd
-	cosmossdk.io/x/upgrade v0.0.0-20230220203919-8a46a3d4fecd
+	cosmossdk.io/x/feegrant v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/x/upgrade v0.0.0-20230222022124-77660ec452b6
 	github.com/bufbuild/buf v1.14.0
 	github.com/carolynvs/magex v0.9.0
-	github.com/cometbft/cometbft v0.0.0-20230203130311-387422ac220d
+	github.com/cometbft/cometbft v0.37.0-alpha.3
 	github.com/cosmos/cosmos-db v1.0.0-rc.1
 	github.com/cosmos/cosmos-proto v1.0.0-beta.2
 	github.com/cosmos/cosmos-sdk v0.48.0
@@ -67,7 +68,6 @@ require (
 	cloud.google.com/go/iam v0.11.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cosmossdk.io/collections v0.0.0-20230214153846-b6c6e4e99177 // indirect
-	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4 // indirect
 	cosmossdk.io/x/tx v0.2.0 // indirect
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
