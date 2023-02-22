@@ -20,32 +20,27 @@
 
 package rpc
 
-import (
-	"github.com/ethereum/go-ethereum/ethapi"
-	"github.com/ethereum/go-ethereum/rpc"
-)
-
 // `GetAPIs` returns a list of the available APIs.
-func GetAPIs(apiBackend ethapi.Backend) []rpc.API {
-	// nonceLock := new(ethapi.AddrLocker)
-	return []rpc.API{
+func GetAPIs(apiBackend Backend) []API {
+	nonceLock := new(AddrLocker)
+	return []API{
 		{
 			Namespace: "eth",
-			Service:   ethapi.NewEthereumAPI(apiBackend),
+			Service:   NewEthereumAPI(apiBackend),
 		}, {
 			Namespace: "eth",
-			Service:   ethapi.NewBlockChainAPI(apiBackend),
+			Service:   NewBlockChainAPI(apiBackend),
 		},
-		// {
-		// 	Namespace: "eth",
-		// 	Service:   ethapi.NewTransactionAPI(apiBackend, nonceLock),
-		// },
+		{
+			Namespace: "eth",
+			Service:   NewTransactionAPI(apiBackend, nonceLock),
+		},
 		{
 			Namespace: "txpool",
-			Service:   ethapi.NewTxPoolAPI(apiBackend),
+			Service:   NewTxPoolAPI(apiBackend),
 		}, {
 			Namespace: "debug",
-			Service:   ethapi.NewDebugAPI(apiBackend),
+			Service:   NewDebugAPI(apiBackend),
 		},
 	}
 }

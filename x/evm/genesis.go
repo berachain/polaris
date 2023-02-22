@@ -29,11 +29,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
-
-var RpcService = ethrpc.NewBackend(nil, nil)
 
 // `DefaultGenesis` returns default genesis state as raw bytes for the evm
 // module.
@@ -55,9 +52,19 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
+
 	for _, plugin := range am.keeper.GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genesisState)
 	}
+
+	// TODO: Clean this up its really jank, we should move this, feels like a bad spot for it, but works.
+	// Currently since we are registering TransactionAPI using the native ethereum backend, it needs to be able to
+	// read the chainID from the ConfigurationPlugin (which is on disk). If we are enabling the APIs before
+	// InitGenesis is called, then we get a nil pointer error since the ConfigurationPlugin is not yet initialized.
+	if err := am.keeper.GetRPCProvider().SetupAPIs(); err != nil {
+		panic(err)
+	}
+
 	return []abci.ValidatorUpdate{}
 }
 

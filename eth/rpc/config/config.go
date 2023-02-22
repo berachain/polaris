@@ -26,7 +26,7 @@ type (
 	// `Server` defines the configuration for the JSON-RPC server.
 	Server struct {
 		// `API` defines a list of JSON-RPC namespaces to be enabled.
-		EnableAPIs []string `mapstructure:"api"`
+		SetupAPIs []string `mapstructure:"api"`
 
 		// `Address` defines the HTTP server to listen on.
 		Address string `mapstructure:"address"`

@@ -56,7 +56,7 @@ const (
 // `DefaultServer` returns the default TLS configuration.
 func DefaultServer() *Server {
 	return &Server{
-		EnableAPIs:            DefaultAPINamespaces,
+		SetupAPIs:             DefaultAPINamespaces,
 		Address:               DefaultJSONRPCAddress,
 		WSAddress:             DefaultJSONRPCWSAddress,
 		MetricsAddress:        DefaultJSONRPCMetricsAddress,

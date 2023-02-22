@@ -29,12 +29,13 @@ import (
 )
 
 type Service struct {
+	backend Backend
 	// `http` is the externally facing JSON-RPC Server.
 	http *Server
 	// `ws` is the externally facing JSON-RPC Server.
 	ws *Server
 	// `engine` is the gin engine responsible for handling the JSON-RPC requests.
-	engine *gin.Engine
+	// engine *gin.Engine
 	// `notify` is the channel that is used to notify the service has stopped.
 	notify chan error
 	// `config` is the configuration for the service.
@@ -49,29 +50,24 @@ type Logger interface {
 func NewService(cfg config.Server, backend ethapi.Backend) (*Service, error) {
 	// Create the service object.
 	s := &Service{
-		http:   NewServer(),
-		ws:     NewServer(),
-		config: cfg,
-		notify: make(chan error, 1),
-		engine: gin.New(),
-	}
-
-	// Recovery middleware recovers from any panics and writes a 500 if there was one.
-	s.engine.Use(gin.Recovery())
-
-	// Set the JSON-RPC server to use the BaseRoute.
-	s.engine.POST(s.config.BaseRoute, gin.WrapH(s.http))
-	s.engine.Any(s.config.BaseRoute+"/ws", gin.WrapH(s.ws))
-
-	// Register the JSON-RPC APIs.
-	apis := GetAPIs(backend)
-	for _, srv := range []*Server{s.http, s.ws} {
-		if err := node.RegisterApis(apis, s.config.EnableAPIs, srv); err != nil {
-			return nil, err
-		}
+		http:    NewServer(),
+		ws:      NewServer(),
+		config:  cfg,
+		notify:  make(chan error, 1),
+		backend: backend,
 	}
 
 	return s, nil
+}
+
+func (s *Service) SetupAPIs() error {
+	apis := GetAPIs(s.backend)
+	for _, srv := range []*Server{s.http, s.ws} {
+		if err := node.RegisterApis(apis, s.config.SetupAPIs, srv); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Service) GetHTTP() *Server {
