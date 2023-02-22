@@ -163,7 +163,7 @@ func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*type
 
 // `HeaderByHash` returns the block header with the given hash.
 func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error) {
-	block := b.stargazerBlockByHash(hash)
+	block := b.chain.GetStargazerBlockByHash(hash)
 	if block == nil {
 		return nil, ErrBlockNotFound
 	}
@@ -210,7 +210,7 @@ func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types
 
 // `BlockByHash` returns the block with the given hash.
 func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Block, error) {
-	block := b.stargazerBlockByHash(hash)
+	block := b.chain.GetStargazerBlockByHash(hash)
 	if block == nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
 	}
@@ -249,7 +249,7 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 
 // `GetReceipts` returns the receipts for the given block hash.
 func (b *backend) GetReceipts(ctx context.Context, hash common.Hash) (types.Receipts, error) {
-	block := b.stargazerBlockByHash(hash)
+	block := b.chain.GetStargazerBlockByHash(hash)
 	if block != nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
 	}
@@ -423,7 +423,7 @@ func (b *backend) ServiceFilter(ctx context.Context, session *bloombits.MatcherS
 func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) (*types.StargazerBlock, error) {
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block := b.stargazerBlockByHash(hash)
+		block := b.chain.GetStargazerBlockByHash(hash)
 		if block == nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
 		}
@@ -462,10 +462,5 @@ func (b *backend) stargazerBlockByNumber(number BlockNumber) *types.StargazerBlo
 	case EarliestBlockNumber:
 		// no-op, since we are querying block 0, which is done below.
 	}
-	return b.chain.Host().GetBlockPlugin().GetStargazerBlockByNumber(number.Int64())
-}
-
-// `stargazerBlockByHash` returns the stargazer block identified by `hash`.
-func (b *backend) stargazerBlockByHash(hash common.Hash) *types.StargazerBlock {
-	return b.chain.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
+	return b.chain.GetStargazerBlockByNumber(number.Int64())
 }
