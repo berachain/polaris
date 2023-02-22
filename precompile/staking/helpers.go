@@ -25,9 +25,10 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/berachain/stargazer/eth/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 // `delegationHelper` is the helper function for `getDelegation`.
@@ -69,7 +70,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 	return []any{res}, nil
 }
 
-// `getRedelegationsHelper` is the helper function for `getRedelegations
+// `getRedelegationsHelper` is the helper function for `getRedelegations.
 func (c *Contract) getRedelegationsHelper(
 	ctx context.Context,
 	caller common.Address,

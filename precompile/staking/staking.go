@@ -27,15 +27,15 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/core/precompile"
-	"github.com/berachain/stargazer/eth/core/vm"
-	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/lib/utils"
-	"github.com/berachain/stargazer/precompile/contracts/solidity/generated"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 )
 
 var _ precompile.StatefulPrecompileImpl = (*Contract)(nil)

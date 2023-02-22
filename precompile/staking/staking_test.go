@@ -25,10 +25,6 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/berachain/stargazer/eth/common"
-	"github.com/berachain/stargazer/eth/types/abi"
-	"github.com/berachain/stargazer/precompile/contracts/solidity/generated"
-	"github.com/berachain/stargazer/testutil"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,6 +33,11 @@ import (
 	stakingkeepertypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
+	"pkg.berachain.dev/stargazer/testutil"
 )
 
 func TestStakingPrecompile(t *testing.T) {
