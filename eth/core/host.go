@@ -41,6 +41,8 @@ type StargazerHostChain interface {
 	GetPrecompilePlugin() PrecompilePlugin
 	// `GetStatePlugin` returns the `StatePlugin` of the Stargazer host chain.
 	GetStatePlugin() StatePlugin
+	// `GetTxPoolPlugin` returns the `TxPoolPlugin` of the Stargazer host chain.
+	GetTxPoolPlugin() TxPoolPlugin
 }
 
 // =============================================================================
@@ -112,7 +114,10 @@ type (
 	}
 
 	TxPoolPlugin interface {
-		// TODO
+		SendTx(tx *types.Transaction) error
+		GetAllTransactions() (types.Transactions, error)
+		GetTransaction(common.Hash) *types.Transaction
+		GetNonce(common.Address) uint64
 	}
 )
 

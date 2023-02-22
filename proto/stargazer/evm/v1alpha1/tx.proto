@@ -60,6 +60,11 @@ message EthTransactionResponse {
   string receipt = 1;
 }
 
+// ExtensionOptionsEthTransaction is an extension option for ethereum transactions
+message ExtensionOptionsEthTransaction {
+  option (gogoproto.goproto_getters) = false;
+}
+
 // `UpdateParamsRequest` is the Msg/UpdateParams request type.
 //
 // Since: cosmos-sdk 0.47

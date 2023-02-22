@@ -18,47 +18,26 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool
+package types
 
 import (
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	mempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	tx "github.com/cosmos/cosmos-sdk/types/tx"
 )
 
-// `Plugin` represents the transaction pool plugin.
-var _ Plugin = (*plugin)(nil)
+// RegisterInterfaces registers the client interfaces to protobuf Any.
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterImplementations(
+		(*tx.ExtensionOptionI)(nil),
+		&ExtensionOptionsEthTransaction{},
+	)
+	registry.RegisterImplementations(
+		(*sdk.Msg)(nil),
+		&EthTransactionRequest{},
+		// &MsgUpdateParams{},
+	)
 
-// `Plugin` represents the transaction pool plugin.
-type Plugin interface {
-	core.TxPoolPlugin
-}
-
-// `plugin` represents the transaction pool plugin.
-type plugin struct {
-	mempool.EthTxPool
-}
-
-func (p *plugin) SendTx(tx *coretypes.Transaction) error {
-	return nil
-}
-
-func (p *plugin) WrapEthereumTransaction(tx *coretypes.Transaction) sdk.Tx {
-	return types.NewFromTransaction(tx)
-}
-
-func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
-	return coretypes.Transactions{}, nil
-}
-
-func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	return nil
-}
-
-func (p *plugin) GetNonce(addr common.Address) uint64 {
-	return 0
+	msgservice.RegisterMsgServiceDesc(registry, &_MsgService_serviceDesc)
 }

@@ -123,6 +123,10 @@ func (k *Keeper) GetStatePlugin() core.StatePlugin {
 	return k.sp
 }
 
+func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
+	return nil
+}
+
 func (k *Keeper) GetStargazer() *eth.StargazerProvider {
 	return k.stargazer
 }

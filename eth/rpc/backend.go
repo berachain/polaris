@@ -295,26 +295,28 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	// TODO: Implement your code here
-	return nil
+	return b.chain.Host().GetTxPoolPlugin().SendTx(signedTx)
 }
 
 func (b *backend) GetTransaction(ctx context.Context,
 	txHash common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	// TODO: Implement your code here
 	// 1. Check the Mempool
+	tx := b.GetPoolTransaction(txHash)
+	if tx != nil {
+		// todo get other info
+		return tx, common.Hash{}, 0, 0, nil
+	}
 	// 2. Check the Historical Storage
+	// tx := b.chain.Host().GetBlockPlugin().GetTransactionByHash(txHash)
 	return nil, common.Hash{}, 0, 0, nil
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
-	// TODO: Implement your code here
-	return nil, nil
+	return b.chain.Host().GetTxPoolPlugin().GetAllTransactions()
 }
 
 func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
-	// TODO: Implement your code here
-	return nil
+	return b.chain.Host().GetTxPoolPlugin().GetTransaction(txHash)
 }
 
 func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {

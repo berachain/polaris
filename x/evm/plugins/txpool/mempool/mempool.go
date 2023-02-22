@@ -20,8 +20,12 @@
 
 package mempool
 
-import "github.com/cosmos/cosmos-sdk/types/mempool"
+import (
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
+)
 
 type EthTxPool struct {
 	mempool.NoOpMempool // first iteration simply allows for
+	client.Context
 }
