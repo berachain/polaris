@@ -18,31 +18,25 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool
+package mempool
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"testing"
 
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	mempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `Plugin` represents the transaction pool plugin.
-var _ Plugin = (*plugin)(nil)
-
-type Plugin interface {
+func TestEthPool(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/txpool/mempool")
 }
 
-// `plugin` represents the transaction pool plugin.
-type plugin struct {
-	mempool.EthTxPool
-}
-
-func (p *plugin) SubmitEthereumTransaction() error {
-	return nil
-}
-
-func (p *plugin) WrapEthereumTransaction(tx *coretypes.Transaction) sdk.Tx {
-	return types.NewFromTransaction(tx)
-}
+var _ = Describe(`EthTxPool`, func() {
+	Describe(`EthTxPool`, func() {
+		It(`Should return a valid EthTxPool`, func() {
+			ethTxPool := EthTxPool{}
+			Expect(ethTxPool).ToNot(BeNil())
+		})
+	})
+})

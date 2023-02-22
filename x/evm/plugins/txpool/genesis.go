@@ -23,26 +23,11 @@ package txpool
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	mempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-// `Plugin` represents the transaction pool plugin.
-var _ Plugin = (*plugin)(nil)
+// `InitGenesis` is a no-op for the gas plugin.
+func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
 
-type Plugin interface {
-}
-
-// `plugin` represents the transaction pool plugin.
-type plugin struct {
-	mempool.EthTxPool
-}
-
-func (p *plugin) SubmitEthereumTransaction() error {
-	return nil
-}
-
-func (p *plugin) WrapEthereumTransaction(tx *coretypes.Transaction) sdk.Tx {
-	return types.NewFromTransaction(tx)
-}
+// `ExportGenesis` is a no-op for the gas plugin.
+func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}

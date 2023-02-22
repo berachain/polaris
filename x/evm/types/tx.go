@@ -21,63 +21,84 @@
 package types
 
 import (
-	"math/big"
+	"errors"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
-// NewTx returns a reference to a new Ethereum transaction message.
-func NewEthereumTxRequest(
-	chainID *big.Int, nonce uint64, to *common.Address, amount *big.Int,
-	gasLimit uint64, gasPrice, gasFeeCap, gasTipCap *big.Int, input []byte, accesses *coretypes.AccessList,
-) *EthTransactionRequest {
-	return newEthereumTxRequest(chainID, nonce, to, amount, gasLimit, gasPrice, gasFeeCap, gasTipCap, input, accesses)
-}
+// We must implement the `sdk.Msg` interface to be able to use the `sdk.Msg` type
+// in the `sdk.Msg` field of the `sdk.Tx` interface.
+var _ ante.GasTx = (*EthTransactionRequest)(nil)
+var _ sdk.Tx = (*EthTransactionRequest)(nil)
+var _ sdk.Msg = (*EthTransactionRequest)(nil)
 
-func newEthereumTxRequest(
-	chainID *big.Int, nonce uint64, to *common.Address, amount *big.Int,
-	gasLimit uint64, gasPrice, gasFeeCap, gasTipCap *big.Int, input []byte, accesses *coretypes.AccessList,
-) *EthTransactionRequest {
-	var (
-		txData coretypes.TxData
-	)
-
-	switch {
-	case accesses == nil:
-		txData = &coretypes.LegacyTx{
-			Nonce:    nonce,
-			To:       to,
-			Value:    amount,
-			Gas:      gasLimit,
-			GasPrice: gasPrice,
-			Data:     input,
-		}
-		//nolint:govet // not a tautoology.
-	case accesses != nil && gasFeeCap != nil && gasTipCap != nil:
-		txData = &coretypes.DynamicFeeTx{
-			ChainID:   chainID,
-			Nonce:     nonce,
-			To:        to,
-			Value:     amount,
-			Gas:       gasLimit,
-			GasTipCap: gasTipCap,
-			GasFeeCap: gasFeeCap,
-			Data:      input,
-			// Accesses:  NewAccessList(accesses),
-		}
-	case accesses != nil:
-		// coming soon
-	default:
-	}
-
-	tx := coretypes.NewTx(txData)
-	bz, err := tx.MarshalJSON()
+// `NewFromTransaction` sets the transaction data from an `coretypes.Transaction`.
+func NewFromTransaction(tx *coretypes.Transaction) *EthTransactionRequest {
+	etr := new(EthTransactionRequest)
+	bz, err := tx.MarshalBinary()
 	if err != nil {
 		panic(err)
 	}
 
-	msg := EthTransactionRequest{Data: string(bz)}
-	// msg.Hash = tx.Hash()
-	return &msg
+	etr.Data = bz
+	return etr
+}
+
+// `GetMsgs` returns the message(s) contained in the transaction.
+func (etr *EthTransactionRequest) GetMsgs() []sdk.Msg {
+	return []sdk.Msg{etr}
+}
+
+// `GetSigners` returns the address(es) that must sign over the transaction.
+func (etr *EthTransactionRequest) GetSigners() []sdk.AccAddress {
+	sender, err := etr.GetSender()
+	if err != nil {
+		panic(err)
+	}
+
+	signer := sdk.AccAddress(sender.Bytes())
+	return []sdk.AccAddress{signer}
+}
+
+// `AsTransaction` extracts the transaction as an `coretypes.Transaction`.
+func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
+	t := new(coretypes.Transaction)
+	err := t.UnmarshalBinary(etr.Data)
+	if err != nil {
+		return nil
+	}
+	return t
+}
+
+// `GetSender` extracts the sender address from the signature values using the latest signer for the given chainID.
+func (etr *EthTransactionRequest) GetSender() (common.Address, error) {
+	t := etr.AsTransaction()
+	signer := coretypes.LatestSignerForChainID(t.ChainId())
+	return signer.Sender(t)
+}
+
+// `GetGas` returns the gas limit of the transaction.
+func (etr *EthTransactionRequest) GetGas() uint64 {
+	return etr.AsTransaction().Gas()
+}
+
+// `GetGasPrice` returns the gas price of the transaction.
+func (etr *EthTransactionRequest) ValidateBasic() error {
+	if len(etr.Data) == 0 {
+		return errors.New("transaction data cannot be empty")
+	}
+
+	if etr.AsTransaction() == nil {
+		return errors.New("transaction data is invalid")
+	}
+
+	if etr.GetGas() == 0 {
+		return errors.New("gas limit cannot be zero")
+	}
+
+	return nil
 }

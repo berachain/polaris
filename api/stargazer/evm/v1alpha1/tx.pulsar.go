@@ -93,8 +93,8 @@ func (x *fastReflection_EthTransactionRequest) Interface() protoreflect.ProtoMes
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_EthTransactionRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Data != "" {
-		value := protoreflect.ValueOfString(x.Data)
+	if len(x.Data) != 0 {
+		value := protoreflect.ValueOfBytes(x.Data)
 		if !f(fd_EthTransactionRequest_data, value) {
 			return
 		}
@@ -121,7 +121,7 @@ func (x *fastReflection_EthTransactionRequest) Range(f func(protoreflect.FieldDe
 func (x *fastReflection_EthTransactionRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.data":
-		return x.Data != ""
+		return len(x.Data) != 0
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.from":
 		return x.From != ""
 	default:
@@ -141,7 +141,7 @@ func (x *fastReflection_EthTransactionRequest) Has(fd protoreflect.FieldDescript
 func (x *fastReflection_EthTransactionRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.data":
-		x.Data = ""
+		x.Data = nil
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.from":
 		x.From = ""
 	default:
@@ -162,7 +162,7 @@ func (x *fastReflection_EthTransactionRequest) Get(descriptor protoreflect.Field
 	switch descriptor.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.data":
 		value := x.Data
-		return protoreflect.ValueOfString(value)
+		return protoreflect.ValueOfBytes(value)
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.from":
 		value := x.From
 		return protoreflect.ValueOfString(value)
@@ -187,7 +187,7 @@ func (x *fastReflection_EthTransactionRequest) Get(descriptor protoreflect.Field
 func (x *fastReflection_EthTransactionRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.data":
-		x.Data = value.Interface().(string)
+		x.Data = value.Bytes()
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.from":
 		x.From = value.Interface().(string)
 	default:
@@ -228,7 +228,7 @@ func (x *fastReflection_EthTransactionRequest) Mutable(fd protoreflect.FieldDesc
 func (x *fastReflection_EthTransactionRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.data":
-		return protoreflect.ValueOfString("")
+		return protoreflect.ValueOfBytes(nil)
 	case "stargazer.evm.v1alpha1.EthTransactionRequest.from":
 		return protoreflect.ValueOfString("")
 	default:
@@ -404,7 +404,7 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Data", wireType)
 				}
-				var stringLen uint64
+				var byteLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -414,23 +414,25 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
+					byteLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
+				if byteLen < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
-				postIndex := iNdEx + intStringLen
+				postIndex := iNdEx + byteLen
 				if postIndex < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Data = string(dAtA[iNdEx:postIndex])
+				x.Data = append(x.Data[:0], dAtA[iNdEx:postIndex]...)
+				if x.Data == nil {
+					x.Data = []byte{}
+				}
 				iNdEx = postIndex
 			case 2:
 				if wireType != 2 {
@@ -1814,7 +1816,7 @@ type EthTransactionRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	// data is inner transaction data of the Ethereum transaction
-	Data string `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	// from is the ethereum signer address in hex format. This address value is checked
 	// against the address derived from the signature (V, R, S) using the
 	// secp256k1 elliptic curve
@@ -1841,11 +1843,11 @@ func (*EthTransactionRequest) Descriptor() ([]byte, []int) {
 	return file_stargazer_evm_v1alpha1_tx_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *EthTransactionRequest) GetData() string {
+func (x *EthTransactionRequest) GetData() []byte {
 	if x != nil {
 		return x.Data
 	}
-	return ""
+	return nil
 }
 
 func (x *EthTransactionRequest) GetFrom() string {
@@ -1987,7 +1989,7 @@ var file_stargazer_evm_v1alpha1_tx_proto_rawDesc = []byte{
 	0x76, 0x6d, 0x2f, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61,
 	0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x45, 0x0a, 0x15, 0x45, 0x74, 0x68, 0x54,
 	0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x74, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52,
 	0x04, 0x64, 0x61, 0x74, 0x61, 0x12, 0x12, 0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x02, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x3a, 0x04, 0x88, 0xa0, 0x1f, 0x00, 0x22,
 	0x38, 0x0a, 0x16, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
