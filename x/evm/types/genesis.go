@@ -33,9 +33,10 @@ func ValidateGenesis(data GenesisState) error {
 }
 
 // `NewGenesisState` creates a new `GenesisState` object and returns a pointer to it.
-func NewGenesisState(params Params, crs []CodeRecord) *GenesisState {
+func NewGenesisState(params Params, crs []CodeRecord, srs []StateRecord) *GenesisState {
 	return &GenesisState{
-		Params:      params,
-		CodeRecords: crs,
+		Params:       params,
+		CodeRecords:  crs,
+		StateRecords: srs,
 	}
 }

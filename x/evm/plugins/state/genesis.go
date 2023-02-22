@@ -34,6 +34,13 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 		addr := common.HexToAddress(cr.Address)
 		p.SetCode(addr, cr.Code)
 	}
+
+	for _, sr := range data.StateRecords {
+		addr := common.HexToAddress(sr.Address)
+		slot := common.BytesToHash(sr.Slot)
+		value := common.BytesToHash(sr.Value)
+		p.SetState(addr, slot, value)
+	}
 }
 
 func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
@@ -44,6 +51,16 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
 		data.CodeRecords = append(data.CodeRecords, types.CodeRecord{
 			Address: addr.Hex(),
 			Code:    code,
+		})
+		return false
+	})
+
+	// Iterate over all the state records and add them to the genesis state.
+	p.IterateState(func(addr common.Address, key, value common.Hash) bool {
+		data.StateRecords = append(data.StateRecords, types.StateRecord{
+			Address: addr.Hex(),
+			Slot:    key.Bytes(),
+			Value:   value.Bytes(),
 		})
 		return false
 	})

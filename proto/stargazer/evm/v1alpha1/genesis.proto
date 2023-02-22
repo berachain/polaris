@@ -33,6 +33,9 @@ message GenesisState {
 
   // CodeRecords defines all the code records of the evm state plugin.
   repeated CodeRecord code_records = 2 [(gogoproto.nullable) = false];
+
+  // StateRecords defines all the state records of the evm state plugin.
+  repeated StateRecord state_records = 3 [(gogoproto.nullable) = false];
 }
 
 // `CodeRecord` defines the code record of the evm state plugin.
@@ -42,4 +45,16 @@ message CodeRecord {
 
   // `code` is the code of the contract, this is in the format of byte slice.
   bytes code = 2;
+}
+
+// `StateRecord` defines the state record of the evm state plugin.
+message StateRecord {
+  // `address` is the address of the account, this is in format of hex string.
+  string address = 1;
+
+  // `slot` is the storage slot of the state, this is in format of byte slice.
+  bytes slot = 2;
+
+  // `value` is the value of the state, this is in format of byte slice.
+  bytes value = 3;
 }

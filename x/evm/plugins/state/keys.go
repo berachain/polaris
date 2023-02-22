@@ -39,6 +39,11 @@ func StorageKeyFor(address common.Address) []byte {
 	return bz
 }
 
+// `AddressFromStorageKey` returns the address from a storage key.
+func AddressFromStorageKey(key []byte) common.Address {
+	return common.BytesToAddress(key[1:])
+}
+
 // `SlotKeyFor` defines the full key under which an account storage slot is stored.
 func SlotKeyFor(address common.Address, slot common.Hash) []byte {
 	bz := make([]byte, 1+common.AddressLength+common.HashLength)
@@ -46,6 +51,16 @@ func SlotKeyFor(address common.Address, slot common.Hash) []byte {
 	copy(bz[1:], address[:])
 	copy(bz[1+common.AddressLength:], slot[:])
 	return bz
+}
+
+// `SlotFromSlotKeyFor` returns the slot from a slot key.
+func SlotFromSlotKey(key []byte) common.Hash {
+	return common.BytesToHash(key[1+common.AddressLength:])
+}
+
+// `AddressFromSlotKey` returns the address from a slot key.
+func AddressFromSlotKey(key []byte) common.Address {
+	return common.BytesToAddress(key[1 : 1+common.AddressLength])
 }
 
 // `CodeHashKeyFor` defines the full key under which an addreses codehash is stored.

@@ -37,6 +37,16 @@ var _ = Describe("StorageKeyFor", func() {
 	})
 })
 
+var _ = Describe("AddressFromStorageKey", func() {
+	It("should return the address from a storage key", func() {
+		addr := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
+		prefix := StorageKeyFor(addr)
+
+		addr2 := AddressFromStorageKey(prefix)
+		Expect(addr2).To(Equal(addr))
+	})
+})
+
 var _ = Describe("SlotKeyFor", func() {
 	It("returns a storage key for a given account and storage slot", func() {
 		address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
@@ -46,6 +56,19 @@ var _ = Describe("SlotKeyFor", func() {
 		Expect(key[0]).To(Equal(keyPrefixStorage))
 		Expect(key[1 : 1+common.AddressLength]).To(Equal(address.Bytes()))
 		Expect(key[1+common.AddressLength:]).To(Equal(slot.Bytes()))
+	})
+})
+
+var _ = Describe("SlotFromSlotKey", func() {
+	It("should return the slot from the key", func() {
+		addr := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
+		slot := common.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")
+		key := SlotKeyFor(addr, slot)
+
+		addr2 := AddressFromSlotKey(key)
+		slot2 := SlotFromSlotKey(key)
+		Expect(addr2).To(Equal(addr))
+		Expect(slot2).To(Equal(slot))
 	})
 })
 

@@ -361,6 +361,23 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 	p.cms.GetKVStore(p.evmStoreKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
+func (p *plugin) IterateState(fn func(addr common.Address, key, value common.Hash) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetCommittedKVStore(p.evmStoreKey),
+		[]byte{keyPrefixStorage},
+	)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		k, v := it.Key(), it.Value()
+		addr := AddressFromSlotKey(k)
+		slot := SlotFromSlotKey(k)
+		if fn(addr, slot, common.BytesToHash(v)) {
+			break
+		}
+	}
+}
+
 // =============================================================================
 // ForEachStorage
 // =============================================================================
