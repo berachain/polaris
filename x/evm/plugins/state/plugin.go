@@ -296,6 +296,7 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
+// `IterateCode` iterates over all the addresses with code and calls the given method.
 func (p *plugin) IterateCode(fn func(addr common.Address, code []byte) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetKVStore(p.evmStoreKey),
@@ -361,6 +362,7 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 	p.cms.GetKVStore(p.evmStoreKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
+// `IterateState` iterates over all the contract state, and calls the given function.
 func (p *plugin) IterateState(fn func(addr common.Address, key, value common.Hash) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetCommittedKVStore(p.evmStoreKey),

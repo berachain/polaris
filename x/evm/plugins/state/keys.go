@@ -71,6 +71,7 @@ func CodeHashKeyFor(address common.Address) []byte {
 	return bz
 }
 
+// `AddressFromCodeHashKey` returns the address from a codehash key.
 func AddressFromCodeHashKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1:])
 }
