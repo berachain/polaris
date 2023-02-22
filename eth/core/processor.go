@@ -72,14 +72,16 @@ func NewStateProcessor(
 	commit bool,
 ) *StateProcessor {
 	sp := &StateProcessor{
-		mtx:      sync.Mutex{},
-		bp:       host.GetBlockPlugin(),
-		gp:       host.GetGasPlugin(),
-		cp:       host.GetConfigurationPlugin(),
-		pp:       host.GetPrecompilePlugin(),
-		vmConfig: vmConfig,
-		statedb:  statedb,
-		commit:   commit,
+		mtx: sync.Mutex{},
+		bp:  host.GetBlockPlugin(),
+		gp:  host.GetGasPlugin(),
+		cp:  host.GetConfigurationPlugin(),
+		pp:  host.GetPrecompilePlugin(),
+		vmConfig: vm.Config{
+			NoBaseFee: true,
+		},
+		statedb: statedb,
+		commit:  commit,
 	}
 
 	if sp.pp == nil {

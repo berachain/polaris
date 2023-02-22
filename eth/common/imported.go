@@ -36,6 +36,7 @@ var (
 	BytesToAddress = common.BytesToAddress
 	BytesToHash    = common.BytesToHash
 	Bytes2Hex      = common.Bytes2Hex
+	FromHex        = common.FromHex
 	HexToAddress   = common.HexToAddress
 	Hex2Bytes      = common.Hex2Bytes
 	HexToHash      = common.HexToHash
