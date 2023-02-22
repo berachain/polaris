@@ -1,0 +1,129 @@
+---
+title: 'Stargazer '
+---
+ 
+import Link from 'next/link'
+import styles from './index.module.css'
+import Wave from '../components/animation'
+import { Features, Feature } from '../components/features'
+import starCard from '../public/stargazer.jpeg'
+import Image from 'next/image'
+import { motion, AnimatePresence } from "framer-motion"
+
+<div style={{
+    height: '100vh',
+    width: '100vw',
+    justifyContent: 'center',
+    alignItems: 'center',
+}}>
+    <style jsx>{`
+    .headline {
+      display: inline-block;
+      font-size: 3.125rem;
+      font-size: min(4.375rem, max(8vw, 2.5rem));
+      font-weight: 700;
+      font-feature-settings: initial;
+      letter-spacing: -.12rem;
+      margin-left: -0.2rem;
+      margin-top: 3.4rem;
+      line-height: 1.1;
+      background-image: linear-gradient(135deg, #567189, #6ad56c, #fad6a5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    :global(.dark) .headline {
+      background-image: linear-gradient(135deg, #567189, #6ad56c, #fad6a5);
+    }
+    .content-container {
+      max-width: 90rem;
+      padding-left: max(env(safe-area-inset-left),1.5rem);
+      padding-right: max(env(safe-area-inset-right),1.5rem);
+      margin: 0 auto;
+    }
+    .features-container {
+      margin: 8rem 0 0;
+      padding: 4rem 0;
+      background-color: #f3f4f6;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .features-container .content-container {
+      margin-top: -8rem;
+    }
+    :global(.dark) .features-container {
+      background-color: #000;
+      border-bottom: 1px solid rgb(38,38,38);
+    }
+    .subtitle {
+      font-size: 1.3rem;
+      font-size: min(1.3rem, max(3.5vw, 1.2rem));
+      font-feature-settings: initial;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+    .subtitle-txt {
+      font-size: 2rem;
+      font-weight: bold;
+      font-size: min(2rem, max(3.5vw, 1.2rem));
+      font-feature-settings: initial;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+    btn {
+      display: inline-block;
+      background: linear-gradient(to bottom, #238aff, #0077ff);
+      text-decoration: none;
+      border-radius: 9999px;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      margin-top: 0.5rem;
+      text-shadow: 0 1px 1px #00387838;
+      box-shadow: 0 1px 2px #00295738;
+      transition: all 0.2s ease;
+      -webkit-user-drag: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    btn span {
+      display: inline-block;
+      transition: all 0.2s ease;
+    }
+    btn:hover span {
+      transform: translateX(3px);
+    }
+    btn:hover {
+      box-shadow: 0 5px 30px -10px #0078ffab;
+      filter: brightness(1.05);
+    }
+    btn:active {
+      box-shadow: 0 1px 3px #00295738;
+      filter: brightness(0.95);
+    }
+    btn:active span {
+      transform: translateX(5px);
+    }
+    btn:focus-visible {
+      outline: 2px solid hsl(var(--nextra-primary-hue) 100% 77%);
+      outline-offset: 2px;
+    }
+    btn:focus-visible span {
+      transform: translateX(3px);
+    }
+    .feature {
+      padding: 10px;
+      color: red;
+    }
+  `}</style>
+        <div style={{ height: "500px", width:"100vw", position:"absolute", zIndex:"-1", paddingTop:"150px" }}>
+          <Wave />
+        </div>
+        <div>
+            <div className="content-container">
+                <h1 className="headline">Stargazer<br className='sm:block hidden'/>Bridging EVM and Cosmos</h1>
+                <p className="subtitle-txt">Simple, powerful and flexible EVM framework <br className='sm:block hidden'/>with everything you love from Ethereum and Cosmos.</p>
+                <p className="subtitle">
+                  <Link className={styles.cta} href="/docs">Get started <span>→</span></Link>
+                </p>
+            </div>
+        </div>
+</div>

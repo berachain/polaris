@@ -198,3 +198,9 @@ precompile/contracts/solidity/lib
 
 # xml
 *.xml
+
+#next
+node_modules
+.next
+next-env.d.ts
+yarn.lock

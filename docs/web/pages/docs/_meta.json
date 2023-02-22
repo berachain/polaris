@@ -1,0 +1,66 @@
+{
+  "index": "Introduction",
+  "-- Getting Started --": {
+    "type": "separator",
+    "title": "Getting Started"
+  },
+  "your-first-node": "Your First Node",
+  "main-concepts": "Main Concepts",
+  "architecture": "Architecture Overview",
+  "why-stargazer": "Why Stargazer?",
+  "contributing": "Contributing Guide",
+  "-- Node --": {
+    "type": "separator",
+    "title": "Node Information"
+  },
+  "node-requirements": "Node requirements",
+  "running-a-node": "Running a node",
+  "node-config": "Node Configurations",
+  "node-services": "Node Services",
+  "interacting-with-node": "Interacting with the Node",
+  "node-maintenance": "Node Maintenance",
+  "-- Building --": {
+    "type": "separator",
+    "title": "Building on Stargazer"
+  },
+  "building-modules": "Building Modules",
+  "building-precompiles": "Building Precompiles",
+  "interacting-with-precompiles": "Interacting with Precompiles",
+  "for-dapp-devs": "For Dapp Developers",
+  "for-solidity-devs": "For Solidity Developers",
+  "-- Validators --": {
+    "type": "separator",
+    "title": "Running a Validator"
+  },
+  "validator-requirements": "Validator Requirements",
+  "validator-installation": "Validator Installation",
+  "validator-configuration": "Validator Configuration",
+  "join-testnet": "Joining the Testnet",
+  "telemetry-and-insights": "Telemetry & insights",
+  "snapshots-and-archive-nodes": "Snapshots & Archive Nodes",
+  "cosmovisor": "Cosmovisor",
+  "-- Governance --": {
+    "type": "separator",
+    "title": "Governance"
+  },
+  "creating-proposals": "Creating Proposals",
+  "vote-proposals": "Voting on Proposals",
+  "-- Metrics --": {
+    "type": "separator",
+    "title": "Metrics"
+  },
+  "metrics": "Metrics",
+  "-- More --": {
+    "type": "separator",
+    "title": "More"
+  },
+  "github": {
+    "title": "About Stargazer",
+    "href": "/about"
+  },
+  "notion": {
+    "title": "About Berachain",
+    "href": "https://www.twitter.com/berachain",
+    "newWindow": true
+  }
+}

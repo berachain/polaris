@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+}
+.box {
+  width: 200px;
+  height: 200px;
+  background: red;
+}
+.home-content p {
+  margin-top: 1.5em;
+  line-height: 1.75em;
+}
+
+.home-content a {
+  --tw-ring-color: hsl(var(--nextra-primary-hue) 100% 50%/0.3);
+  --tw-text-opacity: 1;
+  text-underline-position: under;
+  text-decoration-line: underline;
+  text-decoration-thickness: from-font;
+  color: hsl(var(--nextra-primary-hue) 100% 50% / var(--tw-text-opacity));
+}
+
+figcaption {
+  font-size: 0.85rem;
+  line-height: 1.5rem;
+  display: block;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+code.text-\[\.9em\] {
+  font-size: 14px;
+}
+
+@media screen and (max-width: 1200px) {
+  .home-content .hide-medium {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .home-content p {
+    font-size: 0.9rem;
+  }
+  .home-content .hide-small {
+    display: none;
+  }
+}
+
+.steps-container {
+  margin-left: 1rem;
+  padding-left: 1.5rem;
+  counter-reset: step;
+  border-left: 1px solid;
+  border-color: rgb(229 231 235/1);
+  margin-bottom: 3rem;
+}
+.steps-container h3 {
+  counter-increment: step;
+}
+.steps-container h3:before {
+  content: counter(step);
+  display: inline-block;
+  position: absolute;
+  margin-top: 3px;
+  margin-left: -41px;
+  width: 33px;
+  height: 33px;
+  text-align: center;
+  text-indent: -1px;
+  color: #999;
+  border-radius: 100%;
+  border: 4px solid #fff;
+  background: #f3f3f3;
+  line-height: 1.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.dark .steps-container {
+  border-color: #2e2e2e;
+}
+.dark .steps-container h3:before {
+  color: #999;
+  border: 4px solid rgba(17, 17, 17, var(--tw-bg-opacity));
+  background: #2e2e2e;
+}
+
+.container {
+  position: relative;
+  width: 100vw;
+}

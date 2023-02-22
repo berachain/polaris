@@ -1,0 +1,25 @@
+{
+  "name": "docs",
+  "private": true,
+  "scripts": {
+    "dev": "next",
+    "start": "next start",
+    "build": "next build"
+  },
+  "author": "@DevLobster",
+  "license": "MIT",
+  "dependencies": {
+    "framer-motion": "^9.0.2",
+    "next": "^13.1.2",
+    "nextra": "^2.2.3",
+    "nextra-theme-docs": "^2.2.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-three-fiber": "^6.0.13",
+    "three": "^0.149.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.13.0",
+    "typescript": "4.9.5"
+  }
+}
