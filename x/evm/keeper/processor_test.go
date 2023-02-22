@@ -22,18 +22,17 @@ package keeper_test
 
 import (
 	"math/big"
-	"os"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/ethapi"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/stargazer/eth/types/abi"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
@@ -42,19 +41,13 @@ import (
 
 var _ = Describe("Processor", func() {
 	var (
-		k                  *keeper.Keeper
-		ak                 state.AccountKeeper
-		bk                 state.BankKeeper
-		ctx                sdk.Context
-		key, _             = crypto.GenerateEthKey()
-		signer             = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-		legacyTxData       *coretypes.LegacyTx
-		gas                = hexutil.Uint64(10000000)
-		txArgs             *ethapi.TransactionArgs
-		_                  = txArgs
-		contractCodePath   = "../../../eth/testutil/contracts/solidity/out/SolmateERC20.sol/SolmateERC20.bin"
-		contractCodeHex, _ = os.ReadFile(contractCodePath)
-		contractCodeBytes  = common.Hex2Bytes(string(contractCodeHex))
+		k            *keeper.Keeper
+		ak           state.AccountKeeper
+		bk           state.BankKeeper
+		ctx          sdk.Context
+		key, _       = crypto.GenerateEthKey()
+		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+		legacyTxData *coretypes.LegacyTx
 	)
 
 	BeforeEach(func() {
@@ -80,14 +73,6 @@ var _ = Describe("Processor", func() {
 
 	Context("New Block", func() {
 		BeforeEach(func() {
-			// setup
-			txArgs = &ethapi.TransactionArgs{
-				Gas:      &gas,
-				GasPrice: (*hexutil.Big)(big.NewInt(1)),
-				Value:    (*hexutil.Big)(big.NewInt(1)),
-				Nonce:    (*hexutil.Uint64)(new(uint64)),
-			}
-
 			// before every tx
 			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		})
@@ -104,7 +89,7 @@ var _ = Describe("Processor", func() {
 		})
 
 		It("should successfully deploy a valid contract and call it", func() {
-			legacyTxData.Data = contractCodeBytes
+			legacyTxData.Data = common.FromHex(generated.SolmateERC20Bin)
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).To(BeNil())
@@ -112,18 +97,35 @@ var _ = Describe("Processor", func() {
 			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
 			k.GetStatePlugin().Finalize()
 
-			// process tx
+			// create the contract
 			receipt, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).To(BeNil())
 			Expect(receipt.BlockNumber.Int64()).To(Equal(ctx.BlockHeight()))
 			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
 			Expect(len(k.GetStatePlugin().GetCode(receipt.ContractAddress))).NotTo(Equal(0))
 
-			// legacyTxData.Data = nil
-			// legacTxData.To = receipt.ContractAddress
+			// call the contract non-view function
+			legacyTxData.To = &receipt.ContractAddress
+			var solmateABI abi.ABI
+			err = solmateABI.UnmarshalJSON([]byte(generated.SolmateERC20ABI))
+			Expect(err).To(BeNil())
+			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
+			Expect(err).To(BeNil())
+			legacyTxData.Data = input
+			legacyTxData.Nonce++
+			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
+			receipt, err = k.ProcessTransaction(ctx, tx)
+			Expect(err).To(BeNil())
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
+			Expect(len(receipt.Logs)).To(Equal(1))
 
-			// setup state for contract call
-
+			// call the contract view function
+			legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
+			legacyTxData.Nonce++
+			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
+			receipt, err = k.ProcessTransaction(ctx, tx)
+			Expect(err).To(BeNil())
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
 		})
 	})
 })
