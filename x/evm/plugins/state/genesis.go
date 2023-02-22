@@ -21,6 +21,8 @@
 package state
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -32,6 +34,7 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
 
 	for _, cr := range data.CodeRecords {
+		fmt.Println("cr.Address", cr.Address)
 		addr := common.HexToAddress(cr.Address)
 		p.SetCode(addr, cr.Code)
 	}
