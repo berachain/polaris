@@ -3,6 +3,10 @@ pragma solidity >=0.8.4;
 
 contract RevertableTx {
     fallback() external {
-        revert("RevertableTx: revertTx");
+        revert("RevertableTx");
+    }
+
+    receive() external payable {
+        revert("RevertableTx");
     }
 }

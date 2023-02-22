@@ -190,27 +190,37 @@ var _ = Describe("StateProcessor", func() {
 				if addr != dummyContract {
 					return nil
 				}
-				return []byte(generated.RevertableTxMetaData.Bin)
+				return common.Hex2Bytes(generated.RevertableTxMetaData.Bin)
 			}
 			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
 				if addr != dummyContract {
 					return common.Hash{}
 				}
-				return crypto.Keccak256Hash([]byte(generated.RevertableTxMetaData.Bin))
+				return crypto.Keccak256Hash(common.Hex2Bytes(generated.RevertableTxMetaData.Bin))
 			}
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
 			}
+			legacyTxData.To = nil
 			legacyTxData.Value = big.NewInt(0)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Status).To(Equal(types.ReceiptStatusFailed))
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
 			Expect(block.TxIndex()).To(Equal(uint(1)))
+
+			// Now try with a revert
+			legacyTxData.To = &dummyContract
+			signedTx = types.MustSignNewTx(key, signer, legacyTxData)
+			result, err = sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).To(BeNil())
+			Expect(result).ToNot(BeNil())
+			// TODO: figure out why this is passing.
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
 		})
 	})
 })

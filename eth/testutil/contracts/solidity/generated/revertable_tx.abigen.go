@@ -31,8 +31,8 @@ var (
 
 // RevertableTxMetaData contains all meta data concerning the RevertableTx contract.
 var RevertableTxMetaData = &bind.MetaData{
-	ABI: "[{\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"}]",
-	Bin: "0x6080604052348015600f57600080fd5b50608b80601d6000396000f3fe6080604052348015600f57600080fd5b5060405162461bcd60e51b81526020600482015260166024820152750a4caeccae4e8c2c4d8caa8f07440e4caeccae4e8a8f60531b604482015260640160405180910390fdfea2646970667358221220a070ec07a971811820a3b4f000999d327881d71cea0f1f57255ee3c2a963807364736f6c63430008110033",
+	ABI: "[{\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
+	Bin: "0x6080604052348015600f57600080fd5b5060bc8061001e6000396000f3fe60806040523660445760405162461bcd60e51b815260206004820152600c60248201526b0a4caeccae4e8c2c4d8caa8f60a31b60448201526064015b60405180910390fd5b348015604f57600080fd5b5060405162461bcd60e51b815260206004820152600c60248201526b0a4caeccae4e8c2c4d8caa8f60a31b6044820152606401603b56fea2646970667358221220ddc4c09355bddb486aadad0f12baa38abd7d589ed8f9d490a32a92adf2db088964736f6c63430008110033",
 }
 
 // RevertableTxABI is the input ABI used to generate the binding from.
@@ -221,4 +221,25 @@ func (_RevertableTx *RevertableTxSession) Fallback(calldata []byte) (*types.Tran
 // Solidity: fallback() returns()
 func (_RevertableTx *RevertableTxTransactorSession) Fallback(calldata []byte) (*types.Transaction, error) {
 	return _RevertableTx.Contract.Fallback(&_RevertableTx.TransactOpts, calldata)
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_RevertableTx *RevertableTxTransactor) Receive(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _RevertableTx.contract.RawTransact(opts, nil) // calldata is disallowed for receive function
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_RevertableTx *RevertableTxSession) Receive() (*types.Transaction, error) {
+	return _RevertableTx.Contract.Receive(&_RevertableTx.TransactOpts)
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_RevertableTx *RevertableTxTransactorSession) Receive() (*types.Transaction, error) {
+	return _RevertableTx.Contract.Receive(&_RevertableTx.TransactOpts)
 }

@@ -21,6 +21,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -31,6 +32,7 @@ import (
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
@@ -39,12 +41,19 @@ import (
 
 var _ = Describe("Processor", func() {
 	var (
-		k             *keeper.Keeper
-		ak            state.AccountKeeper
-		bk            state.BankKeeper
-		ctx           sdk.Context
-		blockGasLimit = uint64(1000000)
-		tx            *coretypes.Transaction
+		k            *keeper.Keeper
+		ak           state.AccountKeeper
+		bk           state.BankKeeper
+		ctx          sdk.Context
+		key, _       = crypto.GenerateEthKey()
+		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+		legacyTxData = &coretypes.DynamicFeeTx{
+			Nonce:     0,
+			Gas:       10000000,
+			Data:      []byte("abcdef"),
+			GasTipCap: big.NewInt(1),
+			GasFeeCap: big.NewInt(1),
+		}
 	)
 
 	BeforeEach(func() {
@@ -56,7 +65,8 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before every block
-		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(blockGasLimit))
+		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000)).
+			WithKVGasConfig(storetypes.GasConfig{})
 		k.BeginBlocker(ctx)
 	})
 
@@ -80,19 +90,8 @@ var _ = Describe("Processor", func() {
 		It("should handle legacy tx", func() {
 			// setup state for legacy tx
 			dummyContract := common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-			key, _ := crypto.GenerateEthKey()
-			signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-			tx = coretypes.MustSignNewTx(
-				key,
-				signer,
-				&coretypes.LegacyTx{
-					Nonce:    0,
-					To:       &dummyContract,
-					Gas:      100000,
-					GasPrice: big.NewInt(2),
-					Data:     []byte("abcdef"),
-				},
-			)
+			legacyTxData.To = &dummyContract
+			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).To(BeNil())
 			k.GetStatePlugin().CreateAccount(addr)
@@ -103,6 +102,65 @@ var _ = Describe("Processor", func() {
 			receipt, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).To(BeNil())
 			Expect(receipt.BlockNumber.Int64()).To(Equal(ctx.BlockHeight()))
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
+		})
+
+		It("should create a bad contract and call it", func() {
+			// setup state for contract creation
+			legacyTxData.Value = big.NewInt(10)
+			legacyTxData.To = nil
+			legacyTxData.Data = common.Hex2Bytes(generated.RevertableTxMetaData.Bin)
+			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
+
+			addr, err := signer.Sender(tx)
+			Expect(err).To(BeNil())
+			k.GetStatePlugin().CreateAccount(addr)
+			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetStatePlugin().Finalize()
+
+			// process tx
+			receipt, err := k.ProcessTransaction(ctx, tx)
+			Expect(err).To(BeNil())
+			Expect(receipt.BlockNumber.Int64()).To(Equal(ctx.BlockHeight()))
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
+			Expect(receipt.ContractAddress).ToNot(BeNil())
+			Expect(k.GetStatePlugin().GetCode(receipt.ContractAddress)).To(Equal(legacyTxData.Data))
+			Expect(k.GetStatePlugin().Exist(receipt.ContractAddress)).To(BeTrue())
+			Expect(k.GetStatePlugin().GetCodeHash(receipt.ContractAddress)).To(Equal(crypto.Keccak256Hash(legacyTxData.Data)))
+
+			contractAddr := common.BytesToAddress(receipt.ContractAddress.Bytes())
+			legacyTxData := &coretypes.DynamicFeeTx{
+				Nonce:     1,
+				Gas:       10000000,
+				To:        &contractAddr,
+				GasTipCap: big.NewInt(1),
+				GasFeeCap: big.NewInt(1),
+				Data:      common.Hex2Bytes("0x34234"),
+			}
+			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
+			receipt, err = k.ProcessTransaction(ctx, tx)
+			Expect(err).To(BeNil())
+			fmt.Println(*receipt)
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusFailed))
+		})
+
+		It("should create a valid contract and call it", func() {
+			// setup state for contract creation
+			legacyTxData.Gas = 999999
+			legacyTxData.Value = big.NewInt(10)
+			legacyTxData.Data = common.Hex2Bytes(generated.SolmateERC20MetaData.Bin)
+			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
+			addr, err := signer.Sender(tx)
+			Expect(err).To(BeNil())
+			k.GetStatePlugin().CreateAccount(addr)
+			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetStatePlugin().Finalize()
+
+			// process tx
+			receipt, err := k.ProcessTransaction(ctx, tx)
+			Expect(err).To(BeNil())
+			Expect(receipt.BlockNumber.Int64()).To(Equal(ctx.BlockHeight()))
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
 		})
 	})
 })

@@ -156,7 +156,7 @@ func (sdb *stateDB) Finalize() {
 
 // TODO: implement `AddAddressToAccessList`.
 func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
-	panic("not supported by Stargazer")
+	// no-op
 }
 
 // TODO: implement `AddSlotToAccessList`
