@@ -80,7 +80,9 @@ func NewKeeper(
 	}
 
 	// TODO: parameterize kv store.
-	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	if appOpts != nil {
+		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	}
 
 	k.bp = block.NewPlugin(k, k.offChainKv)
 

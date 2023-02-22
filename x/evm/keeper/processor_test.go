@@ -60,7 +60,7 @@ var _ = Describe("Processor", func() {
 
 		// before chain, init genesis state
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		k = keeper.NewKeeper(ak, bk, "authority")
+		k = keeper.NewKeeper(storetypes.NewKVStoreKey("evm"), ak, bk, "authority", nil)
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
