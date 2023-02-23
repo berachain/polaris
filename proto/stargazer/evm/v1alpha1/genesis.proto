@@ -31,37 +31,27 @@ message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // CodeRecords defines all the code records of the evm state plugin.
-  repeated CodeRecord code_records = 2 [(gogoproto.nullable) = false];
+  // `address_to_state_record` is the mapping of the address to the state record.
+  map<string, StateRecord> address_to_contract_state = 2;
 
-  // StateRecords defines all the state records of the evm state plugin.
-  repeated StateRecord state_records = 3 [(gogoproto.nullable) = false];
+  // `address_to_state_record` is a mapping of the address to the state record/
+  map<string, StateRecord> address_to_state_record = 3;
 }
 
 // `CodeRecord` defines the code record of the evm state plugin.
-message CodeRecord {
-  // `address` is the address of the contract, this is in format of hex string.
-  string address = 1;
+message ContractState {
+  // `address_to_hash` is the mapping of the address to the hash of the code.
+  map<string, string> address_to_code_hash = 1;
 
-  // `code` is the code of the contract, this is in the format of byte slice.
-  bytes code = 2;
+  // `code` is the code of the contract, this is in format of byte slice.
+  map<string, string> code_hash_to_code = 2;
+
+  // `state` is a map of address to contract state.
+  map<string, StateRecord> address_to_state_data = 3;
 }
 
-// `StateRecord` defines the state record of the evm state plugin.
+// `StateRecord` defines an evm state record. It includes a maping of slot to value.
 message StateRecord {
-  // `address` is the address of the account, this is in format of hex string.
-  string address = 1;
-
-  // `slot` is the storage slot of the state, this is in format of byte slice.
-  bytes slot = 2;
-
-  // `value` is the value of the state, this is in format of byte slice.
-  bytes value = 3;
-}
-
-message CodeRecord {
-  string address = 1;
-
-  // `code_hash_code` is the map of code hash and code.
-  map<string, string> code_hash_code = 2;
+  // `state` is a map of slot to value.
+  map<string, string> state = 1;
 }

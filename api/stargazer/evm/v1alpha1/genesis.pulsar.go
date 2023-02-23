@@ -10,124 +10,203 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	io "io"
 	reflect "reflect"
+	sort "sort"
 	sync "sync"
 )
 
-var _ protoreflect.List = (*_GenesisState_2_list)(nil)
+var _ protoreflect.Map = (*_GenesisState_2_map)(nil)
 
-type _GenesisState_2_list struct {
-	list *[]*CodeRecord
+type _GenesisState_2_map struct {
+	m *map[string]*StateRecord
 }
 
-func (x *_GenesisState_2_list) Len() int {
-	if x.list == nil {
+func (x *_GenesisState_2_map) Len() int {
+	if x.m == nil {
 		return 0
 	}
-	return len(*x.list)
+	return len(*x.m)
 }
 
-func (x *_GenesisState_2_list) Get(i int) protoreflect.Value {
-	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
+func (x *_GenesisState_2_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
+	if x.m == nil {
+		return
+	}
+	for k, v := range *x.m {
+		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
+		mapValue := protoreflect.ValueOfMessage(v.ProtoReflect())
+		if !f(mapKey, mapValue) {
+			break
+		}
+	}
 }
 
-func (x *_GenesisState_2_list) Set(i int, value protoreflect.Value) {
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*CodeRecord)
-	(*x.list)[i] = concreteValue
+func (x *_GenesisState_2_map) Has(key protoreflect.MapKey) bool {
+	if x.m == nil {
+		return false
+	}
+	keyUnwrapped := key.String()
+	concreteValue := keyUnwrapped
+	_, ok := (*x.m)[concreteValue]
+	return ok
 }
 
-func (x *_GenesisState_2_list) Append(value protoreflect.Value) {
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*CodeRecord)
-	*x.list = append(*x.list, concreteValue)
+func (x *_GenesisState_2_map) Clear(key protoreflect.MapKey) {
+	if x.m == nil {
+		return
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	delete(*x.m, concreteKey)
 }
 
-func (x *_GenesisState_2_list) AppendMutable() protoreflect.Value {
-	v := new(CodeRecord)
-	*x.list = append(*x.list, v)
+func (x *_GenesisState_2_map) Get(key protoreflect.MapKey) protoreflect.Value {
+	if x.m == nil {
+		return protoreflect.Value{}
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if !ok {
+		return protoreflect.Value{}
+	}
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_GenesisState_2_list) Truncate(n int) {
-	for i := n; i < len(*x.list); i++ {
-		(*x.list)[i] = nil
+func (x *_GenesisState_2_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
+	if !key.IsValid() || !value.IsValid() {
+		panic("invalid key or value provided")
 	}
-	*x.list = (*x.list)[:n]
-}
-
-func (x *_GenesisState_2_list) NewElement() protoreflect.Value {
-	v := new(CodeRecord)
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_2_list) IsValid() bool {
-	return x.list != nil
-}
-
-var _ protoreflect.List = (*_GenesisState_3_list)(nil)
-
-type _GenesisState_3_list struct {
-	list *[]*StateRecord
-}
-
-func (x *_GenesisState_3_list) Len() int {
-	if x.list == nil {
-		return 0
-	}
-	return len(*x.list)
-}
-
-func (x *_GenesisState_3_list) Get(i int) protoreflect.Value {
-	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
-}
-
-func (x *_GenesisState_3_list) Set(i int, value protoreflect.Value) {
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*StateRecord)
-	(*x.list)[i] = concreteValue
+	(*x.m)[concreteKey] = concreteValue
 }
 
-func (x *_GenesisState_3_list) Append(value protoreflect.Value) {
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*StateRecord)
-	*x.list = append(*x.list, concreteValue)
-}
-
-func (x *_GenesisState_3_list) AppendMutable() protoreflect.Value {
-	v := new(StateRecord)
-	*x.list = append(*x.list, v)
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_3_list) Truncate(n int) {
-	for i := n; i < len(*x.list); i++ {
-		(*x.list)[i] = nil
+func (x *_GenesisState_2_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if ok {
+		return protoreflect.ValueOfMessage(v.ProtoReflect())
 	}
-	*x.list = (*x.list)[:n]
+	newValue := new(StateRecord)
+	(*x.m)[concreteKey] = newValue
+	return protoreflect.ValueOfMessage(newValue.ProtoReflect())
 }
 
-func (x *_GenesisState_3_list) NewElement() protoreflect.Value {
+func (x *_GenesisState_2_map) NewValue() protoreflect.Value {
 	v := new(StateRecord)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_GenesisState_3_list) IsValid() bool {
-	return x.list != nil
+func (x *_GenesisState_2_map) IsValid() bool {
+	return x.m != nil
+}
+
+var _ protoreflect.Map = (*_GenesisState_3_map)(nil)
+
+type _GenesisState_3_map struct {
+	m *map[string]*StateRecord
+}
+
+func (x *_GenesisState_3_map) Len() int {
+	if x.m == nil {
+		return 0
+	}
+	return len(*x.m)
+}
+
+func (x *_GenesisState_3_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
+	if x.m == nil {
+		return
+	}
+	for k, v := range *x.m {
+		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
+		mapValue := protoreflect.ValueOfMessage(v.ProtoReflect())
+		if !f(mapKey, mapValue) {
+			break
+		}
+	}
+}
+
+func (x *_GenesisState_3_map) Has(key protoreflect.MapKey) bool {
+	if x.m == nil {
+		return false
+	}
+	keyUnwrapped := key.String()
+	concreteValue := keyUnwrapped
+	_, ok := (*x.m)[concreteValue]
+	return ok
+}
+
+func (x *_GenesisState_3_map) Clear(key protoreflect.MapKey) {
+	if x.m == nil {
+		return
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	delete(*x.m, concreteKey)
+}
+
+func (x *_GenesisState_3_map) Get(key protoreflect.MapKey) protoreflect.Value {
+	if x.m == nil {
+		return protoreflect.Value{}
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if !ok {
+		return protoreflect.Value{}
+	}
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_GenesisState_3_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
+	if !key.IsValid() || !value.IsValid() {
+		panic("invalid key or value provided")
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*StateRecord)
+	(*x.m)[concreteKey] = concreteValue
+}
+
+func (x *_GenesisState_3_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if ok {
+		return protoreflect.ValueOfMessage(v.ProtoReflect())
+	}
+	newValue := new(StateRecord)
+	(*x.m)[concreteKey] = newValue
+	return protoreflect.ValueOfMessage(newValue.ProtoReflect())
+}
+
+func (x *_GenesisState_3_map) NewValue() protoreflect.Value {
+	v := new(StateRecord)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_GenesisState_3_map) IsValid() bool {
+	return x.m != nil
 }
 
 var (
-	md_GenesisState               protoreflect.MessageDescriptor
-	fd_GenesisState_params        protoreflect.FieldDescriptor
-	fd_GenesisState_code_records  protoreflect.FieldDescriptor
-	fd_GenesisState_state_records protoreflect.FieldDescriptor
+	md_GenesisState                           protoreflect.MessageDescriptor
+	fd_GenesisState_params                    protoreflect.FieldDescriptor
+	fd_GenesisState_address_to_contract_state protoreflect.FieldDescriptor
+	fd_GenesisState_address_to_state_record   protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_stargazer_evm_v1alpha1_genesis_proto_init()
 	md_GenesisState = File_stargazer_evm_v1alpha1_genesis_proto.Messages().ByName("GenesisState")
 	fd_GenesisState_params = md_GenesisState.Fields().ByName("params")
-	fd_GenesisState_code_records = md_GenesisState.Fields().ByName("code_records")
-	fd_GenesisState_state_records = md_GenesisState.Fields().ByName("state_records")
+	fd_GenesisState_address_to_contract_state = md_GenesisState.Fields().ByName("address_to_contract_state")
+	fd_GenesisState_address_to_state_record = md_GenesisState.Fields().ByName("address_to_state_record")
 }
 
 var _ protoreflect.Message = (*fastReflection_GenesisState)(nil)
@@ -201,15 +280,15 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 			return
 		}
 	}
-	if len(x.CodeRecords) != 0 {
-		value := protoreflect.ValueOfList(&_GenesisState_2_list{list: &x.CodeRecords})
-		if !f(fd_GenesisState_code_records, value) {
+	if len(x.AddressToContractState) != 0 {
+		value := protoreflect.ValueOfMap(&_GenesisState_2_map{m: &x.AddressToContractState})
+		if !f(fd_GenesisState_address_to_contract_state, value) {
 			return
 		}
 	}
-	if len(x.StateRecords) != 0 {
-		value := protoreflect.ValueOfList(&_GenesisState_3_list{list: &x.StateRecords})
-		if !f(fd_GenesisState_state_records, value) {
+	if len(x.AddressToStateRecord) != 0 {
+		value := protoreflect.ValueOfMap(&_GenesisState_3_map{m: &x.AddressToStateRecord})
+		if !f(fd_GenesisState_address_to_state_record, value) {
 			return
 		}
 	}
@@ -230,10 +309,10 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.GenesisState.params":
 		return x.Params != nil
-	case "stargazer.evm.v1alpha1.GenesisState.code_records":
-		return len(x.CodeRecords) != 0
-	case "stargazer.evm.v1alpha1.GenesisState.state_records":
-		return len(x.StateRecords) != 0
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_contract_state":
+		return len(x.AddressToContractState) != 0
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_state_record":
+		return len(x.AddressToStateRecord) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.GenesisState"))
@@ -252,10 +331,10 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.GenesisState.params":
 		x.Params = nil
-	case "stargazer.evm.v1alpha1.GenesisState.code_records":
-		x.CodeRecords = nil
-	case "stargazer.evm.v1alpha1.GenesisState.state_records":
-		x.StateRecords = nil
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_contract_state":
+		x.AddressToContractState = nil
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_state_record":
+		x.AddressToStateRecord = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.GenesisState"))
@@ -275,18 +354,18 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 	case "stargazer.evm.v1alpha1.GenesisState.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "stargazer.evm.v1alpha1.GenesisState.code_records":
-		if len(x.CodeRecords) == 0 {
-			return protoreflect.ValueOfList(&_GenesisState_2_list{})
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_contract_state":
+		if len(x.AddressToContractState) == 0 {
+			return protoreflect.ValueOfMap(&_GenesisState_2_map{})
 		}
-		listValue := &_GenesisState_2_list{list: &x.CodeRecords}
-		return protoreflect.ValueOfList(listValue)
-	case "stargazer.evm.v1alpha1.GenesisState.state_records":
-		if len(x.StateRecords) == 0 {
-			return protoreflect.ValueOfList(&_GenesisState_3_list{})
+		mapValue := &_GenesisState_2_map{m: &x.AddressToContractState}
+		return protoreflect.ValueOfMap(mapValue)
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_state_record":
+		if len(x.AddressToStateRecord) == 0 {
+			return protoreflect.ValueOfMap(&_GenesisState_3_map{})
 		}
-		listValue := &_GenesisState_3_list{list: &x.StateRecords}
-		return protoreflect.ValueOfList(listValue)
+		mapValue := &_GenesisState_3_map{m: &x.AddressToStateRecord}
+		return protoreflect.ValueOfMap(mapValue)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.GenesisState"))
@@ -309,14 +388,14 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.GenesisState.params":
 		x.Params = value.Message().Interface().(*Params)
-	case "stargazer.evm.v1alpha1.GenesisState.code_records":
-		lv := value.List()
-		clv := lv.(*_GenesisState_2_list)
-		x.CodeRecords = *clv.list
-	case "stargazer.evm.v1alpha1.GenesisState.state_records":
-		lv := value.List()
-		clv := lv.(*_GenesisState_3_list)
-		x.StateRecords = *clv.list
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_contract_state":
+		mv := value.Map()
+		cmv := mv.(*_GenesisState_2_map)
+		x.AddressToContractState = *cmv.m
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_state_record":
+		mv := value.Map()
+		cmv := mv.(*_GenesisState_3_map)
+		x.AddressToStateRecord = *cmv.m
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.GenesisState"))
@@ -342,18 +421,18 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "stargazer.evm.v1alpha1.GenesisState.code_records":
-		if x.CodeRecords == nil {
-			x.CodeRecords = []*CodeRecord{}
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_contract_state":
+		if x.AddressToContractState == nil {
+			x.AddressToContractState = make(map[string]*StateRecord)
 		}
-		value := &_GenesisState_2_list{list: &x.CodeRecords}
-		return protoreflect.ValueOfList(value)
-	case "stargazer.evm.v1alpha1.GenesisState.state_records":
-		if x.StateRecords == nil {
-			x.StateRecords = []*StateRecord{}
+		value := &_GenesisState_2_map{m: &x.AddressToContractState}
+		return protoreflect.ValueOfMap(value)
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_state_record":
+		if x.AddressToStateRecord == nil {
+			x.AddressToStateRecord = make(map[string]*StateRecord)
 		}
-		value := &_GenesisState_3_list{list: &x.StateRecords}
-		return protoreflect.ValueOfList(value)
+		value := &_GenesisState_3_map{m: &x.AddressToStateRecord}
+		return protoreflect.ValueOfMap(value)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.GenesisState"))
@@ -370,12 +449,12 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 	case "stargazer.evm.v1alpha1.GenesisState.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "stargazer.evm.v1alpha1.GenesisState.code_records":
-		list := []*CodeRecord{}
-		return protoreflect.ValueOfList(&_GenesisState_2_list{list: &list})
-	case "stargazer.evm.v1alpha1.GenesisState.state_records":
-		list := []*StateRecord{}
-		return protoreflect.ValueOfList(&_GenesisState_3_list{list: &list})
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_contract_state":
+		m := make(map[string]*StateRecord)
+		return protoreflect.ValueOfMap(&_GenesisState_2_map{m: &m})
+	case "stargazer.evm.v1alpha1.GenesisState.address_to_state_record":
+		m := make(map[string]*StateRecord)
+		return protoreflect.ValueOfMap(&_GenesisState_3_map{m: &m})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.GenesisState"))
@@ -449,16 +528,56 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 			l = options.Size(x.Params)
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		if len(x.CodeRecords) > 0 {
-			for _, e := range x.CodeRecords {
-				l = options.Size(e)
-				n += 1 + l + runtime.Sov(uint64(l))
+		if len(x.AddressToContractState) > 0 {
+			SiZeMaP := func(k string, v *StateRecord) {
+				l := 0
+				if v != nil {
+					l = options.Size(v)
+				}
+				l += 1 + runtime.Sov(uint64(l))
+				mapEntrySize := 1 + len(k) + runtime.Sov(uint64(len(k))) + l
+				n += mapEntrySize + 1 + runtime.Sov(uint64(mapEntrySize))
+			}
+			if options.Deterministic {
+				sortme := make([]string, 0, len(x.AddressToContractState))
+				for k := range x.AddressToContractState {
+					sortme = append(sortme, k)
+				}
+				sort.Strings(sortme)
+				for _, k := range sortme {
+					v := x.AddressToContractState[k]
+					SiZeMaP(k, v)
+				}
+			} else {
+				for k, v := range x.AddressToContractState {
+					SiZeMaP(k, v)
+				}
 			}
 		}
-		if len(x.StateRecords) > 0 {
-			for _, e := range x.StateRecords {
-				l = options.Size(e)
-				n += 1 + l + runtime.Sov(uint64(l))
+		if len(x.AddressToStateRecord) > 0 {
+			SiZeMaP := func(k string, v *StateRecord) {
+				l := 0
+				if v != nil {
+					l = options.Size(v)
+				}
+				l += 1 + runtime.Sov(uint64(l))
+				mapEntrySize := 1 + len(k) + runtime.Sov(uint64(len(k))) + l
+				n += mapEntrySize + 1 + runtime.Sov(uint64(mapEntrySize))
+			}
+			if options.Deterministic {
+				sortme := make([]string, 0, len(x.AddressToStateRecord))
+				for k := range x.AddressToStateRecord {
+					sortme = append(sortme, k)
+				}
+				sort.Strings(sortme)
+				for _, k := range sortme {
+					v := x.AddressToStateRecord[k]
+					SiZeMaP(k, v)
+				}
+			} else {
+				for k, v := range x.AddressToStateRecord {
+					SiZeMaP(k, v)
+				}
 			}
 		}
 		if x.unknownFields != nil {
@@ -490,25 +609,10 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.StateRecords) > 0 {
-			for iNdEx := len(x.StateRecords) - 1; iNdEx >= 0; iNdEx-- {
-				encoded, err := options.Marshal(x.StateRecords[iNdEx])
-				if err != nil {
-					return protoiface.MarshalOutput{
-						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-						Buf:               input.Buf,
-					}, err
-				}
-				i -= len(encoded)
-				copy(dAtA[i:], encoded)
-				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
-				i--
-				dAtA[i] = 0x1a
-			}
-		}
-		if len(x.CodeRecords) > 0 {
-			for iNdEx := len(x.CodeRecords) - 1; iNdEx >= 0; iNdEx-- {
-				encoded, err := options.Marshal(x.CodeRecords[iNdEx])
+		if len(x.AddressToStateRecord) > 0 {
+			MaRsHaLmAp := func(k string, v *StateRecord) (protoiface.MarshalOutput, error) {
+				baseI := i
+				encoded, err := options.Marshal(v)
 				if err != nil {
 					return protoiface.MarshalOutput{
 						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -520,6 +624,89 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
 				dAtA[i] = 0x12
+				i -= len(k)
+				copy(dAtA[i:], k)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(k)))
+				i--
+				dAtA[i] = 0xa
+				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
+				i--
+				dAtA[i] = 0x1a
+				return protoiface.MarshalOutput{}, nil
+			}
+			if options.Deterministic {
+				keysForAddressToStateRecord := make([]string, 0, len(x.AddressToStateRecord))
+				for k := range x.AddressToStateRecord {
+					keysForAddressToStateRecord = append(keysForAddressToStateRecord, string(k))
+				}
+				sort.Slice(keysForAddressToStateRecord, func(i, j int) bool {
+					return keysForAddressToStateRecord[i] < keysForAddressToStateRecord[j]
+				})
+				for iNdEx := len(keysForAddressToStateRecord) - 1; iNdEx >= 0; iNdEx-- {
+					v := x.AddressToStateRecord[string(keysForAddressToStateRecord[iNdEx])]
+					out, err := MaRsHaLmAp(keysForAddressToStateRecord[iNdEx], v)
+					if err != nil {
+						return out, err
+					}
+				}
+			} else {
+				for k := range x.AddressToStateRecord {
+					v := x.AddressToStateRecord[k]
+					out, err := MaRsHaLmAp(k, v)
+					if err != nil {
+						return out, err
+					}
+				}
+			}
+		}
+		if len(x.AddressToContractState) > 0 {
+			MaRsHaLmAp := func(k string, v *StateRecord) (protoiface.MarshalOutput, error) {
+				baseI := i
+				encoded, err := options.Marshal(v)
+				if err != nil {
+					return protoiface.MarshalOutput{
+						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+						Buf:               input.Buf,
+					}, err
+				}
+				i -= len(encoded)
+				copy(dAtA[i:], encoded)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+				i--
+				dAtA[i] = 0x12
+				i -= len(k)
+				copy(dAtA[i:], k)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(k)))
+				i--
+				dAtA[i] = 0xa
+				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
+				i--
+				dAtA[i] = 0x12
+				return protoiface.MarshalOutput{}, nil
+			}
+			if options.Deterministic {
+				keysForAddressToContractState := make([]string, 0, len(x.AddressToContractState))
+				for k := range x.AddressToContractState {
+					keysForAddressToContractState = append(keysForAddressToContractState, string(k))
+				}
+				sort.Slice(keysForAddressToContractState, func(i, j int) bool {
+					return keysForAddressToContractState[i] < keysForAddressToContractState[j]
+				})
+				for iNdEx := len(keysForAddressToContractState) - 1; iNdEx >= 0; iNdEx-- {
+					v := x.AddressToContractState[string(keysForAddressToContractState[iNdEx])]
+					out, err := MaRsHaLmAp(keysForAddressToContractState[iNdEx], v)
+					if err != nil {
+						return out, err
+					}
+				}
+			} else {
+				for k := range x.AddressToContractState {
+					v := x.AddressToContractState[k]
+					out, err := MaRsHaLmAp(k, v)
+					if err != nil {
+						return out, err
+					}
+				}
 			}
 		}
 		if x.Params != nil {
@@ -623,7 +810,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				iNdEx = postIndex
 			case 2:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CodeRecords", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AddressToContractState", wireType)
 				}
 				var msglen int
 				for shift := uint(0); ; shift += 7 {
@@ -650,14 +837,109 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.CodeRecords = append(x.CodeRecords, &CodeRecord{})
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CodeRecords[len(x.CodeRecords)-1]); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				if x.AddressToContractState == nil {
+					x.AddressToContractState = make(map[string]*StateRecord)
 				}
+				var mapkey string
+				var mapvalue *StateRecord
+				for iNdEx < postIndex {
+					entryPreIndex := iNdEx
+					var wire uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						wire |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					fieldNum := int32(wire >> 3)
+					if fieldNum == 1 {
+						var stringLenmapkey uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapkey |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapkey := int(stringLenmapkey)
+						if intStringLenmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapkey := iNdEx + intStringLenmapkey
+						if postStringIndexmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapkey > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+						iNdEx = postStringIndexmapkey
+					} else if fieldNum == 2 {
+						var mapmsglen int
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							mapmsglen |= int(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						if mapmsglen < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postmsgIndex := iNdEx + mapmsglen
+						if postmsgIndex < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postmsgIndex > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapvalue = &StateRecord{}
+						if err := options.Unmarshal(dAtA[iNdEx:postmsgIndex], mapvalue); err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						iNdEx = postmsgIndex
+					} else {
+						iNdEx = entryPreIndex
+						skippy, err := runtime.Skip(dAtA[iNdEx:])
+						if err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						if (skippy < 0) || (iNdEx+skippy) < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if (iNdEx + skippy) > postIndex {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						iNdEx += skippy
+					}
+				}
+				x.AddressToContractState[mapkey] = mapvalue
 				iNdEx = postIndex
 			case 3:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field StateRecords", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AddressToStateRecord", wireType)
 				}
 				var msglen int
 				for shift := uint(0); ; shift += 7 {
@@ -684,10 +966,105 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.StateRecords = append(x.StateRecords, &StateRecord{})
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.StateRecords[len(x.StateRecords)-1]); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				if x.AddressToStateRecord == nil {
+					x.AddressToStateRecord = make(map[string]*StateRecord)
 				}
+				var mapkey string
+				var mapvalue *StateRecord
+				for iNdEx < postIndex {
+					entryPreIndex := iNdEx
+					var wire uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						wire |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					fieldNum := int32(wire >> 3)
+					if fieldNum == 1 {
+						var stringLenmapkey uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapkey |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapkey := int(stringLenmapkey)
+						if intStringLenmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapkey := iNdEx + intStringLenmapkey
+						if postStringIndexmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapkey > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+						iNdEx = postStringIndexmapkey
+					} else if fieldNum == 2 {
+						var mapmsglen int
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							mapmsglen |= int(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						if mapmsglen < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postmsgIndex := iNdEx + mapmsglen
+						if postmsgIndex < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postmsgIndex > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapvalue = &StateRecord{}
+						if err := options.Unmarshal(dAtA[iNdEx:postmsgIndex], mapvalue); err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						iNdEx = postmsgIndex
+					} else {
+						iNdEx = entryPreIndex
+						skippy, err := runtime.Skip(dAtA[iNdEx:])
+						if err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						if (skippy < 0) || (iNdEx+skippy) < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if (iNdEx + skippy) > postIndex {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						iNdEx += skippy
+					}
+				}
+				x.AddressToStateRecord[mapkey] = mapvalue
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -724,28 +1101,284 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 	}
 }
 
+var _ protoreflect.Map = (*_ContractState_1_map)(nil)
+
+type _ContractState_1_map struct {
+	m *map[string]string
+}
+
+func (x *_ContractState_1_map) Len() int {
+	if x.m == nil {
+		return 0
+	}
+	return len(*x.m)
+}
+
+func (x *_ContractState_1_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
+	if x.m == nil {
+		return
+	}
+	for k, v := range *x.m {
+		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
+		mapValue := protoreflect.ValueOfString(v)
+		if !f(mapKey, mapValue) {
+			break
+		}
+	}
+}
+
+func (x *_ContractState_1_map) Has(key protoreflect.MapKey) bool {
+	if x.m == nil {
+		return false
+	}
+	keyUnwrapped := key.String()
+	concreteValue := keyUnwrapped
+	_, ok := (*x.m)[concreteValue]
+	return ok
+}
+
+func (x *_ContractState_1_map) Clear(key protoreflect.MapKey) {
+	if x.m == nil {
+		return
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	delete(*x.m, concreteKey)
+}
+
+func (x *_ContractState_1_map) Get(key protoreflect.MapKey) protoreflect.Value {
+	if x.m == nil {
+		return protoreflect.Value{}
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if !ok {
+		return protoreflect.Value{}
+	}
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_ContractState_1_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
+	if !key.IsValid() || !value.IsValid() {
+		panic("invalid key or value provided")
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.m)[concreteKey] = concreteValue
+}
+
+func (x *_ContractState_1_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+	panic("should not call Mutable on protoreflect.Map whose value is not of type protoreflect.Message")
+}
+
+func (x *_ContractState_1_map) NewValue() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_ContractState_1_map) IsValid() bool {
+	return x.m != nil
+}
+
+var _ protoreflect.Map = (*_ContractState_2_map)(nil)
+
+type _ContractState_2_map struct {
+	m *map[string]string
+}
+
+func (x *_ContractState_2_map) Len() int {
+	if x.m == nil {
+		return 0
+	}
+	return len(*x.m)
+}
+
+func (x *_ContractState_2_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
+	if x.m == nil {
+		return
+	}
+	for k, v := range *x.m {
+		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
+		mapValue := protoreflect.ValueOfString(v)
+		if !f(mapKey, mapValue) {
+			break
+		}
+	}
+}
+
+func (x *_ContractState_2_map) Has(key protoreflect.MapKey) bool {
+	if x.m == nil {
+		return false
+	}
+	keyUnwrapped := key.String()
+	concreteValue := keyUnwrapped
+	_, ok := (*x.m)[concreteValue]
+	return ok
+}
+
+func (x *_ContractState_2_map) Clear(key protoreflect.MapKey) {
+	if x.m == nil {
+		return
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	delete(*x.m, concreteKey)
+}
+
+func (x *_ContractState_2_map) Get(key protoreflect.MapKey) protoreflect.Value {
+	if x.m == nil {
+		return protoreflect.Value{}
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if !ok {
+		return protoreflect.Value{}
+	}
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_ContractState_2_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
+	if !key.IsValid() || !value.IsValid() {
+		panic("invalid key or value provided")
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.m)[concreteKey] = concreteValue
+}
+
+func (x *_ContractState_2_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+	panic("should not call Mutable on protoreflect.Map whose value is not of type protoreflect.Message")
+}
+
+func (x *_ContractState_2_map) NewValue() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_ContractState_2_map) IsValid() bool {
+	return x.m != nil
+}
+
+var _ protoreflect.Map = (*_ContractState_3_map)(nil)
+
+type _ContractState_3_map struct {
+	m *map[string]*StateRecord
+}
+
+func (x *_ContractState_3_map) Len() int {
+	if x.m == nil {
+		return 0
+	}
+	return len(*x.m)
+}
+
+func (x *_ContractState_3_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
+	if x.m == nil {
+		return
+	}
+	for k, v := range *x.m {
+		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
+		mapValue := protoreflect.ValueOfMessage(v.ProtoReflect())
+		if !f(mapKey, mapValue) {
+			break
+		}
+	}
+}
+
+func (x *_ContractState_3_map) Has(key protoreflect.MapKey) bool {
+	if x.m == nil {
+		return false
+	}
+	keyUnwrapped := key.String()
+	concreteValue := keyUnwrapped
+	_, ok := (*x.m)[concreteValue]
+	return ok
+}
+
+func (x *_ContractState_3_map) Clear(key protoreflect.MapKey) {
+	if x.m == nil {
+		return
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	delete(*x.m, concreteKey)
+}
+
+func (x *_ContractState_3_map) Get(key protoreflect.MapKey) protoreflect.Value {
+	if x.m == nil {
+		return protoreflect.Value{}
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if !ok {
+		return protoreflect.Value{}
+	}
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_ContractState_3_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
+	if !key.IsValid() || !value.IsValid() {
+		panic("invalid key or value provided")
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*StateRecord)
+	(*x.m)[concreteKey] = concreteValue
+}
+
+func (x *_ContractState_3_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if ok {
+		return protoreflect.ValueOfMessage(v.ProtoReflect())
+	}
+	newValue := new(StateRecord)
+	(*x.m)[concreteKey] = newValue
+	return protoreflect.ValueOfMessage(newValue.ProtoReflect())
+}
+
+func (x *_ContractState_3_map) NewValue() protoreflect.Value {
+	v := new(StateRecord)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_ContractState_3_map) IsValid() bool {
+	return x.m != nil
+}
+
 var (
-	md_CodeRecord         protoreflect.MessageDescriptor
-	fd_CodeRecord_address protoreflect.FieldDescriptor
-	fd_CodeRecord_code    protoreflect.FieldDescriptor
+	md_ContractState                       protoreflect.MessageDescriptor
+	fd_ContractState_address_to_code_hash  protoreflect.FieldDescriptor
+	fd_ContractState_code_hash_to_code     protoreflect.FieldDescriptor
+	fd_ContractState_address_to_state_data protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_stargazer_evm_v1alpha1_genesis_proto_init()
-	md_CodeRecord = File_stargazer_evm_v1alpha1_genesis_proto.Messages().ByName("CodeRecord")
-	fd_CodeRecord_address = md_CodeRecord.Fields().ByName("address")
-	fd_CodeRecord_code = md_CodeRecord.Fields().ByName("code")
+	md_ContractState = File_stargazer_evm_v1alpha1_genesis_proto.Messages().ByName("ContractState")
+	fd_ContractState_address_to_code_hash = md_ContractState.Fields().ByName("address_to_code_hash")
+	fd_ContractState_code_hash_to_code = md_ContractState.Fields().ByName("code_hash_to_code")
+	fd_ContractState_address_to_state_data = md_ContractState.Fields().ByName("address_to_state_data")
 }
 
-var _ protoreflect.Message = (*fastReflection_CodeRecord)(nil)
+var _ protoreflect.Message = (*fastReflection_ContractState)(nil)
 
-type fastReflection_CodeRecord CodeRecord
+type fastReflection_ContractState ContractState
 
-func (x *CodeRecord) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_CodeRecord)(x)
+func (x *ContractState) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_ContractState)(x)
 }
 
-func (x *CodeRecord) slowProtoReflect() protoreflect.Message {
+func (x *ContractState) slowProtoReflect() protoreflect.Message {
 	mi := &file_stargazer_evm_v1alpha1_genesis_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -757,43 +1390,43 @@ func (x *CodeRecord) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_CodeRecord_messageType fastReflection_CodeRecord_messageType
-var _ protoreflect.MessageType = fastReflection_CodeRecord_messageType{}
+var _fastReflection_ContractState_messageType fastReflection_ContractState_messageType
+var _ protoreflect.MessageType = fastReflection_ContractState_messageType{}
 
-type fastReflection_CodeRecord_messageType struct{}
+type fastReflection_ContractState_messageType struct{}
 
-func (x fastReflection_CodeRecord_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_CodeRecord)(nil)
+func (x fastReflection_ContractState_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_ContractState)(nil)
 }
-func (x fastReflection_CodeRecord_messageType) New() protoreflect.Message {
-	return new(fastReflection_CodeRecord)
+func (x fastReflection_ContractState_messageType) New() protoreflect.Message {
+	return new(fastReflection_ContractState)
 }
-func (x fastReflection_CodeRecord_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_CodeRecord
+func (x fastReflection_ContractState_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_ContractState
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_CodeRecord) Descriptor() protoreflect.MessageDescriptor {
-	return md_CodeRecord
+func (x *fastReflection_ContractState) Descriptor() protoreflect.MessageDescriptor {
+	return md_ContractState
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_CodeRecord) Type() protoreflect.MessageType {
-	return _fastReflection_CodeRecord_messageType
+func (x *fastReflection_ContractState) Type() protoreflect.MessageType {
+	return _fastReflection_ContractState_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_CodeRecord) New() protoreflect.Message {
-	return new(fastReflection_CodeRecord)
+func (x *fastReflection_ContractState) New() protoreflect.Message {
+	return new(fastReflection_ContractState)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_CodeRecord) Interface() protoreflect.ProtoMessage {
-	return (*CodeRecord)(x)
+func (x *fastReflection_ContractState) Interface() protoreflect.ProtoMessage {
+	return (*ContractState)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -801,16 +1434,22 @@ func (x *fastReflection_CodeRecord) Interface() protoreflect.ProtoMessage {
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_CodeRecord) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Address != "" {
-		value := protoreflect.ValueOfString(x.Address)
-		if !f(fd_CodeRecord_address, value) {
+func (x *fastReflection_ContractState) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.AddressToCodeHash) != 0 {
+		value := protoreflect.ValueOfMap(&_ContractState_1_map{m: &x.AddressToCodeHash})
+		if !f(fd_ContractState_address_to_code_hash, value) {
 			return
 		}
 	}
-	if len(x.Code) != 0 {
-		value := protoreflect.ValueOfBytes(x.Code)
-		if !f(fd_CodeRecord_code, value) {
+	if len(x.CodeHashToCode) != 0 {
+		value := protoreflect.ValueOfMap(&_ContractState_2_map{m: &x.CodeHashToCode})
+		if !f(fd_ContractState_code_hash_to_code, value) {
+			return
+		}
+	}
+	if len(x.AddressToStateData) != 0 {
+		value := protoreflect.ValueOfMap(&_ContractState_3_map{m: &x.AddressToStateData})
+		if !f(fd_ContractState_address_to_state_data, value) {
 			return
 		}
 	}
@@ -827,17 +1466,19 @@ func (x *fastReflection_CodeRecord) Range(f func(protoreflect.FieldDescriptor, p
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_CodeRecord) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_ContractState) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.CodeRecord.address":
-		return x.Address != ""
-	case "stargazer.evm.v1alpha1.CodeRecord.code":
-		return len(x.Code) != 0
+	case "stargazer.evm.v1alpha1.ContractState.address_to_code_hash":
+		return len(x.AddressToCodeHash) != 0
+	case "stargazer.evm.v1alpha1.ContractState.code_hash_to_code":
+		return len(x.CodeHashToCode) != 0
+	case "stargazer.evm.v1alpha1.ContractState.address_to_state_data":
+		return len(x.AddressToStateData) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.CodeRecord"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.ContractState"))
 		}
-		panic(fmt.Errorf("message stargazer.evm.v1alpha1.CodeRecord does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.evm.v1alpha1.ContractState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -847,17 +1488,19 @@ func (x *fastReflection_CodeRecord) Has(fd protoreflect.FieldDescriptor) bool {
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_CodeRecord) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_ContractState) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.CodeRecord.address":
-		x.Address = ""
-	case "stargazer.evm.v1alpha1.CodeRecord.code":
-		x.Code = nil
+	case "stargazer.evm.v1alpha1.ContractState.address_to_code_hash":
+		x.AddressToCodeHash = nil
+	case "stargazer.evm.v1alpha1.ContractState.code_hash_to_code":
+		x.CodeHashToCode = nil
+	case "stargazer.evm.v1alpha1.ContractState.address_to_state_data":
+		x.AddressToStateData = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.CodeRecord"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.ContractState"))
 		}
-		panic(fmt.Errorf("message stargazer.evm.v1alpha1.CodeRecord does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.evm.v1alpha1.ContractState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -867,19 +1510,31 @@ func (x *fastReflection_CodeRecord) Clear(fd protoreflect.FieldDescriptor) {
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_CodeRecord) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ContractState) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "stargazer.evm.v1alpha1.CodeRecord.address":
-		value := x.Address
-		return protoreflect.ValueOfString(value)
-	case "stargazer.evm.v1alpha1.CodeRecord.code":
-		value := x.Code
-		return protoreflect.ValueOfBytes(value)
+	case "stargazer.evm.v1alpha1.ContractState.address_to_code_hash":
+		if len(x.AddressToCodeHash) == 0 {
+			return protoreflect.ValueOfMap(&_ContractState_1_map{})
+		}
+		mapValue := &_ContractState_1_map{m: &x.AddressToCodeHash}
+		return protoreflect.ValueOfMap(mapValue)
+	case "stargazer.evm.v1alpha1.ContractState.code_hash_to_code":
+		if len(x.CodeHashToCode) == 0 {
+			return protoreflect.ValueOfMap(&_ContractState_2_map{})
+		}
+		mapValue := &_ContractState_2_map{m: &x.CodeHashToCode}
+		return protoreflect.ValueOfMap(mapValue)
+	case "stargazer.evm.v1alpha1.ContractState.address_to_state_data":
+		if len(x.AddressToStateData) == 0 {
+			return protoreflect.ValueOfMap(&_ContractState_3_map{})
+		}
+		mapValue := &_ContractState_3_map{m: &x.AddressToStateData}
+		return protoreflect.ValueOfMap(mapValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.CodeRecord"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.ContractState"))
 		}
-		panic(fmt.Errorf("message stargazer.evm.v1alpha1.CodeRecord does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message stargazer.evm.v1alpha1.ContractState does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -893,17 +1548,25 @@ func (x *fastReflection_CodeRecord) Get(descriptor protoreflect.FieldDescriptor)
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_CodeRecord) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_ContractState) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.CodeRecord.address":
-		x.Address = value.Interface().(string)
-	case "stargazer.evm.v1alpha1.CodeRecord.code":
-		x.Code = value.Bytes()
+	case "stargazer.evm.v1alpha1.ContractState.address_to_code_hash":
+		mv := value.Map()
+		cmv := mv.(*_ContractState_1_map)
+		x.AddressToCodeHash = *cmv.m
+	case "stargazer.evm.v1alpha1.ContractState.code_hash_to_code":
+		mv := value.Map()
+		cmv := mv.(*_ContractState_2_map)
+		x.CodeHashToCode = *cmv.m
+	case "stargazer.evm.v1alpha1.ContractState.address_to_state_data":
+		mv := value.Map()
+		cmv := mv.(*_ContractState_3_map)
+		x.AddressToStateData = *cmv.m
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.CodeRecord"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.ContractState"))
 		}
-		panic(fmt.Errorf("message stargazer.evm.v1alpha1.CodeRecord does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.evm.v1alpha1.ContractState does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -917,44 +1580,63 @@ func (x *fastReflection_CodeRecord) Set(fd protoreflect.FieldDescriptor, value p
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_CodeRecord) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ContractState) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.CodeRecord.address":
-		panic(fmt.Errorf("field address of message stargazer.evm.v1alpha1.CodeRecord is not mutable"))
-	case "stargazer.evm.v1alpha1.CodeRecord.code":
-		panic(fmt.Errorf("field code of message stargazer.evm.v1alpha1.CodeRecord is not mutable"))
+	case "stargazer.evm.v1alpha1.ContractState.address_to_code_hash":
+		if x.AddressToCodeHash == nil {
+			x.AddressToCodeHash = make(map[string]string)
+		}
+		value := &_ContractState_1_map{m: &x.AddressToCodeHash}
+		return protoreflect.ValueOfMap(value)
+	case "stargazer.evm.v1alpha1.ContractState.code_hash_to_code":
+		if x.CodeHashToCode == nil {
+			x.CodeHashToCode = make(map[string]string)
+		}
+		value := &_ContractState_2_map{m: &x.CodeHashToCode}
+		return protoreflect.ValueOfMap(value)
+	case "stargazer.evm.v1alpha1.ContractState.address_to_state_data":
+		if x.AddressToStateData == nil {
+			x.AddressToStateData = make(map[string]*StateRecord)
+		}
+		value := &_ContractState_3_map{m: &x.AddressToStateData}
+		return protoreflect.ValueOfMap(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.CodeRecord"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.ContractState"))
 		}
-		panic(fmt.Errorf("message stargazer.evm.v1alpha1.CodeRecord does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.evm.v1alpha1.ContractState does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_CodeRecord) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ContractState) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.CodeRecord.address":
-		return protoreflect.ValueOfString("")
-	case "stargazer.evm.v1alpha1.CodeRecord.code":
-		return protoreflect.ValueOfBytes(nil)
+	case "stargazer.evm.v1alpha1.ContractState.address_to_code_hash":
+		m := make(map[string]string)
+		return protoreflect.ValueOfMap(&_ContractState_1_map{m: &m})
+	case "stargazer.evm.v1alpha1.ContractState.code_hash_to_code":
+		m := make(map[string]string)
+		return protoreflect.ValueOfMap(&_ContractState_2_map{m: &m})
+	case "stargazer.evm.v1alpha1.ContractState.address_to_state_data":
+		m := make(map[string]*StateRecord)
+		return protoreflect.ValueOfMap(&_ContractState_3_map{m: &m})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.CodeRecord"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.ContractState"))
 		}
-		panic(fmt.Errorf("message stargazer.evm.v1alpha1.CodeRecord does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.evm.v1alpha1.ContractState does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_CodeRecord) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_ContractState) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in stargazer.evm.v1alpha1.CodeRecord", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in stargazer.evm.v1alpha1.ContractState", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -962,7 +1644,7 @@ func (x *fastReflection_CodeRecord) WhichOneof(d protoreflect.OneofDescriptor) p
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_CodeRecord) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_ContractState) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -973,7 +1655,7 @@ func (x *fastReflection_CodeRecord) GetUnknown() protoreflect.RawFields {
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_CodeRecord) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_ContractState) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -985,7 +1667,7 @@ func (x *fastReflection_CodeRecord) SetUnknown(fields protoreflect.RawFields) {
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_CodeRecord) IsValid() bool {
+func (x *fastReflection_ContractState) IsValid() bool {
 	return x != nil
 }
 
@@ -995,9 +1677,9 @@ func (x *fastReflection_CodeRecord) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_ContractState) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*CodeRecord)
+		x := input.Message.Interface().(*ContractState)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1009,13 +1691,73 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		l = len(x.Address)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
+		if len(x.AddressToCodeHash) > 0 {
+			SiZeMaP := func(k string, v string) {
+				mapEntrySize := 1 + len(k) + runtime.Sov(uint64(len(k))) + 1 + len(v) + runtime.Sov(uint64(len(v)))
+				n += mapEntrySize + 1 + runtime.Sov(uint64(mapEntrySize))
+			}
+			if options.Deterministic {
+				sortme := make([]string, 0, len(x.AddressToCodeHash))
+				for k := range x.AddressToCodeHash {
+					sortme = append(sortme, k)
+				}
+				sort.Strings(sortme)
+				for _, k := range sortme {
+					v := x.AddressToCodeHash[k]
+					SiZeMaP(k, v)
+				}
+			} else {
+				for k, v := range x.AddressToCodeHash {
+					SiZeMaP(k, v)
+				}
+			}
 		}
-		l = len(x.Code)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
+		if len(x.CodeHashToCode) > 0 {
+			SiZeMaP := func(k string, v string) {
+				mapEntrySize := 1 + len(k) + runtime.Sov(uint64(len(k))) + 1 + len(v) + runtime.Sov(uint64(len(v)))
+				n += mapEntrySize + 1 + runtime.Sov(uint64(mapEntrySize))
+			}
+			if options.Deterministic {
+				sortme := make([]string, 0, len(x.CodeHashToCode))
+				for k := range x.CodeHashToCode {
+					sortme = append(sortme, k)
+				}
+				sort.Strings(sortme)
+				for _, k := range sortme {
+					v := x.CodeHashToCode[k]
+					SiZeMaP(k, v)
+				}
+			} else {
+				for k, v := range x.CodeHashToCode {
+					SiZeMaP(k, v)
+				}
+			}
+		}
+		if len(x.AddressToStateData) > 0 {
+			SiZeMaP := func(k string, v *StateRecord) {
+				l := 0
+				if v != nil {
+					l = options.Size(v)
+				}
+				l += 1 + runtime.Sov(uint64(l))
+				mapEntrySize := 1 + len(k) + runtime.Sov(uint64(len(k))) + l
+				n += mapEntrySize + 1 + runtime.Sov(uint64(mapEntrySize))
+			}
+			if options.Deterministic {
+				sortme := make([]string, 0, len(x.AddressToStateData))
+				for k := range x.AddressToStateData {
+					sortme = append(sortme, k)
+				}
+				sort.Strings(sortme)
+				for _, k := range sortme {
+					v := x.AddressToStateData[k]
+					SiZeMaP(k, v)
+				}
+			} else {
+				for k, v := range x.AddressToStateData {
+					SiZeMaP(k, v)
+				}
+			}
 		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
@@ -1027,7 +1769,7 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*CodeRecord)
+		x := input.Message.Interface().(*ContractState)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1046,19 +1788,141 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.Code) > 0 {
-			i -= len(x.Code)
-			copy(dAtA[i:], x.Code)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Code)))
-			i--
-			dAtA[i] = 0x12
+		if len(x.AddressToStateData) > 0 {
+			MaRsHaLmAp := func(k string, v *StateRecord) (protoiface.MarshalOutput, error) {
+				baseI := i
+				encoded, err := options.Marshal(v)
+				if err != nil {
+					return protoiface.MarshalOutput{
+						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+						Buf:               input.Buf,
+					}, err
+				}
+				i -= len(encoded)
+				copy(dAtA[i:], encoded)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+				i--
+				dAtA[i] = 0x12
+				i -= len(k)
+				copy(dAtA[i:], k)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(k)))
+				i--
+				dAtA[i] = 0xa
+				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
+				i--
+				dAtA[i] = 0x1a
+				return protoiface.MarshalOutput{}, nil
+			}
+			if options.Deterministic {
+				keysForAddressToStateData := make([]string, 0, len(x.AddressToStateData))
+				for k := range x.AddressToStateData {
+					keysForAddressToStateData = append(keysForAddressToStateData, string(k))
+				}
+				sort.Slice(keysForAddressToStateData, func(i, j int) bool {
+					return keysForAddressToStateData[i] < keysForAddressToStateData[j]
+				})
+				for iNdEx := len(keysForAddressToStateData) - 1; iNdEx >= 0; iNdEx-- {
+					v := x.AddressToStateData[string(keysForAddressToStateData[iNdEx])]
+					out, err := MaRsHaLmAp(keysForAddressToStateData[iNdEx], v)
+					if err != nil {
+						return out, err
+					}
+				}
+			} else {
+				for k := range x.AddressToStateData {
+					v := x.AddressToStateData[k]
+					out, err := MaRsHaLmAp(k, v)
+					if err != nil {
+						return out, err
+					}
+				}
+			}
 		}
-		if len(x.Address) > 0 {
-			i -= len(x.Address)
-			copy(dAtA[i:], x.Address)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Address)))
-			i--
-			dAtA[i] = 0xa
+		if len(x.CodeHashToCode) > 0 {
+			MaRsHaLmAp := func(k string, v string) (protoiface.MarshalOutput, error) {
+				baseI := i
+				i -= len(v)
+				copy(dAtA[i:], v)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(v)))
+				i--
+				dAtA[i] = 0x12
+				i -= len(k)
+				copy(dAtA[i:], k)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(k)))
+				i--
+				dAtA[i] = 0xa
+				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
+				i--
+				dAtA[i] = 0x12
+				return protoiface.MarshalOutput{}, nil
+			}
+			if options.Deterministic {
+				keysForCodeHashToCode := make([]string, 0, len(x.CodeHashToCode))
+				for k := range x.CodeHashToCode {
+					keysForCodeHashToCode = append(keysForCodeHashToCode, string(k))
+				}
+				sort.Slice(keysForCodeHashToCode, func(i, j int) bool {
+					return keysForCodeHashToCode[i] < keysForCodeHashToCode[j]
+				})
+				for iNdEx := len(keysForCodeHashToCode) - 1; iNdEx >= 0; iNdEx-- {
+					v := x.CodeHashToCode[string(keysForCodeHashToCode[iNdEx])]
+					out, err := MaRsHaLmAp(keysForCodeHashToCode[iNdEx], v)
+					if err != nil {
+						return out, err
+					}
+				}
+			} else {
+				for k := range x.CodeHashToCode {
+					v := x.CodeHashToCode[k]
+					out, err := MaRsHaLmAp(k, v)
+					if err != nil {
+						return out, err
+					}
+				}
+			}
+		}
+		if len(x.AddressToCodeHash) > 0 {
+			MaRsHaLmAp := func(k string, v string) (protoiface.MarshalOutput, error) {
+				baseI := i
+				i -= len(v)
+				copy(dAtA[i:], v)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(v)))
+				i--
+				dAtA[i] = 0x12
+				i -= len(k)
+				copy(dAtA[i:], k)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(k)))
+				i--
+				dAtA[i] = 0xa
+				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
+				i--
+				dAtA[i] = 0xa
+				return protoiface.MarshalOutput{}, nil
+			}
+			if options.Deterministic {
+				keysForAddressToCodeHash := make([]string, 0, len(x.AddressToCodeHash))
+				for k := range x.AddressToCodeHash {
+					keysForAddressToCodeHash = append(keysForAddressToCodeHash, string(k))
+				}
+				sort.Slice(keysForAddressToCodeHash, func(i, j int) bool {
+					return keysForAddressToCodeHash[i] < keysForAddressToCodeHash[j]
+				})
+				for iNdEx := len(keysForAddressToCodeHash) - 1; iNdEx >= 0; iNdEx-- {
+					v := x.AddressToCodeHash[string(keysForAddressToCodeHash[iNdEx])]
+					out, err := MaRsHaLmAp(keysForAddressToCodeHash[iNdEx], v)
+					if err != nil {
+						return out, err
+					}
+				}
+			} else {
+				for k := range x.AddressToCodeHash {
+					v := x.AddressToCodeHash[k]
+					out, err := MaRsHaLmAp(k, v)
+					if err != nil {
+						return out, err
+					}
+				}
+			}
 		}
 		if input.Buf != nil {
 			input.Buf = append(input.Buf, dAtA...)
@@ -1071,7 +1935,7 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*CodeRecord)
+		x := input.Message.Interface().(*ContractState)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1103,17 +1967,17 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CodeRecord: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ContractState: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CodeRecord: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ContractState: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AddressToCodeHash", wireType)
 				}
-				var stringLen uint64
+				var msglen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -1123,29 +1987,124 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
+					msglen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
+				if msglen < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
-				postIndex := iNdEx + intStringLen
+				postIndex := iNdEx + msglen
 				if postIndex < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Address = string(dAtA[iNdEx:postIndex])
+				if x.AddressToCodeHash == nil {
+					x.AddressToCodeHash = make(map[string]string)
+				}
+				var mapkey string
+				var mapvalue string
+				for iNdEx < postIndex {
+					entryPreIndex := iNdEx
+					var wire uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						wire |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					fieldNum := int32(wire >> 3)
+					if fieldNum == 1 {
+						var stringLenmapkey uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapkey |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapkey := int(stringLenmapkey)
+						if intStringLenmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapkey := iNdEx + intStringLenmapkey
+						if postStringIndexmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapkey > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+						iNdEx = postStringIndexmapkey
+					} else if fieldNum == 2 {
+						var stringLenmapvalue uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapvalue |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapvalue := int(stringLenmapvalue)
+						if intStringLenmapvalue < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+						if postStringIndexmapvalue < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapvalue > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+						iNdEx = postStringIndexmapvalue
+					} else {
+						iNdEx = entryPreIndex
+						skippy, err := runtime.Skip(dAtA[iNdEx:])
+						if err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						if (skippy < 0) || (iNdEx+skippy) < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if (iNdEx + skippy) > postIndex {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						iNdEx += skippy
+					}
+				}
+				x.AddressToCodeHash[mapkey] = mapvalue
 				iNdEx = postIndex
 			case 2:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Code", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CodeHashToCode", wireType)
 				}
-				var byteLen int
+				var msglen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -1155,25 +2114,247 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					byteLen |= int(b&0x7F) << shift
+					msglen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				if byteLen < 0 {
+				if msglen < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
-				postIndex := iNdEx + byteLen
+				postIndex := iNdEx + msglen
 				if postIndex < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Code = append(x.Code[:0], dAtA[iNdEx:postIndex]...)
-				if x.Code == nil {
-					x.Code = []byte{}
+				if x.CodeHashToCode == nil {
+					x.CodeHashToCode = make(map[string]string)
 				}
+				var mapkey string
+				var mapvalue string
+				for iNdEx < postIndex {
+					entryPreIndex := iNdEx
+					var wire uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						wire |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					fieldNum := int32(wire >> 3)
+					if fieldNum == 1 {
+						var stringLenmapkey uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapkey |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapkey := int(stringLenmapkey)
+						if intStringLenmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapkey := iNdEx + intStringLenmapkey
+						if postStringIndexmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapkey > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+						iNdEx = postStringIndexmapkey
+					} else if fieldNum == 2 {
+						var stringLenmapvalue uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapvalue |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapvalue := int(stringLenmapvalue)
+						if intStringLenmapvalue < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+						if postStringIndexmapvalue < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapvalue > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+						iNdEx = postStringIndexmapvalue
+					} else {
+						iNdEx = entryPreIndex
+						skippy, err := runtime.Skip(dAtA[iNdEx:])
+						if err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						if (skippy < 0) || (iNdEx+skippy) < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if (iNdEx + skippy) > postIndex {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						iNdEx += skippy
+					}
+				}
+				x.CodeHashToCode[mapkey] = mapvalue
+				iNdEx = postIndex
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AddressToStateData", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.AddressToStateData == nil {
+					x.AddressToStateData = make(map[string]*StateRecord)
+				}
+				var mapkey string
+				var mapvalue *StateRecord
+				for iNdEx < postIndex {
+					entryPreIndex := iNdEx
+					var wire uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						wire |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					fieldNum := int32(wire >> 3)
+					if fieldNum == 1 {
+						var stringLenmapkey uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapkey |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapkey := int(stringLenmapkey)
+						if intStringLenmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapkey := iNdEx + intStringLenmapkey
+						if postStringIndexmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapkey > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+						iNdEx = postStringIndexmapkey
+					} else if fieldNum == 2 {
+						var mapmsglen int
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							mapmsglen |= int(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						if mapmsglen < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postmsgIndex := iNdEx + mapmsglen
+						if postmsgIndex < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postmsgIndex > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapvalue = &StateRecord{}
+						if err := options.Unmarshal(dAtA[iNdEx:postmsgIndex], mapvalue); err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						iNdEx = postmsgIndex
+					} else {
+						iNdEx = entryPreIndex
+						skippy, err := runtime.Skip(dAtA[iNdEx:])
+						if err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						if (skippy < 0) || (iNdEx+skippy) < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if (iNdEx + skippy) > postIndex {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						iNdEx += skippy
+					}
+				}
+				x.AddressToStateData[mapkey] = mapvalue
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -1210,19 +2391,97 @@ func (x *fastReflection_CodeRecord) ProtoMethods() *protoiface.Methods {
 	}
 }
 
+var _ protoreflect.Map = (*_StateRecord_1_map)(nil)
+
+type _StateRecord_1_map struct {
+	m *map[string]string
+}
+
+func (x *_StateRecord_1_map) Len() int {
+	if x.m == nil {
+		return 0
+	}
+	return len(*x.m)
+}
+
+func (x *_StateRecord_1_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
+	if x.m == nil {
+		return
+	}
+	for k, v := range *x.m {
+		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
+		mapValue := protoreflect.ValueOfString(v)
+		if !f(mapKey, mapValue) {
+			break
+		}
+	}
+}
+
+func (x *_StateRecord_1_map) Has(key protoreflect.MapKey) bool {
+	if x.m == nil {
+		return false
+	}
+	keyUnwrapped := key.String()
+	concreteValue := keyUnwrapped
+	_, ok := (*x.m)[concreteValue]
+	return ok
+}
+
+func (x *_StateRecord_1_map) Clear(key protoreflect.MapKey) {
+	if x.m == nil {
+		return
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	delete(*x.m, concreteKey)
+}
+
+func (x *_StateRecord_1_map) Get(key protoreflect.MapKey) protoreflect.Value {
+	if x.m == nil {
+		return protoreflect.Value{}
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if !ok {
+		return protoreflect.Value{}
+	}
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_StateRecord_1_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
+	if !key.IsValid() || !value.IsValid() {
+		panic("invalid key or value provided")
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.m)[concreteKey] = concreteValue
+}
+
+func (x *_StateRecord_1_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+	panic("should not call Mutable on protoreflect.Map whose value is not of type protoreflect.Message")
+}
+
+func (x *_StateRecord_1_map) NewValue() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_StateRecord_1_map) IsValid() bool {
+	return x.m != nil
+}
+
 var (
-	md_StateRecord         protoreflect.MessageDescriptor
-	fd_StateRecord_address protoreflect.FieldDescriptor
-	fd_StateRecord_slot    protoreflect.FieldDescriptor
-	fd_StateRecord_value   protoreflect.FieldDescriptor
+	md_StateRecord       protoreflect.MessageDescriptor
+	fd_StateRecord_state protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_stargazer_evm_v1alpha1_genesis_proto_init()
 	md_StateRecord = File_stargazer_evm_v1alpha1_genesis_proto.Messages().ByName("StateRecord")
-	fd_StateRecord_address = md_StateRecord.Fields().ByName("address")
-	fd_StateRecord_slot = md_StateRecord.Fields().ByName("slot")
-	fd_StateRecord_value = md_StateRecord.Fields().ByName("value")
+	fd_StateRecord_state = md_StateRecord.Fields().ByName("state")
 }
 
 var _ protoreflect.Message = (*fastReflection_StateRecord)(nil)
@@ -1290,21 +2549,9 @@ func (x *fastReflection_StateRecord) Interface() protoreflect.ProtoMessage {
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_StateRecord) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Address != "" {
-		value := protoreflect.ValueOfString(x.Address)
-		if !f(fd_StateRecord_address, value) {
-			return
-		}
-	}
-	if len(x.Slot) != 0 {
-		value := protoreflect.ValueOfBytes(x.Slot)
-		if !f(fd_StateRecord_slot, value) {
-			return
-		}
-	}
-	if len(x.Value) != 0 {
-		value := protoreflect.ValueOfBytes(x.Value)
-		if !f(fd_StateRecord_value, value) {
+	if len(x.State) != 0 {
+		value := protoreflect.ValueOfMap(&_StateRecord_1_map{m: &x.State})
+		if !f(fd_StateRecord_state, value) {
 			return
 		}
 	}
@@ -1323,12 +2570,8 @@ func (x *fastReflection_StateRecord) Range(f func(protoreflect.FieldDescriptor, 
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_StateRecord) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.StateRecord.address":
-		return x.Address != ""
-	case "stargazer.evm.v1alpha1.StateRecord.slot":
-		return len(x.Slot) != 0
-	case "stargazer.evm.v1alpha1.StateRecord.value":
-		return len(x.Value) != 0
+	case "stargazer.evm.v1alpha1.StateRecord.state":
+		return len(x.State) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.StateRecord"))
@@ -1345,12 +2588,8 @@ func (x *fastReflection_StateRecord) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_StateRecord) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.StateRecord.address":
-		x.Address = ""
-	case "stargazer.evm.v1alpha1.StateRecord.slot":
-		x.Slot = nil
-	case "stargazer.evm.v1alpha1.StateRecord.value":
-		x.Value = nil
+	case "stargazer.evm.v1alpha1.StateRecord.state":
+		x.State = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.StateRecord"))
@@ -1367,15 +2606,12 @@ func (x *fastReflection_StateRecord) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_StateRecord) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "stargazer.evm.v1alpha1.StateRecord.address":
-		value := x.Address
-		return protoreflect.ValueOfString(value)
-	case "stargazer.evm.v1alpha1.StateRecord.slot":
-		value := x.Slot
-		return protoreflect.ValueOfBytes(value)
-	case "stargazer.evm.v1alpha1.StateRecord.value":
-		value := x.Value
-		return protoreflect.ValueOfBytes(value)
+	case "stargazer.evm.v1alpha1.StateRecord.state":
+		if len(x.State) == 0 {
+			return protoreflect.ValueOfMap(&_StateRecord_1_map{})
+		}
+		mapValue := &_StateRecord_1_map{m: &x.State}
+		return protoreflect.ValueOfMap(mapValue)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.StateRecord"))
@@ -1396,12 +2632,10 @@ func (x *fastReflection_StateRecord) Get(descriptor protoreflect.FieldDescriptor
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_StateRecord) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.StateRecord.address":
-		x.Address = value.Interface().(string)
-	case "stargazer.evm.v1alpha1.StateRecord.slot":
-		x.Slot = value.Bytes()
-	case "stargazer.evm.v1alpha1.StateRecord.value":
-		x.Value = value.Bytes()
+	case "stargazer.evm.v1alpha1.StateRecord.state":
+		mv := value.Map()
+		cmv := mv.(*_StateRecord_1_map)
+		x.State = *cmv.m
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.StateRecord"))
@@ -1422,12 +2656,12 @@ func (x *fastReflection_StateRecord) Set(fd protoreflect.FieldDescriptor, value 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_StateRecord) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.StateRecord.address":
-		panic(fmt.Errorf("field address of message stargazer.evm.v1alpha1.StateRecord is not mutable"))
-	case "stargazer.evm.v1alpha1.StateRecord.slot":
-		panic(fmt.Errorf("field slot of message stargazer.evm.v1alpha1.StateRecord is not mutable"))
-	case "stargazer.evm.v1alpha1.StateRecord.value":
-		panic(fmt.Errorf("field value of message stargazer.evm.v1alpha1.StateRecord is not mutable"))
+	case "stargazer.evm.v1alpha1.StateRecord.state":
+		if x.State == nil {
+			x.State = make(map[string]string)
+		}
+		value := &_StateRecord_1_map{m: &x.State}
+		return protoreflect.ValueOfMap(value)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.StateRecord"))
@@ -1441,12 +2675,9 @@ func (x *fastReflection_StateRecord) Mutable(fd protoreflect.FieldDescriptor) pr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_StateRecord) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.evm.v1alpha1.StateRecord.address":
-		return protoreflect.ValueOfString("")
-	case "stargazer.evm.v1alpha1.StateRecord.slot":
-		return protoreflect.ValueOfBytes(nil)
-	case "stargazer.evm.v1alpha1.StateRecord.value":
-		return protoreflect.ValueOfBytes(nil)
+	case "stargazer.evm.v1alpha1.StateRecord.state":
+		m := make(map[string]string)
+		return protoreflect.ValueOfMap(&_StateRecord_1_map{m: &m})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.StateRecord"))
@@ -1516,17 +2747,26 @@ func (x *fastReflection_StateRecord) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		l = len(x.Address)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		l = len(x.Slot)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		l = len(x.Value)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
+		if len(x.State) > 0 {
+			SiZeMaP := func(k string, v string) {
+				mapEntrySize := 1 + len(k) + runtime.Sov(uint64(len(k))) + 1 + len(v) + runtime.Sov(uint64(len(v)))
+				n += mapEntrySize + 1 + runtime.Sov(uint64(mapEntrySize))
+			}
+			if options.Deterministic {
+				sortme := make([]string, 0, len(x.State))
+				for k := range x.State {
+					sortme = append(sortme, k)
+				}
+				sort.Strings(sortme)
+				for _, k := range sortme {
+					v := x.State[k]
+					SiZeMaP(k, v)
+				}
+			} else {
+				for k, v := range x.State {
+					SiZeMaP(k, v)
+				}
+			}
 		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
@@ -1557,26 +2797,48 @@ func (x *fastReflection_StateRecord) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.Value) > 0 {
-			i -= len(x.Value)
-			copy(dAtA[i:], x.Value)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Value)))
-			i--
-			dAtA[i] = 0x1a
-		}
-		if len(x.Slot) > 0 {
-			i -= len(x.Slot)
-			copy(dAtA[i:], x.Slot)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Slot)))
-			i--
-			dAtA[i] = 0x12
-		}
-		if len(x.Address) > 0 {
-			i -= len(x.Address)
-			copy(dAtA[i:], x.Address)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Address)))
-			i--
-			dAtA[i] = 0xa
+		if len(x.State) > 0 {
+			MaRsHaLmAp := func(k string, v string) (protoiface.MarshalOutput, error) {
+				baseI := i
+				i -= len(v)
+				copy(dAtA[i:], v)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(v)))
+				i--
+				dAtA[i] = 0x12
+				i -= len(k)
+				copy(dAtA[i:], k)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(k)))
+				i--
+				dAtA[i] = 0xa
+				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
+				i--
+				dAtA[i] = 0xa
+				return protoiface.MarshalOutput{}, nil
+			}
+			if options.Deterministic {
+				keysForState := make([]string, 0, len(x.State))
+				for k := range x.State {
+					keysForState = append(keysForState, string(k))
+				}
+				sort.Slice(keysForState, func(i, j int) bool {
+					return keysForState[i] < keysForState[j]
+				})
+				for iNdEx := len(keysForState) - 1; iNdEx >= 0; iNdEx-- {
+					v := x.State[string(keysForState[iNdEx])]
+					out, err := MaRsHaLmAp(keysForState[iNdEx], v)
+					if err != nil {
+						return out, err
+					}
+				}
+			} else {
+				for k := range x.State {
+					v := x.State[k]
+					out, err := MaRsHaLmAp(k, v)
+					if err != nil {
+						return out, err
+					}
+				}
+			}
 		}
 		if input.Buf != nil {
 			input.Buf = append(input.Buf, dAtA...)
@@ -1629,9 +2891,9 @@ func (x *fastReflection_StateRecord) ProtoMethods() *protoiface.Methods {
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field State", wireType)
 				}
-				var stringLen uint64
+				var msglen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -1641,91 +2903,118 @@ func (x *fastReflection_StateRecord) ProtoMethods() *protoiface.Methods {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
+					msglen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
+				if msglen < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
-				postIndex := iNdEx + intStringLen
+				postIndex := iNdEx + msglen
 				if postIndex < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Address = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 2:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Slot", wireType)
+				if x.State == nil {
+					x.State = make(map[string]string)
 				}
-				var byteLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				var mapkey string
+				var mapvalue string
+				for iNdEx < postIndex {
+					entryPreIndex := iNdEx
+					var wire uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						wire |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
 					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					fieldNum := int32(wire >> 3)
+					if fieldNum == 1 {
+						var stringLenmapkey uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapkey |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapkey := int(stringLenmapkey)
+						if intStringLenmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapkey := iNdEx + intStringLenmapkey
+						if postStringIndexmapkey < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapkey > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+						iNdEx = postStringIndexmapkey
+					} else if fieldNum == 2 {
+						var stringLenmapvalue uint64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							stringLenmapvalue |= uint64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						intStringLenmapvalue := int(stringLenmapvalue)
+						if intStringLenmapvalue < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+						if postStringIndexmapvalue < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if postStringIndexmapvalue > l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+						iNdEx = postStringIndexmapvalue
+					} else {
+						iNdEx = entryPreIndex
+						skippy, err := runtime.Skip(dAtA[iNdEx:])
+						if err != nil {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+						}
+						if (skippy < 0) || (iNdEx+skippy) < 0 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+						}
+						if (iNdEx + skippy) > postIndex {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						iNdEx += skippy
 					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					byteLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
 				}
-				if byteLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + byteLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.Slot = append(x.Slot[:0], dAtA[iNdEx:postIndex]...)
-				if x.Slot == nil {
-					x.Slot = []byte{}
-				}
-				iNdEx = postIndex
-			case 3:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
-				}
-				var byteLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					byteLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if byteLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + byteLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.Value = append(x.Value[:0], dAtA[iNdEx:postIndex]...)
-				if x.Value == nil {
-					x.Value = []byte{}
-				}
+				x.State[mapkey] = mapvalue
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -1803,10 +3092,10 @@ type GenesisState struct {
 
 	// params defines all the parameters of the module.
 	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
-	// CodeRecords defines all the code records of the evm state plugin.
-	CodeRecords []*CodeRecord `protobuf:"bytes,2,rep,name=code_records,json=codeRecords,proto3" json:"code_records,omitempty"`
-	// StateRecords defines all the state records of the evm state plugin.
-	StateRecords []*StateRecord `protobuf:"bytes,3,rep,name=state_records,json=stateRecords,proto3" json:"state_records,omitempty"`
+	// `address_to_state_record` is the mapping of the address to the state record.
+	AddressToContractState map[string]*StateRecord `protobuf:"bytes,2,rep,name=address_to_contract_state,json=addressToContractState,proto3" json:"address_to_contract_state,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// `address_to_state_record` is a mapping of the address to the state record/
+	AddressToStateRecord map[string]*StateRecord `protobuf:"bytes,3,rep,name=address_to_state_record,json=addressToStateRecord,proto3" json:"address_to_state_record,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *GenesisState) Reset() {
@@ -1836,34 +3125,36 @@ func (x *GenesisState) GetParams() *Params {
 	return nil
 }
 
-func (x *GenesisState) GetCodeRecords() []*CodeRecord {
+func (x *GenesisState) GetAddressToContractState() map[string]*StateRecord {
 	if x != nil {
-		return x.CodeRecords
+		return x.AddressToContractState
 	}
 	return nil
 }
 
-func (x *GenesisState) GetStateRecords() []*StateRecord {
+func (x *GenesisState) GetAddressToStateRecord() map[string]*StateRecord {
 	if x != nil {
-		return x.StateRecords
+		return x.AddressToStateRecord
 	}
 	return nil
 }
 
 // `CodeRecord` defines the code record of the evm state plugin.
-type CodeRecord struct {
+type ContractState struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// `address` is the address of the contract, this is in format of hex string.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// `code` is the code of the contract, this is in the format of byte slice.
-	Code []byte `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	// `address_to_hash` is the mapping of the address to the hash of the code.
+	AddressToCodeHash map[string]string `protobuf:"bytes,1,rep,name=address_to_code_hash,json=addressToCodeHash,proto3" json:"address_to_code_hash,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// `code` is the code of the contract, this is in format of byte slice.
+	CodeHashToCode map[string]string `protobuf:"bytes,2,rep,name=code_hash_to_code,json=codeHashToCode,proto3" json:"code_hash_to_code,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// `state` is a map of address to contract state.
+	AddressToStateData map[string]*StateRecord `protobuf:"bytes,3,rep,name=address_to_state_data,json=addressToStateData,proto3" json:"address_to_state_data,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
-func (x *CodeRecord) Reset() {
-	*x = CodeRecord{}
+func (x *ContractState) Reset() {
+	*x = ContractState{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_stargazer_evm_v1alpha1_genesis_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1871,43 +3162,46 @@ func (x *CodeRecord) Reset() {
 	}
 }
 
-func (x *CodeRecord) String() string {
+func (x *ContractState) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CodeRecord) ProtoMessage() {}
+func (*ContractState) ProtoMessage() {}
 
-// Deprecated: Use CodeRecord.ProtoReflect.Descriptor instead.
-func (*CodeRecord) Descriptor() ([]byte, []int) {
+// Deprecated: Use ContractState.ProtoReflect.Descriptor instead.
+func (*ContractState) Descriptor() ([]byte, []int) {
 	return file_stargazer_evm_v1alpha1_genesis_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CodeRecord) GetAddress() string {
+func (x *ContractState) GetAddressToCodeHash() map[string]string {
 	if x != nil {
-		return x.Address
-	}
-	return ""
-}
-
-func (x *CodeRecord) GetCode() []byte {
-	if x != nil {
-		return x.Code
+		return x.AddressToCodeHash
 	}
 	return nil
 }
 
-// `StateRecord` defines the state record of the evm state plugin.
+func (x *ContractState) GetCodeHashToCode() map[string]string {
+	if x != nil {
+		return x.CodeHashToCode
+	}
+	return nil
+}
+
+func (x *ContractState) GetAddressToStateData() map[string]*StateRecord {
+	if x != nil {
+		return x.AddressToStateData
+	}
+	return nil
+}
+
+// `StateRecord` defines an evm state record. It includes a maping of slot to value.
 type StateRecord struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// `address` is the address of the account, this is in format of hex string.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// `slot`.
-	Slot []byte `protobuf:"bytes,2,opt,name=slot,proto3" json:"slot,omitempty"`
-	// `value` is the value of the state, this is in format of byte slice.
-	Value []byte `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	// `state` is a map of slot to value.
+	State map[string]string `protobuf:"bytes,1,rep,name=state,proto3" json:"state,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *StateRecord) Reset() {
@@ -1930,23 +3224,9 @@ func (*StateRecord) Descriptor() ([]byte, []int) {
 	return file_stargazer_evm_v1alpha1_genesis_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *StateRecord) GetAddress() string {
+func (x *StateRecord) GetState() map[string]string {
 	if x != nil {
-		return x.Address
-	}
-	return ""
-}
-
-func (x *StateRecord) GetSlot() []byte {
-	if x != nil {
-		return x.Slot
-	}
-	return nil
-}
-
-func (x *StateRecord) GetValue() []byte {
-	if x != nil {
-		return x.Value
+		return x.State
 	}
 	return nil
 }
@@ -1961,45 +3241,101 @@ var file_stargazer_evm_v1alpha1_genesis_proto_rawDesc = []byte{
 	0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x23, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2f,
 	0x65, 0x76, 0x6d, 0x2f, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xe9, 0x01, 0x0a, 0x0c, 0x47, 0x65,
+	0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x9e, 0x04, 0x0a, 0x0c, 0x47, 0x65,
 	0x6e, 0x65, 0x73, 0x69, 0x73, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x3c, 0x0a, 0x06, 0x70, 0x61,
 	0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x73, 0x74, 0x61,
 	0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70,
 	0x68, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
-	0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x4b, 0x0a, 0x0c, 0x63, 0x6f, 0x64, 0x65,
-	0x5f, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x22,
-	0x2e, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76,
-	0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x64, 0x65, 0x52, 0x65, 0x63, 0x6f,
-	0x72, 0x64, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0b, 0x63, 0x6f, 0x64, 0x65, 0x52, 0x65,
-	0x63, 0x6f, 0x72, 0x64, 0x73, 0x12, 0x4e, 0x0a, 0x0d, 0x73, 0x74, 0x61, 0x74, 0x65, 0x5f, 0x72,
-	0x65, 0x63, 0x6f, 0x72, 0x64, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x73,
+	0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x7b, 0x0a, 0x19, 0x61, 0x64, 0x64, 0x72,
+	0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f,
+	0x73, 0x74, 0x61, 0x74, 0x65, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x40, 0x2e, 0x73, 0x74,
+	0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c,
+	0x70, 0x68, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x53, 0x74, 0x61, 0x74,
+	0x65, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x43, 0x6f, 0x6e, 0x74, 0x72,
+	0x61, 0x63, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x16, 0x61,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74,
+	0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x75, 0x0a, 0x17, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
+	0x5f, 0x74, 0x6f, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x5f, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64,
+	0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x3e, 0x2e, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a,
+	0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e,
+	0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x53, 0x74, 0x61, 0x74, 0x65, 0x2e, 0x41, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72,
+	0x64, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x14, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54,
+	0x6f, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x1a, 0x6e, 0x0a, 0x1b,
+	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63,
+	0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b,
+	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x39, 0x0a,
+	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x73,
 	0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61,
 	0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72,
-	0x64, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0c, 0x73, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65,
-	0x63, 0x6f, 0x72, 0x64, 0x73, 0x22, 0x3a, 0x0a, 0x0a, 0x43, 0x6f, 0x64, 0x65, 0x52, 0x65, 0x63,
-	0x6f, 0x72, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x12, 0x0a,
-	0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x63, 0x6f, 0x64,
-	0x65, 0x22, 0x51, 0x0a, 0x0b, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64,
-	0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c,
-	0x6f, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x73, 0x6c, 0x6f, 0x74, 0x12, 0x14,
-	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x76,
-	0x61, 0x6c, 0x75, 0x65, 0x42, 0xd9, 0x01, 0x0a, 0x1a, 0x63, 0x6f, 0x6d, 0x2e, 0x73, 0x74, 0x61,
+	0x64, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x6c, 0x0a, 0x19,
+	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65,
+	0x63, 0x6f, 0x72, 0x64, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x39, 0x0a, 0x05, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x73, 0x74, 0x61,
 	0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70,
-	0x68, 0x61, 0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74,
-	0x6f, 0x50, 0x01, 0x5a, 0x33, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69,
-	0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2f,
-	0x65, 0x76, 0x6d, 0x2f, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x3b, 0x65, 0x76, 0x6d,
-	0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x53, 0x45, 0x58, 0xaa, 0x02,
-	0x16, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x45, 0x76, 0x6d, 0x2e, 0x56,
-	0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0xca, 0x02, 0x16, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61,
-	0x7a, 0x65, 0x72, 0x5c, 0x45, 0x76, 0x6d, 0x5c, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31,
-	0xe2, 0x02, 0x22, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x5c, 0x45, 0x76, 0x6d,
-	0x5c, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74,
-	0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x18, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65,
-	0x72, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x3a, 0x3a, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x68, 0x61, 0x31, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x52,
+	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0xcb, 0x04, 0x0a, 0x0d, 0x43,
+	0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x6d, 0x0a, 0x14,
+	0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x5f,
+	0x68, 0x61, 0x73, 0x68, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x3c, 0x2e, 0x73, 0x74, 0x61,
+	0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70,
+	0x68, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x53, 0x74, 0x61, 0x74,
+	0x65, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x43, 0x6f, 0x64, 0x65, 0x48,
+	0x61, 0x73, 0x68, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x11, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73,
+	0x73, 0x54, 0x6f, 0x43, 0x6f, 0x64, 0x65, 0x48, 0x61, 0x73, 0x68, 0x12, 0x64, 0x0a, 0x11, 0x63,
+	0x6f, 0x64, 0x65, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x5f, 0x74, 0x6f, 0x5f, 0x63, 0x6f, 0x64, 0x65,
+	0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x39, 0x2e, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a,
+	0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e,
+	0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x2e, 0x43, 0x6f,
+	0x64, 0x65, 0x48, 0x61, 0x73, 0x68, 0x54, 0x6f, 0x43, 0x6f, 0x64, 0x65, 0x45, 0x6e, 0x74, 0x72,
+	0x79, 0x52, 0x0e, 0x63, 0x6f, 0x64, 0x65, 0x48, 0x61, 0x73, 0x68, 0x54, 0x6f, 0x43, 0x6f, 0x64,
+	0x65, 0x12, 0x70, 0x0a, 0x15, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f, 0x5f,
+	0x73, 0x74, 0x61, 0x74, 0x65, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x3d, 0x2e, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d,
+	0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61,
+	0x63, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54,
+	0x6f, 0x53, 0x74, 0x61, 0x74, 0x65, 0x44, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52,
+	0x12, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x53, 0x74, 0x61, 0x74, 0x65, 0x44,
+	0x61, 0x74, 0x61, 0x1a, 0x44, 0x0a, 0x16, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f,
+	0x43, 0x6f, 0x64, 0x65, 0x48, 0x61, 0x73, 0x68, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a,
+	0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12,
+	0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05,
+	0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x41, 0x0a, 0x13, 0x43, 0x6f, 0x64,
+	0x65, 0x48, 0x61, 0x73, 0x68, 0x54, 0x6f, 0x43, 0x6f, 0x64, 0x65, 0x45, 0x6e, 0x74, 0x72, 0x79,
+	0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b,
+	0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x6a, 0x0a, 0x17,
+	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x53, 0x74, 0x61, 0x74, 0x65, 0x44, 0x61,
+	0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x39, 0x0a, 0x05, 0x76, 0x61, 0x6c,
+	0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x73, 0x74, 0x61, 0x72, 0x67,
+	0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61,
+	0x31, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x52, 0x05, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x8d, 0x01, 0x0a, 0x0b, 0x53, 0x74, 0x61,
+	0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x12, 0x44, 0x0a, 0x05, 0x73, 0x74, 0x61, 0x74,
+	0x65, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2e, 0x2e, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61,
+	0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31,
+	0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x2e, 0x53, 0x74, 0x61,
+	0x74, 0x65, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65, 0x1a, 0x38,
+	0x0a, 0x0a, 0x53, 0x74, 0x61, 0x74, 0x65, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03,
+	0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14,
+	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x42, 0xd9, 0x01, 0x0a, 0x1a, 0x63, 0x6f, 0x6d,
+	0x2e, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76,
+	0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73,
+	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x33, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73,
+	0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61,
+	0x7a, 0x65, 0x72, 0x2f, 0x65, 0x76, 0x6d, 0x2f, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31,
+	0x3b, 0x65, 0x76, 0x6d, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x53,
+	0x45, 0x58, 0xaa, 0x02, 0x16, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x45,
+	0x76, 0x6d, 0x2e, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0xca, 0x02, 0x16, 0x53, 0x74,
+	0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x5c, 0x45, 0x76, 0x6d, 0x5c, 0x56, 0x31, 0x61, 0x6c,
+	0x70, 0x68, 0x61, 0x31, 0xe2, 0x02, 0x22, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72,
+	0x5c, 0x45, 0x76, 0x6d, 0x5c, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x5c, 0x47, 0x50,
+	0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x18, 0x53, 0x74, 0x61, 0x72,
+	0x67, 0x61, 0x7a, 0x65, 0x72, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x3a, 0x3a, 0x56, 0x31, 0x61, 0x6c,
+	0x70, 0x68, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2014,22 +3350,35 @@ func file_stargazer_evm_v1alpha1_genesis_proto_rawDescGZIP() []byte {
 	return file_stargazer_evm_v1alpha1_genesis_proto_rawDescData
 }
 
-var file_stargazer_evm_v1alpha1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_stargazer_evm_v1alpha1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_stargazer_evm_v1alpha1_genesis_proto_goTypes = []interface{}{
-	(*GenesisState)(nil), // 0: stargazer.evm.v1alpha1.GenesisState
-	(*CodeRecord)(nil),   // 1: stargazer.evm.v1alpha1.CodeRecord
-	(*StateRecord)(nil),  // 2: stargazer.evm.v1alpha1.StateRecord
-	(*Params)(nil),       // 3: stargazer.evm.v1alpha1.Params
+	(*GenesisState)(nil),  // 0: stargazer.evm.v1alpha1.GenesisState
+	(*ContractState)(nil), // 1: stargazer.evm.v1alpha1.ContractState
+	(*StateRecord)(nil),   // 2: stargazer.evm.v1alpha1.StateRecord
+	nil,                   // 3: stargazer.evm.v1alpha1.GenesisState.AddressToContractStateEntry
+	nil,                   // 4: stargazer.evm.v1alpha1.GenesisState.AddressToStateRecordEntry
+	nil,                   // 5: stargazer.evm.v1alpha1.ContractState.AddressToCodeHashEntry
+	nil,                   // 6: stargazer.evm.v1alpha1.ContractState.CodeHashToCodeEntry
+	nil,                   // 7: stargazer.evm.v1alpha1.ContractState.AddressToStateDataEntry
+	nil,                   // 8: stargazer.evm.v1alpha1.StateRecord.StateEntry
+	(*Params)(nil),        // 9: stargazer.evm.v1alpha1.Params
 }
 var file_stargazer_evm_v1alpha1_genesis_proto_depIdxs = []int32{
-	3, // 0: stargazer.evm.v1alpha1.GenesisState.params:type_name -> stargazer.evm.v1alpha1.Params
-	1, // 1: stargazer.evm.v1alpha1.GenesisState.code_records:type_name -> stargazer.evm.v1alpha1.CodeRecord
-	2, // 2: stargazer.evm.v1alpha1.GenesisState.state_records:type_name -> stargazer.evm.v1alpha1.StateRecord
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9,  // 0: stargazer.evm.v1alpha1.GenesisState.params:type_name -> stargazer.evm.v1alpha1.Params
+	3,  // 1: stargazer.evm.v1alpha1.GenesisState.address_to_contract_state:type_name -> stargazer.evm.v1alpha1.GenesisState.AddressToContractStateEntry
+	4,  // 2: stargazer.evm.v1alpha1.GenesisState.address_to_state_record:type_name -> stargazer.evm.v1alpha1.GenesisState.AddressToStateRecordEntry
+	5,  // 3: stargazer.evm.v1alpha1.ContractState.address_to_code_hash:type_name -> stargazer.evm.v1alpha1.ContractState.AddressToCodeHashEntry
+	6,  // 4: stargazer.evm.v1alpha1.ContractState.code_hash_to_code:type_name -> stargazer.evm.v1alpha1.ContractState.CodeHashToCodeEntry
+	7,  // 5: stargazer.evm.v1alpha1.ContractState.address_to_state_data:type_name -> stargazer.evm.v1alpha1.ContractState.AddressToStateDataEntry
+	8,  // 6: stargazer.evm.v1alpha1.StateRecord.state:type_name -> stargazer.evm.v1alpha1.StateRecord.StateEntry
+	2,  // 7: stargazer.evm.v1alpha1.GenesisState.AddressToContractStateEntry.value:type_name -> stargazer.evm.v1alpha1.StateRecord
+	2,  // 8: stargazer.evm.v1alpha1.GenesisState.AddressToStateRecordEntry.value:type_name -> stargazer.evm.v1alpha1.StateRecord
+	2,  // 9: stargazer.evm.v1alpha1.ContractState.AddressToStateDataEntry.value:type_name -> stargazer.evm.v1alpha1.StateRecord
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_stargazer_evm_v1alpha1_genesis_proto_init() }
@@ -2052,7 +3401,7 @@ func file_stargazer_evm_v1alpha1_genesis_proto_init() {
 			}
 		}
 		file_stargazer_evm_v1alpha1_genesis_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CodeRecord); i {
+			switch v := v.(*ContractState); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2082,7 +3431,7 @@ func file_stargazer_evm_v1alpha1_genesis_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_stargazer_evm_v1alpha1_genesis_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

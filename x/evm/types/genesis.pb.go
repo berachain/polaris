@@ -27,10 +27,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type GenesisState struct {
 	// params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// CodeRecords defines all the code records of the evm state plugin.
-	CodeRecords []CodeRecord `protobuf:"bytes,2,rep,name=code_records,json=codeRecords,proto3" json:"code_records"`
-	// StateRecords defines all the state records of the evm state plugin.
-	StateRecords []StateRecord `protobuf:"bytes,3,rep,name=state_records,json=stateRecords,proto3" json:"state_records"`
+	// `address_to_state_record` is the mapping of the address to the state record.
+	AddressToContractState map[string]*StateRecord `protobuf:"bytes,2,rep,name=address_to_contract_state,json=addressToContractState,proto3" json:"address_to_contract_state,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// `address_to_state_record` is a mapping of the address to the state record/
+	AddressToStateRecord map[string]*StateRecord `protobuf:"bytes,3,rep,name=address_to_state_record,json=addressToStateRecord,proto3" json:"address_to_state_record,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -73,40 +73,42 @@ func (m *GenesisState) GetParams() Params {
 	return Params{}
 }
 
-func (m *GenesisState) GetCodeRecords() []CodeRecord {
+func (m *GenesisState) GetAddressToContractState() map[string]*StateRecord {
 	if m != nil {
-		return m.CodeRecords
+		return m.AddressToContractState
 	}
 	return nil
 }
 
-func (m *GenesisState) GetStateRecords() []StateRecord {
+func (m *GenesisState) GetAddressToStateRecord() map[string]*StateRecord {
 	if m != nil {
-		return m.StateRecords
+		return m.AddressToStateRecord
 	}
 	return nil
 }
 
 // `CodeRecord` defines the code record of the evm state plugin.
-type CodeRecord struct {
-	// `address` is the address of the contract, this is in format of hex string.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// `code` is the code of the contract, this is in the format of byte slice.
-	Code []byte `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+type ContractState struct {
+	// `address_to_hash` is the mapping of the address to the hash of the code.
+	AddressToCodeHash map[string]string `protobuf:"bytes,1,rep,name=address_to_code_hash,json=addressToCodeHash,proto3" json:"address_to_code_hash,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// `code` is the code of the contract, this is in format of byte slice.
+	CodeHashToCode map[string]string `protobuf:"bytes,2,rep,name=code_hash_to_code,json=codeHashToCode,proto3" json:"code_hash_to_code,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// `state` is a map of address to contract state.
+	AddressToStateData map[string]*StateRecord `protobuf:"bytes,3,rep,name=address_to_state_data,json=addressToStateData,proto3" json:"address_to_state_data,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
-func (m *CodeRecord) Reset()         { *m = CodeRecord{} }
-func (m *CodeRecord) String() string { return proto.CompactTextString(m) }
-func (*CodeRecord) ProtoMessage()    {}
-func (*CodeRecord) Descriptor() ([]byte, []int) {
+func (m *ContractState) Reset()         { *m = ContractState{} }
+func (m *ContractState) String() string { return proto.CompactTextString(m) }
+func (*ContractState) ProtoMessage()    {}
+func (*ContractState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_134c80690d273a37, []int{1}
 }
-func (m *CodeRecord) XXX_Unmarshal(b []byte) error {
+func (m *ContractState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *CodeRecord) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *ContractState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_CodeRecord.Marshal(b, m, deterministic)
+		return xxx_messageInfo_ContractState.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -116,40 +118,43 @@ func (m *CodeRecord) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *CodeRecord) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CodeRecord.Merge(m, src)
+func (m *ContractState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ContractState.Merge(m, src)
 }
-func (m *CodeRecord) XXX_Size() int {
+func (m *ContractState) XXX_Size() int {
 	return m.Size()
 }
-func (m *CodeRecord) XXX_DiscardUnknown() {
-	xxx_messageInfo_CodeRecord.DiscardUnknown(m)
+func (m *ContractState) XXX_DiscardUnknown() {
+	xxx_messageInfo_ContractState.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CodeRecord proto.InternalMessageInfo
+var xxx_messageInfo_ContractState proto.InternalMessageInfo
 
-func (m *CodeRecord) GetAddress() string {
+func (m *ContractState) GetAddressToCodeHash() map[string]string {
 	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *CodeRecord) GetCode() []byte {
-	if m != nil {
-		return m.Code
+		return m.AddressToCodeHash
 	}
 	return nil
 }
 
-// `StateRecord` defines the state record of the evm state plugin.
+func (m *ContractState) GetCodeHashToCode() map[string]string {
+	if m != nil {
+		return m.CodeHashToCode
+	}
+	return nil
+}
+
+func (m *ContractState) GetAddressToStateData() map[string]*StateRecord {
+	if m != nil {
+		return m.AddressToStateData
+	}
+	return nil
+}
+
+// `StateRecord` defines an evm state record. It includes a maping of slot to value.
 type StateRecord struct {
-	// `address` is the address of the account, this is in format of hex string.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// `slot`.
-	Slot []byte `protobuf:"bytes,2,opt,name=slot,proto3" json:"slot,omitempty"`
-	// `value` is the value of the state, this is in format of byte slice.
-	Value []byte `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	// `state` is a map of slot to value.
+	State map[string]string `protobuf:"bytes,1,rep,name=state,proto3" json:"state,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (m *StateRecord) Reset()         { *m = StateRecord{} }
@@ -185,31 +190,23 @@ func (m *StateRecord) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StateRecord proto.InternalMessageInfo
 
-func (m *StateRecord) GetAddress() string {
+func (m *StateRecord) GetState() map[string]string {
 	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *StateRecord) GetSlot() []byte {
-	if m != nil {
-		return m.Slot
-	}
-	return nil
-}
-
-func (m *StateRecord) GetValue() []byte {
-	if m != nil {
-		return m.Value
+		return m.State
 	}
 	return nil
 }
 
 func init() {
 	proto.RegisterType((*GenesisState)(nil), "stargazer.evm.v1alpha1.GenesisState")
-	proto.RegisterType((*CodeRecord)(nil), "stargazer.evm.v1alpha1.CodeRecord")
+	proto.RegisterMapType((map[string]*StateRecord)(nil), "stargazer.evm.v1alpha1.GenesisState.AddressToContractStateEntry")
+	proto.RegisterMapType((map[string]*StateRecord)(nil), "stargazer.evm.v1alpha1.GenesisState.AddressToStateRecordEntry")
+	proto.RegisterType((*ContractState)(nil), "stargazer.evm.v1alpha1.ContractState")
+	proto.RegisterMapType((map[string]string)(nil), "stargazer.evm.v1alpha1.ContractState.AddressToCodeHashEntry")
+	proto.RegisterMapType((map[string]*StateRecord)(nil), "stargazer.evm.v1alpha1.ContractState.AddressToStateDataEntry")
+	proto.RegisterMapType((map[string]string)(nil), "stargazer.evm.v1alpha1.ContractState.CodeHashToCodeEntry")
 	proto.RegisterType((*StateRecord)(nil), "stargazer.evm.v1alpha1.StateRecord")
+	proto.RegisterMapType((map[string]string)(nil), "stargazer.evm.v1alpha1.StateRecord.StateEntry")
 }
 
 func init() {
@@ -217,28 +214,39 @@ func init() {
 }
 
 var fileDescriptor_134c80690d273a37 = []byte{
-	// 332 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x91, 0xbd, 0x4e, 0xc3, 0x30,
-	0x10, 0x80, 0xe3, 0xb6, 0x14, 0xe1, 0x84, 0xc5, 0xaa, 0x50, 0xd4, 0xc1, 0x54, 0x29, 0x12, 0x9d,
-	0x1c, 0xb5, 0x6c, 0x88, 0x85, 0x32, 0x30, 0x20, 0x21, 0x08, 0x1b, 0x0b, 0x72, 0xe3, 0x53, 0x5a,
-	0xd1, 0xd6, 0x91, 0x6d, 0x22, 0xe0, 0x29, 0x78, 0xac, 0x8e, 0x1d, 0x99, 0x10, 0x6a, 0x27, 0xde,
-	0x02, 0xc5, 0xe9, 0x0f, 0x48, 0x84, 0xed, 0xee, 0xf4, 0xdd, 0x77, 0x77, 0x3a, 0x7c, 0xa4, 0x0d,
-	0x57, 0x09, 0x7f, 0x05, 0x15, 0x42, 0x36, 0x09, 0xb3, 0x2e, 0x1f, 0xa7, 0x43, 0xde, 0x0d, 0x13,
-	0x98, 0x82, 0x1e, 0x69, 0x96, 0x2a, 0x69, 0x24, 0x39, 0xd8, 0x50, 0x0c, 0xb2, 0x09, 0x5b, 0x53,
-	0xcd, 0x46, 0x22, 0x13, 0x69, 0x91, 0x30, 0x8f, 0x0a, 0xba, 0xd9, 0x2e, 0x71, 0xa6, 0x5c, 0xf1,
-	0xc9, 0x4a, 0x19, 0x7c, 0x21, 0xec, 0x5d, 0x16, 0x43, 0xee, 0x0c, 0x37, 0x40, 0xce, 0x70, 0xbd,
-	0x00, 0x7c, 0xd4, 0x42, 0x1d, 0xb7, 0x47, 0xd9, 0xdf, 0x43, 0xd9, 0x8d, 0xa5, 0xfa, 0xb5, 0xd9,
-	0xc7, 0xa1, 0x13, 0xad, 0x7a, 0xc8, 0x15, 0xf6, 0x62, 0x29, 0xe0, 0x41, 0x41, 0x2c, 0x95, 0xd0,
-	0x7e, 0xa5, 0x55, 0xed, 0xb8, 0xbd, 0xa0, 0xcc, 0x71, 0x21, 0x05, 0x44, 0x16, 0x5d, 0x79, 0xdc,
-	0x78, 0x53, 0xd1, 0xe4, 0x1a, 0xef, 0xeb, 0x7c, 0xa7, 0x8d, 0xad, 0x6a, 0x6d, 0xed, 0x32, 0x9b,
-	0x3d, 0xe0, 0x97, 0xce, 0xd3, 0xdb, 0x92, 0x0e, 0x4e, 0x31, 0xde, 0x0e, 0x24, 0x3e, 0xde, 0xe5,
-	0x42, 0x28, 0xd0, 0xc5, 0xa5, 0x7b, 0xd1, 0x3a, 0x25, 0x04, 0xd7, 0xf2, 0x35, 0xfc, 0x4a, 0x0b,
-	0x75, 0xbc, 0xc8, 0xc6, 0xc1, 0x2d, 0x76, 0x7f, 0xe8, 0xff, 0x6f, 0xd6, 0x63, 0x69, 0xd6, 0xcd,
-	0x79, 0x4c, 0x1a, 0x78, 0x27, 0xe3, 0xe3, 0x27, 0xf0, 0xab, 0xb6, 0x58, 0x24, 0xfd, 0xf3, 0xd9,
-	0x82, 0xa2, 0xf9, 0x82, 0xa2, 0xcf, 0x05, 0x45, 0x6f, 0x4b, 0xea, 0xcc, 0x97, 0xd4, 0x79, 0x5f,
-	0x52, 0xe7, 0xfe, 0x38, 0x7d, 0x4c, 0xd8, 0x00, 0x14, 0x8f, 0x87, 0x7c, 0x34, 0x65, 0x02, 0xb2,
-	0x70, 0xfb, 0xcb, 0x67, 0xfb, 0x4d, 0xf3, 0x92, 0x82, 0x1e, 0xd4, 0xed, 0x13, 0x4f, 0xbe, 0x03,
-	0x00, 0x00, 0xff, 0xff, 0x5c, 0x53, 0x9f, 0x17, 0x3f, 0x02, 0x00, 0x00,
+	// 507 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xc1, 0x6e, 0xd3, 0x40,
+	0x10, 0x86, 0xe3, 0x26, 0xad, 0xd4, 0x09, 0x20, 0xba, 0x84, 0x34, 0x35, 0x92, 0xa9, 0x5a, 0x24,
+	0x7a, 0x5a, 0xab, 0xe5, 0xd2, 0xa2, 0x82, 0x48, 0x09, 0x82, 0x23, 0x32, 0x9c, 0xb8, 0x58, 0x53,
+	0x7b, 0x65, 0x97, 0x26, 0xb6, 0xb5, 0xbb, 0xb5, 0x08, 0x3c, 0x03, 0x12, 0x4f, 0xc0, 0xf3, 0x54,
+	0xe2, 0xd2, 0x23, 0x27, 0x84, 0x92, 0x17, 0x41, 0xde, 0x75, 0x8a, 0xdd, 0xda, 0x55, 0x23, 0xe5,
+	0xe6, 0xdd, 0x9d, 0xfd, 0xbf, 0xd9, 0x7f, 0xc6, 0x03, 0x4f, 0x84, 0x44, 0x1e, 0xe0, 0x57, 0xc6,
+	0x6d, 0x96, 0x8e, 0xec, 0x74, 0x17, 0x87, 0x49, 0x88, 0xbb, 0x76, 0xc0, 0x22, 0x26, 0x4e, 0x04,
+	0x4d, 0x78, 0x2c, 0x63, 0xd2, 0xbd, 0x8c, 0xa2, 0x2c, 0x1d, 0xd1, 0x59, 0x94, 0xd9, 0x09, 0xe2,
+	0x20, 0x56, 0x21, 0x76, 0xf6, 0xa5, 0xa3, 0xcd, 0xed, 0x1a, 0xcd, 0x04, 0x39, 0x8e, 0x72, 0xc9,
+	0xad, 0x9f, 0x2d, 0xb8, 0xf3, 0x56, 0x43, 0x3e, 0x48, 0x94, 0x8c, 0x1c, 0xc2, 0x8a, 0x0e, 0xe8,
+	0x19, 0x9b, 0xc6, 0x4e, 0x7b, 0xcf, 0xa2, 0xd5, 0x50, 0xfa, 0x5e, 0x45, 0x1d, 0xb5, 0xce, 0xff,
+	0x3c, 0x6e, 0x38, 0xf9, 0x1d, 0xf2, 0x0d, 0x36, 0xd0, 0xf7, 0x39, 0x13, 0xc2, 0x95, 0xb1, 0xeb,
+	0xc5, 0x91, 0xe4, 0xe8, 0x49, 0x57, 0x64, 0xd2, 0xbd, 0xa5, 0xcd, 0xe6, 0x4e, 0x7b, 0xef, 0x55,
+	0x9d, 0x60, 0x31, 0x0d, 0xda, 0xd7, 0x2a, 0x1f, 0xe3, 0xd7, 0xb9, 0x86, 0xda, 0x7e, 0x13, 0x49,
+	0x3e, 0x76, 0xba, 0x58, 0x79, 0x48, 0xce, 0x60, 0xbd, 0x00, 0x57, 0x4c, 0x97, 0x33, 0x2f, 0xe6,
+	0x7e, 0xaf, 0xa9, 0xd0, 0x2f, 0xe7, 0x43, 0xab, 0xa5, 0xa3, 0x04, 0x34, 0xb8, 0x83, 0x15, 0x47,
+	0x66, 0x04, 0x8f, 0x6e, 0xc8, 0x96, 0xdc, 0x87, 0xe6, 0x29, 0x1b, 0x2b, 0x37, 0x57, 0x9d, 0xec,
+	0x93, 0x1c, 0xc0, 0x72, 0x8a, 0xc3, 0xb3, 0xcc, 0x90, 0xcc, 0xe1, 0xed, 0xba, 0xac, 0x0a, 0x10,
+	0x47, 0xdf, 0x78, 0xbe, 0xb4, 0x6f, 0x98, 0x43, 0xd8, 0xa8, 0x4d, 0x71, 0xe1, 0xb4, 0xad, 0x5f,
+	0x2d, 0xb8, 0x5b, 0xb6, 0x79, 0x04, 0x9d, 0x52, 0x8d, 0x7d, 0xe6, 0x86, 0x28, 0xc2, 0x9e, 0xa1,
+	0x3c, 0x3e, 0xac, 0xd3, 0x2f, 0x89, 0x14, 0xeb, 0xeb, 0xb3, 0x77, 0x28, 0x42, 0xed, 0xf0, 0x1a,
+	0x5e, 0xdd, 0x27, 0x3e, 0xac, 0x5d, 0x32, 0x66, 0xc0, 0xbc, 0x95, 0x0e, 0x6e, 0xc7, 0x9a, 0x49,
+	0x69, 0x51, 0x0d, 0xba, 0xe7, 0x95, 0x36, 0x49, 0x02, 0x0f, 0xaf, 0xf5, 0x8e, 0x8f, 0x12, 0xf3,
+	0xce, 0x79, 0x31, 0xe7, 0xab, 0xd4, 0x72, 0x80, 0x12, 0x35, 0x8d, 0xe0, 0xb5, 0x03, 0x73, 0x00,
+	0xdd, 0x6a, 0x13, 0x2a, 0x6a, 0xd8, 0x29, 0xd6, 0x70, 0xb5, 0xd8, 0x0c, 0x7d, 0x78, 0x50, 0xf1,
+	0xbc, 0xb9, 0x24, 0x3e, 0xc3, 0x7a, 0x4d, 0xde, 0x8b, 0xef, 0xa6, 0xef, 0x06, 0xb4, 0x0b, 0x47,
+	0x64, 0x00, 0xcb, 0x7a, 0x36, 0xe8, 0xe6, 0xa1, 0xb7, 0x90, 0xa3, 0x85, 0x49, 0xa0, 0x2f, 0x9b,
+	0xfb, 0x00, 0x37, 0xfe, 0x70, 0xb5, 0x6f, 0x3f, 0xea, 0x9f, 0x4f, 0x2c, 0xe3, 0x62, 0x62, 0x19,
+	0x7f, 0x27, 0x96, 0xf1, 0x63, 0x6a, 0x35, 0x2e, 0xa6, 0x56, 0xe3, 0xf7, 0xd4, 0x6a, 0x7c, 0x7a,
+	0x9a, 0x9c, 0x06, 0xf4, 0x98, 0x71, 0xf4, 0x42, 0x3c, 0x89, 0xa8, 0xcf, 0x52, 0xfb, 0xff, 0x3c,
+	0xfd, 0xa2, 0x26, 0xaa, 0x1c, 0x27, 0x4c, 0x1c, 0xaf, 0xa8, 0x41, 0xfa, 0xec, 0x5f, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xb0, 0x3a, 0xce, 0xf1, 0xc3, 0x05, 0x00, 0x00,
 }
 
 func (m *GenesisState) Marshal() (dAtA []byte, err error) {
@@ -261,30 +269,54 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.StateRecords) > 0 {
-		for iNdEx := len(m.StateRecords) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.StateRecords[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
+	if len(m.AddressToStateRecord) > 0 {
+		for k := range m.AddressToStateRecord {
+			v := m.AddressToStateRecord[k]
+			baseI := i
+			if v != nil {
+				{
+					size, err := v.MarshalToSizedBuffer(dAtA[:i])
+					if err != nil {
+						return 0, err
+					}
+					i -= size
+					i = encodeVarintGenesis(dAtA, i, uint64(size))
 				}
-				i -= size
-				i = encodeVarintGenesis(dAtA, i, uint64(size))
+				i--
+				dAtA[i] = 0x12
 			}
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenesis(dAtA, i, uint64(baseI-i))
 			i--
 			dAtA[i] = 0x1a
 		}
 	}
-	if len(m.CodeRecords) > 0 {
-		for iNdEx := len(m.CodeRecords) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.CodeRecords[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
+	if len(m.AddressToContractState) > 0 {
+		for k := range m.AddressToContractState {
+			v := m.AddressToContractState[k]
+			baseI := i
+			if v != nil {
+				{
+					size, err := v.MarshalToSizedBuffer(dAtA[:i])
+					if err != nil {
+						return 0, err
+					}
+					i -= size
+					i = encodeVarintGenesis(dAtA, i, uint64(size))
 				}
-				i -= size
-				i = encodeVarintGenesis(dAtA, i, uint64(size))
+				i--
+				dAtA[i] = 0x12
 			}
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenesis(dAtA, i, uint64(baseI-i))
 			i--
 			dAtA[i] = 0x12
 		}
@@ -302,7 +334,7 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *CodeRecord) Marshal() (dAtA []byte, err error) {
+func (m *ContractState) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -312,29 +344,79 @@ func (m *CodeRecord) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *CodeRecord) MarshalTo(dAtA []byte) (int, error) {
+func (m *ContractState) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *CodeRecord) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *ContractState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Code) > 0 {
-		i -= len(m.Code)
-		copy(dAtA[i:], m.Code)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Code)))
-		i--
-		dAtA[i] = 0x12
+	if len(m.AddressToStateData) > 0 {
+		for k := range m.AddressToStateData {
+			v := m.AddressToStateData[k]
+			baseI := i
+			if v != nil {
+				{
+					size, err := v.MarshalToSizedBuffer(dAtA[:i])
+					if err != nil {
+						return 0, err
+					}
+					i -= size
+					i = encodeVarintGenesis(dAtA, i, uint64(size))
+				}
+				i--
+				dAtA[i] = 0x12
+			}
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenesis(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x1a
+		}
 	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0xa
+	if len(m.CodeHashToCode) > 0 {
+		for k := range m.CodeHashToCode {
+			v := m.CodeHashToCode[k]
+			baseI := i
+			i -= len(v)
+			copy(dAtA[i:], v)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(v)))
+			i--
+			dAtA[i] = 0x12
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenesis(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.AddressToCodeHash) > 0 {
+		for k := range m.AddressToCodeHash {
+			v := m.AddressToCodeHash[k]
+			baseI := i
+			i -= len(v)
+			copy(dAtA[i:], v)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(v)))
+			i--
+			dAtA[i] = 0x12
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenesis(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -359,26 +441,24 @@ func (m *StateRecord) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Value) > 0 {
-		i -= len(m.Value)
-		copy(dAtA[i:], m.Value)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Value)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Slot) > 0 {
-		i -= len(m.Slot)
-		copy(dAtA[i:], m.Slot)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Slot)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0xa
+	if len(m.State) > 0 {
+		for k := range m.State {
+			v := m.State[k]
+			baseI := i
+			i -= len(v)
+			copy(dAtA[i:], v)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(v)))
+			i--
+			dAtA[i] = 0x12
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintGenesis(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenesis(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -402,34 +482,69 @@ func (m *GenesisState) Size() (n int) {
 	_ = l
 	l = m.Params.Size()
 	n += 1 + l + sovGenesis(uint64(l))
-	if len(m.CodeRecords) > 0 {
-		for _, e := range m.CodeRecords {
-			l = e.Size()
-			n += 1 + l + sovGenesis(uint64(l))
+	if len(m.AddressToContractState) > 0 {
+		for k, v := range m.AddressToContractState {
+			_ = k
+			_ = v
+			l = 0
+			if v != nil {
+				l = v.Size()
+				l += 1 + sovGenesis(uint64(l))
+			}
+			mapEntrySize := 1 + len(k) + sovGenesis(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovGenesis(uint64(mapEntrySize))
 		}
 	}
-	if len(m.StateRecords) > 0 {
-		for _, e := range m.StateRecords {
-			l = e.Size()
-			n += 1 + l + sovGenesis(uint64(l))
+	if len(m.AddressToStateRecord) > 0 {
+		for k, v := range m.AddressToStateRecord {
+			_ = k
+			_ = v
+			l = 0
+			if v != nil {
+				l = v.Size()
+				l += 1 + sovGenesis(uint64(l))
+			}
+			mapEntrySize := 1 + len(k) + sovGenesis(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovGenesis(uint64(mapEntrySize))
 		}
 	}
 	return n
 }
 
-func (m *CodeRecord) Size() (n int) {
+func (m *ContractState) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
+	if len(m.AddressToCodeHash) > 0 {
+		for k, v := range m.AddressToCodeHash {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovGenesis(uint64(len(k))) + 1 + len(v) + sovGenesis(uint64(len(v)))
+			n += mapEntrySize + 1 + sovGenesis(uint64(mapEntrySize))
+		}
 	}
-	l = len(m.Code)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
+	if len(m.CodeHashToCode) > 0 {
+		for k, v := range m.CodeHashToCode {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovGenesis(uint64(len(k))) + 1 + len(v) + sovGenesis(uint64(len(v)))
+			n += mapEntrySize + 1 + sovGenesis(uint64(mapEntrySize))
+		}
+	}
+	if len(m.AddressToStateData) > 0 {
+		for k, v := range m.AddressToStateData {
+			_ = k
+			_ = v
+			l = 0
+			if v != nil {
+				l = v.Size()
+				l += 1 + sovGenesis(uint64(l))
+			}
+			mapEntrySize := 1 + len(k) + sovGenesis(uint64(len(k))) + l
+			n += mapEntrySize + 1 + sovGenesis(uint64(mapEntrySize))
+		}
 	}
 	return n
 }
@@ -440,17 +555,13 @@ func (m *StateRecord) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
-	}
-	l = len(m.Slot)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
-	}
-	l = len(m.Value)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
+	if len(m.State) > 0 {
+		for k, v := range m.State {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovGenesis(uint64(len(k))) + 1 + len(v) + sovGenesis(uint64(len(v)))
+			n += mapEntrySize + 1 + sovGenesis(uint64(mapEntrySize))
+		}
 	}
 	return n
 }
@@ -525,7 +636,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CodeRecords", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field AddressToContractState", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -552,14 +663,109 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.CodeRecords = append(m.CodeRecords, CodeRecord{})
-			if err := m.CodeRecords[len(m.CodeRecords)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
+			if m.AddressToContractState == nil {
+				m.AddressToContractState = make(map[string]*StateRecord)
 			}
+			var mapkey string
+			var mapvalue *StateRecord
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenesis
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var mapmsglen int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapmsglen |= int(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					if mapmsglen < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postmsgIndex := iNdEx + mapmsglen
+					if postmsgIndex < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postmsgIndex > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = &StateRecord{}
+					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
+						return err
+					}
+					iNdEx = postmsgIndex
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenesis(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.AddressToContractState[mapkey] = mapvalue
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field StateRecords", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field AddressToStateRecord", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -586,10 +792,105 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.StateRecords = append(m.StateRecords, StateRecord{})
-			if err := m.StateRecords[len(m.StateRecords)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
+			if m.AddressToStateRecord == nil {
+				m.AddressToStateRecord = make(map[string]*StateRecord)
 			}
+			var mapkey string
+			var mapvalue *StateRecord
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenesis
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var mapmsglen int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapmsglen |= int(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					if mapmsglen < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postmsgIndex := iNdEx + mapmsglen
+					if postmsgIndex < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postmsgIndex > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = &StateRecord{}
+					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
+						return err
+					}
+					iNdEx = postmsgIndex
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenesis(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.AddressToStateRecord[mapkey] = mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -612,7 +913,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *CodeRecord) Unmarshal(dAtA []byte) error {
+func (m *ContractState) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -635,17 +936,17 @@ func (m *CodeRecord) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: CodeRecord: wiretype end group for non-group")
+			return fmt.Errorf("proto: ContractState: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CodeRecord: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ContractState: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field AddressToCodeHash", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowGenesis
@@ -655,29 +956,124 @@ func (m *CodeRecord) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthGenesis
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthGenesis
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
+			if m.AddressToCodeHash == nil {
+				m.AddressToCodeHash = make(map[string]string)
+			}
+			var mapkey string
+			var mapvalue string
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenesis
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var stringLenmapvalue uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapvalue |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapvalue := int(stringLenmapvalue)
+					if intStringLenmapvalue < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+					if postStringIndexmapvalue < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapvalue > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+					iNdEx = postStringIndexmapvalue
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenesis(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.AddressToCodeHash[mapkey] = mapvalue
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Code", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field CodeHashToCode", wireType)
 			}
-			var byteLen int
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowGenesis
@@ -687,25 +1083,247 @@ func (m *CodeRecord) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthGenesis
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthGenesis
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Code = append(m.Code[:0], dAtA[iNdEx:postIndex]...)
-			if m.Code == nil {
-				m.Code = []byte{}
+			if m.CodeHashToCode == nil {
+				m.CodeHashToCode = make(map[string]string)
 			}
+			var mapkey string
+			var mapvalue string
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenesis
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var stringLenmapvalue uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapvalue |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapvalue := int(stringLenmapvalue)
+					if intStringLenmapvalue < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+					if postStringIndexmapvalue < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapvalue > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+					iNdEx = postStringIndexmapvalue
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenesis(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.CodeHashToCode[mapkey] = mapvalue
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AddressToStateData", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AddressToStateData == nil {
+				m.AddressToStateData = make(map[string]*StateRecord)
+			}
+			var mapkey string
+			var mapvalue *StateRecord
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenesis
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var mapmsglen int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapmsglen |= int(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					if mapmsglen < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postmsgIndex := iNdEx + mapmsglen
+					if postmsgIndex < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postmsgIndex > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = &StateRecord{}
+					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
+						return err
+					}
+					iNdEx = postmsgIndex
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenesis(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.AddressToStateData[mapkey] = mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -759,9 +1377,9 @@ func (m *StateRecord) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field State", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowGenesis
@@ -771,91 +1389,118 @@ func (m *StateRecord) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthGenesis
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthGenesis
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Slot", wireType)
+			if m.State == nil {
+				m.State = make(map[string]string)
 			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
+			var mapkey string
+			var mapvalue string
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenesis
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
 				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var stringLenmapvalue uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenesis
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapvalue |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapvalue := int(stringLenmapvalue)
+					if intStringLenmapvalue < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+					if postStringIndexmapvalue < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if postStringIndexmapvalue > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+					iNdEx = postStringIndexmapvalue
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenesis(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenesis
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
 				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
 			}
-			if byteLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Slot = append(m.Slot[:0], dAtA[iNdEx:postIndex]...)
-			if m.Slot == nil {
-				m.Slot = []byte{}
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Value = append(m.Value[:0], dAtA[iNdEx:postIndex]...)
-			if m.Value == nil {
-				m.Value = []byte{}
-			}
+			m.State[mapkey] = mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
