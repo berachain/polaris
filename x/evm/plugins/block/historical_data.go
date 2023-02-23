@@ -21,7 +21,6 @@
 package block
 
 import (
-	"fmt"
 	"math/big"
 
 	"cosmossdk.io/store/prefix"
@@ -64,10 +63,6 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 	if new(big.Int).Sub(
 		block.Number, new(big.Int).SetBytes(p.offchainStore.Get(versionKey)),
 	).Cmp(big.NewInt(1)) != 0 {
-		fmt.Println("CURRBLOCK BYTES", numBz)
-		fmt.Println("CURR BLOCK NUM", block.Number.String())
-		fmt.Println("OFFCHAIN BYTES", p.offchainStore.Get(versionKey))
-		fmt.Println("OFF-CHAIN  NUM", new(big.Int).SetBytes(p.offchainStore.Get(versionKey)).String())
 		// TODO: resync the off-chain storage.
 		panic("off-chain store's latest block number is not synced")
 	}
