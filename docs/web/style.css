@@ -2,9 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+
 body {
   font-feature-settings: 'rlig' 1, 'calt' 1;
+  overflow:'hidden';
 }
+
 .box {
   width: 200px;
   height: 200px;
@@ -92,5 +95,13 @@ code.text-\[\.9em\] {
 
 .container {
   position: relative;
+  overflow: hidden;
   width: 100vw;
+}
+
+#__next {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow: hidden;
 }

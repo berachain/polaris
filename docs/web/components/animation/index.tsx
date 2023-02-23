@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-const transition = { duration: 2, ease: "easeInOut" };
+const transition = { duration: 15, ease: "easeInOut" };
 
 const Wave = () => {
     return (
@@ -14,10 +14,10 @@ const Wave = () => {
             <stop offset="100%" stop-color="#fad6a5"/>
             </linearGradient>
           <motion.path
-          id="arch"
+            id="arch"
             d="M0 50 Q 50 20, 100 50"
             stroke="url(#gradient)"
-                        fill="transparent"
+            fill="transparent"
             strokeWidth={6}
             strokeLinecap="round"
             initial={{ pathLength: 0 }}

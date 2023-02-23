@@ -28,6 +28,7 @@
   "interacting-with-precompiles": "Interacting with Precompiles",
   "for-dapp-devs": "For Dapp Developers",
   "for-solidity-devs": "For Solidity Developers",
+  "for-cosmwasm-devs": "For Cosmwasm Developers",
   "-- Validators --": {
     "type": "separator",
     "title": "Running a Validator"
@@ -39,12 +40,6 @@
   "telemetry-and-insights": "Telemetry & insights",
   "snapshots-and-archive-nodes": "Snapshots & Archive Nodes",
   "cosmovisor": "Cosmovisor",
-  "-- Governance --": {
-    "type": "separator",
-    "title": "Governance"
-  },
-  "creating-proposals": "Creating Proposals",
-  "vote-proposals": "Voting on Proposals",
   "-- Metrics --": {
     "type": "separator",
     "title": "Metrics"

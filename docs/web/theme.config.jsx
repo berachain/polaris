@@ -4,8 +4,9 @@ import { useRouter } from 'next/router'
 export default {
     logo: <span>✨ Stargazer</span>,
     project: {
-        link: 'https://github.com/berachain',
+        link: 'https://github.com/berachain/stargazer',
     },
+    docsRepositoryBase: "http://github.com/berachain/stargazer",
     useNextSeoProps() {
         const { route } = useRouter()
         if (route !== '/') {
@@ -16,11 +17,7 @@ export default {
     },
     head: function useHead() {
         const { title } = useConfig()
-        const { route } = useRouter()
-        const socialCard =
-            route === '/' || !title
-                ? 'https://nextra.site/og.jpeg'
-                : `https://nextra.site/api/og?title=${title}`
+        const socialCard = '/header.jpeg'
 
         return (
             <>
@@ -38,25 +35,26 @@ export default {
                 />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:image" content={socialCard} />
-                <meta name="twitter:site:domain" content="nextra.site" />
-                <meta name="twitter:url" content="https://nextra.site" />
+                <meta name="twitter:site:domain" content="berachain.com" />
+                <meta name="twitter:url" content="https://berachain.com/" />
                 <meta
                     name="og:title"
                     content={title ? title + ' – Stargazer' : 'Stargazer'}
                 />
                 <meta name="og:image" content={socialCard} />
                 <meta name="apple-mobile-web-app-title" content="Stargazer" />
-                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-                <link rel="icon" href="/favicon.png" type="image/png" />
+                <link rel="icon" href="/berachain.svg" type="image/svg+xml" />
+                <link rel="icon" href="/berachain.png" type="image/png" />
+                <link rel="icon" href="/berachain.ico"/>
                 <link
                     rel="icon"
-                    href="/favicon-dark.svg"
+                    href="/berachain.svg"
                     type="image/svg+xml"
                     media="(prefers-color-scheme: dark)"
                 />
                 <link
                     rel="icon"
-                    href="/favicon-dark.png"
+                    href="/berachain.png"
                     type="image/png"
                     media="(prefers-color-scheme: dark)"
                 />
@@ -66,10 +64,7 @@ export default {
     editLink: {
         text: 'Edit this page on GitHub →'
     },
-    feedback: {
-        content: 'Question? Give us feedback →',
-        labels: 'feedback'
-    },
+    feedback: false,
     sidebar: {
         titleComponent({ title, type }) {
             if (type === 'separator') {
@@ -84,7 +79,7 @@ export default {
         text: (
             <div>
                 <p>
-                    © {new Date().getFullYear()} Berachain.
+                    © {new Date().getFullYear()} Berachain Foundation.
                 </p>
             </div>
         )

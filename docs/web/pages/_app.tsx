@@ -7,5 +7,6 @@ export default function Nextra({
   Component,
   pageProps
 }: AppProps): ReactElement {
+  
   return <Component {...pageProps} />
 }
