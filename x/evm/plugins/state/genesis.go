@@ -23,51 +23,50 @@ package state
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // `InitGenesis` takes in a pointer to a genesis state object and populates the KV store.
 func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
-	p.Reset(ctx)
+	// p.Reset(ctx)
 
-	for _, cr := range data.CodeRecords {
-		addr := common.HexToAddress(cr.Address)
-		p.SetCode(addr, cr.Code)
-	}
+	// for _, cr := range data.CodeRecords {
+	// 	addr := common.HexToAddress(cr.Address)
+	// 	p.SetCode(addr, cr.Code)
+	// }
 
-	for _, sr := range data.StateRecords {
-		addr := common.HexToAddress(sr.Address)
-		slot := common.BytesToHash(sr.Slot)
-		value := common.BytesToHash(sr.Value)
-		p.SetState(addr, slot, value)
-	}
+	// for _, sr := range data.StateRecords {
+	// 	addr := common.HexToAddress(sr.Address)
+	// 	slot := common.BytesToHash(sr.Slot)
+	// 	value := common.BytesToHash(sr.Value)
+	// 	p.SetState(addr, slot, value)
+	// }
 
-	p.Finalize()
+	// p.Finalize()
 }
 
 // `Export` genesis modifies a pointer to a genesis state object and populates it.
 func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
-	p.Reset(ctx)
+	// p.Reset(ctx)
 
-	// Iterate over all the code records and add them to the genesis state.
-	p.IterateCode(func(addr common.Address, code []byte) bool {
-		data.CodeRecords = append(data.CodeRecords, types.CodeRecord{
-			Address: addr.Hex(),
-			Code:    code,
-		})
-		return false
-	})
+	// // Iterate over all the code records and add them to the genesis state.
+	// p.IterateCode(func(addr common.Address, code []byte) bool {
+	// 	data.CodeRecords = append(data.CodeRecords, types.CodeRecord{
+	// 		Address: addr.Hex(),
+	// 		Code:    code,
+	// 	})
+	// 	return false
+	// })
 
-	// Iterate over all the state records and add them to the genesis state.
-	p.IterateState(func(addr common.Address, key, value common.Hash) bool {
-		data.StateRecords = append(data.StateRecords, types.StateRecord{
-			Address: addr.Hex(),
-			Slot:    key.Bytes(),
-			Value:   value.Bytes(),
-		})
-		return false
-	})
+	// // Iterate over all the state records and add them to the genesis state.
+	// p.IterateState(func(addr common.Address, key, value common.Hash) bool {
+	// 	data.StateRecords = append(data.StateRecords, types.StateRecord{
+	// 		Address: addr.Hex(),
+	// 		Slot:    key.Bytes(),
+	// 		Value:   value.Bytes(),
+	// 	})
+	// 	return false
+	// })
 
-	p.Finalize()
+	// p.Finalize()
 }

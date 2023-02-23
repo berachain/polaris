@@ -31,11 +31,11 @@ message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // `address_to_state_record` is the mapping of the address to the state record.
-  map<string, StateRecord> address_to_contract_state = 2;
+  // `address_to_contract_state` is the mapping of the address to the state record.
+  map<string, ContractState> address_to_contract_state = 2;
 
-  // `address_to_state_record` is a mapping of the address to the state record/
-  map<string, StateRecord> address_to_state_record = 3;
+  // // `address_to_state_record` is a mapping of the address to the state record/
+  // map<string, StateRecord> address_to_state_record = 3;
 }
 
 // `CodeRecord` defines the code record of the evm state plugin.

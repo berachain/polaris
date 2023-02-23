@@ -23,37 +23,73 @@ package types
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 var _ = Describe("Genesis", func() {
 	It("fail if genesis is invalid", func() {
 		params := DefaultParams()
 		params.EvmDenom = ""
-		state := NewGenesisState(*params, nil, nil)
+		state := NewGenesisState(*params, nil)
 		err := ValidateGenesis(*state)
 		Expect(err).To(HaveOccurred())
 	})
 
-	It("should create new genesis state", func() {
-		crs := []CodeRecord{
-			{
-				Address: "address",
-				Code:    []byte("code"),
-			},
+	It("should write address to code hash", func() {
+		addressToCodeHash := make(map[string]string)
+		addr := common.HexToAddress("0x1")
+		ch := common.HexToHash("0x2")
+		WriteAddressToCodeHash(addr, ch, &addressToCodeHash)
+
+		Expect(addressToCodeHash[addr.Hex()]).To(Equal(ch.Hex()))
+	})
+
+	It("should write codeHash to code", func() {
+		codeHashToCode := make(map[string]string)
+		ch := common.HexToHash("0x1")
+		code := []byte("0x2")
+		WriteCodeHashToCode(ch, code, &codeHashToCode)
+
+		Expect(codeHashToCode[ch.Hex()]).To(Equal(string(code)))
+	})
+
+	It("should write slot to value", func() {
+		var state = StateRecord{
+			State: make(map[string]string),
 		}
-		srs := []StateRecord{
-			{
-				Address: "address",
-				Slot:    []byte("slot"),
-				Value:   []byte("value"),
-			},
+		slot := common.HexToHash("0x1")
+		value := common.HexToHash("0x2")
+		WriteSlotToValue(slot, value, &state)
+
+		Expect(state.State[slot.Hex()]).To(Equal(value.Hex()))
+	})
+
+	It("should write address to state data", func() {
+		addressToStateData := make(map[string]*StateRecord)
+		addr := common.HexToAddress("0x1")
+		state := StateRecord{
+			State: make(map[string]string),
 		}
 
-		state := NewGenesisState(*DefaultParams(), crs, srs)
-		Expect(state.CodeRecords).To(Equal(crs))
-		Expect(state.StateRecords).To(Equal(srs))
+		WriteSlotToValue(common.HexToHash("0x1"), common.HexToHash("0x2"), &state)
+		WriteAddressToStateData(addr, &state, &addressToStateData)
 
-		defaultGenesis := DefaultGenesis()
-		Expect(defaultGenesis.Params).To(Equal(*DefaultParams()))
+		Expect(addressToStateData[addr.Hex()].State).To(Equal(state.State))
+	})
+
+	It("should create new contract state", func() {
+		addressToCodeHash := make(map[string]string)
+		codeHashToCode := make(map[string]string)
+		addressToStateData := make(map[string]*StateRecord)
+		cs := NewContractState(addressToCodeHash, codeHashToCode, addressToStateData)
+		Expect(cs.AddressToCodeHash).To(Equal(addressToCodeHash))
+		Expect(cs.CodeHashToCode).To(Equal(codeHashToCode))
+		Expect(cs.AddressToStateData).To(Equal(addressToStateData))
+	})
+
+	It("should create default genesis", func() {
+		genesis := DefaultGenesis()
+		Expect(genesis.Params).To(Equal(*DefaultParams()))
+		Expect(genesis.AddressToContractState).To(Equal(make(map[string]*ContractState)))
 	})
 })
