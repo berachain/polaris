@@ -131,4 +131,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-stargazerd start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enable --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+stargazerd start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --minimum-gas-prices=0.0001abera --home "$HOMEDIR"

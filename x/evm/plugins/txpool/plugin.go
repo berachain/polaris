@@ -21,13 +21,17 @@
 package txpool
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	errorsmod "cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
+	crypto "pkg.berachain.dev/stargazer/crypto"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	ethcrypto "pkg.berachain.dev/stargazer/eth/crypto"
+	txpoolclient "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/client"
 	mempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
 // `Plugin` represents the transaction pool plugin.
@@ -41,14 +45,48 @@ type Plugin interface {
 // `plugin` represents the transaction pool plugin.
 type plugin struct {
 	mempool.EthTxPool
+	rp rpc.Provider
 }
 
-func (p *plugin) SendTx(tx *coretypes.Transaction) error {
+func NewPlugin(rp rpc.Provider) Plugin {
+	return &plugin{
+		rp: rp,
+	}
+}
+
+// `SendTx` sends a transaction to the transaction pool. It takes in a signed
+// ethereum transaction from the rpc backend and wraps it in a Cosmos
+// transaction. The Cosmos transaction is then broadcasted to the network.
+func (p *plugin) SendTx(signedTx *coretypes.Transaction) error {
+	clientCtx := p.rp.GetClientCtx()
+
+	txBuilder, err := txpoolclient.NewEthTxBuilder(clientCtx)
+	if err != nil {
+		return err
+	}
+
+	// TODO: get evm denom from params.
+	cosmosTx, err := txBuilder.BuildTx(signedTx, "abera")
+	if err != nil {
+		return err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(cosmosTx)
+	if err != nil {
+		// b.logger.Error("failed to encode eth tx using default encoder", "error", err.Error())
+		return err
+	}
+
+	syncCtx := clientCtx.WithBroadcastMode(flags.BroadcastSync)
+	rsp, err := syncCtx.BroadcastTx(txBytes)
+	if rsp != nil && rsp.Code != 0 {
+		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
+	}
+	if err != nil {
+		// b.logger.Error("failed to broadcast tx", "error", err.Errsor())
+		return err
+	}
 	return nil
-}
-
-func (p *plugin) WrapEthereumTransaction(tx *coretypes.Transaction) sdk.Tx {
-	return types.NewFromTransaction(tx)
 }
 
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
@@ -61,4 +99,15 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 
 func (p *plugin) GetNonce(addr common.Address) uint64 {
 	return 0
+}
+
+// `PubkeyFromTx` returns the public key of the signer of the transaction.
+func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (crypto.EthSecp256K1PubKey, error) {
+	hash := signer.Hash(signedTx)
+	v, r, s := signedTx.RawSignatureValues()
+	pk, err := ethcrypto.RecoverPubkey(hash, r, s, v, true)
+	if err != nil {
+		return crypto.EthSecp256K1PubKey{}, err
+	}
+	return crypto.EthSecp256K1PubKey{Key: pk}, nil
 }

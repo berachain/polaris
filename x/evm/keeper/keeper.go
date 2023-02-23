@@ -38,6 +38,7 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
 	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
@@ -59,11 +60,12 @@ type Keeper struct {
 	authority string
 
 	// plugins
-	bp block.Plugin
-	cp configuration.Plugin
-	gp gas.Plugin
-	pp precompile.Plugin
-	sp state.Plugin
+	bp  block.Plugin
+	cp  configuration.Plugin
+	gp  gas.Plugin
+	pp  precompile.Plugin
+	sp  state.Plugin
+	txp txpool.Plugin
 }
 
 // NewKeeper creates new instances of the stargazer Keeper.
@@ -97,11 +99,12 @@ func NewKeeper(
 	// TODO: register precompile events/logs
 
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
+
 	rpcConfig := *ethrpcconfig.DefaultServer()
 	k.stargazer = eth.NewStargazerProvider(k, nil)
 
 	k.rpcProvider = evmrpc.NewProvider(rpcConfig, ethrpc.NewBackend(k.stargazer, &rpcConfig))
-
+	k.txp = txpool.NewPlugin(k.rpcProvider)
 	// TODO: provide cosmos ctx logger.
 
 	return k
@@ -133,7 +136,7 @@ func (k *Keeper) GetStatePlugin() core.StatePlugin {
 }
 
 func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
-	return nil
+	return k.txp
 }
 
 func (k *Keeper) GetStargazer() *eth.StargazerProvider {

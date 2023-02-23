@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
+	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/state"
@@ -51,6 +52,9 @@ type blockchain struct {
 	blockCache *lru.Cache[common.Hash, *types.StargazerBlock]
 	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of blocks.
 	txLookupCache *lru.Cache[common.Hash, *types.Transaction]
+
+	chainHeadFeed event.Feed
+	scope         event.SubscriptionScope
 }
 
 // =========================================================================
@@ -64,6 +68,8 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 		receiptsCache: lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
 		blockCache:    lru.NewCache[common.Hash, *types.StargazerBlock](defaultCacheSizeBytes),
 		txLookupCache: lru.NewCache[common.Hash, *types.Transaction](defaultCacheSizeBytes),
+		chainHeadFeed: event.Feed{},
+		scope:         event.SubscriptionScope{},
 	}
 	bc.processor = bc.buildStateProcessor(vm.Config{}, true)
 	return bc
@@ -101,6 +107,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.receiptsCache.Add(bc.processor.block.Hash(), bc.processor.block.GetReceipts())
 	}
 	bc.processor.Prepare(ctx, height)
+	bc.chainHeadFeed.Send(ChainHeadEvent{Block: bc.processor.block.EthBlock()})
 }
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
