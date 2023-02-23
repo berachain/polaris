@@ -27,10 +27,6 @@ func GetAPIs(apiBackend StargazerBackend) []API {
 	nonceLock := new(AddrLocker)
 	return []API{
 		{
-			Namespace: "net",
-			Service:   api.NewNetAPI(apiBackend),
-		},
-		{
 			Namespace: "eth",
 			Service:   NewEthereumAPI(apiBackend),
 		}, {
