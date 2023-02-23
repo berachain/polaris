@@ -33,7 +33,6 @@ import (
 
 	"pkg.berachain.dev/stargazer/crypto"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	ethcrypto "pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -123,11 +122,9 @@ func (etb *ethTxBuilder) BuildTx(
 
 // `PubkeyFromTx` returns the public key of the signer of the transaction.
 func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (crypto.EthSecp256K1PubKey, error) {
-	hash := signer.Hash(signedTx)
-	v, r, s := signedTx.RawSignatureValues()
-	pk, err := ethcrypto.RecoverPubkey(hash, r, s, v, true)
+	bz, err := signer.PubKey(signedTx)
 	if err != nil {
 		return crypto.EthSecp256K1PubKey{}, err
 	}
-	return crypto.EthSecp256K1PubKey{Key: pk}, nil
+	return crypto.EthSecp256K1PubKey{Key: bz}, nil
 }
