@@ -30,4 +30,19 @@ option go_package = "pkg.berachain.dev/stargazer/x/evm/types";
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
+
+  // `address_to_contract` is a map of address to contract.
+  map<string, Contract> address_to_contract = 2;
+
+  // `hash_to_code` is a map of code hash to code.
+  map<string, string> hash_to_code = 3;
+}
+
+// `Contract` defines the contract state.
+message Contract {
+  // `code_hash` is the hash of the contract code.
+  string code_hash = 1;
+
+  // `slot_to_value` is a map of slot to value.
+  map<string, string> slot_to_value = 2;
 }
