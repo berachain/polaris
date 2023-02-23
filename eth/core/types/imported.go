@@ -52,11 +52,11 @@ var (
 	EmptyRootHash          = types.EmptyRootHash
 	EmptyUncleHash         = types.EmptyUncleHash
 	SignTx                 = types.SignTx
-	NewEIP2930Signer       = types.NewEIP2930Signer
 	NewTx                  = types.NewTx
 	LatestSignerForChainID = types.LatestSignerForChainID
 	MustSignNewTx          = types.MustSignNewTx
 	NewBlock               = types.NewBlock
+	ErrInvalidSig          = types.ErrInvalidSig
 )
 var (
 	ReceiptStatusFailed     = types.ReceiptStatusFailed

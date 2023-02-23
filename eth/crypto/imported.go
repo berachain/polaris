@@ -23,16 +23,18 @@ package crypto
 import "github.com/ethereum/go-ethereum/crypto"
 
 var (
-	CreateAddress    = crypto.CreateAddress
-	CompressPubkey   = crypto.CompressPubkey
-	DecompressPubkey = crypto.DecompressPubkey
-	DigestLength     = crypto.DigestLength
-	EthSign          = crypto.Sign
-	FromECDSA        = crypto.FromECDSA
-	GenerateEthKey   = crypto.GenerateKey
-	Keccak256Hash    = crypto.Keccak256Hash
-	PubkeyToAddress  = crypto.PubkeyToAddress
-	SignatureLength  = crypto.SignatureLength
-	ToECDSA          = crypto.ToECDSA
-	VerifySignature  = crypto.VerifySignature
+	CreateAddress           = crypto.CreateAddress
+	CompressPubkey          = crypto.CompressPubkey
+	DecompressPubkey        = crypto.DecompressPubkey
+	DigestLength            = crypto.DigestLength
+	EthSign                 = crypto.Sign
+	Ecrecover               = crypto.Ecrecover
+	FromECDSA               = crypto.FromECDSA
+	GenerateEthKey          = crypto.GenerateKey
+	ValidateSignatureValues = crypto.ValidateSignatureValues
+	Keccak256Hash           = crypto.Keccak256Hash
+	PubkeyToAddress         = crypto.PubkeyToAddress
+	SignatureLength         = crypto.SignatureLength
+	ToECDSA                 = crypto.ToECDSA
+	VerifySignature         = crypto.VerifySignature
 )

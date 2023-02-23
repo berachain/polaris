@@ -90,6 +90,7 @@ import (
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
@@ -199,7 +200,8 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		// mempoolOpt   = baseapp.SetMempool(nonceMempool)
+		ethTxPool  = mempool.EthTxPool{}
+		mempoolOpt = baseapp.SetMempool(ethTxPool)
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -208,7 +210,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// }
 		//
 		// Further down we'd set the options in the AppBuilder like below.
-		// baseAppOptions = append(baseAppOptions, mempoolOpt, prepareOpt, processOpt)
+		stargazerAppOptions = append(baseAppOptions, mempoolOpt)
 
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
@@ -271,7 +273,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
+	app.App = appBuilder.Build(logger, db, traceStore, stargazerAppOptions...)
 
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)

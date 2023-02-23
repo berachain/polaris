@@ -23,6 +23,7 @@ package api
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/event"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/types"
@@ -55,4 +56,5 @@ type ChainReader interface {
 	FinalizedBlock() *types.StargazerBlock
 	GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock
 	GetStargazerBlockByNumber(number int64) *types.StargazerBlock
+	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 }
