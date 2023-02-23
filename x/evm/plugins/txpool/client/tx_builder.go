@@ -31,7 +31,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	"pkg.berachain.dev/stargazer/crypto"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
@@ -104,7 +103,7 @@ func (etb *ethTxBuilder) BuildTx(
 	if err = etb.SetSignatures(
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
-			PubKey:   &pk,
+			PubKey:   pk,
 		},
 	); err != nil {
 		return nil, err
@@ -118,13 +117,4 @@ func (etb *ethTxBuilder) BuildTx(
 	// Finally, we set the extension options to the builder. (ExtensionOptionsEthTransaction)
 	etb.SetExtensionOptions(etb.option)
 	return etb.GetTx(), nil
-}
-
-// `PubkeyFromTx` returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (crypto.EthSecp256K1PubKey, error) {
-	bz, err := signer.PubKey(signedTx)
-	if err != nil {
-		return crypto.EthSecp256K1PubKey{}, err
-	}
-	return crypto.EthSecp256K1PubKey{Key: bz}, nil
 }

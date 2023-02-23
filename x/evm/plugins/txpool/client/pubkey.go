@@ -18,16 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto_test
+package client
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/crypto"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
-func TestPrecompile(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "eth/crypto")
+// `PubkeyFromTx` returns the public key of the signer of the transaction.
+func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*crypto.EthSecp256K1PubKey, error) {
+	bz, err := signer.PubKey(signedTx)
+	if err != nil {
+		return &crypto.EthSecp256K1PubKey{}, err
+	}
+	return &crypto.EthSecp256K1PubKey{Key: bz}, nil
 }
