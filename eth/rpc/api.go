@@ -20,14 +20,16 @@
 
 package rpc
 
-import (
-	"pkg.berachain.dev/stargazer/eth/rpc/api"
-)
+import "pkg.berachain.dev/stargazer/eth/rpc/api"
 
 // `GetAPIs` returns a list of the available APIs.
 func GetAPIs(apiBackend StargazerBackend) []API {
 	nonceLock := new(AddrLocker)
 	return []API{
+		{
+			Namespace: "net",
+			Service:   api.NewNetAPI(apiBackend),
+		},
 		{
 			Namespace: "eth",
 			Service:   NewEthereumAPI(apiBackend),

@@ -43,7 +43,7 @@ type netAPI struct {
 }
 
 // `NewNetAPI` creates a new net API instance.
-func NewNetAPI(b NetBackend) *netAPI {
+func NewNetAPI(b NetBackend) NetAPI {
 	return &netAPI{b}
 }
 
