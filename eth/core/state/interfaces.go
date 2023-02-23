@@ -64,7 +64,6 @@ type Plugin interface {
 	SetCode(common.Address, []byte)
 	// `GetCodeSize` returns the size of the code associated with a given account.
 	GetCodeSize(common.Address) int
-
 	// `GetCommittedState` returns the committed value from account storage.
 	GetCommittedState(common.Address, common.Hash) common.Hash
 	// `GetState` returns the value from account storage.
@@ -74,7 +73,6 @@ type Plugin interface {
 	// `ForEachStorage` iterates over the storage of an account and calls the given callback
 	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
-
 	// `DeleteSuicides` removes the given accounts from the state.
 	DeleteSuicides([]common.Address)
 }
