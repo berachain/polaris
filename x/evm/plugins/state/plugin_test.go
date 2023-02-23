@@ -220,15 +220,6 @@ var _ = Describe("State Plugin", func() {
 					Expect(sp.GetCode(alice)).To(BeNil())
 					Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
 				})
-				It("should iterate properly", func() {
-					a := make(map[common.Address][]byte)
-					sp.IterateCode(func(addr common.Address, code []byte) bool {
-						a[addr] = code
-						return true // stop iteration
-					})
-					Expect(a[alice]).To(Equal([]byte("code")))
-				})
-
 			})
 		})
 	})
@@ -245,21 +236,6 @@ var _ = Describe("State Plugin", func() {
 			It("should have state", func() {
 				Expect(sp.GetState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
 			})
-
-			It("should iterate over committed state", func() {
-				// Set the state to a contract and slot.
-				sp.Reset(ctx)
-				sp.SetState(alice, common.Hash{3}, common.Hash{2})
-				sp.Finalize()
-
-				a := make(map[common.Hash]common.Hash)
-				sp.IterateState(func(addr common.Address, key, value common.Hash) bool {
-					a[key] = value
-					return true // stop iteration
-				})
-				Expect(a[common.Hash{3}]).To(Equal(common.Hash{2}))
-			})
-
 			It("should have state changed", func() {
 				sp.SetState(alice, common.Hash{3}, common.Hash{2})
 				Expect(sp.GetState(alice, common.Hash{3})).To(Equal(common.Hash{2}))

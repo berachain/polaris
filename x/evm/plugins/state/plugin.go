@@ -51,6 +51,10 @@ var (
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.StatePlugin
+	// `IterateState` iterates over the state of all accounts and calls the given callback function.
+	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
+	// `IterateCode` iterates over the code of all accounts and calls the given callback function.
+	IterateCode(fn func(addr common.Address, code []byte) bool)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
