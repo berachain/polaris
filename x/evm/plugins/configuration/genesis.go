@@ -37,5 +37,5 @@ func (p *plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) 
 // module.
 func (p *plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
 	p.Prepare(ctx)
-	genesisState.Params = p.GetParams()
+	genesisState.Params = *p.GetParams()
 }

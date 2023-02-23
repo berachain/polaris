@@ -58,6 +58,7 @@ var (
 	NewBlock               = types.NewBlock
 	ErrInvalidSig          = types.ErrInvalidSig
 )
+
 var (
 	ReceiptStatusFailed     = types.ReceiptStatusFailed
 	ReceiptStatusSuccessful = types.ReceiptStatusSuccessful

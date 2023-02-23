@@ -23,7 +23,7 @@ package eth
 import (
 	"pkg.berachain.dev/stargazer/eth/api"
 	"pkg.berachain.dev/stargazer/eth/core"
-	ethlog "pkg.berachain.dev/stargazer/eth/log"
+	"pkg.berachain.dev/stargazer/eth/log"
 )
 
 type StargazerProvider struct {
@@ -33,14 +33,14 @@ type StargazerProvider struct {
 // `NewStargazerProvider` creates a new `StargazerEVM` instance for use on an underlying blockchain.
 func NewStargazerProvider(
 	host core.StargazerHostChain,
-	logHandler ethlog.Handler,
+	logHandler log.Handler,
 ) *StargazerProvider {
 	// When creating a Stargazer EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
 	if logHandler != nil {
 		// Root is a global in geth that is used by the evm to emit logs.
-		ethlog.Root().SetHandler(ethlog.FuncHandler(logHandler))
+		log.Root().SetHandler(logHandler)
 	}
 
 	return &StargazerProvider{

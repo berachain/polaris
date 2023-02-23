@@ -167,19 +167,9 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
-	// if the result didn't produce a consensus error then we can properly commit the state.
-	if sp.commit {
-		sp.evm.StateDB().Finalize()
-	}
-
 	// Create a new receipt for the transaction, storing the intermediate root and gas used
 	// by the tx.
 	receipt := &types.Receipt{Type: tx.Type(), PostState: nil, CumulativeGasUsed: sp.gp.CumulativeGasUsed()}
-	if result.Failed() {
-		receipt.Status = types.ReceiptStatusFailed
-	} else {
-		receipt.Status = types.ReceiptStatusSuccessful
-	}
 	receipt.TxHash = tx.Hash()
 	receipt.GasUsed = result.UsedGas
 
@@ -196,6 +186,16 @@ func (sp *StateProcessor) ProcessTransaction(
 	receipt.BlockHash = sp.block.Hash()
 	receipt.BlockNumber = sp.block.Number
 	receipt.TransactionIndex = sp.block.TxIndex()
+
+	if result.Failed() {
+		receipt.Status = types.ReceiptStatusFailed
+	} else {
+		// if the result didn't produce a consensus error then we can properly commit the state.
+		if sp.commit {
+			sp.evm.StateDB().Finalize()
+		}
+		receipt.Status = types.ReceiptStatusSuccessful
+	}
 
 	// Update the block information.
 	sp.block.AppendTx(tx, receipt)

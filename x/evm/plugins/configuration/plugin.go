@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 var paramsPrefix = []byte("params")
@@ -39,6 +40,8 @@ var paramsPrefix = []byte("params")
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.ConfigurationPlugin
+	SetParams(params *types.Params)
+	GetParams() *types.Params
 }
 
 // `plugin` implements the core.ConfigurationPlugin interface.

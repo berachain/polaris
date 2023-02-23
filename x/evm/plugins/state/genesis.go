@@ -26,6 +26,8 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
+func (p *plugin) InitGenesis(ctx sdk.Context, _ *types.GenesisState) {
+	p.Reset(ctx)
+}
 
 func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}

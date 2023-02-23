@@ -82,7 +82,9 @@ func NewKeeper(
 	}
 
 	// TODO: parameterize kv store.
-	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	if appOpts != nil {
+		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	}
 
 	k.bp = block.NewPlugin(k, k.offChainKv)
 
@@ -142,13 +144,7 @@ func (k *Keeper) GetStargazer() *eth.StargazerProvider {
 }
 
 func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
-	return []plugins.BaseCosmosStargazer{
-		k.bp,
-		k.cp,
-		k.gp,
-		k.pp,
-		k.sp,
-	}
+	return []plugins.BaseCosmosStargazer{k.bp, k.cp, k.gp, k.pp, k.sp}
 }
 
 func (k *Keeper) GetRPCProvider() evmrpc.Provider {
