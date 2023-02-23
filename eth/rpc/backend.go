@@ -243,16 +243,21 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 	return block.EthBlock(), nil
 }
 
-func (b *backend) StateAndHeaderByNumber(ctx context.Context,
-	number BlockNumber) (state.StateDBI, *types.Header, error) {
-	panic("StateAndHeaderByNumber not implemented")
-	// return nil, nil, nil
+func (b *backend) StateAndHeaderByNumber(
+	ctx context.Context, number BlockNumber,
+) (state.StateDBI, *types.Header, error) {
+	header, err := b.HeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, nil, err
+	}
+	state, err := b.chain.GetStateByNumber(number.Int64())
+	return state, header, err
 }
 
-func (b *backend) StateAndHeaderByNumberOrHash(ctx context.Context,
-	blockNrOrHash BlockNumberOrHash) (state.StateDBI, *types.Header, error) {
-	panic("StateAndHeaderByNumberOrHash not implemented")
-	// return nil, nil, nil
+func (b *backend) StateAndHeaderByNumberOrHash(
+	ctx context.Context, blockNrOrHash BlockNumberOrHash,
+) (state.StateDBI, *types.Header, error) {
+	return nil, nil, nil
 }
 
 // `PendingBlockAndReceipts` returns the current pending block and associated receipts.

@@ -27,6 +27,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
@@ -58,4 +59,5 @@ type ChainReader interface {
 	GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock
 	GetStargazerBlockByNumber(number int64) *types.StargazerBlock
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
+	GetStateByNumber(number int64) (state.StateDBI, error)
 }
