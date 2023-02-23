@@ -24,7 +24,7 @@ import "time"
 
 var (
 	// `DefaultAPINamespaces` is the default namespaces the JSON-RPC server exposes.
-	DefaultAPINamespaces = []string{"eth", "node"}
+	DefaultAPINamespaces = []string{"eth", "net"}
 )
 
 const (

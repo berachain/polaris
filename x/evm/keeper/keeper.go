@@ -103,7 +103,7 @@ func NewKeeper(
 	rpcConfig := *ethrpcconfig.DefaultServer()
 	k.stargazer = eth.NewStargazerProvider(k, nil)
 
-	k.rpcProvider = evmrpc.NewProvider(rpcConfig, ethrpc.NewBackend(k.stargazer, &rpcConfig))
+	k.rpcProvider = evmrpc.NewProvider(rpcConfig, ethrpc.NewStargazerBackend(k.stargazer, &rpcConfig))
 	k.txp = txpool.NewPlugin(k.rpcProvider)
 	// TODO: provide cosmos ctx logger.
 

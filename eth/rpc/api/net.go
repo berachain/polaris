@@ -18,18 +18,46 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package api
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/gorilla/mux"
+	"pkg.berachain.dev/stargazer/eth/common/hexutil"
 )
 
-// `RegisterJSONRPCServer` provides a common function which registers the ethereum rpc servers
-// with routes on the native Cosmos API Server.
-func RegisterJSONRPCServer(ctx client.Context, rtr *mux.Router, provider Provider) error {
-	rtr.PathPrefix(httpPath).Handler(provider.GetHTTP())
-	rtr.PathPrefix(wsPath).Handler(provider.GetWS())
-	provider.SetClientContext(ctx)
-	return nil
+// `NetBackend` is the collection of methods required to satisfy the net
+// RPC API.
+type NetBackend interface {
+	NetAPI
+}
+
+// `NetAPI` is the collection of net RPC API methods.
+type NetAPI interface {
+	PeerCount() hexutil.Uint
+	Listening() bool
+	Version() string
+}
+
+// `netAPI` offers network related RPC methods.
+type netAPI struct {
+	b NetBackend
+}
+
+// `NewNetAPI` creates a new net API instance.
+func NewNetAPI(b NetBackend) NetAPI {
+	return &netAPI{b}
+}
+
+// `Listening` returns an indication if the node is listening for network connections.
+func (api *netAPI) Listening() bool {
+	return api.b.Listening()
+}
+
+// `PeerCount` returns the number of connected peers.
+func (api *netAPI) PeerCount() hexutil.Uint {
+	return api.b.PeerCount()
+}
+
+// `Version` returns the current ethereum protocol version.
+func (api *netAPI) Version() string {
+	return api.b.Version()
 }

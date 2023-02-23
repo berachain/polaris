@@ -21,7 +21,6 @@
 package rpc
 
 import (
-	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/gin-gonic/gin"
 
@@ -29,7 +28,7 @@ import (
 )
 
 type Service struct {
-	backend Backend
+	backend StargazerBackend
 	// `http` is the externally facing JSON-RPC Server.
 	http *Server
 	// `ws` is the externally facing JSON-RPC Server.
@@ -47,7 +46,7 @@ type Logger interface {
 }
 
 // `New` returns a new `Service` object.
-func NewService(cfg config.Server, backend ethapi.Backend) (*Service, error) {
+func NewService(cfg config.Server, backend StargazerBackend) (*Service, error) {
 	// Create the service object.
 	s := &Service{
 		http:    NewServer(),

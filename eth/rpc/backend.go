@@ -38,11 +38,13 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/api"
 	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/common/hexutil"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/log"
 	"pkg.berachain.dev/stargazer/eth/params"
+	rpcapi "pkg.berachain.dev/stargazer/eth/rpc/api"
 	"pkg.berachain.dev/stargazer/eth/rpc/config"
 	errorslib "pkg.berachain.dev/stargazer/lib/errors"
 )
@@ -57,7 +59,12 @@ var DefaultGasPriceOracleConfig = gasprice.Config{
 }
 
 // Compile-time type assertion.
-var _ Backend = (*backend)(nil)
+var _ StargazerBackend = (*backend)(nil)
+
+type StargazerBackend interface {
+	Backend
+	rpcapi.NetBackend
+}
 
 // `backend` represents the backend for the JSON-RPC service.
 type backend struct {
@@ -71,8 +78,8 @@ type backend struct {
 // Constructor
 // ==============================================================================
 
-// `NewBackend` returns a new `Backend` object.
-func NewBackend(chain api.Chain, rpcConfig *config.Server) Backend {
+// `NewStargazerBackend` returns a new `Backend` object.
+func NewStargazerBackend(chain api.Chain, rpcConfig *config.Server) StargazerBackend {
 	b := &backend{
 		// accountManager: accounts.NewManager(&accounts.Config{InsecureUnlockAllowed: true}),
 		chain:     chain,
@@ -422,6 +429,21 @@ func (b *backend) BloomStatus() (uint64, uint64) {
 
 func (b *backend) ServiceFilter(ctx context.Context, session *bloombits.MatcherSession) {
 	// TODO: Implement your code here
+}
+
+func (b *backend) Version() string {
+	// TODO: Implement your code here
+	return "1.0" // get from comet
+}
+
+func (b *backend) Listening() bool {
+	// TODO: Implement your code here
+	return true
+}
+
+func (b *backend) PeerCount() hexutil.Uint {
+	// TODO: Implement your code here
+	return 1
 }
 
 // ==============================================================================
