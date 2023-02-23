@@ -62,6 +62,33 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	return nil
 }
 
+// `GetTx` is called when a transaction is retrieved from the mempool
+func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
+	tx := etp.ethTxCache[hash]
+	return &tx
+}
+
+// `GetPoolTransactions` is called when the mempool is retrieved
+func (etp *EthTxPool) GetPoolTransactions() []*coretypes.Transaction {
+	var txs []*coretypes.Transaction
+	for _, tx := range etp.ethTxCache {
+		txs = append(txs, &tx)
+	}
+	return txs
+	// var txs []*coretypes.Transaction
+	// iterator := etp.Select(sdk.Context{}, nil)
+	// for it := iterator.Next(); it != nil; it = iterator.Next() {
+	// 	if it == nil {
+	// 		break
+	// 	}
+	// 	tx, ok := it.Tx().(*types.EthTransactionRequest)
+	// 	if !ok {
+	// 		continue
+	// 	}
+	// 	txs = append(txs, tx.AsTransaction())
+	// }
+}
+
 // `Remove` is called when a transaction is removed from the mempool
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	// Call the base mempool's Remove method
@@ -77,19 +104,4 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 
 	delete(etp.ethTxCache, etr.AsTransaction().Hash())
 	return nil
-}
-
-// `GetTx` is called when a transaction is retrieved from the mempool
-func (etp *EthTxPool) GetPoolTransaction(hash common.Hash) *coretypes.Transaction {
-	tx := etp.ethTxCache[hash]
-	return &tx
-}
-
-// `GetPoolTransactions` is called when the mempool is retrieved
-func (etp *EthTxPool) GetPoolTransactions() []*coretypes.Transaction {
-	var txs []*coretypes.Transaction
-	for _, tx := range etp.ethTxCache {
-		txs = append(txs, &tx)
-	}
-	return txs
 }
