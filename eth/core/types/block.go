@@ -27,6 +27,8 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 )
 
+// var _ ethapi.Block = &StargazerBlock{}
+
 // `initialTransactionsCapacity` is the initial capacity of the transactions, receipts slice.
 // TODO: figre out optimal value.
 const initialTransactionsCapacity = 256
@@ -87,17 +89,38 @@ func (sb *StargazerBlock) GetReceiptsForStorage() []*ReceiptForStorage {
 	return *(*[]*ReceiptForStorage)(unsafe.Pointer(&sb.receipts))
 }
 
+// `GetReceipts` returns the receipts of the block.
+func (sb *StargazerBlock) GetReceipts() Receipts {
+	// TODO: fill bloom if empty (for old blocks) that were
+	// marshaled without bloom.
+	return sb.receipts
+}
+
+// `GetTransactions` returns the transactions of the block.
+func (sb *StargazerBlock) GetTransactions() Transactions {
+	return sb.txs
+}
+
 // `Finalize` sets the gas used, transaction hash, receipt hash, and optionally bloom of the block
 // header.
 func (sb *StargazerBlock) Finalize(gasUsed uint64) {
 	hasher := trie.NewStackTrie(nil)
-	sb.Header.GasUsed = gasUsed
+	sb.StargazerHeader.GasUsed = gasUsed
 	if len(sb.txs) == 0 {
-		sb.Header.TxHash = EmptyRootHash
-		sb.Header.ReceiptHash = EmptyRootHash
+		sb.StargazerHeader.TxHash = EmptyRootHash
+		sb.StargazerHeader.ReceiptHash = EmptyRootHash
 	} else {
-		sb.Header.TxHash = DeriveSha(sb.txs, hasher)
-		sb.Header.ReceiptHash = DeriveSha(sb.receipts, hasher)
-		sb.Header.Bloom = CreateBloom(sb.receipts)
+		sb.StargazerHeader.TxHash = DeriveSha(sb.txs, hasher)
+		sb.StargazerHeader.ReceiptHash = DeriveSha(sb.receipts, hasher)
+		sb.StargazerHeader.Bloom = CreateBloom(sb.receipts)
 	}
+}
+
+// `EthBlock` represents a ethereum-like block that can be encoded to raw bytes.
+func (sb *StargazerBlock) EthBlock() *Block {
+	if sb == nil {
+		return nil
+	}
+	eb := NewBlock(sb.Header, sb.txs, nil, sb.receipts, trie.NewStackTrie(nil))
+	return eb
 }

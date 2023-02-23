@@ -18,6 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package log
+package client
 
-type Handler = func(r *Record) error
+import (
+	"pkg.berachain.dev/stargazer/crypto"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+)
+
+// `PubkeyFromTx` returns the public key of the signer of the transaction.
+func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*crypto.EthSecp256K1PubKey, error) {
+	bz, err := signer.PubKey(signedTx)
+	if err != nil {
+		return &crypto.EthSecp256K1PubKey{}, err
+	}
+	return &crypto.EthSecp256K1PubKey{Key: bz}, nil
+}

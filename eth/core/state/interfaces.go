@@ -77,24 +77,39 @@ type Plugin interface {
 	DeleteSuicides([]common.Address)
 }
 
-// `LogsJournal` defines the interface for tracking logs created during a state transition.
-type LogsJournal interface {
-	// `LogsJournal` implements `libtypes.Controllable`.
-	libtypes.Controllable[string]
-	// `AddLog` adds a log to the state
-	AddLog(*coretypes.Log)
-	// `BuildLogsAndClear` returns the logs of the tx with the given metadata
-	BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
-}
+type (
+	// `LogsJournal` defines the interface for tracking logs created during a state transition.
+	LogsJournal interface {
+		// `LogsJournal` implements `libtypes.Controllable`.
+		libtypes.Controllable[string]
+		// `AddLog` adds a log to the state
+		AddLog(*coretypes.Log)
+		// `BuildLogsAndClear` returns the logs of the tx with the given metadata
+		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
+	}
 
-// `RefundJournal` is a `Store` that tracks the refund counter.
-type RefundJournal interface {
-	// `RefundJournal` implements `libtypes.Controllable`.
-	libtypes.Controllable[string]
-	// `GetRefund` returns the current value of the refund counter.
-	GetRefund() uint64
-	// `AddRefund` sets the refund counter to the given `gas`.
-	AddRefund(gas uint64)
-	// `SubRefund` subtracts the given `gas` from the refund counter.
-	SubRefund(gas uint64)
-}
+	// `RefundJournal` is a `Store` that tracks the refund counter.
+	RefundJournal interface {
+		// `RefundJournal` implements `libtypes.Controllable`.
+		libtypes.Controllable[string]
+		// `GetRefund` returns the current value of the refund counter.
+		GetRefund() uint64
+		// `AddRefund` sets the refund counter to the given `gas`.
+		AddRefund(gas uint64)
+		// `SubRefund` subtracts the given `gas` from the refund counter.
+		SubRefund(gas uint64)
+	}
+
+	AccessListJournal interface {
+		// `AccessListJournal` implements `libtypes.Controllable`.
+		libtypes.Controllable[string]
+		// `AddAddress` adds the given `address` to the access list.
+		AddAddress(address common.Address) bool
+		// `AddSlot` adds the given `slot` to the access list.
+		AddSlot(address common.Address, slot common.Hash) (addrChange bool, slotChange bool)
+		// `Contains` returns whether the given `address` and `slot` are in the access list.
+		Contains(address common.Address, slot common.Hash) (addressPresent bool, slotPresent bool)
+		// `ContainsAddress` returns whether the given `address` is in the access list.
+		ContainsAddress(address common.Address) bool
+	}
+)

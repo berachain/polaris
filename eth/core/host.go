@@ -41,6 +41,8 @@ type StargazerHostChain interface {
 	GetPrecompilePlugin() PrecompilePlugin
 	// `GetStatePlugin` returns the `StatePlugin` of the Stargazer host chain.
 	GetStatePlugin() StatePlugin
+	// `GetTxPoolPlugin` returns the `TxPoolPlugin` of the Stargazer host chain.
+	GetTxPoolPlugin() TxPoolPlugin
 }
 
 // =============================================================================
@@ -56,8 +58,12 @@ type (
 		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
-		// `GetStargazerHeaderAtHeight` returns the block header at the given block height.
-		GetStargazerHeaderAtHeight(int64) *types.StargazerHeader
+		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
+		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
+		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
+		GetStargazerBlockByNumber(int64) *types.StargazerBlock
+		// `GetStargazerBlockByHash` returns the block at the given block hash.
+		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}
@@ -105,6 +111,13 @@ type (
 		// to be the operator address of the proposer, but we want the coinbase in the BlockContext
 		// to be the FeeCollectorAccount.
 		FeeCollector() *common.Address
+	}
+
+	TxPoolPlugin interface {
+		SendTx(tx *types.Transaction) error
+		GetAllTransactions() (types.Transactions, error)
+		GetTransaction(common.Hash) *types.Transaction
+		GetNonce(common.Address) uint64
 	}
 )
 

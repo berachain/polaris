@@ -39,8 +39,8 @@ var (
 	ginkgoTest = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
 
 	// Packages.
-	packagesUnit        = mi.GoListFilter(false, "integration", "cli", "e2e", "build")
-	packagesIntegration = mi.GoListFilter(true, "integration", "cli")
+	packagesUnit        = mi.GoListFilter(false, "integration", "e2e", "build")
+	packagesIntegration = mi.GoListFilter(true, "integration")
 	packagesEvm         = mi.GoListFilter(true, "evm")
 )
 
@@ -54,7 +54,7 @@ func Start() error {
 
 // Starts a testnet without building it.
 func StartNoBuild() error {
-	return sh.RunV("./bin/stargazerd", "testnet", "start")
+	return sh.RunV("./init.sh")
 }
 
 // Runs all main tests.

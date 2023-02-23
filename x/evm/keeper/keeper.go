@@ -23,11 +23,14 @@ package keeper
 import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cometbft/cometbft/libs/log"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth"
-	"pkg.berachain.dev/stargazer/eth/api"
 	"pkg.berachain.dev/stargazer/eth/core"
+	ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
+	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
+	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
@@ -35,6 +38,8 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
 	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
+	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -43,9 +48,10 @@ var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// The (unexposed) key used to access the store from the Context.
-	storeKey storetypes.StoreKey
-
-	ethChain api.Chain
+	storeKey    storetypes.StoreKey
+	stargazer   *eth.StargazerProvider
+	offChainKv  *offchain.Store
+	rpcProvider evmrpc.Provider
 
 	// sk is used to retrieve infofrmation about the current / past
 	// blocks and associated validator information.
@@ -54,27 +60,35 @@ type Keeper struct {
 	authority string
 
 	// plugins
-	bp block.Plugin
-	cp configuration.Plugin
-	gp gas.Plugin
-	pp precompile.Plugin
-	sp state.Plugin
+	bp  block.Plugin
+	cp  configuration.Plugin
+	gp  gas.Plugin
+	pp  precompile.Plugin
+	sp  state.Plugin
+	txp txpool.Plugin
 }
 
 // NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
+	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	authority string,
+	appOpts servertypes.AppOptions,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
-		storeKey:  storetypes.NewKVStoreKey(types.StoreKey),
+		storeKey:  storeKey,
 	}
 
-	k.bp = block.NewPlugin(k)
+	// TODO: parameterize kv store.
+	if appOpts != nil {
+		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	}
 
-	k.cp = configuration.NewPlugin()
+	k.bp = block.NewPlugin(k, k.offChainKv)
+
+	k.cp = configuration.NewPlugin(storeKey)
 
 	k.gp = gas.NewPlugin()
 
@@ -86,7 +100,11 @@ func NewKeeper(
 
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
 
-	k.ethChain = eth.NewStargazerProvider(k, nil)
+	rpcConfig := *ethrpcconfig.DefaultServer()
+	k.stargazer = eth.NewStargazerProvider(k, nil)
+
+	k.rpcProvider = evmrpc.NewProvider(rpcConfig, ethrpc.NewBackend(k.stargazer, &rpcConfig))
+	k.txp = txpool.NewPlugin(k.rpcProvider)
 	// TODO: provide cosmos ctx logger.
 
 	return k
@@ -117,12 +135,18 @@ func (k *Keeper) GetStatePlugin() core.StatePlugin {
 	return k.sp
 }
 
+func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
+	return k.txp
+}
+
+func (k *Keeper) GetStargazer() *eth.StargazerProvider {
+	return k.stargazer
+}
+
 func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
-	return []plugins.BaseCosmosStargazer{
-		k.bp,
-		k.cp,
-		k.gp,
-		k.pp,
-		k.sp,
-	}
+	return []plugins.BaseCosmosStargazer{k.bp, k.cp, k.gp, k.pp, k.sp}
+}
+
+func (k *Keeper) GetRPCProvider() evmrpc.Provider {
+	return k.rpcProvider
 }

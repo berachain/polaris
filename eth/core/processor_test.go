@@ -53,36 +53,6 @@ var (
 	}
 )
 
-var _ = Describe("StateProcessor no precompile plugin", func() {
-	It("should use the default plugin if none is provided", func() {
-		host := mock.NewMockHost()
-		bp := mock.NewBlockPluginMock()
-		gp := mock.NewGasPluginMock()
-		gp.SetBlockGasLimit(1000000)
-		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
-			header := types.NewEmptyStargazerHeader()
-			header.GasLimit = 1000000
-			header.Number = new(big.Int)
-			header.Difficulty = new(big.Int)
-			return header
-		}
-		host.GetBlockPluginFunc = func() core.BlockPlugin {
-			return bp
-		}
-		host.GetGasPluginFunc = func() core.GasPlugin {
-			return gp
-		}
-		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
-			return mock.NewConfigurationPluginMock()
-		}
-		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
-			return nil
-		}
-		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
-		Expect(func() { sp.Prepare(context.Background(), 0) }).ToNot(Panic())
-	})
-})
-
 var _ = Describe("StateProcessor", func() {
 	var (
 		sdb           *vmmock.StargazerStateDBMock
@@ -120,7 +90,7 @@ var _ = Describe("StateProcessor", func() {
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
 			header := types.NewEmptyStargazerHeader()
 			header.GasLimit = blockGasLimit
 			header.BaseFee = big.NewInt(1)
@@ -221,32 +191,71 @@ var _ = Describe("StateProcessor", func() {
 				if addr != dummyContract {
 					return nil
 				}
-				return []byte(generated.RevertableTxMetaData.Bin)
+				return common.Hex2Bytes(generated.NonRevertableTxMetaData.Bin)
 			}
 			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
 				if addr != dummyContract {
 					return common.Hash{}
 				}
-				return crypto.Keccak256Hash([]byte(generated.RevertableTxMetaData.Bin))
+				return crypto.Keccak256Hash(common.Hex2Bytes(generated.NonRevertableTxMetaData.Bin))
 			}
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
 			}
+			legacyTxData.To = nil
 			legacyTxData.Value = big.NewInt(0)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Status).To(Equal(types.ReceiptStatusFailed))
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
 			Expect(block.TxIndex()).To(Equal(uint(1)))
+
+			// Now try calling the contract
+			legacyTxData.To = &dummyContract
+			signedTx = types.MustSignNewTx(key, signer, legacyTxData)
+			result, err = sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).To(BeNil())
+			Expect(result).ToNot(BeNil())
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
 		})
 	})
 })
 
-var _ = Describe("Stargazer", func() {
+var _ = Describe("No precompile plugin provided", func() {
+	It("should use the default plugin if none is provided", func() {
+		host := mock.NewMockHost()
+		bp := mock.NewBlockPluginMock()
+		gp := mock.NewGasPluginMock()
+		gp.SetBlockGasLimit(1000000)
+		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
+			header := types.NewEmptyStargazerHeader()
+			header.GasLimit = 1000000
+			header.Number = new(big.Int)
+			header.Difficulty = new(big.Int)
+			return header
+		}
+		host.GetBlockPluginFunc = func() core.BlockPlugin {
+			return bp
+		}
+		host.GetGasPluginFunc = func() core.GasPlugin {
+			return gp
+		}
+		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
+			return mock.NewConfigurationPluginMock()
+		}
+		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
+			return nil
+		}
+		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
+		Expect(func() { sp.Prepare(context.Background(), 0) }).ToNot(Panic())
+	})
+})
+
+var _ = Describe("GetHashFn", func() {
 	var (
 		sdb           *vmmock.StargazerStateDBMock
 		host          *mock.StargazerHostChainMock
@@ -281,7 +290,7 @@ var _ = Describe("Stargazer", func() {
 		Expect(sp).ToNot(BeNil())
 		blockGasLimit = 1000000
 
-		bp.GetStargazerHeaderAtHeightFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
 			return types.NewStargazerHeader(
 				&types.Header{
 					Number:     big.NewInt(height),

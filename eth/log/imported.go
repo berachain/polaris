@@ -28,6 +28,9 @@ type (
 
 	// `Logger` defines the logger interface.
 	Logger = log.Logger
+
+	// `Handler` defines the log handler interface.
+	Handler = log.Handler
 )
 
 var (
@@ -51,7 +54,4 @@ var (
 
 	// `LvlCrit` is the critical log level.
 	LvlCrit = log.LvlCrit
-
-	// `FuncHandler` is a log handler.
-	FuncHandler = log.FuncHandler
 )

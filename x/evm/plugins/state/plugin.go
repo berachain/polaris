@@ -92,7 +92,7 @@ type plugin struct {
 	plf events.PrecompileLogFactory
 
 	// Store the evm store key for quick lookups to the evm store
-	evmStoreKey storetypes.StoreKey
+	storeKey storetypes.StoreKey
 
 	// keepers used for balance and account information.
 	ak AccountKeeper
@@ -107,16 +107,16 @@ type plugin struct {
 func NewPlugin(
 	ak AccountKeeper,
 	bk BankKeeper,
-	evmStoreKey storetypes.StoreKey,
+	storeKey storetypes.StoreKey,
 	evmDenom string,
 	plf events.PrecompileLogFactory,
 ) Plugin {
 	return &plugin{
-		evmStoreKey: evmStoreKey,
-		ak:          ak,
-		bk:          bk,
-		evmDenom:    evmDenom,
-		plf:         plf,
+		storeKey: storeKey,
+		ak:       ak,
+		bk:       bk,
+		evmDenom: evmDenom,
+		plf:      plf,
 	}
 }
 
@@ -153,7 +153,7 @@ func (p *plugin) CreateAccount(addr common.Address) {
 	p.ak.SetAccount(p.ctx, acc)
 
 	// initialize the code hash to empty
-	p.cms.GetKVStore(p.evmStoreKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
+	p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
 // `Exist` implements the `StatePlugin` interface by reporting whether the given account address
@@ -265,7 +265,7 @@ func (p *plugin) GetCodeHash(addr common.Address) common.Hash {
 		return common.Hash{}
 	}
 
-	ch := p.cms.GetKVStore(p.evmStoreKey).Get(CodeHashKeyFor(addr))
+	ch := p.cms.GetKVStore(p.storeKey).Get(CodeHashKeyFor(addr))
 	if ch == nil {
 		// account exists but does not have a codehash, return empty
 		return emptyCodeHash
@@ -282,14 +282,14 @@ func (p *plugin) GetCode(addr common.Address) []byte {
 		// if account at addr does not exist or the account  does not have a codehash, return nil
 		return nil
 	}
-	return p.cms.GetKVStore(p.evmStoreKey).Get(CodeKeyFor(codeHash))
+	return p.cms.GetKVStore(p.storeKey).Get(CodeKeyFor(codeHash))
 }
 
 // SetCode implements the `StatePlugin` interface by setting the code hash and
 // code for the given account.
 func (p *plugin) SetCode(addr common.Address, code []byte) {
 	codeHash := crypto.Keccak256Hash(code)
-	ethStore := p.cms.GetKVStore(p.evmStoreKey)
+	ethStore := p.cms.GetKVStore(p.storeKey)
 	ethStore.Set(CodeHashKeyFor(addr), codeHash[:])
 
 	// store or delete code
@@ -303,7 +303,7 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 // `IterateCode` iterates over all the addresses with code and calls the given method.
 func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) {
 	it := storetypes.KVStorePrefixIterator(
-		p.cms.GetKVStore(p.evmStoreKey),
+		p.cms.GetKVStore(p.storeKey),
 		[]byte{keyPrefixCodeHash},
 	)
 	defer it.Close()
@@ -332,13 +332,13 @@ func (p *plugin) GetCommittedState(
 	addr common.Address,
 	slot common.Hash,
 ) common.Hash {
-	return getStateFromStore(p.cms.GetCommittedKVStore(p.evmStoreKey), addr, slot)
+	return getStateFromStore(p.cms.GetCommittedKVStore(p.storeKey), addr, slot)
 }
 
 // `GetState` implements the `StatePlugin` interface by returning the current state
 // of slot in the given address.
 func (p *plugin) GetState(addr common.Address, slot common.Hash) common.Hash {
-	return getStateFromStore(p.cms.GetKVStore(p.evmStoreKey), addr, slot)
+	return getStateFromStore(p.cms.GetKVStore(p.storeKey), addr, slot)
 }
 
 // `SetState` sets the state of an address.
@@ -353,18 +353,18 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 
 	// If empty value is given, delete the state entry.
 	if len(value) == 0 || (value == common.Hash{}) {
-		p.cms.GetKVStore(p.evmStoreKey).Delete(SlotKeyFor(addr, key))
+		p.cms.GetKVStore(p.storeKey).Delete(SlotKeyFor(addr, key))
 		return
 	}
 
 	// Set the state entry.
-	p.cms.GetKVStore(p.evmStoreKey).Set(SlotKeyFor(addr, key), value[:])
+	p.cms.GetKVStore(p.storeKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
 // `IterateState` iterates over all the contract state, and calls the given function.
 func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Hash) bool) {
 	it := storetypes.KVStorePrefixIterator(
-		p.cms.GetCommittedKVStore(p.evmStoreKey),
+		p.cms.GetCommittedKVStore(p.storeKey),
 		[]byte{keyPrefixStorage},
 	)
 	defer it.Close()
@@ -393,7 +393,7 @@ func (p *plugin) ForEachStorage(
 	cb func(key, value common.Hash) bool,
 ) error {
 	it := storetypes.KVStorePrefixIterator(
-		p.cms.GetKVStore(p.evmStoreKey),
+		p.cms.GetKVStore(p.storeKey),
 		StorageKeyFor(addr),
 	)
 	defer it.Close()
@@ -427,7 +427,7 @@ func (p *plugin) DeleteSuicides(suicides []common.Address) {
 			})
 
 		// clear the codehash from this account
-		p.cms.GetKVStore(p.evmStoreKey).Delete(CodeHashKeyFor(suicidalAddr))
+		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(suicidalAddr))
 
 		// remove auth account
 		p.ak.RemoveAccount(p.ctx, acct)
