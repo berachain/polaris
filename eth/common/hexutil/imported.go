@@ -24,4 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-type Bytes = hexutil.Bytes
+type (
+	Bytes = hexutil.Bytes
+	Uint  = hexutil.Uint
+)

@@ -35,7 +35,6 @@ const (
 type Provider interface {
 	GetHTTP() *ethrpc.Server
 	GetWS() *ethrpc.Server
-	Ready() bool
 	SetupAPIs() error
 	SetClientContext(ctx client.Context)
 	GetClientCtx() client.Context
@@ -49,7 +48,7 @@ type provider struct {
 
 // `NewProvider` returns a new `Provider` object. The provider object is used to
 // register the JSON-RPC servers with the API server.
-func NewProvider(cfg ethrpcconfig.Server, backend ethrpc.Backend) Provider {
+func NewProvider(cfg ethrpcconfig.Server, backend ethrpc.StargazerBackend) Provider {
 	service, err := ethrpc.NewService(cfg, backend)
 	if err != nil {
 		panic(err)
@@ -66,9 +65,4 @@ func (p *provider) GetClientCtx() client.Context {
 
 func (p *provider) SetClientContext(ctx client.Context) {
 	p.clientCtx = ctx
-}
-
-func (p *provider) Ready() bool {
-	// TODO: there is might a race condition? maybe not? we can maybe just remove this.
-	return true
 }
