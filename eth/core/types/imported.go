@@ -26,6 +26,7 @@ import (
 
 type (
 	AccessList        = types.AccessList
+	AccessTuple       = types.AccessTuple
 	Block             = types.Block
 	Bloom             = types.Bloom
 	Body              = types.Body
