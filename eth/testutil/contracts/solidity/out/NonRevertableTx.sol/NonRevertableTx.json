@@ -8,12 +8,12 @@
   ],
   "bytecode": {
     "object": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220877b4c76bba9d4f433ad2aa844d4107df0dc746f28319a5e2affdac97b461aa564736f6c63430008110033",
-    "sourceMap": "58:49:2:-:0;;;89:16;;;;;;;;;;58:49;;;;;;",
+    "sourceMap": "58:49:0:-:0;;;89:16;;;;;;;;;;58:49;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
     "object": "0x6080604052600080fdfea2646970667358221220877b4c76bba9d4f433ad2aa844d4107df0dc746f28319a5e2affdac97b461aa564736f6c63430008110033",
-    "sourceMap": "58:49:2:-:0;;;;;",
+    "sourceMap": "58:49:0:-:0;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
@@ -75,19 +75,19 @@
   },
   "ast": {
     "absolutePath": "src/NonRevertableTx.sol",
-    "id": 430,
+    "id": 7,
     "exportedSymbols": {
       "NonRevertableTx": [
-        429
+        6
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:75:2",
+    "src": "32:75:0",
     "nodes": [
       {
-        "id": 424,
+        "id": 1,
         "nodeType": "PragmaDirective",
-        "src": "32:24:2",
+        "src": "32:24:0",
         "nodes": [],
         "literals": [
           "solidity",
@@ -97,19 +97,19 @@
         ]
       },
       {
-        "id": 429,
+        "id": 6,
         "nodeType": "ContractDefinition",
-        "src": "58:49:2",
+        "src": "58:49:0",
         "nodes": [
           {
-            "id": 428,
+            "id": 5,
             "nodeType": "FunctionDefinition",
-            "src": "89:16:2",
+            "src": "89:16:0",
             "nodes": [],
             "body": {
-              "id": 427,
+              "id": 4,
               "nodeType": "Block",
-              "src": "103:2:2",
+              "src": "103:2:0",
               "nodes": [],
               "statements": []
             },
@@ -119,18 +119,18 @@
             "name": "",
             "nameLocation": "-1:-1:-1",
             "parameters": {
-              "id": 425,
+              "id": 2,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "100:2:2"
+              "src": "100:2:0"
             },
             "returnParameters": {
-              "id": 426,
+              "id": 3,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "103:0:2"
+              "src": "103:0:0"
             },
-            "scope": 429,
+            "scope": 6,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
@@ -143,15 +143,15 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          429
+          6
         ],
         "name": "NonRevertableTx",
-        "nameLocation": "67:15:2",
-        "scope": 430,
+        "nameLocation": "67:15:0",
+        "scope": 7,
         "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 2
+  "id": 0
 }

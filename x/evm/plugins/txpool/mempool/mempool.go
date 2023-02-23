@@ -21,11 +21,87 @@
 package mempool
 
 import (
+	"context"
+
 	"github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 type EthTxPool struct {
-	mempool.NoOpMempool // first iteration simply allows for
-	client.Context
+	*mempool.PriorityNonceMempool // first iteration simply allows for
+
+	// `ethTxCache` caches transactions that are added to the mempool
+	// so that they can be retrieved later
+	ethTxCache map[common.Hash]coretypes.Transaction
+}
+
+// `New` is called when the mempool is created
+func New(ctx client.Context) *EthTxPool {
+	return &EthTxPool{
+		PriorityNonceMempool: mempool.NewPriorityMempool(),
+	}
+}
+
+// `Insert` is called when a transaction is added to the mempool
+func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
+	// Call the base mempool's Insert method
+	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
+		return err
+	}
+	// We want to cache
+	etr, ok := tx.(*types.EthTransactionRequest)
+	if !ok {
+		return nil
+	}
+	t := etr.AsTransaction()
+	etp.ethTxCache[t.Hash()] = *t
+	return nil
+}
+
+// `GetTx` is called when a transaction is retrieved from the mempool
+func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
+	tx := etp.ethTxCache[hash]
+	return &tx
+}
+
+// `GetPoolTransactions` is called when the mempool is retrieved
+func (etp *EthTxPool) GetPoolTransactions() []*coretypes.Transaction {
+	var txs []*coretypes.Transaction
+	for _, tx := range etp.ethTxCache {
+		txs = append(txs, &tx)
+	}
+	return txs
+	// var txs []*coretypes.Transaction
+	// iterator := etp.Select(sdk.Context{}, nil)
+	// for it := iterator.Next(); it != nil; it = iterator.Next() {
+	// 	if it == nil {
+	// 		break
+	// 	}
+	// 	tx, ok := it.Tx().(*types.EthTransactionRequest)
+	// 	if !ok {
+	// 		continue
+	// 	}
+	// 	txs = append(txs, tx.AsTransaction())
+	// }
+}
+
+// `Remove` is called when a transaction is removed from the mempool
+func (etp *EthTxPool) Remove(tx sdk.Tx) error {
+	// Call the base mempool's Remove method
+	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
+		return err
+	}
+
+	// We want to cache this tx.
+	etr, ok := tx.(*types.EthTransactionRequest)
+	if !ok {
+		return nil
+	}
+
+	delete(etp.ethTxCache, etr.AsTransaction().Hash())
+	return nil
 }

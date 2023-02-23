@@ -31,14 +31,13 @@ import (
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("BeginBlocker")
+	k.Logger(sCtx).Info("keeper.BeginBlocker")
 	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("Begin ProcessTransaction()")
 
 	// Process the transaction and return the receipt.
 	receipt, err := k.stargazer.ProcessTransaction(ctx, tx)
@@ -60,13 +59,14 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
 func (k *Keeper) EndBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("EndBlocker")
 
 	// Finalize the stargazer block and retrieve it from the processor.
 	stargazerBlock, err := k.stargazer.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}
+
+	k.Logger(sCtx).Info("keeper.EndBlocker", "block", stargazerBlock.StargazerHeader)
 
 	// Save the historical stargazer header in the IAVL Tree.
 	k.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)
