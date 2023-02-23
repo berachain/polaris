@@ -43,6 +43,25 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	// }
 
 	// p.Finalize()
+
+	p.Reset(ctx)
+
+	// for address, contractState := range data.AddressToContractState {
+	// 	// Get the address and code hash.
+	// 	addr := common.HexToAddress(address)
+	// 	ch := common.HexToHash(contractState.CodeHash)
+
+	// 	// Get the code.
+	// 	code := contractState.CodeHashToCode[ch.Hex()]
+
+	// 	// Set the code.
+	// 	p.SetCode(addr, common.Hex2Bytes(code))
+
+	// 	// Iterate over all the state records and add them to the slot > value store.
+	// 	for slot, value := range contractState.AddressToStateData {}
+	// }
+
+	p.Finalize()
 }
 
 // `Export` genesis modifies a pointer to a genesis state object and populates it.

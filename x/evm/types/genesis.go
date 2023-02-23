@@ -24,10 +24,13 @@ import "pkg.berachain.dev/stargazer/eth/common"
 
 // `DefaultGenesis` is the default genesis state.
 func DefaultGenesis() *GenesisState {
-	acs := make(map[string]*ContractState)
+	atc := make(map[string]*Contract)
+	htc := make(map[string]string)
+
 	return &GenesisState{
-		Params:                 *DefaultParams(),
-		AddressToContractState: acs,
+		Params:            *DefaultParams(),
+		AddressToContract: atc,
+		HashToCode:        htc,
 	}
 }
 
@@ -37,42 +40,25 @@ func ValidateGenesis(data GenesisState) error {
 }
 
 // `NewGenesisState` creates a new `GenesisState` object.
-func NewGenesisState(params Params, acs map[string]*ContractState) *GenesisState {
+func NewGenesisState(params Params, atc map[string]*Contract, htc map[string]string) *GenesisState {
 	return &GenesisState{
-		Params:                 params,
-		AddressToContractState: acs,
+		Params:            params,
+		AddressToContract: atc,
+		HashToCode:        htc,
 	}
 }
 
-// `NewContractState` creates a new `ContractState` object.
-func NewContractState(
-	addressToCodeHash map[string]string,
-	codeHashToCode map[string]string,
-	addressToStateData map[string]*StateRecord,
-) *ContractState {
-	return &ContractState{
-		AddressToCodeHash:  addressToCodeHash,
-		CodeHashToCode:     codeHashToCode,
-		AddressToStateData: addressToStateData,
+func NewContract(codeHash common.Hash, code []byte, slotToValue map[string]string) *Contract {
+	return &Contract{
+		CodeHash:    codeHash.Hex(),
+		SlotToValue: slotToValue,
 	}
 }
 
-// `WriteAddressToCodeHash` writes an address to a code hash in the contract state.
-func WriteAddressToCodeHash(addr common.Address, codeHash common.Hash, addressToCodeHashMap *map[string]string) {
-	(*addressToCodeHashMap)[addr.Hex()] = codeHash.Hex()
+func WriteToSlot(slot common.Hash, value common.Hash, contract *Contract) {
+	contract.SlotToValue[slot.Hex()] = value.Hex()
 }
 
-// `WriteCodeHashToCode` writes a code hash to code in the contract state.
-func WriteCodeHashToCode(codeHash common.Hash, code []byte, codeHashToCodeMap *map[string]string) {
-	(*codeHashToCodeMap)[codeHash.Hex()] = string(code)
-}
-
-// `WriteSlotToValue` writes a slot to a value in the state record.
-func WriteSlotToValue(slot, value common.Hash, state *StateRecord) {
-	state.State[slot.Hex()] = value.Hex()
-}
-
-// `WriteAddressToStateData` writes an address to state record in the contract state.
-func WriteAddressToStateData(addr common.Address, state *StateRecord, addressToStateDataMap *map[string]*StateRecord) {
-	(*addressToStateDataMap)[addr.Hex()] = state
+func WriteCodeToHash(codeHash common.Hash, code []byte, htc map[string]string) {
+	htc[codeHash.Hex()] = string(code)
 }

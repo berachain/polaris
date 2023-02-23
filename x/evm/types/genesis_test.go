@@ -30,66 +30,53 @@ var _ = Describe("Genesis", func() {
 	It("fail if genesis is invalid", func() {
 		params := DefaultParams()
 		params.EvmDenom = ""
-		state := NewGenesisState(*params, nil)
+		state := NewGenesisState(*params, nil, nil)
 		err := ValidateGenesis(*state)
 		Expect(err).To(HaveOccurred())
 	})
 
-	It("should write address to code hash", func() {
-		addressToCodeHash := make(map[string]string)
-		addr := common.HexToAddress("0x1")
-		ch := common.HexToHash("0x2")
-		WriteAddressToCodeHash(addr, ch, &addressToCodeHash)
-
-		Expect(addressToCodeHash[addr.Hex()]).To(Equal(ch.Hex()))
+	It("should return default genesis", func() {
+		state := DefaultGenesis()
+		Expect(state).ToNot(BeNil())
 	})
 
-	It("should write codeHash to code", func() {
-		codeHashToCode := make(map[string]string)
-		ch := common.HexToHash("0x1")
-		code := []byte("0x2")
-		WriteCodeHashToCode(ch, code, &codeHashToCode)
-
-		Expect(codeHashToCode[ch.Hex()]).To(Equal(string(code)))
+	It("should return new genesis state", func() {
+		atc := make(map[string]*Contract)
+		htc := make(map[string]string)
+		params := DefaultParams()
+		state := NewGenesisState(*params, atc, htc)
+		Expect(state).ToNot(BeNil())
+		Expect(state.Params).To(Equal(*params))
+		Expect(state.AddressToContract).To(Equal(atc))
+		Expect(state.HashToCode).To(Equal(htc))
 	})
 
-	It("should write slot to value", func() {
-		var state = StateRecord{
-			State: make(map[string]string),
-		}
-		slot := common.HexToHash("0x1")
-		value := common.HexToHash("0x2")
-		WriteSlotToValue(slot, value, &state)
-
-		Expect(state.State[slot.Hex()]).To(Equal(value.Hex()))
+	It("should return a new contract code", func() {
+		codeHash := common.HexToHash("0x123")
+		code := []byte("0x123")
+		slotToValue := make(map[string]string)
+		contract := NewContract(codeHash, code, slotToValue)
+		Expect(contract).ToNot(BeNil())
+		Expect(contract.CodeHash).To(Equal(codeHash.Hex()))
 	})
 
-	It("should write address to state data", func() {
-		addressToStateData := make(map[string]*StateRecord)
-		addr := common.HexToAddress("0x1")
-		state := StateRecord{
-			State: make(map[string]string),
-		}
-
-		WriteSlotToValue(common.HexToHash("0x1"), common.HexToHash("0x2"), &state)
-		WriteAddressToStateData(addr, &state, &addressToStateData)
-
-		Expect(addressToStateData[addr.Hex()].State).To(Equal(state.State))
+	It("should write to slot", func() {
+		slot := common.HexToHash("0x123")
+		value := common.HexToHash("0x123")
+		contract := NewContract(common.HexToHash("0x123"), []byte("0x123"), make(map[string]string))
+		WriteToSlot(slot, value, contract)
+		Expect(contract).ToNot(BeNil())
+		Expect(contract.SlotToValue[slot.Hex()]).To(Equal(value.Hex()))
 	})
 
-	It("should create new contract state", func() {
-		addressToCodeHash := make(map[string]string)
-		codeHashToCode := make(map[string]string)
-		addressToStateData := make(map[string]*StateRecord)
-		cs := NewContractState(addressToCodeHash, codeHashToCode, addressToStateData)
-		Expect(cs.AddressToCodeHash).To(Equal(addressToCodeHash))
-		Expect(cs.CodeHashToCode).To(Equal(codeHashToCode))
-		Expect(cs.AddressToStateData).To(Equal(addressToStateData))
+	It("should return a new contract code", func() {
+		state := DefaultGenesis()
+		codeHash := common.HexToHash("0x123")
+		code := []byte("0x123")
+		WriteCodeToHash(codeHash, code, state.HashToCode)
+		code2 := state.HashToCode[codeHash.Hex()]
+		Expect(code2).To(Equal(string(code)))
+
 	})
 
-	It("should create default genesis", func() {
-		genesis := DefaultGenesis()
-		Expect(genesis.Params).To(Equal(*DefaultParams()))
-		Expect(genesis.AddressToContractState).To(Equal(make(map[string]*ContractState)))
-	})
 })

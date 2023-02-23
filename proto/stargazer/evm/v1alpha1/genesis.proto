@@ -31,27 +31,18 @@ message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // `address_to_contract_state` is the mapping of the address to the state record.
-  map<string, ContractState> address_to_contract_state = 2;
+  // `address_to_contract` is a map of address to contract.
+  map<string, Contract> address_to_contract = 2;
 
-  // // `address_to_state_record` is a mapping of the address to the state record/
-  // map<string, StateRecord> address_to_state_record = 3;
+  // `hash_to_code` is a map of code hash to code.
+  map<string, string> hash_to_code = 3;
 }
 
-// `CodeRecord` defines the code record of the evm state plugin.
-message ContractState {
-  // `address_to_hash` is the mapping of the address to the hash of the code.
-  map<string, string> address_to_code_hash = 1;
+// `Contract` defines the contract state.
+message Contract {
+  // `code_hash` is the hash of the contract code.
+  string code_hash = 1;
 
-  // `code` is the code of the contract, this is in format of byte slice.
-  map<string, string> code_hash_to_code = 2;
-
-  // `state` is a map of address to contract state.
-  map<string, StateRecord> address_to_state_data = 3;
-}
-
-// `StateRecord` defines an evm state record. It includes a maping of slot to value.
-message StateRecord {
-  // `state` is a map of slot to value.
-  map<string, string> state = 1;
+  // `slot_to_value` is a map of slot to value.
+  map<string, string> slot_to_value = 2;
 }
