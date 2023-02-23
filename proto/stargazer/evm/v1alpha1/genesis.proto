@@ -58,3 +58,10 @@ message StateRecord {
   // `value` is the value of the state, this is in format of byte slice.
   bytes value = 3;
 }
+
+message CodeRecord {
+  string address = 1;
+
+  // `code_hash_code` is the map of code hash and code.
+  map<string, string> code_hash_code = 2;
+}

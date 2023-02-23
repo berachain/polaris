@@ -297,7 +297,7 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 }
 
 // `IterateCode` iterates over all the addresses with code and calls the given method.
-func (p *plugin) IterateCode(fn func(addr common.Address, code []byte) bool) {
+func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetKVStore(p.evmStoreKey),
 		[]byte{keyPrefixCodeHash},
@@ -305,10 +305,8 @@ func (p *plugin) IterateCode(fn func(addr common.Address, code []byte) bool) {
 	defer it.Close()
 
 	for ; it.Valid(); it.Next() {
-		k := it.Key() // CodeHashKeyFor(addr)
-		addr := AddressFromCodeHashKey(k)
-		code := p.GetCode(addr)
-		if fn(addr, code) {
+		addr := AddressFromCodeHashKey(it.Key())
+		if fn(addr, p.GetCode(addr)) {
 			break
 		}
 	}
@@ -360,7 +358,7 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 }
 
 // `IterateState` iterates over all the contract state, and calls the given function.
-func (p *plugin) IterateState(fn func(addr common.Address, key, value common.Hash) bool) {
+func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Hash) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetCommittedKVStore(p.evmStoreKey),
 		[]byte{keyPrefixStorage},
@@ -371,7 +369,7 @@ func (p *plugin) IterateState(fn func(addr common.Address, key, value common.Has
 		k, v := it.Key(), it.Value()
 		addr := AddressFromSlotKey(k)
 		slot := SlotFromSlotKey(k)
-		if fn(addr, slot, common.BytesToHash(v)) {
+		if cb(addr, slot, common.BytesToHash(v)) {
 			break
 		}
 	}
