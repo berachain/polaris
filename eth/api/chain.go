@@ -27,8 +27,8 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 )
 
 // `Chain` defines the methods that the Stargazer Ethereum API exposes. This is the only interface
@@ -59,5 +59,5 @@ type ChainReader interface {
 	GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock
 	GetStargazerBlockByNumber(number int64) *types.StargazerBlock
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
-	GetStateByNumber(number int64) (state.StateDBI, error)
+	GetStateByNumber(number int64) vm.GethStateDB
 }

@@ -31,7 +31,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core/bloombits"
-	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
@@ -245,18 +244,14 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context, number BlockNumber,
-) (state.StateDBI, *types.Header, error) {
+) (vm.GethStateDB, *types.Header, error) {
 	header, err := b.HeaderByNumber(ctx, number)
-	if err != nil {
-		return nil, nil, err
-	}
-	state, err := b.chain.GetStateByNumber(number.Int64())
-	return state, header, err
+	return b.chain.GetStateByNumber(number.Int64()), header, err
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context, blockNrOrHash BlockNumberOrHash,
-) (state.StateDBI, *types.Header, error) {
+) (vm.GethStateDB, *types.Header, error) {
 	return nil, nil, nil
 }
 
@@ -281,7 +276,7 @@ func (b *backend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
 	return new(big.Int)
 }
 
-func (b *backend) GetEVM(ctx context.Context, msg core.Message, state state.StateDBI,
+func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) (*vm.GethEVM, func() error, error) {
 	// if vmConfig == nil {

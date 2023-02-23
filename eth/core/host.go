@@ -25,6 +25,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/params"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
@@ -64,6 +65,8 @@ type (
 		GetStargazerBlockByNumber(int64) *types.StargazerBlock
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
 		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
+		// `GetStateByNumber` returns the state at the given block height.
+		GetStateByNumber(int64) vm.GethStateDB
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}

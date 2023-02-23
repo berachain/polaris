@@ -24,5 +24,5 @@ import "github.com/ethereum/go-ethereum/core/state"
 
 type (
 	Trie     = state.Trie
-	StateDBI = state.StateDBI
+	StateDBI = state.StateDBI //nolint:revive // vibes.
 )

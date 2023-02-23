@@ -230,12 +230,38 @@ func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 // Other
 // =============================================================================
 
-func (sdb *stateDB) StorageTrie(addr common.Address) (Trie, error)
-func (sdb *stateDB) Error() error
-func (sdb *stateDB) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error)
-func (sdb *stateDB) GetProof(addr common.Address) ([][]byte, error)
-func (sdb *stateDB) SetBalance(addr common.Address, amount *big.Int)
-func (sdb *stateDB) SetStorage(addr common.Address, storage map[common.Hash]common.Hash)
-func (sdb *stateDB) Finalise(deleteEmptyObjects bool)
-func (sdb *stateDB) Copy() StateDBI
-func (sdb *stateDB) SetTxContext(thash common.Hash, ti int)
+func (sdb *stateDB) StorageTrie(addr common.Address) (Trie, error) {
+	panic("implement me")
+}
+
+func (sdb *stateDB) Error() error {
+	panic("implement me")
+}
+
+func (sdb *stateDB) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error) {
+	panic("implement me")
+}
+
+func (sdb *stateDB) GetProof(addr common.Address) ([][]byte, error) {
+	panic("implement me")
+}
+
+func (sdb *stateDB) SetBalance(addr common.Address, amount *big.Int) {
+	panic("implement me")
+}
+
+func (sdb *stateDB) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	panic("implement me")
+}
+
+func (sdb *stateDB) Finalise(deleteEmptyObjects bool) {
+	panic("implement me")
+}
+
+func (sdb *stateDB) Copy() StateDBI {
+	panic("implement me")
+}
+
+func (sdb *stateDB) SetTxContext(thash common.Hash, ti int) {
+	panic("implement me")
+}
