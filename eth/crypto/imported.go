@@ -37,4 +37,5 @@ var (
 	SignatureLength         = crypto.SignatureLength
 	ToECDSA                 = crypto.ToECDSA
 	VerifySignature         = crypto.VerifySignature
+	FromECDSAPub            = crypto.FromECDSAPub
 )
