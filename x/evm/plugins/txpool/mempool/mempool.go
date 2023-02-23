@@ -23,9 +23,9 @@ package mempool
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/x/evm/types"
@@ -39,14 +39,14 @@ type EthTxPool struct {
 	ethTxCache map[common.Hash]coretypes.Transaction
 }
 
-// `New` is called when the mempool is created
-func New(ctx client.Context) *EthTxPool {
+// `New` is called when the mempool is created.
+func NewEthTxPool() *EthTxPool {
 	return &EthTxPool{
 		PriorityNonceMempool: mempool.NewPriorityMempool(),
 	}
 }
 
-// `Insert` is called when a transaction is added to the mempool
+// `Insert` is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	// Call the base mempool's Insert method
 	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
@@ -62,17 +62,18 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	return nil
 }
 
-// `GetTx` is called when a transaction is retrieved from the mempool
+// `GetTx` is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	tx := etp.ethTxCache[hash]
 	return &tx
 }
 
-// `GetPoolTransactions` is called when the mempool is retrieved
+// `GetPoolTransactions` is called when the mempool is retrieved.
 func (etp *EthTxPool) GetPoolTransactions() []*coretypes.Transaction {
-	var txs []*coretypes.Transaction
+	txs := make([]*coretypes.Transaction, 0)
 	for _, tx := range etp.ethTxCache {
-		txs = append(txs, &tx)
+		t := tx // fixes gosec G601: Implicit memory aliasing in for loop.
+		txs = append(txs, &t)
 	}
 	return txs
 	// var txs []*coretypes.Transaction
@@ -89,7 +90,7 @@ func (etp *EthTxPool) GetPoolTransactions() []*coretypes.Transaction {
 	// }
 }
 
-// `Remove` is called when a transaction is removed from the mempool
+// `Remove` is called when a transaction is removed from the mempool.
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	// Call the base mempool's Remove method
 	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
