@@ -39,8 +39,8 @@ var (
 	ginkgoTest = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
 
 	// Packages.
-	packagesUnit        = mi.GoListFilter(false, "integration", "cli", "e2e", "build")
-	packagesIntegration = mi.GoListFilter(true, "integration", "cli")
+	packagesUnit        = mi.GoListFilter(false, "integration", "e2e", "build")
+	packagesIntegration = mi.GoListFilter(true, "integration")
 	packagesEvm         = mi.GoListFilter(true, "evm")
 )
 
