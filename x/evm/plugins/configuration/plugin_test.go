@@ -43,7 +43,7 @@ var _ = Describe("Plugin", func() {
 		ctx = testutil.NewContext()
 		storeKey := storetypes.NewKVStoreKey("evm")
 		p = &plugin{
-			evmStoreKey: storeKey,
+			storeKey:    storeKey,
 			paramsStore: ctx.KVStore(storeKey),
 		}
 	})
@@ -53,7 +53,7 @@ var _ = Describe("Plugin", func() {
 			p.Prepare(ctx)
 
 			// Check that the params store is initialized.
-			expect := prefix.NewStore(ctx.KVStore(p.evmStoreKey), paramsPrefix)
+			expect := prefix.NewStore(ctx.KVStore(p.storeKey), paramsPrefix)
 			Expect(p.paramsStore).To(Equal(expect))
 		})
 	})

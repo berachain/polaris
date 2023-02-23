@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/subtle"
+	"errors"
 
 	cmcrypto "github.com/cometbft/cometbft/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -49,6 +50,14 @@ const (
 
 // Compile-time type assertion.
 var _ cryptotypes.PubKey = &EthSecp256K1PubKey{}
+
+func NewPubKeyFromBytes(bz []byte) (cryptotypes.PubKey, error) {
+	if len(bz) != PubKeyNumBytes {
+		return nil, errors.New("invalid public key size")
+	}
+
+	return &EthSecp256K1PubKey{Key: bz}, nil
+}
 
 // `Address` returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.

@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 var paramsPrefix = []byte("params")
@@ -39,23 +40,27 @@ var paramsPrefix = []byte("params")
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.ConfigurationPlugin
+	SetParams(params *types.Params)
+	GetParams() *types.Params
 }
 
 // `plugin` implements the core.ConfigurationPlugin interface.
 type plugin struct {
-	evmStoreKey storetypes.StoreKey
+	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
 }
 
 // `NewPlugin` returns a new plugin instance.
-func NewPlugin() Plugin {
-	return &plugin{}
+func NewPlugin(storeKey storetypes.StoreKey) Plugin {
+	return &plugin{
+		storeKey: storeKey,
+	}
 }
 
 // `Prepare` implements the core.ConfigurationPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.evmStoreKey), paramsPrefix)
+	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.storeKey), paramsPrefix)
 }
 
 // `ChainConfig` implements the core.ConfigurationPlugin interface.

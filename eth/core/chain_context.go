@@ -37,7 +37,7 @@ type chainContext struct {
 
 // `GetHeader` returns the header for the given hash and height. This is used by the `GetHashFn`.
 func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
-	if header := cc.StateProcessor.bp.GetStargazerHeaderAtHeight(int64(height)); header != nil {
+	if header := cc.StateProcessor.bp.GetStargazerHeaderByNumber(int64(height)); header != nil {
 		return header.Header
 	}
 	return nil

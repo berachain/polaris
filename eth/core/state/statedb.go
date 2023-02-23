@@ -45,7 +45,7 @@ type stateDB struct {
 	// Journals built internally and required for the stateDB.
 	LogsJournal
 	RefundJournal
-	//TODO: Add a journal for the `accesslist journal` slice.
+	AccessListJournal
 
 	// `ctrl` is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
@@ -63,6 +63,7 @@ func NewStateDB(sp Plugin) vm.StargazerStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
+	aj := journal.NewAccesslist()
 
 	// Build the controller and register the plugins and journals
 
@@ -70,14 +71,16 @@ func NewStateDB(sp Plugin) vm.StargazerStateDB {
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(lj)
 	_ = ctrl.Register(rj)
+	_ = ctrl.Register(aj)
 	_ = ctrl.Register(sp)
 
 	return &stateDB{
-		Plugin:        sp,
-		LogsJournal:   lj,
-		RefundJournal: rj,
-		ctrl:          ctrl,
-		suicides:      make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		Plugin:            sp,
+		LogsJournal:       lj,
+		RefundJournal:     rj,
+		AccessListJournal: aj,
+		ctrl:              ctrl,
+		suicides:          make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}
 }
 
@@ -151,27 +154,27 @@ func (sdb *stateDB) Finalize() {
 }
 
 // =============================================================================
-// AccessList
+// AccessList and Transient Storage
 // =============================================================================
 
-// TODO: implement `AddAddressToAccessList`.
+// `AddAddressToAccessList` implements `stateDB`.
 func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
-	panic("not supported by Stargazer")
+	sdb.AddAddress(addr)
 }
 
-// TODO: implement `AddSlotToAccessList`
+// `AddSlotToAccessList` implements `stateDB`.
 func (sdb *stateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
-	panic("not supported by Stargazer")
+	sdb.AddSlot(addr, slot)
 }
 
-// TODO: implement `AddressInAccessList`
+// `AddressInAccessList` implements `stateDB`.
 func (sdb *stateDB) AddressInAccessList(addr common.Address) bool {
-	return false
+	return sdb.ContainsAddress(addr)
 }
 
-// TODO: implement `SlotInAccessList`
+// `SlotInAccessList` implements `stateDB`.
 func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
-	return false, false
+	return sdb.Contains(addr, slot)
 }
 
 // TODO: `GetTransientState` implements the `StargazerStateDB` interface by returning the transient state
@@ -184,10 +187,33 @@ func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Has
 	panic("not supported by Stargazer")
 }
 
-// TODO: `Prepare` implements the `StargazerStateDB` interface by preparing the stateDB for a new transaction.
+// Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
+//
+// `Prepare` implements `stateDB`.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
-	panic("not supported by Stargazer")
+	if rules.IsBerlin {
+		// Clear out any leftover from previous executions
+		sdb.AccessListJournal = journal.NewAccesslist()
+
+		sdb.AddAddress(sender)
+		if dest != nil {
+			sdb.AddAddress(*dest)
+			// If it's a create-tx, the destination will be added inside evm.create
+		}
+		for _, addr := range precompiles {
+			sdb.AddAddress(addr)
+		}
+		for _, el := range txAccesses {
+			sdb.AddAddress(el.Address)
+			for _, key := range el.StorageKeys {
+				sdb.AddSlot(el.Address, key)
+			}
+		}
+		if rules.IsShanghai { // EIP-3651: warm coinbase
+			sdb.AddAddress(coinbase)
+		}
+	}
 }
 
 // =============================================================================

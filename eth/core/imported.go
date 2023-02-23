@@ -49,17 +49,6 @@ var (
 	GetHashFn = core.GetHashFn
 	// `ApplyMessage` puts a message through the EVM.
 	ApplyMessage = core.ApplyMessage
-)
-
-var (
-	// `ErrInsufficientFundsForTransfer` is the error returned when the account does not have enough funds to transfer.
-	ErrInsufficientFundsForTransfer = core.ErrInsufficientFundsForTransfer
-	// `ErrInsufficientFunds` is the error returned when the account does not have enough funds to execute the transaction.
-	ErrInsufficientFunds = core.ErrInsufficientFunds
 	// `ErrInsufficientBalanceForGas` is the error return when gas required to execute a transaction overflows.
 	ErrGasUintOverflow = core.ErrGasUintOverflow
-	// `ErrIntrinsicGas` is the error returned when the transaction does not have enough gas to cover the intrinsic cost.
-	ErrIntrinsicGas = core.ErrIntrinsicGas
-	// `IntrinsicGas` is the intrinsic gas of a transaction.
-	EthIntrinsicGas = core.IntrinsicGas
 )

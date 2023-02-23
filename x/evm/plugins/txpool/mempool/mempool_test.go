@@ -18,6 +18,25 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package log
+package mempool
 
-type Handler = func(r *Record) error
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestEthPool(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/txpool/mempool")
+}
+
+var _ = Describe(`EthTxPool`, func() {
+	Describe(`EthTxPool`, func() {
+		It(`Should return a valid EthTxPool`, func() {
+			ethTxPool := EthTxPool{}
+			Expect(ethTxPool).ToNot(BeNil())
+		})
+	})
+})
