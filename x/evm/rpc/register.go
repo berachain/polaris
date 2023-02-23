@@ -25,6 +25,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	httpPath = "/eth/rpc"
+	wsPath   = "/eth/rpc"
+)
+
 // `RegisterJSONRPCServer` provides a common function which registers the ethereum rpc servers
 // with routes on the native Cosmos API Server.
 func RegisterJSONRPCServer(ctx client.Context, rtr *mux.Router, provider Provider) error {

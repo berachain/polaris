@@ -61,7 +61,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	// Currently since we are registering TransactionAPI using the native ethereum backend, it needs to be able to
 	// read the chainID from the ConfigurationPlugin (which is on disk). If we are enabling the APIs before
 	// InitGenesis is called, then we get a nil pointer error since the ConfigurationPlugin is not yet initialized.
-	if err := am.keeper.GetRPCProvider().SetupAPIs(); err != nil {
+	if err := am.keeper.GetRPCProvider().RegisterAPIs(); err != nil {
 		panic(err)
 	}
 

@@ -22,57 +22,69 @@ package rpc
 
 import (
 	"github.com/ethereum/go-ethereum/node"
-	"github.com/gin-gonic/gin"
 
 	"pkg.berachain.dev/stargazer/eth/rpc/config"
 )
 
-type Service struct {
-	backend StargazerBackend
+// `Service` is the interface for the JSON-RPC service.
+type Service interface {
+	SetBackend(StargazerBackend)
+	RegisterAPIs() error
+	GetHTTP() *Server
+	GetWS() *Server
+	GetConfig() *config.Server
+}
+
+// `Service` is a wrapper around go-ethereum JSON-RPC server(s). That also
+// supplies a backend to handle the requests.
+type service struct {
 	// `http` is the externally facing JSON-RPC Server.
 	http *Server
 	// `ws` is the externally facing JSON-RPC Server.
 	ws *Server
-	// `engine` is the gin engine responsible for handling the JSON-RPC requests.
-	// engine *gin.Engine
-	// `notify` is the channel that is used to notify the service has stopped.
-	notify chan error
 	// `config` is the configuration for the service.
-	config config.Server
-}
-
-type Logger interface {
-	gin.HandlerFunc
+	config *config.Server
+	// `backend` is the backend for the service.
+	backend StargazerBackend
 }
 
 // `New` returns a new `Service` object.
-func NewService(cfg config.Server, backend StargazerBackend) (*Service, error) {
-	// Create the service object.
-	s := &Service{
+func NewService(cfg *config.Server) Service {
+	return &service{
 		http:    NewServer(),
 		ws:      NewServer(),
 		config:  cfg,
-		notify:  make(chan error, 1),
-		backend: backend,
+		backend: nil,
 	}
-
-	return s, nil
 }
 
-func (s *Service) SetupAPIs() error {
+// `RegisterAPIs` registers the JSON-RPC APIs with the API service.
+func (s *service) RegisterAPIs() error {
 	apis := GetAPIs(s.backend)
 	for _, srv := range []*Server{s.http, s.ws} {
-		if err := node.RegisterApis(apis, s.config.SetupAPIs, srv); err != nil {
+		if err := node.RegisterApis(apis, s.config.EnabledAPIs, srv); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s *Service) GetHTTP() *Server {
+// `SetBackend` sets the backend for the service.
+func (s *service) SetBackend(backend StargazerBackend) {
+	s.backend = backend
+}
+
+// `GetConfig` returns the configuration for the service.
+func (s *service) GetConfig() *config.Server {
+	return s.config
+}
+
+// `GetHTTP` returns the HTTP server.
+func (s *service) GetHTTP() *Server {
 	return s.http
 }
 
-func (s *Service) GetWS() *Server {
+// `GetWS` returns the WS server.
+func (s *service) GetWS() *Server {
 	return s.ws
 }

@@ -92,7 +92,7 @@ func NewStargazerBackend(chain api.Chain, rpcConfig *config.Server) StargazerBac
 
 // ==============================================================================
 // General Ethereum API
-// ==============================================================================
+// ============================================================================ß==
 
 // `SyncProgress` returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
@@ -127,7 +127,7 @@ func (b *backend) AccountManager() *accounts.Manager {
 // `ExtRPCEnabled` returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
-	return b.rpcConfig.Address != "" || b.rpcConfig.WSAddress != ""
+	return b.rpcConfig.Enabled
 }
 
 // `RPCGasCap` returns the global gas cap for eth_call over rpc: this is

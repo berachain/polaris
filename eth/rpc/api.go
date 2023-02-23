@@ -22,30 +22,44 @@ package rpc
 
 import "pkg.berachain.dev/stargazer/eth/rpc/api"
 
-// `GetAPIs` returns a list of the available APIs.
+const (
+	// `debug` is the namespace for the debug API.
+	debug = "debug"
+
+	// `eth` is the namespace for the ethereum API.
+	eth = "eth"
+
+	// `net` is the namespace for the network API.
+	net = "net"
+
+	// `txpool` is the namespace for the transaction pool API.
+	txpool = "txpool"
+)
+
+// `GetAPIs` returns a list of all available APIs.
 func GetAPIs(apiBackend StargazerBackend) []API {
 	nonceLock := new(AddrLocker)
 	return []API{
 		{
-			Namespace: "eth",
+			Namespace: eth,
 			Service:   NewEthereumAPI(apiBackend),
 		}, {
-			Namespace: "eth",
+			Namespace: eth,
 			Service:   NewBlockChainAPI(apiBackend),
 		},
 		{
-			Namespace: "eth",
+			Namespace: eth,
 			Service:   NewTransactionAPI(apiBackend, nonceLock),
 		},
 		{
-			Namespace: "txpool",
+			Namespace: txpool,
 			Service:   NewTxPoolAPI(apiBackend),
 		}, {
-			Namespace: "debug",
+			Namespace: debug,
 			Service:   NewDebugAPI(apiBackend),
 		},
 		{
-			Namespace: "net",
+			Namespace: net,
 			Service:   api.NewNetAPI(apiBackend),
 		},
 	}
