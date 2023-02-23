@@ -21,6 +21,8 @@
 package state
 
 import (
+	"math/big"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
@@ -223,3 +225,17 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 // AddPreimage implements the the `StateDB“ interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
+
+// =============================================================================
+// Other
+// =============================================================================
+
+func (sdb *stateDB) StorageTrie(addr common.Address) (Trie, error)
+func (sdb *stateDB) Error() error
+func (sdb *stateDB) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error)
+func (sdb *stateDB) GetProof(addr common.Address) ([][]byte, error)
+func (sdb *stateDB) SetBalance(addr common.Address, amount *big.Int)
+func (sdb *stateDB) SetStorage(addr common.Address, storage map[common.Hash]common.Hash)
+func (sdb *stateDB) Finalise(deleteEmptyObjects bool)
+func (sdb *stateDB) Copy() StateDBI
+func (sdb *stateDB) SetTxContext(thash common.Hash, ti int)

@@ -6,6 +6,7 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"math/big"
@@ -47,14 +48,23 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			BuildLogsAndClearFunc: func(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log {
 //				panic("mock out the BuildLogsAndClear method")
 //			},
+//			CopyFunc: func() state.StateDBI {
+//				panic("mock out the Copy method")
+//			},
 //			CreateAccountFunc: func(address common.Address)  {
 //				panic("mock out the CreateAccount method")
 //			},
 //			EmptyFunc: func(address common.Address) bool {
 //				panic("mock out the Empty method")
 //			},
+//			ErrorFunc: func() error {
+//				panic("mock out the Error method")
+//			},
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
+//			},
+//			FinaliseFunc: func(deleteEmptyObjects bool)  {
+//				panic("mock out the Finalise method")
 //			},
 //			FinalizeFunc: func()  {
 //				panic("mock out the Finalize method")
@@ -80,11 +90,17 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
 //			},
+//			GetProofFunc: func(addr common.Address) ([][]byte, error) {
+//				panic("mock out the GetProof method")
+//			},
 //			GetRefundFunc: func() uint64 {
 //				panic("mock out the GetRefund method")
 //			},
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
+//			},
+//			GetStorageProofFunc: func(a common.Address, key common.Hash) ([][]byte, error) {
+//				panic("mock out the GetStorageProof method")
 //			},
 //			GetTransientStateFunc: func(addr common.Address, key common.Hash) common.Hash {
 //				panic("mock out the GetTransientState method")
@@ -101,6 +117,9 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
 //			},
+//			SetBalanceFunc: func(addr common.Address, amount *big.Int)  {
+//				panic("mock out the SetBalance method")
+//			},
 //			SetCodeFunc: func(address common.Address, bytes []byte)  {
 //				panic("mock out the SetCode method")
 //			},
@@ -110,14 +129,23 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
 //			},
+//			SetStorageFunc: func(addr common.Address, storage map[common.Hash]common.Hash)  {
+//				panic("mock out the SetStorage method")
+//			},
 //			SetTransientStateFunc: func(addr common.Address, key common.Hash, value common.Hash)  {
 //				panic("mock out the SetTransientState method")
+//			},
+//			SetTxContextFunc: func(thash common.Hash, ti int)  {
+//				panic("mock out the SetTxContext method")
 //			},
 //			SlotInAccessListFunc: func(addr common.Address, slot common.Hash) (bool, bool) {
 //				panic("mock out the SlotInAccessList method")
 //			},
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
+//			},
+//			StorageTrieFunc: func(addr common.Address) (state.Trie, error) {
+//				panic("mock out the StorageTrie method")
 //			},
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
@@ -162,14 +190,23 @@ type StargazerStateDBMock struct {
 	// BuildLogsAndClearFunc mocks the BuildLogsAndClear method.
 	BuildLogsAndClearFunc func(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log
 
+	// CopyFunc mocks the Copy method.
+	CopyFunc func() state.StateDBI
+
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
 
 	// EmptyFunc mocks the Empty method.
 	EmptyFunc func(address common.Address) bool
 
+	// ErrorFunc mocks the Error method.
+	ErrorFunc func() error
+
 	// ExistFunc mocks the Exist method.
 	ExistFunc func(address common.Address) bool
+
+	// FinaliseFunc mocks the Finalise method.
+	FinaliseFunc func(deleteEmptyObjects bool)
 
 	// FinalizeFunc mocks the Finalize method.
 	FinalizeFunc func()
@@ -195,11 +232,17 @@ type StargazerStateDBMock struct {
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
 
+	// GetProofFunc mocks the GetProof method.
+	GetProofFunc func(addr common.Address) ([][]byte, error)
+
 	// GetRefundFunc mocks the GetRefund method.
 	GetRefundFunc func() uint64
 
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
+
+	// GetStorageProofFunc mocks the GetStorageProof method.
+	GetStorageProofFunc func(a common.Address, key common.Hash) ([][]byte, error)
 
 	// GetTransientStateFunc mocks the GetTransientState method.
 	GetTransientStateFunc func(addr common.Address, key common.Hash) common.Hash
@@ -216,6 +259,9 @@ type StargazerStateDBMock struct {
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
 
+	// SetBalanceFunc mocks the SetBalance method.
+	SetBalanceFunc func(addr common.Address, amount *big.Int)
+
 	// SetCodeFunc mocks the SetCode method.
 	SetCodeFunc func(address common.Address, bytes []byte)
 
@@ -225,14 +271,23 @@ type StargazerStateDBMock struct {
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
 
+	// SetStorageFunc mocks the SetStorage method.
+	SetStorageFunc func(addr common.Address, storage map[common.Hash]common.Hash)
+
 	// SetTransientStateFunc mocks the SetTransientState method.
 	SetTransientStateFunc func(addr common.Address, key common.Hash, value common.Hash)
+
+	// SetTxContextFunc mocks the SetTxContext method.
+	SetTxContextFunc func(thash common.Hash, ti int)
 
 	// SlotInAccessListFunc mocks the SlotInAccessList method.
 	SlotInAccessListFunc func(addr common.Address, slot common.Hash) (bool, bool)
 
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
+
+	// StorageTrieFunc mocks the StorageTrie method.
+	StorageTrieFunc func(addr common.Address) (state.Trie, error)
 
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
@@ -300,6 +355,9 @@ type StargazerStateDBMock struct {
 			// LogIndex is the logIndex argument value.
 			LogIndex uint
 		}
+		// Copy holds details about calls to the Copy method.
+		Copy []struct {
+		}
 		// CreateAccount holds details about calls to the CreateAccount method.
 		CreateAccount []struct {
 			// Address is the address argument value.
@@ -310,10 +368,18 @@ type StargazerStateDBMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
+		// Error holds details about calls to the Error method.
+		Error []struct {
+		}
 		// Exist holds details about calls to the Exist method.
 		Exist []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// Finalise holds details about calls to the Finalise method.
+		Finalise []struct {
+			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
+			DeleteEmptyObjects bool
 		}
 		// Finalize holds details about calls to the Finalize method.
 		Finalize []struct {
@@ -357,6 +423,11 @@ type StargazerStateDBMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
+		// GetProof holds details about calls to the GetProof method.
+		GetProof []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+		}
 		// GetRefund holds details about calls to the GetRefund method.
 		GetRefund []struct {
 		}
@@ -366,6 +437,13 @@ type StargazerStateDBMock struct {
 			Address common.Address
 			// Hash is the hash argument value.
 			Hash common.Hash
+		}
+		// GetStorageProof holds details about calls to the GetStorageProof method.
+		GetStorageProof []struct {
+			// A is the a argument value.
+			A common.Address
+			// Key is the key argument value.
+			Key common.Hash
 		}
 		// GetTransientState holds details about calls to the GetTransientState method.
 		GetTransientState []struct {
@@ -404,6 +482,13 @@ type StargazerStateDBMock struct {
 			// N is the n argument value.
 			N int
 		}
+		// SetBalance holds details about calls to the SetBalance method.
+		SetBalance []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Amount is the amount argument value.
+			Amount *big.Int
+		}
 		// SetCode holds details about calls to the SetCode method.
 		SetCode []struct {
 			// Address is the address argument value.
@@ -427,6 +512,13 @@ type StargazerStateDBMock struct {
 			// Hash2 is the hash2 argument value.
 			Hash2 common.Hash
 		}
+		// SetStorage holds details about calls to the SetStorage method.
+		SetStorage []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Storage is the storage argument value.
+			Storage map[common.Hash]common.Hash
+		}
 		// SetTransientState holds details about calls to the SetTransientState method.
 		SetTransientState []struct {
 			// Addr is the addr argument value.
@@ -435,6 +527,13 @@ type StargazerStateDBMock struct {
 			Key common.Hash
 			// Value is the value argument value.
 			Value common.Hash
+		}
+		// SetTxContext holds details about calls to the SetTxContext method.
+		SetTxContext []struct {
+			// Thash is the thash argument value.
+			Thash common.Hash
+			// Ti is the ti argument value.
+			Ti int
 		}
 		// SlotInAccessList holds details about calls to the SlotInAccessList method.
 		SlotInAccessList []struct {
@@ -445,6 +544,11 @@ type StargazerStateDBMock struct {
 		}
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
+		}
+		// StorageTrie holds details about calls to the StorageTrie method.
+		StorageTrie []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
 		}
 		// SubBalance holds details about calls to the SubBalance method.
 		SubBalance []struct {
@@ -481,9 +585,12 @@ type StargazerStateDBMock struct {
 	lockAddSlotToAccessList    sync.RWMutex
 	lockAddressInAccessList    sync.RWMutex
 	lockBuildLogsAndClear      sync.RWMutex
+	lockCopy                   sync.RWMutex
 	lockCreateAccount          sync.RWMutex
 	lockEmpty                  sync.RWMutex
+	lockError                  sync.RWMutex
 	lockExist                  sync.RWMutex
+	lockFinalise               sync.RWMutex
 	lockFinalize               sync.RWMutex
 	lockForEachStorage         sync.RWMutex
 	lockGetBalance             sync.RWMutex
@@ -492,19 +599,25 @@ type StargazerStateDBMock struct {
 	lockGetCodeSize            sync.RWMutex
 	lockGetCommittedState      sync.RWMutex
 	lockGetNonce               sync.RWMutex
+	lockGetProof               sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
+	lockGetStorageProof        sync.RWMutex
 	lockGetTransientState      sync.RWMutex
 	lockHasSuicided            sync.RWMutex
 	lockPrepare                sync.RWMutex
 	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
+	lockSetBalance             sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
 	lockSetState               sync.RWMutex
+	lockSetStorage             sync.RWMutex
 	lockSetTransientState      sync.RWMutex
+	lockSetTxContext           sync.RWMutex
 	lockSlotInAccessList       sync.RWMutex
 	lockSnapshot               sync.RWMutex
+	lockStorageTrie            sync.RWMutex
 	lockSubBalance             sync.RWMutex
 	lockSubRefund              sync.RWMutex
 	lockSuicide                sync.RWMutex
@@ -791,6 +904,33 @@ func (mock *StargazerStateDBMock) BuildLogsAndClearCalls() []struct {
 	return calls
 }
 
+// Copy calls CopyFunc.
+func (mock *StargazerStateDBMock) Copy() state.StateDBI {
+	if mock.CopyFunc == nil {
+		panic("StargazerStateDBMock.CopyFunc: method is nil but StargazerStateDB.Copy was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockCopy.Lock()
+	mock.calls.Copy = append(mock.calls.Copy, callInfo)
+	mock.lockCopy.Unlock()
+	return mock.CopyFunc()
+}
+
+// CopyCalls gets all the calls that were made to Copy.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.CopyCalls())
+func (mock *StargazerStateDBMock) CopyCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockCopy.RLock()
+	calls = mock.calls.Copy
+	mock.lockCopy.RUnlock()
+	return calls
+}
+
 // CreateAccount calls CreateAccountFunc.
 func (mock *StargazerStateDBMock) CreateAccount(address common.Address) {
 	if mock.CreateAccountFunc == nil {
@@ -855,6 +995,33 @@ func (mock *StargazerStateDBMock) EmptyCalls() []struct {
 	return calls
 }
 
+// Error calls ErrorFunc.
+func (mock *StargazerStateDBMock) Error() error {
+	if mock.ErrorFunc == nil {
+		panic("StargazerStateDBMock.ErrorFunc: method is nil but StargazerStateDB.Error was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockError.Lock()
+	mock.calls.Error = append(mock.calls.Error, callInfo)
+	mock.lockError.Unlock()
+	return mock.ErrorFunc()
+}
+
+// ErrorCalls gets all the calls that were made to Error.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.ErrorCalls())
+func (mock *StargazerStateDBMock) ErrorCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockError.RLock()
+	calls = mock.calls.Error
+	mock.lockError.RUnlock()
+	return calls
+}
+
 // Exist calls ExistFunc.
 func (mock *StargazerStateDBMock) Exist(address common.Address) bool {
 	if mock.ExistFunc == nil {
@@ -884,6 +1051,38 @@ func (mock *StargazerStateDBMock) ExistCalls() []struct {
 	mock.lockExist.RLock()
 	calls = mock.calls.Exist
 	mock.lockExist.RUnlock()
+	return calls
+}
+
+// Finalise calls FinaliseFunc.
+func (mock *StargazerStateDBMock) Finalise(deleteEmptyObjects bool) {
+	if mock.FinaliseFunc == nil {
+		panic("StargazerStateDBMock.FinaliseFunc: method is nil but StargazerStateDB.Finalise was just called")
+	}
+	callInfo := struct {
+		DeleteEmptyObjects bool
+	}{
+		DeleteEmptyObjects: deleteEmptyObjects,
+	}
+	mock.lockFinalise.Lock()
+	mock.calls.Finalise = append(mock.calls.Finalise, callInfo)
+	mock.lockFinalise.Unlock()
+	mock.FinaliseFunc(deleteEmptyObjects)
+}
+
+// FinaliseCalls gets all the calls that were made to Finalise.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.FinaliseCalls())
+func (mock *StargazerStateDBMock) FinaliseCalls() []struct {
+	DeleteEmptyObjects bool
+} {
+	var calls []struct {
+		DeleteEmptyObjects bool
+	}
+	mock.lockFinalise.RLock()
+	calls = mock.calls.Finalise
+	mock.lockFinalise.RUnlock()
 	return calls
 }
 
@@ -1146,6 +1345,38 @@ func (mock *StargazerStateDBMock) GetNonceCalls() []struct {
 	return calls
 }
 
+// GetProof calls GetProofFunc.
+func (mock *StargazerStateDBMock) GetProof(addr common.Address) ([][]byte, error) {
+	if mock.GetProofFunc == nil {
+		panic("StargazerStateDBMock.GetProofFunc: method is nil but StargazerStateDB.GetProof was just called")
+	}
+	callInfo := struct {
+		Addr common.Address
+	}{
+		Addr: addr,
+	}
+	mock.lockGetProof.Lock()
+	mock.calls.GetProof = append(mock.calls.GetProof, callInfo)
+	mock.lockGetProof.Unlock()
+	return mock.GetProofFunc(addr)
+}
+
+// GetProofCalls gets all the calls that were made to GetProof.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.GetProofCalls())
+func (mock *StargazerStateDBMock) GetProofCalls() []struct {
+	Addr common.Address
+} {
+	var calls []struct {
+		Addr common.Address
+	}
+	mock.lockGetProof.RLock()
+	calls = mock.calls.GetProof
+	mock.lockGetProof.RUnlock()
+	return calls
+}
+
 // GetRefund calls GetRefundFunc.
 func (mock *StargazerStateDBMock) GetRefund() uint64 {
 	if mock.GetRefundFunc == nil {
@@ -1206,6 +1437,42 @@ func (mock *StargazerStateDBMock) GetStateCalls() []struct {
 	mock.lockGetState.RLock()
 	calls = mock.calls.GetState
 	mock.lockGetState.RUnlock()
+	return calls
+}
+
+// GetStorageProof calls GetStorageProofFunc.
+func (mock *StargazerStateDBMock) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error) {
+	if mock.GetStorageProofFunc == nil {
+		panic("StargazerStateDBMock.GetStorageProofFunc: method is nil but StargazerStateDB.GetStorageProof was just called")
+	}
+	callInfo := struct {
+		A   common.Address
+		Key common.Hash
+	}{
+		A:   a,
+		Key: key,
+	}
+	mock.lockGetStorageProof.Lock()
+	mock.calls.GetStorageProof = append(mock.calls.GetStorageProof, callInfo)
+	mock.lockGetStorageProof.Unlock()
+	return mock.GetStorageProofFunc(a, key)
+}
+
+// GetStorageProofCalls gets all the calls that were made to GetStorageProof.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.GetStorageProofCalls())
+func (mock *StargazerStateDBMock) GetStorageProofCalls() []struct {
+	A   common.Address
+	Key common.Hash
+} {
+	var calls []struct {
+		A   common.Address
+		Key common.Hash
+	}
+	mock.lockGetStorageProof.RLock()
+	calls = mock.calls.GetStorageProof
+	mock.lockGetStorageProof.RUnlock()
 	return calls
 }
 
@@ -1393,6 +1660,42 @@ func (mock *StargazerStateDBMock) RevertToSnapshotCalls() []struct {
 	return calls
 }
 
+// SetBalance calls SetBalanceFunc.
+func (mock *StargazerStateDBMock) SetBalance(addr common.Address, amount *big.Int) {
+	if mock.SetBalanceFunc == nil {
+		panic("StargazerStateDBMock.SetBalanceFunc: method is nil but StargazerStateDB.SetBalance was just called")
+	}
+	callInfo := struct {
+		Addr   common.Address
+		Amount *big.Int
+	}{
+		Addr:   addr,
+		Amount: amount,
+	}
+	mock.lockSetBalance.Lock()
+	mock.calls.SetBalance = append(mock.calls.SetBalance, callInfo)
+	mock.lockSetBalance.Unlock()
+	mock.SetBalanceFunc(addr, amount)
+}
+
+// SetBalanceCalls gets all the calls that were made to SetBalance.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.SetBalanceCalls())
+func (mock *StargazerStateDBMock) SetBalanceCalls() []struct {
+	Addr   common.Address
+	Amount *big.Int
+} {
+	var calls []struct {
+		Addr   common.Address
+		Amount *big.Int
+	}
+	mock.lockSetBalance.RLock()
+	calls = mock.calls.SetBalance
+	mock.lockSetBalance.RUnlock()
+	return calls
+}
+
 // SetCode calls SetCodeFunc.
 func (mock *StargazerStateDBMock) SetCode(address common.Address, bytes []byte) {
 	if mock.SetCodeFunc == nil {
@@ -1505,6 +1808,42 @@ func (mock *StargazerStateDBMock) SetStateCalls() []struct {
 	return calls
 }
 
+// SetStorage calls SetStorageFunc.
+func (mock *StargazerStateDBMock) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	if mock.SetStorageFunc == nil {
+		panic("StargazerStateDBMock.SetStorageFunc: method is nil but StargazerStateDB.SetStorage was just called")
+	}
+	callInfo := struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}{
+		Addr:    addr,
+		Storage: storage,
+	}
+	mock.lockSetStorage.Lock()
+	mock.calls.SetStorage = append(mock.calls.SetStorage, callInfo)
+	mock.lockSetStorage.Unlock()
+	mock.SetStorageFunc(addr, storage)
+}
+
+// SetStorageCalls gets all the calls that were made to SetStorage.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.SetStorageCalls())
+func (mock *StargazerStateDBMock) SetStorageCalls() []struct {
+	Addr    common.Address
+	Storage map[common.Hash]common.Hash
+} {
+	var calls []struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}
+	mock.lockSetStorage.RLock()
+	calls = mock.calls.SetStorage
+	mock.lockSetStorage.RUnlock()
+	return calls
+}
+
 // SetTransientState calls SetTransientStateFunc.
 func (mock *StargazerStateDBMock) SetTransientState(addr common.Address, key common.Hash, value common.Hash) {
 	if mock.SetTransientStateFunc == nil {
@@ -1542,6 +1881,42 @@ func (mock *StargazerStateDBMock) SetTransientStateCalls() []struct {
 	mock.lockSetTransientState.RLock()
 	calls = mock.calls.SetTransientState
 	mock.lockSetTransientState.RUnlock()
+	return calls
+}
+
+// SetTxContext calls SetTxContextFunc.
+func (mock *StargazerStateDBMock) SetTxContext(thash common.Hash, ti int) {
+	if mock.SetTxContextFunc == nil {
+		panic("StargazerStateDBMock.SetTxContextFunc: method is nil but StargazerStateDB.SetTxContext was just called")
+	}
+	callInfo := struct {
+		Thash common.Hash
+		Ti    int
+	}{
+		Thash: thash,
+		Ti:    ti,
+	}
+	mock.lockSetTxContext.Lock()
+	mock.calls.SetTxContext = append(mock.calls.SetTxContext, callInfo)
+	mock.lockSetTxContext.Unlock()
+	mock.SetTxContextFunc(thash, ti)
+}
+
+// SetTxContextCalls gets all the calls that were made to SetTxContext.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.SetTxContextCalls())
+func (mock *StargazerStateDBMock) SetTxContextCalls() []struct {
+	Thash common.Hash
+	Ti    int
+} {
+	var calls []struct {
+		Thash common.Hash
+		Ti    int
+	}
+	mock.lockSetTxContext.RLock()
+	calls = mock.calls.SetTxContext
+	mock.lockSetTxContext.RUnlock()
 	return calls
 }
 
@@ -1605,6 +1980,38 @@ func (mock *StargazerStateDBMock) SnapshotCalls() []struct {
 	mock.lockSnapshot.RLock()
 	calls = mock.calls.Snapshot
 	mock.lockSnapshot.RUnlock()
+	return calls
+}
+
+// StorageTrie calls StorageTrieFunc.
+func (mock *StargazerStateDBMock) StorageTrie(addr common.Address) (state.Trie, error) {
+	if mock.StorageTrieFunc == nil {
+		panic("StargazerStateDBMock.StorageTrieFunc: method is nil but StargazerStateDB.StorageTrie was just called")
+	}
+	callInfo := struct {
+		Addr common.Address
+	}{
+		Addr: addr,
+	}
+	mock.lockStorageTrie.Lock()
+	mock.calls.StorageTrie = append(mock.calls.StorageTrie, callInfo)
+	mock.lockStorageTrie.Unlock()
+	return mock.StorageTrieFunc(addr)
+}
+
+// StorageTrieCalls gets all the calls that were made to StorageTrie.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.StorageTrieCalls())
+func (mock *StargazerStateDBMock) StorageTrieCalls() []struct {
+	Addr common.Address
+} {
+	var calls []struct {
+		Addr common.Address
+	}
+	mock.lockStorageTrie.RLock()
+	calls = mock.calls.StorageTrie
+	mock.lockStorageTrie.RUnlock()
 	return calls
 }
 

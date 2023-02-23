@@ -58,9 +58,6 @@ var DefaultGasPriceOracleConfig = gasprice.Config{
 	MaxPrice:         big.NewInt(1000000000000000000),
 }
 
-// Compile-time type assertion.
-var _ StargazerBackend = (*backend)(nil)
-
 type StargazerBackend interface {
 	Backend
 	rpcapi.NetBackend
@@ -247,13 +244,13 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 }
 
 func (b *backend) StateAndHeaderByNumber(ctx context.Context,
-	number BlockNumber) (*state.StateDB, *types.Header, error) {
+	number BlockNumber) (state.StateDBI, *types.Header, error) {
 	panic("StateAndHeaderByNumber not implemented")
 	// return nil, nil, nil
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(ctx context.Context,
-	blockNrOrHash BlockNumberOrHash) (*state.StateDB, *types.Header, error) {
+	blockNrOrHash BlockNumberOrHash) (state.StateDBI, *types.Header, error) {
 	panic("StateAndHeaderByNumberOrHash not implemented")
 	// return nil, nil, nil
 }
@@ -279,7 +276,7 @@ func (b *backend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
 	return new(big.Int)
 }
 
-func (b *backend) GetEVM(ctx context.Context, msg core.Message, state *state.StateDB,
+func (b *backend) GetEVM(ctx context.Context, msg core.Message, state state.StateDBI,
 	header *types.Header, vmConfig *vm.Config,
 ) (*vm.GethEVM, func() error, error) {
 	// if vmConfig == nil {
