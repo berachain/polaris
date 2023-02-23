@@ -221,15 +221,12 @@ var _ = Describe("State Plugin", func() {
 					Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
 				})
 				It("should iterate properly", func() {
-					// var cr types.CodeRecord
-					// sp.IterateCode(func(addr common.Address, code []byte) bool {
-					// 	cr.Address = addr.Hex()
-					// 	cr.Code = code
-					// 	return true // stop iteration
-					// })
-
-					// Expect(cr.Address).To(Equal(alice.Hex()))
-					// Expect(cr.Code).To(Equal([]byte("code")))
+					a := make(map[common.Address][]byte)
+					sp.IterateCode(func(addr common.Address, code []byte) bool {
+						a[addr] = code
+						return true // stop iteration
+					})
+					Expect(a[alice]).To(Equal([]byte("code")))
 				})
 
 			})
@@ -250,22 +247,17 @@ var _ = Describe("State Plugin", func() {
 			})
 
 			It("should iterate over committed state", func() {
-				// // Set the state to a contract and slot.
-				// sp.Reset(ctx)
-				// sp.SetState(alice, common.Hash{3}, common.Hash{2})
-				// sp.Finalize()
+				// Set the state to a contract and slot.
+				sp.Reset(ctx)
+				sp.SetState(alice, common.Hash{3}, common.Hash{2})
+				sp.Finalize()
 
-				// var sr types.StateRecord
-				// sp.IterateState(func(addr common.Address, key, value common.Hash) bool {
-				// 	sr.Address = addr.Hex()
-				// 	sr.Slot = key.Bytes()
-				// 	sr.Value = value.Bytes()
-				// 	return true // stop iteration
-				// })
-
-				// Expect(sr.Address).To(Equal(alice.Hex()))
-				// Expect(sr.Slot).To(Equal(common.Hash{3}.Bytes()))
-				// Expect(sr.Value).To(Equal(common.Hash{2}.Bytes()))
+				a := make(map[common.Hash]common.Hash)
+				sp.IterateState(func(addr common.Address, key, value common.Hash) bool {
+					a[key] = value
+					return true // stop iteration
+				})
+				Expect(a[common.Hash{3}]).To(Equal(common.Hash{2}))
 			})
 
 			It("should have state changed", func() {

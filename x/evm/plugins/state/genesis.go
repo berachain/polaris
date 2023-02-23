@@ -23,69 +23,68 @@ package state
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // `InitGenesis` takes in a pointer to a genesis state object and populates the KV store.
 func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
-	// p.Reset(ctx)
-
-	// for _, cr := range data.CodeRecords {
-	// 	addr := common.HexToAddress(cr.Address)
-	// 	p.SetCode(addr, cr.Code)
-	// }
-
-	// for _, sr := range data.StateRecords {
-	// 	addr := common.HexToAddress(sr.Address)
-	// 	slot := common.BytesToHash(sr.Slot)
-	// 	value := common.BytesToHash(sr.Value)
-	// 	p.SetState(addr, slot, value)
-	// }
-
-	// p.Finalize()
-
 	p.Reset(ctx)
 
-	// for address, contractState := range data.AddressToContractState {
-	// 	// Get the address and code hash.
-	// 	addr := common.HexToAddress(address)
-	// 	ch := common.HexToHash(contractState.CodeHash)
+	for contract, contractState := range data.AddressToContract {
+		// Get the code from the code hash to code map.
+		code := common.Hex2Bytes(data.HashToCode[contractState.CodeHash])
+		addr := common.HexToAddress(contract)
+		p.SetCode(addr, code)
 
-	// 	// Get the code.
-	// 	code := contractState.CodeHashToCode[ch.Hex()]
-
-	// 	// Set the code.
-	// 	p.SetCode(addr, common.Hex2Bytes(code))
-
-	// 	// Iterate over all the state records and add them to the slot > value store.
-	// 	for slot, value := range contractState.AddressToStateData {}
-	// }
+		// Loop through the contract slot to value map and set the state.
+		for k, v := range contractState.SlotToValue {
+			slot := common.HexToHash(k)
+			value := common.HexToHash(v)
+			p.SetState(addr, slot, value)
+		}
+	}
 
 	p.Finalize()
 }
 
 // `Export` genesis modifies a pointer to a genesis state object and populates it.
 func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
-	// p.Reset(ctx)
+	p.Reset(ctx)
 
-	// // Iterate over all the code records and add them to the genesis state.
-	// p.IterateCode(func(addr common.Address, code []byte) bool {
-	// 	data.CodeRecords = append(data.CodeRecords, types.CodeRecord{
-	// 		Address: addr.Hex(),
-	// 		Code:    code,
-	// 	})
-	// 	return false
-	// })
+	// Address to contract state map.
+	atc := make(map[string]*types.Contract)
+	// Code hash to code map.
+	htc := make(map[string]string)
 
-	// // Iterate over all the state records and add them to the genesis state.
-	// p.IterateState(func(addr common.Address, key, value common.Hash) bool {
-	// 	data.StateRecords = append(data.StateRecords, types.StateRecord{
-	// 		Address: addr.Hex(),
-	// 		Slot:    key.Bytes(),
-	// 		Value:   value.Bytes(),
-	// 	})
-	// 	return false
-	// })
+	// Iterate over all the code records and add them to the genesis state.
+	p.IterateCode(func(address common.Address, code []byte) bool {
+		// Get the contract code hash.
+		codeHash := common.BytesToHash(code).Hex()
 
-	// p.Finalize()
+		// Add the code hash and code to the code hash to code map.
+		htc[codeHash] = common.Bytes2Hex(code)
+
+		return false // keep iterating
+	})
+
+	// Iterate over all the contract state records and add them to the map.
+	p.IterateState(func(address common.Address, key, value common.Hash) bool {
+		// If the slot to value map is nil, allocate memory for it.
+		if atc[address.Hex()] == nil {
+			atc[address.Hex()] = &types.Contract{
+				SlotToValue: make(map[string]string),
+			}
+		}
+
+		// Set the slots to values map.
+		atc[address.Hex()].SlotToValue[key.Hex()] = value.Hex()
+		return false // keep iterating
+	})
+
+	// Add to the genesis state.
+	data.AddressToContract = atc
+	data.HashToCode = htc
+
+	p.Finalize()
 }

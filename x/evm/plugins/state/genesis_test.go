@@ -20,49 +20,67 @@
 
 package state
 
-// import (
-// 	. "github.com/onsi/ginkgo/v2"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	. "github.com/onsi/ginkgo/v2"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/testutil"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 
-// 	. "github.com/onsi/gomega"
-// )
+	. "github.com/onsi/gomega"
+)
 
-// var (
-// 	alice = testutil.Alice
-// )
+var (
+	alice = testutil.Alice
+)
 
-// var _ = Describe("Genesis", func() {
-// 	var (
-// 		ctx sdk.Context
-// 		sp  Plugin
-// 	)
+var _ = Describe("Genesis", func() {
+	var (
+		ctx         sdk.Context
+		sp          Plugin
+		contract    *types.Contract
+		slotToValue map[string]string
+		atc         map[string]*types.Contract
+		htc         map[string]string
+	)
 
-// 	BeforeEach(func() {
-// 		var ak AccountKeeper
-// 		var bk BankKeeper
-// 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-// 		sp = NewPlugin(ak, bk, testutil.EvmKey, "abera", nil)
-// 		sp.InitGenesis(ctx, &types.GenesisState{
-// 			CodeRecords: []types.CodeRecord{
-// 				{
-// 					Address: alice.Hex(),
-// 					Code:    []byte("code"),
-// 				},
-// 			},
-// 			StateRecords: []types.StateRecord{
-// 				{
-// 					Address: alice.Hex(),
-// 					Slot:    []byte("slot"),
-// 					Value:   []byte("value"),
-// 				},
-// 			},
-// 		})
-// 	})
+	BeforeEach(func() {
+		var ak AccountKeeper
+		var bk BankKeeper
+		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
+		sp = NewPlugin(ak, bk, testutil.EvmKey, "abera", nil)
 
-// 	It("should export current state", func() {
-// 		var gs types.GenesisState
-// 		sp.ExportGenesis(ctx, &gs)
+		// New Contract.
+		codeHash := common.HexToHash("0x123")
+		code := []byte("code")
+		slotToValue = make(map[string]string)
+		slotToValue[common.HexToHash("0x456").Hex()] = common.HexToHash("0x789").Hex()
+		contract = types.NewContract(codeHash, code, slotToValue)
 
-// 		Expect(gs.CodeRecords).To(HaveLen(1))
-// 		Expect(gs.CodeRecords[0].Address).To(Equal(alice.Hex()))
-// 	})
-// })
+		// New Address to Contract.
+		atc = make(map[string]*types.Contract)
+		atc[alice.Hex()] = contract
+
+		// New Hash to Code.
+		htc = make(map[string]string)
+		htc[codeHash.Hex()] = string(code)
+
+		// Init Genesis.
+		genesis := types.NewGenesisState(
+			*types.DefaultParams(),
+			atc,
+			htc,
+		)
+		sp.InitGenesis(ctx, genesis)
+	})
+
+	It("should export current state", func() {
+		sp.Reset(ctx)
+		sp.SetState(alice, common.HexToHash("0x456"), common.HexToHash("0x789"))
+		sp.Finalize()
+		var gs types.GenesisState
+		sp.ExportGenesis(ctx, &gs)
+
+		Expect(gs.AddressToContract).To(HaveLen(1))
+	})
+})
