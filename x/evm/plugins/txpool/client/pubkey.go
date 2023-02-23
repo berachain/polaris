@@ -18,37 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto
+package client
 
 import (
-	"errors"
-	"math/big"
-
-	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/crypto"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
-// `RecoverPubkey` recovers the public key from the given signature.
-func RecoverPubkey(sighash common.Hash, rb, sb, vb *big.Int, homestead bool) ([]byte, error) {
-	if vb.BitLen() > 8 { //nolint:gomnd // 8 is the length of a byte.
-		return nil, errors.New("invalid signature length")
-	}
-	v := byte(vb.Uint64() - 27) //nolint:gomnd // 27 is the offset for the recovery id.
-	if !ValidateSignatureValues(v, rb, sb, homestead) {
-		return nil, errors.New("invalid signature values")
-	}
-	// encode the signature in uncompressed format
-	r, s := rb.Bytes(), sb.Bytes()
-	sig := make([]byte, SignatureLength)
-	copy(sig[32-len(r):32], r)
-	copy(sig[64-len(s):64], s)
-	sig[64] = v
-	// recover the public key from the signature
-	pub, err := Ecrecover(sighash[:], sig)
+// `PubkeyFromTx` returns the public key of the signer of the transaction.
+func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*crypto.EthSecp256K1PubKey, error) {
+	bz, err := signer.PubKey(signedTx)
 	if err != nil {
-		return nil, err
+		return &crypto.EthSecp256K1PubKey{}, err
 	}
-	if len(pub) == 0 || pub[0] != 4 {
-		return nil, errors.New("invalid public key")
-	}
-	return pub, nil
+	return &crypto.EthSecp256K1PubKey{Key: bz}, nil
 }

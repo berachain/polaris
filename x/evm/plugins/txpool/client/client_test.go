@@ -18,24 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto
+package client
 
-import "github.com/ethereum/go-ethereum/crypto"
+import (
+	"testing"
 
-var (
-	CreateAddress           = crypto.CreateAddress
-	CompressPubkey          = crypto.CompressPubkey
-	DecompressPubkey        = crypto.DecompressPubkey
-	DigestLength            = crypto.DigestLength
-	EthSign                 = crypto.Sign
-	Ecrecover               = crypto.Ecrecover
-	FromECDSA               = crypto.FromECDSA
-	GenerateEthKey          = crypto.GenerateKey
-	ValidateSignatureValues = crypto.ValidateSignatureValues
-	Keccak256Hash           = crypto.Keccak256Hash
-	PubkeyToAddress         = crypto.PubkeyToAddress
-	SignatureLength         = crypto.SignatureLength
-	ToECDSA                 = crypto.ToECDSA
-	VerifySignature         = crypto.VerifySignature
-	FromECDSAPub            = crypto.FromECDSAPub
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
+
+func TestCrypto(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/txpool/client")
+}
