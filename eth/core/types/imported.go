@@ -39,12 +39,14 @@ type (
 	Header            = types.Header
 	BlockNonce        = types.BlockNonce
 	DynamicFeeTx      = types.DynamicFeeTx
+	AccessListTx      = types.AccessListTx
 	LegacyTx          = types.LegacyTx
 	TxData            = types.TxData
 	Signer            = types.Signer
 )
 
 var (
+	NewLondonSigner        = types.NewLondonSigner
 	BytesToBloom           = types.BytesToBloom
 	CreateBloom            = types.CreateBloom
 	MakeSigner             = types.MakeSigner

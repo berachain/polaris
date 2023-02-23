@@ -28,7 +28,6 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	ethcrypto "pkg.berachain.dev/stargazer/eth/crypto"
 	txpoolclient "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/client"
 	mempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/rpc"
@@ -103,9 +102,7 @@ func (p *plugin) GetNonce(addr common.Address) uint64 {
 
 // `PubkeyFromTx` returns the public key of the signer of the transaction.
 func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (crypto.EthSecp256K1PubKey, error) {
-	hash := signer.Hash(signedTx)
-	v, r, s := signedTx.RawSignatureValues()
-	pk, err := ethcrypto.RecoverPubkey(hash, r, s, v, true)
+	pk, err := signer.PubKey(signedTx)
 	if err != nil {
 		return crypto.EthSecp256K1PubKey{}, err
 	}
