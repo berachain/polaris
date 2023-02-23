@@ -44,7 +44,7 @@ type ChainWriter interface {
 	// the block.
 	Prepare(ctx context.Context, height int64)
 	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
-	// the state transition. This method is called for each tx in the block
+	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.

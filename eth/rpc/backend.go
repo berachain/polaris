@@ -92,7 +92,7 @@ func NewStargazerBackend(chain api.Chain, rpcConfig *config.Server) StargazerBac
 
 // ==============================================================================
 // General Ethereum API
-// ============================================================================ß==
+// ==============================================================================
 
 // `SyncProgress` returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
