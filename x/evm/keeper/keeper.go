@@ -95,7 +95,9 @@ func NewKeeper(
 	plf := precompilelog.NewFactory()
 
 	// Setup the RPC Service. // TODO: parameterize config.
-	k.rpcProvider = evmrpc.NewProvider(ethrpcconfig.DefaultServer())
+	cfg := ethrpcconfig.DefaultServer()
+	cfg.BaseRoute = "/eth/rpc"
+	k.rpcProvider = evmrpc.NewProvider(cfg)
 
 	// Build the Plugins
 	k.bp = block.NewPlugin(k, k.offChainKv)
