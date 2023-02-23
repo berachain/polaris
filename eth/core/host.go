@@ -65,8 +65,6 @@ type (
 		GetStargazerBlockByNumber(int64) *types.StargazerBlock
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
 		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
-		// `GetStateByNumber` returns the state at the given block height.
-		GetStateByNumber(int64) vm.GethStateDB
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}
@@ -96,7 +94,11 @@ type (
 	}
 
 	// `StatePlugin` defines the methods that the chain running Stargazer EVM should implement.
-	StatePlugin = state.Plugin
+	StatePlugin interface {
+		state.Plugin
+		// `GetStateByNumber` returns the state at the given block height.
+		GetStateByNumber(int64) (vm.GethStateDB, error)
+	}
 
 	// `ConfigurationPlugin` defines the methods that the chain running Stargazer EVM should
 	// implement in order to configuration the parameters of the Stargazer EVM.

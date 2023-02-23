@@ -245,8 +245,12 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context, number BlockNumber,
 ) (vm.GethStateDB, *types.Header, error) {
+	state, err := b.chain.GetStateByNumber(number.Int64())
+	if err != nil {
+		return nil, nil, err
+	}
 	header, err := b.HeaderByNumber(ctx, number)
-	return b.chain.GetStateByNumber(number.Int64()), header, err
+	return state, header, err
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(

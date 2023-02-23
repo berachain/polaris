@@ -107,6 +107,6 @@ func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Su
 // 	return bc.scope.Track(bc.blockProcFeed.Subscribe(ch))
 // }
 
-func (bc *blockchain) GetStateByNumber(number int64) vm.GethStateDB {
-	return bc.processor.bp.GetStateByNumber(number)
+func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
+	return bc.host.GetStatePlugin().GetStateByNumber(number)
 }

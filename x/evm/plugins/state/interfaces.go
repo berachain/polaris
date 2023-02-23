@@ -74,3 +74,9 @@ type BankKeeper interface {
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
+
+// `QueryContext` is an interface that defines the `CreateQueryContext` method.
+type QueryContext interface {
+	// `CreateQueryContext` should return a SDK context that can query state at the given height.
+	CreateQueryContext(height int64, prove bool) (sdk.Context, error)
+}

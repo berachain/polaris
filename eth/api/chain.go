@@ -59,5 +59,5 @@ type ChainReader interface {
 	GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock
 	GetStargazerBlockByNumber(number int64) *types.StargazerBlock
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
-	GetStateByNumber(number int64) vm.GethStateDB
+	GetStateByNumber(number int64) (vm.GethStateDB, error)
 }

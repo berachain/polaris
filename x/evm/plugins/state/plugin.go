@@ -29,6 +29,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/lib/snapshot"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
@@ -97,6 +98,9 @@ type plugin struct {
 	// keepers used for balance and account information.
 	ak AccountKeeper
 	bk BankKeeper
+
+	// used to fetch historical state
+	qc QueryContext
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
@@ -408,6 +412,18 @@ func (p *plugin) ForEachStorage(
 	}
 
 	return nil
+}
+
+// =============================================================================
+// Historical State
+// =============================================================================
+
+func (p *plugin) GetStateByNumber(height int64) (vm.GethStateDB, error) {
+	ctx, err := p.qc.CreateQueryContext(height, false)
+	if err != nil {
+		return nil, err
+	}
+
 }
 
 // `DeleteSuicides` manually deletes the given suicidal accounts.

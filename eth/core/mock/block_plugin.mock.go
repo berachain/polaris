@@ -34,7 +34,7 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			GetStargazerHeaderByNumberFunc: func(n int64) *types.StargazerHeader {
 //				panic("mock out the GetStargazerHeaderByNumber method")
 //			},
-//			GetStateByNumberFunc: func(n int64) state.StateDBI {
+//			GetStateByNumberFunc: func(n int64) (state.StateDBI, error) {
 //				panic("mock out the GetStateByNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
@@ -60,7 +60,7 @@ type BlockPluginMock struct {
 	GetStargazerHeaderByNumberFunc func(n int64) *types.StargazerHeader
 
 	// GetStateByNumberFunc mocks the GetStateByNumber method.
-	GetStateByNumberFunc func(n int64) state.StateDBI
+	GetStateByNumberFunc func(n int64) (state.StateDBI, error)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -228,7 +228,7 @@ func (mock *BlockPluginMock) GetStargazerHeaderByNumberCalls() []struct {
 }
 
 // GetStateByNumber calls GetStateByNumberFunc.
-func (mock *BlockPluginMock) GetStateByNumber(n int64) state.StateDBI {
+func (mock *BlockPluginMock) GetStateByNumber(n int64) (state.StateDBI, error) {
 	if mock.GetStateByNumberFunc == nil {
 		panic("BlockPluginMock.GetStateByNumberFunc: method is nil but BlockPlugin.GetStateByNumber was just called")
 	}

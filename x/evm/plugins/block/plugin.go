@@ -31,7 +31,6 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 )
 
@@ -103,10 +102,6 @@ func (p *plugin) GetStargazerHeaderByNumber(height int64) *coretypes.StargazerHe
 	}
 
 	return &coretypes.StargazerHeader{}
-}
-
-func (p *plugin) GetStateByNumber(height int64) vm.GethStateDB {
-	return nil
 }
 
 // `getStargazerHeaderFromCurrentContext` builds an ethereum style block header from the current
