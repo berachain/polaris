@@ -204,3 +204,4 @@ node_modules
 .next
 next-env.d.ts
 yarn.lock
+.env
