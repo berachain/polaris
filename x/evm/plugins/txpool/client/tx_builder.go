@@ -1,3 +1,23 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
 package client
 
 import (
@@ -24,13 +44,13 @@ type EthTxBuilder interface {
 	BuildTx(signedTx *coretypes.Transaction, evmDenom string) (signing.Tx, error)
 }
 
-// `ethTxBuilder` implements `EthTxBuilder` interface
+// `ethTxBuilder` implements `EthTxBuilder` interface.
 type ethTxBuilder struct {
 	authtx.ExtensionOptionsTxBuilder
 	option *codectypes.Any
 }
 
-// `NewEthTxBuilder` returns a new instance of EthTxBuilder
+// `NewEthTxBuilder` returns a new instance of EthTxBuilder.
 func NewEthTxBuilder(clientCtx client.Context) (EthTxBuilder, error) {
 	// All Eth transactions use the ExtensionOptionsEthTransaction extension option.
 	option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionsEthTransaction{})
@@ -50,7 +70,7 @@ func NewEthTxBuilder(clientCtx client.Context) (EthTxBuilder, error) {
 	}, nil
 }
 
-// BuildTx builds the canonical cosmos tx from ethereum msg
+// BuildTx builds the canonical cosmos tx from ethereum msg.
 func (etb *ethTxBuilder) BuildTx(
 	signedTx *coretypes.Transaction, evmDenom string,
 ) (signing.Tx, error) {
@@ -64,7 +84,7 @@ func (etb *ethTxBuilder) BuildTx(
 	etb.SetFeeAmount(fees)
 
 	// TODO: Use SetTip() once we create the abstraction to not collect fees in "/eth"
-	// we can introduce setting the priority fee / base fee seperately here.
+	// we can introduce setting the priority fee / base fee separately here.
 	// etb.SetTip(signedTx.EffectiveGasTip())
 	// etb.SetFeesAmount(signedTx.Cost()-signedTx.EffectiveGasTip())
 	// This will allow using native cosmos tipping.
@@ -82,15 +102,17 @@ func (etb *ethTxBuilder) BuildTx(
 	// from the V,R,S values of the transaction. This allows us for a little trick to allow
 	// ethereum transactions to work in the standard cosmos app-side mempool with no modifications.
 	// Some gigabrain shit tbh.
-	etb.SetSignatures(
+	if err = etb.SetSignatures(
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			PubKey:   &pk,
 		},
-	)
+	); err != nil {
+		return nil, err
+	}
 
 	// We build a new EthereumTransaction and set give it to the builder.
-	if err := etb.SetMsgs(types.NewFromTransaction(signedTx)); err != nil {
+	if err = etb.SetMsgs(types.NewFromTransaction(signedTx)); err != nil {
 		return nil, err
 	}
 

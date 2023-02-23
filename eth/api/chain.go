@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/event"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/types"
