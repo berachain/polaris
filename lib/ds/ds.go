@@ -41,7 +41,8 @@ type Stack[Item any] interface {
 	// `Pop` returns the Item at the top of the stack and removes it from the stack.
 	Pop() Item
 
-	// `PopToSize` discards all items entries after and including the given size.
+	// `PopToSize` discards all items entries after and including the given size. It returns the
+	// item at index `newSize`.
 	PopToSize(newSize int) Item
 
 	// `Size` returns the current number of entries in the items.

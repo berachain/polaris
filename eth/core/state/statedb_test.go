@@ -29,12 +29,15 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/state/journal/mock"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 )
 
 var (
 	alice = common.Address{1}
 	bob   = common.Address{2}
+	slot  = common.Hash{1}
 )
 
 var _ = Describe("StateDB", func() {
@@ -70,6 +73,36 @@ var _ = Describe("StateDB", func() {
 			id := sdb.Snapshot()
 			sdb.RevertToSnapshot(id)
 		}).ToNot(Panic())
+	})
+
+	It("should handle access lists", func() {
+		sdb.Prepare(
+			params.Rules{IsBerlin: true, IsShanghai: true},
+			alice, bob, &common.Address{3},
+			[]common.Address{{4}},
+			coretypes.AccessList{
+				coretypes.AccessTuple{
+					Address:     common.Address{5},
+					StorageKeys: []common.Hash{{2}, {3}},
+				},
+			},
+		)
+		Expect(sdb.AddressInAccessList(alice)).To(BeTrue())
+		Expect(sdb.AddressInAccessList(common.Address{3})).To(BeTrue())
+		ap, sp := sdb.SlotInAccessList(common.Address{5}, common.Hash{2})
+		Expect(ap).To(BeTrue())
+		Expect(sp).To(BeTrue())
+		Expect(sdb.AddressInAccessList(common.Address{3})).To(BeTrue())
+
+		sdb.AddAddressToAccessList(alice)
+		Expect(sdb.AddressInAccessList(alice)).To(BeTrue())
+		ap, sp = sdb.SlotInAccessList(alice, slot)
+		Expect(ap).To(BeTrue())
+		Expect(sp).To(BeFalse())
+		sdb.AddSlotToAccessList(alice, slot)
+		ap, sp = sdb.SlotInAccessList(alice, slot)
+		Expect(ap).To(BeTrue())
+		Expect(sp).To(BeTrue())
 	})
 
 	It("should delete suicides on finalize", func() {

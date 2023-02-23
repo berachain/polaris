@@ -24,6 +24,7 @@ import (
 	"context"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	cbft "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -34,7 +35,7 @@ import (
 )
 
 // TODO: change this.
-const bf = uint64(1e9)
+const bf = uint64(1)
 
 // `stargazerHeaderGetter` is an interface that defines the `GetStargazerHeader` method.
 type stargazerHeaderGetter interface {
@@ -45,6 +46,7 @@ type stargazerHeaderGetter interface {
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosStargazer
+	UpdateOffChainStorage(sdk.Context, *coretypes.StargazerBlock)
 	core.BlockPlugin
 }
 
@@ -54,12 +56,16 @@ type plugin struct {
 	ctx sdk.Context
 	// `shg` is the stargazer header getter, used for accessing stargazer headers.
 	shg stargazerHeaderGetter
+
+	//  `offchainStore` is the offchain store, used for accessing offchain data.
+	offchainStore storetypes.CacheKVStore
 }
 
 // `NewPlugin` creates a new instance of the block plugin from the given context.
-func NewPlugin(shg stargazerHeaderGetter) Plugin {
+func NewPlugin(shg stargazerHeaderGetter, offchainStore storetypes.CacheKVStore) Plugin {
 	return &plugin{
-		shg: shg,
+		shg:           shg,
+		offchainStore: offchainStore,
 	}
 }
 
@@ -80,7 +86,7 @@ func (p *plugin) BaseFee() uint64 {
 // context.
 //
 // `GetStargazerHeader` implements core.BlockPlugin.
-func (p *plugin) GetStargazerHeaderAtHeight(height int64) *coretypes.StargazerHeader {
+func (p *plugin) GetStargazerHeaderByNumber(height int64) *coretypes.StargazerHeader {
 	// If the current block height is the same as the requested height, then we assume that the
 	// block has not been written to the store yet. In this case, we build and return a header
 	// from the sdk.Context.

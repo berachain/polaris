@@ -26,8 +26,10 @@ import (
 
 type (
 	AccessList        = types.AccessList
+	AccessTuple       = types.AccessTuple
 	Block             = types.Block
 	Bloom             = types.Bloom
+	Body              = types.Body
 	Log               = types.Log
 	Receipt           = types.Receipt
 	Receipts          = types.Receipts
@@ -37,11 +39,14 @@ type (
 	Header            = types.Header
 	BlockNonce        = types.BlockNonce
 	DynamicFeeTx      = types.DynamicFeeTx
+	AccessListTx      = types.AccessListTx
 	LegacyTx          = types.LegacyTx
+	TxData            = types.TxData
 	Signer            = types.Signer
 )
 
 var (
+	NewLondonSigner        = types.NewLondonSigner
 	BytesToBloom           = types.BytesToBloom
 	CreateBloom            = types.CreateBloom
 	MakeSigner             = types.MakeSigner
@@ -50,11 +55,13 @@ var (
 	EmptyRootHash          = types.EmptyRootHash
 	EmptyUncleHash         = types.EmptyUncleHash
 	SignTx                 = types.SignTx
-	NewEIP2930Signer       = types.NewEIP2930Signer
 	NewTx                  = types.NewTx
 	LatestSignerForChainID = types.LatestSignerForChainID
 	MustSignNewTx          = types.MustSignNewTx
+	NewBlock               = types.NewBlock
+	ErrInvalidSig          = types.ErrInvalidSig
 )
+
 var (
 	ReceiptStatusFailed     = types.ReceiptStatusFailed
 	ReceiptStatusSuccessful = types.ReceiptStatusSuccessful

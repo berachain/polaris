@@ -42,7 +42,7 @@ var _ = Describe("Plugin", func() {
 		ctx = testutil.NewContext()
 		storeKey := storetypes.NewKVStoreKey("evm")
 		p = &plugin{
-			evmStoreKey: storeKey,
+			storeKey:    storeKey,
 			paramsStore: ctx.KVStore(storeKey),
 		}
 	})
@@ -51,7 +51,7 @@ var _ = Describe("Plugin", func() {
 		Context("when the params store is empty", func() {
 			It("should return the default params", func() {
 				params := p.GetParams()
-				Expect(params).To(Equal(types.Params{}))
+				Expect(params).To(Equal(&types.Params{}))
 			})
 		})
 
@@ -67,7 +67,7 @@ var _ = Describe("Plugin", func() {
 				p.paramsStore.Set(paramsPrefix, bz)
 
 				params := p.GetParams()
-				Expect(params).To(Equal(storedParams))
+				Expect(params).To(Equal(&storedParams))
 			})
 		})
 

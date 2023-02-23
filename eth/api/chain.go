@@ -23,6 +23,10 @@ package api
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/event"
+
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
@@ -30,6 +34,12 @@ import (
 // that an implementing chain should use.
 // TODO: rename.
 type Chain interface {
+	Host() core.StargazerHostChain
+	ChainReader
+	ChainWriter
+}
+
+type ChainWriter interface {
 	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
 	// the block.
 	Prepare(ctx context.Context, height int64)
@@ -39,4 +49,13 @@ type Chain interface {
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
 	Finalize(ctx context.Context) (*types.StargazerBlock, error)
+}
+
+type ChainReader interface {
+	CurrentHeader() *types.StargazerHeader
+	CurrentBlock() *types.StargazerBlock
+	FinalizedBlock() *types.StargazerBlock
+	GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock
+	GetStargazerBlockByNumber(number int64) *types.StargazerBlock
+	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 }

@@ -22,6 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MsgServiceClient interface {
+	// EthTransaction defines a method submitting Ethereum transactions.
+	EthTransaction(ctx context.Context, in *EthTransactionRequest, opts ...grpc.CallOption) (*EthTransactionResponse, error)
 	// `UpdateParams` defines a governance operation for updating the x/evm module
 	// parameters. The authority is defaults to the x/gov module account.
 	//
@@ -37,6 +39,15 @@ func NewMsgServiceClient(cc grpc.ClientConnInterface) MsgServiceClient {
 	return &msgServiceClient{cc}
 }
 
+func (c *msgServiceClient) EthTransaction(ctx context.Context, in *EthTransactionRequest, opts ...grpc.CallOption) (*EthTransactionResponse, error) {
+	out := new(EthTransactionResponse)
+	err := c.cc.Invoke(ctx, "/stargazer.evm.v1alpha1.MsgService/EthTransaction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *msgServiceClient) UpdateParams(ctx context.Context, in *UpdateParamsRequest, opts ...grpc.CallOption) (*UpdateParamsResponse, error) {
 	out := new(UpdateParamsResponse)
 	err := c.cc.Invoke(ctx, "/stargazer.evm.v1alpha1.MsgService/UpdateParams", in, out, opts...)
@@ -50,6 +61,8 @@ func (c *msgServiceClient) UpdateParams(ctx context.Context, in *UpdateParamsReq
 // All implementations must embed UnimplementedMsgServiceServer
 // for forward compatibility
 type MsgServiceServer interface {
+	// EthTransaction defines a method submitting Ethereum transactions.
+	EthTransaction(context.Context, *EthTransactionRequest) (*EthTransactionResponse, error)
 	// `UpdateParams` defines a governance operation for updating the x/evm module
 	// parameters. The authority is defaults to the x/gov module account.
 	//
@@ -62,6 +75,9 @@ type MsgServiceServer interface {
 type UnimplementedMsgServiceServer struct {
 }
 
+func (UnimplementedMsgServiceServer) EthTransaction(context.Context, *EthTransactionRequest) (*EthTransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EthTransaction not implemented")
+}
 func (UnimplementedMsgServiceServer) UpdateParams(context.Context, *UpdateParamsRequest) (*UpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
 }
@@ -76,6 +92,24 @@ type UnsafeMsgServiceServer interface {
 
 func RegisterMsgServiceServer(s grpc.ServiceRegistrar, srv MsgServiceServer) {
 	s.RegisterService(&MsgService_ServiceDesc, srv)
+}
+
+func _MsgService_EthTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EthTransactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServiceServer).EthTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/stargazer.evm.v1alpha1.MsgService/EthTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServiceServer).EthTransaction(ctx, req.(*EthTransactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _MsgService_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -103,6 +137,10 @@ var MsgService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "stargazer.evm.v1alpha1.MsgService",
 	HandlerType: (*MsgServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "EthTransaction",
+			Handler:    _MsgService_EthTransaction_Handler,
+		},
 		{
 			MethodName: "UpdateParams",
 			Handler:    _MsgService_UpdateParams_Handler,

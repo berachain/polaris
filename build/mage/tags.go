@@ -36,11 +36,6 @@ var (
 	executableName = "berad"
 )
 
-// generateCmdToBuild returns the command to build a given command.
-func generateCmdToBuild(cmd string) string {
-	return "./cmd/" + cmd
-}
-
 // generateOutDirectory returns the output directory for a given command.
 func generateOutDirectory(cmd string) string {
 	return outdir + "/" + cmd
