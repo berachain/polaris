@@ -1,6 +1,6 @@
 {
   "index": {
-    "title": "Nextra",
+    "title": "Stargazer",
     "type": "page",
     "display": "hidden",
     "theme": {
@@ -10,5 +10,17 @@
   "docs": {
     "title": "Documentation",
     "type": "page"
+  },
+  "devportal": {
+    "title": "Developer Portal",
+    "type": "page",
+    "newWindow": true,
+    "href": "https://www.google.com"
+  },
+  "blog": {
+    "title": "Blog",
+    "type": "page",
+    "newWindow": true,
+    "href": "https://www.google.com"
   }
 }

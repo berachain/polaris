@@ -3,12 +3,8 @@ title: 'Stargazer '
 ---
  
 import Link from 'next/link'
-import styles from './index.module.css'
-import Wave from '../components/animation'
 import { Features, Feature } from '../components/features'
-import starCard from '../public/stargazer.jpeg'
 import Image from 'next/image'
-import { motion, AnimatePresence } from "framer-motion"
 import { CopyBlock,dracula } from "react-code-blocks";
 
 <div style={{
@@ -85,6 +81,9 @@ import { CopyBlock,dracula } from "react-code-blocks";
     :global(#card)  {
       min-height: 300px;
     }
+    .copy-code > button {
+        padding: 0px;
+    }
     :global(#big-card)  {
       min-height: 300px;
       margin-top: 3em;
@@ -154,13 +153,14 @@ import { CopyBlock,dracula } from "react-code-blocks";
             </Feature>
           </Features>
           <div id="install">
-            <Feature index={3} large centered id="big-card" href="https://github.com/berachain/stargazer">
+            <Feature index={3} large centered id="big-card">
               <div>
                 <h3>Install Stargazer✨</h3>
                 <p>Install Stargazer with a single command<br/>in your terminal window.</p>
               </div>
-              <div style={{width:'300px', margin:'2rem auto'}}>
+              <div style={{width:'250px', margin:'2rem auto'}}>
                 <CopyBlock
+                  className="copy-code"
                   text="go install ballgazer"
                   language='bash'
                   theme={dracula}
@@ -170,7 +170,7 @@ import { CopyBlock,dracula } from "react-code-blocks";
                     borderRadius: '1em',
                   }}
                 />
-                <p style={{fontSize:'11px', marginTop:'8px'}}>This command installs stargazer on your local machine.<br/>[Install Guide ↗](/docs/your-first-node)</p>
+                <p style={{fontSize:'11px', marginTop:'8px'}}>This command installs stargazer on your local machine.[Install Guide ↗](/docs/your-first-node)</p>
               </div>
             </Feature>
           </div>
