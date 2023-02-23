@@ -154,7 +154,7 @@ func (sdb *stateDB) Finalize() {
 }
 
 // =============================================================================
-// AccessList
+// AccessList and Transient Storage
 // =============================================================================
 
 // `AddAddressToAccessList` implements `stateDB`.
