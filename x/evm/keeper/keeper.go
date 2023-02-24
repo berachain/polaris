@@ -121,8 +121,8 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
 }
 
-// `WithQueryContextFn` sets the query context function for the state plugin.
-func (k *Keeper) WithQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
+// `SetQueryContextFn` sets the query context function for the state plugin.
+func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
 	k.sp.SetQueryContextFn(qc)
 }
 

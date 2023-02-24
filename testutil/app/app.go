@@ -288,7 +288,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 	/****  Module Options ****/
 
 	// Set the query context function for the evm module.
-	app.EVMKeeper.WithQueryContextFn(app.CreateQueryContext)
+	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
