@@ -38,23 +38,23 @@ type Service interface {
 // `Service` is a wrapper around go-ethereum JSON-RPC server(s). That also
 // supplies a backend to handle the requests.
 type service struct {
+	// `backend` is the backend for the service.
+	backend StargazerBackend
+	// `config` is the configuration for the service.
+	config *config.Server
 	// `http` is the externally facing JSON-RPC Server.
 	http *Server
 	// `ws` is the externally facing JSON-RPC Server.
 	ws *Server
-	// `config` is the configuration for the service.
-	config *config.Server
-	// `backend` is the backend for the service.
-	backend StargazerBackend
 }
 
 // `New` returns a new `Service` object.
 func NewService(cfg *config.Server) Service {
 	return &service{
+		backend: nil,
+		config:  cfg,
 		http:    NewServer(),
 		ws:      NewServer(),
-		config:  cfg,
-		backend: nil,
 	}
 }
 
