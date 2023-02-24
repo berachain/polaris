@@ -29,6 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/stargazer/x/evm/rpc/api"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -61,7 +62,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	// Currently since we are registering TransactionAPI using the native ethereum backend, it needs to be able to
 	// read the chainID from the ConfigurationPlugin (which is on disk). If we are enabling the APIs before
 	// InitGenesis is called, then we get a nil pointer error since the ConfigurationPlugin is not yet initialized.
-	if err := am.keeper.GetRPCProvider().RegisterAPIs(); err != nil {
+	if err := am.keeper.GetRPCProvider().RegisterAPIs(api.GetExtraFn); err != nil {
 		panic(err)
 	}
 

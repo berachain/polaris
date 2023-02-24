@@ -29,7 +29,7 @@ import (
 // `Service` is the interface for the JSON-RPC service.
 type Service interface {
 	SetBackend(StargazerBackend)
-	RegisterAPIs() error
+	RegisterAPIs(extraAPIs func(StargazerBackend) []API) error
 	GetHTTP() *Server
 	GetWS() *Server
 	GetConfig() *config.Server
@@ -59,8 +59,8 @@ func NewService(cfg *config.Server) Service {
 }
 
 // `RegisterAPIs` registers the JSON-RPC APIs with the API service.
-func (s *service) RegisterAPIs() error {
-	apis := GetAPIs(s.backend)
+func (s *service) RegisterAPIs(extraAPIs func(StargazerBackend) []API) error {
+	apis := append(GetAPIs(s.backend), extraAPIs(s.backend)...)
 	for _, srv := range []*Server{s.http, s.ws} {
 		if err := node.RegisterApis(apis, s.config.EnabledAPIs, srv); err != nil {
 			return err

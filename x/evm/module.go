@@ -70,9 +70,12 @@ func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
 
 // `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the evm module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
-	// if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+	// if err := types.RegisterQueryServiceHandlerClient(context.Background(), mux,
+	// types.NewQueryClient(clientCtx)); err != nil {
 	// 	panic(err)
 	// }
+	// evmrpc.RegisterJSONRPCServer(clientCtx, mux, app.EVMKeeper.GetRPCProvider())
+
 }
 
 // `GetTxCmd` returns no root tx command for the evm module.
