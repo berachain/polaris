@@ -60,12 +60,6 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
-//			IterateCodeFunc: func(fn func(addr common.Address, code []byte) bool)  {
-//				panic("mock out the IterateCode method")
-//			},
-//			IterateStateFunc: func(fn func(addr common.Address, key common.Hash, value common.Hash) bool)  {
-//				panic("mock out the IterateState method")
-//			},
 //			RegistryKeyFunc: func() string {
 //				panic("mock out the RegistryKey method")
 //			},
@@ -138,12 +132,6 @@ type StatePluginMock struct {
 
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
-
-	// IterateCodeFunc mocks the IterateCode method.
-	IterateCodeFunc func(fn func(addr common.Address, code []byte) bool)
-
-	// IterateStateFunc mocks the IterateState method.
-	IterateStateFunc func(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() string
@@ -245,16 +233,6 @@ type StatePluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
-		// IterateCode holds details about calls to the IterateCode method.
-		IterateCode []struct {
-			// Fn is the fn argument value.
-			Fn func(addr common.Address, code []byte) bool
-		}
-		// IterateState holds details about calls to the IterateState method.
-		IterateState []struct {
-			// Fn is the fn argument value.
-			Fn func(addr common.Address, key common.Hash, value common.Hash) bool
-		}
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
@@ -324,8 +302,6 @@ type StatePluginMock struct {
 	lockGetCommittedState sync.RWMutex
 	lockGetNonce          sync.RWMutex
 	lockGetState          sync.RWMutex
-	lockIterateCode       sync.RWMutex
-	lockIterateState      sync.RWMutex
 	lockRegistryKey       sync.RWMutex
 	lockReset             sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
@@ -761,70 +737,6 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 	mock.lockGetState.RLock()
 	calls = mock.calls.GetState
 	mock.lockGetState.RUnlock()
-	return calls
-}
-
-// IterateCode calls IterateCodeFunc.
-func (mock *StatePluginMock) IterateCode(fn func(addr common.Address, code []byte) bool) {
-	if mock.IterateCodeFunc == nil {
-		panic("StatePluginMock.IterateCodeFunc: method is nil but StatePlugin.IterateCode was just called")
-	}
-	callInfo := struct {
-		Fn func(addr common.Address, code []byte) bool
-	}{
-		Fn: fn,
-	}
-	mock.lockIterateCode.Lock()
-	mock.calls.IterateCode = append(mock.calls.IterateCode, callInfo)
-	mock.lockIterateCode.Unlock()
-	mock.IterateCodeFunc(fn)
-}
-
-// IterateCodeCalls gets all the calls that were made to IterateCode.
-// Check the length with:
-//
-//	len(mockedStatePlugin.IterateCodeCalls())
-func (mock *StatePluginMock) IterateCodeCalls() []struct {
-	Fn func(addr common.Address, code []byte) bool
-} {
-	var calls []struct {
-		Fn func(addr common.Address, code []byte) bool
-	}
-	mock.lockIterateCode.RLock()
-	calls = mock.calls.IterateCode
-	mock.lockIterateCode.RUnlock()
-	return calls
-}
-
-// IterateState calls IterateStateFunc.
-func (mock *StatePluginMock) IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool) {
-	if mock.IterateStateFunc == nil {
-		panic("StatePluginMock.IterateStateFunc: method is nil but StatePlugin.IterateState was just called")
-	}
-	callInfo := struct {
-		Fn func(addr common.Address, key common.Hash, value common.Hash) bool
-	}{
-		Fn: fn,
-	}
-	mock.lockIterateState.Lock()
-	mock.calls.IterateState = append(mock.calls.IterateState, callInfo)
-	mock.lockIterateState.Unlock()
-	mock.IterateStateFunc(fn)
-}
-
-// IterateStateCalls gets all the calls that were made to IterateState.
-// Check the length with:
-//
-//	len(mockedStatePlugin.IterateStateCalls())
-func (mock *StatePluginMock) IterateStateCalls() []struct {
-	Fn func(addr common.Address, key common.Hash, value common.Hash) bool
-} {
-	var calls []struct {
-		Fn func(addr common.Address, key common.Hash, value common.Hash) bool
-	}
-	mock.lockIterateState.RLock()
-	calls = mock.calls.IterateState
-	mock.lockIterateState.RUnlock()
 	return calls
 }
 

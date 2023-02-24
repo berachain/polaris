@@ -30,9 +30,6 @@ import (
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
-// `blockHeightByteSize` is the size of the byte slice that will store the block height.
-const blockHeightByteSize = 32
-
 var (
 	blockHashKeyPrefix = []byte{0xb}
 	blockNumKeyPrefix  = []byte{0xbb}
@@ -46,7 +43,7 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 	if err != nil {
 		panic(err)
 	}
-	numBz := block.Number.FillBytes(make([]byte, blockHeightByteSize))
+	numBz := sdk.Uint64ToBigEndian(block.Number.Uint64())
 	prefix.NewStore(p.offchainStore, blockHashKeyPrefix).Set(block.Hash().Bytes(), numBz)
 	prefix.NewStore(p.offchainStore, blockNumKeyPrefix).Set(numBz, bz)
 
@@ -60,9 +57,9 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 		txStore.Set(tx.Hash().Bytes(), bz)
 	}
 
-	if new(big.Int).Sub(
-		block.Number, new(big.Int).SetBytes(p.offchainStore.Get(versionKey)),
-	).Cmp(big.NewInt(1)) != 0 {
+	version := block.Number
+	lastVersion := p.offchainStore.Get(versionKey)
+	if sdk.BigEndianToUint64(lastVersion) != version.Uint64()-1 {
 		// TODO: resync the off-chain storage.
 		panic("off-chain store's latest block number is not synced")
 	}
@@ -74,7 +71,7 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 // `GetStargazerBlockByNumber` returns the stargazer header at the given height.
 func (p *plugin) GetStargazerBlockByNumber(number int64) *coretypes.StargazerBlock {
 	blockStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
-	bz := blockStore.Get(big.NewInt(number).FillBytes(make([]byte, blockHeightByteSize)))
+	bz := blockStore.Get(sdk.Uint64ToBigEndian(uint64(number)))
 	if bz == nil {
 		return nil
 	}

@@ -24,17 +24,21 @@ import (
 	"pkg.berachain.dev/stargazer/eth/api"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/log"
+	"pkg.berachain.dev/stargazer/eth/rpc"
 )
 
 type StargazerProvider struct {
 	api.Chain
+	rps rpc.Service
 }
 
 // `NewStargazerProvider` creates a new `StargazerEVM` instance for use on an underlying blockchain.
 func NewStargazerProvider(
 	host core.StargazerHostChain,
+	rps rpc.Service,
 	logHandler log.Handler,
 ) *StargazerProvider {
+	sp := &StargazerProvider{}
 	// When creating a Stargazer EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
@@ -43,7 +47,15 @@ func NewStargazerProvider(
 		log.Root().SetHandler(logHandler)
 	}
 
-	return &StargazerProvider{
-		Chain: core.NewChain(host),
+	// Build the chain from the host.
+	chain := core.NewChain(host)
+	sp.Chain = chain
+
+	// Build and set the RPC Backend.
+	if rps != nil {
+		sp.rps = rps
+		sp.rps.SetBackend(rpc.NewStargazerBackend(chain, rps.GetConfig()))
 	}
+
+	return sp
 }

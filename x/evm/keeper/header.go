@@ -21,8 +21,6 @@
 package keeper
 
 import (
-	"math/big"
-
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -37,8 +35,6 @@ const (
 	// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set
 	// to 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
 	numHistoricalBlocks int64 = 256
-	// `blockHeightByteSize` is the size of the byte slice that will store the block height.
-	blockHeightByteSize = 32
 )
 
 // `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
@@ -70,7 +66,7 @@ func (k Keeper) TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.St
 func (k *Keeper) GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), SGHeaderPrefix)
 	// Note: only handling up to 2^63 - 1 blocks (`height` is of type int64), which is fine for now.
-	bz := store.Get(big.NewInt(height).FillBytes(make([]byte, blockHeightByteSize)))
+	bz := store.Get(sdk.Uint64ToBigEndian(uint64(height)))
 	if bz == nil {
 		return nil, false
 	}
@@ -91,17 +87,14 @@ func (k *Keeper) SetStargazerHeader(ctx sdk.Context, header *types.StargazerHead
 		return err
 	}
 	// Store the full block at the block key. (Overrides the old spot on the tree.)
-	store.Set(header.Number.FillBytes(make([]byte, blockHeightByteSize)), bz)
-
-	// // Store a mapping of block hashes to block heights. (Grows over time)
-	// store.Set(key.BlockHashToHeight(block.Hash()), sdk.Uint64ToBigEndian(block.Number.Uint64()))
+	store.Set(sdk.Uint64ToBigEndian(header.Number.Uint64()), bz)
 	return nil
 }
 
 // `PruneStargazerHeader` prunes a stargazer block from the store.
 func (k *Keeper) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), SGHeaderPrefix)
-	store.Delete(header.Number.FillBytes(make([]byte, blockHeightByteSize)))
+	store.Delete(sdk.Uint64ToBigEndian(header.Number.Uint64()))
 	// Notably, we don't delete the store key mapping hash to height as we want this
 	// to persist at the application layer in order to query by hash. (TODO? Tendermint?)
 	return nil
