@@ -6,7 +6,7 @@ go 1.20
 replace (
 	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230224185434-747c29e8fa31
 	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230222022124-77660ec452b6
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230224185434-747c29e8fa31
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230223191228-79bc906d4f6f
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
