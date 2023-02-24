@@ -24,7 +24,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"runtime"
 
 	"github.com/carolynvs/magex/pkg"
 	"github.com/magefile/mage/sh"
@@ -57,18 +56,7 @@ func main() {
 		panic(err)
 	}
 
-	// Coming soon
-	// Run the setup script for the current OS.
-	switch os := runtime.GOOS; os {
-	case "darwin":
-		err = setupMac()
-	case "linux":
-		err = setupLinux()
-	default:
-		err = fmt.Errorf("ngmi unsupported OS")
-	}
-
-	if err != nil {
+	if err = setupFoundry(); err != nil {
 		panic(err)
 	}
 
@@ -79,23 +67,24 @@ func main() {
 
 func setupGoDeps() error {
 	for _, tool := range allTools {
-		fmt.Println("Installing ", tool)
+		fmt.Println("Installing", fmt.Sprintf("`%s`", tool))
 		if err := sh.RunCmd("go", "install", "-mod=readonly", tool); err() != nil {
 			return errors.New("failed to install " + tool + ": " + err().Error())
 		}
 	}
 	fmt.Println("\n==============================================================")
-	fmt.Println("Tools installed successful! Ensure $GOPATH/bin is on your $PATH!")
+	fmt.Println("All Tools installed successful! Ensure $GOPATH/bin is on your $PATH!")
 	fmt.Println("==============================================================")
 	return nil
 }
 
-// setupMac runs the setup script for macOS.
-func setupMac() error {
-	return sh.Run("brew", "install", "--verbose", "./build/go.rb")
-}
+func setupFoundry() error {
+	// Looks like we will have to get user to install foundryup manually for the time being.
+	// TODO: figure out how to do the curl install from mage.
+	fmt.Println("Running `foundryup`")
+	if err := sh.Run("foundryup"); err != nil {
+		return errors.New("failed to foundryup: " + err.Error())
+	}
 
-// setupLinux runs the setup script for Linux.
-func setupLinux() error {
-	return fmt.Errorf("linux setup coming soon")
+	return nil
 }
