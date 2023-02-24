@@ -92,8 +92,6 @@ type (
 		Logs() []*coretypes.Log
 		// `GetLogs` returns the logs of the tx with the given metadata.
 		GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log
-		// `BuildLogsAndClear` returns the logs of the tx with the given metadata
-		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
 	}
 
 	// `RefundJournal` is a `Store` that tracks the refund counter.

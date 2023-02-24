@@ -53,7 +53,7 @@ var _ = Describe("Logs", func() {
 			l.AddLog(&coretypes.Log{Address: a1})
 			Expect(l.Size()).To(Equal(1))
 			Expect(l.PeekAt(0).Address).To(Equal(a1))
-			Expect(l.PeekAt(0).TxHash).To(Equal(thash))
+			Expect(l.PeekAt(0).TxHash).To(Equal(common.Hash{}))
 			Expect(l.PeekAt(0).TxIndex).To(Equal(ti))
 		})
 
@@ -71,11 +71,13 @@ var _ = Describe("Logs", func() {
 		It("should correctly get logs", func() {
 			logs := l.Logs()
 			Expect(len(logs)).To(Equal(1))
+			Expect(logs[0].TxHash).To(Equal(common.Hash{}))
 			Expect(logs[0].BlockHash).To(Equal(common.Hash{}))
 			Expect(logs[0].BlockNumber).To(Equal(uint64(0)))
 
 			logs = l.GetLogs(thash, bnum, bhash)
 			Expect(len(logs)).To(Equal(1))
+			Expect(logs[0].TxHash).To(Equal(thash))
 			Expect(logs[0].BlockHash).To(Equal(bhash))
 			Expect(logs[0].BlockNumber).To(Equal(bnum))
 		})

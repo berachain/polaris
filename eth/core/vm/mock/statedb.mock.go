@@ -45,14 +45,23 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			AddressInAccessListFunc: func(addr common.Address) bool {
 //				panic("mock out the AddressInAccessList method")
 //			},
-//			BuildLogsAndClearFunc: func(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log {
-//				panic("mock out the BuildLogsAndClear method")
+//			CommitFunc: func(deleteEmptyObjects bool) (common.Hash, error) {
+//				panic("mock out the Commit method")
 //			},
 //			CopyFunc: func() state.StateDBI {
 //				panic("mock out the Copy method")
 //			},
 //			CreateAccountFunc: func(address common.Address)  {
 //				panic("mock out the CreateAccount method")
+//			},
+//			DatabaseFunc: func() state.Database {
+//				panic("mock out the Database method")
+//			},
+//			DumpFunc: func(opts *state.DumpConfig) []byte {
+//				panic("mock out the Dump method")
+//			},
+//			DumpToCollectorFunc: func(c state.DumpCollector, conf *state.DumpConfig) []byte {
+//				panic("mock out the DumpToCollector method")
 //			},
 //			EmptyFunc: func(address common.Address) bool {
 //				panic("mock out the Empty method")
@@ -87,8 +96,14 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetCommittedState method")
 //			},
+//			GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
+//				panic("mock out the GetLogs method")
+//			},
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
+//			},
+//			GetOrNewStateObjectFunc: func(addr common.Address) *state.StateObject {
+//				panic("mock out the GetOrNewStateObject method")
 //			},
 //			GetProofFunc: func(addr common.Address) ([][]byte, error) {
 //				panic("mock out the GetProof method")
@@ -108,8 +123,23 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			HasSuicidedFunc: func(address common.Address) bool {
 //				panic("mock out the HasSuicided method")
 //			},
+//			IntermediateRootFunc: func(deleteEmptyObjects bool) common.Hash {
+//				panic("mock out the IntermediateRoot method")
+//			},
+//			IteratorDumpFunc: func(opts *state.DumpConfig) state.IteratorDump {
+//				panic("mock out the IteratorDump method")
+//			},
+//			LogsFunc: func() []*types.Log {
+//				panic("mock out the Logs method")
+//			},
+//			PreimagesFunc: func() map[common.Hash][]byte {
+//				panic("mock out the Preimages method")
+//			},
 //			PrepareFunc: func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
 //				panic("mock out the Prepare method")
+//			},
+//			RawDumpFunc: func(opts *state.DumpConfig) state.Dump {
+//				panic("mock out the RawDump method")
 //			},
 //			ResetFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Reset method")
@@ -144,6 +174,12 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
 //			},
+//			StartPrefetcherFunc: func(namespace string)  {
+//				panic("mock out the StartPrefetcher method")
+//			},
+//			StopPrefetcherFunc: func()  {
+//				panic("mock out the StopPrefetcher method")
+//			},
 //			StorageTrieFunc: func(addr common.Address) (state.Trie, error) {
 //				panic("mock out the StorageTrie method")
 //			},
@@ -158,6 +194,9 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			},
 //			TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the TransferBalance method")
+//			},
+//			TxIndexFunc: func() int {
+//				panic("mock out the TxIndex method")
 //			},
 //		}
 //
@@ -187,14 +226,23 @@ type StargazerStateDBMock struct {
 	// AddressInAccessListFunc mocks the AddressInAccessList method.
 	AddressInAccessListFunc func(addr common.Address) bool
 
-	// BuildLogsAndClearFunc mocks the BuildLogsAndClear method.
-	BuildLogsAndClearFunc func(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log
+	// CommitFunc mocks the Commit method.
+	CommitFunc func(deleteEmptyObjects bool) (common.Hash, error)
 
 	// CopyFunc mocks the Copy method.
 	CopyFunc func() state.StateDBI
 
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
+
+	// DatabaseFunc mocks the Database method.
+	DatabaseFunc func() state.Database
+
+	// DumpFunc mocks the Dump method.
+	DumpFunc func(opts *state.DumpConfig) []byte
+
+	// DumpToCollectorFunc mocks the DumpToCollector method.
+	DumpToCollectorFunc func(c state.DumpCollector, conf *state.DumpConfig) []byte
 
 	// EmptyFunc mocks the Empty method.
 	EmptyFunc func(address common.Address) bool
@@ -229,8 +277,14 @@ type StargazerStateDBMock struct {
 	// GetCommittedStateFunc mocks the GetCommittedState method.
 	GetCommittedStateFunc func(address common.Address, hash common.Hash) common.Hash
 
+	// GetLogsFunc mocks the GetLogs method.
+	GetLogsFunc func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log
+
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
+
+	// GetOrNewStateObjectFunc mocks the GetOrNewStateObject method.
+	GetOrNewStateObjectFunc func(addr common.Address) *state.StateObject
 
 	// GetProofFunc mocks the GetProof method.
 	GetProofFunc func(addr common.Address) ([][]byte, error)
@@ -250,8 +304,23 @@ type StargazerStateDBMock struct {
 	// HasSuicidedFunc mocks the HasSuicided method.
 	HasSuicidedFunc func(address common.Address) bool
 
+	// IntermediateRootFunc mocks the IntermediateRoot method.
+	IntermediateRootFunc func(deleteEmptyObjects bool) common.Hash
+
+	// IteratorDumpFunc mocks the IteratorDump method.
+	IteratorDumpFunc func(opts *state.DumpConfig) state.IteratorDump
+
+	// LogsFunc mocks the Logs method.
+	LogsFunc func() []*types.Log
+
+	// PreimagesFunc mocks the Preimages method.
+	PreimagesFunc func() map[common.Hash][]byte
+
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
+
+	// RawDumpFunc mocks the RawDump method.
+	RawDumpFunc func(opts *state.DumpConfig) state.Dump
 
 	// ResetFunc mocks the Reset method.
 	ResetFunc func(contextMoqParam context.Context)
@@ -286,6 +355,12 @@ type StargazerStateDBMock struct {
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
 
+	// StartPrefetcherFunc mocks the StartPrefetcher method.
+	StartPrefetcherFunc func(namespace string)
+
+	// StopPrefetcherFunc mocks the StopPrefetcher method.
+	StopPrefetcherFunc func()
+
 	// StorageTrieFunc mocks the StorageTrie method.
 	StorageTrieFunc func(addr common.Address) (state.Trie, error)
 
@@ -300,6 +375,9 @@ type StargazerStateDBMock struct {
 
 	// TransferBalanceFunc mocks the TransferBalance method.
 	TransferBalanceFunc func(address1 common.Address, address2 common.Address, intMoqParam *big.Int)
+
+	// TxIndexFunc mocks the TxIndex method.
+	TxIndexFunc func() int
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -344,16 +422,10 @@ type StargazerStateDBMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
-		// BuildLogsAndClear holds details about calls to the BuildLogsAndClear method.
-		BuildLogsAndClear []struct {
-			// TxHash is the txHash argument value.
-			TxHash common.Hash
-			// BlockHash is the blockHash argument value.
-			BlockHash common.Hash
-			// TxIndex is the txIndex argument value.
-			TxIndex uint
-			// LogIndex is the logIndex argument value.
-			LogIndex uint
+		// Commit holds details about calls to the Commit method.
+		Commit []struct {
+			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
+			DeleteEmptyObjects bool
 		}
 		// Copy holds details about calls to the Copy method.
 		Copy []struct {
@@ -362,6 +434,21 @@ type StargazerStateDBMock struct {
 		CreateAccount []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// Database holds details about calls to the Database method.
+		Database []struct {
+		}
+		// Dump holds details about calls to the Dump method.
+		Dump []struct {
+			// Opts is the opts argument value.
+			Opts *state.DumpConfig
+		}
+		// DumpToCollector holds details about calls to the DumpToCollector method.
+		DumpToCollector []struct {
+			// C is the c argument value.
+			C state.DumpCollector
+			// Conf is the conf argument value.
+			Conf *state.DumpConfig
 		}
 		// Empty holds details about calls to the Empty method.
 		Empty []struct {
@@ -418,10 +505,24 @@ type StargazerStateDBMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
+		// GetLogs holds details about calls to the GetLogs method.
+		GetLogs []struct {
+			// Hash is the hash argument value.
+			Hash common.Hash
+			// BlockNumber is the blockNumber argument value.
+			BlockNumber uint64
+			// BlockHash is the blockHash argument value.
+			BlockHash common.Hash
+		}
 		// GetNonce holds details about calls to the GetNonce method.
 		GetNonce []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// GetOrNewStateObject holds details about calls to the GetOrNewStateObject method.
+		GetOrNewStateObject []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
 		}
 		// GetProof holds details about calls to the GetProof method.
 		GetProof []struct {
@@ -457,6 +558,22 @@ type StargazerStateDBMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
+		// IntermediateRoot holds details about calls to the IntermediateRoot method.
+		IntermediateRoot []struct {
+			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
+			DeleteEmptyObjects bool
+		}
+		// IteratorDump holds details about calls to the IteratorDump method.
+		IteratorDump []struct {
+			// Opts is the opts argument value.
+			Opts *state.DumpConfig
+		}
+		// Logs holds details about calls to the Logs method.
+		Logs []struct {
+		}
+		// Preimages holds details about calls to the Preimages method.
+		Preimages []struct {
+		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// Rules is the rules argument value.
@@ -471,6 +588,11 @@ type StargazerStateDBMock struct {
 			Precompiles []common.Address
 			// TxAccesses is the txAccesses argument value.
 			TxAccesses types.AccessList
+		}
+		// RawDump holds details about calls to the RawDump method.
+		RawDump []struct {
+			// Opts is the opts argument value.
+			Opts *state.DumpConfig
 		}
 		// Reset holds details about calls to the Reset method.
 		Reset []struct {
@@ -545,6 +667,14 @@ type StargazerStateDBMock struct {
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
 		}
+		// StartPrefetcher holds details about calls to the StartPrefetcher method.
+		StartPrefetcher []struct {
+			// Namespace is the namespace argument value.
+			Namespace string
+		}
+		// StopPrefetcher holds details about calls to the StopPrefetcher method.
+		StopPrefetcher []struct {
+		}
 		// StorageTrie holds details about calls to the StorageTrie method.
 		StorageTrie []struct {
 			// Addr is the addr argument value.
@@ -576,6 +706,9 @@ type StargazerStateDBMock struct {
 			// IntMoqParam is the intMoqParam argument value.
 			IntMoqParam *big.Int
 		}
+		// TxIndex holds details about calls to the TxIndex method.
+		TxIndex []struct {
+		}
 	}
 	lockAddAddressToAccessList sync.RWMutex
 	lockAddBalance             sync.RWMutex
@@ -584,9 +717,12 @@ type StargazerStateDBMock struct {
 	lockAddRefund              sync.RWMutex
 	lockAddSlotToAccessList    sync.RWMutex
 	lockAddressInAccessList    sync.RWMutex
-	lockBuildLogsAndClear      sync.RWMutex
+	lockCommit                 sync.RWMutex
 	lockCopy                   sync.RWMutex
 	lockCreateAccount          sync.RWMutex
+	lockDatabase               sync.RWMutex
+	lockDump                   sync.RWMutex
+	lockDumpToCollector        sync.RWMutex
 	lockEmpty                  sync.RWMutex
 	lockError                  sync.RWMutex
 	lockExist                  sync.RWMutex
@@ -598,14 +734,21 @@ type StargazerStateDBMock struct {
 	lockGetCodeHash            sync.RWMutex
 	lockGetCodeSize            sync.RWMutex
 	lockGetCommittedState      sync.RWMutex
+	lockGetLogs                sync.RWMutex
 	lockGetNonce               sync.RWMutex
+	lockGetOrNewStateObject    sync.RWMutex
 	lockGetProof               sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
 	lockGetStorageProof        sync.RWMutex
 	lockGetTransientState      sync.RWMutex
 	lockHasSuicided            sync.RWMutex
+	lockIntermediateRoot       sync.RWMutex
+	lockIteratorDump           sync.RWMutex
+	lockLogs                   sync.RWMutex
+	lockPreimages              sync.RWMutex
 	lockPrepare                sync.RWMutex
+	lockRawDump                sync.RWMutex
 	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSetBalance             sync.RWMutex
@@ -617,11 +760,14 @@ type StargazerStateDBMock struct {
 	lockSetTxContext           sync.RWMutex
 	lockSlotInAccessList       sync.RWMutex
 	lockSnapshot               sync.RWMutex
+	lockStartPrefetcher        sync.RWMutex
+	lockStopPrefetcher         sync.RWMutex
 	lockStorageTrie            sync.RWMutex
 	lockSubBalance             sync.RWMutex
 	lockSubRefund              sync.RWMutex
 	lockSuicide                sync.RWMutex
 	lockTransferBalance        sync.RWMutex
+	lockTxIndex                sync.RWMutex
 }
 
 // AddAddressToAccessList calls AddAddressToAccessListFunc.
@@ -860,47 +1006,35 @@ func (mock *StargazerStateDBMock) AddressInAccessListCalls() []struct {
 	return calls
 }
 
-// BuildLogsAndClear calls BuildLogsAndClearFunc.
-func (mock *StargazerStateDBMock) BuildLogsAndClear(txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint) []*types.Log {
-	if mock.BuildLogsAndClearFunc == nil {
-		panic("StargazerStateDBMock.BuildLogsAndClearFunc: method is nil but StargazerStateDB.BuildLogsAndClear was just called")
+// Commit calls CommitFunc.
+func (mock *StargazerStateDBMock) Commit(deleteEmptyObjects bool) (common.Hash, error) {
+	if mock.CommitFunc == nil {
+		panic("StargazerStateDBMock.CommitFunc: method is nil but StargazerStateDB.Commit was just called")
 	}
 	callInfo := struct {
-		TxHash    common.Hash
-		BlockHash common.Hash
-		TxIndex   uint
-		LogIndex  uint
+		DeleteEmptyObjects bool
 	}{
-		TxHash:    txHash,
-		BlockHash: blockHash,
-		TxIndex:   txIndex,
-		LogIndex:  logIndex,
+		DeleteEmptyObjects: deleteEmptyObjects,
 	}
-	mock.lockBuildLogsAndClear.Lock()
-	mock.calls.BuildLogsAndClear = append(mock.calls.BuildLogsAndClear, callInfo)
-	mock.lockBuildLogsAndClear.Unlock()
-	return mock.BuildLogsAndClearFunc(txHash, blockHash, txIndex, logIndex)
+	mock.lockCommit.Lock()
+	mock.calls.Commit = append(mock.calls.Commit, callInfo)
+	mock.lockCommit.Unlock()
+	return mock.CommitFunc(deleteEmptyObjects)
 }
 
-// BuildLogsAndClearCalls gets all the calls that were made to BuildLogsAndClear.
+// CommitCalls gets all the calls that were made to Commit.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.BuildLogsAndClearCalls())
-func (mock *StargazerStateDBMock) BuildLogsAndClearCalls() []struct {
-	TxHash    common.Hash
-	BlockHash common.Hash
-	TxIndex   uint
-	LogIndex  uint
+//	len(mockedStargazerStateDB.CommitCalls())
+func (mock *StargazerStateDBMock) CommitCalls() []struct {
+	DeleteEmptyObjects bool
 } {
 	var calls []struct {
-		TxHash    common.Hash
-		BlockHash common.Hash
-		TxIndex   uint
-		LogIndex  uint
+		DeleteEmptyObjects bool
 	}
-	mock.lockBuildLogsAndClear.RLock()
-	calls = mock.calls.BuildLogsAndClear
-	mock.lockBuildLogsAndClear.RUnlock()
+	mock.lockCommit.RLock()
+	calls = mock.calls.Commit
+	mock.lockCommit.RUnlock()
 	return calls
 }
 
@@ -960,6 +1094,101 @@ func (mock *StargazerStateDBMock) CreateAccountCalls() []struct {
 	mock.lockCreateAccount.RLock()
 	calls = mock.calls.CreateAccount
 	mock.lockCreateAccount.RUnlock()
+	return calls
+}
+
+// Database calls DatabaseFunc.
+func (mock *StargazerStateDBMock) Database() state.Database {
+	if mock.DatabaseFunc == nil {
+		panic("StargazerStateDBMock.DatabaseFunc: method is nil but StargazerStateDB.Database was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockDatabase.Lock()
+	mock.calls.Database = append(mock.calls.Database, callInfo)
+	mock.lockDatabase.Unlock()
+	return mock.DatabaseFunc()
+}
+
+// DatabaseCalls gets all the calls that were made to Database.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.DatabaseCalls())
+func (mock *StargazerStateDBMock) DatabaseCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockDatabase.RLock()
+	calls = mock.calls.Database
+	mock.lockDatabase.RUnlock()
+	return calls
+}
+
+// Dump calls DumpFunc.
+func (mock *StargazerStateDBMock) Dump(opts *state.DumpConfig) []byte {
+	if mock.DumpFunc == nil {
+		panic("StargazerStateDBMock.DumpFunc: method is nil but StargazerStateDB.Dump was just called")
+	}
+	callInfo := struct {
+		Opts *state.DumpConfig
+	}{
+		Opts: opts,
+	}
+	mock.lockDump.Lock()
+	mock.calls.Dump = append(mock.calls.Dump, callInfo)
+	mock.lockDump.Unlock()
+	return mock.DumpFunc(opts)
+}
+
+// DumpCalls gets all the calls that were made to Dump.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.DumpCalls())
+func (mock *StargazerStateDBMock) DumpCalls() []struct {
+	Opts *state.DumpConfig
+} {
+	var calls []struct {
+		Opts *state.DumpConfig
+	}
+	mock.lockDump.RLock()
+	calls = mock.calls.Dump
+	mock.lockDump.RUnlock()
+	return calls
+}
+
+// DumpToCollector calls DumpToCollectorFunc.
+func (mock *StargazerStateDBMock) DumpToCollector(c state.DumpCollector, conf *state.DumpConfig) []byte {
+	if mock.DumpToCollectorFunc == nil {
+		panic("StargazerStateDBMock.DumpToCollectorFunc: method is nil but StargazerStateDB.DumpToCollector was just called")
+	}
+	callInfo := struct {
+		C    state.DumpCollector
+		Conf *state.DumpConfig
+	}{
+		C:    c,
+		Conf: conf,
+	}
+	mock.lockDumpToCollector.Lock()
+	mock.calls.DumpToCollector = append(mock.calls.DumpToCollector, callInfo)
+	mock.lockDumpToCollector.Unlock()
+	return mock.DumpToCollectorFunc(c, conf)
+}
+
+// DumpToCollectorCalls gets all the calls that were made to DumpToCollector.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.DumpToCollectorCalls())
+func (mock *StargazerStateDBMock) DumpToCollectorCalls() []struct {
+	C    state.DumpCollector
+	Conf *state.DumpConfig
+} {
+	var calls []struct {
+		C    state.DumpCollector
+		Conf *state.DumpConfig
+	}
+	mock.lockDumpToCollector.RLock()
+	calls = mock.calls.DumpToCollector
+	mock.lockDumpToCollector.RUnlock()
 	return calls
 }
 
@@ -1313,6 +1542,46 @@ func (mock *StargazerStateDBMock) GetCommittedStateCalls() []struct {
 	return calls
 }
 
+// GetLogs calls GetLogsFunc.
+func (mock *StargazerStateDBMock) GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
+	if mock.GetLogsFunc == nil {
+		panic("StargazerStateDBMock.GetLogsFunc: method is nil but StargazerStateDB.GetLogs was just called")
+	}
+	callInfo := struct {
+		Hash        common.Hash
+		BlockNumber uint64
+		BlockHash   common.Hash
+	}{
+		Hash:        hash,
+		BlockNumber: blockNumber,
+		BlockHash:   blockHash,
+	}
+	mock.lockGetLogs.Lock()
+	mock.calls.GetLogs = append(mock.calls.GetLogs, callInfo)
+	mock.lockGetLogs.Unlock()
+	return mock.GetLogsFunc(hash, blockNumber, blockHash)
+}
+
+// GetLogsCalls gets all the calls that were made to GetLogs.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.GetLogsCalls())
+func (mock *StargazerStateDBMock) GetLogsCalls() []struct {
+	Hash        common.Hash
+	BlockNumber uint64
+	BlockHash   common.Hash
+} {
+	var calls []struct {
+		Hash        common.Hash
+		BlockNumber uint64
+		BlockHash   common.Hash
+	}
+	mock.lockGetLogs.RLock()
+	calls = mock.calls.GetLogs
+	mock.lockGetLogs.RUnlock()
+	return calls
+}
+
 // GetNonce calls GetNonceFunc.
 func (mock *StargazerStateDBMock) GetNonce(address common.Address) uint64 {
 	if mock.GetNonceFunc == nil {
@@ -1342,6 +1611,38 @@ func (mock *StargazerStateDBMock) GetNonceCalls() []struct {
 	mock.lockGetNonce.RLock()
 	calls = mock.calls.GetNonce
 	mock.lockGetNonce.RUnlock()
+	return calls
+}
+
+// GetOrNewStateObject calls GetOrNewStateObjectFunc.
+func (mock *StargazerStateDBMock) GetOrNewStateObject(addr common.Address) *state.StateObject {
+	if mock.GetOrNewStateObjectFunc == nil {
+		panic("StargazerStateDBMock.GetOrNewStateObjectFunc: method is nil but StargazerStateDB.GetOrNewStateObject was just called")
+	}
+	callInfo := struct {
+		Addr common.Address
+	}{
+		Addr: addr,
+	}
+	mock.lockGetOrNewStateObject.Lock()
+	mock.calls.GetOrNewStateObject = append(mock.calls.GetOrNewStateObject, callInfo)
+	mock.lockGetOrNewStateObject.Unlock()
+	return mock.GetOrNewStateObjectFunc(addr)
+}
+
+// GetOrNewStateObjectCalls gets all the calls that were made to GetOrNewStateObject.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.GetOrNewStateObjectCalls())
+func (mock *StargazerStateDBMock) GetOrNewStateObjectCalls() []struct {
+	Addr common.Address
+} {
+	var calls []struct {
+		Addr common.Address
+	}
+	mock.lockGetOrNewStateObject.RLock()
+	calls = mock.calls.GetOrNewStateObject
+	mock.lockGetOrNewStateObject.RUnlock()
 	return calls
 }
 
@@ -1544,6 +1845,124 @@ func (mock *StargazerStateDBMock) HasSuicidedCalls() []struct {
 	return calls
 }
 
+// IntermediateRoot calls IntermediateRootFunc.
+func (mock *StargazerStateDBMock) IntermediateRoot(deleteEmptyObjects bool) common.Hash {
+	if mock.IntermediateRootFunc == nil {
+		panic("StargazerStateDBMock.IntermediateRootFunc: method is nil but StargazerStateDB.IntermediateRoot was just called")
+	}
+	callInfo := struct {
+		DeleteEmptyObjects bool
+	}{
+		DeleteEmptyObjects: deleteEmptyObjects,
+	}
+	mock.lockIntermediateRoot.Lock()
+	mock.calls.IntermediateRoot = append(mock.calls.IntermediateRoot, callInfo)
+	mock.lockIntermediateRoot.Unlock()
+	return mock.IntermediateRootFunc(deleteEmptyObjects)
+}
+
+// IntermediateRootCalls gets all the calls that were made to IntermediateRoot.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.IntermediateRootCalls())
+func (mock *StargazerStateDBMock) IntermediateRootCalls() []struct {
+	DeleteEmptyObjects bool
+} {
+	var calls []struct {
+		DeleteEmptyObjects bool
+	}
+	mock.lockIntermediateRoot.RLock()
+	calls = mock.calls.IntermediateRoot
+	mock.lockIntermediateRoot.RUnlock()
+	return calls
+}
+
+// IteratorDump calls IteratorDumpFunc.
+func (mock *StargazerStateDBMock) IteratorDump(opts *state.DumpConfig) state.IteratorDump {
+	if mock.IteratorDumpFunc == nil {
+		panic("StargazerStateDBMock.IteratorDumpFunc: method is nil but StargazerStateDB.IteratorDump was just called")
+	}
+	callInfo := struct {
+		Opts *state.DumpConfig
+	}{
+		Opts: opts,
+	}
+	mock.lockIteratorDump.Lock()
+	mock.calls.IteratorDump = append(mock.calls.IteratorDump, callInfo)
+	mock.lockIteratorDump.Unlock()
+	return mock.IteratorDumpFunc(opts)
+}
+
+// IteratorDumpCalls gets all the calls that were made to IteratorDump.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.IteratorDumpCalls())
+func (mock *StargazerStateDBMock) IteratorDumpCalls() []struct {
+	Opts *state.DumpConfig
+} {
+	var calls []struct {
+		Opts *state.DumpConfig
+	}
+	mock.lockIteratorDump.RLock()
+	calls = mock.calls.IteratorDump
+	mock.lockIteratorDump.RUnlock()
+	return calls
+}
+
+// Logs calls LogsFunc.
+func (mock *StargazerStateDBMock) Logs() []*types.Log {
+	if mock.LogsFunc == nil {
+		panic("StargazerStateDBMock.LogsFunc: method is nil but StargazerStateDB.Logs was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockLogs.Lock()
+	mock.calls.Logs = append(mock.calls.Logs, callInfo)
+	mock.lockLogs.Unlock()
+	return mock.LogsFunc()
+}
+
+// LogsCalls gets all the calls that were made to Logs.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.LogsCalls())
+func (mock *StargazerStateDBMock) LogsCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockLogs.RLock()
+	calls = mock.calls.Logs
+	mock.lockLogs.RUnlock()
+	return calls
+}
+
+// Preimages calls PreimagesFunc.
+func (mock *StargazerStateDBMock) Preimages() map[common.Hash][]byte {
+	if mock.PreimagesFunc == nil {
+		panic("StargazerStateDBMock.PreimagesFunc: method is nil but StargazerStateDB.Preimages was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockPreimages.Lock()
+	mock.calls.Preimages = append(mock.calls.Preimages, callInfo)
+	mock.lockPreimages.Unlock()
+	return mock.PreimagesFunc()
+}
+
+// PreimagesCalls gets all the calls that were made to Preimages.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.PreimagesCalls())
+func (mock *StargazerStateDBMock) PreimagesCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockPreimages.RLock()
+	calls = mock.calls.Preimages
+	mock.lockPreimages.RUnlock()
+	return calls
+}
+
 // Prepare calls PrepareFunc.
 func (mock *StargazerStateDBMock) Prepare(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
 	if mock.PrepareFunc == nil {
@@ -1593,6 +2012,38 @@ func (mock *StargazerStateDBMock) PrepareCalls() []struct {
 	mock.lockPrepare.RLock()
 	calls = mock.calls.Prepare
 	mock.lockPrepare.RUnlock()
+	return calls
+}
+
+// RawDump calls RawDumpFunc.
+func (mock *StargazerStateDBMock) RawDump(opts *state.DumpConfig) state.Dump {
+	if mock.RawDumpFunc == nil {
+		panic("StargazerStateDBMock.RawDumpFunc: method is nil but StargazerStateDB.RawDump was just called")
+	}
+	callInfo := struct {
+		Opts *state.DumpConfig
+	}{
+		Opts: opts,
+	}
+	mock.lockRawDump.Lock()
+	mock.calls.RawDump = append(mock.calls.RawDump, callInfo)
+	mock.lockRawDump.Unlock()
+	return mock.RawDumpFunc(opts)
+}
+
+// RawDumpCalls gets all the calls that were made to RawDump.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.RawDumpCalls())
+func (mock *StargazerStateDBMock) RawDumpCalls() []struct {
+	Opts *state.DumpConfig
+} {
+	var calls []struct {
+		Opts *state.DumpConfig
+	}
+	mock.lockRawDump.RLock()
+	calls = mock.calls.RawDump
+	mock.lockRawDump.RUnlock()
 	return calls
 }
 
@@ -1983,6 +2434,65 @@ func (mock *StargazerStateDBMock) SnapshotCalls() []struct {
 	return calls
 }
 
+// StartPrefetcher calls StartPrefetcherFunc.
+func (mock *StargazerStateDBMock) StartPrefetcher(namespace string) {
+	if mock.StartPrefetcherFunc == nil {
+		panic("StargazerStateDBMock.StartPrefetcherFunc: method is nil but StargazerStateDB.StartPrefetcher was just called")
+	}
+	callInfo := struct {
+		Namespace string
+	}{
+		Namespace: namespace,
+	}
+	mock.lockStartPrefetcher.Lock()
+	mock.calls.StartPrefetcher = append(mock.calls.StartPrefetcher, callInfo)
+	mock.lockStartPrefetcher.Unlock()
+	mock.StartPrefetcherFunc(namespace)
+}
+
+// StartPrefetcherCalls gets all the calls that were made to StartPrefetcher.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.StartPrefetcherCalls())
+func (mock *StargazerStateDBMock) StartPrefetcherCalls() []struct {
+	Namespace string
+} {
+	var calls []struct {
+		Namespace string
+	}
+	mock.lockStartPrefetcher.RLock()
+	calls = mock.calls.StartPrefetcher
+	mock.lockStartPrefetcher.RUnlock()
+	return calls
+}
+
+// StopPrefetcher calls StopPrefetcherFunc.
+func (mock *StargazerStateDBMock) StopPrefetcher() {
+	if mock.StopPrefetcherFunc == nil {
+		panic("StargazerStateDBMock.StopPrefetcherFunc: method is nil but StargazerStateDB.StopPrefetcher was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockStopPrefetcher.Lock()
+	mock.calls.StopPrefetcher = append(mock.calls.StopPrefetcher, callInfo)
+	mock.lockStopPrefetcher.Unlock()
+	mock.StopPrefetcherFunc()
+}
+
+// StopPrefetcherCalls gets all the calls that were made to StopPrefetcher.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.StopPrefetcherCalls())
+func (mock *StargazerStateDBMock) StopPrefetcherCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockStopPrefetcher.RLock()
+	calls = mock.calls.StopPrefetcher
+	mock.lockStopPrefetcher.RUnlock()
+	return calls
+}
+
 // StorageTrie calls StorageTrieFunc.
 func (mock *StargazerStateDBMock) StorageTrie(addr common.Address) (state.Trie, error) {
 	if mock.StorageTrieFunc == nil {
@@ -2152,5 +2662,32 @@ func (mock *StargazerStateDBMock) TransferBalanceCalls() []struct {
 	mock.lockTransferBalance.RLock()
 	calls = mock.calls.TransferBalance
 	mock.lockTransferBalance.RUnlock()
+	return calls
+}
+
+// TxIndex calls TxIndexFunc.
+func (mock *StargazerStateDBMock) TxIndex() int {
+	if mock.TxIndexFunc == nil {
+		panic("StargazerStateDBMock.TxIndexFunc: method is nil but StargazerStateDB.TxIndex was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockTxIndex.Lock()
+	mock.calls.TxIndex = append(mock.calls.TxIndex, callInfo)
+	mock.lockTxIndex.Unlock()
+	return mock.TxIndexFunc()
+}
+
+// TxIndexCalls gets all the calls that were made to TxIndex.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.TxIndexCalls())
+func (mock *StargazerStateDBMock) TxIndexCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockTxIndex.RLock()
+	calls = mock.calls.TxIndex
+	mock.lockTxIndex.RUnlock()
 	return calls
 }

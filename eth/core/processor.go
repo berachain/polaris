@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"sync"
 
+	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
@@ -146,6 +147,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
 	sp.statedb.Reset(ctx)
+	sp.statedb.SetTxContext(common.Hash{}, sp.block.TxIndex())
 	sp.pp.Reset(ctx)
 	sp.gp.Reset(ctx)
 
@@ -179,13 +181,13 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// Set the receipt logs and create the bloom filter.
-	receipt.Logs = sp.statedb.BuildLogsAndClear(
-		receipt.TxHash, receipt.BlockHash, sp.block.TxIndex(), sp.block.LogIndex(),
+	receipt.Logs = sp.statedb.GetLogs(
+		receipt.TxHash, sp.block.Number.Uint64(), sp.block.Hash(),
 	)
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = sp.block.Hash()
 	receipt.BlockNumber = sp.block.Number
-	receipt.TransactionIndex = sp.block.TxIndex()
+	receipt.TransactionIndex = uint(sp.block.TxIndex())
 
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed

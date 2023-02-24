@@ -224,6 +224,12 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 
+// AddPreimage implements the the `StateDB“ interface, but currently
+// performs a no-op since the EnablePreimageRecording flag is disabled.
+func (sdb *stateDB) Preimages() map[common.Hash][]byte {
+	return nil
+}
+
 // =============================================================================
 // Other
 // =============================================================================

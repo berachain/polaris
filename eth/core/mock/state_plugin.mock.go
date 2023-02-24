@@ -73,6 +73,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
 //			},
+//			SetBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
+//				panic("mock out the SetBalance method")
+//			},
 //			SetCodeFunc: func(address common.Address, bytes []byte)  {
 //				panic("mock out the SetCode method")
 //			},
@@ -148,6 +151,9 @@ type StatePluginMock struct {
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
+
+	// SetBalanceFunc mocks the SetBalance method.
+	SetBalanceFunc func(address common.Address, intMoqParam *big.Int)
 
 	// SetCodeFunc mocks the SetCode method.
 	SetCodeFunc func(address common.Address, bytes []byte)
@@ -258,6 +264,13 @@ type StatePluginMock struct {
 			// N is the n argument value.
 			N int
 		}
+		// SetBalance holds details about calls to the SetBalance method.
+		SetBalance []struct {
+			// Address is the address argument value.
+			Address common.Address
+			// IntMoqParam is the intMoqParam argument value.
+			IntMoqParam *big.Int
+		}
 		// SetCode holds details about calls to the SetCode method.
 		SetCode []struct {
 			// Address is the address argument value.
@@ -318,6 +331,7 @@ type StatePluginMock struct {
 	lockRegistryKey       sync.RWMutex
 	lockReset             sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
+	lockSetBalance        sync.RWMutex
 	lockSetCode           sync.RWMutex
 	lockSetNonce          sync.RWMutex
 	lockSetState          sync.RWMutex
@@ -873,6 +887,42 @@ func (mock *StatePluginMock) RevertToSnapshotCalls() []struct {
 	mock.lockRevertToSnapshot.RLock()
 	calls = mock.calls.RevertToSnapshot
 	mock.lockRevertToSnapshot.RUnlock()
+	return calls
+}
+
+// SetBalance calls SetBalanceFunc.
+func (mock *StatePluginMock) SetBalance(address common.Address, intMoqParam *big.Int) {
+	if mock.SetBalanceFunc == nil {
+		panic("StatePluginMock.SetBalanceFunc: method is nil but StatePlugin.SetBalance was just called")
+	}
+	callInfo := struct {
+		Address     common.Address
+		IntMoqParam *big.Int
+	}{
+		Address:     address,
+		IntMoqParam: intMoqParam,
+	}
+	mock.lockSetBalance.Lock()
+	mock.calls.SetBalance = append(mock.calls.SetBalance, callInfo)
+	mock.lockSetBalance.Unlock()
+	mock.SetBalanceFunc(address, intMoqParam)
+}
+
+// SetBalanceCalls gets all the calls that were made to SetBalance.
+// Check the length with:
+//
+//	len(mockedStatePlugin.SetBalanceCalls())
+func (mock *StatePluginMock) SetBalanceCalls() []struct {
+	Address     common.Address
+	IntMoqParam *big.Int
+} {
+	var calls []struct {
+		Address     common.Address
+		IntMoqParam *big.Int
+	}
+	mock.lockSetBalance.RLock()
+	calls = mock.calls.SetBalance
+	mock.lockSetBalance.RUnlock()
 	return calls
 }
 
