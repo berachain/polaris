@@ -3,31 +3,29 @@ module pkg.berachain.dev/stargazer
 go 1.20
 
 // Required for supporting stateful precompiled contracts.
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230223191228-79bc906d4f6f
-
-replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
-
-// Various replaces needed to resolve conflicts until 0.48 branch cut.
 replace (
-	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230222022124-77660ec452b6
-	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230222022124-77660ec452b6
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230222022124-77660ec452b6
+	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230224185434-747c29e8fa31
+	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
+	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230223191228-79bc906d4f6f
+	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
 require (
 	cosmossdk.io/api v0.3.1
-	cosmossdk.io/client/v2 v2.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/client/v2 v2.0.0-20230220152935-67f04e629623
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
-	cosmossdk.io/log v0.0.0
+	cosmossdk.io/log v0.0.0-20230224185434-747c29e8fa31
 	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
-	cosmossdk.io/simapp v0.0.0-20230224160853-41690532be87
-	cosmossdk.io/store v0.0.0-20230222022124-77660ec452b6
-	cosmossdk.io/tools/confix v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/simapp v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/store v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/tools/confix v0.0.0-20230224185434-747c29e8fa31
 	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/feegrant v0.0.0-20230222022124-77660ec452b6
-	cosmossdk.io/x/upgrade v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/x/upgrade v0.0.0-20230224185434-747c29e8fa31
 	github.com/bufbuild/buf v1.14.0
 	github.com/carolynvs/magex v0.9.0
 	github.com/cometbft/cometbft v0.37.0-alpha.3
