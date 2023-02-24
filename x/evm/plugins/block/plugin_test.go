@@ -28,7 +28,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	offchain "pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
@@ -40,7 +39,8 @@ var _ = Describe("Block Plugin", func() {
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
-		p = utils.MustGetAs[*plugin](NewPlugin(&mockSHG{}, offchain.NewFromDB(dbm.NewMemDB())))
+		sk := testutil.EvmKey // testing key.
+		p = utils.MustGetAs[*plugin](NewPlugin(offchain.NewFromDB(dbm.NewMemDB()), sk))
 		p.Prepare(ctx)
 	})
 
@@ -54,14 +54,3 @@ var _ = Describe("Block Plugin", func() {
 		Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
 	})
 })
-
-// MOCKS BELOW.
-
-type mockSHG struct {
-	calls int
-}
-
-func (m *mockSHG) GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool) {
-	m.calls++
-	return nil, false
-}

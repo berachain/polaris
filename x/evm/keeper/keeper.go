@@ -86,7 +86,7 @@ func NewKeeper(
 		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
 	}
 
-	k.bp = block.NewPlugin(k, k.offChainKv, storeKey)
+	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 
 	k.cp = configuration.NewPlugin(storeKey)
 
