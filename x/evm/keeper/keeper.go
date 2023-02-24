@@ -25,10 +25,11 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
@@ -80,7 +81,7 @@ func NewKeeper(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool *mempool.EthTxPool,
+	ethTxMempool sdkmempool.Mempool,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -107,7 +108,7 @@ func NewKeeper(
 	k.gp = gas.NewPlugin()
 	k.pp = precompile.NewPlugin()
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
-	k.txp = txpool.NewPlugin(k.rpcProvider.GetClientCtx(), ethTxMempool)
+	k.txp = txpool.NewPlugin(k.rpcProvider.GetClientCtx(), utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)

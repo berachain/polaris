@@ -21,8 +21,6 @@
 package evm
 
 import (
-	"fmt"
-
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
@@ -33,7 +31,6 @@ import (
 
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
@@ -50,7 +47,7 @@ type DepInjectInput struct {
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
 
-	Mempool func() sdkmempool.Mempool
+	Mempool sdkmempool.Mempool
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
@@ -71,9 +68,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
-
-	ethTxMempool := utils.MustGetAs[*mempool.EthTxPool](in.Mempool())
-
 	k := keeper.NewKeeper(
 		in.Key,
 		// in.StakingKeeper,
@@ -81,7 +75,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.BankKeeper,
 		authority.String(),
 		in.AppOpts,
-		ethTxMempool,
+		in.Mempool,
 	)
 
 	m := NewAppModule(k,
