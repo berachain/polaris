@@ -50,7 +50,7 @@ Go v1.20+ or higher is required for Stargazer
    For Mac:
 
    ```sh
-   brew install golang
+   brew install go
    export PATH=$PATH:/opt/homebrew/bin/go
    export PATH=$PATH:$(go env GOPATH)/bin
    go run build/setup.go
