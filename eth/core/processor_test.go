@@ -121,7 +121,7 @@ var _ = Describe("StateProcessor", func() {
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(uint(0)))
+			Expect(block.TxIndex()).To(Equal(0))
 		})
 	})
 
@@ -144,7 +144,7 @@ var _ = Describe("StateProcessor", func() {
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(uint(0)))
+			Expect(block.TxIndex()).To(Equal(0))
 		})
 
 		It("should not error on a signed transaction", func() {
@@ -163,7 +163,7 @@ var _ = Describe("StateProcessor", func() {
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(uint(1)))
+			Expect(block.TxIndex()).To(Equal(1))
 		})
 
 		It("should add a contract address to the receipt", func() {
@@ -180,7 +180,7 @@ var _ = Describe("StateProcessor", func() {
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(uint(1)))
+			Expect(block.TxIndex()).To(Equal(1))
 		})
 
 		It("should mark a receipt with a virtual machine error as failed", func() {
@@ -212,7 +212,7 @@ var _ = Describe("StateProcessor", func() {
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(uint(1)))
+			Expect(block.TxIndex()).To(Equal(1))
 
 			// Now try calling the contract
 			legacyTxData.To = &dummyContract

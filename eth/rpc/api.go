@@ -22,7 +22,7 @@ package rpc
 
 import "pkg.berachain.dev/stargazer/eth/rpc/api"
 
-// `GetAPIs` returns a list of the available APIs.
+// `GetAPIs` returns a list of all available APIs.
 func GetAPIs(apiBackend StargazerBackend) []API {
 	nonceLock := new(AddrLocker)
 	return []API{
@@ -40,7 +40,8 @@ func GetAPIs(apiBackend StargazerBackend) []API {
 		{
 			Namespace: "txpool",
 			Service:   NewTxPoolAPI(apiBackend),
-		}, {
+		},
+		{
 			Namespace: "debug",
 			Service:   NewDebugAPI(apiBackend),
 		},

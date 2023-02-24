@@ -23,11 +23,11 @@ package state
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/types"
-
-	. "github.com/onsi/gomega"
 )
 
 var (

@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -35,6 +36,36 @@ import (
 
 // By default we are storing up to 64mb of historical data for each cache.
 const defaultCacheSizeBytes = 1024 * 1024 * 64
+
+// `ChainReaderWriter` is the interface that wraps the basic methods of the EVM chain.
+type ChainReaderWriter interface {
+	ChainWriter
+	ChainReader
+}
+
+// `ChainWriter` defines methods that are used to perform state and block transitions.
+type ChainWriter interface {
+	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
+	// the block.
+	Prepare(ctx context.Context, height int64)
+	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
+	// the state transition. This method is called for each tx in the block.
+	ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error)
+	// `Finalize` finalizes the block and returns the block. This method is called after the last
+	// tx in the block.
+	Finalize(ctx context.Context) (*types.StargazerBlock, error)
+}
+
+// `ChainReader` defines methods that are used to read the state and blocks of the chain.
+type ChainReader interface {
+	CurrentHeader() *types.StargazerHeader
+	CurrentBlock() *types.StargazerBlock
+	FinalizedBlock() *types.StargazerBlock
+	GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock
+	GetStargazerBlockByNumber(number int64) *types.StargazerBlock
+	GetStateByNumber(number int64) (vm.GethStateDB, error)
+	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
+}
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
 type blockchain struct {
@@ -84,38 +115,4 @@ func (bc *blockchain) Host() StargazerHostChain {
 // commit flag.
 func (bc *blockchain) buildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
 	return NewStateProcessor(bc.host, state.NewStateDB(bc.host.GetStatePlugin()), vmConfig, commit)
-}
-
-// =========================================================================
-// Block Processing
-// =========================================================================
-
-// `Prepare` prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	// If we are processing a new block, then we assume that the previous was finalized.
-	// TODO: ensure this is safe. We could build the block in theory by querying the blockplugin
-	if bc.processor.block != nil {
-		// Cache finalized block.
-		bc.finalizedBlock.Store(bc.processor.block)
-		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
-
-		// Cache transaction data
-		for _, tx := range bc.processor.block.GetTransactions() {
-			bc.txLookupCache.Add(tx.Hash(), tx)
-		}
-		// Cache receipts.
-		bc.receiptsCache.Add(bc.processor.block.Hash(), bc.processor.block.GetReceipts())
-	}
-	bc.processor.Prepare(ctx, height)
-	bc.chainHeadFeed.Send(ChainHeadEvent{Block: bc.processor.block.EthBlock()})
-}
-
-// `ProcessTransaction` processes the given transaction and returns the receipt.
-func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
-	return bc.processor.ProcessTransaction(ctx, tx)
-}
-
-// `Finalize` finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
-	return bc.processor.Finalize(ctx)
 }

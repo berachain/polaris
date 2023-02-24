@@ -403,9 +403,8 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	if err := evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider()); err != nil {
-		panic(err)
-	}
+	// Register Ethereum JSON-RPC API as needed by stargazer.
+	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }
 
 // GetMaccPerms returns a copy of the module account permissions
