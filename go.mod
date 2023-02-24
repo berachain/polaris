@@ -4,9 +4,6 @@ go 1.20
 
 // Required for supporting stateful precompiled contracts.
 replace (
-	// github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.0.0-20230224185434-747c29e8fa31
-	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230222022124-77660ec452b6
-
 	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230224185434-747c29e8fa31
 	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230222022124-77660ec452b6
