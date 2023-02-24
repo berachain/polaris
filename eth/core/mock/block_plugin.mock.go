@@ -6,7 +6,6 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/state"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"sync"
@@ -34,9 +33,6 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			GetStargazerHeaderByNumberFunc: func(n int64) *types.StargazerHeader {
 //				panic("mock out the GetStargazerHeaderByNumber method")
 //			},
-//			GetStateByNumberFunc: func(n int64) (state.StateDBI, error) {
-//				panic("mock out the GetStateByNumber method")
-//			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
@@ -58,9 +54,6 @@ type BlockPluginMock struct {
 
 	// GetStargazerHeaderByNumberFunc mocks the GetStargazerHeaderByNumber method.
 	GetStargazerHeaderByNumberFunc func(n int64) *types.StargazerHeader
-
-	// GetStateByNumberFunc mocks the GetStateByNumber method.
-	GetStateByNumberFunc func(n int64) (state.StateDBI, error)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -85,11 +78,6 @@ type BlockPluginMock struct {
 			// N is the n argument value.
 			N int64
 		}
-		// GetStateByNumber holds details about calls to the GetStateByNumber method.
-		GetStateByNumber []struct {
-			// N is the n argument value.
-			N int64
-		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -100,7 +88,6 @@ type BlockPluginMock struct {
 	lockGetStargazerBlockByHash    sync.RWMutex
 	lockGetStargazerBlockByNumber  sync.RWMutex
 	lockGetStargazerHeaderByNumber sync.RWMutex
-	lockGetStateByNumber           sync.RWMutex
 	lockPrepare                    sync.RWMutex
 }
 
@@ -224,38 +211,6 @@ func (mock *BlockPluginMock) GetStargazerHeaderByNumberCalls() []struct {
 	mock.lockGetStargazerHeaderByNumber.RLock()
 	calls = mock.calls.GetStargazerHeaderByNumber
 	mock.lockGetStargazerHeaderByNumber.RUnlock()
-	return calls
-}
-
-// GetStateByNumber calls GetStateByNumberFunc.
-func (mock *BlockPluginMock) GetStateByNumber(n int64) (state.StateDBI, error) {
-	if mock.GetStateByNumberFunc == nil {
-		panic("BlockPluginMock.GetStateByNumberFunc: method is nil but BlockPlugin.GetStateByNumber was just called")
-	}
-	callInfo := struct {
-		N int64
-	}{
-		N: n,
-	}
-	mock.lockGetStateByNumber.Lock()
-	mock.calls.GetStateByNumber = append(mock.calls.GetStateByNumber, callInfo)
-	mock.lockGetStateByNumber.Unlock()
-	return mock.GetStateByNumberFunc(n)
-}
-
-// GetStateByNumberCalls gets all the calls that were made to GetStateByNumber.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetStateByNumberCalls())
-func (mock *BlockPluginMock) GetStateByNumberCalls() []struct {
-	N int64
-} {
-	var calls []struct {
-		N int64
-	}
-	mock.lockGetStateByNumber.RLock()
-	calls = mock.calls.GetStateByNumber
-	mock.lockGetStateByNumber.RUnlock()
 	return calls
 }
 

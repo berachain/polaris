@@ -29,6 +29,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
+	ethstate "pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/lib/snapshot"
@@ -423,7 +424,9 @@ func (p *plugin) GetStateByNumber(height int64) (vm.GethStateDB, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
+	sp.Reset(ctx)
+	return ethstate.NewStateDB(sp), nil
 }
 
 // `DeleteSuicides` manually deletes the given suicidal accounts.
