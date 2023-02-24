@@ -50,6 +50,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -200,8 +201,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		mempoolOpt = baseapp.SetMempool(
-			mempool.NewEthTxPool(),
+		ethTxMempool = mempool.NewEthTxPool()
+		mempoolOpt   = baseapp.SetMempool(
+			ethTxMempool,
 		)
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
@@ -221,7 +223,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 				appOpts,
 
 				// ADVANCED CONFIGURATION
-
+				//
+				// ETH TX MEMPOOL
+				func() sdkmempool.Mempool { return ethTxMempool },
 				//
 				// AUTH
 				//

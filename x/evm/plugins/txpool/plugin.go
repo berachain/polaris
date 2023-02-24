@@ -31,7 +31,6 @@ import (
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	txpoolclient "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/client"
 	mempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
 // `Plugin` represents the transaction pool plugin.
@@ -44,14 +43,15 @@ type Plugin interface {
 
 // `plugin` represents the transaction pool plugin.
 type plugin struct {
-	mempool   mempool.EthTxPool
+	mempool   *mempool.EthTxPool
 	clientCtx client.Context
 }
 
 // `NewPlugin` returns a new transaction pool plugin.
-func NewPlugin(rp rpc.Provider) Plugin {
+func NewPlugin(clientCtx client.Context, ethTxMempool *mempool.EthTxPool) Plugin {
 	return &plugin{
-		clientCtx: rp.GetClientCtx(),
+		mempool:   ethTxMempool,
+		clientCtx: clientCtx,
 	}
 }
 

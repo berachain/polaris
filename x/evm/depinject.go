@@ -21,15 +21,19 @@
 package evm
 
 import (
+	"fmt"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
@@ -44,11 +48,13 @@ type DepInjectInput struct {
 	ModuleKey depinject.OwnModuleKey
 	Config    *modulev1.Module
 	Key       *store.KVStoreKey
+	AppOpts   servertypes.AppOptions
+
+	Mempool func() sdkmempool.Mempool
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
 	StakingKeeper StakingKeeper
-	AppOpts       servertypes.AppOptions
 }
 
 // `DepInjectOutput` is the output for the dep inject framework.
@@ -66,6 +72,11 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
+	ethTxMempool, ok := in.Mempool().(*mempool.EthTxPool)
+	if !ok {
+		panic(fmt.Sprintf("expected mempool to be of type %T, got %T", &mempool.EthTxPool{}, in.Mempool()))
+	}
+
 	k := keeper.NewKeeper(
 		in.Key,
 		// in.StakingKeeper,
@@ -73,6 +84,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.BankKeeper,
 		authority.String(),
 		in.AppOpts,
+		ethTxMempool,
 	)
 
 	m := NewAppModule(k,

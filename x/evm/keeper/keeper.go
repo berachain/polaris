@@ -38,6 +38,7 @@ import (
 	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
@@ -79,6 +80,7 @@ func NewKeeper(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
+	ethTxMempool *mempool.EthTxPool,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -105,7 +107,7 @@ func NewKeeper(
 	k.gp = gas.NewPlugin()
 	k.pp = precompile.NewPlugin()
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
-	k.txp = txpool.NewPlugin(k.rpcProvider)
+	k.txp = txpool.NewPlugin(k.rpcProvider.GetClientCtx(), ethTxMempool)
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
