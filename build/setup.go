@@ -72,6 +72,10 @@ func main() {
 		panic(err)
 	}
 
+	if err = setupFoundry(); err != nil {
+		panic(err)
+	}
+
 	if err = setupGoDeps(); err != nil {
 		panic(err)
 	}
@@ -87,6 +91,16 @@ func setupGoDeps() error {
 	fmt.Println("\n==============================================================")
 	fmt.Println("Tools installed successful! Ensure $GOPATH/bin is on your $PATH!")
 	fmt.Println("==============================================================")
+	return nil
+}
+
+func setupFoundry() error {
+	// Looks like we will have to get user to install foundryup manually for the time being.
+	// TODO: figure out how to do the curl install from mage.
+	if err := sh.Run("foundryup"); err != nil {
+		return errors.New("failed to foundryup: " + err.Error())
+	}
+
 	return nil
 }
 
