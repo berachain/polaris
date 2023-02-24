@@ -32,10 +32,10 @@ const (
 	DefaultBaseRoute = "/"
 
 	// `DefaultRPCGasCap` is the default gas cap for the JSON-RPC server.
-	DefaultRPCGasCap = 25000000
+	DefaultRPCGasCap = 50000000
 
 	// `DefaultRPCTxFeeCap` is the default transaction fee cap for the JSON-RPC server.
-	DefaultRPCTxFeeCap = 1000.0
+	DefaultRPCTxFeeCap = 1.0 // 1 ether
 
 	// `DefaultRPCEVMTimeout` is the default timeout for the JSON-RPC server.
 	DefaultRPCEVMTimeout = 5 * time.Second
