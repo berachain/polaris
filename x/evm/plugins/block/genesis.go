@@ -38,7 +38,10 @@ func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
 			panic(err)
 		}
 		// Set the header in the store.
-		p.SetStargazerHeader(ctx, &stargazerHeader)
+		err := p.SetStargazerHeader(ctx, &stargazerHeader)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -50,7 +53,7 @@ func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState)
 		genesisState.Headers = make([][]byte, 0)
 	}
 	// Iterate over all the headers in the store and marshal them into bytes.
-	p.IterateStargazerHeaders(ctx, func(header *coretypes.StargazerHeader) (stop bool) {
+	p.IterateStargazerHeaders(ctx, func(header *coretypes.StargazerHeader) bool {
 		// Marshal the header into bytes.
 		bz, err := header.MarshalBinary()
 		if err != nil {
