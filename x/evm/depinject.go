@@ -72,10 +72,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	ethTxMempool, ok := in.Mempool().(*mempool.EthTxPool)
-	if !ok {
-		panic(fmt.Sprintf("expected mempool to be of type %T, got %T", &mempool.EthTxPool{}, in.Mempool()))
-	}
+	ethTxMempool := utils.MustGetAs[*mempool.EthTxPool](in.Mempool())
 
 	k := keeper.NewKeeper(
 		in.Key,
