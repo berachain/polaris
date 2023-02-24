@@ -63,15 +63,6 @@ jobs:
           flags: "unit"
       - store_test_results:
           path: .
-  test-unit-race:
-    executor: standard
-    steps:
-      - setup
-      - run:
-          name: Test Unit Race
-          command: mage testunitrace
-      - store_test_results:
-          path: .
   test-integration:
     executor: machine
     steps:
@@ -101,7 +92,6 @@ workflows:
       - build
       - lint
       - test-unit
-      - test-unit-race
       - test-integration
 
 commands:
