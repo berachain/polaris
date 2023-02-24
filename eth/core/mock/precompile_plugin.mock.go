@@ -29,6 +29,9 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //			HasFunc: func(addr common.Address) bool {
 //				panic("mock out the Has method")
 //			},
+//			RegisterFunc: func(precompiledContract vm.PrecompiledContract) error {
+//				panic("mock out the Register method")
+//			},
 //			ResetFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Reset method")
 //			},
@@ -48,6 +51,9 @@ type PrecompilePluginMock struct {
 	// HasFunc mocks the Has method.
 	HasFunc func(addr common.Address) bool
 
+	// RegisterFunc mocks the Register method.
+	RegisterFunc func(precompiledContract vm.PrecompiledContract) error
+
 	// ResetFunc mocks the Reset method.
 	ResetFunc func(contextMoqParam context.Context)
 
@@ -65,6 +71,11 @@ type PrecompilePluginMock struct {
 		Has []struct {
 			// Addr is the addr argument value.
 			Addr common.Address
+		}
+		// Register holds details about calls to the Register method.
+		Register []struct {
+			// PrecompiledContract is the precompiledContract argument value.
+			PrecompiledContract vm.PrecompiledContract
 		}
 		// Reset holds details about calls to the Reset method.
 		Reset []struct {
@@ -89,10 +100,11 @@ type PrecompilePluginMock struct {
 			Readonly bool
 		}
 	}
-	lockGet   sync.RWMutex
-	lockHas   sync.RWMutex
-	lockReset sync.RWMutex
-	lockRun   sync.RWMutex
+	lockGet      sync.RWMutex
+	lockHas      sync.RWMutex
+	lockRegister sync.RWMutex
+	lockReset    sync.RWMutex
+	lockRun      sync.RWMutex
 }
 
 // Get calls GetFunc.
@@ -156,6 +168,38 @@ func (mock *PrecompilePluginMock) HasCalls() []struct {
 	mock.lockHas.RLock()
 	calls = mock.calls.Has
 	mock.lockHas.RUnlock()
+	return calls
+}
+
+// Register calls RegisterFunc.
+func (mock *PrecompilePluginMock) Register(precompiledContract vm.PrecompiledContract) error {
+	if mock.RegisterFunc == nil {
+		panic("PrecompilePluginMock.RegisterFunc: method is nil but PrecompilePlugin.Register was just called")
+	}
+	callInfo := struct {
+		PrecompiledContract vm.PrecompiledContract
+	}{
+		PrecompiledContract: precompiledContract,
+	}
+	mock.lockRegister.Lock()
+	mock.calls.Register = append(mock.calls.Register, callInfo)
+	mock.lockRegister.Unlock()
+	return mock.RegisterFunc(precompiledContract)
+}
+
+// RegisterCalls gets all the calls that were made to Register.
+// Check the length with:
+//
+//	len(mockedPrecompilePlugin.RegisterCalls())
+func (mock *PrecompilePluginMock) RegisterCalls() []struct {
+	PrecompiledContract vm.PrecompiledContract
+} {
+	var calls []struct {
+		PrecompiledContract vm.PrecompiledContract
+	}
+	mock.lockRegister.RLock()
+	calls = mock.calls.Register
+	mock.lockRegister.RUnlock()
 	return calls
 }
 

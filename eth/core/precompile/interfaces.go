@@ -33,6 +33,8 @@ type (
 	Plugin interface {
 		// `Reset` sets the native precompile context before beginning a state transition.
 		libtypes.Resettable
+		// `Register` registers a new precompiled contract at the given address.
+		Register(vm.PrecompileContainer) error
 		// `PrecompileManager` is the manager for the native precompiles.
 		vm.PrecompileManager
 	}

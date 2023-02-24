@@ -86,8 +86,8 @@ func NewStateProcessor(
 
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
+		// TODO: register Geth default stateless precompile contracts.
 	}
-	// TODO: register Geth default stateless precompile contracts.
 
 	return sp
 }
