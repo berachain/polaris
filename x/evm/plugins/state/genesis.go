@@ -31,17 +31,17 @@ import (
 func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
 
-	for contract, contractState := range data.AddressToContract {
-		// Get the code from the code hash to code map.
-		code := common.Hex2Bytes(data.HashToCode[contractState.CodeHash])
-		addr := common.HexToAddress(contract)
-		p.SetCode(addr, code)
+	for addr, contract := range data.AddressToContract {
+		// Set the contract code.
+		address := common.HexToAddress(addr)
+		code := []byte(data.HashToCode[contract.CodeHash])
+		p.SetCode(address, code)
 
-		// Loop through the contract slot to value map and set the state.
-		for k, v := range contractState.SlotToValue {
+		// Set the contract state.
+		for k, v := range contract.SlotToValue {
 			slot := common.HexToHash(k)
 			value := common.HexToHash(v)
-			p.SetState(addr, slot, value)
+			p.SetState(address, slot, value)
 		}
 	}
 
@@ -52,39 +52,39 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
 
-	// Address to contract state map.
-	atc := make(map[string]*types.Contract)
-	// Code hash to code map.
-	htc := make(map[string]string)
+	// Allocate memory for the address to contract map if it is nil.
+	if data.AddressToContract == nil {
+		data.AddressToContract = make(map[string]*types.Contract)
+	}
+	// Allocate memory for the hash to code map if it is nil.
+	if data.HashToCode == nil {
+		data.HashToCode = make(map[string]string)
+	}
 
-	// Iterate over all the code records and add them to the genesis state.
 	p.IterateCode(func(address common.Address, code []byte) bool {
 		// Get the contract code hash.
-		codeHash := common.BytesToHash(code).Hex()
-
+		codeHash := p.GetCodeHash(address)
+		// If the contract is nil, allocate memory for it.
+		if data.AddressToContract[address.Hex()] == nil {
+			data.AddressToContract[address.Hex()] = &types.Contract{}
+		}
+		data.AddressToContract[address.Hex()].CodeHash = codeHash.Hex()
 		// Add the code hash and code to the code hash to code map.
-		htc[codeHash] = common.Bytes2Hex(code)
-
+		data.HashToCode[codeHash.Hex()] = string(code)
 		return false // keep iterating
 	})
 
-	// Iterate over all the contract state records and add them to the map.
-	p.IterateState(func(address common.Address, key, value common.Hash) bool {
-		// If the slot to value map is nil, allocate memory for it.
-		if atc[address.Hex()] == nil {
-			atc[address.Hex()] = &types.Contract{
-				SlotToValue: make(map[string]string),
-			}
+	p.IterateState(func(addr common.Address, key, value common.Hash) bool {
+		// if the slot to value map is nil on the contract, allocate memory for it.
+		if data.AddressToContract[addr.Hex()].SlotToValue == nil {
+			data.AddressToContract[addr.Hex()].SlotToValue = make(map[string]string)
 		}
 
-		// Set the slots to values map.
-		atc[address.Hex()].SlotToValue[key.Hex()] = value.Hex()
+		// Set the slots to value map.
+		data.AddressToContract[addr.Hex()].SlotToValue[key.Hex()] = value.Hex()
+
 		return false // keep iterating
 	})
-
-	// Add to the genesis state.
-	data.AddressToContract = atc
-	data.HashToCode = htc
 
 	p.Finalize()
 }
