@@ -27,10 +27,9 @@ import (
 
 // `RegisterJSONRPCServer` provides a common function which registers the ethereum rpc servers
 // with routes on the native Cosmos API Server.
-func RegisterJSONRPCServer(ctx client.Context, rtr *mux.Router, provider Provider) error {
+func RegisterJSONRPCServer(ctx client.Context, rtr *mux.Router, provider Provider) {
 	cfg := provider.GetConfig()
 	rtr.PathPrefix(cfg.BaseRoute).Handler(provider.GetHTTP())
 	rtr.PathPrefix(cfg.BaseRoute + "/ws").Handler(provider.GetWS())
 	provider.SetClientContext(ctx)
-	return nil
 }
