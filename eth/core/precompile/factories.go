@@ -66,7 +66,7 @@ func NewStatelessFactory() *StatelessFactory {
 func (sf *StatelessFactory) Build(
 	rp vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
-	pc, ok := utils.GetAs[StatelessPrecompileImpl](rp)
+	pc, ok := utils.GetAs[StatelessImpl](rp)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statelessContainerName)
 	}
@@ -93,7 +93,7 @@ func NewStatefulFactory() *StatefulFactory {
 func (sf *StatefulFactory) Build(
 	rp vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
-	sci, ok := utils.GetAs[StatefulPrecompileImpl](rp)
+	sci, ok := utils.GetAs[StatefulImpl](rp)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
@@ -175,7 +175,7 @@ func NewDynamicFactory() *DynamicFactory {
 func (dcf *DynamicFactory) Build(
 	rp vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
-	dci, ok := utils.GetAs[DynamicPrecompileImpl](rp)
+	dci, ok := utils.GetAs[DynamicImpl](rp)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerName)
 	}

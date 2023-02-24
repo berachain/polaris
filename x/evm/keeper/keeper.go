@@ -25,10 +25,13 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
+	ethprecompile "pkg.berachain.dev/stargazer/eth/core/precompile"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
+	"pkg.berachain.dev/stargazer/precompile/staking"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
@@ -77,9 +80,9 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
+	sk *stakingkeeper.Keeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-	// ba evm.BaseApp,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -92,9 +95,23 @@ func NewKeeper(
 	}
 
 	k.pp = precompile.NewPlugin()
+	// TODO: add and register more precompiles
+	sc := staking.NewPrecompileContract(sk)
+	pc, err := ethprecompile.NewStatefulFactory().Build(sc)
+	if err != nil {
+		panic(err)
+	}
+	err = k.pp.Register(pc)
+	if err != nil {
+		panic(err)
+	}
+
 	plf := precompilelog.NewFactory()
-	// TODO: register precompiles
-	// TODO: register precompile events/logs
+	// TODO: add and register more precompile events/logs
+	cvd := sc.CustomValueDecoders()
+	for _, event := range sc.ABIEvents() {
+		plf.RegisterEvent(pc.RegistryKey(), event, cvd)
+	}
 
 	// Setup the RPC Service. // TODO: parameterize config.
 	cfg := ethrpcconfig.DefaultServer()

@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"sync"
 
+	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
@@ -86,7 +87,6 @@ func NewStateProcessor(
 
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
-		// TODO: register Geth default stateless precompile contracts.
 	}
 
 	return sp
@@ -118,6 +118,27 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	// We must re-create the signer since we are processing a new block and the block number has increased.
 	chainConfig := sp.cp.ChainConfig()
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
+
+	// Register the Geth stateless precompile contracts
+	sf := precompile.NewStatelessFactory()
+	var allPrecompiles map[common.Address]vm.PrecompileContainer
+	if rules := chainConfig.Rules(sp.block.Number, true, 0); rules.IsBerlin || rules.IsIstanbul {
+		allPrecompiles = vm.PrecompiledContractsBerlin
+	} else if rules.IsByzantium {
+		allPrecompiles = vm.PrecompiledContractsByzantium
+	} else if rules.IsHomestead {
+		allPrecompiles = vm.PrecompiledContractsHomestead
+	}
+	for _, pc := range allPrecompiles {
+		precomp, err := sf.Build(pc)
+		if err != nil {
+			panic(err)
+		}
+		err = sp.pp.Register(precomp)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	// Setup the EVM for this block.
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()

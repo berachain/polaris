@@ -34,7 +34,7 @@ import (
 
 /**
  * 	Welcome to Stateful Precompiled Contracts! To build a stateful precompile, you must implement
- *  the `StatefulPrecompileImpl` interface in `interfaces.go`; below are the suggested steps to
+ *  the `StatefulImpl` interface in `interfaces.go`; below are the suggested steps to
  *  follow:
  *	  1) Define a Solidity interface with the methods that you want implemented via a precompile.
  *	  2) Build a Go precompile contract, which implements the interface's methods.

@@ -41,19 +41,19 @@ type (
 )
 
 type (
-	// `StatelessPrecompileImpl` is the interface for all stateless precompiled contract
+	// `StatelessImpl` is the interface for all stateless precompiled contract
 	// implementations. A stateless contract must provide its own precompile container, as it is
 	// stateless in nature. This requires a deterministic gas count, `RequiredGas`, and an
 	// executable function `Run`.
-	StatelessPrecompileImpl interface {
+	StatelessImpl interface {
 		vm.RegistrablePrecompile
 
 		vm.PrecompileContainer
 	}
 
-	// `StatefulPrecompileImpl` is the interface for all stateful precompiled contracts, which must
+	// `StatefulImpl` is the interface for all stateful precompiled contracts, which must
 	// expose their ABI methods and precompile methods for stateful execution.
-	StatefulPrecompileImpl interface {
+	StatefulImpl interface {
 		vm.RegistrablePrecompile
 
 		// `ABIMethods` should return a map of Ethereum method names to Go-Ethereum abi `Method`
@@ -76,9 +76,9 @@ type (
 		CustomValueDecoders() ValueDecoders
 	}
 
-	// `DynamicPrecompileImpl` is the interface for all dynamic stateful precompiled contracts.
-	DynamicPrecompileImpl interface {
-		StatefulPrecompileImpl
+	// `DynamicImpl` is the interface for all dynamic stateful precompiled contracts.
+	DynamicImpl interface {
+		StatefulImpl
 
 		// `Name` should return a string name of the dynamic contract.
 		Name() string

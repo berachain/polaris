@@ -36,6 +36,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/types/abi"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/stargazer/testutil"
 )
@@ -72,7 +73,7 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
-		contract = NewContract(&sk)
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&sk))
 	})
 
 	When("AbiMethods", func() {

@@ -28,6 +28,7 @@ import (
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
@@ -50,7 +51,7 @@ type DepInjectInput struct {
 	Mempool       sdkmempool.Mempool
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
-	StakingKeeper StakingKeeper
+	StakingKeeper *stakingkeeper.Keeper
 }
 
 // `DepInjectOutput` is the output for the dep inject framework.
@@ -73,6 +74,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.Key,
 		in.AccountKeeper,
 		in.BankKeeper,
+		in.StakingKeeper,
 		authority.String(),
 		in.AppOpts,
 	)

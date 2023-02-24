@@ -490,8 +490,7 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 
 // `stargazerBlockByNumber` returns the stargazer block identified by `number.
 func (b *backend) stargazerBlockByNumber(number BlockNumber) *types.StargazerBlock {
-	//nolint:exhaustive // finish later.
-	switch number {
+	switch number { //nolint:exhaustive // not all cases are needed.
 	// Pending and latest are the same in stargazer.
 	case PendingBlockNumber:
 	case LatestBlockNumber:
