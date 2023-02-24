@@ -66,7 +66,7 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 		panic(err)
 	}
 
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block", stargazerBlock.StargazerHeader)
+	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", stargazerBlock.Header)
 
 	// Save the historical stargazer header in the IAVL Tree.
 	k.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)

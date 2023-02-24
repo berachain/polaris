@@ -187,6 +187,7 @@ data/
 # upgrades
 pkg/**/.*.yaml
 */**/.tmp/
+.tmp/
 /tmp
 
 # forge
