@@ -116,10 +116,19 @@ func (p *plugin) getStargazerHeaderFromCurrentContext() *coretypes.StargazerHead
 		txHash = common.BytesToHash(cometHeader.DataHash)
 	}
 
+	parentHash := common.Hash{}
+	if p.ctx.BlockHeight() > 1 {
+		if header, found := p.shg.GetStargazerHeader(p.ctx, p.ctx.BlockHeight()-1); found {
+			parentHash = header.Hash()
+		} else {
+			panic("parent header not found")
+		}
+	}
+
 	return coretypes.NewStargazerHeader(
 		&coretypes.Header{
 			// `ParentHash` is set to the hash of the previous block.
-			ParentHash: common.BytesToHash(cometHeader.LastBlockId.Hash),
+			ParentHash: parentHash,
 			// `UncleHash` is set empty as CometBFT does not have uncles.
 			UncleHash: coretypes.EmptyUncleHash,
 			// TODO: Use staking keeper to get the operator address.
