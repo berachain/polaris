@@ -23,6 +23,7 @@ package txpool
 import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -42,8 +43,8 @@ type Plugin interface {
 
 // `plugin` represents the transaction pool plugin.
 type plugin struct {
-	mempool.EthTxPool
-	rp rpc.Provider
+	mempool mempool.EthTxPool
+	rp      rpc.Provider
 }
 
 func NewPlugin(rp rpc.Provider) Plugin {
@@ -85,6 +86,27 @@ func (p *plugin) SendTx(signedTx *coretypes.Transaction) error {
 		return err
 	}
 	return nil
+}
+
+func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
+	txBuilder, err := txpoolclient.NewEthTxBuilder(p.rp.GetClientCtx())
+	if err != nil {
+		return err
+	}
+
+	// TODO: get evm denom from params.
+	cosmosTx, err := txBuilder.BuildTx(signedTx, "abera")
+	if err != nil {
+		return err
+	}
+
+	// We insert into the local mempool, without gossiping to peers.
+	// We use a blank sdk.Context{} as the context, as we don't need to
+	// use it anyways. We set the priority as the gas price of the tx.
+	return p.mempool.Insert(
+		sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()),
+		cosmosTx,
+	)
 }
 
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {

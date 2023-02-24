@@ -25,6 +25,7 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -44,6 +45,8 @@ type DepInjectInput struct {
 	ModuleKey depinject.OwnModuleKey
 	Config    *modulev1.Module
 	Key       *store.KVStoreKey
+
+	RandomGenesisAccountsFn types.RandomGenesisAccountsFn `optional:"true"`
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper

@@ -200,7 +200,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		mempoolOpt = baseapp.SetMempool(mempool.NewEthTxPool())
+		mempoolOpt = baseapp.SetMempool(
+			mempool.NewEthTxPool(),
+		)
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
