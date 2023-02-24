@@ -24,51 +24,37 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 
 	ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
-	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
+	rpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
 )
 
-const (
-	httpPath = "/eth/rpc"
-	wsPath   = "/eth/rpc"
-)
-
+// `Provider` is an interface that defines the methods required to register the
+// JSON-RPC servers with the Cosmos API server.
 type Provider interface {
-	GetHTTP() *ethrpc.Server
-	GetWS() *ethrpc.Server
-	Ready() bool
-	SetupAPIs() error
+	ethrpc.Service
 	SetClientContext(ctx client.Context)
 	GetClientCtx() client.Context
 }
 
+// `provider` implements the `Provider` interface.
 type provider struct {
 	ethrpc.Service
-	backend   ethrpc.Backend
 	clientCtx client.Context
 }
 
 // `NewProvider` returns a new `Provider` object. The provider object is used to
 // register the JSON-RPC servers with the API server.
-func NewProvider(cfg ethrpcconfig.Server, backend ethrpc.Backend) Provider {
-	service, err := ethrpc.NewService(cfg, backend)
-	if err != nil {
-		panic(err)
-	}
+func NewProvider(rpcConfig *rpcconfig.Server) Provider {
 	return &provider{
-		Service: *service,
-		backend: backend,
+		Service: ethrpc.NewService(rpcConfig),
 	}
 }
 
+// `GetClientCtx` returns the client context.
 func (p *provider) GetClientCtx() client.Context {
 	return p.clientCtx
 }
 
+// `SetClientContext` sets the client context.
 func (p *provider) SetClientContext(ctx client.Context) {
 	p.clientCtx = ctx
-}
-
-func (p *provider) Ready() bool {
-	// TODO: there is might a race condition? maybe not? we can maybe just remove this.
-	return true
 }

@@ -18,30 +18,46 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package config
+package api
 
-import "time"
-
-type (
-	// `Server` defines the configuration for the JSON-RPC server.
-	Server struct {
-		// `Enabled` defines whether the JSON-RPC server should be enabled.
-		Enabled bool `mapstructure:"enabled"`
-
-		// `API` defines a list of JSON-RPC namespaces to be enabled.
-		EnabledAPIs []string `mapstructure:"api"`
-
-		// `HTTPBaseRoute` defines the base path for the JSON-RPC server.
-		BaseRoute string `mapstructure:"base-path"`
-
-		// RPCGasCap is the global gas cap for eth-call variants.
-		RPCGasCap uint64 `mapstructure:"rpc-gas-cap"`
-
-		// RPCEVMTimeout is the global timeout for eth-call.
-		RPCEVMTimeout time.Duration `mapstructure:"rpc-evm-timeout"`
-
-		// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
-		// send-transaction variants. The unit is ether.
-		RPCTxFeeCap float64 `mapstructure:"rpc-tx-fee-cap"`
-	}
+import (
+	"pkg.berachain.dev/stargazer/eth/common/hexutil"
 )
+
+// `NetBackend` is the collection of methods required to satisfy the net
+// RPC API.
+type NetBackend interface {
+	NetAPI
+}
+
+// `NetAPI` is the collection of net RPC API methods.
+type NetAPI interface {
+	PeerCount() hexutil.Uint
+	Listening() bool
+	Version() string
+}
+
+// `netAPI` offers network related RPC methods.
+type netAPI struct {
+	b NetBackend
+}
+
+// `NewNetAPI` creates a new net API instance.
+func NewNetAPI(b NetBackend) NetAPI {
+	return &netAPI{b}
+}
+
+// `Listening` returns an indication if the node is listening for network connections.
+func (api *netAPI) Listening() bool {
+	return api.b.Listening()
+}
+
+// `PeerCount` returns the number of connected peers.
+func (api *netAPI) PeerCount() hexutil.Uint {
+	return api.b.PeerCount()
+}
+
+// `Version` returns the current ethereum protocol version.
+func (api *netAPI) Version() string {
+	return api.b.Version()
+}

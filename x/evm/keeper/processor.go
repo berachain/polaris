@@ -74,6 +74,6 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	// TODO: this is sketchy and needs to be refactored later.
 	// Save the block data to the off-chain storage.
 	if k.offChainKv != nil {
-		go k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
+		k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
 	}
 }
