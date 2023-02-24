@@ -106,3 +106,15 @@ func (etr *EthTransactionRequest) ValidateBasic() error {
 
 	return nil
 }
+
+// `SetReceiept` sets the transaction receipt.
+func BuildEthTransactionRespWithReceipt(receipt *coretypes.Receipt) (*EthTransactionResponse, error) {
+	etr := new(EthTransactionResponse)
+	bz, err := receipt.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	// TODO: should receipt just be bytes? not string?
+	etr.Receipt = string(bz)
+	return etr, err
+}
