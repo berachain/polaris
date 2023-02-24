@@ -1,0 +1,86 @@
+# Main Concepts
+A compiled list of core concepts relevant to Stargazer
+and the broader EVM and Cosmos-SDK ecosystems
+
+## Cosmos-SDK
+The Cosmos SDK is a modular framework that allows developers 
+to easily build and customize their own blockchain applications. 
+It provides a set of tools and modules that can be used to create
+a new blockchain, or to add new features to an existing blockchain
+
+One of the key benefits of the Cosmos SDK is its interoperability with
+other blockchains. It allows developers to create "zones" that are connected
+to a central "hub" blockchain, enabling cross-chain communication and interoperability.
+This makes it possible to create decentralized applications that can interact with
+multiple blockchains at the same time.
+
+Overall, the Cosmos SDK is a powerful and flexible tool for blockchain developers,
+offering a wide range of features and the ability to create customized, interoperable
+solutions. Its modular architecture and flexible programming options make it a popular
+choice for creating new blockchain applications.
+
+## Ethereum Virtual Machine (EVM)
+The Ethereum Virtual Machine (EVM) is a virtual machine that is used to run smart contracts
+on an EVM compatible blockchain. It is responsible for executing the code that is written in 
+Solidity or other programming languages that can be compiled into EVM bytecode.
+
+The EVM is a deterministic virtual machine, meaning that given the same input,
+it will always produce the same output. This is important for ensuring
+that smart contracts can be executed consistently across all nodes in the network.
+
+The EVM has its own set of opcodes that are used to perform operations such as
+arithmetic, logic, and storage. These opcodes are used to execute the bytecode
+that is generated from a smart contract. The EVM also has its own memory and storage,
+which is separate from the memory and storage of the nodes that are running the EVM.
+
+Smart contracts are executed on the EVM in a sandboxed environment, which
+means that they have limited access to external resources and cannot
+interact directly with the outside world. Instead, they must interact
+with the Ethereum network through a set of predefined interfaces.
+
+The EVM is a crucial component of the Ethereum blockchain, as it allows
+developers to create decentralized applications that can execute autonomously
+on the network. Its sandboxed environment and deterministic execution ensure
+that smart contracts can be trusted to behave as intended, without the need
+for third-party intermediaries.
+
+## CometBFT
+Comet BFT is a consensus algorithm designed for use in blockchain networks.
+It is based on the Byzantine Fault Tolerance (BFT) model,
+which is a consensus mechanism that allows a network to reach
+agreement on the state of the ledger even in the presence of malicious nodes. 
+Read more [here](./what-is-pos).
+
+
+## Precompiles
+An EVM precompile contract is a special type of smart contract that is
+included in the Ethereum Virtual Machine (EVM) by default. Precompile contracts
+are typically written in low-level programming languages, such as C or Assembly,
+and are used to perform complex calculations or operations that are not easily
+performed using the EVM's built-in opcodes.
+
+## IBC
+Inter-Blockchain Communication (IBC) is a protocol that is built
+into the Cosmos blockchain ecosystem. It allows for the transfer
+of digital assets and data between different blockchains within
+the Cosmos network.
+
+The IBC protocol enables blockchains to communicate with each other
+in a secure, decentralized, and trustless manner, without the need
+for centralized exchanges or third-party intermediaries. This means
+that tokens and other assets can be transferred between different 
+blockchains within the Cosmos network seamlessly, providing greater 
+liquidity and interoperability.
+
+## Decentralized Governance
+Decentralized governance is a system of decision-making in which 
+authority and control are distributed among a network of participants, 
+rather than being concentrated in a single entity or group of entities. 
+In the context of blockchain and cryptocurrency, decentralized governance 
+typically refers to the process of managing and improving a blockchain 
+network in a decentralized manner, using a system of community-driven decision-making.
+
+Governance in Cosmos refers to the decentralized decision-making process used 
+to manage and improve the Cosmos network. It is based on the principle of stakeholder 
+participation, which means that anyone who holds tokens on the network 
+has a say in the network's governance.

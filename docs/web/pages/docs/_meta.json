@@ -25,10 +25,11 @@
   },
   "building-modules": "Building Modules",
   "building-precompiles": "Building Precompiles",
-  "interacting-with-precompiles": "Interacting with Precompiles",
   "for-dapp-devs": "For Dapp Developers",
   "for-solidity-devs": "For Solidity Developers",
   "for-cosmwasm-devs": "For Cosmwasm Developers",
+  "using-metamask": "Using Metamask",
+  "using-keplr": "Using Keplr",
   "-- Validators --": {
     "type": "separator",
     "title": "Running a Validator"
@@ -45,16 +46,27 @@
     "title": "Metrics"
   },
   "metrics": "Metrics",
-  "-- More --": {
+  "-- Socials --": {
     "type": "separator",
     "title": "More"
   },
   "github": {
-    "title": "About Stargazer",
-    "href": "/about"
+    "title": "Github",
+    "href": "https://github.com/berachain",
+    "newWindow": true
   },
-  "notion": {
-    "title": "About Berachain",
+  "twitter": {
+    "title": "Twitter",
+    "href": "https://www.twitter.com/berachain",
+    "newWindow": true
+  },
+  "discord": {
+    "title": "Discord",
+    "href": "https://discord.com/invite/berachain",
+    "newWindow": true
+  },
+  "mirror": {
+    "title": "Mirror.xyz",
     "href": "https://www.twitter.com/berachain",
     "newWindow": true
   }

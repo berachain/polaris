@@ -20,7 +20,9 @@
     "react-dom": "^18.2.0",
     "react-prism": "^4.3.2",
     "react-three-fiber": "^6.0.13",
-    "three": "^0.149.0"
+    "three": "^0.149.0",
+    "@keplr-wallet/cosmos": "^0.11.23",
+    "@keplr-wallet/types": "^0.11.26"
   },
   "devDependencies": {
     "@types/node": "18.13.0",

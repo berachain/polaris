@@ -1,8 +1,6 @@
 {
-    "chain-config": "Chain Configuration",
+    "chain-config": "Chain Configurations",
     "building-transactions-keplr": "Building Transactions in Keplr",
-    "connecting-with-keplr": "Connecting with Keplr",
-    "querying-cosmjs": "Querying with CosmJS",
-    "using-metamask": "Using Metamask",
+    "using-cosmjs": "Querying with CosmJS",
     "available-tools": "Available Tools"
 }

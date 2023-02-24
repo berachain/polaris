@@ -1,6 +1,6 @@
 {
-    "available-tools": "Available Tools",
-    "deploying-tools": "Deploying Contracts",
-    "foundry": "Foundry",
-    "example-contract": "Example Contract"
+    "dev-tools": "Developer Tools",
+    "developer-overview": "Smart Contract Development Overview",
+    "precompile-overview": "Precompile Overview",
+    "interacting-with-precompiles": "Interacting with Precompiles"
 }

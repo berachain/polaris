@@ -1,0 +1,30 @@
+import { Callout } from 'nextra-theme-docs'
+import { AddKeplrBtn } from '../../components/add-chain-btn'
+
+# Using Keplr With Stargazer
+
+In this section, we will guide you through the process of 
+downloading Keplr and connecting it to a local Stargazer node. 
+Before proceeding, please ensure that you have a local node up and running. 
+If you need help with this, you can refer to the [Your First Node](./your-first-node) section for instructions.
+
+To begin, you will need to download and install the Keplr browser extension. 
+Once installed, you can then connect your Injected Keplr to your local Stargazer 
+node by following the steps provided in this section.
+
+<Callout type="warning" emoji="⚠️">
+  Take note of your private key and keep it somewhere safe. click [here](https://learn.metamask.io/lessons/what-is-a-self-custody-wallet) to learn about self custody.
+</Callout>
+
+## Downloading And Installing Keplr
+You can download and install the Keplr browser extension [here](https://www.keplr.app/download).
+
+## Adding Stargazer Local Network
+
+Adding a custom network to Keplr cannot be done through its user interface and must be performed programmatically. 
+However, you can view the necessary information about the chain in order to add it through this [link](./for-dapp-devs/chain-config). 
+This information will be necessary to properly configure your custom network in Keplr.
+
+To add the local Stargazer network to your Keplr wallet, you can click the button below.
+
+<AddKeplrBtn />
