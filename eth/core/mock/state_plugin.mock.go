@@ -85,6 +85,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
 //			},
+//			SetStorageFunc: func(addr common.Address, storage map[common.Hash]common.Hash)  {
+//				panic("mock out the SetStorage method")
+//			},
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
 //			},
@@ -163,6 +166,9 @@ type StatePluginMock struct {
 
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
+
+	// SetStorageFunc mocks the SetStorage method.
+	SetStorageFunc func(addr common.Address, storage map[common.Hash]common.Hash)
 
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
@@ -294,6 +300,13 @@ type StatePluginMock struct {
 			// Hash2 is the hash2 argument value.
 			Hash2 common.Hash
 		}
+		// SetStorage holds details about calls to the SetStorage method.
+		SetStorage []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Storage is the storage argument value.
+			Storage map[common.Hash]common.Hash
+		}
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
 		}
@@ -335,6 +348,7 @@ type StatePluginMock struct {
 	lockSetCode           sync.RWMutex
 	lockSetNonce          sync.RWMutex
 	lockSetState          sync.RWMutex
+	lockSetStorage        sync.RWMutex
 	lockSnapshot          sync.RWMutex
 	lockSubBalance        sync.RWMutex
 	lockTransferBalance   sync.RWMutex
@@ -1035,6 +1049,42 @@ func (mock *StatePluginMock) SetStateCalls() []struct {
 	mock.lockSetState.RLock()
 	calls = mock.calls.SetState
 	mock.lockSetState.RUnlock()
+	return calls
+}
+
+// SetStorage calls SetStorageFunc.
+func (mock *StatePluginMock) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	if mock.SetStorageFunc == nil {
+		panic("StatePluginMock.SetStorageFunc: method is nil but StatePlugin.SetStorage was just called")
+	}
+	callInfo := struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}{
+		Addr:    addr,
+		Storage: storage,
+	}
+	mock.lockSetStorage.Lock()
+	mock.calls.SetStorage = append(mock.calls.SetStorage, callInfo)
+	mock.lockSetStorage.Unlock()
+	mock.SetStorageFunc(addr, storage)
+}
+
+// SetStorageCalls gets all the calls that were made to SetStorage.
+// Check the length with:
+//
+//	len(mockedStatePlugin.SetStorageCalls())
+func (mock *StatePluginMock) SetStorageCalls() []struct {
+	Addr    common.Address
+	Storage map[common.Hash]common.Hash
+} {
+	var calls []struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}
+	mock.lockSetStorage.RLock()
+	calls = mock.calls.SetStorage
+	mock.lockSetStorage.RUnlock()
 	return calls
 }
 

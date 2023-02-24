@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"sync"
 
-	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
@@ -147,7 +146,8 @@ func (sp *StateProcessor) ProcessTransaction(
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
 	sp.statedb.Reset(ctx)
-	sp.statedb.SetTxContext(common.Hash{}, sp.block.TxIndex())
+	txHash := tx.Hash()
+	sp.statedb.SetTxContext(tx.Hash(), sp.block.TxIndex())
 	sp.pp.Reset(ctx)
 	sp.gp.Reset(ctx)
 
@@ -171,9 +171,16 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used
 	// by the tx.
-	receipt := &types.Receipt{Type: tx.Type(), PostState: nil, CumulativeGasUsed: sp.gp.CumulativeGasUsed()}
-	receipt.TxHash = tx.Hash()
-	receipt.GasUsed = result.UsedGas
+	receipt := &types.Receipt{
+		Type:              tx.Type(),
+		PostState:         nil,
+		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
+		TxHash:            txHash,
+		GasUsed:           result.UsedGas,
+		BlockHash:         sp.block.Hash(),
+		BlockNumber:       sp.block.Number,
+		TransactionIndex:  uint(sp.block.TxIndex()),
+	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
@@ -185,9 +192,6 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.TxHash, sp.block.Number.Uint64(), sp.block.Hash(),
 	)
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
-	receipt.BlockHash = sp.block.Hash()
-	receipt.BlockNumber = sp.block.Number
-	receipt.TransactionIndex = uint(sp.block.TxIndex())
 
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed

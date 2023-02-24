@@ -72,6 +72,8 @@ type Plugin interface {
 	GetState(common.Address, common.Hash) common.Hash
 	// `SetState` sets the value for a given key in account storage.
 	SetState(common.Address, common.Hash, common.Hash)
+	// `SetStorage` sets the storage of the given account.
+	SetStorage(addr common.Address, storage map[common.Hash]common.Hash)
 	// `ForEachStorage` iterates over the storage of an account and calls the given callback
 	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
@@ -86,6 +88,8 @@ type (
 		libtypes.Controllable[string]
 		// `SetTxContext` sets the transaction hash and index for the current transaction.
 		SetTxContext(thash common.Hash, ti int)
+		// `TxIndex` returns the current transaction index.
+		TxIndex() int
 		// `AddLog` adds a log to the logs journal.
 		AddLog(*coretypes.Log)
 		// `Logs` returns the logs of the tx with the exisiting metadata.

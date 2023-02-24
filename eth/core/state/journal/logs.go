@@ -34,7 +34,8 @@ type logs struct {
 	// Reset every tx.
 	ds.Stack[*coretypes.Log] // journal of tx logs
 
-	txIndex uint
+	txHash  common.Hash
+	txIndex int
 	logSize uint
 }
 
@@ -53,13 +54,19 @@ func (l *logs) RegistryKey() string {
 }
 
 // `SetTxContext` sets the transaction hash and index for the current transaction.
-func (l *logs) SetTxContext(_ common.Hash, ti int) {
-	l.txIndex = uint(ti)
+func (l *logs) SetTxContext(thash common.Hash, ti int) {
+	l.txHash = thash
+	l.txIndex = ti
+}
+
+func (l *logs) TxIndex() int {
+	return l.txIndex
 }
 
 // `AddLog` adds a log to the `Logs` store.
 func (l *logs) AddLog(log *coretypes.Log) {
-	log.TxIndex = l.txIndex
+	log.TxHash = l.txHash
+	log.TxIndex = uint(l.txIndex)
 	log.Index = l.logSize
 	l.logSize++
 	l.Push(log)
@@ -76,12 +83,11 @@ func (l *logs) Logs() []*coretypes.Log {
 }
 
 // `GetLogs` returns the logs for the tx with the given metadata.
-func (l *logs) GetLogs(txHash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
+func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
 	for i := uint(size) - 1; i < math.MaxUint; i-- {
 		buf[i] = l.Pop()
-		buf[i].TxHash = txHash
 		buf[i].BlockHash = blockHash
 		buf[i].BlockNumber = blockNumber
 	}

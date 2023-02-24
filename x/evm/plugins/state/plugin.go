@@ -374,6 +374,13 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 	p.cms.GetKVStore(p.storeKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
+// `SetStorage` sets the storage of an address.
+func (p *plugin) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	for key, value := range storage {
+		p.SetState(addr, key, value)
+	}
+}
+
 // `IterateState` iterates over all the contract state, and calls the given function.
 func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Hash) bool) {
 	it := storetypes.KVStorePrefixIterator(
