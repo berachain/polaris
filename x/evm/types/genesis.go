@@ -20,7 +20,10 @@
 
 package types
 
-import "pkg.berachain.dev/stargazer/eth/common"
+import (
+	"pkg.berachain.dev/stargazer/eth/common"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+)
 
 // `DefaultGenesis` is the default genesis state.
 func DefaultGenesis() *GenesisState {
@@ -31,6 +34,7 @@ func DefaultGenesis() *GenesisState {
 		Params:            *DefaultParams(),
 		AddressToContract: atc,
 		HashToCode:        htc,
+		Headers:           [][]byte{},
 	}
 }
 
@@ -40,11 +44,12 @@ func ValidateGenesis(data GenesisState) error {
 }
 
 // `NewGenesisState` creates a new `GenesisState` object.
-func NewGenesisState(params Params, atc map[string]*Contract, htc map[string]string) *GenesisState {
+func NewGenesisState(params Params, atc map[string]*Contract, htc map[string]string, headers [][]byte) *GenesisState {
 	return &GenesisState{
 		Params:            params,
 		AddressToContract: atc,
 		HashToCode:        htc,
+		Headers:           headers,
 	}
 }
 
@@ -64,4 +69,10 @@ func WriteToSlot(slot common.Hash, value common.Hash, contract *Contract) {
 // `WriteCodeToHash` takes in a code hash, code and map of code hashes to code and writes the code to the code hash.
 func WriteCodeToHash(codeHash common.Hash, code []byte, htc map[string]string) {
 	htc[codeHash.Hex()] = string(code)
+}
+
+// `ParseHeaderBz` take in a byte array that is json-encoded and returns a `StargazerHeader` object.
+func ParseHeaderBz(bz []byte) (*coretypes.StargazerHeader, error) {
+	var header *coretypes.StargazerHeader
+	return header, header.UnmarshalBinary(bz)
 }

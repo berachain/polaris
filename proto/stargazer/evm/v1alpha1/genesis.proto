@@ -36,6 +36,9 @@ message GenesisState {
 
   // `hash_to_code` is a map of code hash to code.
   map<string, string> hash_to_code = 3;
+
+  // `headers` represents the bytes of the headers.
+  repeated bytes headers = 4;
 }
 
 // `Contract` defines the contract state.

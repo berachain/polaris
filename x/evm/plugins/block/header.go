@@ -70,6 +70,22 @@ func (p *plugin) SetStargazerHeader(ctx sdk.Context, header *types.StargazerHead
 	return nil
 }
 
+// `IterateStargazerHeaders` iterates over the stargazer headers and performs a callback function.
+func (p *plugin) IterateStargazerHeaders(ctx sdk.Context, cb func(header *types.StargazerHeader) (stop bool)) {
+	it := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix).Iterator(nil, nil)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		var header types.StargazerHeader
+		if err := header.UnmarshalBinary(it.Value()); err != nil {
+			panic(err)
+		}
+		if cb(&header) {
+			break
+		}
+	}
+}
+
 // `PruneStargazerHeader` prunes a stargazer block from the store.
 func (p *plugin) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
 	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
