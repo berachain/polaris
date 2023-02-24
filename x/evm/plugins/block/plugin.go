@@ -56,16 +56,18 @@ type plugin struct {
 	ctx sdk.Context
 	// `shg` is the stargazer header getter, used for accessing stargazer headers.
 	shg stargazerHeaderGetter
-
+	// `storekey` is the store key for the header store.
+	storekey storetypes.StoreKey
 	//  `offchainStore` is the offchain store, used for accessing offchain data.
 	offchainStore storetypes.CacheKVStore
 }
 
 // `NewPlugin` creates a new instance of the block plugin from the given context.
-func NewPlugin(shg stargazerHeaderGetter, offchainStore storetypes.CacheKVStore) Plugin {
+func NewPlugin(shg stargazerHeaderGetter, offchainStore storetypes.CacheKVStore, storekey storetypes.StoreKey) Plugin {
 	return &plugin{
 		shg:           shg,
 		offchainStore: offchainStore,
+		storekey:      storekey,
 	}
 }
 
