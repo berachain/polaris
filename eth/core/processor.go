@@ -173,7 +173,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	// by the tx.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
-		PostState:         nil,
 		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,

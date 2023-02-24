@@ -256,11 +256,11 @@ func (sdb *stateDB) Dump(_ *DumpConfig) []byte {
 }
 
 func (sdb *stateDB) RawDump(_ *DumpConfig) Dump {
-	return *(*Dump)(nil)
+	return Dump{}
 }
 
 func (sdb *stateDB) IteratorDump(_ *DumpConfig) IteratorDump {
-	return *(*IteratorDump)(nil)
+	return IteratorDump{}
 }
 
 func (sdb *stateDB) Database() Database {
