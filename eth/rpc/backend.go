@@ -256,7 +256,15 @@ func (b *backend) StateAndHeaderByNumber(
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context, blockNrOrHash BlockNumberOrHash,
 ) (vm.GethStateDB, *types.Header, error) {
-	return nil, nil, nil
+	var number BlockNumber
+	if hash, ok := blockNrOrHash.Hash(); ok {
+		number = BlockNumber(b.chain.GetStargazerBlockByHash(hash).Number.Int64())
+	} else if number, ok = blockNrOrHash.Number(); ok {
+		// nothing to do
+	} else {
+		return nil, nil, errors.New("invalid arguments; neither block nor hash specified")
+	}
+	return b.StateAndHeaderByNumber(ctx, number)
 }
 
 // `PendingBlockAndReceipts` returns the current pending block and associated receipts.

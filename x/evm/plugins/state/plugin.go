@@ -22,6 +22,7 @@ package state
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -53,6 +54,8 @@ var (
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.StatePlugin
+	// `SetQueryContextFn` sets the query context func for the plugin.
+	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 	// `IterateState` iterates over the state of all accounts and calls the given callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// `IterateCode` iterates over the code of all accounts and calls the given callback function.
@@ -99,6 +102,9 @@ type plugin struct {
 	// keepers used for balance and account information.
 	ak AccountKeeper
 	bk BankKeeper
+
+	// getQueryContext allows for querying state a historical height.
+	getQueryContext func(height int64, prove bool) (sdk.Context, error)
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
@@ -458,13 +464,23 @@ func (p *plugin) DeleteSuicides(suicides []common.Address) {
 // Historical State
 // =============================================================================
 
-func (p *plugin) GetStateByNumber(height int64) (vm.GethStateDB, error) {
-	// ctx, err := p.qc.CreateQueryContext(height, false)
-	// if err != nil {
-	// 	return nil, err
-	// }
+// `SetQueryContextFn` sets the query context func for the plugin.
+func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
+	p.getQueryContext = gqc
+}
+
+// `GetStateByNumber` implements `core.StatePlugin`.
+func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
+	if p.getQueryContext == nil {
+		return nil, errors.New("no query context function set in host chain")
+	}
+
+	ctx, err := p.getQueryContext(number, false)
+	if err != nil {
+		return nil, err
+	}
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
-	// sp.Reset(ctx)
+	sp.Reset(ctx)
 	return ethstate.NewStateDB(sp), nil
 }
 

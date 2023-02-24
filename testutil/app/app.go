@@ -200,7 +200,10 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		mempoolOpt = baseapp.SetMempool(mempool.NewEthTxPool())
+		ethTxMempool = mempool.NewEthTxPool()
+		mempoolOpt   = baseapp.SetMempool(
+			ethTxMempool,
+		)
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -220,7 +223,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 				appOpts,
 
 				// ADVANCED CONFIGURATION
-
+				//
+				// ETH TX MEMPOOL
+				ethTxMempool,
 				//
 				// AUTH
 				//
@@ -273,8 +278,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	app.EVMKeeper.Gqc = app.CreateQueryContext
-
 	app.App = appBuilder.Build(logger, db, traceStore, stargazerAppOptions...)
 
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
@@ -283,6 +286,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 	}
 
 	/****  Module Options ****/
+
+	// Set the query context function for the evm module.
+	app.EVMKeeper.WithQueryContextFn(app.CreateQueryContext)
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 

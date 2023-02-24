@@ -70,7 +70,6 @@ type Keeper struct {
 	pp  precompile.Plugin
 	sp  state.Plugin
 	txp txpool.Plugin
-	Gqc func(height int64, prove bool) (sdk.Context, error)
 }
 
 // NewKeeper creates new instances of the stargazer Keeper.
@@ -120,6 +119,11 @@ func (k *Keeper) SetupRPC() {
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
+}
+
+// `WithQueryContextFn` sets the query context function for the state plugin.
+func (k *Keeper) WithQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(qc)
 }
 
 // `GetBlockPlugin` returns the block plugin.

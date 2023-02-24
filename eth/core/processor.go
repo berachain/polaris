@@ -140,14 +140,14 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply tx %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
-	// Create a new context to be used in the EVM environment. We also must reset the StateDB and
-	// precompile manager, which resets the state and precompile plugins, and gas plugin for the
-	// tx.
+	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
-	sp.statedb.Reset(ctx)
 	txHash := tx.Hash()
-	sp.statedb.SetTxContext(tx.Hash(), sp.block.TxIndex())
+	sp.statedb.SetTxContext(txHash, sp.block.TxIndex())
+
+	// We also must reset the StateDB and precompile and gas plugins.
+	sp.statedb.Reset(ctx)
 	sp.pp.Reset(ctx)
 	sp.gp.Reset(ctx)
 
