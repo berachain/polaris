@@ -47,7 +47,7 @@ func DefaultParams() *Params {
 }
 
 // `EthereumChainConfig` returns the chain config as a struct.
-func (p Params) EthereumChainConfig() *params.ChainConfig {
+func (p *Params) EthereumChainConfig() *params.ChainConfig {
 	if p.ChainConfig == "" {
 		return nil
 	}

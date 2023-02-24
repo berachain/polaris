@@ -34,6 +34,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/types/abi"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
+	ethutils "pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
 // `Contract` is the precompile contract for the staking module.
@@ -59,7 +60,7 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) precompile.StatefulImpl {
 
 // `RegistryKey` implements StatefulImpl.
 func (c *Contract) RegistryKey() common.Address {
-	return common.Address(authtypes.NewModuleAddress(stakingtypes.ModuleName))
+	return ethutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
 }
 
 // `ABIMethods` implements StatefulImpl.

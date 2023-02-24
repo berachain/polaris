@@ -122,7 +122,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	// Register the Geth stateless precompile contracts
 	sf := precompile.NewStatelessFactory()
 	var allPrecompiles map[common.Address]vm.PrecompileContainer
-	if rules := chainConfig.Rules(sp.block.Number, true, 0); rules.IsBerlin || rules.IsIstanbul {
+	if rules := sp.cp.ChainConfig().Rules(sp.block.Number, true, 0); rules.IsBerlin || rules.IsIstanbul {
 		allPrecompiles = vm.PrecompiledContractsBerlin
 	} else if rules.IsByzantium {
 		allPrecompiles = vm.PrecompiledContractsByzantium
