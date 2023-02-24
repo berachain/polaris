@@ -37,8 +37,6 @@ func (k *Keeper) BeginBlocker(ctx context.Context) {
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-
 	// Process the transaction and return the receipt.
 	receipt, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
@@ -51,8 +49,9 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// cause the cosmos transaction to fail, which is correct, but not what we want here. What
 	// we need to do, is edit the gas consumption to consume the remaining gas in the block,
 	//  modifying the receipt, and return a failed EVM tx, but a successful cosmos tx.
+	// TODO: determine if the above is actually correct.
 
-	k.Logger(sCtx).Info("End ProcessTransaction()")
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("End ProcessTransaction()")
 	return receipt, err
 }
 
@@ -66,7 +65,7 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 		panic(err)
 	}
 
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block", stargazerBlock.StargazerHeader)
+	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", stargazerBlock.Header)
 
 	// Save the historical stargazer header in the IAVL Tree.
 	k.bp.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)

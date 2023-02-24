@@ -65,15 +65,20 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // `RegisterInterfaces` registers the module's interface types.
 func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
+	// TODO: move key reg
 	r.RegisterImplementations((*cryptotypes.PubKey)(nil), &crypto.EthSecp256K1PubKey{})
 	r.RegisterImplementations((*cryptotypes.PrivKey)(nil), &crypto.EthSecp256K1PrivKey{})
+	types.RegisterInterfaces(r)
 }
 
 // `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the evm module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
-	// if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+	// if err := types.RegisterQueryServiceHandlerClient(context.Background(), mux,
+	// types.NewQueryClient(clientCtx)); err != nil {
 	// 	panic(err)
 	// }
+	// evmrpc.RegisterJSONRPCServer(clientCtx, mux, app.EVMKeeper.GetRPCProvider()) maybe here?
+
 }
 
 // `GetTxCmd` returns no root tx command for the evm module.
@@ -124,7 +129,7 @@ func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 // `RegisterServices` registers a gRPC query service to respond to the
 // module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	// types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	types.RegisterMsgServiceServer(cfg.MsgServer(), am.keeper)
 	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
