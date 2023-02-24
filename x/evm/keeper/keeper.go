@@ -66,6 +66,7 @@ type Keeper struct {
 	pp  precompile.Plugin
 	sp  state.Plugin
 	txp txpool.Plugin
+	Gqc func(height int64, prove bool) (sdk.Context, error)
 }
 
 // NewKeeper creates new instances of the stargazer Keeper.
@@ -75,6 +76,7 @@ func NewKeeper(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
+	// ba evm.BaseApp,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -98,7 +100,9 @@ func NewKeeper(
 	plf := precompilelog.NewFactory()
 	// TODO: register precompile events/logs
 
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
+	k.sp = state.NewPlugin(
+		ak, bk, k.storeKey, types.ModuleName, plf,
+	)
 
 	rpcConfig := *ethrpcconfig.DefaultServer()
 	k.stargazer = eth.NewStargazerProvider(k, nil)

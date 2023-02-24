@@ -44,6 +44,8 @@ type Plugin interface {
 
 	// `GetBalance` returns the balance of the given account.
 	GetBalance(common.Address) *big.Int
+	// `SetBalance` sets the balance of the given account.
+	SetBalance(common.Address, *big.Int)
 	// `AddBalance` adds amount to the given account.
 	SubBalance(common.Address, *big.Int)
 	// `SubBalance` subtracts amount from the given account.
@@ -82,8 +84,14 @@ type (
 	LogsJournal interface {
 		// `LogsJournal` implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
-		// `AddLog` adds a log to the state
+		// `SetTxContext` sets the transaction hash and index for the current transaction.
+		SetTxContext(thash common.Hash, ti int)
+		// `AddLog` adds a log to the logs journal.
 		AddLog(*coretypes.Log)
+		// `Logs` returns the logs of the tx with the exisiting metadata.
+		Logs() []*coretypes.Log
+		// `GetLogs` returns the logs of the tx with the given metadata.
+		GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log
 		// `BuildLogsAndClear` returns the logs of the tx with the given metadata
 		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
 	}

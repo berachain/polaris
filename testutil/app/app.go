@@ -215,6 +215,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		appConfig = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
+				app.App,
 				// supply the application options
 				appOpts,
 
@@ -271,6 +272,8 @@ func NewSimApp( //nolint: funlen // from sdk.
 	); err != nil {
 		panic(err)
 	}
+
+	app.EVMKeeper.Gqc = app.CreateQueryContext
 
 	app.App = appBuilder.Build(logger, db, traceStore, stargazerAppOptions...)
 

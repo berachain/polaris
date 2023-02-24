@@ -100,9 +100,6 @@ type plugin struct {
 	ak AccountKeeper
 	bk BankKeeper
 
-	// used to fetch historical state
-	qc QueryContext
-
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
 	evmDenom string // TODO: get from params ( we have a store so like why not )
@@ -176,6 +173,17 @@ func (p *plugin) Exist(addr common.Address) bool {
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
 	return p.bk.GetBalance(p.ctx, addr[:], p.evmDenom).Amount.BigInt()
+}
+
+// SetBalance implements `StatePlugin` interface.
+func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
+	currBalance := p.GetBalance(addr)
+	delta := new(big.Int).Sub(currBalance, amount)
+	if delta.Sign() < 0 {
+		p.AddBalance(addr, new(big.Int).Neg(delta))
+	} else if delta.Sign() > 0 {
+		p.SubBalance(addr, delta)
+	}
 }
 
 // AddBalance implements the `StatePlugin` interface by adding the given amount
@@ -415,20 +423,6 @@ func (p *plugin) ForEachStorage(
 	return nil
 }
 
-// =============================================================================
-// Historical State
-// =============================================================================
-
-func (p *plugin) GetStateByNumber(height int64) (vm.GethStateDB, error) {
-	ctx, err := p.qc.CreateQueryContext(height, false)
-	if err != nil {
-		return nil, err
-	}
-	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
-	sp.Reset(ctx)
-	return ethstate.NewStateDB(sp), nil
-}
-
 // `DeleteSuicides` manually deletes the given suicidal accounts.
 func (p *plugin) DeleteSuicides(suicides []common.Address) {
 	for _, suicidalAddr := range suicides {
@@ -451,6 +445,20 @@ func (p *plugin) DeleteSuicides(suicides []common.Address) {
 		// remove auth account
 		p.ak.RemoveAccount(p.ctx, acct)
 	}
+}
+
+// =============================================================================
+// Historical State
+// =============================================================================
+
+func (p *plugin) GetStateByNumber(height int64) (vm.GethStateDB, error) {
+	// ctx, err := p.qc.CreateQueryContext(height, false)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
+	// sp.Reset(ctx)
+	return ethstate.NewStateDB(sp), nil
 }
 
 // `getStateFromStore` returns the current state of the slot in the given address.

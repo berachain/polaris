@@ -3,7 +3,7 @@ module pkg.berachain.dev/stargazer
 go 1.20
 
 // Required for supporting stateful precompiled contracts.
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230223214805-18bf66da80d7
+replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230224170058-e133c763c3c9
 
 replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 

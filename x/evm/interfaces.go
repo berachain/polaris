@@ -56,3 +56,9 @@ type StakingKeeper interface {
 	// `GetHistoricalInfo` returns the historical info for a given height.
 	GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool)
 }
+
+// `BaseApp` is an interface that defines the `CreateQueryContext` method.
+type App interface {
+	// `CreateQueryContext` should return a SDK context that can query state at the given height.
+	CreateQueryContext(height int64, prove bool) (sdk.Context, error)
+}

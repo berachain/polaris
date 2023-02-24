@@ -21,8 +21,6 @@
 package state
 
 import (
-	"math/big"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
@@ -231,37 +229,27 @@ func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 // =============================================================================
 
 func (sdb *stateDB) StorageTrie(addr common.Address) (Trie, error) {
-	panic("implement me")
+	return nil, nil
 }
 
 func (sdb *stateDB) Error() error {
-	panic("implement me")
+	return nil
 }
 
 func (sdb *stateDB) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error) {
-	panic("implement me")
+	return nil, nil
 }
 
 func (sdb *stateDB) GetProof(addr common.Address) ([][]byte, error) {
-	panic("implement me")
+	return nil, nil
 }
 
-func (sdb *stateDB) SetBalance(addr common.Address, amount *big.Int) {
-	panic("implement me")
-}
+func (sdb *stateDB) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {}
 
-func (sdb *stateDB) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
-	panic("implement me")
-}
-
-func (sdb *stateDB) Finalise(deleteEmptyObjects bool) {
-	panic("implement me")
+func (sdb *stateDB) Finalise(_ bool) {
+	sdb.Finalize()
 }
 
 func (sdb *stateDB) Copy() StateDBI {
-	panic("implement me")
-}
-
-func (sdb *stateDB) SetTxContext(thash common.Hash, ti int) {
-	panic("implement me")
+	return NewStateDB(sdb.Plugin)
 }
