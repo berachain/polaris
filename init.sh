@@ -29,7 +29,7 @@ MONIKER="localtestnet"
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
-KEYALGO="secp256k1"
+KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/stargazerd instance
 HOMEDIR="./.tmp/stargazerd"
