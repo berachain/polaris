@@ -33,7 +33,7 @@ import (
 
 func TestEthSecp256K1(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto")
+	RunSpecs(t, "crypto/ethsecp256k1")
 }
 
 var _ = Describe("PrivKey", func() {

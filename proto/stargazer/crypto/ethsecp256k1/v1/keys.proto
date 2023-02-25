@@ -18,16 +18,23 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package ethsecp256k1
+syntax = "proto3";
 
-import (
-	"testing"
+package stargazer.crypto.ethsecp256k1.v1;
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
+option go_package = "pkg.berachain.dev/stargazer/crypto/ethsecp256k1";
 
-func TestCrypto(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto")
+// `PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
+// CometBFT's `PubKey` interface. It represents the 33-byte compressed public
+// key format.
+message PubKey {
+  // `key` is the public key in byte form.
+  bytes key = 1;
+}
+
+// `PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
+// CometBFT's `PrivateKey` interface.
+message PrivKey {
+  // `key` is the private key in byte form.
+  bytes key = 1;
 }

@@ -34,7 +34,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Config Suite")
+	RunSpecs(t, "config")
 }
 
 var _ = Describe("Configuration", func() {
@@ -49,7 +49,7 @@ var _ = Describe("Configuration", func() {
 		Expect(config.GetBech32ConsensusAddrPrefix()).To(Equal(sdk.Bech32PrefixConsAddr))
 		Expect(config.GetBech32ConsensusPubPrefix()).To(Equal(sdk.Bech32PrefixConsPub))
 
-		sgconfig.SetupCosmosConfig()
+		sgconfig.SetBech32Prefixes(config)
 
 		Expect(config.GetBech32AccountAddrPrefix()).To(Equal(sgconfig.Bech32PrefixAccAddr))
 		Expect(config.GetBech32AccountPubPrefix()).To(Equal(sgconfig.Bech32PrefixAccPub))

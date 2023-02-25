@@ -27,7 +27,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestCrypto(t *testing.T) {
+func TestClient(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "x/evm/plugins/txpool/client")
 }
