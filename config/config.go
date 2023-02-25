@@ -43,6 +43,15 @@ const (
 	Bech32PrefixConsPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus + sdk.PrefixPublic
 )
 
+// `SetupCosmosConfig` sets up the Cosmos SDK configuration to be compatible with the semantics of etheruem.
+func SetupCosmosConfig() {
+	// set the address prefixes
+	config := sdk.GetConfig()
+	SetBech32Prefixes(config)
+	SetBip44CoinType(config)
+	config.Seal()
+}
+
 // `SetBech32Prefixes` sets the global prefixes to be used when serializing addresses and public keys to Bech32 strings.
 func SetBech32Prefixes(config *sdk.Config) {
 	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
