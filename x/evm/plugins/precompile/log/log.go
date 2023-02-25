@@ -21,8 +21,8 @@
 package log
 
 import (
+	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/types/abi"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 

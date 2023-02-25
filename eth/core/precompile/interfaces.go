@@ -21,8 +21,8 @@
 package precompile
 
 import (
+	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/types/abi"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 

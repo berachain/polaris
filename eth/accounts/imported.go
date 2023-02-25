@@ -18,18 +18,20 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package client
+package accounts
 
 import (
-	"pkg.berachain.dev/stargazer/crypto/ethsecp256k1"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"github.com/ethereum/go-ethereum/accounts"
 )
 
-// `PubkeyFromTx` returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
-	bz, err := signer.PubKey(signedTx)
-	if err != nil {
-		return &ethsecp256k1.PubKey{}, err
-	}
-	return &ethsecp256k1.PubKey{Key: bz}, nil
-}
+type (
+	DerivationPath = accounts.DerivationPath
+	HDPathIterator = func() DerivationPath
+)
+
+var (
+	DefaultBaseDerivationPath = accounts.DefaultBaseDerivationPath
+	DefaultIterator           = accounts.DefaultIterator
+	LedgerLiveIterator        = accounts.LedgerLiveIterator
+	ParseDerivationPath       = accounts.ParseDerivationPath
+)

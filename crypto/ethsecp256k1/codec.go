@@ -18,18 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package client
+package ethsecp256k1
 
 import (
-	"pkg.berachain.dev/stargazer/crypto/ethsecp256k1"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
-// `PubkeyFromTx` returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
-	bz, err := signer.PubKey(signedTx)
-	if err != nil {
-		return &ethsecp256k1.PubKey{}, err
-	}
-	return &ethsecp256k1.PubKey{Key: bz}, nil
+// `RegisterInterfaces` registers the ethsecp256k1 key types.
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &PubKey{})
+	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &PrivKey{})
 }
