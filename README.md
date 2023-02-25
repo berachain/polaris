@@ -41,19 +41,19 @@ Go v1.20+ or higher is required for Stargazer
    For Ubuntu:
 
    ```sh
+   cd $HOME
    sudo apt-get install golang -y
    export PATH=$PATH:/usr/local/go/bin
    export PATH=$PATH:$(go env GOPATH)/bin
-   go run build/setup.go
    ```
 
    For Mac:
 
    ```sh
+   cd $HOME
    brew install go
    export PATH=$PATH:/opt/homebrew/bin/go
    export PATH=$PATH:$(go env GOPATH)/bin
-   go run build/setup.go
    ```
 
 2. Confirm your Go installation by checking the version:
@@ -71,6 +71,7 @@ Clone the `stargazer` repo from the [official repo](https://github.com/berachain
 git clone https://github.com/berachain/stargazer
 cd stargazer
 git checkout main
+go run build/setup.go
 ```
 
 **Step 3: Build the Node Software**
