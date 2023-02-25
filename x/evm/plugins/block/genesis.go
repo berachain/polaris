@@ -26,10 +26,9 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-// `InitGenesis` performs genesis initialization for the evm module. It returns
-// no validator updates.
+// `InitGenesis` performs genesis initialization for the evm module. no-op.
 func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
 
 // `ExportGenesis` returns the exported genesis state as raw bytes for the evm
-// module.
+// module. no-op.
 func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
