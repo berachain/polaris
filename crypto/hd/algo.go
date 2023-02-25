@@ -94,8 +94,6 @@ func (s ethSecp256k1Algo) Generate() hd.GenerateFn {
 	return func(bz []byte) cryptotypes.PrivKey {
 		bzArr := make([]byte, ethsecp256k1.PrivKeyNumBytes)
 		copy(bzArr, bz)
-
-		// TODO: modulo P
 		return &ethsecp256k1.PrivKey{
 			Key: bzArr,
 		}

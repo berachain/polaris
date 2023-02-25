@@ -62,7 +62,7 @@ var _ = Describe("Keyring", func() {
 
 	BeforeEach(func() {
 		var err error
-		dir = os.TempDir()
+		dir, err := os.MkdirTemp("", "keyring_test")
 		Expect(err).NotTo(HaveOccurred())
 		registerCodec()
 
