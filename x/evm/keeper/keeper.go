@@ -100,7 +100,7 @@ func NewKeeper(
 	k.rpcProvider = evmrpc.NewProvider(cfg)
 
 	// Build the Plugins
-	k.bp = block.NewPlugin(k, k.offChainKv)
+	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
 	k.pp = precompile.NewPlugin()

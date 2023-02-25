@@ -37,16 +37,11 @@ import (
 // TODO: change this.
 const bf = uint64(1)
 
-// `stargazerHeaderGetter` is an interface that defines the `GetStargazerHeader` method.
-type stargazerHeaderGetter interface {
-	// `GetStargazerHeader` returns the stargazer header at the given height.
-	GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool)
-}
-
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	UpdateOffChainStorage(sdk.Context, *coretypes.StargazerBlock)
+
 	core.BlockPlugin
 }
 
@@ -54,18 +49,17 @@ type Plugin interface {
 type plugin struct {
 	// `ctx` is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
-	// `shg` is the stargazer header getter, used for accessing stargazer headers.
-	shg stargazerHeaderGetter
-
+	// `storekey` is the store key for the header store.
+	storekey storetypes.StoreKey
 	//  `offchainStore` is the offchain store, used for accessing offchain data.
 	offchainStore storetypes.CacheKVStore
 }
 
 // `NewPlugin` creates a new instance of the block plugin from the given context.
-func NewPlugin(shg stargazerHeaderGetter, offchainStore storetypes.CacheKVStore) Plugin {
+func NewPlugin(offchainStore storetypes.CacheKVStore, storekey storetypes.StoreKey) Plugin {
 	return &plugin{
-		shg:           shg,
 		offchainStore: offchainStore,
+		storekey:      storekey,
 	}
 }
 
@@ -97,7 +91,7 @@ func (p *plugin) GetStargazerHeaderByNumber(height int64) *coretypes.StargazerHe
 	// If the current block height is less than (or technically also greater than) the requested
 	// height, then we assume that the block has been written to the store. In this case, we
 	// return the header from the store.
-	if header, found := p.shg.GetStargazerHeader(p.ctx, height); found {
+	if header, found := p.GetStargazerHeader(p.ctx, height); found {
 		return header
 	}
 
@@ -118,7 +112,7 @@ func (p *plugin) getStargazerHeaderFromCurrentContext() *coretypes.StargazerHead
 
 	parentHash := common.Hash{}
 	if p.ctx.BlockHeight() > 1 {
-		if header, found := p.shg.GetStargazerHeader(p.ctx, p.ctx.BlockHeight()-1); found {
+		if header, found := p.GetStargazerHeader(p.ctx, p.ctx.BlockHeight()-1); found {
 			parentHash = header.Hash()
 		} else {
 			panic("parent header not found")

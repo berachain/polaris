@@ -23,7 +23,6 @@ package types
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 )
 
@@ -79,5 +78,4 @@ var _ = Describe("Genesis", func() {
 		Expect(code2).To(Equal(string(code)))
 
 	})
-
 })
