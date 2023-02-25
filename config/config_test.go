@@ -27,6 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	sgconfig "pkg.berachain.dev/stargazer/config"
 	"pkg.berachain.dev/stargazer/eth/accounts"
 )
