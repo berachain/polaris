@@ -21,19 +21,16 @@
 package types
 
 import (
-	"math/big"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 var _ = Describe("Genesis", func() {
 	It("fail if genesis is invalid", func() {
 		params := DefaultParams()
 		params.EvmDenom = ""
-		state := NewGenesisState(*params, nil, nil, nil)
+		state := NewGenesisState(*params, nil, nil)
 		err := ValidateGenesis(*state)
 		Expect(err).To(HaveOccurred())
 	})
@@ -46,14 +43,12 @@ var _ = Describe("Genesis", func() {
 	It("should return new genesis state", func() {
 		atc := make(map[string]*Contract)
 		htc := make(map[string]string)
-		headers := make([][]byte, 0)
 		params := DefaultParams()
-		state := NewGenesisState(*params, atc, htc, headers)
+		state := NewGenesisState(*params, atc, htc)
 		Expect(state).ToNot(BeNil())
 		Expect(state.Params).To(Equal(*params))
 		Expect(state.AddressToContract).To(Equal(atc))
 		Expect(state.HashToCode).To(Equal(htc))
-		Expect(state.Headers).To(Equal(headers))
 	})
 
 	It("should return a new contract code", func() {
@@ -82,38 +77,5 @@ var _ = Describe("Genesis", func() {
 		code2 := state.HashToCode[codeHash.Hex()]
 		Expect(code2).To(Equal(string(code)))
 
-	})
-
-	It("should be able to parse header bz", func() {
-		header := &coretypes.StargazerHeader{
-			Header: &coretypes.Header{
-				ParentHash:      common.HexToHash("0x123"),
-				UncleHash:       common.HexToHash("0x123"),
-				Coinbase:        common.HexToAddress("0x123"),
-				Root:            common.HexToHash("0x123"),
-				TxHash:          common.HexToHash("0x123"),
-				ReceiptHash:     common.HexToHash("0x123"),
-				Bloom:           coretypes.BytesToBloom([]byte("0x123")),
-				Difficulty:      big.NewInt(1),
-				Number:          big.NewInt(1),
-				GasLimit:        1,
-				GasUsed:         1,
-				Time:            1,
-				Extra:           []byte("0x123"),
-				MixDigest:       common.HexToHash("0x123"),
-				Nonce:           coretypes.BlockNonce{0x1},
-				BaseFee:         big.NewInt(1),
-				WithdrawalsHash: &common.Hash{0x1},
-			},
-		}
-
-		bz, err := header.MarshalBinary()
-		Expect(err).ToNot(HaveOccurred())
-		Expect(bz).ToNot(BeNil())
-
-		var header2 coretypes.StargazerHeader
-		err = header2.UnmarshalBinary(bz)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(header2).To(Equal(*header))
 	})
 })

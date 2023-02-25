@@ -23,46 +23,12 @@ package block
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-// `InitGenesis` performs genesis initialization for the evm module. It returns
-// no validator updates.
-func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
-	p.Prepare(ctx)
-	for _, header := range genesisState.Headers {
-		// Unmarshal the header bytes into a `StargazerHeader` object.
-		var stargazerHeader coretypes.StargazerHeader
-		if err := stargazerHeader.UnmarshalBinary(header); err != nil {
-			panic(err)
-		}
-		// Set the header in the store.
-		err := p.SetStargazerHeader(ctx, &stargazerHeader)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+// `InitGenesis` performs genesis initialization for the evm module. no-op.
+func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
 
 // `ExportGenesis` returns the exported genesis state as raw bytes for the evm
-// module.
-func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
-	// Allocate memory for the headers byte slice.
-	if genesisState.Headers == nil {
-		genesisState.Headers = make([][]byte, 0)
-	}
-	// Iterate over all the headers in the store and marshal them into bytes.
-	p.IterateStargazerHeaders(ctx, func(header *coretypes.StargazerHeader) bool {
-		// Marshal the header into bytes.
-		bz, err := header.MarshalBinary()
-		if err != nil {
-			panic(err)
-		}
-		// Append the header bytes to the genesis state.
-		genesisState.Headers = append(genesisState.Headers, bz)
-		return false
-	})
-
-	p.Prepare(ctx)
-}
+// module. no-op.
+func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
