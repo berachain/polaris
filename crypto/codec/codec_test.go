@@ -21,14 +21,20 @@
 package codec
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"testing"
 
-	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `RegisterInterfaces` registers the ethsecp256k1 key types.
-func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &ethsecp256k1.PubKey{})
-	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &ethsecp256k1.PrivKey{})
+func TestCodec(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "crypto/codec")
 }
+
+var _ = Describe("Codec", func() {
+	It("should not panic", func() {
+		RegisterInterfaces(types.NewInterfaceRegistry())
+	})
+})

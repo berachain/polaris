@@ -22,7 +22,6 @@ package hd
 
 import (
 	"strings"
-	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	. "github.com/onsi/ginkgo/v2"
@@ -38,11 +37,6 @@ const (
 	mnemonic = "picnic rent average infant boat squirrel federal assault mercy purity very " +
 		"motor fossil wheel verify upset box fresh horse vivid copy predict square regret"
 )
-
-func TestHD(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto/hd")
-}
 
 var _ = Describe("HD", func() {
 	It("should derive the correct key", func() {
