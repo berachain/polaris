@@ -37,10 +37,6 @@ import (
 const (
 	mnemonic = "picnic rent average infant boat squirrel federal assault mercy purity very" +
 		"motor fossil wheel verify upset box fresh horse vivid copy predict square regret"
-
-	// hdWalletFixEnv defines whether the standard (correct) bip39
-	// derivation path was used, or if derivation was affected by
-	// https://github.com/btcsuite/btcutil/issues/172
 )
 
 func TestHD(t *testing.T) {
