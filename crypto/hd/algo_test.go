@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	mnemonic = "picnic rent average infant boat squirrel federal assault mercy purity very" +
+	mnemonic = "picnic rent average infant boat squirrel federal assault mercy purity very " +
 		"motor fossil wheel verify upset box fresh horse vivid copy predict square regret"
 )
 
