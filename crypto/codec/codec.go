@@ -23,10 +23,12 @@ package ethsecp256k1
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
+	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 )
 
 // `RegisterInterfaces` registers the ethsecp256k1 key types.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &PubKey{})
-	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &PrivKey{})
+	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &ethsecp256k1.PubKey{})
+	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &ethsecp256k1.PrivKey{})
 }

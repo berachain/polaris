@@ -18,23 +18,20 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-syntax = "proto3";
+package keyring
 
-package stargazer.crypto.ethsecp256k1.v1;
+import (
+	sdkhd "github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-option go_package = "pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1";
+	"pkg.berachain.dev/stargazer/crypto/hd"
+)
 
-// `PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
-// CometBFT's `PubKey` interface. It represents the 33-byte compressed public
-// key format.
-message PubKey {
-  // `key` is the public key in byte form.
-  bytes key = 1;
-}
-
-// `PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
-// CometBFT's `PrivateKey` interface.
-message PrivKey {
-  // `key` is the private key in byte form.
-  bytes key = 1;
+// `EthSecp256k1Option` defines a function keys options for the ethereum Secp256k1 curve.
+// It supports ethsecp256k1 and secp256k1 keys for accounts.
+func EthSecp256k1Option() keyring.Option {
+	return func(options *keyring.Options) {
+		options.SupportedAlgos = keyring.SigningAlgoList{hd.EthSecp256k1, sdkhd.Secp256k1}
+		options.SupportedAlgosLedger = keyring.SigningAlgoList{hd.EthSecp256k1, sdkhd.Secp256k1}
+	}
 }
