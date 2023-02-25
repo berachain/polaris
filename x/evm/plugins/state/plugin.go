@@ -474,6 +474,17 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
+	if number < -2 {
+		height := p.ctx.BlockHeight()
+		if height >= 1 {
+			number = p.ctx.BlockHeight() - 1
+		} else {
+			number = 0
+		}
+	}
+	if number < 0 {
+		number = p.ctx.BlockHeight()
+	}
 
 	ctx, err := p.getQueryContext(number, false)
 	if err != nil {
