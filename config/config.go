@@ -62,7 +62,7 @@ func RegisterDenoms() {
 		panic(err)
 	}
 
-	etherDecimals := int64(18)
+	var etherDecimals int64 = 18
 	if err := sdk.RegisterDenom("abera", sdk.NewDecWithPrec(1, etherDecimals)); err != nil {
 		panic(err)
 	}
