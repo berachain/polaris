@@ -13,25 +13,25 @@ import (
 )
 
 var (
-	md_EthSecp256K1PubKey     protoreflect.MessageDescriptor
-	fd_EthSecp256K1PubKey_key protoreflect.FieldDescriptor
+	md_PubKey     protoreflect.MessageDescriptor
+	fd_PubKey_key protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_stargazer_crypto_v1_eth_secp256k1_proto_init()
-	md_EthSecp256K1PubKey = File_stargazer_crypto_v1_eth_secp256k1_proto.Messages().ByName("EthSecp256k1PubKey")
-	fd_EthSecp256K1PubKey_key = md_EthSecp256K1PubKey.Fields().ByName("key")
+	md_PubKey = File_stargazer_crypto_v1_eth_secp256k1_proto.Messages().ByName("PubKey")
+	fd_PubKey_key = md_PubKey.Fields().ByName("key")
 }
 
-var _ protoreflect.Message = (*fastReflection_EthSecp256K1PubKey)(nil)
+var _ protoreflect.Message = (*fastReflection_PubKey)(nil)
 
-type fastReflection_EthSecp256K1PubKey EthSecp256K1PubKey
+type fastReflection_PubKey PubKey
 
-func (x *EthSecp256K1PubKey) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_EthSecp256K1PubKey)(x)
+func (x *PubKey) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_PubKey)(x)
 }
 
-func (x *EthSecp256K1PubKey) slowProtoReflect() protoreflect.Message {
+func (x *PubKey) slowProtoReflect() protoreflect.Message {
 	mi := &file_stargazer_crypto_v1_eth_secp256k1_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -43,43 +43,43 @@ func (x *EthSecp256K1PubKey) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EthSecp256K1PubKey_messageType fastReflection_EthSecp256K1PubKey_messageType
-var _ protoreflect.MessageType = fastReflection_EthSecp256K1PubKey_messageType{}
+var _fastReflection_PubKey_messageType fastReflection_PubKey_messageType
+var _ protoreflect.MessageType = fastReflection_PubKey_messageType{}
 
-type fastReflection_EthSecp256K1PubKey_messageType struct{}
+type fastReflection_PubKey_messageType struct{}
 
-func (x fastReflection_EthSecp256K1PubKey_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_EthSecp256K1PubKey)(nil)
+func (x fastReflection_PubKey_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_PubKey)(nil)
 }
-func (x fastReflection_EthSecp256K1PubKey_messageType) New() protoreflect.Message {
-	return new(fastReflection_EthSecp256K1PubKey)
+func (x fastReflection_PubKey_messageType) New() protoreflect.Message {
+	return new(fastReflection_PubKey)
 }
-func (x fastReflection_EthSecp256K1PubKey_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthSecp256K1PubKey
+func (x fastReflection_PubKey_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_PubKey
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_EthSecp256K1PubKey) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthSecp256K1PubKey
+func (x *fastReflection_PubKey) Descriptor() protoreflect.MessageDescriptor {
+	return md_PubKey
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_EthSecp256K1PubKey) Type() protoreflect.MessageType {
-	return _fastReflection_EthSecp256K1PubKey_messageType
+func (x *fastReflection_PubKey) Type() protoreflect.MessageType {
+	return _fastReflection_PubKey_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_EthSecp256K1PubKey) New() protoreflect.Message {
-	return new(fastReflection_EthSecp256K1PubKey)
+func (x *fastReflection_PubKey) New() protoreflect.Message {
+	return new(fastReflection_PubKey)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_EthSecp256K1PubKey) Interface() protoreflect.ProtoMessage {
-	return (*EthSecp256K1PubKey)(x)
+func (x *fastReflection_PubKey) Interface() protoreflect.ProtoMessage {
+	return (*PubKey)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -87,10 +87,10 @@ func (x *fastReflection_EthSecp256K1PubKey) Interface() protoreflect.ProtoMessag
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_EthSecp256K1PubKey) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_PubKey) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if len(x.Key) != 0 {
 		value := protoreflect.ValueOfBytes(x.Key)
-		if !f(fd_EthSecp256K1PubKey_key, value) {
+		if !f(fd_PubKey_key, value) {
 			return
 		}
 	}
@@ -107,15 +107,15 @@ func (x *fastReflection_EthSecp256K1PubKey) Range(f func(protoreflect.FieldDescr
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_EthSecp256K1PubKey) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_PubKey) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PubKey.key":
+	case "stargazer.crypto.v1.PubKey.key":
 		return len(x.Key) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PubKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PubKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PubKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PubKey does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -125,15 +125,15 @@ func (x *fastReflection_EthSecp256K1PubKey) Has(fd protoreflect.FieldDescriptor)
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PubKey) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_PubKey) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PubKey.key":
+	case "stargazer.crypto.v1.PubKey.key":
 		x.Key = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PubKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PubKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PubKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PubKey does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -143,16 +143,16 @@ func (x *fastReflection_EthSecp256K1PubKey) Clear(fd protoreflect.FieldDescripto
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_EthSecp256K1PubKey) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_PubKey) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PubKey.key":
+	case "stargazer.crypto.v1.PubKey.key":
 		value := x.Key
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PubKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PubKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PubKey does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PubKey does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -166,15 +166,15 @@ func (x *fastReflection_EthSecp256K1PubKey) Get(descriptor protoreflect.FieldDes
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PubKey) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_PubKey) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PubKey.key":
+	case "stargazer.crypto.v1.PubKey.key":
 		x.Key = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PubKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PubKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PubKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PubKey does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -188,40 +188,40 @@ func (x *fastReflection_EthSecp256K1PubKey) Set(fd protoreflect.FieldDescriptor,
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PubKey) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_PubKey) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PubKey.key":
-		panic(fmt.Errorf("field key of message stargazer.crypto.v1.EthSecp256k1PubKey is not mutable"))
+	case "stargazer.crypto.v1.PubKey.key":
+		panic(fmt.Errorf("field key of message stargazer.crypto.v1.PubKey is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PubKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PubKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PubKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PubKey does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_EthSecp256K1PubKey) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_PubKey) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PubKey.key":
+	case "stargazer.crypto.v1.PubKey.key":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PubKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PubKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PubKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PubKey does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_EthSecp256K1PubKey) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_PubKey) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in stargazer.crypto.v1.EthSecp256k1PubKey", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in stargazer.crypto.v1.PubKey", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -229,7 +229,7 @@ func (x *fastReflection_EthSecp256K1PubKey) WhichOneof(d protoreflect.OneofDescr
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_EthSecp256K1PubKey) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_PubKey) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -240,7 +240,7 @@ func (x *fastReflection_EthSecp256K1PubKey) GetUnknown() protoreflect.RawFields 
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PubKey) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_PubKey) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -252,7 +252,7 @@ func (x *fastReflection_EthSecp256K1PubKey) SetUnknown(fields protoreflect.RawFi
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_EthSecp256K1PubKey) IsValid() bool {
+func (x *fastReflection_PubKey) IsValid() bool {
 	return x != nil
 }
 
@@ -262,9 +262,9 @@ func (x *fastReflection_EthSecp256K1PubKey) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_EthSecp256K1PubKey) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_PubKey) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*EthSecp256K1PubKey)
+		x := input.Message.Interface().(*PubKey)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -290,7 +290,7 @@ func (x *fastReflection_EthSecp256K1PubKey) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*EthSecp256K1PubKey)
+		x := input.Message.Interface().(*PubKey)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -327,7 +327,7 @@ func (x *fastReflection_EthSecp256K1PubKey) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*EthSecp256K1PubKey)
+		x := input.Message.Interface().(*PubKey)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -359,10 +359,10 @@ func (x *fastReflection_EthSecp256K1PubKey) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthSecp256K1PubKey: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: PubKey: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthSecp256K1PubKey: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: PubKey: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -435,25 +435,25 @@ func (x *fastReflection_EthSecp256K1PubKey) ProtoMethods() *protoiface.Methods {
 }
 
 var (
-	md_EthSecp256K1PrivKey     protoreflect.MessageDescriptor
-	fd_EthSecp256K1PrivKey_key protoreflect.FieldDescriptor
+	md_PrivKey     protoreflect.MessageDescriptor
+	fd_PrivKey_key protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_stargazer_crypto_v1_eth_secp256k1_proto_init()
-	md_EthSecp256K1PrivKey = File_stargazer_crypto_v1_eth_secp256k1_proto.Messages().ByName("EthSecp256k1PrivKey")
-	fd_EthSecp256K1PrivKey_key = md_EthSecp256K1PrivKey.Fields().ByName("key")
+	md_PrivKey = File_stargazer_crypto_v1_eth_secp256k1_proto.Messages().ByName("PrivKey")
+	fd_PrivKey_key = md_PrivKey.Fields().ByName("key")
 }
 
-var _ protoreflect.Message = (*fastReflection_EthSecp256K1PrivKey)(nil)
+var _ protoreflect.Message = (*fastReflection_PrivKey)(nil)
 
-type fastReflection_EthSecp256K1PrivKey EthSecp256K1PrivKey
+type fastReflection_PrivKey PrivKey
 
-func (x *EthSecp256K1PrivKey) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_EthSecp256K1PrivKey)(x)
+func (x *PrivKey) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_PrivKey)(x)
 }
 
-func (x *EthSecp256K1PrivKey) slowProtoReflect() protoreflect.Message {
+func (x *PrivKey) slowProtoReflect() protoreflect.Message {
 	mi := &file_stargazer_crypto_v1_eth_secp256k1_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -465,43 +465,43 @@ func (x *EthSecp256K1PrivKey) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EthSecp256K1PrivKey_messageType fastReflection_EthSecp256K1PrivKey_messageType
-var _ protoreflect.MessageType = fastReflection_EthSecp256K1PrivKey_messageType{}
+var _fastReflection_PrivKey_messageType fastReflection_PrivKey_messageType
+var _ protoreflect.MessageType = fastReflection_PrivKey_messageType{}
 
-type fastReflection_EthSecp256K1PrivKey_messageType struct{}
+type fastReflection_PrivKey_messageType struct{}
 
-func (x fastReflection_EthSecp256K1PrivKey_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_EthSecp256K1PrivKey)(nil)
+func (x fastReflection_PrivKey_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_PrivKey)(nil)
 }
-func (x fastReflection_EthSecp256K1PrivKey_messageType) New() protoreflect.Message {
-	return new(fastReflection_EthSecp256K1PrivKey)
+func (x fastReflection_PrivKey_messageType) New() protoreflect.Message {
+	return new(fastReflection_PrivKey)
 }
-func (x fastReflection_EthSecp256K1PrivKey_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthSecp256K1PrivKey
+func (x fastReflection_PrivKey_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_PrivKey
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_EthSecp256K1PrivKey) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthSecp256K1PrivKey
+func (x *fastReflection_PrivKey) Descriptor() protoreflect.MessageDescriptor {
+	return md_PrivKey
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_EthSecp256K1PrivKey) Type() protoreflect.MessageType {
-	return _fastReflection_EthSecp256K1PrivKey_messageType
+func (x *fastReflection_PrivKey) Type() protoreflect.MessageType {
+	return _fastReflection_PrivKey_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_EthSecp256K1PrivKey) New() protoreflect.Message {
-	return new(fastReflection_EthSecp256K1PrivKey)
+func (x *fastReflection_PrivKey) New() protoreflect.Message {
+	return new(fastReflection_PrivKey)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_EthSecp256K1PrivKey) Interface() protoreflect.ProtoMessage {
-	return (*EthSecp256K1PrivKey)(x)
+func (x *fastReflection_PrivKey) Interface() protoreflect.ProtoMessage {
+	return (*PrivKey)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -509,10 +509,10 @@ func (x *fastReflection_EthSecp256K1PrivKey) Interface() protoreflect.ProtoMessa
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_EthSecp256K1PrivKey) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_PrivKey) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if len(x.Key) != 0 {
 		value := protoreflect.ValueOfBytes(x.Key)
-		if !f(fd_EthSecp256K1PrivKey_key, value) {
+		if !f(fd_PrivKey_key, value) {
 			return
 		}
 	}
@@ -529,15 +529,15 @@ func (x *fastReflection_EthSecp256K1PrivKey) Range(f func(protoreflect.FieldDesc
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_EthSecp256K1PrivKey) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_PrivKey) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PrivKey.key":
+	case "stargazer.crypto.v1.PrivKey.key":
 		return len(x.Key) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PrivKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PrivKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PrivKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PrivKey does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -547,15 +547,15 @@ func (x *fastReflection_EthSecp256K1PrivKey) Has(fd protoreflect.FieldDescriptor
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PrivKey) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_PrivKey) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PrivKey.key":
+	case "stargazer.crypto.v1.PrivKey.key":
 		x.Key = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PrivKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PrivKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PrivKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PrivKey does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -565,16 +565,16 @@ func (x *fastReflection_EthSecp256K1PrivKey) Clear(fd protoreflect.FieldDescript
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_EthSecp256K1PrivKey) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_PrivKey) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PrivKey.key":
+	case "stargazer.crypto.v1.PrivKey.key":
 		value := x.Key
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PrivKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PrivKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PrivKey does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PrivKey does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -588,15 +588,15 @@ func (x *fastReflection_EthSecp256K1PrivKey) Get(descriptor protoreflect.FieldDe
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PrivKey) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_PrivKey) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PrivKey.key":
+	case "stargazer.crypto.v1.PrivKey.key":
 		x.Key = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PrivKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PrivKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PrivKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PrivKey does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -610,40 +610,40 @@ func (x *fastReflection_EthSecp256K1PrivKey) Set(fd protoreflect.FieldDescriptor
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PrivKey) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_PrivKey) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PrivKey.key":
-		panic(fmt.Errorf("field key of message stargazer.crypto.v1.EthSecp256k1PrivKey is not mutable"))
+	case "stargazer.crypto.v1.PrivKey.key":
+		panic(fmt.Errorf("field key of message stargazer.crypto.v1.PrivKey is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PrivKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PrivKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PrivKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PrivKey does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_EthSecp256K1PrivKey) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_PrivKey) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "stargazer.crypto.v1.EthSecp256k1PrivKey.key":
+	case "stargazer.crypto.v1.PrivKey.key":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.EthSecp256k1PrivKey"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.crypto.v1.PrivKey"))
 		}
-		panic(fmt.Errorf("message stargazer.crypto.v1.EthSecp256k1PrivKey does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message stargazer.crypto.v1.PrivKey does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_EthSecp256K1PrivKey) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_PrivKey) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in stargazer.crypto.v1.EthSecp256k1PrivKey", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in stargazer.crypto.v1.PrivKey", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -651,7 +651,7 @@ func (x *fastReflection_EthSecp256K1PrivKey) WhichOneof(d protoreflect.OneofDesc
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_EthSecp256K1PrivKey) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_PrivKey) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -662,7 +662,7 @@ func (x *fastReflection_EthSecp256K1PrivKey) GetUnknown() protoreflect.RawFields
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthSecp256K1PrivKey) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_PrivKey) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -674,7 +674,7 @@ func (x *fastReflection_EthSecp256K1PrivKey) SetUnknown(fields protoreflect.RawF
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_EthSecp256K1PrivKey) IsValid() bool {
+func (x *fastReflection_PrivKey) IsValid() bool {
 	return x != nil
 }
 
@@ -684,9 +684,9 @@ func (x *fastReflection_EthSecp256K1PrivKey) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_EthSecp256K1PrivKey) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_PrivKey) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*EthSecp256K1PrivKey)
+		x := input.Message.Interface().(*PrivKey)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -712,7 +712,7 @@ func (x *fastReflection_EthSecp256K1PrivKey) ProtoMethods() *protoiface.Methods 
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*EthSecp256K1PrivKey)
+		x := input.Message.Interface().(*PrivKey)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -749,7 +749,7 @@ func (x *fastReflection_EthSecp256K1PrivKey) ProtoMethods() *protoiface.Methods 
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*EthSecp256K1PrivKey)
+		x := input.Message.Interface().(*PrivKey)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -781,10 +781,10 @@ func (x *fastReflection_EthSecp256K1PrivKey) ProtoMethods() *protoiface.Methods 
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthSecp256K1PrivKey: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: PrivKey: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthSecp256K1PrivKey: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: PrivKey: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -889,10 +889,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
+// `PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
 // CometBFT's `PubKey` interface. It represents the 33-byte compressed public
 // key format.
-type EthSecp256K1PubKey struct {
+type PubKey struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -901,8 +901,8 @@ type EthSecp256K1PubKey struct {
 	Key []byte `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 }
 
-func (x *EthSecp256K1PubKey) Reset() {
-	*x = EthSecp256K1PubKey{}
+func (x *PubKey) Reset() {
+	*x = PubKey{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_stargazer_crypto_v1_eth_secp256k1_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -910,27 +910,27 @@ func (x *EthSecp256K1PubKey) Reset() {
 	}
 }
 
-func (x *EthSecp256K1PubKey) String() string {
+func (x *PubKey) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EthSecp256K1PubKey) ProtoMessage() {}
+func (*PubKey) ProtoMessage() {}
 
-// Deprecated: Use EthSecp256K1PubKey.ProtoReflect.Descriptor instead.
-func (*EthSecp256K1PubKey) Descriptor() ([]byte, []int) {
+// Deprecated: Use PubKey.ProtoReflect.Descriptor instead.
+func (*PubKey) Descriptor() ([]byte, []int) {
 	return file_stargazer_crypto_v1_eth_secp256k1_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *EthSecp256K1PubKey) GetKey() []byte {
+func (x *PubKey) GetKey() []byte {
 	if x != nil {
 		return x.Key
 	}
 	return nil
 }
 
-// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
+// `PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
 // CometBFT's `PrivateKey` interface.
-type EthSecp256K1PrivKey struct {
+type PrivKey struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -939,8 +939,8 @@ type EthSecp256K1PrivKey struct {
 	Key []byte `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 }
 
-func (x *EthSecp256K1PrivKey) Reset() {
-	*x = EthSecp256K1PrivKey{}
+func (x *PrivKey) Reset() {
+	*x = PrivKey{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_stargazer_crypto_v1_eth_secp256k1_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -948,18 +948,18 @@ func (x *EthSecp256K1PrivKey) Reset() {
 	}
 }
 
-func (x *EthSecp256K1PrivKey) String() string {
+func (x *PrivKey) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EthSecp256K1PrivKey) ProtoMessage() {}
+func (*PrivKey) ProtoMessage() {}
 
-// Deprecated: Use EthSecp256K1PrivKey.ProtoReflect.Descriptor instead.
-func (*EthSecp256K1PrivKey) Descriptor() ([]byte, []int) {
+// Deprecated: Use PrivKey.ProtoReflect.Descriptor instead.
+func (*PrivKey) Descriptor() ([]byte, []int) {
 	return file_stargazer_crypto_v1_eth_secp256k1_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *EthSecp256K1PrivKey) GetKey() []byte {
+func (x *PrivKey) GetKey() []byte {
 	if x != nil {
 		return x.Key
 	}
@@ -972,26 +972,24 @@ var file_stargazer_crypto_v1_eth_secp256k1_proto_rawDesc = []byte{
 	0x0a, 0x27, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2f, 0x63, 0x72, 0x79, 0x70,
 	0x74, 0x6f, 0x2f, 0x76, 0x31, 0x2f, 0x65, 0x74, 0x68, 0x5f, 0x73, 0x65, 0x63, 0x70, 0x32, 0x35,
 	0x36, 0x6b, 0x31, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x13, 0x73, 0x74, 0x61, 0x72, 0x67,
-	0x61, 0x7a, 0x65, 0x72, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x76, 0x31, 0x22, 0x26,
-	0x0a, 0x12, 0x45, 0x74, 0x68, 0x53, 0x65, 0x63, 0x70, 0x32, 0x35, 0x36, 0x6b, 0x31, 0x50, 0x75,
-	0x62, 0x4b, 0x65, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0c, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x22, 0x27, 0x0a, 0x13, 0x45, 0x74, 0x68, 0x53, 0x65, 0x63,
-	0x70, 0x32, 0x35, 0x36, 0x6b, 0x31, 0x50, 0x72, 0x69, 0x76, 0x4b, 0x65, 0x79, 0x12, 0x10, 0x0a,
-	0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x42,
-	0xc9, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65,
-	0x72, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x76, 0x31, 0x42, 0x11, 0x45, 0x74, 0x68,
-	0x53, 0x65, 0x63, 0x70, 0x32, 0x35, 0x36, 0x6b, 0x31, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01,
-	0x5a, 0x2d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61,
-	0x70, 0x69, 0x2f, 0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2f, 0x63, 0x72, 0x79,
-	0x70, 0x74, 0x6f, 0x2f, 0x76, 0x31, 0x3b, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x76, 0x31, 0xa2,
-	0x02, 0x03, 0x53, 0x43, 0x58, 0xaa, 0x02, 0x13, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65,
-	0x72, 0x2e, 0x43, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x13, 0x53, 0x74,
-	0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x5c, 0x43, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x5c, 0x56,
-	0x31, 0xe2, 0x02, 0x1f, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x5c, 0x43, 0x72,
-	0x79, 0x70, 0x74, 0x6f, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64,
-	0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x3a,
-	0x3a, 0x43, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x61, 0x7a, 0x65, 0x72, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x76, 0x31, 0x22, 0x1a,
+	0x0a, 0x06, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x22, 0x1b, 0x0a, 0x07, 0x50, 0x72,
+	0x69, 0x76, 0x4b, 0x65, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0c, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x42, 0xc9, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e,
+	0x73, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f,
+	0x2e, 0x76, 0x31, 0x42, 0x11, 0x45, 0x74, 0x68, 0x53, 0x65, 0x63, 0x70, 0x32, 0x35, 0x36, 0x6b,
+	0x31, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x2d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x74, 0x61, 0x72, 0x67,
+	0x61, 0x7a, 0x65, 0x72, 0x2f, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2f, 0x76, 0x31, 0x3b, 0x63,
+	0x72, 0x79, 0x70, 0x74, 0x6f, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x53, 0x43, 0x58, 0xaa, 0x02, 0x13,
+	0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x2e, 0x43, 0x72, 0x79, 0x70, 0x74, 0x6f,
+	0x2e, 0x56, 0x31, 0xca, 0x02, 0x13, 0x53, 0x74, 0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x5c,
+	0x43, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1f, 0x53, 0x74, 0x61, 0x72,
+	0x67, 0x61, 0x7a, 0x65, 0x72, 0x5c, 0x43, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x5c, 0x56, 0x31, 0x5c,
+	0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x53, 0x74,
+	0x61, 0x72, 0x67, 0x61, 0x7a, 0x65, 0x72, 0x3a, 0x3a, 0x43, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x3a,
+	0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1008,8 +1006,8 @@ func file_stargazer_crypto_v1_eth_secp256k1_proto_rawDescGZIP() []byte {
 
 var file_stargazer_crypto_v1_eth_secp256k1_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_stargazer_crypto_v1_eth_secp256k1_proto_goTypes = []interface{}{
-	(*EthSecp256K1PubKey)(nil),  // 0: stargazer.crypto.v1.EthSecp256k1PubKey
-	(*EthSecp256K1PrivKey)(nil), // 1: stargazer.crypto.v1.EthSecp256k1PrivKey
+	(*PubKey)(nil),  // 0: stargazer.crypto.v1.PubKey
+	(*PrivKey)(nil), // 1: stargazer.crypto.v1.PrivKey
 }
 var file_stargazer_crypto_v1_eth_secp256k1_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -1026,7 +1024,7 @@ func file_stargazer_crypto_v1_eth_secp256k1_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_stargazer_crypto_v1_eth_secp256k1_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EthSecp256K1PubKey); i {
+			switch v := v.(*PubKey); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1038,7 +1036,7 @@ func file_stargazer_crypto_v1_eth_secp256k1_proto_init() {
 			}
 		}
 		file_stargazer_crypto_v1_eth_secp256k1_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EthSecp256K1PrivKey); i {
+			switch v := v.(*PrivKey); i {
 			case 0:
 				return &v.state
 			case 1:

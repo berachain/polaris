@@ -18,18 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package client
+package ethsecp256k1
 
 import (
-	"pkg.berachain.dev/stargazer/crypto/ethsecp256k1"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `PubkeyFromTx` returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
-	bz, err := signer.PubKey(signedTx)
-	if err != nil {
-		return &ethsecp256k1.PubKey{}, err
-	}
-	return &ethsecp256k1.PubKey{Key: bz}, nil
+func TestCrypto(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "crypto")
 }

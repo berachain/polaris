@@ -18,16 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto
+package ethsecp256k1
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
-func TestCrypto(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto")
+// RegisterInterfaces register the Ethermint key concrete types.
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &PubKey{})
+	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &PrivKey{})
 }
