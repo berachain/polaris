@@ -31,12 +31,12 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
-	"pkg.berachain.dev/stargazer/eth/types/abi"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"

@@ -21,15 +21,15 @@
 package client
 
 import (
-	"pkg.berachain.dev/stargazer/crypto"
+	"pkg.berachain.dev/stargazer/crypto/ethsecp256k1"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 // `PubkeyFromTx` returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*crypto.EthSecp256K1PubKey, error) {
+func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
 	bz, err := signer.PubKey(signedTx)
 	if err != nil {
-		return &crypto.EthSecp256K1PubKey{}, err
+		return &ethsecp256k1.PubKey{}, err
 	}
-	return &crypto.EthSecp256K1PubKey{Key: bz}, nil
+	return &ethsecp256k1.PubKey{Key: bz}, nil
 }

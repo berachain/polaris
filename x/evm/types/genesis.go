@@ -20,7 +20,9 @@
 
 package types
 
-import "pkg.berachain.dev/stargazer/eth/common"
+import (
+	"pkg.berachain.dev/stargazer/eth/common"
+)
 
 // `DefaultGenesis` is the default genesis state.
 func DefaultGenesis() *GenesisState {

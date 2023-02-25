@@ -18,17 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package ethsecp256k1
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
-// `InitGenesis` performs genesis initialization for the evm module. no-op.
-func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
-
-// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
-// module. no-op.
-func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
+// `RegisterInterfaces` registers the ethsecp256k1 key types.
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &PubKey{})
+	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &PrivKey{})
+}

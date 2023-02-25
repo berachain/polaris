@@ -20,21 +20,21 @@
 
 syntax = "proto3";
 
-package stargazer.crypto.v1;
+package stargazer.crypto.ethsecp256k1.v1;
 
-option go_package = "pkg.berachain.dev/stargazer/crypto";
+option go_package = "pkg.berachain.dev/stargazer/crypto/ethsecp256k1";
 
-// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
+// `PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
 // CometBFT's `PubKey` interface. It represents the 33-byte compressed public
 // key format.
-message EthSecp256k1PubKey {
+message PubKey {
   // `key` is the public key in byte form.
   bytes key = 1;
 }
 
-// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
+// `PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
 // CometBFT's `PrivateKey` interface.
-message EthSecp256k1PrivKey {
+message PrivKey {
   // `key` is the private key in byte form.
   bytes key = 1;
 }

@@ -29,9 +29,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"pkg.berachain.dev/stargazer/eth/types/abi"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 	ethutils "pkg.berachain.dev/stargazer/x/evm/utils"

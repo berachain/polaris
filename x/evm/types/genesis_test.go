@@ -79,5 +79,4 @@ var _ = Describe("Genesis", func() {
 		Expect(code2).To(Equal(string(code)))
 
 	})
-
 })

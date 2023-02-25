@@ -18,17 +18,20 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package accounts
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"github.com/ethereum/go-ethereum/accounts"
 )
 
-// `InitGenesis` performs genesis initialization for the evm module. no-op.
-func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
+type (
+	DerivationPath = accounts.DerivationPath
+	HDPathIterator = func() DerivationPath
+)
 
-// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
-// module. no-op.
-func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
+var (
+	DefaultBaseDerivationPath = accounts.DefaultBaseDerivationPath
+	DefaultIterator           = accounts.DefaultIterator
+	LedgerLiveIterator        = accounts.LedgerLiveIterator
+	ParseDerivationPath       = accounts.ParseDerivationPath
+)

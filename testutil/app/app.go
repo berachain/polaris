@@ -211,6 +211,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// 	app.SetProcessProposal(app.DefaultProcessProposal())
 		// }
 		//
+
 		// Further down we'd set the options in the AppBuilder like below.
 		stargazerAppOptions = append(baseAppOptions, mempoolOpt)
 

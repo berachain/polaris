@@ -21,6 +21,8 @@
 package core
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/state"
@@ -67,6 +69,15 @@ type (
 		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
+		// `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
+		// heights that are below pruning height.
+		TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.StargazerHeader)
+		// `GetStargazerBlock` returns the block from the store at the height specified in the context.
+		GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool)
+		// `SetStargazerHeader` saves a block to the store.
+		SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error
+		// `PruneStargazerHeader` prunes a stargazer block from the store.
+		PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error
 	}
 
 	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.
