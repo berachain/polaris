@@ -21,8 +21,7 @@
 package types
 
 import (
-	"encoding/json"
-
+	"github.com/bytedance/sonic"
 	"pkg.berachain.dev/stargazer/eth/params"
 	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 )
@@ -62,6 +61,6 @@ func (p *Params) ValidateBasic() error {
 	if p.ExtraEIPs == nil {
 		return ErrNoExtraEIPs
 	}
-	_, err := json.Marshal(p.ChainConfig)
+	_, err := sonic.Marshal(p.ChainConfig)
 	return err
 }

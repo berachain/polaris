@@ -20,7 +20,6 @@
 
 package encoding
 
-
 import "github.com/bytedance/sonic"
 
 // `MustMarshalJSON` is a helper function that marshals JSON.
