@@ -18,26 +18,23 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package codec
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	tx "github.com/cosmos/cosmos-sdk/types/tx"
+	"testing"
+
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `RegisterInterfaces` registers the client interfaces to protobuf Any.
-func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations(
-		(*tx.ExtensionOptionI)(nil),
-		&ExtensionOptionsEthTransaction{},
-	)
-	registry.RegisterImplementations(
-		(*sdk.Msg)(nil),
-		&EthTransactionRequest{},
-		&UpdateParamsRequest{},
-	)
-
-	msgservice.RegisterMsgServiceDesc(registry, &_MsgService_serviceDesc)
+func TestCodec(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "crypto/codec")
 }
+
+var _ = Describe("Codec", func() {
+	It("should not panic", func() {
+		RegisterInterfaces(types.NewInterfaceRegistry())
+	})
+})
