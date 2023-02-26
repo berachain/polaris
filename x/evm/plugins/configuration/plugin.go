@@ -26,6 +26,7 @@ import (
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -79,5 +80,7 @@ func (p *plugin) ExtraEips() []int {
 
 // `FeeCollector` implements the core.ConfigurationPlugin interface.
 func (p *plugin) FeeCollector() *common.Address {
-	return &common.Address{}
+	// TODO: parameterize fee collector name.
+	addr := common.BytesToAddress([]byte(authtypes.FeeCollectorName))
+	return &addr
 }

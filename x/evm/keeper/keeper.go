@@ -122,7 +122,7 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
 	k.txp = txpool.NewPlugin(k.rpcProvider)
 
 	// Build the Stargazer EVM Provider
