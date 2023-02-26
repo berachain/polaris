@@ -33,6 +33,7 @@ import (
 	ethstate "pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/rpc"
 	"pkg.berachain.dev/stargazer/lib/snapshot"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"pkg.berachain.dev/stargazer/store/snapmulti"
@@ -474,22 +475,26 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
-	if number < -2 {
-		height := p.ctx.BlockHeight()
-		if height >= 1 {
-			number = p.ctx.BlockHeight() - 1
-		} else {
-			number = 0
-		}
-	}
-	if number < 0 {
-		number = p.ctx.BlockHeight()
+	// Handle rpc.BlockNumber negative numbers.
+	var iavlHeight int64
+	switch rpc.BlockNumber(number) {
+	case rpc.SafeBlockNumber:
+	case rpc.FinalizedBlockNumber:
+		iavlHeight = p.ctx.BlockHeight() - 1
+	case rpc.PendingBlockNumber:
+	case rpc.LatestBlockNumber:
+		iavlHeight = p.ctx.BlockHeight()
+	case rpc.EarliestBlockNumber:
+		iavlHeight = 0
 	}
 
-	ctx, err := p.getQueryContext(number, false)
+	// Get the query context at the given height.
+	ctx, err := p.getQueryContext(iavlHeight, false)
 	if err != nil {
 		return nil, err
 	}
+
+	// Create a StateDB with the requested chain height.
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
 	sp.Reset(ctx)
 	return ethstate.NewStateDB(sp), nil
