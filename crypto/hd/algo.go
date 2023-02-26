@@ -68,7 +68,7 @@ func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
 			return nil, err
 		}
 
-		return ECDSAify(derivedKey[:])
+		return ECDSAify(derivedKey)
 	}
 }
 
