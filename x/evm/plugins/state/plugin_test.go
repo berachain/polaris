@@ -236,7 +236,6 @@ var _ = Describe("State Plugin", func() {
 			It("should have state", func() {
 				Expect(sp.GetState(alice, common.Hash{3})).To(Equal(common.Hash{1}))
 			})
-
 			It("should have state changed", func() {
 				sp.SetState(alice, common.Hash{3}, common.Hash{2})
 				Expect(sp.GetState(alice, common.Hash{3})).To(Equal(common.Hash{2}))

@@ -26,11 +26,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
+	"pkg.berachain.dev/stargazer/config"
 	simapp "pkg.berachain.dev/stargazer/testutil/app"
 	"pkg.berachain.dev/stargazer/testutil/app/cmd/stargazerd/cmd"
 )
 
 func main() {
+	config.SetupCosmosConfig()
 	rootCmd := cmd.NewRootCmd()
 	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
 		//nolint: errorlint // uhh fix?

@@ -20,14 +20,50 @@
 
 package types
 
+import (
+	"pkg.berachain.dev/stargazer/eth/common"
+)
+
 // `DefaultGenesis` is the default genesis state.
 func DefaultGenesis() *GenesisState {
+	atc := make(map[string]*Contract)
+	htc := make(map[string]string)
+
 	return &GenesisState{
-		Params: *DefaultParams(),
+		Params:            *DefaultParams(),
+		AddressToContract: atc,
+		HashToCode:        htc,
 	}
 }
 
 // `ValidateGenesis` is used to validate the genesis state.
 func ValidateGenesis(data GenesisState) error {
 	return data.Params.ValidateBasic()
+}
+
+// `NewGenesisState` creates a new `GenesisState` object.
+func NewGenesisState(params Params, atc map[string]*Contract, htc map[string]string) *GenesisState {
+	return &GenesisState{
+		Params:            params,
+		AddressToContract: atc,
+		HashToCode:        htc,
+	}
+}
+
+// `NewContract` creates a new `Contract` object.
+func NewContract(codeHash common.Hash, code []byte, slotToValue map[string]string) *Contract {
+	return &Contract{
+		CodeHash:    codeHash.Hex(),
+		SlotToValue: slotToValue,
+	}
+}
+
+// `WriteToSlot` takes in a slot, value and pointer to a contract and writes the value to the slot.
+func WriteToSlot(slot common.Hash, value common.Hash, contract *Contract) {
+	contract.SlotToValue[slot.Hex()] = value.Hex()
+}
+
+// `WriteCodeToHash` takes in a code hash, code and map of code hashes to code and writes the code to the code hash.
+func WriteCodeToHash(codeHash common.Hash, code []byte, htc map[string]string) {
+	htc[codeHash.Hex()] = string(code)
 }

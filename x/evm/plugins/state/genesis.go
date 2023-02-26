@@ -23,11 +23,68 @@ package state
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-func (p *plugin) InitGenesis(ctx sdk.Context, _ *types.GenesisState) {
+// `InitGenesis` takes in a pointer to a genesis state object and populates the KV store.
+func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
+
+	for addr, contract := range data.AddressToContract {
+		// Set the contract code.
+		address := common.HexToAddress(addr)
+		code := []byte(data.HashToCode[contract.CodeHash])
+		p.SetCode(address, code)
+
+		// Set the contract state.
+		for k, v := range contract.SlotToValue {
+			slot := common.HexToHash(k)
+			value := common.HexToHash(v)
+			p.SetState(address, slot, value)
+		}
+	}
+
+	p.Finalize()
 }
 
-func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
+// `Export` genesis modifies a pointer to a genesis state object and populates it.
+func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
+	p.Reset(ctx)
+
+	// Allocate memory for the address to contract map if it is nil.
+	if data.AddressToContract == nil {
+		data.AddressToContract = make(map[string]*types.Contract)
+	}
+	// Allocate memory for the hash to code map if it is nil.
+	if data.HashToCode == nil {
+		data.HashToCode = make(map[string]string)
+	}
+
+	p.IterateCode(func(address common.Address, code []byte) bool {
+		// Get the contract code hash.
+		codeHash := p.GetCodeHash(address)
+		// If the contract is nil, allocate memory for it.
+		if data.AddressToContract[address.Hex()] == nil {
+			data.AddressToContract[address.Hex()] = &types.Contract{}
+		}
+		data.AddressToContract[address.Hex()].CodeHash = codeHash.Hex()
+		// Add the code hash and code to the code hash to code map.
+		data.HashToCode[codeHash.Hex()] = string(code)
+		return false // keep iterating
+	})
+
+	p.IterateState(func(addr common.Address, key, value common.Hash) bool {
+		// if the slot to value map is nil on the contract, allocate memory for it.
+		if data.AddressToContract[addr.Hex()].SlotToValue == nil {
+			data.AddressToContract[addr.Hex()].SlotToValue = make(map[string]string)
+		}
+
+		// Set the slots to value map.
+		data.AddressToContract[addr.Hex()].SlotToValue[key.Hex()] = value.Hex()
+
+		return false // keep iterating
+	})
+
+	p.Finalize()
+}

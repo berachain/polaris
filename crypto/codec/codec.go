@@ -18,16 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto
+package codec
 
 import (
-	"testing"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 )
 
-func TestCrypto(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto")
+// `RegisterInterfaces` registers the ethsecp256k1 key types.
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &ethsecp256k1.PubKey{})
+	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &ethsecp256k1.PrivKey{})
 }

@@ -3,41 +3,41 @@ module pkg.berachain.dev/stargazer
 go 1.20
 
 // Required for supporting stateful precompiled contracts.
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230223191228-79bc906d4f6f
-
-replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
-
-// Various replaces needed to resolve conflicts until 0.48 branch cut.
 replace (
-	cosmossdk.io/log => cosmossdk.io/log v0.0.0-20230222022124-77660ec452b6
-	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230222022124-77660ec452b6
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230222022124-77660ec452b6
+	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230224185434-747c29e8fa31
+	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
+	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230223191228-79bc906d4f6f
+	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
 require (
 	cosmossdk.io/api v0.3.1
-	cosmossdk.io/client/v2 v2.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/client/v2 v2.0.0-20230220152935-67f04e629623
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
-	cosmossdk.io/log v0.0.0
+	cosmossdk.io/log v0.0.0-20230224185434-747c29e8fa31
 	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
-	cosmossdk.io/simapp v0.0.0-20230222022124-77660ec452b6
-	cosmossdk.io/store v0.0.0-20230222022124-77660ec452b6
-	cosmossdk.io/tools/confix v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/simapp v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/store v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/tools/confix v0.0.0-20230224185434-747c29e8fa31
 	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/feegrant v0.0.0-20230222022124-77660ec452b6
-	cosmossdk.io/x/upgrade v0.0.0-20230222022124-77660ec452b6
+	cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/x/upgrade v0.0.0-20230224185434-747c29e8fa31
+	github.com/btcsuite/btcd v0.23.3
+	github.com/btcsuite/btcd/btcutil v1.1.2
 	github.com/bufbuild/buf v1.14.0
 	github.com/carolynvs/magex v0.9.0
 	github.com/cometbft/cometbft v0.37.0-alpha.3
 	github.com/cosmos/cosmos-db v1.0.0-rc.1
 	github.com/cosmos/cosmos-proto v1.0.0-beta.2
 	github.com/cosmos/cosmos-sdk v0.48.0
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.6
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
 	github.com/ethereum/go-ethereum v1.11.1
-	github.com/gin-gonic/gin v1.8.2
 	github.com/golang/protobuf v1.5.2
 	github.com/golangci/golangci-lint v1.51.2
 	github.com/google/addlicense v1.1.1
@@ -70,7 +70,7 @@ require (
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cosmossdk.io/collections v0.0.0-20230214153846-b6c6e4e99177 // indirect
 	cosmossdk.io/x/tx v0.2.0 // indirect
-	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
+	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
 	github.com/Abirdcfly/dupword v0.0.9 // indirect
@@ -106,6 +106,7 @@ require (
 	github.com/breml/bidichk v0.2.3 // indirect
 	github.com/breml/errchkjson v0.3.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
 	github.com/bufbuild/connect-go v1.5.0 // indirect
 	github.com/bufbuild/protocompile v0.2.0 // indirect
 	github.com/butuzov/ireturn v0.1.1 // indirect
@@ -114,7 +115,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/charithe/durationcheck v0.0.9 // indirect
 	github.com/chavacava/garif v0.0.0-20221024190013-b3ef35877348 // indirect
-	github.com/chzyer/readline v1.5.0 // indirect
+	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/cockroachdb/errors v1.9.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
@@ -123,7 +124,6 @@ require (
 	github.com/cometbft/cometbft-db v0.7.0 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
-	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v0.21.0-alpha.1 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.0 // indirect
@@ -166,7 +166,7 @@ require (
 	github.com/fzipp/gocyclo v0.6.0 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20190607065134-2772fd86a8ff // indirect
 	github.com/getsentry/sentry-go v0.18.0 // indirect
-	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/gin-gonic/gin v1.9.0 // indirect
 	github.com/go-chi/chi/v5 v5.0.8 // indirect
 	github.com/go-critic/go-critic v0.6.7 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
@@ -175,9 +175,6 @@ require (
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-playground/locales v0.14.0 // indirect
-	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/go-toolsmith/astcast v1.1.0 // indirect
@@ -189,7 +186,6 @@ require (
 	github.com/go-toolsmith/typep v1.1.0 // indirect
 	github.com/go-xmlfmt/xmlfmt v1.1.2 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
@@ -240,7 +236,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
+	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/holiman/big v0.0.0-20221017200358-a027dc42d04e // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
@@ -274,7 +270,6 @@ require (
 	github.com/kyoh86/exportloopref v0.1.11 // indirect
 	github.com/ldez/gomoddirectives v0.2.3 // indirect
 	github.com/ldez/tagliatelle v0.4.0 // indirect
-	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/leonklingele/grouper v1.1.1 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
@@ -372,7 +367,6 @@ require (
 	github.com/tomarrell/wrapcheck/v2 v2.8.0 // indirect
 	github.com/tommy-muehle/go-mnd/v2 v2.5.1 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
-	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/ultraware/funlen v0.0.3 // indirect
 	github.com/ultraware/whitespace v0.0.5 // indirect

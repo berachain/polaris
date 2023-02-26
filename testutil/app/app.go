@@ -89,8 +89,8 @@ import (
 
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
+	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
@@ -200,7 +200,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		mempoolOpt = baseapp.SetMempool(mempool.NewEthTxPool())
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -208,8 +207,8 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// 	app.SetProcessProposal(app.DefaultProcessProposal())
 		// }
 		//
+
 		// Further down we'd set the options in the AppBuilder like below.
-		stargazerAppOptions = append(baseAppOptions, mempoolOpt)
 
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
@@ -217,7 +216,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 			depinject.Supply(
 				// supply the application options
 				appOpts,
-
 				// ADVANCED CONFIGURATION
 
 				//
@@ -272,7 +270,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	app.App = appBuilder.Build(logger, db, traceStore, stargazerAppOptions...)
+	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry)...)
+	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
+	evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
 
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
@@ -400,9 +400,8 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	if err := evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider()); err != nil {
-		panic(err)
-	}
+	// Register Ethereum JSON-RPC API as needed by stargazer.
+	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }
 
 // GetMaccPerms returns a copy of the module account permissions

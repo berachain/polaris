@@ -25,30 +25,38 @@ import (
 )
 
 type (
-	// `ExecutionResult` is the result of executing a transaction.
-	ExecutionResult = core.ExecutionResult
-	// `Message` contains data used ype used to execute transactions.
-	Message = core.Message
 	// `ChainContext` provides information about the current blockchain to the EVM.
 	ChainContext = core.ChainContext
-	// `NewTxsEvent`.
-	NewTxsEvent      = core.NewTxsEvent
+	// `ChainEvent` contains information about the chain.
+	ChainEvent = core.ChainEvent
+	// `ChainHeadEvent` is posted when a new head block is added to the chain.
+	ChainHeadEvent = core.ChainHeadEvent
+	// `ChainSideEvent` is posted when a new side block is added to the chain.
+	ChainSideEvent = core.ChainSideEvent
+	// `ExecutionResult` is the result of executing a transaction.
+	ExecutionResult = core.ExecutionResult
+	// `GasPool` is a pool of gas that can be consumed by transactions.
+	GasPool = core.GasPool
+	// `NewTxsEvent` is posted when a batch of transactions enter the transaction pool.
+	NewTxsEvent = core.NewTxsEvent
+	// `Message` contains data used ype used to execute transactions.
+	Message = core.Message
+	// `RemovedLogsEvent` is posted pre-removal of a set of logs.
 	RemovedLogsEvent = core.RemovedLogsEvent
-	ChainEvent       = core.ChainEvent
-	ChainHeadEvent   = core.ChainHeadEvent
-	ChainSideEvent   = core.ChainSideEvent
-	GasPool          = core.GasPool
 )
 
 var (
+	// `ApplyMessage` puts a message through the EVM.
+	ApplyMessage = core.ApplyMessage
 	// `NewEVMTxContext` creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
 	// `NewEVMBlockContext` creates a new block context for a given header.
 	NewEVMBlockContext = core.NewEVMBlockContext
 	// `GetHashFn` returns a GetHashFunc.
 	GetHashFn = core.GetHashFn
-	// `ApplyMessage` puts a message through the EVM.
-	ApplyMessage = core.ApplyMessage
+)
+
+var (
 	// `ErrInsufficientBalanceForGas` is the error return when gas required to execute a transaction overflows.
 	ErrGasUintOverflow = core.ErrGasUintOverflow
 )

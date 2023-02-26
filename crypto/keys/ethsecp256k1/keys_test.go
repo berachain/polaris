@@ -18,9 +18,11 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto
+package ethsecp256k1
 
 import (
+	"testing"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
@@ -29,8 +31,13 @@ import (
 	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
+func TestEthSecp256K1(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "crypto/keys/ethsecp256k1")
+}
+
 var _ = Describe("PrivKey", func() {
-	var privKey *EthSecp256K1PrivKey
+	var privKey *PrivKey
 
 	BeforeEach(func() {
 		var err error
@@ -39,7 +46,7 @@ var _ = Describe("PrivKey", func() {
 	})
 
 	It("validates type and equality", func() {
-		Expect(privKey).To(BeAssignableToTypeOf((cryptotypes.PrivKey)(&EthSecp256K1PrivKey{})))
+		Expect(privKey).To(BeAssignableToTypeOf((cryptotypes.PrivKey)(&PrivKey{})))
 	})
 
 	It("validates inequality", func() {
@@ -69,7 +76,7 @@ var _ = Describe("PrivKey", func() {
 })
 
 var _ = Describe("PrivKey_PubKey", func() {
-	var privKey *EthSecp256K1PrivKey
+	var privKey *PrivKey
 
 	BeforeEach(func() {
 		var err error
@@ -78,10 +85,10 @@ var _ = Describe("PrivKey_PubKey", func() {
 	})
 
 	It("validates type", func() {
-		pubKey := &EthSecp256K1PubKey{
+		pubKey := &PubKey{
 			Key: privKey.PubKey().Bytes(),
 		}
-		Expect(pubKey).To(BeAssignableToTypeOf((cryptotypes.PubKey)(&EthSecp256K1PubKey{})))
+		Expect(pubKey).To(BeAssignableToTypeOf((cryptotypes.PubKey)(&PubKey{})))
 	})
 
 	It("validates equality", func() {

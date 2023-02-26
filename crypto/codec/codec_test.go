@@ -18,23 +18,23 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-syntax = "proto3";
+package codec
 
-package stargazer.crypto.v1;
+import (
+	"testing"
 
-option go_package = "pkg.berachain.dev/stargazer/crypto";
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
 
-// `EthSecp256k1PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
-// CometBFT's `PubKey` interface. It represents the 33-byte compressed public
-// key format.
-message EthSecp256k1PubKey {
-  // `key` is the public key in byte form.
-  bytes key = 1;
+func TestCodec(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "crypto/codec")
 }
 
-// `EthSecp256k1PrivKey` defines a type alias for a n`ecdsa.PrivateKey` that implements
-// CometBFT's `PrivateKey` interface.
-message EthSecp256k1PrivKey {
-  // `key` is the private key in byte form.
-  bytes key = 1;
-}
+var _ = Describe("Codec", func() {
+	It("should not panic", func() {
+		RegisterInterfaces(types.NewInterfaceRegistry())
+	})
+})

@@ -19,6 +19,7 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
+
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
@@ -28,10 +29,10 @@ MONIKER="localtestnet"
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
-KEYALGO="secp256k1"
+KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
-# Set dedicated home directory for the stargazerd instance
-HOMEDIR="$HOME/.stargazerd"
+# Set dedicated home directory for the ./bin/stargazerd instance
+HOMEDIR="./.tmp/stargazerd"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -46,7 +47,7 @@ TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 set -e
 
 # Reinstall daemon
-# mage install
+mage build
 
 # # User prompt if an existing local node configuration is found.
 # if [ -d "$HOMEDIR" ]; then
@@ -63,16 +64,16 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Remove the previous folder
 	rm -rf "$HOMEDIR"
 
-    # Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
-	stargazerd init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
+    	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
+	./bin/stargazerd init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	# Set client config
-	stargazerd config set client keyring-backend $KEYRING --home "$HOMEDIR"
-	stargazerd config set client chain-id "$CHAINID" --home "$HOMEDIR"
+	./bin/stargazerd config set client keyring-backend $KEYRING --home "$HOMEDIR"
+	./bin/stargazerd config set client chain-id "$CHAINID" --home "$HOMEDIR"
 
 	# If keys exist they should be deleted
 	for KEY in "${KEYS[@]}"; do
-		stargazerd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+		./bin/stargazerd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 	done
 
 	# Change parameter token denominations to abera
@@ -106,23 +107,23 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
     fi
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
-		stargazerd genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+		./bin/stargazerd genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
 
 	# Sign genesis transaction
-	stargazerd genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
+	./bin/stargazerd genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
-	## 1. Back to `stargazerd keys add` step, init more keys
-	## 2. Back to `stargazerd add-genesis-account` step, add balance for those
-	## 3. Clone this ~/.stargazerd home directory into some others, let's say `~/.clonedstargazerd`
+	## 1. Back to `./bin/stargazerd keys add` step, init more keys
+	## 2. Back to `./bin/stargazerd add-genesis-account` step, add balance for those
+	## 3. Clone this ~/../bin/stargazerd home directory into some others, let's say `~/.cloned./bin/stargazerd`
 	## 4. Run `gentx` in each of those folders
-	## 5. Copy the `gentx-*` folders under `~/.clonedstargazerd/config/gentx/` folders into the original `~/.stargazerd/config/gentx`
+	## 5. Copy the `gentx-*` folders under `~/.cloned./bin/stargazerd/config/gentx/` folders into the original `~/../bin/stargazerd/config/gentx`
 
 	# Collect genesis tx
-	stargazerd genesis collect-gentxs --home "$HOMEDIR"
+	./bin/stargazerd genesis collect-gentxs --home "$HOMEDIR"
 
 	# Run this to ensure everything worked and that the genesis file is setup correctly
-	stargazerd genesis validate-genesis --home "$HOMEDIR"
+	./bin/stargazerd genesis validate-genesis --home "$HOMEDIR"
 
 	if [[ $1 == "pending" ]]; then
 		echo "pending mode is on, please wait for the first block committed."
@@ -130,4 +131,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-stargazerd start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+./bin/stargazerd start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --minimum-gas-prices=0.0001abera --home "$HOMEDIR"

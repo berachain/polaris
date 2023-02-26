@@ -24,7 +24,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	crypto "pkg.berachain.dev/stargazer/crypto"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
@@ -98,13 +97,4 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 
 func (p *plugin) GetNonce(addr common.Address) uint64 {
 	return 0
-}
-
-// `PubkeyFromTx` returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (crypto.EthSecp256K1PubKey, error) {
-	pk, err := signer.PubKey(signedTx)
-	if err != nil {
-		return crypto.EthSecp256K1PubKey{}, err
-	}
-	return crypto.EthSecp256K1PubKey{Key: pk}, nil
 }

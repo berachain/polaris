@@ -51,6 +51,10 @@ var (
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.StatePlugin
+	// `IterateState` iterates over the state of all accounts and calls the given callback function.
+	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
+	// `IterateCode` iterates over the code of all accounts and calls the given callback function.
+	IterateCode(fn func(addr common.Address, code []byte) bool)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -296,6 +300,22 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
+// `IterateCode` iterates over all the addresses with code and calls the given method.
+func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetKVStore(p.storeKey),
+		[]byte{keyPrefixCodeHash},
+	)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		addr := AddressFromCodeHashKey(it.Key())
+		if fn(addr, p.GetCode(addr)) {
+			break
+		}
+	}
+}
+
 // GetCodeSize implements the `StatePlugin` interface by returning the size of the
 // code associated with the given `StatePlugin`.
 func (p *plugin) GetCodeSize(addr common.Address) int {
@@ -339,6 +359,24 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 
 	// Set the state entry.
 	p.cms.GetKVStore(p.storeKey).Set(SlotKeyFor(addr, key), value[:])
+}
+
+// `IterateState` iterates over all the contract state, and calls the given function.
+func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Hash) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetCommittedKVStore(p.storeKey),
+		[]byte{keyPrefixStorage},
+	)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		k, v := it.Key(), it.Value()
+		addr := AddressFromSlotKey(k)
+		slot := SlotFromSlotKey(k)
+		if cb(addr, slot, common.BytesToHash(v)) {
+			break
+		}
+	}
 }
 
 // =============================================================================

@@ -26,7 +26,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"pkg.berachain.dev/stargazer/crypto"
+	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	ethcrypto "pkg.berachain.dev/stargazer/eth/crypto"
 )
@@ -81,7 +81,7 @@ var _ = Describe("signer.PubKey", func() {
 			Expect(signer.PubKey(signedTx)).To(Equal(ethcrypto.FromECDSAPub(&key.PublicKey)))
 			bz, err := signer.PubKey(signedTx)
 			Expect(err).To(BeNil())
-			pk, err := crypto.NewPubKeyFromBytes(bz)
+			pk, err := ethsecp256k1.NewPubKeyFromBytes(bz)
 			Expect(err).To(BeNil())
 			Expect(pk.Address()).To(Equal(ethcrypto.PubkeyToAddress(key.PublicKey)))
 			pk2, err := PubkeyFromTx(signedTx, signer)

@@ -22,18 +22,20 @@ package keeper_test
 
 import (
 	"math/big"
+	"os"
 
 	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
-	"pkg.berachain.dev/stargazer/eth/types/abi"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
@@ -52,6 +54,9 @@ var _ = Describe("Processor", func() {
 	)
 
 	BeforeEach(func() {
+		err := os.RemoveAll("tmp/berachain")
+		Expect(err).To(BeNil())
+
 		legacyTxData = &coretypes.LegacyTx{
 			Nonce:    0,
 			Gas:      10000000,
@@ -61,14 +66,19 @@ var _ = Describe("Processor", func() {
 
 		// before chain, init genesis state
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		k = keeper.NewKeeper(storetypes.NewKVStoreKey("evm"), ak, bk, "authority", nil)
+		k = keeper.NewKeeper(
+			storetypes.NewKVStoreKey("evm"),
+			ak, bk, "authority",
+			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
+		)
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
 
 		// before every block
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000)).
-			WithKVGasConfig(storetypes.GasConfig{})
+			WithKVGasConfig(storetypes.GasConfig{}).
+			WithBlockHeight(1)
 		k.BeginBlocker(ctx)
 	})
 
@@ -76,6 +86,12 @@ var _ = Describe("Processor", func() {
 		BeforeEach(func() {
 			// before every tx
 			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
+		})
+
+		AfterEach(func() {
+			k.EndBlocker(ctx)
+			err := os.RemoveAll("tmp/berachain")
+			Expect(err).To(BeNil())
 		})
 
 		It("should panic on nil, empty transaction", func() {

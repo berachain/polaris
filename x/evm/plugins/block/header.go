@@ -18,11 +18,9 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package block
 
 import (
-	"math/big"
-
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -33,13 +31,15 @@ import (
 // Stargazer Block Tracking
 // ===========================================================================.
 
-// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set to
-// 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
-const numHistoricalBlocks int64 = 256
+const (
+	// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set
+	// to 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
+	numHistoricalBlocks int64 = 256
+)
 
 // `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
 // heights that are below pruning height.
-func (k Keeper) TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) {
+func (p *plugin) TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) {
 	// Prune the store to ensure we only maintain the last numHistoricalBlocks.
 	// In most cases, this will involve removing a single block from the store.
 	// In the rare scenario when the historical blocks gets reduced to a lower value k'
@@ -48,24 +48,25 @@ func (k Keeper) TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.St
 	// over the historical entries starting from the most recent version to be pruned
 	// and then return at the first empty entry.
 	for i := ctx.BlockHeight() - numHistoricalBlocks; i >= 0; i-- {
-		toPrune, found := k.GetStargazerHeader(ctx, i)
+		toPrune, found := p.GetStargazerHeader(ctx, i)
 		if found {
-			if err := k.PruneStargazerHeader(ctx, toPrune); err != nil {
+			if err := p.PruneStargazerHeader(ctx, toPrune); err != nil {
 				panic(err)
 			}
 		} else {
 			break
 		}
 	}
-	if err := k.SetStargazerHeader(ctx, header); err != nil {
+	if err := p.SetStargazerHeader(ctx, header); err != nil {
 		panic(err)
 	}
 }
 
 // `GetStargazerBlock` returns the block from the store at the height specified in the context.
-func (k *Keeper) GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), SGHeaderPrefix)
-	bz := store.Get(big.NewInt(height).Bytes())
+func (p *plugin) GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool) {
+	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
+	// Note: only handling up to 2^63 - 1 blocks (`height` is of type int64), which is fine for now.
+	bz := store.Get(sdk.Uint64ToBigEndian(uint64(height)))
 	if bz == nil {
 		return nil, false
 	}
@@ -79,24 +80,37 @@ func (k *Keeper) GetStargazerHeader(ctx sdk.Context, height int64) (*types.Starg
 }
 
 // `SetStargazerHeader` saves a block to the store.
-func (k *Keeper) SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), SGHeaderPrefix)
+func (p *plugin) SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
+	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
 	bz, err := header.MarshalBinary()
 	if err != nil {
 		return err
 	}
 	// Store the full block at the block key. (Overrides the old spot on the tree.)
-	store.Set(header.Number.Bytes(), bz)
-
-	// // Store a mapping of block hashes to block heights. (Grows over time)
-	// store.Set(key.BlockHashToHeight(block.Hash()), sdk.Uint64ToBigEndian(block.Number.Uint64()))
+	store.Set(sdk.Uint64ToBigEndian(header.Number.Uint64()), bz)
 	return nil
 }
 
+// `IterateStargazerHeaders` iterates over the stargazer headers and performs a callback function.
+func (p *plugin) IterateStargazerHeaders(ctx sdk.Context, cb func(header *types.StargazerHeader) (stop bool)) {
+	it := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix).Iterator(nil, nil)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		var header types.StargazerHeader
+		if err := header.UnmarshalBinary(it.Value()); err != nil {
+			panic(err)
+		}
+		if cb(&header) {
+			break
+		}
+	}
+}
+
 // `PruneStargazerHeader` prunes a stargazer block from the store.
-func (k *Keeper) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), SGHeaderPrefix)
-	store.Delete(header.Number.Bytes())
+func (p *plugin) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
+	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
+	store.Delete(sdk.Uint64ToBigEndian(header.Number.Uint64()))
 	// Notably, we don't delete the store key mapping hash to height as we want this
 	// to persist at the application layer in order to query by hash. (TODO? Tendermint?)
 	return nil

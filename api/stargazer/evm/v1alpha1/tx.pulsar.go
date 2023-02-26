@@ -577,8 +577,8 @@ func (x *fastReflection_EthTransactionResponse) Interface() protoreflect.ProtoMe
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_EthTransactionResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Receipt != "" {
-		value := protoreflect.ValueOfString(x.Receipt)
+	if len(x.Receipt) != 0 {
+		value := protoreflect.ValueOfBytes(x.Receipt)
 		if !f(fd_EthTransactionResponse_receipt, value) {
 			return
 		}
@@ -599,7 +599,7 @@ func (x *fastReflection_EthTransactionResponse) Range(f func(protoreflect.FieldD
 func (x *fastReflection_EthTransactionResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionResponse.receipt":
-		return x.Receipt != ""
+		return len(x.Receipt) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.EthTransactionResponse"))
@@ -617,7 +617,7 @@ func (x *fastReflection_EthTransactionResponse) Has(fd protoreflect.FieldDescrip
 func (x *fastReflection_EthTransactionResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionResponse.receipt":
-		x.Receipt = ""
+		x.Receipt = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.EthTransactionResponse"))
@@ -636,7 +636,7 @@ func (x *fastReflection_EthTransactionResponse) Get(descriptor protoreflect.Fiel
 	switch descriptor.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionResponse.receipt":
 		value := x.Receipt
-		return protoreflect.ValueOfString(value)
+		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.EthTransactionResponse"))
@@ -658,7 +658,7 @@ func (x *fastReflection_EthTransactionResponse) Get(descriptor protoreflect.Fiel
 func (x *fastReflection_EthTransactionResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionResponse.receipt":
-		x.Receipt = value.Interface().(string)
+		x.Receipt = value.Bytes()
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.EthTransactionResponse"))
@@ -695,7 +695,7 @@ func (x *fastReflection_EthTransactionResponse) Mutable(fd protoreflect.FieldDes
 func (x *fastReflection_EthTransactionResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	case "stargazer.evm.v1alpha1.EthTransactionResponse.receipt":
-		return protoreflect.ValueOfString("")
+		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: stargazer.evm.v1alpha1.EthTransactionResponse"))
@@ -858,7 +858,7 @@ func (x *fastReflection_EthTransactionResponse) ProtoMethods() *protoiface.Metho
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Receipt", wireType)
 				}
-				var stringLen uint64
+				var byteLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -868,23 +868,25 @@ func (x *fastReflection_EthTransactionResponse) ProtoMethods() *protoiface.Metho
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
+					byteLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
+				if byteLen < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
-				postIndex := iNdEx + intStringLen
+				postIndex := iNdEx + byteLen
 				if postIndex < 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
 				}
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Receipt = string(dAtA[iNdEx:postIndex])
+				x.Receipt = append(x.Receipt[:0], dAtA[iNdEx:postIndex]...)
+				if x.Receipt == nil {
+					x.Receipt = []byte{}
+				}
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -2219,8 +2221,8 @@ type EthTransactionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// `receipt` represents the json-encoded string of the ethereum receipt.
-	Receipt string `protobuf:"bytes,1,opt,name=receipt,proto3" json:"receipt,omitempty"`
+	// `receipt` represents the json-encoded bytes of the ethereum receipt.
+	Receipt []byte `protobuf:"bytes,1,opt,name=receipt,proto3" json:"receipt,omitempty"`
 }
 
 func (x *EthTransactionResponse) Reset() {
@@ -2243,11 +2245,11 @@ func (*EthTransactionResponse) Descriptor() ([]byte, []int) {
 	return file_stargazer_evm_v1alpha1_tx_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *EthTransactionResponse) GetReceipt() string {
+func (x *EthTransactionResponse) GetReceipt() []byte {
 	if x != nil {
 		return x.Receipt
 	}
-	return ""
+	return nil
 }
 
 // ExtensionOptionsEthTransaction is an extension option for ethereum transactions
@@ -2377,7 +2379,7 @@ var file_stargazer_evm_v1alpha1_tx_proto_rawDesc = []byte{
 	0x01, 0x28, 0x09, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x3a, 0x04, 0x88, 0xa0, 0x1f, 0x00, 0x22,
 	0x38, 0x0a, 0x16, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
 	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x72, 0x65, 0x63,
-	0x65, 0x69, 0x70, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x72, 0x65, 0x63, 0x65,
+	0x65, 0x69, 0x70, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x72, 0x65, 0x63, 0x65,
 	0x69, 0x70, 0x74, 0x3a, 0x04, 0x88, 0xa0, 0x1f, 0x00, 0x22, 0x26, 0x0a, 0x1e, 0x45, 0x78, 0x74,
 	0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x4f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x45, 0x74, 0x68,
 	0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x3a, 0x04, 0x88, 0xa0, 0x1f,

@@ -24,55 +24,30 @@ import "time"
 
 var (
 	// `DefaultAPINamespaces` is the default namespaces the JSON-RPC server exposes.
-	DefaultAPINamespaces = []string{"eth", "node"}
+	DefaultAPINamespaces = []string{"eth", "net"}
 )
 
 const (
-	// `DefaultJSONRPCAddress` is the default address the JSON-RPC server binds to.
-	DefaultJSONRPCAddress = "0.0.0.0:8545"
-
-	// `DefaultJSONRPCWSAddress` is the default address the JSON-RPC WebSocket server binds to.
-	DefaultJSONRPCWSAddress = "0.0.0.0:8546"
-
-	// `DefaultJSOPNRPCMetricsAddress` is the default address the JSON-RPC Metrics server binds to.
-	DefaultJSONRPCMetricsAddress = "0.0.0.0:6065"
-
-	// `DefaultHTTPReadHeaderTimeout` is the default read timeout of http json-rpc server.
-	DefaultHTTPReadHeaderTimeout = 5 * time.Second
-
-	// `DefaultHTTPReadTimeout` is the default read timeout of http json-rpc server.
-	DefaultHTTPReadTimeout = 10 * time.Second
-
-	// `DefaultHTTPWriteTimeout` is the default write timeout of http json-rpc server.
-	DefaultHTTPWriteTimeout = 10 * time.Second
-
-	// `DefaultHTTPIdleTimeout` is the default idle timeout of http json-rpc server.
-	DefaultHTTPIdleTimeout = 120 * time.Second
-
 	// `DefaultBaseRoute` is the default base path for the JSON-RPC server.
-	DefaultJSONRPCBaseRoute = "/"
+	DefaultBaseRoute = "/"
+
+	// `DefaultRPCGasCap` is the default gas cap for the JSON-RPC server.
+	DefaultRPCGasCap = 50000000
+
+	// `DefaultRPCTxFeeCap` is the default transaction fee cap for the JSON-RPC server.
+	DefaultRPCTxFeeCap = 1.0 // 1 ether
+
+	// `DefaultRPCEVMTimeout` is the default timeout for the JSON-RPC server.
+	DefaultRPCEVMTimeout = 5 * time.Second
 )
 
-// `DefaultServer` returns the default TLS configuration.
+// `DefaultServer` returns the default JSON-RPC server config.
 func DefaultServer() *Server {
 	return &Server{
-		SetupAPIs:             DefaultAPINamespaces,
-		Address:               DefaultJSONRPCAddress,
-		WSAddress:             DefaultJSONRPCWSAddress,
-		MetricsAddress:        DefaultJSONRPCMetricsAddress,
-		BaseRoute:             DefaultJSONRPCBaseRoute,
-		HTTPReadHeaderTimeout: DefaultHTTPReadHeaderTimeout,
-		HTTPReadTimeout:       DefaultHTTPReadTimeout,
-		HTTPWriteTimeout:      DefaultHTTPWriteTimeout,
-		HTTPIdleTimeout:       DefaultHTTPIdleTimeout,
-		TLSConfig:             DefaultTLSConfig(),
-	}
-}
-
-// DefaultConfig returns the default TLS configuration.
-func DefaultTLSConfig() *TLSConfig {
-	return &TLSConfig{
-		CertPath: "",
-		KeyPath:  "",
+		EnabledAPIs:   DefaultAPINamespaces,
+		BaseRoute:     DefaultBaseRoute,
+		RPCGasCap:     DefaultRPCGasCap,
+		RPCTxFeeCap:   DefaultRPCTxFeeCap,
+		RPCEVMTimeout: DefaultRPCEVMTimeout,
 	}
 }
