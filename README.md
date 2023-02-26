@@ -32,7 +32,7 @@ The easiest way to install a Cosmos-SDK Blockchain running Stargazer is to downl
 
 ### From Source
 
-**Step 1: Install Golang**
+**Step 1: Install Golang & Foundry**
 
 Go v1.20+ or higher is required for Stargazer
 
@@ -62,12 +62,22 @@ Go v1.20+ or higher is required for Stargazer
    go version
    ```
 
+[Foundry](https://book.getfoundry.sh/getting-started/installation) is required for Stargazer
+
+3. Install Foundry:
+
+   ```sh
+   curl -L https://foundry.paradigm.xyz | bash
+   ```
 
 **Step 2: Get Stargazer source code**
 
-Clone the `stargazer` repo from the [official repo](https://github.com/berachain/stargazer/) and check out the `main` branch for the latest stable release.
+Clone the `stargazer` repo from the [official repo](https://github.com/berachain/stargazer/) and check
+out the `main` branch for the latest stable release.
+Build the binary.
 
 ```bash
+cd $HOME
 git clone https://github.com/berachain/stargazer
 cd stargazer
 git checkout main
