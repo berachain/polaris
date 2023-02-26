@@ -34,14 +34,16 @@ import (
 )
 
 const (
-	mnemonic = "picnic rent average infant boat squirrel federal assault mercy purity very " +
-		"motor fossil wheel verify upset box fresh horse vivid copy predict square regret"
+	mnemonic = "absurd surge gather author blanket acquire proof struggle runway attract " +
+		"cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite " +
+		"verb tank"
 )
 
 var _ = Describe("HD", func() {
 	It("should derive the correct key", func() {
 		EthSecp256k1 := EthSecp256k1
 
+		// Derive the 0'th key from the mnemonic.
 		bz, err := EthSecp256k1.Derive()(mnemonic, keyring.DefaultBIP39Passphrase,
 			accounts.BIP44HDPath)
 		Expect(err).NotTo(HaveOccurred())
@@ -68,28 +70,15 @@ var _ = Describe("HD", func() {
 		Expect(*path).To(Equal(accounts.BIP44HDPath))
 		Expect(crypto.FromECDSA(wallet)).To(Equal(privkey.Bytes()))
 
-		// Equality of Addresses BIP44
+		// Check to verify that the address is correct.
+		// Also verified manually with metamask: https://imgur.com/a/Bz2jLaP
 		Expect(crypto.PubkeyToAddress(pk.PublicKey).String()).
-			To(Equal("0xA588C66983a81e800Db4dF74564F09f91c026351"))
+			To(Equal("0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"))
 		Expect(crypto.PubkeyToAddress(wallet.PublicKey).String()).
-			To(Equal("0xA588C66983a81e800Db4dF74564F09f91c026351"))
+			To(Equal("0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"))
 		Expect(common.BytesToAddress(privkey.PubKey().Address().Bytes()).String()).
-			To(Equal("0xA588C66983a81e800Db4dF74564F09f91c026351"))
+			To(Equal("0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"))
 		Expect(common.BytesToAddress(privkey.PubKey().Address()).String()).
 			To(Equal(crypto.PubkeyToAddress(wallet.PublicKey).String()))
 	})
 })
-
-// func HDWallet(mnemonic string) (*secp256k1.PrivKey, *string, error) {
-// 	hdPath := accounts.BIP44HDPath
-
-// 	bz, err := hd.EthSecp256k1.Derive()(mnemonic, keyring.DefaultBIP39Passphrase, hdPath)
-// 	if err != nil {
-// 		return nil, nil, err
-// 	}
-
-// 	privkey := hd.EthSecp256k1.Generate()(bz)
-// 	path := accounts.StringPath(&bz)
-
-// 	return privkey, path, nil
-// }
