@@ -157,6 +157,10 @@ func (privKey PrivKey) Type() string {
 // provided hash of the message. The produced signature is 65 bytes
 // where the last byte contains the recovery ID.
 func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
+	// TODO: remove
+	if len(digestBz) != crypto.DigestLength {
+		digestBz = crypto.Keccak256Hash(digestBz).Bytes()
+	}
 	key, err := privKey.ToECDSA()
 	if err != nil {
 		return nil, err

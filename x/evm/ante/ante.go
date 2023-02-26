@@ -18,30 +18,35 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package main
+package ante
 
 import (
-	"os"
-
-	"github.com/cosmos/cosmos-sdk/server"
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"pkg.berachain.dev/stargazer/config"
-	simapp "pkg.berachain.dev/stargazer/testutil/app"
-	"pkg.berachain.dev/stargazer/testutil/app/cmd/stargazerd/cmd"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-func main() {
-	config.SetupCosmosConfig()
-	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
-		//nolint: errorlint // uhh fix?
-		switch e := err.(type) {
-		case server.ErrorCode:
-			os.Exit(e.Code)
-
-		default:
-			os.Exit(1)
+// `SetAnteHandler` sets the required ante handler for a Stargazer Cosmos SDK Chain.
+func SetAnteHandler(
+	ak ante.AccountKeeper,
+	bk authtypes.BankKeeper,
+	fgk ante.FeegrantKeeper,
+	txCfg client.TxConfig,
+) func(bApp *baseapp.BaseApp) {
+	return func(bApp *baseapp.BaseApp) {
+		opt := ante.HandlerOptions{
+			AccountKeeper:   ak,
+			BankKeeper:      bk,
+			SignModeHandler: txCfg.SignModeHandler(),
+			FeegrantKeeper:  fgk,
+			SigGasConsumer:  SigVerificationGasConsumer,
 		}
+		ch, _ := ante.NewAnteHandler(
+			opt,
+		)
+		bApp.SetAnteHandler(
+			ch,
+		)
 	}
 }

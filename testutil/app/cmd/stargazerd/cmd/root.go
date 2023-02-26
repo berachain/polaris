@@ -53,8 +53,22 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"pkg.berachain.dev/stargazer/crypto/keyring"
 	simapp "pkg.berachain.dev/stargazer/testutil/app"
 )
+
+// encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+// initClientCtx := client.Context{}.
+// 	WithCodec(encodingConfig.Codec).
+// 	WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
+// 	WithTxConfig(encodingConfig.TxConfig).
+// 	WithLegacyAmino(encodingConfig.Amino).
+// 	WithInput(os.Stdin).
+// 	WithAccountRetriever(types.AccountRetriever{}).
+// 	WithBroadcastMode(flags.BroadcastBlock).
+// 	WithHomeDir(app.DefaultNodeHome).
+// 	WithKeyringOptions(hd.EthSecp256k1Option()).
+// 	WithViper(EnvPrefix)
 
 // NewRootCmd creates a new root command for stargazerd. It is called once in the
 // main function.
@@ -77,6 +91,7 @@ func NewRootCmd() *cobra.Command {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(simapp.DefaultNodeHome).
+		WithKeyringOptions(keyring.EthSecp256k1Option()).
 		WithViper("") // In simapp, we don't use any prefix for env variables.
 
 	rootCmd := &cobra.Command{

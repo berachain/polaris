@@ -51,6 +51,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -87,11 +88,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
+	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 var (
@@ -200,7 +204,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		mempoolOpt = baseapp.SetMempool(mempool.NewEthTxPool())
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -210,7 +213,12 @@ func NewSimApp( //nolint: funlen // from sdk.
 		//
 
 		// Further down we'd set the options in the AppBuilder like below.
-		stargazerAppOptions = append(baseAppOptions, mempoolOpt)
+		stargazerAppOptions = append(
+			baseAppOptions,
+			[]func(bApp *baseapp.BaseApp){
+				baseapp.SetMempool(mempool.NewEthTxPool()),
+			}...,
+		)
 
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
@@ -218,7 +226,10 @@ func NewSimApp( //nolint: funlen // from sdk.
 			depinject.Supply(
 				// supply the application options
 				appOpts,
-
+				// supply the gas consumptions and other
+				func(meter storetypes.GasMeter, sig signing.SignatureV2, params types.Params) error {
+					return nil
+				},
 				// ADVANCED CONFIGURATION
 
 				//
@@ -273,8 +284,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
+	cryptocodec.RegisterInterfaces(app.interfaceRegistry)
 	app.App = appBuilder.Build(logger, db, traceStore, stargazerAppOptions...)
-
+	evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
 		os.Exit(1)
