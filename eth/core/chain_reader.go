@@ -25,6 +25,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 )
 
 // `CurrentHeader` returns the current header of the blockchain.
@@ -105,3 +106,7 @@ func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Su
 // func (bc *blockchain) SubscribeBlockProcessingEvent(ch chan<- bool) event.Subscription {
 // 	return bc.scope.Track(bc.blockProcFeed.Subscribe(ch))
 // }
+
+func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
+	return bc.host.GetStatePlugin().GetStateByNumber(number)
+}

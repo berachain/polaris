@@ -27,6 +27,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
@@ -44,16 +45,17 @@ type DepInjectInput struct {
 	ModuleKey depinject.OwnModuleKey
 	Config    *modulev1.Module
 	Key       *store.KVStoreKey
+	AppOpts   servertypes.AppOptions
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
-	StakingKeeper StakingKeeper
-	AppOpts       servertypes.AppOptions
+	StakingKeeper *stakingkeeper.Keeper
 }
 
 // `DepInjectOutput` is the output for the dep inject framework.
 type DepInjectOutput struct {
 	depinject.Out
+
 	Keeper *keeper.Keeper
 	Module appmodule.AppModule
 }
@@ -68,17 +70,14 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 
 	k := keeper.NewKeeper(
 		in.Key,
-		// in.StakingKeeper,
 		in.AccountKeeper,
 		in.BankKeeper,
+		in.StakingKeeper,
 		authority.String(),
 		in.AppOpts,
 	)
 
-	m := NewAppModule(k,
-		in.AccountKeeper,
-		in.BankKeeper,
-	)
+	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)
 
 	return DepInjectOutput{Keeper: k, Module: m}
 }

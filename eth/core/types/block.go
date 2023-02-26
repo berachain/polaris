@@ -54,8 +54,8 @@ func NewStargazerBlock(header *StargazerHeader) *StargazerBlock {
 }
 
 // `TxIndex` returns the current transaction index in the block.
-func (sb *StargazerBlock) TxIndex() uint {
-	return uint(len(sb.txs))
+func (sb *StargazerBlock) TxIndex() int {
+	return len(sb.txs)
 }
 
 func (sb *StargazerBlock) LogIndex() uint {

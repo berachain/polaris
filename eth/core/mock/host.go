@@ -22,10 +22,7 @@ package mock
 
 import (
 	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/state"
 )
-
-// const testBaseFee = 69
 
 //go:generate moq -out ./host.mock.go -pkg mock ../ StargazerHostChain
 
@@ -43,7 +40,7 @@ func NewMockHost() *StargazerHostChainMock {
 		GetPrecompilePluginFunc: func() core.PrecompilePlugin {
 			panic("mock out the GetStatePlugin method")
 		},
-		GetStatePluginFunc: func() state.Plugin {
+		GetStatePluginFunc: func() core.StatePlugin {
 			panic("mock out the GetStatePlugin method")
 		},
 	}

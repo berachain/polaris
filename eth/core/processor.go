@@ -25,10 +25,12 @@ import (
 	"fmt"
 	"sync"
 
+	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/errors"
 )
 
@@ -87,7 +89,6 @@ func NewStateProcessor(
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
 	}
-	// TODO: register Geth default stateless precompile contracts.
 
 	return sp
 }
@@ -120,6 +121,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
 
 	// Setup the EVM for this block.
+	sp.BuildGethStatelessPrecompiles(chainConfig.Rules(sp.block.Number, true, sp.block.Time))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
 		sp.NewEVMBlockContext(),
@@ -140,11 +142,13 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply tx %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
-	// Create a new context to be used in the EVM environment. We also must reset the StateDB and
-	// precompile manager, which resets the state and precompile plugins, and gas plugin for the
-	// tx.
+	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
+	txHash := tx.Hash()
+	sp.statedb.SetTxContext(txHash, sp.block.TxIndex())
+
+	// We also must reset the StateDB and precompile and gas plugins.
 	sp.statedb.Reset(ctx)
 	sp.pp.Reset(ctx)
 	sp.gp.Reset(ctx)
@@ -169,9 +173,15 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used
 	// by the tx.
-	receipt := &types.Receipt{Type: tx.Type(), PostState: nil, CumulativeGasUsed: sp.gp.CumulativeGasUsed()}
-	receipt.TxHash = tx.Hash()
-	receipt.GasUsed = result.UsedGas
+	receipt := &types.Receipt{
+		Type:              tx.Type(),
+		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
+		TxHash:            txHash,
+		GasUsed:           result.UsedGas,
+		BlockHash:         sp.block.Hash(),
+		BlockNumber:       sp.block.Number,
+		TransactionIndex:  uint(sp.block.TxIndex()),
+	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
@@ -179,13 +189,10 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// Set the receipt logs and create the bloom filter.
-	receipt.Logs = sp.statedb.BuildLogsAndClear(
-		receipt.TxHash, receipt.BlockHash, sp.block.TxIndex(), sp.block.LogIndex(),
+	receipt.Logs = sp.statedb.GetLogs(
+		receipt.TxHash, sp.block.Number.Uint64(), sp.block.Hash(),
 	)
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
-	receipt.BlockHash = sp.block.Hash()
-	receipt.BlockNumber = sp.block.Number
-	receipt.TransactionIndex = sp.block.TxIndex()
 
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
@@ -224,6 +231,40 @@ func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
 		feeCollector = &sp.block.Coinbase
 	}
 	return NewEVMBlockContext(sp.block.Header, &chainContext{sp}, feeCollector)
+}
+
+// `BuildGethStatelessPrecompiles` builds the default stateless precompiles for the EVM.
+func (sp *StateProcessor) BuildGethStatelessPrecompiles(rules params.Rules) {
+	// Build a stateless factory.
+	sf := precompile.NewStatelessFactory()
+
+	// Depending on the hard fork rules, we need to register a different set of precompiles.
+	var allPrecompiles map[common.Address]vm.PrecompileContainer
+	switch {
+	case rules.IsBerlin:
+	case rules.IsIstanbul:
+		allPrecompiles = vm.PrecompiledContractsBerlin
+	case rules.IsByzantium:
+		allPrecompiles = vm.PrecompiledContractsByzantium
+	case rules.IsHomestead:
+		allPrecompiles = vm.PrecompiledContractsHomestead
+	}
+
+	// Iterate through all the precompiles and register them if they have yet
+	// to be registered.
+	for _, pc := range allPrecompiles {
+		address := pc.RegistryKey()
+		if !sp.pp.Has(address) {
+			precomp, err := sf.Build(pc)
+			if err != nil {
+				panic(err)
+			}
+			err = sp.pp.Register(precomp)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
 }
 
 // `GetHashFn` returns a `GetHashFunc` which retrieves header hashes by number.

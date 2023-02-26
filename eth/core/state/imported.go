@@ -18,4 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package state
+
+import "github.com/ethereum/go-ethereum/core/state"
+
+type (
+	Dump          = state.Dump
+	DumpCollector = state.DumpCollector
+	DumpConfig    = state.DumpConfig
+	IteratorDump  = state.IteratorDump
+	Database      = state.Database
+	Trie          = state.Trie
+	StateDBI      = state.StateDBI    //nolint:revive // vibes.
+	StateObject   = state.StateObject //nolint:revive // vibes.
+)

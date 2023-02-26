@@ -22,6 +22,7 @@ package state
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -29,7 +30,10 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
+	ethstate "pkg.berachain.dev/stargazer/eth/core/state"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/rpc"
 	"pkg.berachain.dev/stargazer/lib/snapshot"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"pkg.berachain.dev/stargazer/store/snapmulti"
@@ -51,6 +55,8 @@ var (
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.StatePlugin
+	// `SetQueryContextFn` sets the query context func for the plugin.
+	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 	// `IterateState` iterates over the state of all accounts and calls the given callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// `IterateCode` iterates over the code of all accounts and calls the given callback function.
@@ -98,9 +104,12 @@ type plugin struct {
 	ak AccountKeeper
 	bk BankKeeper
 
+	// getQueryContext allows for querying state a historical height.
+	getQueryContext func(height int64, prove bool) (sdk.Context, error)
+
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string // TODO: get from params ( we have a store so like why not )
+	evmDenom string // TODO: get from configuration plugin.
 }
 
 // `NewPlugin` returns a plugin with the given context and keepers.
@@ -171,6 +180,17 @@ func (p *plugin) Exist(addr common.Address) bool {
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
 	return p.bk.GetBalance(p.ctx, addr[:], p.evmDenom).Amount.BigInt()
+}
+
+// SetBalance implements `StatePlugin` interface.
+func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
+	currBalance := p.GetBalance(addr)
+	delta := new(big.Int).Sub(currBalance, amount)
+	if delta.Sign() < 0 {
+		p.AddBalance(addr, new(big.Int).Neg(delta))
+	} else if delta.Sign() > 0 {
+		p.SubBalance(addr, delta)
+	}
 }
 
 // AddBalance implements the `StatePlugin` interface by adding the given amount
@@ -361,6 +381,13 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 	p.cms.GetKVStore(p.storeKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
+// `SetStorage` sets the storage of an address.
+func (p *plugin) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	for key, value := range storage {
+		p.SetState(addr, key, value)
+	}
+}
+
 // `IterateState` iterates over all the contract state, and calls the given function.
 func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Hash) bool) {
 	it := storetypes.KVStorePrefixIterator(
@@ -432,6 +459,49 @@ func (p *plugin) DeleteSuicides(suicides []common.Address) {
 		// remove auth account
 		p.ak.RemoveAccount(p.ctx, acct)
 	}
+}
+
+// =============================================================================
+// Historical State
+// =============================================================================
+
+// `SetQueryContextFn` sets the query context func for the plugin.
+func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
+	p.getQueryContext = gqc
+}
+
+// `GetStateByNumber` implements `core.StatePlugin`.
+func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
+	if p.getQueryContext == nil {
+		return nil, errors.New("no query context function set in host chain")
+	}
+	// Handle rpc.BlockNumber negative numbers.
+	var iavlHeight int64
+	switch rpc.BlockNumber(number) {
+	case rpc.SafeBlockNumber:
+	case rpc.FinalizedBlockNumber:
+		iavlHeight = p.ctx.BlockHeight() - 1
+	case rpc.PendingBlockNumber:
+	case rpc.LatestBlockNumber:
+		iavlHeight = p.ctx.BlockHeight()
+	case rpc.EarliestBlockNumber:
+		// TODO: check, we might not be able to query
+		// the iavl tree at height 0.
+		iavlHeight = 0
+	default:
+		iavlHeight = number
+	}
+
+	// Get the query context at the given height.
+	ctx, err := p.getQueryContext(iavlHeight, false)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a StateDB with the requested chain height.
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
+	sp.Reset(ctx)
+	return ethstate.NewStateDB(sp), nil
 }
 
 // `getStateFromStore` returns the current state of the slot in the given address.

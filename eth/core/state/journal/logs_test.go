@@ -31,15 +31,16 @@ import (
 
 var _ = Describe("Logs", func() {
 	var l *logs
-	var h1 = common.BytesToHash([]byte{1})
-	var h2 = common.BytesToHash([]byte{2})
+	var thash = common.BytesToHash([]byte{1})
+	var ti = uint(1)
+	var bnum = uint64(2)
+	var bhash = common.BytesToHash([]byte{2})
 	var a1 = common.BytesToAddress([]byte{3})
 	var a2 = common.BytesToAddress([]byte{4})
-	var u1 = uint(5)
-	var u2 = uint(6)
 
 	BeforeEach(func() {
 		l = utils.MustGetAs[*logs](NewLogs())
+		l.SetTxContext(thash, int(ti))
 		Expect(l.Capacity()).To(Equal(32))
 	})
 
@@ -52,6 +53,8 @@ var _ = Describe("Logs", func() {
 			l.AddLog(&coretypes.Log{Address: a1})
 			Expect(l.Size()).To(Equal(1))
 			Expect(l.PeekAt(0).Address).To(Equal(a1))
+			Expect(l.PeekAt(0).TxHash).To(Equal(thash))
+			Expect(l.PeekAt(0).TxIndex).To(Equal(ti))
 		})
 
 		It("should correctly snapshot and revert", func() {
@@ -65,14 +68,17 @@ var _ = Describe("Logs", func() {
 			Expect(l.Size()).To(Equal(1))
 		})
 
-		It("should correctly build logs", func() {
-			logs := l.BuildLogsAndClear(h1, h2, u1, u2)
+		It("should correctly get logs", func() {
+			logs := l.Logs()
 			Expect(len(logs)).To(Equal(1))
-			Expect(logs[0].Address).To(Equal(a1))
-			Expect(logs[0].TxHash).To(Equal(h1))
-			Expect(logs[0].BlockHash).To(Equal(h2))
-			Expect(logs[0].TxIndex).To(Equal(u1))
-			Expect(logs[0].Index).To(Equal(u2))
+			Expect(logs[0].TxHash).To(Equal(thash))
+			Expect(logs[0].BlockHash).To(Equal(common.Hash{}))
+			Expect(logs[0].BlockNumber).To(Equal(uint64(0)))
+
+			logs = l.GetLogs(thash, bnum, bhash)
+			Expect(len(logs)).To(Equal(1))
+			Expect(logs[0].BlockHash).To(Equal(bhash))
+			Expect(logs[0].BlockNumber).To(Equal(bnum))
 		})
 
 		It("should corrctly finalize", func() {

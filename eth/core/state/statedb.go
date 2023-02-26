@@ -223,3 +223,74 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 // AddPreimage implements the the `StateDB“ interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
+
+// AddPreimage implements the the `StateDB“ interface, but currently
+// performs a no-op since the EnablePreimageRecording flag is disabled.
+func (sdb *stateDB) Preimages() map[common.Hash][]byte {
+	return nil
+}
+
+// =============================================================================
+// Other
+// =============================================================================
+
+func (sdb *stateDB) Finalise(_ bool) {
+	sdb.Finalize()
+}
+
+func (sdb *stateDB) Commit(_ bool) (common.Hash, error) {
+	sdb.Finalize()
+	return common.Hash{}, nil
+}
+
+func (sdb *stateDB) Copy() StateDBI {
+	return NewStateDB(sdb.Plugin)
+}
+
+func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {
+	return nil
+}
+
+func (sdb *stateDB) Dump(_ *DumpConfig) []byte {
+	return nil
+}
+
+func (sdb *stateDB) RawDump(_ *DumpConfig) Dump {
+	return Dump{}
+}
+
+func (sdb *stateDB) IteratorDump(_ *DumpConfig) IteratorDump {
+	return IteratorDump{}
+}
+
+func (sdb *stateDB) Database() Database {
+	return nil
+}
+
+func (sdb *stateDB) StartPrefetcher(_ string) {}
+
+func (sdb *stateDB) StopPrefetcher() {}
+
+func (sdb *stateDB) IntermediateRoot(_ bool) common.Hash {
+	return common.Hash{}
+}
+
+func (sdb *stateDB) StorageTrie(_ common.Address) (Trie, error) {
+	return nil, nil
+}
+
+func (sdb *stateDB) Error() error {
+	return nil
+}
+
+func (sdb *stateDB) GetStorageProof(_ common.Address, _ common.Hash) ([][]byte, error) {
+	return nil, nil
+}
+
+func (sdb *stateDB) GetProof(_ common.Address) ([][]byte, error) {
+	return nil, nil
+}
+
+func (sdb *stateDB) GetOrNewStateObject(_ common.Address) *StateObject {
+	return nil
+}
