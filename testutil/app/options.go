@@ -18,26 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package simapp
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	tx "github.com/cosmos/cosmos-sdk/types/tx"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+
+	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 )
 
-// `RegisterInterfaces` registers the client interfaces to protobuf Any.
-func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations(
-		(*tx.ExtensionOptionI)(nil),
-		&ExtensionOptionsEthTransaction{},
+// `StargazerAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
+func StargazerAppOptions(
+	interfaceRegistry types.InterfaceRegistry, baseAppOptions ...func(*baseapp.BaseApp),
+) []func(*baseapp.BaseApp) {
+	stargazerAppOptions := baseAppOptions
+	stargazerAppOptions = append(
+		stargazerAppOptions,
+		[]func(bApp *baseapp.BaseApp){
+			baseapp.SetMempool(mempool.NewEthTxPool()),
+			func(bApp *baseapp.BaseApp) {
+				cryptocodec.RegisterInterfaces(interfaceRegistry)
+			},
+		}...,
 	)
-	registry.RegisterImplementations(
-		(*sdk.Msg)(nil),
-		&EthTransactionRequest{},
-		&UpdateParamsRequest{},
-	)
-
-	msgservice.RegisterMsgServiceDesc(registry, &_MsgService_serviceDesc)
+	return stargazerAppOptions
 }

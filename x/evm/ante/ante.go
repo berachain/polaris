@@ -18,26 +18,35 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package ante
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	tx "github.com/cosmos/cosmos-sdk/types/tx"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-// `RegisterInterfaces` registers the client interfaces to protobuf Any.
-func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations(
-		(*tx.ExtensionOptionI)(nil),
-		&ExtensionOptionsEthTransaction{},
-	)
-	registry.RegisterImplementations(
-		(*sdk.Msg)(nil),
-		&EthTransactionRequest{},
-		&UpdateParamsRequest{},
-	)
-
-	msgservice.RegisterMsgServiceDesc(registry, &_MsgService_serviceDesc)
+// `SetAnteHandler` sets the required ante handler for a Stargazer Cosmos SDK Chain.
+func SetAnteHandler(
+	ak ante.AccountKeeper,
+	bk authtypes.BankKeeper,
+	fgk ante.FeegrantKeeper,
+	txCfg client.TxConfig,
+) func(bApp *baseapp.BaseApp) {
+	return func(bApp *baseapp.BaseApp) {
+		opt := ante.HandlerOptions{
+			AccountKeeper:   ak,
+			BankKeeper:      bk,
+			SignModeHandler: txCfg.SignModeHandler(),
+			FeegrantKeeper:  fgk,
+			SigGasConsumer:  SigVerificationGasConsumer,
+		}
+		ch, _ := ante.NewAnteHandler(
+			opt,
+		)
+		bApp.SetAnteHandler(
+			ch,
+		)
+	}
 }

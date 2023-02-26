@@ -21,7 +21,7 @@
 package client
 
 import (
-	"pkg.berachain.dev/stargazer/crypto/ethsecp256k1"
+	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
