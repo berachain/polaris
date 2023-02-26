@@ -23,11 +23,10 @@ package ethsecp256k1
 import "pkg.berachain.dev/stargazer/eth/crypto"
 
 // `Sign` signs the provided message using the ECDSA private key. It returns an error if the
-// `Sign` creates a recoverable ECDSA signature on the secp256k1 curve over the
+// `Sign` creates a recoverable ECDSA signature on the `secp256k1` curve over the
 // provided hash of the message. The produced signature is 65 bytes
 // where the last byte contains the recovery ID.
 func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
-	// TODO: remove
 	if len(digestBz) != crypto.DigestLength {
 		digestBz = crypto.Keccak256(digestBz)
 	}
@@ -47,6 +46,6 @@ func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 		sig = sig[:len(sig)-1]
 	}
 
-	// The signature needs to be in [R || S] format when provided to VerifySignature.
+	// The signature needs to be in [R || S] format when provided to `VerifySignature`.
 	return crypto.VerifySignature(pubKey.Key, crypto.Keccak256(msg), sig)
 }

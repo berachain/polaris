@@ -21,7 +21,6 @@
 package ethsecp256k1
 
 import (
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -40,7 +39,7 @@ var _ = Describe("PrivKey_PubKey", func() {
 	It("validates signing bytes", func() {
 		msg := []byte("hello world")
 		sigHash := crypto.Keccak256(msg)
-		expectedSig, err := secp256k1.Sign(sigHash, privKey.Bytes())
+		expectedSig, err := crypto.EthSecp256k1Sign(sigHash, privKey.Bytes())
 		Expect(err).To(BeNil())
 
 		sig, err := privKey.Sign(sigHash)
