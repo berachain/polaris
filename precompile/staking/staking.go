@@ -25,23 +25,20 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
+	ethutils "pkg.berachain.dev/stargazer/x/evm/utils"
 )
-
-var _ precompile.StatefulPrecompileImpl = (*Contract)(nil)
 
 // `Contract` is the precompile contract for the staking module.
 type Contract struct {
-	vm.PrecompileContainer
-
 	msgServer stakingtypes.MsgServer
 	querier   stakingtypes.QueryServer
 
@@ -49,7 +46,7 @@ type Contract struct {
 }
 
 // `NewContract` is the constructor of the staking contract.
-func NewContract(sk *stakingkeeper.Keeper) *Contract {
+func NewPrecompileContract(sk *stakingkeeper.Keeper) precompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.StakingModuleMetaData.ABI)); err != nil {
 		panic(err)
@@ -61,12 +58,17 @@ func NewContract(sk *stakingkeeper.Keeper) *Contract {
 	}
 }
 
-// `ABIMethods` implements StatefulPrecompileImpl.
+// `RegistryKey` implements StatefulImpl.
+func (c *Contract) RegistryKey() common.Address {
+	return ethutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
+}
+
+// `ABIMethods` implements StatefulImpl.
 func (c *Contract) ABIMethods() map[string]abi.Method {
 	return c.contractAbi.Methods
 }
 
-// `PrecompileMethods` implements StatefulPrecompileImpl.
+// `PrecompileMethods` implements StatefulImpl.
 func (c *Contract) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		&precompile.Method{
@@ -128,12 +130,12 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 	}
 }
 
-// `ABIEvents` implements StatefulPrecompileImpl.
+// `ABIEvents` implements StatefulImpl.
 func (c *Contract) ABIEvents() map[string]abi.Event {
 	return c.contractAbi.Events
 }
 
-// `CustomValueDecoders` implements StatefulPrecompileImpl.
+// `CustomValueDecoders` implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() precompile.ValueDecoders {
 	return nil
 }

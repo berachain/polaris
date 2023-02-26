@@ -18,4 +18,42 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package ethsecp256k1
+
+import (
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"pkg.berachain.dev/stargazer/eth/crypto"
+)
+
+var _ = Describe("PrivKey_PubKey", func() {
+	var privKey *PrivKey
+
+	BeforeEach(func() {
+		var err error
+		privKey, err = GenPrivKey()
+		Expect(err).To(BeNil())
+	})
+
+	It("validates signing bytes", func() {
+		msg := []byte("hello world")
+		sigHash := crypto.Keccak256(msg)
+		expectedSig, err := crypto.EthSecp256k1Sign(sigHash, privKey.Bytes())
+		Expect(err).To(BeNil())
+
+		sig, err := privKey.Sign(sigHash)
+		Expect(err).To(BeNil())
+		Expect(expectedSig).To(Equal(sig))
+	})
+
+	It("validates signature", func() {
+		msg := []byte("hello world")
+		sigHash := crypto.Keccak256(msg)
+		sig, err := privKey.Sign(sigHash)
+		Expect(err).To(BeNil())
+
+		res := privKey.PubKey().VerifySignature(msg, sig)
+		Expect(res).To(BeTrue())
+	})
+})

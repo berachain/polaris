@@ -84,7 +84,7 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			return common.Hash{}
 		},
-		BuildLogsAndClearFunc: func(common.Hash, common.Hash, uint, uint) []*types.Log {
+		GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
 			return []*types.Log{}
 		},
 		GetNonceFunc: func(address common.Address) uint64 {
@@ -112,6 +112,7 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash) {
 
 		},
+		SetTxContextFunc: func(thash common.Hash, ti int) {},
 		SlotInAccessListFunc: func(addr common.Address, slot common.Hash) (bool, bool) {
 			return false, false
 		},

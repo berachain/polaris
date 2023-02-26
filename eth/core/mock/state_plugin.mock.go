@@ -6,6 +6,7 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/state"
 	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"sync"
@@ -60,6 +61,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
+//			GetStateByNumberFunc: func(n int64) (state.StateDBI, error) {
+//				panic("mock out the GetStateByNumber method")
+//			},
 //			RegistryKeyFunc: func() string {
 //				panic("mock out the RegistryKey method")
 //			},
@@ -69,6 +73,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
 //			},
+//			SetBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
+//				panic("mock out the SetBalance method")
+//			},
 //			SetCodeFunc: func(address common.Address, bytes []byte)  {
 //				panic("mock out the SetCode method")
 //			},
@@ -77,6 +84,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			},
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
+//			},
+//			SetStorageFunc: func(addr common.Address, storage map[common.Hash]common.Hash)  {
+//				panic("mock out the SetStorage method")
 //			},
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
@@ -133,6 +143,9 @@ type StatePluginMock struct {
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
+	// GetStateByNumberFunc mocks the GetStateByNumber method.
+	GetStateByNumberFunc func(n int64) (state.StateDBI, error)
+
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() string
 
@@ -142,6 +155,9 @@ type StatePluginMock struct {
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
 
+	// SetBalanceFunc mocks the SetBalance method.
+	SetBalanceFunc func(address common.Address, intMoqParam *big.Int)
+
 	// SetCodeFunc mocks the SetCode method.
 	SetCodeFunc func(address common.Address, bytes []byte)
 
@@ -150,6 +166,9 @@ type StatePluginMock struct {
 
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
+
+	// SetStorageFunc mocks the SetStorage method.
+	SetStorageFunc func(addr common.Address, storage map[common.Hash]common.Hash)
 
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
@@ -233,6 +252,11 @@ type StatePluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
+		// GetStateByNumber holds details about calls to the GetStateByNumber method.
+		GetStateByNumber []struct {
+			// N is the n argument value.
+			N int64
+		}
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
@@ -245,6 +269,13 @@ type StatePluginMock struct {
 		RevertToSnapshot []struct {
 			// N is the n argument value.
 			N int
+		}
+		// SetBalance holds details about calls to the SetBalance method.
+		SetBalance []struct {
+			// Address is the address argument value.
+			Address common.Address
+			// IntMoqParam is the intMoqParam argument value.
+			IntMoqParam *big.Int
 		}
 		// SetCode holds details about calls to the SetCode method.
 		SetCode []struct {
@@ -268,6 +299,13 @@ type StatePluginMock struct {
 			Hash1 common.Hash
 			// Hash2 is the hash2 argument value.
 			Hash2 common.Hash
+		}
+		// SetStorage holds details about calls to the SetStorage method.
+		SetStorage []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Storage is the storage argument value.
+			Storage map[common.Hash]common.Hash
 		}
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
@@ -302,12 +340,15 @@ type StatePluginMock struct {
 	lockGetCommittedState sync.RWMutex
 	lockGetNonce          sync.RWMutex
 	lockGetState          sync.RWMutex
+	lockGetStateByNumber  sync.RWMutex
 	lockRegistryKey       sync.RWMutex
 	lockReset             sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
+	lockSetBalance        sync.RWMutex
 	lockSetCode           sync.RWMutex
 	lockSetNonce          sync.RWMutex
 	lockSetState          sync.RWMutex
+	lockSetStorage        sync.RWMutex
 	lockSnapshot          sync.RWMutex
 	lockSubBalance        sync.RWMutex
 	lockTransferBalance   sync.RWMutex
@@ -740,6 +781,38 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 	return calls
 }
 
+// GetStateByNumber calls GetStateByNumberFunc.
+func (mock *StatePluginMock) GetStateByNumber(n int64) (state.StateDBI, error) {
+	if mock.GetStateByNumberFunc == nil {
+		panic("StatePluginMock.GetStateByNumberFunc: method is nil but StatePlugin.GetStateByNumber was just called")
+	}
+	callInfo := struct {
+		N int64
+	}{
+		N: n,
+	}
+	mock.lockGetStateByNumber.Lock()
+	mock.calls.GetStateByNumber = append(mock.calls.GetStateByNumber, callInfo)
+	mock.lockGetStateByNumber.Unlock()
+	return mock.GetStateByNumberFunc(n)
+}
+
+// GetStateByNumberCalls gets all the calls that were made to GetStateByNumber.
+// Check the length with:
+//
+//	len(mockedStatePlugin.GetStateByNumberCalls())
+func (mock *StatePluginMock) GetStateByNumberCalls() []struct {
+	N int64
+} {
+	var calls []struct {
+		N int64
+	}
+	mock.lockGetStateByNumber.RLock()
+	calls = mock.calls.GetStateByNumber
+	mock.lockGetStateByNumber.RUnlock()
+	return calls
+}
+
 // RegistryKey calls RegistryKeyFunc.
 func (mock *StatePluginMock) RegistryKey() string {
 	if mock.RegistryKeyFunc == nil {
@@ -828,6 +901,42 @@ func (mock *StatePluginMock) RevertToSnapshotCalls() []struct {
 	mock.lockRevertToSnapshot.RLock()
 	calls = mock.calls.RevertToSnapshot
 	mock.lockRevertToSnapshot.RUnlock()
+	return calls
+}
+
+// SetBalance calls SetBalanceFunc.
+func (mock *StatePluginMock) SetBalance(address common.Address, intMoqParam *big.Int) {
+	if mock.SetBalanceFunc == nil {
+		panic("StatePluginMock.SetBalanceFunc: method is nil but StatePlugin.SetBalance was just called")
+	}
+	callInfo := struct {
+		Address     common.Address
+		IntMoqParam *big.Int
+	}{
+		Address:     address,
+		IntMoqParam: intMoqParam,
+	}
+	mock.lockSetBalance.Lock()
+	mock.calls.SetBalance = append(mock.calls.SetBalance, callInfo)
+	mock.lockSetBalance.Unlock()
+	mock.SetBalanceFunc(address, intMoqParam)
+}
+
+// SetBalanceCalls gets all the calls that were made to SetBalance.
+// Check the length with:
+//
+//	len(mockedStatePlugin.SetBalanceCalls())
+func (mock *StatePluginMock) SetBalanceCalls() []struct {
+	Address     common.Address
+	IntMoqParam *big.Int
+} {
+	var calls []struct {
+		Address     common.Address
+		IntMoqParam *big.Int
+	}
+	mock.lockSetBalance.RLock()
+	calls = mock.calls.SetBalance
+	mock.lockSetBalance.RUnlock()
 	return calls
 }
 
@@ -940,6 +1049,42 @@ func (mock *StatePluginMock) SetStateCalls() []struct {
 	mock.lockSetState.RLock()
 	calls = mock.calls.SetState
 	mock.lockSetState.RUnlock()
+	return calls
+}
+
+// SetStorage calls SetStorageFunc.
+func (mock *StatePluginMock) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	if mock.SetStorageFunc == nil {
+		panic("StatePluginMock.SetStorageFunc: method is nil but StatePlugin.SetStorage was just called")
+	}
+	callInfo := struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}{
+		Addr:    addr,
+		Storage: storage,
+	}
+	mock.lockSetStorage.Lock()
+	mock.calls.SetStorage = append(mock.calls.SetStorage, callInfo)
+	mock.lockSetStorage.Unlock()
+	mock.SetStorageFunc(addr, storage)
+}
+
+// SetStorageCalls gets all the calls that were made to SetStorage.
+// Check the length with:
+//
+//	len(mockedStatePlugin.SetStorageCalls())
+func (mock *StatePluginMock) SetStorageCalls() []struct {
+	Addr    common.Address
+	Storage map[common.Hash]common.Hash
+} {
+	var calls []struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}
+	mock.lockSetStorage.RLock()
+	calls = mock.calls.SetStorage
+	mock.lockSetStorage.RUnlock()
 	return calls
 }
 

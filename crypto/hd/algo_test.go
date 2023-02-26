@@ -50,7 +50,7 @@ var _ = Describe("HD", func() {
 		Expect(bz).NotTo(BeEmpty())
 
 		badBz, err := EthSecp256k1.Derive()(mnemonic, keyring.DefaultBIP39Passphrase,
-			"44'/60'/0'/0/0")
+			"44'/118'/0'/0/0")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(badBz).NotTo(BeEmpty())
 

@@ -33,6 +33,10 @@ import (
 type logs struct {
 	// Reset every tx.
 	ds.Stack[*coretypes.Log] // journal of tx logs
+
+	txHash  common.Hash
+	txIndex int
+	logSize uint
 }
 
 // `NewLogs` returns a new `logs` journal.
@@ -49,26 +53,43 @@ func (l *logs) RegistryKey() string {
 	return logsRegistryKey
 }
 
+// `SetTxContext` sets the transaction hash and index for the current transaction.
+func (l *logs) SetTxContext(thash common.Hash, ti int) {
+	l.txHash = thash
+	l.txIndex = ti
+}
+
+func (l *logs) TxIndex() int {
+	return l.txIndex
+}
+
 // `AddLog` adds a log to the `Logs` store.
 func (l *logs) AddLog(log *coretypes.Log) {
+	log.TxHash = l.txHash
+	log.TxIndex = uint(l.txIndex)
+	log.Index = l.logSize
+	l.logSize++
 	l.Push(log)
 }
 
-// `BuildLogsAndClear` returns the logs for the tx with the given metadata.
-func (l *logs) BuildLogsAndClear(
-	txHash common.Hash,
-	blockHash common.Hash,
-	txIndex uint,
-	logIndex uint,
-) []*coretypes.Log {
+// `Logs` returns the logs for the current tx with the existing metadata.
+func (l *logs) Logs() []*coretypes.Log {
+	size := l.Size()
+	buf := make([]*coretypes.Log, size)
+	for i := 0; i < size; i++ {
+		buf[i] = l.PeekAt(i)
+	}
+	return buf
+}
+
+// `GetLogs` returns the logs for the tx with the given metadata.
+func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
 	for i := uint(size) - 1; i < math.MaxUint; i-- {
 		buf[i] = l.Pop()
-		buf[i].TxHash = txHash
 		buf[i].BlockHash = blockHash
-		buf[i].TxIndex = txIndex
-		buf[i].Index = logIndex + i
+		buf[i].BlockNumber = blockNumber
 	}
 	return buf
 }
@@ -89,5 +110,5 @@ func (l *logs) RevertToSnapshot(id int) {
 
 // `Finalize` implements `libtypes.Controllable`.
 func (l *logs) Finalize() {
-	l.Stack = stack.New[*coretypes.Log](initCapacity)
+	*l = *NewLogs()
 }
