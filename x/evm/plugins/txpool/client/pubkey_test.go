@@ -81,8 +81,7 @@ var _ = Describe("signer.PubKey", func() {
 			Expect(signer.PubKey(signedTx)).To(Equal(ethcrypto.FromECDSAPub(&key.PublicKey)))
 			bz, err := signer.PubKey(signedTx)
 			Expect(err).To(BeNil())
-			pk, err := ethsecp256k1.NewPubKeyFromBytes(bz)
-			Expect(err).To(BeNil())
+			pk := &ethsecp256k1.PubKey{Key: bz}
 			Expect(pk.Address()).To(Equal(ethcrypto.PubkeyToAddress(key.PublicKey)))
 			pk2, err := PubkeyFromTx(signedTx, signer)
 			Expect(err).To(BeNil())

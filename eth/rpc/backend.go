@@ -31,7 +31,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core/bloombits"
-	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
@@ -57,9 +56,6 @@ var DefaultGasPriceOracleConfig = gasprice.Config{
 	Default:          big.NewInt(1000000000),
 	MaxPrice:         big.NewInt(1000000000000000000),
 }
-
-// Compile-time type assertion.
-var _ StargazerBackend = (*backend)(nil)
 
 type StargazerBackend interface {
 	Backend
@@ -246,16 +242,29 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 	return block.EthBlock(), nil
 }
 
-func (b *backend) StateAndHeaderByNumber(ctx context.Context,
-	number BlockNumber) (*state.StateDB, *types.Header, error) {
-	panic("StateAndHeaderByNumber not implemented")
-	// return nil, nil, nil
+func (b *backend) StateAndHeaderByNumber(
+	ctx context.Context, number BlockNumber,
+) (vm.GethStateDB, *types.Header, error) {
+	state, err := b.chain.GetStateByNumber(number.Int64())
+	if err != nil {
+		return nil, nil, err
+	}
+	header, err := b.HeaderByNumber(ctx, number)
+	return state, header, err
 }
 
-func (b *backend) StateAndHeaderByNumberOrHash(ctx context.Context,
-	blockNrOrHash BlockNumberOrHash) (*state.StateDB, *types.Header, error) {
-	panic("StateAndHeaderByNumberOrHash not implemented")
-	// return nil, nil, nil
+func (b *backend) StateAndHeaderByNumberOrHash(
+	ctx context.Context, blockNrOrHash BlockNumberOrHash,
+) (vm.GethStateDB, *types.Header, error) {
+	var number BlockNumber
+	if hash, ok := blockNrOrHash.Hash(); ok {
+		number = BlockNumber(b.chain.GetStargazerBlockByHash(hash).Number.Int64())
+	} else if number, ok = blockNrOrHash.Number(); ok {
+		// nothing to do
+	} else {
+		return nil, nil, errors.New("invalid arguments; neither block nor hash specified")
+	}
+	return b.StateAndHeaderByNumber(ctx, number)
 }
 
 // `PendingBlockAndReceipts` returns the current pending block and associated receipts.
@@ -279,7 +288,7 @@ func (b *backend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
 	return new(big.Int)
 }
 
-func (b *backend) GetEVM(ctx context.Context, msg core.Message, state *state.StateDB,
+func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) (*vm.GethEVM, func() error, error) {
 	// if vmConfig == nil {
@@ -481,8 +490,7 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 
 // `stargazerBlockByNumber` returns the stargazer block identified by `number.
 func (b *backend) stargazerBlockByNumber(number BlockNumber) *types.StargazerBlock {
-	//nolint:exhaustive // finish later.
-	switch number {
+	switch number { //nolint:exhaustive // not all cases are needed.
 	// Pending and latest are the same in stargazer.
 	case PendingBlockNumber:
 	case LatestBlockNumber:

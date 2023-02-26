@@ -49,10 +49,6 @@ type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
-// `StakingKeeper` is the interface that the EVM module needs from the staking module.
 type StakingKeeper interface {
-	// `GetValidatorByConsAddr` returns the validator for a given consensus address.
-	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (stakingtypes.Validator, bool)
-	// `GetHistoricalInfo` returns the historical info for a given height.
-	GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool)
+	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool)
 }

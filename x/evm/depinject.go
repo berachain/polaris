@@ -57,6 +57,7 @@ type DepInjectInput struct {
 // `DepInjectOutput` is the output for the dep inject framework.
 type DepInjectOutput struct {
 	depinject.Out
+
 	Keeper *keeper.Keeper
 	Module appmodule.AppModule
 }
@@ -70,18 +71,15 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	}
 	k := keeper.NewKeeper(
 		in.Key,
-		// in.StakingKeeper,
 		in.AccountKeeper,
 		in.BankKeeper,
+		in.StakingKeeper,
 		authority.String(),
 		in.AppOpts,
 		in.Mempool,
 	)
 
-	m := NewAppModule(k,
-		in.AccountKeeper,
-		in.BankKeeper,
-	)
+	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)
 
 	return DepInjectOutput{Keeper: k, Module: m}
 }

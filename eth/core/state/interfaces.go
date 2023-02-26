@@ -44,6 +44,8 @@ type Plugin interface {
 
 	// `GetBalance` returns the balance of the given account.
 	GetBalance(common.Address) *big.Int
+	// `SetBalance` sets the balance of the given account.
+	SetBalance(common.Address, *big.Int)
 	// `AddBalance` adds amount to the given account.
 	SubBalance(common.Address, *big.Int)
 	// `SubBalance` subtracts amount from the given account.
@@ -70,6 +72,8 @@ type Plugin interface {
 	GetState(common.Address, common.Hash) common.Hash
 	// `SetState` sets the value for a given key in account storage.
 	SetState(common.Address, common.Hash, common.Hash)
+	// `SetStorage` sets the storage of the given account.
+	SetStorage(addr common.Address, storage map[common.Hash]common.Hash)
 	// `ForEachStorage` iterates over the storage of an account and calls the given callback
 	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
@@ -82,10 +86,16 @@ type (
 	LogsJournal interface {
 		// `LogsJournal` implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
-		// `AddLog` adds a log to the state
+		// `SetTxContext` sets the transaction hash and index for the current transaction.
+		SetTxContext(thash common.Hash, ti int)
+		// `TxIndex` returns the current transaction index.
+		TxIndex() int
+		// `AddLog` adds a log to the logs journal.
 		AddLog(*coretypes.Log)
-		// `BuildLogsAndClear` returns the logs of the tx with the given metadata
-		BuildLogsAndClear(common.Hash, common.Hash, uint, uint) []*coretypes.Log
+		// `Logs` returns the logs of the tx with the exisiting metadata.
+		Logs() []*coretypes.Log
+		// `GetLogs` returns the logs of the tx with the given metadata.
+		GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log
 	}
 
 	// `RefundJournal` is a `Store` that tracks the refund counter.

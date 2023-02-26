@@ -30,12 +30,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingkeepertypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/stargazer/testutil"
 )
@@ -52,8 +53,8 @@ func createValAddrs(count int) ([]sdk.AccAddress, []sdk.ValAddress) {
 	return addrs, valAddrs
 }
 
-func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingkeepertypes.Validator, error) {
-	return stakingkeepertypes.NewValidator(operator, pubKey, stakingkeepertypes.Description{})
+func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingtypes.Validator, error) {
+	return stakingtypes.NewValidator(operator, pubKey, stakingtypes.Description{})
 }
 
 var (
@@ -72,7 +73,7 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
-		contract = NewContract(&sk)
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&sk))
 	})
 
 	When("AbiMethods", func() {
@@ -111,7 +112,7 @@ var _ = Describe("Staking", func() {
 		var (
 			del       sdk.AccAddress
 			val       sdk.ValAddress
-			validator stakingkeepertypes.Validator
+			validator stakingtypes.Validator
 			otherVal  sdk.ValAddress
 			caller    common.Address
 		)
@@ -133,7 +134,7 @@ var _ = Describe("Staking", func() {
 			validator = stakingkeeper.TestingUpdateValidator(&sk, ctx, validator, true)
 			stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
 
-			delegation := stakingkeepertypes.NewDelegation(del, val, math.LegacyNewDec(9))
+			delegation := stakingtypes.NewDelegation(del, val, math.LegacyNewDec(9))
 			sk.SetDelegation(ctx, delegation)
 
 			// Check that the delegation was created.
@@ -142,7 +143,7 @@ var _ = Describe("Staking", func() {
 			Expect(res).To(Equal(delegation))
 
 			// Set the denom.
-			defaultParams := stakingkeepertypes.DefaultParams()
+			defaultParams := stakingtypes.DefaultParams()
 			defaultParams.BondDenom = "stake"
 			err = sk.SetParams(ctx, defaultParams)
 			Expect(err).ToNot(HaveOccurred())
@@ -1014,8 +1015,8 @@ var _ = Describe("Staking", func() {
 })
 
 func FundAccount(ctx sdk.Context, bk bankkeeper.BaseKeeper, account sdk.AccAddress, coins sdk.Coins) error {
-	if err := bk.MintCoins(ctx, stakingkeepertypes.ModuleName, coins); err != nil {
+	if err := bk.MintCoins(ctx, stakingtypes.ModuleName, coins); err != nil {
 		return err
 	}
-	return bk.SendCoinsFromModuleToAccount(ctx, stakingkeepertypes.ModuleName, account, coins)
+	return bk.SendCoinsFromModuleToAccount(ctx, stakingtypes.ModuleName, account, coins)
 }

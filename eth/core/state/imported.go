@@ -18,29 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto
+package state
 
-import (
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
-)
+import "github.com/ethereum/go-ethereum/core/state"
 
-var (
-	CreateAddress           = crypto.CreateAddress
-	CompressPubkey          = crypto.CompressPubkey
-	DecompressPubkey        = crypto.DecompressPubkey
-	DigestLength            = crypto.DigestLength
-	EthSign                 = crypto.Sign
-	EthSecp256k1Sign        = secp256k1.Sign
-	Ecrecover               = crypto.Ecrecover
-	FromECDSA               = crypto.FromECDSA
-	GenerateEthKey          = crypto.GenerateKey
-	ValidateSignatureValues = crypto.ValidateSignatureValues
-	Keccak256               = crypto.Keccak256
-	Keccak256Hash           = crypto.Keccak256Hash
-	PubkeyToAddress         = crypto.PubkeyToAddress
-	SignatureLength         = crypto.SignatureLength
-	ToECDSA                 = crypto.ToECDSA
-	VerifySignature         = crypto.VerifySignature
-	FromECDSAPub            = crypto.FromECDSAPub
+type (
+	Dump          = state.Dump
+	DumpCollector = state.DumpCollector
+	DumpConfig    = state.DumpConfig
+	IteratorDump  = state.IteratorDump
+	Database      = state.Database
+	Trie          = state.Trie
+	StateDBI      = state.StateDBI    //nolint:revive // vibes.
+	StateObject   = state.StateObject //nolint:revive // vibes.
 )

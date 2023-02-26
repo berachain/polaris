@@ -69,6 +69,9 @@ var _ state.Plugin = &PluginMock{}
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
 //			},
+//			SetBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
+//				panic("mock out the SetBalance method")
+//			},
 //			SetCodeFunc: func(address common.Address, bytes []byte)  {
 //				panic("mock out the SetCode method")
 //			},
@@ -77,6 +80,9 @@ var _ state.Plugin = &PluginMock{}
 //			},
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
+//			},
+//			SetStorageFunc: func(addr common.Address, storage map[common.Hash]common.Hash)  {
+//				panic("mock out the SetStorage method")
 //			},
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
@@ -142,6 +148,9 @@ type PluginMock struct {
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
 
+	// SetBalanceFunc mocks the SetBalance method.
+	SetBalanceFunc func(address common.Address, intMoqParam *big.Int)
+
 	// SetCodeFunc mocks the SetCode method.
 	SetCodeFunc func(address common.Address, bytes []byte)
 
@@ -150,6 +159,9 @@ type PluginMock struct {
 
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
+
+	// SetStorageFunc mocks the SetStorage method.
+	SetStorageFunc func(addr common.Address, storage map[common.Hash]common.Hash)
 
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
@@ -246,6 +258,13 @@ type PluginMock struct {
 			// N is the n argument value.
 			N int
 		}
+		// SetBalance holds details about calls to the SetBalance method.
+		SetBalance []struct {
+			// Address is the address argument value.
+			Address common.Address
+			// IntMoqParam is the intMoqParam argument value.
+			IntMoqParam *big.Int
+		}
 		// SetCode holds details about calls to the SetCode method.
 		SetCode []struct {
 			// Address is the address argument value.
@@ -268,6 +287,13 @@ type PluginMock struct {
 			Hash1 common.Hash
 			// Hash2 is the hash2 argument value.
 			Hash2 common.Hash
+		}
+		// SetStorage holds details about calls to the SetStorage method.
+		SetStorage []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Storage is the storage argument value.
+			Storage map[common.Hash]common.Hash
 		}
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
@@ -305,9 +331,11 @@ type PluginMock struct {
 	lockRegistryKey       sync.RWMutex
 	lockReset             sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
+	lockSetBalance        sync.RWMutex
 	lockSetCode           sync.RWMutex
 	lockSetNonce          sync.RWMutex
 	lockSetState          sync.RWMutex
+	lockSetStorage        sync.RWMutex
 	lockSnapshot          sync.RWMutex
 	lockSubBalance        sync.RWMutex
 	lockTransferBalance   sync.RWMutex
@@ -831,6 +859,42 @@ func (mock *PluginMock) RevertToSnapshotCalls() []struct {
 	return calls
 }
 
+// SetBalance calls SetBalanceFunc.
+func (mock *PluginMock) SetBalance(address common.Address, intMoqParam *big.Int) {
+	if mock.SetBalanceFunc == nil {
+		panic("PluginMock.SetBalanceFunc: method is nil but Plugin.SetBalance was just called")
+	}
+	callInfo := struct {
+		Address     common.Address
+		IntMoqParam *big.Int
+	}{
+		Address:     address,
+		IntMoqParam: intMoqParam,
+	}
+	mock.lockSetBalance.Lock()
+	mock.calls.SetBalance = append(mock.calls.SetBalance, callInfo)
+	mock.lockSetBalance.Unlock()
+	mock.SetBalanceFunc(address, intMoqParam)
+}
+
+// SetBalanceCalls gets all the calls that were made to SetBalance.
+// Check the length with:
+//
+//	len(mockedPlugin.SetBalanceCalls())
+func (mock *PluginMock) SetBalanceCalls() []struct {
+	Address     common.Address
+	IntMoqParam *big.Int
+} {
+	var calls []struct {
+		Address     common.Address
+		IntMoqParam *big.Int
+	}
+	mock.lockSetBalance.RLock()
+	calls = mock.calls.SetBalance
+	mock.lockSetBalance.RUnlock()
+	return calls
+}
+
 // SetCode calls SetCodeFunc.
 func (mock *PluginMock) SetCode(address common.Address, bytes []byte) {
 	if mock.SetCodeFunc == nil {
@@ -940,6 +1004,42 @@ func (mock *PluginMock) SetStateCalls() []struct {
 	mock.lockSetState.RLock()
 	calls = mock.calls.SetState
 	mock.lockSetState.RUnlock()
+	return calls
+}
+
+// SetStorage calls SetStorageFunc.
+func (mock *PluginMock) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	if mock.SetStorageFunc == nil {
+		panic("PluginMock.SetStorageFunc: method is nil but Plugin.SetStorage was just called")
+	}
+	callInfo := struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}{
+		Addr:    addr,
+		Storage: storage,
+	}
+	mock.lockSetStorage.Lock()
+	mock.calls.SetStorage = append(mock.calls.SetStorage, callInfo)
+	mock.lockSetStorage.Unlock()
+	mock.SetStorageFunc(addr, storage)
+}
+
+// SetStorageCalls gets all the calls that were made to SetStorage.
+// Check the length with:
+//
+//	len(mockedPlugin.SetStorageCalls())
+func (mock *PluginMock) SetStorageCalls() []struct {
+	Addr    common.Address
+	Storage map[common.Hash]common.Hash
+} {
+	var calls []struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}
+	mock.lockSetStorage.RLock()
+	calls = mock.calls.SetStorage
+	mock.lockSetStorage.RUnlock()
 	return calls
 }
 
