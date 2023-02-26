@@ -21,21 +21,14 @@
 package ethsecp256k1
 
 import (
-	"testing"
-
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
-func TestEthSecp256K1(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto/keys/ethsecp256k1")
-}
-
-var _ = Describe("PubPrivKey", func() {
+var _ = Describe("PrivKey_PubKey", func() {
 	var privKey *PrivKey
 
 	BeforeEach(func() {
@@ -44,36 +37,24 @@ var _ = Describe("PubPrivKey", func() {
 		Expect(err).To(BeNil())
 	})
 
-	It("validates type and equality", func() {
-		Expect(privKey).To(BeAssignableToTypeOf((cryptotypes.PrivKey)(&PrivKey{})))
-	})
-
-	It("validates inequality", func() {
-		privKey2, err := GenPrivKey()
+	It("validates signing bytes", func() {
+		msg := []byte("hello world")
+		sigHash := crypto.Keccak256(msg)
+		expectedSig, err := secp256k1.Sign(sigHash, privKey.Bytes())
 		Expect(err).To(BeNil())
-		Expect(privKey.Equals(privKey2)).To(BeFalse())
-	})
 
-	It("validates Ethereum address equality", func() {
-		addr := privKey.PubKey().Address()
-		key, err := privKey.ToECDSA()
+		sig, err := privKey.Sign(sigHash)
 		Expect(err).To(BeNil())
-		expectedAddr := crypto.PubkeyToAddress(key.PublicKey)
-		Expect(expectedAddr.Bytes()).To(Equal(addr.Bytes()))
+		Expect(expectedSig).To(Equal(sig))
 	})
 
-	It("validates type", func() {
-		pubKey := &PubKey{
-			Key: privKey.PubKey().Bytes(),
-		}
-		Expect(pubKey).To(BeAssignableToTypeOf((cryptotypes.PubKey)(&PubKey{})))
-	})
-
-	It("validates equality", func() {
-		privKey2, err := GenPrivKey()
+	It("validates signature", func() {
+		msg := []byte("hello world")
+		sigHash := crypto.Keccak256(msg)
+		sig, err := privKey.Sign(sigHash)
 		Expect(err).To(BeNil())
-		Expect(privKey).ToNot(Equal(privKey2))
-		Expect(privKey.PubKey()).ToNot(Equal(privKey2.PubKey()))
-	})
 
+		res := privKey.PubKey().VerifySignature(msg, sig)
+		Expect(res).To(BeTrue())
+	})
 })

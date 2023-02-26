@@ -32,6 +32,7 @@ var (
 	FromECDSA               = crypto.FromECDSA
 	GenerateEthKey          = crypto.GenerateKey
 	ValidateSignatureValues = crypto.ValidateSignatureValues
+	Keccak256               = crypto.Keccak256
 	Keccak256Hash           = crypto.Keccak256Hash
 	PubkeyToAddress         = crypto.PubkeyToAddress
 	SignatureLength         = crypto.SignatureLength
