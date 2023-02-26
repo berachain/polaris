@@ -25,7 +25,6 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -48,7 +47,6 @@ type DepInjectInput struct {
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
 
-	Mempool       sdkmempool.Mempool
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
 	StakingKeeper *stakingkeeper.Keeper
