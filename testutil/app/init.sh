@@ -109,7 +109,9 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	for KEY in "${KEYS[@]}"; do
 		./bin/stargazerd genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
-
+	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
+	./bin/stargazerd genesis add-genesis-account stargazer1yrene6g2zwjttemf0c65fscg8w8c55w5c2x2xh 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	
 	# Sign genesis transaction
 	./bin/stargazerd genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
