@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:mnd,govet,gomnd,lll // from sdk.
+//nolint:govet,gomnd,lll // from sdk.
 package cmd
 
 import (
