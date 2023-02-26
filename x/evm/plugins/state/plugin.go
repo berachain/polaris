@@ -477,7 +477,7 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	}
 	// Handle rpc.BlockNumber negative numbers.
 	var iavlHeight int64
-	switch rpc.BlockNumber(number) {
+	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // golangci-lint bug?
 	case rpc.SafeBlockNumber:
 	case rpc.FinalizedBlockNumber:
 		iavlHeight = p.ctx.BlockHeight() - 1
