@@ -20,7 +20,10 @@
 
 package crypto
 
-import "github.com/ethereum/go-ethereum/crypto"
+import (
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+)
 
 var (
 	CreateAddress           = crypto.CreateAddress
@@ -28,10 +31,12 @@ var (
 	DecompressPubkey        = crypto.DecompressPubkey
 	DigestLength            = crypto.DigestLength
 	EthSign                 = crypto.Sign
+	EthSecp256k1Sign        = secp256k1.Sign
 	Ecrecover               = crypto.Ecrecover
 	FromECDSA               = crypto.FromECDSA
 	GenerateEthKey          = crypto.GenerateKey
 	ValidateSignatureValues = crypto.ValidateSignatureValues
+	Keccak256               = crypto.Keccak256
 	Keccak256Hash           = crypto.Keccak256Hash
 	PubkeyToAddress         = crypto.PubkeyToAddress
 	SignatureLength         = crypto.SignatureLength

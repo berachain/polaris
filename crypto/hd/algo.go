@@ -21,16 +21,13 @@
 package hd
 
 import (
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	bip39 "github.com/cosmos/go-bip39"
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/crypto"
 
 	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
+	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
 const (
@@ -39,60 +36,52 @@ const (
 )
 
 var (
+	// Compile-time type assertion.
 	_ keyring.SignatureAlgo = EthSecp256k1
-
 	// EthSecp256k1 uses the Bitcoin secp256k1 ECDSA parameters.
 	EthSecp256k1 = ethSecp256k1Algo{}
 )
 
+// `ethSecp256k1Algo` implements the `keyring.SignatureAlgo` interface for the eth_secp256k1 algorithm.
 type ethSecp256k1Algo struct{}
 
-// Name returns eth_secp256k1.
+// `Name` returns eth_secp256k1.
 func (s ethSecp256k1Algo) Name() hd.PubKeyType {
 	return EthSecp256k1Type
 }
 
-// Derive derives and returns the eth_secp256k1 private key for the given mnemonic and HD path.
+// `Derive` derives and returns the eth_secp256k1 private key for the given mnemonic and HD path.
 func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
-	return func(mnemonic, bip39Passphrase, path string) ([]byte, error) {
-		hdpath, err := accounts.ParseDerivationPath(path)
-		if err != nil {
-			return nil, err
-		}
-
+	return func(mnemonic, bip39Passphrase, hdPath string) ([]byte, error) {
 		seed, err := bip39.NewSeedWithErrorChecking(mnemonic, bip39Passphrase)
 		if err != nil {
 			return nil, err
 		}
 
-		// create a BTC-utils hd-derivation key chain
-		masterKey, err := hdkeychain.NewMaster(seed, &chaincfg.MainNetParams)
+		masterPriv, ch := hd.ComputeMastersFromSeed(seed)
+		if len(hdPath) == 0 {
+			return masterPriv[:], nil
+		}
+
+		derivedKey, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hdPath)
 		if err != nil {
 			return nil, err
 		}
 
-		key := masterKey
-		for _, n := range hdpath {
-			key, err = key.Derive(n)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		// btc-utils representation of a secp256k1 private key
-		privateKey, err := key.ECPrivKey()
+		x, err := ethsecp256k1.PrivKey{Key: derivedKey}.ToECDSA()
 		if err != nil {
 			return nil, err
 		}
 
-		return crypto.FromECDSA(privateKey.ToECDSA()), nil
+		// Return the private key as a byte slice.
+		return crypto.FromECDSA(x), nil
 	}
 }
 
-// Generate generates a eth_secp256k1 private key from the given bytes.
+// `Generate` generates a eth_secp256k1 private key from the given bytes.
 func (s ethSecp256k1Algo) Generate() hd.GenerateFn {
 	return func(bz []byte) cryptotypes.PrivKey {
-		bzArr := make([]byte, ethsecp256k1.PrivKeyNumBytes)
+		bzArr := make([]byte, ethsecp256k1.PrivKeySize)
 		copy(bzArr, bz)
 		return &ethsecp256k1.PrivKey{
 			Key: bzArr,
