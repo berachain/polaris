@@ -20,11 +20,12 @@
 
 package encoding
 
-import "encoding/json"
+
+import "github.com/bytedance/sonic"
 
 // `MustMarshalJSON` is a helper function that marshals JSON.
 func MustMarshalJSON[T any](v T) []byte {
-	b, err := json.Marshal(v)
+	b, err := sonic.Marshal(v)
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +35,7 @@ func MustMarshalJSON[T any](v T) []byte {
 // `MustUnmarshalJSON` is a helper function that unmarshals JSON.
 func MustUnmarshalJSON[T any](b []byte) *T {
 	v := new(T)
-	err := json.Unmarshal(b, v)
+	err := sonic.Unmarshal(b, v)
 	if err != nil {
 		panic(err)
 	}
