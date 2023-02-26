@@ -97,6 +97,9 @@ func NewKeeper(
 	k.pp = precompile.NewPlugin()
 	// TODO: add and register more precompiles
 	sc := staking.NewPrecompileContract(sk)
+
+	// Move this part into the eth folder, the chain implementator should only have to
+	// write the precompiles not do the building part.
 	pc, err := ethprecompile.NewStatefulFactory().Build(sc)
 	if err != nil {
 		panic(err)

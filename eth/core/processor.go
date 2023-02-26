@@ -30,6 +30,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/errors"
 )
 
@@ -119,28 +120,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	chainConfig := sp.cp.ChainConfig()
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
 
-	// Register the Geth stateless precompile contracts
-	sf := precompile.NewStatelessFactory()
-	var allPrecompiles map[common.Address]vm.PrecompileContainer
-	if rules := sp.cp.ChainConfig().Rules(sp.block.Number, true, 0); rules.IsBerlin || rules.IsIstanbul {
-		allPrecompiles = vm.PrecompiledContractsBerlin
-	} else if rules.IsByzantium {
-		allPrecompiles = vm.PrecompiledContractsByzantium
-	} else if rules.IsHomestead {
-		allPrecompiles = vm.PrecompiledContractsHomestead
-	}
-	for _, pc := range allPrecompiles {
-		precomp, err := sf.Build(pc)
-		if err != nil {
-			panic(err)
-		}
-		err = sp.pp.Register(precomp)
-		if err != nil {
-			panic(err)
-		}
-	}
-
 	// Setup the EVM for this block.
+	sp.BuildGethStatelessPrecompiles(chainConfig.Rules(sp.block.Number, true, sp.block.Time))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
 		sp.NewEVMBlockContext(),
@@ -250,6 +231,40 @@ func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
 		feeCollector = &sp.block.Coinbase
 	}
 	return NewEVMBlockContext(sp.block.Header, &chainContext{sp}, feeCollector)
+}
+
+// `BuildGethStatelessPrecompiles` builds the default stateless precompiles for the EVM.
+func (sp *StateProcessor) BuildGethStatelessPrecompiles(rules params.Rules) {
+	// Build a stateless factory.
+	sf := precompile.NewStatelessFactory()
+
+	// Depending on the hard fork rules, we need to register a different set of precompiles.
+	var allPrecompiles map[common.Address]vm.PrecompileContainer
+	switch {
+	case rules.IsBerlin:
+	case rules.IsIstanbul:
+		allPrecompiles = vm.PrecompiledContractsBerlin
+	case rules.IsByzantium:
+		allPrecompiles = vm.PrecompiledContractsByzantium
+	case rules.IsHomestead:
+		allPrecompiles = vm.PrecompiledContractsHomestead
+	}
+
+	// Iterate through all the precompiles and register them if they have yet
+	// to be registered.
+	for _, pc := range allPrecompiles {
+		address := pc.RegistryKey()
+		if !sp.pp.Has(address) {
+			precomp, err := sf.Build(pc)
+			if err != nil {
+				panic(err)
+			}
+			err = sp.pp.Register(precomp)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
 }
 
 // `GetHashFn` returns a `GetHashFunc` which retrieves header hashes by number.

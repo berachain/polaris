@@ -108,7 +108,7 @@ type plugin struct {
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string // TODO: get from params ( we have a store so like why not )
+	evmDenom string // TODO: get from configuration plugin.
 }
 
 // `NewPlugin` returns a plugin with the given context and keepers.
