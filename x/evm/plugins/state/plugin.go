@@ -477,7 +477,6 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	}
 	// Handle rpc.BlockNumber negative numbers.
 	var iavlHeight int64
-	//nolint:exhaustive // this has to be a golangci-lint bug.
 	switch rpc.BlockNumber(number) {
 	case rpc.SafeBlockNumber:
 	case rpc.FinalizedBlockNumber:
@@ -487,6 +486,8 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
 		iavlHeight = 0
+	default:
+		iavlHeight = number
 	}
 
 	// Get the query context at the given height.
