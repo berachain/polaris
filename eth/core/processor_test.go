@@ -72,7 +72,7 @@ var _ = Describe("StateProcessor", func() {
 		bp = mock.NewBlockPluginMock()
 		gp = mock.NewGasPluginMock()
 		cp = mock.NewConfigurationPluginMock()
-		pp = &mock.PrecompilePluginMock{}
+		pp = mock.NewPrecompilePluginMock()
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
@@ -250,11 +250,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
 			return mock.NewConfigurationPluginMock()
 		}
-		pp := &mock.PrecompilePluginMock{}
 		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
-			return pp
-		}
-		pp.RegisterFunc = func(pc vm.PrecompileContainer) error {
 			return nil
 		}
 		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
@@ -280,7 +276,7 @@ var _ = Describe("GetHashFn", func() {
 		bp = mock.NewBlockPluginMock()
 		gp = mock.NewGasPluginMock()
 		cp = mock.NewConfigurationPluginMock()
-		pp = &mock.PrecompilePluginMock{}
+		pp = mock.NewPrecompilePluginMock()
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
