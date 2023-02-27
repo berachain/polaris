@@ -26,6 +26,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/registry"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
@@ -47,6 +48,27 @@ func NewDefaultPlugin() Plugin {
 // `Reset` implements `core.PrecompilePlugin`.
 func (dp *defaultPlugin) Reset(ctx context.Context) {
 	// no-op
+}
+
+// `GetNativePrecompiles` implements `core.PrecompilePlugin`.
+func (dp *defaultPlugin) GetNativePrecompiles(rules params.Rules) []vm.RegistrablePrecompile {
+	// Depending on the hard fork rules, we need to register a different set of precompiles.
+	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
+	switch {
+	case rules.IsBerlin:
+	case rules.IsIstanbul:
+		addrToPrecompiles = vm.PrecompiledContractsBerlin
+	case rules.IsByzantium:
+		addrToPrecompiles = vm.PrecompiledContractsByzantium
+	case rules.IsHomestead:
+		addrToPrecompiles = vm.PrecompiledContractsHomestead
+	}
+
+	allPrecompiles := make([]vm.RegistrablePrecompile, 0, len(addrToPrecompiles))
+	for _, precompile := range addrToPrecompiles {
+		allPrecompiles = append(allPrecompiles, precompile)
+	}
+	return allPrecompiles
 }
 
 // `Run` supports executing stateless precompiles with the background context.

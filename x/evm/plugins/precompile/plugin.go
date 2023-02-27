@@ -30,6 +30,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/registry"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
@@ -59,6 +60,11 @@ func NewPlugin() Plugin {
 // `Reset` implements `core.PrecompilePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
 	p.Context = sdk.UnwrapSDKContext(ctx)
+}
+
+// `GetNativePrecompiles` implements `core.PrecompilePlugin`.
+func (dp *plugin) GetNativePrecompiles(_ params.Rules) []vm.RegistrablePrecompile {
+	return nil
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting

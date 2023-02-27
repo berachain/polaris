@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"sync"
 
-	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
@@ -238,21 +237,9 @@ func (sp *StateProcessor) BuildGethStatelessPrecompiles(rules params.Rules) {
 	// Build a stateless factory.
 	sf := precompile.NewStatelessFactory()
 
-	// Depending on the hard fork rules, we need to register a different set of precompiles.
-	var allPrecompiles map[common.Address]vm.PrecompileContainer
-	switch {
-	case rules.IsBerlin:
-	case rules.IsIstanbul:
-		allPrecompiles = vm.PrecompiledContractsBerlin
-	case rules.IsByzantium:
-		allPrecompiles = vm.PrecompiledContractsByzantium
-	case rules.IsHomestead:
-		allPrecompiles = vm.PrecompiledContractsHomestead
-	}
-
 	// Iterate through all the precompiles and register them if they have yet
 	// to be registered.
-	for _, pc := range allPrecompiles {
+	for _, pc := range sp.pp.GetNativePrecompiles(rules) {
 		address := pc.RegistryKey()
 		if !sp.pp.Has(address) {
 			precomp, err := sf.Build(pc)
