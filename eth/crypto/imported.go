@@ -26,13 +26,15 @@ import (
 )
 
 var (
+	SigToPub                = crypto.SigToPub
+	Ecrecover               = crypto.Ecrecover
 	CreateAddress           = crypto.CreateAddress
+	UnmarshalPubkey         = crypto.UnmarshalPubkey
 	CompressPubkey          = crypto.CompressPubkey
 	DecompressPubkey        = crypto.DecompressPubkey
 	DigestLength            = crypto.DigestLength
 	EthSign                 = crypto.Sign
 	EthSecp256k1Sign        = secp256k1.Sign
-	Ecrecover               = crypto.Ecrecover
 	FromECDSA               = crypto.FromECDSA
 	GenerateEthKey          = crypto.GenerateKey
 	ValidateSignatureValues = crypto.ValidateSignatureValues

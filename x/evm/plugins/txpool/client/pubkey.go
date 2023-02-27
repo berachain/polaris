@@ -23,14 +23,21 @@ package client
 import (
 	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
 // `PubkeyFromTx` returns the public key of the signer of the transaction.
 func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
+	// s := types.LatestSignerForChainID
 	bz, err := signer.PubKey(signedTx)
+
 	if err != nil {
 		return &ethsecp256k1.PubKey{}, err
 	}
-
-	return &ethsecp256k1.PubKey{Key: bz}, nil
+	// bz is uncompressed so we need to marshal it.
+	pk, err := crypto.UnmarshalPubkey(bz)
+	if err != nil {
+		return &ethsecp256k1.PubKey{}, err
+	}
+	return &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(pk)}, nil
 }

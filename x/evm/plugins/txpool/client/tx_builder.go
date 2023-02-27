@@ -134,10 +134,17 @@ func NewEthTxBuilder(signedTx *coretypes.Transaction, evmDenom string, clientCtx
 	if err != nil {
 		return nil, err
 	}
+
+	rawSig := coretypes.LatestSignerForChainID(signedTx.ChainId()).Hash(signedTx).Bytes()
+
 	if err = txBuilder.SetSignatures(
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
-			PubKey:   pk,
+			Data: &signingtypes.SingleSignatureData{
+				SignMode:  signingtypes.SignMode_SIGN_MODE_DIRECT,
+				Signature: rawSig,
+			},
+			PubKey: pk,
 		},
 	); err != nil {
 		return nil, err
@@ -149,6 +156,7 @@ func NewEthTxBuilder(signedTx *coretypes.Transaction, evmDenom string, clientCtx
 	}
 
 	tx := txBuilder.GetTx()
+
 	return tx, nil
 
 	// // Finally, we set the extension options to the builder. (ExtensionOptionsEthTransaction)
