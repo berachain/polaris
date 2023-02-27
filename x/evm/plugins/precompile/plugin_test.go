@@ -47,7 +47,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin())
+		p = utils.MustGetAs[*plugin](NewPlugin(func() []vm.RegistrablePrecompile { return nil }))
 		p.Reset(ctx)
 		sdb = &mockSDB{}
 	})

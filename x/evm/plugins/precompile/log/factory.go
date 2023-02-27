@@ -23,12 +23,12 @@ package log
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/accounts/abi"
-	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/registry"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 // `Factory` is a `PrecompileLogFactory` that builds Ethereum logs from Cosmos events. All Ethereum
@@ -49,16 +49,21 @@ func NewFactory() *Factory {
 	}
 }
 
-// `RegisterEvent` registers an Ethereum event, and optionally its custom attribute value decoders,
-// with the factory.
-func (f *Factory) RegisterEvent(
-	moduleEthAddress common.Address, abiEvent abi.Event, customValueDecoders precompile.ValueDecoders,
-) {
-	// register the ABI Event as a precompile log
-	_ = f.events.Register(newPrecompileLog(moduleEthAddress, abiEvent))
-	// register the event's custom value decoders, if any are provided
-	for attr, decoder := range customValueDecoders {
-		f.customValueDecoders[attr] = decoder
+// `RegisterAllEvents` registers all Ethereum events from the provided precompiles with the factory.
+func (f *Factory) RegisterAllEvents(precompiles []vm.RegistrablePrecompile) {
+	for _, pc := range precompiles {
+		if spc, ok := utils.GetAs[precompile.StatefulImpl](pc); ok {
+			// register the ABI Event as a precompile log
+			moduleEthAddr := spc.RegistryKey()
+			for _, event := range spc.ABIEvents() {
+				_ = f.events.Register(newPrecompileLog(moduleEthAddr, event))
+			}
+
+			// register the precompile's custom value decoders, if any are provided
+			for attr, decoder := range spc.CustomValueDecoders() {
+				f.customValueDecoders[attr] = decoder
+			}
+		}
 	}
 }
 

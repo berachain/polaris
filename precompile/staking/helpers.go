@@ -198,6 +198,27 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 	return err
 }
 
+func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
+	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
+		Status: stakingtypes.BondStatusBonded,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// Iterate over all validators and return their addresses.
+	addrs := make([]any, 0, len(res.Validators))
+	for _, val := range res.Validators {
+		//nolint:govet // ignore shadowing of err
+		valAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+		if err != nil {
+			return nil, err
+		}
+		addrs = append(addrs, common.BytesToAddress(valAddr))
+	}
+
+	return addrs, nil
+}
+
 // `bondDenom` returns the bond denom from the staking module.
 func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 	res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})
