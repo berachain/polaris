@@ -50,7 +50,7 @@ func (s Store) GetByteCode(addr common.Address, codeHash common.Hash) ([]byte, e
 }
 
 // `IterateByteCode` iterates over the byte code and calls the given callback function. Break the
-// iteration if the callback function returns true.
+// iteration if the callback function returns true. The check for the code hash check should be done in the callback.
 func (s Store) IterateByteCode(start, end []byte, cb func(addr common.Address, code []byte) bool) {
 	iter := prefix.NewStore(s.Store, byteCodePrefix).Iterator(start, end)
 	defer iter.Close()
