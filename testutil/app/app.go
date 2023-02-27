@@ -87,6 +87,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"pkg.berachain.dev/stargazer/lib/utils"
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
@@ -370,8 +371,7 @@ func (app *SimApp) AutoCliOpts() autocli.AppOptions {
 //
 // NOTE: This is solely to be used for testing purposes.
 func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
-	sk := app.UnsafeFindStoreKey(storeKey)
-	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
+	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
 	}
@@ -381,7 +381,7 @@ func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
-		if kv, ok := k.(*storetypes.KVStoreKey); ok {
+		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
 			keys[kv.Name()] = kv
 		}
 	}

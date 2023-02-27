@@ -92,23 +92,20 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	// We insert into the local mempool, without gossiping to peers.
 	// We use a blank sdk.Context{} as the context, as we don't need to
 	// use it anyways. We set the priority as the gas price of the tx.
-	return p.mempool.Insert(
-		sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()),
-		cosmosTx,
-	)
+	return p.mempool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
 }
 
 // `GetAllTransactions` returns all transactions in the transaction pool.
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
-	return coretypes.Transactions{}, nil
+	return p.mempool.GetPoolTransactions(), nil
 }
 
-// `GetTransactions` returns all transactions in the transaction pool.
+// `GetTransactions` returns the transaction by hash in the transaction pool.
 func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	return nil
+	return p.mempool.GetTransaction(hash)
 }
 
-// `GetTransactions` returns all transactions in the transaction pool.
+// `GetNonce` returns
 func (p *plugin) GetNonce(addr common.Address) uint64 {
 	return 0
 }

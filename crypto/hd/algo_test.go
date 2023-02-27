@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/accounts"
 	"pkg.berachain.dev/stargazer/eth/common"
 	crypto "pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 const (
@@ -61,7 +62,7 @@ var _ = Describe("HD", func() {
 
 		Expect(privkey.Equals(badPrivKey)).To(BeFalse())
 
-		pk, err := privkey.(*ethsecp256k1.PrivKey).ToECDSA()
+		pk, err := utils.MustGetAs[*ethsecp256k1.PrivKey](privkey).ToECDSA()
 		Expect(err).NotTo(HaveOccurred())
 
 		wallet, path, err := GenerateWallet(mnemonic)

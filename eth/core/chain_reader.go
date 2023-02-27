@@ -47,7 +47,7 @@ func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
 
 // `FinalizedBlock` returns the last finalized block of the blockchain.
 func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
-	fb, ok := bc.finalizedBlock.Load().(*types.StargazerBlock)
+	fb, ok := utils.GetAs[*types.StargazerBlock](bc.finalizedBlock.Load())
 	if fb != nil && ok {
 		bc.blockCache.Add(fb.Hash(), fb)
 	}

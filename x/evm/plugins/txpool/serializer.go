@@ -31,6 +31,7 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -80,7 +81,7 @@ func (s *serializer) Serialize(signedTx *coretypes.Transaction) ([]byte, error) 
 func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
 	// TODO: do we really need to use extensions for anything? Since we
 	// are using the standard ante handler stuff I don't think we actually need to.
-	tx, ok := s.clientCtx.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
+	tx, ok := utils.GetAs[authtx.ExtensionOptionsTxBuilder](s.clientCtx.TxConfig.NewTxBuilder())
 	if !ok {
 		return nil, errors.New("unsupported builder")
 	}

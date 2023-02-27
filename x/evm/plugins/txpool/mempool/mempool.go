@@ -28,6 +28,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -39,7 +40,7 @@ type EthTxPool struct {
 
 	// `ethTxCache` caches transactions that are added to the mempool
 	// so that they can be retrieved later
-	ethTxCache map[common.Hash]coretypes.Transaction
+	ethTxCache map[common.Hash]*coretypes.Transaction
 }
 
 // `New` is called when the mempool is created.
@@ -56,41 +57,27 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 		return err
 	}
 	// We want to cache
-	etr, ok := tx.GetMsgs()[0].(*types.EthTransactionRequest)
+	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
 	if !ok {
-		return nil
+		return ErrIncorrectTxType
 	}
 	t := etr.AsTransaction()
-	etp.ethTxCache[t.Hash()] = *t
+	etp.ethTxCache[t.Hash()] = t
 	return nil
 }
 
 // `GetTx` is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	tx := etp.ethTxCache[hash]
-	return &tx
+	return etp.ethTxCache[hash]
 }
 
 // `GetPoolTransactions` is called when the mempool is retrieved.
-func (etp *EthTxPool) GetPoolTransactions() []*coretypes.Transaction {
-	txs := make([]*coretypes.Transaction, 0)
+func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
+	txs := make(coretypes.Transactions, 0, len(etp.ethTxCache))
 	for _, tx := range etp.ethTxCache {
-		t := tx // fixes gosec G601: Implicit memory aliasing in for loop.
-		txs = append(txs, &t)
+		txs = append(txs, tx)
 	}
 	return txs
-	// var txs []*coretypes.Transaction
-	// iterator := etp.Select(sdk.Context{}, nil)
-	// for it := iterator.Next(); it != nil; it = iterator.Next() {
-	// 	if it == nil {
-	// 		break
-	// 	}
-	// 	tx, ok := it.Tx().(*types.EthTransactionRequest)
-	// 	if !ok {
-	// 		continue
-	// 	}
-	// 	txs = append(txs, tx.AsTransaction())
-	// }
 }
 
 // `Remove` is called when a transaction is removed from the mempool.
@@ -101,9 +88,9 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	}
 
 	// We want to cache this tx.
-	etr, ok := tx.(*types.EthTransactionRequest)
+	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
 	if !ok {
-		return nil
+		return ErrIncorrectTxType
 	}
 
 	delete(etp.ethTxCache, etr.AsTransaction().Hash())

@@ -30,6 +30,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
+	libutils "pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
@@ -42,8 +43,7 @@ var _ = Describe("Attributes", func() {
 			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
 			gethValue, err = ConvertSdkCoin(denom10.String())
 			Expect(err).To(BeNil())
-			bigVal, ok := gethValue.(*big.Int)
-			Expect(ok).To(BeTrue())
+			bigVal := libutils.MustGetAs[*big.Int](gethValue)
 			Expect(bigVal).To(Equal(big.NewInt(10)))
 		})
 
@@ -51,8 +51,7 @@ var _ = Describe("Attributes", func() {
 			creationHeightStr := strconv.FormatInt(55, 10)
 			gethValue, err = ConvertInt64(creationHeightStr)
 			Expect(err).To(BeNil())
-			int64Val, ok := gethValue.(int64)
-			Expect(ok).To(BeTrue())
+			int64Val := libutils.MustGetAs[int64](gethValue)
 			Expect(int64Val).To(Equal(int64(55)))
 		})
 
@@ -60,8 +59,7 @@ var _ = Describe("Attributes", func() {
 			valAddr := sdk.ValAddress([]byte("alice"))
 			gethValue, err = ConvertValAddressFromBech32(valAddr.String())
 			Expect(err).To(BeNil())
-			valAddrVal, ok := gethValue.(common.Address)
-			Expect(ok).To(BeTrue())
+			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(valAddrVal).To(Equal(utils.ValAddressToEthAddress(valAddr)))
 		})
 
@@ -69,8 +67,7 @@ var _ = Describe("Attributes", func() {
 			accAddr := sdk.AccAddress([]byte("alice"))
 			gethValue, err = ConvertAccAddressFromBech32(accAddr.String())
 			Expect(err).To(BeNil())
-			accAddrVal, ok := gethValue.(common.Address)
-			Expect(ok).To(BeTrue())
+			accAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))
 		})
 	})
