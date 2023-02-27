@@ -87,12 +87,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-<<<<<<< HEAD
-	"pkg.berachain.dev/stargazer/lib/utils"
-=======
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
->>>>>>> main
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"

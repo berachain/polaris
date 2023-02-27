@@ -133,7 +133,6 @@ type (
 		SendTx(tx *types.Transaction) error
 		GetAllTransactions() (types.Transactions, error)
 		GetTransaction(common.Hash) *types.Transaction
-		GetNonce(common.Address) uint64
 	}
 )
 
