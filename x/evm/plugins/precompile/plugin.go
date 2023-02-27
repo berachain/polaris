@@ -42,10 +42,8 @@ import (
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
+	sdk.Context
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
-
-	// context for native precompile execution
-	ctx sdk.Context
 
 	// keepers for native precompiles
 	sk *stakingkeeper.Keeper
@@ -67,7 +65,7 @@ func NewPlugin(sk *stakingkeeper.Keeper) Plugin {
 
 // `Reset` implements `core.PrecompilePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
-	p.ctx = sdk.UnwrapSDKContext(ctx)
+	p.Context = sdk.UnwrapSDKContext(ctx)
 }
 
 // `GetPrecompiles` returns the staking precompile contract.
@@ -92,12 +90,12 @@ func (p *plugin) Run(
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
-	cem := utils.MustGetAs[state.ControllableEventManager](p.ctx.EventManager())
+	cem := utils.MustGetAs[state.ControllableEventManager](p.Context.EventManager())
 	cem.BeginPrecompileExecution(sdb)
 
 	// run precompile container
 	ret, err := pc.Run(
-		p.ctx.WithGasMeter(gm),
+		p.Context.WithGasMeter(gm),
 		input,
 		caller,
 		value,

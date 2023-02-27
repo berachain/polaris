@@ -26,6 +26,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -47,7 +48,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin())
+		p = utils.MustGetAs[*plugin](NewPlugin(&stakingkeeper.Keeper{}))
 		p.Reset(ctx)
 		sdb = &mockSDB{}
 	})
