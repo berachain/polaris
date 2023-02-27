@@ -20,5 +20,17 @@
 
 package mock
 
+import (
+	"github.com/ethereum/go-ethereum/params"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+)
+
 //go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-//go:generate moq -out ./state_plugin.mock.go -pkg mock ../ StatePlugin
+
+func NewPrecompilePluginMock() *PrecompilePluginMock {
+	return &PrecompilePluginMock{
+		GetPrecompilesFunc: func(_ *params.Rules) []vm.RegistrablePrecompile {
+			return nil
+		},
+	}
+}

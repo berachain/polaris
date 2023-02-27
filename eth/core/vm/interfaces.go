@@ -60,7 +60,7 @@ type (
 		TransferBalance(common.Address, common.Address, *big.Int)
 	}
 
-	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs to
-	// provide an Ethereum address of where its contract is found.
+	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs
+	// to provide an Ethereum address of where its contract is found.
 	RegistrablePrecompile = libtypes.Registrable[common.Address]
 )

@@ -23,6 +23,7 @@ package precompile
 import (
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
@@ -33,6 +34,8 @@ type (
 	Plugin interface {
 		// `Reset` sets the native precompile context before beginning a state transition.
 		libtypes.Resettable
+		// `GetPrecompiles` returns the native precompiles for the chain.
+		GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile
 		// `Register` registers a new precompiled contract at the given address.
 		Register(vm.PrecompileContainer) error
 		// `PrecompileManager` is the manager for the native precompiles.
