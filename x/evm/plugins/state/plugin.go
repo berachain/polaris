@@ -514,4 +514,3 @@ func getStateFromStore(
 	}
 	return common.Hash{}
 }
-

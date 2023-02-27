@@ -324,40 +324,10 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 
 func (b *backend) GetTransaction(
 	ctx context.Context, txHash common.Hash,
-	// tx, blockhash, blocknumber, tx index, error
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	// TODO: figure out what to do with txns in mempool.
-	// 1. check for transaction in current block.
-	block := b.chain.CurrentBlock()
-	tx, idx, err := b.getTransactionFromBlock(block, txHash)
-	if err == nil {
-		return tx, block.Hash(), block.Number.Uint64(), uint64(idx), nil
-	}
-
-	// 2. check for transaction in offchain storage
-	tx = b.chain.Host().GetBlockPlugin().GetTransactionByHash(txHash)
-	if tx == nil {
-		return nil, common.Hash{}, 0, 0, errorslib.Wrapf(errors.New("transaction not found"), "GetTransaction [%s]", txHash.String())
-	}
-	blockNum := b.chain.Host().GetBlockPlugin().GetTransactionBlockNumber(txHash)
-	block = b.chain.Host().GetBlockPlugin().GetStargazerBlockByNumber(blockNum.Int64())
-
-	tx, idx, err = b.getTransactionFromBlock(block, txHash)
-	if err != nil {
-		return nil, common.Hash{}, 0, 0, errorslib.Wrapf(errors.New("transaction not found"), "GetTransaction [%s]", txHash.String())
-	}
-	return tx, block.Hash(), block.Number.Uint64(), uint64(idx), nil
-}
-
-func (b *backend) getTransactionFromBlock(block *types.StargazerBlock,
-	txHash common.Hash) (*types.Transaction, uint64, error) {
-
-	for idx, tx := range block.GetTransactions() {
-		if tx.Hash() == txHash {
-			return tx, uint64(idx), nil
-		}
-	}
-	return nil, 0, errorslib.Wrapf(errors.New("transaction not found"), "getTransactionIdxFromBlock [%s]", txHash.String())
+	// RETURN: tx, blockhash, blocknumber, tx index, error
+	// TODO: Implement your code here.
+	return nil, common.Hash{}, 0, 0, nil
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
@@ -369,7 +339,8 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
-	return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
+	// TODO: Implement your code here.
+	return 0, nil
 }
 
 func (b *backend) Stats() (int, int) {

@@ -55,7 +55,8 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 	txBlockNumStore := prefix.NewStore(p.offchainStore, txBlockNumKeyPrefix)
 
 	for _, tx := range block.GetTransactions() {
-		txBytes, err := tx.MarshalBinary()
+		var txBytes []byte
+		txBytes, err = tx.MarshalBinary()
 		if err != nil {
 			panic(err)
 		}
@@ -123,16 +124,4 @@ func (p *plugin) GetTransactionBlockNumber(txHash common.Hash) *big.Int {
 		return nil
 	}
 	return new(big.Int).SetBytes(bz)
-}
-
-// `GetBlockHash` returns the block hash for the given block number.
-func (p *plugin) GetBlockHash(blockNum *big.Int) common.Hash {
-	blockNumStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
-	data := blockNumStore.Get(sdk.Uint64ToBigEndian(blockNum.Uint64()))
-	var block *coretypes.StargazerBlock
-	err := block.UnmarshalBinary(data)
-	if err != nil {
-		panic(err)
-	}
-	return block.Hash()
 }
