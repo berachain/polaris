@@ -99,6 +99,7 @@ import (
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
+	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 var (
@@ -232,6 +233,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 				//
 				// ETH TX MEMPOOL
 				ethTxMempool,
+				evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
 				//

@@ -77,6 +77,11 @@ func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
 	return t
 }
 
+func (etr *EthTransactionRequest) GetSignBytes() ([]byte, error) {
+	t := etr.AsTransaction()
+	return coretypes.LatestSignerForChainID(t.ChainId()).Hash(t).Bytes(), nil
+}
+
 // `GetSender` extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *EthTransactionRequest) GetSender() (common.Address, error) {
 	t := etr.AsTransaction()
