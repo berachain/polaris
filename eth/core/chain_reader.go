@@ -21,11 +21,15 @@
 package core
 
 import (
+	"context"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 // `CurrentHeader` returns the current header of the blockchain.
@@ -41,12 +45,13 @@ func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
 	return bc.processor.block
 }
 
-// `CurrentTransaction` returns the last finalized block of the blockchain.
+// `FinalizedBlock` returns the last finalized block of the blockchain.
 func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
-	if bc.processor.finalizedBlock != nil {
-		bc.blockCache.Add(bc.processor.finalizedBlock.Hash(), bc.processor.finalizedBlock)
+	fb, ok := bc.finalizedBlock.Load().(*types.StargazerBlock)
+	if fb != nil && ok {
+		bc.blockCache.Add(fb.Hash(), fb)
 	}
-	return bc.processor.finalizedBlock
+	return fb
 }
 
 // GetBlock retrieves a block from the database by hash and number,
@@ -56,6 +61,7 @@ func (bc *blockchain) GetStargazerBlockByNumber(number int64) *types.StargazerBl
 	if block == nil {
 		return nil
 	}
+
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
 	return block
@@ -109,4 +115,38 @@ func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Su
 
 func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	return bc.host.GetStatePlugin().GetStateByNumber(number)
+}
+
+func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state vm.GethStateDB,
+	header *types.Header, vmConfig *vm.Config) *vm.GethEVM {
+
+	blockContext := vm.BlockContext{
+		CanTransfer: CanTransfer,
+		Transfer:    Transfer,
+		GetHash:     GetHashFn(header, &chainContext{bc.processor}),
+		Coinbase:    header.Coinbase, // todo: check for fee collector
+		GasLimit:    header.GasLimit,
+		BlockNumber: header.Number,
+		Time:        header.Time,
+		Difficulty:  header.Difficulty,
+		BaseFee:     header.BaseFee,
+		// Random:      header.Ra,
+	}
+
+	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
+	return vm.NewGethEVMWithPrecompiles(
+		// todo: get precompile controller
+		blockContext, txContext, state, chainCfg, *vmConfig, nil,
+	)
+}
+
+// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
+// NOTE: This does not take the necessary gas in to account to make the transfer valid.
+func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
+	return sdb.GetBalance(addr).Cmp(amount) >= 0
+}
+
+// `Transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
+func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
+	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
 }

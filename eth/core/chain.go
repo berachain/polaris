@@ -47,13 +47,13 @@ type ChainReaderWriter interface {
 type ChainWriter interface {
 	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
 	// the block.
-	Prepare(ctx context.Context, height int64)
+	Prepare(context.Context, int64)
 	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error)
+	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
-	Finalize(ctx context.Context) (*types.StargazerBlock, error)
+	Finalize(context.Context) (*types.StargazerBlock, error)
 }
 
 // `ChainReader` defines methods that are used to read the state and blocks of the chain.
@@ -61,10 +61,11 @@ type ChainReader interface {
 	CurrentHeader() *types.StargazerHeader
 	CurrentBlock() *types.StargazerBlock
 	FinalizedBlock() *types.StargazerBlock
-	GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock
-	GetStargazerBlockByNumber(number int64) *types.StargazerBlock
-	GetStateByNumber(number int64) (vm.GethStateDB, error)
+	GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
+	GetStargazerBlockByNumber(int64) *types.StargazerBlock
+	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
+	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
 }
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.

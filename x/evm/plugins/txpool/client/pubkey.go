@@ -31,5 +31,6 @@ func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*et
 	if err != nil {
 		return &ethsecp256k1.PubKey{}, err
 	}
+
 	return &ethsecp256k1.PubKey{Key: bz}, nil
 }

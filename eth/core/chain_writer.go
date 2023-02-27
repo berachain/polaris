@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 
 	"pkg.berachain.dev/stargazer/eth/core/types"
 )
@@ -36,6 +37,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	// TODO: ensure this is safe. We could build the block in theory by querying the blockplugin
 	if bc.processor.block != nil {
 		// Cache finalized block.
+		fmt.Println("Finalized REE block", bc.processor.block.Number, bc.processor.block.Hash())
 		bc.finalizedBlock.Store(bc.processor.block)
 		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
 

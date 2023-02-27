@@ -23,6 +23,7 @@ package ante
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -36,11 +37,12 @@ func SetAnteHandler(
 ) func(bApp *baseapp.BaseApp) {
 	return func(bApp *baseapp.BaseApp) {
 		opt := ante.HandlerOptions{
-			AccountKeeper:   ak,
-			BankKeeper:      bk,
-			SignModeHandler: txCfg.SignModeHandler(),
-			FeegrantKeeper:  fgk,
-			SigGasConsumer:  SigVerificationGasConsumer,
+			AccountKeeper:          ak,
+			BankKeeper:             bk,
+			ExtensionOptionChecker: extOptCheckerfunc,
+			SignModeHandler:        txCfg.SignModeHandler(),
+			FeegrantKeeper:         fgk,
+			SigGasConsumer:         SigVerificationGasConsumer,
 		}
 		ch, _ := ante.NewAnteHandler(
 			opt,
@@ -49,4 +51,8 @@ func SetAnteHandler(
 			ch,
 		)
 	}
+}
+
+func extOptCheckerfunc(a *codectypes.Any) bool {
+	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
 }

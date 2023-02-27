@@ -63,8 +63,6 @@ type StateProcessor struct {
 	evm vm.StargazerEVM
 	// `block` represents the current block being processed.
 	block *types.StargazerBlock
-	// `finalizedBlock` represents the block that was last finalized by the state processor.
-	finalizedBlock *types.StargazerBlock
 }
 
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
@@ -242,6 +240,7 @@ func (sp *StateProcessor) BuildGethStatelessPrecompiles(rules params.Rules) {
 	var allPrecompiles map[common.Address]vm.PrecompileContainer
 	switch {
 	case rules.IsBerlin:
+		allPrecompiles = vm.PrecompiledContractsBerlin
 	case rules.IsIstanbul:
 		allPrecompiles = vm.PrecompiledContractsBerlin
 	case rules.IsByzantium:

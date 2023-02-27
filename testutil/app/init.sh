@@ -110,6 +110,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		./bin/stargazerd genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
 	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
+	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
 	./bin/stargazerd genesis add-genesis-account stargazer1yrene6g2zwjttemf0c65fscg8w8c55w5c2x2xh 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	
 	# Sign genesis transaction

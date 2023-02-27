@@ -22,85 +22,120 @@ package client
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
 
 	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-
+	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-// `EthTxBuilder` is an interface that wraps the `BuildTx` method and an
-// ExtensionOptionsTxBuilder.
-type EthTxBuilder interface {
-	authtx.ExtensionOptionsTxBuilder
-	BuildTx(signedTx *coretypes.Transaction, evmDenom string) (signing.Tx, error)
+type Wrapper struct {
+	signing.Tx
 }
 
-// `ethTxBuilder` implements `EthTxBuilder` interface.
-type ethTxBuilder struct {
-	authtx.ExtensionOptionsTxBuilder
-	option *codectypes.Any
+func NewWrapper(builder signing.Tx) *Wrapper {
+	return &Wrapper{builder}
 }
+
+func (w *Wrapper) GetPubKeys() ([]cryptotypes.PubKey, error) {
+	fmt.Println("GETTING CALLED")
+	msgs := w.GetMsgs()
+	t, ok := msgs[0].(*types.EthTransactionRequest)
+	if !ok {
+		return nil, errors.New("not an eth transaction")
+	}
+
+	bz, err := t.GetPubKey()
+	if err != nil {
+		return nil, err
+	}
+	return []cryptotypes.PubKey{&ethsecp256k1.PubKey{Key: bz}}, nil
+}
+
+// func (w *Wrapper) GetTx() authsigning.Tx {
+// 	return w
+// }
+
+// func (w *Wrapper) FeeGranter() sdk.AccAddress {
+// 	return sdk.AccAddress{}
+// }
+
+// func (w *Wrapper) FeePayer() sdk.AccAddress {
+// 	return sdk.AccAddress{}
+// }
+
+// func (w *Wrapper) GetFee() sdk.Coins {
+// 	return sdk.Coins{sdk.NewCoin("stargazer", sdk.NewIntFromUint64(0))}
+// }
+
+// func (w *Wrapper) GetGas() uint64 {
+// 	return w.signedTx.Gas()
+// }
+
+// func (w *Wrapper) GetMemo() string {
+// 	return ""
+// }
+
+// func (w *Wrapper) GetMsgs() []sdk.Msg {
+// 	return []sdk.Msg{types.NewFromTransaction(w.signedTx)}
+// }
+
+// func (w *Wrapper) GetSignaturesV2() ([]signingtypes.SignatureV2, error) {
+// 	return w.GetTx().GetSignaturesV2()
+// }
+
+// func (w *Wrapper) GetSigners() []sdk.AccAddress {
+// 	types.Sig
+// 	return []sdk.AccAddress{sdk.AccAddress()}
+// }
 
 // `NewEthTxBuilder` returns a new instance of EthTxBuilder.
-func NewEthTxBuilder(clientCtx client.Context) (EthTxBuilder, error) {
-	// All Eth transactions use the ExtensionOptionsEthTransaction extension option.
+func NewEthTxBuilder(signedTx *coretypes.Transaction, evmDenom string, clientCtx client.Context) (sdk.Tx, error) {
+	txBuilder, ok := clientCtx.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
+	if !ok {
+		return nil, errors.New("unsupported builder")
+	}
+
+	// txBuilder := NewWrapper(txb, signedTx)
+
 	option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionsEthTransaction{})
 	if err != nil {
 		return nil, err
 	}
 
-	// We use the clientCtx.TxConfig to create a new TxBuilder.
-	txBuilder, ok := clientCtx.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
-	if !ok {
-		return nil, errors.New("clientCtx.TxConfig.NewTxBuilder returns unsupported builder")
-	}
+	txBuilder.SetExtensionOptions(option)
 
-	return &ethTxBuilder{
-		ExtensionOptionsTxBuilder: txBuilder,
-		option:                    option,
-	}, nil
-}
+	txBuilder.SetGasLimit(signedTx.Gas())
 
-// BuildTx builds the canonical cosmos tx from ethereum msg.
-func (etb *ethTxBuilder) BuildTx(
-	signedTx *coretypes.Transaction, evmDenom string,
-) (signing.Tx, error) {
-	// First, we attach the required fees to the Cosmos Tx. This is simply done,
+	// Second, we attach the required fees to the Cosmos Tx. This is simply done,
 	// by calling Cost() on the types.Transaction and setting the fee amount to that.
 	fees := make(sdk.Coins, 0)
 	feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
 	if feeAmt.Sign() > 0 {
 		fees = append(fees, sdk.NewCoin(evmDenom, feeAmt))
 	}
-	etb.SetFeeAmount(fees)
-
-	// TODO: Use SetTip() once we create the abstraction to not collect fees in "/eth"
-	// we can introduce setting the priority fee / base fee separately here.
-	// etb.SetTip(signedTx.EffectiveGasTip())
-	// etb.SetFeesAmount(signedTx.Cost()-signedTx.EffectiveGasTip())
-	// This will allow using native cosmos tipping.
-
-	// Secondly we set the gas limit, again extracted from ethereum transaction.
-	etb.SetGasLimit(signedTx.Gas())
-
-	// We recover the public key from the transaction and set it in the
-	pk, err := PubkeyFromTx(signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()))
-	if err != nil {
-		return nil, err
-	}
+	txBuilder.SetFeeAmount(fees)
+	txBuilder.SetGasLimit(signedTx.Gas())
 
 	// Thirdly, we set the nonce equal to the nonce of the transaction and also derive the PubKey
 	// from the V,R,S values of the transaction. This allows us for a little trick to allow
 	// ethereum transactions to work in the standard cosmos app-side mempool with no modifications.
 	// Some gigabrain shit tbh.
-	if err = etb.SetSignatures(
+	pk, err := PubkeyFromTx(signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()))
+	if err != nil {
+		return nil, err
+	}
+	if err = txBuilder.SetSignatures(
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			PubKey:   pk,
@@ -109,12 +144,64 @@ func (etb *ethTxBuilder) BuildTx(
 		return nil, err
 	}
 
-	// We build a new EthereumTransaction and set give it to the builder.
-	if err = etb.SetMsgs(types.NewFromTransaction(signedTx)); err != nil {
+	// Lastly, we inject the signed ethereum transaction as a message into the Cosmos Tx.
+	if err = txBuilder.SetMsgs(types.NewFromTransaction(signedTx)); err != nil {
 		return nil, err
 	}
 
-	// Finally, we set the extension options to the builder. (ExtensionOptionsEthTransaction)
-	etb.SetExtensionOptions(etb.option)
-	return etb.GetTx(), nil
+	tx := txBuilder.GetTx()
+
+	fmt.Println("REFLECT", reflect.TypeOf(NewWrapper(tx)))
+	return NewWrapper(tx), nil
+
+	// // Finally, we set the extension options to the builder. (ExtensionOptionsEthTransaction)
+	// txBuilder.SetExtensionOptions(option)
+
+	// // First, we attach the required fees to the Cosmos Tx. This is simply done,
+	// // by calling Cost() on the types.Transaction and setting the fee amount to that.
+	// fees := make(sdk.Coins, 0)
+	// feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
+	// if feeAmt.Sign() > 0 {
+	// 	fees = append(fees, sdk.NewCoin(evmDenom, feeAmt))
+	// }
+
+	// txBuilder.SetFeeAmount(fees)
+	// if err != nil {
+	// 	return nil, errorslib.Wrap(err, "failed to set fee amount")
+	// }
+
+	// // TODO: Use SetTip() once we create the abstraction to not collect fees in "/eth"
+	// // we can introduce setting the priority fee / base fee separately here.
+	// // etb.SetTip(signedTx.EffectiveGasTip())
+	// // etb.SetFeesAmount(signedTx.Cost()-signedTx.EffectiveGasTip())
+	// // This will allow using native cosmos tipping.
+
+	// // Secondly we set the gas limit, again extracted from ethereum transaction.
+	// txBuilder.SetGasLimit(signedTx.Gas())
+
+	// // We recover the public key from the transaction and set it in the
+	// pk, err := PubkeyFromTx(signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()))
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// // Thirdly, we set the nonce equal to the nonce of the transaction and also derive the PubKey
+	// // from the V,R,S values of the transaction. This allows us for a little trick to allow
+	// // ethereum transactions to work in the standard cosmos app-side mempool with no modifications.
+	// // Some gigabrain shit tbh.
+	// if err = txBuilder.SetSignatures(
+	// 	signingtypes.SignatureV2{
+	// 		Sequence: signedTx.Nonce(),
+	// 		PubKey:   pk,
+	// 	},
+	// ); err != nil {
+	// 	return nil, err
+	// }
+
+	// // We build a new EthereumTransaction and set give it to the builder.
+	// if err = txBuilder.SetMsgs(x); err != nil {
+	// 	return nil, err
+	// }
+
+	// return txBuilder.GetTx(), nil
 }
