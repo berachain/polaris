@@ -28,16 +28,18 @@ import (
 
 // `PubkeyFromTx` returns the public key of the signer of the transaction.
 func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
-	// s := types.LatestSignerForChainID
-	bz, err := signer.PubKey(signedTx)
+	// `signer.PubKey` returns the uncompressed public key.
+	uncompressed, err := signer.PubKey(signedTx)
+	if err != nil {
+		return &ethsecp256k1.PubKey{}, err
+	}
 
+	// We marshal it to a *ecdsa.PublicKey.
+	pubKey, err := crypto.UnmarshalPubkey(uncompressed)
 	if err != nil {
 		return &ethsecp256k1.PubKey{}, err
 	}
-	// bz is uncompressed so we need to marshal it.
-	pk, err := crypto.UnmarshalPubkey(bz)
-	if err != nil {
-		return &ethsecp256k1.PubKey{}, err
-	}
-	return &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(pk)}, nil
+
+	// Then we can compress it to adhere to the required format.
+	return &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(pubKey)}, nil
 }
