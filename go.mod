@@ -27,7 +27,7 @@ require (
 	cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff
 	cosmossdk.io/x/upgrade v0.0.0-20230227140543-7c9245dbdf19
 	github.com/btcsuite/btcd v0.23.4
-	github.com/btcsuite/btcd/btcutil v1.1.2
+	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/bufbuild/buf v1.14.0
 	github.com/carolynvs/magex v0.9.0
 	github.com/cometbft/cometbft v0.37.0-alpha.3
