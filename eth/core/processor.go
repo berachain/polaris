@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
@@ -87,6 +88,9 @@ func NewStateProcessor(
 
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
+	} else {
+		// build and register the native precompile contracts
+		sp.BuildPrecompiles(sp.pp.GetPrecompiles(params.Rules{}))
 	}
 
 	return sp
@@ -120,7 +124,11 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
 
 	// Setup the EVM for this block.
-	sp.BuildGethStatelessPrecompiles(chainConfig.Rules(sp.block.Number, true, sp.block.Time))
+	sp.BuildPrecompiles(
+		precompile.NewDefaultPlugin().GetPrecompiles(
+			chainConfig.Rules(sp.block.Number, true, sp.block.Time),
+		),
+	)
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
 		sp.NewEVMBlockContext(),
@@ -232,25 +240,31 @@ func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
 	return NewEVMBlockContext(sp.block.Header, &chainContext{sp}, feeCollector)
 }
 
-// `BuildGethStatelessPrecompiles` builds the default stateless precompiles for the EVM.
-func (sp *StateProcessor) BuildGethStatelessPrecompiles(rules params.Rules) {
-	// Build a stateless factory.
-	sf := precompile.NewStatelessFactory()
-
-	// Iterate through all the precompiles and register them if they have yet
-	// to be registered.
-	for _, pc := range sp.pp.GetNativePrecompiles(rules) {
-		address := pc.RegistryKey()
-		if !sp.pp.Has(address) {
-			precomp, err := sf.Build(pc)
-			if err != nil {
-				panic(err)
-			}
-			err = sp.pp.Register(precomp)
-			if err != nil {
-				panic(err)
-			}
+// `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
+func (sp *StateProcessor) BuildPrecompiles(precompiles []vm.RegistrablePrecompile) {
+	for _, pc := range precompiles {
+		// choose the appropriate precompile factory
+		var af precompile.AbstractFactory
+		if utils.Implements[precompile.DynamicImpl](pc) {
+			af = precompile.NewDynamicFactory()
+		} else if utils.Implements[precompile.StatefulImpl](pc) {
+			af = precompile.NewStatefulFactory()
+		} else if utils.Implements[precompile.StatelessImpl](pc) {
+			af = precompile.NewStatelessFactory()
+		} else {
+			panic(
+				fmt.Sprintf(
+					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
+				),
+			)
 		}
+
+		// build the precompile container and register with the plugin
+		container, err := af.Build(pc)
+		if err != nil {
+			panic(err)
+		}
+		sp.pp.Register(container)
 	}
 }
 

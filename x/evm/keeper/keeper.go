@@ -29,6 +29,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/params"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
@@ -56,10 +57,6 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	// The offchain KV store.
 	offChainKv *offchain.Store
-
-	// sk is used to retrieve infofrmation about the current / past
-	// blocks and associated validator information.
-	// sk StakingKeeper
 
 	// `authority` is the bech32 address that is allowed to execute governance proposals.
 	authority string
@@ -92,30 +89,6 @@ func NewKeeper(
 		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
 	}
 
-	k.pp = precompile.NewPlugin()
-	// TODO: this was the wrong place for this
-	// TODO: add and register more precompiles
-	// sc := staking.NewPrecompileContract(sk)
-
-	// TODO: this was the wrong place for this
-	// Move this part into the eth folder, the chain implementator should only have to
-	// write the precompiles not do the building part.
-	// pc, err := ethprecompile.NewStatefulFactory().Build(sc)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = k.pp.Register(pc)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	plf := precompilelog.NewFactory() // this can live here.
-	// // TODO: add and register more precompile events/logs
-	// cvd := sc.CustomValueDecoders()
-	// for _, event := range sc.ABIEvents() {
-	// 	plf.RegisterEvent(pc.RegistryKey(), event, cvd)
-	// }
-
 	// Setup the RPC Service. // TODO: parameterize config.
 	cfg := ethrpcconfig.DefaultServer()
 	cfg.BaseRoute = "/eth/rpc"
@@ -125,6 +98,9 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
+	k.pp = precompile.NewPlugin(sk)
+	plf := precompilelog.NewFactory()
+	plf.RegisterAllEvents(k.pp.GetPrecompiles(params.Rules{}))
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
 	k.txp = txpool.NewPlugin(k.rpcProvider)
 

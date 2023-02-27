@@ -39,22 +39,22 @@ import (
 
 // `Contract` is the precompile contract for the staking module.
 type Contract struct {
+	contractAbi *abi.ABI
+
 	msgServer stakingtypes.MsgServer
 	querier   stakingtypes.QueryServer
-
-	contractAbi abi.ABI
 }
 
 // `NewContract` is the constructor of the staking contract.
 func NewPrecompileContract(sk *stakingkeeper.Keeper) precompile.StatefulImpl {
-	var contractAbi abi.ABI
+	var contractAbi *abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.StakingModuleMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
+		contractAbi: contractAbi,
 		msgServer:   stakingkeeper.NewMsgServerImpl(sk),
 		querier:     stakingkeeper.Querier{Keeper: sk},
-		contractAbi: contractAbi,
 	}
 }
 
@@ -71,59 +71,59 @@ func (c *Contract) ABIMethods() map[string]abi.Method {
 // `PrecompileMethods` implements StatefulImpl.
 func (c *Contract) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
-		&precompile.Method{
+		{
 			AbiSig:  "getDelegation(address)",
 			Execute: c.GetDelegationAddrInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "getDelegation(string)",
 			Execute: c.GetDelegationStringInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "getUnbondingDelegation(address)",
 			Execute: c.GetUnbondingDelegationAddrInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "getUnbondingDelegation(string)",
 			Execute: c.GetUnbondingDelegationStringInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "getRedelegations(address,address)",
 			Execute: c.GetRedelegationsAddrInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "getRedelegations(string,string)",
 			Execute: c.GetRedelegationsStringInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "delegate(address,uint256)",
 			Execute: c.DelegateAddrInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "delegate(string,uint256)",
 			Execute: c.DelegateStringInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "undelegate(address,uint256)",
 			Execute: c.UndelegateAddrInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "undelegate(string,uint256)",
 			Execute: c.UndelegateStringInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "beginRedelegate(address,address,uint256)",
 			Execute: c.BeginRedelegateAddrInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "beginRedelegate(string,string,uint256)",
 			Execute: c.BeginRedelegateStringInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "cancelUnbondingDelegation(address,uint256,int64)",
 			Execute: c.CancelUnbondingDelegationAddrInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "cancelUnbondingDelegation(string,uint256,int64)",
 			Execute: c.CancelUnbondingDelegationStringInput,
 		},

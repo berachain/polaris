@@ -29,7 +29,7 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //				panic("mock out the Get method")
 //			},
 //			GetNativePrecompilesFunc: func(rules params.Rules) []libtypes.Registrable[Address] {
-//				panic("mock out the GetNativePrecompiles method")
+//				panic("mock out the GetPrecompiles method")
 //			},
 //			HasFunc: func(addr common.Address) bool {
 //				panic("mock out the Has method")
@@ -53,7 +53,7 @@ type PrecompilePluginMock struct {
 	// GetFunc mocks the Get method.
 	GetFunc func(addr common.Address) vm.PrecompiledContract
 
-	// GetNativePrecompilesFunc mocks the GetNativePrecompiles method.
+	// GetNativePrecompilesFunc mocks the GetPrecompiles method.
 	GetNativePrecompilesFunc func(rules params.Rules) []libtypes.Registrable[common.Address]
 
 	// HasFunc mocks the Has method.
@@ -75,8 +75,8 @@ type PrecompilePluginMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
-		// GetNativePrecompiles holds details about calls to the GetNativePrecompiles method.
-		GetNativePrecompiles []struct {
+		// GetPrecompiles holds details about calls to the GetPrecompiles method.
+		GetPrecompiles []struct {
 			// Rules is the rules argument value.
 			Rules params.Rules
 		}
@@ -153,10 +153,10 @@ func (mock *PrecompilePluginMock) GetCalls() []struct {
 	return calls
 }
 
-// GetNativePrecompiles calls GetNativePrecompilesFunc.
-func (mock *PrecompilePluginMock) GetNativePrecompiles(rules params.Rules) []libtypes.Registrable[common.Address] {
+// GetPrecompiles calls GetNativePrecompilesFunc.
+func (mock *PrecompilePluginMock) GetPrecompiles(rules params.Rules) []libtypes.Registrable[common.Address] {
 	if mock.GetNativePrecompilesFunc == nil {
-		panic("PrecompilePluginMock.GetNativePrecompilesFunc: method is nil but PrecompilePlugin.GetNativePrecompiles was just called")
+		panic("PrecompilePluginMock.GetNativePrecompilesFunc: method is nil but PrecompilePlugin.GetPrecompiles was just called")
 	}
 	callInfo := struct {
 		Rules params.Rules
@@ -164,12 +164,12 @@ func (mock *PrecompilePluginMock) GetNativePrecompiles(rules params.Rules) []lib
 		Rules: rules,
 	}
 	mock.lockGetNativePrecompiles.Lock()
-	mock.calls.GetNativePrecompiles = append(mock.calls.GetNativePrecompiles, callInfo)
+	mock.calls.GetPrecompiles = append(mock.calls.GetPrecompiles, callInfo)
 	mock.lockGetNativePrecompiles.Unlock()
 	return mock.GetNativePrecompilesFunc(rules)
 }
 
-// GetNativePrecompilesCalls gets all the calls that were made to GetNativePrecompiles.
+// GetNativePrecompilesCalls gets all the calls that were made to GetPrecompiles.
 // Check the length with:
 //
 //	len(mockedPrecompilePlugin.GetNativePrecompilesCalls())
@@ -180,7 +180,7 @@ func (mock *PrecompilePluginMock) GetNativePrecompilesCalls() []struct {
 		Rules params.Rules
 	}
 	mock.lockGetNativePrecompiles.RLock()
-	calls = mock.calls.GetNativePrecompiles
+	calls = mock.calls.GetPrecompiles
 	mock.lockGetNativePrecompiles.RUnlock()
 	return calls
 }

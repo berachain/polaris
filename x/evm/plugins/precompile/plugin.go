@@ -26,6 +26,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -34,14 +35,20 @@ import (
 	"pkg.berachain.dev/stargazer/lib/registry"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/precompile/staking"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 )
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
-	sdk.Context
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
+
+	// context for native precompile execution
+	ctx sdk.Context
+
+	// keepers for native precompiles
+	sk *stakingkeeper.Keeper
 }
 
 // `Plugin` is the interface that must be implemented by the plugin.
@@ -50,21 +57,24 @@ type Plugin interface {
 	core.PrecompilePlugin
 }
 
-// `NewPlugin` creates and returns a `plugin` with the given context.
-func NewPlugin() Plugin {
+// `NewPlugin` creates and returns a `plugin` with the given keepers.
+func NewPlugin(sk *stakingkeeper.Keeper) Plugin {
 	return &plugin{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
+		sk:       sk,
 	}
 }
 
 // `Reset` implements `core.PrecompilePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
-	p.Context = sdk.UnwrapSDKContext(ctx)
+	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
 
-// `GetNativePrecompiles` implements `core.PrecompilePlugin`.
-func (dp *plugin) GetNativePrecompiles(_ params.Rules) []vm.RegistrablePrecompile {
-	return nil
+// `GetPrecompiles` returns the staking precompile contract.
+//
+// `GetPrecompiles` implements `core.PrecompilePlugin`.
+func (dp *plugin) GetPrecompiles(_ params.Rules) []vm.RegistrablePrecompile {
+	return []vm.RegistrablePrecompile{staking.NewPrecompileContract(dp.sk)}
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting
@@ -82,12 +92,12 @@ func (p *plugin) Run(
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
-	cem := utils.MustGetAs[state.ControllableEventManager](p.Context.EventManager())
+	cem := utils.MustGetAs[state.ControllableEventManager](p.ctx.EventManager())
 	cem.BeginPrecompileExecution(sdb)
 
 	// run precompile container
 	ret, err := pc.Run(
-		p.Context.WithGasMeter(gm),
+		p.ctx.WithGasMeter(gm),
 		input,
 		caller,
 		value,

@@ -50,8 +50,8 @@ func (dp *defaultPlugin) Reset(ctx context.Context) {
 	// no-op
 }
 
-// `GetNativePrecompiles` implements `core.PrecompilePlugin`.
-func (dp *defaultPlugin) GetNativePrecompiles(rules params.Rules) []vm.RegistrablePrecompile {
+// `GetPrecompiles` implements `core.PrecompilePlugin`.
+func (dp *defaultPlugin) GetPrecompiles(rules params.Rules) []vm.RegistrablePrecompile {
 	// Depending on the hard fork rules, we need to register a different set of precompiles.
 	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
 	switch {
