@@ -31,6 +31,9 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
+// `EthTxPool` is a mempool for Ethereum transactions. It wraps a
+// PriorityNonceMempool and caches transactions that are added to the mempool by
+// ethereum transaction hash.
 type EthTxPool struct {
 	*mempool.PriorityNonceMempool // first iteration simply allows for
 
@@ -53,7 +56,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 		return err
 	}
 	// We want to cache
-	etr, ok := tx.(*types.EthTransactionRequest)
+	etr, ok := tx.GetMsgs()[0].(*types.EthTransactionRequest)
 	if !ok {
 		return nil
 	}
