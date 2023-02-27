@@ -37,7 +37,9 @@ import (
 var _ storetypes.KVStore = (*Store)(nil)
 
 // `Store` is a wrapper around `cachekv.Store` that implements the `storetypes.KVStore`
-// interface. It is used to store the bytecode of contracts offchain.
+// interface. It is used to store the bytecode of contracts offchain. This is done to
+// reduce the size of the state and to avoid the need to store the bytecode in the
+// state.
 type Store struct {
 	*cachekv.Store
 }
