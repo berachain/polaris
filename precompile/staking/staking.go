@@ -127,6 +127,10 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 			AbiSig:  "cancelUnbondingDelegation(string,uint256,int64)",
 			Execute: c.CancelUnbondingDelegationStringInput,
 		},
+		{
+			AbiSig:  "getActiveValidators()",
+			Execute: c.GetActiveValidators,
+		},
 	}
 }
 
@@ -467,4 +471,15 @@ func (c *Contract) CancelUnbondingDelegationStringInput(
 	}
 
 	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, val, creationHeight)
+}
+
+// `GetActiveValidators` implements the `getActiveValidators()` method.
+func (c *Contract) GetActiveValidators(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	return c.activeValidatorsHelper(ctx)
 }

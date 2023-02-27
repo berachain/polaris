@@ -79,6 +79,11 @@ interface IStakingModule {
         string calldata dstValidator
     ) external view returns (RedelegationEntry[] memory);
 
+    /**
+     * @dev Returns a list of active validators.
+     */
+    function getActiveValidators() external view returns (address[] memory);
+
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**

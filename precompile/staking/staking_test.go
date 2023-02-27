@@ -1012,6 +1012,19 @@ var _ = Describe("Staking", func() {
 				})
 			})
 		})
+
+		When("GetActiveValidators", func() {
+			It("gets active validators", func() {
+				// Set the validator to be bonded.
+				validator.Status = stakingtypes.Bonded
+				sk.SetValidator(ctx, validator)
+
+				// Get the active validators.
+				res, err := contract.GetActiveValidators(ctx, caller, big.NewInt(0), true)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(HaveLen(1))
+			})
+		})
 	})
 })
 
