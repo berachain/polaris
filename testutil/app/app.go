@@ -23,7 +23,6 @@ package simapp
 
 import (
 	_ "embed"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -411,7 +410,6 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	fmt.Println("BING BONG", apiSvr.ClientCtx)
 	// Register Ethereum JSON-RPC API as needed by stargazer.
 	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }

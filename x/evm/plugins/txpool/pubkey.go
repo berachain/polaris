@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package client
+package txpool
 
 import (
 	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"

@@ -24,7 +24,6 @@ package rpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -265,7 +264,6 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 		return b.StateAndHeaderByNumber(ctx, number)
 	}
 	return nil, nil, errors.New("invalid arguments; neither block nor hash specified")
-
 }
 
 // `PendingBlockAndReceipts` returns the current pending block and associated receipts.
@@ -481,7 +479,6 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 	// Then we try to get the block by number
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		block := b.stargazerBlockByNumber(blockNr)
-		fmt.Println("BACKEND BLOCK", block, block == nil)
 		if block == nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: number [%d]", blockNr)
 		}
@@ -505,8 +502,5 @@ func (b *backend) stargazerBlockByNumber(number BlockNumber) *types.StargazerBlo
 	default:
 	}
 
-	fmt.Println("GetStargazerBlockByNumber AT THE BOTTOM", number)
-	x := b.chain.GetStargazerBlockByNumber(number.Int64())
-	fmt.Println("REEEE", x == nil, x, number.Int64())
-	return x
+	return b.chain.GetStargazerBlockByNumber(number.Int64())
 }

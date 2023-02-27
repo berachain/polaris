@@ -29,7 +29,6 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	errorslib "pkg.berachain.dev/stargazer/lib/errors"
-	txpoolclient "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/client"
 	mempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/rpc"
 )
@@ -59,17 +58,16 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 // `SendTx` sends a transaction to the transaction pool. It takes in a signed
 // ethereum transaction from the rpc backend and wraps it in a Cosmos
 // transaction. The Cosmos transaction is then broadcasted to the network.
-func (p *plugin) SendTx(signedTx *coretypes.Transaction) error {
-	clientCtx := p.rpcProvider.GetClientCtx()
-	// Serialize the transaction.
-	txBytes, err := p.EthTransactionToTxBytes(signedTx)
+func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
+	// Serialize the transaction to Bytes
+	txBytes, err := NewSerializer(p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
 
 	// Send the transaction to the CometBFT mempool, which will
 	// gossip it to peers via CometBFT's p2p layer.
-	syncCtx := clientCtx.WithBroadcastMode(flags.BroadcastSync)
+	syncCtx := p.rpcProvider.GetClientCtx().WithBroadcastMode(flags.BroadcastSync)
 	rsp, err := syncCtx.BroadcastTx(txBytes)
 	if rsp != nil && rsp.Code != 0 {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
@@ -81,46 +79,23 @@ func (p *plugin) SendTx(signedTx *coretypes.Transaction) error {
 	return nil
 }
 
-// // `SendPrivTx` sends a private transaction to the transaction pool. It takes in
-// // a signed ethereum transaction from the rpc backend and wraps it in a Cosmos
-// // transaction. The Cosmos transaction is injected into the local mempool, but is
-// // NOT gossiped to peers.
-// func (p *plugin) SendPrivTx(signedEthTx *coretypes.Transaction) error {
-// 	cosmosTx, err := txpoolclient.NewEthTxBuilder(p.rpcProvider.GetClientCtx())
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// We insert into the local mempool, without gossiping to peers.
-// 	// We use a blank sdk.Context{} as the context, as we don't need to
-// 	// use it anyways. We set the priority as the gas price of the tx.
-// 	return p.mempool.Insert(
-// 		sdk.Context{}.WithPriority(signedEthTx.GasPrice().Int64()),
-// 		cosmosTx,
-// 	)
-// }
-
-// `EthTransactionToTxBytes` converts an ethereum transaction to txBytes which allows for the to
-// broadcast it to CometBFT.
-func (p *plugin) EthTransactionToTxBytes(signedEthTx *coretypes.Transaction) ([]byte, error) {
-	cosmosTx, err := p.EthTransactionToCosmosTx(signedEthTx)
+// `SendPrivTx` sends a private transaction to the transaction pool. It takes in
+// a signed ethereum transaction from the rpc backend and wraps it in a Cosmos
+// transaction. The Cosmos transaction is injected into the local mempool, but is
+// NOT gossiped to peers.
+func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
+	cosmosTx, err := NewSerializer(p.rpcProvider.GetClientCtx()).SerializeToSdkTx(signedTx)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	
 
-	txBytes, err := p.rpcProvider.GetClientCtx().TxConfig.TxEncoder()(cosmosTx)
-	if err != nil {
-		// b.logger.Error("failed to encode eth tx using default encoder", "error", err.Error())
-		return nil, err
-	}
-	return txBytes, nil
-}
-
-// `EthTransactionToCosmosTx` converts an ethereum transaction to a Cosmos
-// transaction.
-func (p *plugin) EthTransactionToCosmosTx(signedEthTx *coretypes.Transaction) (sdk.Tx, error) {
-	return txpoolclient.NewEthTxBuilder(signedEthTx, "abera", p.rpcProvider.GetClientCtx())
+	// We insert into the local mempool, without gossiping to peers.
+	// We use a blank sdk.Context{} as the context, as we don't need to
+	// use it anyways. We set the priority as the gas price of the tx.
+	return p.mempool.Insert(
+		sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()),
+		cosmosTx,
+	)
 }
 
 // `GetAllTransactions` returns all transactions in the transaction pool.

@@ -119,7 +119,6 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 
 func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config) *vm.GethEVM {
-
 	blockContext := vm.BlockContext{
 		CanTransfer: CanTransfer,
 		Transfer:    Transfer,

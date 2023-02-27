@@ -251,6 +251,9 @@ var _ = Describe("No precompile plugin provided", func() {
 			return mock.NewConfigurationPluginMock()
 		}
 		pp := &mock.PrecompilePluginMock{}
+		pp.HasFunc = func(addr common.Address) bool {
+			return true
+		}
 		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
 			return pp
 		}

@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/subtle"
-	fmt "fmt"
 
 	cmcrypto "github.com/cometbft/cometbft/crypto"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -111,12 +110,10 @@ var _ cryptotypes.PubKey = &PubKey{}
 // The function will return an empty address if the public key is invalid.
 func (pubKey PubKey) Address() cmcrypto.Address {
 	key, err := crypto.DecompressPubkey(pubKey.Key)
-	fmt.Println("DECOMPRESSED KEY", key, err)
 	if err != nil {
 		return nil
 	}
 
-	fmt.Println("DECOMPRESSED KEY", key)
 	return cmcrypto.Address(crypto.PubkeyToAddress(*key).Bytes())
 }
 

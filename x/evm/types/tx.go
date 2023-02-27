@@ -22,13 +22,10 @@ package types
 
 import (
 	"errors"
-	fmt "fmt"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
@@ -67,38 +64,7 @@ func (etr *EthTransactionRequest) GetSigners() []sdk.AccAddress {
 
 	signer := sdk.AccAddress(sender.Bytes())
 	signers := []sdk.AccAddress{signer}
-	fmt.Println("GETSIGNERS", signers)
 	return signers
-}
-
-func (etr *EthTransactionRequest) GetPubKeys() ([]cryptotypes.PubKey, error) {
-	pk, err := etr.GetPubKey()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("PK GET2", pk)
-
-	return []cryptotypes.PubKey{&ethsecp256k1.PubKey{Key: pk}}, nil
-}
-
-func (etr *EthTransactionRequest) GetSignaturesV2() ([]signingtypes.SignatureV2, error) {
-	t := etr.AsTransaction()
-	if t == nil {
-		return nil, errors.New("invalid transaction")
-	}
-
-	signer := coretypes.LatestSignerForChainID(t.ChainId())
-	pk, err := signer.PubKey(t)
-	if err != nil {
-		return nil, err
-	}
-
-	return []signingtypes.SignatureV2{{
-		PubKey: &ethsecp256k1.PubKey{Key: pk},
-		// Data:     t.Data(),
-		Sequence: t.Nonce(),
-	}}, nil
 }
 
 // `AsTransaction` extracts the transaction as an `coretypes.Transaction`.
