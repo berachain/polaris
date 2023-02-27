@@ -51,24 +51,8 @@ func (dp *defaultPlugin) Reset(ctx context.Context) {
 }
 
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
-func (dp *defaultPlugin) GetPrecompiles(rules params.Rules) []vm.RegistrablePrecompile {
-	// Depending on the hard fork rules, we need to register a different set of precompiles.
-	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
-	switch {
-	case rules.IsBerlin:
-	case rules.IsIstanbul:
-		addrToPrecompiles = vm.PrecompiledContractsBerlin
-	case rules.IsByzantium:
-		addrToPrecompiles = vm.PrecompiledContractsByzantium
-	case rules.IsHomestead:
-		addrToPrecompiles = vm.PrecompiledContractsHomestead
-	}
-
-	allPrecompiles := make([]vm.RegistrablePrecompile, 0, len(addrToPrecompiles))
-	for _, precompile := range addrToPrecompiles {
-		allPrecompiles = append(allPrecompiles, precompile)
-	}
-	return allPrecompiles
+func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
+	return GetDefaultPrecompiles(rules)
 }
 
 // `Run` supports executing stateless precompiles with the background context.
@@ -87,4 +71,24 @@ func (dp *defaultPlugin) Run(
 	output, err := pc.Run(context.Background(), input, caller, value, readonly)
 
 	return output, suppliedGas, err
+}
+
+func GetDefaultPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
+	// Depending on the hard fork rules, we need to register a different set of precompiles.
+	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
+	switch {
+	case rules.IsBerlin:
+	case rules.IsIstanbul:
+		addrToPrecompiles = vm.PrecompiledContractsBerlin
+	case rules.IsByzantium:
+		addrToPrecompiles = vm.PrecompiledContractsByzantium
+	case rules.IsHomestead:
+		addrToPrecompiles = vm.PrecompiledContractsHomestead
+	}
+
+	allPrecompiles := make([]vm.RegistrablePrecompile, 0, len(addrToPrecompiles))
+	for _, precompile := range addrToPrecompiles {
+		allPrecompiles = append(allPrecompiles, precompile)
+	}
+	return allPrecompiles
 }

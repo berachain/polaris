@@ -29,7 +29,6 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/errors"
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
@@ -90,7 +89,7 @@ func NewStateProcessor(
 		sp.pp = precompile.NewDefaultPlugin()
 	} else {
 		// build and register the native precompile contracts
-		sp.BuildPrecompiles(sp.pp.GetPrecompiles(params.Rules{}))
+		sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
 	}
 
 	return sp
@@ -124,11 +123,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
 
 	// Setup the EVM for this block.
-	sp.BuildPrecompiles(
-		precompile.NewDefaultPlugin().GetPrecompiles(
-			chainConfig.Rules(sp.block.Number, true, sp.block.Time),
-		),
-	)
+	rules := chainConfig.Rules(sp.block.Number, true, sp.block.Time)
+	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
 		sp.NewEVMBlockContext(),
@@ -241,8 +237,13 @@ func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
 }
 
 // `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
-func (sp *StateProcessor) BuildPrecompiles(precompiles []vm.RegistrablePrecompile) {
+func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {
 	for _, pc := range precompiles {
+		// skip registering precompiles that are already registered.
+		if sp.pp.Has(pc.RegistryKey()) {
+			continue
+		}
+
 		// choose the appropriate precompile factory
 		var af precompile.AbstractFactory
 		if utils.Implements[precompile.DynamicImpl](pc) {
@@ -264,7 +265,10 @@ func (sp *StateProcessor) BuildPrecompiles(precompiles []vm.RegistrablePrecompil
 		if err != nil {
 			panic(err)
 		}
-		sp.pp.Register(container)
+		err = sp.pp.Register(container)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

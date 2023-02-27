@@ -35,7 +35,7 @@ type (
 		// `Reset` sets the native precompile context before beginning a state transition.
 		libtypes.Resettable
 		// `GetPrecompiles` returns the native precompiles for the chain.
-		GetPrecompiles(rules params.Rules) []vm.RegistrablePrecompile
+		GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile
 		// `Register` registers a new precompiled contract at the given address.
 		Register(vm.PrecompileContainer) error
 		// `PrecompileManager` is the manager for the native precompiles.

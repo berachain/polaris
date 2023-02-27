@@ -26,7 +26,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -35,19 +34,9 @@ import (
 	"pkg.berachain.dev/stargazer/lib/registry"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/precompile/staking"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 )
-
-// `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
-type plugin struct {
-	sdk.Context
-	libtypes.Registry[common.Address, vm.PrecompileContainer]
-
-	// keepers for native precompiles
-	sk *stakingkeeper.Keeper
-}
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
@@ -55,11 +44,20 @@ type Plugin interface {
 	core.PrecompilePlugin
 }
 
-// `NewPlugin` creates and returns a `plugin` with the given keepers.
-func NewPlugin(sk *stakingkeeper.Keeper) Plugin {
+// `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
+type plugin struct {
+	sdk.Context
+	libtypes.Registry[common.Address, vm.PrecompileContainer]
+
+	// `getPrecompiles` returns all supported precompile contracts.
+	getPrecompiles func() []vm.RegistrablePrecompile
+}
+
+// `NewPlugin` creates and returns a `plugin` with the given precompile getter function.
+func NewPlugin(getPrecompiles func() []vm.RegistrablePrecompile) Plugin {
 	return &plugin{
-		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
-		sk:       sk,
+		Registry:       registry.NewMap[common.Address, vm.PrecompileContainer](),
+		getPrecompiles: getPrecompiles,
 	}
 }
 
@@ -68,11 +66,9 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.Context = sdk.UnwrapSDKContext(ctx)
 }
 
-// `GetPrecompiles` returns the staking precompile contract.
-//
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
-func (dp *plugin) GetPrecompiles(_ params.Rules) []vm.RegistrablePrecompile {
-	return []vm.RegistrablePrecompile{staking.NewPrecompileContract(dp.sk)}
+func (dp *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
+	return dp.getPrecompiles()
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting
