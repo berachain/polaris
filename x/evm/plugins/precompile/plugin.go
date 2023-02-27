@@ -67,8 +67,8 @@ func (p *plugin) Reset(ctx context.Context) {
 }
 
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
-func (dp *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
-	return dp.getPrecompiles()
+func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
+	return p.getPrecompiles()
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting

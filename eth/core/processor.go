@@ -246,13 +246,14 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.Registrab
 
 		// choose the appropriate precompile factory
 		var af precompile.AbstractFactory
-		if utils.Implements[precompile.DynamicImpl](pc) {
+		switch {
+		case utils.Implements[precompile.DynamicImpl](pc):
 			af = precompile.NewDynamicFactory()
-		} else if utils.Implements[precompile.StatefulImpl](pc) {
+		case utils.Implements[precompile.StatefulImpl](pc):
 			af = precompile.NewStatefulFactory()
-		} else if utils.Implements[precompile.StatelessImpl](pc) {
+		case utils.Implements[precompile.StatelessImpl](pc):
 			af = precompile.NewStatelessFactory()
-		} else {
+		default:
 			panic(
 				fmt.Sprintf(
 					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),

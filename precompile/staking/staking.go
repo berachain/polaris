@@ -47,12 +47,12 @@ type Contract struct {
 
 // `NewContract` is the constructor of the staking contract.
 func NewPrecompileContract(sk **stakingkeeper.Keeper) precompile.StatefulImpl {
-	var contractAbi *abi.ABI
+	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.StakingModuleMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
-		contractAbi: contractAbi,
+		contractAbi: &contractAbi,
 		msgServer:   stakingkeeper.NewMsgServerImpl(*sk),
 		querier:     stakingkeeper.Querier{Keeper: *sk},
 	}
