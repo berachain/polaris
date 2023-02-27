@@ -60,7 +60,7 @@ func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
 
 		masterPriv, ch := hd.ComputeMastersFromSeed(seed)
 		if len(hdPath) == 0 {
-			return masterPriv[:], nil
+			return ECDSAify(masterPriv[:])
 		}
 
 		derivedKey, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hdPath)
@@ -68,13 +68,7 @@ func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
 			return nil, err
 		}
 
-		x, err := ethsecp256k1.PrivKey{Key: derivedKey}.ToECDSA()
-		if err != nil {
-			return nil, err
-		}
-
-		// Return the private key as a byte slice.
-		return crypto.FromECDSA(x), nil
+		return ECDSAify(derivedKey)
 	}
 }
 
@@ -87,4 +81,16 @@ func (s ethSecp256k1Algo) Generate() hd.GenerateFn {
 			Key: bzArr,
 		}
 	}
+}
+
+// `ECDSAify` converts a private key to an ECDSA private key.
+func ECDSAify(key []byte) ([]byte, error) {
+	// Convert the private key to an ECDSA private key.
+	x, err := ethsecp256k1.PrivKey{Key: key}.ToECDSA()
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the private key as a byte slice.
+	return crypto.FromECDSA(x), nil
 }
