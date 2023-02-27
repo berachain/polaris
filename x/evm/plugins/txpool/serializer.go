@@ -111,20 +111,19 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 		return nil, err
 	}
 
-	// Fourthly, we retrieve the hash of the signed transaction from the ethereum transaction
-	// objects, as this was the bytes that were signed. We pass these into the SingleSignatureData
-	// as the SignModeHandler needs to know what data was signed over so that it can
-	// verify the signature in the ante handler.
-	rawSig := coretypes.LatestSignerForChainID(signedTx.ChainId()).Hash(signedTx).Bytes()
-
 	// Lastly, we set the signature. We can pull the sequence from the nonce of the ethereum tx.
 	if err = tx.SetSignatures(
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
 				// TODO: this will fail, need to define custom signmode.
-				SignMode:  signingtypes.SignMode_SIGN_MODE_DIRECT,
-				Signature: rawSig,
+				SignMode: signingtypes.SignMode_SIGN_MODE_DIRECT,
+				// We retrieve the hash of the signed transaction from the ethereum transaction
+				// objects, as this was the bytes that were signed. We pass these into the
+				// SingleSignatureData as the SignModeHandler needs to know what data was signed
+				// over so that it can verify the signature in the ante handler.
+				Signature: coretypes.LatestSignerForChainID(signedTx.ChainId()).
+					Hash(signedTx).Bytes(),
 			},
 			PubKey: pk,
 		},
