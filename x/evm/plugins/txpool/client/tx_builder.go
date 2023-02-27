@@ -23,7 +23,6 @@ package client
 import (
 	"errors"
 	"fmt"
-	"reflect"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -150,9 +149,7 @@ func NewEthTxBuilder(signedTx *coretypes.Transaction, evmDenom string, clientCtx
 	}
 
 	tx := txBuilder.GetTx()
-
-	fmt.Println("REFLECT", reflect.TypeOf(NewWrapper(tx)))
-	return NewWrapper(tx), nil
+	return tx, nil
 
 	// // Finally, we set the extension options to the builder. (ExtensionOptionsEthTransaction)
 	// txBuilder.SetExtensionOptions(option)

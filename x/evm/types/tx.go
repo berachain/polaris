@@ -26,10 +26,8 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tx "github.com/cosmos/cosmos-sdk/types/tx"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
@@ -40,7 +38,8 @@ import (
 var _ ante.GasTx = (*EthTransactionRequest)(nil)
 var _ sdk.Tx = (*EthTransactionRequest)(nil)
 var _ sdk.Msg = (*EthTransactionRequest)(nil)
-var _ authsigning.Tx = (*EthTransactionRequest)(nil)
+
+// var _ authsigning.Tx = (*EthTransactionRequest)(nil)
 
 // `NewFromTransaction` sets the transaction data from an `coretypes.Transaction`.
 func NewFromTransaction(tx *coretypes.Transaction) *EthTransactionRequest {
@@ -150,54 +149,6 @@ func (etr *EthTransactionRequest) ValidateBasic() error {
 	}
 
 	return nil
-}
-
-func (etr *EthTransactionRequest) GetMemo() string {
-	return ""
-}
-
-func (etr *EthTransactionRequest) GetFee() sdk.Coins {
-	return sdk.NewCoins()
-}
-
-func (etr *EthTransactionRequest) GetGasPrice() sdk.Dec {
-	return sdk.NewDec(0)
-}
-
-func (etr *EthTransactionRequest) GetGasLimit() uint64 {
-	return etr.GetGas()
-}
-
-func (etr *EthTransactionRequest) GetSignBytes() []byte {
-	return etr.Data
-}
-
-func (etr *EthTransactionRequest) FeeGranter() sdk.AccAddress {
-	return nil
-}
-
-func (etr *EthTransactionRequest) FeePayer() sdk.AccAddress {
-	return nil
-}
-
-func (etr *EthTransactionRequest) GetTimeoutHeight() uint64 {
-	return 0
-}
-
-func (etr *EthTransactionRequest) GetTimeoutTimestamp() uint64 {
-	return 0
-}
-
-func (etr *EthTransactionRequest) GetSignatures() [][]byte {
-	return nil
-}
-
-func (etr *EthTransactionRequest) SetSignatures(signatures ...[]byte) error {
-	return nil
-}
-
-func (etr *EthTransactionRequest) GetTip() *tx.Tip {
-	return &tx.Tip{}
 }
 
 // `SetReceiept` sets the transaction receipt.
