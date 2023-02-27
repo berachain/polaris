@@ -369,8 +369,7 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
-	// TODO: Implement your code here
-	return 0, nil
+	return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
 }
 
 func (b *backend) Stats() (int, int) {
