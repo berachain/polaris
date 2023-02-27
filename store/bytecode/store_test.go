@@ -25,7 +25,7 @@ var _ = Describe("bytecodeStore", func() {
 
 	It("should set and get byte code", func() {
 		store.StoreByteCode(addr, code1)
-		codeHash := crypto.Keccak256Hash(code1[:])
+		codeHash := crypto.Keccak256Hash(code1)
 		code, err := store.GetByteCode(addr, codeHash)
 		Expect(err).To(BeNil())
 		Expect(code).To(Equal(code1))

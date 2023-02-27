@@ -22,11 +22,11 @@ func (s Store) StoreByteCode(addr common.Address, code []byte) {
 // code hash, and returns the byte code if the code hash matches.
 func (s Store) GetByteCode(addr common.Address, codeHash common.Hash) ([]byte, error) {
 	code := prefix.NewStore(s.Store, byteCodePrefix).Get(addr.Bytes())
-	if codeHash == crypto.Keccak256Hash(code) {
-		return code, nil
-	} else {
+	if codeHash != crypto.Keccak256Hash(code) {
 		return nil, ErrByteCodeDoesNotMatch
 	}
+
+	return code, nil
 }
 
 // `IterateByteCode` iterates over the byte code and calls the given callback function. Break the
