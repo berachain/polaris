@@ -37,38 +37,26 @@ func TestByteCode(t *testing.T) {
 
 var _ = Describe("bytecodeStore", func() {
 	var (
-		addr  = common.BytesToAddress([]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20})
 		code1 = []byte{1}
 		dbDir = sims.NewAppOptionsWithFlagHome("/tmp/berachain")
 		store = NewByteCodeStore(dbDir)
 	)
 
 	It("should set and get byte code", func() {
-		store.StoreByteCode(addr, code1)
+		store.StoreCode(code1)
 		codeHash := crypto.Keccak256Hash(code1)
-		code, err := store.GetByteCode(addr, codeHash)
-		Expect(err).To(BeNil())
+		code := store.GetCode(codeHash)
 		Expect(code).To(Equal(code1))
 	})
 
-	It("should fail to get byte code if the code hash does not match", func() {
-		store.StoreByteCode(addr, code1)
-		codeHash := crypto.Keccak256Hash([]byte{2})
-		code, err := store.GetByteCode(addr, codeHash)
-		Expect(err).To(Equal(ErrByteCodeDoesNotMatch))
-		Expect(code).To(BeNil())
-	})
-
 	It("should iterate over byte code", func() {
-		log := make([]byte, 0)
-
-		store.StoreByteCode(addr, code1)
-		store.IterateByteCode(nil, nil, func(addr common.Address, code []byte) bool {
-			log = append(log, code...)
+		log := make(map[common.Hash][]byte, 0)
+		store.StoreCode(code1)
+		store.IterateCode(nil, nil, func(codeHash common.Hash, code []byte) bool {
+			log[codeHash] = code
 			return true // break the iteration
 		})
-
-		Expect(log).To(Equal(code1))
+		Expect(log[crypto.Keccak256Hash(code1)]).To(Equal(code1))
 	})
 
 	It("should set and get version", func() {

@@ -33,29 +33,31 @@ var (
 	versionPrefix  = []byte{0x2}
 )
 
-// `StoreByteCode` stores the byte code of the given address.
-func (s Store) StoreByteCode(addr common.Address, code []byte) {
-	prefix.NewStore(s.Store, byteCodePrefix).Set(addr.Bytes(), code)
+// `CodeKeyFor` defines the full key under which an addreses code is stored.
+func CodeKeyFor(codeHash common.Hash) []byte {
+	bz := make([]byte, 1+common.HashLength)
+	copy(bz, byteCodePrefix)
+	copy(bz[1:], codeHash[:])
+	return bz
 }
 
-// `GetByteCode` returns the byte code of the given address, compares it with the given
-// code hash, and returns the byte code if the code hash matches.
-func (s Store) GetByteCode(addr common.Address, codeHash common.Hash) ([]byte, error) {
-	code := prefix.NewStore(s.Store, byteCodePrefix).Get(addr.Bytes())
-	if codeHash != crypto.Keccak256Hash(code) {
-		return nil, ErrByteCodeDoesNotMatch
-	}
-
-	return code, nil
+// `StoreCode` stores the byte code at the code hash key.
+func (s Store) StoreCode(code []byte) {
+	prefix.NewStore(s.Store, byteCodePrefix).Set(CodeKeyFor(crypto.Keccak256Hash(code)), code)
 }
 
-// `IterateByteCode` iterates over the byte code and calls the given callback function. Break the
-// iteration if the callback function returns true. The check for the code hash check should be done in the callback.
-func (s Store) IterateByteCode(start, end []byte, cb func(addr common.Address, code []byte) bool) {
+// `GetCode` returns the byte code for the given code hash.
+func (s Store) GetCode(codeHash common.Hash) []byte {
+	return prefix.NewStore(s.Store, byteCodePrefix).Get(CodeKeyFor(codeHash))
+}
+
+// `IterateCode` iterates over the byte code and calls the given callback function. Break the
+// iteration if the callback function returns true.
+func (s Store) IterateCode(start, end []byte, cb func(codeHash common.Hash, code []byte) bool) {
 	iter := prefix.NewStore(s.Store, byteCodePrefix).Iterator(start, end)
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
-		if cb(common.BytesToAddress(iter.Key()), iter.Value()) {
+		if cb(common.BytesToHash(iter.Key()), iter.Value()) {
 			break
 		}
 	}
