@@ -321,8 +321,9 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 	return b.chain.Host().GetTxPoolPlugin().SendTx(signedTx)
 }
 
-func (b *backend) GetTransaction(ctx context.Context,
-	txHash common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error) {
+func (b *backend) GetTransaction(
+	ctx context.Context, txHash common.Hash,
+) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	// 1. Check the Mempool
 	tx := b.GetPoolTransaction(txHash)
 	if tx != nil {
