@@ -73,7 +73,8 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&sk))
+		skAddr := &sk
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&skAddr))
 	})
 
 	When("AbiMethods", func() {
@@ -1009,6 +1010,19 @@ var _ = Describe("Staking", func() {
 						Expect(err).ToNot(HaveOccurred())
 					})
 				})
+			})
+		})
+
+		When("GetActiveValidators", func() {
+			It("gets active validators", func() {
+				// Set the validator to be bonded.
+				validator.Status = stakingtypes.Bonded
+				sk.SetValidator(ctx, validator)
+
+				// Get the active validators.
+				res, err := contract.GetActiveValidators(ctx, caller, big.NewInt(0), true)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(HaveLen(1))
 			})
 		})
 	})

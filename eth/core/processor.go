@@ -25,13 +25,12 @@ import (
 	"fmt"
 	"sync"
 
-	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
@@ -86,6 +85,9 @@ func NewStateProcessor(
 
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
+	} else {
+		// build and register the native precompile contracts
+		sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
 	}
 
 	return sp
@@ -119,7 +121,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
 
 	// Setup the EVM for this block.
-	sp.BuildGethStatelessPrecompiles(chainConfig.Rules(sp.block.Number, true, sp.block.Time))
+	rules := chainConfig.Rules(sp.block.Number, true, sp.block.Time)
+	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
 		sp.NewEVMBlockContext(),
@@ -231,37 +234,39 @@ func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
 	return NewEVMBlockContext(sp.block.Header, &chainContext{sp}, feeCollector)
 }
 
-// `BuildGethStatelessPrecompiles` builds the default stateless precompiles for the EVM.
-func (sp *StateProcessor) BuildGethStatelessPrecompiles(rules params.Rules) {
-	// Build a stateless factory.
-	sf := precompile.NewStatelessFactory()
+// `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
+func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {
+	for _, pc := range precompiles {
+		// skip registering precompiles that are already registered.
+		if sp.pp.Has(pc.RegistryKey()) {
+			continue
+		}
 
-	// Depending on the hard fork rules, we need to register a different set of precompiles.
-	var allPrecompiles map[common.Address]vm.PrecompileContainer
-	switch {
-	case rules.IsBerlin:
-		allPrecompiles = vm.PrecompiledContractsBerlin
-	case rules.IsIstanbul:
-		allPrecompiles = vm.PrecompiledContractsBerlin
-	case rules.IsByzantium:
-		allPrecompiles = vm.PrecompiledContractsByzantium
-	case rules.IsHomestead:
-		allPrecompiles = vm.PrecompiledContractsHomestead
-	}
+		// choose the appropriate precompile factory
+		var af precompile.AbstractFactory
+		switch {
+		case utils.Implements[precompile.DynamicImpl](pc):
+			af = precompile.NewDynamicFactory()
+		case utils.Implements[precompile.StatefulImpl](pc):
+			af = precompile.NewStatefulFactory()
+		case utils.Implements[precompile.StatelessImpl](pc):
+			af = precompile.NewStatelessFactory()
+		default:
+			panic(
+				fmt.Sprintf(
+					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
+				),
+			)
+		}
 
-	// Iterate through all the precompiles and register them if they have yet
-	// to be registered.
-	for _, pc := range allPrecompiles {
-		address := pc.RegistryKey()
-		if !sp.pp.Has(address) {
-			precomp, err := sf.Build(pc)
-			if err != nil {
-				panic(err)
-			}
-			err = sp.pp.Register(precomp)
-			if err != nil {
-				panic(err)
-			}
+		// build the precompile container and register with the plugin
+		container, err := af.Build(pc)
+		if err != nil {
+			panic(err)
+		}
+		err = sp.pp.Register(container)
+		if err != nil {
+			panic(err)
 		}
 	}
 }
