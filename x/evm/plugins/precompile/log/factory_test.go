@@ -31,6 +31,8 @@ import (
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/stargazer/eth/core/precompile/mock"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	utils "pkg.berachain.dev/stargazer/x/evm/utils"
 )
@@ -41,6 +43,7 @@ var _ = Describe("Factory", func() {
 	var delAddr sdk.AccAddress
 	var amt sdk.Coin
 	var creationHeight int64
+	var pc *mock.StatefulImplMock
 
 	BeforeEach(func() {
 		f = NewFactory()
@@ -48,12 +51,28 @@ var _ = Describe("Factory", func() {
 		delAddr = sdk.AccAddress([]byte("bob"))
 		creationHeight = int64(10)
 		amt = sdk.NewCoin("denom", sdk.NewInt(10))
+		pc = mock.NewStatefulImpl()
 
 		Expect(func() {
-			f.RegisterEvent(common.BytesToAddress([]byte{0x01}), mockDefaultAbiEvent(), nil)
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x01})
+			}
+			pc.ABIEventsFunc = func() map[string]abi.Event {
+				return map[string]abi.Event{
+					"CancelUnbondingDelegation": mockDefaultAbiEvent(),
+				}
+			}
+			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
 		}).ToNot(Panic())
 		Expect(func() {
-			f.RegisterEvent(common.BytesToAddress([]byte{0x02}), mockCustomAbiEvent(), cvd)
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x02})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
 		}).ToNot(Panic())
 	})
 
@@ -119,9 +138,8 @@ var _ = Describe("Factory", func() {
 				),
 			))
 			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
-			packedData, err := mockCustomAbiEvent().Inputs.NonIndexed().Pack(
-				amt.Amount.BigInt(),
-			)
+			packedData, err := mockCustomAbiEvent()["CustomUnbondingDelegation"].
+				Inputs.NonIndexed().Pack(amt.Amount.BigInt())
 			Expect(err).To(BeNil())
 			Expect(log.Data).To(Equal(packedData))
 		})
@@ -129,7 +147,14 @@ var _ = Describe("Factory", func() {
 
 	When("building invalid Cosmos events", func() {
 		It("should not find the custom value decoder", func() {
-			f.RegisterEvent(common.BytesToAddress([]byte{0x03}), mockBadAbiEvent(), cvd)
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x03})
+			}
+			pc.ABIEventsFunc = mockBadAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
@@ -153,7 +178,14 @@ var _ = Describe("Factory", func() {
 			badCvd["custom_validator"] = func(val string) (any, error) {
 				return nil, errors.New("invalid validator address")
 			}
-			f.RegisterEvent(common.BytesToAddress([]byte{0x03}), mockCustomAbiEvent(), badCvd)
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x03})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return badCvd
+			}
+			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
@@ -174,14 +206,21 @@ var _ = Describe("Factory", func() {
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
 			}
-			f.RegisterEvent(common.BytesToAddress([]byte{0x03}), mockCustomAbiEvent(), badCvd)
+			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
 			log, err = f.Build(&event)
 			Expect(log).To(BeNil())
 			Expect(err.Error()).To(Equal("invalid amount"))
 		})
 
 		It("should not find attribute key", func() {
-			f.RegisterEvent(common.BytesToAddress([]byte{0x03}), mockCustomAbiEvent(), cvd)
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x03})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
@@ -205,26 +244,28 @@ var _ = Describe("Factory", func() {
 
 // MOCKS BELOW.
 
-func mockCustomAbiEvent() abi.Event {
+func mockCustomAbiEvent() map[string]abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
 	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
-	return abi.NewEvent(
-		"CustomUnbondingDelegation",
-		"CustomUnbondingDelegation",
-		false,
-		abi.Arguments{
-			{
-				Name:    "customValidator",
-				Type:    addrType,
-				Indexed: true,
+	return map[string]abi.Event{
+		"CustomUnbondingDelegation": abi.NewEvent(
+			"CustomUnbondingDelegation",
+			"CustomUnbondingDelegation",
+			false,
+			abi.Arguments{
+				{
+					Name:    "customValidator",
+					Type:    addrType,
+					Indexed: true,
+				},
+				{
+					Name:    "customAmount",
+					Type:    uint256Type,
+					Indexed: false,
+				},
 			},
-			{
-				Name:    "customAmount",
-				Type:    uint256Type,
-				Indexed: false,
-			},
-		},
-	)
+		),
+	}
 }
 
 var cvd = precompile.ValueDecoders{
@@ -244,29 +285,31 @@ var cvd = precompile.ValueDecoders{
 	},
 }
 
-func mockBadAbiEvent() abi.Event {
+func mockBadAbiEvent() map[string]abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
 	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
-	return abi.NewEvent(
-		"CustomUnbondingDelegation",
-		"CustomUnbondingDelegation",
-		false,
-		abi.Arguments{
-			{
-				Name:    "customValidator",
-				Type:    addrType,
-				Indexed: true,
+	return map[string]abi.Event{
+		"CustomUnbondingDelegation": abi.NewEvent(
+			"CustomUnbondingDelegation",
+			"CustomUnbondingDelegation",
+			false,
+			abi.Arguments{
+				{
+					Name:    "customValidator",
+					Type:    addrType,
+					Indexed: true,
+				},
+				{
+					Name:    "customAmount",
+					Type:    uint256Type,
+					Indexed: false,
+				},
+				{
+					Name:    "invalidArg",
+					Type:    uint256Type,
+					Indexed: false,
+				},
 			},
-			{
-				Name:    "customAmount",
-				Type:    uint256Type,
-				Indexed: false,
-			},
-			{
-				Name:    "invalidArg",
-				Type:    uint256Type,
-				Indexed: false,
-			},
-		},
-	)
+		),
+	}
 }

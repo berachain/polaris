@@ -8,8 +8,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/params"
 	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"sync"
 )
 
@@ -25,6 +27,9 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //		mockedPrecompilePlugin := &PrecompilePluginMock{
 //			GetFunc: func(addr common.Address) vm.PrecompiledContract {
 //				panic("mock out the Get method")
+//			},
+//			GetPrecompilesFunc: func(rules *params.Rules) []libtypes.Registrable[Address] {
+//				panic("mock out the GetPrecompiles method")
 //			},
 //			HasFunc: func(addr common.Address) bool {
 //				panic("mock out the Has method")
@@ -48,6 +53,9 @@ type PrecompilePluginMock struct {
 	// GetFunc mocks the Get method.
 	GetFunc func(addr common.Address) vm.PrecompiledContract
 
+	// GetPrecompilesFunc mocks the GetPrecompiles method.
+	GetPrecompilesFunc func(rules *params.Rules) []libtypes.Registrable[Address]
+
 	// HasFunc mocks the Has method.
 	HasFunc func(addr common.Address) bool
 
@@ -66,6 +74,11 @@ type PrecompilePluginMock struct {
 		Get []struct {
 			// Addr is the addr argument value.
 			Addr common.Address
+		}
+		// GetPrecompiles holds details about calls to the GetPrecompiles method.
+		GetPrecompiles []struct {
+			// Rules is the rules argument value.
+			Rules *params.Rules
 		}
 		// Has holds details about calls to the Has method.
 		Has []struct {
@@ -100,11 +113,12 @@ type PrecompilePluginMock struct {
 			Readonly bool
 		}
 	}
-	lockGet      sync.RWMutex
-	lockHas      sync.RWMutex
-	lockRegister sync.RWMutex
-	lockReset    sync.RWMutex
-	lockRun      sync.RWMutex
+	lockGet            sync.RWMutex
+	lockGetPrecompiles sync.RWMutex
+	lockHas            sync.RWMutex
+	lockRegister       sync.RWMutex
+	lockReset          sync.RWMutex
+	lockRun            sync.RWMutex
 }
 
 // Get calls GetFunc.
@@ -136,6 +150,38 @@ func (mock *PrecompilePluginMock) GetCalls() []struct {
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
 	mock.lockGet.RUnlock()
+	return calls
+}
+
+// GetPrecompiles calls GetPrecompilesFunc.
+func (mock *PrecompilePluginMock) GetPrecompiles(rules *params.Rules) []libtypes.Registrable[Address] {
+	if mock.GetPrecompilesFunc == nil {
+		panic("PrecompilePluginMock.GetPrecompilesFunc: method is nil but PrecompilePlugin.GetPrecompiles was just called")
+	}
+	callInfo := struct {
+		Rules *params.Rules
+	}{
+		Rules: rules,
+	}
+	mock.lockGetPrecompiles.Lock()
+	mock.calls.GetPrecompiles = append(mock.calls.GetPrecompiles, callInfo)
+	mock.lockGetPrecompiles.Unlock()
+	return mock.GetPrecompilesFunc(rules)
+}
+
+// GetPrecompilesCalls gets all the calls that were made to GetPrecompiles.
+// Check the length with:
+//
+//	len(mockedPrecompilePlugin.GetPrecompilesCalls())
+func (mock *PrecompilePluginMock) GetPrecompilesCalls() []struct {
+	Rules *params.Rules
+} {
+	var calls []struct {
+		Rules *params.Rules
+	}
+	mock.lockGetPrecompiles.RLock()
+	calls = mock.calls.GetPrecompiles
+	mock.lockGetPrecompiles.RUnlock()
 	return calls
 }
 

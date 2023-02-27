@@ -87,6 +87,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"pkg.berachain.dev/stargazer/eth/core/vm"
+	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
@@ -219,22 +221,29 @@ func NewSimApp( //nolint: funlen // from sdk.
 				appOpts,
 				// ADVANCED CONFIGURATION
 				//
+				// EVM PRECOMPILES
+				//
+				func() []vm.RegistrablePrecompile {
+					return []vm.RegistrablePrecompile{
+						// TODO: add more precompiles here
+						stakingprecompile.NewPrecompileContract(&app.StakingKeeper),
+					}
+				},
+				//
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
 				// add it below. By default the auth module uses simulation.RandomGenesisAccounts.
 				//
 				// authtypes.RandomGenesisAccountsFn(simulation.RandomGenesisAccounts),
-
+				//
 				// For providing a custom a base account type add it below.
 				// By default the auth module uses authtypes.ProtoBaseAccount().
 				//
 				// func() sdk.AccountI { return authtypes.ProtoBaseAccount() },
-
 				//
 				// MINT
 				//
-
 				// For providing a custom inflation function for x/evm add here your
 				// custom function that implements the minttypes.InflationCalculationFn
 				// interface.
