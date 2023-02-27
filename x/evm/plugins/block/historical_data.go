@@ -31,10 +31,11 @@ import (
 )
 
 var (
-	blockHashKeyPrefix = []byte{0xb}
-	blockNumKeyPrefix  = []byte{0xbb}
-	txHashKeyPrefix    = []byte{0x10}
-	versionKey         = []byte{0x11}
+	blockHashKeyPrefix  = []byte{0xb}
+	blockNumKeyPrefix   = []byte{0xbb}
+	txHashKeyPrefix     = []byte{0x10}
+	versionKey          = []byte{0x11}
+	txBlockNumKeyPrefix = []byte{0x12}
 )
 
 // `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
@@ -49,12 +50,17 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 
 	// adding txns to kv.
 	txStore := prefix.NewStore(p.offchainStore, txHashKeyPrefix)
+
+	// adding txn with block number to kv.
+	txBlockNumStore := prefix.NewStore(p.offchainStore, txBlockNumKeyPrefix)
+
 	for _, tx := range block.GetTransactions() {
-		bz, err = tx.MarshalBinary()
+		txBytes, err := tx.MarshalBinary()
 		if err != nil {
 			panic(err)
 		}
-		txStore.Set(tx.Hash().Bytes(), bz)
+		txStore.Set(tx.Hash().Bytes(), txBytes)
+		txBlockNumStore.Set(tx.Hash().Bytes(), numBz)
 	}
 
 	version := block.Number
@@ -91,4 +97,42 @@ func (p *plugin) GetStargazerBlockByHash(hash common.Hash) *coretypes.StargazerB
 		return nil
 	}
 	return p.GetStargazerBlockByNumber(new(big.Int).SetBytes(bz).Int64())
+}
+
+// `GetTransactionByHash` returns the transaction with the given hash.
+func (p *plugin) GetTransactionByHash(hash common.Hash) *coretypes.Transaction {
+	txStore := prefix.NewStore(p.offchainStore, txHashKeyPrefix)
+	bz := txStore.Get(hash.Bytes())
+	if bz == nil {
+		return nil
+	}
+	var tx coretypes.Transaction
+	err := tx.UnmarshalBinary(bz)
+	if err != nil {
+		p.ctx.Logger().Error("failed to unmarshal transaction", "err", err)
+		return nil
+	}
+	return &tx
+}
+
+// `GetTransactionBlockNumber` returns the block number of the transaction with the given hash.
+func (p *plugin) GetTransactionBlockNumber(txHash common.Hash) *big.Int {
+	txBlockNumStore := prefix.NewStore(p.offchainStore, txBlockNumKeyPrefix)
+	bz := txBlockNumStore.Get(txHash.Bytes())
+	if bz == nil {
+		return nil
+	}
+	return new(big.Int).SetBytes(bz)
+}
+
+// `GetBlockHash` returns the block hash for the given block number.
+func (p *plugin) GetBlockHash(blockNum *big.Int) common.Hash {
+	blockNumStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
+	data := blockNumStore.Get(sdk.Uint64ToBigEndian(blockNum.Uint64()))
+	var block *coretypes.StargazerBlock
+	err := block.UnmarshalBinary(data)
+	if err != nil {
+		panic(err)
+	}
+	return block.Hash()
 }

@@ -104,3 +104,8 @@ func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
 func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return p.mempool.GetTransaction(hash)
 }
+
+func (p *plugin) GetNonce(addr common.Address) uint64 {
+	// TODO: implement this
+	return 0
+}

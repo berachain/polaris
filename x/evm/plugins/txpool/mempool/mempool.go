@@ -41,6 +41,15 @@ type EthTxPool struct {
 	// `ethTxCache` caches transactions that are added to the mempool
 	// so that they can be retrieved later
 	ethTxCache map[common.Hash]*coretypes.Transaction
+
+	// // `nonceCache` caches the pending nonce by txhash
+	// nonceCache map[common.Address]*coretypes.Transaction
+
+	// // `minedBlockCache` caches the mined transaction by block hash
+	// minedBlockCache map[common.Hash][]*coretypes.Transaction
+
+	// `blockNumberCache`
+
 }
 
 // `New` is called when the mempool is created.
