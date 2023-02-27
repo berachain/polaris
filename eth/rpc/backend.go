@@ -55,6 +55,7 @@ var DefaultGasPriceOracleConfig = gasprice.Config{
 	MaxBlockHistory:  256,
 	Default:          big.NewInt(1000000000),
 	MaxPrice:         big.NewInt(1000000000000000000),
+	IgnorePrice:      gasprice.DefaultIgnorePrice,
 }
 
 type StargazerBackend interface {
