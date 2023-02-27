@@ -127,7 +127,7 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 			AbiSig:  "cancelUnbondingDelegation(string,uint256,int64)",
 			Execute: c.CancelUnbondingDelegationStringInput,
 		},
-		&precompile.Method{
+		{
 			AbiSig:  "getActiveValidators()",
 			Execute: c.GetActiveValidators,
 		},
