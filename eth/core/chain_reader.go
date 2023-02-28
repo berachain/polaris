@@ -29,6 +29,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/rpc"
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
@@ -143,7 +144,7 @@ func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Su
 // 	return bc.scope.Track(bc.blockProcFeed.Subscribe(ch))
 // }
 
-func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
+func (bc *blockchain) GetStateByNumber(number rpc.BlockNumber) (vm.GethStateDB, error) {
 	return bc.host.GetStatePlugin().GetStateByNumber(number)
 }
 

@@ -471,7 +471,7 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 }
 
 // `GetStateByNumber` implements `core.StatePlugin`.
-func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
+func (p *plugin) GetStateByNumber(number rpc.BlockNumber) (vm.GethStateDB, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
@@ -489,7 +489,7 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 		// the iavl tree at height 0.
 		iavlHeight = 0
 	default:
-		iavlHeight = number
+		iavlHeight = number.Int64()
 	}
 
 	// Get the query context at the given height.

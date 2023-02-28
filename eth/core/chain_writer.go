@@ -39,7 +39,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.finalizedBlock.Store(bc.processor.block)
 		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
 
-		// Cache transaction data
+		// Cache transaction data.
 		for _, tx := range bc.processor.block.GetTransactions() {
 			bc.txLookupCache.Add(tx.Hash(), tx)
 		}

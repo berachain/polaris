@@ -521,7 +521,7 @@ func (b *backend) PeerCount() hexutil.Uint {
 func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) (*types.StargazerBlock, error) {
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block, err := b.chain.GetStargazerBlockByHash(hash)
+		block, err := b.stargazerBlockByHash(hash)
 		if err != nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
@@ -530,6 +530,8 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 		if block.Hash() == hash {
 			return block, nil
 		}
+
+		// TODO: maybe remove this error clause.
 		if blockNrOrHash.RequireCanonical {
 			return nil, errorslib.Wrapf(ErrHashNotCanonical, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
