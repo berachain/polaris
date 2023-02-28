@@ -1,15 +1,212 @@
-## Installation of a COSMOS-SDK Blockchain
+## Installation of a Cosmos-SDK Blockchain
 
 The recommended way to run fault tolerant nodes that can scale to millions of requests per second would be
-with orchestration tool like Kubernetes. Another option is to run the node on an EC2 instance. 
+with orchestration tool like [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/). Another option is to run the node on an [EC2](https://aws.amazon.com/pm/ec2/) instance. 
 
 AWS offers [Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/) which is a manged service to run Kubernetes in the cloud
 It allows us to run lightweight pods, inside which you can deploy container images. On a failure, a new container automatically comes up. Each pod 
 can also be attached to a volume that can provide elastic disk storage. It also allows us to scale horizontally by adding more nodes/pods/containers on demand to the network. 
 
-### Recommended AWS architecture
+### Example EKS architecture
 Currently, the application runs in 1 container so we can deploy 1 container in each pod. Pod is the smallest resource that 
-Kubernetes can manage. It can have 1 or more than 1 containers. 
+Kubernetes can manage. It can have 1 or more than 1 containers.
 
-#### Heuristic 
-Th 
+Before we can set up pods, we need to set up our EKS cluster -
+
+
+**Step 1: Install AWS CLI and configure AWS Credentials**
+
+1. Install AWS CLI for your local machine from [docs](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
+2. Configure CLI credentials from [docs](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
+
+3. Verify credentials and installation
+
+    ```sh
+    aws sts get-caller-identity
+    ```
+
+    It should return the following - 
+
+    ```sh 
+    {
+    "Account": "123456789012", 
+    "UserId": "AR#####:#####", 
+    "Arn": "arn:aws:sts::123456789012:assumed-role/role-name/role-session-name"
+    }
+    ```
+
+**Step 2: Install eksctl and kubectl**
+
+`eksctl` allows us to manage our EKS cluster and `kubectl` allows us to manage kubernetes resources. 
+
+1. Install `eksctl` from [docs](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
+
+2. Verify installation
+
+    ```sh
+    eksctl version
+    ```
+3. Install `kubectl` from [docs](https://kubernetes.io/docs/tasks/tools/)
+
+4. Verify installation
+
+    ```sh
+    kubectl version
+    ```
+
+**Step 3: Set up EKS cluster**
+
+EKS is a managed Kubernetes cluster and AWS will manage our nodes for us. Clusters can also have controllers/add-ons
+that help control and incorporate cloud specific resources
+
+1. We can create a sample cluster by using following command - 
+
+    ```eksctl create cluster --name my-cluster --region region-code```
+
+    Note: you need to provide a cluster name and AWS region (Ex. `us-west-2`)
+
+    This will create managed default AWS nodes for you to deploy your workloads. You can change the type of workload as well. ekstcl will also create a kubectl config file at `~/.kube`
+
+2. Setup AWS load balancer controller from [docs](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html). This will help kubernetes manage our AWS load balancer.
+
+**Step 4: View Kubernetes resources**
+
+1. View your cluster nodes (which were deployed by eksctl)
+
+    ```kubectl get nodes -o wide```
+
+    The response will be as follows -
+
+    ```
+    NAME                                           STATUS   ROLES    AGE   VERSION                INTERNAL-IP      EXTERNAL-IP      OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
+    ip-192-168-3-224.us-west-2.compute.internal    Ready    <none>   45h   v1.24.10-eks-48e63af   192.168.3.224    192.168.3.224    Amazon Linux 2   5.10.165-143.735.amzn2.x86_64   containerd://1.6.6
+    ip-192-168-36-235.us-west-2.compute.internal   Ready    <none>   45h   v1.24.10-eks-48e63af   192.168.36.235   192.168.36.235    Amazon Linux 2   5.10.165-143.735.amzn2.x86_64   containerd://1.6.6
+    ```
+
+**Step 5: Create kubernetes resources**
+
+    Kubernetes allows us to deploy a few types of `workloads` and `services`. Workloads control the pods and Services control the access to the pod.
+    For our simple case, we will use workload of type `Deployment` and service of type `LoadBalancer`. Our container is deployed inside the pod.
+    More information can be found in [docs](https://kubernetes.io/docs/concepts/workloads/)
+
+1. Setup namespace
+
+    Namespaces ensure that we can use the same cluster to deploy multiple types of applications. We will create a namespace `testnet` for our chain
+
+    ```sh
+    kubectl create namespace testnet
+    ```
+
+1. Create Deployment
+
+For our deployment, we would create a `deployment.yaml `file which looks something like this --
+
+    ```yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+    name: node
+    namespace: testnet
+    spec:
+    replicas: 1
+    selector:
+        matchLabels:
+        app: node
+    template:
+        metadata:
+        labels:
+            app: node
+        spec:
+        containers:
+            - name: node
+            image: <container-registry>/<container-image>
+            ports:
+                - name: consmoslcd
+                containerPort: 1317
+                - name: jsonrpc
+                containerPort: 8545
+                - name: jsonrpcws
+                containerPort: 8546
+                - name: tendermintgrpc
+                containerPort: 9090
+                - name: tendermintrpc
+                containerPort: 26657
+                - name: tendermintpp
+                containerPort: 26656
+
+    ```
+    We are creating a pod with 1 replica and it has 1 container. The container is created using the image tag.
+
+    For more information on `deployments`, refer to this [doc](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+
+2. Create Service
+
+For our service, as we want our node to be access from the public internet, we will create it as a `LoadBalancer`. It will create an AWS Network Load Balancer (NLB)
+
+    ```yaml
+    apiVersion: v1
+    kind: Service
+    metadata:
+    name: node-nlb
+    namespace: testnet
+    annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: external
+        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+        service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    spec:
+    ports:
+        - name: cosmoslcd
+        port: 80
+        targetPort: 1317
+        protocol: TCP
+        - name: jsonrpc
+        port: 8545
+        targetPort: 8545
+        protocol: TCP
+        - name: jsonrpcws
+        port: 8546
+        targetPort: 8546
+        protocol: TCP
+        - name: tenderpmintrpc
+        port: 26657
+        targetPort: 26657
+        protocol: TCP
+        - name: tendermintpp
+        port: 26656
+        targetPort: 26656
+        protocol: TCP
+        - name: tendermintgrpc
+        port: 9090
+        targetPort: 9090
+        protocol: TCP
+    type: LoadBalancer
+    selector:
+        app: node
+    ```
+    We are creating a service of type `LoadBalancer`. This will create a public load balancer and will route requests received on port `80`
+    to port `1317` where we are running our JSON RPC server.
+
+
+3. Verify workload and service
+
+    We should validate that the resources are set up as expected. You can verify running pods by following -
+    ```sh
+    kubectl get pods -n testnet -o wide
+    ```
+
+    The expected status should be `RUNNING` for the pod
+
+    You can verify that the service is running by following - 
+    ```sh
+    kubectl get services -n testnet
+    ```
+    You should also verify in AWS console if the Network Load Balancer has been provisioned
+
+
+4. Test RPC endpoints
+
+    You can test the public rpc endpoint by getting the NLB URL
+    ```sh
+    curl -X POST <load_balancer_url>/eth/rpc -H 'Content-Type: application/json' -d '{ "jsonrpc":"2.0", "method":"eth_blockNumber", "params":[], "id":1}'
+    ```

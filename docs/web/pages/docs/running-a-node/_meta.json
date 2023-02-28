@@ -1,8 +1,8 @@
 {
-    "running-locally": "Running a Local Node",
-    "running-locally-docker": "Running a Local Node with Docker",
-    "running-on-aws": "Running a Node on AWS",
-    "running-on-azure": "Running a Node on Azure",
-    "running-on-gcp": "Running a Node on GCP"
+    "running-locally": "Local Machine",
+    "running-locally-docker": "Docker",
+    "running-on-aws": "AWS",
+    "running-on-azure": "Azure",
+    "running-on-gcp": "GCP"
 
 }

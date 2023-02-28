@@ -33,8 +33,21 @@ The easiest way to run the node in a docker container is to use a pre-built cont
     ```
 
 
-Now you have a node running on your machine with a default chain and we have RPC running on port `1317` and path `eth/rpc`. To test, 
-you can run ```curl -X POST -d {""}``` 
+Now you have a node running on your machine with a default chain and we have RPC running on port `1317` and path `eth/rpc`. To verify, 
+you can try `eth_blockNumber` JSON-RPC example below - 
+
+```sh
+curl -X POST 127.0.0.1:1317/eth/rpc -H 'Content-Type: application/json' -d '{ "jsonrpc":"2.0", "method":"eth_blockNumber", "params":[], "id":1}'
+``` 
 
 A successful JSON RPC query will return in following -
+
+```sh
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": "<block_number>"
+}
+```
+
 
