@@ -134,11 +134,6 @@ func (etr *EthTransactionRequest) getSignatureDynamic() ([]byte, error) {
 
 func (etr *EthTransactionRequest) GetSignBytes() ([]byte, error) {
 	t := etr.AsTransaction()
-	fmt.Println("GET SIGN BYTES")
-	fmt.Println(t.ChainId())
-	fmt.Println(t)
-	fmt.Println(coretypes.LatestSignerForChainID(t.ChainId()).
-		Hash(t).Bytes())
 	return coretypes.LatestSignerForChainID(t.ChainId()).
 		Hash(t).Bytes(), nil
 }

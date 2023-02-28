@@ -24,7 +24,6 @@ package rpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -319,8 +318,7 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	fmt.Println("SENDTX")
-	b.logger.Info("SendTx", signedTx.Hash())
+	b.logger.Info("SendTx", "hash", signedTx.Hash())
 	return b.chain.Host().GetTxPoolPlugin().SendTx(signedTx)
 }
 

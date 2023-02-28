@@ -51,9 +51,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -86,6 +88,7 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -303,7 +306,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
 		[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
 	)
-	fmt.Println(app.txConfig.SignModeHandler())
 	opt := ante.HandlerOptions{
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
@@ -312,7 +314,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		FeegrantKeeper:         app.FeeGrantKeeper,
 		SigGasConsumer:         evmante.SigVerificationGasConsumer,
 	}
-	ch, _ := ante.NewAnteHandler(
+	ch, _ := NewAnteHandler(
 		opt,
 	)
 	app.SetAnteHandler(
@@ -488,4 +490,38 @@ func BlockedAddresses() map[string]bool {
 	}
 
 	return result
+}
+
+// NewAnteHandler returns an AnteHandler that checks and increments sequence
+// numbers, checks signatures & account numbers, and deducts fees from the first
+// signer.
+func NewAnteHandler(options authante.HandlerOptions) (sdk.AnteHandler, error) {
+	// if options.AccountKeeper == nil {
+	// 	return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+	// }
+
+	// if options.BankKeeper == nil {
+	// 	return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+	// }
+
+	// if options.SignModeHandler == nil {
+	// 	return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	// }
+
+	anteDecorators := []sdk.AnteDecorator{
+		authante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+		authante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		authante.NewValidateBasicDecorator(),
+		authante.NewTxTimeoutHeightDecorator(),
+		authante.NewValidateMemoDecorator(options.AccountKeeper),
+		// authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		// authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
+		// authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+		authante.NewValidateSigCountDecorator(options.AccountKeeper),
+		authante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		// authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		authante.NewIncrementSequenceDecorator(options.AccountKeeper),
+	}
+
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
