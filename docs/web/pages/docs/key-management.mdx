@@ -1,0 +1,92 @@
+# Key Management
+
+## Create a new Key
+`stargazerd keys add <name>`
+
+This key will return a 24 word [mnemonic phrase](https://coinmarketcap.com/alexandria/glossary/mnemonic-phrase)
+
+```
+stargazerd keys add test_key
+
+- address: cosmos17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
+  name: test_key
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AlvTkLacqevyNZ6hl8ZqhWSzQDppseR07qthbNOsy+nz"}'
+  type: local
+
+
+**Important** write this mnemonic phrase in a safe place.
+It is the only way to recover your account if you ever forget your password.
+
+nature canvas unusual drill vault ethics sunny problem enact exile tank horn husband wagon town churn piano flip laptop lava pulp void pencil emotion
+```
+## Restore Existing key
+`stargazerd keys add <name> --recover`
+
+This will prompt you for your 24 word mnemonic phrase.
+
+```
+stargazerd keys add test_key_recover --recover
+> Enter your bip39 mnemonic
+```
+## List your keys
+
+`stargazerd keys list`
+
+Lists all the public keys under your storage path
+
+```
+stargazerd keys list
+Successfully migrated key validator.info.
+- address: cosmos17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
+  name: test_key
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AlvTkLacqevyNZ6hl8ZqhWSzQDppseR07qthbNOsy+nz"}'
+  type: local
+- address: cosmos1t6m9ug59cg9yg2cy2hfx40ew4jyj9w0m9rgmlg
+  name: validator
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AueTD51sd3KDEJ3qvJVq5bxrHdfg87Tu2C8eOq51Imyi"}'
+  type: local
+```
+
+## Retrieve Key Information
+`keys show <key_name>`
+
+This will return the public key and relevant information for the given key by name.
+
+```
+stargazerd keys show test_key
+- address: cosmos17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
+  name: test_key
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AlvTkLacqevyNZ6hl8ZqhWSzQDppseR07qthbNOsy+nz"}'
+  type: local
+````
+
+## Delete a Key
+
+`keys delete <key_name>`
+
+This will delete the key from your storage.
+
+```
+stargazerd keys delete test_key
+
+Key reference will be deleted. Continue? [y/N]: y
+Key deleted forever (uh oh!)
+````
+
+## Exporting Private keys
+
+`keys export <key_name>`
+
+This will export the private key for the given key by name.
+
+```
+stargazerd keys export test_key 
+Enter passphrase to encrypt the exported key:
+-----BEGIN TENDERMINT PRIVATE KEY-----
+kdf: bcrypt
+salt: 38ACD8DB969BB1287A2AD27DFAD5BCD2
+type: secp256k1
+
+<priv_key>
+-----END TENDERMINT PRIVATE KEY-----
+```

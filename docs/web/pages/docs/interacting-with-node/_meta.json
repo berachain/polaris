@@ -1,6 +1,7 @@
 {
     "querying-cli": "Querying via CLI",
     "querying-rest": "Querying via REST",
+    "querying-json-rpc": "Querying via JSON-RPC",
     "querying-grpc": "Querying via gRPC",
     "gen-brod-sign": "Generating, Signing and Broadcasting Transactions"
 }

@@ -4,10 +4,8 @@
     "type": "separator",
     "title": "Getting Started"
   },
-  "your-first-node": "Your First Node",
   "main-concepts": "Main Concepts",
   "architecture": "Architecture Overview",
-  "why-stargazer": "Why Stargazer?",
   "contributing": "Contributing Guide",
   "-- Node --": {
     "type": "separator",
@@ -30,6 +28,7 @@
   "for-cosmwasm-devs": "For Cosmwasm Developers",
   "using-metamask": "Using Metamask",
   "using-keplr": "Using Keplr",
+  "key-management": "Key Management",
   "-- Validators --": {
     "type": "separator",
     "title": "Running a Validator"

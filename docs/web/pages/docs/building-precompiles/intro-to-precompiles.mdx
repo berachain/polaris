@@ -1,0 +1,34 @@
+# Introduction To Precompiled contracts
+
+Stargazer's unique features rely heavily on its custom precompiled contracts. 
+How do precompiled contracts work in Ethereum, and what sets them apart from Stargazer's implementation?
+
+## What is a Precompiled Contract on Ethereum?
+
+In Ethereum, a contract is a piece of code that is deployed on the Ethereum network and executed on the Ethereum Virtual Machine (EVM).
+When you deploy a contract, it needs to be compiled from its high-level programming language, such as Solidity, into EVM bytecode that can be executed by the EVM.
+
+A precompiled contract is a special type of contract that is pre-installed on the Ethereum network and can be used by other contracts without needing to be deployed
+separately. These contracts are typically used for operations that are computationally expensive, such as cryptographic operations, that would be too expensive to 
+perform on-chain if they had to be executed within a regular contract.
+
+Precompiled contracts are written in low-level programming languages and have already been compiled and optimized for execution on the EVM. Examples of precompiled 
+contracts on Ethereum include contracts that perform elliptic curve operations, hashing, and big integer arithmetic.
+
+By using precompiled contracts, developers can save time and gas costs, as they don't have to deploy and compile their own version of the contract, and can rely 
+on the optimized version that is already installed on the network.
+
+## What is a Precompiled Contract on Stargazer?
+
+In Stargazer, a precompiled contract is a custom piece of code that is pre-installed on the chain.
+Because it is pre-installed on the chain, it is able to have access to the cosmos-sdk application
+layer and consensus layer.
+
+This allows a precompiled contract on Stargazer can be used to run
+any arbitrary piece of code that is integrated into the node via the EVM. Precompiled contracts
+can be called like any other smart contract with a contract address and ABI to define behavior.
+
+
+The possibilities of a Stargazer precompiled contract is only limited by the cosmos-sdk application layer and consensus layer.
+For information on how to interact with Stargazer's precompiled contracts, view the [Precompile Overview](../for-solidity-devs/precompile-overview) section.
+

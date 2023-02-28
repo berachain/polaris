@@ -1,6 +1,5 @@
 {
     "available-tools": "Available tools",
     "foundry-stargazer": "Using Foundry With Stargazer",
-    "hardhat-stargazer": "Using Hardhat With Stargazer",
-    "truffle-stargazer": "Using Truffle With Stargazer"
+    "hardhat-stargazer": "Using Hardhat With Stargazer"
 }
