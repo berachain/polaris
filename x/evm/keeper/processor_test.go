@@ -40,7 +40,6 @@ import (
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -74,7 +73,7 @@ var _ = Describe("Processor", func() {
 			func() []vm.RegistrablePrecompile { return nil },
 			"authority",
 			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
-			mempool.NewEthTxPool(),
+			nil,
 		)
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())

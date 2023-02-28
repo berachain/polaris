@@ -35,7 +35,6 @@ func StargazerAppOptions(
 	stargazerAppOptions = append(
 		stargazerAppOptions,
 		[]func(bApp *baseapp.BaseApp){
-			// baseapp.SetMempool(mempool.NewEthTxPool()),
 			func(bApp *baseapp.BaseApp) {
 				cryptocodec.RegisterInterfaces(interfaceRegistry)
 			},

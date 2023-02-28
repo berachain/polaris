@@ -209,8 +209,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
-		mempoolOpt = baseapp.SetMempool(
-			mempool.NoOpMempool{},
+		prioMempool mempool.Mempool = mempool.NewPriorityMempool()
+		mempoolOpt                  = baseapp.SetMempool(
+			prioMempool,
 		)
 
 		// prepareOpt   = func(app *baseapp.BaseApp) {
@@ -233,6 +234,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 				// ADVANCED CONFIGURATION
 				//
 				// ETH TX MEMPOOL
+				prioMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
@@ -293,16 +295,15 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	baseAppOptions = append(baseAppOptions, mempoolOpt)
-	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry, baseAppOptions...)...)
+	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(
+		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...,
+	)...)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
-	// app.EVMKeeper.SetMempool(ethTxMempool)
 	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
-	// evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
 	app.txConfig = tx.NewTxConfig(
 		codec.NewProtoCodec(app.interfaceRegistry),
 		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
