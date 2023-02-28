@@ -58,15 +58,17 @@ type ChainWriter interface {
 
 // `ChainReader` defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
-	CurrentHeader() *types.StargazerHeader
-	CurrentBlock() *types.StargazerBlock
-	FinalizedBlock() *types.StargazerBlock
-	GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
-	GetStargazerBlockByNumber(int64) *types.StargazerBlock
+	CurrentBlock() (*types.StargazerBlock, error)
+	FinalizedBlock() (*types.StargazerBlock, error)
+	GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
+	GetStargazerBlockByNumber(int64) (*types.StargazerBlock, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
 }
+
+// Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
+var _ ChainReaderWriter = (*blockchain)(nil)
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
 type blockchain struct {

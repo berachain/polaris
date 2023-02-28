@@ -30,7 +30,7 @@ MONIKER="localtestnet"
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
 KEYALGO="eth_secp256k1"
-LOGLEVEL="error"
+LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/stargazerd instance
 HOMEDIR="./.tmp/stargazerd"
 # to trace evm

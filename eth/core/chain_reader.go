@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/event"
@@ -32,80 +33,78 @@ import (
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
-// `CurrentHeader` returns the current header of the blockchain.
-func (bc *blockchain) CurrentHeader() *types.StargazerHeader {
-	return bc.processor.block.StargazerHeader
-}
-
 // `CurrentBlock` returns the current block of the blockchain.
-func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
-	if bc.processor.block != nil {
-		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
+func (bc *blockchain) CurrentBlock() (*types.StargazerBlock, error) {
+	if bc.processor.block == nil {
+		return nil, errors.New("BING BONG ewrror")
 	}
-	return bc.processor.block
+	bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
+	return bc.processor.block, nil
 }
 
 // `FinalizedBlock` returns the last finalized block of the blockchain.
-func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
+func (bc *blockchain) FinalizedBlock() (*types.StargazerBlock, error) {
 	fb, ok := utils.GetAs[*types.StargazerBlock](bc.finalizedBlock.Load())
-	if fb != nil && ok {
-		bc.blockCache.Add(fb.Hash(), fb)
+	if fb == nil || !ok {
+		return nil, errors.New("BING BONG ewrror")
 	}
-	return fb
+	bc.blockCache.Add(fb.Hash(), fb)
+	return fb, nil
 }
 
 // GetBlock retrieves a block from the database by hash and number,
 // caching it if found.
-func (bc *blockchain) GetStargazerBlockByNumber(number int64) *types.StargazerBlock {
+func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerBlock, error) {
 	// Short circuit if the block's already in the cache, retrieve otherwise
 	if bc.processor.block != nil && bc.processor.block.Number.Int64() == number {
-		return bc.processor.block
+		return bc.processor.block, nil
 	}
 
 	fp := bc.finalizedBlock.Load()
 	if fp != nil {
 		block := fp.(*types.StargazerBlock)
 		if block.Number.Int64() == number {
-			return block
+			return block, nil
 		}
 	}
 
 	block := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
 	if block == nil {
-		return nil
+		return nil, errors.New("BING BONG ewrror")
 	}
 
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
-	return block
+	return block, nil
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock {
+func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.StargazerBlock, error) {
 	// Short circuit if the block's already in the cache, retrieve otherwise
 	if bc.processor.block != nil && bc.processor.block.Hash() == hash {
-		return bc.processor.block
+		return bc.processor.block, nil
 	}
 
 	fp := bc.finalizedBlock.Load()
 	if fp != nil {
 		block := fp.(*types.StargazerBlock)
 		if block.Hash() == hash {
-			return block
+			return block, nil
 		}
 	}
 
 	if block, ok := bc.blockCache.Get(hash); ok {
-		return block
+		return block, nil
 	}
+
 	block := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
 	if block == nil {
-		return nil
+		return nil, errors.New("BING BONG")
 	}
 
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
-	return block
+	return block, nil
 }
 
 // // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
