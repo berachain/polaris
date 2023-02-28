@@ -65,17 +65,22 @@ func NewEthTxPool() *EthTxPool {
 // `Insert` is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	fmt.Println("INSERT", tx.GetMsgs())
-	// Call the base mempool's Insert method
-	if err := etp.NoOpMempool.Insert(ctx, tx); err != nil {
-		return err
-	}
+	// // Call the base mempool's Insert method
+	// if err := etp.NoOpMempool.Insert(ctx, tx); err != nil {
+	// 	return err
+	// }
 
 	// We want to cache
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
 	if !ok {
 		return nil
 	}
+
 	t := etr.AsTransaction()
+	if t == nil {
+		fmt.Println(etr, t)
+		panic("nil transaction")
+	}
 	etp.ethTxCache[t.Hash()] = t
 	return nil
 }

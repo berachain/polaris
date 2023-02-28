@@ -30,7 +30,7 @@ MONIKER="localtestnet"
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
 KEYALGO="eth_secp256k1"
-LOGLEVEL="debug"
+LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/stargazerd instance
 HOMEDIR="./.tmp/stargazerd"
 # to trace evm
@@ -76,6 +76,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		./bin/stargazerd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 	done
 
+	./bin/stargazerd keys add dev9 --keyring-backend $KEYRING --algo secp256k1 --home "$HOMEDIR"
+
 	# Change parameter token denominations to abera
 	jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.app_state["crisis"]["constant_fee"]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -109,6 +111,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	for KEY in "${KEYS[@]}"; do
 		./bin/stargazerd genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
+	./bin/stargazerd genesis add-genesis-account dev9 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	
 	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
 	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
 	./bin/stargazerd genesis add-genesis-account stargazer1yrene6g2zwjttemf0c65fscg8w8c55w5c2x2xh 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"

@@ -24,6 +24,7 @@ package rpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -163,20 +164,20 @@ func (b *backend) SetHead(number uint64) {
 // `HeaderByNumber` returns the block header at the given block number.
 func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*types.Header, error) {
 	block, err := b.BlockByNumber(ctx, number)
-	b.logger.Info("HeaderByNumber", "block", block)
 	if err != nil {
 		return nil, err
 	}
+	b.logger.Info("HeaderByNumber", "block", block, "header", block.Header)
 	return block.Header(), nil
 }
 
 // `HeaderByHash` returns the block header with the given hash.
 func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error) {
-	b.logger.Info("HeaderByHash", "hash", hash)
 	block := b.chain.GetStargazerBlockByHash(hash)
 	if block == nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
 	}
+	b.logger.Info("HeaderByHash", "hash", hash, block.EthBlock().Header())
 	return block.EthBlock().Header(), nil
 }
 
@@ -184,6 +185,7 @@ func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.He
 func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Header, error) {
+	b.logger.Info("HeaderByNumberOrHash", blockNrOrHash)
 	block, err := b.BlockByNumberOrHash(ctx, blockNrOrHash)
 	if err != nil {
 		return nil, err
@@ -204,20 +206,20 @@ func (b *backend) CurrentHeader() *types.Header {
 // `CurrentBlock` returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Block {
 	block := b.chain.CurrentBlock()
-	b.logger.Info("CurrentHeader", "block", block)
 	if block == nil {
 		return nil
 	}
+	b.logger.Info("CurrentHeader", "block", block, "header", block.Header)
 	return block.EthBlock()
 }
 
 // `BlockByNumber` returns the block identified by `number`.
 func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types.Block, error) {
 	block := b.stargazerBlockByNumber(number)
-	b.logger.Info("BlockByNumber", "block", block)
 	if block == nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "BlockByNumber [%d]", number)
 	}
+	b.logger.Info("CurrentHeader", "block", block, "header", block.Header)
 	return block.EthBlock(), nil
 }
 
@@ -235,6 +237,7 @@ func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Blo
 func (b *backend) BlockByNumberOrHash(ctx context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Block, error) {
+	b.logger.Info("BlockByNumberOrHash", blockNrOrHash)
 	block, err := b.stargazerBlockByNumberOrHash(blockNrOrHash)
 	if err != nil {
 		return nil, err
@@ -246,6 +249,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context, number BlockNumber,
 ) (vm.GethStateDB, *types.Header, error) {
+	b.logger.Info("StateAndHeaderByNumber", "number", number)
 	state, err := b.chain.GetStateByNumber(number.Int64())
 	if err != nil {
 		return nil, nil, err
@@ -257,6 +261,7 @@ func (b *backend) StateAndHeaderByNumber(
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context, blockNrOrHash BlockNumberOrHash,
 ) (vm.GethStateDB, *types.Header, error) {
+	b.logger.Info("StateAndHeaderByNumberOrHash", blockNrOrHash)
 	var number BlockNumber
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		number = BlockNumber(b.chain.GetStargazerBlockByHash(hash).Number.Int64())
@@ -270,6 +275,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 // `PendingBlockAndReceipts` returns the current pending block and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	block := b.chain.CurrentBlock()
+	b.logger.Info("PendingBlockAndReceipts", block, "header", block.Header)
 	return block.EthBlock(), block.GetReceipts()
 }
 
@@ -279,6 +285,7 @@ func (b *backend) GetReceipts(ctx context.Context, hash common.Hash) (types.Rece
 	if block == nil {
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "GetReceipts [%s]", hash.String())
 	}
+	b.logger.Info("GetReceipts", block, "header", block.Header)
 	return block.GetReceipts(), nil
 }
 
@@ -327,7 +334,9 @@ func (b *backend) GetTransaction(
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	// RETURN: tx, blockhash, blocknumber, tx index, error
 	// TODO: Implement your code here.
-	return nil, common.Hash{}, 0, 0, nil
+	fmt.Println("GET TRANSACTION BING BONG")
+	// tx := b.chain.Host().GetTxPoolPlugin().GetTransaction(txHash)
+	return tx, tx.Hash(), 0, 0, nil
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {

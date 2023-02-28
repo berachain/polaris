@@ -57,9 +57,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -94,7 +92,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
@@ -102,9 +99,7 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
-	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 var (
@@ -213,10 +208,10 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		ethTxMempool = mempool.NewEthTxPool()
-		mempoolOpt   = baseapp.SetMempool(
-			ethTxMempool,
-		)
+		// ethTxMempool = mempool.NewEthTxPool()
+		// mempoolOpt   = baseapp.SetMempool(
+		// 	ethTxMempool,
+		// )
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -237,7 +232,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 				// ADVANCED CONFIGURATION
 				//
 				// ETH TX MEMPOOL
-				ethTxMempool,
+				// ethTxMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
@@ -298,14 +293,14 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry, mempoolOpt)...)
+	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry)...)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	// evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
-	app.txConfig = tx.NewTxConfig(
-		codec.NewProtoCodec(app.interfaceRegistry),
-		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
-		[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
-	)
+	// app.txConfig = tx.NewTxConfig(
+	// 	codec.NewProtoCodec(app.interfaceRegistry),
+	// 	append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
+	// 	[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
+	// )
 	opt := ante.HandlerOptions{
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
@@ -516,11 +511,11 @@ func NewAnteHandler(options authante.HandlerOptions) (sdk.AnteHandler, error) {
 		authante.NewValidateMemoDecorator(options.AccountKeeper),
 		// authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		// authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		// authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+		authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
 		authante.NewValidateSigCountDecorator(options.AccountKeeper),
-		authante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		// authante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		// authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		authante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		// authante.NewIncrementSequenceDecorator(options.AccountKeeper),
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil

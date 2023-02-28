@@ -22,10 +22,13 @@ package keeper
 
 import (
 	"context"
+	"fmt"
+
 	// "fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"pkg.berachain.dev/stargazer/x/evm/types"
@@ -39,21 +42,20 @@ var _ types.MsgServiceServer = &Keeper{}
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
 ) (*types.EthTransactionResponse, error) {
-	return &types.EthTransactionResponse{}, nil
-	// fmt.Println("REEEEREEEEREEEEREEEEREEEEREEEEREEEEREEEEREEEEREEEEREEEE")
-	// tx := msg.AsTransaction()
-	// fmt.Println("keeper.EthTransaction", "hash", tx.Hash())
-	// k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
+	tx := msg.AsTransaction()
+	fmt.Println("keeper.EthTransaction", "hash", tx.Hash())
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
 
-	// // Process the transaction and return the receipt.
-	// receipt, err := k.ProcessTransaction(ctx, tx)
-	// if err != nil {
-	// 	return nil, errorsmod.Wrapf(err, "failed to process transaction")
-	// }
+	// Process the transaction and return the receipt.
+	receipt, err := k.ProcessTransaction(ctx, tx)
+	fmt.Println("RECEIPT123", receipt)
+	if err != nil {
+		return nil, errorsmod.Wrapf(err, "failed to process transaction")
+	}
 
-	// k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "receipt", receipt)
-	// // Build response and return.
-	// return types.BuildEthTransactionRespWithReceipt(receipt)
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "receipt", receipt)
+	// Build response and return.
+	return types.BuildEthTransactionRespWithReceipt(receipt)
 }
 
 // `UpdateParams`  processes an incoming request and applies it to the Configuration plugin to

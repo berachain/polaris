@@ -98,6 +98,7 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) *types.Stargazer
 	if block, ok := bc.blockCache.Get(hash); ok {
 		return block
 	}
+
 	block := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
 	if block == nil {
 		return nil

@@ -182,10 +182,10 @@ func (etr *EthTransactionRequest) ValidateBasic() error {
 func BuildEthTransactionRespWithReceipt(receipt *coretypes.Receipt) (*EthTransactionResponse, error) {
 	etr := new(EthTransactionResponse)
 
-	var err error
-	etr.Receipt, err = receipt.MarshalJSON()
+	r, err := receipt.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
+	etr.Receipt = string(r)
 	return etr, nil
 }
