@@ -21,6 +21,7 @@
     "type": "separator",
     "title": "Building on Stargazer"
   },
+  "evm": "EVM on Stargazer",
   "building-modules": "Building Modules",
   "building-precompiles": "Building Precompiles",
   "for-dapp-devs": "For Dapp Developers",
