@@ -28,6 +28,8 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // `EthTxPool` is a mempool for Ethereum transactions. It wraps a
@@ -64,13 +66,15 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	if err := etp.Mempool.Insert(ctx, tx); err != nil {
 		return err
 	}
-	// // We want to cache
-	// etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
-	// if !ok {
-	// 	return ErrIncorrectTxType
-	// }
-	// t := etr.AsTransaction()
-	// etp.ethTxCache[t.Hash()] = t
+
+	// We want to cache
+	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
+	if !ok {
+		return nil
+	}
+
+	t := etr.AsTransaction()
+	etp.ethTxCache[t.Hash()] = t
 	return nil
 }
 
@@ -95,12 +99,12 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 		return err
 	}
 
-	// // We want to cache this tx.
-	// etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
-	// if !ok {
-	// 	return ErrIncorrectTxType
-	// }
+	// We want to cache this tx.
+	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
+	if !ok {
+		return nil
+	}
 
-	// delete(etp.ethTxCache, etr.AsTransaction().Hash())
+	delete(etp.ethTxCache, etr.AsTransaction().Hash())
 	return nil
 }

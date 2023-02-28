@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
@@ -103,7 +104,7 @@ func NewKeeper(
 	plf := precompilelog.NewFactory()
 	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
-	k.txp = txpool.NewPlugin(k.rpcProvider, mempool.NewEthTxPoolFrom(ethTxMempool))
+	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)

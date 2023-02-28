@@ -99,6 +99,7 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
@@ -209,9 +210,9 @@ func NewSimApp( //nolint: funlen // from sdk.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
-		prioMempool mempool.Mempool = mempool.NewPriorityMempool()
-		mempoolOpt                  = baseapp.SetMempool(
-			prioMempool,
+		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(mempool.NewPriorityMempool())
+		mempoolOpt                   = baseapp.SetMempool(
+			ethTxMempool,
 		)
 
 		// prepareOpt   = func(app *baseapp.BaseApp) {
@@ -234,7 +235,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 				// ADVANCED CONFIGURATION
 				//
 				// ETH TX MEMPOOL
-				prioMempool,
+				ethTxMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
