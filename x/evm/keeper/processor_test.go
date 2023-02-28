@@ -27,6 +27,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -40,6 +41,7 @@ import (
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -73,7 +75,7 @@ var _ = Describe("Processor", func() {
 			func() []vm.RegistrablePrecompile { return nil },
 			"authority",
 			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
-			nil,
+			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),
 		)
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
