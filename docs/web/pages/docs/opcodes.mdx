@@ -1,10 +1,33 @@
-# Opcodes
+import { Callout } from 'nextra-theme-docs'
 
+# Opcodes
+In Ethereum, opcodes are the fundamental building blocks of smart contracts. 
+They are essentially instructions that the Ethereum Virtual Machine (EVM) can execute.
+
+Each opcode has a unique identifier and a specific function. For example, the ADD 
+opcode is used to add two values together, while the MUL opcode is used to multiply 
+two values. There are also opcodes for comparing values (EQ, LT, GT, etc.), 
+manipulating the stack (PUSH, POP, etc.), and interacting with the blockchain 
+(SLOAD, SSTORE, BALANCE, etc.), among others.
+
+Ethereum opcodes are designed to be low-level and highly efficient, 
+allowing smart contracts to execute complex computations and operations 
+on the blockchain. However, they can also be complex to understand and 
+use, and incorrect use of opcodes can lead to errors and vulnerabilities 
+in smart contracts.
+
+
+
+
+<Callout emoji="💡">
 All Ethereum opcodes are represented however the opcodes in **bold** are altered
 from Ethereum. A short description is on the right hand side but an longer one
 is denoted below.
+</Callout>
 
+<Callout type="info" emoji="ℹ️">
 The original source of the below chart comes from the [Ethereum docs].
+</Callout>
 
 [Ethereum docs]: https://ethereum.org/en/developers/docs/evm/opcodes/
 
