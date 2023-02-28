@@ -23,6 +23,7 @@ package core
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/core/rawdb"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
@@ -40,8 +41,18 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
 
 		// Cache transaction data
-		for _, tx := range bc.processor.block.GetTransactions() {
-			bc.txLookupCache.Add(tx.Hash(), tx)
+		for txIndex, tx := range bc.processor.block.GetTransactions() {
+			bc.txLookupCache.Add(
+				tx.Hash(),
+				&types.TxLookupEntry{
+					LegacyTxLookupEntry: &rawdb.LegacyTxLookupEntry{
+						BlockHash:  bc.processor.block.Hash(),
+						BlockIndex: bc.processor.block.Number.Uint64(),
+						Index:      uint64(txIndex),
+					},
+					Tx: tx,
+				},
+			)
 		}
 		// Cache receipts.
 		bc.receiptsCache.Add(bc.processor.block.Hash(), bc.processor.block.GetReceipts())

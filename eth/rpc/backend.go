@@ -388,9 +388,7 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 func (b *backend) GetTransaction(
 	ctx context.Context, txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	// RETURN: tx, blockhash, blocknumber, tx index, error
-	// TODO: Implement your code here.
-	return nil, common.Hash{}, 0, 0, nil
+	return b.chain.GetTransaction(txHash)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
