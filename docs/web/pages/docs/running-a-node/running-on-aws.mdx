@@ -1,0 +1,15 @@
+## Installation of a COSMOS-SDK Blockchain
+
+The recommended way to run fault tolerant nodes that can scale to millions of requests per second would be
+with orchestration tool like Kubernetes. Another option is to run the node on an EC2 instance. 
+
+AWS offers [Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/) which is a manged service to run Kubernetes in the cloud
+It allows us to run lightweight pods, inside which you can deploy container images. On a failure, a new container automatically comes up. Each pod 
+can also be attached to a volume that can provide elastic disk storage. It also allows us to scale horizontally by adding more nodes/pods/containers on demand to the network. 
+
+### Recommended AWS architecture
+Currently, the application runs in 1 container so we can deploy 1 container in each pod. Pod is the smallest resource that 
+Kubernetes can manage. It can have 1 or more than 1 containers. 
+
+#### Heuristic 
+Th 
