@@ -62,7 +62,10 @@ func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerB
 
 	fp := bc.finalizedBlock.Load()
 	if fp != nil {
-		block := fp.(*types.StargazerBlock)
+		block, ok := fp.(*types.StargazerBlock)
+		if !ok {
+			return nil, errors.New("BING BONG ewrror")
+		}
 		if block.Number.Int64() == number {
 			return block, nil
 		}
@@ -87,7 +90,10 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Stargaze
 
 	fp := bc.finalizedBlock.Load()
 	if fp != nil {
-		block := fp.(*types.StargazerBlock)
+		block, ok := fp.(*types.StargazerBlock)
+		if !ok {
+			return nil, errors.New("BING BONG ewrror")
+		}
 		if block.Hash() == hash {
 			return block, nil
 		}

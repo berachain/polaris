@@ -22,7 +22,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,10 +39,9 @@ func (k *Keeper) BeginBlocker(ctx context.Context) {
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
 	// Process the transaction and return the receipt.
+	// TODO: gas is fucked
 	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).WithKVGasConfig(storetypes.GasConfig{})
 	receipt, err := k.stargazer.ProcessTransaction(ctx, tx)
-
-	fmt.Println("RECEIPT123", receipt, err)
 	if err != nil {
 		return nil, err
 	}

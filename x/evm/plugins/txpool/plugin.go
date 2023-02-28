@@ -21,8 +21,6 @@
 package txpool
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -72,7 +70,6 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	syncCtx := p.rpcProvider.GetClientCtx().WithBroadcastMode(flags.BroadcastSync)
 
 	rsp, err := syncCtx.BroadcastTx(txBytes)
-	fmt.Println("ABCI RESP", rsp)
 	if rsp != nil && rsp.Code != 0 {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}

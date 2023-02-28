@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 
@@ -123,15 +122,12 @@ func NewRootCmd() *cobra.Command {
 			// an error will arise when using the --textual flag.
 			// ref: https://github.com/cosmos/cosmos-sdk/issues/11970
 
-			fmt.Println("HERRO")
-			fmt.Println(encodingConfig.TxConfig.SignModeHandler().Modes())
 			txConfigWithTextual := tx.NewTxConfigWithTextual(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
 				append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
 				txmodule.NewTextualWithGRPCConn(initClientCtx),
 				[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
 			)
-			fmt.Println(txConfigWithTextual.SignModeHandler().Modes())
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {

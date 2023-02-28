@@ -167,8 +167,6 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply message %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
 
-	fmt.Println("RESULT FROM PROCESSOR", result)
-
 	// Consume the gas used by the state tranisition.
 	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())

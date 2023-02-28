@@ -23,7 +23,6 @@ package simapp
 
 import (
 	_ "embed"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -52,6 +51,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -91,7 +91,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
@@ -302,7 +301,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
 		[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
 	)
-	fmt.Println(app.txConfig.SignModeHandler())
 	opt := ante.HandlerOptions{
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
@@ -317,13 +315,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 	app.SetAnteHandler(
 		ch,
 	)
-
-	// fmt.Println("TXCONFIG", app.txConfig)
-
-	// evmtx.SignModeEthTxHandler{},
-	// fmt.Println("AFTER NEW TXCONFIG")
-
-	fmt.Println("IN APP", app.txConfig.SignModeHandler().Modes())
 
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)

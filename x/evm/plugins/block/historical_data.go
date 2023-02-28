@@ -21,6 +21,7 @@
 package block
 
 import (
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/store/prefix"
@@ -133,7 +134,10 @@ func (p *plugin) GetBlockHash(blockNum *big.Int) common.Hash {
 	var block *coretypes.StargazerBlock
 	err := block.UnmarshalBinary(data)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("failed to unmarshal block at height %d", blockNum.Uint64()))
+	}
+	if block == nil { //nolint:govet // investigate later.
+		return common.Hash{}
 	}
 	return block.Hash()
 }
