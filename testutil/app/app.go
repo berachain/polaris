@@ -23,6 +23,7 @@ package simapp
 
 import (
 	_ "embed"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -96,7 +97,6 @@ import (
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
-	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 var (
@@ -230,7 +230,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 				//
 				// ETH TX MEMPOOL
 				ethTxMempool,
-				evmtx.CustomSignModeHandlers,
+				// evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
 				//
@@ -293,6 +293,18 @@ func NewSimApp( //nolint: funlen // from sdk.
 	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry, mempoolOpt)...)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
+
+	// fmt.Println("TXCONFIG", app.txConfig)
+
+	// app.txConfig = tx.NewTxConfig(
+	// 	codec.NewProtoCodec(app.interfaceRegistry),
+	// 	app.txConfig.SignModeHandler().Modes(),
+	// 	evmtx.SignModeEthTxHandler{},
+	// )
+	// evmtx.SignModeEthTxHandler{},
+	// fmt.Println("AFTER NEW TXCONFIG")
+
+	fmt.Println(app.txConfig.SignModeHandler().Modes())
 
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)

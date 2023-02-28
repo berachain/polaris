@@ -22,8 +22,10 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"pkg.berachain.dev/stargazer/x/evm/types"
@@ -37,8 +39,9 @@ var _ types.MsgServiceServer = &Keeper{}
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
 ) (*types.EthTransactionResponse, error) {
-	// Extract the transaction from the request.
 	tx := msg.AsTransaction()
+	fmt.Println("keeper.EthTransaction", "hash", tx.Hash())
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
 
 	// Process the transaction and return the receipt.
 	receipt, err := k.ProcessTransaction(ctx, tx)
@@ -46,6 +49,7 @@ func (k *Keeper) EthTransaction(
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
 	}
 
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "receipt", receipt)
 	// Build response and return.
 	return types.BuildEthTransactionRespWithReceipt(receipt)
 }

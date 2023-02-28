@@ -51,16 +51,21 @@ var _ = Describe("EthTransactionRequest", func() {
 				Value:    new(big.Int),
 				Data:     nil,
 			}
+			// Must use homestead signer for legacy tx.
+			signer = coretypes.LatestSignerForChainID(nil)
 			etr = types.NewFromTransaction(coretypes.MustSignNewTx(key, signer, ltxData))
 		})
 
 		It("should return the correct signer", func() {
 			Expect(etr.GetSender()).To(Equal(address))
 			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
+			_, err := etr.GetSignature()
+			Expect(err).To(BeNil())
 		})
 	})
 	When("it is a dynamic fee tx", func() {
 		BeforeEach(func() {
+			signer = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 			dtxData := &coretypes.DynamicFeeTx{
 				ChainID:   params.DefaultChainConfig.ChainID,
 				Nonce:     0,
@@ -77,6 +82,8 @@ var _ = Describe("EthTransactionRequest", func() {
 		It("should return the correct signer", func() {
 			Expect(etr.GetSender()).To(Equal(address))
 			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
+			_, err := etr.GetSignature()
+			Expect(err).To(BeNil())
 		})
 	})
 })

@@ -21,6 +21,8 @@
 package txpool
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -60,15 +62,19 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 // transaction. The Cosmos transaction is then broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Serialize the transaction to Bytes
+	fmt.Println("SendTx")
 	txBytes, err := NewSerializer(p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
+	fmt.Println("TXBYTES", txBytes)
 
 	// Send the transaction to the CometBFT mempool, which will
 	// gossip it to peers via CometBFT's p2p layer.
 	syncCtx := p.rpcProvider.GetClientCtx().WithBroadcastMode(flags.BroadcastSync)
+
 	rsp, err := syncCtx.BroadcastTx(txBytes)
+	fmt.Println("ABCI RESP", rsp)
 	if rsp != nil && rsp.Code != 0 {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}
