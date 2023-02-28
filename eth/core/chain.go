@@ -26,6 +26,7 @@ import (
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/core"
+	rawdb "github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -53,16 +54,21 @@ type ChainWriter interface {
 	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
-	Finalize(context.Context) (*types.StargazerBlock, error)
+	Finalize(context.Context) (*types.Header, types.Transactions, types.Receipts)
 }
 
 // `ChainReader` defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
-	CurrentBlock() (*types.StargazerBlock, error)
-	FinalizedBlock() (*types.StargazerBlock, error)
-	GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
-	GetStargazerBlockByNumber(int64) (*types.StargazerBlock, error)
+	CurrentBlock() *types.Block
+	CurrentHeader() *types.Header
+	HeaderByHash(common.Hash) (*types.Header, error)
+	HeaderByNumber(int64) (*types.Header, error)
+	FinalizedBlock() *types.Block
+	BlockByNumber(int64) (*types.Block, error)
+	GetReceipts(blockHash common.Hash) (types.Receipts, error)
+	BlockByHash(common.Hash) (*types.Block, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
+	GetLogs(context.Context, common.Hash, uint64) ([][]*types.Log, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
 }
@@ -77,15 +83,17 @@ type blockchain struct {
 	// `host` is the host chain that the Stargazer EVM is running on.
 	host StargazerHostChain
 
-	// `finalizedBlock` is the last finalized block.
+	cc *chainContext
+
+	currentHeader  atomic.Value
+	currentBlock   atomic.Value
 	finalizedBlock atomic.Value
 
-	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of blocks.
+	// caches
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
-	// `blockCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
-	blockCache *lru.Cache[common.Hash, *types.StargazerBlock]
-	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of blocks.
-	txLookupCache *lru.Cache[common.Hash, *types.Transaction]
+	blockCache    *lru.Cache[common.Hash, *types.Block]
+	blockNumCache *lru.Cache[int64, common.Hash]
+	txLookupCache *lru.Cache[common.Hash, *rawdb.LegacyTxLookupEntry]
 
 	chainHeadFeed event.Feed
 	scope         event.SubscriptionScope
@@ -100,11 +108,13 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
 		host:          host,
 		receiptsCache: lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
-		blockCache:    lru.NewCache[common.Hash, *types.StargazerBlock](defaultCacheSizeBytes),
-		txLookupCache: lru.NewCache[common.Hash, *types.Transaction](defaultCacheSizeBytes),
+		blockCache:    lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
+		blockNumCache: lru.NewCache[int64, common.Hash](defaultCacheSizeBytes),
+		txLookupCache: lru.NewCache[common.Hash, *rawdb.LegacyTxLookupEntry](defaultCacheSizeBytes),
 		chainHeadFeed: event.Feed{},
 		scope:         event.SubscriptionScope{},
 	}
+	bc.cc = &chainContext{bc}
 	bc.processor = bc.buildStateProcessor(vm.Config{}, true)
 	return bc
 }

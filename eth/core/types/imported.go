@@ -62,6 +62,7 @@ var (
 	LatestSignerForChainID = types.LatestSignerForChainID
 	MustSignNewTx          = types.MustSignNewTx
 	NewBlock               = types.NewBlock
+	NewBlockWithHeader     = types.NewBlockWithHeader
 	ErrInvalidSig          = types.ErrInvalidSig
 )
 

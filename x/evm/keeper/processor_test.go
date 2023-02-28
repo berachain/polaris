@@ -27,6 +27,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -40,6 +41,7 @@ import (
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -68,12 +70,12 @@ var _ = Describe("Processor", func() {
 		// before chain, init genesis state
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
-			storetypes.NewKVStoreKey("evm"),
+			testutil.EvmKey,
 			ak, bk,
 			func() []vm.RegistrablePrecompile { return nil },
 			"authority",
 			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
-			nil,
+			evmmempool.NewEthTxPoolFrom(sdkmempool.NoOpMempool{}),
 		)
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
@@ -89,7 +91,7 @@ var _ = Describe("Processor", func() {
 	Context("New Block", func() {
 		BeforeEach(func() {
 			// before every tx
-			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
+			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter()).WithBlockHeight(1)
 		})
 
 		AfterEach(func() {

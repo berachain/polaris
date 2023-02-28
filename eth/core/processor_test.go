@@ -25,6 +25,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/ethereum/go-ethereum/consensus"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -50,6 +51,14 @@ var (
 		Gas:      100000,
 		GasPrice: big.NewInt(2),
 		Data:     []byte("abcdef"),
+	}
+	dummyHeader = &types.Header{
+		Difficulty: big.NewInt(1),
+		GasLimit:   1000000,
+		Number:     big.NewInt(1),
+		Time:       0,
+		TxHash:     common.Hash{},
+		BaseFee:    big.NewInt(1),
 	}
 )
 
@@ -116,38 +125,37 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), 0)
+		sp.Prepare(context.Background(), &mockchainContext{}, dummyHeader)
 	})
 
 	Context("Empty block", func() {
 		It("should build a an empty block", func() {
-			block, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
-			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(0))
+			header, txs, receipts := sp.Finalize(context.Background())
+			Expect(header).To(Equal(dummyHeader))
+			Expect(len(txs)).To(Equal(0))
+			Expect(len(receipts)).To(Equal(0))
 		})
 	})
 
 	Context("Block with transactions", func() {
 		BeforeEach(func() {
-			_, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
+			_, _, _ = sp.Finalize(context.Background())
 
 			pp.ResetFunc = func(ctx context.Context) {
 				// no-op
 			}
 
-			sp.Prepare(context.Background(), int64(blockNumber))
+			sp.Prepare(context.Background(), &mockchainContext{}, dummyHeader)
 		})
 
 		It("should error on an unsigned transaction", func() {
 			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
 			Expect(err).ToNot(BeNil())
 			Expect(receipt).To(BeNil())
-			block, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
-			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(0))
+			header, txs, receipts := sp.Finalize(context.Background())
+			Expect(header).To(Equal(dummyHeader))
+			Expect(len(txs)).To(Equal(0))
+			Expect(len(receipts)).To(Equal(0))
 		})
 
 		It("should not error on a signed transaction", func() {
@@ -163,10 +171,10 @@ var _ = Describe("StateProcessor", func() {
 			Expect(result.TransactionIndex).To(Equal(uint(0)))
 			Expect(result.TxHash.Hex()).To(Equal(signedTx.Hash().Hex()))
 			Expect(result.GasUsed).ToNot(BeZero())
-			block, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
-			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(1))
+			header, txs, receipts := sp.Finalize(context.Background())
+			Expect(header).To(Equal(dummyHeader))
+			Expect(len(txs)).To(Equal(1))
+			Expect(len(receipts)).To(Equal(1))
 		})
 
 		It("should add a contract address to the receipt", func() {
@@ -180,10 +188,10 @@ var _ = Describe("StateProcessor", func() {
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
 			Expect(result.ContractAddress).ToNot(BeNil())
-			block, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
-			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(1))
+			header, txs, receipts := sp.Finalize(context.Background())
+			Expect(header).To(Equal(dummyHeader))
+			Expect(len(txs)).To(Equal(1))
+			Expect(len(receipts)).To(Equal(1))
 		})
 
 		It("should mark a receipt with a virtual machine error as failed", func() {
@@ -212,10 +220,10 @@ var _ = Describe("StateProcessor", func() {
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
 			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
-			block, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
-			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(1))
+			header, txs, receipts := sp.Finalize(context.Background())
+			Expect(header).To(Equal(dummyHeader))
+			Expect(len(txs)).To(Equal(1))
+			Expect(len(receipts)).To(Equal(1))
 
 			// Now try calling the contract
 			legacyTxData.To = &dummyContract
@@ -254,7 +262,7 @@ var _ = Describe("No precompile plugin provided", func() {
 			return nil
 		}
 		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
-		Expect(func() { sp.Prepare(context.Background(), 0) }).ToNot(Panic())
+		Expect(func() { sp.Prepare(context.Background(), &mockchainContext{}, dummyHeader) }).ToNot(Panic())
 	})
 })
 
@@ -316,30 +324,17 @@ var _ = Describe("GetHashFn", func() {
 
 		gp.SetBlockGasLimit(blockGasLimit)
 	})
-
-	It("should return empty hash", func() {
-		sp.Prepare(context.Background(), 100)
-		hashFn := sp.GetHashFn()
-		Expect(hashFn(100)).To(Equal(common.Hash{}))
-
-		_, err := sp.Finalize(context.Background())
-		Expect(err).To(BeNil())
-
-		sp.Prepare(context.Background(), 100)
-		hashFn = sp.GetHashFn()
-		Expect(hashFn(101)).To(Equal(common.Hash{}))
-	})
-
-	It("should return correct hash", func() {
-		sp.Prepare(context.Background(), 100)
-		hashFn := sp.GetHashFn()
-		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
-
-		_, err := sp.Finalize(context.Background())
-		Expect(err).To(BeNil())
-
-		sp.Prepare(context.Background(), 101)
-		hashFn = sp.GetHashFn()
-		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
-	})
 })
+
+// `chainContext` is a wrapper around `StateProcessor` that implements the `ChainContext` interface.
+type mockchainContext struct{}
+
+// `GetHeader` returns the header for the given hash and height. This is used by the `GetHashFn`.
+func (cc *mockchainContext) GetHeader(_ common.Hash, number uint64) *types.Header {
+	return dummyHeader
+}
+
+// `Engine` returns the consensus engine. For our use case, this never gets called.
+func (cc *mockchainContext) Engine() consensus.Engine {
+	return nil
+}

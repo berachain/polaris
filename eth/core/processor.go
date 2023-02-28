@@ -40,8 +40,6 @@ type StateProcessor struct {
 	mtx sync.Mutex
 
 	// `bp` provides block functions from the underlying chain the EVM is running on
-	bp BlockPlugin
-	// `gp` provides gas functions from the underlying chain the EVM is running on
 	gp GasPlugin
 	// `cp` provides configuration functions from the underlying chain the EVM is running on
 	cp ConfigurationPlugin
@@ -59,9 +57,10 @@ type StateProcessor struct {
 	// `signer` is the signer used to verify transaction signatures.
 	signer types.Signer
 	// `evm ` is the EVM that is used to process transactions.
-	evm vm.StargazerEVM
-	// `block` represents the current block being processed.
-	block *types.StargazerBlock
+	evm      vm.StargazerEVM
+	txs      types.Transactions
+	receipts types.Receipts
+	header   *types.Header
 }
 
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
@@ -74,7 +73,6 @@ func NewStateProcessor(
 ) *StateProcessor {
 	sp := &StateProcessor{
 		mtx:      sync.Mutex{},
-		bp:       host.GetBlockPlugin(),
 		gp:       host.GetGasPlugin(),
 		cp:       host.GetConfigurationPlugin(),
 		pp:       host.GetPrecompilePlugin(),
@@ -98,34 +96,33 @@ func NewStateProcessor(
 // ==============================================================================
 
 // `Prepare` prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
+func (sp *StateProcessor) Prepare(ctx context.Context, cc ChainContext, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
 
-	// Prepare the plugins for the new block.
-	sp.bp.Prepare(ctx)
+	sp.header = header
+	sp.txs = make(types.Transactions, 0, 256)
+	sp.receipts = make(types.Receipts, 0, 256)
+
 	sp.cp.Prepare(ctx)
 	sp.gp.Prepare(ctx)
 
-	// Build a block object so we can track that status of the block as we process it.
-	sp.block = types.NewStargazerBlock(sp.bp.GetStargazerHeaderByNumber(height))
-
 	// Ensure that the gas plugin and header are in sync.
-	if sp.block.GasLimit != sp.gp.BlockGasLimit() {
-		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.block.GasLimit, sp.gp.BlockGasLimit()))
+	if sp.header.GasLimit != sp.gp.BlockGasLimit() {
+		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit()))
 	}
 
 	// We must re-create the signer since we are processing a new block and the block number has increased.
 	chainConfig := sp.cp.ChainConfig()
-	sp.signer = types.MakeSigner(chainConfig, sp.block.Number)
+	sp.signer = types.MakeSigner(chainConfig, sp.header.Number)
 
 	// Setup the EVM for this block.
-	rules := chainConfig.Rules(sp.block.Number, true, sp.block.Time)
+	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
-		sp.NewEVMBlockContext(),
+		sp.NewEVMBlockContext(cc),
 		vm.TxContext{},
 		sp.statedb,
 		chainConfig,
@@ -138,16 +135,18 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
 ) (*types.Receipt, error) {
-	msg, err := tx.AsMessage(sp.signer, sp.block.BaseFee)
+	txIndex := len(sp.txs)
+	msg, err := tx.AsMessage(sp.signer, sp.header.BaseFee)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not apply tx %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not apply tx %d [%v]", txIndex, tx.Hash().Hex())
 	}
 
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
+
 	sp.evm.SetTxContext(txContext)
 	txHash := tx.Hash()
-	sp.statedb.SetTxContext(txHash, sp.block.TxIndex())
+	sp.statedb.SetTxContext(txHash, txIndex)
 
 	// We also must reset the StateDB and precompile and gas plugins.
 	sp.statedb.Reset(ctx)
@@ -158,18 +157,18 @@ func (sp *StateProcessor) ProcessTransaction(
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
 	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
 	if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
-		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%v]", txIndex, tx.Hash().Hex())
 	}
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm.UnderlyingEVM(), msg, &gasPool)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not apply message %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not apply message %d [%v]", txIndex, tx.Hash().Hex())
 	}
 
 	// Consume the gas used by the state tranisition.
 	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {
-		return nil, errors.Wrapf(err, "could not consume gas used %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not consume gas used %d [%v]", txIndex, tx.Hash().Hex())
 	}
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used
@@ -179,9 +178,9 @@ func (sp *StateProcessor) ProcessTransaction(
 		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
-		BlockHash:         sp.block.Hash(),
-		BlockNumber:       sp.block.Number,
-		TransactionIndex:  uint(sp.block.TxIndex()),
+		BlockHash:         sp.header.Hash(),
+		BlockNumber:       sp.header.Number,
+		TransactionIndex:  uint(txIndex),
 	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
@@ -191,7 +190,7 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Set the receipt logs and create the bloom filter.
 	receipt.Logs = sp.statedb.GetLogs(
-		receipt.TxHash, sp.block.Number.Uint64(), sp.block.Hash(),
+		receipt.TxHash, sp.header.Number.Uint64(), sp.header.Hash(),
 	)
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 
@@ -206,19 +205,19 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// Update the block information.
-	sp.block.AppendTx(tx, receipt)
+	sp.txs = append(sp.txs, tx)
+	sp.receipts = append(sp.receipts, receipt)
 
 	// Return receipt to the caller.
 	return receipt, nil
 }
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
-func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
+func (sp *StateProcessor) Finalize(ctx context.Context) (*types.Header, types.Transactions, types.Receipts) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
-
-	sp.block.Finalize(sp.gp.CumulativeGasUsed())
-	return sp.block, nil
+	sp.header.GasUsed = sp.gp.CumulativeGasUsed()
+	return sp.header, sp.txs, sp.receipts
 }
 
 // ===========================================================================
@@ -226,12 +225,12 @@ func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, 
 // ===========================================================================
 
 // `NewEVMBlockContext` creates a new block context for use in the EVM.
-func (sp *StateProcessor) NewEVMBlockContext() vm.BlockContext {
+func (sp *StateProcessor) NewEVMBlockContext(cc ChainContext) vm.BlockContext {
 	feeCollector := sp.cp.FeeCollector()
 	if feeCollector == nil {
-		feeCollector = &sp.block.Coinbase
+		feeCollector = &sp.header.Coinbase
 	}
-	return NewEVMBlockContext(sp.block.Header, &chainContext{sp}, feeCollector)
+	return NewEVMBlockContext(sp.header, cc, feeCollector)
 }
 
 // `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
@@ -269,9 +268,4 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.Registrab
 			panic(err)
 		}
 	}
-}
-
-// `GetHashFn` returns a `GetHashFunc` which retrieves header hashes by number.
-func (sp *StateProcessor) GetHashFn() vm.GetHashFunc {
-	return GetHashFn(sp.block.Header, &chainContext{sp})
 }

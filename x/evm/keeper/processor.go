@@ -26,6 +26,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/stargazer/eth/core/types"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
@@ -63,19 +64,20 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 
 	// Finalize the stargazer block and retrieve it from the processor.
-	stargazerBlock, err := k.stargazer.Finalize(ctx)
-	if err != nil {
-		panic(err)
-	}
+	header, txs, receipts := k.stargazer.Finalize(ctx)
 
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", stargazerBlock.Header)
+	k.Logger(sCtx).Info("keeper.EndBlocker", "header:", header)
 
 	// Save the historical stargazer header in the IAVL Tree.
-	k.bp.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)
+	k.bp.TrackHistoricalStargazerHeader(sCtx, &types.StargazerHeader{Header: header})
 
 	// TODO: this is sketchy and needs to be refactored later.
 	// Save the block data to the off-chain storage.
 	if k.offChainKv != nil {
-		k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
+		k.bp.UpdateOffChainStorage(sCtx, &types.StargazerBlock{
+			StargazerHeader: &types.StargazerHeader{Header: header},
+			Txs:             txs,
+			Receipts:        receipts,
+		})
 	}
 }

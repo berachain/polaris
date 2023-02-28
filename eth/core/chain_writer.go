@@ -22,7 +22,10 @@ package core
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/ethereum/go-ethereum/core/rawdb"
+	"github.com/ethereum/go-ethereum/trie"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
@@ -30,24 +33,45 @@ import (
 // Block Processing
 // =========================================================================
 
-// `Prepare` prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	// If we are processing a new block, then we assume that the previous was finalized.
-	// TODO: ensure this is safe. We could build the block in theory by querying the blockplugin
-	if bc.processor.block != nil {
-		// Cache finalized block.
-		bc.finalizedBlock.Store(bc.processor.block)
-		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
-
+// `Prepare` prepares the blockchain for processing a new block.
+func (bc *blockchain) Prepare(ctx context.Context, number int64) {
+	// Finalize the previous block and load it into the cache.
+	block, ok := bc.currentBlock.Load().(*types.Block)
+	fmt.Println("PREPARE TOP:")
+	if ok {
+		bc.finalizedBlock.Store(block)
 		// Cache transaction data
-		for _, tx := range bc.processor.block.GetTransactions() {
-			bc.txLookupCache.Add(tx.Hash(), tx)
+		fmt.Println("PREPARE TX:", block.Transactions())
+		for i, tx := range block.Transactions() {
+			bc.txLookupCache.Add(tx.Hash(), &rawdb.LegacyTxLookupEntry{
+				BlockHash:  block.Hash(),
+				BlockIndex: block.Number().Uint64(),
+				Index:      uint64(i),
+			})
 		}
-		// Cache receipts.
-		bc.receiptsCache.Add(bc.processor.block.Hash(), bc.processor.block.GetReceipts())
+		// We also add to the block cache.
+		bc.blockCache.Add(block.Hash(), block)
+		fmt.Println("PREPARE RECE:", bc.processor.receipts)
+		bc.receiptsCache.Add(block.Hash(), bc.processor.receipts)
 	}
-	bc.processor.Prepare(ctx, height)
-	bc.chainHeadFeed.Send(ChainHeadEvent{Block: bc.processor.block.EthBlock()})
+
+	// Prepare the plugins for the new block.
+	bp := bc.host.GetBlockPlugin()
+	bp.Prepare(ctx)
+
+	header, err := bc.HeaderByNumber(number)
+	if err != nil {
+		fmt.Println("Error getting header by number", err)
+		panic("ERR")
+	}
+	bc.currentHeader.Store(header)
+
+	// We wipe the last current block to ensure no state is carried over from the
+	// previous cycle.
+	block = types.NewBlock(header, nil, nil, nil, trie.NewStackTrie(nil))
+	bc.currentBlock.Store(block)
+
+	bc.processor.Prepare(ctx, bc.cc, header)
 }
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
@@ -56,6 +80,14 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 }
 
 // `Finalize` finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
-	return bc.processor.Finalize(ctx)
+func (bc *blockchain) Finalize(ctx context.Context) (*types.Header, types.Transactions, types.Receipts) {
+	// We create a new block from the output of the state processor.
+	header, txs, receipts := bc.processor.Finalize(ctx)
+	block := types.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil))
+	fmt.Println("FINAL BLOCK", block)
+	// Now that we've executed the block, we then then say its been added to the top of the chain.
+	bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+	bc.currentBlock.Store(block)
+	bc.currentHeader.Store(header)
+	return header, txs, receipts
 }
