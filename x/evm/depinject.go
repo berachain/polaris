@@ -31,6 +31,7 @@ import (
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
@@ -46,6 +47,8 @@ type DepInjectInput struct {
 	Config    *modulev1.Module
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
+
+	// Mempool sdkmempool.Mempool
 
 	AccountKeeper  AccountKeeper
 	BankKeeper     BankKeeper
@@ -67,7 +70,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
-
 	k := keeper.NewKeeper(
 		in.Key,
 		in.AccountKeeper,
@@ -75,6 +77,8 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.GetPrecompiles,
 		authority.String(),
 		in.AppOpts,
+		mempool.NewEthTxPool(),
+		// in.Mempool,
 	)
 
 	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)

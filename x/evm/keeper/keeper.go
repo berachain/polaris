@@ -21,15 +21,17 @@
 package keeper
 
 import (
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-	"github.com/cometbft/cometbft/libs/log"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
@@ -39,6 +41,7 @@ import (
 	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
@@ -56,7 +59,6 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	// The offchain KV store.
 	offChainKv *offchain.Store
-
 	// `authority` is the bech32 address that is allowed to execute governance proposals.
 	authority string
 
@@ -77,6 +79,7 @@ func NewKeeper(
 	getPrecompiles func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
+	ethTxMempool sdkmempool.Mempool,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -101,7 +104,7 @@ func NewKeeper(
 	plf := precompilelog.NewFactory()
 	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
-	k.txp = txpool.NewPlugin(k.rpcProvider)
+	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
@@ -113,7 +116,7 @@ func (k *Keeper) SetupRPC() {
 
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", types.ModuleName)
+	return ctx.Logger().With(types.ModuleName)
 }
 
 // `SetQueryContextFn` sets the query context function for the state plugin.

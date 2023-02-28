@@ -18,23 +18,28 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package state
+package txpool
 
 import (
-	"math/big"
-
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
-}
+// `PubkeyFromTx` returns the public key of the signer of the transaction.
+func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
+	// `signer.PubKey` returns the uncompressed public key.
+	uncompressed, err := signer.PubKey(signedTx)
+	if err != nil {
+		return &ethsecp256k1.PubKey{}, err
+	}
 
-// `Transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
-func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
+	// We marshal it to a *ecdsa.PublicKey.
+	pubKey, err := crypto.UnmarshalPubkey(uncompressed)
+	if err != nil {
+		return &ethsecp256k1.PubKey{}, err
+	}
+
+	// Then we can compress it to adhere to the required format.
+	return &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(pubKey)}, nil
 }

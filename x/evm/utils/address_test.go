@@ -49,12 +49,12 @@ var _ = Describe("Address", func() {
 		Expect(addr.String()).To(Equal(valAddr1.String()))
 
 		ethAddr := AddressToAccAddress(addr)
-		bech322 := sdk.MustBech32ifyAddressBytes(sdk.Bech32PrefixAccAddr, ethAddr.Bytes())
-		Expect(bech322, bech32)
+		bech322 := sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), ethAddr.Bytes())
+		Expect(bech322).To(Equal(bech32))
 
 		ethAddr2 := AddressToValAddress(addr)
-		bech3222 := sdk.MustBech32ifyAddressBytes(sdk.Bech32PrefixValAddr, ethAddr2.Bytes())
-		Expect(bech3222, "valstargazer1ekxyevx8lyazka9nu532r3a7xklpl0rnddf8cd")
+		bech3222 := sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32ValidatorAddrPrefix(), ethAddr2.Bytes())
+		Expect(bech3222).To(Equal("stargazervaloper1ekxyevx8lyazka9nu532r3a7xklpl0rn9fs660"))
 
 	})
 })

@@ -28,6 +28,7 @@ import (
 
 	"cosmossdk.io/store/types"
 
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/testutil/mock/interfaces"
 	"pkg.berachain.dev/stargazer/testutil/mock/interfaces/mock"
 )
@@ -71,11 +72,7 @@ func NewCachedMultiStore(ms MultiStore) types.CacheMultiStore {
 	kvstore := map[string]interfaces.KVStore{}
 
 	for key, store := range ms.kvstore {
-		var ok bool
-		kvstore[key], ok = store.CacheWrap().(interfaces.KVStore)
-		if !ok {
-			panic("not a kv store")
-		}
+		kvstore[key] = utils.MustGetAs[interfaces.KVStore](store.CacheWrap())
 	}
 
 	cached := CachedMultiStore{
@@ -96,7 +93,7 @@ func NewCachedMultiStore(ms MultiStore) types.CacheMultiStore {
 
 	cached.WriteFunc = func() {
 		for _, store := range cached.kvstore {
-			store.(*TestKVStore).Write()
+			utils.MustGetAs[*TestKVStore](store).Write()
 		}
 	}
 	return cached

@@ -21,59 +21,95 @@
 package core
 
 import (
+	"context"
+	"errors"
+
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
-// `CurrentHeader` returns the current header of the blockchain.
-func (bc *blockchain) CurrentHeader() *types.StargazerHeader {
-	return bc.processor.block.StargazerHeader
-}
-
 // `CurrentBlock` returns the current block of the blockchain.
-func (bc *blockchain) CurrentBlock() *types.StargazerBlock {
-	if bc.processor.block != nil {
-		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
+func (bc *blockchain) CurrentBlock() (*types.StargazerBlock, error) {
+	if bc.processor.block == nil {
+		return nil, errors.New("BING BONG ewrror")
 	}
-	return bc.processor.block
+	bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
+	return bc.processor.block, nil
 }
 
-// `CurrentTransaction` returns the last finalized block of the blockchain.
-func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
-	if bc.processor.finalizedBlock != nil {
-		bc.blockCache.Add(bc.processor.finalizedBlock.Hash(), bc.processor.finalizedBlock)
+// `FinalizedBlock` returns the last finalized block of the blockchain.
+func (bc *blockchain) FinalizedBlock() (*types.StargazerBlock, error) {
+	fb, ok := utils.GetAs[*types.StargazerBlock](bc.finalizedBlock.Load())
+	if fb == nil || !ok {
+		return nil, errors.New("BING BONG ewrror")
 	}
-	return bc.processor.finalizedBlock
+	bc.blockCache.Add(fb.Hash(), fb)
+	return fb, nil
 }
 
 // GetBlock retrieves a block from the database by hash and number,
 // caching it if found.
-func (bc *blockchain) GetStargazerBlockByNumber(number int64) *types.StargazerBlock {
+func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerBlock, error) {
+	// Short circuit if the block's already in the cache, retrieve otherwise
+	if bc.processor.block != nil && bc.processor.block.Number.Int64() == number {
+		return bc.processor.block, nil
+	}
+
+	fp := bc.finalizedBlock.Load()
+	if fp != nil {
+		block, ok := fp.(*types.StargazerBlock)
+		if !ok {
+			return nil, errors.New("BING BONG ewrror")
+		}
+		if block.Number.Int64() == number {
+			return block, nil
+		}
+	}
+
 	block := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
 	if block == nil {
-		return nil
+		return nil, errors.New("BING BONG ewrror")
 	}
+
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
-	return block
+	return block, nil
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock {
+func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.StargazerBlock, error) {
 	// Short circuit if the block's already in the cache, retrieve otherwise
-	if block, ok := bc.blockCache.Get(hash); ok {
-		return block
+	if bc.processor.block != nil && bc.processor.block.Hash() == hash {
+		return bc.processor.block, nil
 	}
+
+	fp := bc.finalizedBlock.Load()
+	if fp != nil {
+		block, ok := fp.(*types.StargazerBlock)
+		if !ok {
+			return nil, errors.New("BING BONG ewrror")
+		}
+		if block.Hash() == hash {
+			return block, nil
+		}
+	}
+
+	if block, ok := bc.blockCache.Get(hash); ok {
+		return block, nil
+	}
+
 	block := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
 	if block == nil {
-		return nil
+		return nil, errors.New("BING BONG")
 	}
+
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
-	return block
+	return block, nil
 }
 
 // // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
@@ -109,4 +145,26 @@ func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Su
 
 func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	return bc.host.GetStatePlugin().GetStateByNumber(number)
+}
+
+func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state vm.GethStateDB,
+	header *types.Header, vmConfig *vm.Config) *vm.GethEVM {
+	blockContext := vm.BlockContext{
+		CanTransfer: CanTransfer,
+		Transfer:    Transfer,
+		GetHash:     GetHashFn(header, &chainContext{bc.processor}),
+		Coinbase:    header.Coinbase, // todo: check for fee collector
+		GasLimit:    header.GasLimit,
+		BlockNumber: header.Number,
+		Time:        header.Time,
+		Difficulty:  header.Difficulty,
+		BaseFee:     header.BaseFee,
+		// Random:      header.Ra,
+	}
+
+	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
+	return vm.NewGethEVMWithPrecompiles(
+		// todo: get precompile controller
+		blockContext, txContext, state, chainCfg, *vmConfig, nil,
+	)
 }

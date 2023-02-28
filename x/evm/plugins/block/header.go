@@ -31,11 +31,11 @@ import (
 // Stargazer Block Tracking
 // ===========================================================================.
 
-const (
-	// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set
-	// to 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
-	numHistoricalBlocks int64 = 256
-)
+// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set
+// to 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
+const numHistoricalBlocks int64 = 256
+
+var SGHeaderPrefix = []byte{0xb0}
 
 // `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
 // heights that are below pruning height.
@@ -115,5 +115,3 @@ func (p *plugin) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHe
 	// to persist at the application layer in order to query by hash. (TODO? Tendermint?)
 	return nil
 }
-
-var SGHeaderPrefix = []byte("block")
