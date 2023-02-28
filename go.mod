@@ -8,7 +8,7 @@ replace (
 	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
 	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230227175242-0ef6c9a488be
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
-	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230224170058-e133c763c3c9
+	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230228165746-d8cad9251ff6
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
