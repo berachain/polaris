@@ -57,7 +57,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/crypto/keyring"
 	simapp "pkg.berachain.dev/stargazer/testutil/app"
-	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
+	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 )
 
 // encodingConfig := encoding.MakeConfig(app.ModuleBasics)
@@ -126,7 +126,7 @@ func NewRootCmd() *cobra.Command {
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
 				append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
 				txmodule.NewTextualWithGRPCConn(initClientCtx),
-				[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
+				[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
 			)
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 
