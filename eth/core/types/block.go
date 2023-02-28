@@ -104,8 +104,10 @@ func (sb *StargazerBlock) GetTransactions() Transactions {
 // `Finalize` sets the gas used, transaction hash, receipt hash, and optionally bloom of the block
 // header.
 func (sb *StargazerBlock) Finalize(gasUsed uint64) {
-	hasher := trie.NewStackTrie(nil)
+	sb.StargazerHeader.UncleHash = EmptyUncleHash
 	sb.StargazerHeader.GasUsed = gasUsed
+
+	hasher := trie.NewStackTrie(nil)
 	if len(sb.txs) == 0 {
 		sb.StargazerHeader.TxHash = EmptyRootHash
 		sb.StargazerHeader.ReceiptHash = EmptyRootHash
@@ -121,6 +123,5 @@ func (sb *StargazerBlock) EthBlock() *Block {
 	if sb == nil {
 		return nil
 	}
-	eb := NewBlock(sb.Header, sb.txs, nil, sb.receipts, trie.NewStackTrie(nil))
-	return eb
+	return NewBlock(sb.Header, sb.txs, nil, sb.receipts, trie.NewStackTrie(nil))
 }
