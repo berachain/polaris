@@ -101,12 +101,14 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 
 // `GetAllTransactions` returns all transactions in the transaction pool.
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
-	return p.mempool.GetPoolTransactions(), nil
+	return nil, nil
+	// return p.mempool.GetPoolTransactions(), nil
 }
 
 // `GetTransactions` returns the transaction by hash in the transaction pool.
 func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	return p.mempool.GetTransaction(hash)
+	return nil
+	// return p.mempool.GetTransaction(hash)
 }
 
 func (p *plugin) GetNonce(addr common.Address) uint64 {

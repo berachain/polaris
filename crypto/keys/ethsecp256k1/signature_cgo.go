@@ -45,7 +45,6 @@ func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
 // `VerifySignature` verifies that the ECDSA public key created a given signature over
 // the provided message. The signature should be in [R || S] format.
 func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
-	fmt.Println("HELLO WELCOME TO THE PARTY", msg, sig)
 
 	if len(msg) != crypto.DigestLength {
 		msg = crypto.Keccak256(msg)
@@ -53,9 +52,10 @@ func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 	if len(sig) == crypto.SignatureLength {
 		// remove recovery ID (V) if contained in the signature
 		sig = sig[:len(sig)-1]
-		fmt.Println("REMOVE V")
 	}
 
 	// The signature needs to be in [R || S] format when provided to `VerifySignature`.
-	return crypto.VerifySignature(pubKey.Key, msg, sig)
+	x := crypto.VerifySignature(pubKey.Key, msg, sig)
+	fmt.Println("SIGNATURE VERIFIED:", x)
+	return x
 }

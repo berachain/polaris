@@ -99,7 +99,6 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
@@ -210,10 +209,10 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
-		ethTxMempool = mempool.NewEthTxPool()
-		mempoolOpt   = baseapp.SetMempool(
-			ethTxMempool,
-		)
+		// ethTxMempool = mempool.NewEthTxPool()
+		// mempoolOpt   = baseapp.SetMempool(
+		// 	// ethTxMempool,
+		// )
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -234,7 +233,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 				// ADVANCED CONFIGURATION
 				//
 				// ETH TX MEMPOOL
-				ethTxMempool,
+				// ethTxMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
@@ -295,7 +294,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry, mempoolOpt)...)
+	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry)...)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	// evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
 	app.txConfig = tx.NewTxConfig(
@@ -312,7 +311,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 		FeegrantKeeper:         app.FeeGrantKeeper,
 		SigGasConsumer:         evmante.SigVerificationGasConsumer,
 	}
-	ch, _ := ante.NewAnteHandler(
+	ch, _ := evmante.NewAnteHandler(
 		opt,
 	)
 	app.SetAnteHandler(

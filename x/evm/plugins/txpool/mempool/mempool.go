@@ -56,6 +56,7 @@ type EthTxPool struct {
 func NewEthTxPool() *EthTxPool {
 	return &EthTxPool{
 		PriorityNonceMempool: mempool.NewPriorityMempool(),
+		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
 	}
 }
 

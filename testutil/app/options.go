@@ -25,7 +25,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 
 	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 )
 
 // `StargazerAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
@@ -36,7 +35,7 @@ func StargazerAppOptions(
 	stargazerAppOptions = append(
 		stargazerAppOptions,
 		[]func(bApp *baseapp.BaseApp){
-			baseapp.SetMempool(mempool.NewEthTxPool()),
+			// baseapp.SetMempool(mempool.NewEthTxPool()),
 			func(bApp *baseapp.BaseApp) {
 				cryptocodec.RegisterInterfaces(interfaceRegistry)
 			},

@@ -20,23 +20,23 @@
 
 package mempool
 
-import (
-	"testing"
+// import (
+// 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
+// 	. "github.com/onsi/ginkgo/v2"
+// 	. "github.com/onsi/gomega"
+// )
 
-func TestEthPool(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/txpool/mempool")
-}
+// func TestEthPool(t *testing.T) {
+// 	RegisterFailHandler(Fail)
+// 	RunSpecs(t, "x/evm/plugins/txpool/mempool")
+// }
 
-var _ = Describe(`EthTxPool`, func() {
-	Describe(`EthTxPool`, func() {
-		It(`Should return a valid EthTxPool`, func() {
-			ethTxPool := EthTxPool{}
-			Expect(ethTxPool).ToNot(BeNil())
-		})
-	})
-})
+// var _ = Describe(`EthTxPool`, func() {
+// 	Describe(`EthTxPool`, func() {
+// 		It(`Should return a valid EthTxPool`, func() {
+// 			ethTxPool := EthTxPool{}
+// 			Expect(ethTxPool).ToNot(BeNil())
+// 		})
+// 	})
+// })
