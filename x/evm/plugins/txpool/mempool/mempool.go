@@ -24,7 +24,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
@@ -36,7 +36,7 @@ import (
 // PriorityNonceMempool and caches transactions that are added to the mempool by
 // ethereum transaction hash.
 type EthTxPool struct {
-	*mempool.PriorityNonceMempool // first iteration simply allows for
+	sdkmempool.Mempool
 
 	// `ethTxCache` caches transactions that are added to the mempool
 	// so that they can be retrieved later
@@ -53,24 +53,26 @@ type EthTxPool struct {
 }
 
 // `New` is called when the mempool is created.
-func NewEthTxPool() *EthTxPool {
+func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 	return &EthTxPool{
-		PriorityNonceMempool: mempool.NewPriorityMempool(),
-		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
+		Mempool:    m,
+		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
 	}
 }
 
 // `Insert` is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	// Call the base mempool's Insert method
-	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
+	if err := etp.Mempool.Insert(ctx, tx); err != nil {
 		return err
 	}
+
 	// We want to cache
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
 	if !ok {
-		return ErrIncorrectTxType
+		return nil
 	}
+
 	t := etr.AsTransaction()
 	etp.ethTxCache[t.Hash()] = t
 	return nil
@@ -93,14 +95,14 @@ func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
 // `Remove` is called when a transaction is removed from the mempool.
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	// Call the base mempool's Remove method
-	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
+	if err := etp.Mempool.Remove(tx); err != nil {
 		return err
 	}
 
 	// We want to cache this tx.
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
 	if !ok {
-		return ErrIncorrectTxType
+		return nil
 	}
 
 	delete(etp.ethTxCache, etr.AsTransaction().Hash())

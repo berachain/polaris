@@ -50,6 +50,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -98,6 +99,7 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
@@ -208,9 +210,11 @@ func NewSimApp( //nolint: funlen // from sdk.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
-		// mempoolOpt   = baseapp.SetMempool(
-		// 	// ethTxMempool,
-		// )
+		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(mempool.NewPriorityMempool())
+		mempoolOpt                   = baseapp.SetMempool(
+			ethTxMempool,
+		)
+
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -231,7 +235,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 				// ADVANCED CONFIGURATION
 				//
 				// ETH TX MEMPOOL
-				// ethTxMempool,
+				ethTxMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
@@ -292,9 +296,15 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry)...)
+	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(
+		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...,
+	)...)
+
+	// ===============================================================
+	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
+	// ===============================================================
+	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
-	// evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
 	app.txConfig = tx.NewTxConfig(
 		codec.NewProtoCodec(app.interfaceRegistry),
 		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
@@ -323,7 +333,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 	/****  Module Options ****/
 
 	// Set the query context function for the evm module.
-	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
