@@ -47,7 +47,7 @@ require (
 	github.com/magefile/mage v1.14.0
 	github.com/matryer/moq v0.3.0
 	github.com/onsi/ginkgo/v2 v2.8.4
-	github.com/onsi/gomega v1.27.1
+	github.com/onsi/gomega v1.27.2
 	github.com/securego/gosec/v2 v2.15.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cast v1.5.0
