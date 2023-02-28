@@ -23,6 +23,6 @@ package rpc
 import "errors"
 
 var (
-	ErrBlockNotFound    = errors.New("block not found, is your node pruned?")
-	ErrHashNotCanonical = errors.New("hash not canonical")
+	ErrHashNotCanonical  = errors.New("hash not canonical")
+	ErrNoBlockNumAndHash = errors.New("invalid arguments; neither block nor hash specified")
 )

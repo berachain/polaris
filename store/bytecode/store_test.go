@@ -18,19 +18,49 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package bytecode
 
 import (
-	"math/big"
+	"testing"
 
+	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
-var _ = Describe("Test Params", func() {
-	It("should marshal chain config correctly", func() {
-		params := DefaultParams()
-		ethConfig := params.EthereumChainConfig()
-		Expect(ethConfig.ChainID).To(Equal(big.NewInt(42069)))
+func TestByteCode(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "store/bytecode")
+}
+
+var _ = Describe("bytecodeStore", func() {
+	var (
+		code1 = []byte{1}
+		dbDir = sims.NewAppOptionsWithFlagHome("/tmp/berachain")
+		store = NewByteCodeStore(dbDir)
+	)
+
+	It("should set and get byte code", func() {
+		store.StoreCode(code1)
+		codeHash := crypto.Keccak256Hash(code1)
+		code := store.GetCode(codeHash)
+		Expect(code).To(Equal(code1))
+	})
+
+	It("should iterate over byte code", func() {
+		log := make(map[common.Hash][]byte, 0)
+		store.StoreCode(code1)
+		store.IterateCode(nil, nil, func(codeHash common.Hash, code []byte) bool {
+			log[codeHash] = code
+			return true // break the iteration
+		})
+		Expect(log[crypto.Keccak256Hash(code1)]).To(Equal(code1))
+	})
+
+	It("should set and get version", func() {
+		store.SetVersion(1)
+		Expect(store.GetVersion()).To(Equal(int64(1)))
 	})
 })

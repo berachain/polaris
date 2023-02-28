@@ -18,20 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package bytecode
 
-import (
-	"github.com/ethereum/go-ethereum/params"
+import "errors"
 
-	"pkg.berachain.dev/stargazer/eth/core/vm"
+var (
+	ErrByteCodeDoesNotMatch = errors.New("byte code does not match")
 )
-
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-
-func NewPrecompilePluginMock() *PrecompilePluginMock {
-	return &PrecompilePluginMock{
-		GetPrecompilesFunc: func(_ *params.Rules) []vm.RegistrablePrecompile {
-			return nil
-		},
-	}
-}

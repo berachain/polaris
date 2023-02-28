@@ -36,6 +36,9 @@ type Plugin interface {
 	// `Reset` resets the state with the given `context`.
 	libtypes.Resettable
 
+	// `Error` returns the latest error occurred during the execution of the plugin.
+	Error() error
+
 	// `CreateAccount` creates an account with the given `address`.
 	CreateAccount(common.Address)
 	// `Exist` reports whether the given account exists in state. Notably this should also return

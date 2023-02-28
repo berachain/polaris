@@ -56,30 +56,56 @@ func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
 
 // GetBlock retrieves a block from the database by hash and number,
 // caching it if found.
-func (bc *blockchain) GetStargazerBlockByNumber(number int64) *types.StargazerBlock {
-	block := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
-	if block == nil {
-		return nil
+func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerBlock, error) {
+	// Short circuit if the block's already in the cache, retrieve otherwise
+	if bc.processor.block != nil && bc.processor.block.Number.Int64() == number {
+		return bc.processor.block, nil
+	}
+
+	fp := bc.finalizedBlock.Load()
+	if fp != nil {
+		block := fp.(*types.StargazerBlock)
+		if block.Number.Int64() == number {
+			return block, nil
+		}
+	}
+
+	block, err := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
+	if err != nil {
+		return nil, err
 	}
 
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
-	return block
+	return block, nil
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock {
+func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.StargazerBlock, error) {
 	// Short circuit if the block's already in the cache, retrieve otherwise
+	if bc.processor.block != nil && bc.processor.block.Hash() == hash {
+		return bc.processor.block, nil
+	}
+
+	fp := bc.finalizedBlock.Load()
+	if fp != nil {
+		block := fp.(*types.StargazerBlock)
+		if block.Hash() == hash {
+			return block, nil
+		}
+	}
+
 	if block, ok := bc.blockCache.Get(hash); ok {
-		return block
+		return block, nil
 	}
-	block := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
-	if block == nil {
-		return nil
+	block, err := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
+	if err != nil {
+		return nil, err
 	}
+
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
-	return block
+	return block, nil
 }
 
 // // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
@@ -134,8 +160,7 @@ func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state 
 
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
-		// todo: get precompile controller
-		blockContext, txContext, state, chainCfg, *vmConfig, nil,
+		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
 }
 

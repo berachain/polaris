@@ -30,6 +30,9 @@ var _ state.Plugin = &PluginMock{}
 //			DeleteSuicidesFunc: func(addresss []common.Address)  {
 //				panic("mock out the DeleteSuicides method")
 //			},
+//			ErrorFunc: func() error {
+//				panic("mock out the Error method")
+//			},
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
 //			},
@@ -108,6 +111,9 @@ type PluginMock struct {
 
 	// DeleteSuicidesFunc mocks the DeleteSuicides method.
 	DeleteSuicidesFunc func(addresss []common.Address)
+
+	// ErrorFunc mocks the Error method.
+	ErrorFunc func() error
 
 	// ExistFunc mocks the Exist method.
 	ExistFunc func(address common.Address) bool
@@ -190,6 +196,9 @@ type PluginMock struct {
 		DeleteSuicides []struct {
 			// Addresss is the addresss argument value.
 			Addresss []common.Address
+		}
+		// Error holds details about calls to the Error method.
+		Error []struct {
 		}
 		// Exist holds details about calls to the Exist method.
 		Exist []struct {
@@ -318,6 +327,7 @@ type PluginMock struct {
 	lockAddBalance        sync.RWMutex
 	lockCreateAccount     sync.RWMutex
 	lockDeleteSuicides    sync.RWMutex
+	lockError             sync.RWMutex
 	lockExist             sync.RWMutex
 	lockFinalize          sync.RWMutex
 	lockForEachStorage    sync.RWMutex
@@ -438,6 +448,33 @@ func (mock *PluginMock) DeleteSuicidesCalls() []struct {
 	mock.lockDeleteSuicides.RLock()
 	calls = mock.calls.DeleteSuicides
 	mock.lockDeleteSuicides.RUnlock()
+	return calls
+}
+
+// Error calls ErrorFunc.
+func (mock *PluginMock) Error() error {
+	if mock.ErrorFunc == nil {
+		panic("PluginMock.ErrorFunc: method is nil but Plugin.Error was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockError.Lock()
+	mock.calls.Error = append(mock.calls.Error, callInfo)
+	mock.lockError.Unlock()
+	return mock.ErrorFunc()
+}
+
+// ErrorCalls gets all the calls that were made to Error.
+// Check the length with:
+//
+//	len(mockedPlugin.ErrorCalls())
+func (mock *PluginMock) ErrorCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockError.RLock()
+	calls = mock.calls.Error
+	mock.lockError.RUnlock()
 	return calls
 }
 
