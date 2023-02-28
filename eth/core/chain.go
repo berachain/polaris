@@ -60,6 +60,7 @@ type ChainWriter interface {
 type ChainReader interface {
 	CurrentBlock() (*types.StargazerBlock, error)
 	FinalizedBlock() (*types.StargazerBlock, error)
+	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 	GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
 	GetStargazerBlockByNumber(int64) (*types.StargazerBlock, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
@@ -85,7 +86,7 @@ type blockchain struct {
 	// `blockCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	blockCache *lru.Cache[common.Hash, *types.StargazerBlock]
 	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of blocks.
-	txLookupCache *lru.Cache[common.Hash, *types.Transaction]
+	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
 	chainHeadFeed event.Feed
 	scope         event.SubscriptionScope
@@ -101,7 +102,7 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 		host:          host,
 		receiptsCache: lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
 		blockCache:    lru.NewCache[common.Hash, *types.StargazerBlock](defaultCacheSizeBytes),
-		txLookupCache: lru.NewCache[common.Hash, *types.Transaction](defaultCacheSizeBytes),
+		txLookupCache: lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
 		chainHeadFeed: event.Feed{},
 		scope:         event.SubscriptionScope{},
 	}

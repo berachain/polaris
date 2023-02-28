@@ -51,6 +51,19 @@ func (bc *blockchain) FinalizedBlock() (*types.StargazerBlock, error) {
 	return fb, nil
 }
 
+func (bc *blockchain) GetTransaction(
+	txHash common.Hash,
+) (*types.Transaction, common.Hash, uint64, uint64, error) {
+	if txLookupEntry, ok := bc.txLookupCache.Get(txHash); ok {
+		return txLookupEntry.Tx, txLookupEntry.BlockHash,
+			txLookupEntry.BlockIndex, txLookupEntry.Index, nil
+	}
+
+	// TODO: go to block plugin, get block corresponding to txHash, and find the tx.
+	// return error if not found.
+	return nil, common.Hash{}, 0, 0, nil
+}
+
 // GetBlock retrieves a block from the database by hash and number,
 // caching it if found.
 func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerBlock, error) {
