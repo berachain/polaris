@@ -46,6 +46,8 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		// Cache receipts.
 		bc.receiptsCache.Add(bc.processor.block.Hash(), bc.processor.block.GetReceipts())
 	}
+
+	// Prepare the state processor for the next block.
 	bc.processor.Prepare(ctx, height)
 	bc.chainHeadFeed.Send(ChainHeadEvent{Block: bc.processor.block.EthBlock()})
 }

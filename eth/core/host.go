@@ -64,11 +64,11 @@ type (
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
-		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
+		GetStargazerHeaderByNumber(int64) (*types.StargazerHeader, error)
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
-		GetStargazerBlockByNumber(int64) *types.StargazerBlock
+		GetStargazerBlockByNumber(int64) (*types.StargazerBlock, error)
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
-		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
+		GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
 		// `GetTransactionByHash` returns the transaction at the given transaction hash.
 		GetTransactionByHash(common.Hash) *types.Transaction
 		// `GetTransactionBlockNumber` returns the block number of the transaction

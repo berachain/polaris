@@ -77,26 +77,26 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 }
 
 // `GetStargazerBlockByNumber` returns the stargazer header at the given height.
-func (p *plugin) GetStargazerBlockByNumber(number int64) *coretypes.StargazerBlock {
+func (p *plugin) GetStargazerBlockByNumber(number int64) (*coretypes.StargazerBlock, error) {
 	blockStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
 	bz := blockStore.Get(sdk.Uint64ToBigEndian(uint64(number)))
 	if bz == nil {
-		return nil
+		return &coretypes.StargazerBlock{}, nil
 	}
 	var block coretypes.StargazerBlock
 	err := block.UnmarshalBinary(bz)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &block
+	return &block, nil
 }
 
 // `GetStargazerBlockByHash` returns the stargazer header at the given hash.
-func (p *plugin) GetStargazerBlockByHash(hash common.Hash) *coretypes.StargazerBlock {
+func (p *plugin) GetStargazerBlockByHash(hash common.Hash) (*coretypes.StargazerBlock, error) {
 	blockStore := prefix.NewStore(p.offchainStore, blockHashKeyPrefix)
 	bz := blockStore.Get(hash.Bytes())
 	if bz == nil {
-		return nil
+		return &coretypes.StargazerBlock{}, nil
 	}
 	return p.GetStargazerBlockByNumber(new(big.Int).SetBytes(bz).Int64())
 }

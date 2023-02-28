@@ -35,7 +35,7 @@ func NewBlockPluginMock() *BlockPluginMock {
 		BaseFeeFunc: func() uint64 {
 			return testBaseFee
 		},
-		GetStargazerHeaderByNumberFunc: func(n int64) *types.StargazerHeader {
+		GetStargazerHeaderByNumberFunc: func(n int64) (*types.StargazerHeader, error) {
 			panic("mock out the GetStargazerHeaderByNumber method")
 		},
 		PrepareFunc: func(contextMoqParam context.Context) {

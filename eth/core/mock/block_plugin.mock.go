@@ -27,16 +27,16 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() uint64 {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetStargazerBlockByHashFunc: func(hash common.Hash) *ethcoretypes.StargazerBlock {
+//			GetStargazerBlockByHashFunc: func(hash common.Hash) (*ethcoretypes.StargazerBlock, error) {
 //				panic("mock out the GetStargazerBlockByHash method")
 //			},
-//			GetStargazerBlockByNumberFunc: func(n int64) *ethcoretypes.StargazerBlock {
+//			GetStargazerBlockByNumberFunc: func(n int64) (*ethcoretypes.StargazerBlock, error) {
 //				panic("mock out the GetStargazerBlockByNumber method")
 //			},
 //			GetStargazerHeaderFunc: func(ctx sdk.Context, height int64) (*ethcoretypes.StargazerHeader, bool) {
 //				panic("mock out the GetStargazerHeader method")
 //			},
-//			GetStargazerHeaderByNumberFunc: func(n int64) *ethcoretypes.StargazerHeader {
+//			GetStargazerHeaderByNumberFunc: func(n int64) (*ethcoretypes.StargazerHeader, error) {
 //				panic("mock out the GetStargazerHeaderByNumber method")
 //			},
 //			GetTransactionBlockNumberFunc: func(hash common.Hash) *big.Int {
@@ -68,16 +68,16 @@ type BlockPluginMock struct {
 	BaseFeeFunc func() uint64
 
 	// GetStargazerBlockByHashFunc mocks the GetStargazerBlockByHash method.
-	GetStargazerBlockByHashFunc func(hash common.Hash) *ethcoretypes.StargazerBlock
+	GetStargazerBlockByHashFunc func(hash common.Hash) (*ethcoretypes.StargazerBlock, error)
 
 	// GetStargazerBlockByNumberFunc mocks the GetStargazerBlockByNumber method.
-	GetStargazerBlockByNumberFunc func(n int64) *ethcoretypes.StargazerBlock
+	GetStargazerBlockByNumberFunc func(n int64) (*ethcoretypes.StargazerBlock, error)
 
 	// GetStargazerHeaderFunc mocks the GetStargazerHeader method.
 	GetStargazerHeaderFunc func(ctx sdk.Context, height int64) (*ethcoretypes.StargazerHeader, bool)
 
 	// GetStargazerHeaderByNumberFunc mocks the GetStargazerHeaderByNumber method.
-	GetStargazerHeaderByNumberFunc func(n int64) *ethcoretypes.StargazerHeader
+	GetStargazerHeaderByNumberFunc func(n int64) (*ethcoretypes.StargazerHeader, error)
 
 	// GetTransactionBlockNumberFunc mocks the GetTransactionBlockNumber method.
 	GetTransactionBlockNumberFunc func(hash common.Hash) *big.Int
@@ -202,7 +202,7 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 }
 
 // GetStargazerBlockByHash calls GetStargazerBlockByHashFunc.
-func (mock *BlockPluginMock) GetStargazerBlockByHash(hash common.Hash) *ethcoretypes.StargazerBlock {
+func (mock *BlockPluginMock) GetStargazerBlockByHash(hash common.Hash) (*ethcoretypes.StargazerBlock, error) {
 	if mock.GetStargazerBlockByHashFunc == nil {
 		panic("BlockPluginMock.GetStargazerBlockByHashFunc: method is nil but BlockPlugin.GetStargazerBlockByHash was just called")
 	}
@@ -234,7 +234,7 @@ func (mock *BlockPluginMock) GetStargazerBlockByHashCalls() []struct {
 }
 
 // GetStargazerBlockByNumber calls GetStargazerBlockByNumberFunc.
-func (mock *BlockPluginMock) GetStargazerBlockByNumber(n int64) *ethcoretypes.StargazerBlock {
+func (mock *BlockPluginMock) GetStargazerBlockByNumber(n int64) (*ethcoretypes.StargazerBlock, error) {
 	if mock.GetStargazerBlockByNumberFunc == nil {
 		panic("BlockPluginMock.GetStargazerBlockByNumberFunc: method is nil but BlockPlugin.GetStargazerBlockByNumber was just called")
 	}
@@ -302,7 +302,7 @@ func (mock *BlockPluginMock) GetStargazerHeaderCalls() []struct {
 }
 
 // GetStargazerHeaderByNumber calls GetStargazerHeaderByNumberFunc.
-func (mock *BlockPluginMock) GetStargazerHeaderByNumber(n int64) *ethcoretypes.StargazerHeader {
+func (mock *BlockPluginMock) GetStargazerHeaderByNumber(n int64) (*ethcoretypes.StargazerHeader, error) {
 	if mock.GetStargazerHeaderByNumberFunc == nil {
 		panic("BlockPluginMock.GetStargazerHeaderByNumberFunc: method is nil but BlockPlugin.GetStargazerHeaderByNumber was just called")
 	}

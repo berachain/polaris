@@ -50,13 +50,13 @@ var _ = Describe("Block Plugin", func() {
 	})
 
 	It("should get the header at current height", func() {
-		header := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
+		header, _ := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
 		Expect(header.Hash()).To(Equal(header.Header.Hash()))
 		Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
 	})
 
 	It("should return empty header for non-existent height", func() {
-		header := p.GetStargazerHeaderByNumber(100000)
+		header, _ := p.GetStargazerHeaderByNumber(100000)
 		Expect(*header).To(Equal(types.StargazerHeader{}))
 	})
 

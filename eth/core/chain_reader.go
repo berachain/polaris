@@ -70,9 +70,9 @@ func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerB
 		}
 	}
 
-	block := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
-	if block == nil {
-		return nil, errors.New("BING BONG ewrror")
+	block, err := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
+	if err != nil {
+		return nil, err
 	}
 
 	// Cache the found block for next time and return
@@ -102,9 +102,9 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Stargaze
 		return block, nil
 	}
 
-	block := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
+	block, err := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
 	if block == nil {
-		return nil, errors.New("BING BONG")
+		return nil, err
 	}
 
 	// Cache the found block for next time and return
