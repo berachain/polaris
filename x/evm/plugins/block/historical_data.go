@@ -31,11 +31,10 @@ import (
 )
 
 var (
-	blockHashKeyPrefix  = []byte{0xb}
-	blockNumKeyPrefix   = []byte{0xbb}
-	txHashKeyPrefix     = []byte{0x10}
-	versionKey          = []byte{0x11}
-	txBlockNumKeyPrefix = []byte{0x12}
+	blockHashKeyPrefix = []byte{0xb}
+	blockNumKeyPrefix  = []byte{0xbb}
+	versionKey         = []byte{0x11}
+	txHashKeyPrefix    = []byte{0x12}
 )
 
 // `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
@@ -48,20 +47,10 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 	prefix.NewStore(p.offchainStore, blockHashKeyPrefix).Set(block.Hash().Bytes(), numBz)
 	prefix.NewStore(p.offchainStore, blockNumKeyPrefix).Set(numBz, bz)
 
-	// adding txns to kv.
-	txStore := prefix.NewStore(p.offchainStore, txHashKeyPrefix)
-
-	// adding txn with block number to kv.
-	txBlockNumStore := prefix.NewStore(p.offchainStore, txBlockNumKeyPrefix)
-
+	// store txn--block number
+	txHashStore := prefix.NewStore(p.offchainStore, txHashKeyPrefix)
 	for _, tx := range block.GetTransactions() {
-		var txBytes []byte
-		txBytes, err = tx.MarshalBinary()
-		if err != nil {
-			panic(err)
-		}
-		txStore.Set(tx.Hash().Bytes(), txBytes)
-		txBlockNumStore.Set(tx.Hash().Bytes(), numBz)
+		txHashStore.Set(tx.Hash().Bytes(), numBz)
 	}
 
 	version := block.Number
@@ -76,52 +65,35 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 }
 
 // `GetStargazerBlockByNumber` returns the stargazer header at the given height.
-func (p *plugin) GetStargazerBlockByNumber(number int64) *coretypes.StargazerBlock {
+func (p *plugin) GetStargazerBlockByNumber(number int64) (*coretypes.StargazerBlock, error) {
 	blockStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
 	bz := blockStore.Get(sdk.Uint64ToBigEndian(uint64(number)))
 	if bz == nil {
-		return nil
+		return nil, ErrBlockNotFound
 	}
 	var block coretypes.StargazerBlock
 	err := block.UnmarshalBinary(bz)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &block
+	return &block, nil
 }
 
 // `GetStargazerBlockByHash` returns the stargazer header at the given hash.
-func (p *plugin) GetStargazerBlockByHash(hash common.Hash) *coretypes.StargazerBlock {
+func (p *plugin) GetStargazerBlockByHash(hash common.Hash) (*coretypes.StargazerBlock, error) {
 	blockStore := prefix.NewStore(p.offchainStore, blockHashKeyPrefix)
 	bz := blockStore.Get(hash.Bytes())
 	if bz == nil {
-		return nil
+		return nil, ErrBlockNotFound
 	}
 	return p.GetStargazerBlockByNumber(new(big.Int).SetBytes(bz).Int64())
 }
 
-// `GetTransactionByHash` returns the transaction with the given hash.
-func (p *plugin) GetTransactionByHash(hash common.Hash) *coretypes.Transaction {
-	txStore := prefix.NewStore(p.offchainStore, txHashKeyPrefix)
-	bz := txStore.Get(hash.Bytes())
-	if bz == nil {
-		return nil
-	}
-	var tx coretypes.Transaction
-	err := tx.UnmarshalBinary(bz)
-	if err != nil {
-		p.ctx.Logger().Error("failed to unmarshal transaction", "err", err)
-		return nil
-	}
-	return &tx
-}
-
 // `GetTransactionBlockNumber` returns the block number of the transaction with the given hash.
-func (p *plugin) GetTransactionBlockNumber(txHash common.Hash) *big.Int {
-	txBlockNumStore := prefix.NewStore(p.offchainStore, txBlockNumKeyPrefix)
-	bz := txBlockNumStore.Get(txHash.Bytes())
+func (p *plugin) GetBlockNumberByTransaction(txHash common.Hash) (int64, error) {
+	bz := prefix.NewStore(p.offchainStore, txHashKeyPrefix).Get(txHash.Bytes())
 	if bz == nil {
-		return nil
+		return 0, ErrBlockNotFound
 	}
-	return new(big.Int).SetBytes(bz)
+	return new(big.Int).SetBytes(bz).Int64(), nil
 }

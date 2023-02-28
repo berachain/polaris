@@ -18,11 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package block
 
 import "errors"
 
 var (
-	ErrHashNotCanonical  = errors.New("hash not canonical")
-	ErrNoBlockNumAndHash = errors.New("invalid arguments; neither block nor hash specified")
+	ErrBlockNotFound = errors.New("block not found, is your node pruned?")
 )

@@ -104,6 +104,9 @@ type plugin struct {
 	ak AccountKeeper
 	bk BankKeeper
 
+	// last error from calls to keeper functions.
+	latestError error
+
 	// getQueryContext allows for querying state a historical height.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
 
@@ -147,6 +150,11 @@ func (p *plugin) Reset(ctx context.Context) {
 // `RegistryKey` implements `libtypes.Registrable`.
 func (p *plugin) RegistryKey() string {
 	return pluginRegistryKey
+}
+
+// `Error` implements `core.StatePlugin`.
+func (p *plugin) Error() error {
+	return p.latestError
 }
 
 // ===========================================================================
@@ -201,14 +209,14 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 
 	// Mint the coins to the evm module account
 	if err := p.bk.MintCoins(p.ctx, types.ModuleName, coins); err != nil {
-		panic(err)
+		p.latestError = err
 	}
 
 	// Send the coins from the evm module account to the destination address.
 	if err := p.bk.SendCoinsFromModuleToAccount(
 		p.ctx, types.ModuleName, addr[:], coins,
 	); err != nil {
-		panic(err)
+		p.latestError = err
 	}
 }
 
@@ -221,12 +229,12 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 	if err := p.bk.SendCoinsFromAccountToModule(
 		p.ctx, addr[:], types.ModuleName, coins,
 	); err != nil {
-		panic(err)
+		p.latestError = err
 	}
 
 	// Burn the coins from the evm module account.
 	if err := p.bk.BurnCoins(p.ctx, types.ModuleName, coins); err != nil {
-		panic(err)
+		p.latestError = err
 	}
 }
 
@@ -239,7 +247,7 @@ func (p *plugin) TransferBalance(from, to common.Address, amount *big.Int) {
 	if err := p.bk.SendCoins(p.ctx, from[:], to[:], coins); err != nil {
 		// This is safe to panic as the error is only returned if the sender does
 		// not have enough funds to send, which should be guarded by `CanTransfer`.
-		panic(err)
+		p.latestError = err
 	}
 }
 
@@ -267,7 +275,7 @@ func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 	}
 
 	if err := acc.SetSequence(nonce); err != nil {
-		panic(err)
+		p.latestError = err
 	}
 
 	p.ak.SetAccount(p.ctx, acc)

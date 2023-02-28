@@ -61,8 +61,8 @@ type ChainReader interface {
 	CurrentHeader() *types.StargazerHeader
 	CurrentBlock() *types.StargazerBlock
 	FinalizedBlock() *types.StargazerBlock
-	GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
-	GetStargazerBlockByNumber(int64) *types.StargazerBlock
+	GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
+	GetStargazerBlockByNumber(int64) (*types.StargazerBlock, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
