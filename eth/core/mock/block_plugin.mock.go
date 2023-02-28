@@ -25,6 +25,9 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() uint64 {
 //				panic("mock out the BaseFee method")
 //			},
+//			GetBlockHashByNumberFunc: func(number int64) common.Hash {
+//				panic("mock out the GetBlockHashByNumber method")
+//			},
 //			GetBlockNumberByTransactionFunc: func(hash common.Hash) (int64, error) {
 //				panic("mock out the GetBlockNumberByTransaction method")
 //			},
@@ -62,6 +65,9 @@ type BlockPluginMock struct {
 	// BaseFeeFunc mocks the BaseFee method.
 	BaseFeeFunc func() uint64
 
+	// GetBlockHashByNumberFunc mocks the GetBlockHashByNumber method.
+	GetBlockHashByNumberFunc func(number int64) common.Hash
+
 	// GetBlockNumberByTransactionFunc mocks the GetBlockNumberByTransaction method.
 	GetBlockNumberByTransactionFunc func(hash common.Hash) (int64, error)
 
@@ -93,6 +99,11 @@ type BlockPluginMock struct {
 	calls struct {
 		// BaseFee holds details about calls to the BaseFee method.
 		BaseFee []struct {
+		}
+		// GetBlockHashByNumber holds details about calls to the GetBlockHashByNumber method.
+		GetBlockHashByNumber []struct {
+			// Number is the number argument value.
+			Number int64
 		}
 		// GetBlockNumberByTransaction holds details about calls to the GetBlockNumberByTransaction method.
 		GetBlockNumberByTransaction []struct {
@@ -149,6 +160,7 @@ type BlockPluginMock struct {
 		}
 	}
 	lockBaseFee                        sync.RWMutex
+	lockGetBlockHashByNumber           sync.RWMutex
 	lockGetBlockNumberByTransaction    sync.RWMutex
 	lockGetStargazerBlockByHash        sync.RWMutex
 	lockGetStargazerBlockByNumber      sync.RWMutex
@@ -184,6 +196,38 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 	mock.lockBaseFee.RLock()
 	calls = mock.calls.BaseFee
 	mock.lockBaseFee.RUnlock()
+	return calls
+}
+
+// GetBlockHashByNumber calls GetBlockHashByNumberFunc.
+func (mock *BlockPluginMock) GetBlockHashByNumber(number int64) common.Hash {
+	if mock.GetBlockHashByNumberFunc == nil {
+		panic("BlockPluginMock.GetBlockHashByNumberFunc: method is nil but BlockPlugin.GetBlockHashByNumber was just called")
+	}
+	callInfo := struct {
+		Number int64
+	}{
+		Number: number,
+	}
+	mock.lockGetBlockHashByNumber.Lock()
+	mock.calls.GetBlockHashByNumber = append(mock.calls.GetBlockHashByNumber, callInfo)
+	mock.lockGetBlockHashByNumber.Unlock()
+	return mock.GetBlockHashByNumberFunc(number)
+}
+
+// GetBlockHashByNumberCalls gets all the calls that were made to GetBlockHashByNumber.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.GetBlockHashByNumberCalls())
+func (mock *BlockPluginMock) GetBlockHashByNumberCalls() []struct {
+	Number int64
+} {
+	var calls []struct {
+		Number int64
+	}
+	mock.lockGetBlockHashByNumber.RLock()
+	calls = mock.calls.GetBlockHashByNumber
+	mock.lockGetBlockHashByNumber.RUnlock()
 	return calls
 }
 

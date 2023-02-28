@@ -57,6 +57,19 @@ func (bc *blockchain) FinalizedBlock() *types.StargazerBlock {
 // GetBlock retrieves a block from the database by hash and number,
 // caching it if found.
 func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerBlock, error) {
+	// Short circuit if the block's already in the cache, retrieve otherwise
+	if bc.processor.block != nil && bc.processor.block.Number.Int64() == number {
+		return bc.processor.block, nil
+	}
+
+	fp := bc.finalizedBlock.Load()
+	if fp != nil {
+		block := fp.(*types.StargazerBlock)
+		if block.Number.Int64() == number {
+			return block, nil
+		}
+	}
+
 	block, err := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
 	if err != nil {
 		return nil, err
@@ -70,6 +83,18 @@ func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerB
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
 func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.StargazerBlock, error) {
 	// Short circuit if the block's already in the cache, retrieve otherwise
+	if bc.processor.block != nil && bc.processor.block.Hash() == hash {
+		return bc.processor.block, nil
+	}
+
+	fp := bc.finalizedBlock.Load()
+	if fp != nil {
+		block := fp.(*types.StargazerBlock)
+		if block.Hash() == hash {
+			return block, nil
+		}
+	}
+
 	if block, ok := bc.blockCache.Get(hash); ok {
 		return block, nil
 	}
@@ -77,6 +102,7 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Stargaze
 	if err != nil {
 		return nil, err
 	}
+
 	// Cache the found block for next time and return
 	bc.blockCache.Add(block.Hash(), block)
 	return block, nil

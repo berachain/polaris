@@ -21,8 +21,6 @@
 package block
 
 import (
-	"math/big"
-
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -66,27 +64,27 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 
 // `GetStargazerBlockByNumber` returns the stargazer header at the given height.
 func (p *plugin) GetStargazerBlockByNumber(number int64) (*coretypes.StargazerBlock, error) {
-	blockStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
-	bz := blockStore.Get(sdk.Uint64ToBigEndian(uint64(number)))
+	bz := prefix.NewStore(p.offchainStore, blockNumKeyPrefix).Get(
+		sdk.Uint64ToBigEndian(uint64(number)),
+	)
 	if bz == nil {
 		return nil, ErrBlockNotFound
 	}
-	var block coretypes.StargazerBlock
+	var block *coretypes.StargazerBlock
 	err := block.UnmarshalBinary(bz)
 	if err != nil {
 		return nil, err
 	}
-	return &block, nil
+	return block, nil
 }
 
 // `GetStargazerBlockByHash` returns the stargazer header at the given hash.
 func (p *plugin) GetStargazerBlockByHash(hash common.Hash) (*coretypes.StargazerBlock, error) {
-	blockStore := prefix.NewStore(p.offchainStore, blockHashKeyPrefix)
-	bz := blockStore.Get(hash.Bytes())
+	bz := prefix.NewStore(p.offchainStore, blockHashKeyPrefix).Get(hash.Bytes())
 	if bz == nil {
 		return nil, ErrBlockNotFound
 	}
-	return p.GetStargazerBlockByNumber(new(big.Int).SetBytes(bz).Int64())
+	return p.GetStargazerBlockByNumber(int64(sdk.BigEndianToUint64(bz)))
 }
 
 // `GetTransactionBlockNumber` returns the block number of the transaction with the given hash.
@@ -95,5 +93,18 @@ func (p *plugin) GetBlockNumberByTransaction(txHash common.Hash) (int64, error) 
 	if bz == nil {
 		return 0, ErrBlockNotFound
 	}
-	return new(big.Int).SetBytes(bz).Int64(), nil
+	return int64(sdk.BigEndianToUint64(bz)), nil
+}
+
+// `GetBlockHash` returns the block hash for the given block number.
+func (p *plugin) GetBlockHashByNumber(number int64) common.Hash {
+	data := prefix.NewStore(p.offchainStore, blockNumKeyPrefix).Get(
+		sdk.Uint64ToBigEndian(uint64(number)),
+	)
+	var block *coretypes.StargazerBlock
+	err := block.UnmarshalBinary(data)
+	if err != nil {
+		panic(err)
+	}
+	return block.Hash()
 }

@@ -69,6 +69,8 @@ type (
 		GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
 		// `GetBlockNumberByTransaction` returns the block number of the transaction.
 		GetBlockNumberByTransaction(common.Hash) (int64, error)
+		// `GetBlockHashByNumber` returns the block hash of the block at the given block height.
+		GetBlockHashByNumber(number int64) common.Hash
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 		// `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest

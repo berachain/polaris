@@ -22,12 +22,14 @@ package types
 
 import (
 	"errors"
+	fmt "fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
 // We must implement the `sdk.Msg` interface to be able to use the `sdk.Msg` type
@@ -77,9 +79,63 @@ func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
 	return t
 }
 
+func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
+	tx := etr.AsTransaction()
+	switch int(tx.Type()) {
+	case coretypes.LegacyTxType:
+		return etr.getSignatureLegacy()
+	case coretypes.DynamicFeeTxType:
+		return etr.getSignatureDynamic()
+	case coretypes.AccessListTxType:
+		return etr.getSignatureDynamic()
+	}
+	return nil, errors.New("unsupported tx type")
+}
+
+func (etr *EthTransactionRequest) getSignatureLegacy() ([]byte, error) {
+	t := etr.AsTransaction()
+	Vb, R, S := t.RawSignatureValues()
+	if Vb.BitLen() > 8 {
+		return nil, fmt.Errorf("invalid legacy signature 1, V:%d, R:%d, S:%d", Vb, R, S)
+	}
+	V := byte(Vb.Uint64() - 27)
+	if !crypto.ValidateSignatureValues(V, R, S, false) {
+		return nil, fmt.Errorf("invalid legacy signature 2, V:%d, R:%d, S:%d", Vb, R, S)
+	}
+	// encode the signature in uncompressed format
+	r, s := R.Bytes(), S.Bytes()
+	sig := make([]byte, crypto.SignatureLength)
+	copy(sig[32-len(r):32], r)
+	copy(sig[64-len(s):64], s)
+	sig[64] = V
+
+	return sig, nil
+}
+
+func (etr *EthTransactionRequest) getSignatureDynamic() ([]byte, error) {
+	t := etr.AsTransaction()
+	Vb, R, S := t.RawSignatureValues()
+	if Vb.BitLen() > 8 {
+		return nil, fmt.Errorf("invalid dynamic signature 1, V:%d, R:%d, S:%d", Vb, R, S)
+	}
+	V := byte(Vb.Uint64())
+	if !crypto.ValidateSignatureValues(V, R, S, false) {
+		return nil, fmt.Errorf("invalid dynamic signature 2, V:%d, R:%d, S:%d", Vb, R, S)
+	}
+	// encode the signature in uncompressed format
+	r, s := R.Bytes(), S.Bytes()
+	sig := make([]byte, crypto.SignatureLength)
+	copy(sig[32-len(r):32], r)
+	copy(sig[64-len(s):64], s)
+	sig[64] = V
+
+	return sig, nil
+}
+
 func (etr *EthTransactionRequest) GetSignBytes() ([]byte, error) {
 	t := etr.AsTransaction()
-	return coretypes.LatestSignerForChainID(t.ChainId()).Hash(t).Bytes(), nil
+	return coretypes.LatestSignerForChainID(t.ChainId()).
+		Hash(t).Bytes(), nil
 }
 
 // `GetSender` extracts the sender address from the signature values using the latest signer for the given chainID.

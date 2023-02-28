@@ -32,6 +32,7 @@ import (
 
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -111,7 +112,15 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	// from the V,R,S values of the transaction. This allows us for a little trick to allow
 	// ethereum transactions to work in the standard cosmos app-side mempool with no modifications.
 	// Some gigabrain shit tbh.
-	pk, err := PubkeyFromTx(signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()))
+	signer := coretypes.LatestSignerForChainID(signedTx.ChainId())
+	pk, err := PubkeyFromTx(signedTx, signer)
+	if err != nil {
+		return nil, err
+	}
+
+	ethTx := types.NewFromTransaction(signedTx)
+
+	sig, err := ethTx.GetSignature()
 	if err != nil {
 		return nil, err
 	}
@@ -121,14 +130,12 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
-				// TODO: this will fail, need to define custom signmode.
-				SignMode: signingtypes.SignMode_SIGN_MODE_DIRECT,
+				SignMode: evmtx.SignMode_SIGN_MODE_ETHEREUM,
 				// We retrieve the hash of the signed transaction from the ethereum transaction
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed
 				// over so that it can verify the signature in the ante handler.
-				Signature: coretypes.LatestSignerForChainID(signedTx.ChainId()).
-					Hash(signedTx).Bytes(),
+				Signature: sig,
 			},
 			PubKey: pk,
 		},
@@ -137,7 +144,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	}
 
 	// Lastly, we inject the signed ethereum transaction as a message into the Cosmos Tx.
-	if err = tx.SetMsgs(types.NewFromTransaction(signedTx)); err != nil {
+	if err = tx.SetMsgs(ethTx); err != nil {
 		return nil, err
 	}
 
