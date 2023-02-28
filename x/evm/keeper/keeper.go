@@ -116,7 +116,7 @@ func (k *Keeper) SetupRPC() {
 
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", types.ModuleName)
+	return ctx.Logger().With(types.ModuleName)
 }
 
 // `SetQueryContextFn` sets the query context function for the state plugin.

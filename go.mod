@@ -4,8 +4,8 @@ go 1.20
 
 // Required for supporting stateful precompiled contracts.
 replace (
-	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230224185434-747c29e8fa31
-	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230224185434-747c29e8fa31
+	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230228152138-d2977478bc2d
+	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230228152138-d2977478bc2d
 	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230228165308-41b767ba3c09
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230224170058-e133c763c3c9
@@ -20,12 +20,12 @@ require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v0.0.0-20230227204852-3535ee51c728
 	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
-	cosmossdk.io/simapp v0.0.0-20230227140543-7c9245dbdf19
+	cosmossdk.io/simapp v0.0.0-20230228152138-d2977478bc2d
 	cosmossdk.io/store v0.0.0-20230227103508-bbe7f8a11b44
 	cosmossdk.io/tools/confix v0.0.0-20230227140543-7c9245dbdf19
 	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff
-	cosmossdk.io/x/upgrade v0.0.0-20230227140543-7c9245dbdf19
+	cosmossdk.io/x/feegrant v0.0.0-20230228152138-d2977478bc2d
+	cosmossdk.io/x/upgrade v0.0.0-20230228152138-d2977478bc2d
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/bufbuild/buf v1.14.0
