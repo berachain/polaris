@@ -52,6 +52,5 @@ func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 	}
 
 	// The signature needs to be in [R || S] format when provided to `VerifySignature`.
-	x := crypto.VerifySignature(pubKey.Key, msg, sig)
-	return x
+	return crypto.VerifySignature(pubKey.Key, msg, sig)
 }
