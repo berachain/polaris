@@ -23,7 +23,6 @@ package core
 import (
 	"context"
 	"errors"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/event"
 
@@ -168,15 +167,4 @@ func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state 
 		// todo: get precompile controller
 		blockContext, txContext, state, chainCfg, *vmConfig, nil,
 	)
-}
-
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
-}
-
-// `Transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
-func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
 }
