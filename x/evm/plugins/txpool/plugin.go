@@ -62,12 +62,10 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 // transaction. The Cosmos transaction is then broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Serialize the transaction to Bytes
-	fmt.Println("SendTx")
 	txBytes, err := NewSerializer(p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
-	fmt.Println("TXBYTES", txBytes)
 
 	// Send the transaction to the CometBFT mempool, which will
 	// gossip it to peers via CometBFT's p2p layer.

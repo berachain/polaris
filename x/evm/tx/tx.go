@@ -23,6 +23,7 @@ package tx
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -62,7 +63,9 @@ func (s SignModeEthTxHandler) DefaultMode() signingtypes.SignMode {
 func (s SignModeEthTxHandler) GetSignBytes(
 	mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx,
 ) ([]byte, error) {
+	fmt.Println("ethTx")
 	ethTx, ok := tx.GetMsgs()[0].(*types.EthTransactionRequest)
+	fmt.Println("ethTx", ethTx)
 	if !ok {
 		return nil, errors.New("expected EthTransactionRequest")
 	}

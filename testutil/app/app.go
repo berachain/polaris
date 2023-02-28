@@ -53,8 +53,11 @@ import (
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -88,6 +91,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
@@ -97,6 +101,7 @@ import (
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
+	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 var (
@@ -292,19 +297,34 @@ func NewSimApp( //nolint: funlen // from sdk.
 
 	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry, mempoolOpt)...)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
-	evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
+	// evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
+	app.txConfig = tx.NewTxConfig(
+		codec.NewProtoCodec(app.interfaceRegistry),
+		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
+		[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
+	)
+	fmt.Println(app.txConfig.SignModeHandler())
+	opt := ante.HandlerOptions{
+		AccountKeeper:          app.AccountKeeper,
+		BankKeeper:             app.BankKeeper,
+		ExtensionOptionChecker: extOptCheckerfunc,
+		SignModeHandler:        app.txConfig.SignModeHandler(),
+		FeegrantKeeper:         app.FeeGrantKeeper,
+		SigGasConsumer:         evmante.SigVerificationGasConsumer,
+	}
+	ch, _ := ante.NewAnteHandler(
+		opt,
+	)
+	app.SetAnteHandler(
+		ch,
+	)
 
 	// fmt.Println("TXCONFIG", app.txConfig)
 
-	// app.txConfig = tx.NewTxConfig(
-	// 	codec.NewProtoCodec(app.interfaceRegistry),
-	// 	app.txConfig.SignModeHandler().Modes(),
-	// 	evmtx.SignModeEthTxHandler{},
-	// )
 	// evmtx.SignModeEthTxHandler{},
 	// fmt.Println("AFTER NEW TXCONFIG")
 
-	fmt.Println(app.txConfig.SignModeHandler().Modes())
+	fmt.Println("IN APP", app.txConfig.SignModeHandler().Modes())
 
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
@@ -354,6 +374,10 @@ func NewSimApp( //nolint: funlen // from sdk.
 	}
 
 	return app
+}
+
+func extOptCheckerfunc(a *codectypes.Any) bool {
+	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
 }
 
 // Name returns the name of the App.
