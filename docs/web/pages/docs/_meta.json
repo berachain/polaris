@@ -7,21 +7,20 @@
   "main-concepts": "Main Concepts",
   "architecture": "Architecture Overview",
   "contributing": "Contributing Guide",
-  "-- Node --": {
+  "-- EVM ON STARGAZER --": {
     "type": "separator",
-    "title": "Node Information"
+    "title": "EVM on Stargazer"
   },
-  "node-requirements": "Node requirements",
-  "running-a-node": "Running a node",
-  "node-config": "Node Configurations",
-  "node-services": "Node Services",
-  "interacting-with-node": "Interacting with the Node",
-  "node-maintenance": "Node Maintenance",
+  "evm-on-stargazer": "Overview",
+  "precompile-overview": "Precompiles",
+  "opcodes": "Opcodes",
+  "json-rpc": "JSON-RPC",
+  "tracing": "EVM Tracing",
   "-- Building --": {
     "type": "separator",
     "title": "Building on Stargazer"
   },
-  "evm": "EVM on Stargazer",
+  "building-on-stargazer-overview": "Overview",
   "building-modules": "Building Modules",
   "building-precompiles": "Building Precompiles",
   "for-dapp-devs": "For Dapp Developers",
@@ -30,22 +29,21 @@
   "using-metamask": "Using Metamask",
   "using-keplr": "Using Keplr",
   "key-management": "Key Management",
-  "-- Validators --": {
+  "-- Node --": {
     "type": "separator",
-    "title": "Running a Validator"
+    "title": "Network Information"
   },
-  "validator-requirements": "Validator Requirements",
-  "validator-installation": "Validator Installation",
-  "validator-configuration": "Validator Configuration",
-  "join-testnet": "Joining the Testnet",
-  "telemetry-and-insights": "Telemetry & insights",
-  "snapshots-and-archive-nodes": "Snapshots & Archive Nodes",
-  "cosmovisor": "Cosmovisor",
-  "-- Metrics --": {
+  "network-info-overview": "Overview",
+  "running-a-node": "Running a Node",
+  "node-config": "Node Configurations",
+  "node-services": "Node Services",
+  "interacting-with-node": "Interacting with the Node",
+  "node-maintenance": "Node Maintenance",
+  "-- Joining A Network --": {
     "type": "separator",
-    "title": "Metrics"
+    "title": "Joining a Network"
   },
-  "metrics": "Metrics",
+  "joining-network-overview": "Overview",
   "-- Socials --": {
     "type": "separator",
     "title": "More"

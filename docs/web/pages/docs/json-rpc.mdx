@@ -3,10 +3,42 @@
 The Stargazer API is exposed via JSON-RPC. The following methods are available:
 
 To view Stargazer's JSON-RPC endpoint information, visit the [deez](https://api.stargazer.network/) section.
-## Methods
+
+## Namespaces
+
+### `eth` Namespace
+`eth` namespace can be found on ethereum.org. Geth provides several extensions to the standard "eth" JSON-RPC namespace that are defined below.
+
+### `net` Namespace
+The `net` API provides insight about the networking aspect of the client. The `net` namespace are defined below.
+
+### `txpool` Namespace
+`txpool` API gives access to several non-standard RPC methods to inspect the contents of the transaction 
+pool containing all the currently pending transactions as well as the ones queued for future processing.
+The `txpool` namespace are defined below.
+
+### `cosmos` Namespace
+The `cosmos` API gives access to several non-standard RPC methods to inspect the contents of
+several [Cosmos SDK Modules](https://docs.cosmos.network/main/building-modules/intro). The `cosmos` namespace defintions are coming soon.
+
+### `comet` Namespace
+The `comet` API gives access to several non-standard RPC methods to inspect the contents of
+the [CometBft Consensus Engine](https://github.com/cometbft/cometbft). The `comet` namespace defintions are coming soon.
+
+### `debug` Namespace
+The debug API gives you access to several non-standard RPC methods, which will allow you to inspect, debug and set certain debugging flags during runtime.
+The `debug` namespace defintions are coming soon.
+
+## Methods 
 
 Method | Status | Notes
 ------ | ------ | -----
+[net_listening] | ✅ |
+[net_peerCount] | ✅ |
+[net_version] | ✅ |
+[txpool_content] | ✅ | Geth extension
+[txpool_inspect] | ✅ | Geth extension
+[txpool_status] | ✅ | Geth extension
 [eth_accounts] | ✅ |
 [eth_blockNumber] | ✅ |
 [eth_call] | ✅ |
@@ -38,7 +70,12 @@ Method | Status | Notes
 [eth_newFilter] | ✅ |
 [eth_newPendingTransactionFilter] | ✅ |
 
-
+[net_listening]: https://ethereum.org/en/developers/docs/apis/json-rpc/#net_listening
+[net_peerCount]: https://ethereum.org/en/developers/docs/apis/json-rpc/#net_peercount
+[net_version]: https://ethereum.org/en/developers/docs/apis/json-rpc/#net_version
+[txpool_content]: https://geth.ethereum.org/docs/rpc/ns-txpool#txpool_content
+[txpool_inspect]: https://geth.ethereum.org/docs/rpc/ns-txpool#txpool_inspect
+[txpool_status]: https://geth.ethereum.org/docs/rpc/ns-txpool#txpool_status
 [eth_accounts]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_accounts
 [eth_blockNumber]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber
 [eth_call]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call
@@ -70,3 +107,5 @@ Method | Status | Notes
 [eth_newBlockFilter]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newblockfilter
 [eth_newFilter]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter
 [eth_newPendingTransactionFilter]: https://openethereum.github.io/JSONRPC-eth-module.html#eth_newpendingtransactionfilter
+
+eth net txpool cosmos comet
