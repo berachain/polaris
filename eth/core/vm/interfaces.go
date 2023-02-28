@@ -24,7 +24,6 @@ import (
 	"math/big"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/params"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
@@ -59,14 +58,9 @@ type (
 		libtypes.Resettable
 		// `TransferBalance` transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
-		// `BuildLogsAndClear` builds the logs for the tx with the given metadata. NOTE: must be
-		// called after `Finalize`.
-		BuildLogsAndClear(
-			txHash common.Hash, blockHash common.Hash, txIndex uint, logIndex uint,
-		) []*coretypes.Log
 	}
 
-	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs to
-	// provide an Ethereum address of where its contract is found.
+	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs
+	// to provide an Ethereum address of where its contract is found.
 	RegistrablePrecompile = libtypes.Registrable[common.Address]
 )

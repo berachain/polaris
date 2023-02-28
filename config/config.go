@@ -49,6 +49,7 @@ func SetupCosmosConfig() {
 	config := sdk.GetConfig()
 	SetBech32Prefixes(config)
 	SetBip44CoinType(config)
+	RegisterDenoms()
 	config.Seal()
 }
 
@@ -62,7 +63,7 @@ func SetBech32Prefixes(config *sdk.Config) {
 // SetBip44CoinType sets the global coin type to be used in hierarchical deterministic wallets.
 func SetBip44CoinType(config *sdk.Config) {
 	config.SetCoinType(accounts.Bip44CoinType)
-	config.SetPurpose(sdk.Purpose) // Share
+	config.SetPurpose(sdk.Purpose)
 }
 
 // RegisterDenoms registers the base and display denominations to the SDK.

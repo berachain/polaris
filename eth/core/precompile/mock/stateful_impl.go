@@ -18,29 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package crypto
+package mock
 
 import (
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
 )
 
-var (
-	CreateAddress           = crypto.CreateAddress
-	CompressPubkey          = crypto.CompressPubkey
-	DecompressPubkey        = crypto.DecompressPubkey
-	DigestLength            = crypto.DigestLength
-	EthSign                 = crypto.Sign
-	EthSecp256k1Sign        = secp256k1.Sign
-	Ecrecover               = crypto.Ecrecover
-	FromECDSA               = crypto.FromECDSA
-	GenerateEthKey          = crypto.GenerateKey
-	ValidateSignatureValues = crypto.ValidateSignatureValues
-	Keccak256               = crypto.Keccak256
-	Keccak256Hash           = crypto.Keccak256Hash
-	PubkeyToAddress         = crypto.PubkeyToAddress
-	SignatureLength         = crypto.SignatureLength
-	ToECDSA                 = crypto.ToECDSA
-	VerifySignature         = crypto.VerifySignature
-	FromECDSAPub            = crypto.FromECDSAPub
-)
+//go:generate moq -out ./stateful_impl.mock.go -skip-ensure -pkg mock ../ StatefulImpl
+
+func NewStatefulImpl() *StatefulImplMock {
+	return &StatefulImplMock{
+		RegistryKeyFunc: func() common.Address {
+			return common.Address{}
+		},
+		ABIMethodsFunc: func() map[string]abi.Method {
+			return nil
+		},
+		ABIEventsFunc: func() map[string]abi.Event {
+			return nil
+		},
+		CustomValueDecodersFunc: func() precompile.ValueDecoders {
+			return nil
+		},
+	}
+}

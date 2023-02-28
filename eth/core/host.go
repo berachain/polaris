@@ -27,6 +27,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/params"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
@@ -104,7 +105,11 @@ type (
 	}
 
 	// `StatePlugin` defines the methods that the chain running Stargazer EVM should implement.
-	StatePlugin = state.Plugin
+	StatePlugin interface {
+		state.Plugin
+		// `GetStateByNumber` returns the state at the given block height.
+		GetStateByNumber(int64) (vm.GethStateDB, error)
+	}
 
 	// `ConfigurationPlugin` defines the methods that the chain running Stargazer EVM should
 	// implement in order to configuration the parameters of the Stargazer EVM.

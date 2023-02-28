@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: BUSL-1.1
 //
 // Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // Use of this software is govered by the Business Source License included
@@ -18,32 +17,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package vm
+package mock
 
-import (
-	"github.com/ethereum/go-ethereum/core/vm"
-)
+import "github.com/ethereum/go-ethereum/common"
 
 type (
-	AccountRef          = vm.AccountRef
-	BlockContext        = vm.BlockContext
-	CanTransferFunc     = vm.CanTransferFunc
-	ContractRef         = vm.ContractRef
-	Config              = vm.Config
-	EVMLogger           = vm.EVMLogger
-	GethEVM             = vm.EVM
-	GethStateDB         = vm.StateDB
-	GetHashFunc         = vm.GetHashFunc
-	PrecompileContainer = vm.PrecompiledContract
-	PrecompileManager   = vm.PrecompileManager
-	TransferFunc        = vm.TransferFunc
-	TxContext           = vm.TxContext
-)
-
-var (
-	NewGethEVMWithPrecompiles     = vm.NewEVMWithPrecompiles
-	ErrOutOfGas                   = vm.ErrOutOfGas
-	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
-	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
-	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead
+	Address = common.Address
 )

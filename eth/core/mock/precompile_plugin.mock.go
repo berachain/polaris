@@ -6,9 +6,12 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/params"
 	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core"
+	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"sync"
 )
 
@@ -25,13 +28,19 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //			GetFunc: func(addr common.Address) vm.PrecompiledContract {
 //				panic("mock out the Get method")
 //			},
+//			GetPrecompilesFunc: func(rules *params.Rules) []libtypes.Registrable[Address] {
+//				panic("mock out the GetPrecompiles method")
+//			},
 //			HasFunc: func(addr common.Address) bool {
 //				panic("mock out the Has method")
+//			},
+//			RegisterFunc: func(precompiledContract vm.PrecompiledContract) error {
+//				panic("mock out the Register method")
 //			},
 //			ResetFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Reset method")
 //			},
-//			RunFunc: func(sdb vm.StateDB, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
+//			RunFunc: func(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
 //				panic("mock out the Run method")
 //			},
 //		}
@@ -44,14 +53,20 @@ type PrecompilePluginMock struct {
 	// GetFunc mocks the Get method.
 	GetFunc func(addr common.Address) vm.PrecompiledContract
 
+	// GetPrecompilesFunc mocks the GetPrecompiles method.
+	GetPrecompilesFunc func(rules *params.Rules) []libtypes.Registrable[Address]
+
 	// HasFunc mocks the Has method.
 	HasFunc func(addr common.Address) bool
+
+	// RegisterFunc mocks the Register method.
+	RegisterFunc func(precompiledContract vm.PrecompiledContract) error
 
 	// ResetFunc mocks the Reset method.
 	ResetFunc func(contextMoqParam context.Context)
 
 	// RunFunc mocks the Run method.
-	RunFunc func(sdb vm.StateDB, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error)
+	RunFunc func(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -60,10 +75,20 @@ type PrecompilePluginMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
+		// GetPrecompiles holds details about calls to the GetPrecompiles method.
+		GetPrecompiles []struct {
+			// Rules is the rules argument value.
+			Rules *params.Rules
+		}
 		// Has holds details about calls to the Has method.
 		Has []struct {
 			// Addr is the addr argument value.
 			Addr common.Address
+		}
+		// Register holds details about calls to the Register method.
+		Register []struct {
+			// PrecompiledContract is the precompiledContract argument value.
+			PrecompiledContract vm.PrecompiledContract
 		}
 		// Reset holds details about calls to the Reset method.
 		Reset []struct {
@@ -73,7 +98,7 @@ type PrecompilePluginMock struct {
 		// Run holds details about calls to the Run method.
 		Run []struct {
 			// Sdb is the sdb argument value.
-			Sdb vm.StateDB
+			Sdb state.StateDBI
 			// P is the p argument value.
 			P vm.PrecompiledContract
 			// Input is the input argument value.
@@ -88,10 +113,12 @@ type PrecompilePluginMock struct {
 			Readonly bool
 		}
 	}
-	lockGet   sync.RWMutex
-	lockHas   sync.RWMutex
-	lockReset sync.RWMutex
-	lockRun   sync.RWMutex
+	lockGet            sync.RWMutex
+	lockGetPrecompiles sync.RWMutex
+	lockHas            sync.RWMutex
+	lockRegister       sync.RWMutex
+	lockReset          sync.RWMutex
+	lockRun            sync.RWMutex
 }
 
 // Get calls GetFunc.
@@ -126,6 +153,38 @@ func (mock *PrecompilePluginMock) GetCalls() []struct {
 	return calls
 }
 
+// GetPrecompiles calls GetPrecompilesFunc.
+func (mock *PrecompilePluginMock) GetPrecompiles(rules *params.Rules) []libtypes.Registrable[Address] {
+	if mock.GetPrecompilesFunc == nil {
+		panic("PrecompilePluginMock.GetPrecompilesFunc: method is nil but PrecompilePlugin.GetPrecompiles was just called")
+	}
+	callInfo := struct {
+		Rules *params.Rules
+	}{
+		Rules: rules,
+	}
+	mock.lockGetPrecompiles.Lock()
+	mock.calls.GetPrecompiles = append(mock.calls.GetPrecompiles, callInfo)
+	mock.lockGetPrecompiles.Unlock()
+	return mock.GetPrecompilesFunc(rules)
+}
+
+// GetPrecompilesCalls gets all the calls that were made to GetPrecompiles.
+// Check the length with:
+//
+//	len(mockedPrecompilePlugin.GetPrecompilesCalls())
+func (mock *PrecompilePluginMock) GetPrecompilesCalls() []struct {
+	Rules *params.Rules
+} {
+	var calls []struct {
+		Rules *params.Rules
+	}
+	mock.lockGetPrecompiles.RLock()
+	calls = mock.calls.GetPrecompiles
+	mock.lockGetPrecompiles.RUnlock()
+	return calls
+}
+
 // Has calls HasFunc.
 func (mock *PrecompilePluginMock) Has(addr common.Address) bool {
 	if mock.HasFunc == nil {
@@ -155,6 +214,38 @@ func (mock *PrecompilePluginMock) HasCalls() []struct {
 	mock.lockHas.RLock()
 	calls = mock.calls.Has
 	mock.lockHas.RUnlock()
+	return calls
+}
+
+// Register calls RegisterFunc.
+func (mock *PrecompilePluginMock) Register(precompiledContract vm.PrecompiledContract) error {
+	if mock.RegisterFunc == nil {
+		panic("PrecompilePluginMock.RegisterFunc: method is nil but PrecompilePlugin.Register was just called")
+	}
+	callInfo := struct {
+		PrecompiledContract vm.PrecompiledContract
+	}{
+		PrecompiledContract: precompiledContract,
+	}
+	mock.lockRegister.Lock()
+	mock.calls.Register = append(mock.calls.Register, callInfo)
+	mock.lockRegister.Unlock()
+	return mock.RegisterFunc(precompiledContract)
+}
+
+// RegisterCalls gets all the calls that were made to Register.
+// Check the length with:
+//
+//	len(mockedPrecompilePlugin.RegisterCalls())
+func (mock *PrecompilePluginMock) RegisterCalls() []struct {
+	PrecompiledContract vm.PrecompiledContract
+} {
+	var calls []struct {
+		PrecompiledContract vm.PrecompiledContract
+	}
+	mock.lockRegister.RLock()
+	calls = mock.calls.Register
+	mock.lockRegister.RUnlock()
 	return calls
 }
 
@@ -191,12 +282,12 @@ func (mock *PrecompilePluginMock) ResetCalls() []struct {
 }
 
 // Run calls RunFunc.
-func (mock *PrecompilePluginMock) Run(sdb vm.StateDB, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
+func (mock *PrecompilePluginMock) Run(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
 	if mock.RunFunc == nil {
 		panic("PrecompilePluginMock.RunFunc: method is nil but PrecompilePlugin.Run was just called")
 	}
 	callInfo := struct {
-		Sdb         vm.StateDB
+		Sdb         state.StateDBI
 		P           vm.PrecompiledContract
 		Input       []byte
 		Caller      common.Address
@@ -223,7 +314,7 @@ func (mock *PrecompilePluginMock) Run(sdb vm.StateDB, p vm.PrecompiledContract, 
 //
 //	len(mockedPrecompilePlugin.RunCalls())
 func (mock *PrecompilePluginMock) RunCalls() []struct {
-	Sdb         vm.StateDB
+	Sdb         state.StateDBI
 	P           vm.PrecompiledContract
 	Input       []byte
 	Caller      common.Address
@@ -232,7 +323,7 @@ func (mock *PrecompilePluginMock) RunCalls() []struct {
 	Readonly    bool
 } {
 	var calls []struct {
-		Sdb         vm.StateDB
+		Sdb         state.StateDBI
 		P           vm.PrecompiledContract
 		Input       []byte
 		Caller      common.Address

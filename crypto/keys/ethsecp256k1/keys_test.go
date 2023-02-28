@@ -24,7 +24,6 @@ import (
 	"testing"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -36,12 +35,12 @@ func TestEthSecp256K1(t *testing.T) {
 	RunSpecs(t, "crypto/keys/ethsecp256k1")
 }
 
-var _ = Describe("PrivKey", func() {
+var _ = Describe("PubPrivKey", func() {
 	var privKey *PrivKey
 
 	BeforeEach(func() {
 		var err error
-		privKey, err = GenerateKey()
+		privKey, err = GenPrivKey()
 		Expect(err).To(BeNil())
 	})
 
@@ -50,7 +49,7 @@ var _ = Describe("PrivKey", func() {
 	})
 
 	It("validates inequality", func() {
-		privKey2, err := GenerateKey()
+		privKey2, err := GenPrivKey()
 		Expect(err).To(BeNil())
 		Expect(privKey.Equals(privKey2)).To(BeFalse())
 	})
@@ -63,27 +62,6 @@ var _ = Describe("PrivKey", func() {
 		Expect(expectedAddr.Bytes()).To(Equal(addr.Bytes()))
 	})
 
-	It("validates signing bytes", func() {
-		msg := []byte("hello world")
-		sigHash := crypto.Keccak256Hash(msg)
-		expectedSig, err := secp256k1.Sign(sigHash.Bytes(), privKey.Bytes())
-		Expect(err).To(BeNil())
-
-		sig, err := privKey.Sign(sigHash.Bytes())
-		Expect(err).To(BeNil())
-		Expect(expectedSig).To(Equal(sig))
-	})
-})
-
-var _ = Describe("PrivKey_PubKey", func() {
-	var privKey *PrivKey
-
-	BeforeEach(func() {
-		var err error
-		privKey, err = GenerateKey()
-		Expect(err).To(BeNil())
-	})
-
 	It("validates type", func() {
 		pubKey := &PubKey{
 			Key: privKey.PubKey().Bytes(),
@@ -92,19 +70,10 @@ var _ = Describe("PrivKey_PubKey", func() {
 	})
 
 	It("validates equality", func() {
-		privKey2, err := GenerateKey()
+		privKey2, err := GenPrivKey()
 		Expect(err).To(BeNil())
 		Expect(privKey).ToNot(Equal(privKey2))
 		Expect(privKey.PubKey()).ToNot(Equal(privKey2.PubKey()))
 	})
 
-	It("validates signature", func() {
-		msg := []byte("hello world")
-		sigHash := crypto.Keccak256Hash(msg)
-		sig, err := privKey.Sign(sigHash.Bytes())
-		Expect(err).To(BeNil())
-
-		res := privKey.PubKey().VerifySignature(msg, sig)
-		Expect(res).To(BeTrue())
-	})
 })

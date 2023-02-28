@@ -33,6 +33,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
@@ -68,7 +69,9 @@ var _ = Describe("Processor", func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
-			ak, bk, "authority",
+			ak, bk,
+			func() []vm.RegistrablePrecompile { return nil },
+			"authority",
 			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
 		)
 		for _, plugin := range k.GetAllPlugins() {

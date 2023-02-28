@@ -6,7 +6,6 @@ package mock
 import (
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"pkg.berachain.dev/stargazer/eth/core/state"
 	"sync"
 )
 
@@ -32,7 +31,7 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //			GetPrecompilePluginFunc: func() precompile.Plugin {
 //				panic("mock out the GetPrecompilePlugin method")
 //			},
-//			GetStatePluginFunc: func() state.Plugin {
+//			GetStatePluginFunc: func() core.StatePlugin {
 //				panic("mock out the GetStatePlugin method")
 //			},
 //			GetTxPoolPluginFunc: func() core.TxPoolPlugin {
@@ -58,7 +57,7 @@ type StargazerHostChainMock struct {
 	GetPrecompilePluginFunc func() precompile.Plugin
 
 	// GetStatePluginFunc mocks the GetStatePlugin method.
-	GetStatePluginFunc func() state.Plugin
+	GetStatePluginFunc func() core.StatePlugin
 
 	// GetTxPoolPluginFunc mocks the GetTxPoolPlugin method.
 	GetTxPoolPluginFunc func() core.TxPoolPlugin
@@ -201,7 +200,7 @@ func (mock *StargazerHostChainMock) GetPrecompilePluginCalls() []struct {
 }
 
 // GetStatePlugin calls GetStatePluginFunc.
-func (mock *StargazerHostChainMock) GetStatePlugin() state.Plugin {
+func (mock *StargazerHostChainMock) GetStatePlugin() core.StatePlugin {
 	if mock.GetStatePluginFunc == nil {
 		panic("StargazerHostChainMock.GetStatePluginFunc: method is nil but StargazerHostChain.GetStatePlugin was just called")
 	}

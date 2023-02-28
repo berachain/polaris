@@ -28,6 +28,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/stargazer/eth/core/vm"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
@@ -56,10 +57,6 @@ type Keeper struct {
 	// The offchain KV store.
 	offChainKv *offchain.Store
 
-	// sk is used to retrieve infofrmation about the current / past
-	// blocks and associated validator information.
-	// sk StakingKeeper
-
 	// `authority` is the bech32 address that is allowed to execute governance proposals.
 	authority string
 
@@ -77,6 +74,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
+	getPrecompiles func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
 ) *Keeper {
@@ -90,10 +88,6 @@ func NewKeeper(
 		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
 	}
 
-	// TODO: register precompiles
-	// TODO: register precompile events/logs
-	plf := precompilelog.NewFactory()
-
 	// Setup the RPC Service. // TODO: parameterize config.
 	cfg := ethrpcconfig.DefaultServer()
 	cfg.BaseRoute = "/eth/rpc"
@@ -103,8 +97,10 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.pp = precompile.NewPlugin()
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, types.ModuleName, plf)
+	k.pp = precompile.NewPlugin(getPrecompiles)
+	plf := precompilelog.NewFactory()
+	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
 	k.txp = txpool.NewPlugin(k.rpcProvider)
 
 	// Build the Stargazer EVM Provider
@@ -118,6 +114,11 @@ func (k *Keeper) SetupRPC() {
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
+}
+
+// `SetQueryContextFn` sets the query context function for the state plugin.
+func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(qc)
 }
 
 // `GetBlockPlugin` returns the block plugin.
