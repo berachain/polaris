@@ -72,4 +72,5 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage-${{ matrix.args }}.txt
           flags: flag-${{ matrix.os }}
+          fail_ci_if_error: false
           verbose: true
