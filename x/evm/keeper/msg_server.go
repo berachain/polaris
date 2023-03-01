@@ -49,9 +49,15 @@ func (k *Keeper) EthTransaction(
 
 	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "exec_result", result)
 	// Build response and return.
+
+	vmErr := ""
+	if result.Err != nil {
+		vmErr = result.Err.Error()
+	}
+
 	return &types.EthTransactionResponse{
 		GasUsed:    result.UsedGas,
-		VmError:    result.Err.Error(),
+		VmError:    vmErr,
 		ReturnData: result.ReturnData,
 	}, nil
 }
