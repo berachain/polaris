@@ -23,8 +23,10 @@ package mempool
 import (
 	"context"
 
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
@@ -32,38 +34,40 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
+type EthTxPool interface {
+	mempool.Mempool
+	GetTransaction(hash common.Hash) *coretypes.Transaction
+	GetPoolTransactions() coretypes.Transactions
+}
+
 // `EthTxPool` is a mempool for Ethereum transactions. It wraps a
 // PriorityNonceMempool and caches transactions that are added to the mempool by
 // ethereum transaction hash.
-type EthTxPool struct {
-	sdkmempool.Mempool
-
+type ethTxPool struct {
+	mempool.NoOpMempool // first iteration simply allows for
 	// `ethTxCache` caches transactions that are added to the mempool
 	// so that they can be retrieved later
 	ethTxCache map[common.Hash]*coretypes.Transaction
 
-	// // `nonceCache` caches the pending nonce by txhash
-	// nonceCache map[common.Address]*coretypes.Transaction
-
-	// // `minedBlockCache` caches the mined transaction by block hash
-	// minedBlockCache map[common.Hash][]*coretypes.Transaction
-
-	// `blockNumberCache`
-
+	// `logger` is the logger for the mempool
+	logger log.Logger
 }
 
 // `New` is called when the mempool is created.
-func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
-	return &EthTxPool{
-		Mempool:    m,
+func NewEthTxPool() EthTxPool {
+	return &ethTxPool{
+		NoOpMempool: mempool.NoOpMempool{},
+		// PriorityNonceMempool: mempool.NewPriorityMempool(),
 		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
+		logger:     log.NewLogger().With("module", "evm/mempool"),
 	}
 }
 
 // `Insert` is called when a transaction is added to the mempool.
-func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
+func (etp *ethTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	// Call the base mempool's Insert method
-	if err := etp.Mempool.Insert(ctx, tx); err != nil {
+	etp.logger.Info("inserting tx into app side mempool", "tx", tx.GetMsgs()[0].String())
+	if err := etp.NoOpMempool.Insert(ctx, tx); err != nil {
 		return err
 	}
 
@@ -74,17 +78,21 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	}
 
 	t := etr.AsTransaction()
+	if t == nil {
+		panic("nil transaction")
+	}
 	etp.ethTxCache[t.Hash()] = t
+	etp.logger.Info("Caching eth tx", "tx", t.Hash())
 	return nil
 }
 
 // `GetTx` is called when a transaction is retrieved from the mempool.
-func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
+func (etp *ethTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return etp.ethTxCache[hash]
 }
 
 // `GetPoolTransactions` is called when the mempool is retrieved.
-func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
+func (etp *ethTxPool) GetPoolTransactions() coretypes.Transactions {
 	txs := make(coretypes.Transactions, 0, len(etp.ethTxCache))
 	for _, tx := range etp.ethTxCache {
 		txs = append(txs, tx)
@@ -93,9 +101,9 @@ func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
 }
 
 // `Remove` is called when a transaction is removed from the mempool.
-func (etp *EthTxPool) Remove(tx sdk.Tx) error {
+func (etp *ethTxPool) Remove(tx sdk.Tx) error {
 	// Call the base mempool's Remove method
-	if err := etp.Mempool.Remove(tx); err != nil {
+	if err := etp.NoOpMempool.Remove(tx); err != nil {
 		return err
 	}
 

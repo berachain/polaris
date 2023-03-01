@@ -21,7 +21,6 @@
 package block
 
 import (
-	"fmt"
 	"math/big"
 
 	"cosmossdk.io/store/prefix"
@@ -131,13 +130,10 @@ func (p *plugin) GetTransactionBlockNumber(txHash common.Hash) *big.Int {
 func (p *plugin) GetBlockHash(blockNum *big.Int) common.Hash {
 	blockNumStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
 	data := blockNumStore.Get(sdk.Uint64ToBigEndian(blockNum.Uint64()))
-	var block *coretypes.StargazerBlock
+	block := new(coretypes.StargazerBlock)
 	err := block.UnmarshalBinary(data)
 	if err != nil {
-		panic(fmt.Sprintf("failed to unmarshal block at height %d", blockNum.Uint64()))
-	}
-	if block == nil { //nolint:govet // investigate later.
-		return common.Hash{}
+		panic(err)
 	}
 	return block.Hash()
 }

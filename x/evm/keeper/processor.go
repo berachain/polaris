@@ -32,29 +32,18 @@ import (
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("keeper.BeginBlocker")
 	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
 	// Process the transaction and return the receipt.
-	// TODO: gas is fucked
-	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).WithKVGasConfig(storetypes.GasConfig{})
+	ctx = sdk.UnwrapSDKContext(ctx).WithKVGasConfig(storetypes.GasConfig{})
 	receipt, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: note if we get a Block Error out of gas here, we need the transaction to be included
-	// in the block. This is because the transaction was included in the block, but something
-	// happened to put it into a situation where it really should have, this will traditionally
-	// cause the cosmos transaction to fail, which is correct, but not what we want here. What
-	// we need to do, is edit the gas consumption to consume the remaining gas in the block,
-	//  modifying the receipt, and return a failed EVM tx, but a successful cosmos tx.
-	// TODO: determine if the above is actually correct.
-
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("End ProcessTransaction()")
 	return receipt, err
 }
 
@@ -68,7 +57,7 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 		panic(err)
 	}
 
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", stargazerBlock.Header)
+	k.Logger(sCtx).Info("evm_hash", stargazerBlock.Header.Hash())
 
 	// Save the historical stargazer header in the IAVL Tree.
 	k.bp.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)

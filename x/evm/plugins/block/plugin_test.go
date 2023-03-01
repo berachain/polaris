@@ -21,6 +21,8 @@
 package block
 
 import (
+	"math/big"
+
 	storetypes "cosmossdk.io/store/types"
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,6 +52,11 @@ var _ = Describe("Block Plugin", func() {
 	})
 
 	It("should get the header at current height", func() {
+		Expect(p.SetStargazerHeader(ctx, &types.StargazerHeader{
+			Header: &types.Header{
+				Number: big.NewInt(ctx.BlockHeight()),
+			},
+		})).To(BeNil())
 		header := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
 		Expect(header.Hash()).To(Equal(header.Header.Hash()))
 		Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))

@@ -32,7 +32,7 @@ import (
 
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/x/evm/ante"
+	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -130,7 +130,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
-				SignMode: ante.SignMode_SIGN_MODE_ETHEREUM,
+				SignMode: evmtx.SignMode_SIGN_MODE_ETHEREUM,
 				// We retrieve the hash of the signed transaction from the ethereum transaction
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed

@@ -46,7 +46,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	signing "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -57,7 +57,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/crypto/keyring"
 	simapp "pkg.berachain.dev/stargazer/testutil/app"
-	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
+	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 // encodingConfig := encoding.MakeConfig(app.ModuleBasics)
@@ -121,12 +121,11 @@ func NewRootCmd() *cobra.Command {
 			// TODO Currently, the TxConfig below doesn't include Textual, so
 			// an error will arise when using the --textual flag.
 			// ref: https://github.com/cosmos/cosmos-sdk/issues/11970
-
 			txConfigWithTextual := tx.NewTxConfigWithTextual(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
 				append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
 				txmodule.NewTextualWithGRPCConn(initClientCtx),
-				[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
+				[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
 			)
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 

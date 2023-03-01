@@ -33,7 +33,7 @@ import (
 )
 
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
-const gasMeterDescriptor = `stargazer-gas-plugin`
+// const gasMeterDescriptor = `stargazer-gas-plugin`
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
@@ -84,7 +84,6 @@ func (p *plugin) BlockGasLimit() uint64 {
 // `TxConsumeGas` implements the core.GasPlugin interface.
 func (p *plugin) TxConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
-
 	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.gasMeter.Limit() {
@@ -92,7 +91,8 @@ func (p *plugin) TxConsumeGas(amount uint64) error {
 	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
 		return core.ErrBlockOutOfGas
 	}
-	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
+	// TODO: FIX GAS CONSUMPTION.
+	// p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
 

@@ -25,13 +25,12 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	ethlog "github.com/ethereum/go-ethereum/log"
 
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
-	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
@@ -41,7 +40,7 @@ import (
 	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
@@ -79,7 +78,7 @@ func NewKeeper(
 	getPrecompiles func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool sdkmempool.Mempool,
+	ethTxMempool evmmempool.EthTxPool,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -104,19 +103,32 @@ func NewKeeper(
 	plf := precompilelog.NewFactory()
 	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
-	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	k.txp = txpool.NewPlugin(k.rpcProvider, ethTxMempool)
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 	return k
 }
 
-func (k *Keeper) SetupRPC() {
+// `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
+func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
+	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
+		logger := ctx.Logger().With("module", "geth")
+		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+		case ethlog.LvlTrace, ethlog.LvlDebug:
+			logger.Debug(r.Msg, r.Ctx...)
+		case ethlog.LvlInfo, ethlog.LvlWarn:
+			logger.Info(r.Msg, r.Ctx...)
+		case ethlog.LvlError, ethlog.LvlCrit:
+			logger.Error(r.Msg, r.Ctx...)
+		}
+		return nil
+	}))
 }
 
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With(types.ModuleName)
+	return ctx.Logger().With("module", types.ModuleName)
 }
 
 // `SetQueryContextFn` sets the query context function for the state plugin.

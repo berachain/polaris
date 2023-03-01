@@ -43,12 +43,12 @@ type Plugin interface {
 
 // `plugin` represents the transaction pool plugin.
 type plugin struct {
-	mempool     *mempool.EthTxPool
+	mempool     mempool.EthTxPool
 	rpcProvider rpc.Provider
 }
 
 // `NewPlugin` returns a new transaction pool plugin.
-func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(rpcProvider rpc.Provider, ethTxMempool mempool.EthTxPool) Plugin {
 	return &plugin{
 		mempool:     ethTxMempool,
 		rpcProvider: rpcProvider,
@@ -64,6 +64,10 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
+
+	// for rpc, insert into local mempool before broadcasting. // TODO FIGURE OUT WHY
+	// this is needed for foundry? Race condition?
+	_ = p.SendPrivTx(signedEthTx)
 
 	// Send the transaction to the CometBFT mempool, which will
 	// gossip it to peers via CometBFT's p2p layer.
@@ -98,14 +102,12 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 
 // `GetAllTransactions` returns all transactions in the transaction pool.
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
-	return nil, nil
-	// return p.mempool.GetPoolTransactions(), nil
+	return p.mempool.GetPoolTransactions(), nil
 }
 
 // `GetTransactions` returns the transaction by hash in the transaction pool.
 func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	return nil
-	// return p.mempool.GetTransaction(hash)
+	return p.mempool.GetTransaction(hash)
 }
 
 func (p *plugin) GetNonce(addr common.Address) uint64 {

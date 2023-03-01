@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/core/rawdb"
+
 	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 

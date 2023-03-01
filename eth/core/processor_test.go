@@ -104,6 +104,9 @@ var _ = Describe("StateProcessor", func() {
 			header.MixDigest = common.BytesToHash([]byte{})
 			return header
 		}
+		bp.NewStargazerHeaderWithBlockNumberFunc = func(ctx context.Context, height int64) *types.StargazerHeader {
+			return bp.GetStargazerHeaderByNumberFunc(height)
+		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
 		}
@@ -241,6 +244,10 @@ var _ = Describe("No precompile plugin provided", func() {
 			header.Difficulty = new(big.Int)
 			return header
 		}
+		bp.NewStargazerHeaderWithBlockNumberFunc = func(ctx context.Context, height int64) *types.StargazerHeader {
+			return bp.GetStargazerHeaderByNumberFunc(height)
+		}
+
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
@@ -307,8 +314,10 @@ var _ = Describe("GetHashFn", func() {
 					Difficulty: big.NewInt(0),
 					MixDigest:  common.Hash{},
 				},
-				crypto.Keccak256Hash([]byte{byte(height)}),
 			)
+		}
+		bp.NewStargazerHeaderWithBlockNumberFunc = func(ctx context.Context, height int64) *types.StargazerHeader {
+			return bp.GetStargazerHeaderByNumberFunc(height)
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false

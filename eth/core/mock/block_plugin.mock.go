@@ -45,6 +45,9 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			GetTransactionByHashFunc: func(hash common.Hash) *ethereumcoretypes.Transaction {
 //				panic("mock out the GetTransactionByHash method")
 //			},
+//			NewStargazerHeaderWithBlockNumberFunc: func(contextMoqParam context.Context, n int64) *ethcoretypes.StargazerHeader {
+//				panic("mock out the NewStargazerHeaderWithBlockNumber method")
+//			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
@@ -84,6 +87,9 @@ type BlockPluginMock struct {
 
 	// GetTransactionByHashFunc mocks the GetTransactionByHash method.
 	GetTransactionByHashFunc func(hash common.Hash) *ethereumcoretypes.Transaction
+
+	// NewStargazerHeaderWithBlockNumberFunc mocks the NewStargazerHeaderWithBlockNumber method.
+	NewStargazerHeaderWithBlockNumberFunc func(contextMoqParam context.Context, n int64) *ethcoretypes.StargazerHeader
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -134,6 +140,13 @@ type BlockPluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
+		// NewStargazerHeaderWithBlockNumber holds details about calls to the NewStargazerHeaderWithBlockNumber method.
+		NewStargazerHeaderWithBlockNumber []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// N is the n argument value.
+			N int64
+		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -161,17 +174,18 @@ type BlockPluginMock struct {
 			Header *ethcoretypes.StargazerHeader
 		}
 	}
-	lockBaseFee                        sync.RWMutex
-	lockGetStargazerBlockByHash        sync.RWMutex
-	lockGetStargazerBlockByNumber      sync.RWMutex
-	lockGetStargazerHeader             sync.RWMutex
-	lockGetStargazerHeaderByNumber     sync.RWMutex
-	lockGetTransactionBlockNumber      sync.RWMutex
-	lockGetTransactionByHash           sync.RWMutex
-	lockPrepare                        sync.RWMutex
-	lockPruneStargazerHeader           sync.RWMutex
-	lockSetStargazerHeader             sync.RWMutex
-	lockTrackHistoricalStargazerHeader sync.RWMutex
+	lockBaseFee                           sync.RWMutex
+	lockGetStargazerBlockByHash           sync.RWMutex
+	lockGetStargazerBlockByNumber         sync.RWMutex
+	lockGetStargazerHeader                sync.RWMutex
+	lockGetStargazerHeaderByNumber        sync.RWMutex
+	lockGetTransactionBlockNumber         sync.RWMutex
+	lockGetTransactionByHash              sync.RWMutex
+	lockNewStargazerHeaderWithBlockNumber sync.RWMutex
+	lockPrepare                           sync.RWMutex
+	lockPruneStargazerHeader              sync.RWMutex
+	lockSetStargazerHeader                sync.RWMutex
+	lockTrackHistoricalStargazerHeader    sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
@@ -394,6 +408,42 @@ func (mock *BlockPluginMock) GetTransactionByHashCalls() []struct {
 	mock.lockGetTransactionByHash.RLock()
 	calls = mock.calls.GetTransactionByHash
 	mock.lockGetTransactionByHash.RUnlock()
+	return calls
+}
+
+// NewStargazerHeaderWithBlockNumber calls NewStargazerHeaderWithBlockNumberFunc.
+func (mock *BlockPluginMock) NewStargazerHeaderWithBlockNumber(contextMoqParam context.Context, n int64) *ethcoretypes.StargazerHeader {
+	if mock.NewStargazerHeaderWithBlockNumberFunc == nil {
+		panic("BlockPluginMock.NewStargazerHeaderWithBlockNumberFunc: method is nil but BlockPlugin.NewStargazerHeaderWithBlockNumber was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		N               int64
+	}{
+		ContextMoqParam: contextMoqParam,
+		N:               n,
+	}
+	mock.lockNewStargazerHeaderWithBlockNumber.Lock()
+	mock.calls.NewStargazerHeaderWithBlockNumber = append(mock.calls.NewStargazerHeaderWithBlockNumber, callInfo)
+	mock.lockNewStargazerHeaderWithBlockNumber.Unlock()
+	return mock.NewStargazerHeaderWithBlockNumberFunc(contextMoqParam, n)
+}
+
+// NewStargazerHeaderWithBlockNumberCalls gets all the calls that were made to NewStargazerHeaderWithBlockNumber.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.NewStargazerHeaderWithBlockNumberCalls())
+func (mock *BlockPluginMock) NewStargazerHeaderWithBlockNumberCalls() []struct {
+	ContextMoqParam context.Context
+	N               int64
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		N               int64
+	}
+	mock.lockNewStargazerHeaderWithBlockNumber.RLock()
+	calls = mock.calls.NewStargazerHeaderWithBlockNumber
+	mock.lockNewStargazerHeaderWithBlockNumber.RUnlock()
 	return calls
 }
 

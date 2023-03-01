@@ -46,9 +46,6 @@ TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 # used to exit on first error (any non-zero exit code)
 set -e
 
-# Reinstall daemon
-mage build
-
 # # User prompt if an existing local node configuration is found.
 # if [ -d "$HOMEDIR" ]; then
 # 	printf "\nAn existing folder at '%s' was found. You can choose to delete this folder and start a new local node with new keys from genesis. When declined, the existing local node is started. \n" "$HOMEDIR"
@@ -75,6 +72,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	for KEY in "${KEYS[@]}"; do
 		./bin/stargazerd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 	done
+
+	./bin/stargazerd keys add dev9 --keyring-backend $KEYRING --algo secp256k1 --home "$HOMEDIR"
 
 	# Change parameter token denominations to abera
 	jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -109,6 +108,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	for KEY in "${KEYS[@]}"; do
 		./bin/stargazerd genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
+	./bin/stargazerd genesis add-genesis-account dev9 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	
 	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
 	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
 	./bin/stargazerd genesis add-genesis-account stargazer1yrene6g2zwjttemf0c65fscg8w8c55w5c2x2xh 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
