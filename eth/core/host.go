@@ -64,7 +64,7 @@ type (
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
-		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
+		GetStargazerHeaderByNumber(number int64) (*types.StargazerHeader, error)
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
 		GetStargazerBlockByNumber(int64) *types.StargazerBlock
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
@@ -75,15 +75,9 @@ type (
 		GetTransactionBlockNumber(common.Hash) *big.Int
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
-		// `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
-		// heights that are below pruning height.
-		TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.StargazerHeader)
-		// `GetStargazerBlock` returns the block from the store at the height specified in the context.
-		GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool)
-		// `SetStargazerHeader` saves a block to the store.
-		SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error
-		// `PruneStargazerHeader` prunes a stargazer block from the store.
-		PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error
+		// `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
+		ProcessHeader(ctx sdk.Context, header *types.StargazerHeader) error
+		SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 	}
 
 	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.

@@ -136,6 +136,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 // `SetQueryContextFn` sets the query context function for the state plugin.
 func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
 	k.sp.SetQueryContextFn(qc)
+	k.bp.SetQueryContextFn(qc)
 }
 
 // `GetBlockPlugin` returns the block plugin.
