@@ -87,7 +87,7 @@ var _ = Describe("Processor", func() {
 			WithBlockHeight(1)
 
 		// Set the header for the first block.
-		k.GetBlockPlugin().ProcessHeader(ctx, &coretypes.StargazerHeader{})
+		k.GetBlockPlugin().ProcessHeader(ctx)
 
 		// Set the query contexts, (used for getting the header)
 		k.SetQueryContextFn(func(height int64, prove bool) (sdk.Context, error) {

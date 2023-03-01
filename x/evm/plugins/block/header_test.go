@@ -59,7 +59,7 @@ var _ = Describe("Header", func() {
 			},
 			blockHashFromCosmosContext(ctx),
 		)
-		err := p.ProcessHeader(ctx, header)
+		err := p.ProcessHeader(ctx)
 		Expect(err).To(BeNil())
 
 		header, err = p.GetStargazerHeaderByNumber(1)
@@ -67,7 +67,7 @@ var _ = Describe("Header", func() {
 		Expect(err).To(BeNil())
 
 		// Expected header after all the values are set from the context.
-		expectedHeader := p.fillHeader(ctx, header)
+		expectedHeader := p.fillHeader(ctx)
 		Expect(*expectedHeader).To(Equal(*header))
 	})
 })

@@ -42,8 +42,8 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 }
 
 // `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
-func (p *plugin) ProcessHeader(ctx sdk.Context, header *coretypes.StargazerHeader) error {
-	header = p.fillHeader(ctx, header)
+func (p *plugin) ProcessHeader(ctx sdk.Context) error {
+	header := p.fillHeader(ctx)
 	bz, err := header.MarshalBinary()
 	if err != nil {
 		return err
@@ -103,9 +103,8 @@ func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 	return iavlHeight, nil
 }
 
-// `fillHeader` takes in a `coretypes.StargazerHeader` and returns a `coretypes.StargazerHeader` with the
-// Fields set to the correct values from the `sdk.Context`.
-func (p *plugin) fillHeader(ctx sdk.Context, header *coretypes.StargazerHeader) *coretypes.StargazerHeader {
+// `fillHeader` creates a header from the `sdk.Context` and fills in the missing fields.
+func (p *plugin) fillHeader(ctx sdk.Context) *coretypes.StargazerHeader {
 	cometHeader := ctx.BlockHeader()
 
 	// We retrieve the `TxHash` from the `DataHash` field of the `sdk.Context` opposed to deriving it
@@ -117,11 +116,11 @@ func (p *plugin) fillHeader(ctx sdk.Context, header *coretypes.StargazerHeader) 
 
 	parentHash := common.Hash{}
 	if ctx.BlockHeight() > 1 {
-		header, err := p.GetStargazerHeaderByNumber(ctx.BlockHeight() - 1)
-		if err != nil || header == nil {
+		if header, err := p.GetStargazerHeaderByNumber(ctx.BlockHeight() - 1); err != nil {
 			panic("failed to get parent stargazer header")
+		} else {
+			parentHash = header.Hash()
 		}
-		parentHash = header.Hash()
 	}
 
 	return coretypes.NewStargazerHeader(

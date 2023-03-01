@@ -29,7 +29,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
@@ -57,8 +56,7 @@ var _ = Describe("Block Plugin", func() {
 		now := time.Now()
 		ctx = ctx.WithBlockTime(now)
 		expectedTime := uint64(ctx.BlockHeader().Time.UTC().Unix()) // what the processor will do.
-		emptyHeader := types.StargazerHeader{}
-		err := p.ProcessHeader(ctx, &emptyHeader) // The processor will set the values.
+		err := p.ProcessHeader(ctx)                                 // The processor will set the values.
 		Expect(err).To(BeNil())
 		header, err := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
 		Expect(err).To(BeNil())
@@ -66,7 +64,6 @@ var _ = Describe("Block Plugin", func() {
 	})
 
 	It("should get the header at a previous height", func() {
-		emptyHeader := types.StargazerHeader{}
 		firstCtx := testutil.NewContext().WithBlockHeight(1)
 		secondCtx := testutil.NewContext().WithBlockHeight(2)
 		thirdCtx := testutil.NewContext().WithBlockHeight(3)
@@ -90,7 +87,7 @@ var _ = Describe("Block Plugin", func() {
 
 		// Set the first header and second header.
 		p.Prepare(firstCtx)
-		err := p.ProcessHeader(firstCtx, &emptyHeader)
+		err := p.ProcessHeader(firstCtx)
 		Expect(err).To(BeNil())
 
 		// Check that the first header is set.
@@ -100,7 +97,8 @@ var _ = Describe("Block Plugin", func() {
 
 		// Set the second header.
 		p.Prepare(secondCtx)
-		p.ProcessHeader(secondCtx, &emptyHeader)
+		err = p.ProcessHeader(secondCtx)
+		Expect(err).To(BeNil())
 
 		// Check that the second header is set.
 		header, err = p.GetStargazerHeaderByNumber(2)
@@ -109,7 +107,7 @@ var _ = Describe("Block Plugin", func() {
 
 		// Set the third header.
 		p.Prepare(thirdCtx)
-		err = p.ProcessHeader(thirdCtx, &emptyHeader)
+		err = p.ProcessHeader(thirdCtx)
 		Expect(err).To(BeNil())
 
 		// Check that the third header is set.

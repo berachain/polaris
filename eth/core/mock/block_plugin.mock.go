@@ -45,7 +45,7 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
-//			ProcessHeaderFunc: func(ctx sdk.Context, header *ethcoretypes.StargazerHeader) error {
+//			ProcessHeaderFunc: func(ctx sdk.Context) error {
 //				panic("mock out the ProcessHeader method")
 //			},
 //			SetQueryContextFnFunc: func(fn func(height int64, prove bool) (sdk.Context, error))  {
@@ -80,7 +80,7 @@ type BlockPluginMock struct {
 	PrepareFunc func(contextMoqParam context.Context)
 
 	// ProcessHeaderFunc mocks the ProcessHeader method.
-	ProcessHeaderFunc func(ctx sdk.Context, header *ethcoretypes.StargazerHeader) error
+	ProcessHeaderFunc func(ctx sdk.Context) error
 
 	// SetQueryContextFnFunc mocks the SetQueryContextFn method.
 	SetQueryContextFnFunc func(fn func(height int64, prove bool) (sdk.Context, error))
@@ -124,8 +124,6 @@ type BlockPluginMock struct {
 		ProcessHeader []struct {
 			// Ctx is the ctx argument value.
 			Ctx sdk.Context
-			// Header is the header argument value.
-			Header *ethcoretypes.StargazerHeader
 		}
 		// SetQueryContextFn holds details about calls to the SetQueryContextFn method.
 		SetQueryContextFn []struct {
@@ -364,21 +362,19 @@ func (mock *BlockPluginMock) PrepareCalls() []struct {
 }
 
 // ProcessHeader calls ProcessHeaderFunc.
-func (mock *BlockPluginMock) ProcessHeader(ctx sdk.Context, header *ethcoretypes.StargazerHeader) error {
+func (mock *BlockPluginMock) ProcessHeader(ctx sdk.Context) error {
 	if mock.ProcessHeaderFunc == nil {
 		panic("BlockPluginMock.ProcessHeaderFunc: method is nil but BlockPlugin.ProcessHeader was just called")
 	}
 	callInfo := struct {
-		Ctx    sdk.Context
-		Header *ethcoretypes.StargazerHeader
+		Ctx sdk.Context
 	}{
-		Ctx:    ctx,
-		Header: header,
+		Ctx: ctx,
 	}
 	mock.lockProcessHeader.Lock()
 	mock.calls.ProcessHeader = append(mock.calls.ProcessHeader, callInfo)
 	mock.lockProcessHeader.Unlock()
-	return mock.ProcessHeaderFunc(ctx, header)
+	return mock.ProcessHeaderFunc(ctx)
 }
 
 // ProcessHeaderCalls gets all the calls that were made to ProcessHeader.
@@ -386,12 +382,10 @@ func (mock *BlockPluginMock) ProcessHeader(ctx sdk.Context, header *ethcoretypes
 //
 //	len(mockedBlockPlugin.ProcessHeaderCalls())
 func (mock *BlockPluginMock) ProcessHeaderCalls() []struct {
-	Ctx    sdk.Context
-	Header *ethcoretypes.StargazerHeader
+	Ctx sdk.Context
 } {
 	var calls []struct {
-		Ctx    sdk.Context
-		Header *ethcoretypes.StargazerHeader
+		Ctx sdk.Context
 	}
 	mock.lockProcessHeader.RLock()
 	calls = mock.calls.ProcessHeader

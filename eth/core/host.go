@@ -76,7 +76,7 @@ type (
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 		// `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
-		ProcessHeader(ctx sdk.Context, header *types.StargazerHeader) error
+		ProcessHeader(ctx sdk.Context) error
 		SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 	}
 
