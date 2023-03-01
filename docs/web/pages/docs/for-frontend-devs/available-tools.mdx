@@ -1,17 +1,23 @@
 # Available Tools
 
-Through the use of precompiled contracts, dApps built on stargazer can interact
-with cosmos modules as if they are interacting with a smart contract on main net.
-There is no cosmos-specific behavior to consider for the end developer.
-
-There are a number of available tools for dApp developers building on Stargazer. Being an
+There are a number of available tools for frontend dApp developers building on Stargazer. Being an
 EVM compatible chain, it's tool set is interoperable with the broader EVM ecosystem.
 Here are a few of the tools available for Stargazer:
 
 ### Wagmi.sh
+[wagmi](https://wagmi.sh/) is a collection of hooks and helpers for 
+rapidly developing evm frontend dApps. It provides out of the box wallet connection,
+data caching, and persistence.
 
-### Web3React
+### Web3React & Ethers.js
+[Web3React](https://github.com/Uniswap/web3-react) is a lightweight framework for creating Ethereum dApps with React. It provides a simple interface
+for connecting to Ethereum wallets as well as some useful hooks for managing providers and accounts.
+When combined with [ethers.js](https://docs.ethers.org/v5/), It provides a highly customizable tool set for building lightweight dApps.
 
-### Ethers.js
+## Examples
 
-### Examples
+To highlight the improved user experience Stargazer's [Stateful Precompiles]()
+provide when interacting with cosmos modules, we have created a simple example
+staking dApp that shows developers the simplicity this technology provides.
+To view how to use wagmi.sh to delegate tokens, check out the [Examples Monorepo](https://github.com/berachain/stargazer-examples)
+

@@ -1,3 +1,5 @@
+import { Callout, FileTree } from 'nextra-theme-docs'
+
 # Using Foundry with Stargazer EVM
 
 ## Introduction
@@ -23,3 +25,481 @@ command-line.
   walk-through.
 - [NodeJS](https://nodejs.org/en) version `16.x`
 - You have a running instance of Stargazer EVM. See [Starting A Node]()
+
+## Stargazer Liquid Staking Smart Contract Example
+
+#### 1. Create A New Project With forge
+Let's create a new project called "stargazer-lsd-example" with forge.
+`forge init stargazer-lsd-example`
+
+<FileTree>
+  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+    <FileTree.Folder name="lib" >
+      <FileTree.Folder name="forge-std" />
+    </FileTree.Folder>
+    <FileTree.Folder name="script">
+      <FileTree.File name="Counter.s.sol" />
+    </FileTree.Folder>
+    <FileTree.Folder name="src">
+      <FileTree.File name="Counter.sol" />
+    </FileTree.Folder>
+        <FileTree.Folder name="test">
+      <FileTree.File name="Counter.t.sol" />
+    </FileTree.Folder>
+    <FileTree.File name="foundry.toml" />
+  </FileTree.Folder>
+</FileTree>
+
+#### 2. Add Configurations For Local Stargazer
+<Callout emoji="💡">
+  Ensure that you have a local instance of Stargazer Running. See [Starting A Node](../../running-a-node/running-locally)
+</Callout>
+
+You can add a profile to your foundry project by appending the following lines to the end of your foundry.toml file: 
+```
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config
+
+[profile.stargazer_local]
+src = 'src'
+out = 'out'
+libs = ['lib']
+evm_version = 'berlin'
+eth_rpc_url = 'http://localhost:8545'
+```
+
+To test the configurations above, let's deploy the generated contract in the "Counter.sol" file to the Stargazer localnet:  
+```
+FOUNDRY_PROFILE=stargazer_local  \
+        forge create --private-key=xxxxxxxxxxx \
+        --legacy  Counter
+```
+<Callout type="info" emoji="ℹ️">
+  - Forge reads the profile's name from the environment variable "FOUNDRY_PROFILE".
+  - You should replace `xxxxxxxxxxx` with your own private key. 
+  - You must use the --legacy option because Stargazer has not implemented EIP1559 yet. 
+</Callout>
+
+If everything goes well, forge will print out the address of the deployed contract and the transaction hash for the deployment. 
+
+#### 3. Install Dependencies
+
+ We will build the Liquid Staking contract based on [Solmate](https://github.com/transmissions11/solmate) contracts.
+
+To install solmate, run the following command:
+
+`forge install transmissions11/solmate`
+
+#### 4. Add Remappings.txt
+Foundry installs all dependencies as git submodules under the directory of "lib".
+And to make it easier to import the dependencies, let's create a `remappings.txt` file with the following contents: 
+
+```
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
+solmate/=lib/solmate/src/
+```
+
+Your file system should now look like this:
+<FileTree>
+  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+    <FileTree.Folder name="lib" >
+      <FileTree.Folder name="forge-std" />
+    </FileTree.Folder>
+    <FileTree.Folder name="script">
+      <FileTree.File name="Counter.s.sol" />
+    </FileTree.Folder>
+    <FileTree.Folder name="src">
+      <FileTree.File name="Counter.sol" />
+    </FileTree.Folder>
+        <FileTree.Folder name="test">
+      <FileTree.File name="Counter.t.sol" />
+    </FileTree.Folder>
+    <FileTree.File name="foundry.toml" />
+    <FileTree.File name="remappings.txt" />
+  </FileTree.Folder>
+</FileTree>
+
+#### 5. Create The Staking Module interface
+We need a way of interacting with the staking module. This can be done through the use of an Interface.
+More information on Interfaces in Solidity can be found [here](https://www.alchemy.com/overviews/solidity-interface#:~:text=What%20is%20the%20Solidity%20interface,and%20functions%20on%20a%20contract.)
+
+Create a new file under the `src` directory called `IStakingModule.sol` and add the following code:
+```
+pragma solidity ^0.8.4;
+
+/**
+ * @dev Interface of the staking module's precompiled contract
+ */
+interface IStakingModule {
+    /////////////////////////////////////// READ METHODS //////////////////////////////////////////
+
+    /**
+     * @dev Returns the `amount` of tokens currently delegated by msg.sender to `validatorAddress`
+     */
+    function getDelegation(address validatorAddress)
+        external
+        view
+        returns (uint256);
+
+    /**
+     * @dev Returns the `amount` of tokens currently delegated by msg.sender to `validatorAddress`
+     * (at hex bech32 address)
+     */
+    function getDelegation(string calldata validatorAddress)
+        external
+        view
+        returns (uint256);
+
+    /**
+     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between msg.sender and
+     * `validatorAddress`
+     */
+    function getUnbondingDelegation(address validatorAddress)
+        external
+        view
+        returns (UnbondingDelegationEntry[] memory);
+
+    /**
+     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between msg.sender and
+     * `validatorAddress` (at hex bech32 address)
+     */
+    function getUnbondingDelegation(string calldata validatorAddress)
+        external
+        view
+        returns (UnbondingDelegationEntry[] memory);
+
+    /**
+     * @dev Returns a list of the msg.sender's redelegating bonds from `srcValidator` to
+     * `dstValidator`
+     */
+    function getRedelegations(address srcValidator, address dstValidator)
+        external
+        view
+        returns (RedelegationEntry[] memory);
+
+    /**
+     * @dev Returns a list of the msg.sender's redelegating bonds from `srcValidator` to
+     * `dstValidator` (at hex bech32 addresses)
+     */
+    function getRedelegations(
+        string calldata srcValidator,
+        string calldata dstValidator
+    ) external view returns (RedelegationEntry[] memory);
+
+    /**
+     * @dev Returns a list of active validators.
+     */
+    function getActiveValidators() external view returns (address[] memory);
+
+    ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
+
+    /**
+     * @dev msg.sender delegates the `amount` of tokens to `validatorAddress`
+     */
+    function delegate(address validatorAddress, uint256 amount)
+        external
+        payable;
+
+    /**
+     * @dev msg.sender delegates the `amount` of tokens to `validatorAddress` (at hex bech32
+     * address)
+     */
+    function delegate(string calldata validatorAddress, uint256 amount)
+        external
+        payable;
+
+    /**
+     * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress`
+     */
+    function undelegate(address validatorAddress, uint256 amount)
+        external
+        payable;
+
+    /**
+     * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress` (at hex bech32
+     * address)
+     */
+    function undelegate(string calldata validatorAddress, uint256 amount)
+        external
+        payable;
+
+    /**
+     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to
+     * `validtorDstAddr`
+     */
+    function beginRedelegate(
+        address srcValidator,
+        address dstValidator,
+        uint256 amount
+    ) external payable;
+
+    /**
+     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to
+     * `validtorDstAddr` (at hex bech32 addresses)
+     */
+    function beginRedelegate(
+        string calldata srcValidator,
+        string calldata dstValidator,
+        uint256 amount
+    ) external payable;
+
+    /**
+     * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
+     * `amount` of tokens back to `validatorAddress`
+     *
+     * Provide the `creationHeight` of the original unbonding delegation
+     */
+    function cancelUnbondingDelegation(
+        address validatorAddress,
+        uint256 amount,
+        int64 creationHeight
+    ) external payable;
+
+    /**
+     * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
+     * `amount` of tokens back to `validatorAddress` (at hex bech32 addresses)
+     *
+     * Provide the `creationHeight` of the original unbonding delegation
+     */
+    function cancelUnbondingDelegation(
+        string calldata validatorAddress,
+        uint256 amount,
+        int64 creationHeight
+    ) external payable;
+
+    //////////////////////////////////////////// UTILS ////////////////////////////////////////////
+
+    /**
+     * @dev Represents one entry of an unbonding delegation
+     *
+     * Note: the field names of the native struct should match these field names (by camelCase)
+     */
+    struct UnbondingDelegationEntry {
+        // creationHeight is the height which the unbonding took place
+        int64 creationHeight;
+        // completionTime is the unix time for unbonding completion, formatted as a string
+        string completionTime;
+        // initialBalance defines the tokens initially scheduled to receive at completion
+        uint256 initialBalance;
+        // balance defines the tokens to receive at completion
+        uint256 balance;
+        // unbondingingId incrementing id that uniquely identifies this entry
+        uint64 unbondingId;
+    }
+
+    /**
+     * @dev Represents a redelegation entry with relevant metadata
+     *
+     * Note: the field names of the native struct should match these field names (by camelCase)
+     */
+    struct RedelegationEntry {
+        // creationHeight is the height which the redelegation took place
+        int64 creationHeight;
+        // completionTime is the unix time for redelegation completion, formatted as a string
+        string completionTime;
+        // initialBalance defines the initial balance when redelegation started
+        uint256 initialBalance;
+        // sharesDst is the amount of destination-validatorAddress shares created by redelegation
+        uint256 sharesDst;
+        // unbondingId is the incrementing id that uniquely identifies this entry
+        uint64 unbondingId;
+    }
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are delegated to
+     * `validator`
+     */
+    event Delegate(address indexed validator, uint256 amount);
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are redelegated from
+     * `sourceValidator` to `destinationValidator`
+     */
+    event Redelegate(
+        address indexed sourceValidator,
+        address indexed destinationValidator,
+        uint256 amount
+    );
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are used to create `validator`
+     */
+    event CreateValidator(address indexed validator, uint256 amount);
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are unbonded from `validator`
+     */
+    event Unbond(address indexed validator, uint256 amount);
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are canceled from `delegator`'s
+     * unbonding delegation with `validator`
+     */
+    event CancelUnbondingDelegation(
+        address indexed validator,
+        address indexed delegator,
+        uint256 amount,
+        int64 creationHeight
+    );
+}
+```
+
+
+Your file system should now look like this after adding `IStakingModule.sol`:
+<FileTree>
+  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+    <FileTree.Folder name="lib" >
+      <FileTree.Folder name="forge-std" />
+    </FileTree.Folder>
+    <FileTree.Folder name="script">
+      <FileTree.File name="Counter.s.sol" />
+    </FileTree.Folder>
+    <FileTree.Folder name="src">
+      <FileTree.File name="Counter.sol" />
+      <FileTree.File name="IStakingModule.sol" />
+    </FileTree.Folder>
+        <FileTree.Folder name="test">
+      <FileTree.File name="Counter.t.sol" />
+    </FileTree.Folder>
+    <FileTree.File name="foundry.toml" />
+    <FileTree.File name="remappings.txt" />
+  </FileTree.Folder>
+</FileTree>
+
+#### 6. Create The Liquid Staking Contract
+We are now going to create the Liquid Staking Contract.
+Create a new file under the `src` directory called `LiquidStaking.sol` and add the following code:
+```
+pragma solidity ^0.8.4;
+
+import {IStakingModule} from "./interfaces.sol";
+import {ERC20} from "solmate/tokens/ERC20.sol";
+
+contract LiquidStaking is ERC20 {
+    // State
+    IStakingModule public staking;
+    address public validatorAddress;
+
+    // Errors
+    error ZeroAddress();
+    error ZeroAmount();
+
+    /**
+     * @dev Constructor that sets the staking precompile address and the validator address.
+     * @param _name The name of the token.
+     * @param _symbol The symbol of the token.
+     * @param _stakingprecompile The address of the staking precompile contract.
+     * @param _validatorAddress The address of the validator to delegate to.
+     */
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _stakingprecompile,
+        address _validatorAddress
+    ) ERC20(_name, _symbol, 18) {
+        if (_stakingprecompile == address(0)) revert ZeroAddress();
+        if (_validatorAddress == address(0)) revert ZeroAddress();
+        staking = IStakingModule(_stakingprecompile);
+        validatorAddress = _validatorAddress;
+    }
+
+    /**
+     * @dev Returns the total amount of assets delegated to the validator.
+     * @return amount total amount of assets delegated to the validator.
+     */
+    function totalAssets() public view returns (uint256 amount) {
+        return staking.getDelegation(validatorAddress);
+    }
+
+    /**
+     * @dev Delegates Base Denom to the validator.
+     */
+    function delegate() public payable {
+        if (msg.value == 0) revert ZeroAmount();
+
+        staking.delegate{value: msg.value}(validatorAddress, msg.value);
+        _mint(msg.sender, msg.value);
+    }
+
+    /**
+     * @dev Withdraws Base Denom from the validator.
+     * @param amount amount of Base Denom to withdraw.
+     */
+    function withdraw(uint256 amount) public {
+        if (amount == 0) revert ZeroAmount();
+        _burn(msg.sender, amount);
+        payable(msg.sender).transfer(amount);
+    }
+
+    receive() external payable {
+        delegate();
+    }
+}
+```
+
+Your file system should now look like this after adding `LiquidStaking.sol`:
+<FileTree>
+  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+    <FileTree.Folder name="lib" >
+      <FileTree.Folder name="forge-std" />
+    </FileTree.Folder>
+    <FileTree.Folder name="script">
+      <FileTree.File name="Counter.s.sol" />
+    </FileTree.Folder>
+    <FileTree.Folder name="src">
+      <FileTree.File name="Counter.sol" />
+      <FileTree.File name="LiquidStaking.sol" />
+      <FileTree.File name="IStakingModule.sol" />
+    </FileTree.Folder>
+        <FileTree.Folder name="test">
+      <FileTree.File name="Counter.t.sol" />
+    </FileTree.Folder>
+    <FileTree.File name="foundry.toml" />
+    <FileTree.File name="remappings.txt" />
+  </FileTree.Folder>
+</FileTree>
+
+
+##### Functionality
+`LiquidStaking.sol` is a Solidity smart contract that implements a basic liquid staking mechanism,
+allowing users to delegate tokens to a validator and receive staked tokens in return.
+The key features of the contract are:
+
+- It inherits from the ERC20 token contract, allowing it to be used as a standard fungible token with a name, symbol, and decimal places.
+- It takes two arguments in its constructor: the address of [Staking Module Precompile Contract Address](), and the address of the validator that the contract will delegate to.
+- The `delegate()` function allows users to delegate an amount of the token to the validator, by calling the `staking.delegate()` function with the same amount of the token transferred as Ether.
+- The `withdraw()` function allows users to withdraw their delegated tokens from the validator, by burning their staked tokens and transferring the same amount of Ether back to the user.
+- The `totalAssets()` function returns the total amount of assets currently delegated to the validator.
+
+Overall, this contract allows users to stake their tokens through a validator, 
+receiving a tokenized version of their stake that can be traded or transferred like any other ERC20 token.
+
+#### 7. Deploy The Liquid Staking Contract
+To deploy your Liquid Staking contract you can run the following script:
+
+```
+FOUNDRY_PROFILE=stargazer_local \
+    forge create \
+    --constructor-args "<name>" "<symbol>" "<staking_precompile_address>" "<validator_address>" 
+    --private-key=XXXXXXXXXXXXXXXXX  \
+    --legacy  src/LiquidStaking.sol:LiquidStaking
+```
+
+If everything goes well, forge will print out the address of the deployed contract and the transaction hash for the deployment. 
+
+#### 8. Test The Liquid Staking Contract
+
+We can now test our Liquid Staking contract by delegating and receiving 
+a tokenized version of our stake. To do so, run the following script:
+```
+FOUNDRY_PROFILE=stargazer_local cast send  \
+    --private-key=XXXXXXXXXXXX  --legacy \
+    <deployed_contract_address> \
+    'delegate()'  \
+    1
+```

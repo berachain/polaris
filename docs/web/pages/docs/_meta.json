@@ -9,7 +9,7 @@
   "contributing": "Contributing Guide",
   "-- EVM ON STARGAZER --": {
     "type": "separator",
-    "title": "EVM on Stargazer"
+    "title": "Stargazer EVM"
   },
   "evm-on-stargazer": "Overview",
   "precompile-overview": "Precompiles",
