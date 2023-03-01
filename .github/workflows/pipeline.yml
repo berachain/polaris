@@ -41,10 +41,21 @@ jobs:
         name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
       - 
-        name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v3
+        name: Setup Golang
+        uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ~1.18
+      - 
+        name: Setup Golang caches
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+            ~/go/bin
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
       - 
         name: Install Go Tools
         run : |
