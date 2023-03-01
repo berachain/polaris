@@ -63,7 +63,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 }
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
-func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
 
