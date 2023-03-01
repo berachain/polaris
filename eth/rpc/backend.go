@@ -536,8 +536,7 @@ func (b *backend) stargazerBlockByNumberOrHash(
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block, err := b.chain.GetStargazerBlockByHash(hash)
 		if err != nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound,
-				"stargazerBlockByNumberOrHash: hash [%s]", hash.String())
+			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
 
 		// If the has is found, we have the canonical chain.
@@ -555,8 +554,7 @@ func (b *backend) stargazerBlockByNumberOrHash(
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		block, err := b.stargazerBlockByNumber(blockNr)
 		if err != nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound,
-				"stargazerBlockByNumberOrHash: number [%d]", blockNr)
+			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: number [%d]", blockNr)
 		}
 		return block, nil
 	}
