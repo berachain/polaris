@@ -34,18 +34,19 @@ import (
 
 // `CurrentBlock` returns the current block of the blockchain.
 func (bc *blockchain) CurrentBlock() (*types.StargazerBlock, error) {
-	if bc.processor.block == nil {
-		return nil, errors.New("BING BONG ewrror")
+	cb, ok := utils.GetAs[*types.StargazerBlock](bc.currentBlock.Load())
+	if cb == nil || !ok {
+		return nil, errors.New("current block cannot be loaded from cache")
 	}
-	bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
-	return bc.processor.block, nil
+	bc.blockCache.Add(cb.Hash(), cb)
+	return cb, nil
 }
 
 // `FinalizedBlock` returns the last finalized block of the blockchain.
 func (bc *blockchain) FinalizedBlock() (*types.StargazerBlock, error) {
 	fb, ok := utils.GetAs[*types.StargazerBlock](bc.finalizedBlock.Load())
 	if fb == nil || !ok {
-		return nil, errors.New("BING BONG ewrror")
+		return nil, errors.New("finalized block cannot be loaded from cache")
 	}
 	bc.blockCache.Add(fb.Hash(), fb)
 	return fb, nil
