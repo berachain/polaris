@@ -24,6 +24,10 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.20.1
+      - 
+        name: Install Tools
+        run : |
+           go run build/setup.go
       -
         name: Run ${{ matrix.args }}
         uses: magefile/mage-action@v2
