@@ -107,7 +107,7 @@ func DefaultConfig() network.Config {
 		StakingTokens:   sdk.TokensFromConsensusPower(fivehundred, sdk.DefaultPowerReduction),
 		BondedTokens:    sdk.TokensFromConsensusPower(onehundred, sdk.DefaultPowerReduction),
 		PruningStrategy: pruningtypes.PruningOptionNothing,
-		CleanupDir:      false,
+		CleanupDir:      true,
 		SigningAlgo:     string(ethhd.EthSecp256k1Type),
 		KeyringOptions:  []keyring.Option{ethkeyring.EthSecp256k1Option()},
 	}

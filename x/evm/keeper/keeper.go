@@ -87,7 +87,7 @@ func NewKeeper(
 		storeKey:  storeKey,
 	}
 
-	// TODO: parameterize kv store.
+	// // TODO: parameterize kv store.
 	if appOpts != nil {
 		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
 	}
