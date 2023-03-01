@@ -66,9 +66,11 @@ type ChainReader interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
-	GetTransaction(txHash common.Hash,
-	) (*types.Transaction, common.Hash, uint64, uint64, error)
+	GetTransaction(txHash common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
+
+// Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
+var _ ChainReaderWriter = (*blockchain)(nil)
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
 type blockchain struct {
