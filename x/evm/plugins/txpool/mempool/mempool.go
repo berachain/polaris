@@ -50,7 +50,7 @@ type ethTxPool struct {
 }
 
 // `New` is called when the mempool is created.
-func NewEthTxPool() *ethTxPool {
+func NewEthTxPool() EthTxPool {
 	return &ethTxPool{
 		NoOpMempool: mempool.NoOpMempool{},
 		// PriorityNonceMempool: mempool.NewPriorityMempool(),
