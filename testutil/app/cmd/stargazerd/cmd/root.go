@@ -57,7 +57,6 @@ import (
 
 	"pkg.berachain.dev/stargazer/crypto/keyring"
 	simapp "pkg.berachain.dev/stargazer/testutil/app"
-
 	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 

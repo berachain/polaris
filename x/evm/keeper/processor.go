@@ -23,9 +23,9 @@ package keeper
 import (
 	"context"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	storetypes "cosmossdk.io/store/types"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
