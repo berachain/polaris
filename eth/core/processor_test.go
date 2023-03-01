@@ -244,6 +244,10 @@ var _ = Describe("No precompile plugin provided", func() {
 			header.Difficulty = new(big.Int)
 			return header
 		}
+		bp.NewStargazerHeaderWithBlockNumberFunc = func(ctx context.Context, height int64) *types.StargazerHeader {
+			return bp.GetStargazerHeaderByNumberFunc(height)
+		}
+
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
