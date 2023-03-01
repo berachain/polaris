@@ -4,8 +4,8 @@ go 1.20
 
 // Required for supporting stateful precompiled contracts.
 replace (
-	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230228152138-d2977478bc2d
-	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230228152138-d2977478bc2d
+	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230228204446-44495e7a7934
+	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230228204446-44495e7a7934
 	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230228232800-1aa01a485843
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230228173834-f629cbbcfd20
@@ -47,7 +47,7 @@ require (
 	github.com/magefile/mage v1.14.0
 	github.com/matryer/moq v0.3.0
 	github.com/onsi/ginkgo/v2 v2.8.4
-	github.com/onsi/gomega v1.27.2
+	github.com/onsi/gomega v1.27.1
 	github.com/securego/gosec/v2 v2.15.0
 	github.com/segmentio/golines v0.11.0
 	github.com/spf13/cast v1.5.0
