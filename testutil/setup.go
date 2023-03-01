@@ -51,11 +51,11 @@ var (
 
 // `NewContext` creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
-	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.NewLogger())
+	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestingLogger())
 }
 
 func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
-	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewLogger())
+	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestingLogger())
 }
 
 // `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.
