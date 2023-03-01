@@ -46,9 +46,6 @@ TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 # used to exit on first error (any non-zero exit code)
 set -e
 
-# Reinstall daemon
-mage build
-
 # # User prompt if an existing local node configuration is found.
 # if [ -d "$HOMEDIR" ]; then
 # 	printf "\nAn existing folder at '%s' was found. You can choose to delete this folder and start a new local node with new keys from genesis. When declined, the existing local node is started. \n" "$HOMEDIR"

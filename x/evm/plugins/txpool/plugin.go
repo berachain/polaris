@@ -43,12 +43,12 @@ type Plugin interface {
 
 // `plugin` represents the transaction pool plugin.
 type plugin struct {
-	mempool     *mempool.EthTxPool
+	mempool     mempool.EthTxPool
 	rpcProvider rpc.Provider
 }
 
 // `NewPlugin` returns a new transaction pool plugin.
-func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(rpcProvider rpc.Provider, ethTxMempool mempool.EthTxPool) Plugin {
 	return &plugin{
 		mempool:     ethTxMempool,
 		rpcProvider: rpcProvider,

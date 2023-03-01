@@ -78,7 +78,7 @@ func NewKeeper(
 	getPrecompiles func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool *evmmempool.EthTxPool,
+	ethTxMempool evmmempool.EthTxPool,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,

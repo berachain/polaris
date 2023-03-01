@@ -48,7 +48,7 @@ type DepInjectInput struct {
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
 
-	// Mempool sdkmempool.Mempool
+	Mempool evmmempool.EthTxPool
 
 	AccountKeeper  AccountKeeper
 	BankKeeper     BankKeeper
