@@ -58,7 +58,6 @@ var _ = Describe("Header", func() {
 				ReceiptHash: common.Hash{0x06},
 				Number:      big.NewInt(10),
 			},
-			common.Hash{0x01},
 		)
 		err := p.SetStargazerHeader(ctx, header)
 		Expect(err).To(BeNil())
@@ -84,7 +83,6 @@ var _ = Describe("Header", func() {
 				ReceiptHash: common.Hash{0x06},
 				Number:      big.NewInt(10),
 			},
-			common.Hash{0x01},
 		)
 		err := p.SetStargazerHeader(ctx, header)
 		Expect(err).To(BeNil())
@@ -103,7 +101,7 @@ var _ = Describe("Header", func() {
 		for i := 1; i <= 260; i++ {
 			ctx = ctx.WithBlockHeight(int64(i))
 			header := types.NewStargazerHeader(
-				&types.Header{Number: big.NewInt(int64(i))}, common.Hash{0x01})
+				&types.Header{Number: big.NewInt(int64(i))})
 			err := p.SetStargazerHeader(ctx, header)
 			Expect(err).To(BeNil())
 		}
@@ -111,7 +109,7 @@ var _ = Describe("Header", func() {
 		// Run TrackHistoricalStargazerHeader on the header with height 260.
 		ctx = ctx.WithBlockHeight(260)
 		p.TrackHistoricalStargazerHeader(ctx, types.NewStargazerHeader(
-			&types.Header{Number: big.NewInt(260)}, common.Hash{0x01}))
+			&types.Header{Number: big.NewInt(260)}))
 
 		// Get the header with height 1.
 		_, found := p.GetStargazerHeader(ctx, 1)

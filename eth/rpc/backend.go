@@ -162,12 +162,12 @@ func (b *backend) SetHead(number uint64) {
 
 // `HeaderByNumber` returns the block header at the given block number.
 func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*types.Header, error) {
-	block, err := b.BlockByNumber(ctx, number)
-	if err != nil {
-		return nil, err
+	block := b.stargazerBlockByNumber(number)
+	if block == nil {
+		return &types.Header{}, errorslib.Wrapf(ErrBlockNotFound, "HeaderByNumber [%d]", number)
 	}
 	b.logger.Info("HeaderByNumber", "block", block, "header", block.Header)
-	return block.Header(), nil
+	return block.StargazerHeader.Header, nil
 }
 
 // `HeaderByHash` returns the block header with the given hash.
@@ -177,7 +177,7 @@ func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.He
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
 	}
 	b.logger.Info("HeaderByHash", "hash", hash, block.EthBlock().Header())
-	return block.EthBlock().Header(), nil
+	return block.StargazerHeader.Header, nil
 }
 
 // `HeaderByNumberOrHash` returns the header identified by `number` or `hash`.
@@ -185,11 +185,11 @@ func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Header, error) {
 	b.logger.Info("HeaderByNumberOrHash", blockNrOrHash)
-	block, err := b.BlockByNumberOrHash(ctx, blockNrOrHash)
+	block, err := b.stargazerBlockByNumberOrHash(blockNrOrHash)
 	if err != nil {
 		return nil, err
 	}
-	return block.Header(), nil
+	return block.StargazerHeader.Header, nil
 }
 
 // `CurrentHeader` returns the current header from the local chain.s.

@@ -94,40 +94,40 @@ func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
 
 func (etr *EthTransactionRequest) getSignatureLegacy() ([]byte, error) {
 	t := etr.AsTransaction()
-	Vb, R, S := t.RawSignatureValues()
-	if Vb.BitLen() > 8 {
-		return nil, fmt.Errorf("invalid legacy signature 1, V:%d, R:%d, S:%d", Vb, R, S)
+	vb, rb, sb := t.RawSignatureValues()
+	if vb.BitLen() > 8 {
+		return nil, fmt.Errorf("invalid legacy signature 1, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
-	V := byte(Vb.Uint64() - 27)
-	if !crypto.ValidateSignatureValues(V, R, S, false) {
-		return nil, fmt.Errorf("invalid legacy signature 2, V:%d, R:%d, S:%d", Vb, R, S)
+	v := byte(vb.Uint64() - 27)
+	if !crypto.ValidateSignatureValues(v, rb, sb, false) {
+		return nil, fmt.Errorf("invalid legacy signature 2, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
 	// encode the signature in uncompressed format
-	r, s := R.Bytes(), S.Bytes()
+	r, s := rb.Bytes(), sb.Bytes()
 	sig := make([]byte, crypto.SignatureLength)
 	copy(sig[32-len(r):32], r)
 	copy(sig[64-len(s):64], s)
-	sig[64] = V
+	sig[64] = v
 
 	return sig, nil
 }
 
 func (etr *EthTransactionRequest) getSignatureDynamic() ([]byte, error) {
 	t := etr.AsTransaction()
-	Vb, R, S := t.RawSignatureValues()
-	if Vb.BitLen() > 8 {
-		return nil, fmt.Errorf("invalid dynamic signature 1, V:%d, R:%d, S:%d", Vb, R, S)
+	vb, rb, sb := t.RawSignatureValues()
+	if vb.BitLen() > 8 {
+		return nil, fmt.Errorf("invalid dynamic signature 1, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
-	V := byte(Vb.Uint64())
-	if !crypto.ValidateSignatureValues(V, R, S, false) {
-		return nil, fmt.Errorf("invalid dynamic signature 2, V:%d, R:%d, S:%d", Vb, R, S)
+	v := byte(vb.Uint64())
+	if !crypto.ValidateSignatureValues(v, rb, sb, false) {
+		return nil, fmt.Errorf("invalid dynamic signature 2, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
 	// encode the signature in uncompressed format
-	r, s := R.Bytes(), S.Bytes()
+	r, s := sb.Bytes(), sb.Bytes()
 	sig := make([]byte, crypto.SignatureLength)
 	copy(sig[32-len(r):32], r)
 	copy(sig[64-len(s):64], s)
-	sig[64] = V
+	sig[64] = v
 
 	return sig, nil
 }

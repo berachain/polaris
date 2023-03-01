@@ -22,12 +22,11 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
-	// "fmt"
+	// "fmt".
 
 	errorsmod "cosmossdk.io/errors"
-	// sdk "github.com/cosmos/cosmos-sdk/types"
+	// sdk "github.com/cosmos/cosmos-sdk/types".
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -43,12 +42,10 @@ func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
 ) (*types.EthTransactionResponse, error) {
 	tx := msg.AsTransaction()
-	fmt.Println("keeper.EthTransaction", "hash", tx.Hash())
 	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
 
 	// Process the transaction and return the receipt.
 	receipt, err := k.ProcessTransaction(ctx, tx)
-	fmt.Println("RECEIPT123", receipt)
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
 	}

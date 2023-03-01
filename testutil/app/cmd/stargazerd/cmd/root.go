@@ -45,7 +45,9 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	signing "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -56,6 +58,8 @@ import (
 
 	"pkg.berachain.dev/stargazer/crypto/keyring"
 	simapp "pkg.berachain.dev/stargazer/testutil/app"
+
+	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 // encodingConfig := encoding.MakeConfig(app.ModuleBasics)
@@ -124,8 +128,9 @@ func NewRootCmd() *cobra.Command {
 			fmt.Println(encodingConfig.TxConfig.SignModeHandler().Modes())
 			txConfigWithTextual := tx.NewTxConfigWithTextual(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
-				encodingConfig.TxConfig.SignModeHandler().Modes(),
+				append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
 				txmodule.NewTextualWithGRPCConn(initClientCtx),
+				[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
 			)
 			fmt.Println(txConfigWithTextual.SignModeHandler().Modes())
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)

@@ -150,7 +150,6 @@ func (p *plugin) NewStargazerHeaderWithBlockNumber(ctx context.Context, number i
 			// `Extra` is unused in Stargazer.
 			Extra: []byte(nil),
 		},
-		blockHashFromCosmosContext(p.ctx),
 	)
 }
 
