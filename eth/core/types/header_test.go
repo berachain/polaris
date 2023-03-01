@@ -30,16 +30,14 @@ import (
 
 var _ = Describe("Header", func() {
 	var h *types.Header
-	var ha common.Hash
 	var sh *types.StargazerHeader
 
 	BeforeEach(func() {
-		ha = common.BytesToHash([]byte{1})
 		h = &types.Header{
 			Coinbase: common.BytesToAddress([]byte{2}),
 			Bloom:    types.BytesToBloom([]byte{3}),
 		}
-		sh = types.NewStargazerHeader(h, ha)
+		sh = types.NewStargazerHeader(h)
 	})
 
 	It("should return the correct values", func() {

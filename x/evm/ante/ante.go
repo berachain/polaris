@@ -21,8 +21,6 @@
 package ante
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -38,7 +36,6 @@ func SetAnteHandler(
 	txCfg client.TxConfig,
 ) func(bApp *baseapp.BaseApp) {
 	return func(bApp *baseapp.BaseApp) {
-		fmt.Println("SETTING TXCFG", txCfg.SignModeHandler())
 		opt := ante.HandlerOptions{
 			AccountKeeper:          ak,
 			BankKeeper:             bk,

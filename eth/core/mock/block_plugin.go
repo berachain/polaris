@@ -38,6 +38,9 @@ func NewBlockPluginMock() *BlockPluginMock {
 		GetStargazerHeaderByNumberFunc: func(n int64) *types.StargazerHeader {
 			panic("mock out the GetStargazerHeaderByNumber method")
 		},
+		NewStargazerHeaderWithBlockNumberFunc: func(ctx context.Context, n int64) *types.StargazerHeader {
+			panic("mock out the NewStargazerHeaderWithBlockNumber method")
+		},
 		PrepareFunc: func(contextMoqParam context.Context) {
 			// no-op
 		},

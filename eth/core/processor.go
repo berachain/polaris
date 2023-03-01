@@ -109,7 +109,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 	sp.gp.Prepare(ctx)
 
 	// Build a block object so we can track that status of the block as we process it.
-	sp.block = types.NewStargazerBlock(sp.bp.GetStargazerHeaderByNumber(height))
+	sp.block = types.NewStargazerBlock(sp.bp.NewStargazerHeaderWithBlockNumber(ctx, height))
 
 	// Ensure that the gas plugin and header are in sync.
 	if sp.block.GasLimit != sp.gp.BlockGasLimit() {
@@ -166,8 +166,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply message %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
 	}
-
-	fmt.Println("RESULT FROM PROCESSOR", result)
 
 	// Consume the gas used by the state tranisition.
 	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {

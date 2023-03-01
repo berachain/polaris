@@ -53,11 +53,14 @@ import (
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -100,6 +103,7 @@ import (
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
+	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 var (
@@ -296,11 +300,11 @@ func NewSimApp( //nolint: funlen // from sdk.
 	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry)...)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	// evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
-	// app.txConfig = tx.NewTxConfig(
-	// 	codec.NewProtoCodec(app.interfaceRegistry),
-	// 	append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
-	// 	[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
-	// )
+	app.txConfig = tx.NewTxConfig(
+		codec.NewProtoCodec(app.interfaceRegistry),
+		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
+		[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
+	)
 	opt := ante.HandlerOptions{
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
@@ -510,11 +514,13 @@ func NewAnteHandler(options authante.HandlerOptions) (sdk.AnteHandler, error) {
 		authante.NewTxTimeoutHeightDecorator(),
 		authante.NewValidateMemoDecorator(options.AccountKeeper),
 		// authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		// authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+		// authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
+		// options.FeegrantKeeper, options.TxFeeChecker),
+		authante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator
+		// must be called before all signature verification decorators
 		authante.NewValidateSigCountDecorator(options.AccountKeeper),
 		// authante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		// authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		// authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // TODO: Fixme
 		// authante.NewIncrementSequenceDecorator(options.AccountKeeper),
 	}
 

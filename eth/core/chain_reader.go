@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/event"
 
@@ -77,8 +76,8 @@ func (bc *blockchain) GetStargazerBlockByNumber(number int64) *types.StargazerBl
 
 	fp := bc.finalizedBlock.Load()
 	if fp != nil {
-		block := fp.(*types.StargazerBlock)
-		if block.Number.Int64() == number {
+		block, ok := fp.(*types.StargazerBlock)
+		if ok && block.Number.Int64() == number {
 			return block
 		}
 	}
@@ -102,8 +101,8 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) *types.Stargazer
 
 	fp := bc.finalizedBlock.Load()
 	if fp != nil {
-		block := fp.(*types.StargazerBlock)
-		if block.Hash() == hash {
+		block, ok := fp.(*types.StargazerBlock)
+		if ok && block.Hash() == hash {
 			return block
 		}
 	}
@@ -177,15 +176,4 @@ func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state 
 		// todo: get precompile controller
 		blockContext, txContext, state, chainCfg, *vmConfig, nil,
 	)
-}
-
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
-}
-
-// `Transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
-func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
 }

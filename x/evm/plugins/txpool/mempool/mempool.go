@@ -22,7 +22,6 @@ package mempool
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
@@ -64,7 +63,6 @@ func NewEthTxPool() *EthTxPool {
 
 // `Insert` is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
-	fmt.Println("INSERT", tx.GetMsgs())
 	// // Call the base mempool's Insert method
 	// if err := etp.NoOpMempool.Insert(ctx, tx); err != nil {
 	// 	return err
@@ -78,7 +76,6 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 
 	t := etr.AsTransaction()
 	if t == nil {
-		fmt.Println(etr, t)
 		panic("nil transaction")
 	}
 	etp.ethTxCache[t.Hash()] = t
@@ -101,13 +98,10 @@ func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
 
 // `Remove` is called when a transaction is removed from the mempool.
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
-	fmt.Println("REMOVE FROM POOL", tx.GetMsgs())
 	// Call the base mempool's Remove method
 	if err := etp.NoOpMempool.Remove(tx); err != nil {
 		return err
 	}
-
-	fmt.Println("REMOVE PAST ERROR", tx.GetMsgs())
 
 	// We want to cache this tx.
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)

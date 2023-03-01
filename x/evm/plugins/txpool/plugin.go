@@ -21,8 +21,6 @@
 package txpool
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -67,6 +65,7 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
 
+
 	// for rpc, insert into local mempool before broadcasting. // TODO FIGURE OUT WHY
 	// this is needed for foundry? Race condition?
 	p.SendPrivTx(signedEthTx)
@@ -77,7 +76,6 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 
 	rsp, err := syncCtx.BroadcastTx(txBytes)
 	if rsp != nil && rsp.Code != 0 {
-		fmt.Println("ERROR", rsp)
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}
 	if err != nil {
