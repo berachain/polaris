@@ -81,16 +81,6 @@ func (p *plugin) BaseFee() uint64 {
 //
 // `GetStargazerHeader` implements core.BlockPlugin.
 func (p *plugin) GetStargazerHeaderByNumber(height int64) *coretypes.StargazerHeader {
-	// If the current block height is the same as the requested height, then we assume that the
-	// block has not been written to the store yet. In this case, we build and return a header
-	// from the sdk.Context.
-	if p.ctx.BlockHeight() == height {
-		return p.getStargazerHeaderFromCurrentContext()
-	}
-
-	// If the current block height is less than (or technically also greater than) the requested
-	// height, then we assume that the block has been written to the store. In this case, we
-	// return the header from the store.
 	if header, found := p.GetStargazerHeader(p.ctx, height); found {
 		return header
 	}
@@ -98,10 +88,14 @@ func (p *plugin) GetStargazerHeaderByNumber(height int64) *coretypes.StargazerHe
 	return &coretypes.StargazerHeader{}
 }
 
-// `getStargazerHeaderFromCurrentContext` builds an ethereum style block header from the current
+// `GetNewStargazerHeader` builds an ethereum style block header from the current
 // context.
-func (p *plugin) getStargazerHeaderFromCurrentContext() *coretypes.StargazerHeader {
+func (p *plugin) GetNewStargazerHeaderWithBlockNumber(ctx context.Context, number int64) *coretypes.StargazerHeader {
 	cometHeader := p.ctx.BlockHeader()
+
+	if cometHeader.Height != number {
+		panic("block height mismatch")
+	}
 
 	// We retrieve the `TxHash` from the `DataHash` field of the `sdk.Context` opposed to deriving it
 	// from solely the ethereum transaction information.

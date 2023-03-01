@@ -21,6 +21,7 @@
 package core
 
 import (
+	"context"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -63,6 +64,7 @@ type (
 		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
+		GetNewStargazerHeaderWithBlockNumber(context.Context, int64) *types.StargazerHeader
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
 		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
