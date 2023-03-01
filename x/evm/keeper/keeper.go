@@ -25,7 +25,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	ethlog "github.com/ethereum/go-ethereum/log"
 
 	"pkg.berachain.dev/stargazer/eth"
@@ -41,7 +40,7 @@ import (
 	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
@@ -79,7 +78,7 @@ func NewKeeper(
 	getPrecompiles func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool sdkmempool.Mempool,
+	ethTxMempool *evmmempool.EthTxPool,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -104,7 +103,7 @@ func NewKeeper(
 	plf := precompilelog.NewFactory()
 	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
-	k.txp = txpool.NewPlugin(k.rpcProvider, mempool.NewEthTxPool())
+	k.txp = txpool.NewPlugin(k.rpcProvider, ethTxMempool)
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)

@@ -31,6 +31,7 @@ import (
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
@@ -64,6 +65,7 @@ type DepInjectOutput struct {
 
 // `ProvideModule` is a function that provides the module to the application.
 func ProvideModule(in DepInjectInput) DepInjectOutput {
+	ethTxMempool := evmmempool.NewEthTxPool()
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
@@ -76,8 +78,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.GetPrecompiles,
 		authority.String(),
 		in.AppOpts,
-		nil,
-		// in.Mempool,
+		ethTxMempool,
 	)
 
 	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)
