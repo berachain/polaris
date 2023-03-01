@@ -54,6 +54,10 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 
+	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
+	am.keeper.ConfigureGethLogger(ctx)
+
+	// Initialize all the plugins.
 	for _, plugin := range am.keeper.GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genesisState)
 	}

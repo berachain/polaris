@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:staticcheck // for now.
-package simapp
+package runtime
 
 import (
 	storetypes "cosmossdk.io/store/types"
@@ -40,7 +40,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// UpgradeName defines the on-chain upgrade name for the sample SimApp upgrade
+// UpgradeName defines the on-chain upgrade name for the sample StargazerApp upgrade
 // from v046 to v047.
 //
 // NOTE: This upgrade defines a reference implementation of what an upgrade
@@ -48,7 +48,7 @@ import (
 // v0.46.x to v0.47.x.
 const UpgradeName = "v046-to-v047"
 
-func (app SimApp) RegisterUpgradeHandlers() {
+func (app StargazerApp) RegisterUpgradeHandlers() {
 	// Set param key table for params module migration
 	for _, subspace := range app.ParamsKeeper.GetSubspaces() {
 		subspace := subspace

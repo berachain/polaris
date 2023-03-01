@@ -30,6 +30,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	ethlog "pkg.berachain.dev/stargazer/eth/log"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/store/offchain"
@@ -111,7 +112,20 @@ func NewKeeper(
 	return k
 }
 
-func (k *Keeper) SetupRPC() {
+// `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
+func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
+	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
+		logger := ctx.Logger().With("module", "geth")
+		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+		case ethlog.LvlTrace, ethlog.LvlDebug:
+			logger.Debug(r.Msg, r.Ctx...)
+		case ethlog.LvlInfo, ethlog.LvlWarn:
+			logger.Info(r.Msg, r.Ctx...)
+		case ethlog.LvlError, ethlog.LvlCrit:
+			logger.Error(r.Msg, r.Ctx...)
+		}
+		return nil
+	}))
 }
 
 // `Logger` returns a module-specific logger.

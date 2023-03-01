@@ -18,30 +18,27 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package main
+package runtime
 
 import (
-	"os"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/codec/types"
 
-	"github.com/cosmos/cosmos-sdk/server"
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"pkg.berachain.dev/stargazer/config"
-	simapp "pkg.berachain.dev/stargazer/testutil/app"
-	"pkg.berachain.dev/stargazer/testutil/app/cmd/stargazerd/cmd"
+	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
 )
 
-func main() {
-	config.SetupCosmosConfig()
-	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
-		//nolint: errorlint // uhh fix?
-		switch e := err.(type) {
-		case server.ErrorCode:
-			os.Exit(e.Code)
-
-		default:
-			os.Exit(1)
-		}
-	}
+// `StargazerAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
+func StargazerAppOptions(
+	interfaceRegistry types.InterfaceRegistry, baseAppOptions ...func(*baseapp.BaseApp),
+) []func(*baseapp.BaseApp) {
+	stargazerAppOptions := baseAppOptions
+	stargazerAppOptions = append(
+		stargazerAppOptions,
+		[]func(bApp *baseapp.BaseApp){
+			func(bApp *baseapp.BaseApp) {
+				cryptocodec.RegisterInterfaces(interfaceRegistry)
+			},
+		}...,
+	)
+	return stargazerAppOptions
 }
