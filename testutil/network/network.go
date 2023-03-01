@@ -22,7 +22,6 @@ package network
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	pruningtypes "cosmossdk.io/store/pruning/types"
@@ -57,6 +56,7 @@ type TestingT interface {
 	Cleanup(func())
 	Log(args ...interface{})
 	Logf(format string, args ...interface{})
+	TempDir() string
 }
 
 // New creates instance with fully configured cosmos network.
@@ -72,11 +72,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 		cfg = configs[0]
 	}
 
-	//nolint:staticcheck // ignore error.
-	dir := os.TempDir()
-	//nolint:staticcheck // ignore error.
-	_ = os.RemoveAll(dir)
-	net, err := network.New(t, dir, cfg)
+	net, err := network.New(t, t.TempDir(), cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
