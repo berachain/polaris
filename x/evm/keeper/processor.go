@@ -73,9 +73,9 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	// Save the historical stargazer header in the IAVL Tree.
 	k.bp.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)
 
-	// TODO: this is sketchy and needs to be refactored later.
-	// Save the block data to the off-chain storage.
-	if k.offChainKv != nil {
-		k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
-	}
+	// // TODO: this is sketchy and needs to be refactored later.
+	// // Save the block data to the off-chain storage.
+	// if k.offChainKv != nil {
+	// 	k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
+	// }
 }

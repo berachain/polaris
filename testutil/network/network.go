@@ -1,21 +1,42 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
 package network
 
 import (
 	"fmt"
 	"os"
-	"testing"
 	"time"
 
 	pruningtypes "cosmossdk.io/store/pruning/types"
 	cdb "github.com/cosmos/cosmos-db"
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	ethhd "pkg.berachain.dev/stargazer/crypto/hd"
+	ethkeyring "pkg.berachain.dev/stargazer/crypto/keyring"
 	app "pkg.berachain.dev/stargazer/testutil/app"
 	config "pkg.berachain.dev/stargazer/testutil/app/config"
 )
@@ -25,9 +46,22 @@ type (
 	Config  = network.Config
 )
 
+const (
+	thousand    = 1000
+	fivehundred = 500
+	onehundred  = 100
+)
+
+type TestingT interface {
+	Fatal(args ...interface{})
+	Cleanup(func())
+	Log(args ...interface{})
+	Logf(format string, args ...interface{})
+}
+
 // New creates instance with fully configured cosmos network.
 // Accepts optional config, that will be used in place of the DefaultConfig() if provided.
-func New(t *testing.T, configs ...network.Config) *network.Network {
+func New(t TestingT, configs ...network.Config) *network.Network {
 	if len(configs) > 1 {
 		panic("at most one config should be provided")
 	}
@@ -37,7 +71,12 @@ func New(t *testing.T, configs ...network.Config) *network.Network {
 	} else {
 		cfg = configs[0]
 	}
-	net, err := network.New(t, os.TempDir(), cfg)
+
+	//nolint:staticcheck // ignore error.
+	dir := os.TempDir()
+	//nolint:staticcheck // ignore error.
+	_ = os.RemoveAll(dir)
+	net, err := network.New(t, dir, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,9 +85,9 @@ func New(t *testing.T, configs ...network.Config) *network.Network {
 }
 
 // DefaultConfig will initialize config for the network with custom application,
-// genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig
+// genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig.
 func DefaultConfig() network.Config {
-	encoding := config.MakeEncodingConfig()
+	encoding := config.MakeEncodingConfig(app.ModuleBasics)
 	cfg := network.Config{
 		Codec:             encoding.Codec,
 		TxConfig:          encoding.TxConfig,
@@ -62,21 +101,20 @@ func DefaultConfig() network.Config {
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
 			)
 		},
-		GenesisState:  app.ModuleBasics.DefaultGenesis(encoding.Codec),
-		TimeoutCommit: 2 * time.Second,
-		ChainID:       "stargazer-2061",
-		// Some changes are introduced to make the tests run as if Noble is a standalone chain.
-		// This will only work if NumValidators is set to 1.
+		GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Codec),
+		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
+		ChainID:         "stargazer-2061",
 		NumValidators:   1,
 		BondDenom:       sdk.DefaultBondDenom,
 		MinGasPrices:    fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),
-		AccountTokens:   sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction),
-		StakingTokens:   sdk.TokensFromConsensusPower(500, sdk.DefaultPowerReduction),
-		BondedTokens:    sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
+		AccountTokens:   sdk.TokensFromConsensusPower(thousand, sdk.DefaultPowerReduction),
+		StakingTokens:   sdk.TokensFromConsensusPower(fivehundred, sdk.DefaultPowerReduction),
+		BondedTokens:    sdk.TokensFromConsensusPower(onehundred, sdk.DefaultPowerReduction),
 		PruningStrategy: pruningtypes.PruningOptionNothing,
-		CleanupDir:      true,
-		SigningAlgo:     string(hd.Secp256k1Type),
-		KeyringOptions:  []keyring.Option{},
+		CleanupDir:      false,
+		SigningAlgo:     string(ethhd.EthSecp256k1Type),
+		KeyringOptions:  []keyring.Option{ethkeyring.EthSecp256k1Option()},
+		APIAddress:      "tcp://localhost:26657",
 	}
 
 	return cfg
