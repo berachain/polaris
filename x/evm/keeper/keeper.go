@@ -105,7 +105,9 @@ func NewKeeper(
 	plf := precompilelog.NewFactory()
 	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
-	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	ethMem := utils.MustGetAs[*mempool.EthTxPool](ethTxMempool)
+	ethMem.BuildNoncer(k.sp)
+	k.txp = txpool.NewPlugin(k.rpcProvider, ethMem)
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)

@@ -105,7 +105,7 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return p.mempool.GetTransaction(hash)
 }
 
+// `GetNonce` returns the nonce of the given address in the transaction pool.
 func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
-	// TODO: implement this
-	return 0, nil
+	return p.mempool.GetNonce(addr), nil
 }
