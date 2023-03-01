@@ -17,15 +17,15 @@ require (
 	cosmossdk.io/client/v2 v2.0.0-20230220152935-67f04e629623
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
-	cosmossdk.io/errors v1.0.0-beta.7
+	cosmossdk.io/errors v1.0.0-beta.7.0.20230228204446-44495e7a7934
 	cosmossdk.io/log v0.0.0-20230228204446-44495e7a7934
 	cosmossdk.io/math v1.0.0-beta.6.0.20230216172121-959ce49135e4
-	cosmossdk.io/simapp v0.0.0-20230227140543-7c9245dbdf19
-	cosmossdk.io/store v0.0.0-20230227103508-bbe7f8a11b44
+	cosmossdk.io/simapp v0.0.0-20230228204446-44495e7a7934
+	cosmossdk.io/store v0.0.0-20230228204446-44495e7a7934
 	cosmossdk.io/tools/confix v0.0.0-20230227140543-7c9245dbdf19
 	cosmossdk.io/x/evidence v0.1.0
 	cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff
-	cosmossdk.io/x/upgrade v0.0.0-20230227140543-7c9245dbdf19
+	cosmossdk.io/x/upgrade v0.0.0-20230228204446-44495e7a7934
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/bufbuild/buf v1.14.0
