@@ -36,7 +36,7 @@ var (
 	EthSign                 = crypto.Sign
 	EthSecp256k1Sign        = secp256k1.Sign
 	FromECDSA               = crypto.FromECDSA
-	GenerateEthKey          = crypto.GenerateKey
+	GenerateEthKey          = crypto.GeneraeKey
 	ValidateSignatureValues = crypto.ValidateSignatureValues
 	Keccak256               = crypto.Keccak256
 	Keccak256Hash           = crypto.Keccak256Hash
