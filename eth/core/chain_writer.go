@@ -69,5 +69,8 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 
 // `Finalize` finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
+	if bc.processor.block != nil {
+		bc.currentBlock.Store(bc.processor.block)
+	}
 	return bc.processor.Finalize(ctx)
 }

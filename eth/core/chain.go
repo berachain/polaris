@@ -78,6 +78,8 @@ type blockchain struct {
 	// `host` is the host chain that the Stargazer EVM is running on.
 	host StargazerHostChain
 
+	// `currentBlock` is the current block.
+	currentBlock atomic.Value
 	// `finalizedBlock` is the last finalized block.
 	finalizedBlock atomic.Value
 

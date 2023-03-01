@@ -204,7 +204,7 @@ func (sp *StateProcessor) ProcessTransaction(
 }
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
-func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
+func (sp *StateProcessor) Finalize(_ context.Context) (*types.StargazerBlock, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
