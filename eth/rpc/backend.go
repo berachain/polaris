@@ -115,7 +115,8 @@ func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 // `FeeHistory` returns the base fee and gas used history of the last N blocks.
 func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
-	b.logger.Info("called eth.rpc.backend.FeeHistory", "blockCount", blockCount, "lastBlock", lastBlock, "rewardPercentiles", rewardPercentiles)
+	b.logger.Info("called eth.rpc.backend.FeeHistory", "blockCount", blockCount,
+		"lastBlock", lastBlock, "rewardPercentiles", rewardPercentiles)
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
@@ -417,14 +418,16 @@ func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64
 	nonce, err := b.chain.Host().GetTxPoolPlugin().GetNonce(addr)
 	if err != nil {
 		// If we error, then we try to get the nonce from the state plugin as a fallback.
-		b.logger.Warn("eth.rpc.backend.GetPoolNonce failed to get nonce from mempool, "+
-			"falling back to state plugin",
+		b.logger.Warn(
+			"eth.rpc.backend.GetPoolNonce failed to get nonce from mempool, "+
+				"falling back to state plugin",
 			"addr", addr,
 			"err", err,
 		)
 		return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
 	}
-	b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce, "err", err)
+	b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr",
+		addr, "nonce", nonce, "err", err)
 	return nonce, nil
 }
 
@@ -544,12 +547,15 @@ func (b *backend) PeerCount() hexutil.Uint {
 // ==============================================================================
 
 // `stargazerBlockByNumberOrHash` returns the block identified by `number` or `hash`.
-func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) (*types.StargazerBlock, error) {
+func (b *backend) stargazerBlockByNumberOrHash(
+	blockNrOrHash BlockNumberOrHash,
+) (*types.StargazerBlock, error) {
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block, err := b.chain.GetStargazerBlockByHash(hash)
 		if err != nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
+			return nil, errorslib.Wrapf(ErrBlockNotFound,
+				"stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
 
 		// If the has is found, we have the canonical chain.
@@ -557,7 +563,8 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 			return block, nil
 		}
 		if blockNrOrHash.RequireCanonical {
-			return nil, errorslib.Wrapf(ErrHashNotCanonical, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
+			return nil, errorslib.Wrapf(ErrHashNotCanonical,
+				"stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
 		// If not we try to query by number as a backup.
 	}
@@ -566,7 +573,8 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		block, err := b.stargazerBlockByNumber(blockNr)
 		if err != nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: number [%d]", blockNr)
+			return nil, errorslib.Wrapf(ErrBlockNotFound,
+				"stargazerBlockByNumberOrHash: number [%d]", blockNr)
 		}
 		return block, nil
 	}
