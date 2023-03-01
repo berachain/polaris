@@ -68,7 +68,7 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Send the transaction to the CometBFT mempool, which will
 	// gossip it to peers via CometBFT's p2p layer.
 	syncCtx := p.rpcProvider.GetClientCtx().WithBroadcastMode(flags.BroadcastSync)
-
+	
 	rsp, err := syncCtx.BroadcastTx(txBytes)
 	if rsp != nil && rsp.Code != 0 {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
@@ -98,14 +98,14 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 
 // `GetAllTransactions` returns all transactions in the transaction pool.
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
-	return nil, nil
-	// return p.mempool.GetPoolTransactions(), nil
+	// return nil, nil
+	return p.mempool.GetPoolTransactions(), nil
 }
 
 // `GetTransactions` returns the transaction by hash in the transaction pool.
 func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	return nil
-	// return p.mempool.GetTransaction(hash)
+	// return nil
+	return p.mempool.GetTransaction(hash)
 }
 
 func (p *plugin) GetNonce(addr common.Address) uint64 {
