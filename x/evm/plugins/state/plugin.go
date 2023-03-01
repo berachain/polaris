@@ -476,18 +476,17 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 		return nil, errors.New("no query context function set in host chain")
 	}
 	// Handle rpc.BlockNumber negative numbers.
+	// TODO: considering moving this switch into the eth package so that implementing chains
+	// don't need to think about it.
 	var iavlHeight int64
 	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // golangci-lint bug?
-	case rpc.SafeBlockNumber:
-	case rpc.FinalizedBlockNumber:
+	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
 		iavlHeight = p.ctx.BlockHeight() - 1
-	case rpc.PendingBlockNumber:
-	case rpc.LatestBlockNumber:
+	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
-		// TODO: check, we might not be able to query
-		// the iavl tree at height 0.
-		iavlHeight = 0
+		// TODO: check, correctness, should this be height == 1?
+		iavlHeight = 1
 	default:
 		iavlHeight = number
 	}
