@@ -42,7 +42,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// Process the transaction and return the receipt.
 	// TODO: gas is fucked
 	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).WithKVGasConfig(storetypes.GasConfig{})
-	executionResult, err := k.stargazer.ProcessTransaction(ctx, tx)
+	result, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// TODO: determine if the above is actually correct.
 
 	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("End ProcessTransaction()")
-	return executionResult, err
+	return result, err
 }
 
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
