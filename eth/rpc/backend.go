@@ -103,13 +103,8 @@ func (b *backend) SyncProgress() ethereum.SyncProgress {
 
 // `SuggestGasTipCap` returns the recommended gas tip cap for a new transaction.
 func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
-	stc, err := b.gpo.SuggestTipCap(ctx)
-	if err != nil {
-		b.logger.Error("eth.rpc.backend.SuggestGasTipCap", "error", err)
-		return nil, errorslib.Wrap(err, "failed to get gas tip cap")
-	}
-	defer b.logger.Info("called eth.rpc.backend.SuggestGasTipCap", "suggested_tip_cap", stc)
-	return stc, nil
+	defer b.logger.Info("called eth.rpc.backend.SuggestGasTipCap", "suggested_tip_cap")
+	return b.gpo.SuggestTipCap(ctx)
 }
 
 // `FeeHistory` returns the base fee and gas used history of the last N blocks.
@@ -414,21 +409,8 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
-	// First we try to get the nonce from the txpool.
-	nonce, err := b.chain.Host().GetTxPoolPlugin().GetNonce(addr)
-	if err != nil {
-		// If we error, then we try to get the nonce from the state plugin as a fallback.
-		b.logger.Warn(
-			"eth.rpc.backend.GetPoolNonce failed to get nonce from mempool, "+
-				"falling back to state plugin",
-			"addr", addr,
-			"err", err,
-		)
-		return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
-	}
-	b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr",
-		addr, "nonce", nonce, "err", err)
-	return nonce, nil
+	// TODO: get pool nonce, then fallback to statedb.
+	return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
 }
 
 func (b *backend) Stats() (int, int) {

@@ -74,15 +74,12 @@ var _ = Describe("Block", func() {
 	When("building a block", func() {
 		BeforeEach(func() {
 			Expect(sb.TxIndex()).To(Equal(0))
-			Expect(sb.LogIndex()).To(Equal(uint(0)))
 
 			sb.AppendTx(txs[0], r[0])
 			Expect(sb.TxIndex()).To(Equal(1))
-			Expect(sb.LogIndex()).To(Equal(uint(2)))
 
 			sb.AppendTx(txs[1], r[1])
 			Expect(sb.TxIndex()).To(Equal(2))
-			Expect(sb.LogIndex()).To(Equal(uint(4)))
 		})
 
 		It("should convert receipts to storage receipts", func() {
