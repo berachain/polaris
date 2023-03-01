@@ -87,10 +87,10 @@ func NewKeeper(
 		storeKey:  storeKey,
 	}
 
-	// // TODO: parameterize kv store.
-	if appOpts != nil {
-		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
-	}
+	// // // TODO: parameterize kv store.
+	// if appOpts != nil {
+	// 	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	// }
 
 	// Setup the RPC Service. // TODO: parameterize config.
 	cfg := ethrpcconfig.DefaultServer()
