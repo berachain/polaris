@@ -56,8 +56,8 @@ message EthTransactionRequest {
 // EthTransactionResponse defines the Msg/EthereumTx response type.
 message EthTransactionResponse {
   option (gogoproto.goproto_getters) = false;
-  // `receipt` represents the json-encoded string of the ethereum receipt.
-  string receipt = 1;
+  // `receipt` represents the json-encoded bytes of the ethereum receipt.
+  bytes receipt = 1;
 }
 
 // ExtensionOptionsEthTransaction is an extension option for ethereum transactions
