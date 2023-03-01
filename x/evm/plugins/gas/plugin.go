@@ -69,14 +69,11 @@ func (p *plugin) Reset(ctx context.Context) {
 
 // `SetGasLimit` resets the gas limit of the underlying GasMeter.
 func (p *plugin) SetTxGasLimit(limit uint64) error {
-	_ = gasMeterDescriptor
-	// TODO: FIX THIS
-	// consumed := p.gasMeter.GasConsumed()
+	consumed := p.gasMeter.GasConsumed()
 	// The gas meter is reset to the new limit.
 	p.gasMeter = storetypes.NewGasMeter(limit)
 	// Re-consume the gas that was already consumed.
-	return nil
-	// return p.TxConsumeGas(consumed)
+	return p.TxConsumeGas(consumed)
 }
 
 // `BlockGasLimit` implements the core.GasPlugin interface.
@@ -87,7 +84,6 @@ func (p *plugin) BlockGasLimit() uint64 {
 // `TxConsumeGas` implements the core.GasPlugin interface.
 func (p *plugin) TxConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
-
 	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.gasMeter.Limit() {
@@ -95,6 +91,7 @@ func (p *plugin) TxConsumeGas(amount uint64) error {
 	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
 		return core.ErrBlockOutOfGas
 	}
+	// TODO: FIX GAS CONSUMPTION.
 	// p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
