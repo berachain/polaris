@@ -317,6 +317,8 @@ func NewSimApp( //nolint: funlen // from sdk.
 		ch,
 	)
 
+	// app.SetMempool(ethTxMempool)
+
 	// fmt.Println("TXCONFIG", app.txConfig)
 
 	// evmtx.SignModeEthTxHandler{},

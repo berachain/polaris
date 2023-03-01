@@ -23,6 +23,8 @@ package mempool
 import (
 	"context"
 
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
@@ -43,10 +45,12 @@ type EthTxPool interface {
 // ethereum transaction hash.
 type ethTxPool struct {
 	mempool.NoOpMempool // first iteration simply allows for
-
 	// `ethTxCache` caches transactions that are added to the mempool
 	// so that they can be retrieved later
 	ethTxCache map[common.Hash]*coretypes.Transaction
+
+	// `logger` is the logger for the mempool
+	logger log.Logger
 }
 
 // `New` is called when the mempool is created.
@@ -55,12 +59,14 @@ func NewEthTxPool() EthTxPool {
 		NoOpMempool: mempool.NoOpMempool{},
 		// PriorityNonceMempool: mempool.NewPriorityMempool(),
 		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
+		logger:     log.NewLogger().With("module", "evm/mempool"),
 	}
 }
 
 // `Insert` is called when a transaction is added to the mempool.
 func (etp *ethTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	// Call the base mempool's Insert method
+	etp.logger.Info("inserting tx into app side mempool", "tx", tx.GetMsgs()[0].String())
 	if err := etp.NoOpMempool.Insert(ctx, tx); err != nil {
 		return err
 	}
@@ -76,6 +82,7 @@ func (etp *ethTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 		panic("nil transaction")
 	}
 	etp.ethTxCache[t.Hash()] = t
+	etp.logger.Info("Caching eth tx", "tx", t.Hash())
 	return nil
 }
 
