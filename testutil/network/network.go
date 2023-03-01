@@ -114,7 +114,6 @@ func DefaultConfig() network.Config {
 		CleanupDir:      false,
 		SigningAlgo:     string(ethhd.EthSecp256k1Type),
 		KeyringOptions:  []keyring.Option{ethkeyring.EthSecp256k1Option()},
-		APIAddress:      "tcp://localhost:26657",
 	}
 
 	return cfg
