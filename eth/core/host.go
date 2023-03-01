@@ -62,7 +62,7 @@ type (
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
-		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
+		GetStargazerHeaderByNumber(number int64) (*types.StargazerHeader, error)
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
 		GetStargazerBlockByNumber(int64) *types.StargazerBlock
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
@@ -73,6 +73,9 @@ type (
 		GetTransactionBlockNumber(common.Hash) *big.Int
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
+		// `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
+		ProcessHeader(ctx sdk.Context) error
+		SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 	}
 
 	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.

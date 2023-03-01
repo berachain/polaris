@@ -21,16 +21,16 @@
 package block
 
 import (
+	"time"
+
 	storetypes "cosmossdk.io/store/types"
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
-	offchain "pkg.berachain.dev/stargazer/store/offchain"
+	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
 )
 
@@ -43,6 +43,9 @@ var _ = Describe("Block Plugin", func() {
 		sk := testutil.EvmKey // testing key.
 		p = utils.MustGetAs[*plugin](NewPlugin(offchain.NewFromDB(dbm.NewMemDB()), sk))
 		p.Prepare(ctx)
+		p.SetQueryContextFn(func(_ int64, _ bool) (sdk.Context, error) {
+			return ctx, nil
+		})
 	})
 
 	It("should give the constant base fee", func() {
@@ -50,19 +53,71 @@ var _ = Describe("Block Plugin", func() {
 	})
 
 	It("should get the header at current height", func() {
-		header := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
-		Expect(header.Hash()).To(Equal(header.Header.Hash()))
-		Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
+		now := time.Now()
+		ctx = ctx.WithBlockTime(now)
+		expectedTime := uint64(ctx.BlockHeader().Time.UTC().Unix()) // what the processor will do.
+		err := p.ProcessHeader(ctx)                                 // The processor will set the values.
+		Expect(err).To(BeNil())
+		header, err := p.GetStargazerHeaderByNumber(ctx.BlockHeight())
+		Expect(err).To(BeNil())
+		Expect(header.Time).To(Equal(expectedTime))
 	})
 
-	It("should return empty header for non-existent height", func() {
-		header := p.GetStargazerHeaderByNumber(100000)
-		Expect(*header).To(Equal(types.StargazerHeader{}))
-	})
+	It("should get the header at a previous height", func() {
+		firstCtx := testutil.NewContext().WithBlockHeight(1)
+		secondCtx := testutil.NewContext().WithBlockHeight(2)
+		thirdCtx := testutil.NewContext().WithBlockHeight(3)
 
-	It("should return header hash from context", func() {
-		ctx = ctx.WithHeaderHash([]byte("test"))
-		a := blockHashFromCosmosContext(ctx)
-		Expect(a).To(Equal(common.BytesToHash([]byte("test"))))
+		// Set the query context to return the different contexts.
+		p.SetQueryContextFn(func(height int64, _ bool) (sdk.Context, error) {
+			if height == 0 {
+				return ctx, nil
+			}
+
+			if height == 1 {
+				return firstCtx, nil
+			}
+
+			if height == 2 {
+				return secondCtx, nil
+			}
+
+			return thirdCtx, nil
+		})
+
+		// Set the first header and second header.
+		p.Prepare(firstCtx)
+		err := p.ProcessHeader(firstCtx)
+		Expect(err).To(BeNil())
+
+		// Check that the first header is set.
+		header, err := p.GetStargazerHeaderByNumber(1)
+		Expect(err).To(BeNil())
+		Expect(header.Number.Uint64()).To(Equal(uint64(1)))
+
+		// Set the second header.
+		p.Prepare(secondCtx)
+		err = p.ProcessHeader(secondCtx)
+		Expect(err).To(BeNil())
+
+		// Check that the second header is set.
+		header, err = p.GetStargazerHeaderByNumber(2)
+		Expect(err).To(BeNil())
+		Expect(header.Number.Uint64()).To(Equal(uint64(2)))
+
+		// Set the third header.
+		p.Prepare(thirdCtx)
+		err = p.ProcessHeader(thirdCtx)
+		Expect(err).To(BeNil())
+
+		// Check that the third header is set.
+		header, err = p.GetStargazerHeaderByNumber(3)
+		Expect(err).To(BeNil())
+		Expect(header.Number.Uint64()).To(Equal(uint64(3)))
+
+		// Check that the first header is still set.
+		header, err = p.GetStargazerHeaderByNumber(1)
+		Expect(err).To(BeNil())
+		Expect(header.Number.Uint64()).To(Equal(uint64(1)))
 	})
 })
