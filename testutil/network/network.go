@@ -36,8 +36,8 @@ import (
 
 	ethhd "pkg.berachain.dev/stargazer/crypto/hd"
 	ethkeyring "pkg.berachain.dev/stargazer/crypto/keyring"
-	app "pkg.berachain.dev/stargazer/testutil/app"
-	config "pkg.berachain.dev/stargazer/testutil/app/config"
+	runtime "pkg.berachain.dev/stargazer/runtime"
+	config "pkg.berachain.dev/stargazer/runtime/config"
 )
 
 type (
@@ -83,7 +83,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 // DefaultConfig will initialize config for the network with custom application,
 // genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig.
 func DefaultConfig() network.Config {
-	encoding := config.MakeEncodingConfig(app.ModuleBasics)
+	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
 	cfg := network.Config{
 		Codec:             encoding.Codec,
 		TxConfig:          encoding.TxConfig,
@@ -91,13 +91,13 @@ func DefaultConfig() network.Config {
 		InterfaceRegistry: encoding.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor: func(val network.ValidatorI) servertypes.Application {
-			return app.NewSimApp(
+			return runtime.NewStargazerApp(
 				val.GetCtx().Logger, cdb.NewMemDB(), nil, true, sims.EmptyAppOptions{},
 				baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
 			)
 		},
-		GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Codec),
+		GenesisState:    runtime.ModuleBasics.DefaultGenesis(encoding.Codec),
 		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
 		ChainID:         "stargazer-2061",
 		NumValidators:   1,
