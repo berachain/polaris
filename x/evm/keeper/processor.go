@@ -26,6 +26,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/stargazer/eth/core"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
@@ -37,11 +38,11 @@ func (k *Keeper) BeginBlocker(ctx context.Context) {
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
-func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
+func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
 	// Process the transaction and return the receipt.
 	// TODO: gas is fucked
 	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).WithKVGasConfig(storetypes.GasConfig{})
-	receipt, err := k.stargazer.ProcessTransaction(ctx, tx)
+	result, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// TODO: determine if the above is actually correct.
 
 	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("End ProcessTransaction()")
-	return receipt, err
+	return result, err
 }
 
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
