@@ -21,6 +21,8 @@
 package txpool
 
 import (
+	"errors"
+
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -105,7 +107,7 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return p.mempool.GetTransaction(hash)
 }
 
-func (p *plugin) GetNonce(addr common.Address) uint64 {
+func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
 	// TODO: implement this
-	return 0
+	return 0, errors.New("not implemented yet")
 }
