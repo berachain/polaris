@@ -28,17 +28,16 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	sgconfig "pkg.berachain.dev/stargazer/config"
 	"pkg.berachain.dev/stargazer/eth/accounts"
+	sgconfig "pkg.berachain.dev/stargazer/runtime/config"
 )
 
 func TestConfig(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "config")
+	RunSpecs(t, "runtime/config")
 }
 
 var _ = Describe("Configuration", func() {
-
 	It("should set Bech32 prefixes", func() {
 		config := sdk.GetConfig()
 
