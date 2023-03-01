@@ -137,7 +137,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
-) (*ExecutionResult, error) {
+) (*types.Receipt, error) {
 	txHash := tx.Hash()
 	msg, err := tx.AsMessage(sp.signer, sp.block.BaseFee)
 	if err != nil {
@@ -200,7 +200,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.block.AppendTx(tx, receipt)
 
 	// Return receipt to the caller.
-	return result, nil
+	return receipt, nil
 }
 
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.

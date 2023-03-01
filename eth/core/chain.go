@@ -50,7 +50,7 @@ type ChainWriter interface {
 	Prepare(context.Context, int64)
 	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
+	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
 	Finalize(context.Context) (*types.StargazerBlock, error)

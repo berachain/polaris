@@ -121,12 +121,14 @@ var _ = Describe("Processor", func() {
 			k.GetStatePlugin().Finalize()
 
 			// create the contract
-			result, err := k.ProcessTransaction(ctx, tx)
+			receipt, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).To(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(receipt.BlockNumber.Int64()).To(Equal(ctx.BlockHeight()))
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
+			Expect(len(k.GetStatePlugin().GetCode(receipt.ContractAddress))).NotTo(Equal(0))
+
 			// call the contract non-view function
-			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
-			legacyTxData.To = &deployAddress
+			legacyTxData.To = &receipt.ContractAddress
 			var solmateABI abi.ABI
 			err = solmateABI.UnmarshalJSON([]byte(generated.SolmateERC20ABI))
 			Expect(err).To(BeNil())
@@ -135,17 +137,18 @@ var _ = Describe("Processor", func() {
 			legacyTxData.Data = input
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
-			result, err = k.ProcessTransaction(ctx, tx)
+			receipt, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).To(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
+			Expect(len(receipt.Logs)).To(Equal(1))
 
 			// call the contract view function
 			legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
-			result, err = k.ProcessTransaction(ctx, tx)
+			receipt, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).To(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(receipt.Status).To(Equal(coretypes.ReceiptStatusSuccessful))
 		})
 	})
 })
