@@ -189,7 +189,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, "stargazerapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".stargazerapp")
 }
 
 // NewStargazerApp returns a reference to an initialized StargazerApp.
