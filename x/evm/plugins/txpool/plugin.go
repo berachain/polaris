@@ -21,8 +21,6 @@
 package txpool
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -67,7 +65,7 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
 
-	// for rpc
+	// // for rpc
 	p.SendPrivTx(signedEthTx)
 
 	// Send the transaction to the CometBFT mempool, which will
@@ -76,7 +74,6 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 
 	rsp, err := syncCtx.BroadcastTx(txBytes)
 	if rsp != nil && rsp.Code != 0 {
-		fmt.Println("ERROR", rsp)
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}
 	if err != nil {
