@@ -138,15 +138,15 @@ func (sp *StateProcessor) Prepare(ctx context.Context, height int64) {
 func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
 ) (*types.Receipt, error) {
+	txHash := tx.Hash()
 	msg, err := tx.AsMessage(sp.signer, sp.block.BaseFee)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not apply tx %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not apply tx %d [%s]", sp.block.TxIndex(), txHash.Hex())
 	}
 
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.SetTxContext(txContext)
-	txHash := tx.Hash()
 	sp.statedb.SetTxContext(txHash, sp.block.TxIndex())
 
 	// We also must reset the StateDB and precompile and gas plugins.
@@ -158,18 +158,18 @@ func (sp *StateProcessor) ProcessTransaction(
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
 	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
 	if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
-		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%s]", sp.block.TxIndex(), txHash.Hex())
 	}
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm.UnderlyingEVM(), msg, &gasPool)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not apply message %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not apply message %d [%s]", sp.block.TxIndex(), txHash.Hex())
 	}
 
 	// Consume the gas used by the state tranisition.
 	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {
-		return nil, errors.Wrapf(err, "could not consume gas used %d [%v]", sp.block.TxIndex(), tx.Hash().Hex())
+		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", sp.block.TxIndex(), txHash.Hex())
 	}
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used
@@ -179,21 +179,12 @@ func (sp *StateProcessor) ProcessTransaction(
 		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
-		BlockHash:         sp.block.Hash(),
-		BlockNumber:       sp.block.Number,
-		TransactionIndex:  uint(sp.block.TxIndex()),
 	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
-
-	// Set the receipt logs and create the bloom filter.
-	receipt.Logs = sp.statedb.GetLogs(
-		receipt.TxHash, sp.block.Number.Uint64(), sp.block.Hash(),
-	)
-	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
@@ -216,6 +207,16 @@ func (sp *StateProcessor) ProcessTransaction(
 func (sp *StateProcessor) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
+
+	blockHash := sp.block.Hash()
+	for txIndex, receipt := range sp.block.GetReceipts() {
+		// Set the receipt logs and create the bloom filter.
+		receipt.Logs = sp.statedb.GetLogs(receipt.TxHash, sp.block.Number.Uint64(), blockHash)
+		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
+		receipt.BlockHash = blockHash
+		receipt.BlockNumber = sp.block.Number
+		receipt.TransactionIndex = uint(txIndex)
+	}
 
 	sp.block.Finalize(sp.gp.CumulativeGasUsed())
 	return sp.block, nil

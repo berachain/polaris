@@ -40,8 +40,6 @@ type StargazerBlock struct {
 	*StargazerHeader
 	txs      Transactions
 	receipts Receipts
-	// `logIndex` is the index of the current log in the current block
-	logIndex uint
 }
 
 // `NewStargazerBlock` creates a new StargazerBlock from the given header.
@@ -58,15 +56,10 @@ func (sb *StargazerBlock) TxIndex() int {
 	return len(sb.txs)
 }
 
-func (sb *StargazerBlock) LogIndex() uint {
-	return sb.logIndex
-}
-
 // `AppendTx` appends a transaction and receipt to the block.
 func (sb *StargazerBlock) AppendTx(tx *Transaction, receipt *Receipt) {
 	sb.txs = append(sb.txs, tx)
 	sb.receipts = append(sb.receipts, receipt)
-	sb.logIndex += uint(len(receipt.Logs))
 }
 
 // `UnmarshalBinary` decodes a block from the Ethereum RLP format.

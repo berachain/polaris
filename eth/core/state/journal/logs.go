@@ -82,7 +82,7 @@ func (l *logs) Logs() []*coretypes.Log {
 	return buf
 }
 
-// `GetLogs` returns the logs for the tx with the given metadata.
+// `GetLogs` returns the logs for the tx with the given metadata and clears the journal.
 func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
