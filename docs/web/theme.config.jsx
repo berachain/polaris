@@ -7,7 +7,7 @@ export default {
     project: {
         link: 'https://github.com/berachain/stargazer',
     },
-    docsRepositoryBase: "http://github.com/berachain/stargazer",
+    docsRepositoryBase: "https://github.com/berachain/stargazer",
     useNextSeoProps() {
         const { route } = useRouter()
         if (route !== '/') {
