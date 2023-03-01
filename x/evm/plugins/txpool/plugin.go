@@ -72,7 +72,6 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Send the transaction to the CometBFT mempool, which will
 	// gossip it to peers via CometBFT's p2p layer.
 	syncCtx := p.rpcProvider.GetClientCtx().WithBroadcastMode(flags.BroadcastSync)
-
 	rsp, err := syncCtx.BroadcastTx(txBytes)
 	if rsp != nil && rsp.Code != 0 {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
