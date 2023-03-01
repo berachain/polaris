@@ -83,15 +83,15 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		// ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper), // in geth intrinsic
 		// ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-		// options.FeegrantKeeper, options.TxFeeChecker),
+		// options.FeegrantKeeper, options.TxFeeChecker), // in geth state transition
 		ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator m
 		// ust be called before all signature verification decorators
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		// ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		// ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		// ante.NewIncrementSequenceDecorator(options.AccountKeeper), // in state tranisiton
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
