@@ -74,7 +74,7 @@ func (p *plugin) GetStargazerHeaderByNumber(number int64) (*coretypes.StargazerH
 	if bz == nil {
 		return nil, errors.New("stargazer header not found")
 	}
-	if err := header.UnmarshalBinary(bz); err != nil {
+	if err = header.UnmarshalBinary(bz); err != nil {
 		return nil, err
 	}
 	return &header, nil

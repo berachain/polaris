@@ -20,16 +20,12 @@
 package block
 
 import (
-	"math/big"
-
 	storetypes "cosmossdk.io/store/types"
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
@@ -47,22 +43,10 @@ var _ = Describe("Header", func() {
 
 	It("set and get header", func() {
 		ctx = ctx.WithBlockHeight(1).WithProposer(sdk.ConsAddress([]byte("test")))
-		header := types.NewStargazerHeader(
-			&types.Header{
-				ParentHash:  common.Hash{0x01},
-				UncleHash:   common.Hash{0x02},
-				Coinbase:    common.Address{0x03},
-				Root:        common.Hash{0x04},
-				TxHash:      common.Hash{0x05},
-				ReceiptHash: common.Hash{0x06},
-				Number:      big.NewInt(1),
-			},
-			blockHashFromCosmosContext(ctx),
-		)
 		err := p.ProcessHeader(ctx)
 		Expect(err).To(BeNil())
 
-		header, err = p.GetStargazerHeaderByNumber(1)
+		header, err := p.GetStargazerHeaderByNumber(1)
 		header.Extra = nil // Processed as nil.
 		Expect(err).To(BeNil())
 
