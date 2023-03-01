@@ -94,7 +94,6 @@ func NewStargazerBackend(chain api.Chain, rpcConfig *config.Server) StargazerBac
 // `SyncProgress` returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
 	// Consider implementing this in the future.
-	b.logger.Warn("eth.rpc.backend.SyncProgress", "sync_progress", "not implemented")
 	return ethereum.SyncProgress{
 		CurrentBlock: 0,
 		HighestBlock: 0,
@@ -103,15 +102,12 @@ func (b *backend) SyncProgress() ethereum.SyncProgress {
 
 // `SuggestGasTipCap` returns the recommended gas tip cap for a new transaction.
 func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
-	defer b.logger.Info("eth.rpc.backend.SuggestGasTipCap", "suggested_tip_cap")
 	return b.gpo.SuggestTipCap(ctx)
 }
 
 // `FeeHistory` returns the base fee and gas used history of the last N blocks.
 func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
-	b.logger.Info("eth.rpc.backend.FeeHistory", "blockCount", blockCount,
-		"lastBlock", lastBlock, "rewardPercentiles", rewardPercentiles)
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
@@ -369,17 +365,15 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
-	b.logger.Info("eth.rpc.backend.SubscribeChainEvent", "ch", ch)
 	panic("SubscribeChainEvent not implemented")
 }
 
 func (b *backend) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription {
-	b.logger.Info("eth.rpc.backend.SubscribeChainHeadEvent", "ch", ch)
+	b.logger.Info("SubscribeChainHeadEvent")
 	return b.chain.SubscribeChainHeadEvent(ch)
 }
 
 func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.Subscription {
-	b.logger.Info("eth.rpc.backend.SubscribeChainSideEvent", "ch", ch)
 	panic("SubscribeChainSideEvent not implemented")
 }
 
@@ -394,17 +388,14 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 func (b *backend) GetTransaction(
 	ctx context.Context, txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	b.logger.Info("eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	return b.chain.GetTransaction(txHash)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
-	b.logger.Info("eth.rpc.backend.GetPoolTransactions")
 	return b.chain.Host().GetTxPoolPlugin().GetAllTransactions()
 }
 
 func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
-	b.logger.Info("eth.rpc.backend.GetPoolTransaction", "tx_hash", txHash)
 	return b.chain.Host().GetTxPoolPlugin().GetTransaction(txHash)
 }
 
@@ -452,15 +443,12 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 	number BlockNumber,
 ) (*types.Body, error) {
 	if number < 0 || hash == (common.Hash{}) {
-		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
 	block, err := b.stargazerBlockByNumberOrHash(BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if err != nil {
-		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, err
 	}
-	b.logger.Info("eth.rpc.backend.GetBody", "hash", hash, "number", number)
 	return block.EthBlock().Body(), nil
 }
 
@@ -474,7 +462,6 @@ func (b *backend) GetLogs(ctx context.Context, blockHash common.Hash,
 		BlockHash:   &blockHash,
 	})
 	if err != nil {
-		b.logger.Error("eth.rpc.backend.GetLogs", "number", number, "hash", blockHash)
 		return nil, err
 	}
 	receipts := block.GetReceipts()
@@ -529,9 +516,7 @@ func (b *backend) PeerCount() hexutil.Uint {
 // ==============================================================================
 
 // `stargazerBlockByNumberOrHash` returns the block identified by `number` or `hash`.
-func (b *backend) stargazerBlockByNumberOrHash(
-	blockNrOrHash BlockNumberOrHash,
-) (*types.StargazerBlock, error) {
+func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) (*types.StargazerBlock, error) {
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block, err := b.chain.GetStargazerBlockByHash(hash)
@@ -544,8 +529,7 @@ func (b *backend) stargazerBlockByNumberOrHash(
 			return block, nil
 		}
 		if blockNrOrHash.RequireCanonical {
-			return nil, errorslib.Wrapf(ErrHashNotCanonical,
-				"stargazerBlockByNumberOrHash: hash [%s]", hash.String())
+			return nil, errorslib.Wrapf(ErrHashNotCanonical, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
 		// If not we try to query by number as a backup.
 	}
