@@ -31,6 +31,7 @@ jobs:
       matrix:
         args: ["build", "lint", "testunitcover", "testintegrationcover"]
         os: [ubuntu-latest]
+        go-version: [1.20.1]
     runs-on: ${{ matrix.os }}
     steps:
       -
@@ -39,22 +40,13 @@ jobs:
       - 
         name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-      -
-        name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.20.1
-          check-latest: true
-          cache: true
-
-      - name: Cache Primes
-        id: cache-go-bin
-        uses: actions/cache@v3
-        with:
-          path: prime-numbers
-          key: ${{ runner.os }}-go-bin
       - 
-        name: Install Tools
+        name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - 
+        name: Install Go Tools
         run : |
            go run build/setup.go
       -
