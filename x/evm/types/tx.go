@@ -177,3 +177,15 @@ func (etr *EthTransactionRequest) ValidateBasic() error {
 
 	return nil
 }
+
+// `SetReceiept` sets the transaction receipt.
+func BuildEthTransactionRespWithReceipt(receipt *coretypes.Receipt) (*EthTransactionResponse, error) {
+	etr := new(EthTransactionResponse)
+
+	var err error
+	etr.Receipt, err = receipt.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return etr, nil
+}
