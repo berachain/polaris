@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 
 export default {
     logo: <span>✨ Stargazer</span>,
+    logoLink: '/docs',
     project: {
         link: 'https://github.com/berachain/stargazer',
     },

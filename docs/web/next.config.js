@@ -6,7 +6,28 @@ const withNextra = require('nextra')({
 
 })
  
-module.exports = withNextra()
+/** @type {import('next').NextConfig} */
+const config = {
+  i18n: {
+    locales: ['en-US'],
+    defaultLocale: 'en-US',
+  },
+  reactStrictMode: true,
+  typescript: {
+    // Disable type checking since eslint handles this
+    ignoreBuildErrors: true,
+  },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/docs',
+        permanent: false,
+      }
+    ];
+  },
+};
+module.exports = withNextra(config)
  
 // If you have other Next.js configurations, you can pass them as the parameter:
 // module.exports = withNextra({ /* other next.js config */ })
