@@ -90,7 +90,7 @@ func (p *plugin) GetStargazerHeaderByNumber(height int64) *coretypes.StargazerHe
 
 // `GetNewStargazerHeader` builds an ethereum style block header from the current
 // context.
-func (p *plugin) GetNewStargazerHeaderWithBlockNumber(ctx context.Context, number int64) *coretypes.StargazerHeader {
+func (p *plugin) NewStargazerHeaderWithBlockNumber(ctx context.Context, number int64) *coretypes.StargazerHeader {
 	cometHeader := p.ctx.BlockHeader()
 
 	if cometHeader.Height != number {
