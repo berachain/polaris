@@ -71,7 +71,7 @@ func BuildStargazerApp() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./testutil/app/cmd/" + cmd,
+		"./runtime/cmd/" + cmd,
 	}
 	return goBuild(args...)
 }
@@ -127,7 +127,7 @@ func Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./testutil/app/cmd/stargazerd",
+		"./runtime/cmd/stargazerd",
 	}
 
 	return goInstall(args...)

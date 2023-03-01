@@ -27,8 +27,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"pkg.berachain.dev/stargazer/config"
 	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/runtime/config"
 )
 
 func TestAddress(t *testing.T) {
