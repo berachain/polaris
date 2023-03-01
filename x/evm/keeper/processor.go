@@ -68,7 +68,10 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", stargazerBlock.Header)
 
 	// Save the historical stargazer header in the IAVL Tree.
-	k.bp.ProcessHeader(sCtx, stargazerBlock.StargazerHeader)
+	err = k.bp.ProcessHeader(sCtx, stargazerBlock.StargazerHeader)
+	if err != nil {
+		panic(err)
+	}
 
 	// TODO: this is sketchy and needs to be refactored later.
 	// Save the block data to the off-chain storage.

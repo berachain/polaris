@@ -22,6 +22,7 @@ package mock
 
 import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 )

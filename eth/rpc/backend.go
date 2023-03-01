@@ -331,7 +331,7 @@ func (b *backend) GetTransaction(
 	block := b.chain.CurrentBlock()
 	tx, idx, err := b.getTransactionFromBlock(block, txHash)
 	if err == nil {
-		return tx, block.Hash(), block.Number.Uint64(), uint64(idx), nil
+		return tx, block.Hash(), block.Number.Uint64(), idx, nil
 	}
 
 	// 2. check for transaction in offchain storage
