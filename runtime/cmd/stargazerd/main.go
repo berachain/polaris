@@ -18,27 +18,30 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package simapp
+package main
 
 import (
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec/types"
+	"os"
 
-	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
+	"github.com/cosmos/cosmos-sdk/server"
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+
+	simapp "pkg.berachain.dev/stargazer/runtime"
+	"pkg.berachain.dev/stargazer/runtime/cmd/stargazerd/cmd"
+	"pkg.berachain.dev/stargazer/runtime/config"
 )
 
-// `StargazerAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
-func StargazerAppOptions(
-	interfaceRegistry types.InterfaceRegistry, baseAppOptions ...func(*baseapp.BaseApp),
-) []func(*baseapp.BaseApp) {
-	stargazerAppOptions := baseAppOptions
-	stargazerAppOptions = append(
-		stargazerAppOptions,
-		[]func(bApp *baseapp.BaseApp){
-			func(bApp *baseapp.BaseApp) {
-				cryptocodec.RegisterInterfaces(interfaceRegistry)
-			},
-		}...,
-	)
-	return stargazerAppOptions
+func main() {
+	config.SetupCosmosConfig()
+	rootCmd := cmd.NewRootCmd()
+	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
+		//nolint: errorlint // uhh fix?
+		switch e := err.(type) {
+		case server.ErrorCode:
+			os.Exit(e.Code)
+
+		default:
+			os.Exit(1)
+		}
+	}
 }

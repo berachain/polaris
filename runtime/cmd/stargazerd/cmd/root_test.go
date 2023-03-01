@@ -31,13 +31,13 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	simapp "pkg.berachain.dev/stargazer/testutil/app"
-	"pkg.berachain.dev/stargazer/testutil/app/cmd/stargazerd/cmd"
+	simapp "pkg.berachain.dev/stargazer/runtime"
+	"pkg.berachain.dev/stargazer/runtime/cmd/stargazerd/cmd"
 )
 
 func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "testutil/app/cmd/stargazerd/cmd:integration")
+	RunSpecs(t, "runtime/cmd/stargazerd/cmd:integration")
 }
 
 var _ = Describe("Init command", func() {

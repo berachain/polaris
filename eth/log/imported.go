@@ -54,4 +54,8 @@ var (
 
 	// `LvlCrit` is the critical log level.
 	LvlCrit = log.LvlCrit
+
+	// `FuncHandler` is the function handler for overriding the logging method within
+	// the go-ethereum codebase.
+	FuncHandler = log.FuncHandler
 )

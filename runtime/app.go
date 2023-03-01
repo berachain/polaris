@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:revive // embed.
-package simapp
+package runtime
 
 import (
 	_ "embed"
@@ -95,7 +95,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
-	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
+	simappconfig "pkg.berachain.dev/stargazer/runtime/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
@@ -142,14 +142,14 @@ var (
 )
 
 var (
-	_ runtime.AppI            = (*SimApp)(nil)
-	_ servertypes.Application = (*SimApp)(nil)
+	_ runtime.AppI            = (*StargazerApp)(nil)
+	_ servertypes.Application = (*StargazerApp)(nil)
 )
 
-// SimApp extends an ABCI application, but with most of its parameters exported.
+// StargazerApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type SimApp struct {
+type StargazerApp struct {
 	*runtime.App
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -189,20 +189,20 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".simapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".stargazerapp")
 }
 
-// NewSimApp returns a reference to an initialized SimApp.
-func NewSimApp( //nolint: funlen // from sdk.
+// NewStargazerApp returns a reference to an initialized StargazerApp.
+func NewStargazerApp( //nolint: funlen // from sdk.
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *SimApp {
+) *StargazerApp {
 	var (
-		app        = &SimApp{}
+		app        = &StargazerApp{}
 		appBuilder *runtime.AppBuilder
 		// Below we could construct and set an application specific mempool and ABCI 1.0 Prepare and Process Proposal
 		// handlers. These defaults are already set in the SDK's BaseApp, this shows an example of how to override
@@ -379,43 +379,43 @@ func extOptCheckerfunc(a *codectypes.Any) bool {
 }
 
 // Name returns the name of the App.
-func (app *SimApp) Name() string { return app.BaseApp.Name() }
+func (app *StargazerApp) Name() string { return app.BaseApp.Name() }
 
-// LegacyAmino returns SimApp's amino codec.
+// LegacyAmino returns StargazerApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *SimApp) LegacyAmino() *codec.LegacyAmino {
+func (app *StargazerApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
-// AppCodec returns SimApp's app codec.
+// AppCodec returns StargazerApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *SimApp) AppCodec() codec.Codec {
+func (app *StargazerApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns SimApp's InterfaceRegistry.
-func (app *SimApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+// InterfaceRegistry returns StargazerApp's InterfaceRegistry.
+func (app *StargazerApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns SimApp's TxConfig.
-func (app *SimApp) TxConfig() client.TxConfig {
+// TxConfig returns StargazerApp's TxConfig.
+func (app *StargazerApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // AutoCliOpts returns the autocli options for the app.
-func (app *SimApp) AutoCliOpts() autocli.AppOptions {
+func (app *StargazerApp) AutoCliOpts() autocli.AppOptions {
 	return app.autoCliOpts
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *StargazerApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
@@ -423,7 +423,7 @@ func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
-func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+func (app *StargazerApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
 		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
@@ -437,19 +437,19 @@ func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *SimApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *StargazerApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface.
-func (app *SimApp) SimulationManager() *module.SimulationManager {
+func (app *StargazerApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *StargazerApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {

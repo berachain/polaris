@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:nonamedreturns // for now.
-package simapp
+package runtime
 
 import (
 	"encoding/json"
@@ -38,7 +38,7 @@ import (
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool,
+func (app *StargazerApp) ExportAppStateAndValidators(forZeroHeight bool,
 	jailAllowedAddrs []string, modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
@@ -76,7 +76,7 @@ func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool,
 //	in favour of export at a block height
 //
 //nolint:funlen,gocognit // from sdk.
-func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+func (app *StargazerApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list

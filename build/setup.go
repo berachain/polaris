@@ -57,7 +57,7 @@ func main() {
 	}
 
 	if err = setupFoundry(); err != nil {
-		panic(err)
+		fmt.Println("Skipping foundryup, please install manually.")
 	}
 
 	if err = setupGoDeps(); err != nil {
