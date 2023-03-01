@@ -57,7 +57,7 @@ func main() {
 	}
 
 	if err = setupFoundry(); err != nil {
-		panic(err)
+		fmt.Println("WARNING: failed to setup foundry: " + err.Error())
 	}
 
 	if err = setupGoDeps(); err != nil {
