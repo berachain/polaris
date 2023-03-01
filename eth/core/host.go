@@ -24,7 +24,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/state"
@@ -64,8 +63,6 @@ type (
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
-		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
-		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
 		GetStargazerBlockByNumber(int64) *types.StargazerBlock
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
 		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
@@ -75,15 +72,12 @@ type (
 		GetTransactionBlockNumber(common.Hash) *big.Int
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
-		// `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
-		// heights that are below pruning height.
-		TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.StargazerHeader)
-		// `GetStargazerBlock` returns the block from the store at the height specified in the context.
-		GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool)
-		// `SetStargazerHeader` saves a block to the store.
-		SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error
-		// `PruneStargazerHeader` prunes a stargazer block from the store.
-		PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error
+		// `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
+		PrepareHeader(ctx sdk.Context, header *types.StargazerHeader) *types.StargazerHeader
+		// `GetStargazerHeaderByNumber` returns the stargazer header for the given block number.
+		GetStargazerHeaderByNumber(number int64) (*types.StargazerHeader, error)
+		// `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
+		ProcessHeader(ctx sdk.Context, header *types.StargazerHeader) error
 	}
 
 	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.

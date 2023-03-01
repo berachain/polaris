@@ -93,7 +93,7 @@ var _ = Describe("StateProcessor", func() {
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(number int64) (*types.StargazerHeader, error) {
 			header := types.NewEmptyStargazerHeader()
 			header.GasLimit = blockGasLimit
 			header.BaseFee = big.NewInt(1)
@@ -102,7 +102,7 @@ var _ = Describe("StateProcessor", func() {
 			header.Time = uint64(3)
 			header.Difficulty = new(big.Int)
 			header.MixDigest = common.BytesToHash([]byte{})
-			return header
+			return header, nil
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
@@ -234,12 +234,12 @@ var _ = Describe("No precompile plugin provided", func() {
 		bp := mock.NewBlockPluginMock()
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
-		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(number int64) (*types.StargazerHeader, error) {
 			header := types.NewEmptyStargazerHeader()
 			header.GasLimit = 1000000
 			header.Number = new(big.Int)
 			header.Difficulty = new(big.Int)
-			return header
+			return header, nil
 		}
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
@@ -295,20 +295,19 @@ var _ = Describe("GetHashFn", func() {
 		sp = core.NewStateProcessor(host, sdb, vm.Config{}, true)
 		Expect(sp).ToNot(BeNil())
 		blockGasLimit = 1000000
-
-		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
+		bp.GetStargazerHeaderByNumberFunc = func(number int64) (*types.StargazerHeader, error) {
 			return types.NewStargazerHeader(
 				&types.Header{
-					Number:     big.NewInt(height),
+					Number:     big.NewInt(number),
 					BaseFee:    big.NewInt(69),
 					GasLimit:   blockGasLimit,
-					ParentHash: common.BytesToHash([]byte{uint8(height) - 1}),
+					ParentHash: common.BytesToHash([]byte{uint8(number) - 1}),
 					Time:       uint64(time.Now().Unix()),
 					Difficulty: big.NewInt(0),
 					MixDigest:  common.Hash{},
 				},
-				crypto.Keccak256Hash([]byte{byte(height)}),
-			)
+				crypto.Keccak256Hash([]byte{byte(number)}),
+			), nil
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false

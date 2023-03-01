@@ -7,8 +7,10 @@ import (
 	"context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	ethereumcoretypes "github.com/ethereum/go-ethereum/core/types"
+	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/types"
+	ethcoretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"sync"
 )
 
@@ -25,29 +27,29 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() uint64 {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetStargazerBlockByHashFunc: func(hash common.Hash) *types.StargazerBlock {
+//			GetStargazerBlockByHashFunc: func(hash common.Hash) *ethcoretypes.StargazerBlock {
 //				panic("mock out the GetStargazerBlockByHash method")
 //			},
-//			GetStargazerBlockByNumberFunc: func(n int64) *types.StargazerBlock {
+//			GetStargazerBlockByNumberFunc: func(n int64) *ethcoretypes.StargazerBlock {
 //				panic("mock out the GetStargazerBlockByNumber method")
 //			},
-//			GetStargazerHeaderFunc: func(ctx sdk.Context, height int64) (*types.StargazerHeader, bool) {
-//				panic("mock out the GetStargazerHeader method")
-//			},
-//			GetStargazerHeaderByNumberFunc: func(n int64) *types.StargazerHeader {
+//			GetStargazerHeaderByNumberFunc: func(number int64) (*ethcoretypes.StargazerHeader, error) {
 //				panic("mock out the GetStargazerHeaderByNumber method")
+//			},
+//			GetTransactionBlockNumberFunc: func(hash common.Hash) *big.Int {
+//				panic("mock out the GetTransactionBlockNumber method")
+//			},
+//			GetTransactionByHashFunc: func(hash common.Hash) *ethereumcoretypes.Transaction {
+//				panic("mock out the GetTransactionByHash method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
-//			PruneStargazerHeaderFunc: func(ctx sdk.Context, header *types.StargazerHeader) error {
-//				panic("mock out the PruneStargazerHeader method")
+//			PrepareHeaderFunc: func(ctx sdk.Context, header *ethcoretypes.StargazerHeader) *ethcoretypes.StargazerHeader {
+//				panic("mock out the PrepareHeader method")
 //			},
-//			SetStargazerHeaderFunc: func(ctx sdk.Context, header *types.StargazerHeader) error {
-//				panic("mock out the SetStargazerHeader method")
-//			},
-//			TrackHistoricalStargazerHeaderFunc: func(ctx sdk.Context, header *types.StargazerHeader)  {
-//				panic("mock out the TrackHistoricalStargazerHeader method")
+//			ProcessHeaderFunc: func(ctx sdk.Context, header *ethcoretypes.StargazerHeader) error {
+//				panic("mock out the ProcessHeader method")
 //			},
 //		}
 //
@@ -60,28 +62,28 @@ type BlockPluginMock struct {
 	BaseFeeFunc func() uint64
 
 	// GetStargazerBlockByHashFunc mocks the GetStargazerBlockByHash method.
-	GetStargazerBlockByHashFunc func(hash common.Hash) *types.StargazerBlock
+	GetStargazerBlockByHashFunc func(hash common.Hash) *ethcoretypes.StargazerBlock
 
 	// GetStargazerBlockByNumberFunc mocks the GetStargazerBlockByNumber method.
-	GetStargazerBlockByNumberFunc func(n int64) *types.StargazerBlock
-
-	// GetStargazerHeaderFunc mocks the GetStargazerHeader method.
-	GetStargazerHeaderFunc func(ctx sdk.Context, height int64) (*types.StargazerHeader, bool)
+	GetStargazerBlockByNumberFunc func(n int64) *ethcoretypes.StargazerBlock
 
 	// GetStargazerHeaderByNumberFunc mocks the GetStargazerHeaderByNumber method.
-	GetStargazerHeaderByNumberFunc func(n int64) *types.StargazerHeader
+	GetStargazerHeaderByNumberFunc func(number int64) (*ethcoretypes.StargazerHeader, error)
+
+	// GetTransactionBlockNumberFunc mocks the GetTransactionBlockNumber method.
+	GetTransactionBlockNumberFunc func(hash common.Hash) *big.Int
+
+	// GetTransactionByHashFunc mocks the GetTransactionByHash method.
+	GetTransactionByHashFunc func(hash common.Hash) *ethereumcoretypes.Transaction
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
-	// PruneStargazerHeaderFunc mocks the PruneStargazerHeader method.
-	PruneStargazerHeaderFunc func(ctx sdk.Context, header *types.StargazerHeader) error
+	// PrepareHeaderFunc mocks the PrepareHeader method.
+	PrepareHeaderFunc func(ctx sdk.Context, header *ethcoretypes.StargazerHeader) *ethcoretypes.StargazerHeader
 
-	// SetStargazerHeaderFunc mocks the SetStargazerHeader method.
-	SetStargazerHeaderFunc func(ctx sdk.Context, header *types.StargazerHeader) error
-
-	// TrackHistoricalStargazerHeaderFunc mocks the TrackHistoricalStargazerHeader method.
-	TrackHistoricalStargazerHeaderFunc func(ctx sdk.Context, header *types.StargazerHeader)
+	// ProcessHeaderFunc mocks the ProcessHeader method.
+	ProcessHeaderFunc func(ctx sdk.Context, header *ethcoretypes.StargazerHeader) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -98,54 +100,50 @@ type BlockPluginMock struct {
 			// N is the n argument value.
 			N int64
 		}
-		// GetStargazerHeader holds details about calls to the GetStargazerHeader method.
-		GetStargazerHeader []struct {
-			// Ctx is the ctx argument value.
-			Ctx sdk.Context
-			// Height is the height argument value.
-			Height int64
-		}
 		// GetStargazerHeaderByNumber holds details about calls to the GetStargazerHeaderByNumber method.
 		GetStargazerHeaderByNumber []struct {
-			// N is the n argument value.
-			N int64
+			// Number is the number argument value.
+			Number int64
+		}
+		// GetTransactionBlockNumber holds details about calls to the GetTransactionBlockNumber method.
+		GetTransactionBlockNumber []struct {
+			// Hash is the hash argument value.
+			Hash common.Hash
+		}
+		// GetTransactionByHash holds details about calls to the GetTransactionByHash method.
+		GetTransactionByHash []struct {
+			// Hash is the hash argument value.
+			Hash common.Hash
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
 			ContextMoqParam context.Context
 		}
-		// PruneStargazerHeader holds details about calls to the PruneStargazerHeader method.
-		PruneStargazerHeader []struct {
+		// PrepareHeader holds details about calls to the PrepareHeader method.
+		PrepareHeader []struct {
 			// Ctx is the ctx argument value.
 			Ctx sdk.Context
 			// Header is the header argument value.
-			Header *types.StargazerHeader
+			Header *ethcoretypes.StargazerHeader
 		}
-		// SetStargazerHeader holds details about calls to the SetStargazerHeader method.
-		SetStargazerHeader []struct {
+		// ProcessHeader holds details about calls to the ProcessHeader method.
+		ProcessHeader []struct {
 			// Ctx is the ctx argument value.
 			Ctx sdk.Context
 			// Header is the header argument value.
-			Header *types.StargazerHeader
-		}
-		// TrackHistoricalStargazerHeader holds details about calls to the TrackHistoricalStargazerHeader method.
-		TrackHistoricalStargazerHeader []struct {
-			// Ctx is the ctx argument value.
-			Ctx sdk.Context
-			// Header is the header argument value.
-			Header *types.StargazerHeader
+			Header *ethcoretypes.StargazerHeader
 		}
 	}
-	lockBaseFee                        sync.RWMutex
-	lockGetStargazerBlockByHash        sync.RWMutex
-	lockGetStargazerBlockByNumber      sync.RWMutex
-	lockGetStargazerHeader             sync.RWMutex
-	lockGetStargazerHeaderByNumber     sync.RWMutex
-	lockPrepare                        sync.RWMutex
-	lockPruneStargazerHeader           sync.RWMutex
-	lockSetStargazerHeader             sync.RWMutex
-	lockTrackHistoricalStargazerHeader sync.RWMutex
+	lockBaseFee                    sync.RWMutex
+	lockGetStargazerBlockByHash    sync.RWMutex
+	lockGetStargazerBlockByNumber  sync.RWMutex
+	lockGetStargazerHeaderByNumber sync.RWMutex
+	lockGetTransactionBlockNumber  sync.RWMutex
+	lockGetTransactionByHash       sync.RWMutex
+	lockPrepare                    sync.RWMutex
+	lockPrepareHeader              sync.RWMutex
+	lockProcessHeader              sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
@@ -176,7 +174,7 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 }
 
 // GetStargazerBlockByHash calls GetStargazerBlockByHashFunc.
-func (mock *BlockPluginMock) GetStargazerBlockByHash(hash common.Hash) *types.StargazerBlock {
+func (mock *BlockPluginMock) GetStargazerBlockByHash(hash common.Hash) *ethcoretypes.StargazerBlock {
 	if mock.GetStargazerBlockByHashFunc == nil {
 		panic("BlockPluginMock.GetStargazerBlockByHashFunc: method is nil but BlockPlugin.GetStargazerBlockByHash was just called")
 	}
@@ -208,7 +206,7 @@ func (mock *BlockPluginMock) GetStargazerBlockByHashCalls() []struct {
 }
 
 // GetStargazerBlockByNumber calls GetStargazerBlockByNumberFunc.
-func (mock *BlockPluginMock) GetStargazerBlockByNumber(n int64) *types.StargazerBlock {
+func (mock *BlockPluginMock) GetStargazerBlockByNumber(n int64) *ethcoretypes.StargazerBlock {
 	if mock.GetStargazerBlockByNumberFunc == nil {
 		panic("BlockPluginMock.GetStargazerBlockByNumberFunc: method is nil but BlockPlugin.GetStargazerBlockByNumber was just called")
 	}
@@ -239,56 +237,20 @@ func (mock *BlockPluginMock) GetStargazerBlockByNumberCalls() []struct {
 	return calls
 }
 
-// GetStargazerHeader calls GetStargazerHeaderFunc.
-func (mock *BlockPluginMock) GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool) {
-	if mock.GetStargazerHeaderFunc == nil {
-		panic("BlockPluginMock.GetStargazerHeaderFunc: method is nil but BlockPlugin.GetStargazerHeader was just called")
-	}
-	callInfo := struct {
-		Ctx    sdk.Context
-		Height int64
-	}{
-		Ctx:    ctx,
-		Height: height,
-	}
-	mock.lockGetStargazerHeader.Lock()
-	mock.calls.GetStargazerHeader = append(mock.calls.GetStargazerHeader, callInfo)
-	mock.lockGetStargazerHeader.Unlock()
-	return mock.GetStargazerHeaderFunc(ctx, height)
-}
-
-// GetStargazerHeaderCalls gets all the calls that were made to GetStargazerHeader.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetStargazerHeaderCalls())
-func (mock *BlockPluginMock) GetStargazerHeaderCalls() []struct {
-	Ctx    sdk.Context
-	Height int64
-} {
-	var calls []struct {
-		Ctx    sdk.Context
-		Height int64
-	}
-	mock.lockGetStargazerHeader.RLock()
-	calls = mock.calls.GetStargazerHeader
-	mock.lockGetStargazerHeader.RUnlock()
-	return calls
-}
-
 // GetStargazerHeaderByNumber calls GetStargazerHeaderByNumberFunc.
-func (mock *BlockPluginMock) GetStargazerHeaderByNumber(n int64) *types.StargazerHeader {
+func (mock *BlockPluginMock) GetStargazerHeaderByNumber(number int64) (*ethcoretypes.StargazerHeader, error) {
 	if mock.GetStargazerHeaderByNumberFunc == nil {
 		panic("BlockPluginMock.GetStargazerHeaderByNumberFunc: method is nil but BlockPlugin.GetStargazerHeaderByNumber was just called")
 	}
 	callInfo := struct {
-		N int64
+		Number int64
 	}{
-		N: n,
+		Number: number,
 	}
 	mock.lockGetStargazerHeaderByNumber.Lock()
 	mock.calls.GetStargazerHeaderByNumber = append(mock.calls.GetStargazerHeaderByNumber, callInfo)
 	mock.lockGetStargazerHeaderByNumber.Unlock()
-	return mock.GetStargazerHeaderByNumberFunc(n)
+	return mock.GetStargazerHeaderByNumberFunc(number)
 }
 
 // GetStargazerHeaderByNumberCalls gets all the calls that were made to GetStargazerHeaderByNumber.
@@ -296,14 +258,78 @@ func (mock *BlockPluginMock) GetStargazerHeaderByNumber(n int64) *types.Stargaze
 //
 //	len(mockedBlockPlugin.GetStargazerHeaderByNumberCalls())
 func (mock *BlockPluginMock) GetStargazerHeaderByNumberCalls() []struct {
-	N int64
+	Number int64
 } {
 	var calls []struct {
-		N int64
+		Number int64
 	}
 	mock.lockGetStargazerHeaderByNumber.RLock()
 	calls = mock.calls.GetStargazerHeaderByNumber
 	mock.lockGetStargazerHeaderByNumber.RUnlock()
+	return calls
+}
+
+// GetTransactionBlockNumber calls GetTransactionBlockNumberFunc.
+func (mock *BlockPluginMock) GetTransactionBlockNumber(hash common.Hash) *big.Int {
+	if mock.GetTransactionBlockNumberFunc == nil {
+		panic("BlockPluginMock.GetTransactionBlockNumberFunc: method is nil but BlockPlugin.GetTransactionBlockNumber was just called")
+	}
+	callInfo := struct {
+		Hash common.Hash
+	}{
+		Hash: hash,
+	}
+	mock.lockGetTransactionBlockNumber.Lock()
+	mock.calls.GetTransactionBlockNumber = append(mock.calls.GetTransactionBlockNumber, callInfo)
+	mock.lockGetTransactionBlockNumber.Unlock()
+	return mock.GetTransactionBlockNumberFunc(hash)
+}
+
+// GetTransactionBlockNumberCalls gets all the calls that were made to GetTransactionBlockNumber.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.GetTransactionBlockNumberCalls())
+func (mock *BlockPluginMock) GetTransactionBlockNumberCalls() []struct {
+	Hash common.Hash
+} {
+	var calls []struct {
+		Hash common.Hash
+	}
+	mock.lockGetTransactionBlockNumber.RLock()
+	calls = mock.calls.GetTransactionBlockNumber
+	mock.lockGetTransactionBlockNumber.RUnlock()
+	return calls
+}
+
+// GetTransactionByHash calls GetTransactionByHashFunc.
+func (mock *BlockPluginMock) GetTransactionByHash(hash common.Hash) *ethereumcoretypes.Transaction {
+	if mock.GetTransactionByHashFunc == nil {
+		panic("BlockPluginMock.GetTransactionByHashFunc: method is nil but BlockPlugin.GetTransactionByHash was just called")
+	}
+	callInfo := struct {
+		Hash common.Hash
+	}{
+		Hash: hash,
+	}
+	mock.lockGetTransactionByHash.Lock()
+	mock.calls.GetTransactionByHash = append(mock.calls.GetTransactionByHash, callInfo)
+	mock.lockGetTransactionByHash.Unlock()
+	return mock.GetTransactionByHashFunc(hash)
+}
+
+// GetTransactionByHashCalls gets all the calls that were made to GetTransactionByHash.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.GetTransactionByHashCalls())
+func (mock *BlockPluginMock) GetTransactionByHashCalls() []struct {
+	Hash common.Hash
+} {
+	var calls []struct {
+		Hash common.Hash
+	}
+	mock.lockGetTransactionByHash.RLock()
+	calls = mock.calls.GetTransactionByHash
+	mock.lockGetTransactionByHash.RUnlock()
 	return calls
 }
 
@@ -339,110 +365,74 @@ func (mock *BlockPluginMock) PrepareCalls() []struct {
 	return calls
 }
 
-// PruneStargazerHeader calls PruneStargazerHeaderFunc.
-func (mock *BlockPluginMock) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-	if mock.PruneStargazerHeaderFunc == nil {
-		panic("BlockPluginMock.PruneStargazerHeaderFunc: method is nil but BlockPlugin.PruneStargazerHeader was just called")
+// PrepareHeader calls PrepareHeaderFunc.
+func (mock *BlockPluginMock) PrepareHeader(ctx sdk.Context, header *ethcoretypes.StargazerHeader) *ethcoretypes.StargazerHeader {
+	if mock.PrepareHeaderFunc == nil {
+		panic("BlockPluginMock.PrepareHeaderFunc: method is nil but BlockPlugin.PrepareHeader was just called")
 	}
 	callInfo := struct {
 		Ctx    sdk.Context
-		Header *types.StargazerHeader
+		Header *ethcoretypes.StargazerHeader
 	}{
 		Ctx:    ctx,
 		Header: header,
 	}
-	mock.lockPruneStargazerHeader.Lock()
-	mock.calls.PruneStargazerHeader = append(mock.calls.PruneStargazerHeader, callInfo)
-	mock.lockPruneStargazerHeader.Unlock()
-	return mock.PruneStargazerHeaderFunc(ctx, header)
+	mock.lockPrepareHeader.Lock()
+	mock.calls.PrepareHeader = append(mock.calls.PrepareHeader, callInfo)
+	mock.lockPrepareHeader.Unlock()
+	return mock.PrepareHeaderFunc(ctx, header)
 }
 
-// PruneStargazerHeaderCalls gets all the calls that were made to PruneStargazerHeader.
+// PrepareHeaderCalls gets all the calls that were made to PrepareHeader.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.PruneStargazerHeaderCalls())
-func (mock *BlockPluginMock) PruneStargazerHeaderCalls() []struct {
+//	len(mockedBlockPlugin.PrepareHeaderCalls())
+func (mock *BlockPluginMock) PrepareHeaderCalls() []struct {
 	Ctx    sdk.Context
-	Header *types.StargazerHeader
+	Header *ethcoretypes.StargazerHeader
 } {
 	var calls []struct {
 		Ctx    sdk.Context
-		Header *types.StargazerHeader
+		Header *ethcoretypes.StargazerHeader
 	}
-	mock.lockPruneStargazerHeader.RLock()
-	calls = mock.calls.PruneStargazerHeader
-	mock.lockPruneStargazerHeader.RUnlock()
+	mock.lockPrepareHeader.RLock()
+	calls = mock.calls.PrepareHeader
+	mock.lockPrepareHeader.RUnlock()
 	return calls
 }
 
-// SetStargazerHeader calls SetStargazerHeaderFunc.
-func (mock *BlockPluginMock) SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-	if mock.SetStargazerHeaderFunc == nil {
-		panic("BlockPluginMock.SetStargazerHeaderFunc: method is nil but BlockPlugin.SetStargazerHeader was just called")
+// ProcessHeader calls ProcessHeaderFunc.
+func (mock *BlockPluginMock) ProcessHeader(ctx sdk.Context, header *ethcoretypes.StargazerHeader) error {
+	if mock.ProcessHeaderFunc == nil {
+		panic("BlockPluginMock.ProcessHeaderFunc: method is nil but BlockPlugin.ProcessHeader was just called")
 	}
 	callInfo := struct {
 		Ctx    sdk.Context
-		Header *types.StargazerHeader
+		Header *ethcoretypes.StargazerHeader
 	}{
 		Ctx:    ctx,
 		Header: header,
 	}
-	mock.lockSetStargazerHeader.Lock()
-	mock.calls.SetStargazerHeader = append(mock.calls.SetStargazerHeader, callInfo)
-	mock.lockSetStargazerHeader.Unlock()
-	return mock.SetStargazerHeaderFunc(ctx, header)
+	mock.lockProcessHeader.Lock()
+	mock.calls.ProcessHeader = append(mock.calls.ProcessHeader, callInfo)
+	mock.lockProcessHeader.Unlock()
+	return mock.ProcessHeaderFunc(ctx, header)
 }
 
-// SetStargazerHeaderCalls gets all the calls that were made to SetStargazerHeader.
+// ProcessHeaderCalls gets all the calls that were made to ProcessHeader.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.SetStargazerHeaderCalls())
-func (mock *BlockPluginMock) SetStargazerHeaderCalls() []struct {
+//	len(mockedBlockPlugin.ProcessHeaderCalls())
+func (mock *BlockPluginMock) ProcessHeaderCalls() []struct {
 	Ctx    sdk.Context
-	Header *types.StargazerHeader
+	Header *ethcoretypes.StargazerHeader
 } {
 	var calls []struct {
 		Ctx    sdk.Context
-		Header *types.StargazerHeader
+		Header *ethcoretypes.StargazerHeader
 	}
-	mock.lockSetStargazerHeader.RLock()
-	calls = mock.calls.SetStargazerHeader
-	mock.lockSetStargazerHeader.RUnlock()
-	return calls
-}
-
-// TrackHistoricalStargazerHeader calls TrackHistoricalStargazerHeaderFunc.
-func (mock *BlockPluginMock) TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) {
-	if mock.TrackHistoricalStargazerHeaderFunc == nil {
-		panic("BlockPluginMock.TrackHistoricalStargazerHeaderFunc: method is nil but BlockPlugin.TrackHistoricalStargazerHeader was just called")
-	}
-	callInfo := struct {
-		Ctx    sdk.Context
-		Header *types.StargazerHeader
-	}{
-		Ctx:    ctx,
-		Header: header,
-	}
-	mock.lockTrackHistoricalStargazerHeader.Lock()
-	mock.calls.TrackHistoricalStargazerHeader = append(mock.calls.TrackHistoricalStargazerHeader, callInfo)
-	mock.lockTrackHistoricalStargazerHeader.Unlock()
-	mock.TrackHistoricalStargazerHeaderFunc(ctx, header)
-}
-
-// TrackHistoricalStargazerHeaderCalls gets all the calls that were made to TrackHistoricalStargazerHeader.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.TrackHistoricalStargazerHeaderCalls())
-func (mock *BlockPluginMock) TrackHistoricalStargazerHeaderCalls() []struct {
-	Ctx    sdk.Context
-	Header *types.StargazerHeader
-} {
-	var calls []struct {
-		Ctx    sdk.Context
-		Header *types.StargazerHeader
-	}
-	mock.lockTrackHistoricalStargazerHeader.RLock()
-	calls = mock.calls.TrackHistoricalStargazerHeader
-	mock.lockTrackHistoricalStargazerHeader.RUnlock()
+	mock.lockProcessHeader.RLock()
+	calls = mock.calls.ProcessHeader
+	mock.lockProcessHeader.RUnlock()
 	return calls
 }
