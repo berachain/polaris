@@ -158,15 +158,35 @@ var _ = Describe("StateProcessor", func() {
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).To(BeNil())
-			Expect(result.UsedGas).ToNot(BeZero())
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
+			Expect(result.BlockNumber).To(Equal(big.NewInt(int64(blockNumber))))
+			Expect(result.TransactionIndex).To(Equal(uint(0)))
+			Expect(result.TxHash.Hex()).To(Equal(signedTx.Hash().Hex()))
+			Expect(result.GasUsed).ToNot(BeZero())
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
 			Expect(block.TxIndex()).To(Equal(1))
 		})
 
-		It("should handle", func() {
+		It("should add a contract address to the receipt", func() {
+			legacyTxDataCopy := *legacyTxData
+			legacyTxDataCopy.To = nil
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(200000)
+			}
+			signedTx := types.MustSignNewTx(key, signer, &legacyTxDataCopy)
+			result, err := sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).To(BeNil())
+			Expect(result).ToNot(BeNil())
+			Expect(result.ContractAddress).ToNot(BeNil())
+			block, err := sp.Finalize(context.Background())
+			Expect(err).To(BeNil())
+			Expect(block).ToNot(BeNil())
+			Expect(block.TxIndex()).To(Equal(1))
+		})
+
+		It("should mark a receipt with a virtual machine error as failed", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(200000)
 			}
@@ -191,7 +211,7 @@ var _ = Describe("StateProcessor", func() {
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
 			block, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
@@ -203,7 +223,7 @@ var _ = Describe("StateProcessor", func() {
 			result, err = sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(result.Status).To(Equal(types.ReceiptStatusSuccessful))
 		})
 	})
 })
