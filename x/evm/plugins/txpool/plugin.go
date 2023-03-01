@@ -67,12 +67,8 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
 
-<<<<<<< Updated upstream
-	// for rpc
-=======
 	// for rpc, insert into local mempool before broadcasting. // TODO FIGURE OUT WHY
 	// this is needed for foundry? Race condition?
->>>>>>> Stashed changes
 	p.SendPrivTx(signedEthTx)
 
 	// Send the transaction to the CometBFT mempool, which will
