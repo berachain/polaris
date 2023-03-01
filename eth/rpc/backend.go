@@ -94,7 +94,7 @@ func NewStargazerBackend(chain api.Chain, rpcConfig *config.Server) StargazerBac
 // `SyncProgress` returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
 	// Consider implementing this in the future.
-	b.logger.Warn("called eth.rpc.backend.SyncProgress", "sync_progress", "not implemented")
+	b.logger.Warn("eth.rpc.backend.SyncProgress", "sync_progress", "not implemented")
 	return ethereum.SyncProgress{
 		CurrentBlock: 0,
 		HighestBlock: 0,
@@ -103,14 +103,14 @@ func (b *backend) SyncProgress() ethereum.SyncProgress {
 
 // `SuggestGasTipCap` returns the recommended gas tip cap for a new transaction.
 func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
-	defer b.logger.Info("called eth.rpc.backend.SuggestGasTipCap", "suggested_tip_cap")
+	defer b.logger.Info("eth.rpc.backend.SuggestGasTipCap", "suggested_tip_cap")
 	return b.gpo.SuggestTipCap(ctx)
 }
 
 // `FeeHistory` returns the base fee and gas used history of the last N blocks.
 func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
-	b.logger.Info("called eth.rpc.backend.FeeHistory", "blockCount", blockCount,
+	b.logger.Info("eth.rpc.backend.FeeHistory", "blockCount", blockCount,
 		"lastBlock", lastBlock, "rewardPercentiles", rewardPercentiles)
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
@@ -171,7 +171,7 @@ func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*type
 		b.logger.Error("eth.rpc.backend.HeaderByNumber", "number", number, "err", err)
 		return nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.HeaderByNumber", "header", block.Header)
+	b.logger.Info("eth.rpc.backend.HeaderByNumber", "header", block.Header)
 	return block.Header, nil
 }
 
@@ -206,7 +206,7 @@ func (b *backend) CurrentHeader() *types.Header {
 		b.logger.Error("eth.rpc.backend.CurrentHeader", "block", block, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", block.Header)
+	b.logger.Info("eth.rpc.backend.CurrentHeader", "header", block.Header)
 	return block.Header
 }
 
@@ -217,7 +217,7 @@ func (b *backend) CurrentBlock() *types.Block {
 		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentBlock", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.CurrentBlock", "header", block.Header,
 		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock()
 }
@@ -229,7 +229,7 @@ func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types
 		b.logger.Error("eth.rpc.backend.BlockByNumber", "number", number, "err", err)
 		return nil, errorslib.Wrapf(err, "BlockByNumber [%d]", number)
 	}
-	b.logger.Info("called eth.rpc.backend.BlockByNumber", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.BlockByNumber", "header", block.Header,
 		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock(), nil
 }
@@ -242,7 +242,7 @@ func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Blo
 		b.logger.Error("eth.rpc.backend.BlockByHash", "hash", hash, "err", err)
 		return nil, errorslib.Wrapf(err, "BlockByHash [%s]", hash.String())
 	}
-	b.logger.Info("called eth.rpc.backend.BlockByHash", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.BlockByHash", "header", block.Header,
 		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock(), nil
 }
@@ -256,7 +256,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 		b.logger.Error("eth.rpc.backend.BlockByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
 		return nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.BlockByNumberOrHash", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.BlockByNumberOrHash", "header", block.Header,
 		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock(), nil
 }
@@ -274,7 +274,7 @@ func (b *backend) StateAndHeaderByNumber(
 		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.StateAndHeaderByNumber", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.StateAndHeaderByNumber", "header", block.Header,
 		"num_txs", len(block.GetTransactions()))
 	return state, block.Header, nil
 }
@@ -315,7 +315,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 			"err", err)
 		return nil, nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.StateAndHeaderByNumberOrHash", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.StateAndHeaderByNumberOrHash", "header", block.Header,
 		"num_txs", len(block.GetTransactions()))
 	return state, block.Header, nil
 }
@@ -327,7 +327,7 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 		b.logger.Error("eth.rpc.backend.PendingBlockAndReceipts", "err", err)
 		return nil, nil
 	}
-	b.logger.Info("called eth.rpc.backend.PendingBlockAndReceipts", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.PendingBlockAndReceipts", "header", block.Header,
 		"num_receipts", len(block.GetReceipts()))
 	return block.EthBlock(), block.GetReceipts()
 }
@@ -339,7 +339,7 @@ func (b *backend) GetReceipts(ctx context.Context, hash common.Hash) (types.Rece
 		b.logger.Error("eth.rpc.backend.GetReceipts", "hash", hash, "err", err)
 		return nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.GetReceipts", "header", block.Header,
+	b.logger.Info("eth.rpc.backend.GetReceipts", "header", block.Header,
 		"num_receipts", len(block.GetReceipts()))
 	return block.GetReceipts(), nil
 }
@@ -347,7 +347,7 @@ func (b *backend) GetReceipts(ctx context.Context, hash common.Hash) (types.Rece
 // `GetTd` returns the total difficulty of a block in the canonical chain.
 // This is hardcoded to 69, as it is only applicable in a PoW chain.
 func (b *backend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
-	b.logger.Info("called eth.rpc.backend.GetTd", "hash", hash)
+	b.logger.Info("eth.rpc.backend.GetTd", "hash", hash)
 	return new(big.Int).SetInt64(69)
 }
 
@@ -364,22 +364,22 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 		return nil, nil, errors.New("msg is nil")
 	}
 	txContext := core.NewEVMTxContext(msg)
-	b.logger.Info("called eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
+	b.logger.Info("eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
 	return b.chain.GetEVM(ctx, txContext, state, header, vmConfig), state.Error, nil
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
-	b.logger.Info("called eth.rpc.backend.SubscribeChainEvent", "ch", ch)
+	b.logger.Info("eth.rpc.backend.SubscribeChainEvent", "ch", ch)
 	panic("SubscribeChainEvent not implemented")
 }
 
 func (b *backend) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription {
-	b.logger.Info("called eth.rpc.backend.SubscribeChainHeadEvent", "ch", ch)
+	b.logger.Info("eth.rpc.backend.SubscribeChainHeadEvent", "ch", ch)
 	return b.chain.SubscribeChainHeadEvent(ch)
 }
 
 func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.Subscription {
-	b.logger.Info("called eth.rpc.backend.SubscribeChainSideEvent", "ch", ch)
+	b.logger.Info("eth.rpc.backend.SubscribeChainSideEvent", "ch", ch)
 	panic("SubscribeChainSideEvent not implemented")
 }
 
@@ -394,17 +394,17 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 func (b *backend) GetTransaction(
 	ctx context.Context, txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
+	b.logger.Info("eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	return b.chain.GetTransaction(txHash)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
-	b.logger.Info("called eth.rpc.backend.GetPoolTransactions")
+	b.logger.Info("eth.rpc.backend.GetPoolTransactions")
 	return b.chain.Host().GetTxPoolPlugin().GetAllTransactions()
 }
 
 func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
-	b.logger.Info("called eth.rpc.backend.GetPoolTransaction", "tx_hash", txHash)
+	b.logger.Info("eth.rpc.backend.GetPoolTransaction", "tx_hash", txHash)
 	return b.chain.Host().GetTxPoolPlugin().GetTransaction(txHash)
 }
 
@@ -439,7 +439,7 @@ func (b *backend) SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscripti
 
 // `ChainConfig` returns the chain configuration.
 func (b *backend) ChainConfig() *params.ChainConfig {
-	b.logger.Info("called eth.rpc.backend.ChainConfig")
+	b.logger.Info("eth.rpc.backend.ChainConfig")
 	return b.chain.Host().GetConfigurationPlugin().ChainConfig()
 }
 
@@ -460,7 +460,7 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.GetBody", "hash", hash, "number", number)
+	b.logger.Info("eth.rpc.backend.GetBody", "hash", hash, "number", number)
 	return block.EthBlock().Body(), nil
 }
 
