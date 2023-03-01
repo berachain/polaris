@@ -1,38 +1,38 @@
 # Chain Configurations
 
-This section covers the default chain configuration for all stargazer 
+This section covers the default chain configuration for all Stargazer 
 environments.
 ## Local Node Configurations
 
 ### JSON RPC Configuration
 - Network Name: `Stargazer`
-- New RPC URL: `http://localhost:8545`
-- Chain ID: `stargazer420_69-1`
+- RPC URL: `http://localhost:1317/eth/rpc`
+- Chain ID: `42069`
 - Symbol(optional): `GAZER`
 - Block Explorer URL (optional): ``
 
 ### Cosmos Chain Configuration / Keplr Chain Info
-- RPC: ``
-- REST: ``
-- ChainID: ``
-- ChainName: ``
+- RPC: `http://localhost:9090`
+- REST: `http://localhost:1317`
+- ChainID: `stargazer-2061`
+- ChainName: `Stargazer`
 - BIP44: `60`
 - Bech32Config:
-    - bech32PrefixAccAddr: ``
-    - bech32PrefixAccPub: ``
-    - bech32PrefixValAddr: ``
-    - bech32PrefixValPub: ``
-    - bech32PrefixConsAddr: ``
-    - bech32PrefixConsPub: ``
+    - bech32PrefixAccAddr: `stargazer`
+    - bech32PrefixAccPub: `stargazerpub`
+    - bech32PrefixValAddr: `stargazervaloper`
+    - bech32PrefixValPub: `stargazervaloperpub`
+    - bech32PrefixConsAddr: `stargazervalcons`
+    - bech32PrefixConsPub: `stargazervalconspub`
 - Currencies:
-    - coinDenom: `STARGAZER`
-    - coinMinimalDenom: `astars`
+    - coinDenom: `GAZER`
+    - coinMinimalDenom: `agazer`
     - coinDecimals: `18`
     - isStakeCurrency: `true`
     - isFeeCurrency: `true`
 - StakeCurrency:
-    - coinDenom: `STARGAZER`
-    - coinMinimalDenom: `astars`
+    - coinDenom: `GAZER`
+    - coinMinimalDenom: `agazer`
     - coinDecimals: `18`
     - isStakeCurrency: `true`
     - isFeeCurrency: `true`

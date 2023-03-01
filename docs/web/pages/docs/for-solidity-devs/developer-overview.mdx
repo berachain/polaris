@@ -1,25 +1,32 @@
 # Launching Your Smart Contracts on Stargazer
 
-## Overview
-
 The Purpose of this section is to provide information that will help you launch your smart contracts on Stargazer. 
-You will how to use various EVM development tools with Stargazer along with examples. We will show you how to connect to the network, 
+You will read how to use various EVM development tools with Stargazer along with examples. We will show you how to connect to the network, 
 how to use your existing projects on Stargazer, as well as any additional information relating to Stargazer's new features.
 
 ## Stargazer EVM 
+TODO DEV look pls
+
 Stargazer's EVM is designed to adhere to the geth interface, which means that any tool that works with [Geth](https://geth.ethereum.org/) can also be used to interact with Stargazer. The EVM is still responsible for executing Solidity smart contracts and managing the chain's data structures and blocks. By using CometBFT's consensus protocol and the Cosmos-SDK, Stargazer is able to access Cosmos-SDK properties through [precompiles](../building-precompiles/intro-to-precompiles), while also remaining compatible with all Ethereum Solidity smart contracts.
 
 It's important to note that Stargazer's EVM is interoperable with its Cosmos-SDK Application Layer. This means that Smart Contract Developers have access to base Cosmos-SDK modules through the EVM. With this new feature, developers can access Cosmos features like on-chain governance, the IBC protocol, and various other Cosmos-SDK modules.
 
 From the perspective of a Smart Contract, it will run in the same way as it would on Ethereum, but with additional contract addresses that provide access to the chain's Cosmos-SDK modules.
 
+## Interacting With Stateful Precompiles
+Stargazer's Stateful Precompiles can be interacted with like any 
+other contract deployed on the EVM in Solidity. All you need is a
+contract address and an ABI which you can find [here](../precompile-overview).
+
+For an example contract that interacts with Stargazer's staking precompile you
+can reference our [Liquid Staking Example](https://github.com/berachain/stargazer-precompile-dapp-examples).
 ## Accessing Stargazer's EVM
 
 ### Using the Stargazer CLI with EVM
-TODO
+TODO DEV delet?
 
 ### Running a local Stargazer Development environment
-For a guide on how to run a local development environment, please refer to the [Your First Node](../your-first-node) section.
+For a guide on how to run a local development environment, please refer to the [Local Machine](../running-a-node/running-locally) section.
 
 ### Smart Contract Development
 There are various existing tools that can be used for smart contract development.
@@ -28,16 +35,13 @@ Below are some of the most popular tools that can be used to develop smart contr
 #### Foundry
 Information on building smart contracts with Foundry on Stargazer can be found [here](./dev-tools/foundry-stargazer).
 
-#### Hardhat
-Information on building smart contracts with Hardhat on Stargazer can be found [here](./dev-tools/hardhat-stargazer).
-
-### Using Metamask with Stargazer
+#### Using Metamask with Stargazer
 Information about using Metamask with Stargazer can be found [here](../using-metamask).
 
-### Using Keplr with Stargazer
+#### Using Keplr with Stargazer
 Information about using Keplr with Stargazer can be found [here](../using-keplr).
 
-### Stargazer Block Explorer
+#### Stargazer Block Explorer
 🚧 Coming Soon 🚧
-### Stargazer Faucet
+#### Stargazer Faucet
 🚧 Coming Soon 🚧
