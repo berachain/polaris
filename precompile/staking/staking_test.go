@@ -21,6 +21,7 @@
 package staking
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -39,6 +40,7 @@ import (
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/stargazer/testutil"
+	evmutils "pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
 func TestStakingPrecompile(t *testing.T) {
@@ -89,6 +91,7 @@ var _ = Describe("Staking", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
+			fmt.Println(contract.ABIMethods())
 			Expect(contract.PrecompileMethods()).To(HaveLen(len(contract.ABIMethods())))
 		})
 	})
@@ -121,7 +124,7 @@ var _ = Describe("Staking", func() {
 		BeforeEach(func() {
 			delegates, validators := createValAddrs(2)
 			del, val, otherVal = delegates[0], validators[0], validators[1]
-			caller = common.BytesToAddress(del.Bytes())
+			caller = evmutils.AccAddressToEthAddress(del)
 
 			amount, ok := new(big.Int).SetString("22000000000000000000", 10) // 22 tokens.
 			Expect(ok).To(BeTrue())
@@ -170,7 +173,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					"amount",
 				)
 				Expect(err).To(MatchError(ErrInvalidBigInt))
@@ -198,7 +201,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					amountToDelegate,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -291,7 +294,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
@@ -356,7 +359,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					"amount",
 				)
 				Expect(err).To(MatchError(ErrInvalidBigInt))
@@ -369,7 +372,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					big.NewInt(1),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -437,7 +440,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(0),
 					false,
 					10,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					big.NewInt(1),
 				)
 				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
@@ -450,7 +453,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					10,
 					big.NewInt(1),
 				)
@@ -464,8 +467,8 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
+					evmutils.ValAddressToEthAddress(val),
 					"amount",
 				)
 				Expect(err).To(MatchError(ErrInvalidBigInt))
@@ -478,8 +481,8 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
-					common.BytesToAddress(otherVal.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
+					evmutils.ValAddressToEthAddress(otherVal),
 					big.NewInt(1),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -578,7 +581,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					"common.BytesToAddress(val.Bytes())",
+					"evmutils.ValAddressToEthAddress(val)",
 					big.NewInt(1),
 					int64(1),
 				)
@@ -592,7 +595,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					"amount",
 					int64(1),
 				)
@@ -606,7 +609,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					big.NewInt(1),
 					"height",
 				)
@@ -625,7 +628,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -635,7 +638,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					amount,
 					creationHeight,
 				)
@@ -711,7 +714,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -736,7 +739,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					"common.BytesToAddress(val.Bytes())",
+					"evmutils.ValAddressToEthAddress(val)",
 				)
 				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
@@ -751,7 +754,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -761,7 +764,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).ToNot(BeNil())
@@ -802,7 +805,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					common.BytesToAddress(val.Bytes()),
+					evmutils.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -826,8 +829,8 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					"common.BytesToAddress(val.Bytes())",
-					common.BytesToAddress(val.Bytes()),
+					"evmutils.ValAddressToEthAddress(val)",
+					evmutils.ValAddressToEthAddress(val),
 				)
 				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
@@ -839,8 +842,8 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					common.BytesToAddress(val.Bytes()),
-					"common.BytesToAddress(val.Bytes())",
+					evmutils.ValAddressToEthAddress(val),
+					"evmutils.ValAddressToEthAddress(val)",
 				)
 				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
@@ -958,7 +961,7 @@ var _ = Describe("Staking", func() {
 							caller,
 							big.NewInt(0),
 							false,
-							common.BytesToAddress(val.Bytes()),
+							evmutils.ValAddressToEthAddress(val),
 							amount,
 						)
 						Expect(err).ToNot(HaveOccurred())
@@ -1003,8 +1006,8 @@ var _ = Describe("Staking", func() {
 							caller,
 							big.NewInt(0),
 							false,
-							common.BytesToAddress(val.Bytes()),
-							common.BytesToAddress(otherVal.Bytes()),
+							evmutils.ValAddressToEthAddress(val),
+							evmutils.ValAddressToEthAddress(otherVal),
 							amount,
 						)
 						Expect(err).ToNot(HaveOccurred())
@@ -1023,6 +1026,8 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetActiveValidators(ctx, caller, big.NewInt(0), true)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
+				addr := utils.MustGetAs[common.Address](res[0])
+				Expect(addr).To(Equal(evmutils.ValAddressToEthAddress(val)))
 			})
 		})
 	})

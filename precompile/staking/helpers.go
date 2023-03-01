@@ -29,6 +29,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
+	evmutils "pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
 // `delegationHelper` is the helper function for `getDelegation`.
@@ -38,7 +39,7 @@ func (c *Contract) delegationHelper(
 	val sdk.ValAddress,
 ) ([]any, error) {
 	res, err := c.querier.Delegation(ctx, &stakingtypes.QueryDelegationRequest{
-		DelegatorAddr: sdk.AccAddress(caller.Bytes()).String(),
+		DelegatorAddr: evmutils.AddressToAccAddress(caller).String(),
 		ValidatorAddr: val.String(),
 	})
 	if err != nil {
@@ -60,7 +61,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 	val sdk.ValAddress,
 ) ([]any, error) {
 	res, err := c.querier.UnbondingDelegation(ctx, &stakingtypes.QueryUnbondingDelegationRequest{
-		DelegatorAddr: sdk.AccAddress(caller.Bytes()).String(),
+		DelegatorAddr: evmutils.AddressToAccAddress(caller).String(),
 		ValidatorAddr: val.String(),
 	})
 	if err != nil {
@@ -80,7 +81,7 @@ func (c *Contract) getRedelegationsHelper(
 	rsp, err := c.querier.Redelegations(
 		ctx,
 		&stakingtypes.QueryRedelegationsRequest{
-			DelegatorAddr:    sdk.AccAddress(caller.Bytes()).String(),
+			DelegatorAddr:    evmutils.AddressToAccAddress(caller).String(),
 			SrcValidatorAddr: srcValidator.String(),
 			DstValidatorAddr: dstValidator.String(),
 		},
@@ -89,7 +90,7 @@ func (c *Contract) getRedelegationsHelper(
 	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
 	for _, r := range rsp.GetRedelegationResponses() {
 		redel := r.GetRedelegation()
-		if redel.DelegatorAddress == sdk.AccAddress(caller.Bytes()).String() &&
+		if redel.DelegatorAddress == evmutils.AddressToAccAddress(caller).String() &&
 			redel.ValidatorSrcAddress == srcValidator.String() &&
 			redel.ValidatorDstAddress == dstValidator.String() {
 			redelegationEntryResponses = r.GetEntries()
@@ -119,7 +120,7 @@ func (c *Contract) delegateHelper(
 	}
 
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
-		sdk.AccAddress(caller.Bytes()),
+		evmutils.AddressToAccAddress(caller),
 		validatorAddress,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
@@ -139,7 +140,7 @@ func (c *Contract) undelegateHelper(
 	}
 
 	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
-		sdk.AccAddress(caller.Bytes()),
+		evmutils.AddressToAccAddress(caller),
 		val,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
@@ -162,7 +163,7 @@ func (c *Contract) beginRedelegateHelper(
 	_, err = c.msgServer.BeginRedelegate(
 		ctx,
 		stakingtypes.NewMsgBeginRedelegate(
-			sdk.AccAddress(caller.Bytes()),
+			evmutils.AddressToAccAddress(caller),
 			srcVal,
 			dstVal,
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
@@ -188,7 +189,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 	_, err = c.msgServer.CancelUnbondingDelegation(
 		ctx,
 		stakingtypes.NewMsgCancelUnbondingDelegation(
-			sdk.AccAddress(caller.Bytes()),
+			evmutils.AddressToAccAddress(caller),
 			val,
 			creationHeight,
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
@@ -213,7 +214,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		if err != nil {
 			return nil, err
 		}
-		addrs = append(addrs, common.BytesToAddress(valAddr))
+		addrs = append(addrs, evmutils.ValAddressToEthAddress(valAddr))
 	}
 
 	return addrs, nil
