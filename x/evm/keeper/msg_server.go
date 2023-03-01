@@ -41,15 +41,19 @@ func (k *Keeper) EthTransaction(
 	tx := msg.AsTransaction()
 	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
 
-	// Process the transaction and return the receipt.
-	receipt, err := k.ProcessTransaction(ctx, tx)
+	// Process the transaction and return the result.
+	result, err := k.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
 	}
 
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "receipt", receipt)
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "exec_result", result)
 	// Build response and return.
-	return types.BuildEthTransactionRespWithReceipt(receipt)
+	return &types.EthTransactionResponse{
+		GasUsed:    result.UsedGas,
+		VmError:    result.Err.Error(),
+		ReturnData: result.ReturnData,
+	}, nil
 }
 
 // `UpdateParams`  processes an incoming request and applies it to the Configuration plugin to

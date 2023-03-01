@@ -63,11 +63,14 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 }
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
-func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
 
 // `Finalize` finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
+	if bc.processor.block != nil {
+		bc.currentBlock.Store(bc.processor.block)
+	}
 	return bc.processor.Finalize(ctx)
 }

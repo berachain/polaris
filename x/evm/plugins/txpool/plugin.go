@@ -105,7 +105,7 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return p.mempool.GetTransaction(hash)
 }
 
-func (p *plugin) GetNonce(addr common.Address) uint64 {
+func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
 	// TODO: implement this
-	return 0
+	return 0, nil
 }

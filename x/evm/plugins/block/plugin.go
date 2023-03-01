@@ -38,7 +38,15 @@ const bf = uint64(1)
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	UpdateOffChainStorage(sdk.Context, *coretypes.StargazerBlock)
-
+	// `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
+	// heights that are below pruning height.
+	TrackHistoricalStargazerHeader(ctx sdk.Context, header *coretypes.StargazerHeader)
+	// `GetStargazerBlock` returns the block from the store at the height specified in the context.
+	GetStargazerHeader(ctx sdk.Context, height int64) (*coretypes.StargazerHeader, bool)
+	// `SetStargazerHeader` saves a block to the store.
+	SetStargazerHeader(ctx sdk.Context, header *coretypes.StargazerHeader) error
+	// `PruneStargazerHeader` prunes a stargazer block from the store.
+	PruneStargazerHeader(ctx sdk.Context, header *coretypes.StargazerHeader) error
 	core.BlockPlugin
 }
 

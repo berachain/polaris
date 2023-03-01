@@ -70,11 +70,10 @@ func (h *StargazerHeader) Author() common.Address {
 // to use the hash of the host chain, as the implementing chain might want to use it's
 // real block hash opposed to hashing the "fake" header.
 func (h *StargazerHeader) Hash() common.Hash {
-	// if h.hostHash == (common.Hash{}) {
-	// 	h.hostHash = h.Header.Hash()
-	// }
-	// return h.hostHash
-	return h.Header.Hash()
+	if h.hostHash == (common.Hash{}) {
+		h.hostHash = h.Header.Hash()
+	}
+	return h.hostHash
 }
 
 // `SetHash` sets the hash of the header.

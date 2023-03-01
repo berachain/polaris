@@ -23,8 +23,6 @@ package core
 import (
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/state"
@@ -133,6 +131,7 @@ type (
 		SendTx(tx *types.Transaction) error
 		GetAllTransactions() (types.Transactions, error)
 		GetTransaction(common.Hash) *types.Transaction
+		GetNonce(common.Address) (uint64, error)
 	}
 )
 
