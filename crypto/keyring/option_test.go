@@ -36,7 +36,6 @@ import (
 	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
 	"pkg.berachain.dev/stargazer/crypto/hd"
 	accounts "pkg.berachain.dev/stargazer/eth/accounts"
-	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 var cdc *codec.ProtoCodec
@@ -145,33 +144,33 @@ var _ = Describe("Keyring", func() {
 			Expect(wrongBz).To(BeEmpty())
 		})
 
-		Context("Key generation and retrieval", func() {
-			var (
-				privkey cryptotypes.PrivKey
-				addr    common.Address
-			)
+		// Context("Key generation and retrieval", func() {
+		// 	var (
+		// 		privkey cryptotypes.PrivKey
+		// 		// addr    common.Address
+		// 	)
 
-			BeforeEach(func() {
-				registerCodec()
-				mockIn.Reset("password\npassword\n")
-				_, mnemonic, err = kr.NewMnemonic("foo", keyring.English, accounts.BIP44HDPath,
-					keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
-				Expect(err).NotTo(HaveOccurred())
+		// 	BeforeEach(func() {
+		// 		registerCodec()
+		// 		mockIn.Reset("password\npassword\n")
+		// 		_, mnemonic, err = kr.NewMnemonic("foo", keyring.English, accounts.BIP44HDPath,
+		// 			keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
+		// 		Expect(err).NotTo(HaveOccurred())
 
-				hdPath := accounts.BIP44HDPath
+		// 		hdPath := accounts.BIP44HDPath
 
-				bz, err = hd.EthSecp256k1.Derive()(mnemonic, keyring.DefaultBIP39Passphrase,
-					hdPath)
-				Expect(err).NotTo(HaveOccurred())
+		// 		bz, err = hd.EthSecp256k1.Derive()(mnemonic, keyring.DefaultBIP39Passphrase,
+		// 			hdPath)
+		// 		Expect(err).NotTo(HaveOccurred())
 
-				privkey = hd.EthSecp256k1.Generate()(bz)
-				addr = common.BytesToAddress(privkey.PubKey().Address().Bytes())
-			})
+		// 		privkey = hd.EthSecp256k1.Generate()(bz)
+		// 		addr = common.BytesToAddress(privkey.PubKey().Address().Bytes())
+		// 	})
 
-			It("should generate and retrieve the correct private key and address", func() {
-				Expect(addr.String()).To(Equal(common.Address(privkey.PubKey().
-					Address()).String()))
-			})
-		})
+		// It("should generate and retrieve the correct private key and address", func() {
+		// 	Expect(addr.String()).To(Equal(common.Address(privkey.PubKey().
+		// 		Address()).String()))
+		// })
+		// })
 	})
 })

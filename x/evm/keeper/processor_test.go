@@ -24,15 +24,12 @@ import (
 	"math/big"
 	"os"
 
-	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
@@ -42,6 +39,9 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/types"
+
+	storetypes "cosmossdk.io/store/types"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 var _ = Describe("Processor", func() {
@@ -56,7 +56,7 @@ var _ = Describe("Processor", func() {
 	)
 
 	BeforeEach(func() {
-		err := os.RemoveAll("tmp/berachain")
+		err := os.RemoveAll(GinkgoT().TempDir())
 		Expect(err).To(BeNil())
 
 		legacyTxData = &coretypes.LegacyTx{
@@ -73,17 +73,27 @@ var _ = Describe("Processor", func() {
 			ak, bk,
 			func() []vm.RegistrablePrecompile { return nil },
 			"authority",
-			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
+			sims.NewAppOptionsWithFlagHome(GinkgoT().TempDir()),
 			mempool.NewEthTxPool(),
 		)
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
 
-		// before every block
+		// Create the context.
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
+
+		// Set the header for the first block.
+		k.GetBlockPlugin().ProcessHeader(ctx, &coretypes.StargazerHeader{})
+
+		// Set the query context to return the context.
+		// Set the query contexts, (used for getting the header)
+		k.SetQueryContextFn(func(height int64, prove bool) (sdk.Context, error) {
+			return ctx, nil
+		})
+
 		k.BeginBlocker(ctx)
 	})
 

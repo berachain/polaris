@@ -73,7 +73,7 @@ type (
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 		// `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
-		PrepareHeader(ctx sdk.Context, header *types.StargazerHeader) *types.StargazerHeader
+		FillHeader(ctx sdk.Context, header *types.StargazerHeader) *types.StargazerHeader
 		// `GetStargazerHeaderByNumber` returns the stargazer header for the given block number.
 		GetStargazerHeaderByNumber(number int64) (*types.StargazerHeader, error)
 		// `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.

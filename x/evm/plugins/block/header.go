@@ -2,7 +2,6 @@ package block
 
 import (
 	"errors"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,7 +19,7 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 
 // `ProcessHeader` takes in the header and process it using the `ctx` and stores it in the context store.
 func (p *plugin) ProcessHeader(ctx sdk.Context, header *coretypes.StargazerHeader) error {
-	header = p.PrepareHeader(ctx, header)
+	header = p.FillHeader(ctx, header)
 	bz, err := header.MarshalBinary()
 	if err != nil {
 		return err
@@ -45,11 +44,15 @@ func (p *plugin) GetStargazerHeaderByNumber(number int64) (*coretypes.StargazerH
 	case rpc.LatestBlockNumber:
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
-		iavlHeight = 0
+		iavlHeight = 1
 	default:
 		iavlHeight = number
 	}
-	fmt.Println("iavlHeight", iavlHeight)
+
+	if iavlHeight < 1 {
+		return nil, errors.New("block number must be greater than 0")
+	}
+
 	// Get the query context for the given block number.
 	ctx, err := p.getQueryContext(iavlHeight, false)
 	if err != nil {
@@ -68,9 +71,9 @@ func (p *plugin) GetStargazerHeaderByNumber(number int64) (*coretypes.StargazerH
 	return &header, nil
 }
 
-// `ProcessHeader` takes in a `coretypes.StargazerHeader` and returns a `coretypes.StargazerHeader` with the
-// Fields set to the correct values.
-func (p *plugin) PrepareHeader(ctx sdk.Context, header *coretypes.StargazerHeader) *coretypes.StargazerHeader {
+// `FillHeader` takes in a `coretypes.StargazerHeader` and returns a `coretypes.StargazerHeader` with the
+// Fields set to the correct values from the `sdk.Context`.
+func (p *plugin) FillHeader(ctx sdk.Context, header *coretypes.StargazerHeader) *coretypes.StargazerHeader {
 	cometHeader := ctx.BlockHeader()
 
 	// We retrieve the `TxHash` from the `DataHash` field of the `sdk.Context` opposed to deriving it
@@ -106,7 +109,7 @@ func (p *plugin) PrepareHeader(ctx sdk.Context, header *coretypes.StargazerHeade
 			// We simply map the cosmos "BlockHeight" to the ethereum "BlockNumber".
 			Number: big.NewInt(cometHeader.Height),
 			// `GasLimit` is set to the block gas limit.
-			GasLimit: blockGasLimitFromCosmosContext(p.ctx),
+			GasLimit: blockGasLimitFromCosmosContext(ctx),
 			// `Time` is set to the block timestamp.
 			Time: uint64(cometHeader.Time.UTC().Unix()),
 			// `BaseFee` is set to the block base fee.
