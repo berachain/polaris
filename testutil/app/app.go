@@ -100,7 +100,6 @@ import (
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
-	evmtx "pkg.berachain.dev/stargazer/x/evm/tx"
 )
 
 var (
@@ -300,7 +299,7 @@ func NewSimApp( //nolint: funlen // from sdk.
 	app.txConfig = tx.NewTxConfig(
 		codec.NewProtoCodec(app.interfaceRegistry),
 		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
-		[]signing.SignModeHandler{evmtx.SignModeEthTxHandler{}}...,
+		[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
 	)
 	opt := ante.HandlerOptions{
 		AccountKeeper:          app.AccountKeeper,

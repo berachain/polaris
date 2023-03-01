@@ -95,10 +95,10 @@ func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
 func (etr *EthTransactionRequest) getSignatureLegacy() ([]byte, error) {
 	t := etr.AsTransaction()
 	vb, rb, sb := t.RawSignatureValues()
-	if vb.BitLen() > 8 { //nolint:gomnd // its okay.
+	if vb.BitLen() > 8 { //nolint:gomnd // 8 is the max bit length of a byte
 		return nil, fmt.Errorf("invalid legacy signature 1, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
-	v := byte(vb.Uint64() - 27) //nolint:gomnd // its okay.
+	v := byte(vb.Uint64() - 27) //nolint:gomnd // offset.
 	if !crypto.ValidateSignatureValues(v, rb, sb, false) {
 		return nil, fmt.Errorf("invalid legacy signature 2, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
@@ -115,7 +115,7 @@ func (etr *EthTransactionRequest) getSignatureLegacy() ([]byte, error) {
 func (etr *EthTransactionRequest) getSignatureDynamic() ([]byte, error) {
 	t := etr.AsTransaction()
 	vb, rb, sb := t.RawSignatureValues()
-	if vb.BitLen() > 8 { //nolint:gomnd // its okay.
+	if vb.BitLen() > 8 { //nolint:gomnd // 8 is the max bit length of a byte
 		return nil, fmt.Errorf("invalid dynamic signature 1, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
 	v := byte(vb.Uint64())
@@ -123,7 +123,7 @@ func (etr *EthTransactionRequest) getSignatureDynamic() ([]byte, error) {
 		return nil, fmt.Errorf("invalid dynamic signature 2, V:%d, R:%d, S:%d", vb, rb, sb)
 	}
 	// encode the signature in uncompressed format
-	r, s := rb.Bytes(), sb.Bytes()
+	r, s := sb.Bytes(), sb.Bytes()
 	sig := make([]byte, crypto.SignatureLength)
 	copy(sig[32-len(r):32], r)
 	copy(sig[64-len(s):64], s)
@@ -182,10 +182,10 @@ func (etr *EthTransactionRequest) ValidateBasic() error {
 func BuildEthTransactionRespWithReceipt(receipt *coretypes.Receipt) (*EthTransactionResponse, error) {
 	etr := new(EthTransactionResponse)
 
-	var err error
-	etr.Receipt, err = receipt.MarshalJSON()
+	r, err := receipt.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
+	etr.Receipt = string(r)
 	return etr, nil
 }
