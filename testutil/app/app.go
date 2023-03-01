@@ -50,10 +50,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -88,11 +93,13 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
 	simappconfig "pkg.berachain.dev/stargazer/testutil/app/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 )
 
@@ -202,6 +209,12 @@ func NewSimApp( //nolint: funlen // from sdk.
 		// them.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
+		// ethTxMempool = mempool.NewEthTxPool()
+		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(mempool.NewPriorityMempool())
+		mempoolOpt                   = baseapp.SetMempool(
+			ethTxMempool,
+		)
+
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
 		// }
@@ -220,6 +233,10 @@ func NewSimApp( //nolint: funlen // from sdk.
 				// supply the application options
 				appOpts,
 				// ADVANCED CONFIGURATION
+				//
+				// ETH TX MEMPOOL
+				ethTxMempool,
+				// evmtx.CustomSignModeHandlers,
 				//
 				// EVM PRECOMPILES
 				//
@@ -279,9 +296,34 @@ func NewSimApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
-	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(app.interfaceRegistry)...)
+	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(
+		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...,
+	)...)
+
+	// ===============================================================
+	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
+	// ===============================================================
+	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
-	evmante.SetAnteHandler(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.txConfig)(app.BaseApp)
+	app.txConfig = tx.NewTxConfig(
+		codec.NewProtoCodec(app.interfaceRegistry),
+		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
+		[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
+	)
+	opt := ante.HandlerOptions{
+		AccountKeeper:          app.AccountKeeper,
+		BankKeeper:             app.BankKeeper,
+		ExtensionOptionChecker: extOptCheckerfunc,
+		SignModeHandler:        app.txConfig.SignModeHandler(),
+		FeegrantKeeper:         app.FeeGrantKeeper,
+		SigGasConsumer:         evmante.SigVerificationGasConsumer,
+	}
+	ch, _ := evmante.NewAnteHandler(
+		opt,
+	)
+	app.SetAnteHandler(
+		ch,
+	)
 
 	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
@@ -291,7 +333,6 @@ func NewSimApp( //nolint: funlen // from sdk.
 	/****  Module Options ****/
 
 	// Set the query context function for the evm module.
-	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
@@ -333,6 +374,10 @@ func NewSimApp( //nolint: funlen // from sdk.
 	return app
 }
 
+func extOptCheckerfunc(a *codectypes.Any) bool {
+	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
+}
+
 // Name returns the name of the App.
 func (app *SimApp) Name() string { return app.BaseApp.Name() }
 
@@ -371,8 +416,7 @@ func (app *SimApp) AutoCliOpts() autocli.AppOptions {
 //
 // NOTE: This is solely to be used for testing purposes.
 func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
-	sk := app.UnsafeFindStoreKey(storeKey)
-	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
+	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
 	}
@@ -382,7 +426,7 @@ func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
-		if kv, ok := k.(*storetypes.KVStoreKey); ok {
+		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
 			keys[kv.Name()] = kv
 		}
 	}
@@ -411,7 +455,6 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-
 	// Register Ethereum JSON-RPC API as needed by stargazer.
 	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }

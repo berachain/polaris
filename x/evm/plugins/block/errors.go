@@ -18,16 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package client
+package block
 
-import (
-	"testing"
+import "errors"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+var (
+	ErrBlockNotFound = errors.New("block not found, is your node pruned?")
 )
-
-func TestClient(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/txpool/client")
-}

@@ -78,6 +78,7 @@ var (
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
+		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 
 	// blocked account addresses.
@@ -99,7 +100,7 @@ var (
 		{
 			Name: authtypes.ModuleName,
 			Config: appconfig.WrapAny(&authmodulev1.Module{
-				Bech32Prefix:             "cosmos",
+				Bech32Prefix:             "stargazer",
 				ModuleAccountPermissions: ModuleAccPerms,
 				// By default modules authority is the governance module. This is configurable with the following:
 				// Authority: "group", // A custom module authority can be set using a module name

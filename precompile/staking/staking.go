@@ -34,7 +34,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
-	ethutils "pkg.berachain.dev/stargazer/x/evm/utils"
+	evmutils "pkg.berachain.dev/stargazer/x/evm/utils"
 )
 
 // `Contract` is the precompile contract for the staking module.
@@ -60,7 +60,7 @@ func NewPrecompileContract(sk **stakingkeeper.Keeper) precompile.StatefulImpl {
 
 // `RegistryKey` implements StatefulImpl.
 func (c *Contract) RegistryKey() common.Address {
-	return ethutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
+	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
 }
 
 // `ABIMethods` implements StatefulImpl.
@@ -157,7 +157,7 @@ func (c *Contract) GetDelegationAddrInput(
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.delegationHelper(ctx, caller, sdk.ValAddress(val.Bytes()))
+	return c.delegationHelper(ctx, caller, evmutils.AddressToValAddress(val))
 }
 
 // `GetDelegationStringInput` implements `getDelegation(string)` method.
@@ -194,7 +194,7 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.getUnbondingDelegationHelper(ctx, caller, sdk.ValAddress(val.Bytes()))
+	return c.getUnbondingDelegationHelper(ctx, caller, evmutils.AddressToValAddress(val))
 }
 
 // `GetUnbondingDelegationStringInput` implements the `getUnbondingDelegation(string)` method.
@@ -235,7 +235,12 @@ func (c *Contract) GetRedelegationsAddrInput(
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.getRedelegationsHelper(ctx, caller, sdk.ValAddress(srcVal.Bytes()), sdk.ValAddress(dstVal.Bytes()))
+	return c.getRedelegationsHelper(
+		ctx,
+		caller,
+		evmutils.AddressToValAddress(srcVal),
+		evmutils.AddressToValAddress(dstVal),
+	)
 }
 
 // `GetRedelegationsStringInput` implements the `getRedelegations(string,string)` method.
@@ -284,7 +289,7 @@ func (c *Contract) DelegateAddrInput(
 		return nil, ErrInvalidBigInt
 	}
 
-	return nil, c.delegateHelper(ctx, caller, amount, sdk.ValAddress(val.Bytes()))
+	return nil, c.delegateHelper(ctx, caller, amount, evmutils.AddressToValAddress(val))
 }
 
 // `DelegateStringInput` implements the `delegate(string,uint256)` method.
@@ -329,7 +334,7 @@ func (c *Contract) UndelegateAddrInput(
 		return nil, ErrInvalidBigInt
 	}
 
-	return nil, c.undelegateHelper(ctx, caller, amount, sdk.ValAddress(val.Bytes()))
+	return nil, c.undelegateHelper(ctx, caller, amount, evmutils.AddressToValAddress(val))
 }
 
 // `UndelegateStringInput` implements the `undelegate(string,uint256)` method.
@@ -382,8 +387,8 @@ func (c *Contract) BeginRedelegateAddrInput(
 		ctx,
 		caller,
 		amount,
-		sdk.ValAddress(srcVal.Bytes()),
-		sdk.ValAddress(dstVal.Bytes()),
+		evmutils.AddressToValAddress(srcVal),
+		evmutils.AddressToValAddress(dstVal),
 	)
 }
 
@@ -441,7 +446,7 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 		return nil, ErrInvalidInt64
 	}
 
-	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, sdk.ValAddress(val.Bytes()), creationHeight)
+	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, evmutils.AddressToValAddress(val), creationHeight)
 }
 
 // `CancelRedelegateStringInput` implements the `cancelRedelegate(string,string,uint256,int64)` method.

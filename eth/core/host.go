@@ -21,6 +21,8 @@
 package core
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -67,6 +69,10 @@ type (
 		GetStargazerBlockByNumber(int64) *types.StargazerBlock
 		// `GetStargazerBlockByHash` returns the block at the given block hash.
 		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
+		// `GetTransactionByHash` returns the transaction at the given transaction hash.
+		GetTransactionByHash(common.Hash) *types.Transaction
+		// `GetTransactionBlockNumber` returns the block number of the transaction
+		GetTransactionBlockNumber(common.Hash) *big.Int
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 		// `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
@@ -133,7 +139,6 @@ type (
 		SendTx(tx *types.Transaction) error
 		GetAllTransactions() (types.Transactions, error)
 		GetTransaction(common.Hash) *types.Transaction
-		GetNonce(common.Address) uint64
 	}
 )
 

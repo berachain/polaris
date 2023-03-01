@@ -62,8 +62,6 @@ type StateProcessor struct {
 	evm vm.StargazerEVM
 	// `block` represents the current block being processed.
 	block *types.StargazerBlock
-	// `finalizedBlock` represents the block that was last finalized by the state processor.
-	finalizedBlock *types.StargazerBlock
 }
 
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and

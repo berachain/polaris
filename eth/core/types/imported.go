@@ -51,6 +51,9 @@ var (
 	CreateBloom            = types.CreateBloom
 	MakeSigner             = types.MakeSigner
 	LogsBloom              = types.LogsBloom
+	LegacyTxType           = types.LegacyTxType
+	DynamicFeeTxType       = types.DynamicFeeTxType
+	AccessListTxType       = types.AccessListTxType
 	DeriveSha              = types.DeriveSha
 	EmptyRootHash          = types.EmptyRootHash
 	EmptyUncleHash         = types.EmptyUncleHash

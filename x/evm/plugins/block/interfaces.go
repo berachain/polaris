@@ -18,20 +18,8 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package block
 
-import (
-	"github.com/ethereum/go-ethereum/params"
-
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-)
-
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-
-func NewPrecompilePluginMock() *PrecompilePluginMock {
-	return &PrecompilePluginMock{
-		GetPrecompilesFunc: func(_ *params.Rules) []vm.RegistrablePrecompile {
-			return nil
-		},
-	}
+type StakingKeeper interface {
+	// TODO: coinbase stuff
 }

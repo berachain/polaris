@@ -194,7 +194,7 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 }
 
 // AddBalance implements the `StatePlugin` interface by adding the given amount
-// from the account associated with addr. If the account does not exist, it will be
+// from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))

@@ -24,81 +24,83 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
+// `EthTxPool` is a mempool for Ethereum transactions. It wraps a
+// PriorityNonceMempool and caches transactions that are added to the mempool by
+// ethereum transaction hash.
 type EthTxPool struct {
-	*mempool.PriorityNonceMempool // first iteration simply allows for
+	sdkmempool.Mempool
 
 	// `ethTxCache` caches transactions that are added to the mempool
 	// so that they can be retrieved later
-	ethTxCache map[common.Hash]coretypes.Transaction
+	ethTxCache map[common.Hash]*coretypes.Transaction
+
+	// // `nonceCache` caches the pending nonce by txhash
+	// nonceCache map[common.Address]*coretypes.Transaction
+
+	// // `minedBlockCache` caches the mined transaction by block hash
+	// minedBlockCache map[common.Hash][]*coretypes.Transaction
+
+	// `blockNumberCache`
+
 }
 
 // `New` is called when the mempool is created.
-func NewEthTxPool() *EthTxPool {
+func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 	return &EthTxPool{
-		PriorityNonceMempool: mempool.NewPriorityMempool(),
+		Mempool:    m,
+		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
 	}
 }
 
 // `Insert` is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	// Call the base mempool's Insert method
-	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
+	if err := etp.Mempool.Insert(ctx, tx); err != nil {
 		return err
 	}
+
 	// We want to cache
-	etr, ok := tx.(*types.EthTransactionRequest)
+	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
 	if !ok {
 		return nil
 	}
+
 	t := etr.AsTransaction()
-	etp.ethTxCache[t.Hash()] = *t
+	etp.ethTxCache[t.Hash()] = t
 	return nil
 }
 
 // `GetTx` is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	tx := etp.ethTxCache[hash]
-	return &tx
+	return etp.ethTxCache[hash]
 }
 
 // `GetPoolTransactions` is called when the mempool is retrieved.
-func (etp *EthTxPool) GetPoolTransactions() []*coretypes.Transaction {
-	txs := make([]*coretypes.Transaction, 0)
+func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
+	txs := make(coretypes.Transactions, 0, len(etp.ethTxCache))
 	for _, tx := range etp.ethTxCache {
-		t := tx // fixes gosec G601: Implicit memory aliasing in for loop.
-		txs = append(txs, &t)
+		txs = append(txs, tx)
 	}
 	return txs
-	// var txs []*coretypes.Transaction
-	// iterator := etp.Select(sdk.Context{}, nil)
-	// for it := iterator.Next(); it != nil; it = iterator.Next() {
-	// 	if it == nil {
-	// 		break
-	// 	}
-	// 	tx, ok := it.Tx().(*types.EthTransactionRequest)
-	// 	if !ok {
-	// 		continue
-	// 	}
-	// 	txs = append(txs, tx.AsTransaction())
-	// }
 }
 
 // `Remove` is called when a transaction is removed from the mempool.
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	// Call the base mempool's Remove method
-	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
+	if err := etp.Mempool.Remove(tx); err != nil {
 		return err
 	}
 
 	// We want to cache this tx.
-	etr, ok := tx.(*types.EthTransactionRequest)
+	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
 	if !ok {
 		return nil
 	}

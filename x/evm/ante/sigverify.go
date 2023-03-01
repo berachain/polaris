@@ -34,7 +34,7 @@ import (
 const (
 	// `secp256k1GasCostEIP155` is the cost of a secp256k1 signature verification
 	// with the `EIP155` replay protection.
-	secp256k1GasCostEIP155 = 21000
+	secp256k1GasCostEIP155 = 0
 )
 
 // `SigVerificationGasConsumer` is a custom gas consumer for Cosmos-SDK chains that
@@ -43,8 +43,7 @@ func SigVerificationGasConsumer(
 	meter storetypes.GasMeter, sig signing.SignatureV2, params authtypes.Params,
 ) error {
 	// Then check to see if the pubkey is a secp256k1 pubkey
-	pubkey := sig.PubKey
-	switch pubkey := pubkey.(type) {
+	switch pubkey := sig.PubKey.(type) {
 	case *ethsecp256k1.PubKey:
 		meter.ConsumeGas(secp256k1GasCostEIP155, "ante verify: secp256k1")
 		return nil

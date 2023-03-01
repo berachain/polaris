@@ -25,6 +25,7 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -47,6 +48,8 @@ type DepInjectInput struct {
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
 
+	Mempool sdkmempool.Mempool
+
 	AccountKeeper  AccountKeeper
 	BankKeeper     BankKeeper
 	GetPrecompiles func() []vm.RegistrablePrecompile
@@ -67,7 +70,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
-
 	k := keeper.NewKeeper(
 		in.Key,
 		in.AccountKeeper,
@@ -75,6 +77,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.GetPrecompiles,
 		authority.String(),
 		in.AppOpts,
+		in.Mempool,
 	)
 
 	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)

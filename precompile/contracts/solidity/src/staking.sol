@@ -24,7 +24,51 @@ pragma solidity ^0.8.4;
  * @dev Interface of the staking module's precompiled contract
  */
 interface IStakingModule {
+    ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are delegated to
+     * `validator`
+     */
+    event Delegate(address indexed validator, uint256 amount);
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are redelegated from
+     * `sourceValidator` to `destinationValidator`
+     */
+    event Redelegate(
+        address indexed sourceValidator,
+        address indexed destinationValidator,
+        uint256 amount
+    );
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are used to create `validator`
+     */
+    event CreateValidator(address indexed validator, uint256 amount);
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are unbonded from `validator`
+     */
+    event Unbond(address indexed validator, uint256 amount);
+
+    /**
+     * @dev Emitted by the staking module when `amount` tokens are canceled from `delegator`'s
+     * unbonding delegation with `validator`
+     */
+    event CancelUnbondingDelegation(
+        address indexed validator,
+        address indexed delegator,
+        uint256 amount,
+        int64 creationHeight
+    );
+
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
+
+    /**
+     * @dev Returns a list of active validators.
+     */
+    function getActiveValidators() external view returns (address[] memory);
 
     /**
      * @dev Returns the `amount` of tokens currently delegated by msg.sender to `validatorAddress`
@@ -78,11 +122,6 @@ interface IStakingModule {
         string calldata srcValidator,
         string calldata dstValidator
     ) external view returns (RedelegationEntry[] memory);
-
-    /**
-     * @dev Returns a list of active validators.
-     */
-    function getActiveValidators() external view returns (address[] memory);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
@@ -197,41 +236,4 @@ interface IStakingModule {
         // unbondingId is the incrementing id that uniquely identifies this entry
         uint64 unbondingId;
     }
-
-    /**
-     * @dev Emitted by the staking module when `amount` tokens are delegated to
-     * `validator`
-     */
-    event Delegate(address indexed validator, uint256 amount);
-
-    /**
-     * @dev Emitted by the staking module when `amount` tokens are redelegated from
-     * `sourceValidator` to `destinationValidator`
-     */
-    event Redelegate(
-        address indexed sourceValidator,
-        address indexed destinationValidator,
-        uint256 amount
-    );
-
-    /**
-     * @dev Emitted by the staking module when `amount` tokens are used to create `validator`
-     */
-    event CreateValidator(address indexed validator, uint256 amount);
-
-    /**
-     * @dev Emitted by the staking module when `amount` tokens are unbonded from `validator`
-     */
-    event Unbond(address indexed validator, uint256 amount);
-
-    /**
-     * @dev Emitted by the staking module when `amount` tokens are canceled from `delegator`'s
-     * unbonding delegation with `validator`
-     */
-    event CancelUnbondingDelegation(
-        address indexed validator,
-        address indexed delegator,
-        uint256 amount,
-        int64 creationHeight
-    );
 }

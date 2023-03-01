@@ -18,20 +18,23 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package core
 
 import (
-	"github.com/ethereum/go-ethereum/params"
+	"math/big"
 
+	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
+// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
+// NOTE: This does not take the necessary gas in to account to make the transfer valid.
+func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
+	return sdb.GetBalance(addr).Cmp(amount) >= 0
+}
 
-func NewPrecompilePluginMock() *PrecompilePluginMock {
-	return &PrecompilePluginMock{
-		GetPrecompilesFunc: func(_ *params.Rules) []vm.RegistrablePrecompile {
-			return nil
-		},
-	}
+// `Transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
+func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
+	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
 }

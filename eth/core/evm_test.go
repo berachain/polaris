@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package state_test
+package core_test
 
 import (
 	"math/big"
@@ -27,7 +27,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/state"
+	"pkg.berachain.dev/stargazer/eth/core"
 	vmmock "pkg.berachain.dev/stargazer/eth/core/vm/mock"
 )
 
@@ -44,7 +44,7 @@ var _ = Describe("Transfers", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(100)
 			}
-			ok := state.CanTransfer(sdb, addr, big.NewInt(100))
+			ok := core.CanTransfer(sdb, addr, big.NewInt(100))
 			Expect(ok).To(BeTrue())
 		})
 
@@ -52,13 +52,13 @@ var _ = Describe("Transfers", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(100)
 			}
-			ok := state.CanTransfer(sdb, addr, big.NewInt(101))
+			ok := core.CanTransfer(sdb, addr, big.NewInt(101))
 			Expect(ok).To(BeFalse())
 		})
 	})
 
 	Context("Test Transfer", func() {
-		It("should state.Transfer the amount if the account has enough balance", func() {
+		It("should core.Transfer the amount if the account has enough balance", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(100)
 			}
@@ -72,11 +72,11 @@ var _ = Describe("Transfers", func() {
 					return big.NewInt(100)
 				}
 			}
-			state.Transfer(sdb, addr, addr, big.NewInt(100))
+			core.Transfer(sdb, addr, addr, big.NewInt(100))
 			Expect(sdb.GetBalanceFunc(addr).Cmp(big.NewInt(100))).To(Equal(0))
 		})
 
-		It("should not state.Transfer the amount if the account does not have enough balance", func() {
+		It("should not core.Transfer the amount if the account does not have enough balance", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(100)
 			}
@@ -90,7 +90,7 @@ var _ = Describe("Transfers", func() {
 					return big.NewInt(100)
 				}
 			}
-			state.Transfer(sdb, addr, addr, big.NewInt(101))
+			core.Transfer(sdb, addr, addr, big.NewInt(101))
 			Expect(sdb.GetBalanceFunc(addr).Cmp(big.NewInt(100))).To(Equal(0))
 		})
 	})

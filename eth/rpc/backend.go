@@ -55,6 +55,7 @@ var DefaultGasPriceOracleConfig = gasprice.Config{
 	MaxBlockHistory:  256,
 	Default:          big.NewInt(1000000000),
 	MaxPrice:         big.NewInt(1000000000000000000),
+	IgnorePrice:      gasprice.DefaultIgnorePrice,
 }
 
 type StargazerBackend interface {
@@ -161,21 +162,23 @@ func (b *backend) SetHead(number uint64) {
 
 // `HeaderByNumber` returns the block header at the given block number.
 func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*types.Header, error) {
-	block, err := b.BlockByNumber(ctx, number)
-	b.logger.Info("HeaderByNumber", "block", block)
+	block, err := b.stargazerBlockByNumber(number)
 	if err != nil {
+		b.logger.Error("eth.rpc.backend.HeaderByNumber", "number", number, "err", err)
 		return nil, err
 	}
-	return block.Header(), nil
+	b.logger.Info("eth.rpc.backend.HeaderByNumber", "header", block.Header)
+	return block.Header, nil
 }
 
 // `HeaderByHash` returns the block header with the given hash.
 func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error) {
-	b.logger.Info("HeaderByHash", "hash", hash)
-	block := b.chain.GetStargazerBlockByHash(hash)
-	if block == nil {
-		return nil, ErrBlockNotFound
+	block, err := b.stargazerBlockByHash(hash)
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "err", err)
+		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
 	}
+	b.logger.Info("eth.rpc.backend.HeaderByHash", "header", block.Header)
 	return block.EthBlock().Header(), nil
 }
 
@@ -183,50 +186,60 @@ func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.He
 func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Header, error) {
-	block, err := b.BlockByNumberOrHash(ctx, blockNrOrHash)
+	block, err := b.stargazerBlockByNumberOrHash(blockNrOrHash)
 	if err != nil {
+		b.logger.Error("eth.rpc.backend.HeaderByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
 		return nil, err
 	}
-	return block.Header(), nil
+	b.logger.Info("eth.rpc.backend.HeaderByNumberOrHash", "header", block.Header)
+	return block.Header, nil
 }
 
 // `CurrentHeader` returns the current header from the local chain.s.
 func (b *backend) CurrentHeader() *types.Header {
-	header := b.chain.CurrentHeader()
-	b.logger.Info("CurrentHeader", "header", header)
-	if header == nil {
+	block, err := b.chain.CurrentBlock()
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.CurrentHeader", "block", block, "err", err)
 		return nil
 	}
-	return header.Header
+	b.logger.Info("eth.rpc.backend.CurrentHeader", "header", block.Header)
+	return block.Header
 }
 
 // `CurrentBlock` returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Block {
-	block := b.chain.CurrentBlock()
-	b.logger.Info("CurrentHeader", "block", block)
-	if block == nil {
+	block, err := b.chain.CurrentBlock()
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
 		return nil
 	}
+	b.logger.Info("eth.rpc.backend.CurrentBlock", "header", block.Header,
+		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock()
 }
 
 // `BlockByNumber` returns the block identified by `number`.
 func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types.Block, error) {
-	block := b.stargazerBlockByNumber(number)
-	b.logger.Info("BlockByNumber", "block", block)
-	if block == nil {
-		return nil, errorslib.Wrapf(ErrBlockNotFound, "number [%d]", number)
+	block, err := b.stargazerBlockByNumber(number)
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.BlockByNumber", "number", number, "err", err)
+		return nil, errorslib.Wrapf(err, "BlockByNumber [%d]", number)
 	}
+	b.logger.Info("eth.rpc.backend.BlockByNumber", "header", block.Header,
+		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock(), nil
 }
 
-// `BlockByHash` returns the block with the given hash.
+// `BlockByHash` returns the block with the given `hash`.
 func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Block, error) {
-	block := b.chain.GetStargazerBlockByHash(hash)
+	block, err := b.stargazerBlockByHash(hash)
 	b.logger.Info("BlockByHash", "hash", hash, "block", block)
-	if block == nil {
-		return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.BlockByHash", "hash", hash, "err", err)
+		return nil, errorslib.Wrapf(err, "BlockByHash [%s]", hash.String())
 	}
+	b.logger.Info("eth.rpc.backend.BlockByHash", "header", block.Header,
+		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock(), nil
 }
 
@@ -236,9 +249,11 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 ) (*types.Block, error) {
 	block, err := b.stargazerBlockByNumberOrHash(blockNrOrHash)
 	if err != nil {
+		b.logger.Error("eth.rpc.backend.BlockByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
 		return nil, err
 	}
-	b.logger.Info("BlockByNumberOrHash", "block", block)
+	b.logger.Info("eth.rpc.backend.BlockByNumberOrHash", "header", block.Header,
+		"num_txs", len(block.GetTransactions()))
 	return block.EthBlock(), nil
 }
 
@@ -247,58 +262,106 @@ func (b *backend) StateAndHeaderByNumber(
 ) (vm.GethStateDB, *types.Header, error) {
 	state, err := b.chain.GetStateByNumber(number.Int64())
 	if err != nil {
+		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
 	}
-	header, err := b.HeaderByNumber(ctx, number)
-	return state, header, err
+	block, err := b.stargazerBlockByNumber(number)
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
+		return nil, nil, err
+	}
+	b.logger.Info("eth.rpc.backend.StateAndHeaderByNumber", "header", block.Header,
+		"num_txs", len(block.GetTransactions()))
+	return state, block.Header, nil
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context, blockNrOrHash BlockNumberOrHash,
 ) (vm.GethStateDB, *types.Header, error) {
-	var number BlockNumber
-	if hash, ok := blockNrOrHash.Hash(); ok {
-		number = BlockNumber(b.chain.GetStargazerBlockByHash(hash).Number.Int64())
-	} else if number, ok = blockNrOrHash.Number(); ok {
-		// nothing to do
+	var err error
+	var number int64
+	var hash common.Hash
+	var block *types.StargazerBlock
+	if inputNum, ok := blockNrOrHash.Number(); ok {
+		// Try to resolve by block number first.
+		number = inputNum.Int64()
+		block, err = b.stargazerBlockByNumber(inputNum)
+		if err != nil {
+			b.logger.Error("eth.rpc.backend.StateAndHeaderByNumberOrHash", "number", inputNum,
+				"err", err)
+			return nil, nil, err
+		}
+	} else if hash, ok = blockNrOrHash.Hash(); ok {
+		// Try to resolve by hash next.
+		block, err = b.stargazerBlockByHash(hash)
+		if err != nil {
+			b.logger.Error("eth.rpc.backend.StateAndHeaderByNumberOrHash", "hash", hash,
+				"err", err)
+			return nil, nil, err
+		}
+		number = block.Number.Int64()
 	} else {
 		return nil, nil, errors.New("invalid arguments; neither block nor hash specified")
 	}
-	return b.StateAndHeaderByNumber(ctx, number)
+
+	// Now that we have a number, we can load up a statedb at the derived block number.
+	state, err := b.chain.GetStateByNumber(number)
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumberOrHash", "number", number,
+			"err", err)
+		return nil, nil, err
+	}
+	b.logger.Info("eth.rpc.backend.StateAndHeaderByNumberOrHash", "header", block.Header,
+		"num_txs", len(block.GetTransactions()))
+	return state, block.Header, nil
 }
 
 // `PendingBlockAndReceipts` returns the current pending block and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
-	block := b.chain.CurrentBlock()
+	block, err := b.chain.CurrentBlock()
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.PendingBlockAndReceipts", "err", err)
+		return nil, nil
+	}
+	b.logger.Info("eth.rpc.backend.PendingBlockAndReceipts", "header", block.Header,
+		"num_receipts", len(block.GetReceipts()))
 	return block.EthBlock(), block.GetReceipts()
 }
 
 // `GetReceipts` returns the receipts for the given block hash.
 func (b *backend) GetReceipts(ctx context.Context, hash common.Hash) (types.Receipts, error) {
-	block := b.chain.GetStargazerBlockByHash(hash)
-	if block != nil {
-		return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
+	block, err := b.stargazerBlockByHash(hash)
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.GetReceipts", "hash", hash, "err", err)
+		return nil, err
 	}
+	b.logger.Info("eth.rpc.backend.GetReceipts", "header", block.Header,
+		"num_receipts", len(block.GetReceipts()))
 	return block.GetReceipts(), nil
 }
 
 // `GetTd` returns the total difficulty of a block in the canonical chain.
-// This is hardcoded to 0, as it is only applicable in a PoW chain.
+// This is hardcoded to 69, as it is only applicable in a PoW chain.
 func (b *backend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
-	return new(big.Int)
+	b.logger.Info("eth.rpc.backend.GetTd", "hash", hash)
+	return new(big.Int).SetInt64(69)
 }
 
+// `GetEVM` returns a new EVM to be used for simulating a transaction, estimating gas etc.
 func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) (*vm.GethEVM, func() error, error) {
-	// if vmConfig == nil {
-	// 	vmConfig = new(vm.Config)
-	// }
-	// txContext := core.NewEVMTxContext(msg)
-	panic("GetEVM not implemented")
-	// _ = txContext
-	// _ = vmConfig
-	// TODO: finish
+	if vmConfig == nil {
+		b.logger.Info("eth.rpc.backend.GetEVM", "vmConfig", "nil")
+		vmConfig = new(vm.Config)
+	}
+	if msg == nil {
+		b.logger.Error("eth.rpc.backend.GetEVM", "msg", "nil")
+		return nil, nil, errors.New("msg is nil")
+	}
+	txContext := core.NewEVMTxContext(msg)
+	b.logger.Info("eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
+	return b.chain.GetEVM(ctx, txContext, state, header, vmConfig), state.Error, nil
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
@@ -319,21 +382,13 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	b.logger.Info("SendTx", signedTx.Hash())
 	return b.chain.Host().GetTxPoolPlugin().SendTx(signedTx)
 }
 
-func (b *backend) GetTransaction(ctx context.Context,
-	txHash common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	// 1. Check the Mempool
-	tx := b.GetPoolTransaction(txHash)
-	if tx != nil {
-		// todo get other info
-		return tx, common.Hash{}, 0, 0, nil
-	}
-	// 2. Check the Historical Storage
-	// tx := b.chain.Host().GetBlockPlugin().GetTransactionByHash(txHash)
-	return nil, common.Hash{}, 0, 0, nil
+func (b *backend) GetTransaction(
+	ctx context.Context, txHash common.Hash,
+) (*types.Transaction, common.Hash, uint64, uint64, error) {
+	return b.chain.GetTransaction(txHash)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
@@ -345,8 +400,8 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
-	// TODO: Implement your code here
-	return 0, nil
+	// TODO: get pool nonce, then fallback to statedb.
+	return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
 }
 
 func (b *backend) Stats() (int, int) {
@@ -375,6 +430,7 @@ func (b *backend) SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscripti
 
 // `ChainConfig` returns the chain configuration.
 func (b *backend) ChainConfig() *params.ChainConfig {
+	b.logger.Info("eth.rpc.backend.ChainConfig")
 	return b.chain.Host().GetConfigurationPlugin().ChainConfig()
 }
 
@@ -389,11 +445,11 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 	if number < 0 || hash == (common.Hash{}) {
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
-	block, err := b.BlockByNumberOrHash(ctx, BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
+	block, err := b.stargazerBlockByNumberOrHash(BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if err != nil {
 		return nil, err
 	}
-	return block.Body(), nil
+	return block.EthBlock().Body(), nil
 }
 
 // `GetLogs` returns the logs for the given block hash or number.
@@ -463,9 +519,9 @@ func (b *backend) PeerCount() hexutil.Uint {
 func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) (*types.StargazerBlock, error) {
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block := b.chain.GetStargazerBlockByHash(hash)
-		if block == nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound, "hash [%s]", hash.String())
+		block, err := b.chain.GetStargazerBlockByHash(hash)
+		if err != nil {
+			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
 
 		// If the has is found, we have the canonical chain.
@@ -473,33 +529,36 @@ func (b *backend) stargazerBlockByNumberOrHash(blockNrOrHash BlockNumberOrHash) 
 			return block, nil
 		}
 		if blockNrOrHash.RequireCanonical {
-			return nil, errorslib.Wrapf(ErrHashNotCanonical, "hash [%s]", hash.String())
+			return nil, errorslib.Wrapf(ErrHashNotCanonical, "stargazerBlockByNumberOrHash: hash [%s]", hash.String())
 		}
 		// If not we try to query by number as a backup.
 	}
 
 	// Then we try to get the block by number
 	if blockNr, ok := blockNrOrHash.Number(); ok {
-		block := b.stargazerBlockByNumber(blockNr)
-		if block == nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound, "number [%d]", blockNr)
+		block, err := b.stargazerBlockByNumber(blockNr)
+		if err != nil {
+			return nil, errorslib.Wrapf(ErrBlockNotFound, "stargazerBlockByNumberOrHash: number [%d]", blockNr)
 		}
+		return block, nil
 	}
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
 
+// `stargazerBlockByHash` returns the stargazer block identified by `hash`.
+func (b *backend) stargazerBlockByHash(hash common.Hash) (*types.StargazerBlock, error) {
+	return b.chain.GetStargazerBlockByHash(hash)
+}
+
 // `stargazerBlockByNumber` returns the stargazer block identified by `number.
-func (b *backend) stargazerBlockByNumber(number BlockNumber) *types.StargazerBlock {
-	switch number { //nolint:exhaustive // not all cases are needed.
-	// Pending and latest are the same in stargazer.
-	case PendingBlockNumber:
-	case LatestBlockNumber:
-		return b.chain.CurrentBlock()
-	case FinalizedBlockNumber:
-	case SafeBlockNumber:
+func (b *backend) stargazerBlockByNumber(number BlockNumber) (*types.StargazerBlock, error) {
+	switch number { //nolint:nolintlint,exhaustive // golangci-lint bug?
+	case SafeBlockNumber, FinalizedBlockNumber:
 		return b.chain.FinalizedBlock()
-	case EarliestBlockNumber:
-		// no-op, since we are querying block 0, which is done below.
+	case PendingBlockNumber, LatestBlockNumber:
+		return b.chain.CurrentBlock()
+	default:
+		// CONTRACT: GetStargazerBlockByNumber receives number >=0
+		return b.chain.GetStargazerBlockByNumber(number.Int64())
 	}
-	return b.chain.GetStargazerBlockByNumber(number.Int64())
 }

@@ -23,8 +23,13 @@ package ante
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"pkg.berachain.dev/stargazer/lib/errors"
 )
 
 // `SetAnteHandler` sets the required ante handler for a Stargazer Cosmos SDK Chain.
@@ -36,11 +41,12 @@ func SetAnteHandler(
 ) func(bApp *baseapp.BaseApp) {
 	return func(bApp *baseapp.BaseApp) {
 		opt := ante.HandlerOptions{
-			AccountKeeper:   ak,
-			BankKeeper:      bk,
-			SignModeHandler: txCfg.SignModeHandler(),
-			FeegrantKeeper:  fgk,
-			SigGasConsumer:  SigVerificationGasConsumer,
+			AccountKeeper:          ak,
+			BankKeeper:             bk,
+			ExtensionOptionChecker: extOptCheckerfunc,
+			SignModeHandler:        txCfg.SignModeHandler(),
+			FeegrantKeeper:         fgk,
+			SigGasConsumer:         SigVerificationGasConsumer,
 		}
 		ch, _ := ante.NewAnteHandler(
 			opt,
@@ -49,4 +55,44 @@ func SetAnteHandler(
 			ch,
 		)
 	}
+}
+
+func extOptCheckerfunc(a *codectypes.Any) bool {
+	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
+}
+
+// NewAnteHandler returns an AnteHandler that checks and increments sequence
+// numbers, checks signatures & account numbers, and deducts fees from the first
+// signer.
+func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
+	if options.AccountKeeper == nil {
+		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+	}
+
+	if options.BankKeeper == nil {
+		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+	}
+
+	if options.SignModeHandler == nil {
+		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	}
+
+	anteDecorators := []sdk.AnteDecorator{
+		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		ante.NewValidateBasicDecorator(),
+		ante.NewTxTimeoutHeightDecorator(),
+		ante.NewValidateMemoDecorator(options.AccountKeeper),
+		// ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		// ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
+		// options.FeegrantKeeper, options.TxFeeChecker),
+		ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator m
+		// ust be called before all signature verification decorators
+		ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		// ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		// ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+	}
+
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
