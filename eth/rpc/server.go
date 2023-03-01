@@ -28,6 +28,7 @@ import (
 
 // `Service` is the interface for the JSON-RPC service.
 type Service interface {
+	GetBackend() StargazerBackend
 	SetBackend(StargazerBackend)
 	RegisterAPIs(extraAPIs func(StargazerBackend) []API) error
 	GetHTTP() *Server
@@ -67,6 +68,11 @@ func (s *service) RegisterAPIs(extraAPIs func(StargazerBackend) []API) error {
 		}
 	}
 	return nil
+}
+
+// `SetBackend` sets the backend for the service.
+func (s *service) GetBackend() StargazerBackend {
+	return s.backend
 }
 
 // `SetBackend` sets the backend for the service.

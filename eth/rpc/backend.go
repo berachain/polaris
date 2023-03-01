@@ -409,8 +409,9 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
-	// TODO: get pool nonce, then fallback to statedb.
-	return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
+	nonce, err := b.chain.Host().GetTxPoolPlugin().GetNonce(addr)
+	defer b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
+	return nonce, err
 }
 
 func (b *backend) Stats() (int, int) {

@@ -23,6 +23,8 @@ package mempool
 import (
 	"context"
 
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
@@ -40,7 +42,8 @@ type EthTxPool struct {
 
 	// `ethTxCache` caches transactions that are added to the mempool
 	// so that they can be retrieved later
-	ethTxCache map[common.Hash]*coretypes.Transaction
+	noncer  *noncer
+	pending map[common.Hash]*coretypes.Transaction // pending transactions by tx hash
 
 	// // `nonceCache` caches the pending nonce by txhash
 	// nonceCache map[common.Address]*coretypes.Transaction
@@ -49,15 +52,21 @@ type EthTxPool struct {
 	// minedBlockCache map[common.Hash][]*coretypes.Transaction
 
 	// `blockNumberCache`
-
+	logger log.Logger
 }
 
 // `New` is called when the mempool is created.
 func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 	return &EthTxPool{
-		Mempool:    m,
-		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
+		Mempool: m,
+		pending: make(map[common.Hash]*coretypes.Transaction),
+		logger:  log.NewLogger(),
 	}
+}
+
+// `SetNonceRetriever` is called when the mempool is created.
+func (etp *EthTxPool) BuildNoncer(nr NonceRetriever) {
+	etp.noncer = newNoncer(nr)
 }
 
 // `Insert` is called when a transaction is added to the mempool.
@@ -74,19 +83,24 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	}
 
 	t := etr.AsTransaction()
-	etp.ethTxCache[t.Hash()] = t
+	etp.pending[t.Hash()] = t
+
+	// we set the nonce of the sender in the pool, to whatever they send in. At this
+	// point we have already checked to make sure the nonce is valid. So we can blindly
+	// set the nonce of the sender to whatever they sent in.
+	etp.noncer.set(common.Address(etr.GetSigners()[0]), t.Nonce()+1)
 	return nil
 }
 
 // `GetTx` is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
-	return etp.ethTxCache[hash]
+	return etp.pending[hash]
 }
 
 // `GetPoolTransactions` is called when the mempool is retrieved.
 func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
-	txs := make(coretypes.Transactions, 0, len(etp.ethTxCache))
-	for _, tx := range etp.ethTxCache {
+	txs := make(coretypes.Transactions, 0, len(etp.pending))
+	for _, tx := range etp.pending {
 		txs = append(txs, tx)
 	}
 	return txs
@@ -104,7 +118,13 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	if !ok {
 		return nil
 	}
-
-	delete(etp.ethTxCache, etr.AsTransaction().Hash())
+	t := etr.AsTransaction()
+	etp.noncer.setIfLower(common.Address(etr.GetSigners()[0]), t.Nonce())
+	etp.logger.Debug("remove tx from mempool", "tx", t.Hash(), "nonce", t.Nonce())
+	delete(etp.pending, t.Hash())
 	return nil
+}
+
+func (etp *EthTxPool) GetNonce(addr common.Address) uint64 {
+	return etp.noncer.get(addr)
 }
