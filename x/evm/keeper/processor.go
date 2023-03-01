@@ -32,7 +32,6 @@ import (
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("keeper.BeginBlocker")
 	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
 }
 
@@ -45,7 +44,6 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 		return nil, err
 	}
 
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("End ProcessTransaction()")
 	return receipt, err
 }
 
@@ -59,7 +57,7 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 		panic(err)
 	}
 
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", stargazerBlock.Header)
+	k.Logger(sCtx).Info("evm_hash", stargazerBlock.Header.Hash())
 
 	// Save the historical stargazer header in the IAVL Tree.
 	k.bp.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)

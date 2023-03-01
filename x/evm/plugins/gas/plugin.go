@@ -69,6 +69,8 @@ func (p *plugin) Reset(ctx context.Context) {
 
 // `SetGasLimit` resets the gas limit of the underlying GasMeter.
 func (p *plugin) SetTxGasLimit(limit uint64) error {
+	_ = gasMeterDescriptor
+	// TODO: FIX THIS
 	// consumed := p.gasMeter.GasConsumed()
 	// The gas meter is reset to the new limit.
 	p.gasMeter = storetypes.NewGasMeter(limit)

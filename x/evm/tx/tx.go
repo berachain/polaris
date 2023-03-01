@@ -70,6 +70,8 @@ func (s SignModeEthTxHandler) GetSignBytes(
 }
 
 // `GetSignBytes` returns the sign bytes for the given sign mode and transaction.
-func (s SignModeEthTxHandler) GetSignBytesWithContext(_ context.Context, mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx) ([]byte, error) {
+func (s SignModeEthTxHandler) GetSignBytesWithContext(
+	_ context.Context, mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx,
+) ([]byte, error) {
 	return s.GetSignBytes(mode, data, tx)
 }

@@ -43,6 +43,8 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 	"pkg.berachain.dev/stargazer/x/evm/types"
+
+	ethlog "github.com/ethereum/go-ethereum/log"
 )
 
 // Compile-time interface assertion.
@@ -110,7 +112,20 @@ func NewKeeper(
 	return k
 }
 
-func (k *Keeper) SetupRPC() {
+// `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
+func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
+	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
+		logger := ctx.Logger().With("module", "geth")
+		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+		case ethlog.LvlTrace, ethlog.LvlDebug:
+			logger.Debug(r.Msg, r.Ctx...)
+		case ethlog.LvlInfo, ethlog.LvlWarn:
+			logger.Info(r.Msg, r.Ctx...)
+		case ethlog.LvlError, ethlog.LvlCrit:
+			logger.Error(r.Msg, r.Ctx...)
+		}
+		return nil
+	}))
 }
 
 // `Logger` returns a module-specific logger.

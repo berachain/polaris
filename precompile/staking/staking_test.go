@@ -21,7 +21,6 @@
 package staking
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -91,7 +90,6 @@ var _ = Describe("Staking", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			fmt.Println(contract.ABIMethods())
 			Expect(contract.PrecompileMethods()).To(HaveLen(len(contract.ABIMethods())))
 		})
 	})

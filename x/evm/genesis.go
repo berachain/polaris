@@ -66,6 +66,9 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 		panic(err)
 	}
 
+	// Configure the logger for the ethereum backend
+	am.keeper.ConfigureGethLogger(ctx)
+
 	return []abci.ValidatorUpdate{}
 }
 

@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -44,7 +45,7 @@ func SetAnteHandler(
 			FeegrantKeeper:         fgk,
 			SigGasConsumer:         SigVerificationGasConsumer,
 		}
-		ch, _ := ante.NewAnteHandler(
+		ch, _ := NewAnteHandler(
 			opt,
 		)
 		bApp.SetAnteHandler(
@@ -55,4 +56,40 @@ func SetAnteHandler(
 
 func extOptCheckerfunc(a *codectypes.Any) bool {
 	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
+}
+
+// NewAnteHandler returns an AnteHandler that checks and increments sequence
+// numbers, checks signatures & account numbers, and deducts fees from the first
+// signer.
+func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
+	// if options.AccountKeeper == nil {
+	// 	return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+	// }
+
+	// if options.BankKeeper == nil {
+	// 	return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+	// }
+
+	// if options.SignModeHandler == nil {
+	// 	return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	// }
+
+	anteDecorators := []sdk.AnteDecorator{
+		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		ante.NewValidateBasicDecorator(),
+		ante.NewTxTimeoutHeightDecorator(),
+		ante.NewValidateMemoDecorator(options.AccountKeeper),
+		// authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		// authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
+		// options.FeegrantKeeper, options.TxFeeChecker),
+		ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator
+		// must be called before all signature verification decorators
+		ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		// authante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		// authante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler), // TODO: Fixme
+		// authante.NewIncrementSequenceDecorator(options.AccountKeeper),
+	}
+
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
