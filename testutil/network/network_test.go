@@ -22,7 +22,6 @@ package network_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -39,13 +38,13 @@ func TestNetwork(t *testing.T) {
 
 var _ = Describe("Network", func() {
 	var net *network.Network
-	It("should start and stop", func() {
+	BeforeEach(func() {
 		net = network.New(GinkgoT(), network.DefaultConfig())
 		_, err := net.WaitForHeightWithTimeout(3, 15*time.Second)
 		Expect(err).To(BeNil())
-		fmt.Println("VALIDATOR", net.Validators[0].APIAddress)
-		fmt.Println("VALIDATOR", net.Validators[0].RPCAddress)
+	})
 
+	It("eth_chainId", func() {
 		// Dial an Ethereum RPC Endpoint
 		client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
 		Expect(err).To(BeNil())
