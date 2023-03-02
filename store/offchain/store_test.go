@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

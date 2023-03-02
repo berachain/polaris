@@ -22,8 +22,6 @@ package mock
 
 import (
 	"context"
-
-	"pkg.berachain.dev/stargazer/eth/core/types"
 )
 
 const testBaseFee = 69
@@ -34,9 +32,6 @@ func NewBlockPluginMock() *BlockPluginMock {
 	mockedBlockPlugin := &BlockPluginMock{
 		BaseFeeFunc: func() uint64 {
 			return testBaseFee
-		},
-		GetStargazerHeaderByNumberFunc: func(n int64) *types.StargazerHeader {
-			panic("mock out the GetStargazerHeaderByNumber method")
 		},
 		PrepareFunc: func(contextMoqParam context.Context) {
 			// no-op

@@ -18,40 +18,34 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package types
 
 import (
-	"math/big"
+	"github.com/ethereum/go-ethereum/rlp"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/params"
 )
 
-//go:generate moq -out ./evm.mock.go -pkg mock ../ StargazerEVM
+// `TxLookupEntry` is a positional metadata to help looking up a transaction by hash.
+//
+//go:generate rlpgen -type TxLookupEntry -out transaction.rlpgen.go -decoder
+type TxLookupEntry struct {
+	Tx        *Transaction
+	TxIndex   uint64
+	BlockNum  uint64
+	BlockHash common.Hash
+}
 
-func NewStargazerEVM() *StargazerEVMMock {
-	mockedStargazerEVM := &StargazerEVMMock{
-		CallFunc: func(caller vm.ContractRef, addr common.Address,
-			input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
-			return []byte{}, 0, nil
-		},
-		ChainConfigFunc: func() *params.ChainConfig {
-			return &params.ChainConfig{
-				LondonBlock:    big.NewInt(0),
-				HomesteadBlock: big.NewInt(0),
-			}
-		},
-		CreateFunc: func(caller vm.ContractRef, code []byte,
-			gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
-			return []byte{}, common.Address{}, 0, nil
-		},
-		SetTxContextFunc: func(txCtx vm.TxContext) {
-			// no-op
-		},
-		StateDBFunc: func() vm.StargazerStateDB {
-			return NewEmptyStateDB()
-		},
+// `UnmarshalBinary` decodes a tx lookup entry from the Ethereum RLP format.
+func (tle *TxLookupEntry) UnmarshalBinary(data []byte) error {
+	return rlp.DecodeBytes(data, tle)
+}
+
+// `MarshalBinary` encodes the tx lookup enßtry into the Ethereum RLP format.
+func (tle *TxLookupEntry) MarshalBinary() ([]byte, error) {
+	bz, err := rlp.EncodeToBytes(tle)
+	if err != nil {
+		return nil, err
 	}
-	return mockedStargazerEVM
+	return bz, nil
 }

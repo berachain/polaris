@@ -24,14 +24,15 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	ethsecp256k1 "pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/stargazer/eth/accounts"
 	"pkg.berachain.dev/stargazer/eth/common"
 	crypto "pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/lib/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 const (

@@ -25,9 +25,8 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
@@ -35,6 +34,9 @@ import (
 	testutil "pkg.berachain.dev/stargazer/testing/utils"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events/mock"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("plugin", func() {
@@ -54,7 +56,7 @@ var _ = Describe("plugin", func() {
 
 	It("should use correctly consume gas", func() {
 		_, remainingGas, err := p.Run(sdb, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 

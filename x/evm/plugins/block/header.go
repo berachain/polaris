@@ -21,97 +21,101 @@
 package block
 
 import (
-	"cosmossdk.io/store/prefix"
+	"errors"
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/rlp"
+
 	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/eth/rpc"
+	errorslib "pkg.berachain.dev/stargazer/lib/errors"
 )
 
 // ===========================================================================
 // Stargazer Block Tracking
 // ===========================================================================.
 
-// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set
-// to 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
-const numHistoricalBlocks int64 = 256
+var SGHeaderKey = []byte{0xb0}
 
-var SGHeaderPrefix = []byte{0xb0}
-
-// `TrackHistoricalStargazerHeader` saves the latest historical-info and deletes the oldest
-// heights that are below pruning height.
-func (p *plugin) TrackHistoricalStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) {
-	// Prune the store to ensure we only maintain the last numHistoricalBlocks.
-	// In most cases, this will involve removing a single block from the store.
-	// In the rare scenario when the historical blocks gets reduced to a lower value k'
-	// from the original value k. k - k' blocks must be deleted from the store.
-	// Since the entries to be deleted are always in a continuous range, we can iterate
-	// over the historical entries starting from the most recent version to be pruned
-	// and then return at the first empty entry.
-	for i := ctx.BlockHeight() - numHistoricalBlocks; i >= 0; i-- {
-		toPrune, found := p.GetStargazerHeader(ctx, i)
-		if found {
-			if err := p.PruneStargazerHeader(ctx, toPrune); err != nil {
-				panic(err)
-			}
-		} else {
-			break
-		}
-	}
-	if err := p.SetStargazerHeader(ctx, header); err != nil {
-		panic(err)
-	}
+// `SetQueryContextFn` sets the query context func for the plugin.
+func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
+	p.getQueryContext = gqc
 }
 
-// `GetStargazerBlock` returns the block from the store at the height specified in the context.
-func (p *plugin) GetStargazerHeader(ctx sdk.Context, height int64) (*types.StargazerHeader, bool) {
-	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
-	// Note: only handling up to 2^63 - 1 blocks (`height` is of type int64), which is fine for now.
-	bz := store.Get(sdk.Uint64ToBigEndian(uint64(height)))
+// `GetHeaderByNumber` returns the header at the given height, using the plugin's query context.
+//
+// `GetHeaderByNumber` implements core.BlockPlugin.
+func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
+	if p.getQueryContext == nil {
+		return nil, errors.New("GetHeader: getQueryContext is nil")
+	}
+
+	iavlHeight, err := p.getIAVLHeight(height)
+	if err != nil {
+		return nil, errors.New("GetHeader: invalid IAVL height")
+	}
+
+	ctx, err := p.getQueryContext(iavlHeight, false)
+	if err != nil {
+		return nil, errors.New("GetHeader: failed to use query context")
+	}
+
+	// Unmarshal the header from the context kv store.
+	bz := ctx.KVStore(p.storekey).Get(SGHeaderKey)
 	if bz == nil {
-		return nil, false
+		return nil, errors.New("GetHeader: stargazer header not found in kvstore")
+	}
+	header, err := unmarshalHeader(bz)
+	if err != nil {
+		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
 
-	// Unmarshal the retrieved header.
-	header := new(types.StargazerHeader)
-	if err := header.UnmarshalBinary(bz); err != nil {
-		return nil, false
+	if int64(header.Number.Uint64()) != iavlHeight {
+		panic("header number is not equal to the given iavl tree height")
 	}
-	return header, true
+
+	return header, nil
 }
 
-// `SetStargazerHeader` saves a block to the store.
-func (p *plugin) SetStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
-	bz, err := header.MarshalBinary()
+// `SetHeader` saves a block to the store.
+func (p *plugin) SetHeader(header *types.Header) error {
+	bz, err := marshalHeader(header)
 	if err != nil {
 		return err
 	}
-	// Store the full block at the block key. (Overrides the old spot on the tree.)
-	store.Set(sdk.Uint64ToBigEndian(header.Number.Uint64()), bz)
+	p.ctx.KVStore(p.storekey).Set(SGHeaderKey, bz)
 	return nil
 }
 
-// `IterateStargazerHeaders` iterates over the stargazer headers and performs a callback function.
-func (p *plugin) IterateStargazerHeaders(ctx sdk.Context, cb func(header *types.StargazerHeader) (stop bool)) {
-	it := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix).Iterator(nil, nil)
-	defer it.Close()
-
-	for ; it.Valid(); it.Next() {
-		var header types.StargazerHeader
-		if err := header.UnmarshalBinary(it.Value()); err != nil {
-			panic(err)
-		}
-		if cb(&header) {
-			break
-		}
+// `getIAVLHeight` returns the IAVL height for the given block number.
+func (p *plugin) getIAVLHeight(number int64) (int64, error) {
+	var iavlHeight int64
+	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // covers all cases.
+	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
+		iavlHeight = p.ctx.BlockHeight() - 1
+	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
+		iavlHeight = p.ctx.BlockHeight()
+	case rpc.EarliestBlockNumber:
+		iavlHeight = 1
+	default:
+		iavlHeight = number
 	}
+
+	if iavlHeight < 1 {
+		return 1, fmt.Errorf("invalid block number %d", number)
+	}
+
+	return iavlHeight, nil
 }
 
-// `PruneStargazerHeader` prunes a stargazer block from the store.
-func (p *plugin) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
-	store.Delete(sdk.Uint64ToBigEndian(header.Number.Uint64()))
-	// Notably, we don't delete the store key mapping hash to height as we want this
-	// to persist at the application layer in order to query by hash. (TODO? Tendermint?)
-	return nil
+func unmarshalHeader(data []byte) (*types.Header, error) {
+	header := &types.Header{}
+	err := rlp.DecodeBytes(data, header)
+	return header, err
+}
+
+func marshalHeader(header *types.Header) ([]byte, error) {
+	return rlp.EncodeToBytes(header)
 }

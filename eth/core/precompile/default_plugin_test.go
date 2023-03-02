@@ -24,11 +24,12 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/core/vm"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 //nolint:lll // test data.
@@ -57,7 +58,7 @@ var _ = Describe("Default Plugin", func() {
 			pc := vm.PrecompiledContractsHomestead[common.BytesToAddress([]byte{1})]
 			_, remainingGas, err := dp.Run(nil, pc, []byte(precompInput), common.Address{}, nil, 3000, true)
 			Expect(remainingGas).To(Equal(uint64(0)))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })

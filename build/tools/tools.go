@@ -29,6 +29,7 @@ package tools
 
 // nolint
 // todo: add note: brew install diffutils
+
 import (
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/cosmos/gosec/v2/cmd/gosec"
@@ -36,10 +37,8 @@ import (
 	_ "github.com/ethereum/go-ethereum/rlp/rlpgen"
 	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	_ "github.com/google/addlicense"
-	_ "github.com/incu6us/goimports-reviser/v3"
 	_ "github.com/matryer/moq"
 	_ "github.com/onsi/ginkgo/v2/ginkgo"
 	_ "github.com/securego/gosec/v2/cmd/gosec"
 	_ "github.com/segmentio/golines"
-	_ "golang.org/x/tools/cmd/goimports"
 )

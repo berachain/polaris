@@ -24,13 +24,14 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/x/evm/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("EthTransactionRequest", func() {
@@ -60,7 +61,7 @@ var _ = Describe("EthTransactionRequest", func() {
 			Expect(etr.GetSender()).To(Equal(address))
 			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
 			_, err := etr.GetSignature()
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 	When("it is a dynamic fee tx", func() {
@@ -83,7 +84,7 @@ var _ = Describe("EthTransactionRequest", func() {
 			Expect(etr.GetSender()).To(Equal(address))
 			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
 			_, err := etr.GetSignature()
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })

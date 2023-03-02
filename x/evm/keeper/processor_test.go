@@ -25,11 +25,10 @@ import (
 	"os"
 
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -43,6 +42,9 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/stargazer/x/evm/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Processor", func() {
@@ -58,7 +60,7 @@ var _ = Describe("Processor", func() {
 
 	BeforeEach(func() {
 		err := os.RemoveAll("tmp/berachain")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		legacyTxData = &coretypes.LegacyTx{
 			Nonce:    0,
@@ -97,17 +99,17 @@ var _ = Describe("Processor", func() {
 		AfterEach(func() {
 			k.EndBlocker(ctx)
 			err := os.RemoveAll("tmp/berachain")
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should panic on nil, empty transaction", func() {
 			Expect(func() {
 				_, err := k.ProcessTransaction(ctx, nil)
-				Expect(err).ToNot(BeNil())
+				Expect(err).To(HaveOccurred())
 			}).To(Panic())
 			Expect(func() {
 				_, err := k.ProcessTransaction(ctx, &coretypes.Transaction{})
-				Expect(err).ToNot(BeNil())
+				Expect(err).To(HaveOccurred())
 			}).To(Panic())
 		})
 
@@ -115,37 +117,37 @@ var _ = Describe("Processor", func() {
 			legacyTxData.Data = common.FromHex(generated.SolmateERC20Bin)
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			k.GetStatePlugin().CreateAccount(addr)
 			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
 			k.GetStatePlugin().Finalize()
 
 			// create the contract
 			result, err := k.ProcessTransaction(ctx, tx)
-			Expect(err).To(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result.Err).ToNot(HaveOccurred())
 			// call the contract non-view function
 			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
 			legacyTxData.To = &deployAddress
 			var solmateABI abi.ABI
 			err = solmateABI.UnmarshalJSON([]byte(generated.SolmateERC20ABI))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			legacyTxData.Data = input
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
 			result, err = k.ProcessTransaction(ctx, tx)
-			Expect(err).To(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result.Err).ToNot(HaveOccurred())
 
 			// call the contract view function
 			legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
 			result, err = k.ProcessTransaction(ctx, tx)
-			Expect(err).To(BeNil())
-			Expect(result.Err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result.Err).ToNot(HaveOccurred())
 		})
 	})
 })

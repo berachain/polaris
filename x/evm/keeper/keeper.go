@@ -23,6 +23,7 @@ package keeper
 import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
@@ -135,6 +136,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // `SetQueryContextFn` sets the query context function for the state plugin.
 func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
+	k.bp.SetQueryContextFn(qc)
 	k.sp.SetQueryContextFn(qc)
 }
 

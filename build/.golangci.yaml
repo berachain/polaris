@@ -58,6 +58,34 @@ linters-settings:
       - switch
       - map
 
+  exhaustruct:
+    # List of regular expressions to exclude struct packages and names from check.
+    # Default: []
+    exclude:
+      # std libs
+      - "^net/http.Client$"
+      - "^net/http.Cookie$"
+      - "^net/http.Request$"
+      - "^net/http.Response$"
+      - "^net/http.Server$"
+      - "^net/http.Transport$"
+      - "^net/url.URL$"
+      - "^os/exec.Cmd$"
+      - "^reflect.StructField$"
+      # public libs
+      - "^github.com/Shopify/sarama.Config$"
+      - "^github.com/Shopify/sarama.ProducerMessage$"
+      - "^github.com/mitchellh/mapstructure.DecoderConfig$"
+      - "^github.com/prometheus/client_golang/.+Opts$"
+      - "^github.com/spf13/cobra.Command$"
+      - "^github.com/spf13/cobra.CompletionOptions$"
+      - "^github.com/stretchr/testify/mock.Mock$"
+      - "^github.com/testcontainers/testcontainers-go.+Request$"
+      - "^github.com/testcontainers/testcontainers-go.FromDockerfile$"
+      - "^golang.org/x/tools/go/analysis.Analyzer$"
+      - "^google.golang.org/protobuf/.+Options$"
+      - "^gopkg.in/yaml.v3.Node$"
+
   funlen:
     # Checks the number of lines in a function.
     # If lower than 0, disable the check.
@@ -67,6 +95,20 @@ linters-settings:
     # If lower than 0, disable the check.
     # Default: 40
     statements: 50
+
+  gci:
+    sections:
+      - standard # Standard section: captures all standard packages.
+      - default # Default section: contains all imports that could not be matched to another section type.
+      - Prefix(github.com/cometbft)
+      - Prefix(cosmossdk.io)
+      - Prefix(github.com/cosmos/cosmos-sdk
+      - Prefix(github.com/ethereum/go-ethereum
+      - Prefix(pkg.berachain.dev
+      - Prefix(pkg.berachain.dev/stargazer
+      - blank
+      - dot
+    skip-generated: true
 
   gocognit:
     # Minimal code complexity to report
@@ -137,6 +179,12 @@ linters-settings:
         # Default: false
         strict: true
 
+  # max line length, lines longer will be reported. Default is 120.
+  # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+  line-length: 99
+  # tab width in spaces. Default to 1.
+  tab-width: 1
+
   nakedret:
     # Make an issue if func has more lines of code than this setting, and it has naked returns.
     # Default: 30
@@ -192,6 +240,8 @@ linters:
     - exportloopref # checks for pointers to enclosing loop variables
     - forbidigo # forbids identifiers
     - funlen # tool for detection of long functions
+    - gci # controls golang package import order and makes it always deterministic
+    - ginkgolinter # [if you use ginkgo/gomega] enforces standards of using ginkgo and gomega
     - gochecknoinits # checks that no init functions are present in Go code
     - gocognit # computes and checks the cognitive complexity of functions
     - goconst # finds repeated strings that could be replaced by a constant
@@ -199,12 +249,13 @@ linters:
     - gocyclo # computes and checks the cyclomatic complexity of functions
     - godot # checks if comments end in a period
     - goheader # checks is file header matches to pattern
-    - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
+    # - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
     - gomnd # detects magic numbers
     # - gomoddirectives # manages the use of 'replace', 'retract', and 'excludes' directives in go.mod
     - gomodguard # allow and block lists linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations
     - goprintffuncname # checks that printf-like functions are named with f at the end
     - gosec # inspects source code for security problems
+    - importas # enforces consistent import aliases
     - lll # reports long lines
     - loggercheck # checks key value pairs for common logger libraries (kitlog,klog,logr,zap)
     - makezero # finds slice declarations with non-zero initial length
