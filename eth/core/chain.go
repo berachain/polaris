@@ -53,16 +53,18 @@ type ChainWriter interface {
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
-	Finalize(context.Context) (*types.StargazerBlock, error)
+	Finalize(context.Context) (*types.Block, types.Receipts, error)
 }
 
 // `ChainReader` defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
-	CurrentBlock() (*types.StargazerBlock, error)
-	FinalizedBlock() (*types.StargazerBlock, error)
+	CurrentBlock() (*types.Block, error)
+	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
+	FinalizedBlock() (*types.Block, error)
+	GetReceipts(common.Hash) (types.Receipts, error)
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
-	GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
-	GetStargazerBlockByNumber(int64) (*types.StargazerBlock, error)
+	GetStargazerBlockByHash(common.Hash) (*types.Block, error)
+	GetStargazerBlockByNumber(int64) (*types.Block, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
@@ -78,18 +80,27 @@ type blockchain struct {
 	// `host` is the host chain that the Stargazer EVM is running on.
 	host StargazerHostChain
 
-	// `currentBlock` is the current block.
+	// `currentBlock` is the current/pending block.
 	currentBlock atomic.Value
-	// `finalizedBlock` is the last finalized block.
+	// `finalizedBlock` is the finalized/latest block.
 	finalizedBlock atomic.Value
+	// `currentReceipts` is the current/pending receipts.
+	currentReceipts atomic.Value
 
-	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of blocks.
+	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
+	// blocks. blockHash -> receipts
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
-	// `blockCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
-	blockCache *lru.Cache[common.Hash, *types.StargazerBlock]
-	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of blocks.
+	// `blockNumCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockNum -> block
+	blockNumCache *lru.Cache[int64, *types.Block]
+	// `blockHashCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockHash -> block
+	blockHashCache *lru.Cache[common.Hash, *types.Block]
+	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of
+	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
+	cc            ChainContext
 	chainHeadFeed event.Feed
 	scope         event.SubscriptionScope
 }
@@ -101,13 +112,15 @@ type blockchain struct {
 // `NewChain` creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
-		host:          host,
-		receiptsCache: lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
-		blockCache:    lru.NewCache[common.Hash, *types.StargazerBlock](defaultCacheSizeBytes),
-		txLookupCache: lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
-		chainHeadFeed: event.Feed{},
-		scope:         event.SubscriptionScope{},
+		host:           host,
+		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
+		blockNumCache:  lru.NewCache[int64, *types.Block](defaultCacheSizeBytes),
+		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
+		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
+		chainHeadFeed:  event.Feed{},
+		scope:          event.SubscriptionScope{},
 	}
+	bc.cc = &chainContext{bc}
 	bc.processor = bc.buildStateProcessor(vm.Config{}, true)
 	return bc
 }

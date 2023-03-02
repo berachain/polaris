@@ -21,7 +21,7 @@
 package core
 
 import (
-	"math/big"
+	"context"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
@@ -61,16 +61,19 @@ type (
 		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
-		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
-		GetStargazerHeaderByNumber(int64) *types.StargazerHeader
-		// `GetStargazerHeaderByNumber` returns the block header at the given block height.
-		GetStargazerBlockByNumber(int64) *types.StargazerBlock
-		// `GetStargazerBlockByHash` returns the block at the given block hash.
-		GetStargazerBlockByHash(common.Hash) *types.StargazerBlock
-		// `GetTransactionByHash` returns the transaction at the given transaction hash.
-		GetTransactionByHash(common.Hash) *types.Transaction
-		// `GetTransactionBlockNumber` returns the block number of the transaction
-		GetTransactionBlockNumber(common.Hash) *big.Int
+		// `NewHeaderWithBlockNumber` returns a new block header with the given block number.
+		NewHeaderWithBlockNumber(context.Context, int64) *types.Header
+		// `GetHeaderByNumber` returns the block header at the given block number.
+		GetHeaderByNumber(int64) (*types.Header, error)
+		// `GetHeaderByNumber` returns the block header at the given block number.
+		GetBlockByNumber(int64) (*types.Block, error)
+		// `GetBlockByHash` returns the block at the given block hash.
+		GetBlockByHash(common.Hash) (*types.Block, error)
+		// `GetTransactionByHash` returns the transaction lookup entry at the given
+		// transaction hash.
+		GetTransactionByHash(common.Hash) (*types.TxLookupEntry, error)
+		// `GetReceiptByHash` returns the receipts at the given block hash.
+		GetReceiptsByHash(common.Hash) (types.Receipts, error)
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}

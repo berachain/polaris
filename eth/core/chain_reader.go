@@ -33,96 +33,116 @@ import (
 )
 
 // `CurrentBlock` returns the current block of the blockchain.
-func (bc *blockchain) CurrentBlock() (*types.StargazerBlock, error) {
-	cb, ok := utils.GetAs[*types.StargazerBlock](bc.currentBlock.Load())
+func (bc *blockchain) CurrentBlock() (*types.Block, error) {
+	cb, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
 	if cb == nil || !ok {
 		return nil, errors.New("current block cannot be loaded from cache")
 	}
-	bc.blockCache.Add(cb.Hash(), cb)
+	bc.blockNumCache.Add(cb.Number().Int64(), cb)
+	bc.blockHashCache.Add(cb.Hash(), cb)
 	return cb, nil
 }
 
+// `CurrentReceipts` returns the current receipts of the blockchain.
+func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts, error) {
+	cb, err := bc.CurrentBlock()
+	if err != nil {
+		return nil, nil, err
+	}
+	cr, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load())
+	if cb == nil || !ok {
+		return nil, nil, errors.New("current receipts cannot be loaded from cache")
+	}
+	bc.receiptsCache.Add(cb.Hash(), cr)
+	return cb, cr, nil
+}
+
 // `FinalizedBlock` returns the last finalized block of the blockchain.
-func (bc *blockchain) FinalizedBlock() (*types.StargazerBlock, error) {
-	fb, ok := utils.GetAs[*types.StargazerBlock](bc.finalizedBlock.Load())
+func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
+	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
 	if fb == nil || !ok {
 		return nil, errors.New("finalized block cannot be loaded from cache")
 	}
-	bc.blockCache.Add(fb.Hash(), fb)
+	bc.blockNumCache.Add(fb.Number().Int64(), fb)
+	bc.blockHashCache.Add(fb.Hash(), fb)
 	return fb, nil
+}
+
+func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
+	// check the cache
+	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
+		return receipts, nil
+	}
+
+	// check the block plugin
+	receipts, err := bc.host.GetBlockPlugin().GetReceiptsByHash(blockHash)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the found receipts for next time and return
+	bc.receiptsCache.Add(blockHash, receipts)
+	return nil, nil
 }
 
 func (bc *blockchain) GetTransaction(
 	txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
+	// check the cache
 	if txLookupEntry, ok := bc.txLookupCache.Get(txHash); ok {
 		return txLookupEntry.Tx, txLookupEntry.BlockHash,
-			txLookupEntry.BlockIndex, txLookupEntry.Index, nil
+			txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 	}
 
-	// TODO: go to block plugin, get block corresponding to txHash, and find the tx.
-	// return error if not found.
-	return nil, common.Hash{}, 0, 0, nil
+	// check the block plugin
+	txLookupEntry, err := bc.host.GetBlockPlugin().GetTransactionByHash(txHash)
+	if err != nil {
+		return nil, common.Hash{}, 0, 0, err
+	}
+
+	// cache the found transaction for next time and return
+	bc.txLookupCache.Add(txHash, txLookupEntry)
+	return txLookupEntry.Tx, txLookupEntry.BlockHash,
+		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 }
 
-// GetBlock retrieves a block from the database by hash and number,
-// caching it if found.
-func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.StargazerBlock, error) {
-	// Short circuit if the block's already in the cache, retrieve otherwise
-	if bc.processor.block != nil && bc.processor.block.Number.Int64() == number {
-		return bc.processor.block, nil
+// GetBlock retrieves a block from the database by hash and number, caching it if found.
+func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.Block, error) {
+	// check the block number cache
+	if block, ok := bc.blockNumCache.Get(number); ok {
+		bc.blockHashCache.Add(block.Hash(), block)
+		return block, nil
 	}
 
-	fp := bc.finalizedBlock.Load()
-	if fp != nil {
-		block, ok := fp.(*types.StargazerBlock)
-		if !ok {
-			return nil, errors.New("BING BONG ewrror")
-		}
-		if block.Number.Int64() == number {
-			return block, nil
-		}
-	}
-
-	block := bc.Host().GetBlockPlugin().GetStargazerBlockByNumber(number)
-	if block == nil {
-		return nil, errors.New("BING BONG ewrror")
+	// check the block plugin
+	block, err := bc.host.GetBlockPlugin().GetBlockByNumber(number)
+	if err != nil {
+		return nil, err
 	}
 
 	// Cache the found block for next time and return
-	bc.blockCache.Add(block.Hash(), block)
+	bc.blockNumCache.Add(block.Number().Int64(), block)
+	bc.blockHashCache.Add(block.Hash(), block)
 	return block, nil
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.StargazerBlock, error) {
-	// Short circuit if the block's already in the cache, retrieve otherwise
-	if bc.processor.block != nil && bc.processor.block.Hash() == hash {
-		return bc.processor.block, nil
-	}
-
-	fp := bc.finalizedBlock.Load()
-	if fp != nil {
-		block, ok := fp.(*types.StargazerBlock)
-		if !ok {
-			return nil, errors.New("BING BONG ewrror")
-		}
-		if block.Hash() == hash {
-			return block, nil
-		}
-	}
-
-	if block, ok := bc.blockCache.Get(hash); ok {
+func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Block, error) {
+	// check the block hash cache
+	if block, ok := bc.blockHashCache.Get(hash); ok {
+		bc.blockNumCache.Add(block.Number().Int64(), block)
 		return block, nil
 	}
 
-	block := bc.Host().GetBlockPlugin().GetStargazerBlockByHash(hash)
-	if block == nil {
-		return nil, errors.New("BING BONG")
+	// check the block plugin
+	block, err := bc.host.GetBlockPlugin().GetBlockByHash(hash)
+	if err != nil {
+		return nil, err
 	}
 
 	// Cache the found block for next time and return
-	bc.blockCache.Add(block.Hash(), block)
+	bc.blockNumCache.Add(block.Number().Int64(), block)
+	bc.blockHashCache.Add(block.Hash(), block)
 	return block, nil
 }
 
@@ -138,6 +158,7 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Stargaze
 
 // SubscribeChainHeadEvent registers a subscription of ChainHeadEvent.
 func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Subscription {
+	// TODO: synchronize chain head feed.
 	return bc.scope.Track(bc.chainHeadFeed.Subscribe(ch))
 }
 
@@ -166,7 +187,7 @@ func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state 
 	blockContext := vm.BlockContext{
 		CanTransfer: CanTransfer,
 		Transfer:    Transfer,
-		GetHash:     GetHashFn(header, &chainContext{bc.processor}),
+		GetHash:     GetHashFn(header, bc.cc),
 		Coinbase:    header.Coinbase, // todo: check for fee collector
 		GasLimit:    header.GasLimit,
 		BlockNumber: header.Number,
