@@ -60,13 +60,11 @@ type StateProcessor struct {
 
 	// `evm` is the EVM that is used to process transactions. We re-use a single EVM for processing
 	// the entire block. This is done in order to reduce memory allocs.
-	evm vm.StargazerEVM
+	evm *vm.GethEVM
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
 	// `vmConfig` is the configuration for the EVM.
-	vmConfig vm.Config
-	// `commit` indicates whether the state processor should commit the state after processing a tx.
-	commit bool
+	vmConfig *vm.Config
 
 	// We store information about the current block being processed so that we can access it
 	// during the processing of transactions. This allows us to utilize this information to
@@ -81,8 +79,7 @@ type StateProcessor struct {
 func NewStateProcessor(
 	host StargazerHostChain,
 	statedb vm.StargazerStateDB,
-	vmConfig vm.Config,
-	commit bool,
+	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{
 		mtx:      sync.Mutex{},
@@ -92,7 +89,6 @@ func NewStateProcessor(
 		pp:       host.GetPrecompilePlugin(),
 		vmConfig: vmConfig,
 		statedb:  statedb,
-		commit:   commit,
 	}
 
 	if sp.pp == nil {
@@ -110,7 +106,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // `Prepare` prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, evm vm.StargazerEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -125,14 +121,16 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm vm.StargazerEVM, head
 		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit()))
 	}
 
-	// We must re-create the signer since we are processing a new block and the block number has increased.
+	// We must re-create the signer since we are processing a new block and the block number has
+	// increased.
 	chainConfig := sp.cp.ChainConfig()
 	sp.signer = types.MakeSigner(chainConfig, sp.header.Number)
 
 	// Setup the EVM for this block.
 	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
-	// We re-register the default geth precompiles every block, this isn't optimal, but since *technically*
-	// the precompiles change based on the chain config rules, to be fully correct, we should check every block.
+	// We re-register the default geth precompiles every block, this isn't optimal, but since
+	// *technically* the precompiles change based on the chain config rules, to be fully correct,
+	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = evm
@@ -150,13 +148,8 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
-	sp.evm.UnderlyingEVM().Reset(txContext, sp.statedb)
+	sp.evm.Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
-
-	// We also must reset the StateDB, Precompile and Gas plugins.
-	sp.statedb.Reset(ctx)
-	sp.pp.Reset(ctx)
-	sp.gp.Reset(ctx)
 
 	// Set the gasPool to have the remaining gas in the block.
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
@@ -166,7 +159,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// Apply the state transition.
-	result, err := ApplyMessage(sp.evm.UnderlyingEVM(), msg, &gasPool)
+	result, err := ApplyMessage(sp.evm, msg, &gasPool)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
@@ -193,9 +186,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.Status = types.ReceiptStatusFailed
 	} else {
 		// if the result didn't produce a consensus error then we can properly commit the state.
-		if sp.commit {
-			sp.statedb.Finalize()
-		}
+		sp.statedb.Finalize()
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
 

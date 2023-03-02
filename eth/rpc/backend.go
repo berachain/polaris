@@ -367,8 +367,8 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 	}
 	txContext := core.NewEVMTxContext(msg)
 	b.logger.Info("called eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
-	stargazerEVM := b.chain.GetStargazerEVM(ctx, txContext, utils.MustGetAs[vm.StargazerStateDB](state), header, vmConfig)
-	return stargazerEVM.UnderlyingEVM(), state.Error, nil
+	gethEVM := b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.StargazerStateDB](state), header, vmConfig)
+	return gethEVM, state.Error, nil
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
