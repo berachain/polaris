@@ -21,10 +21,10 @@
 package journal
 
 import (
+	"pkg.berachain.dev/stargazer/lib/utils"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 var _ = Describe("Refund", func() {

@@ -23,10 +23,10 @@ package codec
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec/types"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/cosmos/cosmos-sdk/codec/types"
 )
 
 func TestCodec(t *testing.T) {

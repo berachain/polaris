@@ -24,9 +24,6 @@ import (
 	"math/big"
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"cosmossdk.io/math"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -42,6 +39,9 @@ import (
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/stargazer/testutil"
 	evmutils "pkg.berachain.dev/stargazer/x/evm/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestStakingPrecompile(t *testing.T) {

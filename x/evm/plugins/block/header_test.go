@@ -22,7 +22,6 @@ package block
 
 import (
 	dbm "github.com/cosmos/cosmos-db"
-	. "github.com/onsi/ginkgo/v2"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -31,6 +30,8 @@ import (
 	"pkg.berachain.dev/stargazer/lib/utils"
 	offchain "pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
+
+	. "github.com/onsi/ginkgo/v2"
 )
 
 var _ = Describe("Header", func() {

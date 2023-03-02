@@ -25,9 +25,6 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -38,6 +35,9 @@ import (
 	"pkg.berachain.dev/stargazer/crypto/hd"
 	accounts "pkg.berachain.dev/stargazer/eth/accounts"
 	"pkg.berachain.dev/stargazer/eth/common"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var cdc *codec.ProtoCodec

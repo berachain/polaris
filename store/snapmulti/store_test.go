@@ -25,13 +25,14 @@ import (
 	"testing"
 
 	dbm "github.com/cosmos/cosmos-db"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	sdkcachekv "cosmossdk.io/store/cachekv"
 	sdkcachemulti "cosmossdk.io/store/cachemulti"
 	"cosmossdk.io/store/dbadapter"
 	storetypes "cosmossdk.io/store/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestSnapMulti(t *testing.T) {

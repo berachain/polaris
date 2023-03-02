@@ -22,8 +22,6 @@ package block
 
 import (
 	dbm "github.com/cosmos/cosmos-db"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -32,6 +30,9 @@ import (
 	"pkg.berachain.dev/stargazer/lib/utils"
 	offchain "pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Block Plugin", func() {

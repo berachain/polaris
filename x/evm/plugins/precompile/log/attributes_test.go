@@ -25,14 +25,15 @@ import (
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	libutils "pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/x/evm/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Attributes", func() {

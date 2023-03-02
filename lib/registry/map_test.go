@@ -21,12 +21,12 @@
 package registry_test
 
 import (
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/lib/registry"
 	"pkg.berachain.dev/stargazer/lib/registry/mock"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Registry", func() {

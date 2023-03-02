@@ -77,13 +77,15 @@ func Gci() error {
 	PrintMageName()
 	if err := goRun(gci,
 		"write",
-		"-s", "default",
 		"-s", "standard",
+		"-s", "default",
+		"-s", "Prefix(github.com/cometbft)",
 		"-s", "Prefix(cosmossdk.io)",
 		"-s", "Prefix(github.com/cosmos/cosmos-sdk)",
 		"-s", "Prefix(github.com/ethereum/go-ethereum)",
 		"-s", "Prefix(pkg.berachain.dev)",
 		"-s", "Prefix(pkg.berachain.dev/stargazer)",
+		"-s", "blank,dot",
 		"."); err != nil {
 		return err
 	}

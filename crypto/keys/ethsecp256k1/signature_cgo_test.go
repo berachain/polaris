@@ -21,10 +21,10 @@
 package ethsecp256k1
 
 import (
+	"pkg.berachain.dev/stargazer/eth/crypto"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 
 var _ = Describe("PrivKey_PubKey", func() {
