@@ -57,6 +57,7 @@ const (
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
+	megamoney   = 1000000000000000000
 )
 
 var (
@@ -137,11 +138,11 @@ func DefaultConfig() network.Config {
 	return cfg
 }
 
-func NetworkConfigWithTestAccount() network.Config {
+func ConfigWithTestAccount() network.Config {
 	cfg := DefaultConfig()
 	var authState authtypes.GenesisState
 	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[authtypes.ModuleName], &authState)
-	newAccount := authtypes.NewBaseAccount(AddressFromKey.Bytes(), TestKey.PubKey(), 99, 0)
+	newAccount := authtypes.NewBaseAccount(AddressFromKey.Bytes(), TestKey.PubKey(), onehundred, 0)
 	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
 	authState.Accounts = append(authState.Accounts, accounts[0])
 	cfg.GenesisState[authtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&authState)
@@ -149,7 +150,7 @@ func NetworkConfigWithTestAccount() network.Config {
 	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[banktypes.ModuleName], &bankState)
 	bankState.Balances = append(bankState.Balances, banktypes.Balance{
 		Address: sdk.MustBech32ifyAddressBytes("cosmos", AddressFromKey.Bytes()),
-		Coins:   sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1000000000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(megamoney))),
 	})
 	cfg.GenesisState[banktypes.ModuleName] = cfg.Codec.MustMarshalJSON(&bankState)
 	return cfg

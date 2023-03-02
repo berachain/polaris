@@ -54,7 +54,7 @@ var _ = Describe("BlockAPIs", func() {
 	var client *ethclient.Client
 
 	BeforeEach(func() {
-		cfg := network.NetworkConfigWithTestAccount()
+		cfg := network.ConfigWithTestAccount()
 		net = network.New(GinkgoT(), cfg)
 		_, err := net.WaitForHeightWithTimeout(1, 15*time.Second)
 		Expect(err).ToNot(HaveOccurred())
@@ -129,7 +129,7 @@ var _ = Describe("TransactionAPIs", func() {
 	var client *ethclient.Client
 	BeforeEach(func() {
 
-		cfg := network.NetworkConfigWithTestAccount()
+		cfg := network.ConfigWithTestAccount()
 		net = network.New(GinkgoT(), cfg)
 		_, err := net.WaitForHeightWithTimeout(1, 15*time.Second)
 		Expect(err).ToNot(HaveOccurred())
