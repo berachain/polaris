@@ -32,6 +32,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 )
 
 // By default we are storing up to 64mb of historical data for each cache.
@@ -53,19 +54,28 @@ type ChainWriter interface {
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
-	Finalize(context.Context) (*types.StargazerBlock, error)
+	Finalize(context.Context) (*types.Block, types.Receipts, error)
+
+	// `SendTx` sends the given transaction to the tx pool.
+	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
 
 // `ChainReader` defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
-	CurrentBlock() (*types.StargazerBlock, error)
-	FinalizedBlock() (*types.StargazerBlock, error)
+	CurrentBlock() (*types.Block, error)
+	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
+	FinalizedBlock() (*types.Block, error)
+	GetReceipts(common.Hash) (types.Receipts, error)
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
-	GetStargazerBlockByHash(common.Hash) (*types.StargazerBlock, error)
-	GetStargazerBlockByNumber(int64) (*types.StargazerBlock, error)
+	GetStargazerBlockByHash(common.Hash) (*types.Block, error)
+	GetStargazerBlockByNumber(int64) (*types.Block, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
-	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetStargazerEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) vm.StargazerEVM
+	GetPoolTransactions() (types.Transactions, error)
+	GetPoolTransaction(txHash common.Hash) *types.Transaction
+	GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error)
+	ChainConfig() *params.ChainConfig
 }
 
 // Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
@@ -73,21 +83,36 @@ var _ ChainReaderWriter = (*blockchain)(nil)
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
 type blockchain struct {
-	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
-	processor *StateProcessor
 	// `host` is the host chain that the Stargazer EVM is running on.
 	host StargazerHostChain
+	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
+	processor *StateProcessor
+	// `statedb` is the state database that is used to mange state during transactions.
+	statedb vm.StargazerStateDB
+	// vmConfig is the configuration used to create the EVM.
+	vmConfig vm.Config
 
-	// `finalizedBlock` is the last finalized block.
+	// `currentBlock` is the current/pending block.
+	currentBlock atomic.Value
+	// `finalizedBlock` is the finalized/latest block.
 	finalizedBlock atomic.Value
+	// `currentReceipts` is the current/pending receipts.
+	currentReceipts atomic.Value
 
-	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of blocks.
+	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
+	// blocks. blockHash -> receipts
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
-	// `blockCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
-	blockCache *lru.Cache[common.Hash, *types.StargazerBlock]
-	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of blocks.
+	// `blockNumCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockNum -> block
+	blockNumCache *lru.Cache[int64, *types.Block]
+	// `blockHashCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockHash -> block
+	blockHashCache *lru.Cache[common.Hash, *types.Block]
+	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of
+	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
+	cc            ChainContext
 	chainHeadFeed event.Feed
 	scope         event.SubscriptionScope
 }
@@ -99,24 +124,17 @@ type blockchain struct {
 // `NewChain` creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
-		host:          host,
-		receiptsCache: lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
-		blockCache:    lru.NewCache[common.Hash, *types.StargazerBlock](defaultCacheSizeBytes),
-		txLookupCache: lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
-		chainHeadFeed: event.Feed{},
-		scope:         event.SubscriptionScope{},
+		host:           host,
+		statedb:        state.NewStateDB(host.GetStatePlugin()),
+		vmConfig:       vm.Config{},
+		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
+		blockNumCache:  lru.NewCache[int64, *types.Block](defaultCacheSizeBytes),
+		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
+		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
+		chainHeadFeed:  event.Feed{},
+		scope:          event.SubscriptionScope{},
 	}
-	bc.processor = bc.buildStateProcessor(vm.Config{}, true)
+	bc.cc = &chainContext{bc}
+	bc.processor = NewStateProcessor(bc.host, bc.statedb, bc.vmConfig, true)
 	return bc
-}
-
-// `Host` returns the host chain that the Stargazer EVM is running on.
-func (bc *blockchain) Host() StargazerHostChain {
-	return bc.host
-}
-
-// `buildStateProcessor` builds and returns a `StateProcessor` with the given EVM configuration and
-// commit flag.
-func (bc *blockchain) buildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
-	return NewStateProcessor(bc.host, state.NewStateDB(bc.host.GetStatePlugin()), vmConfig, commit)
 }
