@@ -23,6 +23,7 @@ package core
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/core/vm"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
@@ -64,7 +65,12 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
 
-	bc.processor.Prepare(ctx, bc.cc, height)
+	header := bc.host.GetBlockPlugin().NewHeaderWithBlockNumber(ctx, height)
+	bc.processor.Prepare(
+		ctx,
+		bc.GetStargazerEVM(ctx, vm.TxContext{}, bc.statedb, header, &bc.vmConfig),
+		height,
+	)
 }
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.

@@ -182,8 +182,8 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	return bc.host.GetStatePlugin().GetStateByNumber(number)
 }
 
-func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state vm.GethStateDB,
-	header *types.Header, vmConfig *vm.Config) *vm.GethEVM {
+func (bc *blockchain) GetStargazerEVM(ctx context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
+	header *types.Header, vmConfig *vm.Config) vm.StargazerEVM {
 	blockContext := vm.BlockContext{
 		CanTransfer: CanTransfer,
 		Transfer:    Transfer,
@@ -197,7 +197,7 @@ func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state 
 	}
 
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
-	return vm.NewGethEVMWithPrecompiles(
+	return vm.NewStargazerEVM(
 		// todo: get precompile controller
 		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)

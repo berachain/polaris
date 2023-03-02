@@ -109,7 +109,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // `Prepare` prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, cc ChainContext, height int64) {
+func (sp *StateProcessor) Prepare(ctx context.Context, evm vm.StargazerEVM, height int64) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -139,14 +139,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, cc ChainContext, height i
 	// the precompiles change based on the chain config rules, to be fully correct, we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
-	sp.evm = vm.NewStargazerEVM(
-		sp.NewEVMBlockContext(cc),
-		vm.TxContext{},
-		sp.statedb,
-		chainConfig,
-		sp.vmConfig,
-		sp.pp,
-	)
+	sp.evm = evm
 }
 
 // `ProcessTransaction` applies a transaction to the current state of the blockchain.

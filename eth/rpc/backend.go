@@ -46,6 +46,7 @@ import (
 	rpcapi "pkg.berachain.dev/stargazer/eth/rpc/api"
 	"pkg.berachain.dev/stargazer/eth/rpc/config"
 	errorslib "pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 var DefaultGasPriceOracleConfig = gasprice.Config{
@@ -366,7 +367,8 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 	}
 	txContext := core.NewEVMTxContext(msg)
 	b.logger.Info("called eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
-	return b.chain.GetEVM(ctx, txContext, state, header, vmConfig), state.Error, nil
+	stargazerEVM := b.chain.GetStargazerEVM(ctx, txContext, utils.MustGetAs[vm.StargazerStateDB](state), header, vmConfig)
+	return stargazerEVM.UnderlyingEVM(), state.Error, nil
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {

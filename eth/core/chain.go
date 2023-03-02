@@ -67,7 +67,7 @@ type ChainReader interface {
 	GetStargazerBlockByNumber(int64) (*types.Block, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
-	GetEVM(context.Context, vm.TxContext, vm.GethStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetStargazerEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) vm.StargazerEVM
 }
 
 // Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
@@ -75,10 +75,14 @@ var _ ChainReaderWriter = (*blockchain)(nil)
 
 // `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
 type blockchain struct {
-	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
-	processor *StateProcessor
 	// `host` is the host chain that the Stargazer EVM is running on.
 	host StargazerHostChain
+	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
+	processor *StateProcessor
+	// `statedb` is the state database that is used to mange state during transactions.
+	statedb vm.StargazerStateDB
+	// vmConfig is the configuration used to create the EVM.
+	vmConfig vm.Config
 
 	// `currentBlock` is the current/pending block.
 	currentBlock atomic.Value
@@ -113,6 +117,8 @@ type blockchain struct {
 func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
 		host:           host,
+		statedb:        state.NewStateDB(host.GetStatePlugin()),
+		vmConfig:       vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
 		blockNumCache:  lru.NewCache[int64, *types.Block](defaultCacheSizeBytes),
 		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
@@ -121,17 +127,11 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 		scope:          event.SubscriptionScope{},
 	}
 	bc.cc = &chainContext{bc}
-	bc.processor = bc.buildStateProcessor(vm.Config{}, true)
+	bc.processor = NewStateProcessor(bc.host, bc.statedb, bc.vmConfig, true)
 	return bc
 }
 
 // `Host` returns the host chain that the Stargazer EVM is running on.
 func (bc *blockchain) Host() StargazerHostChain {
 	return bc.host
-}
-
-// `buildStateProcessor` builds and returns a `StateProcessor` with the given EVM configuration and
-// commit flag.
-func (bc *blockchain) buildStateProcessor(vmConfig vm.Config, commit bool) *StateProcessor {
-	return NewStateProcessor(bc.host, state.NewStateDB(bc.host.GetStatePlugin()), vmConfig, commit)
 }
