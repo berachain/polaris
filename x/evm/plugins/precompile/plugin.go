@@ -44,6 +44,8 @@ import (
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.PrecompilePlugin
+	// `SetPrecompiles`
+	SetPrecompiles(precompiles []vm.RegistrablePrecompile)
 }
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
@@ -53,6 +55,8 @@ type plugin struct {
 
 	// `getPrecompiles` returns all supported precompile contracts.
 	getPrecompiles func() func() []vm.RegistrablePrecompile
+	// `precompiles`
+	precompiles []vm.RegistrablePrecompile
 }
 
 // `NewPlugin` creates and returns a `plugin` with the given precompile getter function.
@@ -68,11 +72,17 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.Context = sdk.UnwrapSDKContext(ctx)
 }
 
+func (p *plugin) SetPrecompiles(precompiles []vm.RegistrablePrecompile) {
+	fmt.Println("setPrecompiles", precompiles)
+	p.precompiles = precompiles
+}
+
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
-	precompiles := p.getPrecompiles()()
-	fmt.Println("precompiles", precompiles)
-	return precompiles
+	// precompiles := p.getPrecompiles()()
+	// fmt.Println("getPrecompiles", precompiles)
+	fmt.Println("p.precompiles", p.precompiles)
+	return p.precompiles
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting

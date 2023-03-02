@@ -53,7 +53,7 @@ type DepInjectInput struct {
 
 	AccountKeeper  AccountKeeper
 	BankKeeper     BankKeeper
-	GetPrecompiles func() func() []vm.RegistrablePrecompile
+	GetPrecompiles func() func() []vm.RegistrablePrecompile `optional:"true"`
 }
 
 // `DepInjectOutput` is the output for the dep inject framework.

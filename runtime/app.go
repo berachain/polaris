@@ -244,16 +244,16 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				//
 				// EVM PRECOMPILES
 				//
-				func() func() []vm.RegistrablePrecompile {
-					return func() []vm.RegistrablePrecompile {
-						precompiles := []vm.RegistrablePrecompile{
-							// TODO: add more precompiles here
-							stakingprecompile.NewPrecompileContract(&app.StakingKeeper),
-						}
-						logger.Info("registering precompiles", precompiles)
-						return precompiles
-					}
-				},
+				// func() func() []vm.RegistrablePrecompile {
+				// 	return func() []vm.RegistrablePrecompile {
+				// 		precompiles := []vm.RegistrablePrecompile{
+				// 			// TODO: add more precompiles here
+				// 			stakingprecompile.NewPrecompileContract(&app.StakingKeeper),
+				// 		}
+				// 		logger.Info("registering", "precompiles", precompiles)
+				// 		return precompiles
+				// 	}
+				// },
 				//
 				// AUTH
 				//
@@ -312,6 +312,14 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
+	app.EVMKeeper.SetPrecompiles(
+		app.AccountKeeper,
+		app.BankKeeper,
+		[]vm.RegistrablePrecompile{
+			//	 TODO: add more precompiles here
+			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+		},
+	)
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	app.txConfig = tx.NewTxConfig(
 		codec.NewProtoCodec(app.interfaceRegistry),
