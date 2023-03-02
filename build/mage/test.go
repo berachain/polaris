@@ -39,9 +39,9 @@ var (
 	ginkgoTest = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
 
 	// Packages.
-	packagesUnit        = mi.GoListFilter(false, "integration", "e2e", "build")
-	packagesIntegration = mi.GoListFilter(true, "integration")
-	packagesEvm         = mi.GoListFilter(true, "evm")
+	packagesUnit = mi.GoListFilter(false, "integration", "e2e", "build")
+	// packagesIntegration = mi.GoListFilter(true, "integration").
+	packagesEvm = mi.GoListFilter(true, "evm")
 )
 
 // Starts a testnet and builds it if necessary.
@@ -150,11 +150,9 @@ func TestIntegration() error {
 func testIntegration() error {
 	args := []string{
 		"-timeout", "30m",
-		"--focus", ".*integration.*",
+		"testing/integration",
 	}
-	return ginkgoTest(
-		append(args, packagesIntegration...)...,
-	)
+	return ginkgoTest(args...)
 }
 
 // Runs the integration tests with coverage.
@@ -169,9 +167,7 @@ func testIntegrationCover() error {
 	args := []string{
 		"-timeout", "30m",
 		"-coverprofile=coverage-testintegrationcover.txt",
-		"--focus", ".*integration.*",
+		"testing/integration",
 	}
-	return ginkgoTest(
-		append(args, packagesIntegration...)...,
-	)
+	return ginkgoTest(args...)
 }

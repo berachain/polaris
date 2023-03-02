@@ -20,7 +20,7 @@ package events_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events/mock"
