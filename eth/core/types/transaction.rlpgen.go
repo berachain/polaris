@@ -5,10 +5,13 @@
 
 package types
 
-import "github.com/ethereum/go-ethereum/common"
-import "github.com/ethereum/go-ethereum/core/types"
-import "github.com/ethereum/go-ethereum/rlp"
-import "io"
+import (
+	"io"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
+)
 
 func (obj *TxLookupEntry) EncodeRLP(_w io.Writer) error {
 	w := rlp.NewEncoderBuffer(_w)

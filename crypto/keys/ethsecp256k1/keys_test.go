@@ -26,7 +26,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 

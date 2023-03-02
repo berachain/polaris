@@ -23,7 +23,6 @@ package encoding_test
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 )
 

@@ -22,7 +22,6 @@ package rpc
 
 import (
 	"github.com/ethereum/go-ethereum/node"
-
 	"pkg.berachain.dev/stargazer/eth/rpc/config"
 )
 

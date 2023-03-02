@@ -24,7 +24,6 @@ import (
 	"math/big"
 
 	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 )
 

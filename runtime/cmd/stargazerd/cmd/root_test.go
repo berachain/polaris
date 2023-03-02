@@ -30,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	simapp "pkg.berachain.dev/stargazer/runtime"
 	"pkg.berachain.dev/stargazer/runtime/cmd/stargazerd/cmd"
 )

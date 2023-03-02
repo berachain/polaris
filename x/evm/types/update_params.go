@@ -22,7 +22,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	errorslib "pkg.berachain.dev/stargazer/lib/errors"
 )
 

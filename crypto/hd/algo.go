@@ -25,7 +25,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	bip39 "github.com/cosmos/go-bip39"
-
 	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 )

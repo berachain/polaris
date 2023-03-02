@@ -4,11 +4,13 @@
 package mock
 
 import (
+	"io"
+	"sync"
+
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-db"
-	"io"
+
 	"pkg.berachain.dev/stargazer/testutil/mock/interfaces"
-	"sync"
 )
 
 // Ensure, that MultiStoreMock does implement interfaces.MultiStore.

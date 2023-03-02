@@ -5,10 +5,12 @@ package mock
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
-	"pkg.berachain.dev/stargazer/eth/core/state"
 	"sync"
+
+	"github.com/ethereum/go-ethereum/common"
+
+	"pkg.berachain.dev/stargazer/eth/core/state"
 )
 
 // Ensure, that PluginMock does implement state.Plugin.

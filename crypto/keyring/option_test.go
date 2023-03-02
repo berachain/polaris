@@ -32,7 +32,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
 	"pkg.berachain.dev/stargazer/crypto/hd"
 	accounts "pkg.berachain.dev/stargazer/eth/accounts"

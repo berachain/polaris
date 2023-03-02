@@ -4,9 +4,10 @@
 package mock
 
 import (
+	"sync"
+
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"sync"
 )
 
 // Ensure, that StargazerHostChainMock does implement core.StargazerHostChain.

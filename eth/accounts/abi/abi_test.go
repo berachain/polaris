@@ -25,7 +25,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 )
 

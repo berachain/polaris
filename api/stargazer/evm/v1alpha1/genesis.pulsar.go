@@ -3,15 +3,16 @@ package evmv1alpha1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sort "sort"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sort "sort"
-	sync "sync"
 )
 
 var _ protoreflect.Map = (*_GenesisState_2_map)(nil)

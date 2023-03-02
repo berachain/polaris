@@ -4,9 +4,11 @@
 package mock
 
 import (
-	"github.com/ethereum/go-ethereum/core/types"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
 	"sync"
+
+	"github.com/ethereum/go-ethereum/core/types"
+
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
 )
 
 // Ensure, that LogsDBMock does implement events.LogsDB.

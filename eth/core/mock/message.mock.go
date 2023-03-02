@@ -4,11 +4,13 @@
 package mock
 
 import (
+	"math/big"
+	"sync"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
+
 	"pkg.berachain.dev/stargazer/eth/core"
-	"sync"
 )
 
 // Ensure, that MessageMock does implement core.Message.

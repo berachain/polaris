@@ -22,7 +22,6 @@ package rpc
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
-
 	ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
 	rpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
 )

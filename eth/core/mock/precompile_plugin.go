@@ -22,7 +22,6 @@ package mock
 
 import (
 	"github.com/ethereum/go-ethereum/params"
-
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 )
 

@@ -4,10 +4,12 @@
 package mock
 
 import (
+	"sync"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/types"
+
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
-	"sync"
 )
 
 // Ensure, that PrecompileLogFactoryMock does implement events.PrecompileLogFactory.
