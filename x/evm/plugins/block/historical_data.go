@@ -97,9 +97,6 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	if err != nil {
 		return nil, err
 	}
-	if int64(header.Number.Uint64()) != number {
-		panic("header number is not equal to the given number")
-	}
 
 	// get receipts from off chain.
 	blockHash := header.Hash()

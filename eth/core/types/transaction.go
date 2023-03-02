@@ -37,12 +37,12 @@ type TxLookupEntry struct {
 }
 
 // `UnmarshalBinary` decodes a tx lookup entry from the Ethereum RLP format.
-func (tle TxLookupEntry) UnmarshalBinary(data []byte) error {
+func (tle *TxLookupEntry) UnmarshalBinary(data []byte) error {
 	return rlp.DecodeBytes(data, tle)
 }
 
 // `MarshalBinary` encodes the tx lookup enßtry into the Ethereum RLP format.
-func (tle TxLookupEntry) MarshalBinary() ([]byte, error) {
+func (tle *TxLookupEntry) MarshalBinary() ([]byte, error) {
 	bz, err := rlp.EncodeToBytes(tle)
 	if err != nil {
 		return nil, err

@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/params"
@@ -180,11 +181,17 @@ func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Su
 // }
 
 func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
-	return bc.host.GetStatePlugin().GetStateByNumber(number)
+	sp, err := bc.host.GetStatePlugin().GetStateByNumber(number)
+	if err != nil {
+		return nil, err
+	}
+	return state.NewStateDB(sp), nil
 }
 
-func (bc *blockchain) GetStargazerEVM(ctx context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
-	header *types.Header, vmConfig *vm.Config) vm.StargazerEVM {
+func (bc *blockchain) GetStargazerEVM(
+	ctx context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
+	header *types.Header, vmConfig *vm.Config,
+) vm.StargazerEVM {
 	blockContext := vm.BlockContext{
 		CanTransfer: CanTransfer,
 		Transfer:    Transfer,
@@ -199,7 +206,6 @@ func (bc *blockchain) GetStargazerEVM(ctx context.Context, txContext vm.TxContex
 
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
 	return vm.NewStargazerEVM(
-		// todo: get precompile controller
 		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
 }

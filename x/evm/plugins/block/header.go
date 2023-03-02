@@ -70,6 +70,11 @@ func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
 	if err != nil {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
+
+	if int64(header.Number.Uint64()) != iavlHeight {
+		panic("header number is not equal to the given iavl tree height")
+	}
+
 	return header, nil
 }
 
