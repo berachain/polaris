@@ -33,9 +33,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	ethhd "pkg.berachain.dev/stargazer/crypto/hd"
 	ethkeyring "pkg.berachain.dev/stargazer/crypto/keyring"
+	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
+	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/params"
 	runtime "pkg.berachain.dev/stargazer/runtime"
 	config "pkg.berachain.dev/stargazer/runtime/config"
 )
@@ -49,6 +53,20 @@ const (
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
+)
+
+var (
+	DummyContract  = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
+	TestKey, _     = ethsecp256k1.GenPrivKey()
+	AddressFromKey = TestKey.PubKey().Address()
+	Signer         = ethtypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+
+	TxData = &ethtypes.DynamicFeeTx{
+		Nonce: 0,
+		To:    &DummyContract,
+		Gas:   100000,
+		Data:  []byte("abcdef"),
+	}
 )
 
 type TestingT interface {

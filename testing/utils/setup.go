@@ -37,7 +37,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	mock "pkg.berachain.dev/stargazer/testutil/mock"
+	mock "pkg.berachain.dev/stargazer/testing/utils/mock"
 )
 
 var (
