@@ -22,6 +22,7 @@ package staking
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -487,5 +488,9 @@ func (c *Contract) GetActiveValidators(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	return c.activeValidatorsHelper(ctx)
+	fmt.Println("CALLED IN STAKING PRECOMPILE")
+	ret, err := c.activeValidatorsHelper(ctx)
+	fmt.Println("STAKING OUTPUT", ret)
+	fmt.Println("STAKING ERROR", err)
+	return ret, err
 }

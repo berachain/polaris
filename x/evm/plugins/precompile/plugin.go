@@ -94,6 +94,9 @@ func (p *plugin) Run(
 	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
+	fmt.Println("PRECOMPILE PLUGIN RUN CALLED")
+	fmt.Println("pc", pc.RegistryKey())
+
 	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewInfiniteGasMeter()
 	// consume static gas from RequiredGas

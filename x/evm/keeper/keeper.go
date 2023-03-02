@@ -105,8 +105,6 @@ func NewKeeper(
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
-	// Build the Stargazer EVM Provider
-	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 	return k
 }
 
@@ -139,6 +137,9 @@ func (k *Keeper) SetPrecompiles(
 	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
 	k.pp.SetPrecompiles(precompiles)
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+
+	// Build the Stargazer EVM Provider
+	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 }
 
 // `SetQueryContextFn` sets the query context function for the state plugin.

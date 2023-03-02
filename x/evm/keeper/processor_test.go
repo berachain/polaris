@@ -21,22 +21,30 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 	"os"
 
 	storetypes "cosmossdk.io/store/types"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
+	pcgenerated "pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
+	"pkg.berachain.dev/stargazer/precompile/staking"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
@@ -47,12 +55,22 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingtypes.Validator, error) {
+	return stakingtypes.NewValidator(operator, pubKey, stakingtypes.Description{})
+}
+
+var (
+	PKs = simtestutil.CreateTestPubKeys(500)
+)
+
 var _ = Describe("Processor", func() {
 	var (
 		k            *keeper.Keeper
 		ak           state.AccountKeeper
 		bk           state.BankKeeper
+		sk           stakingkeeper.Keeper
 		ctx          sdk.Context
+		sc           precompile.StatefulImpl
 		key, _       = crypto.GenerateEthKey()
 		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 		legacyTxData *coretypes.LegacyTx
@@ -70,7 +88,7 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before chain, init genesis state
-		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
+		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
 			ak, bk,
@@ -79,6 +97,14 @@ var _ = Describe("Processor", func() {
 			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),
 		)
+		validator, err := NewValidator(sdk.ValAddress([]byte{0x21}), PKs[0])
+		Expect(err).ToNot(HaveOccurred())
+		validator.Status = stakingtypes.Bonded
+		sk.SetValidator(ctx, validator)
+		sc = staking.NewPrecompileContract(&sk)
+		k.SetPrecompiles(ak, bk, []vm.RegistrablePrecompile{
+			sc,
+		})
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
@@ -100,6 +126,38 @@ var _ = Describe("Processor", func() {
 			k.EndBlocker(ctx)
 			err := os.RemoveAll("tmp/berachain")
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should call precompile correctly", func() {
+			var contractAbi abi.ABI
+			err := contractAbi.UnmarshalJSON([]byte(pcgenerated.StakingModuleMetaData.ABI))
+			Expect(err).ToNot(HaveOccurred())
+			abiMethod := contractAbi.Methods["getActiveValidators"]
+
+			legacyTxData.Data, err = contractAbi.Pack("getActiveValidators")
+			Expect(err).ToNot(HaveOccurred())
+			contractAddr := sc.RegistryKey()
+			legacyTxData.To = &contractAddr
+			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
+
+			addr, err := signer.Sender(tx)
+			Expect(err).ToNot(HaveOccurred())
+			k.GetStatePlugin().CreateAccount(addr)
+			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetStatePlugin().Finalize()
+
+			vals := sk.GetAllValidators(ctx)
+			Expect(len(vals)).To(Equal(1))
+			fmt.Println("sk vals", vals)
+
+			// calls the staking precompile
+			exec, err := k.ProcessTransaction(ctx, tx)
+			Expect(err).ToNot(HaveOccurred())
+			fmt.Println("exec.ReturnData", exec.ReturnData)
+			ret, err := abiMethod.Outputs.Unpack(exec.ReturnData)
+			Expect(err).ToNot(HaveOccurred())
+			fmt.Println("unpacked ret", ret)
+			Expect(exec.Err).To(BeNil())
 		})
 
 		It("should panic on nil, empty transaction", func() {

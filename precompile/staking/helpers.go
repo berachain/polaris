@@ -207,7 +207,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		return nil, err
 	}
 	// Iterate over all validators and return their addresses.
-	addrs := make([]any, 0, len(res.Validators))
+	addrs := make([]common.Address, 0, len(res.Validators))
 	for _, val := range res.Validators {
 		//nolint:govet // ignore shadowing of err
 		valAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
@@ -217,7 +217,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		addrs = append(addrs, evmutils.ValAddressToEthAddress(valAddr))
 	}
 
-	return addrs, nil
+	return []any{addrs}, nil
 }
 
 // `bondDenom` returns the bond denom from the staking module.

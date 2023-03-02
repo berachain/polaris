@@ -23,6 +23,7 @@ package core
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/event"
 
@@ -205,7 +206,9 @@ func (bc *blockchain) GetEVM(
 	}
 
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
+	// TODO: create a new processor for simulations.
 	bc.processor.pp.Reset(state.GetContext()) // provide state context to precompiles
+	fmt.Println("PRECOMPILE PLUGIN HAS STAKING CONTRACT", bc.processor.pp.Has(common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF")))
 	return vm.NewGethEVMWithPrecompiles(
 		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
