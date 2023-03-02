@@ -40,6 +40,7 @@ func TestNetwork(t *testing.T) {
 var _ = Describe("SimulationTests", func() {
 	var net *network.Network
 	// var client *ethclient.Client
+	//test
 
 	BeforeEach(func() {
 		cfg := network.ConfigWithTestAccount()
