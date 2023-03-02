@@ -35,7 +35,7 @@ import (
 
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	// Prepare plugins for the block.
+	// Prepare tjhe Block, Gas, and Configuration plugins for the block.
 	bc.host.GetBlockPlugin().Prepare(ctx)
 	bc.host.GetGasPlugin().Prepare(ctx)
 	bc.host.GetConfigurationPlugin().Prepare(ctx)

@@ -86,7 +86,6 @@ func (p *plugin) BaseFee() uint64 {
 // context.
 func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 	cometHeader := p.ctx.BlockHeader()
-
 	if cometHeader.Height != number {
 		panic("block height mismatch")
 	}
@@ -99,8 +98,8 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 	}
 
 	parentHash := common.Hash{}
-	if p.ctx.BlockHeight() > 1 {
-		if header, err := p.GetHeaderByNumber(p.ctx.BlockHeight() - 1); err == nil {
+	if number > 1 {
+		if header, err := p.GetHeaderByNumber(number - 1); err == nil {
 			parentHash = header.Hash()
 		} else {
 			panic("parent header not found")
@@ -140,7 +139,8 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 		MixDigest: common.Hash{},
 		// `Nonce` is set empty as it is only used in PoW consensus.
 		Nonce: coretypes.BlockNonce{},
-		// `Extra` is unused in Stargazer.
+		// `Extra` is unused in Stargazer, but can be used to store additional information, e.g.
+		// the host block hash.
 		Extra: []byte(nil),
 	}
 }
