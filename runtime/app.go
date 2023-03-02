@@ -92,9 +92,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
-	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
+	precompile "pkg.berachain.dev/stargazer/precompile"
 	simappconfig "pkg.berachain.dev/stargazer/runtime/config"
 	"pkg.berachain.dev/stargazer/x/evm"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
@@ -103,6 +102,7 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -243,14 +243,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				//
 				// EVM PRECOMPILES
 				//
-				func() []vm.RegistrablePrecompile {
-					precompiles := []vm.RegistrablePrecompile{
-						// TODO: add more precompiles here
-						stakingprecompile.NewPrecompileContract(&app.StakingKeeper),
-					}
-					logger.Info("registering precompiles", precompiles)
-					return precompiles
-				},
+				precompile.NewProvider(app.StakingKeeper),
 				//
 				// AUTH
 				//

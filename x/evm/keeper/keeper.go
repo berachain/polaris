@@ -30,17 +30,16 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth"
 	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
 	ethlog "pkg.berachain.dev/stargazer/eth/log"
 	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	precompiles "pkg.berachain.dev/stargazer/precompile"
 	"pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/gas"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
-	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
@@ -78,7 +77,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	getPrecompiles func() []vm.RegistrablePrecompile,
+	ppr precompiles.Provider,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
@@ -102,10 +101,8 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.pp = precompile.NewPlugin(getPrecompiles)
-	plf := precompilelog.NewFactory()
-	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+	k.pp = precompile.NewPlugin(ppr)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", k.pp.GetLogFactory())
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
 	// Build the Stargazer EVM Provider

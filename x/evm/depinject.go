@@ -31,7 +31,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	modulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/precompile"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 )
 
@@ -51,9 +51,9 @@ type DepInjectInput struct {
 
 	Mempool sdkmempool.Mempool
 
-	AccountKeeper  AccountKeeper
-	BankKeeper     BankKeeper
-	GetPrecompiles func() []vm.RegistrablePrecompile
+	AccountKeeper      AccountKeeper
+	BankKeeper         BankKeeper
+	PrecompileProvider precompile.Provider
 }
 
 // `DepInjectOutput` is the output for the dep inject framework.
@@ -75,7 +75,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.Key,
 		in.AccountKeeper,
 		in.BankKeeper,
-		in.GetPrecompiles,
+		in.PrecompileProvider,
 		authority.String(),
 		in.AppOpts,
 		in.Mempool,

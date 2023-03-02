@@ -30,13 +30,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/stargazer/precompile"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
@@ -52,6 +53,7 @@ var _ = Describe("Processor", func() {
 		k            *keeper.Keeper
 		ak           state.AccountKeeper
 		bk           state.BankKeeper
+		sk           stakingkeeper.Keeper
 		ctx          sdk.Context
 		key, _       = crypto.GenerateEthKey()
 		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
@@ -70,11 +72,11 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before chain, init genesis state
-		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
+		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
 			ak, bk,
-			func() []vm.RegistrablePrecompile { return nil },
+			precompile.NewProvider(&sk),
 			"authority",
 			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),

@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/precompile"
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events/mock"
@@ -49,7 +50,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(func() []vm.RegistrablePrecompile { return nil }))
+		p = utils.MustGetAs[*plugin](NewPlugin(precompile.NewProvider(nil)))
 		p.Reset(ctx)
 		sdb = &mockSDB{}
 	})

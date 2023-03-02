@@ -35,7 +35,9 @@ import (
 	"pkg.berachain.dev/stargazer/lib/registry"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/precompile"
 	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 )
 
@@ -43,6 +45,7 @@ import (
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.PrecompilePlugin
+	GetLogFactory() *precompilelog.Factory
 }
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
@@ -51,14 +54,19 @@ type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 
 	// `getPrecompiles` returns all supported precompile contracts.
-	getPrecompiles func() []vm.RegistrablePrecompile
+	pp precompile.Provider
+
+	plf *precompilelog.Factory
 }
 
 // `NewPlugin` creates and returns a `plugin` with the given precompile getter function.
-func NewPlugin(getPrecompiles func() []vm.RegistrablePrecompile) Plugin {
+func NewPlugin(pp precompile.Provider) Plugin {
+	plf := precompilelog.NewFactory()
+	plf.RegisterAllEvents(pp.GetPrecompiles())
 	return &plugin{
-		Registry:       registry.NewMap[common.Address, vm.PrecompileContainer](),
-		getPrecompiles: getPrecompiles,
+		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
+		pp:       pp,
+		plf:      plf,
 	}
 }
 
@@ -67,9 +75,13 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.Context = sdk.UnwrapSDKContext(ctx)
 }
 
+func (p *plugin) GetLogFactory() *precompilelog.Factory {
+	return p.plf
+}
+
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
-	return p.getPrecompiles()
+	return p.pp.GetPrecompiles()
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting
