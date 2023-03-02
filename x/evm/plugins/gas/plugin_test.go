@@ -29,7 +29,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 )
 
 var _ = Describe("plugin", func() {

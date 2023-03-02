@@ -38,7 +38,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 
-	"pkg.berachain.dev/stargazer/testutil/network"
+	network "pkg.berachain.dev/stargazer/testing/utils/network"
 )
 
 var (

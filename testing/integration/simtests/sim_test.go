@@ -27,19 +27,20 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"pkg.berachain.dev/stargazer/testutil/network"
+	network "pkg.berachain.dev/stargazer/testing/utils/network"
 )
 
 var (
 	// dummyContract  = network.DummyContract
 	testKey        = network.TestKey
 	addressFromKey = network.AddressFromKey
-	signer         = network.Signer
+	// signer         = network.Signer
 
-	txData = network.TxData
+	// txData = network.TxData
 )
 
 func TestNetwork(t *testing.T) {
@@ -47,9 +48,9 @@ func TestNetwork(t *testing.T) {
 	RunSpecs(t, "testutil/sim:integration")
 }
 
-var _ = Describe("BlockAPIs", func() {
+var _ = Describe("SimulationTests", func() {
 	var net *network.Network
-	var client *ethclient.Client
+	// var client *ethclient.Client
 
 	BeforeEach(func() {
 		cfg := network.DefaultConfig()
@@ -73,7 +74,7 @@ var _ = Describe("BlockAPIs", func() {
 		net = network.New(GinkgoT(), cfg)
 		_, err = net.WaitForHeightWithTimeout(1, 15*time.Second)
 		Expect(err).To(BeNil())
-		client, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
+		_, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
 		Expect(err).To(BeNil())
 
 	})

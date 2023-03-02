@@ -28,7 +28,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/params"
 	enclib "pkg.berachain.dev/stargazer/lib/encoding"
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
