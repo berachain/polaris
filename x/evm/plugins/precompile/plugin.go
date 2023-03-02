@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -70,7 +71,7 @@ func (p *plugin) Reset(ctx context.Context) {
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
 	precompiles := p.getPrecompiles()()
-	p.Context.Logger().Info("precompiles", precompiles)
+	fmt.Println("precompiles", precompiles)
 	return precompiles
 }
 
