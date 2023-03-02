@@ -54,7 +54,6 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
 	"pkg.berachain.dev/stargazer/crypto/keyring"
 	"pkg.berachain.dev/stargazer/runtime"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"

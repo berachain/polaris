@@ -30,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	simapp "pkg.berachain.dev/stargazer/runtime"
 	"pkg.berachain.dev/stargazer/runtime/cmd/stargazerd/cmd"
 )
@@ -53,7 +52,7 @@ var _ = Describe("Init command", func() {
 		})
 
 		err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 	})
 })
 
@@ -73,10 +72,10 @@ var _ = Describe("Home flag registration", func() {
 		})
 
 		err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		result, err := rootCmd.Flags().GetString(flags.FlagHome)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(result).To(Equal(homeDir))
 	})
 })

@@ -25,7 +25,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
 	simapp "pkg.berachain.dev/stargazer/runtime"
 	"pkg.berachain.dev/stargazer/runtime/cmd/stargazerd/cmd"
 	"pkg.berachain.dev/stargazer/runtime/config"

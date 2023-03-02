@@ -27,7 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/accounts"
 	sgconfig "pkg.berachain.dev/stargazer/runtime/config"
 )
@@ -94,7 +93,7 @@ var _ = Describe("RegisterDenoms", func() {
 		// Check if the base denomination was registered correctly
 		baseDenom, err := sdk.GetBaseDenom()
 		Expect(baseDenom).To(Equal("abera"))
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		denomUnit, found := sdk.GetDenomUnit(baseDenom)
 		Expect(denomUnit).To(Equal(sdk.NewDecWithPrec(1, 18)))

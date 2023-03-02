@@ -88,7 +88,7 @@ var _ = Describe("Stateful Container", func() {
 
 			// geth unpacking error
 			_, err = sc.Run(ctx, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
 			_, err = sc.Run(ctx, getOutputPartialABI.ID, addr, value, readonly)
@@ -96,26 +96,26 @@ var _ = Describe("Stateful Container", func() {
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			_, err = sc.Run(ctx, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			_, err = sc.Run(ctx, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
 			// sc.WithStateDB(sdb)
 			inputs, err := getOutputABI.Inputs.Pack("string")
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			ret, err := sc.Run(ctx, append(getOutputABI.ID, inputs...), addr, value, readonly)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			outputs, err := getOutputABI.Outputs.Unpack(ret)
-			Expect(err).To(BeNil())
-			Expect(len(outputs)).To(Equal(1))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(outputs).To(HaveLen(1))
 			Expect(
 				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").
 					Interface().(*big.Int)).To(Equal(big.NewInt(1)))

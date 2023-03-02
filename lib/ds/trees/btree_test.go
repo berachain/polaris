@@ -179,13 +179,13 @@ var _ = Describe("DBIterator", func() {
 
 	It("should reverse iterator from 5 (ex) to 4", func() {
 		ritr, err := db.ReverseIterator(int642Bytes(4), int642Bytes(5))
-		Expect(err).Should(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		verifyIterator(ritr, []int64{4}, "reverse iterator from 5 (ex) to 4")
 	})
 
 	It("should reverse iterator from 6 (ex) to 4", func() {
 		ritr, err := db.ReverseIterator(int642Bytes(4), int642Bytes(6))
-		Expect(err).Should(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		verifyIterator(ritr, []int64{5, 4}, "reverse iterator from 6 (ex) to 4")
 	})
 
@@ -210,7 +210,7 @@ func verifyIterator(itr dbm.Iterator, expected []int64, _ string) {
 		i++
 	}
 	Expect(i).To(Equal(len(expected)))
-	Expect(itr.Close()).To(BeNil())
+	Expect(itr.Close()).To(Succeed())
 }
 
 func int642Bytes(i int64) []byte {

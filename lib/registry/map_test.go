@@ -23,7 +23,6 @@ package registry_test
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/lib/registry"
 	"pkg.berachain.dev/stargazer/lib/registry/mock"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
@@ -40,14 +39,14 @@ var _ = Describe("Registry", func() {
 		BeforeEach(func() {
 			// Register an item.
 			item := mock.NewMockRegistrable("foo", "bar")
-			Expect(r.Register(item)).To(BeNil())
+			Expect(r.Register(item)).To(Succeed())
 		})
 
 		It("should be a no-op if the item already exists", func() {
 			// Register the same item again.
 			mr := mock.NewMockRegistrable("foo", "bar2")
-			Expect(r.Register(mr)).To(BeNil())
-			Expect(len(r.Iterate())).To(Equal(1))
+			Expect(r.Register(mr)).To(Succeed())
+			Expect(r.Iterate()).To(HaveLen(1))
 			Expect(r.Get("foo").Data()).To(Equal("bar2"))
 		})
 

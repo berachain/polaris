@@ -126,16 +126,16 @@ var _ = Describe("StateProcessor", func() {
 	Context("Empty block", func() {
 		It("should build a an empty block", func() {
 			block, receipts, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
-			Expect(len(receipts)).To(Equal(0))
+			Expect(receipts).To(BeEmpty())
 		})
 	})
 
 	Context("Block with transactions", func() {
 		BeforeEach(func() {
 			_, _, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 
 			pp.ResetFunc = func(ctx context.Context) {
 				// no-op
@@ -146,12 +146,12 @@ var _ = Describe("StateProcessor", func() {
 
 		It("should error on an unsigned transaction", func() {
 			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
 			block, receipts, err := sp.Finalize(context.Background())
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
-			Expect(len(receipts)).To(Equal(0))
+			Expect(receipts).To(BeEmpty())
 		})
 
 		It("should not error on a signed transaction", func() {
@@ -160,12 +160,12 @@ var _ = Describe("StateProcessor", func() {
 			// 	return big.NewInt(200000)
 			// }
 			// result, err := sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).To(BeNil())
+			// Expect(err).ToNot(HaveOccurred())
 			// Expect(result).ToNot(BeNil())
-			// Expect(result.Err).To(BeNil())
+			// Expect(result.Err).ToNot(HaveOccurred())
 			// Expect(result.UsedGas).ToNot(BeZero())
 			// block, receipts, err := sp.Finalize(context.Background())
-			// Expect(err).To(BeNil())
+			// Expect(err).ToNot(HaveOccurred())
 			// Expect(block).ToNot(BeNil())
 			// Expect(len(receipts)).To(Equal(1))
 		})
@@ -193,11 +193,11 @@ var _ = Describe("StateProcessor", func() {
 			// legacyTxData.Value = big.NewInt(0)
 			// signedTx := types.MustSignNewTx(key, signer, legacyTxData)
 			// result, err := sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).To(BeNil())
+			// Expect(err).ToNot(HaveOccurred())
 			// Expect(result).ToNot(BeNil())
-			// Expect(result.Err).To(BeNil())
+			// Expect(result.Err).ToNot(HaveOccurred())
 			// block, receipts, err := sp.Finalize(context.Background())
-			// Expect(err).To(BeNil())
+			// Expect(err).ToNot(HaveOccurred())
 			// Expect(block).ToNot(BeNil())
 			// Expect(len(receipts)).To(Equal(1))
 
@@ -205,9 +205,9 @@ var _ = Describe("StateProcessor", func() {
 			// legacyTxData.To = &dummyContract
 			// signedTx = types.MustSignNewTx(key, signer, legacyTxData)
 			// result, err = sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).To(BeNil())
+			// Expect(err).ToNot(HaveOccurred())
 			// Expect(result).ToNot(BeNil())
-			// Expect(result.Err).To(BeNil())
+			// Expect(result.Err).ToNot(HaveOccurred())
 		})
 	})
 })

@@ -49,7 +49,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should build stateless precompile containers", func() {
 			pc, err := scf.Build(&mockStateless{&mockBase{}})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{})
@@ -66,7 +66,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should correctly build stateful containers and log events", func() {
 			pc, err := scf.Build(&mockStateful{&mockBase{}})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockStateless{&mockBase{}})
@@ -101,7 +101,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should properly build dynamic container", func() {
 			pc, err := dcf.Build(&mockDynamic{&mockStateful{&mockBase{}}})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = dcf.Build(&mockStateful{&mockBase{}})

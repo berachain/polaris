@@ -40,7 +40,7 @@ var _ = Describe("Method", func() {
 				RequiredGas: 10,
 			}
 			err := methodMissingSig.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 		})
 
 		It("should error on missing precompile executable", func() {
@@ -49,7 +49,7 @@ var _ = Describe("Method", func() {
 				RequiredGas: 10,
 			}
 			err := methodMissingFunc.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 		})
 
 		It("should error on given abi method", func() {
@@ -60,7 +60,7 @@ var _ = Describe("Method", func() {
 				AbiMethod:   &abi.Method{},
 			}
 			err := methodMissingFunc.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 		})
 	})
 
@@ -73,43 +73,43 @@ var _ = Describe("Method", func() {
 		It("should not error on valid abi signatures", func() {
 			method.AbiSig = "contractFunc(address)"
 			err := method.ValidateBasic()
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			method.AbiSig = "getOutputPartial()"
 			err = method.ValidateBasic()
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			method.AbiSig = "cancelUnbondingDelegation(address,uint256,int64)"
 			err = method.ValidateBasic()
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			method.AbiSig = "$$_$3fads343(address,int64,int)"
 			err = method.ValidateBasic()
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should error on invalid abi signatures", func() {
 			method.AbiSig = ""
 			err := method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			method.AbiSig = "()"
 			err = method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			method.AbiSig = "(int64)"
 			err = method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			method.AbiSig = "(address,uint256,int64)"
 			err = method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			method.AbiSig = "4fsd$_$2f(address)"
 			err = method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			method.AbiSig = "func(324fds)"
 			err = method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			method.AbiSig = "func"
 			err = method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 			method.AbiSig = "func())"
 			err = method.ValidateBasic()
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(HaveOccurred())
 		})
 	})
 })

@@ -25,7 +25,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/crypto"
@@ -47,8 +46,8 @@ var _ = Describe("precompileLog", func() {
 			[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
 		)))
 		Expect(pl.precompileAddr).To(Equal(common.BytesToAddress([]byte{1})))
-		Expect(len(pl.indexedInputs)).To(Equal(2))
-		Expect(len(pl.nonIndexedInputs)).To(Equal(2))
+		Expect(pl.indexedInputs).To(HaveLen(2))
+		Expect(pl.nonIndexedInputs).To(HaveLen(2))
 	})
 })
 

@@ -23,7 +23,6 @@ package storage_test
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/storage"
 )
@@ -46,7 +45,7 @@ var _ = Describe("x/evm/plugins/state/storage", func() {
 	})
 
 	It("should have valid slot", func() {
-		Expect(slot.ValidateBasic()).To(BeNil())
+		Expect(slot.ValidateBasic()).To(Succeed())
 	})
 
 	When("slot key is empty", func() {
@@ -55,7 +54,7 @@ var _ = Describe("x/evm/plugins/state/storage", func() {
 		})
 
 		It("should return an error", func() {
-			Expect(slot.ValidateBasic()).NotTo(BeNil())
+			Expect(slot.ValidateBasic()).NotTo(Succeed())
 		})
 	})
 
@@ -66,7 +65,7 @@ var _ = Describe("x/evm/plugins/state/storage", func() {
 			})
 
 			It("should not return an error", func() {
-				Expect(slot.ValidateBasic()).To(BeNil())
+				Expect(slot.ValidateBasic()).To(Succeed())
 			})
 		})
 
@@ -76,7 +75,7 @@ var _ = Describe("x/evm/plugins/state/storage", func() {
 			})
 
 			It("should return an error", func() {
-				Expect(slot.ValidateBasic()).NotTo(BeNil())
+				Expect(slot.ValidateBasic()).NotTo(Succeed())
 			})
 		})
 	})

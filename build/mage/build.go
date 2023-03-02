@@ -26,7 +26,6 @@ import (
 
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
-
 	mi "pkg.berachain.dev/stargazer/build/mage/internal"
 )
 

@@ -21,7 +21,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
@@ -41,7 +40,7 @@ var _ = Describe("Manager", func() {
 
 		cem = events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory())
 		ctx = ctx.WithEventManager(cem)
-		Expect(len(ctx.EventManager().Events())).To(Equal(1))
+		Expect(len(ctx.EventManager().Events())).To(HaveLen(1))
 		Expect(cem.Events()).To(HaveLen(1))
 	})
 
@@ -51,27 +50,27 @@ var _ = Describe("Manager", func() {
 
 	It("should correctly snapshot/revert", func() {
 		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
-		Expect(len(ctx.EventManager().Events())).To(Equal(2))
+		Expect(ctx.EventManager().Events()).To(HaveLen(2))
 
 		snap := cem.Snapshot()
 		ctx.EventManager().EmitEvent(sdk.NewEvent("3"))
-		Expect(len(ctx.EventManager().Events())).To(Equal(3))
+		Expect(ctx.EventManager().Events()).To(HaveLen(3))
 
 		cem.RevertToSnapshot(snap)
-		Expect(len(ctx.EventManager().Events())).To(Equal(2))
+		Expect(ctx.EventManager().Events()).To(HaveLen(2))
 	})
 
 	It("should not build eth logs when not in precompile", func() {
 		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
-		Expect(len(ctx.EventManager().Events())).To(Equal(2))
-		Expect(len(ldb.AddLogCalls())).To(Equal(0))
+		Expect(ctx.EventManager().Events()).To(HaveLen(2))
+		Expect(ldb.AddLogCalls()).To(HaveLen(0))
 
 		ctx.EventManager().EmitEvents(sdk.Events{
 			sdk.NewEvent("3"),
 			sdk.NewEvent("4"),
 		})
-		Expect(len(ctx.EventManager().Events())).To(Equal(4))
-		Expect(len(ldb.AddLogCalls())).To(Equal(0))
+		Expect(ctx.EventManager().Events()).To(HaveLen(4))
+		Expect(ldb.AddLogCalls()).To(Equal(0))
 	})
 
 	It("should panic when building eth logs fails", func() {
@@ -86,15 +85,15 @@ var _ = Describe("Manager", func() {
 		cem.BeginPrecompileExecution(ldb)
 
 		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
-		Expect(len(ctx.EventManager().Events())).To(Equal(2))
-		Expect(len(ldb.AddLogCalls())).To(Equal(1))
+		Expect(ctx.EventManager().Events()).To(Equal(2))
+		Expect(ldb.AddLogCalls()).To(Equal(1))
 
 		ctx.EventManager().EmitEvents(sdk.Events{
 			sdk.NewEvent("3"),
 			sdk.NewEvent("4"),
 		})
-		Expect(len(ctx.EventManager().Events())).To(Equal(4))
-		Expect(len(ldb.AddLogCalls())).To(Equal(3))
+		Expect(ctx.EventManager().Events()).To(Equal(4))
+		Expect(ldb.AddLogCalls()).To(Equal(3))
 
 		cem.EndPrecompileExecution()
 

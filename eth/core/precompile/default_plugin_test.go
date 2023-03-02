@@ -57,7 +57,7 @@ var _ = Describe("Default Plugin", func() {
 			pc := vm.PrecompiledContractsHomestead[common.BytesToAddress([]byte{1})]
 			_, remainingGas, err := dp.Run(nil, pc, []byte(precompInput), common.Address{}, nil, 3000, true)
 			Expect(remainingGas).To(Equal(uint64(0)))
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })

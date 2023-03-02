@@ -27,7 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
@@ -103,7 +102,7 @@ var _ = Describe("Factory", func() {
 				sdk.NewAttribute("delegator", delAddr.String()),
 			)
 			log, err := f.Build(&event)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(log).ToNot(BeNil())
 			Expect(log.Address).To(Equal(common.BytesToAddress([]byte{0x01})))
 			Expect(log.Topics).To(HaveLen(3))
@@ -117,7 +116,7 @@ var _ = Describe("Factory", func() {
 			packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().Pack(
 				amt.Amount.BigInt(), creationHeight,
 			)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(log.Data).To(Equal(packedData))
 		})
 
@@ -128,7 +127,7 @@ var _ = Describe("Factory", func() {
 				sdk.NewAttribute("custom_amount", amt.String()),
 			)
 			log, err := f.Build(&event)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(log).ToNot(BeNil())
 			Expect(log.Address).To(Equal(common.BytesToAddress([]byte{0x02})))
 			Expect(log.Topics).To(HaveLen(2))
@@ -140,7 +139,7 @@ var _ = Describe("Factory", func() {
 			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 			packedData, err := mockCustomAbiEvent()["CustomUnbondingDelegation"].
 				Inputs.NonIndexed().Pack(amt.Amount.BigInt())
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(log.Data).To(Equal(packedData))
 		})
 	})

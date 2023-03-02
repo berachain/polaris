@@ -64,7 +64,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"google.golang.org/protobuf/types/known/durationpb"
-
 	evmmodulev1 "pkg.berachain.dev/stargazer/api/stargazer/evm/module/v1"
 	evmtypes "pkg.berachain.dev/stargazer/x/evm/types"
 )

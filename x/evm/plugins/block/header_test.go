@@ -25,7 +25,6 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
-
 	"pkg.berachain.dev/stargazer/lib/utils"
 	offchain "pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
@@ -53,7 +52,7 @@ var _ = Describe("Header", func() {
 	// 		Number:      big.NewInt(10),
 	// 	}
 	// 	err := p.SetHeader(header)
-	// 	Expect(err).To(BeNil())
+	// 	Expect(err).ToNot(HaveOccurred())
 
 	// 	header2, found := p.GetHeaderByNumber(10)
 	// 	Expect(found).To(BeTrue())
@@ -76,7 +75,7 @@ var _ = Describe("Header", func() {
 	// 		Number:      big.NewInt(10),
 	// 	}
 	// 	err := p.SetHeader(header)
-	// 	Expect(err).To(BeNil())
+	// 	Expect(err).ToNot(HaveOccurred())
 
 	// 	// Get header.
 	// 	header2, found := p.GetHeaderByNumber(10)
@@ -89,13 +88,13 @@ var _ = Describe("Header", func() {
 	// 		ctx = ctx.WithBlockHeight(int64(i))
 	// 		header := &types.Header{Number: big.NewInt(int64(i))}
 	// 		err := p.SetHeader(header)
-	// 		Expect(err).To(BeNil())
+	// 		Expect(err).ToNot(HaveOccurred())
 	// 	}
 
 	// 	// Run TrackHistoricalStargazerHeader on the header with height 260.
 	// 	ctx = ctx.WithBlockHeight(260)
 	// 	err := p.SetHeader(&types.Header{Number: big.NewInt(260)})
-	// 	Expect(err).To(BeNil())
+	// 	Expect(err).ToNot(HaveOccurred())
 
 	// 	// Get the header with height 1.
 	// 	_, found := p.GetHeaderByNumber(1)

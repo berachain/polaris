@@ -33,17 +33,17 @@ var _ = Describe("PrivKey_PubKey", func() {
 	BeforeEach(func() {
 		var err error
 		privKey, err = GenPrivKey()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("validates signing bytes", func() {
 		msg := []byte("hello world")
 		sigHash := crypto.Keccak256(msg)
 		expectedSig, err := crypto.EthSecp256k1Sign(sigHash, privKey.Bytes())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		sig, err := privKey.Sign(sigHash)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(expectedSig).To(Equal(sig))
 	})
 
@@ -51,7 +51,7 @@ var _ = Describe("PrivKey_PubKey", func() {
 		msg := []byte("hello world")
 		sigHash := crypto.Keccak256(msg)
 		sig, err := privKey.Sign(sigHash)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		res := privKey.PubKey().VerifySignature(msg, sig)
 		Expect(res).To(BeTrue())
