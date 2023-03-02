@@ -24,10 +24,6 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	network "pkg.berachain.dev/stargazer/testing/utils/network"
@@ -51,29 +47,17 @@ var _ = Describe("SimulationTests", func() {
 	// var client *ethclient.Client
 
 	BeforeEach(func() {
-		cfg := network.DefaultConfig()
-
-		var authState authtypes.GenesisState
-		cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[authtypes.ModuleName], &authState)
-		newAccount := authtypes.NewBaseAccount(addressFromKey.Bytes(), testKey.PubKey(), 99, 0)
-		accounts, err := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-		Expect(err).ToNot(HaveOccurred())
-		authState.Accounts = append(authState.Accounts, accounts[0])
-		cfg.GenesisState[authtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&authState)
-
-		var bankState banktypes.GenesisState
-		cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[banktypes.ModuleName], &bankState)
-		bankState.Balances = append(bankState.Balances, banktypes.Balance{
-			Address: sdk.MustBech32ifyAddressBytes("cosmos", addressFromKey.Bytes()),
-			Coins:   sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1000000000000000000))),
-		})
-		cfg.GenesisState[banktypes.ModuleName] = cfg.Codec.MustMarshalJSON(&bankState)
-
+		cfg := network.ConfigWithTestAccount()
 		net = network.New(GinkgoT(), cfg)
-		_, err = net.WaitForHeightWithTimeout(1, 15*time.Second)
+		_, err := net.WaitForHeightWithTimeout(1, 15*time.Second)
 		Expect(err).ToNot(HaveOccurred())
 		_, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
 		Expect(err).ToNot(HaveOccurred())
 
+	})
+
+	It("should be able to send a transaction and verify it's been received with receipt", func() {
+		//TODO: implement
+		Expect(true).To(BeTrue())
 	})
 })
