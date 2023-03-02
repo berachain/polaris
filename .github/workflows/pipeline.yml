@@ -61,9 +61,9 @@ jobs:
            go run build/setup.go
       -
         name: Run ${{ matrix.args }}
-        continue-on-error: true
         uses: magefile/mage-action@v2
         with:
+          continue-on-error: true
           version: latest
           args: ${{ matrix.args }}
 
