@@ -73,7 +73,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	header := bc.host.GetBlockPlugin().NewHeaderWithBlockNumber(height)
 	bc.processor.Prepare(
 		ctx,
-		bc.GetStargazerEVM(ctx, vm.TxContext{}, bc.statedb, header, &bc.vmConfig),
+		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
 		header,
 	)
 }

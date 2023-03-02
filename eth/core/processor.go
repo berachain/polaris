@@ -64,9 +64,7 @@ type StateProcessor struct {
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
 	// `vmConfig` is the configuration for the EVM.
-	vmConfig vm.Config
-	// `commit` indicates whether the state processor should commit the state after processing a tx.
-	commit bool
+	vmConfig *vm.Config
 
 	// We store information about the current block being processed so that we can access it
 	// during the processing of transactions. This allows us to utilize this information to
@@ -81,8 +79,7 @@ type StateProcessor struct {
 func NewStateProcessor(
 	host StargazerHostChain,
 	statedb vm.StargazerStateDB,
-	vmConfig vm.Config,
-	commit bool,
+	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{
 		mtx:      sync.Mutex{},
@@ -92,7 +89,6 @@ func NewStateProcessor(
 		pp:       host.GetPrecompilePlugin(),
 		vmConfig: vmConfig,
 		statedb:  statedb,
-		commit:   commit,
 	}
 
 	if sp.pp == nil {
@@ -193,9 +189,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.Status = types.ReceiptStatusFailed
 	} else {
 		// if the result didn't produce a consensus error then we can properly commit the state.
-		if sp.commit {
-			sp.statedb.Finalize()
-		}
+		sp.statedb.Finalize()
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
 

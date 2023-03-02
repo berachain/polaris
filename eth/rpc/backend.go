@@ -367,7 +367,7 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 	}
 	txContext := core.NewEVMTxContext(msg)
 	b.logger.Info("called eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
-	gethEVM := b.chain.GetStargazerEVM(ctx, txContext, utils.MustGetAs[vm.StargazerStateDB](state), header, vmConfig)
+	gethEVM := b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.StargazerStateDB](state), header, vmConfig)
 	return gethEVM, state.Error, nil
 }
 

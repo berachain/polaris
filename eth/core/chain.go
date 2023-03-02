@@ -71,7 +71,7 @@ type ChainReader interface {
 	GetStargazerBlockByNumber(int64) (*types.Block, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
-	GetStargazerEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	GetPoolTransactions() (types.Transactions, error)
 	GetPoolTransaction(txHash common.Hash) *types.Transaction
 	GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error)
@@ -90,7 +90,7 @@ type blockchain struct {
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
 	// vmConfig is the configuration used to create the EVM.
-	vmConfig vm.Config
+	vmConfig *vm.Config
 
 	// `currentBlock` is the current/pending block.
 	currentBlock atomic.Value
@@ -126,7 +126,7 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
 		host:           host,
 		statedb:        state.NewStateDB(host.GetStatePlugin()),
-		vmConfig:       vm.Config{},
+		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
 		blockNumCache:  lru.NewCache[int64, *types.Block](defaultCacheSizeBytes),
 		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
@@ -135,6 +135,6 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 		scope:          event.SubscriptionScope{},
 	}
 	bc.cc = &chainContext{bc}
-	bc.processor = NewStateProcessor(bc.host, bc.statedb, bc.vmConfig, true)
+	bc.processor = NewStateProcessor(bc.host, bc.statedb, bc.vmConfig)
 	return bc
 }

@@ -188,7 +188,7 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	return state.NewStateDB(sp), nil
 }
 
-func (bc *blockchain) GetStargazerEVM(
+func (bc *blockchain) GetEVM(
 	ctx context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) *vm.GethEVM {
