@@ -66,10 +66,13 @@ jobs:
           version: latest
           args: ${{ matrix.args }}
 
-      - uses: codecov/codecov-action@v3
+      - 
+        name: Upload Coverage Report
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage-${{ matrix.args }}.txt
-          flags: flag-${{ matrix.os }}
-          fail_ci_if_error: false
+          fail_ci_if_error: true
           verbose: true
+        if: ${{ matrix.args == 'testunitcover' || matrix.args == 'testintegrationcover' }}
+        
