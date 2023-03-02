@@ -24,14 +24,14 @@ import (
 	"context"
 	"math/big"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	solidity "pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var (
@@ -49,7 +49,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should build stateless precompile containers", func() {
 			pc, err := scf.Build(&mockStateless{&mockBase{}})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{})
@@ -66,7 +66,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should correctly build stateful containers and log events", func() {
 			pc, err := scf.Build(&mockStateful{&mockBase{}})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockStateless{&mockBase{}})
@@ -101,7 +101,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should properly build dynamic container", func() {
 			pc, err := dcf.Build(&mockDynamic{&mockStateful{&mockBase{}}})
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = dcf.Build(&mockStateful{&mockBase{}})

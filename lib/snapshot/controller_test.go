@@ -23,12 +23,12 @@ package snapshot
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	typesmock "pkg.berachain.dev/stargazer/lib/types/mock"
 	"pkg.berachain.dev/stargazer/lib/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestSnapshot(t *testing.T) {
@@ -51,7 +51,7 @@ var _ = Describe("Controller", func() {
 
 	When("adding a new object", func() {
 		BeforeEach(func() {
-			Expect(ctrl.Register(object1)).To(BeNil())
+			Expect(ctrl.Register(object1)).To(Succeed())
 		})
 		It("should add the object", func() {
 			obj := ctrl.Get("object1")
@@ -132,8 +132,8 @@ var _ = Describe("Controller", func() {
 						})
 						It("should correctly finalize", func() {
 							ctrl.Finalize()
-							Expect(len(object1.FinalizeCalls())).To(Equal(1))
-							Expect(len(object2.FinalizeCalls())).To(Equal(1))
+							Expect(object1.FinalizeCalls()).To(HaveLen(1))
+							Expect(object2.FinalizeCalls()).To(HaveLen(1))
 						})
 						When("we call revert on the controller", func() {
 							It("should have the correct historical revisions", func() {

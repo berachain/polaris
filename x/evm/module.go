@@ -21,14 +21,16 @@
 package evm
 
 import (
+	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/types"

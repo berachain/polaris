@@ -24,6 +24,7 @@ import (
 	"context"
 
 	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/core"

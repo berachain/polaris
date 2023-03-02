@@ -24,10 +24,11 @@ import (
 	"testing"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/crypto"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestEthSecp256K1(t *testing.T) {
@@ -41,7 +42,7 @@ var _ = Describe("PubPrivKey", func() {
 	BeforeEach(func() {
 		var err error
 		privKey, err = GenPrivKey()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("validates type and equality", func() {
@@ -50,14 +51,14 @@ var _ = Describe("PubPrivKey", func() {
 
 	It("validates inequality", func() {
 		privKey2, err := GenPrivKey()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(privKey.Equals(privKey2)).To(BeFalse())
 	})
 
 	It("validates Ethereum address equality", func() {
 		addr := privKey.PubKey().Address()
 		key, err := privKey.ToECDSA()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		expectedAddr := crypto.PubkeyToAddress(key.PublicKey)
 		Expect(expectedAddr.Bytes()).To(Equal(addr.Bytes()))
 	})
@@ -71,7 +72,7 @@ var _ = Describe("PubPrivKey", func() {
 
 	It("validates equality", func() {
 		privKey2, err := GenPrivKey()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(privKey).ToNot(Equal(privKey2))
 		Expect(privKey.PubKey()).ToNot(Equal(privKey2.PubKey()))
 	})

@@ -23,10 +23,10 @@ package abi_test
 import (
 	"testing"
 
+	"pkg.berachain.dev/stargazer/eth/accounts/abi"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"pkg.berachain.dev/stargazer/eth/accounts/abi"
 )
 
 func TestABI(t *testing.T) {

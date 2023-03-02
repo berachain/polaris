@@ -24,11 +24,13 @@ import (
 	"reflect"
 	"testing"
 
+	dbm "github.com/cosmos/cosmos-db"
+
 	sdkcachekv "cosmossdk.io/store/cachekv"
 	sdkcachemulti "cosmossdk.io/store/cachemulti"
 	"cosmossdk.io/store/dbadapter"
 	storetypes "cosmossdk.io/store/types"
-	dbm "github.com/cosmos/cosmos-db"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
