@@ -86,7 +86,7 @@ func (p *plugin) SetHeader(header *types.Header) error {
 // `getIAVLHeight` returns the IAVL height for the given block number.
 func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 	var iavlHeight int64
-	switch rpc.BlockNumber(number) {
+	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // covers all cases.
 	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
 		iavlHeight = p.ctx.BlockHeight() - 1
 	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:

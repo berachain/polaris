@@ -120,16 +120,12 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 		if tleBz == nil {
 			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
 		}
-		var tle *coretypes.TxLookupEntry
+		tle := &coretypes.TxLookupEntry{}
 		err = tle.UnmarshalBinary(tleBz)
 		if err != nil {
 			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
 		}
-		// if tle != nil {
 		txs = append(txs, tle.Tx)
-		// } else {
-		// panic(fmt.Sprintf("tx %s in offchain storage is nil", receipt.TxHash.Hex()))
-		// }
 	}
 
 	// build the block.
@@ -170,16 +166,12 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 		if tleBz == nil {
 			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
 		}
-		var tle *coretypes.TxLookupEntry
+		tle := &coretypes.TxLookupEntry{}
 		err = tle.UnmarshalBinary(tleBz)
 		if err != nil {
 			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
 		}
-		if tle != nil {
-			txs = append(txs, tle.Tx)
-		} else {
-			panic(fmt.Sprintf("tx %s in offchain storage is nil", receipt.TxHash.Hex()))
-		}
+		txs = append(txs, tle.Tx)
 	}
 
 	// build the block.
