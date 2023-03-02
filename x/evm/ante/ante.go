@@ -91,7 +91,10 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 
-		// SIG VERIFY BUG: https://github.com/berachain/stargazer/issues/354
+		// SIG VERIFY BUG: https://github.com/berachain/stargazer/issues/354, possible solution is to
+		// check signatures in the application side mempool and kick them out. The only downside to this,
+		// is that is that we are letting transactions with bad sigs into the mempool and we need to potentially
+		// worry about spam.
 		// ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		// ante.NewIncrementSequenceDecorator(options.AccountKeeper), // in state tranisiton
 	}
