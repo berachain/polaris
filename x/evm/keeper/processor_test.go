@@ -74,7 +74,7 @@ var _ = Describe("Processor", func() {
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
 			ak, bk,
-			func() []vm.RegistrablePrecompile { return nil },
+			func() func() []vm.RegistrablePrecompile { return nil },
 			"authority",
 			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),

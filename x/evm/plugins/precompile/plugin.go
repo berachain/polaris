@@ -51,11 +51,11 @@ type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 
 	// `getPrecompiles` returns all supported precompile contracts.
-	getPrecompiles func() []vm.RegistrablePrecompile
+	getPrecompiles func() func() []vm.RegistrablePrecompile
 }
 
 // `NewPlugin` creates and returns a `plugin` with the given precompile getter function.
-func NewPlugin(getPrecompiles func() []vm.RegistrablePrecompile) Plugin {
+func NewPlugin(getPrecompiles func() func() []vm.RegistrablePrecompile) Plugin {
 	return &plugin{
 		Registry:       registry.NewMap[common.Address, vm.PrecompileContainer](),
 		getPrecompiles: getPrecompiles,
@@ -69,7 +69,9 @@ func (p *plugin) Reset(ctx context.Context) {
 
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
-	return p.getPrecompiles()
+	precompiles := p.getPrecompiles()()
+	p.Context.Logger().Info("precompiles", precompiles)
+	return precompiles
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting

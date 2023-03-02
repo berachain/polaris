@@ -78,7 +78,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	getPrecompiles func() []vm.RegistrablePrecompile,
+	getPrecompiles func() func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
