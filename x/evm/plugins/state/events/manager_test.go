@@ -42,7 +42,7 @@ var _ = Describe("Manager", func() {
 
 		cem = events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory())
 		ctx = ctx.WithEventManager(cem)
-		Expect(len(ctx.EventManager().Events())).To(HaveLen(1))
+		Expect(ctx.EventManager().Events()).To(HaveLen(1))
 		Expect(cem.Events()).To(HaveLen(1))
 	})
 
@@ -72,7 +72,7 @@ var _ = Describe("Manager", func() {
 			sdk.NewEvent("4"),
 		})
 		Expect(ctx.EventManager().Events()).To(HaveLen(4))
-		Expect(ldb.AddLogCalls()).To(Equal(0))
+		Expect(ldb.AddLogCalls()).To(HaveLen(0))
 	})
 
 	It("should panic when building eth logs fails", func() {
@@ -87,15 +87,15 @@ var _ = Describe("Manager", func() {
 		cem.BeginPrecompileExecution(ldb)
 
 		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
-		Expect(ctx.EventManager().Events()).To(Equal(2))
-		Expect(ldb.AddLogCalls()).To(Equal(1))
+		Expect(ctx.EventManager().Events()).To(HaveLen(2))
+		Expect(ldb.AddLogCalls()).To(HaveLen(1))
 
 		ctx.EventManager().EmitEvents(sdk.Events{
 			sdk.NewEvent("3"),
 			sdk.NewEvent("4"),
 		})
-		Expect(ctx.EventManager().Events()).To(Equal(4))
-		Expect(ldb.AddLogCalls()).To(Equal(3))
+		Expect(ctx.EventManager().Events()).To(HaveLen(4))
+		Expect(ldb.AddLogCalls()).To(HaveLen(3))
 
 		cem.EndPrecompileExecution()
 
