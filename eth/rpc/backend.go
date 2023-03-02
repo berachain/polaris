@@ -172,7 +172,7 @@ func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*type
 		b.logger.Error("eth.rpc.backend.HeaderByNumber", "number", number, "err", err)
 		return nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.HeaderByNumber", "header", block.Header)
+	b.logger.Info("called eth.rpc.backend.HeaderByNumber", "header", block.Header())
 	return block.Header(), nil
 }
 
@@ -183,7 +183,7 @@ func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.He
 		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "err", err)
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
 	}
-	b.logger.Info("eth.rpc.backend.HeaderByHash", "header", block.Header)
+	b.logger.Info("eth.rpc.backend.HeaderByHash", "header", block.Header())
 	return block.Header(), nil
 }
 
@@ -196,7 +196,7 @@ func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 		b.logger.Error("eth.rpc.backend.HeaderByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
 		return nil, err
 	}
-	b.logger.Info("eth.rpc.backend.HeaderByNumberOrHash", "header", block.Header)
+	b.logger.Info("eth.rpc.backend.HeaderByNumberOrHash", "header", block.Header())
 	return block.Header(), nil
 }
 
@@ -207,7 +207,7 @@ func (b *backend) CurrentHeader() *types.Header {
 		b.logger.Error("eth.rpc.backend.CurrentHeader", "block", block, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", block.Header)
+	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", block.Header())
 	return block.Header()
 }
 
@@ -218,7 +218,7 @@ func (b *backend) CurrentBlock() *types.Block {
 		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentBlock", "header", block.Header,
+	b.logger.Info("called eth.rpc.backend.CurrentBlock", "header", block.Header(),
 		"num_txs", len(block.Transactions()))
 	return block
 }
@@ -230,7 +230,7 @@ func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types
 		b.logger.Error("eth.rpc.backend.BlockByNumber", "number", number, "err", err)
 		return nil, errorslib.Wrapf(err, "BlockByNumber [%d]", number)
 	}
-	b.logger.Info("called eth.rpc.backend.BlockByNumber", "header", block.Header,
+	b.logger.Info("called eth.rpc.backend.BlockByNumber", "header", block.Header(),
 		"num_txs", len(block.Transactions()))
 	return block, nil
 }
@@ -243,7 +243,7 @@ func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Blo
 		b.logger.Error("eth.rpc.backend.BlockByHash", "hash", hash, "err", err)
 		return nil, errorslib.Wrapf(err, "BlockByHash [%s]", hash.String())
 	}
-	b.logger.Info("called eth.rpc.backend.BlockByHash", "header", block.Header,
+	b.logger.Info("called eth.rpc.backend.BlockByHash", "header", block.Header(),
 		"num_txs", len(block.Transactions()))
 	return block, nil
 }
@@ -257,7 +257,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 		b.logger.Error("eth.rpc.backend.BlockByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
 		return nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.BlockByNumberOrHash", "header", block.Header,
+	b.logger.Info("called eth.rpc.backend.BlockByNumberOrHash", "header", block.Header(),
 		"num_txs", len(block.Transactions()))
 	return block, nil
 }
@@ -275,7 +275,7 @@ func (b *backend) StateAndHeaderByNumber(
 		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.StateAndHeaderByNumber", "header", block.Header,
+	b.logger.Info("called eth.rpc.backend.StateAndHeaderByNumber", "header", block.Header(),
 		"num_txs", len(block.Transactions()))
 	return state, block.Header(), nil
 }
@@ -316,7 +316,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 			"err", err)
 		return nil, nil, err
 	}
-	b.logger.Info("called eth.rpc.backend.StateAndHeaderByNumberOrHash", "header", block.Header,
+	b.logger.Info("called eth.rpc.backend.StateAndHeaderByNumberOrHash", "header", block.Header(),
 		"num_txs", len(block.Transactions()))
 	return state, block.Header(), nil
 }
