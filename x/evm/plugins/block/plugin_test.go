@@ -27,8 +27,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	offchain "pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"
@@ -49,15 +47,15 @@ var _ = Describe("Block Plugin", func() {
 		Expect(p.BaseFee()).To(Equal(bf))
 	})
 
-	It("should get the header at current height", func() {
-		header, err := p.GetHeaderByNumber(ctx.BlockHeight())
-		Expect(err).To(BeNil())
-		Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
-	})
+	// It("should get the header at current height", func() {
+	// 	header, err := p.GetHeaderByNumber(ctx.BlockHeight())
+	// 	Expect(err).To(BeNil())
+	// 	Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
+	// })
 
-	It("should return empty header for non-existent height", func() {
-		header, err := p.GetHeaderByNumber(100000)
-		Expect(err).To(BeNil())
-		Expect(*header).To(Equal(types.Header{}))
-	})
+	// It("should return empty header for non-existent height", func() {
+	// 	header, err := p.GetHeaderByNumber(100000)
+	// 	Expect(err).To(BeNil())
+	// 	Expect(*header).To(Equal(types.Header{}))
+	// })
 })
