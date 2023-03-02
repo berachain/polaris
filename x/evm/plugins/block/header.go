@@ -38,39 +38,13 @@ import (
 
 // `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set
 // to 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
-const numHistoricalBlocks int64 = 256
+// const numHistoricalBlocks int64 = 256
 
 var SGHeaderKey = []byte{0xb0}
 
 // `SetQueryContextFn` sets the query context func for the plugin.
 func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
 	p.getQueryContext = gqc
-}
-
-// `TrackHistoricalHeader` saves the latest historical-info and deletes the oldest
-// heights that are below pruning height.
-func (p *plugin) TrackHistoricalHeader(header *types.Header) {
-	// Prune the store to ensure we only maintain the last numHistoricalBlocks.
-	// In most cases, this will involve removing a single block from the store.
-	// In the rare scenario when the historical blocks gets reduced to a lower value k'
-	// from the original value k. k - k' blocks must be deleted from the store.
-	// Since the entries to be deleted are always in a continuous range, we can iterate
-	// over the historical entries starting from the most recent version to be pruned
-	// and then return at the first empty entry.
-	// TODO: enable pruning?
-	// for i := ctx.BlockHeight() - numHistoricalBlocks; i >= 0; i-- {
-	// 	toPrune, found := p.GetHeader(ctx, i)
-	// 	if found {
-	// 		if err := p.PruneStargazerHeader(ctx, toPrune); err != nil {
-	// 			panic(err)
-	// 		}
-	// 	} else {
-	// 		break
-	// 	}
-	// }
-	if err := p.SetHeader(header); err != nil {
-		panic(err)
-	}
 }
 
 // `GetHeaderByNumber` returns the header at the given height, using the plugin's query context.
@@ -128,16 +102,6 @@ func (p *plugin) SetHeader(header *types.Header) error {
 // 			break
 // 		}
 // 	}
-// }
-
-// TODO: Enable pruning?
-// // `PruneStargazerHeader` prunes a stargazer block from the store.
-// func (p *plugin) PruneStargazerHeader(ctx sdk.Context, header *types.StargazerHeader) error {
-// 	store := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix)
-// 	store.Delete(sdk.Uint64ToBigEndian(header.Number.Uint64()))
-// 	// Notably, we don't delete the store key mapping hash to height as we want this
-// 	// to persist at the application layer in order to query by hash. (TODO? Tendermint?)
-// 	return nil
 // }
 
 // `getIAVLHeight` returns the IAVL height for the given block number.

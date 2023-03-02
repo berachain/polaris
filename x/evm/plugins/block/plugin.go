@@ -25,7 +25,6 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
-	cbft "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -40,15 +39,14 @@ const bf = uint64(1)
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosStargazer
+	core.BlockPlugin
+
+	// `UpdateOffChainStorage` updates the offchain storage with the new block and receipts.
 	UpdateOffChainStorage(*coretypes.Block, coretypes.Receipts)
-	// `TrackHistoricalHeader` saves the latest historical-info and deletes the oldest
-	// heights that are below pruning height.
-	TrackHistoricalHeader(header *coretypes.Header)
 	// `SetHeader` saves a block to the store.
 	SetHeader(header *coretypes.Header) error
 	// `SetQueryContextFn` sets the function used for querying historical block headers.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
-	core.BlockPlugin
 }
 
 // `plugin` keeps track of stargazer blocks via headers.
@@ -145,30 +143,6 @@ func (p *plugin) NewHeaderWithBlockNumber(ctx context.Context, number int64) *co
 		// `Extra` is unused in Stargazer.
 		Extra: []byte(nil),
 	}
-}
-
-// blockHashFromCosmosContext returns the block hash from the provided Cosmos SDK context.
-// If the context contains a valid header hash, it is converted to a common.Hash and returned.
-// Otherwise, if the header hash is not set (e.g., for checkTxState), the hash is computed
-// from the context's block header and returned as a common.Hash. If the block header is invalid,
-// the function returns an empty common.Hash and logs an error.
-func blockHashFromCosmosContext(ctx sdk.Context) common.Hash {
-	// Check if the context contains a header hash
-	headerHash := ctx.HeaderHash()
-	if len(headerHash) != 0 {
-		return common.BytesToHash(headerHash)
-	}
-
-	// If the header hash is not set, compute the hash from the context's block header
-	contextBlockHeader := ctx.BlockHeader()
-	header, err := cbft.HeaderFromProto(&contextBlockHeader)
-	if err != nil {
-		// If the block header is invalid, return an empty hash
-		return common.Hash{}
-	}
-
-	// Convert the computed hash to a common.Hash and return it
-	return common.BytesToHash(header.Hash())
 }
 
 // `blockGasLimitFromCosmosContext` returns the maximum gas limit for the current block, as defined
