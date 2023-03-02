@@ -241,10 +241,12 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				// EVM PRECOMPILES
 				//
 				func() []vm.RegistrablePrecompile {
-					return []vm.RegistrablePrecompile{
+					precompiles := []vm.RegistrablePrecompile{
 						// TODO: add more precompiles here
 						stakingprecompile.NewPrecompileContract(&app.StakingKeeper),
 					}
+					logger.Info("registering precompiles", precompiles)
+					return precompiles
 				},
 				//
 				// AUTH
