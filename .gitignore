@@ -194,6 +194,8 @@ pkg/**/.*.yaml
 */**/solidity-files-cache.json
 precompile/contracts/solidity/out
 precompile/contracts/solidity/lib
+eth/testutil/contracts/solidity/broadcast
+eth/testutil/contracts/solidity/out
 # cosmos
 .testnets/
 
