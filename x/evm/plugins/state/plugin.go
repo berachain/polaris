@@ -483,9 +483,8 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	case rpc.LatestBlockNumber:
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
-		// TODO: check, we might not be able to query
-		// the iavl tree at height 0.
-		iavlHeight = 0
+		// TODO: check is height == 1 correct?
+		iavlHeight = 1
 	default:
 		iavlHeight = number
 	}
