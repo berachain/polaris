@@ -189,7 +189,7 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 }
 
 func (bc *blockchain) GetEVM(
-	ctx context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
+	_ context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) *vm.GethEVM {
 	blockContext := vm.BlockContext{
@@ -205,7 +205,6 @@ func (bc *blockchain) GetEVM(
 	}
 
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
-	// TODO: create a new processor for simulations.
 	bc.processor.pp.Reset(state.GetContext()) // provide state context to precompiles
 	return vm.NewGethEVMWithPrecompiles(
 		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
@@ -220,7 +219,7 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 	return bc.host.GetTxPoolPlugin().GetTransaction(hash)
 }
 
-func (bc *blockchain) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
+func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
 	return bc.host.GetTxPoolPlugin().GetNonce(addr)
 }
 

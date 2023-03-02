@@ -906,7 +906,7 @@ var _ = Describe("Staking", func() {
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
 					It("should fail if caller address is wrong", func() {
-						_, err := contract.delegationHelper(
+						_, err := contract.getDelegationHelper(
 							ctx,
 							common.BytesToAddress([]byte("")),
 							val,
@@ -915,7 +915,7 @@ var _ = Describe("Staking", func() {
 					})
 
 					It("should fail if there is no delegation", func() {
-						_, err := contract.delegationHelper(
+						_, err := contract.getDelegationHelper(
 							ctx,
 							caller,
 							otherVal,
@@ -924,7 +924,7 @@ var _ = Describe("Staking", func() {
 					})
 
 					It("should succeed", func() {
-						_, err := contract.delegationHelper(
+						_, err := contract.getDelegationHelper(
 							ctx,
 							caller,
 							val,

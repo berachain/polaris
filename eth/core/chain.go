@@ -73,8 +73,8 @@ type ChainReader interface {
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	GetEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	GetPoolTransactions() (types.Transactions, error)
-	GetPoolTransaction(txHash common.Hash) *types.Transaction
-	GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error)
+	GetPoolTransaction(common.Hash) *types.Transaction
+	GetPoolNonce(common.Address) (uint64, error)
 	ChainConfig() *params.ChainConfig
 }
 

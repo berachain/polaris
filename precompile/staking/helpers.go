@@ -33,7 +33,7 @@ import (
 )
 
 // `delegationHelper` is the helper function for `getDelegation`.
-func (c *Contract) delegationHelper(
+func (c *Contract) getDelegationHelper(
 	ctx context.Context,
 	caller common.Address,
 	val sdk.ValAddress,
@@ -207,10 +207,10 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		return nil, err
 	}
 	// Iterate over all validators and return their addresses.
-	addrs := make([]common.Address, 0, len(res.Validators))
+	var addrs []common.Address
 	for _, val := range res.Validators {
-		//nolint:govet // ignore shadowing of err
-		valAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+		var valAddr sdk.ValAddress
+		valAddr, err = sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
 			return nil, err
 		}
