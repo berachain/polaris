@@ -22,6 +22,7 @@ package config
 
 import (
 	"cosmossdk.io/simapp/params"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdkcryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"

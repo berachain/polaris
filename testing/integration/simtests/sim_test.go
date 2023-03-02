@@ -18,29 +18,27 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package sim_test
+package simtests
 
 import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+
+	network "pkg.berachain.dev/stargazer/testing/utils/network"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	network "pkg.berachain.dev/stargazer/testing/utils/network"
 )
 
 var (
-	// dummyContract  = network.DummyContract
 	testKey        = network.TestKey
 	addressFromKey = network.AddressFromKey
-	// signer         = network.Signer
-
-	// txData = network.TxData
 )
 
 func TestNetwork(t *testing.T) {
@@ -59,7 +57,7 @@ var _ = Describe("SimulationTests", func() {
 		cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[authtypes.ModuleName], &authState)
 		newAccount := authtypes.NewBaseAccount(addressFromKey.Bytes(), testKey.PubKey(), 99, 0)
 		accounts, err := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		authState.Accounts = append(authState.Accounts, accounts[0])
 		cfg.GenesisState[authtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&authState)
 
@@ -73,9 +71,9 @@ var _ = Describe("SimulationTests", func() {
 
 		net = network.New(GinkgoT(), cfg)
 		_, err = net.WaitForHeightWithTimeout(1, 15*time.Second)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		_, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 	})
 })

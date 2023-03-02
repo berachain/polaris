@@ -24,8 +24,10 @@ import (
 	"fmt"
 	"time"
 
-	pruningtypes "cosmossdk.io/store/pruning/types"
 	cdb "github.com/cosmos/cosmos-db"
+
+	pruningtypes "cosmossdk.io/store/pruning/types"
+
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -33,6 +35,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	ethhd "pkg.berachain.dev/stargazer/crypto/hd"
@@ -64,7 +67,7 @@ var (
 	TxData = &ethtypes.DynamicFeeTx{
 		Nonce: 0,
 		To:    &DummyContract,
-		Gas:   100000,
+		Gas:   uint64(onehundred),
 		Data:  []byte("abcdef"),
 	}
 )

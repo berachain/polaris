@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc_tests
+package rpctests
 
 import (
 	"context"
@@ -29,20 +29,19 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/ethereum/go-ethereum"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
 	"github.com/ethereum/go-ethereum/ethclient"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-
 	network "pkg.berachain.dev/stargazer/testing/utils/network"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var (
-	// dummyContract  = network.DummyContract
 	testKey        = network.TestKey
 	addressFromKey = network.AddressFromKey
 	signer         = network.Signer
@@ -66,7 +65,7 @@ var _ = Describe("BlockAPIs", func() {
 		cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[authtypes.ModuleName], &authState)
 		newAccount := authtypes.NewBaseAccount(addressFromKey.Bytes(), testKey.PubKey(), 99, 0)
 		accounts, err := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		authState.Accounts = append(authState.Accounts, accounts[0])
 		cfg.GenesisState[authtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&authState)
 
@@ -80,30 +79,30 @@ var _ = Describe("BlockAPIs", func() {
 
 		net = network.New(GinkgoT(), cfg)
 		_, err = net.WaitForHeightWithTimeout(1, 15*time.Second)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		client, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 	})
 
 	It("eth_chainId - get chain id", func() {
 		chainID, err := client.ChainID(context.Background())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(chainID.String()).To(Equal("42069"))
 	})
 
 	It("eth_blockNumber - get latest block number", func() {
 		// Dial GetBlock
 		blockNumber, err := client.BlockNumber(context.Background())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(blockNumber).To(BeNumerically(">", 0))
 	})
 
 	It("eth_getBlockByNumber - get block header by number", func() {
 		blockNumber, err := client.BlockNumber(context.Background())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		header, err := client.HeaderByNumber(context.Background(), big.NewInt(int64(blockNumber)))
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(header.Number.Uint64()).To(Equal(blockNumber))
 	})
 
@@ -111,22 +110,22 @@ var _ = Describe("BlockAPIs", func() {
 
 		// TODO: expected failure because offchain kv is not working yet, this reads from offchain kv
 		block, err := client.BlockByNumber(context.Background(), big.NewInt(1))
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		hash := block.Hash()
 		blockHeaderByHash, err := client.HeaderByHash(context.Background(), hash)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(blockHeaderByHash.Hash()).To(Equal(block.Header().Hash()))
 		Expect(blockHeaderByHash.Number).To(Equal(block.Number()))
 	})
 
 	It("eth_getBlockTransactionCountByHash - get txns in block by block hash. No txns submitted", func() {
 		blockNumber, err := client.BlockNumber(context.Background())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(blockNumber)))
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(block.Number().Uint64()).To(Equal(blockNumber))
 		count, err := client.TransactionCount(context.Background(), block.Hash())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(count).To(Equal(uint(0)))
 
 	})
@@ -136,12 +135,12 @@ var _ = Describe("BlockAPIs", func() {
 
 		tx := ethtypes.NewTx(txData)
 		ethKey, err := testKey.ToECDSA()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		signedTx, err := ethtypes.SignTx(tx, signer, ethKey)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		// send transaction
 		err = client.SendTransaction(context.Background(), signedTx)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 	})
 
@@ -157,7 +156,7 @@ var _ = Describe("TransactionAPIs", func() {
 		cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[authtypes.ModuleName], &authState)
 		newAccount := authtypes.NewBaseAccount(addressFromKey.Bytes(), testKey.PubKey(), 99, 0)
 		accounts, err := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		authState.Accounts = append(authState.Accounts, accounts[0])
 		cfg.GenesisState[authtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&authState)
 
@@ -171,9 +170,9 @@ var _ = Describe("TransactionAPIs", func() {
 
 		net = network.New(GinkgoT(), cfg)
 		_, err = net.WaitForHeightWithTimeout(1, 15*time.Second)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		client, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 	})
 
@@ -182,27 +181,27 @@ var _ = Describe("TransactionAPIs", func() {
 		// create signed transaction
 		tx := ethtypes.NewTx(txData)
 		ethKey, err := testKey.ToECDSA()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		signedTx, err := ethtypes.SignTx(tx, signer, ethKey)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		// send transaction
 		err = client.SendTransaction(context.Background(), signedTx)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("eth_getTransactionByHash --- pending tx", func() {
 		// create signed transaction
 		tx := ethtypes.NewTx(txData)
 		ethKey, err := testKey.ToECDSA()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		signedTx, err := ethtypes.SignTx(tx, signer, ethKey)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		// send transaction
 		err = client.SendTransaction(context.Background(), signedTx)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		txReceived, isPending, err := client.TransactionByHash(context.Background(), signedTx.Hash())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(isPending).To(BeTrue())
 		Expect(txReceived.Hash()).To(Equal(signedTx.Hash()))
 	})
@@ -211,21 +210,22 @@ var _ = Describe("TransactionAPIs", func() {
 		// create signed transaction
 		tx := ethtypes.NewTx(txData)
 		ethKey, err := testKey.ToECDSA()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		signedTx, err := ethtypes.SignTx(tx, signer, ethKey)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		// send transaction
 		err = client.SendTransaction(context.Background(), signedTx)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		blockNumber, err := client.BlockNumber(context.Background())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		// TODO: update this to go over all blocks
-		net.WaitForHeight(int64(blockNumber) + 5)
+		_, err = net.WaitForHeight(int64(blockNumber) + 5)
+		Expect(err).ToNot(HaveOccurred())
 
 		txReceived, isPending, err := client.TransactionByHash(context.Background(), signedTx.Hash())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(isPending).To(BeFalse()) // should work?
 		Expect(txReceived.Hash()).To(Equal(signedTx.Hash()))
 	})
@@ -233,14 +233,14 @@ var _ = Describe("TransactionAPIs", func() {
 	It("eth_getTransactionReceipt - get txn receipt for txn submitted by hash", func() {
 		tx := ethtypes.NewTx(txData)
 		ethKey, err := testKey.ToECDSA()
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		signedTx, err := ethtypes.SignTx(tx, signer, ethKey)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		err = client.SendTransaction(context.Background(), signedTx)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		receipt, err := client.TransactionReceipt(context.Background(), signedTx.Hash())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(receipt.TxHash).To(Equal(signedTx.Hash()))
 
 	})
@@ -248,7 +248,7 @@ var _ = Describe("TransactionAPIs", func() {
 	// TODO: verify if this works like this
 	It("eth_getTransactionByBlockHashAndIndex - get txn by block hash and index for block 1 (no txns)", func() {
 		block, err := client.BlockByNumber(context.Background(), big.NewInt(1))
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		_, err = client.TransactionInBlock(context.Background(), block.Hash(), 1)
 		Expect(err).To(HaveOccurred())
 	})
@@ -264,14 +264,14 @@ var _ = Describe("GasPriceAPIs", func() {
 		cfg := network.DefaultConfig()
 		net = network.New(GinkgoT(), cfg)
 		_, err := net.WaitForHeightWithTimeout(1, 15*time.Second)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		client, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("eth_gasPrice - check gas price", func() {
 		gas, err := client.SuggestGasPrice(context.Background())
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(gas).To(Equal(big.NewInt(1000000001)))
 	})
 
@@ -283,7 +283,7 @@ var _ = Describe("GasPriceAPIs", func() {
 			Value:    big.NewInt(1000000001),
 			Data:     []byte("0x1"),
 		})
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(gas).To(BeNumerically(">", 0))
 	})
 
