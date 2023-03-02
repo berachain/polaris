@@ -35,6 +35,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
@@ -133,5 +134,23 @@ func DefaultConfig() network.Config {
 		KeyringOptions:  []keyring.Option{ethkeyring.EthSecp256k1Option()},
 	}
 
+	return cfg
+}
+
+func NetworkConfigWithTestAccount() network.Config {
+	cfg := DefaultConfig()
+	var authState authtypes.GenesisState
+	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[authtypes.ModuleName], &authState)
+	newAccount := authtypes.NewBaseAccount(AddressFromKey.Bytes(), TestKey.PubKey(), 99, 0)
+	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
+	authState.Accounts = append(authState.Accounts, accounts[0])
+	cfg.GenesisState[authtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&authState)
+	var bankState banktypes.GenesisState
+	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[banktypes.ModuleName], &bankState)
+	bankState.Balances = append(bankState.Balances, banktypes.Balance{
+		Address: sdk.MustBech32ifyAddressBytes("cosmos", AddressFromKey.Bytes()),
+		Coins:   sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1000000000000000000))),
+	})
+	cfg.GenesisState[banktypes.ModuleName] = cfg.Codec.MustMarshalJSON(&bankState)
 	return cfg
 }
