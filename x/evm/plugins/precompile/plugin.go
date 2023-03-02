@@ -22,7 +22,6 @@ package precompile
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -73,15 +72,11 @@ func (p *plugin) Reset(ctx context.Context) {
 }
 
 func (p *plugin) SetPrecompiles(precompiles []vm.RegistrablePrecompile) {
-	fmt.Println("setPrecompiles", precompiles)
 	p.precompiles = precompiles
 }
 
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
-	// precompiles := p.getPrecompiles()()
-	// fmt.Println("getPrecompiles", precompiles)
-	fmt.Println("p.precompiles", p.precompiles)
 	return p.precompiles
 }
 
@@ -94,9 +89,6 @@ func (p *plugin) Run(
 	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
-	fmt.Println("PRECOMPILE PLUGIN RUN CALLED")
-	fmt.Println("pc", pc.RegistryKey())
-
 	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewInfiniteGasMeter()
 	// consume static gas from RequiredGas

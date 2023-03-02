@@ -21,14 +21,12 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 	"os"
 
 	storetypes "cosmossdk.io/store/types"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
@@ -43,6 +41,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/stargazer/lib/utils"
 	pcgenerated "pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/stargazer/precompile/staking"
 	"pkg.berachain.dev/stargazer/testutil"
@@ -74,6 +73,7 @@ var _ = Describe("Processor", func() {
 		key, _       = crypto.GenerateEthKey()
 		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 		legacyTxData *coretypes.LegacyTx
+		valAddr      = []byte{0x21}
 	)
 
 	BeforeEach(func() {
@@ -94,10 +94,10 @@ var _ = Describe("Processor", func() {
 			ak, bk,
 			func() func() []vm.RegistrablePrecompile { return nil },
 			"authority",
-			sims.NewAppOptionsWithFlagHome("tmp/berachain"),
+			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),
 		)
-		validator, err := NewValidator(sdk.ValAddress([]byte{0x21}), PKs[0])
+		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
@@ -148,15 +148,13 @@ var _ = Describe("Processor", func() {
 
 			vals := sk.GetAllValidators(ctx)
 			Expect(len(vals)).To(Equal(1))
-			fmt.Println("sk vals", vals)
 
 			// calls the staking precompile
 			exec, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			fmt.Println("exec.ReturnData", exec.ReturnData)
 			ret, err := abiMethod.Outputs.Unpack(exec.ReturnData)
 			Expect(err).ToNot(HaveOccurred())
-			fmt.Println("unpacked ret", ret)
+			Expect(utils.MustGetAs[[]common.Address](ret[0])[0]).To(Equal(common.BytesToAddress(valAddr)))
 			Expect(exec.Err).To(BeNil())
 		})
 

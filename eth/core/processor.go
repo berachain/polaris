@@ -92,10 +92,8 @@ func NewStateProcessor(
 	}
 
 	if sp.pp == nil {
-		fmt.Println("GETTING CALLED HEREH DEFAULT PLUGIN")
 		sp.pp = precompile.NewDefaultPlugin()
 	} else {
-		fmt.Println("GETTING CALLED HEREH DFASDF")
 		// build and register the native precompile contracts
 		sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
 	}
@@ -242,8 +240,6 @@ func (sp *StateProcessor) NewEVMBlockContext(cc ChainContext) vm.BlockContext {
 
 // `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
 func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {
-	fmt.Println("REGISTERING PRECOMPILES", precompiles)
-
 	for _, pc := range precompiles {
 		// skip registering precompiles that are already registered.
 		if sp.pp.Has(pc.RegistryKey()) {
