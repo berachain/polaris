@@ -52,7 +52,7 @@ var (
 
 func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "testutil/rpc:integration")
+	RunSpecs(t, "integration")
 }
 
 var _ = Describe("BlockAPIs", func() {
@@ -220,6 +220,8 @@ var _ = Describe("TransactionAPIs", func() {
 
 		blockNumber, err := client.BlockNumber(context.Background())
 		Expect(err).To(BeNil())
+
+		// TODO: update this to go over all blocks
 		net.WaitForHeight(int64(blockNumber) + 5)
 
 		txReceived, isPending, err := client.TransactionByHash(context.Background(), signedTx.Hash())
@@ -284,9 +286,5 @@ var _ = Describe("GasPriceAPIs", func() {
 		Expect(err).To(BeNil())
 		Expect(gas).To(BeNumerically(">", 0))
 	})
-
-})
-
-var _ = Describe("BlockAPIs", func() {
 
 })

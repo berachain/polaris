@@ -45,7 +45,7 @@ var (
 
 func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "testutil/sim:integration")
+	RunSpecs(t, "integration")
 }
 
 var _ = Describe("SimulationTests", func() {
