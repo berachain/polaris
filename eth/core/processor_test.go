@@ -293,30 +293,4 @@ var _ = Describe("GetHashFn", func() {
 
 		gp.SetBlockGasLimit(blockGasLimit)
 	})
-
-	It("should return empty hash", func() {
-		sp.Prepare(context.Background(), nil, 100)
-		hashFn := sp.GetHashFn(nil)
-		Expect(hashFn(100)).To(Equal(common.Hash{}))
-
-		_, _, err := sp.Finalize(context.Background())
-		Expect(err).To(BeNil())
-
-		sp.Prepare(context.Background(), nil, 100)
-		hashFn = sp.GetHashFn(nil)
-		Expect(hashFn(101)).To(Equal(common.Hash{}))
-	})
-
-	It("should return correct hash", func() {
-		sp.Prepare(context.Background(), nil, 100)
-		hashFn := sp.GetHashFn(nil)
-		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
-
-		_, _, err := sp.Finalize(context.Background())
-		Expect(err).To(BeNil())
-
-		sp.Prepare(context.Background(), nil, 101)
-		hashFn = sp.GetHashFn(nil)
-		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
-	})
 })

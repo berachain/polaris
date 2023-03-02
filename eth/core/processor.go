@@ -37,7 +37,7 @@ import (
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
 type StateProcessor struct {
 	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the
-	// previous one.
+	// current block.
 	mtx sync.Mutex
 
 	// `bp` provides block functions from the underlying chain the EVM is running on
@@ -50,19 +50,23 @@ type StateProcessor struct {
 	// available to the EVM and executing them.
 	pp PrecompilePlugin
 
-	// `vmConfig` is the configuration for the EVM.
-	vmConfig vm.Config
+	// `signer` is the signer used to verify transaction signatures. We need this in order to to
+	// extract the underlying message from a transaction object in `ProcessTransaction`.
+	signer types.Signer
+
+	// `evm` is the EVM that is used to process transactions. We re-use a single EVM for processing
+	// the entire block. This is done in order to reduce memory allocs.
+	evm vm.StargazerEVM
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
-	// `commit` indicates whether the state processor should commit the state after processing a tx
+	// `vmConfig` is the configuration for the EVM.
+	vmConfig vm.Config
+	// `commit` indicates whether the state processor should commit the state after processing a tx.
 	commit bool
 
-	// `signer` is the signer used to verify transaction signatures.
-	signer types.Signer
-	// `evm ` is the EVM that is used to process transactions.
-	evm vm.StargazerEVM
-
-	// current block information
+	// We store information about the current block being processed so that we can access it
+	// during the processing of transactions. This allows us to utilize this information to
+	// build the `block` and return the canonical receipts in `Finalize`.
 	header   *types.Header
 	txs      types.Transactions
 	receipts types.Receipts
@@ -128,6 +132,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, cc ChainContext, height i
 
 	// Setup the EVM for this block.
 	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
+	// We re-register the default geth precompiles every block, this isn't optimal, but since *technically*
+	// the precompiles change based on the chain config rules, to be fully correct, we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
@@ -284,9 +290,4 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.Registrab
 			panic(err)
 		}
 	}
-}
-
-// `GetHashFn` returns a `GetHashFunc` which retrieves header hashes by number.
-func (sp *StateProcessor) GetHashFn(cc ChainContext) vm.GetHashFunc {
-	return GetHashFn(sp.header, cc)
 }
