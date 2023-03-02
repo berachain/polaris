@@ -73,11 +73,11 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", header)
 
 	// Save the historical header in the IAVL Tree.
-	k.bp.TrackHistoricalHeader(sCtx, header)
+	k.bp.TrackHistoricalHeader(header)
 
 	// TODO: this is sketchy and needs to be refactored later.
 	// Save the block data to the off-chain storage.
 	if k.offChainKv != nil {
-		k.bp.UpdateOffChainStorage(sCtx, block, receipts)
+		k.bp.UpdateOffChainStorage(block, receipts)
 	}
 }
