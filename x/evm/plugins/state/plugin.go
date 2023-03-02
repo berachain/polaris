@@ -30,8 +30,6 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
-	ethstate "pkg.berachain.dev/stargazer/eth/core/state"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	"pkg.berachain.dev/stargazer/eth/rpc"
 	"pkg.berachain.dev/stargazer/lib/snapshot"
@@ -471,23 +469,20 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 }
 
 // `GetStateByNumber` implements `core.StatePlugin`.
-func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
+func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
 	// Handle rpc.BlockNumber negative numbers.
 	var iavlHeight int64
 	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // golangci-lint bug?
-	case rpc.SafeBlockNumber:
-	case rpc.FinalizedBlockNumber:
+	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
 		iavlHeight = p.ctx.BlockHeight() - 1
-	case rpc.PendingBlockNumber:
-	case rpc.LatestBlockNumber:
+	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
-		// TODO: check, we might not be able to query
-		// the iavl tree at height 0.
-		iavlHeight = 0
+		// TODO: check is height == 1 correct?
+		iavlHeight = 1
 	default:
 		iavlHeight = number
 	}
@@ -501,7 +496,7 @@ func (p *plugin) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	// Create a StateDB with the requested chain height.
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
 	sp.Reset(ctx)
-	return ethstate.NewStateDB(sp), nil
+	return sp, nil
 }
 
 // `getStateFromStore` returns the current state of the slot in the given address.

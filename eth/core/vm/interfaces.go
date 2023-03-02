@@ -24,31 +24,10 @@ import (
 	"math/big"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/params"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
 type (
-	// `StargazerEVM` defines an extension to the interface provided by Go-Ethereum to support
-	// additional state transition functionalities.
-	StargazerEVM interface {
-		// `Create` creates a new contract using the given code and returns the contract address.
-		Create(
-			caller ContractRef, code []byte, gas uint64, value *big.Int,
-		) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
-		// `Call` executes the given contract with the given input data and returns the output.
-		Call(
-			caller ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int,
-		) (ret []byte, leftOverGas uint64, err error)
-		// `SetTxContext` sets the transaction context for the new transaction.
-		SetTxContext(txCtx TxContext)
-		// `StateDB` returns the `StateDB` attached to this `StargazerEVM`.
-		StateDB() StargazerStateDB
-		// `ChainConfig` returns the `ChainConfig` attached to this `StargazerEVM`.
-		ChainConfig() *params.ChainConfig
-		UnderlyingEVM() *GethEVM
-	}
-
 	// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to support
 	// additional state transition functionalities.
 	StargazerStateDB interface {

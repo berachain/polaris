@@ -6,7 +6,6 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/state"
 	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core"
 	"sync"
@@ -61,7 +60,7 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
-//			GetStateByNumberFunc: func(n int64) (state.StateDBI, error) {
+//			GetStateByNumberFunc: func(n int64) (core.StatePlugin, error) {
 //				panic("mock out the GetStateByNumber method")
 //			},
 //			RegistryKeyFunc: func() string {
@@ -144,7 +143,7 @@ type StatePluginMock struct {
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
 	// GetStateByNumberFunc mocks the GetStateByNumber method.
-	GetStateByNumberFunc func(n int64) (state.StateDBI, error)
+	GetStateByNumberFunc func(n int64) (core.StatePlugin, error)
 
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() string
@@ -782,7 +781,7 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 }
 
 // GetStateByNumber calls GetStateByNumberFunc.
-func (mock *StatePluginMock) GetStateByNumber(n int64) (state.StateDBI, error) {
+func (mock *StatePluginMock) GetStateByNumber(n int64) (core.StatePlugin, error) {
 	if mock.GetStateByNumberFunc == nil {
 		panic("StatePluginMock.GetStateByNumberFunc: method is nil but StatePlugin.GetStateByNumber was just called")
 	}
