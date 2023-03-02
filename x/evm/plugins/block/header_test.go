@@ -99,7 +99,8 @@ var _ = Describe("Header", func() {
 
 		// Run TrackHistoricalStargazerHeader on the header with height 260.
 		ctx = ctx.WithBlockHeight(260)
-		p.SetHeader(&types.Header{Number: big.NewInt(260)})
+		err := p.SetHeader(&types.Header{Number: big.NewInt(260)})
+		Expect(err).To(BeNil())
 
 		// Get the header with height 1.
 		_, found := p.GetHeaderByNumber(1)

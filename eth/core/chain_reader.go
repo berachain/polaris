@@ -194,12 +194,11 @@ func (bc *blockchain) GetEVM(ctx context.Context, txContext vm.TxContext, state 
 		Time:        header.Time,
 		Difficulty:  header.Difficulty,
 		BaseFee:     header.BaseFee,
-		// Random:      header.Ra,
 	}
 
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
 		// todo: get precompile controller
-		blockContext, txContext, state, chainCfg, *vmConfig, nil,
+		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
 }

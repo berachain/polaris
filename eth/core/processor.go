@@ -34,6 +34,9 @@ import (
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
+// `initialTxsCapacity` is the initial capacity of the transactions and receipts slice.
+const initialTxsCapacity = 256
+
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
 type StateProcessor struct {
 	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the
@@ -114,8 +117,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, cc ChainContext, height i
 
 	// Build a header object so we can track that status of the block as we process it.
 	sp.header = sp.bp.NewHeaderWithBlockNumber(ctx, height)
-	sp.txs = make(types.Transactions, 0, 256)
-	sp.receipts = make(types.Receipts, 0, 256)
+	sp.txs = make(types.Transactions, 0, initialTxsCapacity)
+	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
 	// Ensure that the gas plugin and header are in sync.
 	if sp.header.GasLimit != sp.gp.BlockGasLimit() {
@@ -279,9 +282,4 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.Registrab
 			panic(err)
 		}
 	}
-}
-
-// `GetHashFn` returns a `GetHashFunc` which retrieves header hashes by number.
-func (sp *StateProcessor) GetHashFn(cc ChainContext) vm.GetHashFunc {
-	return GetHashFn(sp.header, cc)
 }

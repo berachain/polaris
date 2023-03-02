@@ -36,10 +36,6 @@ import (
 // Stargazer Block Tracking
 // ===========================================================================.
 
-// `numHistoricalBlocks` is the number of historical blocks to keep in the store. This is set
-// to 256, as this is the furthest back the BLOCKHASH opcode is allowed to look back.
-// const numHistoricalBlocks int64 = 256
-
 var SGHeaderKey = []byte{0xb0}
 
 // `SetQueryContextFn` sets the query context func for the plugin.
@@ -87,32 +83,13 @@ func (p *plugin) SetHeader(header *types.Header) error {
 	return nil
 }
 
-// TODO: Enable iteration?
-// // `IterateStargazerHeaders` iterates over the stargazer headers and performs a callback function.
-// func (p *plugin) IterateStargazerHeaders(ctx sdk.Context, cb func(header *types.StargazerHeader) (stop bool)) {
-// 	it := prefix.NewStore(ctx.KVStore(p.storekey), SGHeaderPrefix).Iterator(nil, nil)
-// 	defer it.Close()
-
-// 	for ; it.Valid(); it.Next() {
-// 		var header types.StargazerHeader
-// 		if err := header.UnmarshalBinary(it.Value()); err != nil {
-// 			panic(err)
-// 		}
-// 		if cb(&header) {
-// 			break
-// 		}
-// 	}
-// }
-
 // `getIAVLHeight` returns the IAVL height for the given block number.
 func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 	var iavlHeight int64
 	switch rpc.BlockNumber(number) {
-	case rpc.SafeBlockNumber:
-	case rpc.FinalizedBlockNumber:
+	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
 		iavlHeight = p.ctx.BlockHeight() - 1
-	case rpc.PendingBlockNumber:
-	case rpc.LatestBlockNumber:
+	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
 		iavlHeight = 1
@@ -120,7 +97,7 @@ func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 		iavlHeight = number
 	}
 
-	if iavlHeight < 0 {
+	if iavlHeight < 1 {
 		return 1, fmt.Errorf("invalid block number %d", number)
 	}
 

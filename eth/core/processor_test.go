@@ -23,7 +23,6 @@ package core_test
 import (
 	"context"
 	"math/big"
-	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -235,88 +234,5 @@ var _ = Describe("No precompile plugin provided", func() {
 		}
 		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
 		Expect(func() { sp.Prepare(context.Background(), nil, 0) }).ToNot(Panic())
-	})
-})
-
-var _ = Describe("GetHashFn", func() {
-	var (
-		sdb           *vmmock.StargazerStateDBMock
-		host          *mock.StargazerHostChainMock
-		bp            *mock.BlockPluginMock
-		gp            *mock.GasPluginMock
-		cp            *mock.ConfigurationPluginMock
-		pp            *mock.PrecompilePluginMock
-		sp            *core.StateProcessor
-		blockGasLimit uint64
-	)
-
-	BeforeEach(func() {
-		sdb = vmmock.NewEmptyStateDB()
-		host = mock.NewMockHost()
-		bp = mock.NewBlockPluginMock()
-		gp = mock.NewGasPluginMock()
-		cp = mock.NewConfigurationPluginMock()
-		pp = mock.NewPrecompilePluginMock()
-		host.GetBlockPluginFunc = func() core.BlockPlugin {
-			return bp
-		}
-		host.GetGasPluginFunc = func() core.GasPlugin {
-			return gp
-		}
-		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
-			return cp
-		}
-		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
-			return pp
-		}
-		pp.RegisterFunc = func(pc vm.PrecompileContainer) error {
-			return nil
-		}
-		sp = core.NewStateProcessor(host, sdb, vm.Config{}, true)
-		Expect(sp).ToNot(BeNil())
-		blockGasLimit = 1000000
-
-		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
-			return &types.Header{
-				Number:     big.NewInt(height),
-				BaseFee:    big.NewInt(69),
-				GasLimit:   blockGasLimit,
-				ParentHash: common.BytesToHash([]byte{uint8(height) - 1}),
-				Time:       uint64(time.Now().Unix()),
-				Difficulty: big.NewInt(0),
-				MixDigest:  common.Hash{},
-			}
-		}
-		pp.HasFunc = func(addr common.Address) bool {
-			return false
-		}
-
-		gp.SetBlockGasLimit(blockGasLimit)
-	})
-
-	It("should return empty hash", func() {
-		sp.Prepare(context.Background(), nil, 100)
-		hashFn := sp.GetHashFn(nil)
-		Expect(hashFn(100)).To(Equal(common.Hash{}))
-
-		_, _, err := sp.Finalize(context.Background())
-		Expect(err).To(BeNil())
-
-		sp.Prepare(context.Background(), nil, 100)
-		hashFn = sp.GetHashFn(nil)
-		Expect(hashFn(101)).To(Equal(common.Hash{}))
-	})
-
-	It("should return correct hash", func() {
-		sp.Prepare(context.Background(), nil, 100)
-		hashFn := sp.GetHashFn(nil)
-		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
-
-		_, _, err := sp.Finalize(context.Background())
-		Expect(err).To(BeNil())
-
-		sp.Prepare(context.Background(), nil, 101)
-		hashFn = sp.GetHashFn(nil)
-		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
 	})
 })

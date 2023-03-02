@@ -55,7 +55,8 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		}
 
 		// Cache receipts.
-		if receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
+		var receipts types.Receipts
+		if receipts, ok = utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
 			bc.receiptsCache.Add(blockHash, receipts)
 		}
 

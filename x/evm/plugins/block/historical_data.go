@@ -30,7 +30,6 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/types"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	errorslib "pkg.berachain.dev/stargazer/lib/errors"
 )
@@ -69,7 +68,8 @@ func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretype
 			BlockHash: blockHash,
 			BlockNum:  blockNum,
 		}
-		tleBz, err := txLookupEntry.MarshalBinary()
+		var tleBz []byte
+		tleBz, err = txLookupEntry.MarshalBinary()
 		if err != nil {
 			p.ctx.Logger().Error(
 				"UpdateOffChainStorage: failed to marshal tx %s at block number %d",
@@ -121,11 +121,15 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
 		}
 		var tle *coretypes.TxLookupEntry
-		err := tle.UnmarshalBinary(tleBz)
+		err = tle.UnmarshalBinary(tleBz)
 		if err != nil {
 			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
 		}
+		// if tle != nil {
 		txs = append(txs, tle.Tx)
+		// } else {
+		// panic(fmt.Sprintf("tx %s in offchain storage is nil", receipt.TxHash.Hex()))
+		// }
 	}
 
 	// build the block.
@@ -167,11 +171,15 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
 		}
 		var tle *coretypes.TxLookupEntry
-		err := tle.UnmarshalBinary(tleBz)
+		err = tle.UnmarshalBinary(tleBz)
 		if err != nil {
 			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
 		}
-		txs = append(txs, tle.Tx)
+		if tle != nil {
+			txs = append(txs, tle.Tx)
+		} else {
+			panic(fmt.Sprintf("tx %s in offchain storage is nil", receipt.TxHash.Hex()))
+		}
 	}
 
 	// build the block.
@@ -194,7 +202,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 }
 
 // `GetReceiptsByHash` returns the receipts with the given block hash.
-func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (types.Receipts, error) {
+func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
 	receiptsBz := prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Get(blockHash.Bytes())
 	if receiptsBz == nil {
