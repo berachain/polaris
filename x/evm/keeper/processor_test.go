@@ -44,7 +44,7 @@ import (
 	"pkg.berachain.dev/stargazer/lib/utils"
 	pcgenerated "pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/stargazer/precompile/staking"
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 	"pkg.berachain.dev/stargazer/x/evm/keeper"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
