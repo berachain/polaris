@@ -5,12 +5,10 @@ package mock
 
 import (
 	"context"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
-
 	"pkg.berachain.dev/stargazer/eth/core"
+	"sync"
 )
 
 // Ensure, that ConfigurationPluginMock does implement core.ConfigurationPlugin.

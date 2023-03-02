@@ -5,15 +5,13 @@ package mock
 
 import (
 	"context"
-	"math/big"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-
+	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"sync"
 )
 
 // Ensure, that StargazerStateDBMock does implement vm.StargazerStateDB.

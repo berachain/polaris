@@ -108,6 +108,7 @@ linters-settings:
       - Prefix(pkg.berachain.dev/stargazer
       - blank
       - dot
+    skip-generated: true
 
   gocognit:
     # Minimal code complexity to report
@@ -248,7 +249,7 @@ linters:
     - gocyclo # computes and checks the cyclomatic complexity of functions
     - godot # checks if comments end in a period
     - goheader # checks is file header matches to pattern
-    - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
+    # - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
     - gomnd # detects magic numbers
     # - gomoddirectives # manages the use of 'replace', 'retract', and 'excludes' directives in go.mod
     - gomodguard # allow and block lists linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations

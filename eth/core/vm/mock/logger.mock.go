@@ -4,13 +4,11 @@
 package mock
 
 import (
-	"math/big"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
-
+	"math/big"
 	ethcorevm "pkg.berachain.dev/stargazer/eth/core/vm"
+	"sync"
 )
 
 // Ensure, that EVMLoggerMock does implement ethcorevm.EVMLogger.

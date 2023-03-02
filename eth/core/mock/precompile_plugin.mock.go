@@ -5,16 +5,14 @@ package mock
 
 import (
 	"context"
-	"math/big"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-
+	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"sync"
 )
 
 // Ensure, that PrecompilePluginMock does implement core.PrecompilePlugin.
