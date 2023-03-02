@@ -40,7 +40,7 @@ const initialTxsCapacity = 256
 // `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
 type StateProcessor struct {
 	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the
-	// previous one.
+	// current block.
 	mtx sync.Mutex
 
 	// `bp` provides block functions from the underlying chain the EVM is running on
@@ -53,19 +53,23 @@ type StateProcessor struct {
 	// available to the EVM and executing them.
 	pp PrecompilePlugin
 
-	// `vmConfig` is the configuration for the EVM.
-	vmConfig vm.Config
+	// `signer` is the signer used to verify transaction signatures. We need this in order to to
+	// extract the underlying message from a transaction object in `ProcessTransaction`.
+	signer types.Signer
+
+	// `evm` is the EVM that is used to process transactions. We re-use a single EVM for processing
+	// the entire block. This is done in order to reduce memory allocs.
+	evm vm.StargazerEVM
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
-	// `commit` indicates whether the state processor should commit the state after processing a tx
+	// `vmConfig` is the configuration for the EVM.
+	vmConfig vm.Config
+	// `commit` indicates whether the state processor should commit the state after processing a tx.
 	commit bool
 
-	// `signer` is the signer used to verify transaction signatures.
-	signer types.Signer
-	// `evm ` is the EVM that is used to process transactions.
-	evm vm.StargazerEVM
-
-	// current block information
+	// We store information about the current block being processed so that we can access it
+	// during the processing of transactions. This allows us to utilize this information to
+	// build the `block` and return the canonical receipts in `Finalize`.
 	header   *types.Header
 	txs      types.Transactions
 	receipts types.Receipts
@@ -131,6 +135,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, cc ChainContext, height i
 
 	// Setup the EVM for this block.
 	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
+	// We re-register the default geth precompiles every block, this isn't optimal, but since *technically*
+	// the precompiles change based on the chain config rules, to be fully correct, we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = vm.NewStargazerEVM(
@@ -158,7 +164,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.evm.SetTxContext(txContext)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
-	// We also must reset the StateDB and precompile and gas plugins.
+	// We also must reset the StateDB, Precompile and Gas plugins.
 	sp.statedb.Reset(ctx)
 	sp.pp.Reset(ctx)
 	sp.gp.Reset(ctx)
@@ -181,8 +187,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	// Create a new receipt for the transaction, storing the intermediate root and gas used
-	// by the tx.
+	// Create a new receipt for the transaction.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
 		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
@@ -209,7 +214,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.txs = append(sp.txs, tx)
 	sp.receipts = append(sp.receipts, receipt)
 
-	// Return receipt to the caller.
+	// Return the execution result to the caller.
 	return result, nil
 }
 
@@ -220,6 +225,9 @@ func (sp *StateProcessor) Finalize(
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
+	// We iterate over all of the receipts/transactions in the block and update the receipt to
+	// have the correct values. We must do this AFTER all the transactions have been processed
+	// to ensure that the block hash, logs and bloom filter have the correct information.
 	blockHash, blockNum := sp.header.Hash(), sp.header.Number.Uint64()
 	for txIndex, receipt := range sp.receipts {
 		// Set the receipt logs and create the bloom filter.
@@ -230,7 +238,10 @@ func (sp *StateProcessor) Finalize(
 		receipt.TransactionIndex = uint(txIndex)
 	}
 
+	// Now that we are done processing the block, we update the header with the consumed gas.
 	sp.header.GasUsed = sp.gp.CumulativeGasUsed()
+
+	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, nil
 }
 
