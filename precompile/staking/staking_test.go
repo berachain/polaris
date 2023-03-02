@@ -276,13 +276,25 @@ var _ = Describe("Staking", func() {
 		})
 
 		When("GetDelegationAddrInput", func() {
-			It("should return an error if the input is not a common.Address", func() {
+			It("should return an error if the input del is not a common.Address", func() {
 				res, err := contract.GetDelegationAddrInput(
 					ctx,
 					caller,
 					big.NewInt(0),
 					true,
-					"0x",
+					"0x", evmutils.ValAddressToEthAddress(val),
+				)
+				Expect(err).To(MatchError(ErrInvalidDelegatorAddr))
+				Expect(res).To(BeNil())
+			})
+
+			It("should return an error if the val address is not common.address", func() {
+				res, err := contract.GetDelegationAddrInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					evmutils.AccAddressToEthAddress(del), "0x",
 				)
 				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
 				Expect(res).To(BeNil())
@@ -294,7 +306,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.ValAddressToEthAddress(val),
+					evmutils.AccAddressToEthAddress(del), evmutils.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
@@ -308,19 +320,43 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					10,
+					[]any{0, val.String()},
 				)
 				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
 			})
 
-			It("should error if not bech32", func() {
+			It("should error if the val address is not a string", func() {
 				res, err := contract.GetDelegationStringInput(
 					ctx,
 					caller,
 					big.NewInt(0),
 					true,
-					"0x",
+					[]any{del.String(), 0},
+				)
+				Expect(err).To(MatchError(ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should error if del not bech32", func() {
+				res, err := contract.GetDelegationStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					"0x", val.String(),
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("should return an error if the val is not bech32", func() {
+				res, err := contract.GetDelegationStringInput(
+					ctx,
+					caller,
+					big.NewInt(0),
+					true,
+					del.String(), "0x",
 				)
 				Expect(err).To(HaveOccurred())
 				Expect(res).To(BeNil())
@@ -332,7 +368,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					val.String(),
+					del.String(), val.String(),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
@@ -905,28 +941,61 @@ var _ = Describe("Staking", func() {
 
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
-					It("should fail if caller address is wrong", func() {
+					// It("should fail if caller address is wrong", func() {
+					// 	_, err := contract.delegationHelper(
+					// 		ctx,
+					// 		del,
+					// 		val,
+					// 	)
+					// 	Expect(err).To(HaveOccurred())
+					// })
+
+					// It("should fail if there is no delegation", func() {
+					// 	_, err := contract.delegationHelper(
+					// 		ctx,
+					// 		caller,
+					// 		otherVal,
+					// 	)
+					// 	Expect(err).To(HaveOccurred())
+					// })
+
+					// It("should succeed", func() {
+					// 	_, err := contract.delegationHelper(
+					// 		ctx,
+					// 		caller,
+					// 		val,
+					// 	)
+					// 	Expect(err).ToNot(HaveOccurred())
+					// })
+
+					It("should fail if the del address is not valid", func() {
 						_, err := contract.delegationHelper(
 							ctx,
-							common.BytesToAddress([]byte("")),
+							sdk.AccAddress(""),
 							val,
 						)
 						Expect(err).To(HaveOccurred())
 					})
-
+					It("should fail if the val address is not valid", func() {
+						_, err := contract.delegationHelper(
+							ctx,
+							del,
+							sdk.ValAddress(""),
+						)
+						Expect(err).To(HaveOccurred())
+					})
 					It("should fail if there is no delegation", func() {
 						_, err := contract.delegationHelper(
 							ctx,
-							caller,
+							del,
 							otherVal,
 						)
 						Expect(err).To(HaveOccurred())
 					})
-
 					It("should succeed", func() {
 						_, err := contract.delegationHelper(
 							ctx,
-							caller,
+							del,
 							val,
 						)
 						Expect(err).ToNot(HaveOccurred())

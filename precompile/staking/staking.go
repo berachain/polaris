@@ -73,11 +73,11 @@ func (c *Contract) ABIMethods() map[string]abi.Method {
 func (c *Contract) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		{
-			AbiSig:  "getDelegation(address)",
+			AbiSig:  "getDelegation(address, address)",
 			Execute: c.GetDelegationAddrInput,
 		},
 		{
-			AbiSig:  "getDelegation(string)",
+			AbiSig:  "getDelegation(string, string)",
 			Execute: c.GetDelegationStringInput,
 		},
 		{
@@ -153,12 +153,16 @@ func (c *Contract) GetDelegationAddrInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
+	del, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, ErrInvalidDelegatorAddr
+	}
+	val, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.delegationHelper(ctx, caller, evmutils.AddressToValAddress(val))
+	return c.delegationHelper(ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val))
 }
 
 // `GetDelegationStringInput` implements `getDelegation(string)` method.
@@ -169,17 +173,24 @@ func (c *Contract) GetDelegationStringInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
+	bech32DelAddr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, ErrInvalidString
 	}
-
-	val, err := sdk.ValAddressFromBech32(bech32Addr)
+	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
+	if err != nil {
+		return nil, err
+	}
+	bech32ValAddr, ok := utils.GetAs[string](args[1])
+	if !ok {
+		return nil, ErrInvalidString
+	}
+	val, err := sdk.ValAddressFromBech32(bech32ValAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.delegationHelper(ctx, caller, val)
+	return c.delegationHelper(ctx, del, val)
 }
 
 // `GetUnbondingDelegationAddrInput` implements the `getUnbondingDelegation(address)` method.
