@@ -32,11 +32,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var (
-	testKey        = network.TestKey
-	addressFromKey = network.AddressFromKey
-)
-
 func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "integration")
