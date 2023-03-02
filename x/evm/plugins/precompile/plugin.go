@@ -119,7 +119,10 @@ func (p *plugin) Run(
 
 	// run precompile container
 	ret, err := pc.Run(
-		ctx.WithGasMeter(gm),
+		ctx.
+			WithGasMeter(gm).
+			WithKVGasConfig(p.kvGasConfig).
+			WithTransientKVGasConfig(p.transientKVGasConfig),
 		input,
 		caller,
 		value,
