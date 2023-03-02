@@ -33,7 +33,6 @@ package tools
 import (
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/cosmos/gosec/v2/cmd/gosec"
-	_ "github.com/daixiang0/gci"
 	_ "github.com/ethereum/go-ethereum/cmd/abigen"
 	_ "github.com/ethereum/go-ethereum/rlp/rlpgen"
 	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"

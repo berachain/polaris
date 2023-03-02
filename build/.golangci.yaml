@@ -96,6 +96,19 @@ linters-settings:
     # Default: 40
     statements: 50
 
+  gci:
+    sections:
+      - standard # Standard section: captures all standard packages.
+      - default # Default section: contains all imports that could not be matched to another section type.
+      - Prefix(github.com/cometbft)
+      - Prefix(cosmossdk.io)
+      - Prefix(github.com/cosmos/cosmos-sdk
+      - Prefix(github.com/ethereum/go-ethereum
+      - Prefix(pkg.berachain.dev
+      - Prefix(pkg.berachain.dev/stargazer
+      - blank
+      - dot
+
   gocognit:
     # Minimal code complexity to report
     # Default: 30 (but we recommend 10-20)

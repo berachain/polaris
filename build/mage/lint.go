@@ -25,7 +25,6 @@ const (
 	golines    = "github.com/segmentio/golines"
 	gosec      = "github.com/securego/gosec/v2/cmd/gosec"
 	addlicense = "github.com/google/addlicense"
-	gci        = "github.com/daixiang0/gci"
 )
 
 func Lint() error {
@@ -40,7 +39,7 @@ func Lint() error {
 
 // Run all formatters.
 func Format() error {
-	cmds := []func() error{Golines, License, Gci, GolangCiLintFix, ProtoFormat}
+	cmds := []func() error{Golines, License, GolangCiLintFix, ProtoFormat}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err
@@ -71,25 +70,6 @@ func Golines() error {
 	return goRun(golines,
 		"--reformat-tags", "--shorten-comments", "--write-output", "--max-len=99", "-l", "./.",
 	)
-}
-
-func Gci() error {
-	PrintMageName()
-	if err := goRun(gci,
-		"write",
-		"-s", "standard",
-		"-s", "default",
-		"-s", "Prefix(github.com/cometbft)",
-		"-s", "Prefix(cosmossdk.io)",
-		"-s", "Prefix(github.com/cosmos/cosmos-sdk)",
-		"-s", "Prefix(github.com/ethereum/go-ethereum)",
-		"-s", "Prefix(pkg.berachain.dev)",
-		"-s", "Prefix(pkg.berachain.dev/stargazer)",
-		"-s", "blank,dot",
-		"."); err != nil {
-		return err
-	}
-	return nil
 }
 
 // Run `gosec`.
