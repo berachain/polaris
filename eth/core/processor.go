@@ -60,7 +60,7 @@ type StateProcessor struct {
 
 	// `evm` is the EVM that is used to process transactions. We re-use a single EVM for processing
 	// the entire block. This is done in order to reduce memory allocs.
-	evm vm.StargazerEVM
+	evm *vm.GethEVM
 	// `statedb` is the state database that is used to mange state during transactions.
 	statedb vm.StargazerStateDB
 	// `vmConfig` is the configuration for the EVM.
@@ -110,7 +110,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // `Prepare` prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, evm vm.StargazerEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -150,7 +150,7 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
-	sp.evm.UnderlyingEVM().Reset(txContext, sp.statedb)
+	sp.evm.Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
 	// We also must reset the StateDB, Precompile and Gas plugins.
@@ -166,7 +166,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// Apply the state transition.
-	result, err := ApplyMessage(sp.evm.UnderlyingEVM(), msg, &gasPool)
+	result, err := ApplyMessage(sp.evm, msg, &gasPool)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}

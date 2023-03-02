@@ -71,7 +71,7 @@ type ChainReader interface {
 	GetStargazerBlockByNumber(int64) (*types.Block, error)
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
-	GetStargazerEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) vm.StargazerEVM
+	GetStargazerEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	GetPoolTransactions() (types.Transactions, error)
 	GetPoolTransaction(txHash common.Hash) *types.Transaction
 	GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error)
