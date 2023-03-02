@@ -93,8 +93,8 @@ var _ = Describe("StateProcessor", func() {
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
-			header := types.NewEmptyStargazerHeader()
+		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
+			header := &types.Header{}
 			header.GasLimit = blockGasLimit
 			header.BaseFee = big.NewInt(1)
 			header.Coinbase = common.BytesToAddress([]byte{2})
@@ -116,38 +116,38 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), 0)
+		sp.Prepare(context.Background(), nil, 0)
 	})
 
 	Context("Empty block", func() {
 		It("should build a an empty block", func() {
-			block, err := sp.Finalize(context.Background())
+			block, receipts, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(0))
+			Expect(len(receipts)).To(Equal(0))
 		})
 	})
 
 	Context("Block with transactions", func() {
 		BeforeEach(func() {
-			_, err := sp.Finalize(context.Background())
+			_, _, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 
 			pp.ResetFunc = func(ctx context.Context) {
 				// no-op
 			}
 
-			sp.Prepare(context.Background(), int64(blockNumber))
+			sp.Prepare(context.Background(), nil, int64(blockNumber))
 		})
 
 		It("should error on an unsigned transaction", func() {
 			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
 			Expect(err).ToNot(BeNil())
 			Expect(receipt).To(BeNil())
-			block, err := sp.Finalize(context.Background())
+			block, receipts, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(0))
+			Expect(len(receipts)).To(Equal(0))
 		})
 
 		It("should not error on a signed transaction", func() {
@@ -160,10 +160,10 @@ var _ = Describe("StateProcessor", func() {
 			Expect(result).ToNot(BeNil())
 			Expect(result.Err).To(BeNil())
 			Expect(result.UsedGas).ToNot(BeZero())
-			block, err := sp.Finalize(context.Background())
+			block, receipts, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(1))
+			Expect(len(receipts)).To(Equal(1))
 		})
 
 		It("should handle", func() {
@@ -192,10 +192,10 @@ var _ = Describe("StateProcessor", func() {
 			Expect(err).To(BeNil())
 			Expect(result).ToNot(BeNil())
 			Expect(result.Err).To(BeNil())
-			block, err := sp.Finalize(context.Background())
+			block, receipts, err := sp.Finalize(context.Background())
 			Expect(err).To(BeNil())
 			Expect(block).ToNot(BeNil())
-			Expect(block.TxIndex()).To(Equal(1))
+			Expect(len(receipts)).To(Equal(1))
 
 			// Now try calling the contract
 			legacyTxData.To = &dummyContract
@@ -214,8 +214,8 @@ var _ = Describe("No precompile plugin provided", func() {
 		bp := mock.NewBlockPluginMock()
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
-		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
-			header := types.NewEmptyStargazerHeader()
+		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
+			header := &types.Header{}
 			header.GasLimit = 1000000
 			header.Number = new(big.Int)
 			header.Difficulty = new(big.Int)
@@ -234,7 +234,7 @@ var _ = Describe("No precompile plugin provided", func() {
 			return nil
 		}
 		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
-		Expect(func() { sp.Prepare(context.Background(), 0) }).ToNot(Panic())
+		Expect(func() { sp.Prepare(context.Background(), nil, 0) }).ToNot(Panic())
 	})
 })
 
@@ -276,19 +276,16 @@ var _ = Describe("GetHashFn", func() {
 		Expect(sp).ToNot(BeNil())
 		blockGasLimit = 1000000
 
-		bp.GetStargazerHeaderByNumberFunc = func(height int64) *types.StargazerHeader {
-			return types.NewStargazerHeader(
-				&types.Header{
-					Number:     big.NewInt(height),
-					BaseFee:    big.NewInt(69),
-					GasLimit:   blockGasLimit,
-					ParentHash: common.BytesToHash([]byte{uint8(height) - 1}),
-					Time:       uint64(time.Now().Unix()),
-					Difficulty: big.NewInt(0),
-					MixDigest:  common.Hash{},
-				},
-				crypto.Keccak256Hash([]byte{byte(height)}),
-			)
+		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
+			return &types.Header{
+				Number:     big.NewInt(height),
+				BaseFee:    big.NewInt(69),
+				GasLimit:   blockGasLimit,
+				ParentHash: common.BytesToHash([]byte{uint8(height) - 1}),
+				Time:       uint64(time.Now().Unix()),
+				Difficulty: big.NewInt(0),
+				MixDigest:  common.Hash{},
+			}
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
@@ -298,28 +295,28 @@ var _ = Describe("GetHashFn", func() {
 	})
 
 	It("should return empty hash", func() {
-		sp.Prepare(context.Background(), 100)
-		hashFn := sp.GetHashFn()
+		sp.Prepare(context.Background(), nil, 100)
+		hashFn := sp.GetHashFn(nil)
 		Expect(hashFn(100)).To(Equal(common.Hash{}))
 
-		_, err := sp.Finalize(context.Background())
+		_, _, err := sp.Finalize(context.Background())
 		Expect(err).To(BeNil())
 
-		sp.Prepare(context.Background(), 100)
-		hashFn = sp.GetHashFn()
+		sp.Prepare(context.Background(), nil, 100)
+		hashFn = sp.GetHashFn(nil)
 		Expect(hashFn(101)).To(Equal(common.Hash{}))
 	})
 
 	It("should return correct hash", func() {
-		sp.Prepare(context.Background(), 100)
-		hashFn := sp.GetHashFn()
+		sp.Prepare(context.Background(), nil, 100)
+		hashFn := sp.GetHashFn(nil)
 		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
 
-		_, err := sp.Finalize(context.Background())
+		_, _, err := sp.Finalize(context.Background())
 		Expect(err).To(BeNil())
 
-		sp.Prepare(context.Background(), 101)
-		hashFn = sp.GetHashFn()
+		sp.Prepare(context.Background(), nil, 101)
+		hashFn = sp.GetHashFn(nil)
 		Expect(hashFn(99)).To(Equal(common.BytesToHash([]byte{99})))
 	})
 })

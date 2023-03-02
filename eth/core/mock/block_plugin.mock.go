@@ -7,7 +7,6 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	ethereumcoretypes "github.com/ethereum/go-ethereum/core/types"
-	"math/big"
 	"pkg.berachain.dev/stargazer/eth/core"
 	ethcoretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"sync"
@@ -26,20 +25,23 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() uint64 {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetStargazerBlockByHashFunc: func(hash common.Hash) *ethcoretypes.StargazerBlock {
-//				panic("mock out the GetStargazerBlockByHash method")
+//			GetBlockByHashFunc: func(hash common.Hash) (*ethereumcoretypes.Block, error) {
+//				panic("mock out the GetBlockByHash method")
 //			},
-//			GetStargazerBlockByNumberFunc: func(n int64) *ethcoretypes.StargazerBlock {
-//				panic("mock out the GetStargazerBlockByNumber method")
+//			GetBlockByNumberFunc: func(n int64) (*ethereumcoretypes.Block, error) {
+//				panic("mock out the GetBlockByNumber method")
 //			},
-//			GetStargazerHeaderByNumberFunc: func(n int64) *ethcoretypes.StargazerHeader {
-//				panic("mock out the GetStargazerHeaderByNumber method")
+//			GetHeaderByNumberFunc: func(n int64) (*ethereumcoretypes.Header, error) {
+//				panic("mock out the GetHeaderByNumber method")
 //			},
-//			GetTransactionBlockNumberFunc: func(hash common.Hash) *big.Int {
-//				panic("mock out the GetTransactionBlockNumber method")
+//			GetReceiptsByHashFunc: func(hash common.Hash) (ethereumcoretypes.Receipts, error) {
+//				panic("mock out the GetReceiptsByHash method")
 //			},
-//			GetTransactionByHashFunc: func(hash common.Hash) *ethereumcoretypes.Transaction {
+//			GetTransactionByHashFunc: func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error) {
 //				panic("mock out the GetTransactionByHash method")
+//			},
+//			NewHeaderWithBlockNumberFunc: func(contextMoqParam context.Context, n int64) *ethereumcoretypes.Header {
+//				panic("mock out the NewHeaderWithBlockNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
@@ -54,20 +56,23 @@ type BlockPluginMock struct {
 	// BaseFeeFunc mocks the BaseFee method.
 	BaseFeeFunc func() uint64
 
-	// GetStargazerBlockByHashFunc mocks the GetStargazerBlockByHash method.
-	GetStargazerBlockByHashFunc func(hash common.Hash) *ethcoretypes.StargazerBlock
+	// GetBlockByHashFunc mocks the GetBlockByHash method.
+	GetBlockByHashFunc func(hash common.Hash) (*ethereumcoretypes.Block, error)
 
-	// GetStargazerBlockByNumberFunc mocks the GetStargazerBlockByNumber method.
-	GetStargazerBlockByNumberFunc func(n int64) *ethcoretypes.StargazerBlock
+	// GetBlockByNumberFunc mocks the GetBlockByNumber method.
+	GetBlockByNumberFunc func(n int64) (*ethereumcoretypes.Block, error)
 
-	// GetStargazerHeaderByNumberFunc mocks the GetStargazerHeaderByNumber method.
-	GetStargazerHeaderByNumberFunc func(n int64) *ethcoretypes.StargazerHeader
+	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
+	GetHeaderByNumberFunc func(n int64) (*ethereumcoretypes.Header, error)
 
-	// GetTransactionBlockNumberFunc mocks the GetTransactionBlockNumber method.
-	GetTransactionBlockNumberFunc func(hash common.Hash) *big.Int
+	// GetReceiptsByHashFunc mocks the GetReceiptsByHash method.
+	GetReceiptsByHashFunc func(hash common.Hash) (ethereumcoretypes.Receipts, error)
 
 	// GetTransactionByHashFunc mocks the GetTransactionByHash method.
-	GetTransactionByHashFunc func(hash common.Hash) *ethereumcoretypes.Transaction
+	GetTransactionByHashFunc func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error)
+
+	// NewHeaderWithBlockNumberFunc mocks the NewHeaderWithBlockNumber method.
+	NewHeaderWithBlockNumberFunc func(contextMoqParam context.Context, n int64) *ethereumcoretypes.Header
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -77,23 +82,23 @@ type BlockPluginMock struct {
 		// BaseFee holds details about calls to the BaseFee method.
 		BaseFee []struct {
 		}
-		// GetStargazerBlockByHash holds details about calls to the GetStargazerBlockByHash method.
-		GetStargazerBlockByHash []struct {
+		// GetBlockByHash holds details about calls to the GetBlockByHash method.
+		GetBlockByHash []struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
-		// GetStargazerBlockByNumber holds details about calls to the GetStargazerBlockByNumber method.
-		GetStargazerBlockByNumber []struct {
+		// GetBlockByNumber holds details about calls to the GetBlockByNumber method.
+		GetBlockByNumber []struct {
 			// N is the n argument value.
 			N int64
 		}
-		// GetStargazerHeaderByNumber holds details about calls to the GetStargazerHeaderByNumber method.
-		GetStargazerHeaderByNumber []struct {
+		// GetHeaderByNumber holds details about calls to the GetHeaderByNumber method.
+		GetHeaderByNumber []struct {
 			// N is the n argument value.
 			N int64
 		}
-		// GetTransactionBlockNumber holds details about calls to the GetTransactionBlockNumber method.
-		GetTransactionBlockNumber []struct {
+		// GetReceiptsByHash holds details about calls to the GetReceiptsByHash method.
+		GetReceiptsByHash []struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
@@ -102,19 +107,27 @@ type BlockPluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
+		// NewHeaderWithBlockNumber holds details about calls to the NewHeaderWithBlockNumber method.
+		NewHeaderWithBlockNumber []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// N is the n argument value.
+			N int64
+		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
 			ContextMoqParam context.Context
 		}
 	}
-	lockBaseFee                    sync.RWMutex
-	lockGetStargazerBlockByHash    sync.RWMutex
-	lockGetStargazerBlockByNumber  sync.RWMutex
-	lockGetStargazerHeaderByNumber sync.RWMutex
-	lockGetTransactionBlockNumber  sync.RWMutex
-	lockGetTransactionByHash       sync.RWMutex
-	lockPrepare                    sync.RWMutex
+	lockBaseFee                  sync.RWMutex
+	lockGetBlockByHash           sync.RWMutex
+	lockGetBlockByNumber         sync.RWMutex
+	lockGetHeaderByNumber        sync.RWMutex
+	lockGetReceiptsByHash        sync.RWMutex
+	lockGetTransactionByHash     sync.RWMutex
+	lockNewHeaderWithBlockNumber sync.RWMutex
+	lockPrepare                  sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
@@ -144,136 +157,136 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 	return calls
 }
 
-// GetStargazerBlockByHash calls GetStargazerBlockByHashFunc.
-func (mock *BlockPluginMock) GetStargazerBlockByHash(hash common.Hash) *ethcoretypes.StargazerBlock {
-	if mock.GetStargazerBlockByHashFunc == nil {
-		panic("BlockPluginMock.GetStargazerBlockByHashFunc: method is nil but BlockPlugin.GetStargazerBlockByHash was just called")
+// GetBlockByHash calls GetBlockByHashFunc.
+func (mock *BlockPluginMock) GetBlockByHash(hash common.Hash) (*ethereumcoretypes.Block, error) {
+	if mock.GetBlockByHashFunc == nil {
+		panic("BlockPluginMock.GetBlockByHashFunc: method is nil but BlockPlugin.GetBlockByHash was just called")
 	}
 	callInfo := struct {
 		Hash common.Hash
 	}{
 		Hash: hash,
 	}
-	mock.lockGetStargazerBlockByHash.Lock()
-	mock.calls.GetStargazerBlockByHash = append(mock.calls.GetStargazerBlockByHash, callInfo)
-	mock.lockGetStargazerBlockByHash.Unlock()
-	return mock.GetStargazerBlockByHashFunc(hash)
+	mock.lockGetBlockByHash.Lock()
+	mock.calls.GetBlockByHash = append(mock.calls.GetBlockByHash, callInfo)
+	mock.lockGetBlockByHash.Unlock()
+	return mock.GetBlockByHashFunc(hash)
 }
 
-// GetStargazerBlockByHashCalls gets all the calls that were made to GetStargazerBlockByHash.
+// GetBlockByHashCalls gets all the calls that were made to GetBlockByHash.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.GetStargazerBlockByHashCalls())
-func (mock *BlockPluginMock) GetStargazerBlockByHashCalls() []struct {
+//	len(mockedBlockPlugin.GetBlockByHashCalls())
+func (mock *BlockPluginMock) GetBlockByHashCalls() []struct {
 	Hash common.Hash
 } {
 	var calls []struct {
 		Hash common.Hash
 	}
-	mock.lockGetStargazerBlockByHash.RLock()
-	calls = mock.calls.GetStargazerBlockByHash
-	mock.lockGetStargazerBlockByHash.RUnlock()
+	mock.lockGetBlockByHash.RLock()
+	calls = mock.calls.GetBlockByHash
+	mock.lockGetBlockByHash.RUnlock()
 	return calls
 }
 
-// GetStargazerBlockByNumber calls GetStargazerBlockByNumberFunc.
-func (mock *BlockPluginMock) GetStargazerBlockByNumber(n int64) *ethcoretypes.StargazerBlock {
-	if mock.GetStargazerBlockByNumberFunc == nil {
-		panic("BlockPluginMock.GetStargazerBlockByNumberFunc: method is nil but BlockPlugin.GetStargazerBlockByNumber was just called")
+// GetBlockByNumber calls GetBlockByNumberFunc.
+func (mock *BlockPluginMock) GetBlockByNumber(n int64) (*ethereumcoretypes.Block, error) {
+	if mock.GetBlockByNumberFunc == nil {
+		panic("BlockPluginMock.GetBlockByNumberFunc: method is nil but BlockPlugin.GetBlockByNumber was just called")
 	}
 	callInfo := struct {
 		N int64
 	}{
 		N: n,
 	}
-	mock.lockGetStargazerBlockByNumber.Lock()
-	mock.calls.GetStargazerBlockByNumber = append(mock.calls.GetStargazerBlockByNumber, callInfo)
-	mock.lockGetStargazerBlockByNumber.Unlock()
-	return mock.GetStargazerBlockByNumberFunc(n)
+	mock.lockGetBlockByNumber.Lock()
+	mock.calls.GetBlockByNumber = append(mock.calls.GetBlockByNumber, callInfo)
+	mock.lockGetBlockByNumber.Unlock()
+	return mock.GetBlockByNumberFunc(n)
 }
 
-// GetStargazerBlockByNumberCalls gets all the calls that were made to GetStargazerBlockByNumber.
+// GetBlockByNumberCalls gets all the calls that were made to GetBlockByNumber.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.GetStargazerBlockByNumberCalls())
-func (mock *BlockPluginMock) GetStargazerBlockByNumberCalls() []struct {
+//	len(mockedBlockPlugin.GetBlockByNumberCalls())
+func (mock *BlockPluginMock) GetBlockByNumberCalls() []struct {
 	N int64
 } {
 	var calls []struct {
 		N int64
 	}
-	mock.lockGetStargazerBlockByNumber.RLock()
-	calls = mock.calls.GetStargazerBlockByNumber
-	mock.lockGetStargazerBlockByNumber.RUnlock()
+	mock.lockGetBlockByNumber.RLock()
+	calls = mock.calls.GetBlockByNumber
+	mock.lockGetBlockByNumber.RUnlock()
 	return calls
 }
 
-// GetStargazerHeaderByNumber calls GetStargazerHeaderByNumberFunc.
-func (mock *BlockPluginMock) GetStargazerHeaderByNumber(n int64) *ethcoretypes.StargazerHeader {
-	if mock.GetStargazerHeaderByNumberFunc == nil {
-		panic("BlockPluginMock.GetStargazerHeaderByNumberFunc: method is nil but BlockPlugin.GetStargazerHeaderByNumber was just called")
+// GetHeaderByNumber calls GetHeaderByNumberFunc.
+func (mock *BlockPluginMock) GetHeaderByNumber(n int64) (*ethereumcoretypes.Header, error) {
+	if mock.GetHeaderByNumberFunc == nil {
+		panic("BlockPluginMock.GetHeaderByNumberFunc: method is nil but BlockPlugin.GetHeaderByNumber was just called")
 	}
 	callInfo := struct {
 		N int64
 	}{
 		N: n,
 	}
-	mock.lockGetStargazerHeaderByNumber.Lock()
-	mock.calls.GetStargazerHeaderByNumber = append(mock.calls.GetStargazerHeaderByNumber, callInfo)
-	mock.lockGetStargazerHeaderByNumber.Unlock()
-	return mock.GetStargazerHeaderByNumberFunc(n)
+	mock.lockGetHeaderByNumber.Lock()
+	mock.calls.GetHeaderByNumber = append(mock.calls.GetHeaderByNumber, callInfo)
+	mock.lockGetHeaderByNumber.Unlock()
+	return mock.GetHeaderByNumberFunc(n)
 }
 
-// GetStargazerHeaderByNumberCalls gets all the calls that were made to GetStargazerHeaderByNumber.
+// GetHeaderByNumberCalls gets all the calls that were made to GetHeaderByNumber.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.GetStargazerHeaderByNumberCalls())
-func (mock *BlockPluginMock) GetStargazerHeaderByNumberCalls() []struct {
+//	len(mockedBlockPlugin.GetHeaderByNumberCalls())
+func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 	N int64
 } {
 	var calls []struct {
 		N int64
 	}
-	mock.lockGetStargazerHeaderByNumber.RLock()
-	calls = mock.calls.GetStargazerHeaderByNumber
-	mock.lockGetStargazerHeaderByNumber.RUnlock()
+	mock.lockGetHeaderByNumber.RLock()
+	calls = mock.calls.GetHeaderByNumber
+	mock.lockGetHeaderByNumber.RUnlock()
 	return calls
 }
 
-// GetTransactionBlockNumber calls GetTransactionBlockNumberFunc.
-func (mock *BlockPluginMock) GetTransactionBlockNumber(hash common.Hash) *big.Int {
-	if mock.GetTransactionBlockNumberFunc == nil {
-		panic("BlockPluginMock.GetTransactionBlockNumberFunc: method is nil but BlockPlugin.GetTransactionBlockNumber was just called")
+// GetReceiptsByHash calls GetReceiptsByHashFunc.
+func (mock *BlockPluginMock) GetReceiptsByHash(hash common.Hash) (ethereumcoretypes.Receipts, error) {
+	if mock.GetReceiptsByHashFunc == nil {
+		panic("BlockPluginMock.GetReceiptsByHashFunc: method is nil but BlockPlugin.GetReceiptsByHash was just called")
 	}
 	callInfo := struct {
 		Hash common.Hash
 	}{
 		Hash: hash,
 	}
-	mock.lockGetTransactionBlockNumber.Lock()
-	mock.calls.GetTransactionBlockNumber = append(mock.calls.GetTransactionBlockNumber, callInfo)
-	mock.lockGetTransactionBlockNumber.Unlock()
-	return mock.GetTransactionBlockNumberFunc(hash)
+	mock.lockGetReceiptsByHash.Lock()
+	mock.calls.GetReceiptsByHash = append(mock.calls.GetReceiptsByHash, callInfo)
+	mock.lockGetReceiptsByHash.Unlock()
+	return mock.GetReceiptsByHashFunc(hash)
 }
 
-// GetTransactionBlockNumberCalls gets all the calls that were made to GetTransactionBlockNumber.
+// GetReceiptsByHashCalls gets all the calls that were made to GetReceiptsByHash.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.GetTransactionBlockNumberCalls())
-func (mock *BlockPluginMock) GetTransactionBlockNumberCalls() []struct {
+//	len(mockedBlockPlugin.GetReceiptsByHashCalls())
+func (mock *BlockPluginMock) GetReceiptsByHashCalls() []struct {
 	Hash common.Hash
 } {
 	var calls []struct {
 		Hash common.Hash
 	}
-	mock.lockGetTransactionBlockNumber.RLock()
-	calls = mock.calls.GetTransactionBlockNumber
-	mock.lockGetTransactionBlockNumber.RUnlock()
+	mock.lockGetReceiptsByHash.RLock()
+	calls = mock.calls.GetReceiptsByHash
+	mock.lockGetReceiptsByHash.RUnlock()
 	return calls
 }
 
 // GetTransactionByHash calls GetTransactionByHashFunc.
-func (mock *BlockPluginMock) GetTransactionByHash(hash common.Hash) *ethereumcoretypes.Transaction {
+func (mock *BlockPluginMock) GetTransactionByHash(hash common.Hash) (*ethcoretypes.TxLookupEntry, error) {
 	if mock.GetTransactionByHashFunc == nil {
 		panic("BlockPluginMock.GetTransactionByHashFunc: method is nil but BlockPlugin.GetTransactionByHash was just called")
 	}
@@ -301,6 +314,42 @@ func (mock *BlockPluginMock) GetTransactionByHashCalls() []struct {
 	mock.lockGetTransactionByHash.RLock()
 	calls = mock.calls.GetTransactionByHash
 	mock.lockGetTransactionByHash.RUnlock()
+	return calls
+}
+
+// NewHeaderWithBlockNumber calls NewHeaderWithBlockNumberFunc.
+func (mock *BlockPluginMock) NewHeaderWithBlockNumber(contextMoqParam context.Context, n int64) *ethereumcoretypes.Header {
+	if mock.NewHeaderWithBlockNumberFunc == nil {
+		panic("BlockPluginMock.NewHeaderWithBlockNumberFunc: method is nil but BlockPlugin.NewHeaderWithBlockNumber was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		N               int64
+	}{
+		ContextMoqParam: contextMoqParam,
+		N:               n,
+	}
+	mock.lockNewHeaderWithBlockNumber.Lock()
+	mock.calls.NewHeaderWithBlockNumber = append(mock.calls.NewHeaderWithBlockNumber, callInfo)
+	mock.lockNewHeaderWithBlockNumber.Unlock()
+	return mock.NewHeaderWithBlockNumberFunc(contextMoqParam, n)
+}
+
+// NewHeaderWithBlockNumberCalls gets all the calls that were made to NewHeaderWithBlockNumber.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.NewHeaderWithBlockNumberCalls())
+func (mock *BlockPluginMock) NewHeaderWithBlockNumberCalls() []struct {
+	ContextMoqParam context.Context
+	N               int64
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		N               int64
+	}
+	mock.lockNewHeaderWithBlockNumber.RLock()
+	calls = mock.calls.NewHeaderWithBlockNumber
+	mock.lockNewHeaderWithBlockNumber.RUnlock()
 	return calls
 }
 
