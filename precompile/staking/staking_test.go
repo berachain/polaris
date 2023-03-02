@@ -320,7 +320,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					[]any{0, val.String()},
+					0, val.String(),
 				)
 				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
@@ -332,7 +332,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					[]any{del.String(), 0},
+					del.String(), 0,
 				)
 				Expect(err).To(MatchError(ErrInvalidString))
 				Expect(res).To(BeNil())
@@ -941,33 +941,6 @@ var _ = Describe("Staking", func() {
 
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
-					// It("should fail if caller address is wrong", func() {
-					// 	_, err := contract.delegationHelper(
-					// 		ctx,
-					// 		del,
-					// 		val,
-					// 	)
-					// 	Expect(err).To(HaveOccurred())
-					// })
-
-					// It("should fail if there is no delegation", func() {
-					// 	_, err := contract.delegationHelper(
-					// 		ctx,
-					// 		caller,
-					// 		otherVal,
-					// 	)
-					// 	Expect(err).To(HaveOccurred())
-					// })
-
-					// It("should succeed", func() {
-					// 	_, err := contract.delegationHelper(
-					// 		ctx,
-					// 		caller,
-					// 		val,
-					// 	)
-					// 	Expect(err).ToNot(HaveOccurred())
-					// })
-
 					It("should fail if the del address is not valid", func() {
 						_, err := contract.delegationHelper(
 							ctx,
