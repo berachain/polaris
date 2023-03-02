@@ -32,6 +32,7 @@ type (
 	// additional state transition functionalities.
 	StargazerStateDB interface {
 		GethStateDB
+		// `Finalize` finalizes the state transition.
 		libtypes.Finalizeable
 		// `Reset` resets the context for the new transaction.
 		libtypes.Resettable

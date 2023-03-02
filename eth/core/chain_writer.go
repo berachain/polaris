@@ -83,7 +83,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	// Reset the StateDB, Precompile and Gas plugins for the tx.
 	bc.statedb.Reset(ctx)
-	bc.host.GetPrecompilePlugin().Reset(ctx)
+	bc.host.GetPrecompilePlugin().Reset(bc.host.GetStatePlugin().GetContext())
 	bc.host.GetGasPlugin().Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)
