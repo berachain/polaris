@@ -89,3 +89,7 @@ func (bc *blockchain) Finalize(ctx context.Context) (*types.Block, types.Receipt
 	}
 	return block, receipts, err
 }
+
+func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
+	return bc.host.GetTxPoolPlugin().SendTx(signedTx)
+}

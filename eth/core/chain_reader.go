@@ -29,6 +29,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
@@ -201,4 +202,20 @@ func (bc *blockchain) GetStargazerEVM(ctx context.Context, txContext vm.TxContex
 		// todo: get precompile controller
 		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
+}
+
+func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
+	return bc.host.GetTxPoolPlugin().GetAllTransactions()
+}
+
+func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
+	return bc.host.GetTxPoolPlugin().GetTransaction(hash)
+}
+
+func (bc *blockchain) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
+	return bc.host.GetTxPoolPlugin().GetNonce(addr)
+}
+
+func (bc *blockchain) ChainConfig() *params.ChainConfig {
+	return bc.host.GetConfigurationPlugin().ChainConfig()
 }

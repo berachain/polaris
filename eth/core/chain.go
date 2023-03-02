@@ -32,6 +32,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/stargazer/eth/params"
 )
 
 // By default we are storing up to 64mb of historical data for each cache.
@@ -54,6 +55,9 @@ type ChainWriter interface {
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
 	Finalize(context.Context) (*types.Block, types.Receipts, error)
+
+	// `SendTx` sends the given transaction to the tx pool.
+	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
 
 // `ChainReader` defines methods that are used to read the state and blocks of the chain.
@@ -68,6 +72,10 @@ type ChainReader interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
 	GetStargazerEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) vm.StargazerEVM
+	GetPoolTransactions() (types.Transactions, error)
+	GetPoolTransaction(txHash common.Hash) *types.Transaction
+	GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error)
+	ChainConfig() *params.ChainConfig
 }
 
 // Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
@@ -129,9 +137,4 @@ func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
 	bc.cc = &chainContext{bc}
 	bc.processor = NewStateProcessor(bc.host, bc.statedb, bc.vmConfig, true)
 	return bc
-}
-
-// `Host` returns the host chain that the Stargazer EVM is running on.
-func (bc *blockchain) Host() StargazerHostChain {
-	return bc.host
 }

@@ -27,7 +27,6 @@ import (
 // `Chain` defines the methods that the Stargazer Ethereum API exposes. This is the only interface
 // that an implementing chain should use.
 type Chain interface {
-	Host() core.StargazerHostChain
 	core.ChainReader
 	core.ChainWriter
 }

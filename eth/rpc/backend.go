@@ -391,7 +391,7 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	return b.chain.Host().GetTxPoolPlugin().SendTx(signedTx)
+	return b.chain.SendTx(ctx, signedTx)
 }
 
 func (b *backend) GetTransaction(
@@ -403,17 +403,17 @@ func (b *backend) GetTransaction(
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
 	b.logger.Info("called eth.rpc.backend.GetPoolTransactions")
-	return b.chain.Host().GetTxPoolPlugin().GetAllTransactions()
+	return b.chain.GetPoolTransactions()
 }
 
 func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 	b.logger.Info("called eth.rpc.backend.GetPoolTransaction", "tx_hash", txHash)
-	return b.chain.Host().GetTxPoolPlugin().GetTransaction(txHash)
+	return b.chain.GetPoolTransaction(txHash)
 }
 
 func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
 	// TODO: get pool nonce, then fallback to statedb.
-	return b.chain.Host().GetStatePlugin().GetNonce(addr), nil
+	return b.chain.GetPoolNonce(ctx, addr)
 }
 
 func (b *backend) Stats() (int, int) {
@@ -443,7 +443,7 @@ func (b *backend) SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscripti
 // `ChainConfig` returns the chain configuration.
 func (b *backend) ChainConfig() *params.ChainConfig {
 	b.logger.Info("called eth.rpc.backend.ChainConfig")
-	return b.chain.Host().GetConfigurationPlugin().ChainConfig()
+	return b.chain.ChainConfig()
 }
 
 func (b *backend) Engine() consensus.Engine {
