@@ -23,9 +23,11 @@ package ethsecp256k1
 import (
 	"testing"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
 	"pkg.berachain.dev/stargazer/eth/crypto"
 )
 

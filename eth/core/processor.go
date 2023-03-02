@@ -26,6 +26,7 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/trie"
+
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"

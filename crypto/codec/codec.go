@@ -23,6 +23,7 @@ package codec
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
 	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 )
 

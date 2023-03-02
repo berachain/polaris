@@ -79,6 +79,9 @@ func Gci() error {
 		"write",
 		"-s", "default",
 		"-s", "standard",
+		"-s", "Prefix(cosmossdk.io)",
+		"-s", "Prefix(github.com/cosmos/cosmos-sdk)",
+		"-s", "Prefix(github.com/ethereum/go-ethereum)",
 		"-s", "Prefix(pkg.berachain.dev)",
 		"-s", "Prefix(pkg.berachain.dev/stargazer)",
 		"."); err != nil {

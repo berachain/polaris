@@ -25,9 +25,11 @@ import (
 	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"pkg.berachain.dev/stargazer/x/evm/rpc/api"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )

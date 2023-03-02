@@ -21,10 +21,13 @@
 package configuration
 
 import (
-	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"pkg.berachain.dev/stargazer/eth/params"
 	enclib "pkg.berachain.dev/stargazer/lib/encoding"
 	"pkg.berachain.dev/stargazer/testutil"

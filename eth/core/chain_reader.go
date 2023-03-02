@@ -25,6 +25,7 @@ import (
 	"errors"
 
 	"github.com/ethereum/go-ethereum/event"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"

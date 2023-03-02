@@ -23,9 +23,11 @@ package hd
 import (
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+
 	ethsecp256k1 "pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/stargazer/eth/accounts"
 	"pkg.berachain.dev/stargazer/eth/common"

@@ -24,9 +24,11 @@ import (
 	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
 )
 

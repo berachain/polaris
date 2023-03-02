@@ -23,6 +23,7 @@ package runtime
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+
 	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
 )
 

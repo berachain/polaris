@@ -22,6 +22,7 @@ package mage
 
 import (
 	"github.com/magefile/mage/sh"
+
 	mi "pkg.berachain.dev/stargazer/build/mage/internal"
 )
 

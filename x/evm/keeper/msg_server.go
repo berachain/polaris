@@ -24,8 +24,10 @@ import (
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 

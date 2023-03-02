@@ -7,8 +7,9 @@ import (
 	"io"
 	"sync"
 
-	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
 
 	"pkg.berachain.dev/stargazer/testutil/mock/interfaces"
 )

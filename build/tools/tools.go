@@ -34,12 +34,13 @@ import (
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/cosmos/gosec/v2/cmd/gosec"
 	_ "github.com/daixiang0/gci"
-	_ "github.com/ethereum/go-ethereum/cmd/abigen"
-	_ "github.com/ethereum/go-ethereum/rlp/rlpgen"
 	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	_ "github.com/google/addlicense"
 	_ "github.com/matryer/moq"
 	_ "github.com/onsi/ginkgo/v2/ginkgo"
 	_ "github.com/securego/gosec/v2/cmd/gosec"
 	_ "github.com/segmentio/golines"
+
+	_ "github.com/ethereum/go-ethereum/cmd/abigen"
+	_ "github.com/ethereum/go-ethereum/rlp/rlpgen"
 )

@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/core/vm"
+
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
 )

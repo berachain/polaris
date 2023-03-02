@@ -23,6 +23,7 @@ package keyring
 import (
 	sdkhd "github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+
 	"pkg.berachain.dev/stargazer/crypto/hd"
 )
 

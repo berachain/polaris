@@ -22,6 +22,7 @@ package types
 
 import (
 	"github.com/ethereum/go-ethereum/rlp"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 )
 
