@@ -90,7 +90,9 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		// ust be called before all signature verification decorators
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+
+		// SIG VERIFY BUG: https://github.com/berachain/stargazer/issues/354
+		// ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		// ante.NewIncrementSequenceDecorator(options.AccountKeeper), // in state tranisiton
 	}
 
