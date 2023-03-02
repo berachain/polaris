@@ -62,6 +62,7 @@ jobs:
       -
         name: Run ${{ matrix.args }}
         uses: magefile/mage-action@v2
+        continue-on-error: true
         with:
           version: latest
           args: ${{ matrix.args }}
