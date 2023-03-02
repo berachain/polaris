@@ -21,12 +21,12 @@
 package journal
 
 import (
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Logs", func() {
@@ -70,13 +70,13 @@ var _ = Describe("Logs", func() {
 
 		It("should correctly get logs", func() {
 			logs := l.Logs()
-			Expect(len(logs)).To(Equal(1))
+			Expect(logs).To(HaveLen(1))
 			Expect(logs[0].TxHash).To(Equal(thash))
 			Expect(logs[0].BlockHash).To(Equal(common.Hash{}))
 			Expect(logs[0].BlockNumber).To(Equal(uint64(0)))
 
 			logs = l.GetLogs(thash, bnum, bhash)
-			Expect(len(logs)).To(Equal(1))
+			Expect(logs).To(HaveLen(1))
 			Expect(logs[0].BlockHash).To(Equal(bhash))
 			Expect(logs[0].BlockNumber).To(Equal(bnum))
 		})

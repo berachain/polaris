@@ -25,13 +25,15 @@ import (
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	libutils "pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/x/evm/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Attributes", func() {
@@ -42,7 +44,7 @@ var _ = Describe("Attributes", func() {
 		It("should correctly convert sdk coin strings to big.Int", func() {
 			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
 			gethValue, err = ConvertSdkCoin(denom10.String())
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			bigVal := libutils.MustGetAs[*big.Int](gethValue)
 			Expect(bigVal).To(Equal(big.NewInt(10)))
 		})
@@ -50,7 +52,7 @@ var _ = Describe("Attributes", func() {
 		It("should correctly convert creation height to int64", func() {
 			creationHeightStr := strconv.FormatInt(55, 10)
 			gethValue, err = ConvertInt64(creationHeightStr)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			int64Val := libutils.MustGetAs[int64](gethValue)
 			Expect(int64Val).To(Equal(int64(55)))
 		})
@@ -58,7 +60,7 @@ var _ = Describe("Attributes", func() {
 		It("should correctly convert ValAddress to common.Address", func() {
 			valAddr := sdk.ValAddress([]byte("alice"))
 			gethValue, err = ConvertValAddressFromBech32(valAddr.String())
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(valAddrVal).To(Equal(utils.ValAddressToEthAddress(valAddr)))
 		})
@@ -66,7 +68,7 @@ var _ = Describe("Attributes", func() {
 		It("should correctly convert AccAddress to common.Address", func() {
 			accAddr := sdk.AccAddress([]byte("alice"))
 			gethValue, err = ConvertAccAddressFromBech32(accAddr.String())
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			accAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))
 		})

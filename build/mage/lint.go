@@ -18,22 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:forbidigo // good project.
 package mage
-
-import (
-	"fmt"
-	"strings"
-
-	mi "pkg.berachain.dev/stargazer/build/mage/internal"
-)
 
 const (
 	golangCi   = "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	golines    = "github.com/segmentio/golines"
 	gosec      = "github.com/securego/gosec/v2/cmd/gosec"
 	addlicense = "github.com/google/addlicense"
-	goimports  = "github.com/incu6us/goimports-reviser/v3"
 )
 
 func Lint() error {
@@ -48,7 +39,7 @@ func Lint() error {
 
 // Run all formatters.
 func Format() error {
-	cmds := []func() error{Golines, License, GolangCiLintFix, GoImports, ProtoFormat}
+	cmds := []func() error{Golines, License, GolangCiLintFix, ProtoFormat}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err
@@ -79,43 +70,6 @@ func Golines() error {
 	return goRun(golines,
 		"--reformat-tags", "--shorten-comments", "--write-output", "--max-len=99", "-l", "./.",
 	)
-}
-
-func GoImports() error {
-	PrintMageName()
-	// everything but ignore the tools folder
-	var x = make([]string, 0)
-	for _, dir := range mi.GoListFilter(false, "build") {
-		stripped := strings.ReplaceAll(dir, "pkg.berachain.dev/stargazer", "")
-		x = append(x, stripped)
-	}
-
-	for _, dir := range x {
-		fmt.Println(dir)
-		if err := goRun(goimports,
-			"-recursive", "-rm-unused",
-			"-company-prefixes", "pkg.berachain.dev",
-			"-project-name", "pkg.berachain.dev/stargazer", "."+dir); err != nil {
-			return err
-		}
-	}
-
-	// if err := goRun(goimports, "./...", "-company-prefixes", "pkg.berachain.dev"); err != nil {
-	// 	return err
-	// }
-	return nil
-}
-
-// Check that golang imports are formatted correctly.
-func GoImportsLint() error {
-	PrintMageName()
-	if err := GoImports(); err != nil {
-		return err
-	}
-	if err := gitDiff(); err != nil {
-		return fmt.Errorf("please run `mage goimports`: %w", err)
-	}
-	return nil
 }
 
 // Run `gosec`.
