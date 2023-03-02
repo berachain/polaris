@@ -27,18 +27,17 @@
   "for-frontend-devs": "For Frontend Developers",
   "for-solidity-devs": "For Solidity Developers",
   "for-cosmwasm-devs": "For Cosmwasm Developers",
+  "interacting-with-node": "Interacting with the Node",
   "using-metamask": "Using Metamask",
   "using-keplr": "Using Keplr",
   "key-management": "Key Management",
   "-- Node --": {
     "type": "separator",
-    "title": "Network Information"
+    "title": "Node Information"
   },
-  "network-info-overview": "Overview",
   "running-a-node": "Running a Node",
-  "node-config": "Node Configurations",
+  "node-config": "Node Configuration",
   "node-services": "Node Services",
-  "interacting-with-node": "Interacting with the Node",
   "node-maintenance": "Node Maintenance",
   "-- Joining A Network --": {
     "type": "separator",

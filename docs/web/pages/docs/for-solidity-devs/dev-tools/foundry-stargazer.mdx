@@ -55,7 +55,7 @@ Let's create a new project called "stargazer-lsd-example" with forge.
 </Callout>
 
 You can add a profile to your foundry project by appending the following lines to the end of your foundry.toml file: 
-```
+```bash
 [profile.default]
 src = 'src'
 out = 'out'
@@ -72,7 +72,7 @@ eth_rpc_url = 'http://localhost:1317/eth/rpc'
 ```
 
 To test the configurations above, let's deploy the generated contract in the "Counter.sol" file to the Stargazer localnet:  
-```
+```bash
 FOUNDRY_PROFILE=stargazer_local forge create Counter --private-key=xxxxxxxxxxx
 ```
 <Callout type="info" emoji="ℹ️">
@@ -94,7 +94,7 @@ To install solmate, run the following command:
 Foundry installs all dependencies as git submodules under the directory of "lib".
 And to make it easier to import the dependencies, let's create a `remappings.txt` file with the following contents: 
 
-```
+```bash
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
 solmate/=lib/solmate/src/
@@ -125,7 +125,7 @@ We need a way of interacting with the staking module. This can be done through t
 More information on Interfaces in Solidity can be found [here](https://www.alchemy.com/overviews/solidity-interface#:~:text=What%20is%20the%20Solidity%20interface,and%20functions%20on%20a%20contract.)
 
 Create a new file under the `src` directory called `IStakingModule.sol` and add the following code:
-```
+```solidity
 pragma solidity ^0.8.4;
 
 /**
@@ -370,7 +370,7 @@ Your file system should now look like this after adding `IStakingModule.sol`:
 #### 6. Create The Liquid Staking Contract
 We are now going to create the Liquid Staking Contract.
 Create a new file under the `src` directory called `LiquidStaking.sol` and add the following code:
-```
+```solidity
 pragma solidity ^0.8.4;
 
 import {IStakingModule} from "./interfaces.sol";
@@ -483,7 +483,7 @@ The default staking precompile contract address is `0x00000000000000000000000000
 about precompiles can be found [here](../../precompile-overview)
 </Callout>
 
-```
+```bash
 FOUNDRY_PROFILE=stargazer_local forge create src/LiquidStaking.sol:LiquidStaking --private-key=xxxxxxxxxxx --constructor-args  “<name>“ “<symbol>” “<staking_precompiled_contract_address>” “<validator_address>”
 ```
 
@@ -493,7 +493,7 @@ If everything goes well, forge will print out the address of the deployed contra
 
 We can now test our Liquid Staking contract by delegating and receiving 
 a tokenized version of our stake. To do so, run the following script:
-```
+```bash
 FOUNDRY_PROFILE=stargazer_local cast send --private-key=xxxxxxxxxxx <deployed_contract_address> ‘delegate()’ 1
 ```
 

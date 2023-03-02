@@ -5,7 +5,7 @@
 
 This key will return a 24 word [mnemonic phrase](https://coinmarketcap.com/alexandria/glossary/mnemonic-phrase)
 
-```
+```sh
 stargazerd keys add test_key
 
 - address: stargazer17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
@@ -24,7 +24,7 @@ nature canvas unusual drill vault ethics sunny problem enact exile tank horn hus
 
 This will prompt you for your 24 word mnemonic phrase.
 
-```
+```sh
 stargazerd keys add test_key_recover --recover
 > Enter your bip39 mnemonic
 ```
@@ -34,7 +34,7 @@ stargazerd keys add test_key_recover --recover
 
 Lists all the public keys under your storage path
 
-```
+```sh
 stargazerd keys list
 Successfully migrated key validator.info.
 - address: stargazer17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
@@ -52,7 +52,7 @@ Successfully migrated key validator.info.
 
 This will return the public key and relevant information for the given key by name.
 
-```
+```sh
 stargazerd keys show test_key
 - address: stargazer17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
   name: test_key
@@ -66,7 +66,7 @@ stargazerd keys show test_key
 
 This will delete the key from your storage.
 
-```
+```sh
 stargazerd keys delete test_key
 
 Key reference will be deleted. Continue? [y/N]: y
@@ -79,8 +79,9 @@ Key deleted forever (uh oh!)
 
 This will export the private key for the given key by name.
 
-```
+```sh
 stargazerd keys export test_key 
+
 Enter passphrase to encrypt the exported key:
 -----BEGIN TENDERMINT PRIVATE KEY-----
 kdf: bcrypt
