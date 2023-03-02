@@ -24,8 +24,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -33,6 +31,9 @@ import (
 	"pkg.berachain.dev/stargazer/testutil"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/storage"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var (
@@ -287,8 +288,8 @@ var _ = Describe("State Plugin", func() {
 							storage.NewSlot(key, value))
 						return true
 					})
-				Expect(err).To(BeNil())
-				Expect(len(aliceStorage)).To(BeZero())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(aliceStorage).To(BeEmpty())
 
 				sp.SetState(bob, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
 				var bobStorage storage.Storage
@@ -297,8 +298,8 @@ var _ = Describe("State Plugin", func() {
 						bobStorage = append(bobStorage, storage.NewSlot(key, value))
 						return true
 					})
-				Expect(err).To(BeNil())
-				Expect(len(bobStorage)).To(Equal(1))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(bobStorage).To(HaveLen(1))
 				Expect(bobStorage[0].Key).
 					To(Equal("0x0000000000000000000000000000000000000000000000000000000000000001"))
 				Expect(bobStorage[0].Value).
@@ -318,8 +319,8 @@ var _ = Describe("State Plugin", func() {
 						return true
 					},
 				)
-				Expect(err).To(BeNil())
-				Expect(len(bobStorage2)).To(Equal(1))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(bobStorage2).To(HaveLen(1))
 			})
 		})
 

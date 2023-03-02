@@ -23,12 +23,12 @@ package core_test
 import (
 	"math/big"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core"
 	vmmock "pkg.berachain.dev/stargazer/eth/core/vm/mock"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Transfers", func() {

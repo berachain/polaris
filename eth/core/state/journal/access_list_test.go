@@ -21,10 +21,10 @@
 package journal
 
 import (
+	"pkg.berachain.dev/stargazer/eth/common"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"pkg.berachain.dev/stargazer/eth/common"
 )
 
 var _ = Describe("AccessList", func() {

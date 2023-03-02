@@ -21,8 +21,9 @@
 package rpc
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/gorilla/mux"
+
+	"github.com/cosmos/cosmos-sdk/client"
 )
 
 // `RegisterJSONRPCServer` provides a common function which registers the ethereum rpc servers

@@ -31,20 +31,19 @@ import (
 
 var (
 	// tools.
-	buf              = "github.com/bufbuild/buf/cmd/buf"
-	gosec            = "github.com/cosmos/gosec/v2/cmd/gosec"
-	golangcilint     = "github.com/golangci/golangci-lint/cmd/golangci-lint"
-	addlicense       = "github.com/google/addlicense"
-	goimportsReviser = "github.com/incu6us/goimports-reviser/v3"
-	moq              = "github.com/matryer/moq"
-	ginkgo           = "github.com/onsi/ginkgo/v2/ginkgo"
-	golines          = "github.com/segmentio/golines"
-	goimports        = "golang.org/x/tools/cmd/goimports"
-	rlpgen           = "github.com/ethereum/go-ethereum/rlp/rlpgen"
-	abigen           = "github.com/ethereum/go-ethereum/cmd/abigen"
+	buf          = "github.com/bufbuild/buf/cmd/buf"
+	gosec        = "github.com/cosmos/gosec/v2/cmd/gosec"
+	golangcilint = "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	addlicense   = "github.com/google/addlicense"
+	moq          = "github.com/matryer/moq"
+	ginkgo       = "github.com/onsi/ginkgo/v2/ginkgo"
+	golines      = "github.com/segmentio/golines"
+	rlpgen       = "github.com/ethereum/go-ethereum/rlp/rlpgen"
+	abigen       = "github.com/ethereum/go-ethereum/cmd/abigen"
+	gci          = "github.com/daixiang0/gci"
 
 	allTools = []string{buf, gosec, golangcilint, addlicense,
-		goimportsReviser, moq, ginkgo, golines, goimports, rlpgen, abigen}
+		moq, ginkgo, golines, rlpgen, abigen, gci}
 )
 
 // Setup runs the setup script for the current OS.

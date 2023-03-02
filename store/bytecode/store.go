@@ -19,17 +19,20 @@ package bytecode
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
+
 import (
 	"path/filepath"
+
+	dbm "github.com/cosmos/cosmos-db"
+	"github.com/spf13/cast"
 
 	cachekv "cosmossdk.io/store/cachekv"
 	"cosmossdk.io/store/dbadapter"
 	storetypes "cosmossdk.io/store/types"
-	dbm "github.com/cosmos/cosmos-db"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/spf13/cast"
 )
 
 // Compile-time interface assertion.

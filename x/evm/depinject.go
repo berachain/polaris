@@ -24,6 +24,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
+
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

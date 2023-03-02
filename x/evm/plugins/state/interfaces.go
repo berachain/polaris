@@ -22,6 +22,7 @@ package state
 
 import (
 	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	libtypes "pkg.berachain.dev/stargazer/lib/types"

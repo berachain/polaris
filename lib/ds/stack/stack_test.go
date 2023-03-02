@@ -23,11 +23,11 @@ package stack_test
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/lib/ds"
 	"pkg.berachain.dev/stargazer/lib/ds/stack"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestStack(t *testing.T) {

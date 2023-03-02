@@ -23,11 +23,11 @@ package storage_test
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/storage"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestStorage(t *testing.T) {
@@ -39,7 +39,7 @@ var _ = Describe("StorageTest", func() {
 	When("storage is empty", func() {
 		It("should not return an error", func() {
 			slots := storage.Storage{}
-			Expect(slots.ValidateBasic()).To(BeNil())
+			Expect(slots.ValidateBasic()).To(Succeed())
 		})
 	})
 	When("storage is not empty", func() {
@@ -52,7 +52,7 @@ var _ = Describe("StorageTest", func() {
 		})
 
 		It("should not return an error", func() {
-			Expect(slots.ValidateBasic()).To(BeNil())
+			Expect(slots.ValidateBasic()).To(Succeed())
 		})
 
 		When("a storage key is empty", func() {
@@ -61,7 +61,7 @@ var _ = Describe("StorageTest", func() {
 			})
 
 			It("should return an error", func() {
-				Expect(slots.ValidateBasic()).NotTo(BeNil())
+				Expect(slots.ValidateBasic()).NotTo(Succeed())
 			})
 		})
 
@@ -80,7 +80,7 @@ var _ = Describe("StorageTest", func() {
 			})
 
 			It("should return an error", func() {
-				Expect(slots.ValidateBasic()).NotTo(BeNil())
+				Expect(slots.ValidateBasic()).NotTo(Succeed())
 			})
 		})
 

@@ -25,7 +25,9 @@ import (
 	"unsafe"
 
 	"cosmossdk.io/store/prefix"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 
