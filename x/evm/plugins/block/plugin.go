@@ -84,10 +84,10 @@ func (p *plugin) BaseFee() uint64 {
 
 // `NewHeaderWithBlockNumber` builds an ethereum style block header from the current
 // context.
-func (p *plugin) NewHeaderWithBlockNumber(ctx context.Context, number int64) *coretypes.Header {
+func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 	cometHeader := p.ctx.BlockHeader()
 
-	if cometHeader.Height != number || sdk.UnwrapSDKContext(ctx).BlockHeight() != number {
+	if cometHeader.Height != number {
 		panic("block height mismatch")
 	}
 

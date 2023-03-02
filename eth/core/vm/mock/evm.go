@@ -46,12 +46,6 @@ func NewStargazerEVM() *StargazerEVMMock {
 			gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 			return []byte{}, common.Address{}, 0, nil
 		},
-		SetTxContextFunc: func(txCtx vm.TxContext) {
-			// no-op
-		},
-		StateDBFunc: func() vm.StargazerStateDB {
-			return NewEmptyStateDB()
-		},
 	}
 	return mockedStargazerEVM
 }

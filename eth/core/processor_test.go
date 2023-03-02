@@ -92,7 +92,7 @@ var _ = Describe("StateProcessor", func() {
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
+		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
 			header := &types.Header{}
 			header.GasLimit = blockGasLimit
 			header.BaseFee = big.NewInt(1)
@@ -115,7 +115,7 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), nil, 0)
+		sp.Prepare(context.Background(), nil, &types.Header{})
 	})
 
 	Context("Empty block", func() {
@@ -136,7 +136,7 @@ var _ = Describe("StateProcessor", func() {
 				// no-op
 			}
 
-			sp.Prepare(context.Background(), nil, int64(blockNumber))
+			sp.Prepare(context.Background(), nil, &types.Header{})
 		})
 
 		It("should error on an unsigned transaction", func() {
@@ -213,7 +213,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		bp := mock.NewBlockPluginMock()
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
-		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
+		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
 			header := &types.Header{}
 			header.GasLimit = 1000000
 			header.Number = new(big.Int)
@@ -233,6 +233,6 @@ var _ = Describe("No precompile plugin provided", func() {
 			return nil
 		}
 		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
-		Expect(func() { sp.Prepare(context.Background(), nil, 0) }).ToNot(Panic())
+		Expect(func() { sp.Prepare(context.Background(), nil, &types.Header{}) }).ToNot(Panic())
 	})
 })

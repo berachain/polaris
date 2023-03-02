@@ -109,18 +109,13 @@ func NewStateProcessor(
 // ==============================================================================
 
 // `Prepare` prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, evm vm.StargazerEVM, height int64) {
+func (sp *StateProcessor) Prepare(ctx context.Context, evm vm.StargazerEVM, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
 
-	// Prepare the plugins for the new block.
-	sp.bp.Prepare(ctx)
-	sp.cp.Prepare(ctx)
-	sp.gp.Prepare(ctx)
-
 	// Build a header object so we can track that status of the block as we process it.
-	sp.header = sp.bp.NewHeaderWithBlockNumber(ctx, height)
+	sp.header = header
 	sp.txs = make(types.Transactions, 0, initialTxsCapacity)
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
@@ -154,7 +149,7 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
-	sp.evm.SetTxContext(txContext)
+	sp.evm.UnderlyingEVM().Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
 	// We also must reset the StateDB, Precompile and Gas plugins.
@@ -198,7 +193,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	} else {
 		// if the result didn't produce a consensus error then we can properly commit the state.
 		if sp.commit {
-			sp.evm.StateDB().Finalize()
+			sp.statedb.Finalize()
 		}
 		receipt.Status = types.ReceiptStatusSuccessful
 	}

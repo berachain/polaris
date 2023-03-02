@@ -21,8 +21,6 @@
 package core
 
 import (
-	"context"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/state"
@@ -62,7 +60,7 @@ type (
 		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `NewHeaderWithBlockNumber` returns a new block header with the given block number.
-		NewHeaderWithBlockNumber(context.Context, int64) *types.Header
+		NewHeaderWithBlockNumber(int64) *types.Header
 		// `GetHeaderByNumber` returns the block header at the given block number.
 		GetHeaderByNumber(int64) (*types.Header, error)
 		// `GetHeaderByNumber` returns the block header at the given block number.

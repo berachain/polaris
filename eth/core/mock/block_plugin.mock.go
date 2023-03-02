@@ -40,7 +40,7 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			GetTransactionByHashFunc: func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error) {
 //				panic("mock out the GetTransactionByHash method")
 //			},
-//			NewHeaderWithBlockNumberFunc: func(contextMoqParam context.Context, n int64) *ethereumcoretypes.Header {
+//			NewHeaderWithBlockNumberFunc: func(n int64) *ethereumcoretypes.Header {
 //				panic("mock out the NewHeaderWithBlockNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
@@ -72,7 +72,7 @@ type BlockPluginMock struct {
 	GetTransactionByHashFunc func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error)
 
 	// NewHeaderWithBlockNumberFunc mocks the NewHeaderWithBlockNumber method.
-	NewHeaderWithBlockNumberFunc func(contextMoqParam context.Context, n int64) *ethereumcoretypes.Header
+	NewHeaderWithBlockNumberFunc func(n int64) *ethereumcoretypes.Header
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -109,8 +109,6 @@ type BlockPluginMock struct {
 		}
 		// NewHeaderWithBlockNumber holds details about calls to the NewHeaderWithBlockNumber method.
 		NewHeaderWithBlockNumber []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
 			// N is the n argument value.
 			N int64
 		}
@@ -318,21 +316,19 @@ func (mock *BlockPluginMock) GetTransactionByHashCalls() []struct {
 }
 
 // NewHeaderWithBlockNumber calls NewHeaderWithBlockNumberFunc.
-func (mock *BlockPluginMock) NewHeaderWithBlockNumber(contextMoqParam context.Context, n int64) *ethereumcoretypes.Header {
+func (mock *BlockPluginMock) NewHeaderWithBlockNumber(n int64) *ethereumcoretypes.Header {
 	if mock.NewHeaderWithBlockNumberFunc == nil {
 		panic("BlockPluginMock.NewHeaderWithBlockNumberFunc: method is nil but BlockPlugin.NewHeaderWithBlockNumber was just called")
 	}
 	callInfo := struct {
-		ContextMoqParam context.Context
-		N               int64
+		N int64
 	}{
-		ContextMoqParam: contextMoqParam,
-		N:               n,
+		N: n,
 	}
 	mock.lockNewHeaderWithBlockNumber.Lock()
 	mock.calls.NewHeaderWithBlockNumber = append(mock.calls.NewHeaderWithBlockNumber, callInfo)
 	mock.lockNewHeaderWithBlockNumber.Unlock()
-	return mock.NewHeaderWithBlockNumberFunc(contextMoqParam, n)
+	return mock.NewHeaderWithBlockNumberFunc(n)
 }
 
 // NewHeaderWithBlockNumberCalls gets all the calls that were made to NewHeaderWithBlockNumber.
@@ -340,12 +336,10 @@ func (mock *BlockPluginMock) NewHeaderWithBlockNumber(contextMoqParam context.Co
 //
 //	len(mockedBlockPlugin.NewHeaderWithBlockNumberCalls())
 func (mock *BlockPluginMock) NewHeaderWithBlockNumberCalls() []struct {
-	ContextMoqParam context.Context
-	N               int64
+	N int64
 } {
 	var calls []struct {
-		ContextMoqParam context.Context
-		N               int64
+		N int64
 	}
 	mock.lockNewHeaderWithBlockNumber.RLock()
 	calls = mock.calls.NewHeaderWithBlockNumber

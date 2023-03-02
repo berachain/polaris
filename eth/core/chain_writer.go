@@ -34,6 +34,10 @@ import (
 
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
+	bc.host.GetBlockPlugin().Prepare(ctx)
+	bc.host.GetGasPlugin().Prepare(ctx)
+	bc.host.GetConfigurationPlugin().Prepare(ctx)
+
 	// If we are processing a new block, then we assume that the previous was finalized.
 	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
 		// Cache finalized block.
@@ -65,11 +69,11 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
 
-	header := bc.host.GetBlockPlugin().NewHeaderWithBlockNumber(ctx, height)
+	header := bc.host.GetBlockPlugin().NewHeaderWithBlockNumber(height)
 	bc.processor.Prepare(
 		ctx,
 		bc.GetStargazerEVM(ctx, vm.TxContext{}, bc.statedb, header, &bc.vmConfig),
-		height,
+		header,
 	)
 }
 
