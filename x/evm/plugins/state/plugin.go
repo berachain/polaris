@@ -26,6 +26,7 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -140,6 +141,11 @@ func (p *plugin) Reset(ctx context.Context) {
 	_ = ctrl.Register(p.cms)
 	_ = ctrl.Register(cem)
 	p.Controller = ctrl
+}
+
+// `GetContext` implements `core.StatePlugin`.
+func (p *plugin) GetContext() context.Context {
+	return p.ctx
 }
 
 // `RegistryKey` implements `libtypes.Registrable`.
