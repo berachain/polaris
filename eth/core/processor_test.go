@@ -42,7 +42,10 @@ var (
 	dummyContract = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
 	key, _        = crypto.GenerateEthKey()
 	signer        = types.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-
+	dummyHeader   = &types.Header{
+		Number:   big.NewInt(1),
+		GasLimit: 1000000,
+	}
 	legacyTxData = &types.LegacyTx{
 		Nonce:    0,
 		To:       &dummyContract,
@@ -93,7 +96,7 @@ var _ = Describe("StateProcessor", func() {
 		blockGasLimit = 1000000
 
 		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
-			header := &types.Header{}
+			header := dummyHeader
 			header.GasLimit = blockGasLimit
 			header.BaseFee = big.NewInt(1)
 			header.Coinbase = common.BytesToAddress([]byte{2})
@@ -115,7 +118,7 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), nil, &types.Header{})
+		sp.Prepare(context.Background(), nil, dummyHeader)
 	})
 
 	Context("Empty block", func() {
@@ -136,7 +139,7 @@ var _ = Describe("StateProcessor", func() {
 				// no-op
 			}
 
-			sp.Prepare(context.Background(), nil, &types.Header{})
+			sp.Prepare(context.Background(), nil, dummyHeader)
 		})
 
 		It("should error on an unsigned transaction", func() {
@@ -214,7 +217,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
 		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
-			header := &types.Header{}
+			header := dummyHeader
 			header.GasLimit = 1000000
 			header.Number = new(big.Int)
 			header.Difficulty = new(big.Int)
@@ -233,6 +236,10 @@ var _ = Describe("No precompile plugin provided", func() {
 			return nil
 		}
 		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), vm.Config{}, true)
-		Expect(func() { sp.Prepare(context.Background(), nil, &types.Header{}) }).ToNot(Panic())
+		Expect(func() {
+			sp.Prepare(context.Background(), nil, &types.Header{
+				GasLimit: 1000000,
+			})
+		}).ToNot(Panic())
 	})
 })

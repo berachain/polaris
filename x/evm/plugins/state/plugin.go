@@ -476,11 +476,9 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	// Handle rpc.BlockNumber negative numbers.
 	var iavlHeight int64
 	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // golangci-lint bug?
-	case rpc.SafeBlockNumber:
-	case rpc.FinalizedBlockNumber:
+	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
 		iavlHeight = p.ctx.BlockHeight() - 1
-	case rpc.PendingBlockNumber:
-	case rpc.LatestBlockNumber:
+	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
 		// TODO: check is height == 1 correct?
