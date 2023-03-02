@@ -311,7 +311,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
-	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
+
 	app.EVMKeeper.SetPrecompiles(
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -320,6 +320,8 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 		},
 	)
+	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
+
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	app.txConfig = tx.NewTxConfig(
 		codec.NewProtoCodec(app.interfaceRegistry),
