@@ -121,14 +121,16 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit()))
 	}
 
-	// We must re-create the signer since we are processing a new block and the block number has increased.
+	// We must re-create the signer since we are processing a new block and the block number has
+	// increased.
 	chainConfig := sp.cp.ChainConfig()
 	sp.signer = types.MakeSigner(chainConfig, sp.header.Number)
 
 	// Setup the EVM for this block.
 	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
-	// We re-register the default geth precompiles every block, this isn't optimal, but since *technically*
-	// the precompiles change based on the chain config rules, to be fully correct, we should check every block.
+	// We re-register the default geth precompiles every block, this isn't optimal, but since
+	// *technically* the precompiles change based on the chain config rules, to be fully correct,
+	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = evm
@@ -148,11 +150,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	txContext := NewEVMTxContext(msg)
 	sp.evm.Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
-
-	// We also must reset the StateDB, Precompile and Gas plugins.
-	sp.statedb.Reset(ctx)
-	sp.pp.Reset(ctx)
-	sp.gp.Reset(ctx)
 
 	// Set the gasPool to have the remaining gas in the block.
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.

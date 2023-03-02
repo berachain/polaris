@@ -35,6 +35,7 @@ import (
 
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
+	// Prepare plugins for the block.
 	bc.host.GetBlockPlugin().Prepare(ctx)
 	bc.host.GetGasPlugin().Prepare(ctx)
 	bc.host.GetConfigurationPlugin().Prepare(ctx)
@@ -80,6 +81,11 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
+	// Reset the StateDB, Precompile and Gas plugins for the tx.
+	bc.statedb.Reset(ctx)
+	bc.host.GetPrecompilePlugin().Reset(ctx)
+	bc.host.GetGasPlugin().Reset(ctx)
+
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
 
