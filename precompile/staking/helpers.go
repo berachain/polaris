@@ -35,11 +35,11 @@ import (
 // `delegationHelper` is the helper function for `getDelegation`.
 func (c *Contract) getDelegationHelper(
 	ctx context.Context,
-	caller common.Address,
+	del sdk.AccAddress,
 	val sdk.ValAddress,
 ) ([]any, error) {
 	res, err := c.querier.Delegation(ctx, &stakingtypes.QueryDelegationRequest{
-		DelegatorAddr: evmutils.AddressToAccAddress(caller).String(),
+		DelegatorAddr: del.String(),
 		ValidatorAddr: val.String(),
 	})
 	if err != nil {
