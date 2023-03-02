@@ -103,6 +103,7 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -246,7 +247,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				func() []vm.RegistrablePrecompile {
 					precompiles := []vm.RegistrablePrecompile{
 						// TODO: add more precompiles here
-						stakingprecompile.NewPrecompileContract(&app.StakingKeeper),
+						stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 					}
 					logger.Info("registering precompiles", precompiles)
 					return precompiles

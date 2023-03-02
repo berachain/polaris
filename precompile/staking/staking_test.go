@@ -76,8 +76,7 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
-		skAddr := &sk
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&skAddr))
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&sk))
 	})
 
 	When("AbiMethods", func() {
