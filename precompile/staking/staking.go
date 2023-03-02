@@ -60,6 +60,7 @@ func NewPrecompileContract(sk **stakingkeeper.Keeper) precompile.StatefulImpl {
 
 // `RegistryKey` implements StatefulImpl.
 func (c *Contract) RegistryKey() common.Address {
+	// 0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF
 	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
 }
 
