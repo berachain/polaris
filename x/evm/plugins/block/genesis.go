@@ -22,6 +22,7 @@ package block
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 

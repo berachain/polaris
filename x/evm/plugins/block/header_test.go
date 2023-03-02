@@ -25,6 +25,7 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
+
 	"pkg.berachain.dev/stargazer/lib/utils"
 	offchain "pkg.berachain.dev/stargazer/store/offchain"
 	"pkg.berachain.dev/stargazer/testutil"

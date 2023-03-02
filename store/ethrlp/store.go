@@ -23,6 +23,7 @@ package ethrlp
 import (
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+
 	"pkg.berachain.dev/stargazer/eth/common"
 )
 

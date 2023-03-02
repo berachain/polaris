@@ -25,6 +25,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 	typesmock "pkg.berachain.dev/stargazer/lib/types/mock"
 	"pkg.berachain.dev/stargazer/lib/utils"
