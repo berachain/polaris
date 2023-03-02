@@ -77,8 +77,8 @@ func Gci() error {
 	PrintMageName()
 	if err := goRun(gci,
 		"write",
-		"-s", "standard",
 		"-s", "default",
+		"-s", "standard",
 		"-s", "Prefix(pkg.berachain.dev)",
 		"-s", "Prefix(pkg.berachain.dev/stargazer)",
 		"."); err != nil {
