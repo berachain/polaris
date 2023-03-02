@@ -21,8 +21,6 @@
 package core
 
 import (
-	"context"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/precompile"
 	"pkg.berachain.dev/stargazer/eth/core/state"
@@ -104,8 +102,6 @@ type (
 	// `StatePlugin` defines the methods that the chain running Stargazer EVM should implement.
 	StatePlugin interface {
 		state.Plugin
-		// `GetContext` returns the current context of the state plugin.
-		GetContext() context.Context
 		// `GetStateByNumber` returns the state at the given block height.
 		GetStateByNumber(int64) (StatePlugin, error)
 	}

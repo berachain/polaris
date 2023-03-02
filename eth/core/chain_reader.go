@@ -205,6 +205,7 @@ func (bc *blockchain) GetEVM(
 	}
 
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
+	bc.processor.pp.Reset(state.GetContext()) // provide state context to precompiles
 	return vm.NewGethEVMWithPrecompiles(
 		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)

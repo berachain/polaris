@@ -21,6 +21,7 @@
 package vm
 
 import (
+	"context"
 	"math/big"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -36,6 +37,8 @@ type (
 		libtypes.Finalizeable
 		// `Reset` resets the context for the new transaction.
 		libtypes.Resettable
+		// `GetContext` returns the current context of the state plugin.
+		GetContext() context.Context
 		// `TransferBalance` transfers the balance from one account to another
 		TransferBalance(common.Address, common.Address, *big.Int)
 	}
