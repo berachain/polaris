@@ -154,7 +154,9 @@ var _ = Describe("Processor", func() {
 			Expect(err).ToNot(HaveOccurred())
 			ret, err := abiMethod.Outputs.Unpack(exec.ReturnData)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(utils.MustGetAs[[]common.Address](ret[0])[0]).To(Equal(common.BytesToAddress(valAddr)))
+			addrs, ok := utils.GetAs[[]common.Address](ret[0])
+			Expect(ok).To(BeTrue())
+			Expect(addrs[0]).To(Equal(common.BytesToAddress(valAddr)))
 			Expect(exec.Err).To(BeNil())
 		})
 
