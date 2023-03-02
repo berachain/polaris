@@ -39,18 +39,18 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var ctx sdk.Context
+
 var _ = Describe("plugin", func() {
 	var p *plugin
 	var sdb *mockSDB
-	var ctx sdk.Context
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext()
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(func() func() []vm.RegistrablePrecompile { return nil }))
-		p.Reset(ctx)
+		p = utils.MustGetAs[*plugin](NewPlugin())
 		sdb = &mockSDB{}
 	})
 
@@ -69,9 +69,9 @@ var _ = Describe("plugin", func() {
 		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
 		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
 
-		p.Context = p.WithKVGasConfig(storetypes.GasConfig{})
+		p.SetKVGasConfig(storetypes.GasConfig{})
 		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
-		p.Context = p.WithTransientKVGasConfig(storetypes.GasConfig{})
+		p.SetTransientKVGasConfig(storetypes.GasConfig{})
 		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
 	})
 })
@@ -79,7 +79,11 @@ var _ = Describe("plugin", func() {
 // MOCKS BELOW.
 
 type mockSDB struct {
-	vm.GethStateDB
+	vm.StargazerStateDB
+}
+
+func (ms *mockSDB) GetContext() context.Context {
+	return ctx
 }
 
 type mockStateless struct{}

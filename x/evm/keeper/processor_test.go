@@ -147,7 +147,7 @@ var _ = Describe("Processor", func() {
 			k.GetStatePlugin().Finalize()
 
 			vals := sk.GetAllValidators(ctx)
-			Expect(len(vals)).To(Equal(1))
+			Expect(vals).To(HaveLen(1))
 
 			// calls the staking precompile
 			exec, err := k.ProcessTransaction(ctx, tx)
@@ -157,7 +157,7 @@ var _ = Describe("Processor", func() {
 			addrs, ok := utils.GetAs[[]common.Address](ret[0])
 			Expect(ok).To(BeTrue())
 			Expect(addrs[0]).To(Equal(common.BytesToAddress(valAddr)))
-			Expect(exec.Err).To(BeNil())
+			Expect(exec.Err).ToNot(HaveOccurred())
 		})
 
 		It("should panic on nil, empty transaction", func() {

@@ -133,7 +133,7 @@ func (k *Keeper) SetPrecompiles(
 	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
 ) {
 	plf := precompilelog.NewFactory()
-	k.pp = precompile.NewPlugin(nil)
+	k.pp = precompile.NewPlugin()
 	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
 	k.pp.SetPrecompiles(precompiles)
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)

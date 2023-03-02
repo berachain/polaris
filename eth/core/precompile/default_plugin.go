@@ -45,11 +45,6 @@ func NewDefaultPlugin() Plugin {
 	}
 }
 
-// `Reset` implements `core.PrecompilePlugin`.
-func (dp *defaultPlugin) Reset(ctx context.Context) {
-	// no-op
-}
-
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
 	return GetDefaultPrecompiles(rules)
