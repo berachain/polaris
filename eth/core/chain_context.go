@@ -32,15 +32,13 @@ var _ ChainContext = (*chainContext)(nil)
 
 // `chainContext` is a wrapper around `StateProcessor` that implements the `ChainContext` interface.
 type chainContext struct {
-	*StateProcessor
+	*blockchain
 }
 
 // `GetHeader` returns the header for the given hash and height. This is used by the `GetHashFn`.
 func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
-	if header := cc.StateProcessor.bp.GetStargazerHeaderByNumber(int64(height)); header != nil {
-		return header.Header
-	}
-	return nil
+	header, _ := cc.blockchain.host.GetBlockPlugin().GetHeaderByNumber(int64(height))
+	return header
 }
 
 // `Engine` returns the consensus engine. For our use case, this never gets called.

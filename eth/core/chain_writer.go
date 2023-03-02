@@ -23,9 +23,10 @@ package core
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/core/rawdb"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
 // =========================================================================
@@ -34,32 +35,47 @@ import (
 
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
+	bc.host.GetBlockPlugin().Prepare(ctx)
+	bc.host.GetGasPlugin().Prepare(ctx)
+	bc.host.GetConfigurationPlugin().Prepare(ctx)
+
 	// If we are processing a new block, then we assume that the previous was finalized.
-	// TODO: ensure this is safe. We could build the block in theory by querying the blockplugin
-	if bc.processor.block != nil {
+	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
 		// Cache finalized block.
-		bc.finalizedBlock.Store(bc.processor.block)
-		bc.blockCache.Add(bc.processor.block.Hash(), bc.processor.block)
+		blockHash, blockNum := block.Hash(), block.NumberU64()
+		bc.finalizedBlock.Store(block)
+		bc.blockNumCache.Add(int64(blockNum), block)
+		bc.blockHashCache.Add(blockHash, block)
 
 		// Cache transaction data
-		for txIndex, tx := range bc.processor.block.GetTransactions() {
+		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
 				&types.TxLookupEntry{
-					LegacyTxLookupEntry: &rawdb.LegacyTxLookupEntry{
-						BlockHash:  bc.processor.block.Hash(),
-						BlockIndex: bc.processor.block.Number.Uint64(),
-						Index:      uint64(txIndex),
-					},
-					Tx: tx,
+					Tx:        tx,
+					TxIndex:   uint64(txIndex),
+					BlockNum:  blockNum,
+					BlockHash: blockHash,
 				},
 			)
 		}
+
 		// Cache receipts.
-		bc.receiptsCache.Add(bc.processor.block.Hash(), bc.processor.block.GetReceipts())
+		var receipts types.Receipts
+		if receipts, ok = utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
+			bc.receiptsCache.Add(blockHash, receipts)
+		}
+
+		// TODO: synchronize chain head feed.
+		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
-	bc.processor.Prepare(ctx, height)
-	bc.chainHeadFeed.Send(ChainHeadEvent{Block: bc.processor.block.EthBlock()})
+
+	header := bc.host.GetBlockPlugin().NewHeaderWithBlockNumber(height)
+	bc.processor.Prepare(
+		ctx,
+		bc.GetStargazerEVM(ctx, vm.TxContext{}, bc.statedb, header, &bc.vmConfig),
+		header,
+	)
 }
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
@@ -68,6 +84,17 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 }
 
 // `Finalize` finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) (*types.StargazerBlock, error) {
-	return bc.processor.Finalize(ctx)
+func (bc *blockchain) Finalize(ctx context.Context) (*types.Block, types.Receipts, error) {
+	block, receipts, err := bc.processor.Finalize(ctx)
+	if block != nil {
+		bc.currentBlock.Store(block)
+	}
+	if receipts != nil {
+		bc.currentReceipts.Store(receipts)
+	}
+	return block, receipts, err
+}
+
+func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
+	return bc.host.GetTxPoolPlugin().SendTx(signedTx)
 }

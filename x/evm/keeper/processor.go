@@ -63,20 +63,24 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 func (k *Keeper) EndBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 
-	// Finalize the stargazer block and retrieve it from the processor.
-	stargazerBlock, err := k.stargazer.Finalize(ctx)
+	// Finalize the block and retrieve it from the processor.
+	block, receipts, err := k.stargazer.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", stargazerBlock.Header)
+	header := block.Header()
+	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", header)
 
-	// Save the historical stargazer header in the IAVL Tree.
-	k.bp.TrackHistoricalStargazerHeader(sCtx, stargazerBlock.StargazerHeader)
+	// Save the historical header in the IAVL Tree.
+	err = k.bp.SetHeader(header)
+	if err != nil {
+		panic(err)
+	}
 
 	// TODO: this is sketchy and needs to be refactored later.
 	// Save the block data to the off-chain storage.
 	if k.offChainKv != nil {
-		k.bp.UpdateOffChainStorage(sCtx, stargazerBlock)
+		k.bp.UpdateOffChainStorage(block, receipts)
 	}
 }

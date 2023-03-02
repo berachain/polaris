@@ -40,10 +40,8 @@ type (
 		Call(
 			caller ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int,
 		) (ret []byte, leftOverGas uint64, err error)
-		// `SetTxContext` sets the transaction context for the new transaction.
-		SetTxContext(txCtx TxContext)
-		// `StateDB` returns the `StateDB` attached to this `StargazerEVM`.
-		StateDB() StargazerStateDB
+		// `Reset` sets the transaction context and statedb for the new transaction.
+		Reset(TxContext, GethStateDB)
 		// `ChainConfig` returns the `ChainConfig` attached to this `StargazerEVM`.
 		ChainConfig() *params.ChainConfig
 		UnderlyingEVM() *GethEVM

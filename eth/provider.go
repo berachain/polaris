@@ -48,13 +48,12 @@ func NewStargazerProvider(
 	}
 
 	// Build the chain from the host.
-	chain := core.NewChain(host)
-	sp.Chain = chain
+	sp.Chain = core.NewChain(host)
 
 	// Build and set the RPC Backend.
 	if rps != nil {
 		sp.rps = rps
-		sp.rps.SetBackend(rpc.NewStargazerBackend(chain, rps.GetConfig()))
+		sp.rps.SetBackend(rpc.NewStargazerBackend(sp.Chain, rps.GetConfig()))
 	}
 
 	return sp

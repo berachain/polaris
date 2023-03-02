@@ -22,52 +22,66 @@ package block
 
 import (
 	"fmt"
-	"math/big"
+	"unsafe"
 
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	errorslib "pkg.berachain.dev/stargazer/lib/errors"
 )
 
 var (
-	blockHashKeyPrefix  = []byte{0xb}
-	blockNumKeyPrefix   = []byte{0xbb}
-	txHashKeyPrefix     = []byte{0x10}
-	versionKey          = []byte{0x11}
-	txBlockNumKeyPrefix = []byte{0x12}
+	blockHashToNumPrefix      = []byte{0xb}
+	blockHashToReceiptsPrefix = []byte{0xbb}
+	txHashToTxPrefix          = []byte{0x10}
+	versionKey                = []byte{0x11}
 )
 
 // `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
-func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.StargazerBlock) {
-	bz, err := block.MarshalBinary()
+func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretypes.Receipts) {
+	blockHash, blockNum := block.Hash(), block.NumberU64()
+
+	// store block hash to block number.
+	numBz := sdk.Uint64ToBigEndian(blockNum)
+	prefix.NewStore(p.offchainStore, blockHashToNumPrefix).Set(blockHash.Bytes(), numBz)
+
+	// stpre block hash to receipts.
+	receiptsBz, err := marshalReceipts(receipts)
 	if err != nil {
+		p.ctx.Logger().Error(
+			"UpdateOffChainStorage: failed to marshal receipts at block number %d", blockNum,
+		)
 		panic(err)
 	}
-	numBz := sdk.Uint64ToBigEndian(block.Number.Uint64())
-	prefix.NewStore(p.offchainStore, blockHashKeyPrefix).Set(block.Hash().Bytes(), numBz)
-	prefix.NewStore(p.offchainStore, blockNumKeyPrefix).Set(numBz, bz)
+	prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Set(blockHash.Bytes(), receiptsBz)
 
-	// adding txns to kv.
-	txStore := prefix.NewStore(p.offchainStore, txHashKeyPrefix)
-
-	// adding txn with block number to kv.
-	txBlockNumStore := prefix.NewStore(p.offchainStore, txBlockNumKeyPrefix)
-
-	for _, tx := range block.GetTransactions() {
-		var txBytes []byte
-		txBytes, err = tx.MarshalBinary()
+	// store all txns in the block.
+	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
+	for txIndex, tx := range block.Transactions() {
+		txLookupEntry := &coretypes.TxLookupEntry{
+			Tx:        tx,
+			TxIndex:   uint64(txIndex),
+			BlockHash: blockHash,
+			BlockNum:  blockNum,
+		}
+		var tleBz []byte
+		tleBz, err = txLookupEntry.MarshalBinary()
 		if err != nil {
+			p.ctx.Logger().Error(
+				"UpdateOffChainStorage: failed to marshal tx %s at block number %d",
+				tx.Hash().Hex(), blockNum,
+			)
 			panic(err)
 		}
-		txStore.Set(tx.Hash().Bytes(), txBytes)
-		txBlockNumStore.Set(tx.Hash().Bytes(), numBz)
+		txStore.Set(tx.Hash().Bytes(), tleBz)
 	}
 
-	version := block.Number
-	lastVersion := p.offchainStore.Get(versionKey)
-	if sdk.BigEndianToUint64(lastVersion) != version.Uint64()-1 {
+	// store the version offchain for consistency.
+	if sdk.BigEndianToUint64(p.offchainStore.Get(versionKey)) != blockNum-1 {
 		// TODO: resync the off-chain storage.
 		panic("off-chain store's latest block number is not synced")
 	}
@@ -76,68 +90,136 @@ func (p *plugin) UpdateOffChainStorage(ctx sdk.Context, block *coretypes.Stargaz
 	p.offchainStore.Write()
 }
 
-// `GetStargazerBlockByNumber` returns the stargazer header at the given height.
-func (p *plugin) GetStargazerBlockByNumber(number int64) *coretypes.StargazerBlock {
-	blockStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
-	bz := blockStore.Get(sdk.Uint64ToBigEndian(uint64(number)))
-	if bz == nil {
-		return nil
-	}
-	var block coretypes.StargazerBlock
-	err := block.UnmarshalBinary(bz)
+// `GetBlockByNumber` returns the block at the given height.
+func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
+	// get header from on chain.
+	header, err := p.GetHeaderByNumber(number)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &block
-}
 
-// `GetStargazerBlockByHash` returns the stargazer header at the given hash.
-func (p *plugin) GetStargazerBlockByHash(hash common.Hash) *coretypes.StargazerBlock {
-	blockStore := prefix.NewStore(p.offchainStore, blockHashKeyPrefix)
-	bz := blockStore.Get(hash.Bytes())
-	if bz == nil {
-		return nil
+	// get receipts from off chain.
+	blockHash := header.Hash()
+	receiptsBz := prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Get(blockHash.Bytes())
+	if receiptsBz == nil {
+		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
-	return p.GetStargazerBlockByNumber(new(big.Int).SetBytes(bz).Int64())
-}
-
-// `GetTransactionByHash` returns the transaction with the given hash.
-func (p *plugin) GetTransactionByHash(hash common.Hash) *coretypes.Transaction {
-	txStore := prefix.NewStore(p.offchainStore, txHashKeyPrefix)
-	bz := txStore.Get(hash.Bytes())
-	if bz == nil {
-		return nil
-	}
-	var tx coretypes.Transaction
-	err := tx.UnmarshalBinary(bz)
+	receipts, err := unmarshalReceipts(receiptsBz)
 	if err != nil {
-		p.ctx.Logger().Error("failed to unmarshal transaction", "err", err)
-		return nil
+		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
-	return &tx
+
+	// get txns from off chain.
+	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
+	txs := make(coretypes.Transactions, len(receipts))
+	for _, receipt := range receipts {
+		tleBz := txStore.Get(receipt.TxHash.Bytes())
+		if tleBz == nil {
+			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
+		}
+		tle := &coretypes.TxLookupEntry{}
+		err = tle.UnmarshalBinary(tleBz)
+		if err != nil {
+			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
+		}
+		txs = append(txs, tle.Tx)
+	}
+
+	// build the block.
+	return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
 }
 
-// `GetTransactionBlockNumber` returns the block number of the transaction with the given hash.
-func (p *plugin) GetTransactionBlockNumber(txHash common.Hash) *big.Int {
-	txBlockNumStore := prefix.NewStore(p.offchainStore, txBlockNumKeyPrefix)
-	bz := txBlockNumStore.Get(txHash.Bytes())
-	if bz == nil {
-		return nil
+// `GetBlockByHash` returns the block at the given hash.
+func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
+	// get block number from off chain.
+	numBz := prefix.NewStore(p.offchainStore, blockHashToNumPrefix).Get(blockHash.Bytes())
+	if numBz == nil {
+		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
 	}
-	return new(big.Int).SetBytes(bz)
-}
-
-// `GetBlockHash` returns the block hash for the given block number.
-func (p *plugin) GetBlockHash(blockNum *big.Int) common.Hash {
-	blockNumStore := prefix.NewStore(p.offchainStore, blockNumKeyPrefix)
-	data := blockNumStore.Get(sdk.Uint64ToBigEndian(blockNum.Uint64()))
-	var block *coretypes.StargazerBlock
-	err := block.UnmarshalBinary(data)
+	number := int64(sdk.BigEndianToUint64(numBz))
+	header, err := p.GetHeaderByNumber(number)
 	if err != nil {
-		panic(fmt.Sprintf("failed to unmarshal block at height %d", blockNum.Uint64()))
+		return nil, err
 	}
-	if block == nil { //nolint:govet // investigate later.
-		return common.Hash{}
+	if int64(header.Number.Uint64()) != number || header.Hash() != blockHash {
+		panic("header number or hash is not equal to the given number or hash")
 	}
-	return block.Hash()
+
+	// get receipts from off chain.
+	receiptsBz := prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Get(blockHash.Bytes())
+	if receiptsBz == nil {
+		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
+	}
+	receipts, err := unmarshalReceipts(receiptsBz)
+	if err != nil {
+		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
+	}
+
+	// get txns from off chain.
+	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
+	txs := make(coretypes.Transactions, len(receipts))
+	for _, receipt := range receipts {
+		tleBz := txStore.Get(receipt.TxHash.Bytes())
+		if tleBz == nil {
+			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
+		}
+		tle := &coretypes.TxLookupEntry{}
+		err = tle.UnmarshalBinary(tleBz)
+		if err != nil {
+			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
+		}
+		txs = append(txs, tle.Tx)
+	}
+
+	// build the block.
+	return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
+}
+
+// `GetTransactionByHash` returns the transaction lookup entry with the given hash.
+func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
+	// get tx from off chain.
+	tleBz := prefix.NewStore(p.offchainStore, txHashToTxPrefix).Get(txHash.Bytes())
+	if tleBz == nil {
+		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
+	}
+	var tle *coretypes.TxLookupEntry
+	err := tle.UnmarshalBinary(tleBz)
+	if err != nil {
+		return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", txHash.Hex())
+	}
+	return tle, nil
+}
+
+// `GetReceiptsByHash` returns the receipts with the given block hash.
+func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
+	// get receipts from off chain.
+	receiptsBz := prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Get(blockHash.Bytes())
+	if receiptsBz == nil {
+		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
+	}
+	receipts, err := unmarshalReceipts(receiptsBz)
+	if err != nil {
+		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
+	}
+	return receipts, nil
+}
+
+func marshalReceipts(receipts coretypes.Receipts) ([]byte, error) {
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	receiptsForStorage := *(*[]*coretypes.ReceiptForStorage)(unsafe.Pointer(&receipts))
+
+	bz, err := rlp.EncodeToBytes(receiptsForStorage)
+	if err != nil {
+		return nil, err
+	}
+	return bz, nil
+}
+
+func unmarshalReceipts(bz []byte) (coretypes.Receipts, error) {
+	var receiptsForStorage []*coretypes.ReceiptForStorage
+	if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
+		return nil, err
+	}
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	return *(*coretypes.Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
 }
