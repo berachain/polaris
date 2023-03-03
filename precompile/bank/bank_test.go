@@ -62,7 +62,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
@@ -73,7 +73,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
@@ -84,7 +84,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
@@ -95,7 +95,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
@@ -106,7 +106,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 })
