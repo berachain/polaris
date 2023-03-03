@@ -8,14 +8,6 @@ const withNextra = require('nextra')({
 
 /** @type {import('next').NextConfig} */
 const config = {
-  exportPathMap: async function (
-    defaultPathMap,
-    { dev, dir, outDir, distDir, buildId }
-  ) {
-    return {
-      '/': { page: '/docs' },
-    }
-  },
   reactStrictMode: true,
   images: {
     unoptimized: true
@@ -29,7 +21,7 @@ const config = {
       {
         source: '/',
         destination: '/docs',
-        permanent: false,
+        permanent: true,
       }
     ];
   },
