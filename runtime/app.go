@@ -102,7 +102,6 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -317,12 +316,11 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	)
 
 	opt := ante.HandlerOptions{
-		AccountKeeper:          app.AccountKeeper,
-		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: extOptCheckerfunc,
-		SignModeHandler:        app.txConfig.SignModeHandler(),
-		FeegrantKeeper:         app.FeeGrantKeeper,
-		SigGasConsumer:         evmante.SigVerificationGasConsumer,
+		AccountKeeper:   app.AccountKeeper,
+		BankKeeper:      app.BankKeeper,
+		SignModeHandler: app.txConfig.SignModeHandler(),
+		FeegrantKeeper:  app.FeeGrantKeeper,
+		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
 	ch, _ := evmante.NewAnteHandler(
 		opt,
@@ -378,10 +376,6 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	}
 
 	return app
-}
-
-func extOptCheckerfunc(a *codectypes.Any) bool {
-	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
 }
 
 // Name returns the name of the App.

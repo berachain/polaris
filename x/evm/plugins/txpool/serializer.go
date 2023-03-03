@@ -21,18 +21,13 @@
 package txpool
 
 import (
-	"errors"
-
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/lib/utils"
 	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
@@ -83,18 +78,7 @@ func (s *serializer) Serialize(signedTx *coretypes.Transaction) ([]byte, error) 
 func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
 	// TODO: do we really need to use extensions for anything? Since we
 	// are using the standard ante handler stuff I don't think we actually need to.
-	tx, ok := utils.GetAs[authtx.ExtensionOptionsTxBuilder](s.clientCtx.TxConfig.NewTxBuilder())
-	if !ok {
-		return nil, errors.New("unsupported builder")
-	}
-
-	// First, we attach the required fees to the Cosmos Tx. This is simply done,
-	// by calling Cost() on the types.Transaction and setting the fee amount to that.
-	option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionsEthTransaction{})
-	if err != nil {
-		return nil, err
-	}
-	tx.SetExtensionOptions(option)
+	tx := s.clientCtx.TxConfig.NewTxBuilder()
 
 	// Second, we attach the required fees to the Cosmos Tx. This is simply done,
 	// by calling Cost() on the types.Transaction and setting the fee amount to that
