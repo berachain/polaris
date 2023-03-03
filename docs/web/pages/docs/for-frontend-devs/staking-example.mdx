@@ -31,7 +31,6 @@ Run the following command:
 
 After running the above command, input the following values: 
 ```sh
-
 ✔ What is your project named? … staking-precompile-example
 ✔ What framework would you like to use? › Next.js
 ✔ What template would you like to use? › RainbowKit
@@ -68,7 +67,953 @@ the folder called `staking-precompile-example` will look like this:
   </FileTree.Folder>
 </FileTree>
 
+### Install Dependencies
+
+Run the following command to install the remaining dependencies:
+
+`yarn add bignumber.js @chakra-ui/react @emotion/react @emotion/styled framer-motion`
+
+## Configuring Chakra
+
+Before we continue, let's configure Chakra UI.
+
+### Creating a Theme file
+
+Under the `src` folder, create a new file called `theme.ts`. This will hold our global Chakra themes for the dApp.
+
+Populate `theme.ts` with the following code:
+
+```tsx
+import { extendTheme } from '@chakra-ui/react'
+
+// Configure Chakra theme
+const theme = extendTheme({
+    fonts: {
+        heading: `'Open Sans', sans-serif`,
+        body: `'Raleway', sans-serif`,
+    },
+    styles: {
+        global: {
+            "html, body": {
+                height: "100vh",
+                width: "100vw",
+                backgroundColor: "#000000",
+                color: "#ffffff",
+            },
+        },
+    },
+});
+
+export default theme;
+```
+
+After adding the `theme.ts` file your file structure should look like this:
+
+<FileTree>
+  <FileTree.Folder name="staking-precompile-example" defaultOpen>
+    <FileTree.Folder name="node_modules" />
+    <FileTree.Folder name="src" >
+        <FileTree.Folder name="components">
+            <FileTree.File name="Account.tsx" />
+            <FileTree.File name="index.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="pages">
+            <FileTree.File name="_app.tsx" />
+            <FileTree.File name="index.tsx" />
+        </FileTree.Folder>
+        <FileTree.File name="theme.ts" />
+        <FileTree.File name="wagmi.ts" />
+    </FileTree.Folder>
+    <FileTree.File name=".env.example" />
+    <FileTree.File name=".eslintrc.jsom" />
+    <FileTree.File name=".gitignore" />
+    <FileTree.File name=".npmrc" />
+    <FileTree.File name="next-env.d.ts" />
+    <FileTree.File name="package-lock.json" />
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+    <FileTree.File name="tsconfig.json" />
+  </FileTree.Folder>
+</FileTree>
+
+### Adding Chakra to the App
+
+Now we need to add `ChakraProvider` to the `_app.tsx` file. Navigate to `src/pages/_app.tsx` file and add the following code:
+
+```tsx
+import '@rainbow-me/rainbowkit/styles.css'
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import type { AppProps } from 'next/app'
+import NextHead from 'next/head'
+import * as React from 'react'
+import { WagmiConfig } from 'wagmi'
+import { chains, client } from '../wagmi'
+import { ChakraProvider } from '@chakra-ui/react'
+import theme from '../theme';
+
+function App({ Component, pageProps }: AppProps) {
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => setMounted(true), [])
+  
+  return (
+    <WagmiConfig client={client}>
+      <RainbowKitProvider chains={chains}>
+        <NextHead>
+          <title>Stargazer Example Dapp</title>
+        </NextHead>
+        <ChakraProvider theme={theme}>
+          {mounted && <Component {...pageProps} />}
+        </ChakraProvider>
+      </RainbowKitProvider>
+    </WagmiConfig>
+  )
+}
+
+export default App
+```
+
+We now have a basic themed Chakra UI setup.
+
 ## Configuring `wagmi.ts`
 
 In order to point this dapp towards a Stargazer local node, 
 we need to modify `wagmi.ts`.
+
+Make `wagmi.ts` look like this:
+
+```tsx
+import { Chain, configureChains, createClient } from 'wagmi'
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import { metaMaskWallet } from '@rainbow-me/rainbowkit/wallets';
+
+// Configure chain information for local Stargazer chain
+const stargazerChain: Chain = {
+  id: 42069,
+  name: 'Stargazer',
+  network: 'stargazer',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Stargazer',
+    symbol: 'tbera',
+  },
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:1317/eth/rpc'],
+    },
+    public: {
+      http: ['http://localhost:1317/eth/rpc'],
+    }
+  }
+};
+
+// Configure Wagmi client with Stargazer chain
+const { provider, chains } = configureChains(
+  [stargazerChain],
+  [
+    jsonRpcProvider({
+      rpc: chain => ({ http: chain.rpcUrls.default.http[0] }),
+    }),
+  ]
+);
+
+// only use MetaMask for now
+const connectors = connectorsForWallets([
+  {
+    groupName: 'Recommended',
+    wallets: [
+      metaMaskWallet({ chains }),
+    ],
+  },
+]);
+
+export const client = createClient({
+  autoConnect: true,
+  connectors,
+  provider,
+});
+
+export { chains }
+```
+
+
+## Adding Utility Functions
+
+We will need to add some utility functions to our dApp. These functions will help us interact with the Stargazer precompile.
+
+### Creating a `utils` Folder
+Under the `src` folder, create a new folder called `utils`. This will hold our utility functions.
+
+### Creating a `utils/formatFromBaseUnit.ts` File
+
+Under the `utils` folder, create a new file called `formatFromBaseUnit.ts`.
+This will be responsible for parsing information as it is returned to us from the chain.
+
+Populate `formatFromBaseUnit.ts` with the following code:
+
+```tsx
+import BigNumber from 'bignumber.js';
+
+export const BIG_TEN = new BigNumber(10);
+
+// Formats numbers from base unit to normal unit
+const formatFromBaseUnit = (amount: any, decimals: any) => new BigNumber(amount).div(BIG_TEN.pow(decimals)).toString();
+export default formatFromBaseUnit;
+```
+
+### Creating a `utils/formatToBaseUnit.ts` File
+
+Under the `utils` folder, create a new file called `formatToBaseUnit.ts`.
+This will be responsible for formatting information as it is sent to the chain.
+
+Populate `formatToBaseUnit.ts` with the following code:
+
+```tsx
+import { ethers } from 'ethers';
+
+// Format normal units to base units for use on the EVM
+const formatToBaseUnit = (amount: string, decimals: any) => {
+    if (!amount) return ethers.BigNumber.from(0);
+    try {
+        return ethers.BigNumber.from(ethers.utils.parseUnits(amount?.toString(), decimals));
+    }
+    catch (e) {
+        return ethers.BigNumber.from(0);
+    }
+}
+
+export default formatToBaseUnit;
+```
+
+### Creating a `utils/getEvmEllipsis.ts` File
+
+Under the `utils` folder, create a new file called `getEvmEllipsis.ts`.
+This will be responsible for returning shortened versions of our hex addresses.
+
+Populate `getEvmEllipsis.ts` with the following code:
+
+```tsx
+// Returns a shortened version of a hex address.
+export const getHexEllipsis = (hexAddress: string) => {
+  const accountEllipsis = hexAddress
+    ? `${hexAddress.substring(0, 4)}...${hexAddress.substring(
+      hexAddress.length - 4
+    )}`
+    : null;
+  return accountEllipsis;
+};
+```
+
+#### After adding these utility functions, your `utils` folder should look like this:
+
+<FileTree>
+  <FileTree.Folder name="staking-precompile-example" defaultOpen>
+    <FileTree.Folder name="node_modules" />
+    <FileTree.Folder name="src" defaultOpen>
+        <FileTree.Folder name="components">
+            <FileTree.File name="Account.tsx" />
+            <FileTree.File name="index.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="pages">
+            <FileTree.File name="_app.tsx" />
+            <FileTree.File name="index.tsx" />
+        </FileTree.Folder>
+        <FileTree.Folder name="utils" defaultOpen>
+            <FileTree.File name="formatFromBaseUnit.ts" />
+            <FileTree.File name="formatToBaseUnit.ts" />
+            <FileTree.File name="getEvmEllipsis.ts" />
+        </FileTree.Folder>
+        <FileTree.File name="theme.ts" />
+        <FileTree.File name="wagmi.ts" />
+    </FileTree.Folder>
+    <FileTree.File name=".env.example" />
+    <FileTree.File name=".eslintrc.jsom" />
+    <FileTree.File name=".gitignore" />
+    <FileTree.File name=".npmrc" />
+    <FileTree.File name="next-env.d.ts" />
+    <FileTree.File name="package-lock.json" />
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+    <FileTree.File name="tsconfig.json" />
+  </FileTree.Folder>
+</FileTree>
+
+
+## Adding ABIs
+
+We will need to add a way to handle ABIs in the application. ABI handling is a common issue across 
+dApps. This is the way I prefer to do it.
+
+### Creating an `abi` Folder & Adding Staking Precompile ABI
+
+Under the `src` folder, create a new folder called `abis`. This will hold our ABIs.
+
+Under the `abis` folder, create a new file called `IStakingModule.abi.js`. This will hold the ABI for the Staking Precompile.
+
+Populate `IStakingModule.abi.js` with the following code:
+
+```tsx
+const STAKING_ABI = [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "validator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "delegator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "int64",
+          "name": "creationHeight",
+          "type": "int64"
+        }
+      ],
+      "name": "CancelUnbondingDelegation",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "validator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "CreateValidator",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "validator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Delegate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sourceValidator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "destinationValidator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Redelegate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "validator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unbond",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "srcValidator",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "dstValidator",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "beginRedelegate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "srcValidator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "dstValidator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "beginRedelegate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validatorAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int64",
+          "name": "creationHeight",
+          "type": "int64"
+        }
+      ],
+      "name": "cancelUnbondingDelegation",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "validatorAddress",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int64",
+          "name": "creationHeight",
+          "type": "int64"
+        }
+      ],
+      "name": "cancelUnbondingDelegation",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validatorAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "delegate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "validatorAddress",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "delegate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveValidators",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "delegatorAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "validatorAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getDelegation",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "delegatorAddress",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "validatorAddress",
+          "type": "string"
+        }
+      ],
+      "name": "getDelegation",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "srcValidator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "dstValidator",
+          "type": "address"
+        }
+      ],
+      "name": "getRedelegations",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "int64",
+              "name": "creationHeight",
+              "type": "int64"
+            },
+            {
+              "internalType": "string",
+              "name": "completionTime",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialBalance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sharesDst",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint64",
+              "name": "unbondingId",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct IStakingModule.RedelegationEntry[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "srcValidator",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "dstValidator",
+          "type": "string"
+        }
+      ],
+      "name": "getRedelegations",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "int64",
+              "name": "creationHeight",
+              "type": "int64"
+            },
+            {
+              "internalType": "string",
+              "name": "completionTime",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialBalance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sharesDst",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint64",
+              "name": "unbondingId",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct IStakingModule.RedelegationEntry[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "validatorAddress",
+          "type": "string"
+        }
+      ],
+      "name": "getUnbondingDelegation",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "int64",
+              "name": "creationHeight",
+              "type": "int64"
+            },
+            {
+              "internalType": "string",
+              "name": "completionTime",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialBalance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint64",
+              "name": "unbondingId",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct IStakingModule.UnbondingDelegationEntry[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validatorAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getUnbondingDelegation",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "int64",
+              "name": "creationHeight",
+              "type": "int64"
+            },
+            {
+              "internalType": "string",
+              "name": "completionTime",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialBalance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint64",
+              "name": "unbondingId",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct IStakingModule.UnbondingDelegationEntry[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validatorAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "undelegate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "validatorAddress",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "undelegate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ]
+
+export default STAKING_ABI;
+```
+
+after creating `src/abi/IStakingModule.abi.js` your file tree should look like this:
+
+<FileTree>
+  <FileTree.Folder name="staking-precompile-example" defaultOpen>
+    <FileTree.Folder name="node_modules" />
+    <FileTree.Folder name="src" defaultOpen>
+        <FileTree.Folder name="abi" defaultOpen>
+            <FileTree.File name="IStakingModule.abi.js" />
+        </FileTree.Folder>
+        <FileTree.Folder name="components">
+            <FileTree.File name="Account.tsx" />
+            <FileTree.File name="index.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="pages">
+            <FileTree.File name="_app.tsx" />
+            <FileTree.File name="index.tsx" />
+        </FileTree.Folder>
+        <FileTree.Folder name="utils">
+            <FileTree.File name="formatFromBaseUnit.ts" />
+            <FileTree.File name="formatToBaseUnit.ts" />
+            <FileTree.File name="getEvmEllipsis.ts" />
+        </FileTree.Folder>
+        <FileTree.File name="theme.ts" />
+        <FileTree.File name="wagmi.ts" />
+    </FileTree.Folder>
+    <FileTree.File name=".env.example" />
+    <FileTree.File name=".eslintrc.jsom" />
+    <FileTree.File name=".gitignore" />
+    <FileTree.File name=".npmrc" />
+    <FileTree.File name="next-env.d.ts" />
+    <FileTree.File name="package-lock.json" />
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+    <FileTree.File name="tsconfig.json" />
+  </FileTree.Folder>
+</FileTree>
+
+
+## Styling & Populating The Homepage
+
+Now that we have a base skeleton for our dApp, we can start adding some styling and content.
+Lets start by adding some basic styling and positioning to our homepage. We want to
+hover the Rainbowkit `ConnectButton` in the top right and centre our action items.
+
+In our `src/pages/index.tsx` file, we still have the default template content.
+Lets replace this with the following:
+
+```tsx
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { Flex, Box, Text, Link } from '@chakra-ui/react'
+import React from 'react'
+import Staking from '../components/Staking'
+
+function Page() {
+  return (
+    <Flex justifyContent={'center'} alignItems={'center'} height={'100vh'} direction={'column'}>
+      <Box
+        position={'absolute'}
+        top={'0'}
+        right={'0'}
+        marginTop={'16px'}
+        marginRight={'16px'}>
+        {/* Rainbow Kit Connect Button floating top right of the screen */}
+        <ConnectButton />
+      </Box>
+      <Text fontSize={'4xl'}>Stargazer Staking Precompile Example</Text>
+      <Text fontSize={'xl'}>Ensure you have a Local <Link color={'#1da1f1'} href='https://github.com/berachain/stargazer-examples'>Stargazer Node running.</Link></Text>
+      <Staking />
+      <Text fontSize={'xs'}>To learn more about Stargazer please reference our <Link color={'#1da1f1'} href='https://github.com/berachain/stargazer-examples'>docs</Link></Text>
+    </Flex>
+  )
+}
+
+export default Page
+```
+
+Note how we are missing a `components/Staking` component. We will add this in the next step.
+
+## Creating the Staking Component & Adding Functionality
+
+Now that we have our homepage styled, we can start adding some functionality to our dApp.
+
+### Creating `components/Staking.tsx`
+
+Under the `src/components` folder, delete the following files:
+
+- `Account.tsx`
+- `index.ts`
+
+
+Under the `src/components` folder, create a new file called `Staking.tsx`. This will be our main component for staking.
+
+Your folder structure should look like this:
+
+<FileTree>
+  <FileTree.Folder name="staking-precompile-example" defaultOpen>
+    <FileTree.Folder name="node_modules" />
+    <FileTree.Folder name="src" defaultOpen>
+        <FileTree.Folder name="components" defaultOpen>
+            <FileTree.File name="Staking.tsx" />
+        </FileTree.Folder>
+        <FileTree.Folder name="pages">
+            <FileTree.File name="_app.tsx" />
+            <FileTree.File name="index.tsx" />
+        </FileTree.Folder>
+        <FileTree.Folder name="utils">
+            <FileTree.File name="formatFromBaseUnit.ts" />
+            <FileTree.File name="formatToBaseUnit.ts" />
+            <FileTree.File name="getEvmEllipsis.ts" />
+        </FileTree.Folder>
+        <FileTree.File name="theme.ts" />
+        <FileTree.File name="wagmi.ts" />
+    </FileTree.Folder>
+    <FileTree.File name=".env.example" />
+    <FileTree.File name=".eslintrc.jsom" />
+    <FileTree.File name=".gitignore" />
+    <FileTree.File name=".npmrc" />
+    <FileTree.File name="next-env.d.ts" />
+    <FileTree.File name="package-lock.json" />
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+    <FileTree.File name="tsconfig.json" />
+  </FileTree.Folder>
+</FileTree>
+
+### Adding the Functionality to the Staking Component
