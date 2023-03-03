@@ -2,4 +2,10 @@
 	path = precompile/contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
 [submodule "lib/forge-std"]
-	branch = v1.4.0
+	branch = v1.5.0
+[submodule "precompile/contracts/solidity/lib/forge-std"]
+	path = precompile/contracts/solidity/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "precompile/contracts/solidity/lib/solmate"]
+	path = precompile/contracts/solidity/lib/solmate
+	url = https://github.com/transmissions11/solmate

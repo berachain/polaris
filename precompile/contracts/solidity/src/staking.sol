@@ -73,7 +73,7 @@ interface IStakingModule {
     /**
      * @dev Returns the `amount` of tokens currently delegated by msg.sender to `validatorAddress`
      */
-    function getDelegation(address delegatorAddress, address validatorAddress)
+    function getDelegation(address validatorAddress)
         external
         view
         returns (uint256);
@@ -82,10 +82,10 @@ interface IStakingModule {
      * @dev Returns the `amount` of tokens currently delegated by msg.sender to `validatorAddress`
      * (at hex bech32 address)
      */
-    function getDelegation(
-        string calldata delegatorAddress,
-        string calldata validatorAddress
-    ) external view returns (uint256);
+    function getDelegation(string calldata validatorAddress)
+        external
+        view
+        returns (uint256);
 
     /**
      * @dev Returns a time-ordered list of all UnbondingDelegationEntries between msg.sender and
