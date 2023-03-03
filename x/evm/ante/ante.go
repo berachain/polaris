@@ -26,7 +26,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
 	"pkg.berachain.dev/stargazer/lib/errors"
-	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -51,36 +50,40 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
+		// EthTransactions can skip consuming transaction gas as it will be done
+		// in the StateTransition.
 		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{
 			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		}, // in geth intrinsic
+		},
+		// EthTransaction can skip deduct fee transactions as they are done in the
+		// StateTransition. // TODO: check to make sure this doesn't cause spam.
 		EthSkipDecorator[ante.DeductFeeDecorator]{
 			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
 				options.FeegrantKeeper, options.TxFeeChecker),
 		},
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		// In order to match ethereum gas consumption, we do not consume any gas when
+		// verifying the signature.
+		EthSkipDecorator[ante.SigGasConsumeDecorator]{
+			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		},
+		// EthTransaction can skip Signature Verification as we do this in the mempool.
+		// TODO: // check with Marko to make sure this is okay (ties into the one below)
 		EthSkipDecorator[ante.SigVerificationDecorator]{
 			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		},
+		// EthTransactions are allowed to skip sequence verification as we do this in the
+		// state transition.
+		// NOTE: we may need to change this as it could cause issues if a client is intertwining
+		// Ethreum and Cosmos transactions within a close timeframe.
+		// By skipping this for Eth Transactions, the Account Seq of the sender does not get updated
+		// in checkState during checkTx, but only in DeliverTx, since we are upping in nonce during the
+		// actual execution of the block and not during the ante handler.
+		// TODO: // check with Marko to make sure this is okay.
 		EthSkipDecorator[ante.IncrementSequenceDecorator]{
 			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		},
 	}
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
-}
-
-type EthSkipDecorator[T sdk.AnteDecorator] struct {
-	decorator T
-}
-
-func (sd EthSkipDecorator[T]) AnteHandle(
-	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
-) (sdk.Context, error) {
-	if _, ok := tx.GetMsgs()[0].(*types.EthTransactionRequest); ok {
-		return next(ctx, tx, simulate)
-	}
-
-	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
 }

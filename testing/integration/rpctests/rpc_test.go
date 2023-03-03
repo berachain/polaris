@@ -66,7 +66,7 @@ var _ = Describe("BlockAPIs", func() {
 	It("eth_chainId - get chain id", func() {
 		chainID, err := client.ChainID(context.Background())
 		Expect(err).ToNot(HaveOccurred())
-		Expect(chainID.String()).To(Equal("42069"))
+		Expect(chainID.String()).To(Equal("69420"))
 	})
 
 	It("eth_blockNumber - get latest block number", func() {
