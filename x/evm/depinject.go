@@ -54,7 +54,6 @@ type DepInjectInput struct {
 	AccountKeeper  AccountKeeper
 	BankKeeper     BankKeeper
 	GetPrecompiles func() func() []vm.RegistrablePrecompile `optional:"true"`
-	BaseApp        keeper.QueryContextProvider
 }
 
 // `DepInjectOutput` is the output for the dep inject framework.
@@ -80,7 +79,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		authority.String(),
 		in.AppOpts,
 		in.Mempool,
-		in.BaseApp,
 	)
 
 	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)

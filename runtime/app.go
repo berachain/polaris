@@ -58,7 +58,6 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -102,6 +101,7 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -241,6 +241,9 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				// evmtx.CustomSignModeHandlers,
 				//
 				//
+				func() []signing.SignModeHandler {
+					return []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
+				},
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
@@ -264,6 +267,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 
 	if err := depinject.Inject(appConfig,
 		&appBuilder,
+		&app.App,
 		&app.appCodec,
 		&app.legacyAmino,
 		&app.txConfig,
@@ -306,14 +310,14 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 		},
 	)
-	// app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
+	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
-	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
-	app.txConfig = tx.NewTxConfig(
-		codec.NewProtoCodec(app.interfaceRegistry),
-		tx.DefaultSignModes,
-		[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
-	)
+	// // TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
+	// app.txConfig = tx.NewTxConfig(
+	// 	codec.NewProtoCodec(app.interfaceRegistry),
+	// 	tx.DefaultSignModes,
+	// 	[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
+	// )
 
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,

@@ -86,7 +86,6 @@ func NewKeeper(
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
-	qcp QueryContextProvider,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -110,9 +109,6 @@ func NewKeeper(
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
-	k.bp.SetQueryContextFn(qcp.GetQueryContext)
-	k.sp.SetQueryContextFn(qcp.GetQueryContext)
-
 	return k
 }
 
@@ -130,6 +126,11 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 		}
 		return nil
 	}))
+}
+
+func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(fn)
+	k.bp.SetQueryContextFn(fn)
 }
 
 // `Logger` returns a module-specific logger.
