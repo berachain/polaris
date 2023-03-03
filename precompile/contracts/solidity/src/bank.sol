@@ -55,7 +55,7 @@ library BankEvents {
     /**
      * @dev Emitted by the bank module when `amount` tokens are burned by `burner`
      *
-     * Note: `burner` is a module address
+     * Note: `burner` is a module address.
      */
     event Burn(address indexed burner, uint256 amount);
 }

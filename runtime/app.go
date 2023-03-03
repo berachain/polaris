@@ -103,7 +103,6 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -299,6 +298,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
+	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,

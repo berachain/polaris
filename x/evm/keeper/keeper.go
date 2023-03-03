@@ -102,7 +102,6 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
 	return k
