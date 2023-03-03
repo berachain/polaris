@@ -47,7 +47,6 @@ var _ = Describe("Factory", func() {
 	var pc *mock.StatefulImplMock
 
 	BeforeEach(func() {
-		f = NewFactory()
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))
 		creationHeight = int64(10)
@@ -63,7 +62,7 @@ var _ = Describe("Factory", func() {
 					"CancelUnbondingDelegation": mockDefaultAbiEvent(),
 				}
 			}
-			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
 		}).ToNot(Panic())
 		Expect(func() {
 			pc.RegistryKeyFunc = func() common.Address {
@@ -73,7 +72,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
-			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
 		}).ToNot(Panic())
 	})
 
@@ -155,7 +154,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
-			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
@@ -186,7 +185,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return badCvd
 			}
-			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
@@ -207,7 +206,7 @@ var _ = Describe("Factory", func() {
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
 			}
-			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
 			log, err = f.Build(&event)
 			Expect(log).To(BeNil())
 			Expect(err.Error()).To(Equal("invalid amount"))
@@ -221,7 +220,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
-			f.RegisterAllEvents([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),

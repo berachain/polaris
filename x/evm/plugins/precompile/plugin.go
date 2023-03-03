@@ -43,8 +43,6 @@ type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.PrecompilePlugin
 
-	// `SetPrecompiles` sets the precompiles.
-	SetPrecompiles([]vm.RegistrablePrecompile)
 	KVGasConfig() storetypes.GasConfig
 	SetKVGasConfig(storetypes.GasConfig)
 	TransientKVGasConfig() storetypes.GasConfig
@@ -63,16 +61,13 @@ type plugin struct {
 }
 
 // `NewPlugin` creates and returns a `plugin` with the default kv gas configs.
-func NewPlugin() Plugin {
+func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 	return &plugin{
 		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
+		precompiles:          precompiles,
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
 	}
-}
-
-func (p *plugin) SetPrecompiles(precompiles []vm.RegistrablePrecompile) {
-	p.precompiles = precompiles
 }
 
 // `GetPrecompiles` implements `core.PrecompilePlugin`.

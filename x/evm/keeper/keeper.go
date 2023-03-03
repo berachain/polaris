@@ -128,23 +128,26 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
+// `Setup` sets up the precompile and state plugins with the given precompiles and keepers. It also
+// sets the query context function for the block and state plugins (to support historical queries).
 func (k *Keeper) Setup(
-	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
+	ak state.AccountKeeper,
+	bk state.BankKeeper,
+	precompiles []vm.RegistrablePrecompile,
+	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
-	plf := precompilelog.NewFactory()
-	k.pp = precompile.NewPlugin()
-	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
-	k.pp.SetPrecompiles(precompiles)
+	// Setup the precompile and state plugins
+	k.pp = precompile.NewPlugin(precompiles)
+	// TODO: refactor this so that plf is part of precompile plugin.
+	plf := precompilelog.NewFactory(precompiles)
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+
+	// Set the query context function for the block and state plugins
+	k.sp.SetQueryContextFn(qc)
+	k.bp.SetQueryContextFn(qc)
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
-}
-
-// `SetQueryContextFn` sets the query context function for the state plugin.
-func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
-	k.bp.SetQueryContextFn(qc)
-	k.sp.SetQueryContextFn(qc)
 }
 
 // `GetBlockPlugin` returns the block plugin.

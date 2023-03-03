@@ -103,6 +103,7 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -303,12 +304,12 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
-			//	 TODO: add more precompiles here
+			// TODO: add more precompiles here
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
 		},
+		app.CreateQueryContext,
 	)
-	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	app.txConfig = tx.NewTxConfig(
