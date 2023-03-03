@@ -96,7 +96,7 @@ var _ = Describe("Processor", func() {
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),
-			nil,
+			mockQCP{ctx},
 		)
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
@@ -208,3 +208,11 @@ var _ = Describe("Processor", func() {
 		})
 	})
 })
+
+type mockQCP struct {
+	ctx sdk.Context
+}
+
+func (m mockQCP) GetQueryContext(height int64, prove bool) (sdk.Context, error) {
+	return m.ctx, nil
+}
