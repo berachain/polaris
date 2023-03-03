@@ -206,5 +206,7 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 
 // TODO: define behaviour for this function.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	return bc.host.GetTxPoolPlugin().GetNonce(addr)
+	nonce, err := bc.host.GetTxPoolPlugin().GetNonce(addr)
+	// defer b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
+	return nonce, err
 }

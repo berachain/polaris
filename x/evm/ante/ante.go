@@ -26,6 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
 	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -50,21 +51,27 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper), // in geth intrinsic
-		// ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-		// options.FeegrantKeeper, options.TxFeeChecker), // in geth state transition
-		ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator m
-		// ust be called before all signature verification decorators
+		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper)}, // in geth intrinsic
+		EthSkipDecorator[ante.DeductFeeDecorator]{
+			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
+		},
+		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		EthSkipDecorator[ante.SigVerificationDecorator]{ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler)},
+		EthSkipDecorator[ante.IncrementSequenceDecorator]{ante.NewIncrementSequenceDecorator(options.AccountKeeper)},
+	}
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
 
-		// SIG VERIFY BUG: https://github.com/berachain/stargazer/issues/354, possible solution is to
-		// check signatures in the application side mempool and kick them out. The only downside to this,
-		// is that is that we are letting transactions with bad sigs into the mempool and we need to potentially
-		// worry about spam.
-		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		// ante.NewIncrementSequenceDecorator(options.AccountKeeper), // in state tranisiton
+type EthSkipDecorator[T sdk.AnteDecorator] struct {
+	decorator T
+}
+
+func (sd EthSkipDecorator[T]) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if _, ok := tx.GetMsgs()[0].(*types.EthTransactionRequest); ok {
+		return next(ctx, tx, simulate)
 	}
 
-	return sdk.ChainAnteDecorators(anteDecorators...), nil
+	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
 }

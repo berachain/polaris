@@ -25,9 +25,9 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-
 	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
@@ -42,9 +42,13 @@ func (k *Keeper) EthTransaction(
 	tx := msg.AsTransaction()
 	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
 
+	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).
+		WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
+
 	// Process the transaction and return the result.
 	result, err := k.ProcessTransaction(ctx, tx)
 	if err != nil {
+		k.Logger(sdk.UnwrapSDKContext(ctx)).Error("keeper.EthTransaction", "error", err)
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
 	}
 

@@ -26,7 +26,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 )
 
-const DefaultEIP155ChainID = 42069
+const DefaultEIP155ChainID = 1
 
 var DefaultChainConfig = &ChainConfig{
 	ChainID:                       big.NewInt(DefaultEIP155ChainID),

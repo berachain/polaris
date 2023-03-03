@@ -122,6 +122,11 @@ type (
 		// to be the operator address of the proposer, but we want the coinbase in the BlockContext
 		// to be the FeeCollectorAccount.
 		FeeCollector() *common.Address
+
+		// If HostNonceManagement is true, the host chain is responsible for managing the nonce of
+		// tx.Origin transaction senders. This was added to support native nonce incrementation on
+		// Cosmos-SDK based chains.
+		HostNonceManagement() bool
 	}
 
 	TxPoolPlugin interface {

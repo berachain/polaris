@@ -21,6 +21,8 @@
 package txpool
 
 import (
+	"cosmossdk.io/log"
+
 	errorsmod "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -46,6 +48,7 @@ type Plugin interface {
 type plugin struct {
 	mempool     *mempool.EthTxPool
 	rpcProvider rpc.Provider
+	logger      log.Logger
 }
 
 // `NewPlugin` returns a new transaction pool plugin.
@@ -53,6 +56,7 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 	return &plugin{
 		mempool:     ethTxMempool,
 		rpcProvider: rpcProvider,
+		logger:      log.NewLogger(),
 	}
 }
 
@@ -73,8 +77,9 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	if rsp != nil && rsp.Code != 0 {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}
+	p.logger.Error("bingbong", "error", rsp, err)
 	if err != nil {
-		// b.logger.Error("failed to broadcast tx", "error", err.Errsor())
+		p.logger.Error("failed to broadcast tx", "error", err.Error())
 		return err
 	}
 	return nil
@@ -106,7 +111,7 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return p.mempool.GetTransaction(hash)
 }
 
+// `GetNonce` returns the nonce of the given address in the transaction pool.
 func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
-	// TODO: implement this
-	return 0, nil
+	return p.mempool.GetNonce(addr), nil
 }
