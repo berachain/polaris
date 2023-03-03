@@ -166,7 +166,7 @@ func (b *backend) SetHead(number uint64) {
 }
 
 // `HeaderByNumber` returns the block header at the given block number.
-func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*types.Header, error) {
+func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.Header, error) {
 	block, err := b.stargazerBlockByNumber(number)
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByNumber", "number", number, "err", err)
@@ -177,7 +177,7 @@ func (b *backend) HeaderByNumber(ctx context.Context, number BlockNumber) (*type
 }
 
 // `HeaderByHash` returns the block header with the given hash.
-func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error) {
+func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
 	block, err := b.stargazerBlockByHash(hash)
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "err", err)
@@ -188,7 +188,7 @@ func (b *backend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.He
 }
 
 // `HeaderByNumberOrHash` returns the header identified by `number` or `hash`.
-func (b *backend) HeaderByNumberOrHash(ctx context.Context,
+func (b *backend) HeaderByNumberOrHash(_ context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Header, error) {
 	block, err := b.stargazerBlockByNumberOrHash(blockNrOrHash)
@@ -224,7 +224,7 @@ func (b *backend) CurrentBlock() *types.Block {
 }
 
 // `BlockByNumber` returns the block identified by `number`.
-func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types.Block, error) {
+func (b *backend) BlockByNumber(_ context.Context, number BlockNumber) (*types.Block, error) {
 	block, err := b.stargazerBlockByNumber(number)
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.BlockByNumber", "number", number, "err", err)
@@ -236,7 +236,7 @@ func (b *backend) BlockByNumber(ctx context.Context, number BlockNumber) (*types
 }
 
 // `BlockByHash` returns the block with the given `hash`.
-func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Block, error) {
+func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block, error) {
 	block, err := b.stargazerBlockByHash(hash)
 	b.logger.Info("BlockByHash", "hash", hash, "block", block)
 	if err != nil {
@@ -249,7 +249,7 @@ func (b *backend) BlockByHash(ctx context.Context, hash common.Hash) (*types.Blo
 }
 
 // `BlockByNumberOrHash` returns the block identified by `number` or `hash`.
-func (b *backend) BlockByNumberOrHash(ctx context.Context,
+func (b *backend) BlockByNumberOrHash(_ context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Block, error) {
 	block, err := b.stargazerBlockByNumberOrHash(blockNrOrHash)
@@ -263,7 +263,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context,
 }
 
 func (b *backend) StateAndHeaderByNumber(
-	ctx context.Context, number BlockNumber,
+	_ context.Context, number BlockNumber,
 ) (vm.GethStateDB, *types.Header, error) {
 	state, err := b.chain.GetStateByNumber(number.Int64())
 	if err != nil {
@@ -281,7 +281,7 @@ func (b *backend) StateAndHeaderByNumber(
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
-	ctx context.Context, blockNrOrHash BlockNumberOrHash,
+	_ context.Context, blockNrOrHash BlockNumberOrHash,
 ) (vm.GethStateDB, *types.Header, error) {
 	var err error
 	var number int64
@@ -335,7 +335,7 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 }
 
 // `GetReceipts` returns the receipts for the given block hash.
-func (b *backend) GetReceipts(ctx context.Context, bhash common.Hash) (types.Receipts, error) {
+func (b *backend) GetReceipts(_ context.Context, bhash common.Hash) (types.Receipts, error) {
 	receipts, err := b.chain.GetReceipts(bhash)
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.GetReceipts", "block_hash", bhash, "err", err)
@@ -348,7 +348,7 @@ func (b *backend) GetReceipts(ctx context.Context, bhash common.Hash) (types.Rec
 
 // `GetTd` returns the total difficulty of a block in the canonical chain.
 // This is hardcoded to 69, as it is only applicable in a PoW chain.
-func (b *backend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
+func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 	b.logger.Info("called eth.rpc.backend.GetTd", "hash", hash)
 	return new(big.Int).SetInt64(69)
 }
@@ -395,7 +395,7 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
 
 func (b *backend) GetTransaction(
-	ctx context.Context, txHash common.Hash,
+	_ context.Context, txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	return b.chain.GetTransaction(txHash)
@@ -411,9 +411,9 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 	return b.chain.GetPoolTransaction(txHash)
 }
 
-func (b *backend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
+func (b *backend) GetPoolNonce(_ context.Context, addr common.Address) (uint64, error) {
 	// TODO: get pool nonce, then fallback to statedb.
-	return b.chain.GetPoolNonce(ctx, addr)
+	return b.chain.GetPoolNonce(addr)
 }
 
 func (b *backend) Stats() (int, int) {
@@ -451,7 +451,7 @@ func (b *backend) Engine() consensus.Engine {
 }
 
 // `GetBody retrieves the block body corresponding to block by has or number.`.
-func (b *backend) GetBody(ctx context.Context, hash common.Hash,
+func (b *backend) GetBody(_ context.Context, hash common.Hash,
 	number BlockNumber,
 ) (*types.Body, error) {
 	if number < 0 || hash == (common.Hash{}) {
@@ -469,7 +469,7 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 
 // `GetLogs` returns the logs for the given block hash or number.
 func (b *backend) GetLogs(
-	ctx context.Context, blockHash common.Hash, number uint64,
+	_ context.Context, blockHash common.Hash, number uint64,
 ) ([][]*types.Log, error) {
 	receipts, err := b.chain.GetReceipts(blockHash)
 	if err != nil {
@@ -504,7 +504,7 @@ func (b *backend) BloomStatus() (uint64, uint64) {
 	return 0, 0
 }
 
-func (b *backend) ServiceFilter(ctx context.Context, session *bloombits.MatcherSession) {
+func (b *backend) ServiceFilter(_ context.Context, session *bloombits.MatcherSession) {
 	// TODO: Implement your code here
 }
 

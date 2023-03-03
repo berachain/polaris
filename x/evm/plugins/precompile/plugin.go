@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"context"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -43,33 +42,58 @@ import (
 type Plugin interface {
 	plugins.BaseCosmosStargazer
 	core.PrecompilePlugin
+
+	// `SetPrecompiles` sets the precompiles.
+	SetPrecompiles([]vm.RegistrablePrecompile)
+	KVGasConfig() storetypes.GasConfig
+	SetKVGasConfig(storetypes.GasConfig)
+	TransientKVGasConfig() storetypes.GasConfig
+	SetTransientKVGasConfig(storetypes.GasConfig)
 }
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
-	sdk.Context
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
-
-	// `getPrecompiles` returns all supported precompile contracts.
-	getPrecompiles func() []vm.RegistrablePrecompile
+	// `precompiles` is all supported precompile contracts.
+	precompiles []vm.RegistrablePrecompile
+	// kvGasConfig is the gas config for the KV store.
+	kvGasConfig storetypes.GasConfig
+	// transientKVGasConfig is the gas config for the transient KV store.
+	transientKVGasConfig storetypes.GasConfig
 }
 
-// `NewPlugin` creates and returns a `plugin` with the given precompile getter function.
-func NewPlugin(getPrecompiles func() []vm.RegistrablePrecompile) Plugin {
+// `NewPlugin` creates and returns a `plugin` with the default kv gas configs.
+func NewPlugin() Plugin {
 	return &plugin{
-		Registry:       registry.NewMap[common.Address, vm.PrecompileContainer](),
-		getPrecompiles: getPrecompiles,
+		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
+		kvGasConfig:          storetypes.KVGasConfig(),
+		transientKVGasConfig: storetypes.TransientGasConfig(),
 	}
 }
 
-// `Reset` implements `core.PrecompilePlugin`.
-func (p *plugin) Reset(ctx context.Context) {
-	p.Context = sdk.UnwrapSDKContext(ctx)
+func (p *plugin) SetPrecompiles(precompiles []vm.RegistrablePrecompile) {
+	p.precompiles = precompiles
 }
 
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
-	return p.getPrecompiles()
+	return p.precompiles
+}
+
+func (p *plugin) KVGasConfig() storetypes.GasConfig {
+	return p.kvGasConfig
+}
+
+func (p *plugin) SetKVGasConfig(kvGasConfig storetypes.GasConfig) {
+	p.kvGasConfig = kvGasConfig
+}
+
+func (p *plugin) TransientKVGasConfig() storetypes.GasConfig {
+	return p.transientKVGasConfig
+}
+
+func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConfig) {
+	p.transientKVGasConfig = transientKVGasConfig
 }
 
 // `Run` runs the a precompile container and returns the remaining gas after execution by injecting
@@ -86,13 +110,19 @@ func (p *plugin) Run(
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
+	// get native Cosmos SDK context from the Stargazer StateDB
+	ctx := sdk.UnwrapSDKContext(utils.MustGetAs[vm.StargazerStateDB](sdb).GetContext())
+
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
-	cem := utils.MustGetAs[state.ControllableEventManager](p.Context.EventManager())
+	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
 	cem.BeginPrecompileExecution(sdb)
 
 	// run precompile container
 	ret, err := pc.Run(
-		p.Context.WithGasMeter(gm),
+		ctx.
+			WithGasMeter(gm).
+			WithKVGasConfig(p.kvGasConfig).
+			WithTransientKVGasConfig(p.transientKVGasConfig),
 		input,
 		caller,
 		value,

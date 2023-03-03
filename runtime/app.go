@@ -53,7 +53,6 @@ import (
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -103,6 +102,7 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -241,17 +241,6 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				ethTxMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
-				// EVM PRECOMPILES
-				//
-				func() []vm.RegistrablePrecompile {
-					precompiles := []vm.RegistrablePrecompile{
-						// TODO: add more precompiles here
-						stakingprecompile.NewPrecompileContract(&app.StakingKeeper),
-					}
-					logger.Info("registering precompiles", precompiles)
-					return precompiles
-				},
-				//
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
@@ -308,11 +297,21 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
+
+	app.EVMKeeper.Setup(
+		app.AccountKeeper,
+		app.BankKeeper,
+		[]vm.RegistrablePrecompile{
+			//	 TODO: add more precompiles here
+			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+		},
+	)
 	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
+
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	app.txConfig = tx.NewTxConfig(
 		codec.NewProtoCodec(app.interfaceRegistry),
-		append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
+		tx.DefaultSignModes,
 		[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
 	)
 	opt := ante.HandlerOptions{

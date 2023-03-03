@@ -21,6 +21,7 @@
 package state
 
 import (
+	"context"
 	"math/big"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -35,6 +36,8 @@ type Plugin interface {
 	libtypes.Controllable[string]
 	// `Reset` resets the state with the given `context`.
 	libtypes.Resettable
+	// `GetContext` returns the current context of the state plugin.
+	GetContext() context.Context
 
 	// `CreateAccount` creates an account with the given `address`.
 	CreateAccount(common.Address)

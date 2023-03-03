@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package testutil
+package utils
 
 import (
 	"cosmossdk.io/log"
@@ -39,7 +39,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	mock "pkg.berachain.dev/stargazer/testutil/mock"
+	"pkg.berachain.dev/stargazer/testing/types/mock"
 )
 
 var (
