@@ -16,15 +16,6 @@ const config = {
     // Disable type checking since eslint handles this
     ignoreBuildErrors: true,
   },
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/docs',
-        permanent: true,
-      }
-    ];
-  },
 };
 module.exports = withNextra(config)
 
