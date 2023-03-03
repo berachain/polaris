@@ -8,10 +8,6 @@ const withNextra = require('nextra')({
  
 /** @type {import('next').NextConfig} */
 const config = {
-  i18n: {
-    locales: ['en-US'],
-    defaultLocale: 'en-US',
-  },
   reactStrictMode: true,
   typescript: {
     // Disable type checking since eslint handles this
