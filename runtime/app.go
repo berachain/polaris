@@ -93,6 +93,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	bankprecompile "pkg.berachain.dev/stargazer/precompile/bank"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
 	simappconfig "pkg.berachain.dev/stargazer/runtime/config"
 	"pkg.berachain.dev/stargazer/x/evm"
@@ -304,6 +305,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 		[]vm.RegistrablePrecompile{
 			//	 TODO: add more precompiles here
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+			bankprecompile.NewPrecompileContract(),
 		},
 	)
 	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
