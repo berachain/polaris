@@ -1,3 +1,5 @@
+import { Callout, FileTree } from 'nextra-theme-docs'
+
 # Building a Staking dApp
 We will create a straightforward staking decentralized application (dApp) 
 in this section, which will be linked to a [Local Node](). This dApp will 
@@ -18,4 +20,55 @@ to develop a staking dApp that has a basic design.
 - Basic knowledge of [Chakra UI](https://chakra-ui.com/)
 - Basic knowledge of [Rainbow Kit](https://www.rainbowkit.com/)
 
-## Setup
+## Setup Wagmi Project
+
+Run the following command to create a folder
+that contains a sample wagmi / rainbowkit / next dApp
+
+Run the following command:
+
+`yarn create wagmi`
+
+After running the above command, input the following values: 
+```sh
+
+✔ What is your project named? … staking-precompile-example
+✔ What framework would you like to use? › Next.js
+✔ What template would you like to use? › RainbowKit
+```
+
+This command will create a folder named `staking-precompile-example`. Inside this folder 
+there will be a Next.js project with RainbowKit and Wagmi installed and configured.
+
+the folder called `staking-precompile-example` will look like this:
+
+<FileTree>
+  <FileTree.Folder name="staking-precompile-example" defaultOpen>
+    <FileTree.Folder name="node_modules" />
+    <FileTree.Folder name="src" >
+        <FileTree.Folder name="components">
+            <FileTree.File name="Account.tsx" />
+            <FileTree.File name="index.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="pages">
+            <FileTree.File name="_app.tsx" />
+            <FileTree.File name="index.tsx" />
+        </FileTree.Folder>
+        <FileTree.File name="wagmi.ts" />
+    </FileTree.Folder>
+    <FileTree.File name=".env.example" />
+    <FileTree.File name=".eslintrc.jsom" />
+    <FileTree.File name=".gitignore" />
+    <FileTree.File name=".npmrc" />
+    <FileTree.File name="next-env.d.ts" />
+    <FileTree.File name="package-lock.json" />
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+    <FileTree.File name="tsconfig.json" />
+  </FileTree.Folder>
+</FileTree>
+
+## Configuring `wagmi.ts`
+
+In order to point this dapp towards a Stargazer local node, 
+we need to modify `wagmi.ts`.
