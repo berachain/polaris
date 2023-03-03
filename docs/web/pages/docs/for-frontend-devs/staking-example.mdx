@@ -2,13 +2,10 @@ import { Callout, FileTree } from 'nextra-theme-docs'
 
 # Building a Staking dApp
 We will create a straightforward staking decentralized application (dApp) 
-in this section, which will be linked to a [Local Node](). This dApp will 
-use the [staking precompile]() feature to obtain information about validators 
+in this section, which will be linked to a [Local Node](../running-a-node/running-locally). This dApp will 
+use the [staking precompile](../precompile-overview) feature to obtain information about validators 
 and delegators from the EVM, as well as to create delegate transactions 
 on the EVM natively.
-
-For this example, we will use wagmi.sh, next.js, rainbowkit, and chakra-ui
-to develop a staking dApp that has a basic design.
 
 ## Requirements
 
@@ -19,7 +16,8 @@ to develop a staking dApp that has a basic design.
 - Basic knowlege of [wagmi.sh](https://wagmi.sh)
 - Basic knowledge of [Chakra UI](https://chakra-ui.com/)
 - Basic knowledge of [Rainbow Kit](https://www.rainbowkit.com/)
-
+- [Metamask configured](../using-metamask)
+- A running [Local Node](../running-a-node/running-locally)
 ## Setup Wagmi Project
 
 Run the following command to create a folder
@@ -258,6 +256,7 @@ export const BIG_TEN = new BigNumber(10);
 
 // Formats numbers from base unit to normal unit
 const formatFromBaseUnit = (amount: any, decimals: any) => new BigNumber(amount).div(BIG_TEN.pow(decimals)).toString();
+
 export default formatFromBaseUnit;
 ```
 
@@ -350,6 +349,9 @@ Under the `src` folder, create a new folder called `abis`. This will hold our AB
 
 Under the `abis` folder, create a new file called `IStakingModule.abi.js`. This will hold the ABI for the Staking Precompile.
 
+<Callout>
+    You can generate the Staking Precompile ABI [here](../precompile-overview#stateful-precompile-abi-generation)
+</Callout>
 Populate `IStakingModule.abi.js` with the following code:
 
 ```tsx
@@ -957,9 +959,9 @@ function Page() {
         <ConnectButton />
       </Box>
       <Text fontSize={'4xl'}>Stargazer Staking Precompile Example</Text>
-      <Text fontSize={'xl'}>Ensure you have a Local <Link color={'#1da1f1'} href='https://github.com/berachain/stargazer-examples'>Stargazer Node running.</Link></Text>
+      <Text fontSize={'xl'}>Ensure you have a Local <Link color={'#1da1f1'} href='TODO ADD LINK'>Stargazer Node running.</Link></Text>
       <Staking />
-      <Text fontSize={'xs'}>To learn more about Stargazer please reference our <Link color={'#1da1f1'} href='https://github.com/berachain/stargazer-examples'>docs</Link></Text>
+      <Text fontSize={'xs'}>To learn more about Stargazer please reference our <Link color={'#1da1f1'} href='TODO ADD LINK'>docs</Link></Text>
     </Flex>
   )
 }
@@ -1017,3 +1019,159 @@ Your folder structure should look like this:
 </FileTree>
 
 ### Adding the Functionality to the Staking Component
+
+Now we can finally add functionality to `Staking.tsx`. The following 
+is a component that will do the following:
+
+- Query the Staking precompile for a list of active validators and select the first Open
+- Query the Staking precompile for the current delegated amount of the connected wallet to the selected validator.
+- Prepare & Send a write transaction to the Staking precompile to delegate the entered amount of tokens to the selected validator.
+
+For more information, please refer to the comments in the code below.
+
+Below is the code for the `Staking.tsx` component:
+
+```tsx
+import React from 'react';
+import { useMemo, useState, } from 'react'
+import {
+    Flex,
+    Box,
+    Text,
+    Input,
+    Button
+} from '@chakra-ui/react'
+import {
+    useContractWrite,
+    usePrepareContractWrite,
+    useContractRead,
+    useAccount,
+    Address
+} from 'wagmi'
+import STAKING_ABI from '../abi/IStakingModule.abi';
+import formatToBaseUnit from '../utils/formatToBaseUnit';
+import { getHexEllipsis } from '../utils/getEvmEllipsis';
+
+// Default Address of the Staking Precompile Contract on Stargazer.
+// More information here: TODO: Add link to docs
+const STAKING_PRECOMPILE_ADDRESS = '0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF'
+
+const Staking = () => {
+
+    // State that holds the selected cosmos Hex Validator Address
+    const [validator_address, setValidatorAddress] = useState<Address | undefined>(undefined)
+
+    // State that holds the amount of tBera the connected account has delegated to the selected validator
+    const [delegated_amount, setDelegatedAmount] = useState<string | undefined>(undefined)
+
+    // State that tracks values of the input field
+    const [input_amount, setInputAmount] = useState<string>('')
+
+    // Returns the address of the connected wallet.
+    const { address } = useAccount()
+
+    // Query the Staking Precompile for the active validators, returns an array of addresses.
+    const { data: rawValidators } = useContractRead({
+        address: STAKING_PRECOMPILE_ADDRESS,
+        abi: STAKING_ABI,
+        functionName: 'getActiveValidators',
+    })
+
+    // UseMemo will trigger this function when the value of rawValidators changes. It will set the state variable
+    // validator_address to the first raw validator address in the array. This is a lazy way to "select" a validator.
+    useMemo(() => {
+        if (rawValidators) {
+            const validator: Address = ((rawValidators as any)[0] as Address)
+            setValidatorAddress(validator)
+        }
+    }, [rawValidators])
+
+    // Query the Staking Precompile for the amount of tBera delegated to the selected validator from the 
+    // connected wallet address. Returns a string or undefined.
+    const { data: rawDelegation } = useContractRead({
+        address: STAKING_PRECOMPILE_ADDRESS,
+        abi: STAKING_ABI,
+        functionName: 'getDelegation(address,address)',
+        args: [address, validator_address],
+    })
+
+    // UseMemo will trigger this function when the value of rawDelegation changes. It will set the state variable
+    // delegated_amount to the amount of tBera delegated to the selected validator.
+    useMemo(() => {
+        if (rawDelegation) {
+            const parsedDelegation = formatToBaseUnit(rawDelegation as string, 18).toString()
+            setDelegatedAmount(parsedDelegation)
+        }
+    }, [rawDelegation])
+
+    // Prepares a payload for writing a delegate transaction to the Staking Precompile contract.
+    // passed in arguments:
+    // validator_address: Address of the validator to delegate to
+    // formatToBaseUnit(input_amount, 18) a formatted value of the amount to delegate to the selected validator
+    // this payload will be used later to call the Staking Precompile contract's delegate function when the button is clicked.
+    const { config } = usePrepareContractWrite({
+        address: STAKING_PRECOMPILE_ADDRESS,
+        abi: STAKING_ABI,
+        functionName: 'delegate(address,uint256)',
+        args: [validator_address as Address, formatToBaseUnit(input_amount, 18)],
+    })
+
+    // When the button is clicked, it will call the Staking Precompile contract's delegate function.
+    // on Error, will log the error to the console.
+    const { write } = useContractWrite({
+        ...config,
+        onError(error) {
+            console.log('Error', error)
+        },
+    })
+
+    return (
+        <Box
+            mt={4}
+            borderRadius={'12px'}
+            padding={4}
+            backgroundColor={'#ffff'}
+            color={'#000000'}>
+            <Flex justifyContent={'space-between'}>
+                <Text>Validator Address:</Text>
+                <Text>{validator_address ? getHexEllipsis(validator_address) : ''}</Text>
+            </Flex>
+            <Flex justifyContent={'space-between'}>
+                <Text>Delegated Amount: </Text>
+                <Text>{delegated_amount ? delegated_amount : '0'} tBera</Text>
+            </Flex>
+            <Flex mt={4}>
+                <Input
+                    focusBorderColor='#1da1f1'
+                    variant='filled'
+                    placeholder='Enter Amount'
+                    value={input_amount}
+                    onChange={(e: any) => { setInputAmount(e.target.value) }} />
+                <Button colorScheme={'twitter'} marginLeft={4} onClick={write}>Delegate</Button>
+            </Flex>
+        </Box>
+    )
+}
+export default Staking
+```
+
+## Run the Application
+
+Now that we have created the Staking component, we can run the application and test it out!
+
+Run the following command to run the application in development mode.
+
+`yarn dev`
+
+This will open a browser window at `http://localhost:3000/` and you should see the following:
+
+![](/staking-example.png)
+
+## Conclusion
+
+Congratulations! You have now created a staking application using the EVM! You can now delegate your tBera to a validator and earn rewards!
+Prior to Stargazer's precompiled contracts, the UX of this task would be more complicated and foreign as it involves
+many moving parts and having to use Cosmos through Metamask. Now, with the Staking precompile, we can enjoy interacting with 
+Cosmos through an EVM native experience!
+
+You can view this example and others like it on our examples repository on Github [here](https://github.com/berachain/stargazer-examples)
