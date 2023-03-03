@@ -32,45 +32,43 @@ import (
 )
 
 // `Contract` is the precompile contract for the bank module.
-// !TODO: @dev this contract is not intended for direct use yet.
 type Contract struct {
-	eventsAbi *abi.ABI
+	contractAbi *abi.ABI
 }
 
 // `NewPrecompileContract` returns a new instance of the bank precompile contract.
 func NewPrecompileContract() precompile.StatefulImpl {
-	var eventsAbi abi.ABI
-	if err := eventsAbi.UnmarshalJSON([]byte(generated.BankEventsMetaData.ABI)); err != nil {
+	var contractAbi abi.ABI
+	if err := contractAbi.UnmarshalJSON([]byte(generated.BankEventsMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
-		eventsAbi: &eventsAbi,
+		contractAbi: &contractAbi,
 	}
 }
 
 // `RegistryKey` implements the `precompile.StatefulImpl` interface.
 func (c *Contract) RegistryKey() common.Address {
+	// Contract Address: 0x4381dC2aB14285160c808659aEe005D51255adD7
 	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName))
 }
 
 // `AbiMethods` implements the `precompile.StatefulImpl` interface.
-// TODO: @dev implement this when the bank module is ready.
 func (c *Contract) ABIMethods() map[string]abi.Method {
-	return map[string]abi.Method{}
+	return nil
+}
+
+// `PrecompileMethods` implements the `precompile.StatefulImpl` interface.
+func (c *Contract) PrecompileMethods() precompile.Methods {
+	return nil
 }
 
 // `AbiEvents` implements the `precompile.StatefulImpl` interface.
 func (c *Contract) ABIEvents() map[string]abi.Event {
-	return c.eventsAbi.Events
+	return c.contractAbi.Events
 }
 
 // `CustomValueDecoders` implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() precompile.ValueDecoders {
 	return nil
-}
-
-// `PrecompileMethods` implements the `precompile.StatefulImpl` interface.
-// TODO: @dev implement this when the bank module is ready.
-func (c *Contract) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{}
 }
