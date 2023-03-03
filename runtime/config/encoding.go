@@ -27,7 +27,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdkcryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
@@ -44,7 +43,7 @@ func MakeEncodingConfig(mb module.BasicManager) params.EncodingConfig {
 
 	txConfig := tx.NewTxConfig(
 		codec,
-		append(tx.DefaultSignModes, []signingtypes.SignMode{evmante.SignMode_SIGN_MODE_ETHEREUM}...),
+		tx.DefaultSignModes,
 		[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
 	)
 	mb.RegisterLegacyAminoCodec(cdc)
