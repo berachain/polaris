@@ -88,10 +88,10 @@ func NewKeeper(
 		storeKey:  storeKey,
 	}
 
-	// // // TODO: parameterize kv store.
-	// if appOpts != nil {
-	// 	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
-	// }
+	// TODO: parameterize kv store.
+	if appOpts != nil {
+		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	}
 
 	// Setup the RPC Service. // TODO: parameterize config.
 	cfg := ethrpcconfig.DefaultServer()
@@ -129,7 +129,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
-func (k *Keeper) SetPrecompiles(
+func (k *Keeper) Setup(
 	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
 ) {
 	plf := precompilelog.NewFactory()

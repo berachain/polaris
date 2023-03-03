@@ -208,13 +208,13 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	}
 	// Iterate over all validators and return their addresses.
 	addrs := make([]common.Address, 0, len(res.Validators))
-	for i, val := range res.Validators {
+	for _, val := range res.Validators {
 		var valAddr sdk.ValAddress
 		valAddr, err = sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
 			return nil, err
 		}
-		addrs[i] = evmutils.ValAddressToEthAddress(valAddr)
+		addrs = append(addrs, evmutils.ValAddressToEthAddress(valAddr))
 	}
 
 	return []any{addrs}, nil
