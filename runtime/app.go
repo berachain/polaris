@@ -241,6 +241,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				ethTxMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
+				//
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
@@ -306,7 +307,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 		},
 	)
-	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
+	// app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
 	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
 	app.txConfig = tx.NewTxConfig(
@@ -314,6 +315,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 		tx.DefaultSignModes,
 		[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
 	)
+
 	opt := ante.HandlerOptions{
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,

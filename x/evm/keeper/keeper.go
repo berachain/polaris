@@ -73,6 +73,10 @@ type Keeper struct {
 	txp txpool.Plugin
 }
 
+type QueryContextProvider interface {
+	GetQueryContext(height int64, prove bool) (sdk.Context, error)
+}
+
 // NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
@@ -82,6 +86,7 @@ func NewKeeper(
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
+	qcp QueryContextProvider,
 ) *Keeper {
 	k := &Keeper{
 		authority: authority,
@@ -104,6 +109,9 @@ func NewKeeper(
 	k.gp = gas.NewPlugin()
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+
+	k.bp.SetQueryContextFn(qcp.GetQueryContext)
+	k.sp.SetQueryContextFn(qcp.GetQueryContext)
 
 	return k
 }
@@ -140,12 +148,6 @@ func (k *Keeper) Setup(
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
-}
-
-// `SetQueryContextFn` sets the query context function for the state plugin.
-func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
-	k.bp.SetQueryContextFn(qc)
-	k.sp.SetQueryContextFn(qc)
 }
 
 // `GetBlockPlugin` returns the block plugin.
