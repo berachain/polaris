@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import cn from 'clsx'
-import { motion } from 'framer-motion'
 
 import styles from './style.module.css'
 
