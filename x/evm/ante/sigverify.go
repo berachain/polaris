@@ -35,7 +35,7 @@ import (
 const (
 	// `secp256k1GasCostEIP155` is the cost of a secp256k1 signature verification
 	// with the `EIP155` replay protection.
-	secp256k1GasCostEIP155 = 0
+	secp256k1GasCostEIP155 = 21000
 )
 
 // `SigVerificationGasConsumer` is a custom gas consumer for Cosmos-SDK chains that
@@ -50,7 +50,6 @@ func SigVerificationGasConsumer(
 		return nil
 	default:
 		// If we are using any other key type, we will use the default gas consumer.
-		// TODO: should we only support eth secp256k1 keys?
 		if err := ante.DefaultSigVerificationGasConsumer(meter, sig, params); err == nil {
 			return fmt.Errorf("unsupported pubkey type: %T", pubkey)
 		}

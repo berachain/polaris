@@ -58,7 +58,6 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -242,6 +241,10 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 				ethTxMempool,
 				// evmtx.CustomSignModeHandlers,
 				//
+				//
+				func() []signing.SignModeHandler {
+					return []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
+				},
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
@@ -291,9 +294,10 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
+	// Build app
 	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(
-		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...,
-	)...)
+		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
+	)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
@@ -311,19 +315,12 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 		app.CreateQueryContext,
 	)
 
-	// TODO: figure out how to inject the SetAnteHandler and RegisterInterfaces.
-	app.txConfig = tx.NewTxConfig(
-		codec.NewProtoCodec(app.interfaceRegistry),
-		tx.DefaultSignModes,
-		[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
-	)
 	opt := ante.HandlerOptions{
-		AccountKeeper:          app.AccountKeeper,
-		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: extOptCheckerfunc,
-		SignModeHandler:        app.txConfig.SignModeHandler(),
-		FeegrantKeeper:         app.FeeGrantKeeper,
-		SigGasConsumer:         evmante.SigVerificationGasConsumer,
+		AccountKeeper:   app.AccountKeeper,
+		BankKeeper:      app.BankKeeper,
+		SignModeHandler: app.txConfig.SignModeHandler(),
+		FeegrantKeeper:  app.FeeGrantKeeper,
+		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
 	ch, _ := evmante.NewAnteHandler(
 		opt,
@@ -379,10 +376,6 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	}
 
 	return app
-}
-
-func extOptCheckerfunc(a *codectypes.Any) bool {
-	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
 }
 
 // Name returns the name of the App.

@@ -21,18 +21,15 @@
 package core
 
 import (
-	"context"
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
-	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/params"
 )
 
 // By default we are storing up to 64mb of historical data for each cache.
@@ -42,40 +39,8 @@ const defaultCacheSizeBytes = 1024 * 1024 * 64
 type ChainReaderWriter interface {
 	ChainWriter
 	ChainReader
-}
-
-// `ChainWriter` defines methods that are used to perform state and block transitions.
-type ChainWriter interface {
-	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
-	// the block.
-	Prepare(context.Context, int64)
-	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
-	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
-	// `Finalize` finalizes the block and returns the block. This method is called after the last
-	// tx in the block.
-	Finalize(context.Context) (*types.Block, types.Receipts, error)
-
-	// `SendTx` sends the given transaction to the tx pool.
-	SendTx(ctx context.Context, signedTx *types.Transaction) error
-}
-
-// `ChainReader` defines methods that are used to read the state and blocks of the chain.
-type ChainReader interface {
-	CurrentBlock() (*types.Block, error)
-	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
-	FinalizedBlock() (*types.Block, error)
-	GetReceipts(common.Hash) (types.Receipts, error)
-	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
-	GetStargazerBlockByHash(common.Hash) (*types.Block, error)
-	GetStargazerBlockByNumber(int64) (*types.Block, error)
-	GetStateByNumber(int64) (vm.GethStateDB, error)
-	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
-	GetEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
-	GetPoolTransactions() (types.Transactions, error)
-	GetPoolTransaction(common.Hash) *types.Transaction
-	GetPoolNonce(common.Address) (uint64, error)
-	ChainConfig() *params.ChainConfig
+	ChainSubscriber
+	ChainResources
 }
 
 // Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.

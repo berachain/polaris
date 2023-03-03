@@ -18,14 +18,31 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package api
+package ante
 
 import (
-	"pkg.berachain.dev/stargazer/eth/core"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/stargazer/x/evm/types"
 )
 
-// `Chain` defines the methods that the Stargazer Ethereum API exposes. This is the only interface
-// that an implementing chain should use.
-type Chain interface {
-	core.ChainReaderWriter
+// `EthSkipDecorator` is an AnteDecorator that wraps an existing AnteDecorator. It allows
+// EthTransactions to skip said Decorator by checking the first message in the transaction
+// for an EthTransactionRequest. This is safe since EthTransactions are guaranteed to be
+// the first and only message in a transaction.
+type EthSkipDecorator[T sdk.AnteDecorator] struct {
+	decorator T
+}
+
+// `AnteHandle` implements the sdk.AnteDecorator interface, it is handle the
+// type check for the message type.
+func (sd EthSkipDecorator[T]) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+) (sdk.Context, error) {
+	if _, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0]); ok {
+		return next(ctx, tx, simulate)
+	}
+
+	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
 }

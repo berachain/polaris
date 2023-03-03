@@ -123,6 +123,11 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	}))
 }
 
+func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(fn)
+	k.bp.SetQueryContextFn(fn)
+}
+
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
