@@ -108,7 +108,7 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before every block
-		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000)).
+		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
 		k.BeginBlocker(ctx)
@@ -130,7 +130,6 @@ var _ = Describe("Processor", func() {
 			var contractAbi abi.ABI
 			err := contractAbi.UnmarshalJSON([]byte(pcgenerated.StakingModuleMetaData.ABI))
 			Expect(err).ToNot(HaveOccurred())
-			abiMethod := contractAbi.Methods["getActiveValidators"]
 
 			legacyTxData.Data, err = contractAbi.Pack("getActiveValidators")
 			Expect(err).ToNot(HaveOccurred())
@@ -150,12 +149,29 @@ var _ = Describe("Processor", func() {
 			// calls the staking precompile
 			exec, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := abiMethod.Outputs.Unpack(exec.ReturnData)
+			ret, err := contractAbi.Methods["getActiveValidators"].Outputs.Unpack(exec.ReturnData)
 			Expect(err).ToNot(HaveOccurred())
 			addrs, ok := utils.GetAs[[]common.Address](ret[0])
 			Expect(ok).To(BeTrue())
 			Expect(addrs[0]).To(Equal(common.BytesToAddress(valAddr)))
 			Expect(exec.Err).ToNot(HaveOccurred())
+
+			// call the staking precompile again, but this time with a different method
+			legacyTxData.Nonce++
+			legacyTxData.Data, err = contractAbi.Pack(
+				"delegate", common.BytesToAddress(valAddr), big.NewInt(10000000),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
+			addr, err = signer.Sender(tx)
+			Expect(err).ToNot(HaveOccurred())
+			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetStatePlugin().Finalize()
+			exec, err = k.ProcessTransaction(ctx, tx)
+			Expect(err).ToNot(HaveOccurred())
+			ret, err = contractAbi.Methods["delegate"].Outputs.Unpack(exec.ReturnData)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ret).To(BeEmpty())
 		})
 
 		It("should panic on nil, empty transaction", func() {
