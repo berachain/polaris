@@ -75,7 +75,6 @@ func (p *plugin) SetTxGasLimit(limit uint64) error {
 	p.gasMeter = storetypes.NewGasMeter(limit)
 	// Re-consume the gas that was already consumed.
 	return p.TxConsumeGas(consumed)
-	return nil
 }
 
 // `BlockGasLimit` implements the core.GasPlugin interface.

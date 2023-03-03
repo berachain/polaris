@@ -51,15 +51,22 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper)}, // in geth intrinsic
+		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{
+			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		}, // in geth intrinsic
 		EthSkipDecorator[ante.DeductFeeDecorator]{
-			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
+			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
+				options.FeegrantKeeper, options.TxFeeChecker),
 		},
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		EthSkipDecorator[ante.SigVerificationDecorator]{ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler)},
-		EthSkipDecorator[ante.IncrementSequenceDecorator]{ante.NewIncrementSequenceDecorator(options.AccountKeeper)},
+		EthSkipDecorator[ante.SigVerificationDecorator]{
+			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		},
+		EthSkipDecorator[ante.IncrementSequenceDecorator]{
+			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		},
 	}
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
@@ -68,7 +75,9 @@ type EthSkipDecorator[T sdk.AnteDecorator] struct {
 	decorator T
 }
 
-func (sd EthSkipDecorator[T]) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (sd EthSkipDecorator[T]) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+) (sdk.Context, error) {
 	if _, ok := tx.GetMsgs()[0].(*types.EthTransactionRequest); ok {
 		return next(ctx, tx, simulate)
 	}

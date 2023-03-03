@@ -63,24 +63,25 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 // ethereum transaction from the rpc backend and wraps it in a Cosmos
 // transaction. The Cosmos transaction is then broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
+	// We broadcast in sync mode so that we can return the error.
+	clientCtx := p.rpcProvider.GetClientCtx().WithBroadcastMode(flags.BroadcastSync)
+
 	// Serialize the transaction to Bytes
-	txBytes, err := NewSerializer(p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
+	txBytes, err := NewSerializer(clientCtx).Serialize(signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
 
 	// Send the transaction to the CometBFT mempool, which will
 	// gossip it to peers via CometBFT's p2p layer.
-	syncCtx := p.rpcProvider.GetClientCtx().WithBroadcastMode(flags.BroadcastSync)
-	rsp, err := syncCtx.BroadcastTx(txBytes)
-	if rsp != nil && rsp.Code != 0 {
-		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
-	}
-	p.logger.Error("bingbong", "error", rsp, err)
-	if err != nil {
-		p.logger.Error("failed to broadcast tx", "error", err.Error())
+	var rsp *sdk.TxResponse
+	if rsp, err = clientCtx.BroadcastTx(txBytes); err != nil || (rsp != nil && rsp.Code != 0) {
+		abciError := errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
+		p.logger.Error("failed to broadcast ethereum tx", "error", err, "abci_error", abciError.Error())
 		return err
 	}
+
+	p.logger.Info("broadcasted ethereum tx", "hash", signedEthTx.Hash().String())
 	return nil
 }
 
