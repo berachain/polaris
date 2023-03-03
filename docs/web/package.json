@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "next",
     "start": "next start",
-    "build": "next build"
+    "build": "next build",
+    "export": "next export"
   },
   "author": "@DevLobster",
   "license": "MIT",
