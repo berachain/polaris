@@ -45,11 +45,6 @@ func NewDefaultPlugin() Plugin {
 	}
 }
 
-// `Reset` implements `core.PrecompilePlugin`.
-func (dp *defaultPlugin) Reset(ctx context.Context) {
-	// no-op
-}
-
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
 	return GetDefaultPrecompiles(rules)
@@ -77,8 +72,7 @@ func GetDefaultPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
 	// Depending on the hard fork rules, we need to register a different set of precompiles.
 	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
 	switch {
-	case rules.IsBerlin:
-	case rules.IsIstanbul:
+	case rules.IsBerlin, rules.IsIstanbul:
 		addrToPrecompiles = vm.PrecompiledContractsBerlin
 	case rules.IsByzantium:
 		addrToPrecompiles = vm.PrecompiledContractsByzantium

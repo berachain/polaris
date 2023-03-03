@@ -78,7 +78,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	getPrecompiles func() []vm.RegistrablePrecompile,
+	getPrecompiles func() func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
@@ -88,10 +88,10 @@ func NewKeeper(
 		storeKey:  storeKey,
 	}
 
-	// // // TODO: parameterize kv store.
-	// if appOpts != nil {
-	// 	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
-	// }
+	// TODO: parameterize kv store.
+	if appOpts != nil {
+		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
+	}
 
 	// Setup the RPC Service. // TODO: parameterize config.
 	cfg := ethrpcconfig.DefaultServer()
@@ -102,14 +102,9 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.pp = precompile.NewPlugin(getPrecompiles)
-	plf := precompilelog.NewFactory()
-	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
-	// Build the Stargazer EVM Provider
-	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 	return k
 }
 
@@ -132,6 +127,19 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
+}
+
+func (k *Keeper) Setup(
+	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
+) {
+	plf := precompilelog.NewFactory()
+	k.pp = precompile.NewPlugin()
+	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
+	k.pp.SetPrecompiles(precompiles)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+
+	// Build the Stargazer EVM Provider
+	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 }
 
 // `SetQueryContextFn` sets the query context function for the state plugin.

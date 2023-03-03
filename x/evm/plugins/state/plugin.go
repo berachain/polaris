@@ -143,6 +143,11 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.Controller = ctrl
 }
 
+// `GetContext` implements `core.StatePlugin`.
+func (p *plugin) GetContext() context.Context {
+	return p.ctx
+}
+
 // `RegistryKey` implements `libtypes.Registrable`.
 func (p *plugin) RegistryKey() string {
 	return pluginRegistryKey

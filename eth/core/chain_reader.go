@@ -189,7 +189,7 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 }
 
 func (bc *blockchain) GetEVM(
-	ctx context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
+	_ context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) *vm.GethEVM {
 	blockContext := vm.BlockContext{
@@ -218,7 +218,7 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 	return bc.host.GetTxPoolPlugin().GetTransaction(hash)
 }
 
-func (bc *blockchain) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
+func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
 	return bc.host.GetTxPoolPlugin().GetNonce(addr)
 }
 

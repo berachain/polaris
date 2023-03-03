@@ -33,13 +33,13 @@ import (
 )
 
 // `delegationHelper` is the helper function for `getDelegation`.
-func (c *Contract) delegationHelper(
+func (c *Contract) getDelegationHelper(
 	ctx context.Context,
-	caller common.Address,
+	del sdk.AccAddress,
 	val sdk.ValAddress,
 ) ([]any, error) {
 	res, err := c.querier.Delegation(ctx, &stakingtypes.QueryDelegationRequest{
-		DelegatorAddr: evmutils.AddressToAccAddress(caller).String(),
+		DelegatorAddr: del.String(),
 		ValidatorAddr: val.String(),
 	})
 	if err != nil {
@@ -207,17 +207,17 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		return nil, err
 	}
 	// Iterate over all validators and return their addresses.
-	addrs := make([]any, 0, len(res.Validators))
+	addrs := make([]common.Address, 0, len(res.Validators))
 	for _, val := range res.Validators {
-		//nolint:govet // ignore shadowing of err
-		valAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+		var valAddr sdk.ValAddress
+		valAddr, err = sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
 			return nil, err
 		}
 		addrs = append(addrs, evmutils.ValAddressToEthAddress(valAddr))
 	}
 
-	return addrs, nil
+	return []any{addrs}, nil
 }
 
 // `bondDenom` returns the bond denom from the staking module.
