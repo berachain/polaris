@@ -73,10 +73,6 @@ type Keeper struct {
 	txp txpool.Plugin
 }
 
-type QueryContextProvider interface {
-	GetQueryContext(height int64, prove bool) (sdk.Context, error)
-}
-
 // NewKeeper creates new instances of the stargazer Keeper.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
