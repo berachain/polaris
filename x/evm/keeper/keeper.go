@@ -103,10 +103,7 @@ func NewKeeper(
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
-	ethMem := utils.MustGetAs[*mempool.EthTxPool](ethTxMempool)
-	ethMem.BuildNoncer(k.sp)
-	k.txp = txpool.NewPlugin(k.rpcProvider, ethMem)
-	// k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
 	return k
 }
