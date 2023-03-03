@@ -11,6 +11,7 @@
   "dependencies": {
     "@keplr-wallet/cosmos": "^0.11.23",
     "@keplr-wallet/types": "^0.11.26",
+    "framer-motion": "^10.0.1",
     "highlight.js": "^11.7.0",
     "next": "^13.1.2",
     "nextra": "^2.2.3",
