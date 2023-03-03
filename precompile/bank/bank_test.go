@@ -51,8 +51,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.
-		factory = log.NewFactory()
-		factory.RegisterAllEvents([]vm.RegistrablePrecompile{contract})
+		factory = log.NewFactory([]vm.RegistrablePrecompile{contract})
 	})
 
 	It("should register the send event", func() {
