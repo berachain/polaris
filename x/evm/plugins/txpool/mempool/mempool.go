@@ -22,7 +22,6 @@ package mempool
 
 import (
 	"context"
-	"fmt"
 
 	"cosmossdk.io/log"
 
@@ -131,7 +130,6 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 }
 
 func (etp *EthTxPool) GetNonce(addr common.Address) uint64 {
-	etp.logger.Error("GETTING NONCE FROM THE NONCER")
-	fmt.Println("TTING NONCE FROM T")
+	etp.logger.Error("getting nonce from the app side mempool", "addr", addr)
 	return etp.noncer.get(addr)
 }

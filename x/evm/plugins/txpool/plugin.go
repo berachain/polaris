@@ -21,9 +21,8 @@
 package txpool
 
 import (
-	"cosmossdk.io/log"
-
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
