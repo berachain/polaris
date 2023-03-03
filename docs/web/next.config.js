@@ -5,10 +5,13 @@ const withNextra = require('nextra')({
   latex: true,
 
 })
- 
+
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  images: {
+    unoptimized: true
+  },
   typescript: {
     // Disable type checking since eslint handles this
     ignoreBuildErrors: true,
@@ -24,6 +27,6 @@ const config = {
   },
 };
 module.exports = withNextra(config)
- 
+
 // If you have other Next.js configurations, you can pass them as the parameter:
 // module.exports = withNextra({ /* other next.js config */ })
