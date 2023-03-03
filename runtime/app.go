@@ -101,6 +101,7 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
