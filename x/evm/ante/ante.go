@@ -50,21 +50,40 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper), // in geth intrinsic
-		// ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-		// options.FeegrantKeeper, options.TxFeeChecker), // in geth state transition
-		ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator m
-		// ust be called before all signature verification decorators
+		// EthTransactions can skip consuming transaction gas as it will be done
+		// in the StateTransition.
+		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{
+			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		},
+		// EthTransaction can skip deduct fee transactions as they are done in the
+		// StateTransition. // TODO: check to make sure this doesn't cause spam.
+		EthSkipDecorator[ante.DeductFeeDecorator]{
+			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
+				options.FeegrantKeeper, options.TxFeeChecker),
+		},
+		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-
-		// SIG VERIFY BUG: https://github.com/berachain/stargazer/issues/354, possible solution is to
-		// check signatures in the application side mempool and kick them out. The only downside to this,
-		// is that is that we are letting transactions with bad sigs into the mempool and we need to potentially
-		// worry about spam.
-		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		// ante.NewIncrementSequenceDecorator(options.AccountKeeper), // in state tranisiton
+		// In order to match ethereum gas consumption, we do not consume any gas when
+		// verifying the signature.
+		EthSkipDecorator[ante.SigGasConsumeDecorator]{
+			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		},
+		// EthTransaction can skip Signature Verification as we do this in the mempool.
+		// TODO: // check with Marko to make sure this is okay (ties into the one below)
+		EthSkipDecorator[ante.SigVerificationDecorator]{
+			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		},
+		// EthTransactions are allowed to skip sequence verification as we do this in the
+		// state transition.
+		// NOTE: we may need to change this as it could cause issues if a client is intertwining
+		// Ethreum and Cosmos transactions within a close timeframe.
+		// By skipping this for Eth Transactions, the Account Seq of the sender does not get updated
+		// in checkState during checkTx, but only in DeliverTx, since we are upping in nonce during the
+		// actual execution of the block and not during the ante handler.
+		// TODO: // check with Marko to make sure this is okay.
+		EthSkipDecorator[ante.IncrementSequenceDecorator]{
+			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		},
 	}
-
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
