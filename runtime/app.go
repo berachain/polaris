@@ -101,7 +101,6 @@ import (
 	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -293,9 +292,10 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 		panic(err)
 	}
 
+	// Build app
 	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(
-		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...,
-	)...)
+		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
+	)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
