@@ -49,7 +49,6 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -127,7 +126,7 @@ func NewRootCmd() *cobra.Command {
 
 			txConfigWithTextual := tx.NewTxConfigWithTextual(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
-				append(tx.DefaultSignModes, []signingtypes.SignMode{42069}...),
+				tx.DefaultSignModes,
 				txmodule.NewTextualWithGRPCConn(initClientCtx),
 				[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
 			)
