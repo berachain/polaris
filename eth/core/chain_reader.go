@@ -21,13 +21,10 @@
 package core
 
 import (
-	"context"
 	"errors"
 
 	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
@@ -37,11 +34,10 @@ type ChainReader interface {
 	ChainBlockReader
 	ChainTxPoolReader
 	ChainSubscriber
-	GetStateByNumber(int64) (vm.GethStateDB, error)
-	GetEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	ChainConfig() *params.ChainConfig
 }
 
+// `ChainBlockReader` defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
 	CurrentBlock() (*types.Block, error)
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
@@ -52,10 +48,21 @@ type ChainBlockReader interface {
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
+// `ChainTxPoolReader` defines methods that are used to read information about the state
+// of the mempool.
 type ChainTxPoolReader interface {
 	GetPoolTransactions() (types.Transactions, error)
 	GetPoolTransaction(common.Hash) *types.Transaction
 	GetPoolNonce(common.Address) (uint64, error)
+}
+
+// =========================================================================
+// Configuration
+// =========================================================================
+
+// `ChainConfig` returns the Ethereum chain config of the Stargazer chain.
+func (bc *blockchain) ChainConfig() *params.ChainConfig {
+	return bc.host.GetConfigurationPlugin().ChainConfig()
 }
 
 // =========================================================================
@@ -98,6 +105,8 @@ func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
 	return fb, nil
 }
 
+// `GetReceipts` gathers the receipts that were created in the block defined by
+// the given hash.
 func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
 	// check the cache
 	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
@@ -115,6 +124,10 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 	return nil, nil
 }
 
+// `GetTransaction` gets a transaction by hash. It also returns the block hash of the
+// block that the transaction was inluded in, the block number, and the index of the
+// transaction in the block. It only retrieves transactions that are included in the chain
+// and does not acquire transactions that are in the mempool.
 func (bc *blockchain) GetTransaction(
 	txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
@@ -136,7 +149,7 @@ func (bc *blockchain) GetTransaction(
 		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 }
 
-// GetBlock retrieves a block from the database by hash and number, caching it if found.
+// `GetBlock` retrieves a block from the database by hash and number, caching it if found.
 func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.Block, error) {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
@@ -156,7 +169,7 @@ func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.Block, err
 	return block, nil
 }
 
-// GetBlockByHash retrieves a block from the database by hash, caching it if found.
+// `GetBlockByHash` retrieves a block from the database by hash, caching it if found.
 func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Block, error) {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
@@ -176,52 +189,22 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Block, e
 	return block, nil
 }
 
-func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
-	sp, err := bc.host.GetStatePlugin().GetStateByNumber(number)
-	if err != nil {
-		return nil, err
-	}
-	return state.NewStateDB(sp), nil
-}
-
-func (bc *blockchain) GetEVM(
-	_ context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
-	header *types.Header, vmConfig *vm.Config,
-) *vm.GethEVM {
-	blockContext := vm.BlockContext{
-		CanTransfer: CanTransfer,
-		Transfer:    Transfer,
-		GetHash:     GetHashFn(header, bc.cc),
-		Coinbase:    header.Coinbase, // todo: check for fee collector
-		GasLimit:    header.GasLimit,
-		BlockNumber: header.Number,
-		Time:        header.Time,
-		Difficulty:  header.Difficulty,
-		BaseFee:     header.BaseFee,
-	}
-
-	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
-	return vm.NewGethEVMWithPrecompiles(
-		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
-	)
-}
-
 // =========================================================================
 // TransactionPoolReader
 // =========================================================================
 
+// `GetPoolTransactions` returns all of the transactions that are currently in
+// the mempool.
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
 	return bc.host.GetTxPoolPlugin().GetAllTransactions()
 }
 
+// `GetPoolTransaction` returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 	return bc.host.GetTxPoolPlugin().GetTransaction(hash)
 }
 
+// TODO: define behaviour for this function.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
 	return bc.host.GetTxPoolPlugin().GetNonce(addr)
-}
-
-func (bc *blockchain) ChainConfig() *params.ChainConfig {
-	return bc.host.GetConfigurationPlugin().ChainConfig()
 }

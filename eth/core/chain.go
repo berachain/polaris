@@ -40,6 +40,7 @@ type ChainReaderWriter interface {
 	ChainWriter
 	ChainReader
 	ChainSubscriber
+	ChainResources
 }
 
 // Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
