@@ -69,7 +69,7 @@ var (
 	TxData = &ethtypes.DynamicFeeTx{
 		Nonce: 0,
 		To:    &DummyContract,
-		Gas:   uint64(onehundred),
+		Gas:   uint64(thousand),
 		Data:  []byte("abcdef"),
 	}
 )
