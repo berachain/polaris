@@ -137,10 +137,6 @@ var _ = Describe("StateProcessor", func() {
 			_, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 
-			pp.ResetFunc = func(ctx context.Context) {
-				// no-op
-			}
-
 			sp.Prepare(context.Background(), nil, dummyHeader)
 		})
 

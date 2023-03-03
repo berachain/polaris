@@ -24,8 +24,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ethereum/go-ethereum/event"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/core/state"
 	"pkg.berachain.dev/stargazer/eth/core/types"
@@ -33,6 +31,36 @@ import (
 	"pkg.berachain.dev/stargazer/eth/params"
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
+
+// `ChainReader` defines methods that are used to read the state and blocks of the chain.
+type ChainReader interface {
+	ChainBlockReader
+	ChainTxPoolReader
+	ChainSubscriber
+	GetStateByNumber(int64) (vm.GethStateDB, error)
+	GetEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	ChainConfig() *params.ChainConfig
+}
+
+type ChainBlockReader interface {
+	CurrentBlock() (*types.Block, error)
+	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
+	FinalizedBlock() (*types.Block, error)
+	GetReceipts(common.Hash) (types.Receipts, error)
+	GetStargazerBlockByHash(common.Hash) (*types.Block, error)
+	GetStargazerBlockByNumber(int64) (*types.Block, error)
+	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
+}
+
+type ChainTxPoolReader interface {
+	GetPoolTransactions() (types.Transactions, error)
+	GetPoolTransaction(common.Hash) *types.Transaction
+	GetPoolNonce(common.Address) (uint64, error)
+}
+
+// =========================================================================
+// BlockReader
+// =========================================================================
 
 // `CurrentBlock` returns the current block of the blockchain.
 func (bc *blockchain) CurrentBlock() (*types.Block, error) {
@@ -148,38 +176,6 @@ func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Block, e
 	return block, nil
 }
 
-// // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
-// func (bc *blockchain) SubscribeRemovedLogsEvent(ch chan<- RemovedLogsEvent) event.Subscription {
-// 	return bc.scope.Track(bc.rmLogsFeed.Subscribe(ch))
-// }
-
-// // SubscribeChainEvent registers a subscription of ChainEvent.
-// func (bc *blockchain) SubscribeChainEvent(ch chan<- ChainEvent) event.Subscription {
-// 	return bc.scope.Track(bc.chainFeed.Subscribe(ch))
-// }
-
-// SubscribeChainHeadEvent registers a subscription of ChainHeadEvent.
-func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Subscription {
-	// TODO: synchronize chain head feed.
-	return bc.scope.Track(bc.chainHeadFeed.Subscribe(ch))
-}
-
-// // SubscribeChainSideEvent registers a subscription of ChainSideEvent.
-// func (bc *blockchain) SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Subscription {
-// 	return bc.scope.Track(bc.chainSideFeed.Subscribe(ch))
-// }
-
-// // SubscribeLogsEvent registers a subscription of []*types.Log.
-// func (bc *blockchain) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
-// 	return bc.scope.Track(bc.logsFeed.Subscribe(ch))
-// }
-
-// // SubscribeBlockProcessingEvent registers a subscription of bool where true means
-// // block processing has started while false means it has stopped.
-// func (bc *blockchain) SubscribeBlockProcessingEvent(ch chan<- bool) event.Subscription {
-// 	return bc.scope.Track(bc.blockProcFeed.Subscribe(ch))
-// }
-
 func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	sp, err := bc.host.GetStatePlugin().GetStateByNumber(number)
 	if err != nil {
@@ -209,6 +205,10 @@ func (bc *blockchain) GetEVM(
 		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
 }
+
+// =========================================================================
+// TransactionPoolReader
+// =========================================================================
 
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
 	return bc.host.GetTxPoolPlugin().GetAllTransactions()

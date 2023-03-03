@@ -6,9 +6,9 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
-	ethereumcoretypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/types"
 	"pkg.berachain.dev/stargazer/eth/core"
-	ethcoretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"sync"
 )
 
@@ -25,22 +25,22 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() uint64 {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetBlockByHashFunc: func(hash common.Hash) (*ethereumcoretypes.Block, error) {
+//			GetBlockByHashFunc: func(hash common.Hash) (*types.Block, error) {
 //				panic("mock out the GetBlockByHash method")
 //			},
-//			GetBlockByNumberFunc: func(n int64) (*ethereumcoretypes.Block, error) {
+//			GetBlockByNumberFunc: func(n int64) (*types.Block, error) {
 //				panic("mock out the GetBlockByNumber method")
 //			},
-//			GetHeaderByNumberFunc: func(n int64) (*ethereumcoretypes.Header, error) {
+//			GetHeaderByNumberFunc: func(n int64) (*types.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
 //			},
-//			GetReceiptsByHashFunc: func(hash common.Hash) (ethereumcoretypes.Receipts, error) {
+//			GetReceiptsByHashFunc: func(hash common.Hash) (types.Receipts, error) {
 //				panic("mock out the GetReceiptsByHash method")
 //			},
-//			GetTransactionByHashFunc: func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error) {
+//			GetTransactionByHashFunc: func(hash common.Hash) (*coretypes.TxLookupEntry, error) {
 //				panic("mock out the GetTransactionByHash method")
 //			},
-//			NewHeaderWithBlockNumberFunc: func(n int64) *ethereumcoretypes.Header {
+//			NewHeaderWithBlockNumberFunc: func(n int64) *types.Header {
 //				panic("mock out the NewHeaderWithBlockNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
@@ -57,22 +57,22 @@ type BlockPluginMock struct {
 	BaseFeeFunc func() uint64
 
 	// GetBlockByHashFunc mocks the GetBlockByHash method.
-	GetBlockByHashFunc func(hash common.Hash) (*ethereumcoretypes.Block, error)
+	GetBlockByHashFunc func(hash common.Hash) (*types.Block, error)
 
 	// GetBlockByNumberFunc mocks the GetBlockByNumber method.
-	GetBlockByNumberFunc func(n int64) (*ethereumcoretypes.Block, error)
+	GetBlockByNumberFunc func(n int64) (*types.Block, error)
 
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
-	GetHeaderByNumberFunc func(n int64) (*ethereumcoretypes.Header, error)
+	GetHeaderByNumberFunc func(n int64) (*types.Header, error)
 
 	// GetReceiptsByHashFunc mocks the GetReceiptsByHash method.
-	GetReceiptsByHashFunc func(hash common.Hash) (ethereumcoretypes.Receipts, error)
+	GetReceiptsByHashFunc func(hash common.Hash) (types.Receipts, error)
 
 	// GetTransactionByHashFunc mocks the GetTransactionByHash method.
-	GetTransactionByHashFunc func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error)
+	GetTransactionByHashFunc func(hash common.Hash) (*coretypes.TxLookupEntry, error)
 
 	// NewHeaderWithBlockNumberFunc mocks the NewHeaderWithBlockNumber method.
-	NewHeaderWithBlockNumberFunc func(n int64) *ethereumcoretypes.Header
+	NewHeaderWithBlockNumberFunc func(n int64) *types.Header
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -156,7 +156,7 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 }
 
 // GetBlockByHash calls GetBlockByHashFunc.
-func (mock *BlockPluginMock) GetBlockByHash(hash common.Hash) (*ethereumcoretypes.Block, error) {
+func (mock *BlockPluginMock) GetBlockByHash(hash common.Hash) (*types.Block, error) {
 	if mock.GetBlockByHashFunc == nil {
 		panic("BlockPluginMock.GetBlockByHashFunc: method is nil but BlockPlugin.GetBlockByHash was just called")
 	}
@@ -188,7 +188,7 @@ func (mock *BlockPluginMock) GetBlockByHashCalls() []struct {
 }
 
 // GetBlockByNumber calls GetBlockByNumberFunc.
-func (mock *BlockPluginMock) GetBlockByNumber(n int64) (*ethereumcoretypes.Block, error) {
+func (mock *BlockPluginMock) GetBlockByNumber(n int64) (*types.Block, error) {
 	if mock.GetBlockByNumberFunc == nil {
 		panic("BlockPluginMock.GetBlockByNumberFunc: method is nil but BlockPlugin.GetBlockByNumber was just called")
 	}
@@ -220,7 +220,7 @@ func (mock *BlockPluginMock) GetBlockByNumberCalls() []struct {
 }
 
 // GetHeaderByNumber calls GetHeaderByNumberFunc.
-func (mock *BlockPluginMock) GetHeaderByNumber(n int64) (*ethereumcoretypes.Header, error) {
+func (mock *BlockPluginMock) GetHeaderByNumber(n int64) (*types.Header, error) {
 	if mock.GetHeaderByNumberFunc == nil {
 		panic("BlockPluginMock.GetHeaderByNumberFunc: method is nil but BlockPlugin.GetHeaderByNumber was just called")
 	}
@@ -252,7 +252,7 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 }
 
 // GetReceiptsByHash calls GetReceiptsByHashFunc.
-func (mock *BlockPluginMock) GetReceiptsByHash(hash common.Hash) (ethereumcoretypes.Receipts, error) {
+func (mock *BlockPluginMock) GetReceiptsByHash(hash common.Hash) (types.Receipts, error) {
 	if mock.GetReceiptsByHashFunc == nil {
 		panic("BlockPluginMock.GetReceiptsByHashFunc: method is nil but BlockPlugin.GetReceiptsByHash was just called")
 	}
@@ -284,7 +284,7 @@ func (mock *BlockPluginMock) GetReceiptsByHashCalls() []struct {
 }
 
 // GetTransactionByHash calls GetTransactionByHashFunc.
-func (mock *BlockPluginMock) GetTransactionByHash(hash common.Hash) (*ethcoretypes.TxLookupEntry, error) {
+func (mock *BlockPluginMock) GetTransactionByHash(hash common.Hash) (*coretypes.TxLookupEntry, error) {
 	if mock.GetTransactionByHashFunc == nil {
 		panic("BlockPluginMock.GetTransactionByHashFunc: method is nil but BlockPlugin.GetTransactionByHash was just called")
 	}
@@ -316,7 +316,7 @@ func (mock *BlockPluginMock) GetTransactionByHashCalls() []struct {
 }
 
 // NewHeaderWithBlockNumber calls NewHeaderWithBlockNumberFunc.
-func (mock *BlockPluginMock) NewHeaderWithBlockNumber(n int64) *ethereumcoretypes.Header {
+func (mock *BlockPluginMock) NewHeaderWithBlockNumber(n int64) *types.Header {
 	if mock.NewHeaderWithBlockNumberFunc == nil {
 		panic("BlockPluginMock.NewHeaderWithBlockNumberFunc: method is nil but BlockPlugin.NewHeaderWithBlockNumber was just called")
 	}

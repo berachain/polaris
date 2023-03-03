@@ -21,45 +21,12 @@
 package ante
 
 import (
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"pkg.berachain.dev/stargazer/lib/errors"
 )
-
-// `SetAnteHandler` sets the required ante handler for a Stargazer Cosmos SDK Chain.
-func SetAnteHandler(
-	ak ante.AccountKeeper,
-	bk authtypes.BankKeeper,
-	fgk ante.FeegrantKeeper,
-	txCfg client.TxConfig,
-) func(bApp *baseapp.BaseApp) {
-	return func(bApp *baseapp.BaseApp) {
-		opt := ante.HandlerOptions{
-			AccountKeeper:          ak,
-			BankKeeper:             bk,
-			ExtensionOptionChecker: extOptCheckerfunc,
-			SignModeHandler:        txCfg.SignModeHandler(),
-			FeegrantKeeper:         fgk,
-			SigGasConsumer:         SigVerificationGasConsumer,
-		}
-		ch, _ := ante.NewAnteHandler(
-			opt,
-		)
-		bApp.SetAnteHandler(
-			ch,
-		)
-	}
-}
-
-func extOptCheckerfunc(a *codectypes.Any) bool {
-	return a.TypeUrl == "/stargazer.evm.v1alpha1.ExtensionOptionsEthTransaction"
-}
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -95,7 +62,7 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		// check signatures in the application side mempool and kick them out. The only downside to this,
 		// is that is that we are letting transactions with bad sigs into the mempool and we need to potentially
 		// worry about spam.
-		// ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		// ante.NewIncrementSequenceDecorator(options.AccountKeeper), // in state tranisiton
 	}
 
