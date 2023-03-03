@@ -151,12 +151,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.evm.Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
-	// If true, Stargazer is trusting that the host is taking control over nonce management.
-	if sp.cp.HostNonceManagement() {
-		sp.statedb.SetNonce(msg.From(), msg.Nonce())
-
-	}
-
 	// Set the gasPool to have the remaining gas in the block.
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
 	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())

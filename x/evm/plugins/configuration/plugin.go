@@ -79,10 +79,6 @@ func (p *plugin) ExtraEips() []int {
 	return eips
 }
 
-func (p *plugin) HostNonceManagement() bool {
-	return true
-}
-
 // `FeeCollector` implements the core.ConfigurationPlugin interface.
 func (p *plugin) FeeCollector() *common.Address {
 	// TODO: parameterize fee collector name.
