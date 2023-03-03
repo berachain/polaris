@@ -1,6 +1,5 @@
 // eslint-disable-next-line import/no-unresolved
 import { NextRequest, NextResponse } from 'next/server';
-import { locales } from 'nextra/locales';
 
 const redirects: Record<string, string> = {
   '/': '/docs',
@@ -16,5 +15,5 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return locales(request);
+  return request;
 }
