@@ -204,5 +204,4 @@ precompile/contracts/solidity/lib
 node_modules
 .next
 next-env.d.ts
-yarn.lock
 .env
