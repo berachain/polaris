@@ -23,6 +23,7 @@ package staking
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -119,10 +120,13 @@ func (c *Contract) delegateHelper(
 		return err
 	}
 
+	coin := sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount))
+	fmt.Println("COIN IN PRECOMPILE", coin)
+
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
 		evmutils.AddressToAccAddress(caller),
 		validatorAddress,
-		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
+		coin,
 	))
 	return err
 }
