@@ -150,14 +150,15 @@ func (sp *StateProcessor) ProcessTransaction(
 	txContext := NewEVMTxContext(msg)
 	sp.evm.Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
-	sp.gp.SetTxGasLimit(msg.Gas())
+	// sp.gp.SetTxGasLimit(msg.Gas())
 
 	// Set the gasPool to have the remaining gas in the block.
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
 	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
-	if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
-		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%s]", len(sp.txs), txHash.Hex())
-	}
+
+	// if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
+	// 	return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%s]", len(sp.txs), txHash.Hex())
+	// }
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
@@ -166,7 +167,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// Consume the gas used by the state tranisition.
-	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {
+	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
@@ -177,9 +178,6 @@ func (sp *StateProcessor) ProcessTransaction(
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
 	}
-
-	fmt.Println("CUM GAS USED:", sp.gp.CumulativeGasUsed())
-	fmt.Println("BLOCK GAS LIMIT", sp.gp.BlockGasLimit())
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {

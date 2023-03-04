@@ -22,7 +22,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
@@ -41,25 +40,21 @@ var _ types.MsgServiceServer = &Keeper{}
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
 ) (*types.EthTransactionResponse, error) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-
-	sCtx = sdk.UnwrapSDKContext(ctx).
+	sCtx := sdk.UnwrapSDKContext(ctx).
 		WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output from the EVM
 	// is correct. In the future, we will revisit this to allow gas metering for more complex operations prior to entering the EVM.
 	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(), "reset gas meter prior to ethereum state transition")
 
-	fmt.Println("GAS BEFORE", sCtx.GasMeter().GasConsumed())
 	// Process the transaction and return the result.
 	result, err := k.ProcessTransaction(sCtx, msg.AsTransaction())
 	if err != nil {
 		k.Logger(sCtx).Error("keeper.EthTransaction", "error", err)
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
 	}
-	fmt.Println("GAS AFTER", sCtx.GasMeter().GasConsumed())
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "exec_result", result)
-	// Build response and return.
+
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "exec_result", result, "gas_used", sCtx.GasMeter().GasConsumed())
 
 	vmErr := ""
 	if result.Err != nil {

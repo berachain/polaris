@@ -46,7 +46,7 @@ func (w *GasPluginMock) Reset(context.Context) {
 	w.txGasUsed = 0
 }
 
-func (w *GasPluginMock) TxConsumeGas(amount uint64) error {
+func (w *GasPluginMock) ConsumeGas(amount uint64) error {
 	if w.txGasUsed+amount > w.txGasLimit {
 		return errors.New("gas limit exceeded")
 	}

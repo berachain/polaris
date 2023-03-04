@@ -22,6 +22,7 @@ package gas
 
 import (
 	"context"
+	"fmt"
 	"math"
 
 	storetypes "cosmossdk.io/store/types"
@@ -67,22 +68,13 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.gasMeter = sCtx.GasMeter()
 }
 
-// `SetGasLimit` resets the gas limit of the underlying GasMeter.
-func (p *plugin) SetTxGasLimit(limit uint64) error {
-	consumed := p.gasMeter.GasConsumed()
-	// The gas meter is reset to the new limit.
-	p.gasMeter = storetypes.NewGasMeter(limit)
-	// Re-consume the gas that was already consumed.
-	return p.TxConsumeGas(consumed)
-}
-
 // `BlockGasLimit` implements the core.GasPlugin interface.
 func (p *plugin) BlockGasLimit() uint64 {
 	return p.blockGasMeter.Limit()
 }
 
 // `TxConsumeGas` implements the core.GasPlugin interface.
-func (p *plugin) TxConsumeGas(amount uint64) error {
+func (p *plugin) ConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
@@ -91,6 +83,8 @@ func (p *plugin) TxConsumeGas(amount uint64) error {
 	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
 		return core.ErrBlockOutOfGas
 	}
+
+	fmt.Println("CONSUME AMOUNt", amount)
 	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
