@@ -150,6 +150,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	txContext := NewEVMTxContext(msg)
 	sp.evm.Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
+	sp.gp.SetTxGasLimit(msg.Gas())
 
 	// Set the gasPool to have the remaining gas in the block.
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
