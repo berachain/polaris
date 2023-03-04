@@ -84,7 +84,6 @@ func (p *plugin) ConsumeGas(amount uint64) error {
 		return core.ErrBlockOutOfGas
 	}
 
-	fmt.Println("CONSUME AMOUNt", amount)
 	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
