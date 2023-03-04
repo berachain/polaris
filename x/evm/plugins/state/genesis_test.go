@@ -25,7 +25,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 
 	. "github.com/onsi/ginkgo/v2"

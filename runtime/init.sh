@@ -111,7 +111,10 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	done
 	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
 	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
-	./bin/stargazerd genesis add-genesis-account stargazer1yrene6g2zwjttemf0c65fscg8w8c55w5c2x2xh 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	./bin/stargazerd genesis add-genesis-account stargazer1yrene6g2zwjttemf0c65fscg8w8c55w5c2x2xh 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	# unveil soup wreck game priority allow history apology useful page brand icon anger oblige firm home simple inflict sniff sauce crowd boat manage ordinary
+	# b3a78fc381164bb2e531e1630e19cc51d8b32b56ebbc8c3b1d4c5e32ddb61230
+	./bin/stargazerd genesis add-genesis-account stargazer1449yu08r7n8swacwvxlvqgelavzsucpz0aneyy 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	
 	# Sign genesis transaction
 	./bin/stargazerd genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"

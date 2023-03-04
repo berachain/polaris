@@ -29,7 +29,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/lib/utils"
 	offchain "pkg.berachain.dev/stargazer/store/offchain"
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 )

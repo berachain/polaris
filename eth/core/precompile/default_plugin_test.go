@@ -21,8 +21,6 @@
 package precompile_test
 
 import (
-	"context"
-
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"pkg.berachain.dev/stargazer/eth/common"
@@ -40,10 +38,6 @@ var _ = Describe("Default Plugin", func() {
 
 	BeforeEach(func() {
 		dp = precompile.NewDefaultPlugin()
-	})
-
-	It("should reset", func() {
-		Expect(func() { dp.Reset(context.Background()) }).ToNot(Panic())
 	})
 
 	When("running a stateless contract", func() {

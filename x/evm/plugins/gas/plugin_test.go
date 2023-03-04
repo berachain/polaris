@@ -28,7 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -37,7 +37,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/lib/utils"
 	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
-	"pkg.berachain.dev/stargazer/testutil"
+	testutil "pkg.berachain.dev/stargazer/testing/utils"
 	evmutils "pkg.berachain.dev/stargazer/x/evm/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -76,8 +76,8 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
-		skAddr := &sk
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&skAddr))
+		skPtr := &sk
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
 	})
 
 	When("AbiMethods", func() {
@@ -958,7 +958,7 @@ var _ = Describe("Staking", func() {
 						Expect(err).To(HaveOccurred())
 					})
 					It("should fail if there is no delegation", func() {
-						_, err := contract.delegationHelper(
+						_, err := contract.getDelegationHelper(
 							ctx,
 							del,
 							otherVal,
@@ -966,7 +966,7 @@ var _ = Describe("Staking", func() {
 						Expect(err).To(HaveOccurred())
 					})
 					It("should succeed", func() {
-						_, err := contract.delegationHelper(
+						_, err := contract.getDelegationHelper(
 							ctx,
 							del,
 							val,
@@ -1068,8 +1068,8 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetActiveValidators(ctx, caller, big.NewInt(0), true)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
-				addr := utils.MustGetAs[common.Address](res[0])
-				Expect(addr).To(Equal(evmutils.ValAddressToEthAddress(val)))
+				addrs := utils.MustGetAs[[]common.Address](res[0])
+				Expect(addrs[0]).To(Equal(evmutils.ValAddressToEthAddress(val)))
 			})
 		})
 	})

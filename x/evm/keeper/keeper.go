@@ -78,7 +78,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	getPrecompiles func() []vm.RegistrablePrecompile,
+	getPrecompiles func() func() []vm.RegistrablePrecompile,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
@@ -102,14 +102,9 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.pp = precompile.NewPlugin(getPrecompiles)
-	plf := precompilelog.NewFactory()
-	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
-	// Build the Stargazer EVM Provider
-	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 	return k
 }
 
@@ -129,15 +124,27 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	}))
 }
 
+func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(fn)
+	k.bp.SetQueryContextFn(fn)
+}
+
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
-// `SetQueryContextFn` sets the query context function for the state plugin.
-func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
-	k.bp.SetQueryContextFn(qc)
-	k.sp.SetQueryContextFn(qc)
+func (k *Keeper) Setup(
+	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
+) {
+	plf := precompilelog.NewFactory()
+	k.pp = precompile.NewPlugin()
+	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
+	k.pp.SetPrecompiles(precompiles)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+
+	// Build the Stargazer EVM Provider
+	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 }
 
 // `GetBlockPlugin` returns the block plugin.

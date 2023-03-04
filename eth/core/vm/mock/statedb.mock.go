@@ -96,6 +96,9 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetCommittedState method")
 //			},
+//			GetContextFunc: func() context.Context {
+//				panic("mock out the GetContext method")
+//			},
 //			GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
 //				panic("mock out the GetLogs method")
 //			},
@@ -276,6 +279,9 @@ type StargazerStateDBMock struct {
 
 	// GetCommittedStateFunc mocks the GetCommittedState method.
 	GetCommittedStateFunc func(address common.Address, hash common.Hash) common.Hash
+
+	// GetContextFunc mocks the GetContext method.
+	GetContextFunc func() context.Context
 
 	// GetLogsFunc mocks the GetLogs method.
 	GetLogsFunc func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log
@@ -504,6 +510,9 @@ type StargazerStateDBMock struct {
 			Address common.Address
 			// Hash is the hash argument value.
 			Hash common.Hash
+		}
+		// GetContext holds details about calls to the GetContext method.
+		GetContext []struct {
 		}
 		// GetLogs holds details about calls to the GetLogs method.
 		GetLogs []struct {
@@ -734,6 +743,7 @@ type StargazerStateDBMock struct {
 	lockGetCodeHash            sync.RWMutex
 	lockGetCodeSize            sync.RWMutex
 	lockGetCommittedState      sync.RWMutex
+	lockGetContext             sync.RWMutex
 	lockGetLogs                sync.RWMutex
 	lockGetNonce               sync.RWMutex
 	lockGetOrNewStateObject    sync.RWMutex
@@ -1539,6 +1549,33 @@ func (mock *StargazerStateDBMock) GetCommittedStateCalls() []struct {
 	mock.lockGetCommittedState.RLock()
 	calls = mock.calls.GetCommittedState
 	mock.lockGetCommittedState.RUnlock()
+	return calls
+}
+
+// GetContext calls GetContextFunc.
+func (mock *StargazerStateDBMock) GetContext() context.Context {
+	if mock.GetContextFunc == nil {
+		panic("StargazerStateDBMock.GetContextFunc: method is nil but StargazerStateDB.GetContext was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetContext.Lock()
+	mock.calls.GetContext = append(mock.calls.GetContext, callInfo)
+	mock.lockGetContext.Unlock()
+	return mock.GetContextFunc()
+}
+
+// GetContextCalls gets all the calls that were made to GetContext.
+// Check the length with:
+//
+//	len(mockedStargazerStateDB.GetContextCalls())
+func (mock *StargazerStateDBMock) GetContextCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetContext.RLock()
+	calls = mock.calls.GetContext
+	mock.lockGetContext.RUnlock()
 	return calls
 }
 
