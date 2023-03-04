@@ -150,15 +150,10 @@ func (sp *StateProcessor) ProcessTransaction(
 	txContext := NewEVMTxContext(msg)
 	sp.evm.Reset(txContext, sp.statedb)
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
-	// sp.gp.SetTxGasLimit(msg.Gas())
 
 	// Set the gasPool to have the remaining gas in the block.
 	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
 	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
-
-	// if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
-	// 	return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%s]", len(sp.txs), txHash.Hex())
-	// }
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
