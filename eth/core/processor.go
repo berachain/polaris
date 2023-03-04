@@ -177,6 +177,9 @@ func (sp *StateProcessor) ProcessTransaction(
 		GasUsed:           result.UsedGas,
 	}
 
+	fmt.Println("CUM GAS USED:", sp.gp.CumulativeGasUsed())
+	fmt.Println("BLOCK GAS LIMIT", sp.gp.BlockGasLimit())
+
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())

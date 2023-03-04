@@ -43,11 +43,11 @@ func (k *Keeper) EthTransaction(
 	tx := msg.AsTransaction()
 	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
 
-	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).
+	newCtx := sdk.UnwrapSDKContext(ctx).
 		WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// Process the transaction and return the result.
-	result, err := k.ProcessTransaction(ctx, tx)
+	result, err := k.ProcessTransaction(newCtx, tx)
 	if err != nil {
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Error("keeper.EthTransaction", "error", err)
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
