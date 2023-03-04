@@ -90,9 +90,11 @@ type (
 		ConsumeGas(uint64) error
 		// `GasRemaining` returns the amount of gas remaining for the current transaction.
 		GasRemaining() uint64
-		// `CumulativeGasUsed` returns the amount of gas used during the current block. The value
+		// `GasConsumed` returns the amount of gas used by the current transaction.
+		GasConsumed() uint64
+		// `BlockGasConsumed` returns the amount of gas used during the current block. The value
 		// returned should include any gas consumed during this transaction. It should not panic.
-		CumulativeGasUsed() uint64
+		BlockGasConsumed() uint64
 		// `BlockGasLimit` returns the gas limit of the current block. It should not panic.
 		BlockGasLimit() uint64
 	}

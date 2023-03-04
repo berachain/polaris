@@ -155,7 +155,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// By setting the gas pool to the delta between the block gas limit and the cumulative gas
 	// used, we intrinsic handle the case where the transaction on our host chain might have
 	// fully reverted, when it fact it should've been a vm error saying out of gas.
-	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
+	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
@@ -179,7 +179,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Create a new receipt for the transaction.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
-		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
+		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
 	}
@@ -226,7 +226,7 @@ func (sp *StateProcessor) Finalize(
 	}
 
 	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = sp.gp.CumulativeGasUsed()
+	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, nil

@@ -95,12 +95,19 @@ func (p *plugin) ConsumeGas(amount uint64) error {
 	return nil
 }
 
-// `CumulativeGasUsed` returns the cumulative gas used during the current block. If the cumulative
+// `GasConsumed` returns the gas used during the current transaction.
+//
+// `GasConsumed` implements the core.GasPlugin interface.
+func (p *plugin) GasConsumed() uint64 {
+	return p.gasMeter.GasConsumed()
+}
+
+// `BlockGasConsumed` returns the cumulative gas used during the current block. If the cumulative
 // gas used is greater than the block gas limit, we expect for Stargazer to handle it.
 //
-// `CumulativeGasUsed` implements the core.GasPlugin interface.
-func (p *plugin) CumulativeGasUsed() uint64 {
-	return p.gasMeter.GasConsumed() + p.blockGasMeter.GasConsumed()
+// `BlockGasConsumed` implements the core.GasPlugin interface.
+func (p *plugin) BlockGasConsumed() uint64 {
+	return p.blockGasMeter.GasConsumed()
 }
 
 // `addUint64Overflow` performs the addition operation on two uint64 integers and returns a boolean

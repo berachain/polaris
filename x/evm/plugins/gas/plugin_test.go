@@ -61,31 +61,31 @@ var _ = Describe("plugin", func() {
 
 		p.gasMeter.RefundGas(250, "test")
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(250)))
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 1
 
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
 		p.gasMeter = storetypes.NewGasMeter(1000)
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(250)))
 		err = p.ConsumeGas(1000)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(1000)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(0)))
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
 		blockGasMeter.ConsumeGas(1000, "") // finalize tx 2
 
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 3
 		p.gasMeter = storetypes.NewGasMeter(1000)
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
 		err = p.ConsumeGas(250)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(750)))
-		Expect(p.CumulativeGasUsed()).To(Equal(blockGasLimit))
+		Expect(p.BlockGasConsumed()).To(Equal(blockGasLimit))
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 3
 	})
 
