@@ -234,19 +234,6 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 	}
 }
 
-// `TransferBalance` sends the given amount from one account to another. It will
-// error if the sender does not have enough funds to send.
-func (p *plugin) TransferBalance(from, to common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
-
-	// Send the coins from the source address to the destination address.
-	if err := p.bk.SendCoins(p.ctx, from[:], to[:], coins); err != nil {
-		// This is safe to panic as the error is only returned if the sender does
-		// not have enough funds to send, which should be guarded by `CanTransfer`.
-		panic(err)
-	}
-}
-
 // =============================================================================
 // Nonce
 // =============================================================================

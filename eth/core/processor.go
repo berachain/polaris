@@ -229,15 +229,6 @@ func (sp *StateProcessor) Finalize(
 // Utilities
 // ===========================================================================
 
-// `NewEVMBlockContext` creates a new block context for use in the EVM.
-func (sp *StateProcessor) NewEVMBlockContext(cc ChainContext) vm.BlockContext {
-	feeCollector := sp.cp.FeeCollector()
-	if feeCollector == nil {
-		feeCollector = &sp.header.Coinbase
-	}
-	return NewEVMBlockContext(sp.header, cc, feeCollector)
-}
-
 // `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
 func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {
 	for _, pc := range precompiles {

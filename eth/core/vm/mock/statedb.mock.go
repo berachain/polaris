@@ -195,9 +195,6 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			SuicideFunc: func(address common.Address) bool {
 //				panic("mock out the Suicide method")
 //			},
-//			TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int)  {
-//				panic("mock out the TransferBalance method")
-//			},
 //			TxIndexFunc: func() int {
 //				panic("mock out the TxIndex method")
 //			},
@@ -378,9 +375,6 @@ type StargazerStateDBMock struct {
 
 	// SuicideFunc mocks the Suicide method.
 	SuicideFunc func(address common.Address) bool
-
-	// TransferBalanceFunc mocks the TransferBalance method.
-	TransferBalanceFunc func(address1 common.Address, address2 common.Address, intMoqParam *big.Int)
 
 	// TxIndexFunc mocks the TxIndex method.
 	TxIndexFunc func() int
@@ -706,15 +700,6 @@ type StargazerStateDBMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
-		// TransferBalance holds details about calls to the TransferBalance method.
-		TransferBalance []struct {
-			// Address1 is the address1 argument value.
-			Address1 common.Address
-			// Address2 is the address2 argument value.
-			Address2 common.Address
-			// IntMoqParam is the intMoqParam argument value.
-			IntMoqParam *big.Int
-		}
 		// TxIndex holds details about calls to the TxIndex method.
 		TxIndex []struct {
 		}
@@ -776,7 +761,6 @@ type StargazerStateDBMock struct {
 	lockSubBalance             sync.RWMutex
 	lockSubRefund              sync.RWMutex
 	lockSuicide                sync.RWMutex
-	lockTransferBalance        sync.RWMutex
 	lockTxIndex                sync.RWMutex
 }
 
@@ -2659,46 +2643,6 @@ func (mock *StargazerStateDBMock) SuicideCalls() []struct {
 	mock.lockSuicide.RLock()
 	calls = mock.calls.Suicide
 	mock.lockSuicide.RUnlock()
-	return calls
-}
-
-// TransferBalance calls TransferBalanceFunc.
-func (mock *StargazerStateDBMock) TransferBalance(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-	if mock.TransferBalanceFunc == nil {
-		panic("StargazerStateDBMock.TransferBalanceFunc: method is nil but StargazerStateDB.TransferBalance was just called")
-	}
-	callInfo := struct {
-		Address1    common.Address
-		Address2    common.Address
-		IntMoqParam *big.Int
-	}{
-		Address1:    address1,
-		Address2:    address2,
-		IntMoqParam: intMoqParam,
-	}
-	mock.lockTransferBalance.Lock()
-	mock.calls.TransferBalance = append(mock.calls.TransferBalance, callInfo)
-	mock.lockTransferBalance.Unlock()
-	mock.TransferBalanceFunc(address1, address2, intMoqParam)
-}
-
-// TransferBalanceCalls gets all the calls that were made to TransferBalance.
-// Check the length with:
-//
-//	len(mockedStargazerStateDB.TransferBalanceCalls())
-func (mock *StargazerStateDBMock) TransferBalanceCalls() []struct {
-	Address1    common.Address
-	Address2    common.Address
-	IntMoqParam *big.Int
-} {
-	var calls []struct {
-		Address1    common.Address
-		Address2    common.Address
-		IntMoqParam *big.Int
-	}
-	mock.lockTransferBalance.RLock()
-	calls = mock.calls.TransferBalance
-	mock.lockTransferBalance.RUnlock()
 	return calls
 }
 

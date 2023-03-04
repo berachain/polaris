@@ -53,8 +53,6 @@ type Plugin interface {
 	SubBalance(common.Address, *big.Int)
 	// `SubBalance` subtracts amount from the given account.
 	AddBalance(common.Address, *big.Int)
-	// `TransferBalance` transfers amount from one account to the other.
-	TransferBalance(common.Address, common.Address, *big.Int)
 
 	// `GetNonce` returns the nonce of the given account.
 	GetNonce(common.Address) uint64
