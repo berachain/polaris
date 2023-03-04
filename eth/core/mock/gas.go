@@ -62,7 +62,7 @@ func (w *GasPluginMock) CumulativeGasUsed() uint64 {
 	return w.txGasUsed + w.blockGasUsed
 }
 
-func (w *GasPluginMock) TxGasRemaining() uint64 {
+func (w *GasPluginMock) GasRemaining() uint64 {
 	return w.txGasLimit - w.txGasUsed
 }
 

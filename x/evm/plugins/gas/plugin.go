@@ -67,6 +67,11 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.gasMeter = sCtx.GasMeter()
 }
 
+// `GasRemaining` implements the core.GasPlugin interface.
+func (p *plugin) GasRemaining() uint64 {
+	return p.gasMeter.GasRemaining()
+}
+
 // `BlockGasLimit` implements the core.GasPlugin interface.
 func (p *plugin) BlockGasLimit() uint64 {
 	return p.blockGasMeter.Limit()

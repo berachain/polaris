@@ -23,6 +23,8 @@ package keeper
 import (
 	"context"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -38,8 +40,21 @@ func (k *Keeper) BeginBlocker(ctx context.Context) {
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
+	// First we remove the KVStore gas metering from the context prior to entering the EVM
+	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
+	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced individually.
+	// By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES in the EVM
+	// are not being charged additional gas unknowingly.
+	sCtx := sdk.UnwrapSDKContext(ctx).
+		WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
+
+	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
+	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
+	// complex operations prior to entering the EVM.
+	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(),
+		"reset gas meter prior to ethereum state transition")
+
 	// Process the transaction and return the receipt.
-	// TODO: gas is fucked
 	result, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
@@ -53,7 +68,11 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	//  modifying the receipt, and return a failed EVM tx, but a successful cosmos tx.
 	// TODO: determine if the above is actually correct.
 
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("End ProcessTransaction()")
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Info(
+		"evm execution", "success", result.Err == nil, "gas_consumed", sCtx.GasMeter().GasConsumed(),
+	)
+
+	// Return the execution result.
 	return result, err
 }
 

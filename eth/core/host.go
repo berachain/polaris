@@ -88,6 +88,8 @@ type (
 		// less than the amount requested. If the requested amount is greater than the amount of
 		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
 		ConsumeGas(uint64) error
+		// `GasRemaining` returns the amount of gas remaining for the current transaction.
+		GasRemaining() uint64
 		// `CumulativeGasUsed` returns the amount of gas used during the current block. The value
 		// returned should include any gas consumed during this transaction. It should not panic.
 		CumulativeGasUsed() uint64
