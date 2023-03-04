@@ -22,10 +22,6 @@ package keeper
 
 import (
 	"context"
-<<<<<<< Updated upstream
-=======
-	"fmt"
->>>>>>> Stashed changes
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -73,10 +69,6 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 
 	header := block.Header()
 	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", header)
-
-	if len(receipts) >= 1 {
-		fmt.Println(receipts[0])
-	}
 
 	// Save the historical header in the IAVL Tree.
 	err = k.bp.SetHeader(header)

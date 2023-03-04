@@ -195,9 +195,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.txs = append(sp.txs, tx)
 	sp.receipts = append(sp.receipts, receipt)
 
-	fmt.Println("RECEIPTS PT", sp.receipts)
-	fmt.Println("LOGS", receipt.Logs)
-
 	// Return the execution result to the caller.
 	return result, nil
 }
@@ -223,10 +220,7 @@ func (sp *StateProcessor) Finalize(
 		receipt.BlockHash = blockHash
 		receipt.BlockNumber = sp.header.Number
 		receipt.TransactionIndex = uint(txIndex)
-		fmt.Println("LOGS", receipt.Logs)
 	}
-
-	fmt.Println("RECEIPTS F", sp.receipts)
 
 	// Now that we are done processing the block, we update the header with the consumed gas.
 	sp.header.GasUsed = sp.gp.CumulativeGasUsed()
