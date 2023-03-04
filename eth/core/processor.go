@@ -175,6 +175,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
+		Logs:              sp.statedb.Logs(),
 	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
@@ -194,6 +195,9 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.txs = append(sp.txs, tx)
 	sp.receipts = append(sp.receipts, receipt)
 
+	fmt.Println("RECEIPTS PT", sp.receipts)
+	fmt.Println("LOGS", receipt.Logs)
+
 	// Return the execution result to the caller.
 	return result, nil
 }
@@ -208,15 +212,21 @@ func (sp *StateProcessor) Finalize(
 	// We iterate over all of the receipts/transactions in the block and update the receipt to
 	// have the correct values. We must do this AFTER all the transactions have been processed
 	// to ensure that the block hash, logs and bloom filter have the correct information.
-	blockHash, blockNum := sp.header.Hash(), sp.header.Number.Uint64()
+	blockHash, blockNumber := sp.header.Hash(), sp.header.Number.Uint64()
 	for txIndex, receipt := range sp.receipts {
-		// Set the receipt logs and create the bloom filter.
-		receipt.Logs = sp.statedb.GetLogs(receipt.TxHash, blockNum, blockHash)
+		// Edit the receipts to include the block hash and bloom filter.
+		for _, log := range receipt.Logs {
+			log.BlockNumber = blockNumber
+			log.BlockHash = blockHash
+		}
 		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 		receipt.BlockHash = blockHash
 		receipt.BlockNumber = sp.header.Number
 		receipt.TransactionIndex = uint(txIndex)
+		fmt.Println("LOGS", receipt.Logs)
 	}
+
+	fmt.Println("RECEIPTS F", sp.receipts)
 
 	// Now that we are done processing the block, we update the header with the consumed gas.
 	sp.header.GasUsed = sp.gp.CumulativeGasUsed()
