@@ -22,7 +22,6 @@ package gas
 
 import (
 	"context"
-	"fmt"
 	"math"
 
 	storetypes "cosmossdk.io/store/types"
