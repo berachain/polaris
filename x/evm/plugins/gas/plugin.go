@@ -65,6 +65,7 @@ func (p *plugin) Prepare(ctx context.Context) {
 func (p *plugin) Reset(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.gasMeter = sCtx.GasMeter()
+	p.blockGasMeter = sCtx.BlockGasMeter()
 }
 
 // `GasRemaining` implements the core.GasPlugin interface.
