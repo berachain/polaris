@@ -192,8 +192,15 @@ pkg/**/.*.yaml
 
 # forge
 */**/solidity-files-cache.json
-precompile/contracts/solidity/out
-precompile/contracts/solidity/lib
+eth/testutil/contracts/solidity/out/**/*.bin
+eth/testutil/contracts/solidity/out/**/*.json
+eth/testutil/contracts/solidity/lib/
+precompile/contracts/solidity/out/
+*/**/broadcast
+*/**/*.bin
+*/**/*.json
+
+
 # cosmos
 .testnets/
 

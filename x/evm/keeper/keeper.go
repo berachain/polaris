@@ -124,6 +124,11 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	}))
 }
 
+func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(fn)
+	k.bp.SetQueryContextFn(fn)
+}
+
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
@@ -140,12 +145,6 @@ func (k *Keeper) Setup(
 
 	// Build the Stargazer EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
-}
-
-// `SetQueryContextFn` sets the query context function for the state plugin.
-func (k *Keeper) SetQueryContextFn(qc func(height int64, prove bool) (sdk.Context, error)) {
-	k.bp.SetQueryContextFn(qc)
-	k.sp.SetQueryContextFn(qc)
 }
 
 // `GetBlockPlugin` returns the block plugin.
