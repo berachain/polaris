@@ -942,7 +942,7 @@ var _ = Describe("Staking", func() {
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
 					It("should fail if the del address is not valid", func() {
-						_, err := contract.delegationHelper(
+						_, err := contract.getDelegationHelper(
 							ctx,
 							sdk.AccAddress(""),
 							val,
@@ -950,7 +950,7 @@ var _ = Describe("Staking", func() {
 						Expect(err).To(HaveOccurred())
 					})
 					It("should fail if the val address is not valid", func() {
-						_, err := contract.delegationHelper(
+						_, err := contract.getDelegationHelper(
 							ctx,
 							del,
 							sdk.ValAddress(""),

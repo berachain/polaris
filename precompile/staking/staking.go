@@ -162,7 +162,7 @@ func (c *Contract) GetDelegationAddrInput(
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.delegationHelper(ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val))
+	return c.getDelegationHelper(ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val))
 }
 
 // `GetDelegationStringInput` implements `getDelegation(string)` method.
@@ -190,7 +190,7 @@ func (c *Contract) GetDelegationStringInput(
 		return nil, err
 	}
 
-	return c.delegationHelper(ctx, del, val)
+	return c.getDelegationHelper(ctx, del, val)
 }
 
 // `GetUnbondingDelegationAddrInput` implements the `getUnbondingDelegation(address)` method.
