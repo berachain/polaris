@@ -54,6 +54,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetCommittedState method")
 //			},
+//			GetContextFunc: func() context.Context {
+//				panic("mock out the GetContext method")
+//			},
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
 //			},
@@ -135,6 +138,9 @@ type StatePluginMock struct {
 
 	// GetCommittedStateFunc mocks the GetCommittedState method.
 	GetCommittedStateFunc func(address common.Address, hash common.Hash) common.Hash
+
+	// GetContextFunc mocks the GetContext method.
+	GetContextFunc func() context.Context
 
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
@@ -239,6 +245,9 @@ type StatePluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
+		// GetContext holds details about calls to the GetContext method.
+		GetContext []struct {
+		}
 		// GetNonce holds details about calls to the GetNonce method.
 		GetNonce []struct {
 			// Address is the address argument value.
@@ -337,6 +346,7 @@ type StatePluginMock struct {
 	lockGetCodeHash       sync.RWMutex
 	lockGetCodeSize       sync.RWMutex
 	lockGetCommittedState sync.RWMutex
+	lockGetContext        sync.RWMutex
 	lockGetNonce          sync.RWMutex
 	lockGetState          sync.RWMutex
 	lockGetStateByNumber  sync.RWMutex
@@ -709,6 +719,33 @@ func (mock *StatePluginMock) GetCommittedStateCalls() []struct {
 	mock.lockGetCommittedState.RLock()
 	calls = mock.calls.GetCommittedState
 	mock.lockGetCommittedState.RUnlock()
+	return calls
+}
+
+// GetContext calls GetContextFunc.
+func (mock *StatePluginMock) GetContext() context.Context {
+	if mock.GetContextFunc == nil {
+		panic("StatePluginMock.GetContextFunc: method is nil but StatePlugin.GetContext was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetContext.Lock()
+	mock.calls.GetContext = append(mock.calls.GetContext, callInfo)
+	mock.lockGetContext.Unlock()
+	return mock.GetContextFunc()
+}
+
+// GetContextCalls gets all the calls that were made to GetContext.
+// Check the length with:
+//
+//	len(mockedStatePlugin.GetContextCalls())
+func (mock *StatePluginMock) GetContextCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetContext.RLock()
+	calls = mock.calls.GetContext
+	mock.lockGetContext.RUnlock()
 	return calls
 }
 

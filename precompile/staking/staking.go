@@ -46,20 +46,21 @@ type Contract struct {
 }
 
 // `NewContract` is the constructor of the staking contract.
-func NewPrecompileContract(sk **stakingkeeper.Keeper) precompile.StatefulImpl {
+func NewPrecompileContract(sk *stakingkeeper.Keeper) precompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.StakingModuleMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
 		contractAbi: &contractAbi,
-		msgServer:   stakingkeeper.NewMsgServerImpl(*sk),
-		querier:     stakingkeeper.Querier{Keeper: *sk},
+		msgServer:   stakingkeeper.NewMsgServerImpl(sk),
+		querier:     stakingkeeper.Querier{Keeper: sk},
 	}
 }
 
 // `RegistryKey` implements StatefulImpl.
 func (c *Contract) RegistryKey() common.Address {
+	// 0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF
 	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
 }
 
@@ -72,11 +73,11 @@ func (c *Contract) ABIMethods() map[string]abi.Method {
 func (c *Contract) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		{
-			AbiSig:  "getDelegation(address)",
+			AbiSig:  "getDelegation(address, address)",
 			Execute: c.GetDelegationAddrInput,
 		},
 		{
-			AbiSig:  "getDelegation(string)",
+			AbiSig:  "getDelegation(string, string)",
 			Execute: c.GetDelegationStringInput,
 		},
 		{
@@ -152,12 +153,16 @@ func (c *Contract) GetDelegationAddrInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
+	del, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, ErrInvalidDelegatorAddr
+	}
+	val, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.delegationHelper(ctx, caller, evmutils.AddressToValAddress(val))
+	return c.getDelegationHelper(ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val))
 }
 
 // `GetDelegationStringInput` implements `getDelegation(string)` method.
@@ -168,17 +173,24 @@ func (c *Contract) GetDelegationStringInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
+	bech32DelAddr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, ErrInvalidString
 	}
-
-	val, err := sdk.ValAddressFromBech32(bech32Addr)
+	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
+	if err != nil {
+		return nil, err
+	}
+	bech32ValAddr, ok := utils.GetAs[string](args[1])
+	if !ok {
+		return nil, ErrInvalidString
+	}
+	val, err := sdk.ValAddressFromBech32(bech32ValAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.delegationHelper(ctx, caller, val)
+	return c.getDelegationHelper(ctx, del, val)
 }
 
 // `GetUnbondingDelegationAddrInput` implements the `getUnbondingDelegation(address)` method.

@@ -29,6 +29,21 @@ import (
 	"pkg.berachain.dev/stargazer/lib/utils"
 )
 
+// `ChainWriter` defines methods that are used to perform state and block transitions.
+type ChainWriter interface {
+	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
+	// the block.
+	Prepare(context.Context, int64)
+	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
+	// the state transition. This method is called for each tx in the block.
+	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
+	// `Finalize` finalizes the block and returns the block. This method is called after the last
+	// tx in the block.
+	Finalize(context.Context) (*types.Block, types.Receipts, error)
+	// `SendTx` sends the given transaction to the tx pool.
+	SendTx(ctx context.Context, signedTx *types.Transaction) error
+}
+
 // =========================================================================
 // Block Processing
 // =========================================================================
@@ -81,9 +96,8 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	// Reset the StateDB, Precompile and Gas plugins for the tx.
+	// Reset the StateDB and Gas plugin for the tx.
 	bc.statedb.Reset(ctx)
-	bc.host.GetPrecompilePlugin().Reset(ctx)
 	bc.host.GetGasPlugin().Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)

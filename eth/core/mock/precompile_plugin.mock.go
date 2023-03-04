@@ -4,7 +4,6 @@
 package mock
 
 import (
-	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -37,9 +36,6 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //			RegisterFunc: func(precompiledContract vm.PrecompiledContract) error {
 //				panic("mock out the Register method")
 //			},
-//			ResetFunc: func(contextMoqParam context.Context)  {
-//				panic("mock out the Reset method")
-//			},
 //			RunFunc: func(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
 //				panic("mock out the Run method")
 //			},
@@ -61,9 +57,6 @@ type PrecompilePluginMock struct {
 
 	// RegisterFunc mocks the Register method.
 	RegisterFunc func(precompiledContract vm.PrecompiledContract) error
-
-	// ResetFunc mocks the Reset method.
-	ResetFunc func(contextMoqParam context.Context)
 
 	// RunFunc mocks the Run method.
 	RunFunc func(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error)
@@ -90,11 +83,6 @@ type PrecompilePluginMock struct {
 			// PrecompiledContract is the precompiledContract argument value.
 			PrecompiledContract vm.PrecompiledContract
 		}
-		// Reset holds details about calls to the Reset method.
-		Reset []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-		}
 		// Run holds details about calls to the Run method.
 		Run []struct {
 			// Sdb is the sdb argument value.
@@ -117,7 +105,6 @@ type PrecompilePluginMock struct {
 	lockGetPrecompiles sync.RWMutex
 	lockHas            sync.RWMutex
 	lockRegister       sync.RWMutex
-	lockReset          sync.RWMutex
 	lockRun            sync.RWMutex
 }
 
@@ -246,38 +233,6 @@ func (mock *PrecompilePluginMock) RegisterCalls() []struct {
 	mock.lockRegister.RLock()
 	calls = mock.calls.Register
 	mock.lockRegister.RUnlock()
-	return calls
-}
-
-// Reset calls ResetFunc.
-func (mock *PrecompilePluginMock) Reset(contextMoqParam context.Context) {
-	if mock.ResetFunc == nil {
-		panic("PrecompilePluginMock.ResetFunc: method is nil but PrecompilePlugin.Reset was just called")
-	}
-	callInfo := struct {
-		ContextMoqParam context.Context
-	}{
-		ContextMoqParam: contextMoqParam,
-	}
-	mock.lockReset.Lock()
-	mock.calls.Reset = append(mock.calls.Reset, callInfo)
-	mock.lockReset.Unlock()
-	mock.ResetFunc(contextMoqParam)
-}
-
-// ResetCalls gets all the calls that were made to Reset.
-// Check the length with:
-//
-//	len(mockedPrecompilePlugin.ResetCalls())
-func (mock *PrecompilePluginMock) ResetCalls() []struct {
-	ContextMoqParam context.Context
-} {
-	var calls []struct {
-		ContextMoqParam context.Context
-	}
-	mock.lockReset.RLock()
-	calls = mock.calls.Reset
-	mock.lockReset.RUnlock()
 	return calls
 }
 

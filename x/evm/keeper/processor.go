@@ -23,8 +23,6 @@ package keeper
 import (
 	"context"
 
-	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/stargazer/eth/core"
@@ -42,7 +40,6 @@ func (k *Keeper) BeginBlocker(ctx context.Context) {
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
 	// Process the transaction and return the receipt.
 	// TODO: gas is fucked
-	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).WithKVGasConfig(storetypes.GasConfig{})
 	result, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
