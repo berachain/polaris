@@ -4,14 +4,14 @@ import { Callout } from 'nextra-theme-docs'
 
 TODO SAMI
 
-Tracing allows users to examine precisely what was executed by the EVM during some specific transaction or set of transactions.
-There are two different types of transactions in Stargazer EVM: value transfers and contract executions. A value transfer just moves
-the base token from one account to another. A contract interaction executes some code stored at a contract address which can include altering 
+Tracing allows users to examine precisely what was executed by the EVM during some specific event or in the course of a set of transactions.
+There are two different types of transactions in the Stargazer EVM: value transfers and contract executions. A value transfer simply moves
+the base token from one account to another. Whereas a contract interaction executes code stored at a contract address which can include altering 
 stored data and transacting multiple times with other contracts and externally-owned accounts. A contract execution transaction can 
 therefore be a complicated web of interactions that can be difficult to unpick. The transaction receipt contains a status code that 
 shows whether the transaction succeeded or failed, but more detailed information is not readily available, meaning it is very difficult 
 to know what a contract execution actually did, what data was modified and which addresses were touched. This is the problem that EVM 
-tracing solves. Stargazer's Geth interface traces transactions by re-running them locally and collecting data about precisely what was executed by the EVM.
+tracing solves. Stargazer's interface traces transactions by re-running them locally and collecting data about precisely what was executed by the EVM.
 
 ## State Availability
 
@@ -29,7 +29,7 @@ An archive node retains all historical data back to genesis. It can therefore tr
 
 ## Types of Tracing
 
-TODO SAMII
+
 
 ### Basic Traces
 
