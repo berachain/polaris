@@ -73,11 +73,11 @@ func (c *Contract) ABIMethods() map[string]abi.Method {
 func (c *Contract) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		{
-			AbiSig:  "getDelegation(address, address)",
+			AbiSig:  "getDelegation(address,address)",
 			Execute: c.GetDelegationAddrInput,
 		},
 		{
-			AbiSig:  "getDelegation(string, string)",
+			AbiSig:  "getDelegation(string,string)",
 			Execute: c.GetDelegationStringInput,
 		},
 		{
