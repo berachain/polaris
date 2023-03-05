@@ -59,7 +59,9 @@ var (
 	EmptyUncleHash         = types.EmptyUncleHash
 	SignTx                 = types.SignTx
 	NewTx                  = types.NewTx
+	NewEIP2930Signer       = types.NewEIP2930Signer
 	LatestSignerForChainID = types.LatestSignerForChainID
+	SignNewTx              = types.SignNewTx
 	MustSignNewTx          = types.MustSignNewTx
 	NewBlock               = types.NewBlock
 	ErrInvalidSig          = types.ErrInvalidSig
