@@ -45,30 +45,30 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(),
 		"reset gas meter prior to ethereum state transition")
 
-	// Process the transaction and return the receipt.
-	result, err := k.stargazer.ProcessTransaction(ctx, tx)
+	// Process the transaction and return the EVM's execution result.
+	execResult, err := k.stargazer.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: note if we get a Block Error out of gas here, we need the transaction to be included
-	// in the block. This is because the transaction was included in the block, but something
-	// happened to put it into a situation where it really should have, this will traditionally
-	// cause the cosmos transaction to fail, which is correct, but not what we want here. What
-	// we need to do, is edit the gas consumption to consume the remaining gas in the block,
-	//  modifying the receipt, and return a failed EVM tx, but a successful cosmos tx.
-	// TODO: determine if the above is actually correct.
-	if result.Err != nil {
+	// We don't want the cosmos transaction to be marked as failed if the EVM reverts. But
+	// its not the worst idea to log the error.
+	if execResult.Err != nil {
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(
-			"evm execution", "error", result.Err, "gas_consumed", sCtx.GasMeter().GasConsumed())
+			"evm execution",
+			"tx_hash", tx.Hash(),
+			"error", execResult.Err,
+			"gas_consumed", sCtx.GasMeter().GasConsumed())
 	} else {
-		k.Logger(sdk.UnwrapSDKContext(ctx)).Info(
-			"evm execution", "gas_consumed", sCtx.GasMeter().GasConsumed(),
+		k.Logger(sdk.UnwrapSDKContext(ctx)).Debug(
+			"evm execution",
+			"tx_hash", tx.Hash(),
+			"gas_consumed", sCtx.GasMeter().GasConsumed(),
 		)
 	}
 
 	// Return the execution result.
-	return result, err
+	return execResult, err
 }
 
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
@@ -85,6 +85,8 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", header)
 
 	// Save the historical header in the IAVL Tree.
+	// TODO: move this to within the eth folder? And do the historical data the
+	// way geth does it?
 	err = k.bp.SetHeader(header)
 	if err != nil {
 		panic(err)
