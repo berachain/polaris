@@ -69,7 +69,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 		return nil, errors.New("unbonding delegation not found")
 	}
 
-	return []any{res}, nil
+	return []any{res.GetUnbond().Entries}, nil
 }
 
 // `getRedelegationsHelper` is the helper function for `getRedelegations.
@@ -228,13 +228,11 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 
 // `bondDenom` returns the bond denom from the staking module.
 func (c *Contract) bondDenom(ctx context.Context) (string, error) {
-	return "abera", nil
+	res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})
+	if err != nil {
+		fmt.Println("ERROR IN QUERYING PRAMAS")
+		return "", err
+	}
 
-	// res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})
-	// if err != nil {
-	// 	fmt.Println("ERROR IN QUERYING PRAMAS")
-	// 	return "", err
-	// }
-
-	// return res.Params.BondDenom, nil
+	return res.Params.BondDenom, nil
 }
