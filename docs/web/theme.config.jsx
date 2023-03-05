@@ -84,5 +84,6 @@ export default {
                 </p>
             </div>
         )
-    }
+    },
+    gitTimestamp: false,
 }
