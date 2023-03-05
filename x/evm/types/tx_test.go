@@ -21,7 +21,6 @@
 package types_test
 
 import (
-	fmt "fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -39,11 +38,12 @@ var _ = Describe("EthTransactionRequest", func() {
 	var (
 		key, _  = crypto.GenerateEthKey()
 		address = crypto.PubkeyToAddress(key.PublicKey)
+		signer  = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	)
 	When("it is a legacy tx", func() {
 		var etr *types.EthTransactionRequest
 		BeforeEach(func() {
-			signer := coretypes.NewEIP2930Signer(params.DefaultChainConfig.ChainID)
+
 			ltxData := &coretypes.LegacyTx{
 				Nonce:    0,
 				GasPrice: big.NewInt(2),
@@ -59,7 +59,6 @@ var _ = Describe("EthTransactionRequest", func() {
 		It("should return the correct signer", func() {
 			Expect(etr.GetSender()).To(Equal(address))
 			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
-			fmt.Println(etr.AsTransaction().RawSignatureValues())
 			_, err := etr.GetSignature()
 			Expect(err).ToNot(HaveOccurred())
 		})
@@ -68,7 +67,6 @@ var _ = Describe("EthTransactionRequest", func() {
 	When("it is a dynamic fee tx", func() {
 		var etr *types.EthTransactionRequest
 		BeforeEach(func() {
-			signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 			dtxData := &coretypes.DynamicFeeTx{
 				ChainID:   params.DefaultChainConfig.ChainID,
 				Nonce:     0,

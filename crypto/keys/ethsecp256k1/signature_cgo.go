@@ -52,7 +52,7 @@ func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 		msg = crypto.Keccak256(msg)
 	}
 
-	// The signature lenght must be correct.
+	// The signature length must be correct.
 	if len(sig) == crypto.SignatureLength {
 		// remove recovery ID (V) if contained in the signature
 		sig = sig[:len(sig)-1]
