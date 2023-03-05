@@ -119,12 +119,10 @@ func (c *Contract) delegateHelper(
 		return err
 	}
 
-	coin := sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount))
-
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
 		evmutils.AddressToAccAddress(caller),
 		validatorAddress,
-		coin,
+		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
 	return err
 }
