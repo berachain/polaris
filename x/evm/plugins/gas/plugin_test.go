@@ -61,7 +61,8 @@ var _ = Describe("plugin", func() {
 
 		p.gasMeter.RefundGas(250, "test")
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
-		Expect(p.BlockGasConsumed()).To(Equal(uint64(250)))
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(0))) // shouldn't have consumed block gas,
+		// as block gas is handled by the baseapp.
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 1
 
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
@@ -73,8 +74,8 @@ var _ = Describe("plugin", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(1000)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(0)))
-		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
-		blockGasMeter.ConsumeGas(1000, "") // finalize tx 2
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(250))) // shouldn't have consumed.
+		blockGasMeter.ConsumeGas(1000, "")                  // finalize tx 2
 
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
