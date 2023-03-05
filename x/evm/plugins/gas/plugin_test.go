@@ -74,9 +74,9 @@ var _ = Describe("plugin", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(1000)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(0)))
-		Expect(p.BlockGasConsumed()).To(Equal(uint64(250))) // shouldn't have consumed.
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(250))) // shouldn't have consumed any additional gas yet.
 		blockGasMeter.ConsumeGas(1000, "")                  // finalize tx 2
-
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 3
@@ -86,8 +86,8 @@ var _ = Describe("plugin", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(750)))
-		Expect(p.BlockGasConsumed()).To(Equal(blockGasLimit))
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 3
+		Expect(p.BlockGasConsumed()).To(Equal(blockGasLimit))
 	})
 
 	It("should error on overconsumption in tx", func() {
