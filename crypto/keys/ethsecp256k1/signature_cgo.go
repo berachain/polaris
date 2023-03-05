@@ -29,6 +29,7 @@ import (
 // provided hash of the message. The produced signature is 65 bytes
 // where the last byte contains the recovery ID.
 func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
+	// We hash the provided input since EthSign expects a 32byte hash.
 	if len(digestBz) != crypto.DigestLength {
 		digestBz = crypto.Keccak256(digestBz)
 	}
@@ -43,9 +44,15 @@ func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
 // `VerifySignature` verifies that the ECDSA public key created a given signature over
 // the provided message. The signature should be in [R || S] format.
 func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
+	// This is a little hacky, but in order to work around the fact that the Cosmos-SDK typically
+	// does not hash messages, we have to accept an unhashed message and hash it.
+	// NOTE: this function will not work correctly if a msg of length 32 is provided, that is actually
+	// the hash of the message that was signed.
 	if len(msg) != crypto.DigestLength {
 		msg = crypto.Keccak256(msg)
 	}
+
+	// The signature lenght must be correct.
 	if len(sig) == crypto.SignatureLength {
 		// remove recovery ID (V) if contained in the signature
 		sig = sig[:len(sig)-1]
