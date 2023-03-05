@@ -21,6 +21,7 @@
 package types_test
 
 import (
+	fmt "fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -36,37 +37,38 @@ import (
 
 var _ = Describe("EthTransactionRequest", func() {
 	var (
-		etr     *types.EthTransactionRequest
-		ltxData *coretypes.LegacyTx
 		key, _  = crypto.GenerateEthKey()
 		address = crypto.PubkeyToAddress(key.PublicKey)
-		signer  = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	)
 	When("it is a legacy tx", func() {
+		var etr *types.EthTransactionRequest
 		BeforeEach(func() {
-			ltxData = &coretypes.LegacyTx{
+			signer := coretypes.NewEIP2930Signer(params.DefaultChainConfig.ChainID)
+			ltxData := &coretypes.LegacyTx{
 				Nonce:    0,
-				GasPrice: new(big.Int),
-				Gas:      10,
+				GasPrice: big.NewInt(2),
+				Data:     []byte("abcdef"),
 				To:       nil,
 				Value:    new(big.Int),
-				Data:     nil,
 			}
-			// Must use homestead signer for legacy tx.
-			signer = coretypes.LatestSignerForChainID(nil)
-			etr = types.NewFromTransaction(coretypes.MustSignNewTx(key, signer, ltxData))
+			tx, err := coretypes.SignNewTx(key, signer, ltxData)
+			Expect(err).ToNot(HaveOccurred())
+			etr = types.NewFromTransaction(tx)
 		})
 
 		It("should return the correct signer", func() {
 			Expect(etr.GetSender()).To(Equal(address))
 			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
+			fmt.Println(etr.AsTransaction().RawSignatureValues())
 			_, err := etr.GetSignature()
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
+
 	When("it is a dynamic fee tx", func() {
+		var etr *types.EthTransactionRequest
 		BeforeEach(func() {
-			signer = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+			signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 			dtxData := &coretypes.DynamicFeeTx{
 				ChainID:   params.DefaultChainConfig.ChainID,
 				Nonce:     0,
