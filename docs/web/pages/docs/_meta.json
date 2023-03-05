@@ -5,20 +5,21 @@
     "title": "Getting Started"
   },
   "main-concepts": "Main Concepts",
-  "architecture": "Architecture Overview",
+  "hardware-requirements": "Hardware Requirements",
   "contributing": "Contributing Guide",
   "-- EVM ON STARGAZER --": {
     "type": "separator",
-    "title": "Stargazer EVM"
+    "title": "Fundamantals"
   },
   "evm-on-stargazer": "Overview",
+  "architecture": "Architecture Overview",
   "precompile-overview": "Precompiles",
   "opcodes": "Opcodes",
   "json-rpc": "JSON-RPC",
   "tracing": "EVM Tracing",
   "-- Building --": {
     "type": "separator",
-    "title": "Building on Stargazer"
+    "title": "Developers"
   },
   "building-on-stargazer-overview": "Overview",
   "building-modules": "Building Modules",
