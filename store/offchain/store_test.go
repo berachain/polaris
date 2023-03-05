@@ -34,17 +34,19 @@ func TestOffchain(t *testing.T) {
 	RunSpecs(t, "store/offchain")
 }
 
+var (
+	dbDir = sims.NewAppOptionsWithFlagHome("./tmp/berachain")
+	name  = "indexer-test123"
+)
+
 var _ = Describe("offchainStore", func() {
 	var (
 		byte1 = []byte{1}
 		byte2 = []byte{2}
 		byte3 = []byte{3}
 		byte4 = []byte{4}
-		dbDir = sims.NewAppOptionsWithFlagHome("/tmp/berachain")
-		name  = "indexer-test"
 		store = NewOffChainKVStore(name, dbDir)
 	)
-
 	It("checks for write to buffer", func() {
 		store.Set(byte1, byte2)
 		store.Set(byte3, byte4)

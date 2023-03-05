@@ -64,7 +64,7 @@ type Keeper struct {
 	// `authority` is the bech32 address that is allowed to execute governance proposals.
 	authority string
 
-	// The various plugins are used to implement `core.StargazerHostChain`.
+	// The various plugins that are are used to implement `core.StargazerHostChain`.
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
@@ -83,6 +83,7 @@ func NewKeeper(
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
 ) *Keeper {
+	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
 		authority: authority,
 		storeKey:  storeKey,
@@ -103,8 +104,12 @@ func NewKeeper(
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
-
 	return k
+}
+
+func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(fn)
+	k.bp.SetQueryContextFn(fn)
 }
 
 // `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
@@ -121,11 +126,6 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 		}
 		return nil
 	}))
-}
-
-func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
-	k.sp.SetQueryContextFn(fn)
-	k.bp.SetQueryContextFn(fn)
 }
 
 // `Logger` returns a module-specific logger.

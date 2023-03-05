@@ -152,11 +152,10 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
 	// Set the gasPool to have the remaining gas in the block.
-	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
-	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
-	if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
-		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%s]", len(sp.txs), txHash.Hex())
-	}
+	// By setting the gas pool to the delta between the block gas limit and the cumulative gas
+	// used, we intrinsic handle the case where the transaction on our host chain might have
+	// fully reverted, when it fact it should've been a vm error saying out of gas.
+	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
@@ -164,15 +163,23 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	// Consume the gas used by the state tranisition.
-	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {
+	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
+	// while still ensuring that we consume all the gas.
+	if result.UsedGas > sp.gp.GasRemaining() {
+		result.UsedGas = sp.gp.GasRemaining()
+		result.Err = vm.ErrOutOfGas
+	}
+
+	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
+	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.
+	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
 	// Create a new receipt for the transaction.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
-		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
+		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
 	}
@@ -219,7 +226,7 @@ func (sp *StateProcessor) Finalize(
 	}
 
 	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = sp.gp.CumulativeGasUsed()
+	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, nil
