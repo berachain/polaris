@@ -22,7 +22,6 @@ package staking
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -302,8 +301,6 @@ func (c *Contract) DelegateAddrInput(
 		return nil, ErrInvalidBigInt
 	}
 
-	fmt.Println("DELEGATE INPUT", amount)
-
 	return nil, c.delegateHelper(ctx, caller, amount, evmutils.AddressToValAddress(val))
 }
 
@@ -328,8 +325,6 @@ func (c *Contract) DelegateStringInput(
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("DELEGATE INPUT", amount)
 
 	return nil, c.delegateHelper(ctx, caller, amount, val)
 }

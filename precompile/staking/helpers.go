@@ -23,7 +23,6 @@ package staking
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -119,9 +118,6 @@ func (c *Contract) delegateHelper(
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("DENOM IN PRECOMPILE", denom)
-	fmt.Println("COIN AMOUNT", sdk.NewIntFromBigInt(amount))
 
 	coin := sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount))
 
@@ -230,7 +226,6 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 	res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})
 	if err != nil {
-		fmt.Println("ERROR IN QUERYING PRAMAS")
 		return "", err
 	}
 
