@@ -205,6 +205,7 @@ interface IStakingModule {
      * @dev Represents one entry of an unbonding delegation
      *
      * Note: the field names of the native struct should match these field names (by camelCase)
+     * Note: we are using the types in precompile/generated
      */
     struct UnbondingDelegationEntry {
         // creationHeight is the height which the unbonding took place
@@ -223,6 +224,7 @@ interface IStakingModule {
      * @dev Represents a redelegation entry with relevant metadata
      *
      * Note: the field names of the native struct should match these field names (by camelCase)
+     * Note: we are using the types in precompile/generated
      */
     struct RedelegationEntry {
         // creationHeight is the height which the redelegation took place

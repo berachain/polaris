@@ -68,7 +68,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 		return nil, errors.New("unbonding delegation not found")
 	}
 
-	return []any{res}, nil
+	return []any{res.GetUnbond().Entries}, nil
 }
 
 // `getRedelegationsHelper` is the helper function for `getRedelegations.
