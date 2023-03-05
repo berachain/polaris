@@ -40,7 +40,6 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/gas"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
-	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
@@ -107,11 +106,6 @@ func NewKeeper(
 	return k
 }
 
-func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
-	k.sp.SetQueryContextFn(fn)
-	k.bp.SetQueryContextFn(fn)
-}
-
 // `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
 func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
@@ -143,9 +137,7 @@ func (k *Keeper) Setup(
 ) {
 	// Setup the precompile and state plugins
 	k.pp = precompile.NewPlugin(precompiles)
-	// TODO: refactor this so that plf is part of precompile plugin.
-	plf := precompilelog.NewFactory(precompiles)
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", k.pp)
 
 	// Set the query context function for the block and state plugins
 	k.sp.SetQueryContextFn(qc)
