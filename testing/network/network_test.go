@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package gas_test
+package network_test
 
 import (
 	"testing"
@@ -27,7 +27,25 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestGas(t *testing.T) {
+func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/gas")
+	RunSpecs(t, "testutil/network:integration")
 }
+
+var _ = Describe("Network", func() {
+	// var net *network.Network
+	BeforeEach(func() {
+		// net = network.New(GinkgoT(), network.DefaultConfig())
+		// time.Sleep(10 * time.Second)
+		// _, _ = net.WaitForHeightWithTimeout(3, 15*time.Second)
+	})
+
+	// It("eth_chainId", func() {
+	// 	// Dial an Ethereum RPC Endpoint
+	// 	client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
+	// 	Expect(err).To(BeNil())
+	// 	chainID, err := client.ChainID(context.Background())
+	// 	Expect(err).To(BeNil())
+	// 	Expect(chainID.String()).To(Equal("42069"))
+	// })
+})
