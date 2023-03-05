@@ -82,27 +82,25 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.app_state["evm"]["params"]["evm_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.app_state["mint"]["params"]["mint_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
-	# Set gas limit in genesis
-	jq '.consensus_params["block"]["max_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' 's/timeout_propose = "3s"/timeout_propose = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_commit = "5s"/timeout_commit = "1s"/g' "$CONFIG"
+        sed -i '' 's/timeout_propose = "3s"/timeout_propose = "2s"/g' "$CONFIG"
+        sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "2s"/g' "$CONFIG"
+        sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "2s"/g' "$CONFIG"
+        sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "2s"/g' "$CONFIG"
+        sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "2s"/g' "$CONFIG"
+        sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "2s"/g' "$CONFIG"
+        sed -i '' 's/timeout_commit = "5s"/timeout_commit = "2s"/g' "$CONFIG"
         sed -i '' 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "15s"/g' "$CONFIG"
     else
-        sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_precommit = "1s"/timeout_precommit = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_commit = "5s"/timeout_commit = "1s"/g' "$CONFIG"
+        sed -i 's/timeout_propose = "3s"/timeout_propose = "2s"/g' "$CONFIG"
+        sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "2s"/g' "$CONFIG"
+        sed -i 's/timeout_prevote = "1s"/timeout_prevote = "2s"/g' "$CONFIG"
+        sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "2s"/g' "$CONFIG"
+        sed -i 's/timeout_precommit = "1s"/timeout_precommit = "2s"/g' "$CONFIG"
+        sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "2s"/g' "$CONFIG"
+        sed -i 's/timeout_commit = "5s"/timeout_commit = "2s"/g' "$CONFIG"
         sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "15s"/g' "$CONFIG"
     fi
 	# Allocate genesis accounts (cosmos formatted addresses)
