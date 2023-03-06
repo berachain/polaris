@@ -1,0 +1,43 @@
+import { Callout } from "nextra-theme-docs";
+
+# System Configuration
+
+<Callout emoji="☢️">
+This guide has been tested against MacOS & Linux distributions only. To ensure a successful production environment setup, consider using one of these options.
+
+</Callout>
+
+The hardware requirements for running Polaris depend upon the node configuration and can change over time as upgrades to the network are implemented.
+
+## Hardware Requirements
+
+This system spec has been tested by many users and validators and found to be comfortable in a public environment:
+
+- Quad Core or larger amd64 or arm64 CPU.
+- 64GB RAM (A lot can be in swap)
+- 1TB NVMe Storage
+- 100MBPS bidirectional internet connection
+
+You can run Polaris on lower-spec hardware for each component, but you may find that it is not highly performant or prone to crashing.
+
+## Commonly used ports
+
+`polard` uses the following TCP ports. Toggle their settings to match your environment.
+
+Most validators will only need to open the following port:
+
+- `26656`: The default port for the P2P protocol. This port is used to communicate with other nodes and must be open to join a network. However, it does not have to be open to the public. For validator nodes, [configuring `persistent_peers`](updates-and-additional.mdx#additional-settings) and closing this port to the public are recommended.
+
+Additional ports:
+
+- `1317`: The default port for the [Lite Client Daemon](../../develop/guides/start-lcd.mdx) (LCD). The LCD provides an HTTP RESTful API layer to allow applications and services to interact with your polard instance through RPC. You don't need to open this port unless you have use for it. This port also hosts the Ethereum JSON-RPC Server which is default hosted at `0.0.0.0:1317/eth/rpc`
+
+- `26660`: The default port for interacting with the [Prometheus](https://prometheus.io) database, which can be used to monitor the environment. In the default configuration, this port is not open.
+
+- `26657`: The default port for the RPC protocol. Because this port is used for querying and sending transactions, it must be open for serving queries from polard.
+
+<Callout type="warning" icon="☢️">
+
+Do not open port `26657` to the public unless you plan to run a public node.
+
+</Callout>

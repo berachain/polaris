@@ -1,0 +1,71 @@
+{
+  "index": "Introduction",
+  "-- Getting Started --": {
+    "type": "separator",
+    "title": "Getting Started"
+  },
+  "introduction": "Introduction",
+  "system-config": "System Configuration",
+  "running-a-node": "Running a Node",
+  "using-metamask": "Using Metamask",
+  "-- Fundamentals --": {
+    "type": "separator",
+    "title": "Fundamentals"
+  },
+  "evm-on-polaris": "Overview",
+  "precompile-overview": "Precompiles",
+  "opcodes": "Opcodes",
+  "json-rpc": "JSON-RPC",
+  "tracing": "EVM Tracing",
+  "architecture": "Architecture Overview",
+  "erc20-middleware": "ERC20 Middleware",
+  "-- Building --": {
+    "type": "separator",
+    "title": "Developers"
+  },
+  "building-on-polaris-overview": "Overview",
+  "contributing": "Contributing Guide",
+  "building-modules": "Building Modules",
+  "building-precompiles": "Building Precompiles",
+  "for-frontend-devs": "For Frontend Developers",
+  "for-solidity-devs": "For Solidity Developers",
+  "for-cosmwasm-devs": "For Cosmwasm Developers",
+  "interacting-with-node": "Interacting with the Node",
+  "key-management": "Key Management",
+  "-- Node --": {
+    "type": "separator",
+    "title": "Node Information"
+  },
+  "node-config": "Node Configuration",
+  "node-services": "Node Services",
+  "node-maintenance": "Node Maintenance",
+  "-- Joining A Network --": {
+    "type": "separator",
+    "title": "Joining a Network"
+  },
+  "joining-network-overview": "Overview",
+  "-- Socials --": {
+    "type": "separator",
+    "title": "More"
+  },
+  "github": {
+    "title": "Github",
+    "href": "https://github.com/berachain",
+    "newWindow": true
+  },
+  "twitter": {
+    "title": "Twitter",
+    "href": "https://www.twitter.com/berachain",
+    "newWindow": true
+  },
+  "discord": {
+    "title": "Discord",
+    "href": "https://discord.com/invite/berachain",
+    "newWindow": true
+  },
+  "mirror": {
+    "title": "Mirror.xyz",
+    "href": "https://www.twitter.com/berachain",
+    "newWindow": true
+  }
+}

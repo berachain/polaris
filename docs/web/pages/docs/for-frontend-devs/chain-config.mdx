@@ -1,0 +1,54 @@
+# Chain Configurations
+
+This section covers the default chain configuration for all Polaris 
+environments.
+## Local Node Configurations
+
+### JSON RPC Configuration
+- Network Name: `Polaris`
+- RPC URL: `http://localhost:1317/eth/rpc`
+- Chain ID: `42069`
+- Symbol(optional): `gazer`
+- Block Explorer URL (optional): ``
+
+### Cosmos Chain Configuration / Keplr Chain Info
+- RPC: `http://localhost:9090`
+- REST: `http://localhost:1317`
+- ChainID: `polaris-2061`
+- ChainName: `Polaris`
+- BIP44: `60`
+- Bech32Config:
+    - bech32PrefixAccAddr: `polaris`
+    - bech32PrefixAccPub: `polarispub`
+    - bech32PrefixValAddr: `polarisvaloper`
+    - bech32PrefixValPub: `polarisvaloperpub`
+    - bech32PrefixConsAddr: `polarisvalcons`
+    - bech32PrefixConsPub: `polarisvalconspub`
+- Currencies:
+    - coinDenom: `GAZER`
+    - coinMinimalDenom: `agazer`
+    - coinDecimals: `18`
+    - isStakeCurrency: `true`
+    - isFeeCurrency: `true`
+- StakeCurrency:
+    - coinDenom: `GAZER`
+    - coinMinimalDenom: `agazer`
+    - coinDecimals: `18`
+    - isStakeCurrency: `true`
+    - isFeeCurrency: `true`
+- GasPriceStep:
+    - low: `0`
+    - average: `0`
+    - high: `0.025`
+- Features:
+    - `ibc-transfer`
+    - `ibc-go`
+    - `eth-address-gen`
+    - `eth-key-sign`
+## Testnet Configuration
+
+### JSON RPC Configuration
+🚧 Coming Soon 🚧
+
+### Cosmos Chain Configuration / Keplr Chain Info
+🚧 Coming Soon 🚧

@@ -1,0 +1,11 @@
+{
+  "index": {
+    "title": "Polaris",
+    "type": "page",
+    "display": "hidden"
+  },
+  "docs": {
+    "title": "Documentation",
+    "type": "page"
+  }
+}

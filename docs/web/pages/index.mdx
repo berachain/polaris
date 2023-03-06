@@ -1,0 +1,214 @@
+---
+title: Polaris
+---
+
+import createGlobe from "cobe";
+import { useEffect, useRef } from "react";
+import { useSpring } from "react-spring";
+import Text from '../components/text'
+ 
+export function Cobe() {
+  const canvasRef = useRef();
+  const pointerInteracting = useRef(null);
+  const pointerInteractionMovement = useRef(0);
+  const [{ r }, api] = useSpring(() => ({
+    r: 0,
+    config: {
+      mass: 1,
+      tension: 280,
+      friction: 40,
+      precision: 0.001,
+    },
+  }));
+  useEffect(() => {
+    let phi = 0;
+    let width = 0;
+    let dir = 0; // 0 is smaller, 1 is larger.
+    let mm = 5000;
+    let i = 0;
+    let flip = 0;
+    const onResize = () =>
+      canvasRef.current && (width = canvasRef.current.offsetWidth);
+    window.addEventListener("resize", onResize);
+    onResize();
+    const globe = createGlobe(canvasRef.current, {
+      devicePixelRatio: 2,
+      width: width * 2,
+      height: width * 2,
+      phi: 6.28,
+      theta: -1.5,
+      dark: 1,
+      diffuse: 5,
+      mapSamples: 0.0,
+      mapBrightness: 4.0,
+      mapBaseBrightness: 1,
+      baseColor: [87 / 255, 190 / 255, 229 / 255],
+      markerColor: [87 / 255, 190 / 255, 229 / 255], // 87 190 229
+      glowColor: [87 / 255, 190 / 255, 229 / 255],
+      markers: [],
+      opacity: 0,
+      onRender: (state) => {
+        // Called on every animation frame.
+        // `state` will be an empty object, return updated params.
+        state.phi = phi + r.get();
+        phi += 0.005;
+        state.width = width * 2;
+        state.height = width * 2;
+        state.mapSamples = mm * (i ** (6 / 5) / 25000);
+        state.diffuse = 6;
+        if (dir === 0) {
+          i--;
+          if (i <= 0) {
+            dir = 1;
+          }
+        } else {
+          i++;
+          if (i >= 1200) {
+            dir = 0;
+          }
+        }
+      },
+    });
+    setTimeout(() => (canvasRef.current.style.opacity = "1"));
+    return () => globe.destroy();
+
+}, []);
+return (
+
+<div
+  style={{
+    width: "100%",
+    maxWidth: 600,
+    aspectRatio: 1,
+    margin: "auto",
+    position: "relative",
+  }}
+>
+  <div
+    style={{
+      width: "100%",
+      fontWeight: 900,
+      top: "50%",
+      transform: "translateY(-50%)",
+      zIndex: 1,
+      textAlign: "center",
+      color: "#ffffff",
+      pointerEvents: "none",
+      userSelect: "none",
+      position: "absolute",
+      mixBlendMode: "screen",
+    }}
+  >
+    <h1
+      style={{
+        fontSize: "min(9vw,3.2em)",
+        letterSpacing: ".2em",
+        textIndent: ".2em",
+        margin: "auto",
+        opacity: 1,
+        zIndex: -1,
+      }}
+      className="title"
+    >
+      POLARIS
+    </h1>
+    <span style={{ fontSize: "1.3em", zIndex: -1 }}>
+      <Text />
+    </span>
+  </div>
+  <canvas
+    ref={canvasRef}
+    onPointerDown={(e) => {
+      pointerInteracting.current =
+        e.clientX - pointerInteractionMovement.current;
+      canvasRef.current.style.cursor = "grabbing";
+    }}
+    onPointerUp={() => {
+      pointerInteracting.current = null;
+      canvasRef.current.style.cursor = "grab";
+    }}
+    onPointerOut={() => {
+      pointerInteracting.current = null;
+      canvasRef.current.style.cursor = "grab";
+    }}
+    onMouseMove={(e) => {
+      if (pointerInteracting.current !== null) {
+        const delta = e.clientX - pointerInteracting.current;
+        pointerInteractionMovement.current = delta;
+        api.start({
+          r: delta / 200,
+        });
+      }
+    }}
+    onTouchMove={(e) => {
+      if (pointerInteracting.current !== null && e.touches[0]) {
+        const delta = e.touches[0].clientX - pointerInteracting.current;
+        pointerInteractionMovement.current = delta;
+        api.start({
+          r: delta / 100,
+        });
+      }
+    }}
+    style={{
+      width: "100%",
+      height: "100%",
+      cursor: "grab",
+      contain: "layout paint size",
+      opacity: 0,
+      transition: "opacity 1s ease",
+      borderRadius: "50%",
+    }}
+  />
+</div>
+); }
+
+<Cobe />
+
+import Link from "next/link";
+
+<div style={{ textAlign: "center" }}>
+  <div className="cta-container">
+    <Link href="/docs" className="cta">
+      Get Started
+    </Link>
+    <Link className="cta" href="https://www.github.com/berachain/polaris">
+      Github
+    </Link>
+  </div>
+  <div style={{ marginTop: "2rem" }} />
+  <Link
+    href="https://github.com/berachain/polaris/blob/main/LICENSE"
+    target="_blank"
+    style={{
+      textDecoration: "underline",
+      color: "inherit",
+      opacity: 0.5,
+      fontSize: 14,
+    }}
+  >
+    Polaris is licensed under BUSL-1.1 →
+  </Link>
+</div>
+
+<style jsx global>{`
+  .nav {
+    display: none;
+  }
+  .nextra-nav-container {
+    display: none;
+  }
+  footer {
+    display: none;
+  }
+  body {
+    background: linear-gradient(
+      180deg,
+      hsla(0, 0%, 100%, 0) 0,
+      #fff min(110vw, 800px)
+    ),
+  }
+  .dark body {
+    background: linear-gradient(to bottom, #000000 0%, #000000 100%);
+    fixed repeating-radial-gradient(circle at 50% min(calc(50vw + 3.5rem), calc(300px + 5rem)), #050505 0, #000 40px, transparent 50px);
+  }
+`}</style>

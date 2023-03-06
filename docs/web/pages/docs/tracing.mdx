@@ -1,0 +1,59 @@
+import { Callout } from 'nextra-theme-docs'
+
+# EVM Tracing
+
+Tracing allows users to examine precisely what was executed by the EVM during some specific event or in the course of a set of transactions.
+There are two different types of transactions in the Polaris EVM: value transfers and contract executions. A value transfer simply moves
+the base token from one account to another. Whereas a contract interaction executes code stored at a contract address which can include altering 
+stored data and transacting multiple times with other contracts and externally-owned accounts. A contract execution transaction can 
+therefore be a complicated web of interactions that can be difficult to unpick. The transaction receipt contains a status code that 
+shows whether the transaction succeeded or failed, but more detailed information is not readily available, meaning it is very difficult 
+to know what a contract execution actually did, what data was modified and which addresses were touched. This is the problem that EVM 
+tracing solves. Polaris' interface traces transactions by re-running them locally and collecting data about precisely what was executed by the EVM.
+
+## State Availability
+
+In its simplest form, tracing a transaction entails requesting the Polaris node to reexecute the desired transaction with 
+varying degrees of data collection and have it return an aggregated summary. In order for a Polaris node to reexecute a transaction, 
+all historical state accessed by the transaction must be available. 
+
+By Default, all Polaris nodes are archval nodes.
+It is possible to run a Polaris light client but for EVM tracing, a full node is required.
+
+<Callout emoji="💡">
+An archive node retains all historical data back to genesis. It can therefore trace arbitrary transactions at any point in the history of the chain. Tracing a single transaction requires reexecuting all preceding transactions in the same block.
+</Callout>
+
+
+## Types of Tracing
+
+
+
+### Basic Traces
+
+Polaris has the ability to produce basic transaction traces in the form of raw EVM opcode traces. These traces contain detailed information about every EVM instruction executed during a transaction, 
+such as the opcode name, cost, program counter, remaining gas, error (if any), and execution depth. Additionally, the structured logs can 
+include the content of the execution stack, memory, and contract storage, if desired. Example [Coming Soon]().
+
+### Built-in Tracers
+
+The tracing API of Polaris allows the user to specify a tracer parameter, 
+which determines how the data returned from the API call should be processed. 
+If the tracer parameter is not provided, the default tracer (the struct logger) 
+is used. While the default tracer produces raw opcode traces, they can be 
+cumbersome and difficult to read for many use cases, and can also be quite 
+resource-intensive to process. To address these issues, Polaris includes 
+a set of non-default built-in tracers that can be specified in the API 
+call to return different types of data. These built-in tracers are Go functions 
+that perform specific preprocessing on the trace data 
+before returning it.  Example [Coming Soon]().
+
+### Custom Tracers
+
+Besides the built-in tracers, Polaris also allows users to create custom tracers 
+that can process and return data from events in the EVM in a more convenient format. 
+These custom tracers can be written in either Javascript or Go. Javascript tracers are 
+suitable for quick prototyping, experimentation, and less resource-intensive applications. 
+In contrast, Go tracers offer better performance, but require compilation with the Geth 
+source code. Using custom tracers enables developers to collect only the necessary data 
+and perform any processing directly at the source. Examples [Coming Soon]().
