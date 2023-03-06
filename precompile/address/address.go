@@ -38,29 +38,20 @@ import (
 
 // `Contract` is the precompile contract for the address util.
 type Contract struct {
-	contractAbi abi.ABI
+	precompile.BaseContract
 }
 
-// `NewPrecompileContract` creates a new contract instance that implements the `precompile.StatefulImpl` interface.
+// `NewPrecompileContract` returns a new instance of the bank precompile contract.
 func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.AddressMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
-		contractAbi: contractAbi,
+		BaseContract: precompile.NewBaseContract(
+			contractAbi, common.BytesToAddress([]byte{19}),
+		),
 	}
-}
-
-// `RegisterKey` implements `precompile.StatelessImpl`.
-func (c *Contract) RegistryKey() common.Address {
-	// Contract Address: 0x19
-	return common.BytesToAddress([]byte{19})
-}
-
-// `ABIMethods` implements StatefulImpl.
-func (c *Contract) ABIMethods() map[string]abi.Method {
-	return c.contractAbi.Methods
 }
 
 // `PrecompileMethods` implements StatefulImpl.
@@ -77,16 +68,6 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 			RequiredGas: params.IdentityBaseGas,
 		},
 	}
-}
-
-// `ABIEvents` implements StatefulImpl.
-func (c *Contract) ABIEvents() map[string]abi.Event {
-	return c.contractAbi.Events
-}
-
-// `CustomValueDecoders` implements StatefulImpl.
-func (c *Contract) CustomValueDecoders() coreprecompile.ValueDecoders {
-	return nil
 }
 
 // `ConvertHexToBech32` converts a hex string to a bech32 string.
