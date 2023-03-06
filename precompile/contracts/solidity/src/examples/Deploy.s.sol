@@ -24,36 +24,15 @@ import "forge-std/Script.sol";
 import "./LiquidStaking.sol";
 import "../staking.sol";
 
-contract DeployAndStake is Script {
+contract Deploy is Script {
     LiquidStaking public staking;
-
-    // function run() public {
-    //     vm.startBroadcast();
-
-    //     address precompile = address(0x12);
-    //     address validator = address(0x34);
-
-    //     staking = new LiquidStaking("name", "SYMB", precompile, validator);
-
-    //     vm.stopBroadcast();
-    // }
+    address immutable precompile =
+        address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
+    address public validator = address(0x12); // @dev : Change this to the validator running.
 
     function run() public {
         vm.startBroadcast();
-        // Precomile address
-        address precompile = address(
-            0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF
-        );
-
-        // Get the first validator from the precompile.
-        // address validator = IStakingModule(precompile).getActiveValidators()[0];
-        address[] memory validator = IStakingModule(precompile)
-            .getActiveValidators();
-
-        // Deploy the staking contract.
-        // staking = new LiquidStaking("name", "SYMB", precompile, validator);
-
-        // Stop the broadcast.
+        staking = new LiquidStaking("name", "SYMB", precompile, validator);
         vm.stopBroadcast();
     }
 }
