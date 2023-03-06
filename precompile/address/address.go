@@ -41,7 +41,7 @@ type Contract struct {
 	precompile.BaseContract
 }
 
-// `NewPrecompileContract` returns a new instance of the bank precompile contract.
+// `NewPrecompileContract` returns a new instance of the address utils precompile contract.
 func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.AddressMetaData.ABI)); err != nil {
