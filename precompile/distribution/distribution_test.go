@@ -23,9 +23,6 @@ package distribution_test
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -33,6 +30,9 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 	"pkg.berachain.dev/polaris/precompile/distribution"
 	"pkg.berachain.dev/polaris/x/evm/plugins/precompile/log"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestDistributionPrecompile(t *testing.T) {
@@ -64,7 +64,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		)
 
 		log, err := f.Build(&event)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 })
