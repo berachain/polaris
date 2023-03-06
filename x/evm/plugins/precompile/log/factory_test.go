@@ -55,22 +55,22 @@ var _ = Describe("Factory", func() {
 
 		Expect(func() {
 			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x02})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+		}).ToNot(Panic())
+		Expect(func() {
+			pc.RegistryKeyFunc = func() common.Address {
 				return common.BytesToAddress([]byte{0x01})
 			}
 			pc.ABIEventsFunc = func() map[string]abi.Event {
 				return map[string]abi.Event{
 					"CancelUnbondingDelegation": mockDefaultAbiEvent(),
 				}
-			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
-		}).ToNot(Panic())
-		Expect(func() {
-			pc.RegistryKeyFunc = func() common.Address {
-				return common.BytesToAddress([]byte{0x02})
-			}
-			pc.ABIEventsFunc = mockCustomAbiEvent
-			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
-				return cvd
 			}
 			f = NewFactory([]vm.RegistrablePrecompile{pc})
 		}).ToNot(Panic())
@@ -122,6 +122,15 @@ var _ = Describe("Factory", func() {
 		})
 
 		It("should correctly build a log for valid event with custom decoder", func() {
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x02})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
@@ -148,13 +157,14 @@ var _ = Describe("Factory", func() {
 	When("building invalid Cosmos events", func() {
 		It("should not find the custom value decoder", func() {
 			pc.RegistryKeyFunc = func() common.Address {
-				return common.BytesToAddress([]byte{0x03})
+				return common.BytesToAddress([]byte{0x02})
 			}
 			pc.ABIEventsFunc = mockBadAbiEvent
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
 			f = NewFactory([]vm.RegistrablePrecompile{pc})
+
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
