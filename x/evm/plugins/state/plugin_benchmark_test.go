@@ -38,7 +38,7 @@ var (
 
 func GetNewStatePlugin() core.StatePlugin {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
-	sp := state.NewPlugin(ak, bk, testutil.EvmKey, "abera", nil)
+	sp := state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
 	sp.Reset(ctx)
 	return sp
 }

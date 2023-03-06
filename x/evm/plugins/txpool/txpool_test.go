@@ -18,23 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package txpool_test
 
 import (
-	"math/big"
+	"testing"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `CanTransfer` checks whether there are enough funds in the address' account to make a transfer.
-// NOTE: This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(sdb vm.GethStateDB, addr common.Address, amount *big.Int) bool {
-	return sdb.GetBalance(addr).Cmp(amount) >= 0
-}
-
-// `Transfer` subtracts amount from sender and adds amount to recipient using a `vm.GethStateDB`.
-func Transfer(sdb vm.GethStateDB, sender, recipient common.Address, amount *big.Int) {
-	utils.MustGetAs[vm.StargazerStateDB](sdb).TransferBalance(sender, recipient, amount)
+func TestTxpool(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "x/evm/plugins/txpool")
 }

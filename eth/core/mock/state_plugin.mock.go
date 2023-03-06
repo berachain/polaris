@@ -96,9 +96,6 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
 //			},
-//			TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int)  {
-//				panic("mock out the TransferBalance method")
-//			},
 //		}
 //
 //		// use mockedStatePlugin in code that requires core.StatePlugin
@@ -180,9 +177,6 @@ type StatePluginMock struct {
 
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
-
-	// TransferBalanceFunc mocks the TransferBalance method.
-	TransferBalanceFunc func(address1 common.Address, address2 common.Address, intMoqParam *big.Int)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -325,15 +319,6 @@ type StatePluginMock struct {
 			// IntMoqParam is the intMoqParam argument value.
 			IntMoqParam *big.Int
 		}
-		// TransferBalance holds details about calls to the TransferBalance method.
-		TransferBalance []struct {
-			// Address1 is the address1 argument value.
-			Address1 common.Address
-			// Address2 is the address2 argument value.
-			Address2 common.Address
-			// IntMoqParam is the intMoqParam argument value.
-			IntMoqParam *big.Int
-		}
 	}
 	lockAddBalance        sync.RWMutex
 	lockCreateAccount     sync.RWMutex
@@ -360,7 +345,6 @@ type StatePluginMock struct {
 	lockSetStorage        sync.RWMutex
 	lockSnapshot          sync.RWMutex
 	lockSubBalance        sync.RWMutex
-	lockTransferBalance   sync.RWMutex
 }
 
 // AddBalance calls AddBalanceFunc.
@@ -1184,45 +1168,5 @@ func (mock *StatePluginMock) SubBalanceCalls() []struct {
 	mock.lockSubBalance.RLock()
 	calls = mock.calls.SubBalance
 	mock.lockSubBalance.RUnlock()
-	return calls
-}
-
-// TransferBalance calls TransferBalanceFunc.
-func (mock *StatePluginMock) TransferBalance(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-	if mock.TransferBalanceFunc == nil {
-		panic("StatePluginMock.TransferBalanceFunc: method is nil but StatePlugin.TransferBalance was just called")
-	}
-	callInfo := struct {
-		Address1    common.Address
-		Address2    common.Address
-		IntMoqParam *big.Int
-	}{
-		Address1:    address1,
-		Address2:    address2,
-		IntMoqParam: intMoqParam,
-	}
-	mock.lockTransferBalance.Lock()
-	mock.calls.TransferBalance = append(mock.calls.TransferBalance, callInfo)
-	mock.lockTransferBalance.Unlock()
-	mock.TransferBalanceFunc(address1, address2, intMoqParam)
-}
-
-// TransferBalanceCalls gets all the calls that were made to TransferBalance.
-// Check the length with:
-//
-//	len(mockedStatePlugin.TransferBalanceCalls())
-func (mock *StatePluginMock) TransferBalanceCalls() []struct {
-	Address1    common.Address
-	Address2    common.Address
-	IntMoqParam *big.Int
-} {
-	var calls []struct {
-		Address1    common.Address
-		Address2    common.Address
-		IntMoqParam *big.Int
-	}
-	mock.lockTransferBalance.RLock()
-	calls = mock.calls.TransferBalance
-	mock.lockTransferBalance.RUnlock()
 	return calls
 }

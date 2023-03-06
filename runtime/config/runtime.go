@@ -47,7 +47,7 @@ import (
 
 // DefaultRuntime represents a standard default runtime configuration.
 var DefaultRuntime = &runtimev1alpha1.Module{
-	AppName: "StargazerApp",
+	AppName: "PolarisApp",
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.

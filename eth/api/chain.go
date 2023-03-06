@@ -24,7 +24,7 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core"
 )
 
-// `Chain` defines the methods that the Stargazer Ethereum API exposes. This is the only interface
+// `Chain` defines the methods that the Polaris Ethereum API exposes. This is the only interface
 // that an implementing chain should use.
 type Chain interface {
 	core.ChainReaderWriter

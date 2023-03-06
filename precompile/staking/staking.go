@@ -60,7 +60,7 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) precompile.StatefulImpl {
 
 // `RegistryKey` implements StatefulImpl.
 func (c *Contract) RegistryKey() common.Address {
-	// 0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF
+	// Contract Address: 0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF
 	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
 }
 
@@ -73,27 +73,27 @@ func (c *Contract) ABIMethods() map[string]abi.Method {
 func (c *Contract) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		{
-			AbiSig:  "getDelegation(address, address)",
+			AbiSig:  "getDelegation(address,address)",
 			Execute: c.GetDelegationAddrInput,
 		},
 		{
-			AbiSig:  "getDelegation(string, string)",
+			AbiSig:  "getDelegation(string,string)",
 			Execute: c.GetDelegationStringInput,
 		},
 		{
-			AbiSig:  "getUnbondingDelegation(address)",
+			AbiSig:  "getUnbondingDelegation(address,address)",
 			Execute: c.GetUnbondingDelegationAddrInput,
 		},
 		{
-			AbiSig:  "getUnbondingDelegation(string)",
+			AbiSig:  "getUnbondingDelegation(string,string)",
 			Execute: c.GetUnbondingDelegationStringInput,
 		},
 		{
-			AbiSig:  "getRedelegations(address,address)",
+			AbiSig:  "getRedelegations(address,address,address)",
 			Execute: c.GetRedelegationsAddrInput,
 		},
 		{
-			AbiSig:  "getRedelegations(string,string)",
+			AbiSig:  "getRedelegations(string,string,string)",
 			Execute: c.GetRedelegationsStringInput,
 		},
 		{
@@ -162,7 +162,9 @@ func (c *Contract) GetDelegationAddrInput(
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.getDelegationHelper(ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val))
+	return c.getDelegationHelper(
+		ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val),
+	)
 }
 
 // `GetDelegationStringInput` implements `getDelegation(string)` method.
@@ -201,12 +203,18 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
+	del, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, ErrInvalidDelegatorAddr
+	}
+	val, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, ErrInvalidValidatorAddr
 	}
 
-	return c.getUnbondingDelegationHelper(ctx, caller, evmutils.AddressToValAddress(val))
+	return c.getUnbondingDelegationHelper(
+		ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val),
+	)
 }
 
 // `GetUnbondingDelegationStringInput` implements the `getUnbondingDelegation(string)` method.
@@ -217,17 +225,24 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
+	bech32DelAddr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, ErrInvalidString
 	}
-
-	val, err := sdk.ValAddressFromBech32(bech32Addr)
+	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
+	if err != nil {
+		return nil, err
+	}
+	bech32ValAddr, ok := utils.GetAs[string](args[1])
+	if !ok {
+		return nil, ErrInvalidString
+	}
+	val, err := sdk.ValAddressFromBech32(bech32ValAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.getUnbondingDelegationHelper(ctx, caller, val)
+	return c.getUnbondingDelegationHelper(ctx, del, val)
 }
 
 // `GetRedelegationsAddrInput` implements the `getRedelegations(address,address)` method.
@@ -238,18 +253,22 @@ func (c *Contract) GetRedelegationsAddrInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	srcVal, ok := utils.GetAs[common.Address](args[0])
+	del, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, ErrInvalidDelegatorAddr
+	}
+	srcVal, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, ErrInvalidValidatorAddr
 	}
-	dstVal, ok := utils.GetAs[common.Address](args[1])
+	dstVal, ok := utils.GetAs[common.Address](args[2])
 	if !ok {
 		return nil, ErrInvalidValidatorAddr
 	}
 
 	return c.getRedelegationsHelper(
 		ctx,
-		caller,
+		evmutils.AddressToAccAddress(del),
 		evmutils.AddressToValAddress(srcVal),
 		evmutils.AddressToValAddress(dstVal),
 	)
@@ -263,15 +282,22 @@ func (c *Contract) GetRedelegationsStringInput(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	srcVal, ok := utils.GetAs[string](args[0])
+	bech32DelAddr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, ErrInvalidString
 	}
-	dstVal, ok := utils.GetAs[string](args[1])
+	srcVal, ok := utils.GetAs[string](args[1])
 	if !ok {
 		return nil, ErrInvalidString
 	}
-
+	dstVal, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, ErrInvalidString
+	}
+	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
+	if err != nil {
+		return nil, err
+	}
 	src, err := sdk.ValAddressFromBech32(srcVal)
 	if err != nil {
 		return nil, err
@@ -281,7 +307,7 @@ func (c *Contract) GetRedelegationsStringInput(
 		return nil, err
 	}
 
-	return c.getRedelegationsHelper(ctx, caller, src, dst)
+	return c.getRedelegationsHelper(ctx, del, src, dst)
 }
 
 // `DelegateAddrInput` implements the `delegate(address,uint256)` method.

@@ -35,15 +35,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	ethhd "pkg.berachain.dev/stargazer/crypto/hd"
 	ethkeyring "pkg.berachain.dev/stargazer/crypto/keyring"
-	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/params"
 	runtime "pkg.berachain.dev/stargazer/runtime"
 	config "pkg.berachain.dev/stargazer/runtime/config"
 )
@@ -57,21 +51,6 @@ const (
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
-	megamoney   = 1000000000000000000
-)
-
-var (
-	DummyContract  = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-	TestKey, _     = ethsecp256k1.GenPrivKey()
-	AddressFromKey = TestKey.PubKey().Address()
-	Signer         = ethtypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-
-	TxData = &ethtypes.DynamicFeeTx{
-		Nonce: 0,
-		To:    &DummyContract,
-		Gas:   uint64(thousand),
-		Data:  []byte("abcdef"),
-	}
 )
 
 type TestingT interface {
@@ -114,7 +93,7 @@ func DefaultConfig() network.Config {
 		InterfaceRegistry: encoding.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor: func(val network.ValidatorI) servertypes.Application {
-			return runtime.NewStargazerApp(
+			return runtime.NewPolarisApp(
 				val.GetCtx().Logger, cdb.NewMemDB(), nil, true, sims.EmptyAppOptions{},
 				baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
@@ -135,23 +114,5 @@ func DefaultConfig() network.Config {
 		KeyringOptions:  []keyring.Option{ethkeyring.EthSecp256k1Option()},
 	}
 
-	return cfg
-}
-
-func ConfigWithTestAccount() network.Config {
-	cfg := DefaultConfig()
-	var authState authtypes.GenesisState
-	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[authtypes.ModuleName], &authState)
-	newAccount := authtypes.NewBaseAccount(AddressFromKey.Bytes(), TestKey.PubKey(), onehundred, 0)
-	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-	authState.Accounts = append(authState.Accounts, accounts[0])
-	cfg.GenesisState[authtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&authState)
-	var bankState banktypes.GenesisState
-	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[banktypes.ModuleName], &bankState)
-	bankState.Balances = append(bankState.Balances, banktypes.Balance{
-		Address: sdk.MustBech32ifyAddressBytes("cosmos", AddressFromKey.Bytes()),
-		Coins:   sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(megamoney))),
-	})
-	cfg.GenesisState[banktypes.ModuleName] = cfg.Codec.MustMarshalJSON(&bankState)
 	return cfg
 }

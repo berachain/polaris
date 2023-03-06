@@ -775,6 +775,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
+					caller,
 					"evmutils.ValAddressToEthAddress(val)",
 				)
 				Expect(err).To(MatchError(ErrInvalidValidatorAddr))
@@ -800,6 +801,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
+					caller,
 					evmutils.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -851,6 +853,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
+					evmutils.AddressToAccAddress(caller).String(),
 					val.String(),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -865,6 +868,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
+					caller,
 					"evmutils.ValAddressToEthAddress(val)",
 					evmutils.ValAddressToEthAddress(val),
 				)
@@ -919,6 +923,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
+					evmutils.AddressToAccAddress(caller).String(),
 					"0x",
 					otherVal.String(),
 				)
@@ -932,6 +937,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
+					evmutils.AddressToAccAddress(caller).String(),
 					val.String(),
 					"0x",
 				)
@@ -979,7 +985,7 @@ var _ = Describe("Staking", func() {
 					It("should fail if caller address is wrong", func() {
 						_, err := contract.getUnbondingDelegationHelper(
 							ctx,
-							common.BytesToAddress([]byte("")),
+							sdk.AccAddress([]byte("")),
 							val,
 						)
 						Expect(err).To(HaveOccurred())
@@ -988,7 +994,7 @@ var _ = Describe("Staking", func() {
 					It("should fail if there is no unbonding delegation", func() {
 						_, err := contract.getUnbondingDelegationHelper(
 							ctx,
-							caller,
+							evmutils.AddressToAccAddress(caller),
 							otherVal,
 						)
 						Expect(err).To(HaveOccurred())
@@ -1010,7 +1016,7 @@ var _ = Describe("Staking", func() {
 
 						_, err = contract.getUnbondingDelegationHelper(
 							ctx,
-							caller,
+							evmutils.AddressToAccAddress(caller),
 							val,
 						)
 						Expect(err).ToNot(HaveOccurred())
@@ -1021,7 +1027,7 @@ var _ = Describe("Staking", func() {
 					It("should fail if caller address is wrong", func() {
 						_, err := contract.getRedelegationsHelper(
 							ctx,
-							common.BytesToAddress([]byte("")),
+							sdk.AccAddress([]byte("")),
 							val,
 							otherVal,
 						)
@@ -1031,7 +1037,7 @@ var _ = Describe("Staking", func() {
 					It("should fail if there is no redelegation", func() {
 						_, err := contract.getRedelegationsHelper(
 							ctx,
-							caller,
+							evmutils.AddressToAccAddress(caller),
 							val,
 							otherVal,
 						)

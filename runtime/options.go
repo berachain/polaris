@@ -27,8 +27,8 @@ import (
 	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
 )
 
-// `StargazerAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
-func StargazerAppOptions(
+// `PolarisAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
+func PolarisAppOptions(
 	interfaceRegistry types.InterfaceRegistry, baseAppOptions ...func(*baseapp.BaseApp),
 ) []func(*baseapp.BaseApp) {
 	stargazerAppOptions := baseAppOptions

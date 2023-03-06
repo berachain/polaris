@@ -40,16 +40,18 @@ var paramsPrefix = []byte("params")
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosStargazer
+	plugins.BaseCosmosPolaris
 	core.ConfigurationPlugin
 	SetParams(params *types.Params)
 	GetParams() *types.Params
+	GetEvmDenom() string
 }
 
 // `plugin` implements the core.ConfigurationPlugin interface.
 type plugin struct {
 	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
+	evmDenom    string
 }
 
 // `NewPlugin` returns a new plugin instance.
@@ -63,6 +65,13 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.storeKey), paramsPrefix)
+}
+
+func (p *plugin) GetEvmDenom() string {
+	if p.evmDenom == "" {
+		p.evmDenom = p.GetParams().EvmDenom
+	}
+	return p.evmDenom
 }
 
 // `ChainConfig` implements the core.ConfigurationPlugin interface.

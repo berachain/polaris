@@ -50,7 +50,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin())
+		p = utils.MustGetAs[*plugin](NewPlugin(nil))
 		sdb = &mockSDB{}
 	})
 
@@ -79,7 +79,7 @@ var _ = Describe("plugin", func() {
 // MOCKS BELOW.
 
 type mockSDB struct {
-	vm.StargazerStateDB
+	vm.PolarisStateDB
 }
 
 func (ms *mockSDB) GetContext() context.Context {

@@ -62,7 +62,7 @@ type StateProcessor struct {
 	// the entire block. This is done in order to reduce memory allocs.
 	evm *vm.GethEVM
 	// `statedb` is the state database that is used to mange state during transactions.
-	statedb vm.StargazerStateDB
+	statedb vm.PolarisStateDB
 	// `vmConfig` is the configuration for the EVM.
 	vmConfig *vm.Config
 
@@ -77,8 +77,8 @@ type StateProcessor struct {
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
 // commit flag.
 func NewStateProcessor(
-	host StargazerHostChain,
-	statedb vm.StargazerStateDB,
+	host PolarisHostChain,
+	statedb vm.PolarisStateDB,
 	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{
@@ -152,11 +152,10 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
 	// Set the gasPool to have the remaining gas in the block.
-	// ASSUMPTION: That the host chain has not consumped the intrinsic gas yet.
-	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.CumulativeGasUsed())
-	if err = sp.gp.SetTxGasLimit(msg.Gas()); err != nil {
-		return nil, errors.Wrapf(err, "could not set gas plugin limit %d [%s]", len(sp.txs), txHash.Hex())
-	}
+	// By setting the gas pool to the delta between the block gas limit and the cumulative gas
+	// used, we intrinsic handle the case where the transaction on our host chain might have
+	// fully reverted, when it fact it should've been a vm error saying out of gas.
+	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
@@ -164,17 +163,26 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	// Consume the gas used by the state tranisition.
-	if err = sp.gp.TxConsumeGas(result.UsedGas); err != nil {
+	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
+	// while still ensuring that we consume all the gas.
+	if result.UsedGas > sp.gp.GasRemaining() {
+		result.UsedGas = sp.gp.GasRemaining()
+		result.Err = vm.ErrOutOfGas
+	}
+
+	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
+	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.
+	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
 	// Create a new receipt for the transaction.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
-		CumulativeGasUsed: sp.gp.CumulativeGasUsed(),
+		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
+		Logs:              sp.statedb.Logs(),
 	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
@@ -182,13 +190,19 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
+	// Set the receipt status based on the execution result status.
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
 	} else {
-		// if the result didn't produce a consensus error then we can properly commit the state.
-		sp.statedb.Finalize()
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
+
+	// Finalize the statedb to ensure that any state changes that are required are propogated.
+	// We have to do this irrespective of whether the transaction failed or not, in order to
+	// ensure that the sender's nonce increases as well as the transaction fees are paid.
+	// The snapshotting within the EVM ensures that any reverted state changes are not reflected
+	// in the finalized state.
+	sp.statedb.Finalize()
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
@@ -208,10 +222,16 @@ func (sp *StateProcessor) Finalize(
 	// We iterate over all of the receipts/transactions in the block and update the receipt to
 	// have the correct values. We must do this AFTER all the transactions have been processed
 	// to ensure that the block hash, logs and bloom filter have the correct information.
-	blockHash, blockNum := sp.header.Hash(), sp.header.Number.Uint64()
+	blockHash, blockNumber := sp.header.Hash(), sp.header.Number.Uint64()
+	var logIndex uint
 	for txIndex, receipt := range sp.receipts {
-		// Set the receipt logs and create the bloom filter.
-		receipt.Logs = sp.statedb.GetLogs(receipt.TxHash, blockNum, blockHash)
+		// Edit the receipts to include the block hash and bloom filter.
+		for _, log := range receipt.Logs {
+			log.BlockNumber = blockNumber
+			log.BlockHash = blockHash
+			log.Index = logIndex
+			logIndex++
+		}
 		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 		receipt.BlockHash = blockHash
 		receipt.BlockNumber = sp.header.Number
@@ -219,7 +239,7 @@ func (sp *StateProcessor) Finalize(
 	}
 
 	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = sp.gp.CumulativeGasUsed()
+	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, nil
@@ -228,15 +248,6 @@ func (sp *StateProcessor) Finalize(
 // ===========================================================================
 // Utilities
 // ===========================================================================
-
-// `NewEVMBlockContext` creates a new block context for use in the EVM.
-func (sp *StateProcessor) NewEVMBlockContext(cc ChainContext) vm.BlockContext {
-	feeCollector := sp.cp.FeeCollector()
-	if feeCollector == nil {
-		feeCollector = &sp.header.Coinbase
-	}
-	return NewEVMBlockContext(sp.header, cc, feeCollector)
-}
 
 // `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
 func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {

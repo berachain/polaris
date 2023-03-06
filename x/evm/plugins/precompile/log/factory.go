@@ -41,30 +41,15 @@ type Factory struct {
 	customValueDecoders precompile.ValueDecoders
 }
 
-// `NewFactory` returns a `Factory` with an empty events registry and custom value decoders map.
-func NewFactory() *Factory {
-	return &Factory{
+// `NewFactory` returns a `Factory` with the events and custom value decoders of the given
+// precompiles registered.
+func NewFactory(precompiles []vm.RegistrablePrecompile) *Factory {
+	f := &Factory{
 		events:              registry.NewMap[string, *precompileLog](),
 		customValueDecoders: make(precompile.ValueDecoders),
 	}
-}
-
-// `RegisterAllEvents` registers all Ethereum events from the provided precompiles with the factory.
-func (f *Factory) RegisterAllEvents(precompiles []vm.RegistrablePrecompile) {
-	for _, pc := range precompiles {
-		if spc, ok := utils.GetAs[precompile.StatefulImpl](pc); ok {
-			// register the ABI Event as a precompile log
-			moduleEthAddr := spc.RegistryKey()
-			for _, event := range spc.ABIEvents() {
-				_ = f.events.Register(newPrecompileLog(moduleEthAddr, event))
-			}
-
-			// register the precompile's custom value decoders, if any are provided
-			for attr, decoder := range spc.CustomValueDecoders() {
-				f.customValueDecoders[attr] = decoder
-			}
-		}
-	}
+	f.registerAllEvents(precompiles)
+	return f
 }
 
 // `Build` builds an Ethereum log from a Cosmos event.
@@ -96,4 +81,22 @@ func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
 	}
 
 	return log, nil
+}
+
+// `registerAllEvents` registers all Ethereum events from the provided precompiles with the factory.
+func (f *Factory) registerAllEvents(precompiles []vm.RegistrablePrecompile) {
+	for _, pc := range precompiles {
+		if spc, ok := utils.GetAs[precompile.StatefulImpl](pc); ok {
+			// register the ABI Event as a precompile log
+			moduleEthAddr := spc.RegistryKey()
+			for _, event := range spc.ABIEvents() {
+				_ = f.events.Register(newPrecompileLog(moduleEthAddr, event))
+			}
+
+			// register the precompile's custom value decoders, if any are provided
+			for attr, decoder := range spc.CustomValueDecoders() {
+				f.customValueDecoders[attr] = decoder
+			}
+		}
+	}
 }

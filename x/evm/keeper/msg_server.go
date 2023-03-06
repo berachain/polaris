@@ -24,9 +24,7 @@ import (
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
-	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"pkg.berachain.dev/stargazer/x/evm/types"
@@ -36,26 +34,17 @@ import (
 var _ types.MsgServiceServer = &Keeper{}
 
 // `EthTransaction` implements the  MsgServiceServer interface. It processes an incoming request
-// and applies it to the Stargazer Chain.
+// and applies it to the Polaris Chain.
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
 ) (*types.EthTransactionResponse, error) {
-	tx := msg.AsTransaction()
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "hash", tx.Hash())
-
-	ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).
-		WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
-
 	// Process the transaction and return the result.
-	result, err := k.ProcessTransaction(ctx, tx)
+	result, err := k.ProcessTransaction(ctx, msg.AsTransaction())
 	if err != nil {
-		k.Logger(sdk.UnwrapSDKContext(ctx)).Error("keeper.EthTransaction", "error", err)
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
 	}
 
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("keeper.EthTransaction", "exec_result", result)
-	// Build response and return.
-
+	// Build the response.
 	vmErr := ""
 	if result.Err != nil {
 		vmErr = result.Err.Error()
@@ -69,7 +58,7 @@ func (k *Keeper) EthTransaction(
 }
 
 // `UpdateParams`  processes an incoming request and applies it to the Configuration plugin to
-// update things about both the Stargazer Chain as well as the EVM Module.
+// update things about both the Polaris Chain as well as the EVM Module.
 func (k *Keeper) UpdateParams(
 	ctx context.Context, req *types.UpdateParamsRequest,
 ) (*types.UpdateParamsResponse, error) {

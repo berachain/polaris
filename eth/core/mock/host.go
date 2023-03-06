@@ -24,10 +24,10 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core"
 )
 
-//go:generate moq -out ./host.mock.go -pkg mock ../ StargazerHostChain
+//go:generate moq -out ./host.mock.go -pkg mock ../ PolarisHostChain
 
-func NewMockHost() *StargazerHostChainMock {
-	mockedStargazerHostChain := &StargazerHostChainMock{
+func NewMockHost() *PolarisHostChainMock {
+	mockedPolarisHostChain := &PolarisHostChainMock{
 		GetBlockPluginFunc: func() core.BlockPlugin {
 			panic("mock out the GetBlockPlugin method")
 		},
@@ -44,5 +44,5 @@ func NewMockHost() *StargazerHostChainMock {
 			panic("mock out the GetStatePlugin method")
 		},
 	}
-	return mockedStargazerHostChain
+	return mockedPolarisHostChain
 }

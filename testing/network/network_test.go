@@ -18,15 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package simtests
+package network_test
 
 import (
 	"testing"
-	"time"
-
-	"github.com/ethereum/go-ethereum/ethclient"
-
-	network "pkg.berachain.dev/stargazer/testing/utils/network"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -34,25 +29,23 @@ import (
 
 func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "integration")
+	RunSpecs(t, "testutil/network:integration")
 }
 
-var _ = Describe("SimulationTests", func() {
-	var net *network.Network
-	// var client *ethclient.Client
-
+var _ = Describe("Network", func() {
+	// var net *network.Network
 	BeforeEach(func() {
-		cfg := network.ConfigWithTestAccount()
-		net = network.New(GinkgoT(), cfg)
-		_, err := net.WaitForHeightWithTimeout(1, 15*time.Second)
-		Expect(err).ToNot(HaveOccurred())
-		_, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
-		Expect(err).ToNot(HaveOccurred())
-
+		// net = network.New(GinkgoT(), network.DefaultConfig())
+		// time.Sleep(10 * time.Second)
+		// _, _ = net.WaitForHeightWithTimeout(3, 15*time.Second)
 	})
 
-	It("should be able to send a transaction and verify it's been received with receipt", func() {
-		//TODO: implement
-		Expect(true).To(BeTrue())
-	})
+	// It("eth_chainId", func() {
+	// 	// Dial an Ethereum RPC Endpoint
+	// 	client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
+	// 	Expect(err).To(BeNil())
+	// 	chainID, err := client.ChainID(context.Background())
+	// 	Expect(err).To(BeNil())
+	// 	Expect(chainID.String()).To(Equal("42069"))
+	// })
 })

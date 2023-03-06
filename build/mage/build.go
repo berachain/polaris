@@ -56,7 +56,7 @@ var (
 
 // Runs a series of commonly used commands.
 func All() error {
-	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint, BuildStargazerApp, Test, TestIntegration}
+	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint, BuildPolarisApp, Test, TestIntegration}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err
@@ -65,7 +65,7 @@ func All() error {
 	return nil
 }
 
-func BuildStargazerApp() error {
+func BuildPolarisApp() error {
 	cmd := "stargazerd"
 	args := []string{
 		generateBuildTags(),
@@ -92,7 +92,7 @@ func Build() error {
 		return err
 	}
 
-	if err = BuildStargazerApp(); err != nil {
+	if err = BuildPolarisApp(); err != nil {
 		return err
 	}
 
