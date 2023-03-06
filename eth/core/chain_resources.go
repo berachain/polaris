@@ -23,16 +23,16 @@ package core
 import (
 	"context"
 
-	"pkg.berachain.dev/stargazer/eth/core/state"
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/state"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // `ChainResources` is the interface that defines functions for code paths within the chain to acquire
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
-	GetEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 }
 
 // `GetStateByNumber` returns a statedb configured to read what the state of the blockchain is/was
@@ -49,23 +49,20 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 // to acquire a new EVM at the start of every block. As well as by the backend to acquire an EVM for running
 // gas estimations, eth_call etc.
 func (bc *blockchain) GetEVM(
-	_ context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
+	_ context.Context, txContext vm.TxContext, state vm.PolarisStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) *vm.GethEVM {
-	blockContext := vm.BlockContext{
-		CanTransfer: CanTransfer,
-		Transfer:    Transfer,
-		GetHash:     GetHashFn(header, bc.cc),
-		Coinbase:    header.Coinbase, // todo: check for fee collector
-		GasLimit:    header.GasLimit,
-		BlockNumber: header.Number,
-		Time:        header.Time,
-		Difficulty:  header.Difficulty,
-		BaseFee:     header.BaseFee,
-	}
-
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
-		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
+		bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
+}
+
+// `NewEVMBlockContext` creates a new block context for use in the EVM.
+func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
+	feeCollector := bc.host.GetConfigurationPlugin().FeeCollector()
+	if feeCollector == nil {
+		feeCollector = &header.Coinbase
+	}
+	return NewEVMBlockContext(header, &chainContext{bc}, feeCollector)
 }

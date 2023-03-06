@@ -28,10 +28,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
 )
 
 // TODO: change this.
@@ -39,7 +39,7 @@ const bf = uint64(1)
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosStargazer
+	plugins.BaseCosmosPolaris
 	core.BlockPlugin
 
 	// `UpdateOffChainStorage` updates the offchain storage with the new block and receipts.
@@ -50,7 +50,7 @@ type Plugin interface {
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 }
 
-// `plugin` keeps track of stargazer blocks via headers.
+// `plugin` keeps track of polaris blocks via headers.
 type plugin struct {
 	// `ctx` is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
@@ -117,7 +117,7 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 		// `Root` is set to the hash of the state after the transactions are applied.
 		Root: common.BytesToHash(cometHeader.AppHash),
 		// `TxHash` is set to the hash of the transactions in the block. We take the
-		// `DataHash` from the `sdk.Context` opposed to using DeriveSha on the StargazerBlock,
+		// `DataHash` from the `sdk.Context` opposed to using DeriveSha on the PolarisBlock,
 		// in order to include non-evm transactions block hash.
 		TxHash: txHash,
 		// We simply map the cosmos "BlockHeight" to the ethereum "BlockNumber".
@@ -140,7 +140,7 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 		MixDigest: common.Hash{},
 		// `Nonce` is set empty as it is only used in PoW consensus.
 		Nonce: coretypes.BlockNonce{},
-		// `Extra` is unused in Stargazer, but can be used to store additional information, e.g.
+		// `Extra` is unused in Polaris, but can be used to store additional information, e.g.
 		// the host block hash.
 		Extra: []byte(nil),
 	}

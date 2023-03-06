@@ -46,7 +46,7 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - 
-        name: Setup Golang caches
+        name: Cache Golang Deps
         uses: actions/cache@v3
         with:
           path: |
@@ -61,7 +61,6 @@ jobs:
            go run build/setup.go
       -
         name: Run ${{ matrix.args }}
-        continue-on-error: true
         uses: magefile/mage-action@v2
         with:
           version: latest
@@ -71,7 +70,6 @@ jobs:
         name: Upload Coverage Report
         uses: codecov/codecov-action@v3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage-${{ matrix.args }}.txt
           fail_ci_if_error: true
           verbose: true

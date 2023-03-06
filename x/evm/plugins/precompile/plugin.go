@@ -27,28 +27,29 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/lib/registry"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
-	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/registry"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
+	"pkg.berachain.dev/polaris/x/evm/plugins/precompile/log"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
 )
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosStargazer
+	plugins.BaseCosmosPolaris
 	core.PrecompilePlugin
 
-	// `SetPrecompiles` sets the precompiles.
-	SetPrecompiles([]vm.RegistrablePrecompile)
 	KVGasConfig() storetypes.GasConfig
 	SetKVGasConfig(storetypes.GasConfig)
 	TransientKVGasConfig() storetypes.GasConfig
 	SetTransientKVGasConfig(storetypes.GasConfig)
+	GetLogFactory() events.PrecompileLogFactory
 }
 
 // `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
@@ -60,24 +61,28 @@ type plugin struct {
 	kvGasConfig storetypes.GasConfig
 	// transientKVGasConfig is the gas config for the transient KV store.
 	transientKVGasConfig storetypes.GasConfig
+	// plf builds Eth events from Cosmos events, emitted during precompile execution.
+	plf events.PrecompileLogFactory
 }
 
 // `NewPlugin` creates and returns a `plugin` with the default kv gas configs.
-func NewPlugin() Plugin {
+func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 	return &plugin{
 		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
+		precompiles:          precompiles,
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
+		plf:                  log.NewFactory(precompiles),
 	}
-}
-
-func (p *plugin) SetPrecompiles(precompiles []vm.RegistrablePrecompile) {
-	p.precompiles = precompiles
 }
 
 // `GetPrecompiles` implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
 	return p.precompiles
+}
+
+func (p *plugin) GetLogFactory() events.PrecompileLogFactory {
+	return p.plf
 }
 
 func (p *plugin) KVGasConfig() storetypes.GasConfig {
@@ -110,8 +115,8 @@ func (p *plugin) Run(
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
-	// get native Cosmos SDK context from the Stargazer StateDB
-	ctx := sdk.UnwrapSDKContext(utils.MustGetAs[vm.StargazerStateDB](sdb).GetContext())
+	// get native Cosmos SDK context from the Polaris StateDB
+	ctx := sdk.UnwrapSDKContext(utils.MustGetAs[vm.PolarisStateDB](sdb).GetContext())
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
 	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
@@ -119,10 +124,11 @@ func (p *plugin) Run(
 
 	// run precompile container
 	ret, err := pc.Run(
-		ctx.
-			WithGasMeter(gm).
-			WithKVGasConfig(p.kvGasConfig).
-			WithTransientKVGasConfig(p.transientKVGasConfig),
+		ctx.WithGasMeter(gm),
+		// TODO: Re-enable gas config for precompiles.
+		// https://github.com/berachain/polaris/issues/393
+		// WithKVGasConfig(p.kvGasConfig).
+		// WithTransientKVGasConfig(p.transientKVGasConfig),
 		input,
 		caller,
 		value,

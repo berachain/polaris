@@ -28,32 +28,31 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/stargazer/eth"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	ethlog "pkg.berachain.dev/stargazer/eth/log"
-	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
-	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/store/offchain"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/gas"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
-	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/eth"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
+	ethrpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
+	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/store/offchain"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
+	"pkg.berachain.dev/polaris/x/evm/plugins/block"
+	"pkg.berachain.dev/polaris/x/evm/plugins/configuration"
+	"pkg.berachain.dev/polaris/x/evm/plugins/gas"
+	"pkg.berachain.dev/polaris/x/evm/plugins/precompile"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/x/evm/plugins/txpool"
+	"pkg.berachain.dev/polaris/x/evm/plugins/txpool/mempool"
+	evmrpc "pkg.berachain.dev/polaris/x/evm/rpc"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // Compile-time interface assertion.
-var _ core.StargazerHostChain = (*Keeper)(nil)
+var _ core.PolarisHostChain = (*Keeper)(nil)
 
 type Keeper struct {
-	// `provider` is the struct that houses the Stargazer EVM.
-	stargazer *eth.StargazerProvider
+	// `provider` is the struct that houses the Polaris EVM.
+	polaris *eth.PolarisProvider
 	// We store a reference to the `rpcProvider` so that we can register it with
 	// the cosmos mux router.
 	rpcProvider evmrpc.Provider
@@ -64,7 +63,7 @@ type Keeper struct {
 	// `authority` is the bech32 address that is allowed to execute governance proposals.
 	authority string
 
-	// The various plugins are used to implement `core.StargazerHostChain`.
+	// The various plugins that are are used to implement `core.PolarisHostChain`.
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
@@ -73,7 +72,7 @@ type Keeper struct {
 	txp txpool.Plugin
 }
 
-// NewKeeper creates new instances of the stargazer Keeper.
+// NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
@@ -83,6 +82,7 @@ func NewKeeper(
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
 ) *Keeper {
+	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
 		authority: authority,
 		storeKey:  storeKey,
@@ -102,9 +102,7 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
-
 	return k
 }
 
@@ -124,27 +122,29 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	}))
 }
 
-func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
-	k.sp.SetQueryContextFn(fn)
-	k.bp.SetQueryContextFn(fn)
-}
-
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
+// `Setup` sets up the precompile and state plugins with the given precompiles and keepers. It also
+// sets the query context function for the block and state plugins (to support historical queries).
 func (k *Keeper) Setup(
-	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
+	ak state.AccountKeeper,
+	bk state.BankKeeper,
+	precompiles []vm.RegistrablePrecompile,
+	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
-	plf := precompilelog.NewFactory()
-	k.pp = precompile.NewPlugin()
-	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
-	k.pp.SetPrecompiles(precompiles)
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+	// Setup the precompile and state plugins
+	k.pp = precompile.NewPlugin(precompiles)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, k.cp, k.pp)
 
-	// Build the Stargazer EVM Provider
-	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
+	// Set the query context function for the block and state plugins
+	k.sp.SetQueryContextFn(qc)
+	k.bp.SetQueryContextFn(qc)
+
+	// Build the Polaris EVM Provider
+	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
 // `GetBlockPlugin` returns the block plugin.
@@ -178,8 +178,8 @@ func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
 }
 
 // `GetAllPlugins` returns all the plugins.
-func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
-	return []plugins.BaseCosmosStargazer{k.bp, k.cp, k.gp, k.pp, k.sp}
+func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosPolaris {
+	return []plugins.BaseCosmosPolaris{k.bp, k.cp, k.gp, k.pp, k.sp}
 }
 
 // `GetRPCProvider` returns the RPC provider. We use this in `app.go` to register

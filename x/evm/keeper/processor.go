@@ -25,52 +25,64 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/core"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("keeper.BeginBlocker")
-	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
+	k.polaris.Prepare(ctx, sCtx.BlockHeight())
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
-	// Process the transaction and return the receipt.
-	// TODO: gas is fucked
-	result, err := k.stargazer.ProcessTransaction(ctx, tx)
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
+	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
+	// complex operations prior to entering the EVM.
+	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(),
+		"reset gas meter prior to ethereum state transition")
+
+	// Process the transaction and return the EVM's execution result.
+	execResult, err := k.polaris.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: note if we get a Block Error out of gas here, we need the transaction to be included
-	// in the block. This is because the transaction was included in the block, but something
-	// happened to put it into a situation where it really should have, this will traditionally
-	// cause the cosmos transaction to fail, which is correct, but not what we want here. What
-	// we need to do, is edit the gas consumption to consume the remaining gas in the block,
-	//  modifying the receipt, and return a failed EVM tx, but a successful cosmos tx.
-	// TODO: determine if the above is actually correct.
+	// We don't want the cosmos transaction to be marked as failed if the EVM reverts. But
+	// its not the worst idea to log the error.
+	if execResult.Err != nil {
+		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(
+			"evm execution",
+			"tx_hash", tx.Hash(),
+			"error", execResult.Err,
+			"gas_consumed", sCtx.GasMeter().GasConsumed())
+	} else {
+		k.Logger(sdk.UnwrapSDKContext(ctx)).Debug(
+			"evm execution",
+			"tx_hash", tx.Hash(),
+			"gas_consumed", sCtx.GasMeter().GasConsumed(),
+		)
+	}
 
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Info("End ProcessTransaction()")
-	return result, err
+	// Return the execution result.
+	return execResult, err
 }
 
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
 func (k *Keeper) EndBlocker(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-
 	// Finalize the block and retrieve it from the processor.
-	block, receipts, err := k.stargazer.Finalize(ctx)
+	block, receipts, err := k.polaris.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}
 
 	header := block.Header()
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", header)
 
 	// Save the historical header in the IAVL Tree.
+	// TODO: move this to within the eth folder? And do the historical data the
+	// way geth does it?
 	err = k.bp.SetHeader(header)
 	if err != nil {
 		panic(err)

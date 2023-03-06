@@ -4,21 +4,21 @@
 package mock
 
 import (
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"sync"
 )
 
-// Ensure, that StargazerHostChainMock does implement core.StargazerHostChain.
+// Ensure, that PolarisHostChainMock does implement core.PolarisHostChain.
 // If this is not the case, regenerate this file with moq.
-var _ core.StargazerHostChain = &StargazerHostChainMock{}
+var _ core.PolarisHostChain = &PolarisHostChainMock{}
 
-// StargazerHostChainMock is a mock implementation of core.StargazerHostChain.
+// PolarisHostChainMock is a mock implementation of core.PolarisHostChain.
 //
-//	func TestSomethingThatUsesStargazerHostChain(t *testing.T) {
+//	func TestSomethingThatUsesPolarisHostChain(t *testing.T) {
 //
-//		// make and configure a mocked core.StargazerHostChain
-//		mockedStargazerHostChain := &StargazerHostChainMock{
+//		// make and configure a mocked core.PolarisHostChain
+//		mockedPolarisHostChain := &PolarisHostChainMock{
 //			GetBlockPluginFunc: func() core.BlockPlugin {
 //				panic("mock out the GetBlockPlugin method")
 //			},
@@ -39,11 +39,11 @@ var _ core.StargazerHostChain = &StargazerHostChainMock{}
 //			},
 //		}
 //
-//		// use mockedStargazerHostChain in code that requires core.StargazerHostChain
+//		// use mockedPolarisHostChain in code that requires core.PolarisHostChain
 //		// and then make assertions.
 //
 //	}
-type StargazerHostChainMock struct {
+type PolarisHostChainMock struct {
 	// GetBlockPluginFunc mocks the GetBlockPlugin method.
 	GetBlockPluginFunc func() core.BlockPlugin
 
@@ -92,9 +92,9 @@ type StargazerHostChainMock struct {
 }
 
 // GetBlockPlugin calls GetBlockPluginFunc.
-func (mock *StargazerHostChainMock) GetBlockPlugin() core.BlockPlugin {
+func (mock *PolarisHostChainMock) GetBlockPlugin() core.BlockPlugin {
 	if mock.GetBlockPluginFunc == nil {
-		panic("StargazerHostChainMock.GetBlockPluginFunc: method is nil but StargazerHostChain.GetBlockPlugin was just called")
+		panic("PolarisHostChainMock.GetBlockPluginFunc: method is nil but PolarisHostChain.GetBlockPlugin was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -107,8 +107,8 @@ func (mock *StargazerHostChainMock) GetBlockPlugin() core.BlockPlugin {
 // GetBlockPluginCalls gets all the calls that were made to GetBlockPlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.GetBlockPluginCalls())
-func (mock *StargazerHostChainMock) GetBlockPluginCalls() []struct {
+//	len(mockedPolarisHostChain.GetBlockPluginCalls())
+func (mock *PolarisHostChainMock) GetBlockPluginCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -119,9 +119,9 @@ func (mock *StargazerHostChainMock) GetBlockPluginCalls() []struct {
 }
 
 // GetConfigurationPlugin calls GetConfigurationPluginFunc.
-func (mock *StargazerHostChainMock) GetConfigurationPlugin() core.ConfigurationPlugin {
+func (mock *PolarisHostChainMock) GetConfigurationPlugin() core.ConfigurationPlugin {
 	if mock.GetConfigurationPluginFunc == nil {
-		panic("StargazerHostChainMock.GetConfigurationPluginFunc: method is nil but StargazerHostChain.GetConfigurationPlugin was just called")
+		panic("PolarisHostChainMock.GetConfigurationPluginFunc: method is nil but PolarisHostChain.GetConfigurationPlugin was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -134,8 +134,8 @@ func (mock *StargazerHostChainMock) GetConfigurationPlugin() core.ConfigurationP
 // GetConfigurationPluginCalls gets all the calls that were made to GetConfigurationPlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.GetConfigurationPluginCalls())
-func (mock *StargazerHostChainMock) GetConfigurationPluginCalls() []struct {
+//	len(mockedPolarisHostChain.GetConfigurationPluginCalls())
+func (mock *PolarisHostChainMock) GetConfigurationPluginCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -146,9 +146,9 @@ func (mock *StargazerHostChainMock) GetConfigurationPluginCalls() []struct {
 }
 
 // GetGasPlugin calls GetGasPluginFunc.
-func (mock *StargazerHostChainMock) GetGasPlugin() core.GasPlugin {
+func (mock *PolarisHostChainMock) GetGasPlugin() core.GasPlugin {
 	if mock.GetGasPluginFunc == nil {
-		panic("StargazerHostChainMock.GetGasPluginFunc: method is nil but StargazerHostChain.GetGasPlugin was just called")
+		panic("PolarisHostChainMock.GetGasPluginFunc: method is nil but PolarisHostChain.GetGasPlugin was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -161,8 +161,8 @@ func (mock *StargazerHostChainMock) GetGasPlugin() core.GasPlugin {
 // GetGasPluginCalls gets all the calls that were made to GetGasPlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.GetGasPluginCalls())
-func (mock *StargazerHostChainMock) GetGasPluginCalls() []struct {
+//	len(mockedPolarisHostChain.GetGasPluginCalls())
+func (mock *PolarisHostChainMock) GetGasPluginCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -173,9 +173,9 @@ func (mock *StargazerHostChainMock) GetGasPluginCalls() []struct {
 }
 
 // GetPrecompilePlugin calls GetPrecompilePluginFunc.
-func (mock *StargazerHostChainMock) GetPrecompilePlugin() precompile.Plugin {
+func (mock *PolarisHostChainMock) GetPrecompilePlugin() precompile.Plugin {
 	if mock.GetPrecompilePluginFunc == nil {
-		panic("StargazerHostChainMock.GetPrecompilePluginFunc: method is nil but StargazerHostChain.GetPrecompilePlugin was just called")
+		panic("PolarisHostChainMock.GetPrecompilePluginFunc: method is nil but PolarisHostChain.GetPrecompilePlugin was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -188,8 +188,8 @@ func (mock *StargazerHostChainMock) GetPrecompilePlugin() precompile.Plugin {
 // GetPrecompilePluginCalls gets all the calls that were made to GetPrecompilePlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.GetPrecompilePluginCalls())
-func (mock *StargazerHostChainMock) GetPrecompilePluginCalls() []struct {
+//	len(mockedPolarisHostChain.GetPrecompilePluginCalls())
+func (mock *PolarisHostChainMock) GetPrecompilePluginCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -200,9 +200,9 @@ func (mock *StargazerHostChainMock) GetPrecompilePluginCalls() []struct {
 }
 
 // GetStatePlugin calls GetStatePluginFunc.
-func (mock *StargazerHostChainMock) GetStatePlugin() core.StatePlugin {
+func (mock *PolarisHostChainMock) GetStatePlugin() core.StatePlugin {
 	if mock.GetStatePluginFunc == nil {
-		panic("StargazerHostChainMock.GetStatePluginFunc: method is nil but StargazerHostChain.GetStatePlugin was just called")
+		panic("PolarisHostChainMock.GetStatePluginFunc: method is nil but PolarisHostChain.GetStatePlugin was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -215,8 +215,8 @@ func (mock *StargazerHostChainMock) GetStatePlugin() core.StatePlugin {
 // GetStatePluginCalls gets all the calls that were made to GetStatePlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.GetStatePluginCalls())
-func (mock *StargazerHostChainMock) GetStatePluginCalls() []struct {
+//	len(mockedPolarisHostChain.GetStatePluginCalls())
+func (mock *PolarisHostChainMock) GetStatePluginCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -227,9 +227,9 @@ func (mock *StargazerHostChainMock) GetStatePluginCalls() []struct {
 }
 
 // GetTxPoolPlugin calls GetTxPoolPluginFunc.
-func (mock *StargazerHostChainMock) GetTxPoolPlugin() core.TxPoolPlugin {
+func (mock *PolarisHostChainMock) GetTxPoolPlugin() core.TxPoolPlugin {
 	if mock.GetTxPoolPluginFunc == nil {
-		panic("StargazerHostChainMock.GetTxPoolPluginFunc: method is nil but StargazerHostChain.GetTxPoolPlugin was just called")
+		panic("PolarisHostChainMock.GetTxPoolPluginFunc: method is nil but PolarisHostChain.GetTxPoolPlugin was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -242,8 +242,8 @@ func (mock *StargazerHostChainMock) GetTxPoolPlugin() core.TxPoolPlugin {
 // GetTxPoolPluginCalls gets all the calls that were made to GetTxPoolPlugin.
 // Check the length with:
 //
-//	len(mockedStargazerHostChain.GetTxPoolPluginCalls())
-func (mock *StargazerHostChainMock) GetTxPoolPluginCalls() []struct {
+//	len(mockedPolarisHostChain.GetTxPoolPluginCalls())
+func (mock *PolarisHostChainMock) GetTxPoolPluginCalls() []struct {
 } {
 	var calls []struct {
 	}

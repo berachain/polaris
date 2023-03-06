@@ -28,14 +28,14 @@ import (
 
 	"github.com/ethereum/go-ethereum/rlp"
 
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/rpc"
-	errorslib "pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/rpc"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // ===========================================================================
-// Stargazer Block Tracking
-// ===========================================================================
+// Polaris Block Tracking
+// ===========================================================================.
 
 var SGHeaderKey = []byte{0xb0}
 
@@ -65,7 +65,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
 	// Unmarshal the header from the context kv store.
 	bz := ctx.KVStore(p.storekey).Get(SGHeaderKey)
 	if bz == nil {
-		return nil, errors.New("GetHeader: stargazer header not found in kvstore")
+		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
 	header, err := unmarshalHeader(bz)
 	if err != nil {

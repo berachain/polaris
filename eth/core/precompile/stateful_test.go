@@ -26,11 +26,11 @@ import (
 	"math/big"
 	"reflect"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	solidity "pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	solidity "pkg.berachain.dev/polaris/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

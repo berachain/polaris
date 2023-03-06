@@ -24,15 +24,15 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/mock"
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	vmmock "pkg.berachain.dev/stargazer/eth/core/vm/mock"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/mock"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/testutil/contracts/solidity/generated"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -59,8 +59,8 @@ var (
 
 var _ = Describe("StateProcessor", func() {
 	var (
-		sdb           *vmmock.StargazerStateDBMock
-		host          *mock.StargazerHostChainMock
+		sdb           *vmmock.PolarisStateDBMock
+		host          *mock.PolarisHostChainMock
 		bp            *mock.BlockPluginMock
 		gp            *mock.GasPluginMock
 		cp            *mock.ConfigurationPluginMock

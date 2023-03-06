@@ -24,10 +24,10 @@ import (
 	"math/big"
 	"testing"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	testutil "pkg.berachain.dev/stargazer/testing/utils"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	testutil "pkg.berachain.dev/polaris/testing/utils"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state"
 )
 
 var (
@@ -38,7 +38,7 @@ var (
 
 func GetNewStatePlugin() core.StatePlugin {
 	ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
-	sp := state.NewPlugin(ak, bk, testutil.EvmKey, "abera", nil)
+	sp := state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
 	sp.Reset(ctx)
 	return sp
 }

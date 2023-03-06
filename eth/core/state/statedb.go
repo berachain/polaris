@@ -21,14 +21,14 @@
 package state
 
 import (
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/state/journal"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/lib/snapshot"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state/journal"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/snapshot"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 var (
@@ -39,7 +39,7 @@ var (
 
 // `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
-	// Plugin is injected by the chain running the Stargazer EVM.
+	// Plugin is injected by the chain running the Polaris EVM.
 	Plugin
 
 	// Journals built internally and required for the stateDB.
@@ -58,8 +58,8 @@ type stateDB struct {
 	suicides []common.Address
 }
 
-// `NewStateDB` returns a `vm.StargazerStateDB` with the given `StatePlugin`.
-func NewStateDB(sp Plugin) vm.StargazerStateDB {
+// `NewStateDB` returns a `vm.PolarisStateDB` with the given `StatePlugin`.
+func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
@@ -88,7 +88,7 @@ func NewStateDB(sp Plugin) vm.StargazerStateDB {
 // Suicide
 // =============================================================================
 
-// Suicide implements the StargazerStateDB interface by marking the given address as suicided.
+// Suicide implements the PolarisStateDB interface by marking the given address as suicided.
 // This clears the account balance, but the code and state of the address remains available
 // until after Commit is called.
 func (sdb *stateDB) Suicide(addr common.Address) bool {
@@ -106,7 +106,7 @@ func (sdb *stateDB) Suicide(addr common.Address) bool {
 	return true
 }
 
-// `HasSuicided` implements the `StargazerStateDB` interface by returning if the contract was suicided
+// `HasSuicided` implements the `PolarisStateDB` interface by returning if the contract was suicided
 // in current transaction.
 func (sdb *stateDB) HasSuicided(addr common.Address) bool {
 	for _, suicide := range sdb.suicides {
@@ -117,7 +117,7 @@ func (sdb *stateDB) HasSuicided(addr common.Address) bool {
 	return false
 }
 
-// `Empty` implements the `StargazerStateDB` interface by returning whether the state object
+// `Empty` implements the `PolarisStateDB` interface by returning whether the state object
 // is either non-existent or empty according to the EIP161 epecification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
@@ -177,14 +177,14 @@ func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (boo
 	return sdb.Contains(addr, slot)
 }
 
-// TODO: `GetTransientState` implements the `StargazerStateDB` interface by returning the transient state
+// TODO: `GetTransientState` implements the `PolarisStateDB` interface by returning the transient state
 func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	panic("not supported by Stargazer")
+	panic("not supported by Polaris")
 }
 
-// TODO: `SetTransientState` implements the `StargazerStateDB` interface by setting the transient state
+// TODO: `SetTransientState` implements the `PolarisStateDB` interface by setting the transient state
 func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	panic("not supported by Stargazer")
+	panic("not supported by Polaris")
 }
 
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.

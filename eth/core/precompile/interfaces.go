@@ -21,13 +21,13 @@
 package precompile
 
 import (
-	"pkg.berachain.dev/stargazer/eth/accounts/abi"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type (
-	// `Plugin` defines the methods that the chain running Stargazer EVM should implement in order
+	// `Plugin` defines the methods that the chain running Polaris EVM should implement in order
 	// to support running their own stateful precompiled contracts. Implementing this plugin is
 	// optional.
 	Plugin interface {

@@ -21,8 +21,8 @@
 package journal
 
 import (
-	"pkg.berachain.dev/stargazer/lib/ds"
-	"pkg.berachain.dev/stargazer/lib/ds/stack"
+	"pkg.berachain.dev/polaris/lib/ds"
+	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
 
 type accessList struct {

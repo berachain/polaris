@@ -21,7 +21,7 @@
 package mock
 
 import (
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 //go:generate moq -out ./logsdb.mock.go -pkg mock ../ LogsDB

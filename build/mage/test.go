@@ -21,9 +21,11 @@
 package mage
 
 import (
+	"os"
+
 	"github.com/magefile/mage/sh"
 
-	mi "pkg.berachain.dev/stargazer/build/mage/internal"
+	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (
@@ -55,6 +57,16 @@ func Start() error {
 // Starts a testnet without building it.
 func StartNoBuild() error {
 	return sh.RunV("./runtime/init.sh")
+}
+
+// Starts a local docs page.
+func Docs() error {
+	_ = os.Chdir("docs/web")
+	defer func() { _ = os.Chdir("../..") }()
+	if err := sh.RunV("yarn"); err != nil {
+		return err
+	}
+	return sh.RunV("yarn", "dev")
 }
 
 // Runs all main tests.
@@ -150,7 +162,7 @@ func TestIntegration() error {
 func testIntegration() error {
 	args := []string{
 		"-timeout", "30m",
-		"testing/integration",
+		"--focus", ".*integration.*",
 	}
 	return ginkgoTest(args...)
 }
@@ -167,7 +179,7 @@ func testIntegrationCover() error {
 	args := []string{
 		"-timeout", "30m",
 		"-coverprofile=coverage-testintegrationcover.txt",
-		"testing/integration",
+		"--focus", ".*integration.*",
 	}
 	return ginkgoTest(args...)
 }

@@ -28,12 +28,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/lib/utils"
-	testutil "pkg.berachain.dev/stargazer/testing/utils"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events/mock"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
+	testutil "pkg.berachain.dev/polaris/testing/utils"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -50,7 +50,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin())
+		p = utils.MustGetAs[*plugin](NewPlugin(nil))
 		sdb = &mockSDB{}
 	})
 
@@ -79,7 +79,7 @@ var _ = Describe("plugin", func() {
 // MOCKS BELOW.
 
 type mockSDB struct {
-	vm.StargazerStateDB
+	vm.PolarisStateDB
 }
 
 func (ms *mockSDB) GetContext() context.Context {

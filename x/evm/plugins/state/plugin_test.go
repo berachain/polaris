@@ -25,12 +25,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	testutil "pkg.berachain.dev/stargazer/testing/utils"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/storage"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	testutil "pkg.berachain.dev/polaris/testing/utils"
+	"pkg.berachain.dev/polaris/x/evm/plugins/precompile/log"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/storage"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -50,7 +52,7 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, "abera", nil) // TODO: use lf
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
 		sp.Reset(ctx)
 	})
 
@@ -84,19 +86,6 @@ var _ = Describe("State Plugin", func() {
 	Describe("TestBalance", func() {
 		It("should have start with zero balance", func() {
 			Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
-		})
-
-		It("should correctly Transfer Balance", func() {
-			sp.AddBalance(alice, big.NewInt(50))
-			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(50)))
-			Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(0)))
-
-			sp.TransferBalance(alice, bob, big.NewInt(25))
-			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(25)))
-			Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(25)))
-
-			// should panic if not enough funds
-			Expect(func() { sp.TransferBalance(alice, bob, big.NewInt(50)) }).To(Panic())
 		})
 
 		Context("TestAddBalance", func() {
@@ -485,3 +474,17 @@ var _ = Describe("State Plugin", func() {
 		})
 	})
 })
+
+// MOCKS BELOW.
+
+type mockPrecompilePlugin struct{}
+
+func (mpp *mockPrecompilePlugin) GetLogFactory() events.PrecompileLogFactory {
+	return log.NewFactory(nil)
+}
+
+type mockConfigurationPlugin struct{}
+
+func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
+	return "abera"
+}

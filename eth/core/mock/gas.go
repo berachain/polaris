@@ -24,7 +24,7 @@ import (
 	"context"
 	"errors"
 
-	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 type GasPluginMock struct {
@@ -46,7 +46,7 @@ func (w *GasPluginMock) Reset(context.Context) {
 	w.txGasUsed = 0
 }
 
-func (w *GasPluginMock) TxConsumeGas(amount uint64) error {
+func (w *GasPluginMock) ConsumeGas(amount uint64) error {
 	if w.txGasUsed+amount > w.txGasLimit {
 		return errors.New("gas limit exceeded")
 	}
@@ -58,11 +58,15 @@ func (w *GasPluginMock) TxConsumeGas(amount uint64) error {
 	return nil
 }
 
-func (w *GasPluginMock) CumulativeGasUsed() uint64 {
-	return w.txGasUsed + w.blockGasUsed
+func (w *GasPluginMock) GasConsumed() uint64 {
+	return w.txGasUsed
 }
 
-func (w *GasPluginMock) TxGasRemaining() uint64 {
+func (w *GasPluginMock) BlockGasConsumed() uint64 {
+	return w.blockGasUsed
+}
+
+func (w *GasPluginMock) GasRemaining() uint64 {
 	return w.txGasLimit - w.txGasUsed
 }
 

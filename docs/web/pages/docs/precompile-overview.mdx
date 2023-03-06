@@ -1,0 +1,25 @@
+# Precompiles
+
+This section provides useful information about the default set of precompiles in the Ethereum Virtual Machine (EVM). If you're interested in creating your own custom precompiles, you can check out the
+[Creating Custom Precompiles](./building-precompiles/creating-custom-precompiles) section for tutorials and information. It's important to note that a precompile in the EVM doesn't necessarily need to have an associated Cosmos module. Precompiles 
+can be used to access anything that's implemented on the node, but the most common use case is to use precompiles to access Cosmos modules.
+
+## Default Ethereum Precompile Information
+
+Information below is from [evm.codes](https://www.evm.codes/precompiled).
+
+| Address                                                               | Name                     | Minimum Gas | Input                           | Output          | Description                                                                     |
+|-----------------------------------------------------------------------|--------------------------|-------------|---------------------------------|-----------------|---------------------------------------------------------------------------------|
+| [0x01]()                                             | ecRecover                | 3000        | `hash, v, r, s`                 | `publicAddress` | Elliptic curve digital signature algorithm (ECDSA) public key recovery function |
+| [0x02]()                                                     | SHA2-256                 | 60          | `data`                          | `hash`          | Hash function                                                                   |
+| [0x03]()                                                    | RIPEMD-160               | 600         | `data`                          | `hash`          | Hash function                                                                   |
+| [0x04]()                                                       | identity                 | 15          | `data`                          | `data`          | Returns the input                                                               |
+| [0x05]()                                                       | modexp                   | 200         | `Bsize, Esize, Msize, B, E, M`  | `value`         | Arbitrary-precision exponentiation under modulo                                 |
+| [0x06]()                                                    | ecAdd                    | 150         | `x1, y1, x2, y2`                | `x, y`          | Point addition (ADD) on the elliptic curve `alt_bn128`                          |
+| [0x07]()                                               | ecMul                    | 6000        | `x1, y1, s`                     | `x, y`          | Scalar multiplication (MUL) on the elliptic curve `alt_bn128`                   |
+| [0x08]()                                                | ecPairing                | 45000       | `x1, y1, x2, y2, ..., xk, yk`   | `success`       | Bilinear function on groups on the elliptic curve `alt_bn128`                   |
+| [0x09]()                                                     | blake2f                  | 0           | `rounds, h, m, t, f`            | `h`             | Compression function F used in the BLAKE2 cryptographic hashing algorithm       |
+
+## Interacting With Precompile Contracts
+To interact with a precompile contract, you must use the Ethereum Virtual Machine (EVM). The EVM is the only way to access precompiles. If you're interested in learning more about how to interact with precompiles, you can check out the [Interacting With Precompiles](./for-solidity-devs/developer-overview#interacting-with-stateful-precompiles) section for more information.
+

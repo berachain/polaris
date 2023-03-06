@@ -5,7 +5,7 @@ package mock
 
 import (
 	"github.com/ethereum/go-ethereum/core/types"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
 	"sync"
 )
 

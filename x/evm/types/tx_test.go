@@ -25,10 +25,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/x/evm/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -36,25 +36,24 @@ import (
 
 var _ = Describe("EthTransactionRequest", func() {
 	var (
-		etr     *types.EthTransactionRequest
-		ltxData *coretypes.LegacyTx
 		key, _  = crypto.GenerateEthKey()
 		address = crypto.PubkeyToAddress(key.PublicKey)
 		signer  = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	)
 	When("it is a legacy tx", func() {
+		var etr *types.EthTransactionRequest
 		BeforeEach(func() {
-			ltxData = &coretypes.LegacyTx{
+
+			ltxData := &coretypes.LegacyTx{
 				Nonce:    0,
-				GasPrice: new(big.Int),
-				Gas:      10,
+				GasPrice: big.NewInt(2),
+				Data:     []byte("abcdef"),
 				To:       nil,
 				Value:    new(big.Int),
-				Data:     nil,
 			}
-			// Must use homestead signer for legacy tx.
-			signer = coretypes.LatestSignerForChainID(nil)
-			etr = types.NewFromTransaction(coretypes.MustSignNewTx(key, signer, ltxData))
+			tx, err := coretypes.SignNewTx(key, signer, ltxData)
+			Expect(err).ToNot(HaveOccurred())
+			etr = types.NewFromTransaction(tx)
 		})
 
 		It("should return the correct signer", func() {
@@ -64,9 +63,10 @@ var _ = Describe("EthTransactionRequest", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
+
 	When("it is a dynamic fee tx", func() {
+		var etr *types.EthTransactionRequest
 		BeforeEach(func() {
-			signer = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 			dtxData := &coretypes.DynamicFeeTx{
 				ChainID:   params.DefaultChainConfig.ChainID,
 				Nonce:     0,

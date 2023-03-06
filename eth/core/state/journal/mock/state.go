@@ -23,8 +23,8 @@ package mock
 import (
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 //go:generate moq -out ./state.mock.go -pkg mock ../../ Plugin
@@ -133,9 +133,6 @@ func NewEmptyStatePlugin() *PluginMock {
 			Accounts[address] = &Account{
 				Balance: Accounts[address].Balance.Sub(Accounts[address].Balance, intMoqParam),
 			}
-		},
-		TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-			// no-op
 		},
 	}
 }

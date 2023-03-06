@@ -90,15 +90,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/lib/utils"
-	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
-	simappconfig "pkg.berachain.dev/stargazer/runtime/config"
-	"pkg.berachain.dev/stargazer/x/evm"
-	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
-	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
+	addressprecompile "pkg.berachain.dev/polaris/precompile/address"
+	bankprecompile "pkg.berachain.dev/polaris/precompile/bank"
+	"pkg.berachain.dev/polaris/precompile/distribution"
+	stakingprecompile "pkg.berachain.dev/polaris/precompile/staking"
+	simappconfig "pkg.berachain.dev/polaris/runtime/config"
+	"pkg.berachain.dev/polaris/x/evm"
+	evmante "pkg.berachain.dev/polaris/x/evm/ante"
+	evmkeeper "pkg.berachain.dev/polaris/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/polaris/x/evm/plugins/txpool/mempool"
+	evmrpc "pkg.berachain.dev/polaris/x/evm/rpc"
 
 	_ "embed"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
@@ -143,14 +146,14 @@ var (
 )
 
 var (
-	_ runtime.AppI            = (*StargazerApp)(nil)
-	_ servertypes.Application = (*StargazerApp)(nil)
+	_ runtime.AppI            = (*PolarisApp)(nil)
+	_ servertypes.Application = (*PolarisApp)(nil)
 )
 
-// StargazerApp extends an ABCI application, but with most of its parameters exported.
+// PolarisApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type StargazerApp struct {
+type PolarisApp struct {
 	*runtime.App
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -176,7 +179,7 @@ type StargazerApp struct {
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-	// stargazer keepers
+	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
 
 	// simulation manager
@@ -190,20 +193,20 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".stargazerapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
 }
 
-// NewStargazerApp returns a reference to an initialized StargazerApp.
-func NewStargazerApp( //nolint: funlen // from sdk.
+// NewPolarisApp returns a reference to an initialized PolarisApp.
+func NewPolarisApp( //nolint: funlen // from sdk.
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *StargazerApp {
+) *PolarisApp {
 	var (
-		app        = &StargazerApp{}
+		app        = &PolarisApp{}
 		appBuilder *runtime.AppBuilder
 		// Below we could construct and set an application specific mempool and ABCI 1.0 Prepare and Process Proposal
 		// handlers. These defaults are already set in the SDK's BaseApp, this shows an example of how to override
@@ -293,7 +296,7 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	}
 
 	// Build app
-	app.App = appBuilder.Build(logger, db, traceStore, StargazerAppOptions(
+	app.App = appBuilder.Build(logger, db, traceStore, PolarisAppOptions(
 		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
 	)
 
@@ -301,14 +304,19 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
+	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
+			// TODO: add more precompiles here
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+			bankprecompile.NewPrecompileContract(),
+			addressprecompile.NewPrecompileContract(),
+			distribution.NewPrecompileContract(),
 		},
+		app.CreateQueryContext,
 	)
-	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
@@ -374,43 +382,43 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 }
 
 // Name returns the name of the App.
-func (app *StargazerApp) Name() string { return app.BaseApp.Name() }
+func (app *PolarisApp) Name() string { return app.BaseApp.Name() }
 
-// LegacyAmino returns StargazerApp's amino codec.
+// LegacyAmino returns PolarisApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *StargazerApp) LegacyAmino() *codec.LegacyAmino {
+func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
-// AppCodec returns StargazerApp's app codec.
+// AppCodec returns PolarisApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *StargazerApp) AppCodec() codec.Codec {
+func (app *PolarisApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns StargazerApp's InterfaceRegistry.
-func (app *StargazerApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+// InterfaceRegistry returns PolarisApp's InterfaceRegistry.
+func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns StargazerApp's TxConfig.
-func (app *StargazerApp) TxConfig() client.TxConfig {
+// TxConfig returns PolarisApp's TxConfig.
+func (app *PolarisApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // AutoCliOpts returns the autocli options for the app.
-func (app *StargazerApp) AutoCliOpts() autocli.AppOptions {
+func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
 	return app.autoCliOpts
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *StargazerApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
@@ -418,7 +426,7 @@ func (app *StargazerApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
-func (app *StargazerApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+func (app *PolarisApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
 		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
@@ -432,25 +440,25 @@ func (app *StargazerApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *StargazerApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface.
-func (app *StargazerApp) SimulationManager() *module.SimulationManager {
+func (app *PolarisApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *StargazerApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	// Register Ethereum JSON-RPC API as needed by stargazer.
+	// Register Ethereum JSON-RPC API as needed by polaris.
 	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }
 

@@ -21,27 +21,27 @@
 package core
 
 import (
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"pkg.berachain.dev/stargazer/eth/core/state"
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/params"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/state"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/params"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-// `StargazerHostChain` defines the plugins that the chain running Stargazer EVM should implement.
-type StargazerHostChain interface {
-	// `GetBlockPlugin` returns the `BlockPlugin` of the Stargazer host chain.
+// `PolarisHostChain` defines the plugins that the chain running Polaris EVM should implement.
+type PolarisHostChain interface {
+	// `GetBlockPlugin` returns the `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
-	// `GetConfigurationPlugin` returns the `ConfigurationPlugin` of the Stargazer host chain.
+	// `GetConfigurationPlugin` returns the `ConfigurationPlugin` of the Polaris host chain.
 	GetConfigurationPlugin() ConfigurationPlugin
-	// `GetGasPlugin` returns the `GasPlugin` of the Stargazer host chain.
+	// `GetGasPlugin` returns the `GasPlugin` of the Polaris host chain.
 	GetGasPlugin() GasPlugin
-	// `GetPrecompilePlugin` returns the OPTIONAL `PrecompilePlugin` of the Stargazer host chain.
+	// `GetPrecompilePlugin` returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
-	// `GetStatePlugin` returns the `StatePlugin` of the Stargazer host chain.
+	// `GetStatePlugin` returns the `StatePlugin` of the Polaris host chain.
 	GetStatePlugin() StatePlugin
-	// `GetTxPoolPlugin` returns the `TxPoolPlugin` of the Stargazer host chain.
+	// `GetTxPoolPlugin` returns the `TxPoolPlugin` of the Polaris host chain.
 	GetTxPoolPlugin() TxPoolPlugin
 }
 
@@ -49,10 +49,10 @@ type StargazerHostChain interface {
 // Mandatory Plugins
 // =============================================================================
 
-// The following plugins should be implemented by the chain running Stargazer EVM and exposed via
-// the `StargazerHostChain` interface. All plugins should be resettable with a given context.
+// The following plugins should be implemented by the chain running Polaris EVM and exposed via
+// the `PolarisHostChain` interface. All plugins should be resettable with a given context.
 type (
-	// `BlockPlugin` defines the methods that the chain running Stargazer EVM should implement to
+	// `BlockPlugin` defines the methods that the chain running Polaris EVM should implement to
 	// support the `BlockPlugin` interface.
 	BlockPlugin interface {
 		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
@@ -75,7 +75,7 @@ type (
 		BaseFee() uint64
 	}
 
-	// `GasPlugin` is an interface that allows the Stargazer EVM to consume gas on the host chain.
+	// `GasPlugin` is an interface that allows the Polaris EVM to consume gas on the host chain.
 	GasPlugin interface {
 		// `GasPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// `GasPlugin` to a default state.
@@ -87,34 +87,34 @@ type (
 		// `GasOverflow` and should return `core.ErrOutOfGas` if the amount of gas remaining is
 		// less than the amount requested. If the requested amount is greater than the amount of
 		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
-		TxConsumeGas(uint64) error
-		// `MaxFeePerGas` should set the maximum amount of gas that can be consumed by the meter.
-		// It should not panic, but instead, return an error, if the new gas limit is less than the
-		// currently consumed amount of gas.
-		SetTxGasLimit(uint64) error
-		// `CumulativeGasUsed` returns the amount of gas used during the current block. The value
+		ConsumeGas(uint64) error
+		// `GasRemaining` returns the amount of gas remaining for the current transaction.
+		GasRemaining() uint64
+		// `GasConsumed` returns the amount of gas used by the current transaction.
+		GasConsumed() uint64
+		// `BlockGasConsumed` returns the amount of gas used during the current block. The value
 		// returned should include any gas consumed during this transaction. It should not panic.
-		CumulativeGasUsed() uint64
+		BlockGasConsumed() uint64
 		// `BlockGasLimit` returns the gas limit of the current block. It should not panic.
 		BlockGasLimit() uint64
 	}
 
-	// `StatePlugin` defines the methods that the chain running Stargazer EVM should implement.
+	// `StatePlugin` defines the methods that the chain running Polaris EVM should implement.
 	StatePlugin interface {
 		state.Plugin
 		// `GetStateByNumber` returns the state at the given block height.
 		GetStateByNumber(int64) (StatePlugin, error)
 	}
 
-	// `ConfigurationPlugin` defines the methods that the chain running Stargazer EVM should
-	// implement in order to configuration the parameters of the Stargazer EVM.
+	// `ConfigurationPlugin` defines the methods that the chain running Polaris EVM should
+	// implement in order to configuration the parameters of the Polaris EVM.
 	ConfigurationPlugin interface {
 		// `ConfigurationPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset
 		// the `ConfigurationPlugin` to a default state.
 		libtypes.Preparable
-		// `ChainConfig` returns the current chain configuration of the Stargazer EVM.
+		// `ChainConfig` returns the current chain configuration of the Polaris EVM.
 		ChainConfig() *params.ChainConfig
-		// `ExtraEips` returns the extra EIPs that the Stargazer EVM supports.
+		// `ExtraEips` returns the extra EIPs that the Polaris EVM supports.
 		ExtraEips() []int
 
 		// `The fee collector is utilized on chains that have a fee collector account. This was added
@@ -136,9 +136,9 @@ type (
 // Optional Plugins
 // =============================================================================
 
-// `The following plugins are OPTIONAL to be implemented by the chain running Stargazer EVM.
+// `The following plugins are OPTIONAL to be implemented by the chain running Polaris EVM.
 type (
-	// `PrecompilePlugin` defines the methods that the chain running Stargazer EVM should implement
+	// `PrecompilePlugin` defines the methods that the chain running Polaris EVM should implement
 	// in order to support running their own stateful precompiled contracts. Implementing this
 	// plugin is optional.
 	PrecompilePlugin = precompile.Plugin

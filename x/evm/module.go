@@ -32,8 +32,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"pkg.berachain.dev/stargazer/x/evm/keeper"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/x/evm/keeper"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // `ConsensusVersion` defines the current x/evm module consensus version.

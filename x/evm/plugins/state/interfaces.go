@@ -25,8 +25,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
 )
 
 // `ControllableEventManager` defines a cache EventManager that is controllable (snapshottable
@@ -74,4 +74,14 @@ type BankKeeper interface {
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+}
+
+// `PrecompilePlugin` defines the expected precompile plugin.
+type PrecompilePlugin interface {
+	// `GetLogFactory` returns the log factory for the precompile plugin.
+	GetLogFactory() events.PrecompileLogFactory
+}
+
+type ConfigurationPlugin interface {
+	GetEvmDenom() string
 }

@@ -33,22 +33,22 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/stargazer/eth/accounts/abi"
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/eth/testutil/contracts/solidity/generated"
-	"pkg.berachain.dev/stargazer/lib/utils"
-	pcgenerated "pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
-	"pkg.berachain.dev/stargazer/precompile/staking"
-	testutil "pkg.berachain.dev/stargazer/testing/utils"
-	"pkg.berachain.dev/stargazer/x/evm/keeper"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
-	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/polaris/lib/utils"
+	pcgenerated "pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
+	"pkg.berachain.dev/polaris/precompile/staking"
+	testutil "pkg.berachain.dev/polaris/testing/utils"
+	"pkg.berachain.dev/polaris/x/evm/keeper"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state"
+	evmmempool "pkg.berachain.dev/polaris/x/evm/plugins/txpool/mempool"
+	"pkg.berachain.dev/polaris/x/evm/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -102,13 +102,14 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc})
+		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil)
+		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
 
 		// before every block
-		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000)).
+		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
 		k.BeginBlocker(ctx)
@@ -130,7 +131,6 @@ var _ = Describe("Processor", func() {
 			var contractAbi abi.ABI
 			err := contractAbi.UnmarshalJSON([]byte(pcgenerated.StakingModuleMetaData.ABI))
 			Expect(err).ToNot(HaveOccurred())
-			abiMethod := contractAbi.Methods["getActiveValidators"]
 
 			legacyTxData.Data, err = contractAbi.Pack("getActiveValidators")
 			Expect(err).ToNot(HaveOccurred())
@@ -150,12 +150,29 @@ var _ = Describe("Processor", func() {
 			// calls the staking precompile
 			exec, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := abiMethod.Outputs.Unpack(exec.ReturnData)
+			ret, err := contractAbi.Methods["getActiveValidators"].Outputs.Unpack(exec.ReturnData)
 			Expect(err).ToNot(HaveOccurred())
 			addrs, ok := utils.GetAs[[]common.Address](ret[0])
 			Expect(ok).To(BeTrue())
 			Expect(addrs[0]).To(Equal(common.BytesToAddress(valAddr)))
 			Expect(exec.Err).ToNot(HaveOccurred())
+
+			// call the staking precompile again, but this time with a different method
+			legacyTxData.Nonce++
+			legacyTxData.Data, err = contractAbi.Pack(
+				"delegate", common.BytesToAddress(valAddr), big.NewInt(10000000),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
+			addr, err = signer.Sender(tx)
+			Expect(err).ToNot(HaveOccurred())
+			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetStatePlugin().Finalize()
+			exec, err = k.ProcessTransaction(ctx, tx)
+			Expect(err).ToNot(HaveOccurred())
+			ret, err = contractAbi.Methods["delegate"].Outputs.Unpack(exec.ReturnData)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ret).To(BeEmpty())
 		})
 
 		It("should panic on nil, empty transaction", func() {

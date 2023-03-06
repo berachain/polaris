@@ -23,7 +23,7 @@ package params
 import (
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
 const DefaultEIP155ChainID = 69420

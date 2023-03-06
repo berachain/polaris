@@ -1,0 +1,8 @@
+{
+    "running-locally": "Local Machine",
+    "running-locally-docker": "Docker",
+    "running-on-aws": "AWS",
+    "running-on-azure": "Azure",
+    "running-on-gcp": "GCP"
+
+}

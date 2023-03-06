@@ -23,8 +23,8 @@ package storage_test
 import (
 	"testing"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/storage"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/storage"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

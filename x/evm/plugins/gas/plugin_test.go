@@ -27,8 +27,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/lib/utils"
-	testutil "pkg.berachain.dev/stargazer/testing/utils"
+	"pkg.berachain.dev/polaris/lib/utils"
+	testutil "pkg.berachain.dev/polaris/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -38,7 +38,6 @@ var _ = Describe("plugin", func() {
 	var ctx sdk.Context
 	var p *plugin
 	var blockGasMeter storetypes.GasMeter
-	var txGasLimit = uint64(1000)
 	var blockGasLimit = uint64(1500)
 
 	BeforeEach(func() {
@@ -54,61 +53,57 @@ var _ = Describe("plugin", func() {
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 1
-		err := p.SetTxGasLimit(txGasLimit)
-		Expect(err).ToNot(HaveOccurred())
-		err = p.TxConsumeGas(500)
+		p.gasMeter = storetypes.NewGasMeter(1000)
+		err := p.ConsumeGas(500)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(500)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(500)))
 
 		p.gasMeter.RefundGas(250, "test")
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(0))) // shouldn't have consumed block gas,
+		// as block gas is handled by the baseapp.
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 1
 
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
-		err = p.SetTxGasLimit(txGasLimit)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(250)))
-		err = p.TxConsumeGas(1000)
+		p.gasMeter = storetypes.NewGasMeter(1000)
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(250)))
+		err = p.ConsumeGas(1000)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(1000)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(0)))
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
-		blockGasMeter.ConsumeGas(1000, "") // finalize tx 2
-
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(250))) // shouldn't have consumed any additional gas yet.
+		blockGasMeter.ConsumeGas(1000, "")                  // finalize tx 2
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 3
-		err = p.SetTxGasLimit(txGasLimit)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(p.CumulativeGasUsed()).To(Equal(uint64(1250)))
-		err = p.TxConsumeGas(250)
+		p.gasMeter = storetypes.NewGasMeter(1000)
+		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
+		err = p.ConsumeGas(250)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(750)))
-		Expect(p.CumulativeGasUsed()).To(Equal(blockGasLimit))
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 3
+		Expect(p.BlockGasConsumed()).To(Equal(blockGasLimit))
 	})
 
 	It("should error on overconsumption in tx", func() {
-		err := p.SetTxGasLimit(txGasLimit)
+		p.gasMeter = storetypes.NewGasMeter(1000)
+		p.blockGasMeter = storetypes.NewGasMeter(p.gasMeter.GasRemaining() * 2)
+		err := p.ConsumeGas(p.gasMeter.GasRemaining())
 		Expect(err).ToNot(HaveOccurred())
-		err = p.TxConsumeGas(1000)
-		Expect(err).ToNot(HaveOccurred())
-		err = p.TxConsumeGas(1)
+		err = p.ConsumeGas(1)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
 	It("should error on uint64 overflow", func() {
 		p.blockGasMeter = storetypes.NewInfiniteGasMeter()
-		err := p.SetTxGasLimit(math.MaxUint64)
+		err := p.ConsumeGas(math.MaxUint64)
 		Expect(err).ToNot(HaveOccurred())
-		err = p.TxConsumeGas(math.MaxUint64)
-		Expect(err).ToNot(HaveOccurred())
-		err = p.TxConsumeGas(1)
+		err = p.ConsumeGas(1)
 		Expect(err.Error()).To(Equal("gas uint64 overflow"))
 	})
 
@@ -118,18 +113,14 @@ var _ = Describe("plugin", func() {
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 1
-		err := p.SetTxGasLimit(txGasLimit)
-		Expect(err).ToNot(HaveOccurred())
-		err = p.TxConsumeGas(1000)
+		err := p.ConsumeGas(1000)
 		Expect(err).ToNot(HaveOccurred())
 		blockGasMeter.ConsumeGas(1000, "") // finalize tx 1
 
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
-		err = p.SetTxGasLimit(txGasLimit)
-		Expect(err).ToNot(HaveOccurred())
-		err = p.TxConsumeGas(1000)
+		err = p.ConsumeGas(1000)
 		Expect(err.Error()).To(Equal("block is out of gas"))
 	})
 })

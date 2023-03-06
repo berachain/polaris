@@ -24,15 +24,15 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-//go:generate moq -out ./statedb.mock.go -pkg mock ../ StargazerStateDB
+//go:generate moq -out ./statedb.mock.go -pkg mock ../ PolarisStateDB
 
 // `NewEmptyStateDB` creates a new `StateDBMock` instance.
-func NewEmptyStateDB() *StargazerStateDBMock {
-	mockedStargazerStateDB := &StargazerStateDBMock{
+func NewEmptyStateDB() *PolarisStateDBMock {
+	mockedPolarisStateDB := &PolarisStateDBMock{
 		AddAddressToAccessListFunc: func(addr common.Address) {
 
 		},
@@ -128,8 +128,6 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		SuicideFunc: func(address common.Address) bool {
 			return false
 		},
-		TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-		},
 	}
-	return mockedStargazerStateDB
+	return mockedPolarisStateDB
 }

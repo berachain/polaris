@@ -24,7 +24,7 @@ import (
 	sdkhd "github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	"pkg.berachain.dev/stargazer/crypto/hd"
+	"pkg.berachain.dev/polaris/crypto/hd"
 )
 
 // `EthSecp256k1Option` defines a function keys options for the ethereum Secp256k1 curve.

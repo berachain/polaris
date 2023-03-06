@@ -21,6 +21,8 @@
 package utils
 
 import (
+	"testing"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -38,8 +40,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/testing/types/mock"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/testing/types/mock"
 )
 
 var (
@@ -53,11 +55,11 @@ var (
 
 // `NewContext` creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
-	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestingLogger())
+	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
 }
 
 func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
-	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestingLogger())
+	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
 }
 
 // `SetupMinimalKeepers` creates and returns keepers for the base SDK modules.

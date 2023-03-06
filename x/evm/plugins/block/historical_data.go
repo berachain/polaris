@@ -31,9 +31,9 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	errorslib "pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 var (
@@ -84,7 +84,6 @@ func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretype
 
 	// store the version offchain for consistency.
 	if sdk.BigEndianToUint64(p.offchainStore.Get(versionKey)) != blockNum-1 {
-		// TODO: resync the off-chain storage.
 		panic("off-chain store's latest block number is not synced")
 	}
 	p.offchainStore.Set(versionKey, numBz)

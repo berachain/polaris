@@ -28,9 +28,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	libutils "pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/x/evm/utils"
+	"pkg.berachain.dev/polaris/eth/common"
+	libutils "pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/x/evm/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

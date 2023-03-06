@@ -24,9 +24,9 @@ import (
 	"fmt"
 	"strings"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/lib/errors"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/lib/errors"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 // Compile-time interface assertions.

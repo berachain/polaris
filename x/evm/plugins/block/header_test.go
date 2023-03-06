@@ -27,9 +27,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/lib/utils"
-	offchain "pkg.berachain.dev/stargazer/store/offchain"
-	testutil "pkg.berachain.dev/stargazer/testing/utils"
+	"pkg.berachain.dev/polaris/lib/utils"
+	offchain "pkg.berachain.dev/polaris/store/offchain"
+	testutil "pkg.berachain.dev/polaris/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 )
@@ -95,7 +95,7 @@ var _ = Describe("Header", func() {
 	// 		Expect(err).ToNot(HaveOccurred())
 	// 	}
 
-	// 	// Run TrackHistoricalStargazerHeader on the header with height 260.
+	// 	// Run TrackHistoricalPolarisHeader on the header with height 260.
 	// 	ctx = ctx.WithBlockHeight(260)
 	// 	err := p.SetHeader(&types.Header{Number: big.NewInt(260)})
 	// 	Expect(err).ToNot(HaveOccurred())

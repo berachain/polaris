@@ -23,12 +23,12 @@ ARG GO_VERSION
 # Use the latest foundry image
 FROM ghcr.io/foundry-rs/foundry as foundry
 
-WORKDIR /stargazer
+WORKDIR /polaris
 
 # Build and test the source code
 ARG PRECOMPILE_CONTRACTS_DIR
 COPY ${PRECOMPILE_CONTRACTS_DIR} ${PRECOMPILE_CONTRACTS_DIR}
-WORKDIR /stargazer/${PRECOMPILE_CONTRACTS_DIR}
+WORKDIR /polaris/${PRECOMPILE_CONTRACTS_DIR}
 
 RUN forge build
 
@@ -40,7 +40,7 @@ RUN forge build
 FROM golang:${GO_VERSION}-alpine as builder
 
 # Copy our source code into the container
-WORKDIR /stargazer
+WORKDIR /polaris
 COPY . .
 
 # Setup some alpine stuff that nobody really knows why we need other
@@ -56,7 +56,7 @@ RUN apk add linux-headers
 
 # Copy the forge output
 ARG PRECOMPILE_CONTRACTS_DIR
-# COPY --from=foundry /stargazer/${PRECOMPILE_CONTRACTS_DIR}/out /stargazer//${PRECOMPILE_CONTRACTS_DIR}/out
+# COPY --from=foundry /polaris/${PRECOMPILE_CONTRACTS_DIR}/out /polaris//${PRECOMPILE_CONTRACTS_DIR}/out
 
 # Copy the go mod and sum files
 COPY go.mod ./
@@ -81,7 +81,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     -X github.com/cosmos/cosmos-sdk/types.DBBackend="pebbledb" \
     -w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
     -trimpath \
-    -o /stargazer/bin/ \
+    -o /polaris/bin/ \
     ./...
 
 #######################################################
@@ -93,12 +93,12 @@ FROM golang:${GO_VERSION}-alpine
 RUN apk add --no-cache bash
 RUN apk add --no-cache jq
 
-WORKDIR /stargazer
+WORKDIR /polaris
 
-COPY --from=builder /stargazer/bin/stargazerd /bin/
-COPY --from=builder /stargazer/init.sh /stargazer/
+COPY --from=builder /polaris/bin/polard /bin/
+COPY --from=builder /polaris/init.sh /polaris/
 
-ENV HOME /stargazer
+ENV HOME /polaris
 WORKDIR $HOME
 
 # TODO: reduce ports and clarify 

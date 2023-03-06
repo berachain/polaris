@@ -22,14 +22,12 @@ package types
 
 import (
 	"errors"
-	fmt "fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // We must implement the `sdk.Msg` interface to be able to use the `sdk.Msg` type
@@ -79,59 +77,6 @@ func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
 	return t
 }
 
-func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
-	tx := etr.AsTransaction()
-	switch int(tx.Type()) {
-	case coretypes.LegacyTxType:
-		return etr.getSignatureLegacy()
-	case coretypes.DynamicFeeTxType:
-		return etr.getSignatureDynamic()
-	case coretypes.AccessListTxType:
-		return etr.getSignatureDynamic()
-	}
-	return nil, errors.New("unsupported tx type")
-}
-
-func (etr *EthTransactionRequest) getSignatureLegacy() ([]byte, error) {
-	t := etr.AsTransaction()
-	vb, rb, sb := t.RawSignatureValues()
-	if vb.BitLen() > 8 { //nolint:gomnd // its okay.
-		return nil, fmt.Errorf("invalid legacy signature 1, V:%d, R:%d, S:%d", vb, rb, sb)
-	}
-	v := byte(vb.Uint64() - 27) //nolint:gomnd // its okay.
-	if !crypto.ValidateSignatureValues(v, rb, sb, false) {
-		return nil, fmt.Errorf("invalid legacy signature 2, V:%d, R:%d, S:%d", vb, rb, sb)
-	}
-	// encode the signature in uncompressed format
-	r, s := rb.Bytes(), sb.Bytes()
-	sig := make([]byte, crypto.SignatureLength)
-	copy(sig[32-len(r):32], r)
-	copy(sig[64-len(s):64], s)
-	sig[64] = v
-
-	return sig, nil
-}
-
-func (etr *EthTransactionRequest) getSignatureDynamic() ([]byte, error) {
-	t := etr.AsTransaction()
-	vb, rb, sb := t.RawSignatureValues()
-	if vb.BitLen() > 8 { //nolint:gomnd // its okay.
-		return nil, fmt.Errorf("invalid dynamic signature 1, V:%d, R:%d, S:%d", vb, rb, sb)
-	}
-	v := byte(vb.Uint64())
-	if !crypto.ValidateSignatureValues(v, rb, sb, false) {
-		return nil, fmt.Errorf("invalid dynamic signature 2, V:%d, R:%d, S:%d", vb, rb, sb)
-	}
-	// encode the signature in uncompressed format
-	r, s := rb.Bytes(), sb.Bytes()
-	sig := make([]byte, crypto.SignatureLength)
-	copy(sig[32-len(r):32], r)
-	copy(sig[64-len(s):64], s)
-	sig[64] = v
-
-	return sig, nil
-}
-
 func (etr *EthTransactionRequest) GetSignBytes() ([]byte, error) {
 	t := etr.AsTransaction()
 	return coretypes.LatestSignerForChainID(t.ChainId()).
@@ -150,6 +95,13 @@ func (etr *EthTransactionRequest) GetPubKey() ([]byte, error) {
 	t := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(t.ChainId())
 	return signer.PubKey(t)
+}
+
+// `GetSender` extracts the sender address from the signature values using the latest signer for the given chainID.
+func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
+	t := etr.AsTransaction()
+	signer := coretypes.LatestSignerForChainID(t.ChainId())
+	return signer.Signature(t)
 }
 
 // `GetGas` returns the gas limit of the transaction.

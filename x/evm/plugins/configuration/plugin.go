@@ -29,27 +29,29 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 var paramsPrefix = []byte("params")
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosStargazer
+	plugins.BaseCosmosPolaris
 	core.ConfigurationPlugin
 	SetParams(params *types.Params)
 	GetParams() *types.Params
+	GetEvmDenom() string
 }
 
 // `plugin` implements the core.ConfigurationPlugin interface.
 type plugin struct {
 	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
+	evmDenom    string
 }
 
 // `NewPlugin` returns a new plugin instance.
@@ -63,6 +65,13 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.storeKey), paramsPrefix)
+}
+
+func (p *plugin) GetEvmDenom() string {
+	if p.evmDenom == "" {
+		p.evmDenom = p.GetParams().EvmDenom
+	}
+	return p.evmDenom
 }
 
 // `ChainConfig` implements the core.ConfigurationPlugin interface.

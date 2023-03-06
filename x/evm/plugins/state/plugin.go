@@ -29,16 +29,16 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/rpc"
-	"pkg.berachain.dev/stargazer/lib/snapshot"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
-	"pkg.berachain.dev/stargazer/store/snapmulti"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
-	types "pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/rpc"
+	"pkg.berachain.dev/polaris/lib/snapshot"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/store/snapmulti"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
+	types "pkg.berachain.dev/polaris/x/evm/types"
 )
 
 const pluginRegistryKey = `statePlugin`
@@ -52,7 +52,7 @@ var (
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosStargazer
+	plugins.BaseCosmosPolaris
 	core.StatePlugin
 	// `SetQueryContextFn` sets the query context func for the plugin.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
@@ -93,8 +93,9 @@ type plugin struct {
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
 	cms ControllableMultiStore
 
-	// Store a reference to the Precompile Log Factory, which builds Eth logs from Cosmos events
-	plf events.PrecompileLogFactory
+	// Store a reference to the precompile plugin, which has a precompile log factory that builds
+	// Eth logs from Cosmos events
+	pp PrecompilePlugin
 
 	// Store the evm store key for quick lookups to the evm store
 	storeKey storetypes.StoreKey
@@ -108,7 +109,7 @@ type plugin struct {
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string // TODO: get from configuration plugin.
+	cp ConfigurationPlugin
 }
 
 // `NewPlugin` returns a plugin with the given context and keepers.
@@ -116,30 +117,54 @@ func NewPlugin(
 	ak AccountKeeper,
 	bk BankKeeper,
 	storeKey storetypes.StoreKey,
-	evmDenom string,
-	plf events.PrecompileLogFactory,
+	cp ConfigurationPlugin,
+	pp PrecompilePlugin,
 ) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 		ak:       ak,
 		bk:       bk,
-		evmDenom: evmDenom,
-		plf:      plf,
+		cp:       cp,
+		pp:       pp,
 	}
 }
 
 // `Reset` implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
-	// reset the Controllable MultiStore and EventManager and attach them to the context
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
+	// ethereum utilizes the concept of snapshots, whereas the current implementation of the
+	// Cosmos-SDK `CacheKV` uses "wraps".
 	p.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
-	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
+
+	// We have to build a custom event manager to use with the StateDB. This is because the we want
+	// a way to handle converting Cosmos events from precompiles into Ethereum logs.
+	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.pp.GetLogFactory())
+
+	// We need to build a custom configuration for the context in order to handle precompile event logs
+	// and proper gas consumption.
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
 
-	// setup the snapshot controller
+	// We  also remove the KVStore gas metering from the context prior to entering the EVM
+	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
+	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced individually.
+	// By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES in the EVM
+	// are not being charged additional gas unknowingly.
+	p.ctx = p.ctx.WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
+
+	// We setup a snapshot controller in order to properly handle reverts.
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	_ = ctrl.Register(p.cms)
-	_ = ctrl.Register(cem)
+
+	// We register the Controllable MultiStore with the snapshot controller.
+	if err := ctrl.Register(p.cms); err != nil {
+		panic(err)
+	}
+
+	// We also register the Controllable EventManager with the snapshot controller.
+	if err := ctrl.Register(cem); err != nil {
+		panic(err)
+	}
 	p.Controller = ctrl
 }
 
@@ -183,7 +208,7 @@ func (p *plugin) Exist(addr common.Address) bool {
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
-	return p.bk.GetBalance(p.ctx, addr[:], p.evmDenom).Amount.BigInt()
+	return p.bk.GetBalance(p.ctx, addr[:], p.cp.GetEvmDenom()).Amount.BigInt()
 }
 
 // SetBalance implements `StatePlugin` interface.
@@ -201,7 +226,7 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
 	if err := p.bk.MintCoins(p.ctx, types.ModuleName, coins); err != nil {
@@ -219,7 +244,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the evm module account.
 	if err := p.bk.SendCoinsFromAccountToModule(
@@ -230,19 +255,6 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 
 	// Burn the coins from the evm module account.
 	if err := p.bk.BurnCoins(p.ctx, types.ModuleName, coins); err != nil {
-		panic(err)
-	}
-}
-
-// `TransferBalance` sends the given amount from one account to another. It will
-// error if the sender does not have enough funds to send.
-func (p *plugin) TransferBalance(from, to common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
-
-	// Send the coins from the source address to the destination address.
-	if err := p.bk.SendCoins(p.ctx, from[:], to[:], coins); err != nil {
-		// This is safe to panic as the error is only returned if the sender does
-		// not have enough funds to send, which should be guarded by `CanTransfer`.
 		panic(err)
 	}
 }
@@ -500,7 +512,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	}
 
 	// Create a StateDB with the requested chain height.
-	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
 	sp.Reset(ctx)
 	return sp, nil
 }

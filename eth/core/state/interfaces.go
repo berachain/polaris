@@ -24,9 +24,9 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 // `Plugin` is a plugin which tracks the accounts (balances, nonces, codes, states) in the native
@@ -53,8 +53,6 @@ type Plugin interface {
 	SubBalance(common.Address, *big.Int)
 	// `SubBalance` subtracts amount from the given account.
 	AddBalance(common.Address, *big.Int)
-	// `TransferBalance` transfers amount from one account to the other.
-	TransferBalance(common.Address, common.Address, *big.Int)
 
 	// `GetNonce` returns the nonce of the given account.
 	GetNonce(common.Address) uint64

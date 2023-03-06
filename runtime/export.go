@@ -35,12 +35,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/polaris/lib/errors"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *StargazerApp) ExportAppStateAndValidators(forZeroHeight bool,
+func (app *PolarisApp) ExportAppStateAndValidators(forZeroHeight bool,
 	jailAllowedAddrs []string, modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
@@ -78,7 +78,7 @@ func (app *StargazerApp) ExportAppStateAndValidators(forZeroHeight bool,
 //	in favour of export at a block height
 //
 //nolint:funlen,gocognit // from sdk.
-func (app *StargazerApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+func (app *PolarisApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list

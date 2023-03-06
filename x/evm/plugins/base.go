@@ -23,13 +23,13 @@ package plugins
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
-// `BaseCosmosStargazer` represents the base class that all x/evm implements of
-// the Stargazer plugins must implement. This is mainly to ensure that the plugins
+// `BaseCosmosPolaris` represents the base class that all x/evm implements of
+// the Polaris plugins must implement. This is mainly to ensure that the plugins
 // are able to own their own state and genesis.
-type BaseCosmosStargazer interface {
+type BaseCosmosPolaris interface {
 	InitGenesis(sdk.Context, *types.GenesisState)
 	ExportGenesis(sdk.Context, *types.GenesisState)
 }
