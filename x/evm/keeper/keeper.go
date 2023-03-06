@@ -40,7 +40,6 @@ import (
 	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/gas"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
-	precompilelog "pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
@@ -103,27 +102,8 @@ func NewKeeper(
 	k.bp = block.NewPlugin(k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	return k
-}
-
-func (k *Keeper) Setup(
-	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
-) {
-	plf := precompilelog.NewFactory()
-	k.pp = precompile.NewPlugin()
-	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
-	k.pp.SetPrecompiles(precompiles)
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
-
-	// Build the Stargazer EVM Provider
-	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
-}
-
-func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
-	k.sp.SetQueryContextFn(fn)
-	k.bp.SetQueryContextFn(fn)
 }
 
 // `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
@@ -145,6 +125,26 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
+}
+
+// `Setup` sets up the precompile and state plugins with the given precompiles and keepers. It also
+// sets the query context function for the block and state plugins (to support historical queries).
+func (k *Keeper) Setup(
+	ak state.AccountKeeper,
+	bk state.BankKeeper,
+	precompiles []vm.RegistrablePrecompile,
+	qc func(height int64, prove bool) (sdk.Context, error),
+) {
+	// Setup the precompile and state plugins
+	k.pp = precompile.NewPlugin(precompiles)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, k.cp, k.pp)
+
+	// Set the query context function for the block and state plugins
+	k.sp.SetQueryContextFn(qc)
+	k.bp.SetQueryContextFn(qc)
+
+	// Build the Stargazer EVM Provider
+	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 }
 
 // `GetBlockPlugin` returns the block plugin.

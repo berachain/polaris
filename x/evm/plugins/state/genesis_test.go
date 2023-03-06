@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package state
+package state_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,20 +26,17 @@ import (
 	"pkg.berachain.dev/stargazer/eth/common"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	testutil "pkg.berachain.dev/stargazer/testing/utils"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
 	"pkg.berachain.dev/stargazer/x/evm/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var (
-	alice = testutil.Alice
-)
-
 var _ = Describe("Genesis", func() {
 	var (
 		ctx      sdk.Context
-		sp       Plugin
+		sp       state.Plugin
 		codeHash common.Hash
 		code     []byte
 		slot     common.Hash
@@ -47,10 +44,10 @@ var _ = Describe("Genesis", func() {
 	)
 
 	BeforeEach(func() {
-		var ak AccountKeeper
-		var bk BankKeeper
+		var ak state.AccountKeeper
+		var bk state.BankKeeper
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = NewPlugin(ak, bk, testutil.EvmKey, "abera", nil)
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
 
 		// Create account for alice.
 		sp.Reset(ctx)

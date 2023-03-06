@@ -58,4 +58,6 @@ library BankEvents {
      * Note: `burner` is a module address
      */
     event Burn(address indexed burner, uint256 amount);
+
+    event WithdrawRewards(address indexed validator, uint256 amount);
 }

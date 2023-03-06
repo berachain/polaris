@@ -21,3 +21,4 @@
 package solidity
 
 //go:generate abigen --pkg generated --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./generated/i_staking_module.abigen.go --type StakingModule
+//go:generate abigen --pkg generated --abi ./out/bank.sol/BankEvents.abi.json --bin ./out/bank.sol/BankEvents.bin --out ./generated/bank_events.abigen.go --type BankEvents

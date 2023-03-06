@@ -29,7 +29,9 @@ import (
 	"pkg.berachain.dev/stargazer/eth/core"
 	"pkg.berachain.dev/stargazer/eth/crypto"
 	testutil "pkg.berachain.dev/stargazer/testing/utils"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
+	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
 	"pkg.berachain.dev/stargazer/x/evm/plugins/state/storage"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -50,7 +52,7 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, "abera", nil) // TODO: use lf
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
 		sp.Reset(ctx)
 	})
 
@@ -472,3 +474,17 @@ var _ = Describe("State Plugin", func() {
 		})
 	})
 })
+
+// MOCKS BELOW.
+
+type mockPrecompilePlugin struct{}
+
+func (mpp *mockPrecompilePlugin) GetLogFactory() events.PrecompileLogFactory {
+	return log.NewFactory(nil)
+}
+
+type mockConfigurationPlugin struct{}
+
+func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
+	return "abera"
+}

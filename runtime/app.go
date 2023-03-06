@@ -92,6 +92,7 @@ import (
 
 	"pkg.berachain.dev/stargazer/eth/core/vm"
 	"pkg.berachain.dev/stargazer/lib/utils"
+	bankprecompile "pkg.berachain.dev/stargazer/precompile/bank"
 	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
 	simappconfig "pkg.berachain.dev/stargazer/runtime/config"
 	"pkg.berachain.dev/stargazer/x/evm"
@@ -301,14 +302,17 @@ func NewStargazerApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
+	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
+			// TODO: add more precompiles here
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+			bankprecompile.NewPrecompileContract(),
 		},
+		app.CreateQueryContext,
 	)
-	app.EVMKeeper.SetQueryContextFn(app.CreateQueryContext)
 
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,

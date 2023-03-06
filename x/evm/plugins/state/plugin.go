@@ -93,8 +93,9 @@ type plugin struct {
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
 	cms ControllableMultiStore
 
-	// Store a reference to the Precompile Log Factory, which builds Eth logs from Cosmos events
-	plf events.PrecompileLogFactory
+	// Store a reference to the precompile plugin, which has a precompile log factory that builds
+	// Eth logs from Cosmos events
+	pp PrecompilePlugin
 
 	// Store the evm store key for quick lookups to the evm store
 	storeKey storetypes.StoreKey
@@ -108,7 +109,7 @@ type plugin struct {
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string // TODO: get from configuration plugin.
+	cp ConfigurationPlugin
 }
 
 // `NewPlugin` returns a plugin with the given context and keepers.
@@ -116,21 +117,22 @@ func NewPlugin(
 	ak AccountKeeper,
 	bk BankKeeper,
 	storeKey storetypes.StoreKey,
-	evmDenom string,
-	plf events.PrecompileLogFactory,
+	cp ConfigurationPlugin,
+	pp PrecompilePlugin,
 ) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 		ak:       ak,
 		bk:       bk,
-		evmDenom: evmDenom,
-		plf:      plf,
+		cp:       cp,
+		pp:       pp,
 	}
 }
 
 // `Reset` implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
 	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
 	// ethereum utilizes the concept of snapshots, whereas the current implementation of the
 	// Cosmos-SDK `CacheKV` uses "wraps".
@@ -138,7 +140,7 @@ func (p *plugin) Reset(ctx context.Context) {
 
 	// We have to build a custom event manager to use with the StateDB. This is because the we want
 	// a way to handle converting Cosmos events from precompiles into Ethereum logs.
-	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
+	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.pp.GetLogFactory())
 
 	// We need to build a custom configuration for the context in order to handle precompile event logs
 	// and proper gas consumption.
@@ -206,7 +208,7 @@ func (p *plugin) Exist(addr common.Address) bool {
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
-	return p.bk.GetBalance(p.ctx, addr[:], p.evmDenom).Amount.BigInt()
+	return p.bk.GetBalance(p.ctx, addr[:], p.cp.GetEvmDenom()).Amount.BigInt()
 }
 
 // SetBalance implements `StatePlugin` interface.
@@ -224,7 +226,7 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
 	if err := p.bk.MintCoins(p.ctx, types.ModuleName, coins); err != nil {
@@ -242,7 +244,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the evm module account.
 	if err := p.bk.SendCoinsFromAccountToModule(
@@ -510,7 +512,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	}
 
 	// Create a StateDB with the requested chain height.
-	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.plf)
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
 	sp.Reset(ctx)
 	return sp, nil
 }
