@@ -13,11 +13,12 @@
     "title": "Fundamentals"
   },
   "evm-on-polaris": "Overview",
+  "architecture": "Architecture",
+  "plugins": "Plugins",
   "precompile-overview": "Precompiles",
   "opcodes": "Opcodes",
   "json-rpc": "JSON-RPC",
   "tracing": "EVM Tracing",
-  "architecture": "Architecture Overview",
   "erc20-middleware": "ERC20 Middleware",
   "-- Building --": {
     "type": "separator",
