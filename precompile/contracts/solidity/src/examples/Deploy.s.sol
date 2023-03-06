@@ -24,15 +24,14 @@ import "forge-std/Script.sol";
 import "./LiquidStaking.sol";
 import "../staking.sol";
 
-contract DeployAndStake is Script {
+contract Deploy is Script {
     LiquidStaking public staking;
     address immutable precompile =
         address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
-    address public validator; // TODO: Please set the validator address before running the script.
+    address public validator = address(0x12); // @dev : Change this to the validator running.
 
     function run() public {
         vm.startBroadcast();
-        validator = IStakingModule(precompile).getActiveValidators()[0];
         staking = new LiquidStaking("name", "SYMB", precompile, validator);
         vm.stopBroadcast();
     }
