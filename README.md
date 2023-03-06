@@ -1,5 +1,7 @@
+<h1 align="center"> Polaris ❄️🔭</h1>
+
 <a href="https://berachain.com">
-  <img src="https://wallpaperaccess.com/full/1736439.jpg" width="100%">
+  <img src="./docs/web/public/header.png" width="100%">
 </a>
 <h1 class="center">
   Polaris
