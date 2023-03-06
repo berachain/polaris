@@ -134,8 +134,5 @@ func NewEmptyStatePlugin() *PluginMock {
 				Balance: Accounts[address].Balance.Sub(Accounts[address].Balance, intMoqParam),
 			}
 		},
-		TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-			// no-op
-		},
 	}
 }
