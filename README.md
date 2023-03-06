@@ -1,5 +1,7 @@
+# <h1 align="center"> Polaris ❄️🔭 </h1>
+
 <a href="https://berachain.com">
-  <img src="./docs/web/public/header.png" width="100%">
+  <img src="./docs/web/public/bear_banner.png" width="100%">
 </a>
 <h1 class="center">
 </h1>
@@ -22,8 +24,6 @@
   </a>
 </div>
 &nbsp;
-
-# Polaris ❄️🔭
 
 Polaris introduces the new standard of intergrating EVM into your blockchain project. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
 
