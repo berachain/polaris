@@ -13,11 +13,18 @@
     "title": "Fundamentals"
   },
   "evm-on-polaris": "Overview",
+  "architecture": "Architecture",
+  "plugins": "Plugins",
   "precompile-overview": "Precompiles",
   "opcodes": "Opcodes",
   "json-rpc": "JSON-RPC",
   "tracing": "EVM Tracing",
-  "architecture": "Architecture Overview",
+  "-- Polaris on Cosmos --": {
+    "type": "separator",
+    "title": "Polaris on Cosmos"
+  },
+  "json-rpc-cosmos": "JSON-RPC",
+  "precompile-cosmos-overview": "Precompiles",
   "erc20-middleware": "ERC20 Middleware",
   "-- Building --": {
     "type": "separator",
@@ -29,7 +36,6 @@
   "building-precompiles": "Building Precompiles",
   "for-frontend-devs": "For Frontend Developers",
   "for-solidity-devs": "For Solidity Developers",
-  "for-cosmwasm-devs": "For Cosmwasm Developers",
   "interacting-with-node": "Interacting with the Node",
   "key-management": "Key Management",
   "-- Node --": {
@@ -61,11 +67,6 @@
   "discord": {
     "title": "Discord",
     "href": "https://discord.com/invite/berachain",
-    "newWindow": true
-  },
-  "mirror": {
-    "title": "Mirror.xyz",
-    "href": "https://www.twitter.com/berachain",
     "newWindow": true
   }
 }

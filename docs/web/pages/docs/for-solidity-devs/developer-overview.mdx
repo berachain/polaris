@@ -5,9 +5,8 @@ You will read how to use various EVM development tools with Polaris VM along wit
 how to use your existing projects on Polaris VM, as well as any additional information relating to Polaris VM's new features.
 
 ## Polaris VM EVM 
-TODO DEV look pls
 
-Polaris VM's EVM is designed to adhere to the geth interface, which means that any tool that works with [Geth](https://geth.ethereum.org/) can also be used to interact with Polaris VM. The EVM is still responsible for executing Solidity smart contracts and managing the chain's data structures and blocks. By using CometBFT's consensus protocol and the Cosmos-SDK, Polaris VM is able to access Cosmos-SDK properties through [precompiles](../building-precompiles/intro-to-precompiles), while also remaining compatible with all Ethereum Solidity smart contracts.
+Polaris VM's EVM is designed to be as interoperable with go-ethereum as possible, which means that any tool that works with [Geth](https://geth.ethereum.org/) can also be used to interact with Polaris VM. The EVM is still responsible for executing Solidity smart contracts and managing the chain's data structures and blocks. By using CometBFT's consensus protocol and the Cosmos-SDK, Polaris VM is able to access Cosmos-SDK properties through [precompiles](../building-precompiles/intro-to-precompiles), while also remaining compatible with all Ethereum Solidity smart contracts.
 
 It's important to note that Polaris VM's EVM is interoperable with its Cosmos-SDK Application Layer. This means that Smart Contract Developers have access to base Cosmos-SDK modules through the EVM. With this new feature, developers can access Cosmos features like on-chain governance, the IBC protocol, and various other Cosmos-SDK modules.
 
@@ -21,9 +20,6 @@ contract address and an ABI which you can find [here](../precompile-overview).
 For an example contract that interacts with Polaris VM's staking precompile you
 can reference our [Liquid Staking Example](https://github.com/berachain/polaris-precompile-dapp-examples).
 ## Accessing Polaris VM's EVM
-
-### Using the Polaris VM CLI with EVM
-TODO DEV delet?
 
 ### Running a local Polaris VM Development environment
 For a guide on how to run a local development environment, please refer to the [Local Machine](../running-a-node/running-locally) section.

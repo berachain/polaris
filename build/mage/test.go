@@ -21,6 +21,8 @@
 package mage
 
 import (
+	"os"
+
 	"github.com/magefile/mage/sh"
 
 	mi "pkg.berachain.dev/polaris/build/mage/internal"
@@ -55,6 +57,16 @@ func Start() error {
 // Starts a testnet without building it.
 func StartNoBuild() error {
 	return sh.RunV("./runtime/init.sh")
+}
+
+// Starts a local docs page.
+func Docs() error {
+	_ = os.Chdir("docs/web")
+	defer func() { _ = os.Chdir("../..") }()
+	if err := sh.RunV("yarn"); err != nil {
+		return err
+	}
+	return sh.RunV("yarn", "dev")
 }
 
 // Runs all main tests.
