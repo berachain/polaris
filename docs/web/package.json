@@ -6,6 +6,7 @@
     "start": "next start",
     "build": "next build",
     "export": "next export",
+    "export:deploy": "next build && next export && touch out/.nojekyll",
     "deploy": "gh-pages -d out -t true"
   },
   "author": "@DevLobster",
@@ -15,6 +16,7 @@
     "@keplr-wallet/types": "^0.11.26",
     "cobe": "^0.6.3",
     "framer-motion": "^10.0.1",
+    "gh-pages": "^5.0.0",
     "highlight.js": "^11.7.0",
     "next": "^13.1.2",
     "nextra": "^2.2.3",
