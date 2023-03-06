@@ -42,6 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install
+          yarn build
           yarn export
       - name: Deploy
         run: |
