@@ -217,7 +217,7 @@ func (sp *StateProcessor) Finalize(
 	// have the correct values. We must do this AFTER all the transactions have been processed
 	// to ensure that the block hash, logs and bloom filter have the correct information.
 	blockHash, blockNumber := sp.header.Hash(), sp.header.Number.Uint64()
-	var logIndex uint = 0
+	var logIndex uint
 	for txIndex, receipt := range sp.receipts {
 		// Edit the receipts to include the block hash and bloom filter.
 		for _, log := range receipt.Logs {
