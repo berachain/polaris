@@ -49,7 +49,7 @@ func NewPrecompileContract() precompile.StatefulImpl {
 
 // `RegistryKey` implements the `precompile.StatefulImpl` interface.
 func (c *Contract) RegistryKey() common.Address {
-	// Contract Address: TODO fill in.
+	// Contract Address: 0x93354845030274cD4bf1686Abd60AB28EC52e1a7
 	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName))
 }
 
