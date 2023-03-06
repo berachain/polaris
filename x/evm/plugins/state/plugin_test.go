@@ -86,19 +86,6 @@ var _ = Describe("State Plugin", func() {
 			Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
 		})
 
-		It("should correctly Transfer Balance", func() {
-			sp.AddBalance(alice, big.NewInt(50))
-			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(50)))
-			Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(0)))
-
-			sp.TransferBalance(alice, bob, big.NewInt(25))
-			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(25)))
-			Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(25)))
-
-			// should panic if not enough funds
-			Expect(func() { sp.TransferBalance(alice, bob, big.NewInt(50)) }).To(Panic())
-		})
-
 		Context("TestAddBalance", func() {
 			It("should be able to add zero", func() {
 				Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))

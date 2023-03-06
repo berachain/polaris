@@ -52,20 +52,17 @@ func (bc *blockchain) GetEVM(
 	_ context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) *vm.GethEVM {
-	blockContext := vm.BlockContext{
-		CanTransfer: CanTransfer,
-		Transfer:    Transfer,
-		GetHash:     GetHashFn(header, bc.cc),
-		Coinbase:    header.Coinbase, // todo: check for fee collector
-		GasLimit:    header.GasLimit,
-		BlockNumber: header.Number,
-		Time:        header.Time,
-		Difficulty:  header.Difficulty,
-		BaseFee:     header.BaseFee,
-	}
-
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
-		blockContext, txContext, state, chainCfg, *vmConfig, bc.processor.pp,
+		bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
+}
+
+// `NewEVMBlockContext` creates a new block context for use in the EVM.
+func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
+	feeCollector := bc.host.GetConfigurationPlugin().FeeCollector()
+	if feeCollector == nil {
+		feeCollector = &header.Coinbase
+	}
+	return NewEVMBlockContext(header, &chainContext{bc}, feeCollector)
 }
