@@ -29,6 +29,11 @@ Polaris introduces the new standard of intergrating EVM into your blockchain pro
 
 Polaris VM is a blockchain framework built on top of the Cosmos SDK that offers a full-featured EVM with full interoperability to the Cosmos ecosystem. It achieves this through the use of various Stateful Precompiles built into the chain that act as gateways to the greater Cosmos framework. This allows EVM users to perform Cosmos native operations such as voting on governance, delegating to validators, and even communicating with other chains through IBC. This design allows us to maintain the native EVM user experience without sacrifices, providing true interoperability between the Cosmos ecosystem and EVM.
 
+# 🚧 WARNING: UNDER CONSTRUCTION 🚧
+
+This project is work in progress and subject to frequent changes as we are still working on wiring up the final system.
+It has not been audited for security purposes and should not be used in production yet.
+
 ## Installation
 
 ### From Binary
