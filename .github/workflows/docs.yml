@@ -42,8 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install
-          yarn build
-          yarn export
+          yarn export:deploy
       - name: Deploy
         run: |
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
