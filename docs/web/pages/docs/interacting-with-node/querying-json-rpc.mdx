@@ -1,0 +1,64 @@
+# Querying via JSON-RPC
+
+For information about Polaris' JSON-RPC specification please see the [EVM JSON-RPC](../json-rpc) section.
+
+## Querying via JSON-RPC with `ethers.js`
+
+### Requirements
+- [Node.js](https://nodejs.org/en/download/) (v8.9.4 or higher)
+- [ethers.js](https://github.com/ethers-io/ethers.js/)(v4.0.0 or higher)
+
+Create a new project and install `ethers.js`
+
+`npm install ethers`
+
+To query the latest block number of an EVM chain over JSON-RPC using `ethers.js` you can use the following code:
+
+```javascript
+const provider = new ethers.providers.JsonRpcProvider("<JSON_RPC_ENDPOINT>");
+
+const blockNumber = await provider.getBlockNumber();
+```
+
+`blockNumber` will be a `number` representing the latest block number.
+
+## Querying via JSON-RPC with `geth`
+
+### Requirements
+- [Golang](https://golang.org/doc/install) (v1.13 or higher)
+- [Geth](https://geth.ethereum.org/downloads/) (v1.9.7 or higher)
+
+Create a new project and install `geth`
+
+`go get -u github.com/ethereum/go-ethereum`
+
+To query the latest block number of an EVM chain over JSON-RPC using `geth` you can use the following code:
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+    "math/big"
+
+    "github.com/ethereum/go-ethereum/ethclient"
+)
+
+func main() {
+    client, err := ethclient.Dial("<JSON_RPC_ENDPOINT>")
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    header, err := client.HeaderByNumber(nil, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    blockNumber := header.Number.ToString()
+    fmt.Println(header.Number.String()) // 5671744
+}
+```
+
+`blockNumber` will be a `string` representing the latest block number.

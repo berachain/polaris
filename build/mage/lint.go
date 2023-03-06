@@ -82,12 +82,12 @@ func Gosec() error {
 func License() error {
 	PrintMageName()
 	return goRun(addlicense,
-		"-v", "-f", "./build/LICENSE.header", "./.")
+		"-v", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./.")
 }
 
 // Run `addlicense` with -check.
 func LicenseCheck() error {
 	PrintMageName()
 	return goRun(addlicense,
-		"-v", "-check", "-f", "./build/LICENSE.header", "./.")
+		"-v", "-check", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./.")
 }
