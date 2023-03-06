@@ -123,3 +123,5 @@ After ensuring dependecies are installed correctly, run the following command to
 ```bash
 mage start
 ```
+
+The network will have an Ethereum JSON-RPC server running at `http://localhost:1317/eth/rpc` and a Tendermint RPC server running at `http://localhost:26657`.
