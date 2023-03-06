@@ -23,6 +23,14 @@ pragma solidity ^0.8.4;
 import {IStakingModule} from "../staking.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
+/**
+ * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
+ * and receive a liquid staking token in return. The liquid staking token can be redeemed for Base
+ * Denom at any time.
+ * Note: This is an example of how to delegate Base Denom to a validator.
+ * Doing it this way is unsafe since the user can delegate more straight through precomile.
+ * And withdraw via the precompile.
+ */
 contract LiquidStaking is ERC20 {
     // State
     IStakingModule public staking;
@@ -31,6 +39,7 @@ contract LiquidStaking is ERC20 {
     // Errors
     error ZeroAddress();
     error ZeroAmount();
+    error InvalidValue();
 
     /**
      * @dev Constructor that sets the staking precompile address and the validator address.
@@ -51,25 +60,25 @@ contract LiquidStaking is ERC20 {
         validatorAddress = _validatorAddress;
     }
 
-    // TODO: add the new params
-    // /**
-    //  * @dev Returns the total amount of assets delegated to the validator.
-    //  * @return amount total amount of assets delegated to the validator.
-    //  */
-    // function totalAssets() public view returns (uint256 amount) {
-    //     return staking.getDelegation(validatorAddress);
-    // }
+    /**
+     * @dev Returns the total amount of assets delegated to the validator.
+     * @return amount total amount of assets delegated to the validator.
+     */
+    function totalDelegated() public view returns (uint256 amount) {
+        return staking.getDelegation(address(this), validatorAddress);
+    }
 
-    // TODO: add the new params
-    // /**
-    //  * @dev Delegates Base Denom to the validator.
-    //  */
-    // function delegate() public payable {
-    //     if (msg.value == 0) revert ZeroAmount();
+    /**
+     * @dev Delegates Base Denom to the validator.
+     * @param amount amount of Base Denom to delegate.
+     */
+    function delegate(uint256 amount) public {
+        if (amount == 0) revert ZeroAmount();
 
-    //     staking.delegate{value: msg.value}(validatorAddress, msg.value);
-    //     _mint(msg.sender, msg.value);
-    // }
+        // Delegate the amount to the validator.
+        staking.delegate(validatorAddress, amount);
+        _mint(msg.sender, amount);
+    }
 
     /**
      * @dev Withdraws Base Denom from the validator.
@@ -80,9 +89,4 @@ contract LiquidStaking is ERC20 {
         _burn(msg.sender, amount);
         payable(msg.sender).transfer(amount);
     }
-
-    // TODO: add the new params
-    // receive() external payable {
-    //     delegate();
-    // }
 }
