@@ -2,17 +2,17 @@ import { DocsThemeConfig, useConfig } from 'nextra-theme-docs'
 import { useRouter } from 'next/router'
 
 export default {
-    logo: <span>✨ Stargazer</span>,
+    logo: <span>Polaris</span>,
     logoLink: '/docs',
     project: {
-        link: 'https://github.com/berachain/stargazer',
+        link: 'https://github.com/berachain/polaris',
     },
-    docsRepositoryBase: "https://github.com/berachain/stargazer",
+    docsRepositoryBase: "https://github.com/berachain/polaris",
     useNextSeoProps() {
         const { route } = useRouter()
         if (route !== '/') {
             return {
-                titleTemplate: '%s – Stargazer Docs'
+                titleTemplate: '%s – Polaris Docs'
             }
         }
     },
@@ -28,11 +28,11 @@ export default {
                 <meta httpEquiv="Content-Language" content="en" />
                 <meta
                     name="description"
-                    content="Stargazer brings EVM to Cosmos in a new way"
+                    content="Polaris brings EVM to Cosmos in a new way"
                 />
                 <meta
                     name="og:description"
-                    content="Stargazer brings EVM to Cosmos in a new way"
+                    content="Polaris brings EVM to Cosmos in a new way"
                 />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:image" content={socialCard} />
@@ -40,10 +40,10 @@ export default {
                 <meta name="twitter:url" content="https://berachain.com/" />
                 <meta
                     name="og:title"
-                    content={title ? title + ' – Stargazer' : 'Stargazer'}
+                    content={title ? title + ' – Polaris' : 'Polaris'}
                 />
                 <meta name="og:image" content={socialCard} />
-                <meta name="apple-mobile-web-app-title" content="Stargazer" />
+                <meta name="apple-mobile-web-app-title" content="Polaris" />
                 <link rel="icon" href="/berachain.svg" type="image/svg+xml" />
                 <link rel="icon" href="/berachain.png" type="image/png" />
                 <link rel="icon" href="/berachain.ico"/>

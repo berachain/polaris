@@ -12,7 +12,7 @@
     "type": "separator",
     "title": "Fundamentals"
   },
-  "evm-on-stargazer": "Overview",
+  "evm-on-polaris": "Overview",
   "precompile-overview": "Precompiles",
   "opcodes": "Opcodes",
   "json-rpc": "JSON-RPC",
@@ -23,7 +23,7 @@
     "type": "separator",
     "title": "Developers"
   },
-  "building-on-stargazer-overview": "Overview",
+  "building-on-polaris-overview": "Overview",
   "contributing": "Contributing Guide",
   "building-modules": "Building Modules",
   "building-precompiles": "Building Precompiles",

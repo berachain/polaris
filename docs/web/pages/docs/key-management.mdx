@@ -1,14 +1,14 @@
 # Key Management
 
 ## Create a new Key
-`stargazerd keys add <name>`
+`polard keys add <name>`
 
 This key will return a 24 word [mnemonic phrase](https://coinmarketcap.com/alexandria/glossary/mnemonic-phrase)
 
 ```sh
-stargazerd keys add test_key
+polard keys add test_key
 
-- address: stargazer17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
+- address: polaris17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
   name: test_key
   pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AlvTkLacqevyNZ6hl8ZqhWSzQDppseR07qthbNOsy+nz"}'
   type: local
@@ -20,28 +20,28 @@ It is the only way to recover your account if you ever forget your password.
 nature canvas unusual drill vault ethics sunny problem enact exile tank horn husband wagon town churn piano flip laptop lava pulp void pencil emotion
 ```
 ## Restore Existing key
-`stargazerd keys add <name> --recover`
+`polard keys add <name> --recover`
 
 This will prompt you for your 24 word mnemonic phrase.
 
 ```sh
-stargazerd keys add test_key_recover --recover
+polard keys add test_key_recover --recover
 > Enter your bip39 mnemonic
 ```
 ## List your keys
 
-`stargazerd keys list`
+`polard keys list`
 
 Lists all the public keys under your storage path
 
 ```sh
-stargazerd keys list
+polard keys list
 Successfully migrated key validator.info.
-- address: stargazer17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
+- address: polaris17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
   name: test_key
   pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AlvTkLacqevyNZ6hl8ZqhWSzQDppseR07qthbNOsy+nz"}'
   type: local
-- address: stargazer1t6m9ug59cg9yg2cy2hfx40ew4jyj9w0m9rgmlg
+- address: polaris1t6m9ug59cg9yg2cy2hfx40ew4jyj9w0m9rgmlg
   name: validator
   pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AueTD51sd3KDEJ3qvJVq5bxrHdfg87Tu2C8eOq51Imyi"}'
   type: local
@@ -53,8 +53,8 @@ Successfully migrated key validator.info.
 This will return the public key and relevant information for the given key by name.
 
 ```sh
-stargazerd keys show test_key
-- address: stargazer17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
+polard keys show test_key
+- address: polaris17l03ze40e9spskexcj928fuy94yxa4dy0t3vx0
   name: test_key
   pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AlvTkLacqevyNZ6hl8ZqhWSzQDppseR07qthbNOsy+nz"}'
   type: local
@@ -67,7 +67,7 @@ stargazerd keys show test_key
 This will delete the key from your storage.
 
 ```sh
-stargazerd keys delete test_key
+polard keys delete test_key
 
 Key reference will be deleted. Continue? [y/N]: y
 Key deleted forever (uh oh!)
@@ -80,7 +80,7 @@ Key deleted forever (uh oh!)
 This will export the private key for the given key by name.
 
 ```sh
-stargazerd keys export test_key 
+polard keys export test_key 
 
 Enter passphrase to encrypt the exported key:
 -----BEGIN TENDERMINT PRIVATE KEY-----

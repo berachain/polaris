@@ -1,11 +1,11 @@
 import { Callout, FileTree } from 'nextra-theme-docs'
 
-# Using Foundry with Stargazer EVM
+# Using Foundry with Polaris EVM
 
 ## Introduction
 
 This guide shows how to deploy and interact with smart contracts using foundry
-on a local Stargazer EVM network.
+on a local Polaris EVM network.
 
 [Foundry toolchain](https://github.com/foundry-rs/foundry) is a smart contract
 development toolchain written in Rust. It manages your dependencies, compiles
@@ -15,7 +15,7 @@ command-line.
 ## Recommended Knowledge
 
 - Basic understanding of [Solidity](https://docs.soliditylang.org) and [Cosmos](https://docs.cosmos.network/main).
-- Basic understanding of the [Stargazer's architecture](../../architecture) 
+- Basic understanding of the [Polaris' architecture](../../architecture) 
 - Basic understanding of [Liquid Staking](https://docs.stride.zone/docs/getting-started-liquid-stake)
 ## Requirements
 
@@ -23,16 +23,16 @@ command-line.
   Foundry](https://github.com/foundry-rs/foundry#installation) and run `foundryup`. This
   installation includes the `forge` and `cast` binaries used in this
   walk-through.
-- You have a running instance of Stargazer EVM. See [Local Machine](../../running-a-node/running-locally) to run Stargazer locally.
+- You have a running instance of Polaris EVM. See [Local Machine](../../running-a-node/running-locally) to run Polaris locally.
 
-## Stargazer Liquid Staking Smart Contract Example
+## Polaris Liquid Staking Smart Contract Example
 
 #### 1. Create A New Project With forge
-Let's create a new project called "stargazer-lsd-example" with forge.
-`forge init stargazer-lsd-example`
+Let's create a new project called "polaris-lsd-example" with forge.
+`forge init polaris-lsd-example`
 
 <FileTree>
-  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+  <FileTree.Folder name="polaris-lsd-example" defaultOpen>
     <FileTree.Folder name="lib" >
       <FileTree.Folder name="forge-std" />
     </FileTree.Folder>
@@ -49,9 +49,9 @@ Let's create a new project called "stargazer-lsd-example" with forge.
   </FileTree.Folder>
 </FileTree>
 
-#### 2. Add Configurations For Local Stargazer
+#### 2. Add Configurations For Local Polaris
 <Callout emoji="💡">
-  Ensure that you have a local instance of Stargazer Running. See [Local Machine](../../running-a-node/running-locally) to run Stargazer locally.
+  Ensure that you have a local instance of Polaris Running. See [Local Machine](../../running-a-node/running-locally) to run Polaris locally.
 </Callout>
 
 You can add a profile to your foundry project by appending the following lines to the end of your foundry.toml file: 
@@ -63,7 +63,7 @@ libs = ['lib']
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
 
-[profile.stargazer_local]
+[profile.polaris_local]
 src = 'src'
 out = 'out'
 libs = ['lib']
@@ -71,9 +71,9 @@ evm_version = 'berlin'
 eth_rpc_url = 'http://localhost:1317/eth/rpc'
 ```
 
-To test the configurations above, let's deploy the generated contract in the "Counter.sol" file to the Stargazer localnet:  
+To test the configurations above, let's deploy the generated contract in the "Counter.sol" file to the Polaris localnet:  
 ```bash
-FOUNDRY_PROFILE=stargazer_local forge create Counter --private-key=xxxxxxxxxxx
+FOUNDRY_PROFILE=polaris_local forge create Counter --private-key=xxxxxxxxxxx
 ```
 <Callout type="info" emoji="ℹ️">
   - Forge reads the profile's name from the environment variable "FOUNDRY_PROFILE".
@@ -102,7 +102,7 @@ solmate/=lib/solmate/src/
 
 Your file system should now look like this:
 <FileTree>
-  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+  <FileTree.Folder name="polaris-lsd-example" defaultOpen>
     <FileTree.Folder name="lib" >
       <FileTree.Folder name="forge-std" />
     </FileTree.Folder>
@@ -348,7 +348,7 @@ interface IStakingModule {
 
 Your file system should now look like this after adding `IStakingModule.sol`:
 <FileTree>
-  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+  <FileTree.Folder name="polaris-lsd-example" defaultOpen>
     <FileTree.Folder name="lib" >
       <FileTree.Folder name="forge-std" />
     </FileTree.Folder>
@@ -440,7 +440,7 @@ contract LiquidStaking is ERC20 {
 
 Your file system should now look like this after adding `LiquidStaking.sol`:
 <FileTree>
-  <FileTree.Folder name="stargazer-lsd-example" defaultOpen>
+  <FileTree.Folder name="polaris-lsd-example" defaultOpen>
     <FileTree.Folder name="lib" >
       <FileTree.Folder name="forge-std" />
     </FileTree.Folder>
@@ -484,7 +484,7 @@ about precompiles can be found [here](../../precompile-overview)
 </Callout>
 
 ```bash
-FOUNDRY_PROFILE=stargazer_local forge create src/LiquidStaking.sol:LiquidStaking --private-key=xxxxxxxxxxx --constructor-args  “<name>“ “<symbol>” “<staking_precompiled_contract_address>” “<validator_address>”
+FOUNDRY_PROFILE=polaris_local forge create src/LiquidStaking.sol:LiquidStaking --private-key=xxxxxxxxxxx --constructor-args  “<name>“ “<symbol>” “<staking_precompiled_contract_address>” “<validator_address>”
 ```
 
 If everything goes well, forge will print out the address of the deployed contract and the transaction hash for the deployment. 
@@ -494,8 +494,8 @@ If everything goes well, forge will print out the address of the deployed contra
 We can now test our Liquid Staking contract by delegating and receiving 
 a tokenized version of our stake. To do so, run the following script:
 ```bash
-FOUNDRY_PROFILE=stargazer_local cast send --private-key=xxxxxxxxxxx <deployed_contract_address> ‘delegate()’ 1
+FOUNDRY_PROFILE=polaris_local cast send --private-key=xxxxxxxxxxx <deployed_contract_address> ‘delegate()’ 1
 ```
 
 #### 9. 🎉 Congratulations! 🎉
-Congratulations! You have successfully created and deployed a Liquid Staking contract on Stargazer via Foundry!
+Congratulations! You have successfully created and deployed a Liquid Staking contract on Polaris via Foundry!
