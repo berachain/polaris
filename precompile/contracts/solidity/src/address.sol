@@ -18,8 +18,25 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package solidity
+pragma solidity ^0.8.4;
 
-//go:generate abigen --pkg generated --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./generated/i_staking_module.abigen.go --type StakingModule
-//go:generate abigen --pkg generated --abi ./out/bank.sol/BankEvents.abi.json --bin ./out/bank.sol/BankEvents.bin --out ./generated/bank_events.abigen.go --type BankEvents
-//go:generate abigen --pkg generated --abi ./out/address.sol/IAddress.abi.json --bin ./out/address.sol/IAddress.bin --out ./generated/i_address.abigen.go --type Address
+/**
+ * @dev Interface of the address  precompiled contract
+ */
+interface IAddress {
+    /**
+     * @dev Returns the bech32 representation of the given address.
+     */
+    function convertHexToBech32(address account)
+        external
+        view
+        returns (string memory);
+
+    /**
+     * @dev Returns the hex representation of the given bech32 address.
+     */
+    function convertBech32ToHexAddress(string calldata account)
+        external
+        view
+        returns (address);
+}
