@@ -28,6 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/precompile"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 
@@ -73,7 +74,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				"invalid",
 			)
-			Expect(err).To(MatchError(ErrInvalidHexAddress))
+			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
 			Expect(res).To(BeNil())
 		})
 		It("should convert from hex to bech32", func() {
@@ -97,7 +98,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				common.BytesToAddress([]byte("invalid")),
 			)
-			Expect(err).To(MatchError(ErrInvalidString))
+			Expect(err).To(MatchError(precompile.ErrInvalidString))
 			Expect(res).To(BeNil())
 		})
 		It("should error if invalid bech32 address", func() {

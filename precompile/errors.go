@@ -18,11 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package address
+package precompile
 
 import "errors"
 
 var (
 	ErrInvalidHexAddress = errors.New("invalid hex address")
 	ErrInvalidString     = errors.New("invalid string address")
+	ErrInvalidBigInt     = errors.New("invalid big int")
+	ErrInvalidUint64     = errors.New("invalid uint64")
+	ErrInvalidInt64      = errors.New("invalid int64")
 )

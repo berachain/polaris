@@ -28,9 +28,10 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/precompile"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
@@ -41,7 +42,7 @@ type Contract struct {
 }
 
 // `NewPrecompileContract` creates a new contract instance that implements the `precompile.StatefulImpl` interface.
-func NewPrecompileContract() precompile.StatefulImpl {
+func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.AddressMetaData.ABI)); err != nil {
 		panic(err)
@@ -53,7 +54,7 @@ func NewPrecompileContract() precompile.StatefulImpl {
 
 // `RegisterKey` implements `precompile.StatelessImpl`.
 func (c *Contract) RegistryKey() common.Address {
-	return common.BytesToAddress([]byte("address_util"))
+	return common.BytesToAddress([]byte{19})
 }
 
 // `ABIMethods` implements StatefulImpl.
@@ -61,19 +62,9 @@ func (c *Contract) ABIMethods() map[string]abi.Method {
 	return c.contractAbi.Methods
 }
 
-// `ABIEvents` implements StatefulImpl.
-func (c *Contract) ABIEvents() map[string]abi.Event {
-	return c.contractAbi.Events
-}
-
-// `CustomValueDecoders` implements StatefulImpl.
-func (c *Contract) CustomValueDecoders() precompile.ValueDecoders {
-	return nil
-}
-
 // `PrecompileMethods` implements StatefulImpl.
-func (c *Contract) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
+func (c *Contract) PrecompileMethods() coreprecompile.Methods {
+	return coreprecompile.Methods{
 		{
 			AbiSig:      "convertHexToBech32(address)",
 			Execute:     c.ConvertHexToBech32,
@@ -87,6 +78,16 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 	}
 }
 
+// `ABIEvents` implements StatefulImpl.
+func (c *Contract) ABIEvents() map[string]abi.Event {
+	return c.contractAbi.Events
+}
+
+// `CustomValueDecoders` implements StatefulImpl.
+func (c *Contract) CustomValueDecoders() coreprecompile.ValueDecoders {
+	return nil
+}
+
 // `ConvertHexToBech32` converts a hex string to a bech32 string.
 func (c *Contract) ConvertHexToBech32(
 	ctx context.Context,
@@ -97,7 +98,7 @@ func (c *Contract) ConvertHexToBech32(
 ) ([]any, error) {
 	addr, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidHexAddress
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	return []any{evmutils.AddressToAccAddress(addr)}, nil
 }
@@ -112,7 +113,7 @@ func (c *Contract) ConvertBech32ToHexAddress(
 ) ([]any, error) {
 	addr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	accAddr, err := sdk.AccAddressFromBech32(addr)
 	if err != nil {
