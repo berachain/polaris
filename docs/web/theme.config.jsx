@@ -18,7 +18,7 @@ export default {
     },
     head: function useHead() {
         const { title } = useConfig()
-        const socialCard = '/header.jpeg'
+        const socialCard = '/header.png'
 
         return (
             <>
@@ -44,9 +44,8 @@ export default {
                 />
                 <meta name="og:image" content={socialCard} />
                 <meta name="apple-mobile-web-app-title" content="Polaris VM" />
-                <link rel="icon" href="/berachain.svg" type="image/svg+xml" />
-                <link rel="icon" href="/berachain.png" type="image/png" />
-                <link rel="icon" href="/berachain.ico"/>
+                <link rel="icon" href="/milky-way.png" type="image/png" />
+                <link rel="icon" href="/milky-way.ico"/>
                 <link
                     rel="icon"
                     href="/berachain.svg"
