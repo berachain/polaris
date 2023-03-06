@@ -1,6 +1,23 @@
-# Polaris VM Architecture
+# Polaris Architecture
 
+Polaris runs an Ethereum mainnet-equivalent VM on top of a L1 host chain. With a modular plugin-based 
+architecture, Polaris enables any host chain (e.g. Cosmos SDK-based chains, Polkadot, etc.) to 
+execute Ethereum transactions on smart contracts. The application of the host chain only needs to 
+implement the plugins (Configuration, State, Block, Precompile, Gas, Tx Pool) so that Polaris Core can run 
+state transitions in accordance with mainnet EVM. 
 
 ![](/polaris_architecture.jpeg)
 
-Polaris comprises of 
+## Stateful Precompiles
+
+Stateful precompiles are a special type of EVM contract that are invoked from the EVM like a normal
+contract, but are executed in the native host chain. The Precompile Plugin is responsible for registering
+and running stateful contracts on the host chain; Polaris Core uses this plugin during the execution
+of Ethereum state transitions.
+
+
+## StateDB
+
+Polaris uses a custom implementation of the Ethereum state database (StateDB) which is injected into the EVM
+execution environment. The StateDB tracks and stores the Ethereum state (accounts,
+storage, and code); the State Plugin allows the host chain to handle this data.
