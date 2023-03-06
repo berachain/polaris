@@ -92,6 +92,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
+	addressprecompile "pkg.berachain.dev/polaris/precompile/address"
 	bankprecompile "pkg.berachain.dev/polaris/precompile/bank"
 	stakingprecompile "pkg.berachain.dev/polaris/precompile/staking"
 	simappconfig "pkg.berachain.dev/polaris/runtime/config"
@@ -102,6 +103,7 @@ import (
 	evmrpc "pkg.berachain.dev/polaris/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -310,6 +312,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			// TODO: add more precompiles here
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
+			addressprecompile.NewPrecompileContract(),
 		},
 		app.CreateQueryContext,
 	)
