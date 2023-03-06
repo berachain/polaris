@@ -81,7 +81,7 @@ func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := runtime.NewStargazerApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := runtime.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -283,7 +283,7 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return runtime.NewStargazerApp(
+	return runtime.NewPolarisApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
@@ -301,7 +301,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var stargazerApp *runtime.StargazerApp
+	var stargazerApp *runtime.PolarisApp
 
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
@@ -320,13 +320,13 @@ func appExport(
 	appOpts = viperAppOpts
 
 	if height != -1 {
-		stargazerApp = runtime.NewStargazerApp(logger, db, traceStore, false, appOpts)
+		stargazerApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
 		if err := stargazerApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		stargazerApp = runtime.NewStargazerApp(logger, db, traceStore, true, appOpts)
+		stargazerApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
 	return stargazerApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

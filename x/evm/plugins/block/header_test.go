@@ -95,7 +95,7 @@ var _ = Describe("Header", func() {
 	// 		Expect(err).ToNot(HaveOccurred())
 	// 	}
 
-	// 	// Run TrackHistoricalStargazerHeader on the header with height 260.
+	// 	// Run TrackHistoricalPolarisHeader on the header with height 260.
 	// 	ctx = ctx.WithBlockHeight(260)
 	// 	err := p.SetHeader(&types.Header{Number: big.NewInt(260)})
 	// 	Expect(err).ToNot(HaveOccurred())

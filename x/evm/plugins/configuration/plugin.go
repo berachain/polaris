@@ -40,7 +40,7 @@ var paramsPrefix = []byte("params")
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosStargazer
+	plugins.BaseCosmosPolaris
 	core.ConfigurationPlugin
 	SetParams(params *types.Params)
 	GetParams() *types.Params

@@ -41,7 +41,7 @@ var (
 )
 
 var _ = Describe("StateDB", func() {
-	var sdb vm.StargazerStateDB
+	var sdb vm.PolarisStateDB
 
 	BeforeEach(func() {
 		sdb = state.NewStateDB(mock.NewEmptyStatePlugin())

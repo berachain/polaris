@@ -32,7 +32,7 @@ import (
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
-	GetEVM(context.Context, vm.TxContext, vm.StargazerStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 }
 
 // `GetStateByNumber` returns a statedb configured to read what the state of the blockchain is/was
@@ -49,7 +49,7 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 // to acquire a new EVM at the start of every block. As well as by the backend to acquire an EVM for running
 // gas estimations, eth_call etc.
 func (bc *blockchain) GetEVM(
-	_ context.Context, txContext vm.TxContext, state vm.StargazerStateDB,
+	_ context.Context, txContext vm.TxContext, state vm.PolarisStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) *vm.GethEVM {
 	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.

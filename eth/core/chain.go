@@ -46,14 +46,14 @@ type ChainReaderWriter interface {
 // Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
 var _ ChainReaderWriter = (*blockchain)(nil)
 
-// `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
+// `blockchain` is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
-	// `host` is the host chain that the Stargazer EVM is running on.
-	host StargazerHostChain
+	// `host` is the host chain that the Polaris EVM is running on.
+	host PolarisHostChain
 	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor
 	// `statedb` is the state database that is used to mange state during transactions.
-	statedb vm.StargazerStateDB
+	statedb vm.PolarisStateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
 
@@ -87,7 +87,7 @@ type blockchain struct {
 // =========================================================================
 
 // `NewChain` creates and returns a `api.Chain` with the given EVM chain configuration and host.
-func NewChain(host StargazerHostChain) *blockchain { //nolint:revive // temp.
+func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
 		host:           host,
 		statedb:        state.NewStateDB(host.GetStatePlugin()),

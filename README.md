@@ -2,7 +2,7 @@
   <img src="https://wallpaperaccess.com/full/1736439.jpg" width="100%">
 </a>
 <h1 class="center">
-  Stargazer
+  Polaris
 </h1>
 
 <div>
@@ -28,13 +28,13 @@
 
 ### From Binary
 
-The easiest way to install a Cosmos-SDK Blockchain running Stargazer is to download a pre-built binary. You can find the latest binaries on the [releases](https://github.com/stargazer/releases) page.
+The easiest way to install a Cosmos-SDK Blockchain running Polaris is to download a pre-built binary. You can find the latest binaries on the [releases](https://github.com/stargazer/releases) page.
 
 ### From Source
 
 **Step 1: Install Golang & Foundry**
 
-Go v1.20+ or higher is required for Stargazer
+Go v1.20+ or higher is required for Polaris
 
 1. Install [Go 1.20+ from the official site](https://go.dev/dl/) or the method of your choice. Ensure that your `GOPATH` and `GOBIN` environment variables are properly set up by using the following commands:
 
@@ -62,7 +62,7 @@ Go v1.20+ or higher is required for Stargazer
    go version
    ```
 
-[Foundry](https://book.getfoundry.sh/getting-started/installation) is required for Stargazer
+[Foundry](https://book.getfoundry.sh/getting-started/installation) is required for Polaris
 
 3. Install Foundry:
 
@@ -70,7 +70,7 @@ Go v1.20+ or higher is required for Stargazer
    curl -L https://foundry.paradigm.xyz | bash
    ```
 
-**Step 2: Get Stargazer source code**
+**Step 2: Get Polaris source code**
 
 Clone the `stargazer` repo from the [official repo](https://github.com/berachain/stargazer/) and check
 out the `main` branch for the latest stable release.

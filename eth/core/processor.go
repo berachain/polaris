@@ -62,7 +62,7 @@ type StateProcessor struct {
 	// the entire block. This is done in order to reduce memory allocs.
 	evm *vm.GethEVM
 	// `statedb` is the state database that is used to mange state during transactions.
-	statedb vm.StargazerStateDB
+	statedb vm.PolarisStateDB
 	// `vmConfig` is the configuration for the EVM.
 	vmConfig *vm.Config
 
@@ -77,8 +77,8 @@ type StateProcessor struct {
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
 // commit flag.
 func NewStateProcessor(
-	host StargazerHostChain,
-	statedb vm.StargazerStateDB,
+	host PolarisHostChain,
+	statedb vm.PolarisStateDB,
 	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{
