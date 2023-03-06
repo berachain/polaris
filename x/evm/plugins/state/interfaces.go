@@ -81,3 +81,7 @@ type PrecompilePlugin interface {
 	// `GetLogFactory` returns the log factory for the precompile plugin.
 	GetLogFactory() events.PrecompileLogFactory
 }
+
+type ConfigurationPlugin interface {
+	GetEvmDenom() string
+}

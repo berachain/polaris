@@ -52,7 +52,7 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, "abera", &mockPrecompilePlugin{})
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
 		sp.Reset(ctx)
 	})
 
@@ -481,4 +481,10 @@ type mockPrecompilePlugin struct{}
 
 func (mpp *mockPrecompilePlugin) GetLogFactory() events.PrecompileLogFactory {
 	return log.NewFactory(nil)
+}
+
+type mockConfigurationPlugin struct{}
+
+func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
+	return "abera"
 }

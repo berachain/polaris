@@ -137,7 +137,7 @@ func (k *Keeper) Setup(
 ) {
 	// Setup the precompile and state plugins
 	k.pp = precompile.NewPlugin(precompiles)
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", k.pp)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, k.cp, k.pp)
 
 	// Set the query context function for the block and state plugins
 	k.sp.SetQueryContextFn(qc)

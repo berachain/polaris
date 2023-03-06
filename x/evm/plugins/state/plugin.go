@@ -109,7 +109,7 @@ type plugin struct {
 
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
-	evmDenom string // TODO: get from configuration plugin.
+	cp ConfigurationPlugin
 }
 
 // `NewPlugin` returns a plugin with the given context and keepers.
@@ -117,14 +117,14 @@ func NewPlugin(
 	ak AccountKeeper,
 	bk BankKeeper,
 	storeKey storetypes.StoreKey,
-	evmDenom string,
+	cp ConfigurationPlugin,
 	pp PrecompilePlugin,
 ) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 		ak:       ak,
 		bk:       bk,
-		evmDenom: evmDenom,
+		cp:       cp,
 		pp:       pp,
 	}
 }
@@ -132,6 +132,7 @@ func NewPlugin(
 // `Reset` implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
 	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
 	// ethereum utilizes the concept of snapshots, whereas the current implementation of the
 	// Cosmos-SDK `CacheKV` uses "wraps".
@@ -207,7 +208,7 @@ func (p *plugin) Exist(addr common.Address) bool {
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
 	// Note: bank keeper will return 0 if account/state_object is not found
-	return p.bk.GetBalance(p.ctx, addr[:], p.evmDenom).Amount.BigInt()
+	return p.bk.GetBalance(p.ctx, addr[:], p.cp.GetEvmDenom()).Amount.BigInt()
 }
 
 // SetBalance implements `StatePlugin` interface.
@@ -225,7 +226,7 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
 
 	// Mint the coins to the evm module account
 	if err := p.bk.MintCoins(p.ctx, types.ModuleName, coins); err != nil {
@@ -243,7 +244,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.evmDenom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
 
 	// Send the coins from the source address to the evm module account.
 	if err := p.bk.SendCoinsFromAccountToModule(
@@ -511,7 +512,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	}
 
 	// Create a StateDB with the requested chain height.
-	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.evmDenom, p.pp)
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
 	sp.Reset(ctx)
 	return sp, nil
 }
