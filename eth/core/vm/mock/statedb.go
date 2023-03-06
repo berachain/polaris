@@ -128,8 +128,6 @@ func NewEmptyStateDB() *StargazerStateDBMock {
 		SuicideFunc: func(address common.Address) bool {
 			return false
 		},
-		TransferBalanceFunc: func(address1 common.Address, address2 common.Address, intMoqParam *big.Int) {
-		},
 	}
 	return mockedStargazerStateDB
 }

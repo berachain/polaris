@@ -22,7 +22,6 @@ package vm
 
 import (
 	"context"
-	"math/big"
 
 	"pkg.berachain.dev/stargazer/eth/common"
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
@@ -39,8 +38,6 @@ type (
 		libtypes.Resettable
 		// `GetContext` returns the current context of the state plugin.
 		GetContext() context.Context
-		// `TransferBalance` transfers the balance from one account to another
-		TransferBalance(common.Address, common.Address, *big.Int)
 	}
 
 	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs

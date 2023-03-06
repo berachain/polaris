@@ -182,6 +182,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
+		Logs:              sp.statedb.Logs(),
 	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
@@ -215,10 +216,16 @@ func (sp *StateProcessor) Finalize(
 	// We iterate over all of the receipts/transactions in the block and update the receipt to
 	// have the correct values. We must do this AFTER all the transactions have been processed
 	// to ensure that the block hash, logs and bloom filter have the correct information.
-	blockHash, blockNum := sp.header.Hash(), sp.header.Number.Uint64()
+	blockHash, blockNumber := sp.header.Hash(), sp.header.Number.Uint64()
+	var logIndex uint
 	for txIndex, receipt := range sp.receipts {
-		// Set the receipt logs and create the bloom filter.
-		receipt.Logs = sp.statedb.GetLogs(receipt.TxHash, blockNum, blockHash)
+		// Edit the receipts to include the block hash and bloom filter.
+		for _, log := range receipt.Logs {
+			log.BlockNumber = blockNumber
+			log.BlockHash = blockHash
+			log.Index = logIndex
+			logIndex++
+		}
 		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 		receipt.BlockHash = blockHash
 		receipt.BlockNumber = sp.header.Number
@@ -235,15 +242,6 @@ func (sp *StateProcessor) Finalize(
 // ===========================================================================
 // Utilities
 // ===========================================================================
-
-// `NewEVMBlockContext` creates a new block context for use in the EVM.
-func (sp *StateProcessor) NewEVMBlockContext(cc ChainContext) vm.BlockContext {
-	feeCollector := sp.cp.FeeCollector()
-	if feeCollector == nil {
-		feeCollector = &sp.header.Coinbase
-	}
-	return NewEVMBlockContext(sp.header, cc, feeCollector)
-}
 
 // `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
 func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {
