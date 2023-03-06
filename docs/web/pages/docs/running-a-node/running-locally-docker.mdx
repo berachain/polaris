@@ -1,44 +1,43 @@
-## Running Stargazer From Docker
+## Running a Polaris Cosmos-SDK with Docker
 
 ### From docker container artifactory
 
 The easiest way to run the node in a docker container is to use a pre-built container image. You can find the images in the [container regsitry]() (Coming Soon).
 
-### From container image 
+### From container image
 
 1. Install Docker on your machine from the [official website](https://docs.docker.com/get-docker/)
 
-    Verify it's installed
+   Verify it's installed
 
-    ```sh 
-    docker version
-    ```
+   ```sh
+   docker version
+   ```
 
-    If not installed, verify that the path is set correctly and docker daemon is running in background
+   If not installed, verify that the path is set correctly and docker daemon is running in background
 
 2. Pull the docker image
-    
-    You can point to the release image. Referring to `latest` in this case 
 
-    ```sh 
-    docker image pull <stargazer-container-registry>/stargazer:latest>
-    ```
+   You can point to the release image. Referring to `latest` in this case
 
-    Note: Might have to use different docker image for different OS
+   ```sh
+   docker image pull <stargazer-container-registry>/stargazer:latest>
+   ```
+
+   Note: Might have to use different docker image for different OS
 
 3. Run the container image
 
-    ```sh
-    docker run -p 1317:1317 <stargazer-container-registry>/stargazer:latest>
-    ```
+   ```sh
+   docker run -p 1317:1317 <stargazer-container-registry>/stargazer:latest>
+   ```
 
-
-Now you have a node running on your machine with a default chain and we have RPC running on port `1317` and path `eth/rpc`. To verify, 
-you can try `eth_blockNumber` JSON-RPC example below - 
+Now you have a node running on your machine with a default chain and we have RPC running on port `1317` and path `eth/rpc`. To verify,
+you can try `eth_blockNumber` JSON-RPC example below -
 
 ```sh
 curl -X POST 127.0.0.1:1317/eth/rpc -H 'Content-Type: application/json' -d '{ "jsonrpc":"2.0", "method":"eth_blockNumber", "params":[], "id":1}'
-``` 
+```
 
 A successful JSON RPC query will return in following -
 
@@ -49,5 +48,3 @@ A successful JSON RPC query will return in following -
     "result": "<block_number>"
 }
 ```
-
-

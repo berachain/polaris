@@ -4,12 +4,11 @@
     "type": "separator",
     "title": "Getting Started"
   },
-  "main-concepts": "Main Concepts",
-  "hardware-requirements": "Hardware Requirements",
+  "introduction": "Introduction",
+  "system-config": "System Configuration",
   "running-a-node": "Running a Node",
   "using-metamask": "Using Metamask",
-  "using-keplr": "Using Keplr",
-  "-- EVM ON STARGAZER --": {
+  "-- Fundamentals --": {
     "type": "separator",
     "title": "Fundamentals"
   },

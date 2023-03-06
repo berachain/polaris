@@ -1,18 +1,18 @@
-## Running Stargazer On AWS
+## Running a Polaris Cosmos-SDK Chain on AWS
 
 The recommended way to run fault tolerant nodes that can scale to millions of requests per second would be
-with orchestration tool like [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/). Another option is to run the node on an [EC2](https://aws.amazon.com/pm/ec2/) instance. 
+with orchestration tool like [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/). Another option is to run the node on an [EC2](https://aws.amazon.com/pm/ec2/) instance.
 
 AWS offers [Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/) which is a manged service to run Kubernetes in the cloud
-It allows us to run lightweight pods in which you can deploy container images. On a failure, a new container automatically comes up. Each pod 
-can also be attached to a volume that can provide elastic disk storage. It also allows us to scale horizontally by adding more nodes/pods/containers on demand to the network. 
+It allows us to run lightweight pods in which you can deploy container images. On a failure, a new container automatically comes up. Each pod
+can also be attached to a volume that can provide elastic disk storage. It also allows us to scale horizontally by adding more nodes/pods/containers on demand to the network.
 
 ### Example EKS architecture
-Currently, the application runs in 1 container so we can deploy 1 container in each pod. Pod is the smallest resource that 
+
+Currently, the application runs in 1 container so we can deploy 1 container in each pod. Pod is the smallest resource that
 Kubernetes can manage. It can have 1 or more than 1 containers.
 
 Before we can set up pods, we need to set up our EKS cluster -
-
 
 **Step 1: Install AWS CLI and configure AWS Credentials**
 
@@ -22,51 +22,52 @@ Before we can set up pods, we need to set up our EKS cluster -
 
 3. Verify credentials and installation
 
-    ```sh
-    aws sts get-caller-identity
-    ```
+   ```sh
+   aws sts get-caller-identity
+   ```
 
-    It should return the following - 
+   It should return the following -
 
-    ```sh 
-    {
-    "Account": "123456789012", 
-    "UserId": "AR#####:#####", 
-    "Arn": "arn:aws:sts::123456789012:assumed-role/role-name/role-session-name"
-    }
-    ```
+   ```sh
+   {
+   "Account": "123456789012",
+   "UserId": "AR#####:#####",
+   "Arn": "arn:aws:sts::123456789012:assumed-role/role-name/role-session-name"
+   }
+   ```
 
 **Step 2: Install eksctl and kubectl**
 
-`eksctl` allows us to manage our EKS cluster and `kubectl` allows us to manage kubernetes resources. 
+`eksctl` allows us to manage our EKS cluster and `kubectl` allows us to manage kubernetes resources.
 
 1. Install `eksctl` from [docs](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
 
 2. Verify installation
 
-    ```sh
-    eksctl version
-    ```
+   ```sh
+   eksctl version
+   ```
+
 3. Install `kubectl` from [docs](https://kubernetes.io/docs/tasks/tools/)
 
 4. Verify installation
 
-    ```sh
-    kubectl version
-    ```
+   ```sh
+   kubectl version
+   ```
 
 **Step 3: Set up EKS cluster**
 
 EKS is a managed Kubernetes cluster and AWS will manage our nodes for us. Clusters can also have controllers/add-ons
 that help control and incorporate cloud specific resources
 
-1. We can create a sample cluster by using following command - 
+1. We can create a sample cluster by using following command -
 
-    ```eksctl create cluster --name my-cluster --region region-code```
+   `eksctl create cluster --name my-cluster --region region-code`
 
-    Note: you need to provide a cluster name and AWS region (Ex. `us-west-2`)
+   Note: you need to provide a cluster name and AWS region (Ex. `us-west-2`)
 
-    This will create managed default AWS nodes for you to deploy your workloads. You can change the type of workload as well. ekstcl will also create a kubectl config file at `~/.kube`
+   This will create managed default AWS nodes for you to deploy your workloads. You can change the type of workload as well. ekstcl will also create a kubectl config file at `~/.kube`
 
 2. Setup AWS load balancer controller from [docs](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html). This will help kubernetes manage our AWS load balancer.
 
@@ -74,15 +75,15 @@ that help control and incorporate cloud specific resources
 
 1. View your cluster nodes (which were deployed by eksctl)
 
-    ```kubectl get nodes -o wide```
+   `kubectl get nodes -o wide`
 
-    The response will be as follows -
+   The response will be as follows -
 
-    ```
-    NAME                                           STATUS   ROLES    AGE   VERSION                INTERNAL-IP      EXTERNAL-IP      OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
-    ip-192-168-3-224.us-west-2.compute.internal    Ready    <none>   45h   v1.24.10-eks-48e63af   192.168.3.224    192.168.3.224    Amazon Linux 2   5.10.165-143.735.amzn2.x86_64   containerd://1.6.6
-    ip-192-168-36-235.us-west-2.compute.internal   Ready    <none>   45h   v1.24.10-eks-48e63af   192.168.36.235   192.168.36.235    Amazon Linux 2   5.10.165-143.735.amzn2.x86_64   containerd://1.6.6
-    ```
+   ```
+   NAME                                           STATUS   ROLES    AGE   VERSION                INTERNAL-IP      EXTERNAL-IP      OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
+   ip-192-168-3-224.us-west-2.compute.internal    Ready    <none>   45h   v1.24.10-eks-48e63af   192.168.3.224    192.168.3.224    Amazon Linux 2   5.10.165-143.735.amzn2.x86_64   containerd://1.6.6
+   ip-192-168-36-235.us-west-2.compute.internal   Ready    <none>   45h   v1.24.10-eks-48e63af   192.168.36.235   192.168.36.235    Amazon Linux 2   5.10.165-143.735.amzn2.x86_64   containerd://1.6.6
+   ```
 
 **Step 5: Create kubernetes resources**
 
@@ -92,11 +93,11 @@ that help control and incorporate cloud specific resources
 
 1. Setup namespace
 
-    Namespaces ensure that we can use the same cluster to deploy multiple types of applications. We will create a namespace `testnet` for our chain
+   Namespaces ensure that we can use the same cluster to deploy multiple types of applications. We will create a namespace `testnet` for our chain
 
-    ```sh
-    kubectl create namespace testnet
-    ```
+   ```sh
+   kubectl create namespace testnet
+   ```
 
 1. Create Deployment
 
@@ -187,26 +188,28 @@ For our service, as we want our node to be access from the public internet, we w
     We are creating a service of type `LoadBalancer`. This will create a public load balancer and will route requests received on port `80`
     to port `1317` where we are running our JSON RPC server.
 
-
 3. Verify workload and service
 
-    We should validate that the resources are set up as expected. You can verify running pods by following -
-    ```sh
-    kubectl get pods -n testnet -o wide
-    ```
+   We should validate that the resources are set up as expected. You can verify running pods by following -
 
-    The expected status should be `RUNNING` for the pod
+   ```sh
+   kubectl get pods -n testnet -o wide
+   ```
 
-    You can verify that the service is running by following - 
-    ```sh
-    kubectl get services -n testnet
-    ```
-    You should also verify in AWS console if the Network Load Balancer has been provisioned
+   The expected status should be `RUNNING` for the pod
 
+   You can verify that the service is running by following -
+
+   ```sh
+   kubectl get services -n testnet
+   ```
+
+   You should also verify in AWS console if the Network Load Balancer has been provisioned
 
 4. Test RPC endpoints
 
-    You can test the public rpc endpoint by getting the NLB URL
-    ```sh
-    curl -X POST <load_balancer_url>/eth/rpc -H 'Content-Type: application/json' -d '{ "jsonrpc":"2.0", "method":"eth_blockNumber", "params":[], "id":1}'
-    ```
+   You can test the public rpc endpoint by getting the NLB URL
+
+   ```sh
+   curl -X POST <load_balancer_url>/eth/rpc -H 'Content-Type: application/json' -d '{ "jsonrpc":"2.0", "method":"eth_blockNumber", "params":[], "id":1}'
+   ```

@@ -1,5 +1,5 @@
 ---
-title: Stargazer
+title: Polaris
 ---
 
 import createGlobe from "cobe";
@@ -50,11 +50,11 @@ export function Cobe() {
         // Called on every animation frame.
         // `state` will be an empty object, return updated params.
         state.phi = phi + r.get();
-        phi += 0.002;
+        phi += 0.005;
         state.width = width * 2;
         state.height = width * 2;
-        state.mapSamples = mm * (i ** (4 / 5) / 500);
-        state.diffuse = 5;
+        state.mapSamples = mm * (i ** (6 / 5) / 25000);
+        state.diffuse = 6;
         if (dir === 0) {
           i--;
           if (i <= 0) {
@@ -62,7 +62,7 @@ export function Cobe() {
           }
         } else {
           i++;
-          if (i >= 100) {
+          if (i >= 1200) {
             dir = 0;
           }
         }
@@ -109,7 +109,7 @@ return (
       }}
       className="title"
     >
-      STARGAZER
+      POLARIS
     </h1>
     <span style={{ fontSize: "1.3em", zIndex: -1 }}>
       The New Standard of EVM on Cosmos
@@ -168,15 +168,15 @@ import Link from "next/link";
 <div style={{ textAlign: "center" }}>
   <div className="cta-container">
     <Link href="/docs" className="cta">
-        Get Started
+      Get Started
     </Link>
-    <Link className="cta" href="https://www.github.com/berachain/stargazer">
+    <Link className="cta" href="https://www.github.com/berachain/polaris">
       Github
     </Link>
   </div>
   <div style={{ marginTop: "2rem" }} />
   <Link
-    href="https://github.com/berachain/stargazer/blob/main/LICENSE"
+    href="https://github.com/berachain/polaris/blob/main/LICENSE"
     target="_blank"
     style={{
       textDecoration: "underline",
@@ -185,7 +185,7 @@ import Link from "next/link";
       fontSize: 14,
     }}
   >
-    Stargazer is licensed under BUSL-1.1 →
+    Polaris is licensed under BUSL-1.1 →
   </Link>
 </div>
 
