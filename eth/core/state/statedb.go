@@ -39,7 +39,7 @@ var (
 
 // `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
-	// Plugin is injected by the chain running the Stargazer EVM.
+	// Plugin is injected by the chain running the Polaris EVM.
 	Plugin
 
 	// Journals built internally and required for the stateDB.
@@ -179,12 +179,12 @@ func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (boo
 
 // TODO: `GetTransientState` implements the `StargazerStateDB` interface by returning the transient state
 func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	panic("not supported by Stargazer")
+	panic("not supported by Polaris")
 }
 
 // TODO: `SetTransientState` implements the `StargazerStateDB` interface by setting the transient state
 func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	panic("not supported by Stargazer")
+	panic("not supported by Polaris")
 }
 
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.

@@ -103,7 +103,7 @@ func (p *plugin) GasConsumed() uint64 {
 }
 
 // `BlockGasConsumed` returns the cumulative gas used during the current block. If the cumulative
-// gas used is greater than the block gas limit, we expect for Stargazer to handle it.
+// gas used is greater than the block gas limit, we expect for Polaris to handle it.
 //
 // `BlockGasConsumed` implements the core.GasPlugin interface.
 func (p *plugin) BlockGasConsumed() uint64 {

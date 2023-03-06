@@ -60,7 +60,7 @@ type ChainTxPoolReader interface {
 // Configuration
 // =========================================================================
 
-// `ChainConfig` returns the Ethereum chain config of the Stargazer chain.
+// `ChainConfig` returns the Ethereum chain config of the Polaris chain.
 func (bc *blockchain) ChainConfig() *params.ChainConfig {
 	return bc.host.GetConfigurationPlugin().ChainConfig()
 }

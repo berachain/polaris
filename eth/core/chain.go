@@ -46,9 +46,9 @@ type ChainReaderWriter interface {
 // Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
 var _ ChainReaderWriter = (*blockchain)(nil)
 
-// `blockchain` is the canonical, persistent object that operates the Stargazer EVM.
+// `blockchain` is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
-	// `host` is the host chain that the Stargazer EVM is running on.
+	// `host` is the host chain that the Polaris EVM is running on.
 	host StargazerHostChain
 	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor

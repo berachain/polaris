@@ -34,7 +34,7 @@ import (
 var _ types.MsgServiceServer = &Keeper{}
 
 // `EthTransaction` implements the  MsgServiceServer interface. It processes an incoming request
-// and applies it to the Stargazer Chain.
+// and applies it to the Polaris Chain.
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
 ) (*types.EthTransactionResponse, error) {
@@ -58,7 +58,7 @@ func (k *Keeper) EthTransaction(
 }
 
 // `UpdateParams`  processes an incoming request and applies it to the Configuration plugin to
-// update things about both the Stargazer Chain as well as the EVM Module.
+// update things about both the Polaris Chain as well as the EVM Module.
 func (k *Keeper) UpdateParams(
 	ctx context.Context, req *types.UpdateParamsRequest,
 ) (*types.UpdateParamsResponse, error) {

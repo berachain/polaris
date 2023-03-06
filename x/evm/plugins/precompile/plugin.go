@@ -115,7 +115,7 @@ func (p *plugin) Run(
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
-	// get native Cosmos SDK context from the Stargazer StateDB
+	// get native Cosmos SDK context from the Polaris StateDB
 	ctx := sdk.UnwrapSDKContext(utils.MustGetAs[vm.StargazerStateDB](sdb).GetContext())
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs

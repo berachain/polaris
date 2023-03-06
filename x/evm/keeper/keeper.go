@@ -51,7 +51,7 @@ import (
 var _ core.StargazerHostChain = (*Keeper)(nil)
 
 type Keeper struct {
-	// `provider` is the struct that houses the Stargazer EVM.
+	// `provider` is the struct that houses the Polaris EVM.
 	stargazer *eth.StargazerProvider
 	// We store a reference to the `rpcProvider` so that we can register it with
 	// the cosmos mux router.
@@ -143,7 +143,7 @@ func (k *Keeper) Setup(
 	k.sp.SetQueryContextFn(qc)
 	k.bp.SetQueryContextFn(qc)
 
-	// Build the Stargazer EVM Provider
+	// Build the Polaris EVM Provider
 	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 }
 

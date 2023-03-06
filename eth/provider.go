@@ -39,7 +39,7 @@ func NewStargazerProvider(
 	logHandler log.Handler,
 ) *StargazerProvider {
 	sp := &StargazerProvider{}
-	// When creating a Stargazer EVM, we allow the implementing chain
+	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
 	if logHandler != nil {

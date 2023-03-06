@@ -27,7 +27,7 @@ import (
 )
 
 // `BaseCosmosStargazer` represents the base class that all x/evm implements of
-// the Stargazer plugins must implement. This is mainly to ensure that the plugins
+// the Polaris plugins must implement. This is mainly to ensure that the plugins
 // are able to own their own state and genesis.
 type BaseCosmosStargazer interface {
 	InitGenesis(sdk.Context, *types.GenesisState)

@@ -116,12 +116,12 @@ func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock Bloc
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
-// `ChainDb` is unused in Stargazer.
+// `ChainDb` is unused in Polaris.
 func (b *backend) ChainDb() ethdb.Database { //nolint:stylecheck // conforms to interface.
 	return ethdb.Database(nil)
 }
 
-// `AccountManager` is unused in Stargazer.
+// `AccountManager` is unused in Polaris.
 func (b *backend) AccountManager() *accounts.Manager {
 	return nil
 }
@@ -160,7 +160,7 @@ func (b *backend) UnprotectedAllowed() bool {
 // ==============================================================================
 
 // `SetHead` is used for state sync on ethereum, we leave state sync up to the host
-// chain and thus it is not implemented in Stargazer.
+// chain and thus it is not implemented in Polaris.
 func (b *backend) SetHead(number uint64) {
 	panic("not implemented")
 }
@@ -321,7 +321,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 	return state, block.Header(), nil
 }
 
-// `PendingBlockAndReceipts` returns the pending block (equivalent to current block in Stargazer)
+// `PendingBlockAndReceipts` returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	block, receipts, err := b.chain.CurrentBlockAndReceipts()
@@ -524,7 +524,7 @@ func (b *backend) PeerCount() hexutil.Uint {
 }
 
 // ==============================================================================
-// Stargazer Helpers
+// Polaris Helpers
 // ==============================================================================
 
 // `stargazerBlockByNumberOrHash` returns the block identified by `number` or `hash`.

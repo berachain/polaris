@@ -140,7 +140,7 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 		MixDigest: common.Hash{},
 		// `Nonce` is set empty as it is only used in PoW consensus.
 		Nonce: coretypes.BlockNonce{},
-		// `Extra` is unused in Stargazer, but can be used to store additional information, e.g.
+		// `Extra` is unused in Polaris, but can be used to store additional information, e.g.
 		// the host block hash.
 		Extra: []byte(nil),
 	}
