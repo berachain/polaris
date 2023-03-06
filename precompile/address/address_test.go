@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package address
+package address_test
 
 import (
 	"context"
@@ -29,6 +29,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 	"pkg.berachain.dev/polaris/precompile"
+	"pkg.berachain.dev/polaris/precompile/address"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 
@@ -42,10 +43,10 @@ func TestAddressPrecompile(t *testing.T) {
 }
 
 var _ = Describe("Address Precompile", func() {
-	var contract *Contract
+	var contract *address.Contract
 
 	BeforeEach(func() {
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract())
+		contract = utils.MustGetAs[*address.Contract](address.NewPrecompileContract())
 	})
 
 	It("should have static registry key", func() {

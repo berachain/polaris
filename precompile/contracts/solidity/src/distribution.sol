@@ -18,9 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package solidity
+pragma solidity ^0.8.4;
 
-//go:generate abigen --pkg generated --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./generated/i_staking_module.abigen.go --type StakingModule
-//go:generate abigen --pkg generated --abi ./out/bank.sol/IBankModule.abi.json --bin ./out/bank.sol/IbankModule.bin --out ./generated/i_bank_module.abigen.go --type BankModule
-//go:generate abigen --pkg generated --abi ./out/address.sol/IAddress.abi.json --bin ./out/address.sol/IAddress.bin --out ./generated/i_address.abigen.go --type Address
-//go:generate abigen --pkg generated --abi ./out/distribution.sol/IDistributionModule.abi.json --bin ./out/distribution.sol/IDistributionModule.bin --out ./generated/i_distribution_module.abigen.go --type DistributionModule
+/**
+ * @dev Interface of the distribution module's precompiled contract
+ */
+interface IDistributionModule {
+    /**
+     * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
+     * `validator` as rewards.
+     */
+    event WithdrawRewards(address indexed validator, uint256 amount);
+}

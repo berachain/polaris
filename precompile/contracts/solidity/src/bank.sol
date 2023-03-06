@@ -23,7 +23,7 @@ pragma solidity ^0.8.4;
 /**
  * @dev Interface of all supported Cosmos events emitted by the bank module
  */
-library BankEvents {
+interface IBankModule {
     /**
      * @dev Emitted by the bank module when `amount` tokens are sent to `recipient`
      */
@@ -57,7 +57,5 @@ library BankEvents {
      *
      * Note: `burner` is a module address
      */
-    event Burn(address indexed burner, uint256 amount);
-
-    event WithdrawRewards(address indexed validator, uint256 amount);
+    event Burn(address indexed burner, uint256 amount);   
 }
