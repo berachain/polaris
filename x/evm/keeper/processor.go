@@ -32,7 +32,6 @@ import (
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.Logger(sCtx).Info("keeper.BeginBlocker")
 	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
 }
 
@@ -73,8 +72,6 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
 func (k *Keeper) EndBlocker(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-
 	// Finalize the block and retrieve it from the processor.
 	block, receipts, err := k.stargazer.Finalize(ctx)
 	if err != nil {
@@ -82,7 +79,6 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	}
 
 	header := block.Header()
-	k.Logger(sCtx).Info("keeper.EndBlocker", "block header:", header)
 
 	// Save the historical header in the IAVL Tree.
 	// TODO: move this to within the eth folder? And do the historical data the

@@ -194,9 +194,9 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.Status = types.ReceiptStatusFailed
 	} else {
 		// if the result didn't produce a consensus error then we can properly commit the state.
-		sp.statedb.Finalize()
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
+	sp.statedb.Finalize()
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
