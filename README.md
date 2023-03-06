@@ -8,7 +8,7 @@
 
 <div>
   <a href="https://codecov.io/gh/berachain/polaris" > 
-    <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=0DYQAKBGVW"/> 
+    <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=5SYYGUS8GW"/> 
   </a>
   <a href="https://pkg.go.dev/pkg.berachain.dev/polaris">
     <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
