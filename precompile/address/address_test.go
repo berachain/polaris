@@ -25,13 +25,14 @@ import (
 	"math/big"
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestAddressPrecompile(t *testing.T) {
