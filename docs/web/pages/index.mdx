@@ -1,5 +1,5 @@
 ---
-title: Polaris
+title: Polaris VM
 ---
 
 import createGlobe from "cobe";
@@ -76,11 +76,13 @@ export function Cobe() {
 return (
 
 <div
+  className="canvas-container"
   style={{
     width: "100%",
     maxWidth: 600,
     aspectRatio: 1,
-    margin: "auto",
+    marginRight: "auto",
+    marginLeft: "auto",
     position: "relative",
   }}
 >
@@ -152,11 +154,6 @@ return (
     style={{
       width: "100%",
       height: "100%",
-      cursor: "grab",
-      contain: "layout paint size",
-      opacity: 0,
-      transition: "opacity 1s ease",
-      borderRadius: "50%",
     }}
   />
 </div>
@@ -166,7 +163,7 @@ return (
 
 import Link from "next/link";
 
-<div style={{ textAlign: "center" }}>
+<div style={{ textAlign: "center", }}>
   <div className="cta-container">
     <Link href="/docs" className="cta">
       Get Started
@@ -186,11 +183,31 @@ import Link from "next/link";
       fontSize: 14,
     }}
   >
-    Polaris is licensed under BUSL-1.1 →
+    Polaris VM is currently licensed under BUSL-1.1 →
   </Link>
 </div>
 
 <style jsx global>{`
+  @media only screen and (min-width: 600px) {
+    .canvas-container {
+      margin-top: 0px;
+    }
+  }
+  @media only screen and (min-width: 900px) {
+    .canvas-container {
+      margin-top: calc(50vh - 300px);
+    }
+  }
+  @media only screen and (min-width: 1200px) {
+    .canvas-container {
+      margin-top: calc(50vh - 300px);
+    }
+  }
+  @media only screen and (min-width: 1536px) {
+    .canvas-container {
+      margin-top: calc(50vh - 300px);
+    }
+  }
   .nav {
     display: none;
   }

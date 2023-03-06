@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 
 export default {
     logo: <span>Polaris</span>,
-    logoLink: '/docs',
+    logoLink: '/',
     project: {
         link: 'https://github.com/berachain/polaris',
     },
@@ -12,13 +12,13 @@ export default {
         const { route } = useRouter()
         if (route !== '/') {
             return {
-                titleTemplate: '%s – Polaris Docs'
+                titleTemplate: '%s – Polaris VM Docs'
             }
         }
     },
     head: function useHead() {
         const { title } = useConfig()
-        const socialCard = '/header.jpeg'
+        const socialCard = '/header.png'
 
         return (
             <>
@@ -28,11 +28,11 @@ export default {
                 <meta httpEquiv="Content-Language" content="en" />
                 <meta
                     name="description"
-                    content="Polaris brings EVM to Cosmos in a new way"
+                    content="Polaris VM brings EVM to Cosmos in a new way"
                 />
                 <meta
                     name="og:description"
-                    content="Polaris brings EVM to Cosmos in a new way"
+                    content="Polaris VM brings EVM to Cosmos in a new way"
                 />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:image" content={socialCard} />
@@ -40,13 +40,12 @@ export default {
                 <meta name="twitter:url" content="https://berachain.com/" />
                 <meta
                     name="og:title"
-                    content={title ? title + ' – Polaris' : 'Polaris'}
+                    content={title ? title + ' – Polaris VM' : 'Polaris VM'}
                 />
                 <meta name="og:image" content={socialCard} />
-                <meta name="apple-mobile-web-app-title" content="Polaris" />
-                <link rel="icon" href="/berachain.svg" type="image/svg+xml" />
-                <link rel="icon" href="/berachain.png" type="image/png" />
-                <link rel="icon" href="/berachain.ico"/>
+                <meta name="apple-mobile-web-app-title" content="Polaris VM" />
+                <link rel="icon" href="/milky-way.png" type="image/png" />
+                <link rel="icon" href="/milky-way.ico"/>
                 <link
                     rel="icon"
                     href="/berachain.svg"
@@ -62,9 +61,7 @@ export default {
             </>
         )
     },
-    editLink: {
-        text: 'Edit this page on GitHub →'
-    },
+    editLink: false,
     feedback: false,
     sidebar: {
         titleComponent({ title, type }) {

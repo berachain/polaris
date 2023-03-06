@@ -4,18 +4,6 @@ This section provides useful information about the default set of precompiles in
 [Creating Custom Precompiles](./building-precompiles/creating-custom-precompiles) section for tutorials and information. It's important to note that a precompile in the EVM doesn't necessarily need to have an associated Cosmos module. Precompiles 
 can be used to access anything that's implemented on the node, but the most common use case is to use precompiles to access Cosmos modules.
 
-## Stateful Precompile information
-A Stateful Precompile is a precompiled contract that can alter chain state.
-
-| Precompile Contract                                           | Contract Address                                 | ABI                                               | Associated Cosmos Module                          |
-| :------------------------------------------------------------ | :----------------------------------------------- | :------------------------------------------------ | :-------------------------------------------------| 
-| Staking Precompile                                            | `0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF`       |   [**Staking.abi**]()       | [**Staking Module**]()      | 
-| Multicall Precompile                                          | Coming soon       |   [**Multicall.abi**]()     | N/A                                               |
-| Bank Precompile                                               | Coming soon       |   [**Bank.abi**]()          | [**Bank Module**]()         | 
-| IBC Precompile                                                | Coming soon       |   [**Ibc.abi**]()           | [**IBC Module**]()          | 
-| Governance Precompile                                         | Coming soon       |   [**Governance.abi**]()    | [**Governance Module**]()   |
-
-
 ## Default Ethereum Precompile Information
 
 Information below is from [evm.codes](https://www.evm.codes/precompiled).
@@ -35,14 +23,3 @@ Information below is from [evm.codes](https://www.evm.codes/precompiled).
 ## Interacting With Precompile Contracts
 To interact with a precompile contract, you must use the Ethereum Virtual Machine (EVM). The EVM is the only way to access precompiles. If you're interested in learning more about how to interact with precompiles, you can check out the [Interacting With Precompiles](./for-solidity-devs/developer-overview#interacting-with-stateful-precompiles) section for more information.
 
-## Stateful Precompile ABI Generation
-
-In order to generate the default stateful precompile ABIs
-You must first clone the [Polaris repository](https://github.com/berachain/polaris).
-
-You can now run the following command to generate the ABIs:
-
-`mage generate`
-
-The ABIs along with several other generated files can be found
-in the `precompile/contracts/solidity/out` directory.

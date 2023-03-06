@@ -1,45 +1,29 @@
-# EVM on Polaris
+# EVM with Polaris VM
 
-Polaris offers an improved EVM experience that goes beyond the basic implementation of Ethereum.
-In addition to the reliable and consistent Ethereum functionality, Polaris offers developers the 
+Polaris VM offers an improved EVM experience that goes beyond the basic implementation of Ethereum.
+In addition to the reliable and consistent Ethereum functionality, Polaris VM offers developers the 
 creation of stateful precompiles & custom modules that developers can use to create more efficient and 
 powerful smart contracts.
 
-## Powered By Cosmos & Geth
-
-TODO DEV
-Polaris is powered by the Cosmos SDK and Go-Ethereum library.
-
 ## Additional Features
 
-Polaris offers several additional features to enhance the EVM experience, 
-including stateful precompiles, custom opcodes, and the ERC20 middleware.
+The Polaris VM offers several additional features to enhance the EVM experience, 
+including stateful precompiles, and custom opcodes. In this documentation we will discuss
+these features in the context of a Cosmos-SDK based chain.
 
 ### Stateful Precompiles
 Stateful precompiles are precompiled contracts that can alter state on the 
 chain, enabling more efficient stateful operations at a lower gas cost. 
 The [Precompiles] section provides a more detailed explanation of 
-how Polaris uses these precompiled contracts.
+how Polaris VM uses these precompiled contracts.
 
 ### Custom Opcodes
 
-Custom opcodes have been added to Polaris' EVM implementation to provide additional 
+Custom opcodes have been added to Polaris VM's EVM implementation to provide additional 
 functionality and support for complex smart contracts. However, some of the opcodes 
-provided by Ethereum are not compatible with Polaris' EVM implementation, 
+provided by Ethereum are not compatible with Polaris VM's EVM implementation, 
 which may affect contracts that use these opcodes. The [Opcode Documentation] 
 provides information on these changes.
 
-### ERC20 Middleware
-
-TODO DEV
-
-
-The ERC20 middleware provides a standardized interface for managing ERC20 tokens on
-the Polaris blockchain. This middleware simplifies the process of managing ERC20 tokens, 
-making it easier for developers to create decentralized applications that interact with these tokens.
-The [ERC20 Middleware] section provides more information on this topic.
-
-
 [Precompiles]: ./precompile-overview
 [Opcode Documentation]: ./opcodes
-[ERC20 Middleware]: ./opcodes

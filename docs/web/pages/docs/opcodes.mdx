@@ -84,7 +84,7 @@ The original source of the below chart comes from the [Ethereum docs].
 | 42    | TIMESTAMP      | 2                                                                                               | `.`                                              | `block.timestamp`               |                                                                               | timestamp of current block                                                                                                                            |
 | 43    | NUMBER         | 2                                                                                               | `.`                                              | `block.number`                  |                                                                               | number of current block                                                                                                                               |
 | 44    | **DIFFICULTY** | 2                                                                                               | `.`                                              | `block.difficulty`              |                                                                               | returns 0                                                                                                                                             |
-| 45    | **GASLIMIT**   | 2                                                                                               | `.`                                              | `block.gaslimit`                |                                                                               | (2^256-1) `0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`                                                                        |
+| 45    | GASLIMIT       | 2                                                                                               | `.`                                              | `block.gaslimit`                |                                                                               | (2^256-1) `0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`                                                                        |
 | 46    | CHAINID        | 2                                                                                               | `.`                                              | `chain_id`                      |                                                                               | push current [chain id](https://eips.ethereum.org/EIPS/eip-155) onto stack                                                                            |
 | 47    | SELFBALANCE    | 5                                                                                               | `.`                                              | `address(this).balance`         |                                                                               | balance of executing contract, in wei                                                                                                                 |
 | 48    | BASEFEE        | 2                                                                                               | `.`                                              | `block.basefee`                 |                                                                               | base fee of current block                                                                                                                             |
@@ -189,23 +189,13 @@ The original source of the below chart comes from the [Ethereum docs].
 
 ### `BLOCKHASH` 
 
-This opcode returns the Tendermint block hash
+This opcode returns the block hash of the "ethereum" block and not the block hash of the host chain.
 
-TODO DEV
 ### `COINBASE`
 
-This opcode returns the hex address associated with the proposer of the
+This opcode returns the address of the "fee collector", which depending on the host chain may be either the block author or the miner.
+In the Cosmos-SDK intergration of Polaris VM, it is the ModuleAddress of teh FeeCollectorAccount.
 
-TODO DEV
 ### `DIFFICULTY`
 
-This opcode always returns zero as there is no difficulty in Polaris.
-
-TODO DEV
-### `GASLIMIT`
-
-This opcode always returns
-_0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_
-(2^256-1).
-
-TODO DEV
+This opcode always returns 69. 
