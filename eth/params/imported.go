@@ -50,4 +50,6 @@ var (
 	TxGas = params.TxGas
 	// `MainnetChainConfig` is the chain parameters to run a node on the main network.
 	MainnetChainConfig = params.MainnetChainConfig
+	// `IdentityBaseGase` is the base gas required to execute the identity pre-compiled contract.
+	IdentityBaseGase = params.IdentityBaseGas
 )

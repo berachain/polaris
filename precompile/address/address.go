@@ -28,6 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
@@ -73,12 +74,14 @@ func (c *Contract) CustomValueDecoders() precompile.ValueDecoders {
 func (c *Contract) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		{
-			AbiSig:  "convertHexToBech32(address)",
-			Execute: c.ConvertHexToBech32,
+			AbiSig:      "convertHexToBech32(address)",
+			Execute:     c.ConvertHexToBech32,
+			RequiredGas: params.IdentityBaseGas,
 		},
 		{
-			AbiSig:  "convertBech32ToHexAddress(string)",
-			Execute: c.ConvertBech32ToHexAddress,
+			AbiSig:      "convertBech32ToHexAddress(string)",
+			Execute:     c.ConvertBech32ToHexAddress,
+			RequiredGas: params.IdentityBaseGas,
 		},
 	}
 }
