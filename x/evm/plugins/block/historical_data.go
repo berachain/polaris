@@ -84,7 +84,6 @@ func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretype
 
 	// store the version offchain for consistency.
 	if sdk.BigEndianToUint64(p.offchainStore.Get(versionKey)) != blockNum-1 {
-		// TODO: resync the off-chain storage.
 		panic("off-chain store's latest block number is not synced")
 	}
 	p.offchainStore.Set(versionKey, numBz)
