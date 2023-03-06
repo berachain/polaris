@@ -18,8 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package solidity
+package precompile
 
-//go:generate abigen --pkg generated --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./generated/i_staking_module.abigen.go --type StakingModule
-//go:generate abigen --pkg generated --abi ./out/bank.sol/BankEvents.abi.json --bin ./out/bank.sol/BankEvents.bin --out ./generated/bank_events.abigen.go --type BankEvents
-//go:generate abigen --pkg generated --abi ./out/address.sol/IAddress.abi.json --bin ./out/address.sol/IAddress.bin --out ./generated/i_address.abigen.go --type Address
+import "errors"
+
+var (
+	ErrInvalidHexAddress = errors.New("invalid hex address")
+	ErrInvalidString     = errors.New("invalid string address")
+	ErrInvalidBigInt     = errors.New("invalid big int")
+	ErrInvalidUint64     = errors.New("invalid uint64")
+	ErrInvalidInt64      = errors.New("invalid int64")
+)

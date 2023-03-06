@@ -26,11 +26,11 @@ You can run Polaris VM on lower-spec hardware for each component, but you may fi
 
 Most validators will only need to open the following port:
 
-- `26656`: The default port for the P2P protocol. This port is used to communicate with other nodes and must be open to join a network. However, it does not have to be open to the public. For validator nodes, [configuring `persistent_peers`](updates-and-additional.mdx#additional-settings) and closing this port to the public are recommended.
+- `26656`: The default port for the P2P protocol. This port is used to communicate with other nodes and must be open to join a network. However, it does not have to be open to the public. 
 
 Additional ports:
 
-- `1317`: The default port for the [Lite Client Daemon](../../develop/guides/start-lcd.mdx) (LCD). The LCD provides an HTTP RESTful API layer to allow applications and services to interact with your polard instance through RPC. You don't need to open this port unless you have use for it. This port also hosts the Ethereum JSON-RPC Server which is default hosted at `0.0.0.0:1317/eth/rpc`
+- `1317`: The default port for the Lite Client Daemon (LCD). The LCD provides an HTTP RESTful API layer to allow applications and services to interact with your polard instance through RPC. You don't need to open this port unless you have use for it. This port also hosts the Ethereum JSON-RPC Server which is default hosted at `0.0.0.0:1317/eth/rpc`
 
 - `26660`: The default port for interacting with the [Prometheus](https://prometheus.io) database, which can be used to monitor the environment. In the default configuration, this port is not open.
 

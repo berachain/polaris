@@ -18,15 +18,25 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package staking
+pragma solidity ^0.8.4;
 
-import "errors"
+/**
+ * @dev Interface of the address  precompiled contract
+ */
+interface IAddress {
+    /**
+     * @dev Returns the bech32 representation of the given address.
+     */
+    function convertHexToBech32(address account)
+        external
+        view
+        returns (string memory);
 
-var (
-	ErrInvalidValidatorAddr = errors.New("invalid validator address")
-	ErrInvalidDelegatorAddr = errors.New("invalid delegator address")
-	ErrInvalidString        = errors.New("invalid string")
-	ErrInvalidBigInt        = errors.New("invalid big int")
-	ErrInvalidUint64        = errors.New("invalid uint64")
-	ErrInvalidInt64         = errors.New("invalid int64")
-)
+    /**
+     * @dev Returns the hex representation of the given bech32 address.
+     */
+    function convertBech32ToHexAddress(string calldata account)
+        external
+        view
+        returns (address);
+}

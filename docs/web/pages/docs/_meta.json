@@ -4,7 +4,7 @@
     "type": "separator",
     "title": "Getting Started"
   },
-  "introduction": "Introduction",
+  "introduction": "Polaris Overview",
   "system-config": "System Configuration",
   "running-a-node": "Running a Node",
   "using-metamask": "Using Metamask",
@@ -30,7 +30,6 @@
     "type": "separator",
     "title": "Developers"
   },
-  "building-on-polaris-overview": "Overview",
   "contributing": "Contributing Guide",
   "building-modules": "Building Modules",
   "building-precompiles": "Building Precompiles",
@@ -38,18 +37,6 @@
   "for-solidity-devs": "For Solidity Developers",
   "interacting-with-node": "Interacting with the Node",
   "key-management": "Key Management",
-  "-- Node --": {
-    "type": "separator",
-    "title": "Node Information"
-  },
-  "node-config": "Node Configuration",
-  "node-services": "Node Services",
-  "node-maintenance": "Node Maintenance",
-  "-- Joining A Network --": {
-    "type": "separator",
-    "title": "Joining a Network"
-  },
-  "joining-network-overview": "Overview",
   "-- Socials --": {
     "type": "separator",
     "title": "More"
