@@ -25,50 +25,26 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/precompile"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
 
 // `Contract` is the precompile contract for the bank module.
 type Contract struct {
-	contractAbi *abi.ABI
+	precompile.BaseContract
 }
 
 // `NewPrecompileContract` returns a new instance of the bank precompile contract.
-func NewPrecompileContract() precompile.StatefulImpl {
+func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.BankModuleMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
-		contractAbi: &contractAbi,
+		BaseContract: precompile.NewBaseContract(
+			contractAbi, evmutils.AccAddressToEthAddress(
+				authtypes.NewModuleAddress(banktypes.ModuleName))),
 	}
-}
-
-// `RegistryKey` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) RegistryKey() common.Address {
-	// Contract Address: 0x4381dC2aB14285160c808659aEe005D51255adD7
-	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName))
-}
-
-// `AbiMethods` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) ABIMethods() map[string]abi.Method {
-	return nil
-}
-
-// `PrecompileMethods` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() precompile.Methods {
-	return nil
-}
-
-// `AbiEvents` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) ABIEvents() map[string]abi.Event {
-	return c.contractAbi.Events
-}
-
-// `CustomValueDecoders` implements StatefulImpl.
-func (c *Contract) CustomValueDecoders() precompile.ValueDecoders {
-	return nil
 }
