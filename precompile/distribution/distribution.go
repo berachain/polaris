@@ -25,50 +25,26 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/precompile"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
 
 // `Contract` is the precompile contract for the distribution module.
 type Contract struct {
-	contractAbi *abi.ABI
+	precompile.BaseContract
 }
 
-// `NewPrecompileContract` returns a new instance of the distribution precompile contract.
-func NewPrecompileContract() precompile.StatefulImpl {
+// `NewPrecompileContract` returns a new instance of the bank precompile contract.
+func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.DistributionModuleMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
-		contractAbi: &contractAbi,
+		BaseContract: precompile.NewBaseContract(
+			contractAbi, evmutils.AccAddressToEthAddress(
+				authtypes.NewModuleAddress(distributiontypes.ModuleName))),
 	}
-}
-
-// `RegistryKey` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) RegistryKey() common.Address {
-	// Contract Address: 0x93354845030274cD4bf1686Abd60AB28EC52e1a7
-	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName))
-}
-
-// `AbiMethods` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) ABIMethods() map[string]abi.Method {
-	return nil
-}
-
-// `PrecompileMethods` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() precompile.Methods {
-	return nil
-}
-
-// `AbiEvents` implements the `precompile.StatefulImpl` interface.
-func (c *Contract) ABIEvents() map[string]abi.Event {
-	return c.contractAbi.Events
-}
-
-// `CustomValueDecoders` implements StatefulImpl.
-func (c *Contract) CustomValueDecoders() precompile.ValueDecoders {
-	return nil
 }

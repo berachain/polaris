@@ -40,7 +40,7 @@ import (
 
 // `Contract` is the precompile contract for the staking module.
 type Contract struct {
-	contractAbi *abi.ABI
+	precompile.BaseContract
 
 	msgServer stakingtypes.MsgServer
 	querier   stakingtypes.QueryServer
@@ -53,21 +53,12 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) coreprecompile.StatefulImpl
 		panic(err)
 	}
 	return &Contract{
-		contractAbi: &contractAbi,
-		msgServer:   stakingkeeper.NewMsgServerImpl(sk),
-		querier:     stakingkeeper.Querier{Keeper: sk},
+		BaseContract: precompile.NewBaseContract(
+			contractAbi, evmutils.AccAddressToEthAddress(
+				authtypes.NewModuleAddress(stakingtypes.ModuleName))),
+		msgServer: stakingkeeper.NewMsgServerImpl(sk),
+		querier:   stakingkeeper.Querier{Keeper: sk},
 	}
-}
-
-// `RegistryKey` implements StatefulImpl.
-func (c *Contract) RegistryKey() common.Address {
-	// Contract Address: 0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF
-	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName))
-}
-
-// `ABIMethods` implements StatefulImpl.
-func (c *Contract) ABIMethods() map[string]abi.Method {
-	return c.contractAbi.Methods
 }
 
 // `PrecompileMethods` implements StatefulImpl.
@@ -134,16 +125,6 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 			Execute: c.GetActiveValidators,
 		},
 	}
-}
-
-// `ABIEvents` implements StatefulImpl.
-func (c *Contract) ABIEvents() map[string]abi.Event {
-	return c.contractAbi.Events
-}
-
-// `CustomValueDecoders` implements StatefulImpl.
-func (c *Contract) CustomValueDecoders() coreprecompile.ValueDecoders {
-	return nil
 }
 
 // `GetDelegationAddrInput` implements `getDelegation(address)` method.
