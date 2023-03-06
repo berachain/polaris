@@ -14,7 +14,6 @@
   },
   "evm-on-polaris": "Overview",
   "architecture": "Architecture",
-  "plugins": "Plugins",
   "precompile-overview": "Precompiles",
   "opcodes": "Opcodes",
   "json-rpc": "JSON-RPC",
