@@ -8,6 +8,12 @@ export default {
         link: 'https://github.com/berachain/polaris',
     },
     docsRepositoryBase: "https://github.com/berachain/polaris",
+    banner: {
+        key: '2.0-release',
+        text: <a href="https://medium.com/berachain-foundation/introducing-polaris-vm-2a0b77d777f8" target="_blank">
+          🎉 Announcing Polaris VM! 
+        </a>,
+    },
     useNextSeoProps() {
         const { route } = useRouter()
         if (route !== '/') {
@@ -19,7 +25,6 @@ export default {
     head: function useHead() {
         const { title } = useConfig()
         const socialCard = '/header.png'
-
         return (
             <>
                 <meta name="msapplication-TileColor" content="#fff" />
@@ -35,9 +40,10 @@ export default {
                     content="Polaris VM brings EVM to Cosmos in a new way"
                 />
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:image" content={socialCard} />
-                <meta name="twitter:site:domain" content="berachain.com" />
-                <meta name="twitter:url" content="https://berachain.com/" />
+                <meta name="twitter:image" content="/header.png" />
+                <meta name="twitter:site:domain" content="https://polaris.berachain.dev/" />
+                <meta property="twitter:description" content="Polaris VM brings EVM to Cosmos in a new way"/>
+                <meta name="twitter:url" content="https://polaris.berachain.dev/" />
                 <meta
                     name="og:title"
                     content={title ? title + ' – Polaris VM' : 'Polaris VM'}
