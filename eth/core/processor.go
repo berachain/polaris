@@ -190,12 +190,18 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
+	// Set the receipt status based on the execution result status.
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
 	} else {
-		// if the result didn't produce a consensus error then we can properly commit the state.
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
+
+	// Finalize the statedb to ensure that any state changes that are required are propogated.
+	// We have to do this irrespective of whether the transaction failed or not, in order to
+	// ensure that the sender's nonce increases as well as the transaction fees are paid.
+	// The snapshotting within the EVM ensures that any reverted state changes are not reflected
+	// in the finalized state.
 	sp.statedb.Finalize()
 
 	// Update the block information.
