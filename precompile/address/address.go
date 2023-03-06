@@ -54,6 +54,7 @@ func NewPrecompileContract() coreprecompile.StatefulImpl {
 
 // `RegisterKey` implements `precompile.StatelessImpl`.
 func (c *Contract) RegistryKey() common.Address {
+	// Contract Address: 0x19
 	return common.BytesToAddress([]byte{19})
 }
 

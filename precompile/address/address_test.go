@@ -42,29 +42,31 @@ func TestAddressPrecompile(t *testing.T) {
 }
 
 var _ = Describe("Address Precompile", func() {
-	var (
-		contract *Contract
-	)
+	var contract *Contract
 
 	BeforeEach(func() {
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract())
 	})
 
 	It("should have static registry key", func() {
-		Expect(contract.RegistryKey()).To(Equal(common.BytesToAddress([]byte("address_util"))))
+		Expect(contract.RegistryKey()).To(Equal(common.BytesToAddress([]byte{19})))
 	})
+
 	It("should have correct ABI methods", func() {
 		var cAbi abi.ABI
 		err := cAbi.UnmarshalJSON([]byte(generated.AddressMetaData.ABI))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(contract.ABIMethods()).To(Equal(cAbi.Methods))
 	})
+
 	It("should match the precompile methods", func() {
 		Expect(contract.PrecompileMethods()).To(HaveLen(len(contract.ABIMethods())))
 	})
+
 	It("custom value decoder should be no-op", func() {
 		Expect(contract.CustomValueDecoders()).To(BeNil())
 	})
+
 	When("When Calling ConvertHexToBech32", func() {
 		It("should fail on invalid inputs", func() {
 			res, err := contract.ConvertHexToBech32(
@@ -77,6 +79,7 @@ var _ = Describe("Address Precompile", func() {
 			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
 			Expect(res).To(BeNil())
 		})
+
 		It("should convert from hex to bech32", func() {
 			res, err := contract.ConvertHexToBech32(
 				context.Background(),
@@ -101,6 +104,7 @@ var _ = Describe("Address Precompile", func() {
 			Expect(err).To(MatchError(precompile.ErrInvalidString))
 			Expect(res).To(BeNil())
 		})
+
 		It("should error if invalid bech32 address", func() {
 			res, err := contract.ConvertBech32ToHexAddress(
 				context.Background(),
@@ -112,6 +116,7 @@ var _ = Describe("Address Precompile", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(res).To(BeNil())
 		})
+
 		It("should convert from bech32 to hex", func() {
 			res, err := contract.ConvertBech32ToHexAddress(
 				context.Background(),
