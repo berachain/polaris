@@ -64,7 +64,7 @@ type Keeper struct {
 	// `authority` is the bech32 address that is allowed to execute governance proposals.
 	authority string
 
-	// The various plugins are used to implement `core.StargazerHostChain`.
+	// The various plugins that are are used to implement `core.StargazerHostChain`.
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
@@ -83,6 +83,7 @@ func NewKeeper(
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
 ) *Keeper {
+	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
 		authority: authority,
 		storeKey:  storeKey,
@@ -104,8 +105,25 @@ func NewKeeper(
 	k.gp = gas.NewPlugin()
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", nil)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
-
 	return k
+}
+
+func (k *Keeper) Setup(
+	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
+) {
+	plf := precompilelog.NewFactory()
+	k.pp = precompile.NewPlugin()
+	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
+	k.pp.SetPrecompiles(precompiles)
+	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
+
+	// Build the Stargazer EVM Provider
+	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
+}
+
+func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
+	k.sp.SetQueryContextFn(fn)
+	k.bp.SetQueryContextFn(fn)
 }
 
 // `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
@@ -124,27 +142,9 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	}))
 }
 
-func (k *Keeper) SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error)) {
-	k.sp.SetQueryContextFn(fn)
-	k.bp.SetQueryContextFn(fn)
-}
-
 // `Logger` returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
-}
-
-func (k *Keeper) Setup(
-	ak state.AccountKeeper, bk state.BankKeeper, precompiles []vm.RegistrablePrecompile,
-) {
-	plf := precompilelog.NewFactory()
-	k.pp = precompile.NewPlugin()
-	plf.RegisterAllEvents(k.pp.GetPrecompiles(nil))
-	k.pp.SetPrecompiles(precompiles)
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, "abera", plf)
-
-	// Build the Stargazer EVM Provider
-	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
 }
 
 // `GetBlockPlugin` returns the block plugin.

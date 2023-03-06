@@ -130,16 +130,39 @@ func NewPlugin(
 
 // `Reset` implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
-	// reset the Controllable MultiStore and EventManager and attach them to the context
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
+	// ethereum utilizes the concept of snapshots, whereas the current implementation of the
+	// Cosmos-SDK `CacheKV` uses "wraps".
 	p.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
+
+	// We have to build a custom event manager to use with the StateDB. This is because the we want
+	// a way to handle converting Cosmos events from precompiles into Ethereum logs.
 	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
+
+	// We need to build a custom configuration for the context in order to handle precompile event logs
+	// and proper gas consumption.
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
 
-	// setup the snapshot controller
+	// We  also remove the KVStore gas metering from the context prior to entering the EVM
+	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
+	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced individually.
+	// By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES in the EVM
+	// are not being charged additional gas unknowingly.
+	p.ctx = p.ctx.WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
+
+	// We setup a snapshot controller in order to properly handle reverts.
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
-	_ = ctrl.Register(p.cms)
-	_ = ctrl.Register(cem)
+
+	// We register the Controllable MultiStore with the snapshot controller.
+	if err := ctrl.Register(p.cms); err != nil {
+		panic(err)
+	}
+
+	// We also register the Controllable EventManager with the snapshot controller.
+	if err := ctrl.Register(cem); err != nil {
+		panic(err)
+	}
 	p.Controller = ctrl
 }
 

@@ -21,6 +21,8 @@
 package ethsecp256k1
 
 import (
+	"crypto/ecdsa"
+
 	"pkg.berachain.dev/stargazer/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -29,20 +31,25 @@ import (
 
 var _ = Describe("PrivKey_PubKey", func() {
 	var privKey *PrivKey
+	var ecdsaPrivKey *ecdsa.PrivateKey
 
 	BeforeEach(func() {
 		var err error
 		privKey, err = GenPrivKey()
 		Expect(err).ToNot(HaveOccurred())
+		ecdsaPrivKey, err = privKey.ToECDSA()
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("validates signing bytes", func() {
 		msg := []byte("hello world")
+		// for the eth case, we have to manually hash in the test.
 		sigHash := crypto.Keccak256(msg)
-		expectedSig, err := crypto.EthSecp256k1Sign(sigHash, privKey.Bytes())
+
+		expectedSig, err := crypto.EthSign(sigHash, ecdsaPrivKey)
 		Expect(err).ToNot(HaveOccurred())
 
-		sig, err := privKey.Sign(sigHash)
+		sig, err := privKey.Sign(msg)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(expectedSig).To(Equal(sig))
 	})
@@ -53,7 +60,7 @@ var _ = Describe("PrivKey_PubKey", func() {
 		sig, err := privKey.Sign(sigHash)
 		Expect(err).ToNot(HaveOccurred())
 
-		res := privKey.PubKey().VerifySignature(msg, sig)
+		res := privKey.PubKey().VerifySignature(sigHash, sig)
 		Expect(res).To(BeTrue())
 	})
 })
