@@ -123,12 +123,8 @@ For our deployment, we would create a `deployment.yaml `file which looks somethi
             - name: node
             image: <container-registry>/<container-image>
             ports:
-                - name: consmoslcd
+                - name: apphttp
                 containerPort: 1317
-                - name: jsonrpc
-                containerPort: 8545
-                - name: jsonrpcws
-                containerPort: 8546
                 - name: tendermintgrpc
                 containerPort: 9090
                 - name: tendermintrpc
@@ -157,17 +153,9 @@ For our service, as we want our node to be access from the public internet, we w
         service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
     spec:
     ports:
-        - name: cosmoslcd
+        - name: apphttp
         port: 80
         targetPort: 1317
-        protocol: TCP
-        - name: jsonrpc
-        port: 8545
-        targetPort: 8545
-        protocol: TCP
-        - name: jsonrpcws
-        port: 8546
-        targetPort: 8546
         protocol: TCP
         - name: tenderpmintrpc
         port: 26657
