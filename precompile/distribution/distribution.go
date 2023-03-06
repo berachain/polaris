@@ -18,11 +18,11 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank
+package distribution
 
 import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -31,15 +31,15 @@ import (
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
 
-// `Contract` is the precompile contract for the bank module.
+// `Contract` is the precompile contract for the distribution module.
 type Contract struct {
 	contractAbi *abi.ABI
 }
 
-// `NewPrecompileContract` returns a new instance of the bank precompile contract.
+// `NewPrecompileContract` returns a new instance of the distribution precompile contract.
 func NewPrecompileContract() precompile.StatefulImpl {
 	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.BankModuleMetaData.ABI)); err != nil {
+	if err := contractAbi.UnmarshalJSON([]byte(generated.DistributionModuleMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
@@ -49,8 +49,8 @@ func NewPrecompileContract() precompile.StatefulImpl {
 
 // `RegistryKey` implements the `precompile.StatefulImpl` interface.
 func (c *Contract) RegistryKey() common.Address {
-	// Contract Address: 0x4381dC2aB14285160c808659aEe005D51255adD7
-	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName))
+	// Contract Address: 0x93354845030274cD4bf1686Abd60AB28EC52e1a7
+	return evmutils.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName))
 }
 
 // `AbiMethods` implements the `precompile.StatefulImpl` interface.

@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank
+package bank_test
 
 import (
 	"testing"
@@ -28,6 +28,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/precompile/bank"
 	"pkg.berachain.dev/polaris/x/evm/plugins/precompile/log"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -41,13 +42,13 @@ func TestBankPrecompile(t *testing.T) {
 
 var _ = Describe("Bank Precompile Test", func() {
 	var (
-		contract *Contract
+		contract *bank.Contract
 		addr     sdk.AccAddress
 		factory  *log.Factory
 	)
 
 	BeforeEach(func() {
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract())
+		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract())
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.

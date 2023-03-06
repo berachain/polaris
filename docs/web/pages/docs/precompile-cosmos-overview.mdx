@@ -3,13 +3,15 @@
 ## Stateful Precompile information
 A Stateful Precompile is a precompiled contract that can alter chain state.
 
-| Precompile Contract                                           | Contract Address                                 | ABI                                               | Associated Cosmos Module                          |
+| Precompile Contract                                           | Contract Address                                 | Solidity Interface                                               | Associated Cosmos Module                          |
 | :------------------------------------------------------------ | :----------------------------------------------- | :------------------------------------------------ | :-------------------------------------------------| 
-| Staking Precompile                                            | `0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF`       |   [**Staking.abi**]()       | [**Staking Module**]()      | 
-| Multicall Precompile                                          | Coming soon       |   [**Multicall.abi**]()     | N/A                                               |
-| Bank Precompile                                               | Coming soon       |   [**Bank.abi**]()          | [**Bank Module**]()         | 
-| IBC Precompile                                                | Coming soon       |   [**Ibc.abi**]()           | [**IBC Module**]()          | 
-| Governance Precompile                                         | Coming soon       |   [**Governance.abi**]()    | [**Governance Module**]()   |
+| Staking Precompile                                            | `0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF`       |   [**staking.sol**](https://github.com/berachain/polaris/blob/main/precompile/contracts/solidity/src/staking.sol)       | [**Staking Module**](https://docs.cosmos.network/v0.47/modules/staking)      | 
+| Multicall Precompile                                          | Coming soon       |   [**multicall.sol**]()     | N/A                                               |
+| Bank Precompile                                               | `0x4381dC2aB14285160c808659aEe005D51255adD7`       |   [**bank.sol**](https://github.com/berachain/polaris/blob/main/precompile/contracts/solidity/src/bank.sol)          | [**Bank Module**](https://docs.cosmos.network/v0.47/modules/bank)         | 
+| IBC Precompile                                                | Coming soon       |   [**ibc.sol**]()           | [**IBC**](https://ibc.cosmos.network/)          | 
+| Governance Precompile                                         | Coming soon       |   [**governance.sol**]()    | [**Governance Module**](https://docs.cosmos.network/v0.47/modules/gov)   |
+| Address Utility Precompile                                    | `0x19`      |   [**address.sol**](https://github.com/berachain/polaris/blob/main/precompile/contracts/solidity/src/address.sol)       | N/A                                               |
+| Distribution Precompile | `0x93354845030274cD4bf1686Abd60AB28EC52e1a7` | [**distribution.sol**](https://github.com/berachain/polaris/blob/main/precompile/contracts/solidity/src/distribution.sol) | [**Distribution Module**](https://docs.cosmos.network/v0.47/modules/distribution) |
 
 ## Stateful Precompile ABI Generation
 
@@ -20,5 +22,5 @@ You can now run the following command to generate the ABIs:
 
 `mage generate`
 
-The ABIs along with several other generated files can be found
-in the `precompile/contracts/solidity/out` directory.
+The ABI files can be found in the `precompile/contracts/solidity/out` directory. The generated files
+can be found in the `precompile/contracts/solidity/generated` directory.
