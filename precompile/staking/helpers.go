@@ -57,11 +57,11 @@ func (c *Contract) getDelegationHelper(
 // `getUnbondingDelegationHelper` is the helper function for `getUnbondingDelegation`.
 func (c *Contract) getUnbondingDelegationHelper(
 	ctx context.Context,
-	caller common.Address,
+	del sdk.AccAddress,
 	val sdk.ValAddress,
 ) ([]any, error) {
 	res, err := c.querier.UnbondingDelegation(ctx, &stakingtypes.QueryUnbondingDelegationRequest{
-		DelegatorAddr: evmutils.AddressToAccAddress(caller).String(),
+		DelegatorAddr: del.String(),
 		ValidatorAddr: val.String(),
 	})
 	if err != nil {
@@ -74,14 +74,14 @@ func (c *Contract) getUnbondingDelegationHelper(
 // `getRedelegationsHelper` is the helper function for `getRedelegations.
 func (c *Contract) getRedelegationsHelper(
 	ctx context.Context,
-	caller common.Address,
+	del sdk.AccAddress,
 	srcValidator sdk.ValAddress,
 	dstValidator sdk.ValAddress,
 ) ([]any, error) {
 	rsp, err := c.querier.Redelegations(
 		ctx,
 		&stakingtypes.QueryRedelegationsRequest{
-			DelegatorAddr:    evmutils.AddressToAccAddress(caller).String(),
+			DelegatorAddr:    del.String(),
 			SrcValidatorAddr: srcValidator.String(),
 			DstValidatorAddr: dstValidator.String(),
 		},
@@ -90,7 +90,7 @@ func (c *Contract) getRedelegationsHelper(
 	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
 	for _, r := range rsp.GetRedelegationResponses() {
 		redel := r.GetRedelegation()
-		if redel.DelegatorAddress == evmutils.AddressToAccAddress(caller).String() &&
+		if redel.DelegatorAddress == del.String() &&
 			redel.ValidatorSrcAddress == srcValidator.String() &&
 			redel.ValidatorDstAddress == dstValidator.String() {
 			redelegationEntryResponses = r.GetEntries()
