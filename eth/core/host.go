@@ -29,8 +29,8 @@ import (
 	libtypes "pkg.berachain.dev/stargazer/lib/types"
 )
 
-// `StargazerHostChain` defines the plugins that the chain running Polaris EVM should implement.
-type StargazerHostChain interface {
+// `PolarisHostChain` defines the plugins that the chain running Polaris EVM should implement.
+type PolarisHostChain interface {
 	// `GetBlockPlugin` returns the `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
 	// `GetConfigurationPlugin` returns the `ConfigurationPlugin` of the Polaris host chain.
@@ -50,7 +50,7 @@ type StargazerHostChain interface {
 // =============================================================================
 
 // The following plugins should be implemented by the chain running Polaris EVM and exposed via
-// the `StargazerHostChain` interface. All plugins should be resettable with a given context.
+// the `PolarisHostChain` interface. All plugins should be resettable with a given context.
 type (
 	// `BlockPlugin` defines the methods that the chain running Polaris EVM should implement to
 	// support the `BlockPlugin` interface.

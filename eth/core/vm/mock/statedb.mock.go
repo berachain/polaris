@@ -14,16 +14,16 @@ import (
 	"sync"
 )
 
-// Ensure, that StargazerStateDBMock does implement vm.StargazerStateDB.
+// Ensure, that PolarisStateDBMock does implement vm.PolarisStateDB.
 // If this is not the case, regenerate this file with moq.
-var _ vm.StargazerStateDB = &StargazerStateDBMock{}
+var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 
-// StargazerStateDBMock is a mock implementation of vm.StargazerStateDB.
+// PolarisStateDBMock is a mock implementation of vm.PolarisStateDB.
 //
-//	func TestSomethingThatUsesStargazerStateDB(t *testing.T) {
+//	func TestSomethingThatUsesPolarisStateDB(t *testing.T) {
 //
-//		// make and configure a mocked vm.StargazerStateDB
-//		mockedStargazerStateDB := &StargazerStateDBMock{
+//		// make and configure a mocked vm.PolarisStateDB
+//		mockedPolarisStateDB := &PolarisStateDBMock{
 //			AddAddressToAccessListFunc: func(addr common.Address)  {
 //				panic("mock out the AddAddressToAccessList method")
 //			},
@@ -200,11 +200,11 @@ var _ vm.StargazerStateDB = &StargazerStateDBMock{}
 //			},
 //		}
 //
-//		// use mockedStargazerStateDB in code that requires vm.StargazerStateDB
+//		// use mockedPolarisStateDB in code that requires vm.PolarisStateDB
 //		// and then make assertions.
 //
 //	}
-type StargazerStateDBMock struct {
+type PolarisStateDBMock struct {
 	// AddAddressToAccessListFunc mocks the AddAddressToAccessList method.
 	AddAddressToAccessListFunc func(addr common.Address)
 
@@ -765,9 +765,9 @@ type StargazerStateDBMock struct {
 }
 
 // AddAddressToAccessList calls AddAddressToAccessListFunc.
-func (mock *StargazerStateDBMock) AddAddressToAccessList(addr common.Address) {
+func (mock *PolarisStateDBMock) AddAddressToAccessList(addr common.Address) {
 	if mock.AddAddressToAccessListFunc == nil {
-		panic("StargazerStateDBMock.AddAddressToAccessListFunc: method is nil but StargazerStateDB.AddAddressToAccessList was just called")
+		panic("PolarisStateDBMock.AddAddressToAccessListFunc: method is nil but PolarisStateDB.AddAddressToAccessList was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -783,8 +783,8 @@ func (mock *StargazerStateDBMock) AddAddressToAccessList(addr common.Address) {
 // AddAddressToAccessListCalls gets all the calls that were made to AddAddressToAccessList.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.AddAddressToAccessListCalls())
-func (mock *StargazerStateDBMock) AddAddressToAccessListCalls() []struct {
+//	len(mockedPolarisStateDB.AddAddressToAccessListCalls())
+func (mock *PolarisStateDBMock) AddAddressToAccessListCalls() []struct {
 	Addr common.Address
 } {
 	var calls []struct {
@@ -797,9 +797,9 @@ func (mock *StargazerStateDBMock) AddAddressToAccessListCalls() []struct {
 }
 
 // AddBalance calls AddBalanceFunc.
-func (mock *StargazerStateDBMock) AddBalance(address common.Address, intMoqParam *big.Int) {
+func (mock *PolarisStateDBMock) AddBalance(address common.Address, intMoqParam *big.Int) {
 	if mock.AddBalanceFunc == nil {
-		panic("StargazerStateDBMock.AddBalanceFunc: method is nil but StargazerStateDB.AddBalance was just called")
+		panic("PolarisStateDBMock.AddBalanceFunc: method is nil but PolarisStateDB.AddBalance was just called")
 	}
 	callInfo := struct {
 		Address     common.Address
@@ -817,8 +817,8 @@ func (mock *StargazerStateDBMock) AddBalance(address common.Address, intMoqParam
 // AddBalanceCalls gets all the calls that were made to AddBalance.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.AddBalanceCalls())
-func (mock *StargazerStateDBMock) AddBalanceCalls() []struct {
+//	len(mockedPolarisStateDB.AddBalanceCalls())
+func (mock *PolarisStateDBMock) AddBalanceCalls() []struct {
 	Address     common.Address
 	IntMoqParam *big.Int
 } {
@@ -833,9 +833,9 @@ func (mock *StargazerStateDBMock) AddBalanceCalls() []struct {
 }
 
 // AddLog calls AddLogFunc.
-func (mock *StargazerStateDBMock) AddLog(log *types.Log) {
+func (mock *PolarisStateDBMock) AddLog(log *types.Log) {
 	if mock.AddLogFunc == nil {
-		panic("StargazerStateDBMock.AddLogFunc: method is nil but StargazerStateDB.AddLog was just called")
+		panic("PolarisStateDBMock.AddLogFunc: method is nil but PolarisStateDB.AddLog was just called")
 	}
 	callInfo := struct {
 		Log *types.Log
@@ -851,8 +851,8 @@ func (mock *StargazerStateDBMock) AddLog(log *types.Log) {
 // AddLogCalls gets all the calls that were made to AddLog.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.AddLogCalls())
-func (mock *StargazerStateDBMock) AddLogCalls() []struct {
+//	len(mockedPolarisStateDB.AddLogCalls())
+func (mock *PolarisStateDBMock) AddLogCalls() []struct {
 	Log *types.Log
 } {
 	var calls []struct {
@@ -865,9 +865,9 @@ func (mock *StargazerStateDBMock) AddLogCalls() []struct {
 }
 
 // AddPreimage calls AddPreimageFunc.
-func (mock *StargazerStateDBMock) AddPreimage(hash common.Hash, bytes []byte) {
+func (mock *PolarisStateDBMock) AddPreimage(hash common.Hash, bytes []byte) {
 	if mock.AddPreimageFunc == nil {
-		panic("StargazerStateDBMock.AddPreimageFunc: method is nil but StargazerStateDB.AddPreimage was just called")
+		panic("PolarisStateDBMock.AddPreimageFunc: method is nil but PolarisStateDB.AddPreimage was just called")
 	}
 	callInfo := struct {
 		Hash  common.Hash
@@ -885,8 +885,8 @@ func (mock *StargazerStateDBMock) AddPreimage(hash common.Hash, bytes []byte) {
 // AddPreimageCalls gets all the calls that were made to AddPreimage.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.AddPreimageCalls())
-func (mock *StargazerStateDBMock) AddPreimageCalls() []struct {
+//	len(mockedPolarisStateDB.AddPreimageCalls())
+func (mock *PolarisStateDBMock) AddPreimageCalls() []struct {
 	Hash  common.Hash
 	Bytes []byte
 } {
@@ -901,9 +901,9 @@ func (mock *StargazerStateDBMock) AddPreimageCalls() []struct {
 }
 
 // AddRefund calls AddRefundFunc.
-func (mock *StargazerStateDBMock) AddRefund(v uint64) {
+func (mock *PolarisStateDBMock) AddRefund(v uint64) {
 	if mock.AddRefundFunc == nil {
-		panic("StargazerStateDBMock.AddRefundFunc: method is nil but StargazerStateDB.AddRefund was just called")
+		panic("PolarisStateDBMock.AddRefundFunc: method is nil but PolarisStateDB.AddRefund was just called")
 	}
 	callInfo := struct {
 		V uint64
@@ -919,8 +919,8 @@ func (mock *StargazerStateDBMock) AddRefund(v uint64) {
 // AddRefundCalls gets all the calls that were made to AddRefund.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.AddRefundCalls())
-func (mock *StargazerStateDBMock) AddRefundCalls() []struct {
+//	len(mockedPolarisStateDB.AddRefundCalls())
+func (mock *PolarisStateDBMock) AddRefundCalls() []struct {
 	V uint64
 } {
 	var calls []struct {
@@ -933,9 +933,9 @@ func (mock *StargazerStateDBMock) AddRefundCalls() []struct {
 }
 
 // AddSlotToAccessList calls AddSlotToAccessListFunc.
-func (mock *StargazerStateDBMock) AddSlotToAccessList(addr common.Address, slot common.Hash) {
+func (mock *PolarisStateDBMock) AddSlotToAccessList(addr common.Address, slot common.Hash) {
 	if mock.AddSlotToAccessListFunc == nil {
-		panic("StargazerStateDBMock.AddSlotToAccessListFunc: method is nil but StargazerStateDB.AddSlotToAccessList was just called")
+		panic("PolarisStateDBMock.AddSlotToAccessListFunc: method is nil but PolarisStateDB.AddSlotToAccessList was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -953,8 +953,8 @@ func (mock *StargazerStateDBMock) AddSlotToAccessList(addr common.Address, slot 
 // AddSlotToAccessListCalls gets all the calls that were made to AddSlotToAccessList.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.AddSlotToAccessListCalls())
-func (mock *StargazerStateDBMock) AddSlotToAccessListCalls() []struct {
+//	len(mockedPolarisStateDB.AddSlotToAccessListCalls())
+func (mock *PolarisStateDBMock) AddSlotToAccessListCalls() []struct {
 	Addr common.Address
 	Slot common.Hash
 } {
@@ -969,9 +969,9 @@ func (mock *StargazerStateDBMock) AddSlotToAccessListCalls() []struct {
 }
 
 // AddressInAccessList calls AddressInAccessListFunc.
-func (mock *StargazerStateDBMock) AddressInAccessList(addr common.Address) bool {
+func (mock *PolarisStateDBMock) AddressInAccessList(addr common.Address) bool {
 	if mock.AddressInAccessListFunc == nil {
-		panic("StargazerStateDBMock.AddressInAccessListFunc: method is nil but StargazerStateDB.AddressInAccessList was just called")
+		panic("PolarisStateDBMock.AddressInAccessListFunc: method is nil but PolarisStateDB.AddressInAccessList was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -987,8 +987,8 @@ func (mock *StargazerStateDBMock) AddressInAccessList(addr common.Address) bool 
 // AddressInAccessListCalls gets all the calls that were made to AddressInAccessList.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.AddressInAccessListCalls())
-func (mock *StargazerStateDBMock) AddressInAccessListCalls() []struct {
+//	len(mockedPolarisStateDB.AddressInAccessListCalls())
+func (mock *PolarisStateDBMock) AddressInAccessListCalls() []struct {
 	Addr common.Address
 } {
 	var calls []struct {
@@ -1001,9 +1001,9 @@ func (mock *StargazerStateDBMock) AddressInAccessListCalls() []struct {
 }
 
 // Commit calls CommitFunc.
-func (mock *StargazerStateDBMock) Commit(deleteEmptyObjects bool) (common.Hash, error) {
+func (mock *PolarisStateDBMock) Commit(deleteEmptyObjects bool) (common.Hash, error) {
 	if mock.CommitFunc == nil {
-		panic("StargazerStateDBMock.CommitFunc: method is nil but StargazerStateDB.Commit was just called")
+		panic("PolarisStateDBMock.CommitFunc: method is nil but PolarisStateDB.Commit was just called")
 	}
 	callInfo := struct {
 		DeleteEmptyObjects bool
@@ -1019,8 +1019,8 @@ func (mock *StargazerStateDBMock) Commit(deleteEmptyObjects bool) (common.Hash, 
 // CommitCalls gets all the calls that were made to Commit.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.CommitCalls())
-func (mock *StargazerStateDBMock) CommitCalls() []struct {
+//	len(mockedPolarisStateDB.CommitCalls())
+func (mock *PolarisStateDBMock) CommitCalls() []struct {
 	DeleteEmptyObjects bool
 } {
 	var calls []struct {
@@ -1033,9 +1033,9 @@ func (mock *StargazerStateDBMock) CommitCalls() []struct {
 }
 
 // Copy calls CopyFunc.
-func (mock *StargazerStateDBMock) Copy() state.StateDBI {
+func (mock *PolarisStateDBMock) Copy() state.StateDBI {
 	if mock.CopyFunc == nil {
-		panic("StargazerStateDBMock.CopyFunc: method is nil but StargazerStateDB.Copy was just called")
+		panic("PolarisStateDBMock.CopyFunc: method is nil but PolarisStateDB.Copy was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1048,8 +1048,8 @@ func (mock *StargazerStateDBMock) Copy() state.StateDBI {
 // CopyCalls gets all the calls that were made to Copy.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.CopyCalls())
-func (mock *StargazerStateDBMock) CopyCalls() []struct {
+//	len(mockedPolarisStateDB.CopyCalls())
+func (mock *PolarisStateDBMock) CopyCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1060,9 +1060,9 @@ func (mock *StargazerStateDBMock) CopyCalls() []struct {
 }
 
 // CreateAccount calls CreateAccountFunc.
-func (mock *StargazerStateDBMock) CreateAccount(address common.Address) {
+func (mock *PolarisStateDBMock) CreateAccount(address common.Address) {
 	if mock.CreateAccountFunc == nil {
-		panic("StargazerStateDBMock.CreateAccountFunc: method is nil but StargazerStateDB.CreateAccount was just called")
+		panic("PolarisStateDBMock.CreateAccountFunc: method is nil but PolarisStateDB.CreateAccount was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1078,8 +1078,8 @@ func (mock *StargazerStateDBMock) CreateAccount(address common.Address) {
 // CreateAccountCalls gets all the calls that were made to CreateAccount.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.CreateAccountCalls())
-func (mock *StargazerStateDBMock) CreateAccountCalls() []struct {
+//	len(mockedPolarisStateDB.CreateAccountCalls())
+func (mock *PolarisStateDBMock) CreateAccountCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1092,9 +1092,9 @@ func (mock *StargazerStateDBMock) CreateAccountCalls() []struct {
 }
 
 // Database calls DatabaseFunc.
-func (mock *StargazerStateDBMock) Database() state.Database {
+func (mock *PolarisStateDBMock) Database() state.Database {
 	if mock.DatabaseFunc == nil {
-		panic("StargazerStateDBMock.DatabaseFunc: method is nil but StargazerStateDB.Database was just called")
+		panic("PolarisStateDBMock.DatabaseFunc: method is nil but PolarisStateDB.Database was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1107,8 +1107,8 @@ func (mock *StargazerStateDBMock) Database() state.Database {
 // DatabaseCalls gets all the calls that were made to Database.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.DatabaseCalls())
-func (mock *StargazerStateDBMock) DatabaseCalls() []struct {
+//	len(mockedPolarisStateDB.DatabaseCalls())
+func (mock *PolarisStateDBMock) DatabaseCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1119,9 +1119,9 @@ func (mock *StargazerStateDBMock) DatabaseCalls() []struct {
 }
 
 // Dump calls DumpFunc.
-func (mock *StargazerStateDBMock) Dump(opts *state.DumpConfig) []byte {
+func (mock *PolarisStateDBMock) Dump(opts *state.DumpConfig) []byte {
 	if mock.DumpFunc == nil {
-		panic("StargazerStateDBMock.DumpFunc: method is nil but StargazerStateDB.Dump was just called")
+		panic("PolarisStateDBMock.DumpFunc: method is nil but PolarisStateDB.Dump was just called")
 	}
 	callInfo := struct {
 		Opts *state.DumpConfig
@@ -1137,8 +1137,8 @@ func (mock *StargazerStateDBMock) Dump(opts *state.DumpConfig) []byte {
 // DumpCalls gets all the calls that were made to Dump.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.DumpCalls())
-func (mock *StargazerStateDBMock) DumpCalls() []struct {
+//	len(mockedPolarisStateDB.DumpCalls())
+func (mock *PolarisStateDBMock) DumpCalls() []struct {
 	Opts *state.DumpConfig
 } {
 	var calls []struct {
@@ -1151,9 +1151,9 @@ func (mock *StargazerStateDBMock) DumpCalls() []struct {
 }
 
 // DumpToCollector calls DumpToCollectorFunc.
-func (mock *StargazerStateDBMock) DumpToCollector(c state.DumpCollector, conf *state.DumpConfig) []byte {
+func (mock *PolarisStateDBMock) DumpToCollector(c state.DumpCollector, conf *state.DumpConfig) []byte {
 	if mock.DumpToCollectorFunc == nil {
-		panic("StargazerStateDBMock.DumpToCollectorFunc: method is nil but StargazerStateDB.DumpToCollector was just called")
+		panic("PolarisStateDBMock.DumpToCollectorFunc: method is nil but PolarisStateDB.DumpToCollector was just called")
 	}
 	callInfo := struct {
 		C    state.DumpCollector
@@ -1171,8 +1171,8 @@ func (mock *StargazerStateDBMock) DumpToCollector(c state.DumpCollector, conf *s
 // DumpToCollectorCalls gets all the calls that were made to DumpToCollector.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.DumpToCollectorCalls())
-func (mock *StargazerStateDBMock) DumpToCollectorCalls() []struct {
+//	len(mockedPolarisStateDB.DumpToCollectorCalls())
+func (mock *PolarisStateDBMock) DumpToCollectorCalls() []struct {
 	C    state.DumpCollector
 	Conf *state.DumpConfig
 } {
@@ -1187,9 +1187,9 @@ func (mock *StargazerStateDBMock) DumpToCollectorCalls() []struct {
 }
 
 // Empty calls EmptyFunc.
-func (mock *StargazerStateDBMock) Empty(address common.Address) bool {
+func (mock *PolarisStateDBMock) Empty(address common.Address) bool {
 	if mock.EmptyFunc == nil {
-		panic("StargazerStateDBMock.EmptyFunc: method is nil but StargazerStateDB.Empty was just called")
+		panic("PolarisStateDBMock.EmptyFunc: method is nil but PolarisStateDB.Empty was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1205,8 +1205,8 @@ func (mock *StargazerStateDBMock) Empty(address common.Address) bool {
 // EmptyCalls gets all the calls that were made to Empty.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.EmptyCalls())
-func (mock *StargazerStateDBMock) EmptyCalls() []struct {
+//	len(mockedPolarisStateDB.EmptyCalls())
+func (mock *PolarisStateDBMock) EmptyCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1219,9 +1219,9 @@ func (mock *StargazerStateDBMock) EmptyCalls() []struct {
 }
 
 // Error calls ErrorFunc.
-func (mock *StargazerStateDBMock) Error() error {
+func (mock *PolarisStateDBMock) Error() error {
 	if mock.ErrorFunc == nil {
-		panic("StargazerStateDBMock.ErrorFunc: method is nil but StargazerStateDB.Error was just called")
+		panic("PolarisStateDBMock.ErrorFunc: method is nil but PolarisStateDB.Error was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1234,8 +1234,8 @@ func (mock *StargazerStateDBMock) Error() error {
 // ErrorCalls gets all the calls that were made to Error.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.ErrorCalls())
-func (mock *StargazerStateDBMock) ErrorCalls() []struct {
+//	len(mockedPolarisStateDB.ErrorCalls())
+func (mock *PolarisStateDBMock) ErrorCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1246,9 +1246,9 @@ func (mock *StargazerStateDBMock) ErrorCalls() []struct {
 }
 
 // Exist calls ExistFunc.
-func (mock *StargazerStateDBMock) Exist(address common.Address) bool {
+func (mock *PolarisStateDBMock) Exist(address common.Address) bool {
 	if mock.ExistFunc == nil {
-		panic("StargazerStateDBMock.ExistFunc: method is nil but StargazerStateDB.Exist was just called")
+		panic("PolarisStateDBMock.ExistFunc: method is nil but PolarisStateDB.Exist was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1264,8 +1264,8 @@ func (mock *StargazerStateDBMock) Exist(address common.Address) bool {
 // ExistCalls gets all the calls that were made to Exist.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.ExistCalls())
-func (mock *StargazerStateDBMock) ExistCalls() []struct {
+//	len(mockedPolarisStateDB.ExistCalls())
+func (mock *PolarisStateDBMock) ExistCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1278,9 +1278,9 @@ func (mock *StargazerStateDBMock) ExistCalls() []struct {
 }
 
 // Finalise calls FinaliseFunc.
-func (mock *StargazerStateDBMock) Finalise(deleteEmptyObjects bool) {
+func (mock *PolarisStateDBMock) Finalise(deleteEmptyObjects bool) {
 	if mock.FinaliseFunc == nil {
-		panic("StargazerStateDBMock.FinaliseFunc: method is nil but StargazerStateDB.Finalise was just called")
+		panic("PolarisStateDBMock.FinaliseFunc: method is nil but PolarisStateDB.Finalise was just called")
 	}
 	callInfo := struct {
 		DeleteEmptyObjects bool
@@ -1296,8 +1296,8 @@ func (mock *StargazerStateDBMock) Finalise(deleteEmptyObjects bool) {
 // FinaliseCalls gets all the calls that were made to Finalise.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.FinaliseCalls())
-func (mock *StargazerStateDBMock) FinaliseCalls() []struct {
+//	len(mockedPolarisStateDB.FinaliseCalls())
+func (mock *PolarisStateDBMock) FinaliseCalls() []struct {
 	DeleteEmptyObjects bool
 } {
 	var calls []struct {
@@ -1310,9 +1310,9 @@ func (mock *StargazerStateDBMock) FinaliseCalls() []struct {
 }
 
 // Finalize calls FinalizeFunc.
-func (mock *StargazerStateDBMock) Finalize() {
+func (mock *PolarisStateDBMock) Finalize() {
 	if mock.FinalizeFunc == nil {
-		panic("StargazerStateDBMock.FinalizeFunc: method is nil but StargazerStateDB.Finalize was just called")
+		panic("PolarisStateDBMock.FinalizeFunc: method is nil but PolarisStateDB.Finalize was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1325,8 +1325,8 @@ func (mock *StargazerStateDBMock) Finalize() {
 // FinalizeCalls gets all the calls that were made to Finalize.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.FinalizeCalls())
-func (mock *StargazerStateDBMock) FinalizeCalls() []struct {
+//	len(mockedPolarisStateDB.FinalizeCalls())
+func (mock *PolarisStateDBMock) FinalizeCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1337,9 +1337,9 @@ func (mock *StargazerStateDBMock) FinalizeCalls() []struct {
 }
 
 // ForEachStorage calls ForEachStorageFunc.
-func (mock *StargazerStateDBMock) ForEachStorage(address common.Address, fn func(common.Hash, common.Hash) bool) error {
+func (mock *PolarisStateDBMock) ForEachStorage(address common.Address, fn func(common.Hash, common.Hash) bool) error {
 	if mock.ForEachStorageFunc == nil {
-		panic("StargazerStateDBMock.ForEachStorageFunc: method is nil but StargazerStateDB.ForEachStorage was just called")
+		panic("PolarisStateDBMock.ForEachStorageFunc: method is nil but PolarisStateDB.ForEachStorage was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1357,8 +1357,8 @@ func (mock *StargazerStateDBMock) ForEachStorage(address common.Address, fn func
 // ForEachStorageCalls gets all the calls that were made to ForEachStorage.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.ForEachStorageCalls())
-func (mock *StargazerStateDBMock) ForEachStorageCalls() []struct {
+//	len(mockedPolarisStateDB.ForEachStorageCalls())
+func (mock *PolarisStateDBMock) ForEachStorageCalls() []struct {
 	Address common.Address
 	Fn      func(common.Hash, common.Hash) bool
 } {
@@ -1373,9 +1373,9 @@ func (mock *StargazerStateDBMock) ForEachStorageCalls() []struct {
 }
 
 // GetBalance calls GetBalanceFunc.
-func (mock *StargazerStateDBMock) GetBalance(address common.Address) *big.Int {
+func (mock *PolarisStateDBMock) GetBalance(address common.Address) *big.Int {
 	if mock.GetBalanceFunc == nil {
-		panic("StargazerStateDBMock.GetBalanceFunc: method is nil but StargazerStateDB.GetBalance was just called")
+		panic("PolarisStateDBMock.GetBalanceFunc: method is nil but PolarisStateDB.GetBalance was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1391,8 +1391,8 @@ func (mock *StargazerStateDBMock) GetBalance(address common.Address) *big.Int {
 // GetBalanceCalls gets all the calls that were made to GetBalance.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetBalanceCalls())
-func (mock *StargazerStateDBMock) GetBalanceCalls() []struct {
+//	len(mockedPolarisStateDB.GetBalanceCalls())
+func (mock *PolarisStateDBMock) GetBalanceCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1405,9 +1405,9 @@ func (mock *StargazerStateDBMock) GetBalanceCalls() []struct {
 }
 
 // GetCode calls GetCodeFunc.
-func (mock *StargazerStateDBMock) GetCode(address common.Address) []byte {
+func (mock *PolarisStateDBMock) GetCode(address common.Address) []byte {
 	if mock.GetCodeFunc == nil {
-		panic("StargazerStateDBMock.GetCodeFunc: method is nil but StargazerStateDB.GetCode was just called")
+		panic("PolarisStateDBMock.GetCodeFunc: method is nil but PolarisStateDB.GetCode was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1423,8 +1423,8 @@ func (mock *StargazerStateDBMock) GetCode(address common.Address) []byte {
 // GetCodeCalls gets all the calls that were made to GetCode.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetCodeCalls())
-func (mock *StargazerStateDBMock) GetCodeCalls() []struct {
+//	len(mockedPolarisStateDB.GetCodeCalls())
+func (mock *PolarisStateDBMock) GetCodeCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1437,9 +1437,9 @@ func (mock *StargazerStateDBMock) GetCodeCalls() []struct {
 }
 
 // GetCodeHash calls GetCodeHashFunc.
-func (mock *StargazerStateDBMock) GetCodeHash(address common.Address) common.Hash {
+func (mock *PolarisStateDBMock) GetCodeHash(address common.Address) common.Hash {
 	if mock.GetCodeHashFunc == nil {
-		panic("StargazerStateDBMock.GetCodeHashFunc: method is nil but StargazerStateDB.GetCodeHash was just called")
+		panic("PolarisStateDBMock.GetCodeHashFunc: method is nil but PolarisStateDB.GetCodeHash was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1455,8 +1455,8 @@ func (mock *StargazerStateDBMock) GetCodeHash(address common.Address) common.Has
 // GetCodeHashCalls gets all the calls that were made to GetCodeHash.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetCodeHashCalls())
-func (mock *StargazerStateDBMock) GetCodeHashCalls() []struct {
+//	len(mockedPolarisStateDB.GetCodeHashCalls())
+func (mock *PolarisStateDBMock) GetCodeHashCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1469,9 +1469,9 @@ func (mock *StargazerStateDBMock) GetCodeHashCalls() []struct {
 }
 
 // GetCodeSize calls GetCodeSizeFunc.
-func (mock *StargazerStateDBMock) GetCodeSize(address common.Address) int {
+func (mock *PolarisStateDBMock) GetCodeSize(address common.Address) int {
 	if mock.GetCodeSizeFunc == nil {
-		panic("StargazerStateDBMock.GetCodeSizeFunc: method is nil but StargazerStateDB.GetCodeSize was just called")
+		panic("PolarisStateDBMock.GetCodeSizeFunc: method is nil but PolarisStateDB.GetCodeSize was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1487,8 +1487,8 @@ func (mock *StargazerStateDBMock) GetCodeSize(address common.Address) int {
 // GetCodeSizeCalls gets all the calls that were made to GetCodeSize.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetCodeSizeCalls())
-func (mock *StargazerStateDBMock) GetCodeSizeCalls() []struct {
+//	len(mockedPolarisStateDB.GetCodeSizeCalls())
+func (mock *PolarisStateDBMock) GetCodeSizeCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1501,9 +1501,9 @@ func (mock *StargazerStateDBMock) GetCodeSizeCalls() []struct {
 }
 
 // GetCommittedState calls GetCommittedStateFunc.
-func (mock *StargazerStateDBMock) GetCommittedState(address common.Address, hash common.Hash) common.Hash {
+func (mock *PolarisStateDBMock) GetCommittedState(address common.Address, hash common.Hash) common.Hash {
 	if mock.GetCommittedStateFunc == nil {
-		panic("StargazerStateDBMock.GetCommittedStateFunc: method is nil but StargazerStateDB.GetCommittedState was just called")
+		panic("PolarisStateDBMock.GetCommittedStateFunc: method is nil but PolarisStateDB.GetCommittedState was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1521,8 +1521,8 @@ func (mock *StargazerStateDBMock) GetCommittedState(address common.Address, hash
 // GetCommittedStateCalls gets all the calls that were made to GetCommittedState.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetCommittedStateCalls())
-func (mock *StargazerStateDBMock) GetCommittedStateCalls() []struct {
+//	len(mockedPolarisStateDB.GetCommittedStateCalls())
+func (mock *PolarisStateDBMock) GetCommittedStateCalls() []struct {
 	Address common.Address
 	Hash    common.Hash
 } {
@@ -1537,9 +1537,9 @@ func (mock *StargazerStateDBMock) GetCommittedStateCalls() []struct {
 }
 
 // GetContext calls GetContextFunc.
-func (mock *StargazerStateDBMock) GetContext() context.Context {
+func (mock *PolarisStateDBMock) GetContext() context.Context {
 	if mock.GetContextFunc == nil {
-		panic("StargazerStateDBMock.GetContextFunc: method is nil but StargazerStateDB.GetContext was just called")
+		panic("PolarisStateDBMock.GetContextFunc: method is nil but PolarisStateDB.GetContext was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1552,8 +1552,8 @@ func (mock *StargazerStateDBMock) GetContext() context.Context {
 // GetContextCalls gets all the calls that were made to GetContext.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetContextCalls())
-func (mock *StargazerStateDBMock) GetContextCalls() []struct {
+//	len(mockedPolarisStateDB.GetContextCalls())
+func (mock *PolarisStateDBMock) GetContextCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1564,9 +1564,9 @@ func (mock *StargazerStateDBMock) GetContextCalls() []struct {
 }
 
 // GetLogs calls GetLogsFunc.
-func (mock *StargazerStateDBMock) GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
+func (mock *PolarisStateDBMock) GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
 	if mock.GetLogsFunc == nil {
-		panic("StargazerStateDBMock.GetLogsFunc: method is nil but StargazerStateDB.GetLogs was just called")
+		panic("PolarisStateDBMock.GetLogsFunc: method is nil but PolarisStateDB.GetLogs was just called")
 	}
 	callInfo := struct {
 		Hash        common.Hash
@@ -1586,8 +1586,8 @@ func (mock *StargazerStateDBMock) GetLogs(hash common.Hash, blockNumber uint64, 
 // GetLogsCalls gets all the calls that were made to GetLogs.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetLogsCalls())
-func (mock *StargazerStateDBMock) GetLogsCalls() []struct {
+//	len(mockedPolarisStateDB.GetLogsCalls())
+func (mock *PolarisStateDBMock) GetLogsCalls() []struct {
 	Hash        common.Hash
 	BlockNumber uint64
 	BlockHash   common.Hash
@@ -1604,9 +1604,9 @@ func (mock *StargazerStateDBMock) GetLogsCalls() []struct {
 }
 
 // GetNonce calls GetNonceFunc.
-func (mock *StargazerStateDBMock) GetNonce(address common.Address) uint64 {
+func (mock *PolarisStateDBMock) GetNonce(address common.Address) uint64 {
 	if mock.GetNonceFunc == nil {
-		panic("StargazerStateDBMock.GetNonceFunc: method is nil but StargazerStateDB.GetNonce was just called")
+		panic("PolarisStateDBMock.GetNonceFunc: method is nil but PolarisStateDB.GetNonce was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1622,8 +1622,8 @@ func (mock *StargazerStateDBMock) GetNonce(address common.Address) uint64 {
 // GetNonceCalls gets all the calls that were made to GetNonce.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetNonceCalls())
-func (mock *StargazerStateDBMock) GetNonceCalls() []struct {
+//	len(mockedPolarisStateDB.GetNonceCalls())
+func (mock *PolarisStateDBMock) GetNonceCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1636,9 +1636,9 @@ func (mock *StargazerStateDBMock) GetNonceCalls() []struct {
 }
 
 // GetOrNewStateObject calls GetOrNewStateObjectFunc.
-func (mock *StargazerStateDBMock) GetOrNewStateObject(addr common.Address) *state.StateObject {
+func (mock *PolarisStateDBMock) GetOrNewStateObject(addr common.Address) *state.StateObject {
 	if mock.GetOrNewStateObjectFunc == nil {
-		panic("StargazerStateDBMock.GetOrNewStateObjectFunc: method is nil but StargazerStateDB.GetOrNewStateObject was just called")
+		panic("PolarisStateDBMock.GetOrNewStateObjectFunc: method is nil but PolarisStateDB.GetOrNewStateObject was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -1654,8 +1654,8 @@ func (mock *StargazerStateDBMock) GetOrNewStateObject(addr common.Address) *stat
 // GetOrNewStateObjectCalls gets all the calls that were made to GetOrNewStateObject.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetOrNewStateObjectCalls())
-func (mock *StargazerStateDBMock) GetOrNewStateObjectCalls() []struct {
+//	len(mockedPolarisStateDB.GetOrNewStateObjectCalls())
+func (mock *PolarisStateDBMock) GetOrNewStateObjectCalls() []struct {
 	Addr common.Address
 } {
 	var calls []struct {
@@ -1668,9 +1668,9 @@ func (mock *StargazerStateDBMock) GetOrNewStateObjectCalls() []struct {
 }
 
 // GetProof calls GetProofFunc.
-func (mock *StargazerStateDBMock) GetProof(addr common.Address) ([][]byte, error) {
+func (mock *PolarisStateDBMock) GetProof(addr common.Address) ([][]byte, error) {
 	if mock.GetProofFunc == nil {
-		panic("StargazerStateDBMock.GetProofFunc: method is nil but StargazerStateDB.GetProof was just called")
+		panic("PolarisStateDBMock.GetProofFunc: method is nil but PolarisStateDB.GetProof was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -1686,8 +1686,8 @@ func (mock *StargazerStateDBMock) GetProof(addr common.Address) ([][]byte, error
 // GetProofCalls gets all the calls that were made to GetProof.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetProofCalls())
-func (mock *StargazerStateDBMock) GetProofCalls() []struct {
+//	len(mockedPolarisStateDB.GetProofCalls())
+func (mock *PolarisStateDBMock) GetProofCalls() []struct {
 	Addr common.Address
 } {
 	var calls []struct {
@@ -1700,9 +1700,9 @@ func (mock *StargazerStateDBMock) GetProofCalls() []struct {
 }
 
 // GetRefund calls GetRefundFunc.
-func (mock *StargazerStateDBMock) GetRefund() uint64 {
+func (mock *PolarisStateDBMock) GetRefund() uint64 {
 	if mock.GetRefundFunc == nil {
-		panic("StargazerStateDBMock.GetRefundFunc: method is nil but StargazerStateDB.GetRefund was just called")
+		panic("PolarisStateDBMock.GetRefundFunc: method is nil but PolarisStateDB.GetRefund was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1715,8 +1715,8 @@ func (mock *StargazerStateDBMock) GetRefund() uint64 {
 // GetRefundCalls gets all the calls that were made to GetRefund.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetRefundCalls())
-func (mock *StargazerStateDBMock) GetRefundCalls() []struct {
+//	len(mockedPolarisStateDB.GetRefundCalls())
+func (mock *PolarisStateDBMock) GetRefundCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1727,9 +1727,9 @@ func (mock *StargazerStateDBMock) GetRefundCalls() []struct {
 }
 
 // GetState calls GetStateFunc.
-func (mock *StargazerStateDBMock) GetState(address common.Address, hash common.Hash) common.Hash {
+func (mock *PolarisStateDBMock) GetState(address common.Address, hash common.Hash) common.Hash {
 	if mock.GetStateFunc == nil {
-		panic("StargazerStateDBMock.GetStateFunc: method is nil but StargazerStateDB.GetState was just called")
+		panic("PolarisStateDBMock.GetStateFunc: method is nil but PolarisStateDB.GetState was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1747,8 +1747,8 @@ func (mock *StargazerStateDBMock) GetState(address common.Address, hash common.H
 // GetStateCalls gets all the calls that were made to GetState.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetStateCalls())
-func (mock *StargazerStateDBMock) GetStateCalls() []struct {
+//	len(mockedPolarisStateDB.GetStateCalls())
+func (mock *PolarisStateDBMock) GetStateCalls() []struct {
 	Address common.Address
 	Hash    common.Hash
 } {
@@ -1763,9 +1763,9 @@ func (mock *StargazerStateDBMock) GetStateCalls() []struct {
 }
 
 // GetStorageProof calls GetStorageProofFunc.
-func (mock *StargazerStateDBMock) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error) {
+func (mock *PolarisStateDBMock) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error) {
 	if mock.GetStorageProofFunc == nil {
-		panic("StargazerStateDBMock.GetStorageProofFunc: method is nil but StargazerStateDB.GetStorageProof was just called")
+		panic("PolarisStateDBMock.GetStorageProofFunc: method is nil but PolarisStateDB.GetStorageProof was just called")
 	}
 	callInfo := struct {
 		A   common.Address
@@ -1783,8 +1783,8 @@ func (mock *StargazerStateDBMock) GetStorageProof(a common.Address, key common.H
 // GetStorageProofCalls gets all the calls that were made to GetStorageProof.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetStorageProofCalls())
-func (mock *StargazerStateDBMock) GetStorageProofCalls() []struct {
+//	len(mockedPolarisStateDB.GetStorageProofCalls())
+func (mock *PolarisStateDBMock) GetStorageProofCalls() []struct {
 	A   common.Address
 	Key common.Hash
 } {
@@ -1799,9 +1799,9 @@ func (mock *StargazerStateDBMock) GetStorageProofCalls() []struct {
 }
 
 // GetTransientState calls GetTransientStateFunc.
-func (mock *StargazerStateDBMock) GetTransientState(addr common.Address, key common.Hash) common.Hash {
+func (mock *PolarisStateDBMock) GetTransientState(addr common.Address, key common.Hash) common.Hash {
 	if mock.GetTransientStateFunc == nil {
-		panic("StargazerStateDBMock.GetTransientStateFunc: method is nil but StargazerStateDB.GetTransientState was just called")
+		panic("PolarisStateDBMock.GetTransientStateFunc: method is nil but PolarisStateDB.GetTransientState was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -1819,8 +1819,8 @@ func (mock *StargazerStateDBMock) GetTransientState(addr common.Address, key com
 // GetTransientStateCalls gets all the calls that were made to GetTransientState.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.GetTransientStateCalls())
-func (mock *StargazerStateDBMock) GetTransientStateCalls() []struct {
+//	len(mockedPolarisStateDB.GetTransientStateCalls())
+func (mock *PolarisStateDBMock) GetTransientStateCalls() []struct {
 	Addr common.Address
 	Key  common.Hash
 } {
@@ -1835,9 +1835,9 @@ func (mock *StargazerStateDBMock) GetTransientStateCalls() []struct {
 }
 
 // HasSuicided calls HasSuicidedFunc.
-func (mock *StargazerStateDBMock) HasSuicided(address common.Address) bool {
+func (mock *PolarisStateDBMock) HasSuicided(address common.Address) bool {
 	if mock.HasSuicidedFunc == nil {
-		panic("StargazerStateDBMock.HasSuicidedFunc: method is nil but StargazerStateDB.HasSuicided was just called")
+		panic("PolarisStateDBMock.HasSuicidedFunc: method is nil but PolarisStateDB.HasSuicided was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -1853,8 +1853,8 @@ func (mock *StargazerStateDBMock) HasSuicided(address common.Address) bool {
 // HasSuicidedCalls gets all the calls that were made to HasSuicided.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.HasSuicidedCalls())
-func (mock *StargazerStateDBMock) HasSuicidedCalls() []struct {
+//	len(mockedPolarisStateDB.HasSuicidedCalls())
+func (mock *PolarisStateDBMock) HasSuicidedCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -1867,9 +1867,9 @@ func (mock *StargazerStateDBMock) HasSuicidedCalls() []struct {
 }
 
 // IntermediateRoot calls IntermediateRootFunc.
-func (mock *StargazerStateDBMock) IntermediateRoot(deleteEmptyObjects bool) common.Hash {
+func (mock *PolarisStateDBMock) IntermediateRoot(deleteEmptyObjects bool) common.Hash {
 	if mock.IntermediateRootFunc == nil {
-		panic("StargazerStateDBMock.IntermediateRootFunc: method is nil but StargazerStateDB.IntermediateRoot was just called")
+		panic("PolarisStateDBMock.IntermediateRootFunc: method is nil but PolarisStateDB.IntermediateRoot was just called")
 	}
 	callInfo := struct {
 		DeleteEmptyObjects bool
@@ -1885,8 +1885,8 @@ func (mock *StargazerStateDBMock) IntermediateRoot(deleteEmptyObjects bool) comm
 // IntermediateRootCalls gets all the calls that were made to IntermediateRoot.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.IntermediateRootCalls())
-func (mock *StargazerStateDBMock) IntermediateRootCalls() []struct {
+//	len(mockedPolarisStateDB.IntermediateRootCalls())
+func (mock *PolarisStateDBMock) IntermediateRootCalls() []struct {
 	DeleteEmptyObjects bool
 } {
 	var calls []struct {
@@ -1899,9 +1899,9 @@ func (mock *StargazerStateDBMock) IntermediateRootCalls() []struct {
 }
 
 // IteratorDump calls IteratorDumpFunc.
-func (mock *StargazerStateDBMock) IteratorDump(opts *state.DumpConfig) state.IteratorDump {
+func (mock *PolarisStateDBMock) IteratorDump(opts *state.DumpConfig) state.IteratorDump {
 	if mock.IteratorDumpFunc == nil {
-		panic("StargazerStateDBMock.IteratorDumpFunc: method is nil but StargazerStateDB.IteratorDump was just called")
+		panic("PolarisStateDBMock.IteratorDumpFunc: method is nil but PolarisStateDB.IteratorDump was just called")
 	}
 	callInfo := struct {
 		Opts *state.DumpConfig
@@ -1917,8 +1917,8 @@ func (mock *StargazerStateDBMock) IteratorDump(opts *state.DumpConfig) state.Ite
 // IteratorDumpCalls gets all the calls that were made to IteratorDump.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.IteratorDumpCalls())
-func (mock *StargazerStateDBMock) IteratorDumpCalls() []struct {
+//	len(mockedPolarisStateDB.IteratorDumpCalls())
+func (mock *PolarisStateDBMock) IteratorDumpCalls() []struct {
 	Opts *state.DumpConfig
 } {
 	var calls []struct {
@@ -1931,9 +1931,9 @@ func (mock *StargazerStateDBMock) IteratorDumpCalls() []struct {
 }
 
 // Logs calls LogsFunc.
-func (mock *StargazerStateDBMock) Logs() []*types.Log {
+func (mock *PolarisStateDBMock) Logs() []*types.Log {
 	if mock.LogsFunc == nil {
-		panic("StargazerStateDBMock.LogsFunc: method is nil but StargazerStateDB.Logs was just called")
+		panic("PolarisStateDBMock.LogsFunc: method is nil but PolarisStateDB.Logs was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1946,8 +1946,8 @@ func (mock *StargazerStateDBMock) Logs() []*types.Log {
 // LogsCalls gets all the calls that were made to Logs.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.LogsCalls())
-func (mock *StargazerStateDBMock) LogsCalls() []struct {
+//	len(mockedPolarisStateDB.LogsCalls())
+func (mock *PolarisStateDBMock) LogsCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1958,9 +1958,9 @@ func (mock *StargazerStateDBMock) LogsCalls() []struct {
 }
 
 // Preimages calls PreimagesFunc.
-func (mock *StargazerStateDBMock) Preimages() map[common.Hash][]byte {
+func (mock *PolarisStateDBMock) Preimages() map[common.Hash][]byte {
 	if mock.PreimagesFunc == nil {
-		panic("StargazerStateDBMock.PreimagesFunc: method is nil but StargazerStateDB.Preimages was just called")
+		panic("PolarisStateDBMock.PreimagesFunc: method is nil but PolarisStateDB.Preimages was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -1973,8 +1973,8 @@ func (mock *StargazerStateDBMock) Preimages() map[common.Hash][]byte {
 // PreimagesCalls gets all the calls that were made to Preimages.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.PreimagesCalls())
-func (mock *StargazerStateDBMock) PreimagesCalls() []struct {
+//	len(mockedPolarisStateDB.PreimagesCalls())
+func (mock *PolarisStateDBMock) PreimagesCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -1985,9 +1985,9 @@ func (mock *StargazerStateDBMock) PreimagesCalls() []struct {
 }
 
 // Prepare calls PrepareFunc.
-func (mock *StargazerStateDBMock) Prepare(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
+func (mock *PolarisStateDBMock) Prepare(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
 	if mock.PrepareFunc == nil {
-		panic("StargazerStateDBMock.PrepareFunc: method is nil but StargazerStateDB.Prepare was just called")
+		panic("PolarisStateDBMock.PrepareFunc: method is nil but PolarisStateDB.Prepare was just called")
 	}
 	callInfo := struct {
 		Rules       params.Rules
@@ -2013,8 +2013,8 @@ func (mock *StargazerStateDBMock) Prepare(rules params.Rules, sender common.Addr
 // PrepareCalls gets all the calls that were made to Prepare.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.PrepareCalls())
-func (mock *StargazerStateDBMock) PrepareCalls() []struct {
+//	len(mockedPolarisStateDB.PrepareCalls())
+func (mock *PolarisStateDBMock) PrepareCalls() []struct {
 	Rules       params.Rules
 	Sender      common.Address
 	Coinbase    common.Address
@@ -2037,9 +2037,9 @@ func (mock *StargazerStateDBMock) PrepareCalls() []struct {
 }
 
 // RawDump calls RawDumpFunc.
-func (mock *StargazerStateDBMock) RawDump(opts *state.DumpConfig) state.Dump {
+func (mock *PolarisStateDBMock) RawDump(opts *state.DumpConfig) state.Dump {
 	if mock.RawDumpFunc == nil {
-		panic("StargazerStateDBMock.RawDumpFunc: method is nil but StargazerStateDB.RawDump was just called")
+		panic("PolarisStateDBMock.RawDumpFunc: method is nil but PolarisStateDB.RawDump was just called")
 	}
 	callInfo := struct {
 		Opts *state.DumpConfig
@@ -2055,8 +2055,8 @@ func (mock *StargazerStateDBMock) RawDump(opts *state.DumpConfig) state.Dump {
 // RawDumpCalls gets all the calls that were made to RawDump.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.RawDumpCalls())
-func (mock *StargazerStateDBMock) RawDumpCalls() []struct {
+//	len(mockedPolarisStateDB.RawDumpCalls())
+func (mock *PolarisStateDBMock) RawDumpCalls() []struct {
 	Opts *state.DumpConfig
 } {
 	var calls []struct {
@@ -2069,9 +2069,9 @@ func (mock *StargazerStateDBMock) RawDumpCalls() []struct {
 }
 
 // Reset calls ResetFunc.
-func (mock *StargazerStateDBMock) Reset(contextMoqParam context.Context) {
+func (mock *PolarisStateDBMock) Reset(contextMoqParam context.Context) {
 	if mock.ResetFunc == nil {
-		panic("StargazerStateDBMock.ResetFunc: method is nil but StargazerStateDB.Reset was just called")
+		panic("PolarisStateDBMock.ResetFunc: method is nil but PolarisStateDB.Reset was just called")
 	}
 	callInfo := struct {
 		ContextMoqParam context.Context
@@ -2087,8 +2087,8 @@ func (mock *StargazerStateDBMock) Reset(contextMoqParam context.Context) {
 // ResetCalls gets all the calls that were made to Reset.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.ResetCalls())
-func (mock *StargazerStateDBMock) ResetCalls() []struct {
+//	len(mockedPolarisStateDB.ResetCalls())
+func (mock *PolarisStateDBMock) ResetCalls() []struct {
 	ContextMoqParam context.Context
 } {
 	var calls []struct {
@@ -2101,9 +2101,9 @@ func (mock *StargazerStateDBMock) ResetCalls() []struct {
 }
 
 // RevertToSnapshot calls RevertToSnapshotFunc.
-func (mock *StargazerStateDBMock) RevertToSnapshot(n int) {
+func (mock *PolarisStateDBMock) RevertToSnapshot(n int) {
 	if mock.RevertToSnapshotFunc == nil {
-		panic("StargazerStateDBMock.RevertToSnapshotFunc: method is nil but StargazerStateDB.RevertToSnapshot was just called")
+		panic("PolarisStateDBMock.RevertToSnapshotFunc: method is nil but PolarisStateDB.RevertToSnapshot was just called")
 	}
 	callInfo := struct {
 		N int
@@ -2119,8 +2119,8 @@ func (mock *StargazerStateDBMock) RevertToSnapshot(n int) {
 // RevertToSnapshotCalls gets all the calls that were made to RevertToSnapshot.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.RevertToSnapshotCalls())
-func (mock *StargazerStateDBMock) RevertToSnapshotCalls() []struct {
+//	len(mockedPolarisStateDB.RevertToSnapshotCalls())
+func (mock *PolarisStateDBMock) RevertToSnapshotCalls() []struct {
 	N int
 } {
 	var calls []struct {
@@ -2133,9 +2133,9 @@ func (mock *StargazerStateDBMock) RevertToSnapshotCalls() []struct {
 }
 
 // SetBalance calls SetBalanceFunc.
-func (mock *StargazerStateDBMock) SetBalance(addr common.Address, amount *big.Int) {
+func (mock *PolarisStateDBMock) SetBalance(addr common.Address, amount *big.Int) {
 	if mock.SetBalanceFunc == nil {
-		panic("StargazerStateDBMock.SetBalanceFunc: method is nil but StargazerStateDB.SetBalance was just called")
+		panic("PolarisStateDBMock.SetBalanceFunc: method is nil but PolarisStateDB.SetBalance was just called")
 	}
 	callInfo := struct {
 		Addr   common.Address
@@ -2153,8 +2153,8 @@ func (mock *StargazerStateDBMock) SetBalance(addr common.Address, amount *big.In
 // SetBalanceCalls gets all the calls that were made to SetBalance.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SetBalanceCalls())
-func (mock *StargazerStateDBMock) SetBalanceCalls() []struct {
+//	len(mockedPolarisStateDB.SetBalanceCalls())
+func (mock *PolarisStateDBMock) SetBalanceCalls() []struct {
 	Addr   common.Address
 	Amount *big.Int
 } {
@@ -2169,9 +2169,9 @@ func (mock *StargazerStateDBMock) SetBalanceCalls() []struct {
 }
 
 // SetCode calls SetCodeFunc.
-func (mock *StargazerStateDBMock) SetCode(address common.Address, bytes []byte) {
+func (mock *PolarisStateDBMock) SetCode(address common.Address, bytes []byte) {
 	if mock.SetCodeFunc == nil {
-		panic("StargazerStateDBMock.SetCodeFunc: method is nil but StargazerStateDB.SetCode was just called")
+		panic("PolarisStateDBMock.SetCodeFunc: method is nil but PolarisStateDB.SetCode was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -2189,8 +2189,8 @@ func (mock *StargazerStateDBMock) SetCode(address common.Address, bytes []byte) 
 // SetCodeCalls gets all the calls that were made to SetCode.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SetCodeCalls())
-func (mock *StargazerStateDBMock) SetCodeCalls() []struct {
+//	len(mockedPolarisStateDB.SetCodeCalls())
+func (mock *PolarisStateDBMock) SetCodeCalls() []struct {
 	Address common.Address
 	Bytes   []byte
 } {
@@ -2205,9 +2205,9 @@ func (mock *StargazerStateDBMock) SetCodeCalls() []struct {
 }
 
 // SetNonce calls SetNonceFunc.
-func (mock *StargazerStateDBMock) SetNonce(address common.Address, v uint64) {
+func (mock *PolarisStateDBMock) SetNonce(address common.Address, v uint64) {
 	if mock.SetNonceFunc == nil {
-		panic("StargazerStateDBMock.SetNonceFunc: method is nil but StargazerStateDB.SetNonce was just called")
+		panic("PolarisStateDBMock.SetNonceFunc: method is nil but PolarisStateDB.SetNonce was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -2225,8 +2225,8 @@ func (mock *StargazerStateDBMock) SetNonce(address common.Address, v uint64) {
 // SetNonceCalls gets all the calls that were made to SetNonce.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SetNonceCalls())
-func (mock *StargazerStateDBMock) SetNonceCalls() []struct {
+//	len(mockedPolarisStateDB.SetNonceCalls())
+func (mock *PolarisStateDBMock) SetNonceCalls() []struct {
 	Address common.Address
 	V       uint64
 } {
@@ -2241,9 +2241,9 @@ func (mock *StargazerStateDBMock) SetNonceCalls() []struct {
 }
 
 // SetState calls SetStateFunc.
-func (mock *StargazerStateDBMock) SetState(address common.Address, hash1 common.Hash, hash2 common.Hash) {
+func (mock *PolarisStateDBMock) SetState(address common.Address, hash1 common.Hash, hash2 common.Hash) {
 	if mock.SetStateFunc == nil {
-		panic("StargazerStateDBMock.SetStateFunc: method is nil but StargazerStateDB.SetState was just called")
+		panic("PolarisStateDBMock.SetStateFunc: method is nil but PolarisStateDB.SetState was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -2263,8 +2263,8 @@ func (mock *StargazerStateDBMock) SetState(address common.Address, hash1 common.
 // SetStateCalls gets all the calls that were made to SetState.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SetStateCalls())
-func (mock *StargazerStateDBMock) SetStateCalls() []struct {
+//	len(mockedPolarisStateDB.SetStateCalls())
+func (mock *PolarisStateDBMock) SetStateCalls() []struct {
 	Address common.Address
 	Hash1   common.Hash
 	Hash2   common.Hash
@@ -2281,9 +2281,9 @@ func (mock *StargazerStateDBMock) SetStateCalls() []struct {
 }
 
 // SetStorage calls SetStorageFunc.
-func (mock *StargazerStateDBMock) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+func (mock *PolarisStateDBMock) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
 	if mock.SetStorageFunc == nil {
-		panic("StargazerStateDBMock.SetStorageFunc: method is nil but StargazerStateDB.SetStorage was just called")
+		panic("PolarisStateDBMock.SetStorageFunc: method is nil but PolarisStateDB.SetStorage was just called")
 	}
 	callInfo := struct {
 		Addr    common.Address
@@ -2301,8 +2301,8 @@ func (mock *StargazerStateDBMock) SetStorage(addr common.Address, storage map[co
 // SetStorageCalls gets all the calls that were made to SetStorage.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SetStorageCalls())
-func (mock *StargazerStateDBMock) SetStorageCalls() []struct {
+//	len(mockedPolarisStateDB.SetStorageCalls())
+func (mock *PolarisStateDBMock) SetStorageCalls() []struct {
 	Addr    common.Address
 	Storage map[common.Hash]common.Hash
 } {
@@ -2317,9 +2317,9 @@ func (mock *StargazerStateDBMock) SetStorageCalls() []struct {
 }
 
 // SetTransientState calls SetTransientStateFunc.
-func (mock *StargazerStateDBMock) SetTransientState(addr common.Address, key common.Hash, value common.Hash) {
+func (mock *PolarisStateDBMock) SetTransientState(addr common.Address, key common.Hash, value common.Hash) {
 	if mock.SetTransientStateFunc == nil {
-		panic("StargazerStateDBMock.SetTransientStateFunc: method is nil but StargazerStateDB.SetTransientState was just called")
+		panic("PolarisStateDBMock.SetTransientStateFunc: method is nil but PolarisStateDB.SetTransientState was just called")
 	}
 	callInfo := struct {
 		Addr  common.Address
@@ -2339,8 +2339,8 @@ func (mock *StargazerStateDBMock) SetTransientState(addr common.Address, key com
 // SetTransientStateCalls gets all the calls that were made to SetTransientState.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SetTransientStateCalls())
-func (mock *StargazerStateDBMock) SetTransientStateCalls() []struct {
+//	len(mockedPolarisStateDB.SetTransientStateCalls())
+func (mock *PolarisStateDBMock) SetTransientStateCalls() []struct {
 	Addr  common.Address
 	Key   common.Hash
 	Value common.Hash
@@ -2357,9 +2357,9 @@ func (mock *StargazerStateDBMock) SetTransientStateCalls() []struct {
 }
 
 // SetTxContext calls SetTxContextFunc.
-func (mock *StargazerStateDBMock) SetTxContext(thash common.Hash, ti int) {
+func (mock *PolarisStateDBMock) SetTxContext(thash common.Hash, ti int) {
 	if mock.SetTxContextFunc == nil {
-		panic("StargazerStateDBMock.SetTxContextFunc: method is nil but StargazerStateDB.SetTxContext was just called")
+		panic("PolarisStateDBMock.SetTxContextFunc: method is nil but PolarisStateDB.SetTxContext was just called")
 	}
 	callInfo := struct {
 		Thash common.Hash
@@ -2377,8 +2377,8 @@ func (mock *StargazerStateDBMock) SetTxContext(thash common.Hash, ti int) {
 // SetTxContextCalls gets all the calls that were made to SetTxContext.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SetTxContextCalls())
-func (mock *StargazerStateDBMock) SetTxContextCalls() []struct {
+//	len(mockedPolarisStateDB.SetTxContextCalls())
+func (mock *PolarisStateDBMock) SetTxContextCalls() []struct {
 	Thash common.Hash
 	Ti    int
 } {
@@ -2393,9 +2393,9 @@ func (mock *StargazerStateDBMock) SetTxContextCalls() []struct {
 }
 
 // SlotInAccessList calls SlotInAccessListFunc.
-func (mock *StargazerStateDBMock) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
+func (mock *PolarisStateDBMock) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
 	if mock.SlotInAccessListFunc == nil {
-		panic("StargazerStateDBMock.SlotInAccessListFunc: method is nil but StargazerStateDB.SlotInAccessList was just called")
+		panic("PolarisStateDBMock.SlotInAccessListFunc: method is nil but PolarisStateDB.SlotInAccessList was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -2413,8 +2413,8 @@ func (mock *StargazerStateDBMock) SlotInAccessList(addr common.Address, slot com
 // SlotInAccessListCalls gets all the calls that were made to SlotInAccessList.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SlotInAccessListCalls())
-func (mock *StargazerStateDBMock) SlotInAccessListCalls() []struct {
+//	len(mockedPolarisStateDB.SlotInAccessListCalls())
+func (mock *PolarisStateDBMock) SlotInAccessListCalls() []struct {
 	Addr common.Address
 	Slot common.Hash
 } {
@@ -2429,9 +2429,9 @@ func (mock *StargazerStateDBMock) SlotInAccessListCalls() []struct {
 }
 
 // Snapshot calls SnapshotFunc.
-func (mock *StargazerStateDBMock) Snapshot() int {
+func (mock *PolarisStateDBMock) Snapshot() int {
 	if mock.SnapshotFunc == nil {
-		panic("StargazerStateDBMock.SnapshotFunc: method is nil but StargazerStateDB.Snapshot was just called")
+		panic("PolarisStateDBMock.SnapshotFunc: method is nil but PolarisStateDB.Snapshot was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -2444,8 +2444,8 @@ func (mock *StargazerStateDBMock) Snapshot() int {
 // SnapshotCalls gets all the calls that were made to Snapshot.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SnapshotCalls())
-func (mock *StargazerStateDBMock) SnapshotCalls() []struct {
+//	len(mockedPolarisStateDB.SnapshotCalls())
+func (mock *PolarisStateDBMock) SnapshotCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -2456,9 +2456,9 @@ func (mock *StargazerStateDBMock) SnapshotCalls() []struct {
 }
 
 // StartPrefetcher calls StartPrefetcherFunc.
-func (mock *StargazerStateDBMock) StartPrefetcher(namespace string) {
+func (mock *PolarisStateDBMock) StartPrefetcher(namespace string) {
 	if mock.StartPrefetcherFunc == nil {
-		panic("StargazerStateDBMock.StartPrefetcherFunc: method is nil but StargazerStateDB.StartPrefetcher was just called")
+		panic("PolarisStateDBMock.StartPrefetcherFunc: method is nil but PolarisStateDB.StartPrefetcher was just called")
 	}
 	callInfo := struct {
 		Namespace string
@@ -2474,8 +2474,8 @@ func (mock *StargazerStateDBMock) StartPrefetcher(namespace string) {
 // StartPrefetcherCalls gets all the calls that were made to StartPrefetcher.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.StartPrefetcherCalls())
-func (mock *StargazerStateDBMock) StartPrefetcherCalls() []struct {
+//	len(mockedPolarisStateDB.StartPrefetcherCalls())
+func (mock *PolarisStateDBMock) StartPrefetcherCalls() []struct {
 	Namespace string
 } {
 	var calls []struct {
@@ -2488,9 +2488,9 @@ func (mock *StargazerStateDBMock) StartPrefetcherCalls() []struct {
 }
 
 // StopPrefetcher calls StopPrefetcherFunc.
-func (mock *StargazerStateDBMock) StopPrefetcher() {
+func (mock *PolarisStateDBMock) StopPrefetcher() {
 	if mock.StopPrefetcherFunc == nil {
-		panic("StargazerStateDBMock.StopPrefetcherFunc: method is nil but StargazerStateDB.StopPrefetcher was just called")
+		panic("PolarisStateDBMock.StopPrefetcherFunc: method is nil but PolarisStateDB.StopPrefetcher was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -2503,8 +2503,8 @@ func (mock *StargazerStateDBMock) StopPrefetcher() {
 // StopPrefetcherCalls gets all the calls that were made to StopPrefetcher.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.StopPrefetcherCalls())
-func (mock *StargazerStateDBMock) StopPrefetcherCalls() []struct {
+//	len(mockedPolarisStateDB.StopPrefetcherCalls())
+func (mock *PolarisStateDBMock) StopPrefetcherCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -2515,9 +2515,9 @@ func (mock *StargazerStateDBMock) StopPrefetcherCalls() []struct {
 }
 
 // StorageTrie calls StorageTrieFunc.
-func (mock *StargazerStateDBMock) StorageTrie(addr common.Address) (state.Trie, error) {
+func (mock *PolarisStateDBMock) StorageTrie(addr common.Address) (state.Trie, error) {
 	if mock.StorageTrieFunc == nil {
-		panic("StargazerStateDBMock.StorageTrieFunc: method is nil but StargazerStateDB.StorageTrie was just called")
+		panic("PolarisStateDBMock.StorageTrieFunc: method is nil but PolarisStateDB.StorageTrie was just called")
 	}
 	callInfo := struct {
 		Addr common.Address
@@ -2533,8 +2533,8 @@ func (mock *StargazerStateDBMock) StorageTrie(addr common.Address) (state.Trie, 
 // StorageTrieCalls gets all the calls that were made to StorageTrie.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.StorageTrieCalls())
-func (mock *StargazerStateDBMock) StorageTrieCalls() []struct {
+//	len(mockedPolarisStateDB.StorageTrieCalls())
+func (mock *PolarisStateDBMock) StorageTrieCalls() []struct {
 	Addr common.Address
 } {
 	var calls []struct {
@@ -2547,9 +2547,9 @@ func (mock *StargazerStateDBMock) StorageTrieCalls() []struct {
 }
 
 // SubBalance calls SubBalanceFunc.
-func (mock *StargazerStateDBMock) SubBalance(address common.Address, intMoqParam *big.Int) {
+func (mock *PolarisStateDBMock) SubBalance(address common.Address, intMoqParam *big.Int) {
 	if mock.SubBalanceFunc == nil {
-		panic("StargazerStateDBMock.SubBalanceFunc: method is nil but StargazerStateDB.SubBalance was just called")
+		panic("PolarisStateDBMock.SubBalanceFunc: method is nil but PolarisStateDB.SubBalance was just called")
 	}
 	callInfo := struct {
 		Address     common.Address
@@ -2567,8 +2567,8 @@ func (mock *StargazerStateDBMock) SubBalance(address common.Address, intMoqParam
 // SubBalanceCalls gets all the calls that were made to SubBalance.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SubBalanceCalls())
-func (mock *StargazerStateDBMock) SubBalanceCalls() []struct {
+//	len(mockedPolarisStateDB.SubBalanceCalls())
+func (mock *PolarisStateDBMock) SubBalanceCalls() []struct {
 	Address     common.Address
 	IntMoqParam *big.Int
 } {
@@ -2583,9 +2583,9 @@ func (mock *StargazerStateDBMock) SubBalanceCalls() []struct {
 }
 
 // SubRefund calls SubRefundFunc.
-func (mock *StargazerStateDBMock) SubRefund(v uint64) {
+func (mock *PolarisStateDBMock) SubRefund(v uint64) {
 	if mock.SubRefundFunc == nil {
-		panic("StargazerStateDBMock.SubRefundFunc: method is nil but StargazerStateDB.SubRefund was just called")
+		panic("PolarisStateDBMock.SubRefundFunc: method is nil but PolarisStateDB.SubRefund was just called")
 	}
 	callInfo := struct {
 		V uint64
@@ -2601,8 +2601,8 @@ func (mock *StargazerStateDBMock) SubRefund(v uint64) {
 // SubRefundCalls gets all the calls that were made to SubRefund.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SubRefundCalls())
-func (mock *StargazerStateDBMock) SubRefundCalls() []struct {
+//	len(mockedPolarisStateDB.SubRefundCalls())
+func (mock *PolarisStateDBMock) SubRefundCalls() []struct {
 	V uint64
 } {
 	var calls []struct {
@@ -2615,9 +2615,9 @@ func (mock *StargazerStateDBMock) SubRefundCalls() []struct {
 }
 
 // Suicide calls SuicideFunc.
-func (mock *StargazerStateDBMock) Suicide(address common.Address) bool {
+func (mock *PolarisStateDBMock) Suicide(address common.Address) bool {
 	if mock.SuicideFunc == nil {
-		panic("StargazerStateDBMock.SuicideFunc: method is nil but StargazerStateDB.Suicide was just called")
+		panic("PolarisStateDBMock.SuicideFunc: method is nil but PolarisStateDB.Suicide was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -2633,8 +2633,8 @@ func (mock *StargazerStateDBMock) Suicide(address common.Address) bool {
 // SuicideCalls gets all the calls that were made to Suicide.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.SuicideCalls())
-func (mock *StargazerStateDBMock) SuicideCalls() []struct {
+//	len(mockedPolarisStateDB.SuicideCalls())
+func (mock *PolarisStateDBMock) SuicideCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -2647,9 +2647,9 @@ func (mock *StargazerStateDBMock) SuicideCalls() []struct {
 }
 
 // TxIndex calls TxIndexFunc.
-func (mock *StargazerStateDBMock) TxIndex() int {
+func (mock *PolarisStateDBMock) TxIndex() int {
 	if mock.TxIndexFunc == nil {
-		panic("StargazerStateDBMock.TxIndexFunc: method is nil but StargazerStateDB.TxIndex was just called")
+		panic("PolarisStateDBMock.TxIndexFunc: method is nil but PolarisStateDB.TxIndex was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -2662,8 +2662,8 @@ func (mock *StargazerStateDBMock) TxIndex() int {
 // TxIndexCalls gets all the calls that were made to TxIndex.
 // Check the length with:
 //
-//	len(mockedStargazerStateDB.TxIndexCalls())
-func (mock *StargazerStateDBMock) TxIndexCalls() []struct {
+//	len(mockedPolarisStateDB.TxIndexCalls())
+func (mock *PolarisStateDBMock) TxIndexCalls() []struct {
 } {
 	var calls []struct {
 	}

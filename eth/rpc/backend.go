@@ -59,7 +59,7 @@ var DefaultGasPriceOracleConfig = gasprice.Config{
 	IgnorePrice:      gasprice.DefaultIgnorePrice,
 }
 
-type StargazerBackend interface {
+type PolarisBackend interface {
 	Backend
 	rpcapi.NetBackend
 }
@@ -76,8 +76,8 @@ type backend struct {
 // Constructor
 // ==============================================================================
 
-// `NewStargazerBackend` returns a new `Backend` object.
-func NewStargazerBackend(chain api.Chain, rpcConfig *config.Server) StargazerBackend {
+// `NewPolarisBackend` returns a new `Backend` object.
+func NewPolarisBackend(chain api.Chain, rpcConfig *config.Server) PolarisBackend {
 	b := &backend{
 		// accountManager: accounts.NewManager(&accounts.Config{InsecureUnlockAllowed: true}),
 		chain:     chain,
@@ -367,7 +367,7 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 	}
 	txContext := core.NewEVMTxContext(msg)
 	b.logger.Info("called eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
-	gethEVM := b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.StargazerStateDB](state), header, vmConfig)
+	gethEVM := b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig)
 	return gethEVM, state.Error, nil
 }
 
@@ -533,7 +533,7 @@ func (b *backend) stargazerBlockByNumberOrHash(
 ) (*types.Block, error) {
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block, err := b.chain.GetStargazerBlockByHash(hash)
+		block, err := b.chain.GetPolarisBlockByHash(hash)
 		if err != nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound,
 				"stargazerBlockByNumberOrHash: hash [%s]", hash.String())
@@ -564,7 +564,7 @@ func (b *backend) stargazerBlockByNumberOrHash(
 
 // `stargazerBlockByHash` returns the stargazer block identified by `hash`.
 func (b *backend) stargazerBlockByHash(hash common.Hash) (*types.Block, error) {
-	return b.chain.GetStargazerBlockByHash(hash)
+	return b.chain.GetPolarisBlockByHash(hash)
 }
 
 // `stargazerBlockByNumber` returns the stargazer block identified by `number.
@@ -575,7 +575,7 @@ func (b *backend) stargazerBlockByNumber(number BlockNumber) (*types.Block, erro
 	case PendingBlockNumber, LatestBlockNumber:
 		return b.chain.CurrentBlock()
 	default:
-		// CONTRACT: GetStargazerBlockByNumber receives number >=0
-		return b.chain.GetStargazerBlockByNumber(number.Int64())
+		// CONTRACT: GetPolarisBlockByNumber receives number >=0
+		return b.chain.GetPolarisBlockByNumber(number.Int64())
 	}
 }

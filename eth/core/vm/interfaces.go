@@ -28,9 +28,9 @@ import (
 )
 
 type (
-	// `StargazerStateDB` defines an extension to the interface provided by Go-Ethereum to support
+	// `PolarisStateDB` defines an extension to the interface provided by Go-Ethereum to support
 	// additional state transition functionalities.
-	StargazerStateDB interface {
+	PolarisStateDB interface {
 		GethStateDB
 		// `Finalize` finalizes the state transition.
 		libtypes.Finalizeable

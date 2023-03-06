@@ -38,7 +38,7 @@ const gasMeterDescriptor = `stargazer-gas-plugin`
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosStargazer
+	plugins.BaseCosmosPolaris
 	core.GasPlugin
 }
 

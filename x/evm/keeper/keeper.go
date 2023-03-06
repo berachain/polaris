@@ -48,11 +48,11 @@ import (
 )
 
 // Compile-time interface assertion.
-var _ core.StargazerHostChain = (*Keeper)(nil)
+var _ core.PolarisHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// `provider` is the struct that houses the Polaris EVM.
-	stargazer *eth.StargazerProvider
+	stargazer *eth.PolarisProvider
 	// We store a reference to the `rpcProvider` so that we can register it with
 	// the cosmos mux router.
 	rpcProvider evmrpc.Provider
@@ -63,7 +63,7 @@ type Keeper struct {
 	// `authority` is the bech32 address that is allowed to execute governance proposals.
 	authority string
 
-	// The various plugins that are are used to implement `core.StargazerHostChain`.
+	// The various plugins that are are used to implement `core.PolarisHostChain`.
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
@@ -144,7 +144,7 @@ func (k *Keeper) Setup(
 	k.bp.SetQueryContextFn(qc)
 
 	// Build the Polaris EVM Provider
-	k.stargazer = eth.NewStargazerProvider(k, k.rpcProvider, nil)
+	k.stargazer = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
 // `GetBlockPlugin` returns the block plugin.
@@ -178,8 +178,8 @@ func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
 }
 
 // `GetAllPlugins` returns all the plugins.
-func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosStargazer {
-	return []plugins.BaseCosmosStargazer{k.bp, k.cp, k.gp, k.pp, k.sp}
+func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosPolaris {
+	return []plugins.BaseCosmosPolaris{k.bp, k.cp, k.gp, k.pp, k.sp}
 }
 
 // `GetRPCProvider` returns the RPC provider. We use this in `app.go` to register

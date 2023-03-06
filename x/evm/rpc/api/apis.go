@@ -23,7 +23,7 @@ package api
 import ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
 
 // `GetExtraFn` returns a list of chain specific apis.
-func GetExtraFn(apiBackend ethrpc.StargazerBackend) []ethrpc.API {
+func GetExtraFn(apiBackend ethrpc.PolarisBackend) []ethrpc.API {
 	return []ethrpc.API{
 		{
 			Namespace: "comet",

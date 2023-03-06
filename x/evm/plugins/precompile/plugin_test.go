@@ -79,7 +79,7 @@ var _ = Describe("plugin", func() {
 // MOCKS BELOW.
 
 type mockSDB struct {
-	vm.StargazerStateDB
+	vm.PolarisStateDB
 }
 
 func (ms *mockSDB) GetContext() context.Context {

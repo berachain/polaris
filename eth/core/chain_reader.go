@@ -43,8 +43,8 @@ type ChainBlockReader interface {
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
 	FinalizedBlock() (*types.Block, error)
 	GetReceipts(common.Hash) (types.Receipts, error)
-	GetStargazerBlockByHash(common.Hash) (*types.Block, error)
-	GetStargazerBlockByNumber(int64) (*types.Block, error)
+	GetPolarisBlockByHash(common.Hash) (*types.Block, error)
+	GetPolarisBlockByNumber(int64) (*types.Block, error)
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
@@ -150,7 +150,7 @@ func (bc *blockchain) GetTransaction(
 }
 
 // `GetBlock` retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.Block, error) {
+func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error) {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
@@ -170,7 +170,7 @@ func (bc *blockchain) GetStargazerBlockByNumber(number int64) (*types.Block, err
 }
 
 // `GetBlockByHash` retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetStargazerBlockByHash(hash common.Hash) (*types.Block, error) {
+func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, error) {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
 		bc.blockNumCache.Add(block.Number().Int64(), block)
