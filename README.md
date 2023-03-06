@@ -1,8 +1,7 @@
 <a href="https://berachain.com">
-  <img src="https://wallpaperaccess.com/full/1736439.jpg" width="100%">
+  <img src="./docs/web/public/header.png" width="100%">
 </a>
 <h1 class="center">
-  Polaris
 </h1>
 
 <div>
@@ -24,7 +23,18 @@
 </div>
 &nbsp;
 
-## Installation of a Cosmos-SDK Blockchain
+## Polaris ❄️🔭
+
+Polaris introduces the new standard of intergrating EVM into your blockchain project. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
+
+Polaris VM is a blockchain framework built on top of the Cosmos SDK that offers a full-featured EVM with full interoperability to the Cosmos ecosystem. It achieves this through the use of various Stateful Precompiles built into the chain that act as gateways to the greater Cosmos framework. This allows EVM users to perform Cosmos native operations such as voting on governance, delegating to validators, and even communicating with other chains through IBC. This design allows us to maintain the native EVM user experience without sacrifices, providing true interoperability between the Cosmos ecosystem and EVM.
+
+# 🚧 WARNING: UNDER CONSTRUCTION 🚧
+
+This project is work in progress and subject to frequent changes as we are still working on wiring up the final system.
+It has not been audited for security purposes and should not be used in production yet.
+
+## Installation
 
 ### From Binary
 
