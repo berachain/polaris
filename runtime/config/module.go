@@ -67,7 +67,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmmodulev1 "pkg.berachain.dev/polaris/api/stargazer/evm/module/v1"
+	evmmodulev1alpha1 "pkg.berachain.dev/polaris/api/polaris/evm/module/v1alpha1"
 	evmtypes "pkg.berachain.dev/polaris/x/evm/types"
 )
 
@@ -192,7 +192,7 @@ var (
 		},
 		{
 			Name:   evmtypes.ModuleName,
-			Config: appconfig.WrapAny(&evmmodulev1.Module{}),
+			Config: appconfig.WrapAny(&evmmodulev1alpha1.Module{}),
 		},
 	}
 )

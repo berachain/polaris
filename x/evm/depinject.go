@@ -30,14 +30,14 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	modulev1 "pkg.berachain.dev/polaris/api/stargazer/evm/module/v1"
+	modulev1alpha1 "pkg.berachain.dev/polaris/api/polaris/evm/module/v1alpha1"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/x/evm/keeper"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
 func init() {
-	appmodule.Register(&modulev1.Module{}, appmodule.Provide(ProvideModule))
+	appmodule.Register(&modulev1alpha1.Module{}, appmodule.Provide(ProvideModule))
 }
 
 // `DepInjectInput` is the input for the dep inject framework.
@@ -45,7 +45,7 @@ type DepInjectInput struct {
 	depinject.In
 
 	ModuleKey depinject.OwnModuleKey
-	Config    *modulev1.Module
+	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
 

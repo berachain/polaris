@@ -18,10 +18,8 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-
-
 version: v1
-name: buf.build/berachain/stargazer
+name: buf.build/berachain/polaris
 deps:
   - buf.build/cosmos/cosmos-sdk
   - buf.build/cosmos/cosmos-proto
