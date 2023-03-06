@@ -124,10 +124,11 @@ func (p *plugin) Run(
 
 	// run precompile container
 	ret, err := pc.Run(
-		ctx.
-			WithGasMeter(gm).
-			WithKVGasConfig(p.kvGasConfig).
-			WithTransientKVGasConfig(p.transientKVGasConfig),
+		ctx.WithGasMeter(gm),
+		// TODO: Re-enable gas config for precompiles.
+		// https://github.com/berachain/stargazer/issues/393
+		// WithKVGasConfig(p.kvGasConfig).
+		// WithTransientKVGasConfig(p.transientKVGasConfig),
 		input,
 		caller,
 		value,
