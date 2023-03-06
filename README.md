@@ -16,9 +16,6 @@
   <a href="https://magefile.org"> 
     <img alt="Built with Mage" src="https://magefile.org/badge.svg" />
   </a>
-  <a href="https://discord.gg/berachain">
-    <img alt="Discord" src="https://img.shields.io/discord/924442927399313448.svg?label=discord&color=7289da" />
-  </a>
   <a href="https://twitter.com/berachain">
     <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/berachain">
   </a>
