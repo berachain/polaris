@@ -1,47 +1,47 @@
-# Launching Your Smart Contracts on Polaris
+# Launching Your Smart Contracts on Polaris VM
 
-The Purpose of this section is to provide information that will help you launch your smart contracts on Polaris. 
-You will read how to use various EVM development tools with Polaris along with examples. We will show you how to connect to the network, 
-how to use your existing projects on Polaris, as well as any additional information relating to Polaris' new features.
+The Purpose of this section is to provide information that will help you launch your smart contracts on Polaris VM. 
+You will read how to use various EVM development tools with Polaris VM along with examples. We will show you how to connect to the network, 
+how to use your existing projects on Polaris VM, as well as any additional information relating to Polaris VM's new features.
 
-## Polaris EVM 
+## Polaris VM EVM 
 TODO DEV look pls
 
-Polaris' EVM is designed to adhere to the geth interface, which means that any tool that works with [Geth](https://geth.ethereum.org/) can also be used to interact with Polaris. The EVM is still responsible for executing Solidity smart contracts and managing the chain's data structures and blocks. By using CometBFT's consensus protocol and the Cosmos-SDK, Polaris is able to access Cosmos-SDK properties through [precompiles](../building-precompiles/intro-to-precompiles), while also remaining compatible with all Ethereum Solidity smart contracts.
+Polaris VM's EVM is designed to adhere to the geth interface, which means that any tool that works with [Geth](https://geth.ethereum.org/) can also be used to interact with Polaris VM. The EVM is still responsible for executing Solidity smart contracts and managing the chain's data structures and blocks. By using CometBFT's consensus protocol and the Cosmos-SDK, Polaris VM is able to access Cosmos-SDK properties through [precompiles](../building-precompiles/intro-to-precompiles), while also remaining compatible with all Ethereum Solidity smart contracts.
 
-It's important to note that Polaris' EVM is interoperable with its Cosmos-SDK Application Layer. This means that Smart Contract Developers have access to base Cosmos-SDK modules through the EVM. With this new feature, developers can access Cosmos features like on-chain governance, the IBC protocol, and various other Cosmos-SDK modules.
+It's important to note that Polaris VM's EVM is interoperable with its Cosmos-SDK Application Layer. This means that Smart Contract Developers have access to base Cosmos-SDK modules through the EVM. With this new feature, developers can access Cosmos features like on-chain governance, the IBC protocol, and various other Cosmos-SDK modules.
 
 From the perspective of a Smart Contract, it will run in the same way as it would on Ethereum, but with additional contract addresses that provide access to the chain's Cosmos-SDK modules.
 
 ## Interacting With Stateful Precompiles
-Polaris' Stateful Precompiles can be interacted with like any 
+Polaris VM's Stateful Precompiles can be interacted with like any 
 other contract deployed on the EVM in Solidity. All you need is a
 contract address and an ABI which you can find [here](../precompile-overview).
 
-For an example contract that interacts with Polaris' staking precompile you
+For an example contract that interacts with Polaris VM's staking precompile you
 can reference our [Liquid Staking Example](https://github.com/berachain/polaris-precompile-dapp-examples).
-## Accessing Polaris' EVM
+## Accessing Polaris VM's EVM
 
-### Using the Polaris CLI with EVM
+### Using the Polaris VM CLI with EVM
 TODO DEV delet?
 
-### Running a local Polaris Development environment
+### Running a local Polaris VM Development environment
 For a guide on how to run a local development environment, please refer to the [Local Machine](../running-a-node/running-locally) section.
 
 ### Smart Contract Development
 There are various existing tools that can be used for smart contract development.
-Below are some of the most popular tools that can be used to develop smart contracts on Polaris.
+Below are some of the most popular tools that can be used to develop smart contracts on Polaris VM.
 
 #### Foundry
-Information on building smart contracts with Foundry on Polaris can be found [here](./dev-tools/foundry-polaris).
+Information on building smart contracts with Foundry on Polaris VM can be found [here](./dev-tools/foundry-polaris).
 
-#### Using Metamask with Polaris
-Information about using Metamask with Polaris can be found [here](../using-metamask).
+#### Using Metamask with Polaris VM
+Information about using Metamask with Polaris VM can be found [here](../using-metamask).
 
-#### Using Keplr with Polaris
-Information about using Keplr with Polaris can be found [here](../using-keplr).
+#### Using Keplr with Polaris VM
+Information about using Keplr with Polaris VM can be found [here](../using-keplr).
 
-#### Polaris Block Explorer
+#### Polaris VM Block Explorer
 🚧 Coming Soon 🚧
-#### Polaris Faucet
+#### Polaris VM Faucet
 🚧 Coming Soon 🚧
