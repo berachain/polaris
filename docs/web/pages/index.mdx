@@ -5,7 +5,8 @@ title: Polaris
 import createGlobe from "cobe";
 import { useEffect, useRef } from "react";
 import { useSpring } from "react-spring";
-
+import Text from '../components/text'
+ 
 export function Cobe() {
   const canvasRef = useRef();
   const pointerInteracting = useRef(null);
@@ -112,7 +113,7 @@ return (
       POLARIS
     </h1>
     <span style={{ fontSize: "1.3em", zIndex: -1 }}>
-      The New Standard of EVM on Cosmos
+      <Text />
     </span>
   </div>
   <canvas
@@ -190,6 +191,15 @@ import Link from "next/link";
 </div>
 
 <style jsx global>{`
+  .nav {
+    display: none;
+  }
+  .nextra-nav-container {
+    display: none;
+  }
+  footer {
+    display: none;
+  }
   body {
     background: linear-gradient(
       180deg,

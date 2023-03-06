@@ -6,6 +6,3 @@ gm welcome to docs
 to build
 
 `yarn build && yarn start`
-
-## Contributing
-PR plz
