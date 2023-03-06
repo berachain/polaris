@@ -27,9 +27,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/lib/utils"
-	offchain "pkg.berachain.dev/stargazer/store/offchain"
-	testutil "pkg.berachain.dev/stargazer/testing/utils"
+	"pkg.berachain.dev/polaris/lib/utils"
+	offchain "pkg.berachain.dev/polaris/store/offchain"
+	testutil "pkg.berachain.dev/polaris/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 )

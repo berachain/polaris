@@ -24,7 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 
-	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
+	cryptocodec "pkg.berachain.dev/polaris/crypto/codec"
 )
 
 // `PolarisAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.

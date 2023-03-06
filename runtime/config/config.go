@@ -23,7 +23,7 @@ package config
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/accounts"
+	"pkg.berachain.dev/polaris/eth/accounts"
 )
 
 const (

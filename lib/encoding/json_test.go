@@ -21,7 +21,7 @@
 package encoding_test
 
 import (
-	enclib "pkg.berachain.dev/stargazer/lib/encoding"
+	enclib "pkg.berachain.dev/polaris/lib/encoding"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

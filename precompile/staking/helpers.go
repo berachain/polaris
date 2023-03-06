@@ -28,8 +28,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	evmutils "pkg.berachain.dev/stargazer/x/evm/utils"
+	"pkg.berachain.dev/polaris/eth/common"
+	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
 
 // `delegationHelper` is the helper function for `getDelegation`.

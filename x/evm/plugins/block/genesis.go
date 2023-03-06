@@ -23,7 +23,7 @@ package block
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // `InitGenesis` performs genesis initialization for the evm module. no-op.

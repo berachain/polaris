@@ -28,9 +28,9 @@ import (
 
 	"cosmossdk.io/store/types"
 
-	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/testing/types/mock/interfaces"
-	"pkg.berachain.dev/stargazer/testing/types/mock/interfaces/mock"
+	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/testing/types/mock/interfaces"
+	"pkg.berachain.dev/polaris/testing/types/mock/interfaces/mock"
 )
 
 // MultiStore is a simple multistore used for testing.

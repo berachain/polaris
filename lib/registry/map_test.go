@@ -21,9 +21,9 @@
 package registry_test
 
 import (
-	"pkg.berachain.dev/stargazer/lib/registry"
-	"pkg.berachain.dev/stargazer/lib/registry/mock"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/lib/registry"
+	"pkg.berachain.dev/polaris/lib/registry/mock"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

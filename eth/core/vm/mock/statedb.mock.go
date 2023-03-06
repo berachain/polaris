@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"math/big"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"sync"
 )
 

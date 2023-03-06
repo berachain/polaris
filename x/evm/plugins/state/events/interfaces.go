@@ -23,7 +23,7 @@ package events
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 type (

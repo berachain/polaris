@@ -21,7 +21,7 @@
 package registry
 
 import (
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 // `mapRegistry` is a simple implementation of `Registry` that uses a map as the underlying data

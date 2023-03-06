@@ -25,11 +25,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	ethsecp256k1 "pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
-	"pkg.berachain.dev/stargazer/eth/accounts"
-	"pkg.berachain.dev/stargazer/eth/common"
-	crypto "pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	ethsecp256k1 "pkg.berachain.dev/polaris/crypto/keys/ethsecp256k1"
+	"pkg.berachain.dev/polaris/eth/accounts"
+	"pkg.berachain.dev/polaris/eth/common"
+	crypto "pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

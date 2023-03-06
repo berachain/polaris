@@ -24,7 +24,7 @@ package stargazer.evm.v1alpha1;
 import "gogoproto/gogo.proto";
 import "stargazer/evm/v1alpha1/params.proto";
 
-option go_package = "pkg.berachain.dev/stargazer/x/evm/types";
+option go_package = "pkg.berachain.dev/polaris/x/evm/types";
 
 // GenesisState defines the evm module's genesis state.
 message GenesisState {
