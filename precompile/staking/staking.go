@@ -31,8 +31,9 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/precompile"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
@@ -46,7 +47,7 @@ type Contract struct {
 }
 
 // `NewContract` is the constructor of the staking contract.
-func NewPrecompileContract(sk *stakingkeeper.Keeper) precompile.StatefulImpl {
+func NewPrecompileContract(sk *stakingkeeper.Keeper) coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.StakingModuleMetaData.ABI)); err != nil {
 		panic(err)
@@ -70,8 +71,8 @@ func (c *Contract) ABIMethods() map[string]abi.Method {
 }
 
 // `PrecompileMethods` implements StatefulImpl.
-func (c *Contract) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
+func (c *Contract) PrecompileMethods() coreprecompile.Methods {
+	return coreprecompile.Methods{
 		{
 			AbiSig:  "getDelegation(address,address)",
 			Execute: c.GetDelegationAddrInput,
@@ -141,7 +142,7 @@ func (c *Contract) ABIEvents() map[string]abi.Event {
 }
 
 // `CustomValueDecoders` implements StatefulImpl.
-func (c *Contract) CustomValueDecoders() precompile.ValueDecoders {
+func (c *Contract) CustomValueDecoders() coreprecompile.ValueDecoders {
 	return nil
 }
 
@@ -155,11 +156,11 @@ func (c *Contract) GetDelegationAddrInput(
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidDelegatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	val, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 
 	return c.getDelegationHelper(
@@ -177,7 +178,7 @@ func (c *Contract) GetDelegationStringInput(
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
 	if err != nil {
@@ -185,7 +186,7 @@ func (c *Contract) GetDelegationStringInput(
 	}
 	bech32ValAddr, ok := utils.GetAs[string](args[1])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	val, err := sdk.ValAddressFromBech32(bech32ValAddr)
 	if err != nil {
@@ -205,11 +206,11 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidDelegatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	val, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 
 	return c.getUnbondingDelegationHelper(
@@ -227,7 +228,7 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
 	if err != nil {
@@ -235,7 +236,7 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 	}
 	bech32ValAddr, ok := utils.GetAs[string](args[1])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	val, err := sdk.ValAddressFromBech32(bech32ValAddr)
 	if err != nil {
@@ -255,15 +256,15 @@ func (c *Contract) GetRedelegationsAddrInput(
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidDelegatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	srcVal, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	dstVal, ok := utils.GetAs[common.Address](args[2])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 
 	return c.getRedelegationsHelper(
@@ -284,15 +285,15 @@ func (c *Contract) GetRedelegationsStringInput(
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	srcVal, ok := utils.GetAs[string](args[1])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	dstVal, ok := utils.GetAs[string](args[2])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
 	if err != nil {
@@ -320,11 +321,11 @@ func (c *Contract) DelegateAddrInput(
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 
 	return nil, c.delegateHelper(ctx, caller, amount, evmutils.AddressToValAddress(val))
@@ -340,11 +341,11 @@ func (c *Contract) DelegateStringInput(
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 
 	val, err := sdk.ValAddressFromBech32(bech32Addr)
@@ -365,11 +366,11 @@ func (c *Contract) UndelegateAddrInput(
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 
 	return nil, c.undelegateHelper(ctx, caller, amount, evmutils.AddressToValAddress(val))
@@ -385,11 +386,11 @@ func (c *Contract) UndelegateStringInput(
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 
 	val, err := sdk.ValAddressFromBech32(bech32Addr)
@@ -410,15 +411,15 @@ func (c *Contract) BeginRedelegateAddrInput(
 ) ([]any, error) {
 	srcVal, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	dstVal, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	amount, ok := utils.GetAs[*big.Int](args[2])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 
 	return nil, c.beginRedelegateHelper(
@@ -440,15 +441,15 @@ func (c *Contract) BeginRedelegateStringInput(
 ) ([]any, error) {
 	srcVal, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	dstVal, ok := utils.GetAs[string](args[1])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	amount, ok := utils.GetAs[*big.Int](args[2])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 
 	src, err := sdk.ValAddressFromBech32(srcVal)
@@ -473,15 +474,15 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
-		return nil, ErrInvalidValidatorAddr
+		return nil, precompile.ErrInvalidHexAddress
 	}
 	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 	creationHeight, ok := utils.GetAs[int64](args[2])
 	if !ok {
-		return nil, ErrInvalidInt64
+		return nil, precompile.ErrInvalidInt64
 	}
 
 	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, evmutils.AddressToValAddress(val), creationHeight)
@@ -497,15 +498,15 @@ func (c *Contract) CancelUnbondingDelegationStringInput(
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
 	if !ok {
-		return nil, ErrInvalidString
+		return nil, precompile.ErrInvalidString
 	}
 	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
-		return nil, ErrInvalidBigInt
+		return nil, precompile.ErrInvalidBigInt
 	}
 	creationHeight, ok := utils.GetAs[int64](args[2])
 	if !ok {
-		return nil, ErrInvalidInt64
+		return nil, precompile.ErrInvalidInt64
 	}
 
 	val, err := sdk.ValAddressFromBech32(bech32Addr)
