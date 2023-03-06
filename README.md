@@ -1,7 +1,9 @@
 <a href="https://berachain.com">
   <img src="./docs/web/public/header.png" width="100%">
 </a>
-&nbsp;
+<h1 class="center">
+</h1>
+
 <div>
   <a href="https://codecov.io/gh/berachain/polaris" > 
     <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=0DYQAKBGVW"/> 
