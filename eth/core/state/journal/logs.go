@@ -21,8 +21,6 @@
 package journal
 
 import (
-	"math"
-
 	"pkg.berachain.dev/stargazer/eth/common"
 	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
 	"pkg.berachain.dev/stargazer/lib/ds"
@@ -36,7 +34,6 @@ type logs struct {
 
 	txHash  common.Hash
 	txIndex int
-	logSize uint
 }
 
 // `NewLogs` returns a new `logs` journal.
@@ -67,8 +64,6 @@ func (l *logs) TxIndex() int {
 func (l *logs) AddLog(log *coretypes.Log) {
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
-	log.Index = l.logSize
-	l.logSize++
 	l.Push(log)
 }
 
@@ -82,12 +77,12 @@ func (l *logs) Logs() []*coretypes.Log {
 	return buf
 }
 
-// `GetLogs` returns the logs for the tx with the given metadata and clears the journal.
+// `GetLogs` returns the logs for the tx with the given metadata.
 func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
-	for i := uint(size) - 1; i < math.MaxUint; i-- {
-		buf[i] = l.Pop()
+	for i := size - 1; i >= 0; i-- {
+		buf[i] = l.PeekAt(i)
 		buf[i].BlockHash = blockHash
 		buf[i].BlockNumber = blockNumber
 	}
@@ -108,6 +103,8 @@ func (l *logs) RevertToSnapshot(id int) {
 	l.PopToSize(id)
 }
 
+// `Finalize` clears the journal of the tx logs.
+//
 // `Finalize` implements `libtypes.Controllable`.
 func (l *logs) Finalize() {
 	*l = *NewLogs()
