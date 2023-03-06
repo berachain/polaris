@@ -61,8 +61,8 @@ func StartNoBuild() error {
 
 // Starts a local docs page.
 func Docs() error {
-	os.Chdir("docs/web")
-	defer os.Chdir("../..")
+	_ = os.Chdir("docs/web")
+	defer func() { _ = os.Chdir("../..") }()
 	if err := sh.RunV("yarn"); err != nil {
 		return err
 	}
