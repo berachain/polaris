@@ -1,4 +1,4 @@
-import { DocsThemeConfig, useConfig } from 'nextra-theme-docs'
+import { useConfig } from 'nextra-theme-docs'
 import { useRouter } from 'next/router'
 
 export default {
@@ -11,7 +11,7 @@ export default {
     banner: {
         key: '2.0-release',
         text: <a href="https://medium.com/berachain-foundation/introducing-polaris-vm-2a0b77d777f8" target="_blank">
-          🎉 Announcing Polaris VM! 
+          🎉 Introducing Polaris VM! 
         </a>,
     },
     useNextSeoProps() {
