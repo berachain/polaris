@@ -32,8 +32,8 @@ type BaseContract interface {
 
 // `baseContract` is a base implementation of `StatefulImpl`.
 type baseContract struct {
-	// `contractAbi` stores the ABI of the precompile.
-	contractAbi abi.ABI
+	// `abi` stores the ABI of the precompile.
+	abi abi.ABI
 	// `address stores the` address of the precompile.
 	address common.Address
 }
@@ -41,8 +41,8 @@ type baseContract struct {
 // `NewBaseContract` creates a new `BasePrecompile`.
 func NewBaseContract(contractAbi abi.ABI, address common.Address) BaseContract {
 	return &baseContract{
-		contractAbi: contractAbi,
-		address:     address,
+		abi:     contractAbi,
+		address: address,
 	}
 }
 
@@ -53,12 +53,12 @@ func (c *baseContract) RegistryKey() common.Address {
 
 // `ABIMethods` implements StatefulImpl.
 func (c *baseContract) ABIMethods() map[string]abi.Method {
-	return c.contractAbi.Methods
+	return c.abi.Methods
 }
 
 // `ABIEvents` implements StatefulImpl.
 func (c *baseContract) ABIEvents() map[string]abi.Event {
-	return c.contractAbi.Events
+	return c.abi.Events
 }
 
 // `CustomValueDecoders` implements StatefulImpl.
