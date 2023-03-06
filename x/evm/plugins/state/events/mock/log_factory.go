@@ -25,7 +25,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 //go:generate moq -out ./log_factory.mock.go -pkg mock ../ PrecompileLogFactory

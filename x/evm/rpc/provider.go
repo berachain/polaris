@@ -23,8 +23,8 @@ package rpc
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 
-	ethrpc "pkg.berachain.dev/stargazer/eth/rpc"
-	rpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
+	ethrpc "pkg.berachain.dev/polaris/eth/rpc"
+	rpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
 )
 
 // `Provider` is an interface that defines the methods required to register the

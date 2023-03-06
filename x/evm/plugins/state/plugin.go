@@ -29,16 +29,16 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/eth/rpc"
-	"pkg.berachain.dev/stargazer/lib/snapshot"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
-	"pkg.berachain.dev/stargazer/store/snapmulti"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state/events"
-	types "pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/rpc"
+	"pkg.berachain.dev/polaris/lib/snapshot"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/store/snapmulti"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
+	types "pkg.berachain.dev/polaris/x/evm/types"
 )
 
 const pluginRegistryKey = `statePlugin`

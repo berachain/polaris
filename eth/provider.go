@@ -21,10 +21,10 @@
 package eth
 
 import (
-	"pkg.berachain.dev/stargazer/eth/api"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/log"
-	"pkg.berachain.dev/stargazer/eth/rpc"
+	"pkg.berachain.dev/polaris/eth/api"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
 type PolarisProvider struct {

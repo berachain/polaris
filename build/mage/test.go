@@ -23,7 +23,7 @@ package mage
 import (
 	"github.com/magefile/mage/sh"
 
-	mi "pkg.berachain.dev/stargazer/build/mage/internal"
+	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (

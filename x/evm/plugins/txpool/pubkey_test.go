@@ -23,9 +23,9 @@ package txpool
 import (
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	ethcrypto "pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/crypto/keys/ethsecp256k1"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	ethcrypto "pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -27,7 +27,7 @@ import (
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
 
-	mi "pkg.berachain.dev/stargazer/build/mage/internal"
+	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (
@@ -66,7 +66,7 @@ func All() error {
 }
 
 func BuildPolarisApp() error {
-	cmd := "stargazerd"
+	cmd := "polard"
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
@@ -127,7 +127,7 @@ func Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./runtime/cmd/stargazerd",
+		"./runtime/cmd/polard",
 	}
 
 	return goInstall(args...)

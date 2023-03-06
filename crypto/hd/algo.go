@@ -27,8 +27,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
-	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/crypto/keys/ethsecp256k1"
+	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 const (

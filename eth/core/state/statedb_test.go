@@ -23,12 +23,12 @@ package state_test
 import (
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/state"
-	"pkg.berachain.dev/stargazer/eth/core/state/journal/mock"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/params"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state"
+	"pkg.berachain.dev/polaris/eth/core/state/journal/mock"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

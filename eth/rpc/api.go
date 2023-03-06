@@ -20,7 +20,7 @@
 
 package rpc
 
-import "pkg.berachain.dev/stargazer/eth/rpc/api"
+import "pkg.berachain.dev/polaris/eth/rpc/api"
 
 // `GetAPIs` returns a list of all available APIs.
 func GetAPIs(apiBackend PolarisBackend) []API {

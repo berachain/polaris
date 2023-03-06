@@ -15,7 +15,7 @@
 //nolint:ireturn // Stack uses generics.
 package stack
 
-import "pkg.berachain.dev/stargazer/lib/ds"
+import "pkg.berachain.dev/polaris/lib/ds"
 
 // `aStack` is a struct that holds a slice of Items as a last in, first out data structure.
 // It is implemented by the built-in `append` operation.

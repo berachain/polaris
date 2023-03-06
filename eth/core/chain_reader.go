@@ -23,10 +23,10 @@ package core
 import (
 	"errors"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // `ChainReader` defines methods that are used to read the state and blocks of the chain.

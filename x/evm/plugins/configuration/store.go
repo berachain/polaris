@@ -21,7 +21,7 @@
 package configuration
 
 import (
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // `GetParams` is used to get the params for the evm module.

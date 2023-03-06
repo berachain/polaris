@@ -90,16 +90,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/lib/utils"
-	bankprecompile "pkg.berachain.dev/stargazer/precompile/bank"
-	stakingprecompile "pkg.berachain.dev/stargazer/precompile/staking"
-	simappconfig "pkg.berachain.dev/stargazer/runtime/config"
-	"pkg.berachain.dev/stargazer/x/evm"
-	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
-	evmkeeper "pkg.berachain.dev/stargazer/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
+	bankprecompile "pkg.berachain.dev/polaris/precompile/bank"
+	stakingprecompile "pkg.berachain.dev/polaris/precompile/staking"
+	simappconfig "pkg.berachain.dev/polaris/runtime/config"
+	"pkg.berachain.dev/polaris/x/evm"
+	evmante "pkg.berachain.dev/polaris/x/evm/ante"
+	evmkeeper "pkg.berachain.dev/polaris/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/polaris/x/evm/plugins/txpool/mempool"
+	evmrpc "pkg.berachain.dev/polaris/x/evm/rpc"
 
 	_ "embed"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
@@ -177,7 +177,7 @@ type PolarisApp struct {
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-	// stargazer keepers
+	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
 
 	// simulation manager
@@ -191,7 +191,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".stargazerapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
 }
 
 // NewPolarisApp returns a reference to an initialized PolarisApp.
@@ -454,7 +454,7 @@ func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.AP
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	// Register Ethereum JSON-RPC API as needed by stargazer.
+	// Register Ethereum JSON-RPC API as needed by polaris.
 	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }
 

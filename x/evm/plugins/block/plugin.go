@@ -28,10 +28,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
 )
 
 // TODO: change this.
@@ -50,7 +50,7 @@ type Plugin interface {
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 }
 
-// `plugin` keeps track of stargazer blocks via headers.
+// `plugin` keeps track of polaris blocks via headers.
 type plugin struct {
 	// `ctx` is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context

@@ -21,7 +21,7 @@
 package ethsecp256k1
 
 import (
-	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 // `Sign` signs the provided message using the ECDSA private key. It returns an error if the

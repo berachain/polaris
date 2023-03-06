@@ -25,8 +25,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/runtime/config"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -39,9 +38,8 @@ func TestAddress(t *testing.T) {
 
 var _ = Describe("Address", func() {
 	It("should return the correct address", func() {
-		config.SetupCosmosConfig()
 		addr := common.HexToAddress("0xCd8c4Cb0C7f93a2B74B3e522a1C7BE35bE1Fbc73")
-		bech32 := "stargazer1ekxyevx8lyazka9nu532r3a7xklpl0rnddf8cd"
+		bech32 := "cosmos1ekxyevx8lyazka9nu532r3a7xklpl0rnjrc2a9"
 		acc, err := sdk.AccAddressFromBech32(bech32)
 		Expect(err).NotTo(HaveOccurred())
 		addr2 := AccAddressToEthAddress(acc)
@@ -55,7 +53,7 @@ var _ = Describe("Address", func() {
 
 		ethAddr2 := AddressToValAddress(addr)
 		bech3222 := sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32ValidatorAddrPrefix(), ethAddr2.Bytes())
-		Expect(bech3222).To(Equal("stargazervaloper1ekxyevx8lyazka9nu532r3a7xklpl0rn9fs660"))
+		Expect(bech3222).To(Equal("cosmosvaloper1ekxyevx8lyazka9nu532r3a7xklpl0rnhhvl3k"))
 
 	})
 })

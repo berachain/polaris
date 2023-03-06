@@ -23,7 +23,7 @@ package rpc
 import (
 	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/stargazer/eth/rpc/config"
+	"pkg.berachain.dev/polaris/eth/rpc/config"
 )
 
 // `Service` is the interface for the JSON-RPC service.

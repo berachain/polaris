@@ -23,7 +23,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	errorslib "pkg.berachain.dev/stargazer/lib/errors"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // Compile-time interface assertions.

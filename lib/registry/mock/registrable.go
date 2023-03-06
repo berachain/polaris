@@ -20,7 +20,7 @@
 
 package mock
 
-import libtypes "pkg.berachain.dev/stargazer/lib/types"
+import libtypes "pkg.berachain.dev/polaris/lib/types"
 
 // Assert that `MockRegistrable` implements `Registrable`.
 var _ libtypes.Registrable[string] = &Registrable{}

@@ -27,9 +27,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	evmante "pkg.berachain.dev/polaris/x/evm/ante"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // `Serializer` defines that interface that allows serializes an Ethereum transactions

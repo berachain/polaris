@@ -25,14 +25,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/core"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.stargazer.Prepare(ctx, sCtx.BlockHeight())
+	k.polaris.Prepare(ctx, sCtx.BlockHeight())
 }
 
 // `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
@@ -45,7 +45,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 		"reset gas meter prior to ethereum state transition")
 
 	// Process the transaction and return the EVM's execution result.
-	execResult, err := k.stargazer.ProcessTransaction(ctx, tx)
+	execResult, err := k.polaris.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
 func (k *Keeper) EndBlocker(ctx context.Context) {
 	// Finalize the block and retrieve it from the processor.
-	block, receipts, err := k.stargazer.Finalize(ctx)
+	block, receipts, err := k.polaris.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}

@@ -21,9 +21,9 @@
 package stack_test
 
 import (
-	"pkg.berachain.dev/stargazer/lib/ds"
-	"pkg.berachain.dev/stargazer/lib/ds/stack"
-	typesmock "pkg.berachain.dev/stargazer/lib/types/mock"
+	"pkg.berachain.dev/polaris/lib/ds"
+	"pkg.berachain.dev/polaris/lib/ds/stack"
+	typesmock "pkg.berachain.dev/polaris/lib/types/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

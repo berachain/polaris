@@ -28,7 +28,7 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // `SignMode_SIGN_MODE_ETHEREUM` defines the sign mode for Ethereum transactions.

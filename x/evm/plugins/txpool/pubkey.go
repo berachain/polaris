@@ -21,9 +21,9 @@
 package txpool
 
 import (
-	"pkg.berachain.dev/stargazer/crypto/keys/ethsecp256k1"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/crypto/keys/ethsecp256k1"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 // `PubkeyFromTx` returns the public key of the signer of the transaction.

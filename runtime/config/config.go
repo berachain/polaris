@@ -23,12 +23,12 @@ package config
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/eth/accounts"
+	"pkg.berachain.dev/polaris/eth/accounts"
 )
 
 const (
 	// `Bech32Prefix` defines the Bech32 prefix used for EthAccounts.
-	Bech32Prefix = "stargazer"
+	Bech32Prefix = "polar"
 	// `Bech32PrefixAccAddr` defines the Bech32 prefix of an account's address.
 	Bech32PrefixAccAddr = Bech32Prefix
 	// `Bech32PrefixAccPub` defines the Bech32 prefix of an account's public key.

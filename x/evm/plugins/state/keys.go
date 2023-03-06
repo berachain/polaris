@@ -21,7 +21,7 @@
 package state
 
 import (
-	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
 const (

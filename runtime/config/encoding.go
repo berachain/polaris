@@ -30,8 +30,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	cryptocodec "pkg.berachain.dev/stargazer/crypto/codec"
-	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
+	cryptocodec "pkg.berachain.dev/polaris/crypto/codec"
+	evmante "pkg.berachain.dev/polaris/x/evm/ante"
 )
 
 func MakeEncodingConfig(mb module.BasicManager) params.EncodingConfig {

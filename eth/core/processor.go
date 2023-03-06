@@ -27,12 +27,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/trie"
 
-	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/crypto"
-	"pkg.berachain.dev/stargazer/lib/errors"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/lib/errors"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // `initialTxsCapacity` is the initial capacity of the transactions and receipts slice.

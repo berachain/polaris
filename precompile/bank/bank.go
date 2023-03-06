@@ -24,11 +24,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"pkg.berachain.dev/stargazer/eth/accounts/abi"
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/precompile"
-	"pkg.berachain.dev/stargazer/precompile/contracts/solidity/generated"
-	evmutils "pkg.berachain.dev/stargazer/x/evm/utils"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
+	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
 
 // `Contract` is the precompile contract for the bank module.

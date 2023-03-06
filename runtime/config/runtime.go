@@ -42,7 +42,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmtypes "pkg.berachain.dev/stargazer/x/evm/types"
+	evmtypes "pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // DefaultRuntime represents a standard default runtime configuration.

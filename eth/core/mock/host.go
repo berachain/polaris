@@ -21,7 +21,7 @@
 package mock
 
 import (
-	"pkg.berachain.dev/stargazer/eth/core"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 //go:generate moq -out ./host.mock.go -pkg mock ../ PolarisHostChain

@@ -28,23 +28,23 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/stargazer/eth"
-	"pkg.berachain.dev/stargazer/eth/core"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	ethlog "pkg.berachain.dev/stargazer/eth/log"
-	ethrpcconfig "pkg.berachain.dev/stargazer/eth/rpc/config"
-	"pkg.berachain.dev/stargazer/lib/utils"
-	"pkg.berachain.dev/stargazer/store/offchain"
-	"pkg.berachain.dev/stargazer/x/evm/plugins"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/block"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/configuration"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/gas"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/precompile"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/state"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool"
-	"pkg.berachain.dev/stargazer/x/evm/plugins/txpool/mempool"
-	evmrpc "pkg.berachain.dev/stargazer/x/evm/rpc"
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/eth"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
+	ethrpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
+	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/store/offchain"
+	"pkg.berachain.dev/polaris/x/evm/plugins"
+	"pkg.berachain.dev/polaris/x/evm/plugins/block"
+	"pkg.berachain.dev/polaris/x/evm/plugins/configuration"
+	"pkg.berachain.dev/polaris/x/evm/plugins/gas"
+	"pkg.berachain.dev/polaris/x/evm/plugins/precompile"
+	"pkg.berachain.dev/polaris/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/x/evm/plugins/txpool"
+	"pkg.berachain.dev/polaris/x/evm/plugins/txpool/mempool"
+	evmrpc "pkg.berachain.dev/polaris/x/evm/rpc"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // Compile-time interface assertion.
@@ -52,7 +52,7 @@ var _ core.PolarisHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// `provider` is the struct that houses the Polaris EVM.
-	stargazer *eth.PolarisProvider
+	polaris *eth.PolarisProvider
 	// We store a reference to the `rpcProvider` so that we can register it with
 	// the cosmos mux router.
 	rpcProvider evmrpc.Provider
@@ -72,7 +72,7 @@ type Keeper struct {
 	txp txpool.Plugin
 }
 
-// NewKeeper creates new instances of the stargazer Keeper.
+// NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
@@ -144,7 +144,7 @@ func (k *Keeper) Setup(
 	k.bp.SetQueryContextFn(qc)
 
 	// Build the Polaris EVM Provider
-	k.stargazer = eth.NewPolarisProvider(k, k.rpcProvider, nil)
+	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
 // `GetBlockPlugin` returns the block plugin.

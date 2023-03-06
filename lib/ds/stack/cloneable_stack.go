@@ -21,8 +21,8 @@
 package stack
 
 import (
-	"pkg.berachain.dev/stargazer/lib/ds"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/lib/ds"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 // `cloneableStack` is a struct that holds a slice of CacheEntry instances.

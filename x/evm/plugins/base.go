@@ -23,7 +23,7 @@ package plugins
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // `BaseCosmosPolaris` represents the base class that all x/evm implements of
