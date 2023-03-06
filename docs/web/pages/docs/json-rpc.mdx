@@ -12,7 +12,6 @@ retrieve blockchain data and monitor blockchain events in real-time.
 ## Namespaces
 
 ### `eth` Namespace
-
 `eth` namespace can be found on ethereum.org. Geth provides several extensions to the standard "eth" JSON-RPC namespace that are defined below.
 
 ### `net` Namespace
@@ -23,93 +22,10 @@ The `net` API provides insight about the networking aspect of the client. The `n
 pool containing all the currently pending transactions as well as the ones queued for future processing.
 The `txpool` namespace are defined below.
 
-### `cosmos` Namespace
-The `cosmos` API gives access to several non-standard RPC methods to inspect the contents of
-several [Cosmos SDK Modules](https://docs.cosmos.network/main/building-modules/intro). The `cosmos` namespace defintions are coming soon.
-
-### `comet` Namespace
-The `comet` API gives access to several non-standard RPC methods to inspect the contents of
-the [CometBft Consensus Engine](https://github.com/cometbft/cometbft). The `comet` namespace defintions are coming soon.
-
 ### `debug` Namespace
 The debug API gives you access to several non-standard RPC methods, which will allow you to inspect, debug and set certain debugging flags during runtime.
 The `debug` namespace defintions are coming soon.
 
 ## Methods 
 
-Method | Status | Notes
------- | ------ | -----
-[net_listening] | ✅ |
-[net_peerCount] | ✅ |
-[net_version] | ✅ |
-[txpool_content] | ✅ | Geth extension
-[txpool_inspect] | ✅ | Geth extension
-[txpool_status] | ✅ | Geth extension
-[eth_accounts] | ✅ |
-[eth_blockNumber] | ✅ |
-[eth_call] | ✅ |
-[eth_chainId] | ✅ |
-[eth_coinbase] | ✅ |
-[eth_estimateGas] | ✅ |
-[eth_gasPrice] | ✅ |
-[eth_getBalance] | ✅ |
-[eth_getBlockByHash] | ✅ |
-[eth_getBlockByNumber] | ✅ |
-[eth_getBlockTransactionCountByHash] | ✅ |
-[eth_getBlockTransactionCountByNumber] | ✅ |
-[eth_getCode] | ✅ |
-[eth_getCompilers] | ✅ |
-[eth_getFilterChanges] | ✅ |
-[eth_getFilterLogs] | ✅ |
-[eth_getLogs] | ✅ |
-[eth_getStorageAt] | ✅ |
-[eth_getTransactionByBlockHashAndIndex] | ✅ |
-[eth_getTransactionByBlockNumberAndIndex] | ✅ |
-[eth_getTransactionByHash] | ✅ |
-[eth_getTransactionCount] | ✅ |
-[eth_getTransactionReceipt] | ✅ |
-[eth_getUncleByBlockHashAndIndex] | ✅ |
-[eth_getUncleByBlockNumberAndIndex] | ✅ |
-[eth_getUncleCountByBlockHash] | ✅ |
-[eth_getUncleCountByBlockNumber] | ✅ |
-[eth_newBlockFilter] | ✅ |
-[eth_newFilter] | ✅ |
-[eth_newPendingTransactionFilter] | ✅ |
-
-[net_listening]: https://ethereum.org/en/developers/docs/apis/json-rpc/#net_listening
-[net_peerCount]: https://ethereum.org/en/developers/docs/apis/json-rpc/#net_peercount
-[net_version]: https://ethereum.org/en/developers/docs/apis/json-rpc/#net_version
-[txpool_content]: https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-content
-[txpool_inspect]: https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-inspect
-[txpool_status]: https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool#txpool-status
-[eth_accounts]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_accounts
-[eth_blockNumber]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber
-[eth_call]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call
-[eth_chainId]: https://eips.ethereum.org/EIPS/eip-695
-[eth_coinbase]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_coinbase
-[eth_estimateGas]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_estimategas
-[eth_gasPrice]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gasprice
-[eth_getBalance]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getbalance
-[eth_getBlockByHash]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbyhash
-[eth_getBlockByNumber]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber
-[eth_getBlockTransactionCountByHash]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbyhash
-[eth_getBlockTransactionCountByNumber]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblocktransactioncountbynumber
-[eth_getCode]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode
-[eth_getCompilers]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcompilers
-[eth_getFilterChanges]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterchanges
-[eth_getFilterLogs]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getfilterlogs
-[eth_getLogs]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs
-[eth_getProof]: https://eips.ethereum.org/EIPS/eip-1186
-[eth_getStorageAt]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getstorageat
-[eth_getTransactionByBlockHashAndIndex]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyblockhashandindex
-[eth_getTransactionByBlockNumberAndIndex]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyblocknumberandindex
-[eth_getTransactionByHash]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyhash
-[eth_getTransactionCount]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactioncount
-[eth_getTransactionReceipt]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionreceipt
-[eth_getUncleByBlockHashAndIndex]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getunclebyblockhashandindex
-[eth_getUncleByBlockNumberAndIndex]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getunclebyblocknumberandindex
-[eth_getUncleCountByBlockHash]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getunclecountbyblockhash
-[eth_getUncleCountByBlockNumber]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getunclecountbyblocknumber
-[eth_newBlockFilter]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newblockfilter
-[eth_newFilter]: https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter
-[eth_newPendingTransactionFilter]: https://openethereum.github.io/JSONRPC-eth-module.html#eth_newpendingtransactionfilter
+🚧 Full list of Methods Coming Soon 🚧 

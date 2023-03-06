@@ -21,8 +21,9 @@
 package mage
 
 import (
-	"github.com/magefile/mage/sh"
 	"os"
+
+	"github.com/magefile/mage/sh"
 
 	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
@@ -58,7 +59,7 @@ func StartNoBuild() error {
 	return sh.RunV("./runtime/init.sh")
 }
 
-// Starts a local docs page
+// Starts a local docs page.
 func Docs() error {
 	os.Chdir("docs/web")
 	defer os.Chdir("../..")

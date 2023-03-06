@@ -19,6 +19,12 @@
   "opcodes": "Opcodes",
   "json-rpc": "JSON-RPC",
   "tracing": "EVM Tracing",
+  "-- Polaris on Cosmos --": {
+    "type": "separator",
+    "title": "Polaris on Cosmos"
+  },
+  "json-rpc-cosmos": "JSON-RPC",
+  "precompile-cosmos-overview": "Precompiles",
   "erc20-middleware": "ERC20 Middleware",
   "-- Building --": {
     "type": "separator",
