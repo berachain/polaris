@@ -24,11 +24,11 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/eth/params"
-	"pkg.berachain.dev/stargazer/lib/registry"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/registry"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 // `defaultPlugin` is the default precompile plugin, should any chain running Polaris EVM not

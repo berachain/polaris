@@ -23,7 +23,7 @@ package abi_test
 import (
 	"testing"
 
-	"pkg.berachain.dev/stargazer/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

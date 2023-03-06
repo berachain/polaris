@@ -21,7 +21,7 @@
 package api
 
 import (
-	"pkg.berachain.dev/stargazer/eth/common/hexutil"
+	"pkg.berachain.dev/polaris/eth/common/hexutil"
 )
 
 // `NetBackend` is the collection of methods required to satisfy the net

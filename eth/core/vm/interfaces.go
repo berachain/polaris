@@ -23,8 +23,8 @@ package vm
 import (
 	"context"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	libtypes "pkg.berachain.dev/stargazer/lib/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 type (

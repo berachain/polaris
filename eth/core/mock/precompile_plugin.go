@@ -23,7 +23,7 @@ package mock
 import (
 	"github.com/ethereum/go-ethereum/params"
 
-	"pkg.berachain.dev/stargazer/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 //go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin

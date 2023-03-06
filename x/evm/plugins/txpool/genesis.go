@@ -23,7 +23,7 @@ package txpool
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/stargazer/x/evm/types"
+	"pkg.berachain.dev/polaris/x/evm/types"
 )
 
 // `InitGenesis` is a no-op for the gas plugin.

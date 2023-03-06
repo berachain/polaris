@@ -23,8 +23,8 @@ package mock
 import (
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 //go:generate moq -out ./state.mock.go -pkg mock ../../ Plugin

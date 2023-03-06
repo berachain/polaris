@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"os"
 
-	mi "pkg.berachain.dev/stargazer/build/mage/internal"
+	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (

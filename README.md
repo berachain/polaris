@@ -9,8 +9,8 @@
   <a href="https://codecov.io/gh/berachain/stargazer" > 
     <img src="https://codecov.io/gh/berachain/stargazer/branch/main/graph/badge.svg?token=0DYQAKBGVW"/> 
   </a>
-  <a href="https://pkg.go.dev/pkg.berachain.dev/stargazer">
-    <img src="https://pkg.go.dev/badge/pkg.berachain.dev/stargazer.svg" alt="Go Reference">
+  <a href="https://pkg.go.dev/pkg.berachain.dev/polaris">
+    <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
   </a>
   <a href="https://magefile.org"> 
     <img alt="Built with Mage" src="https://magefile.org/badge.svg" />

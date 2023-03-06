@@ -25,8 +25,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"pkg.berachain.dev/stargazer/eth/core/types"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // `ChainWriter` defines methods that are used to perform state and block transitions.

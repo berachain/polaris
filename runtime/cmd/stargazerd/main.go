@@ -26,9 +26,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	simapp "pkg.berachain.dev/stargazer/runtime"
-	"pkg.berachain.dev/stargazer/runtime/cmd/stargazerd/cmd"
-	"pkg.berachain.dev/stargazer/runtime/config"
+	simapp "pkg.berachain.dev/polaris/runtime"
+	"pkg.berachain.dev/polaris/runtime/cmd/stargazerd/cmd"
+	"pkg.berachain.dev/polaris/runtime/config"
 )
 
 func main() {

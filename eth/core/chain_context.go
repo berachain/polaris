@@ -23,8 +23,8 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/consensus"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // Compile-time interface assertion.

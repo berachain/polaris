@@ -24,8 +24,8 @@ package types
 import (
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	coretypes "pkg.berachain.dev/stargazer/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // NewTx returns a reference to a new Ethereum transaction message.

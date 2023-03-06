@@ -57,9 +57,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"pkg.berachain.dev/stargazer/crypto/keyring"
-	"pkg.berachain.dev/stargazer/runtime"
-	evmante "pkg.berachain.dev/stargazer/x/evm/ante"
+	"pkg.berachain.dev/polaris/crypto/keyring"
+	"pkg.berachain.dev/polaris/runtime"
+	evmante "pkg.berachain.dev/polaris/x/evm/ante"
 )
 
 // encodingConfig := encoding.MakeConfig(app.ModuleBasics)

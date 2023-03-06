@@ -1,4 +1,4 @@
-module pkg.berachain.dev/stargazer
+module pkg.berachain.dev/polaris
 
 go 1.20
 
@@ -18,7 +18,7 @@ require (
 	cosmossdk.io/core v0.6.0
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
-	cosmossdk.io/log v0.0.0-20230305125317-672b052f323b
+	cosmossdk.io/log v0.0.0-20230305202224-89c956f8ed3a
 	cosmossdk.io/math v1.0.0-beta.6.0.20230305125317-672b052f323b
 	cosmossdk.io/simapp v0.0.0-20230305125317-672b052f323b
 	cosmossdk.io/store v0.0.0-20230305125317-672b052f323b

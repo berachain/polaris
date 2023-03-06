@@ -25,7 +25,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/polaris/lib/errors"
 )
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence

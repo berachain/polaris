@@ -25,7 +25,7 @@ import (
 
 	ethereumcorevm "github.com/ethereum/go-ethereum/core/vm"
 
-	"pkg.berachain.dev/stargazer/eth/common"
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
 //go:generate moq -out ./logger.mock.go -pkg mock ../ EVMLogger

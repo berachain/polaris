@@ -23,8 +23,8 @@ package mock
 import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 //go:generate moq -out ./stateful_impl.mock.go -skip-ensure -pkg mock ../ StatefulImpl

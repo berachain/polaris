@@ -23,7 +23,7 @@ package ethsecp256k1
 import (
 	"crypto/ecdsa"
 
-	"pkg.berachain.dev/stargazer/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

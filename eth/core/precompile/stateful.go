@@ -24,11 +24,11 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/stargazer/eth/common"
-	"pkg.berachain.dev/stargazer/eth/core/vm"
-	"pkg.berachain.dev/stargazer/lib/errors"
-	"pkg.berachain.dev/stargazer/lib/errors/debug"
-	"pkg.berachain.dev/stargazer/lib/utils"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/errors"
+	"pkg.berachain.dev/polaris/lib/errors/debug"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.

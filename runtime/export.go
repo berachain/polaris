@@ -35,7 +35,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/stargazer/lib/errors"
+	"pkg.berachain.dev/polaris/lib/errors"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
