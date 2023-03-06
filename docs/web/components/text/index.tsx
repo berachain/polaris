@@ -1,4 +1,5 @@
 import React from "react";
+import styles from './style.module.css'
 import TextTransition, { presets } from "react-text-transition";
 
 const TEXTS = [
@@ -19,12 +20,14 @@ const Text = () => {
     }, []);
 
     return (
-        <h1>
+        
+        <h1 className={styles.subheader}>
             The New Standard of EVM on
             <TextTransition springConfig={presets.wobbly} inline style={{marginLeft: '4px'}}> 
              {TEXTS[index % TEXTS.length]}
             </TextTransition>
         </h1>
+        
     );
 };
 
