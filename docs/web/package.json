@@ -5,7 +5,8 @@
     "dev": "next",
     "start": "next start",
     "build": "next build",
-    "export": "next export"
+    "export": "next export",
+    "deploy": "gh-pages -d out -t true"
   },
   "author": "@DevLobster",
   "license": "MIT",
@@ -25,7 +26,8 @@
     "react-dom": "^18.2.0",
     "react-prism": "^4.3.2",
     "react-spring": "^9.7.1",
-    "react-text-transition": "^3.0.2"
+    "react-text-transition": "^3.0.2",
+    "sharp": "^0.31.3"
   },
   "devDependencies": {
     "@types/node": "18.13.0",
