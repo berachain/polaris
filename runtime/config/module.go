@@ -102,7 +102,7 @@ var (
 		{
 			Name: authtypes.ModuleName,
 			Config: appconfig.WrapAny(&authmodulev1.Module{
-				Bech32Prefix:             "stargazer",
+				Bech32Prefix:             "polaris",
 				ModuleAccountPermissions: ModuleAccPerms,
 				// By default modules authority is the governance module. This is configurable with the following:
 				// Authority: "group", // A custom module authority can be set using a module name

@@ -101,7 +101,7 @@ func DefaultConfig() network.Config {
 		},
 		GenesisState:    runtime.ModuleBasics.DefaultGenesis(encoding.Codec),
 		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
-		ChainID:         "stargazer-2061",
+		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       sdk.DefaultBondDenom,
 		MinGasPrices:    fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),

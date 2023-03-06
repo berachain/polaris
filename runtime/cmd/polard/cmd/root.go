@@ -75,7 +75,7 @@ import (
 // 	WithKeyringOptions(hd.EthSecp256k1Option()).
 // 	WithViper(EnvPrefix)
 
-// NewRootCmd creates a new root command for stargazerd. It is called once in the
+// NewRootCmd creates a new root command for polard. It is called once in the
 // main function.
 func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
@@ -100,7 +100,7 @@ func NewRootCmd() *cobra.Command {
 		WithViper("") // In simapp, we don't use any prefix for env variables.
 
 	rootCmd := &cobra.Command{
-		Use:   "stargazerd",
+		Use:   "polard",
 		Short: "simulation app",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
@@ -215,7 +215,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 }
 
-// genesisCommand builds genesis-related `stargazerd genesis` command. Users may provide application specific commands as a parameter.
+// genesisCommand builds genesis-related `polard genesis` command. Users may provide application specific commands as a parameter.
 func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
 	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, runtime.ModuleBasics, runtime.DefaultNodeHome)
 
@@ -301,7 +301,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var stargazerApp *runtime.PolarisApp
+	var polarisApp *runtime.PolarisApp
 
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
@@ -320,20 +320,20 @@ func appExport(
 	appOpts = viperAppOpts
 
 	if height != -1 {
-		stargazerApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
-		if err := stargazerApp.LoadHeight(height); err != nil {
+		if err := polarisApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		stargazerApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return stargazerApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return polarisApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
 
 var tempDir = func() string {
-	dir, err := os.MkdirTemp("", "stargazerapp")
+	dir, err := os.MkdirTemp("", "polarisApp")
 	if err != nil {
 		dir = runtime.DefaultNodeHome
 	}

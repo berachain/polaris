@@ -52,7 +52,7 @@ var _ core.PolarisHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// `provider` is the struct that houses the Polaris EVM.
-	stargazer *eth.PolarisProvider
+	polaris *eth.PolarisProvider
 	// We store a reference to the `rpcProvider` so that we can register it with
 	// the cosmos mux router.
 	rpcProvider evmrpc.Provider
@@ -72,7 +72,7 @@ type Keeper struct {
 	txp txpool.Plugin
 }
 
-// NewKeeper creates new instances of the stargazer Keeper.
+// NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
@@ -144,7 +144,7 @@ func (k *Keeper) Setup(
 	k.bp.SetQueryContextFn(qc)
 
 	// Build the Polaris EVM Provider
-	k.stargazer = eth.NewPolarisProvider(k, k.rpcProvider, nil)
+	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
 // `GetBlockPlugin` returns the block plugin.

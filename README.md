@@ -6,8 +6,8 @@
 </h1>
 
 <div>
-  <a href="https://codecov.io/gh/berachain/stargazer" > 
-    <img src="https://codecov.io/gh/berachain/stargazer/branch/main/graph/badge.svg?token=0DYQAKBGVW"/> 
+  <a href="https://codecov.io/gh/berachain/polaris" > 
+    <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=0DYQAKBGVW"/> 
   </a>
   <a href="https://pkg.go.dev/pkg.berachain.dev/polaris">
     <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
@@ -28,7 +28,7 @@
 
 ### From Binary
 
-The easiest way to install a Cosmos-SDK Blockchain running Polaris is to download a pre-built binary. You can find the latest binaries on the [releases](https://github.com/stargazer/releases) page.
+The easiest way to install a Cosmos-SDK Blockchain running Polaris is to download a pre-built binary. You can find the latest binaries on the [releases](https://github.com/polaris/releases) page.
 
 ### From Source
 
@@ -65,28 +65,28 @@ Go v1.20+ or higher is required for Polaris
 [Foundry](https://book.getfoundry.sh/getting-started/installation) is required for Polaris
 
 3. Install Foundry:
-
+polaris
    ```sh
    curl -L https://foundry.paradigm.xyz | bash
    ```
 
 **Step 2: Get Polaris source code**
 
-Clone the `stargazer` repo from the [official repo](https://github.com/berachain/stargazer/) and check
+Clone the `polaris` repo from the [official repo](https://github.com/berachain/polaris/) and check
 out the `main` branch for the latest stable release.
 Build the binary.
 
 ```bash
 cd $HOME
-git clone https://github.com/berachain/stargazer
-cd stargazer
+git clone https://github.com/berachain/polaris
+cd polaris
 git checkout main
 go run build/setup.go
 ```
 
 **Step 3: Build the Node Software**
 
-Run the following command to install `stargazerd` to your `GOPATH` and build the node. `stargazerd` is the node daemon and CLI for interacting with a stargazer node.
+Run the following command to install `polard` to your `GOPATH` and build the node. `polard` is the node daemon and CLI for interacting with a polaris node.
 
 ```bash
 mage install
@@ -97,14 +97,14 @@ mage install
 Verify your installation with the following command:
 
 ```bash
-stargazerd version --long
+polard version --long
 ```
 
 A successful installation will return the following:
 
 ```bash
 name: berachain
-server_name: stargazerd
+server_name: polard
 version: <x.x.x>
 commit: <Commit hash>
 build_tags: netgo,ledger

@@ -31,14 +31,14 @@ import (
 func PolarisAppOptions(
 	interfaceRegistry types.InterfaceRegistry, baseAppOptions ...func(*baseapp.BaseApp),
 ) []func(*baseapp.BaseApp) {
-	stargazerAppOptions := baseAppOptions
-	stargazerAppOptions = append(
-		stargazerAppOptions,
+	polarisAppOptions := baseAppOptions
+	polarisAppOptions = append(
+		polarisAppOptions,
 		[]func(bApp *baseapp.BaseApp){
 			func(bApp *baseapp.BaseApp) {
 				cryptocodec.RegisterInterfaces(interfaceRegistry)
 			},
 		}...,
 	)
-	return stargazerAppOptions
+	return polarisAppOptions
 }

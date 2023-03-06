@@ -66,7 +66,7 @@ func All() error {
 }
 
 func BuildPolarisApp() error {
-	cmd := "stargazerd"
+	cmd := "polard"
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
@@ -127,7 +127,7 @@ func Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./runtime/cmd/stargazerd",
+		"./runtime/cmd/polard",
 	}
 
 	return goInstall(args...)

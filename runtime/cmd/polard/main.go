@@ -27,7 +27,7 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
 	simapp "pkg.berachain.dev/polaris/runtime"
-	"pkg.berachain.dev/polaris/runtime/cmd/stargazerd/cmd"
+	"pkg.berachain.dev/polaris/runtime/cmd/polard/cmd"
 	"pkg.berachain.dev/polaris/runtime/config"
 )
 

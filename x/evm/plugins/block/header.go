@@ -65,7 +65,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
 	// Unmarshal the header from the context kv store.
 	bz := ctx.KVStore(p.storekey).Get(SGHeaderKey)
 	if bz == nil {
-		return nil, errors.New("GetHeader: stargazer header not found in kvstore")
+		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
 	header, err := unmarshalHeader(bz)
 	if err != nil {

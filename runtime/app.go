@@ -177,7 +177,7 @@ type PolarisApp struct {
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-	// stargazer keepers
+	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
 
 	// simulation manager
@@ -191,7 +191,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".stargazerapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
 }
 
 // NewPolarisApp returns a reference to an initialized PolarisApp.
@@ -454,7 +454,7 @@ func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.AP
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	// Register Ethereum JSON-RPC API as needed by stargazer.
+	// Register Ethereum JSON-RPC API as needed by polaris.
 	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }
 

@@ -50,7 +50,7 @@ type Plugin interface {
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 }
 
-// `plugin` keeps track of stargazer blocks via headers.
+// `plugin` keeps track of polaris blocks via headers.
 type plugin struct {
 	// `ctx` is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context

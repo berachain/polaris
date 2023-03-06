@@ -30,7 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	simapp "pkg.berachain.dev/polaris/runtime"
-	"pkg.berachain.dev/polaris/runtime/cmd/stargazerd/cmd"
+	"pkg.berachain.dev/polaris/runtime/cmd/polard/cmd"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -38,7 +38,7 @@ import (
 
 func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "runtime/cmd/stargazerd/cmd:integration")
+	RunSpecs(t, "runtime/cmd/polard/cmd:integration")
 }
 
 var _ = Describe("Init command", func() {

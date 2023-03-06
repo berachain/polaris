@@ -126,7 +126,7 @@ func (p *plugin) Run(
 	ret, err := pc.Run(
 		ctx.WithGasMeter(gm),
 		// TODO: Re-enable gas config for precompiles.
-		// https://github.com/berachain/stargazer/issues/393
+		// https://github.com/berachain/polaris/issues/393
 		// WithKVGasConfig(p.kvGasConfig).
 		// WithTransientKVGasConfig(p.transientKVGasConfig),
 		input,
