@@ -61,9 +61,7 @@ export default {
             </>
         )
     },
-    editLink: {
-        text: 'Edit this page on GitHub →'
-    },
+    editLink: false,
     feedback: false,
     sidebar: {
         titleComponent({ title, type }) {

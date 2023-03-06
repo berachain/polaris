@@ -1,7 +1,0 @@
-{
-    "keyring" : "Setting up the Keyring",
-    "relayer": "Configuring an IBC Relayer",
-    "node-configuration": "Configuring a Node",
-    "chain-configuration": "Configuring a Chain",
-    "cosmovisor": "Configuring Cosmovisor"
-}

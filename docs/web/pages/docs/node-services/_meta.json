@@ -1,6 +1,0 @@
-{
-    "json-rpc": "JSON RPC Service",
-    "indexer": "Indexer Service",
-    "graphql": "GraphQL Service",
-    "faucet": "Faucet Service"
-}
