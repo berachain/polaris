@@ -2,19 +2,27 @@
 
 Welcome to Polaris Ethereum, a modular framework for injecting a Go-Ethereum (geth) EVM into any 
 underlying consensus layer. This folder's directory structure closely resembles that of geth, as it
-is meant to be a thin wrapper around the existing geth codebase. 
+is meant to be a thin wrapper around the existing geth codebase. The following architecture diagram
+shows how Polaris 
+ 
+![polaris_architecture]![polaris_hld](https://user-images.githubusercontent.com/113940816/223544358-32a3ef87-8251-47e3-8812-b7dff3faa425.png)
 
-[insert image here]
 
 ## api
 
-`api` includes the Chain API that Polaris Ethereum exports.
+`api` includes the public Chain API that Polaris Ethereum exports.
  
 ## core
 
 `core` includes the Polaris Core logic that runs the EVM: process blocks, transactions, and state
-transitions.
+transitions. This encapsulates **State Processor** and **Embedded Host Chain** in the architecture
+diagram.
 
 ## rpc
 
-`rpc` includes rpc service that can be injected into the host chain's JSON-RPC server.
+`rpc` includes rpc service that can be injected into the host chain's JSON-RPC server. This 
+encapsulates **RPC Backend** in the architecture diagram. 
+
+## [provider.go](https://github.com/berachain/polaris/blob/main/eth/provider.go) 
+
+The `PolarisProvider` can be exported and used by the host chain.
