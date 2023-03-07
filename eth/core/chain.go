@@ -35,16 +35,13 @@ import (
 // By default we are storing up to 64mb of historical data for each cache.
 const defaultCacheSizeBytes = 1024 * 1024 * 64
 
-// `ChainReaderWriter` is the interface that wraps the basic methods of the EVM chain.
-type ChainReaderWriter interface {
-	ChainWriter
-	ChainReader
-	ChainSubscriber
-	ChainResources
-}
-
-// Compile-time check to ensure that `blockchain` implements the `ChainReaderWriter` interface.
-var _ ChainReaderWriter = (*blockchain)(nil)
+// Compile-time check to ensure that `blockchain` implements the `Chain` api.
+var (
+	_ ChainWriter     = (*blockchain)(nil)
+	_ ChainReader     = (*blockchain)(nil)
+	_ ChainSubscriber = (*blockchain)(nil)
+	_ ChainResources  = (*blockchain)(nil)
+)
 
 // `blockchain` is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {

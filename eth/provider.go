@@ -27,6 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
+// `PolarisProvider` is the only object that an implementing chain should use.
 type PolarisProvider struct {
 	api.Chain
 	rps rpc.Service

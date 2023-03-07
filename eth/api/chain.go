@@ -24,8 +24,11 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
-// `Chain` defines the methods that the Polaris Ethereum API exposes. This is the only interface
-// that an implementing chain should use.
+// `Chain` defines the methods that the Polaris Ethereum API exposes. These sub-interfaces define
+// the basic methods of a EVM chain.
 type Chain interface {
-	core.ChainReaderWriter
+	core.ChainWriter
+	core.ChainReader
+	core.ChainSubscriber
+	core.ChainResources
 }

@@ -93,8 +93,8 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (s *store) Snapshot() int {
-	var cms mapMultiStore
-	if cms = s.journal.Peek(); cms == nil {
+	cms := s.journal.Peek()
+	if cms == nil {
 		// use root if the journal is empty
 		cms = s.root
 	}
