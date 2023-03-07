@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package utils
+package lib
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"

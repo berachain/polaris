@@ -24,9 +24,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
-	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -44,7 +44,7 @@ func NewPrecompileContract() coreprecompile.StatefulImpl {
 	}
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			contractAbi, evmutils.AccAddressToEthAddress(
+			contractAbi, cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(distributiontypes.ModuleName))),
 	}
 }

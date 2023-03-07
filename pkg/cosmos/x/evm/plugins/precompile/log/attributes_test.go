@@ -28,7 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/utils"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	libutils "pkg.berachain.dev/polaris/lib/utils"
 
@@ -62,7 +62,7 @@ var _ = Describe("Attributes", func() {
 			gethValue, err = ConvertValAddressFromBech32(valAddr.String())
 			Expect(err).ToNot(HaveOccurred())
 			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
-			Expect(valAddrVal).To(Equal(utils.ValAddressToEthAddress(valAddr)))
+			Expect(valAddrVal).To(Equal(cosmlib.ValAddressToEthAddress(valAddr)))
 		})
 
 		It("should correctly convert AccAddress to common.Address", func() {

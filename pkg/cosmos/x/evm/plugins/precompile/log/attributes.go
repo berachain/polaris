@@ -29,7 +29,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/utils"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -102,7 +102,7 @@ func ConvertValAddressFromBech32(attributeValue string) (any, error) {
 		return nil, err
 	}
 	// convert the sdk.ValAddress to common.Address
-	return utils.ValAddressToEthAddress(valAddress), nil
+	return cosmlib.ValAddressToEthAddress(valAddress), nil
 }
 
 // `ConvertAccAddressFromBech32` converts a bech32 string representing an account address to a
@@ -116,7 +116,7 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 		return nil, err
 	}
 	// convert the sdk.AccAddress to common.Address
-	return utils.AccAddressToEthAddress(accAddress), nil
+	return cosmlib.AccAddressToEthAddress(accAddress), nil
 }
 
 // `ConvertInt64` converts a creation height (from the Cosmos SDK staking module) `string`

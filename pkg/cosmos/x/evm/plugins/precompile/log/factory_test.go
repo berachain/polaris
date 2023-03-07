@@ -26,7 +26,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	utils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -211,7 +211,7 @@ var _ = Describe("Factory", func() {
 				if err2 != nil {
 					return nil, err
 				}
-				return utils.ValAddressToEthAddress(valAddress), nil
+				return cosmlib.ValAddressToEthAddress(valAddress), nil
 			}
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
@@ -284,7 +284,7 @@ var cvd = precompile.ValueDecoders{
 		if err != nil {
 			return nil, err
 		}
-		return utils.ValAddressToEthAddress(valAddress), nil
+		return cosmlib.ValAddressToEthAddress(valAddress), nil
 	},
 	"custom_amount": func(val string) (any, error) {
 		coin, err := sdk.ParseCoinNormalized(val)

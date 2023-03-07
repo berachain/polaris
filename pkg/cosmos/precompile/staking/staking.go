@@ -29,9 +29,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
-	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -54,7 +54,7 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) coreprecompile.StatefulImpl
 	}
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			contractAbi, evmutils.AccAddressToEthAddress(
+			contractAbi, cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(stakingtypes.ModuleName))),
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
 		querier:   stakingkeeper.Querier{Keeper: sk},
@@ -145,7 +145,7 @@ func (c *Contract) GetDelegationAddrInput(
 	}
 
 	return c.getDelegationHelper(
-		ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val),
+		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
 	)
 }
 
@@ -195,7 +195,7 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 	}
 
 	return c.getUnbondingDelegationHelper(
-		ctx, evmutils.AddressToAccAddress(del), evmutils.AddressToValAddress(val),
+		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
 	)
 }
 
@@ -250,9 +250,9 @@ func (c *Contract) GetRedelegationsAddrInput(
 
 	return c.getRedelegationsHelper(
 		ctx,
-		evmutils.AddressToAccAddress(del),
-		evmutils.AddressToValAddress(srcVal),
-		evmutils.AddressToValAddress(dstVal),
+		cosmlib.AddressToAccAddress(del),
+		cosmlib.AddressToValAddress(srcVal),
+		cosmlib.AddressToValAddress(dstVal),
 	)
 }
 
@@ -309,7 +309,7 @@ func (c *Contract) DelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.delegateHelper(ctx, caller, amount, evmutils.AddressToValAddress(val))
+	return nil, c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
 // `DelegateStringInput` implements the `delegate(string,uint256)` method.
@@ -354,7 +354,7 @@ func (c *Contract) UndelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.undelegateHelper(ctx, caller, amount, evmutils.AddressToValAddress(val))
+	return nil, c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
 // `UndelegateStringInput` implements the `undelegate(string,uint256)` method.
@@ -407,8 +407,8 @@ func (c *Contract) BeginRedelegateAddrInput(
 		ctx,
 		caller,
 		amount,
-		evmutils.AddressToValAddress(srcVal),
-		evmutils.AddressToValAddress(dstVal),
+		cosmlib.AddressToValAddress(srcVal),
+		cosmlib.AddressToValAddress(dstVal),
 	)
 }
 
@@ -466,7 +466,7 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 		return nil, precompile.ErrInvalidInt64
 	}
 
-	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, evmutils.AddressToValAddress(val), creationHeight)
+	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
 }
 
 // `CancelRedelegateStringInput` implements the `cancelRedelegate(string,string,uint256,int64)` method.

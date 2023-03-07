@@ -28,7 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/address"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
-	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -90,7 +90,7 @@ var _ = Describe("Address Precompile", func() {
 				common.BytesToAddress([]byte("test")),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res[0]).To(Equal(evmutils.AddressToAccAddress(common.BytesToAddress([]byte("test")))))
+			Expect(res[0]).To(Equal(cosmlib.AddressToAccAddress(common.BytesToAddress([]byte("test")))))
 		})
 	})
 	When("Calling ConvertBech32ToHexAddress", func() {
@@ -124,7 +124,7 @@ var _ = Describe("Address Precompile", func() {
 				common.Address{},
 				big.NewInt(0),
 				false,
-				evmutils.AddressToAccAddress(common.BytesToAddress([]byte("test"))).String(),
+				cosmlib.AddressToAccAddress(common.BytesToAddress([]byte("test"))).String(),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res[0]).To(Equal(common.BytesToAddress([]byte("test"))))

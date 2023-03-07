@@ -18,23 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package utils
+package lib_test
 
 import (
-	"testing"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/common"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
-func TestAddress(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/utils")
-}
 
 var _ = Describe("Address", func() {
 	It("should return the correct address", func() {
@@ -42,16 +37,16 @@ var _ = Describe("Address", func() {
 		bech32 := "cosmos1ekxyevx8lyazka9nu532r3a7xklpl0rnjrc2a9"
 		acc, err := sdk.AccAddressFromBech32(bech32)
 		Expect(err).NotTo(HaveOccurred())
-		addr2 := AccAddressToEthAddress(acc)
+		addr2 := cosmlib.AccAddressToEthAddress(acc)
 		Expect(addr.String()).To(Equal(addr2.String()))
-		valAddr1 := ValAddressToEthAddress(sdk.ValAddress(acc))
+		valAddr1 := cosmlib.ValAddressToEthAddress(sdk.ValAddress(acc))
 		Expect(addr.String()).To(Equal(valAddr1.String()))
 
-		ethAddr := AddressToAccAddress(addr)
+		ethAddr := cosmlib.AddressToAccAddress(addr)
 		bech322 := sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), ethAddr.Bytes())
 		Expect(bech322).To(Equal(bech32))
 
-		ethAddr2 := AddressToValAddress(addr)
+		ethAddr2 := cosmlib.AddressToValAddress(addr)
 		bech3222 := sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32ValidatorAddrPrefix(), ethAddr2.Bytes())
 		Expect(bech3222).To(Equal("cosmosvaloper1ekxyevx8lyazka9nu532r3a7xklpl0rnhhvl3k"))
 

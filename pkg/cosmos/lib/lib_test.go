@@ -18,33 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank
+package lib_test
 
 import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"testing"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// `Contract` is the precompile contract for the bank module.
-type Contract struct {
-	precompile.BaseContract
-}
-
-// `NewPrecompileContract` returns a new instance of the bank precompile contract.
-func NewPrecompileContract() coreprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.BankModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
-	return &Contract{
-		BaseContract: precompile.NewBaseContract(
-			contractAbi, cosmlib.AccAddressToEthAddress(
-				authtypes.NewModuleAddress(banktypes.ModuleName))),
-	}
+func TestAddress(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "lib")
 }
