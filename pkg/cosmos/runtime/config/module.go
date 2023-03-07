@@ -67,8 +67,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmmodulev1alpha1 "pkg.berachain.dev/polaris/api/polaris/evm/module/v1alpha1"
-	evmtypes "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
+	evmmodulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 var (

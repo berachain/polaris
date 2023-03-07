@@ -90,20 +90,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	addressprecompile "pkg.berachain.dev/polaris/cosmos/precompile/address"
+	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
+	"pkg.berachain.dev/polaris/cosmos/precompile/distribution"
+	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
+	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	"pkg.berachain.dev/polaris/cosmos/x/evm"
+	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
+	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	evmrpc "pkg.berachain.dev/polaris/cosmos/x/evm/rpc"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
-	addressprecompile "pkg.berachain.dev/polaris/pkg/cosmos/precompile/address"
-	bankprecompile "pkg.berachain.dev/polaris/pkg/cosmos/precompile/bank"
-	"pkg.berachain.dev/polaris/pkg/cosmos/precompile/distribution"
-	stakingprecompile "pkg.berachain.dev/polaris/pkg/cosmos/precompile/staking"
-	simappconfig "pkg.berachain.dev/polaris/pkg/cosmos/runtime/config"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm"
-	evmante "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/ante"
-	evmkeeper "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/txpool/mempool"
-	evmrpc "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/rpc"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 

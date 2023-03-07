@@ -23,7 +23,7 @@ package precompile
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}

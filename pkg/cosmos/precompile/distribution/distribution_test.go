@@ -26,10 +26,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	"pkg.berachain.dev/polaris/cosmos/precompile/distribution"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
-	"pkg.berachain.dev/polaris/pkg/cosmos/precompile/distribution"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/precompile/log"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

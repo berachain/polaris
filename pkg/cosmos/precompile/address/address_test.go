@@ -25,13 +25,13 @@ import (
 	"math/big"
 	"testing"
 
+	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/precompile/address"
+	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
+	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
-	"pkg.berachain.dev/polaris/pkg/cosmos/precompile"
-	"pkg.berachain.dev/polaris/pkg/cosmos/precompile/address"
-	"pkg.berachain.dev/polaris/pkg/cosmos/precompile/contracts/solidity/generated"
-	evmutils "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

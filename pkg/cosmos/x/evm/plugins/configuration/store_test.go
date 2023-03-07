@@ -25,10 +25,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/params"
 	enclib "pkg.berachain.dev/polaris/lib/encoding"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
-	testutil "pkg.berachain.dev/polaris/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

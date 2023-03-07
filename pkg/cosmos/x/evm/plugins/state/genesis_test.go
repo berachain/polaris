@@ -23,11 +23,11 @@ package state_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
-	testutil "pkg.berachain.dev/polaris/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

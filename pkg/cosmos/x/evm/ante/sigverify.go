@@ -29,7 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"pkg.berachain.dev/polaris/pkg/cosmos/crypto/keys/ethsecp256k1"
+	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 )
 
 const (

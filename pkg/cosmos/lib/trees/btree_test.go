@@ -26,7 +26,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
-	"pkg.berachain.dev/polaris/pkg/cosmos/lib/trees"
+	"pkg.berachain.dev/polaris/cosmos/lib/trees"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

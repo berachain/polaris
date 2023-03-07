@@ -5,10 +5,16 @@ go 1.20
 // Required for supporting stateful precompiled contracts.
 replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
 
+replace pkg.berachain.dev/polaris => ../
+
+replace pkg.berachain.dev/polaris/lib => ../lib
+
 require (
 	github.com/ethereum/go-ethereum v1.11.2
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.2
+	pkg.berachain.dev/polaris/lib v0.0.0-00010101000000-000000000000
+
 )
 
 require (
@@ -72,7 +78,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect

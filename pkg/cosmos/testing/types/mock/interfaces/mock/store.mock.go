@@ -7,7 +7,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-db"
 	"io"
-	"pkg.berachain.dev/polaris/testing/types/mock/interfaces"
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces"
 	"sync"
 )
 

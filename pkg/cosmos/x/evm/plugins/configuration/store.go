@@ -21,7 +21,7 @@
 package configuration
 
 import (
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 // `GetParams` is used to get the params for the evm module.

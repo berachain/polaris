@@ -36,10 +36,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	ethhd "pkg.berachain.dev/polaris/pkg/cosmos/crypto/hd"
-	ethkeyring "pkg.berachain.dev/polaris/pkg/cosmos/crypto/keyring"
-	runtime "pkg.berachain.dev/polaris/pkg/cosmos/runtime"
-	config "pkg.berachain.dev/polaris/pkg/cosmos/runtime/config"
+	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
+	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
+	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
+	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
 )
 
 type (

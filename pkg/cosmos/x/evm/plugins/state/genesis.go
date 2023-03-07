@@ -23,8 +23,8 @@ package state
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
 )
 
 // `InitGenesis` takes in a pointer to a genesis state object and populates the KV store.

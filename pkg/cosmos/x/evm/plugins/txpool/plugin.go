@@ -26,12 +26,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/rpc"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
-	mempool "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/rpc"
 )
 
 // `Plugin` represents the transaction pool plugin.

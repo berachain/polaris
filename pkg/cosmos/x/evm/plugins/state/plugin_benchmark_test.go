@@ -24,10 +24,10 @@ import (
 	"math/big"
 	"testing"
 
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/state"
-	testutil "pkg.berachain.dev/polaris/testing/utils"
 )
 
 var (

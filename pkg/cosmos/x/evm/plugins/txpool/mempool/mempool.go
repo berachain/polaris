@@ -26,10 +26,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
 )
 
 // `EthTxPool` is a mempool for Ethereum transactions. It wraps a

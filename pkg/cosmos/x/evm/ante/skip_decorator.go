@@ -23,8 +23,8 @@ package ante
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/lib/utils"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
 )
 
 // `EthSkipDecorator` is an AnteDecorator that wraps an existing AnteDecorator. It allows

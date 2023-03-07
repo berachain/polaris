@@ -30,9 +30,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	modulev1alpha1 "pkg.berachain.dev/polaris/api/polaris/evm/module/v1alpha1"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/keeper"
+	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.

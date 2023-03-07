@@ -26,13 +26,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	utils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/precompile/mock"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
-	utils "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

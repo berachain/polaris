@@ -28,9 +28,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins"
 )
 
 // `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.

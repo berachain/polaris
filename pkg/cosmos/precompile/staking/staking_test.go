@@ -33,13 +33,13 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
-	"pkg.berachain.dev/polaris/pkg/cosmos/precompile"
-	"pkg.berachain.dev/polaris/pkg/cosmos/precompile/contracts/solidity/generated"
-	evmutils "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/utils"
-	testutil "pkg.berachain.dev/polaris/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -29,11 +29,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
 )
 
 var paramsPrefix = []byte("params")

@@ -23,7 +23,7 @@ package configuration
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 // `InitGenesis` performs genesis initialization for the evm module. It returns

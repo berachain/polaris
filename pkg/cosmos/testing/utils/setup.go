@@ -40,8 +40,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/testing/types/mock"
 )
 
 var (
