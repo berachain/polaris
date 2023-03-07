@@ -30,7 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	cryptocodec "pkg.berachain.dev/polaris/crypto/codec"
+	cryptocodec "pkg.berachain.dev/polaris/pkg/cosmos/crypto/codec"
 	evmante "pkg.berachain.dev/polaris/x/evm/ante"
 )
 
