@@ -1,10 +1,8 @@
 <h1 align="center"> Polaris ❄️🔭 </h1>
 
-<a href="https://berachain.com">
-  <img src="./docs/web/public/bear_banner.png" width="100%">
-</a>
-<h1 class="center">
-</h1>
+![](./docs/web/public/bear_banner.png)
+
+*The project is still work in progress, see the [disclaimer below](#-warning-under-construction-).*
 
 <div>
   <a href="https://codecov.io/gh/berachain/polaris" > 
@@ -97,3 +95,6 @@ mage test
 
 This project is work in progress and subject to frequent changes as we are still working on wiring up the final system.
 It has not been audited for security purposes and should not be used in production yet.
+
+The network will have an Ethereum JSON-RPC server running at `http://localhost:1317/eth/rpc` and a Tendermint RPC server running at `http://localhost:26657`.
+
