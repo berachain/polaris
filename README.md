@@ -1,9 +1,9 @@
+# <h1 align="center"> Polaris ❄️🔭 </h1>
+
 <a href="https://berachain.com">
   <img src="./docs/web/public/bear_banner.png" width="100%">
 </a>
 
-Polaris ❄️🔭
-============================
 <div>
   <a href="https://codecov.io/gh/berachain/polaris" > 
     <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=5SYYGUS8GW"/> 
