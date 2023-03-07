@@ -46,18 +46,19 @@ import (
 )
 
 func main() {
-    client, err := ethclient.Dial("<JSON_RPC_ENDPOINT>")
+    rpcEndpoint := "http://localhost:1317/eth/rpc" // default local node RPC Endpoint
+    client, err := ethclient.Dial(rpcEndpoint)
     if err != nil {
         log.Fatal(err)
     }
 
-    header, err := client.HeaderByNumber(nil, nil)
+    header, err := client.HeaderByNumber(context.Background(), nil)
     if err != nil {
         log.Fatal(err)
     }
 
-    blockNumber := header.Number.ToString()
-    fmt.Println(header.Number.String()) // 5671744
+    blockNumber := header.Number.String()
+    fmt.Println(blockNumber) // 5671744
 }
 ```
 
