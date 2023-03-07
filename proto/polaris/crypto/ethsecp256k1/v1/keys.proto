@@ -22,7 +22,7 @@ syntax = "proto3";
 
 package polaris.crypto.ethsecp256k1.v1;
 
-option go_package = "pkg.berachain.dev/polaris/crypto/keys/ethsecp256k1";
+option go_package = "pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1";
 
 // `PubKey` defines a type alias for an `ecdsa.PublicKey` that implements
 // CometBFT's `PubKey` interface. It represents the 33-byte compressed public

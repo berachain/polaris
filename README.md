@@ -20,26 +20,40 @@
 </div>
 &nbsp;
 
-Polaris introduces the new standard of intergrating EVM into your blockchain project. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
+# Welcome to Polaris
 
-Polaris VM is a blockchain framework built on top of the Cosmos SDK that offers a full-featured EVM with full interoperability to the Cosmos ecosystem. It achieves this through the use of various Stateful Precompiles built into the chain that act as gateways to the greater Cosmos framework. This allows EVM users to perform Cosmos native operations such as voting on governance, delegating to validators, and even communicating with other chains through IBC. This design allows us to maintain the native EVM user experience without sacrifices, providing true interoperability between the Cosmos ecosystem and EVM.
+Polaris introduces the new standard for EVM integrations. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations. 
 
-## 🚧 WARNING: UNDER CONSTRUCTION 🚧
+This meant that we had to built Polaris with serveral core principles in mind:
 
-This project is work in progress and subject to frequent changes as we are still working on wiring up the final system.
-It has not been audited for security purposes and should not be used in production yet.
+1. **Modular**: Every component is built out as a distinct, logical package, with thorough testing, documentation, and benchmarking. The goal is for developers to use these components as individual pieces and combine them creatively to integrate an EVM environment into almost any application.
+2. **Configurabile**: We want as many different application frameworks, consensus engines and teams using Polaris as possible. In order to support a wide variety of use cases, Polaris has to be highly configurable.
+3. **Performant**: Polaris must be able to perform at the highest level to remain competitive in today's fast-paced and demanding crypto space.
+4. **Contributor Friendly**: Depsite currently being BUSL-1.1 licensed, the goal for Polaris is to attract high quality contributors in order to build adoption.
+6. **Have Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp.
 
-## Installation
+# Repository Layout
 
-### From Binary
+> Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into sections to help reduce cognitive overhead.
 
-The easiest way to install a Cosmos-SDK Blockchain running Polaris is to download a pre-built binary. You can find the latest binaries on the [releases](https://github.com/polaris/releases) page.
+    .
+    ├── build                   # Build scripts and utils
+    ├── docs                    # Documentation files
+    ├── eth                     # The core Polaris VM implementation
+    ├── lib                     # Library files usable throughout the repo
+    ├── pkg                     
+    │   └── cosmos              # A Cosmos-SDK integration of Polaris.
+    │         ├── ....
+    │         ├── ....
+    │         └── x/evm         # Cosmos-SDK `x/evm` module
+    ├── testutil                # Various testing utilities
+    ├── LICENSE                 # Licensing information
+    └── README.md               # This README
 
-### From Source
 
-**Step 1: Install Golang & Foundry**
+## Build & Test
 
-Go v1.20+ or higher is required for Polaris
+[Golang 1.20+](https://go.dev/doc/install) and [Foundry](https://book.getfoundry.sh/getting-started/installation) are required for Polaris.
 
 1. Install [Go 1.20+ from the official site](https://go.dev/dl/) or the method of your choice. Ensure that your `GOPATH` and `GOBIN` environment variables are properly set up by using the following commands:
 
@@ -59,26 +73,13 @@ Go v1.20+ or higher is required for Polaris
    brew install go
    export PATH=$PATH:/opt/homebrew/bin/go
    export PATH=$PATH:$(go env GOPATH)/bin
-   ```
 
-2. Confirm your Go installation by checking the version:
-
-   ```sh
-   go version
-   ```
-
-[Foundry](https://book.getfoundry.sh/getting-started/installation) is required for Polaris
-
-3. Install Foundry:
+2. Install Foundry:
    ```sh
    curl -L https://foundry.paradigm.xyz | bash
    ```
 
-**Step 2: Get Polaris source code**
-
-Clone the `polaris` repo from the [official repo](https://github.com/berachain/polaris/) and check
-out the `main` branch for the latest stable release.
-Build the binary.
+3. Clone, Setup and Test:
 
 ```bash
 cd $HOME
@@ -86,40 +87,14 @@ git clone https://github.com/berachain/polaris
 cd polaris
 git checkout main
 go run build/setup.go
+mage test
 ```
 
-**Step 3: Build the Node Software**
 
-Run the following command to install `polard` to your `GOPATH` and build the node. `polard` is the node daemon and CLI for interacting with a polaris node.
+## 🚧 WARNING: UNDER CONSTRUCTION 🚧
 
-```bash
-mage install
-```
-
-**Step 4: Verify your installation**
-
-Verify your installation with the following command:
-
-```bash
-polard version --long
-```
-
-A successful installation will return the following:
-
-```bash
-name: berachain
-server_name: polard
-version: <x.x.x>
-commit: <Commit hash>
-build_tags: netgo,ledger
-go: go version go1.20.4 darwin/amd64
-```
-
-## Running a Local Network
-
-After ensuring dependecies are installed correctly, run the following command to start a local development network.
-```bash
-mage start
-```
+This project is work in progress and subject to frequent changes as we are still working on wiring up the final system.
+It has not been audited for security purposes and should not be used in production yet.
 
 The network will have an Ethereum JSON-RPC server running at `http://localhost:1317/eth/rpc` and a Tendermint RPC server running at `http://localhost:26657`.
+
