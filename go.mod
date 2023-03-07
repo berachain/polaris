@@ -2,6 +2,7 @@ module pkg.berachain.dev/polaris
 
 go 1.20
 
+
 // Required for supporting stateful precompiled contracts.
 replace (
 	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230305125317-672b052f323b
@@ -10,6 +11,7 @@ replace (
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+	pkg.berachain.dev/polaris/eth => ./eth
 )
 
 require (
@@ -37,7 +39,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.6
 	github.com/cosmos/gosec/v2 v2.0.0-20221105100203-f3d05e8e9019
-	github.com/ethereum/go-ethereum v1.11.1
+	github.com/ethereum/go-ethereum v1.11.2
 	github.com/golang/protobuf v1.5.2
 	github.com/golangci/golangci-lint v1.51.2
 	github.com/google/addlicense v1.1.1
@@ -56,6 +58,7 @@ require (
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.2-0.20230222093303-bc1253ad3743
+	pkg.berachain.dev/polaris/eth v0.0.0
 )
 
 require (
@@ -300,6 +303,7 @@ require (
 	github.com/nishanths/predeclared v0.2.2 // indirect
 	github.com/nunnatsa/ginkgolinter v0.8.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
