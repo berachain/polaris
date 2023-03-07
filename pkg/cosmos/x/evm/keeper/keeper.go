@@ -34,6 +34,7 @@ import (
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	ethrpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
 	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/pkg/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/configuration"
@@ -44,7 +45,6 @@ import (
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/rpc"
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/store/offchain"
 )
 
 // Compile-time interface assertion.

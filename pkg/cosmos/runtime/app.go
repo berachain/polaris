@@ -96,12 +96,12 @@ import (
 	bankprecompile "pkg.berachain.dev/polaris/pkg/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/pkg/cosmos/precompile/distribution"
 	stakingprecompile "pkg.berachain.dev/polaris/pkg/cosmos/precompile/staking"
+	simappconfig "pkg.berachain.dev/polaris/pkg/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/txpool/mempool"
 	evmrpc "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/rpc"
-	simappconfig "pkg.berachain.dev/polaris/runtime/config"
 
 	_ "embed"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects

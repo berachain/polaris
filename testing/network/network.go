@@ -38,8 +38,8 @@ import (
 
 	ethhd "pkg.berachain.dev/polaris/pkg/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/pkg/cosmos/crypto/keyring"
-	runtime "pkg.berachain.dev/polaris/runtime"
-	config "pkg.berachain.dev/polaris/runtime/config"
+	runtime "pkg.berachain.dev/polaris/pkg/cosmos/runtime"
+	config "pkg.berachain.dev/polaris/pkg/cosmos/runtime/config"
 )
 
 type (

@@ -27,7 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/accounts"
-	sgconfig "pkg.berachain.dev/polaris/runtime/config"
+	sgconfig "pkg.berachain.dev/polaris/pkg/cosmos/runtime/config"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

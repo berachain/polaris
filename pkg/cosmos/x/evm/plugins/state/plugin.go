@@ -35,10 +35,10 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 	"pkg.berachain.dev/polaris/lib/snapshot"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/pkg/cosmos/store/snapmulti"
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/state/events"
 	types "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/store/snapmulti"
 )
 
 const pluginRegistryKey = `statePlugin`
