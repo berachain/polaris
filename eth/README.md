@@ -3,10 +3,9 @@
 Welcome to Polaris Ethereum, a modular framework for injecting a Go-Ethereum (geth) EVM into any 
 underlying consensus layer. This folder's directory structure closely resembles that of geth, as it
 is meant to be a thin wrapper around the existing geth codebase. The following architecture diagram
-shows how Polaris 
- 
-![polaris_architecture]![polaris_hld](https://user-images.githubusercontent.com/113940816/223544358-32a3ef87-8251-47e3-8812-b7dff3faa425.png)
+shows how Polaris Ethereum integrates into the application level of a host chain.
 
+![polaris_hld (1)](https://user-images.githubusercontent.com/113940816/223547650-0cb7c3ae-ac40-4281-bbf6-849a5b86d6f8.jpeg)
 
 ## api
 
