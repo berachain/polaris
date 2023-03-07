@@ -25,6 +25,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/golang/mock/gomock"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -393,5 +394,82 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
 		})
+
+		When("Voting Weight", func() {
+			It("should fail if the proposal ID is of invalid type", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					evmutils.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					"invalid",
+					[]generated.IGovernanceModuleWeightedVoteOption{},
+					"metadata",
+				)
+				Expect(err).To(MatchError(polarisprecompile.ErrInvalidBigInt))
+				Expect(res).To(BeNil())
+			})
+			It("should fail if the vote option is of invalid type", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					evmutils.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					big.NewInt(1),
+					12,
+					"metadata",
+				)
+				Expect(err).To(MatchError(polarisprecompile.ErrInvalidOptions))
+				Expect(res).To(BeNil())
+			})
+			It("should fail if the metadata is of invalid type", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					evmutils.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					big.NewInt(1),
+					[]generated.IGovernanceModuleWeightedVoteOption{},
+					123,
+				)
+				Expect(err).To(MatchError(polarisprecompile.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+			It("should fail if the proposal does not exist", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					evmutils.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					big.NewInt(100),
+					[]generated.IGovernanceModuleWeightedVoteOption{},
+					"metadata",
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+			It("should succeed", func() {
+				weight, err := math.LegacyNewDecFromStr("0.4")
+				Expect(err).ToNot(HaveOccurred())
+				options := []generated.IGovernanceModuleWeightedVoteOption{
+					{
+						VoteOption: int32(1),
+						Weight:     weight.String(),
+					},
+				}
+				res, err := contract.VoteWeighted(
+					ctx,
+					evmutils.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					big.NewInt(1),
+					options,
+					"metadata",
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
+		})
 	})
+
 })

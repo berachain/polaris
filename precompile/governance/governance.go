@@ -98,7 +98,7 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 		},
 		{
 			AbiSig:  "voteWeighted(uint256,[]tuple,string)",
-			Execute: c.VoteWeight,
+			Execute: c.VoteWeighted,
 		},
 	}
 }
@@ -185,7 +185,7 @@ func (c *Contract) Vote(
 }
 
 // `VoteWeighted` is the method for the `voteWeighted` method of the governance precompile contract.
-func (c *Contract) VoteWeight(
+func (c *Contract) VoteWeighted(
 	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
