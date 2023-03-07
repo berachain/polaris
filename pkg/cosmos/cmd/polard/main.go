@@ -26,8 +26,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
+	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"
 	simapp "pkg.berachain.dev/polaris/cosmos/runtime"
-	"pkg.berachain.dev/polaris/cosmos/runtime/cmd/polard/cmd"
 	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 )
 
