@@ -68,10 +68,12 @@ type plugin struct {
 // `NewPlugin` creates and returns a `plugin` with the default kv gas configs.
 func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 	return &plugin{
-		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
-		precompiles:          precompiles,
-		kvGasConfig:          storetypes.KVGasConfig(),
-		transientKVGasConfig: storetypes.TransientGasConfig(),
+		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
+		precompiles: precompiles,
+		// TODO: Re-enable gas config for precompiles.
+		// https://github.com/berachain/polaris/issues/393
+		kvGasConfig:          storetypes.GasConfig{},
+		transientKVGasConfig: storetypes.GasConfig{},
 		plf:                  log.NewFactory(precompiles),
 	}
 }
@@ -124,11 +126,9 @@ func (p *plugin) Run(
 
 	// run precompile container
 	ret, err := pc.Run(
-		ctx.WithGasMeter(gm),
-		// TODO: Re-enable gas config for precompiles.
-		// https://github.com/berachain/polaris/issues/393
-		// WithKVGasConfig(p.kvGasConfig).
-		// WithTransientKVGasConfig(p.transientKVGasConfig),
+		ctx.WithGasMeter(gm).
+			WithKVGasConfig(p.kvGasConfig).
+			WithTransientKVGasConfig(p.transientKVGasConfig),
 		input,
 		caller,
 		value,
