@@ -19,6 +19,7 @@ Polaris ❄️🔭
   </a>
 </div>
 &nbsp;
+
 > Polaris introduces the new standard for EVM integrations. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
 
 
