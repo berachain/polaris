@@ -21,8 +21,6 @@
 package ds
 
 import (
-	dbm "github.com/cosmos/cosmos-db"
-
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -60,25 +58,4 @@ type CloneableStack[T libtypes.Cloneable[T]] interface {
 
 	// `CloneableStack` implements `Cloneable`.
 	libtypes.Cloneable[CloneableStack[T]]
-}
-
-// `BTree` is an interface that defines the methods a binary tree must implement.
-type BTree interface {
-	// `Set` sets the key to value.
-	Set(key, value []byte)
-
-	// `Get` gets the value at key.
-	Get(key []byte) []byte
-
-	// `Delete` deletes key.
-	Delete(key []byte)
-
-	// `Iterator` returns an iterator between start and end.
-	Iterator(start, end []byte) (dbm.Iterator, error)
-
-	// `ReverseIterator` returns a reverse iterator between start and end.
-	ReverseIterator(start, end []byte) (dbm.Iterator, error)
-
-	// `Copy` returns a shallow copy of BTree.
-	Copy() BTree
 }

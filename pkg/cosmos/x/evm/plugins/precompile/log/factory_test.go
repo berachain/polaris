@@ -1,0 +1,325 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
+package log
+
+import (
+	"errors"
+	"strconv"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/precompile/mock"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/crypto"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Factory", func() {
+	var f *Factory
+	var valAddr sdk.ValAddress
+	var delAddr sdk.AccAddress
+	var amt sdk.Coin
+	var creationHeight int64
+	var pc *mock.StatefulImplMock
+
+	BeforeEach(func() {
+		valAddr = sdk.ValAddress([]byte("alice"))
+		delAddr = sdk.AccAddress([]byte("bob"))
+		creationHeight = int64(10)
+		amt = sdk.NewCoin("denom", sdk.NewInt(10))
+		pc = mock.NewStatefulImpl()
+
+		Expect(func() {
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x02})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+		}).ToNot(Panic())
+		Expect(func() {
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x01})
+			}
+			pc.ABIEventsFunc = func() map[string]abi.Event {
+				return map[string]abi.Event{
+					"CancelUnbondingDelegation": mockDefaultAbiEvent(),
+				}
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+		}).ToNot(Panic())
+	})
+
+	When("building Eth logs", func() {
+		It("should not build for an unregistered event", func() {
+			event := sdk.NewEvent("unbonding_delegation")
+			log, err := f.Build(&event)
+			Expect(err.Error()).To(Equal("no Ethereum event was registered for this Cosmos event"))
+			Expect(log).To(BeNil())
+		})
+
+		It("should error on invalid attributes", func() {
+			event := sdk.NewEvent(
+				"cancel_unbonding_delegation",
+				sdk.NewAttribute("validator", valAddr.String()),
+			)
+			log, err := f.Build(&event)
+			Expect(err.Error()).To(Equal("not enough event attributes provided"))
+			Expect(log).To(BeNil())
+		})
+
+		It("should correctly build a log for valid event", func() {
+			event := sdk.NewEvent(
+				"cancel_unbonding_delegation",
+				sdk.NewAttribute("validator", valAddr.String()),
+				sdk.NewAttribute("amount", amt.String()),
+				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
+				sdk.NewAttribute("delegator", delAddr.String()),
+			)
+			log, err := f.Build(&event)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(log).ToNot(BeNil())
+			Expect(log.Address).To(Equal(common.BytesToAddress([]byte{0x01})))
+			Expect(log.Topics).To(HaveLen(3))
+			Expect(log.Topics[0]).To(Equal(
+				crypto.Keccak256Hash(
+					[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
+				),
+			))
+			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
+			Expect(log.Topics[2]).To(Equal(common.BytesToHash(delAddr.Bytes())))
+			packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().Pack(
+				amt.Amount.BigInt(), creationHeight,
+			)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(log.Data).To(Equal(packedData))
+		})
+
+		It("should correctly build a log for valid event with custom decoder", func() {
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x02})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+
+			event := sdk.NewEvent(
+				"custom_unbonding_delegation",
+				sdk.NewAttribute("custom_validator", valAddr.String()),
+				sdk.NewAttribute("custom_amount", amt.String()),
+			)
+			log, err := f.Build(&event)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(log).ToNot(BeNil())
+			Expect(log.Address).To(Equal(common.BytesToAddress([]byte{0x02})))
+			Expect(log.Topics).To(HaveLen(2))
+			Expect(log.Topics[0]).To(Equal(
+				crypto.Keccak256Hash(
+					[]byte("CustomUnbondingDelegation(address,uint256)"),
+				),
+			))
+			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
+			packedData, err := mockCustomAbiEvent()["CustomUnbondingDelegation"].
+				Inputs.NonIndexed().Pack(amt.Amount.BigInt())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(log.Data).To(Equal(packedData))
+		})
+	})
+
+	When("building invalid Cosmos events", func() {
+		It("should not find the custom value decoder", func() {
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x02})
+			}
+			pc.ABIEventsFunc = mockBadAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+
+			event := sdk.NewEvent(
+				"custom_unbonding_delegation",
+				sdk.NewAttribute("custom_validator", valAddr.String()),
+				sdk.NewAttribute("custom_amount", amt.String()),
+				sdk.NewAttribute("invalid_arg", amt.String()),
+			)
+			log, err := f.Build(&event)
+			Expect(log).To(BeNil())
+			Expect(err.Error()).To(Equal("invalid_arg: no value decoder function is found for event attribute key"))
+		})
+
+		It("should error on decoders returning errors", func() {
+			badCvd := make(precompile.ValueDecoders)
+			badCvd["custom_amount"] = func(val string) (any, error) {
+				coin, err := sdk.ParseCoinNormalized(val)
+				if err != nil {
+					return nil, err
+				}
+				return coin.Amount.BigInt(), nil
+			}
+			badCvd["custom_validator"] = func(val string) (any, error) {
+				return nil, errors.New("invalid validator address")
+			}
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x03})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return badCvd
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			event := sdk.NewEvent(
+				"custom_unbonding_delegation",
+				sdk.NewAttribute("custom_validator", valAddr.String()),
+				sdk.NewAttribute("custom_amount", amt.String()),
+			)
+			log, err := f.Build(&event)
+			Expect(log).To(BeNil())
+			Expect(err.Error()).To(Equal("invalid validator address"))
+
+			badCvd = make(precompile.ValueDecoders)
+			badCvd["custom_validator"] = func(val string) (any, error) {
+				valAddress, err2 := sdk.ValAddressFromBech32(val)
+				if err2 != nil {
+					return nil, err
+				}
+				return cosmlib.ValAddressToEthAddress(valAddress), nil
+			}
+			badCvd["custom_amount"] = func(val string) (any, error) {
+				return nil, errors.New("invalid amount")
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			log, err = f.Build(&event)
+			Expect(log).To(BeNil())
+			Expect(err.Error()).To(Equal("invalid amount"))
+		})
+
+		It("should not find attribute key", func() {
+			pc.RegistryKeyFunc = func() common.Address {
+				return common.BytesToAddress([]byte{0x03})
+			}
+			pc.ABIEventsFunc = mockCustomAbiEvent
+			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
+				return cvd
+			}
+			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			event := sdk.NewEvent(
+				"custom_unbonding_delegation",
+				sdk.NewAttribute("custom_validator", valAddr.String()),
+				sdk.NewAttribute("custom_amount_bad", amt.String()),
+			)
+			log, err := f.Build(&event)
+			Expect(log).To(BeNil())
+			Expect(err.Error()).To(Equal("customAmount: this Ethereum event argument has no matching Cosmos attribute key"))
+
+			event = sdk.NewEvent(
+				"custom_unbonding_delegation",
+				sdk.NewAttribute("custom_validator_bad", valAddr.String()),
+				sdk.NewAttribute("custom_amount", amt.String()),
+			)
+			log, err = f.Build(&event)
+			Expect(log).To(BeNil())
+			Expect(err.Error()).To(Equal("customValidator: this Ethereum event argument has no matching Cosmos attribute key"))
+		})
+	})
+})
+
+// MOCKS BELOW.
+
+func mockCustomAbiEvent() map[string]abi.Event {
+	addrType, _ := abi.NewType("address", "address", nil)
+	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
+	return map[string]abi.Event{
+		"CustomUnbondingDelegation": abi.NewEvent(
+			"CustomUnbondingDelegation",
+			"CustomUnbondingDelegation",
+			false,
+			abi.Arguments{
+				{
+					Name:    "customValidator",
+					Type:    addrType,
+					Indexed: true,
+				},
+				{
+					Name:    "customAmount",
+					Type:    uint256Type,
+					Indexed: false,
+				},
+			},
+		),
+	}
+}
+
+var cvd = precompile.ValueDecoders{
+	"custom_validator": func(val string) (any, error) {
+		valAddress, err := sdk.ValAddressFromBech32(val)
+		if err != nil {
+			return nil, err
+		}
+		return cosmlib.ValAddressToEthAddress(valAddress), nil
+	},
+	"custom_amount": func(val string) (any, error) {
+		coin, err := sdk.ParseCoinNormalized(val)
+		if err != nil {
+			return nil, err
+		}
+		return coin.Amount.BigInt(), nil
+	},
+}
+
+func mockBadAbiEvent() map[string]abi.Event {
+	addrType, _ := abi.NewType("address", "address", nil)
+	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
+	return map[string]abi.Event{
+		"CustomUnbondingDelegation": abi.NewEvent(
+			"CustomUnbondingDelegation",
+			"CustomUnbondingDelegation",
+			false,
+			abi.Arguments{
+				{
+					Name:    "customValidator",
+					Type:    addrType,
+					Indexed: true,
+				},
+				{
+					Name:    "customAmount",
+					Type:    uint256Type,
+					Indexed: false,
+				},
+				{
+					Name:    "invalidArg",
+					Type:    uint256Type,
+					Indexed: false,
+				},
+			},
+		),
+	}
+}

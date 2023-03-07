@@ -23,7 +23,7 @@ package polaris.evm.v1alpha1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "pkg.berachain.dev/polaris/x/evm/types";
+option go_package = "pkg.berachain.dev/polaris/cosmos/x/evm/types";
 
 // `Params` defines the parameters for the x/evm module.
 message Params {
