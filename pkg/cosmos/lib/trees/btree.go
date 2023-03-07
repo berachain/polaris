@@ -26,8 +26,6 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/tidwall/btree"
-
-	"pkg.berachain.dev/polaris/lib/ds"
 )
 
 const (
@@ -37,6 +35,27 @@ const (
 )
 
 var ErrKeyEmpty = errors.New("key cannot be empty")
+
+// `BTree` is an interface that defines the methods a binary tree must implement.
+type BTree interface {
+	// `Set` sets the key to value.
+	Set(key, value []byte)
+
+	// `Get` gets the value at key.
+	Get(key []byte) []byte
+
+	// `Delete` deletes key.
+	Delete(key []byte)
+
+	// `Iterator` returns an iterator between start and end.
+	Iterator(start, end []byte) (dbm.Iterator, error)
+
+	// `ReverseIterator` returns a reverse iterator between start and end.
+	ReverseIterator(start, end []byte) (dbm.Iterator, error)
+
+	// `Copy` returns a shallow copy of BTree.
+	Copy() BTree
+}
 
 // bTree implements the sorted cache for cachekv store,
 // we don't use MemDB here because cachekv is used extensively in sdk core path,
@@ -48,7 +67,7 @@ type bTree struct {
 }
 
 // NewBTree creates a wrapper around `btree.BTreeG`.
-func NewBTree() ds.BTree {
+func NewBTree() BTree {
 	return &bTree{
 		tree: btree.NewBTreeGOptions(byKeys, btree.Options{
 			Degree:  bTreeDegree,
@@ -91,7 +110,7 @@ func (bt *bTree) ReverseIterator(start, end []byte) (dbm.Iterator, error) {
 
 // Copy the tree. This is a copy-on-write operation and is very fast because
 // it only performs a shadowed copy.
-func (bt *bTree) Copy() ds.BTree {
+func (bt *bTree) Copy() BTree {
 	return &bTree{
 		tree: bt.tree.Copy(),
 	}

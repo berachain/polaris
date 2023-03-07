@@ -20,19 +20,19 @@
 
 pragma solidity ^0.8.4;
 
-import "forge-std/Script.sol";
-import "./LiquidStaking.sol";
-import "../staking.sol";
+// import "forge-std/Script.sol";
+// import "./LiquidStaking.sol";
+// import "../staking.sol";
 
-contract Deploy is Script {
-    LiquidStaking public staking;
-    address immutable precompile =
-        address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
-    address public validator = address(0x12); // @dev : Change this to the validator running.
+// contract Deploy is Script {
+//     LiquidStaking public staking;
+//     address immutable precompile =
+//         address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
+//     address public validator = address(0x12); // @dev : Change this to the validator running.
 
-    function run() public {
-        vm.startBroadcast();
-        staking = new LiquidStaking("name", "SYMB", precompile, validator);
-        vm.stopBroadcast();
-    }
-}
+//     function run() public {
+//         vm.startBroadcast();
+//         staking = new LiquidStaking("name", "SYMB", precompile, validator);
+//         vm.stopBroadcast();
+//     }
+// }

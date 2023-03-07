@@ -2,7 +2,6 @@ module pkg.berachain.dev/polaris
 
 go 1.20
 
-
 // Required for supporting stateful precompiled contracts.
 replace (
 	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230305125317-672b052f323b
@@ -12,6 +11,7 @@ replace (
 	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	pkg.berachain.dev/polaris/eth => ./eth
+	pkg.berachain.dev/polaris/lib => ./lib
 )
 
 require (
@@ -59,6 +59,7 @@ require (
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.2-0.20230222093303-bc1253ad3743
 	pkg.berachain.dev/polaris/eth v0.0.0
+	pkg.berachain.dev/polaris/lib v0.0.0
 )
 
 require (
