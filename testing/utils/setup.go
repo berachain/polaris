@@ -86,6 +86,7 @@ func SetupMinimalKeepers() (
 			stakingtypes.BondedPoolName:    {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			"evm":                          {authtypes.Minter, authtypes.Burner},
 			"staking":                      {authtypes.Minter, authtypes.Burner},
+			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 		},
 		"bera",
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
