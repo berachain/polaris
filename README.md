@@ -1,10 +1,8 @@
-# <h1 align="center"> Polaris ❄️🔭 </h1>
+<h1 align="center"> Polaris ❄️🔭 </h1>
 
-<a href="https://berachain.com">
-  <img src="./docs/web/public/bear_banner.png" width="100%">
-</a>
-<h1 class="center">
-</h1>
+![](./docs/web/public/bear_banner.png)
+
+*The project is still work in progress, see the [disclaimer below](#-warning-under-construction-).*
 
 <div>
   <a href="https://codecov.io/gh/berachain/polaris" > 
