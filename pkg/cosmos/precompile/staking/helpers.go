@@ -28,7 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
@@ -120,7 +120,7 @@ func (c *Contract) delegateHelper(
 	}
 
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
-		evmutils.AddressToAccAddress(caller),
+		cosmlib.AddressToAccAddress(caller),
 		validatorAddress,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
@@ -140,7 +140,7 @@ func (c *Contract) undelegateHelper(
 	}
 
 	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
-		evmutils.AddressToAccAddress(caller),
+		cosmlib.AddressToAccAddress(caller),
 		val,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
@@ -163,7 +163,7 @@ func (c *Contract) beginRedelegateHelper(
 	_, err = c.msgServer.BeginRedelegate(
 		ctx,
 		stakingtypes.NewMsgBeginRedelegate(
-			evmutils.AddressToAccAddress(caller),
+			cosmlib.AddressToAccAddress(caller),
 			srcVal,
 			dstVal,
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
@@ -189,7 +189,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 	_, err = c.msgServer.CancelUnbondingDelegation(
 		ctx,
 		stakingtypes.NewMsgCancelUnbondingDelegation(
-			evmutils.AddressToAccAddress(caller),
+			cosmlib.AddressToAccAddress(caller),
 			val,
 			creationHeight,
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
@@ -214,7 +214,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		if err != nil {
 			return nil, err
 		}
-		addrs = append(addrs, evmutils.ValAddressToEthAddress(valAddr))
+		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
 
 	return []any{addrs}, nil

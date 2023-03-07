@@ -33,10 +33,10 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -125,7 +125,7 @@ var _ = Describe("Staking", func() {
 		BeforeEach(func() {
 			delegates, validators := createValAddrs(2)
 			del, val, otherVal = delegates[0], validators[0], validators[1]
-			caller = evmutils.AccAddressToEthAddress(del)
+			caller = cosmlib.AccAddressToEthAddress(del)
 
 			amount, ok := new(big.Int).SetString("22000000000000000000", 10) // 22 tokens.
 			Expect(ok).To(BeTrue())
@@ -174,7 +174,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					"amount",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
@@ -202,7 +202,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					amountToDelegate,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -283,7 +283,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					"0x", evmutils.ValAddressToEthAddress(val),
+					"0x", cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
 				Expect(res).To(BeNil())
@@ -295,7 +295,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.AccAddressToEthAddress(del), "0x",
+					cosmlib.AccAddressToEthAddress(del), "0x",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
 				Expect(res).To(BeNil())
@@ -307,7 +307,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.AccAddressToEthAddress(del), evmutils.ValAddressToEthAddress(val),
+					cosmlib.AccAddressToEthAddress(del), cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
@@ -396,7 +396,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					"amount",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
@@ -409,7 +409,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					big.NewInt(1),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -477,7 +477,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(0),
 					false,
 					10,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					big.NewInt(1),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
@@ -490,7 +490,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					10,
 					big.NewInt(1),
 				)
@@ -504,8 +504,8 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					"amount",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
@@ -518,8 +518,8 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
-					evmutils.ValAddressToEthAddress(otherVal),
+					cosmlib.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(otherVal),
 					big.NewInt(1),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -618,7 +618,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					"evmutils.ValAddressToEthAddress(val)",
+					"cosmlib.ValAddressToEthAddress(val)",
 					big.NewInt(1),
 					int64(1),
 				)
@@ -632,7 +632,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					"amount",
 					int64(1),
 				)
@@ -646,7 +646,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					big.NewInt(1),
 					"height",
 				)
@@ -665,7 +665,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -675,7 +675,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					amount,
 					creationHeight,
 				)
@@ -751,7 +751,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -777,7 +777,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(0),
 					true,
 					caller,
-					"evmutils.ValAddressToEthAddress(val)",
+					"cosmlib.ValAddressToEthAddress(val)",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
 				Expect(res).To(BeNil())
@@ -792,7 +792,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -803,7 +803,7 @@ var _ = Describe("Staking", func() {
 					big.NewInt(0),
 					true,
 					caller,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).ToNot(BeNil())
@@ -844,7 +844,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					false,
-					evmutils.ValAddressToEthAddress(val),
+					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -854,7 +854,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.AddressToAccAddress(caller).String(),
+					cosmlib.AddressToAccAddress(caller).String(),
 					val.String(),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -870,8 +870,8 @@ var _ = Describe("Staking", func() {
 					big.NewInt(0),
 					true,
 					caller,
-					"evmutils.ValAddressToEthAddress(val)",
-					evmutils.ValAddressToEthAddress(val),
+					"cosmlib.ValAddressToEthAddress(val)",
+					cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
 				Expect(res).To(BeNil())
@@ -883,8 +883,8 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.ValAddressToEthAddress(val),
-					"evmutils.ValAddressToEthAddress(val)",
+					cosmlib.ValAddressToEthAddress(val),
+					"cosmlib.ValAddressToEthAddress(val)",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
 				Expect(res).To(BeNil())
@@ -924,7 +924,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.AddressToAccAddress(caller).String(),
+					cosmlib.AddressToAccAddress(caller).String(),
 					"0x",
 					otherVal.String(),
 				)
@@ -938,7 +938,7 @@ var _ = Describe("Staking", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					evmutils.AddressToAccAddress(caller).String(),
+					cosmlib.AddressToAccAddress(caller).String(),
 					val.String(),
 					"0x",
 				)
@@ -995,7 +995,7 @@ var _ = Describe("Staking", func() {
 					It("should fail if there is no unbonding delegation", func() {
 						_, err := contract.getUnbondingDelegationHelper(
 							ctx,
-							evmutils.AddressToAccAddress(caller),
+							cosmlib.AddressToAccAddress(caller),
 							otherVal,
 						)
 						Expect(err).To(HaveOccurred())
@@ -1010,14 +1010,14 @@ var _ = Describe("Staking", func() {
 							caller,
 							big.NewInt(0),
 							false,
-							evmutils.ValAddressToEthAddress(val),
+							cosmlib.ValAddressToEthAddress(val),
 							amount,
 						)
 						Expect(err).ToNot(HaveOccurred())
 
 						_, err = contract.getUnbondingDelegationHelper(
 							ctx,
-							evmutils.AddressToAccAddress(caller),
+							cosmlib.AddressToAccAddress(caller),
 							val,
 						)
 						Expect(err).ToNot(HaveOccurred())
@@ -1038,7 +1038,7 @@ var _ = Describe("Staking", func() {
 					It("should fail if there is no redelegation", func() {
 						_, err := contract.getRedelegationsHelper(
 							ctx,
-							evmutils.AddressToAccAddress(caller),
+							cosmlib.AddressToAccAddress(caller),
 							val,
 							otherVal,
 						)
@@ -1055,8 +1055,8 @@ var _ = Describe("Staking", func() {
 							caller,
 							big.NewInt(0),
 							false,
-							evmutils.ValAddressToEthAddress(val),
-							evmutils.ValAddressToEthAddress(otherVal),
+							cosmlib.ValAddressToEthAddress(val),
+							cosmlib.ValAddressToEthAddress(otherVal),
 							amount,
 						)
 						Expect(err).ToNot(HaveOccurred())
@@ -1076,7 +1076,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				addrs := utils.MustGetAs[[]common.Address](res[0])
-				Expect(addrs[0]).To(Equal(evmutils.ValAddressToEthAddress(val)))
+				Expect(addrs[0]).To(Equal(cosmlib.ValAddressToEthAddress(val)))
 			})
 		})
 	})

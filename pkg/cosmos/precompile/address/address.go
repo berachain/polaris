@@ -26,9 +26,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
-	evmutils "pkg.berachain.dev/polaris/cosmos/x/evm/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -82,7 +82,7 @@ func (c *Contract) ConvertHexToBech32(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	return []any{evmutils.AddressToAccAddress(addr)}, nil
+	return []any{cosmlib.AddressToAccAddress(addr)}, nil
 }
 
 // `ConvertBech32ToHexAddress` converts a bech32 string to a common.Address.
@@ -101,5 +101,5 @@ func (c *Contract) ConvertBech32ToHexAddress(
 	if err != nil {
 		return nil, err
 	}
-	return []any{evmutils.AccAddressToEthAddress(accAddr)}, nil
+	return []any{cosmlib.AccAddressToEthAddress(accAddr)}, nil
 }
