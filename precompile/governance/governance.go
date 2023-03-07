@@ -93,10 +93,6 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 			Execute: c.CancelProposal,
 		},
 		{
-			AbiSig:  "execLegacyContent(bytes,string)",
-			Execute: c.ExecLegacyContent,
-		},
-		{
 			AbiSig:  "vote(uint256,int32,string)",
 			Execute: c.Vote,
 		},
@@ -161,26 +157,6 @@ func (c *Contract) CancelProposal(
 	proposer := sdk.AccAddress(caller.Bytes())
 
 	return c.cancelProposalHelper(ctx, proposer, id)
-}
-
-// `ExecLegacyContent` is the method for the `execLegacyContent` method of the governance precompile contract.
-func (c *Contract) ExecLegacyContent(
-	ctx context.Context,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
-	args ...any,
-) ([]any, error) {
-	content, ok := utils.GetAs[*codectypes.Any](args[0])
-	if !ok {
-		return nil, polarisprecompile.ErrInvalidAny
-	}
-	authority, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, polarisprecompile.ErrInvalidString
-	}
-
-	return c.execLegacyContentHelper(ctx, content, authority)
 }
 
 // `Vote` is the method for the `vote` method of the governance precompile contract.

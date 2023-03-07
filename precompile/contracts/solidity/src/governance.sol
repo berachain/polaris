@@ -35,11 +35,6 @@ interface IGovernanceModule {
         uint256 proposalId
     ) external returns (uint256, uint256, uint256);
 
-    function execLegacyContent(
-        bytes calldata content,
-        string calldata authority
-    ) external;
-
     function vote(
         uint256 proposalId,
         int32 option,

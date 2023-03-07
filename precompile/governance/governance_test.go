@@ -275,4 +275,123 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(res).ToNot(BeNil())
 		})
 	})
+
+	When("Canceling a proposal", func() {
+		It("should fail if the proposal ID is invalid", func() {
+			res, err := contract.CancelProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				"invalid",
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidBigInt))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if the proposal does not exist", func() {
+			res, err := contract.CancelProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				big.NewInt(1),
+			)
+			Expect(err).To(HaveOccurred())
+			Expect(res).To(BeNil())
+		})
+		It("should succeed", func() {
+			gk.SetProposal(ctx, v1.Proposal{
+				Id:       1,
+				Proposer: caller.String(),
+				Messages: []*codectypes.Any{},
+				Status:   v1.StatusVotingPeriod,
+			})
+			res, err := contract.CancelProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				big.NewInt(1),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).ToNot(BeNil())
+		})
+
+	})
+
+	When("Voting on a proposal", func() {
+		BeforeEach(func() {
+			gk.SetProposal(ctx, v1.Proposal{
+				Id:       1,
+				Proposer: caller.String(),
+				Messages: []*codectypes.Any{},
+				Status:   v1.StatusVotingPeriod,
+			})
+		})
+		It("should fail if the proposal ID is of invalid type", func() {
+			res, err := contract.Vote(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				"invalid",
+				int32(1),
+				"metadata",
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidBigInt))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if the vote option is of invalid type", func() {
+			res, err := contract.Vote(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				big.NewInt(1),
+				"invalid",
+				"metadata",
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidInt32))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if the metadata is of invalid type", func() {
+			res, err := contract.Vote(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				big.NewInt(1),
+				int32(1),
+				123,
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidString))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if the proposal does not exist", func() {
+			res, err := contract.Vote(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				big.NewInt(100),
+				int32(1),
+				"metadata",
+			)
+			Expect(err).To(HaveOccurred())
+			Expect(res).To(BeNil())
+		})
+		It("should succeed", func() {
+			res, err := contract.Vote(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				big.NewInt(1),
+				int32(1),
+				"metadata",
+			)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).ToNot(BeNil())
+		})
+	})
 })
