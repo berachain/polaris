@@ -1,5 +1,3 @@
-# <h1 align="center"> Polaris ❄️🔭 </h1>
-
 <a href="https://berachain.com">
   <img src="./docs/web/public/bear_banner.png" width="100%">
 </a>
@@ -22,15 +20,14 @@
 </div>
 &nbsp;
 
-Polaris introduces the new standard of intergrating EVM into your blockchain project. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
+Polaris ❄️🔭
+============================
+> Polaris introduces the new standard for EVM integrations. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
 
 
 ## Repository Layout
-============================
 
-> Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into sections, with the goal of reducing cognitive overhead.
-
-### Polaris
+> Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into sections to help reduce cognitive overhead.
 
     .
     ├── build                   # Build scripts and utils
