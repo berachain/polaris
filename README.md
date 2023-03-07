@@ -1,8 +1,9 @@
 <a href="https://berachain.com">
   <img src="./docs/web/public/bear_banner.png" width="100%">
 </a>
-<h1 class="center">
-</h1>
+Polaris ❄️🔭
+============================
+> Polaris introduces the new standard for EVM integrations. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
 
 <div>
   <a href="https://codecov.io/gh/berachain/polaris" > 
@@ -20,9 +21,6 @@
 </div>
 &nbsp;
 
-Polaris ❄️🔭
-============================
-> Polaris introduces the new standard for EVM integrations. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations.
 
 
 ## Repository Layout
