@@ -127,7 +127,7 @@ func Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./runtime/cmd/polard",
+		"./pkg/cosmos/cmd/polard",
 	}
 
 	return goInstall(args...)
