@@ -29,15 +29,11 @@ interface IGovernanceModule {
         string calldata title,
         string calldata summary,
         bool expedited
-    ) external returns (uint256);
+    ) external returns (uint64);
 
-    function cancelProposal(uint256 proposalId)
-        external
-        returns (
-            uint256,
-            uint256,
-            uint256
-        );
+    function cancelProposal(
+        uint256 proposalId
+    ) external returns (uint256, uint256, uint256);
 
     function execLegacyContent(
         bytes calldata content,
