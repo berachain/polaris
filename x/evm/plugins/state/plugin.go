@@ -35,6 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 	"pkg.berachain.dev/polaris/lib/snapshot"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
+	polarisstore "pkg.berachain.dev/polaris/store"
 	"pkg.berachain.dev/polaris/store/snapmulti"
 	"pkg.berachain.dev/polaris/x/evm/plugins"
 	"pkg.berachain.dev/polaris/x/evm/plugins/state/events"
@@ -91,7 +92,7 @@ type plugin struct {
 	ctx sdk.Context
 
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
-	cms ControllableMultiStore
+	cms polarisstore.ControllableMulti
 
 	// Store a reference to the precompile plugin, which has a precompile log factory that builds
 	// Eth logs from Cosmos events

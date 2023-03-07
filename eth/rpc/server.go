@@ -51,10 +51,9 @@ type service struct {
 // `New` returns a new `Service` object.
 func NewService(cfg *config.Server) Service {
 	return &service{
-		backend: nil,
-		config:  cfg,
-		http:    NewServer(),
-		ws:      NewServer(),
+		config: cfg,
+		http:   NewServer(),
+		ws:     NewServer(),
 	}
 }
 

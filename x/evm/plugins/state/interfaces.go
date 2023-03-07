@@ -21,8 +21,6 @@
 package state
 
 import (
-	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	libtypes "pkg.berachain.dev/polaris/lib/types"
@@ -40,16 +38,6 @@ type ControllableEventManager interface {
 	BeginPrecompileExecution(events.LogsDB)
 	// `EndPrecompileExecution` ends a precompile execution by resetting the logs DB to nil.
 	EndPrecompileExecution()
-}
-
-// `ControllableMultiStore` defines a cache MultiStore that is controllable (snapshottable and
-// registrable). It also supports getting the committed KV store from the MultiStore.
-type ControllableMultiStore interface {
-	libtypes.Controllable[string]
-	storetypes.MultiStore
-
-	// `GetCommittedKVStore` returns the committed KV store from the MultiStore.
-	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
 }
 
 // `AccountKeeper` defines the expected account keeper.

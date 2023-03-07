@@ -27,6 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	"pkg.berachain.dev/polaris/lib/utils"
+	polarisstore "pkg.berachain.dev/polaris/store"
 )
 
 const (
@@ -52,7 +53,7 @@ type store struct {
 }
 
 // `NewStoreFrom` creates and returns a new `store` from a given Multistore `ms`.
-func NewStoreFrom(ms storetypes.MultiStore) *store { //nolint:revive // its okay.
+func NewStoreFrom(ms storetypes.MultiStore) polarisstore.ControllableMulti {
 	return &store{
 		MultiStore: ms,
 		root:       make(mapMultiStore),
@@ -75,8 +76,8 @@ func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore 
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
 func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
-	var cms mapMultiStore
-	if cms = s.journal.Peek(); cms == nil {
+	cms := s.journal.Peek()
+	if cms == nil {
 		// use root if the journal is empty
 		cms = s.root
 	}
@@ -93,8 +94,8 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 
 // `Snapshot` implements `libtypes.Snapshottable`.
 func (s *store) Snapshot() int {
-	var cms mapMultiStore
-	if cms = s.journal.Peek(); cms == nil {
+	cms := s.journal.Peek()
+	if cms == nil {
 		// use root if the journal is empty
 		cms = s.root
 	}

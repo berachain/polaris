@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	dbm "github.com/cosmos/cosmos-db"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	sdkcachekv "cosmossdk.io/store/cachekv"
 	sdkcachemulti "cosmossdk.io/store/cachemulti"
@@ -66,7 +67,7 @@ var _ = Describe("Snapmulti Store", func() {
 		)
 		accStoreParent = ms.GetKVStore(accStoreKey)
 		evmStoreParent = ms.GetKVStore(evmStoreKey)
-		cms = NewStoreFrom(ms)
+		cms = utils.MustGetAs[*store](NewStoreFrom(ms))
 		accStoreCache = cms.GetKVStore(accStoreKey)
 		evmStoreCache = cms.GetKVStore(evmStoreKey)
 	})
