@@ -40,7 +40,7 @@ func (c *Contract) submitProposalHelper(
 	metadata, title, summary string,
 	expedited bool,
 ) ([]any, error) {
-	var coins []sdk.Coin
+	coins := []sdk.Coin{}
 
 	// Convert the initial deposit to sdk.Coin.
 	for _, coin := range initialDeposit {
@@ -80,8 +80,13 @@ func (c *Contract) cancelProposalHelper(
 	return []any{big.NewInt(int64(res.ProposalId))}, nil
 }
 
-// `execLegacyContentHelper` is a helper function for the `ExecLegacyContent` method of the governance precompile contract.
-func (c *Contract) execLegacyContentHelper(ctx context.Context, content *codectypes.Any, authority string) ([]any, error) {
+// `execLegacyContentHelper` is a helper function for the `ExecLegacyContent`
+// method of the governance precompile contract.
+func (c *Contract) execLegacyContentHelper(
+	ctx context.Context,
+	content *codectypes.Any,
+	authority string,
+) ([]any, error) {
 	_, err := c.msgServer.ExecLegacyContent(ctx, &v1.MsgExecLegacyContent{
 		Content:   content,
 		Authority: authority,
@@ -96,12 +101,12 @@ func (c *Contract) execLegacyContentHelper(ctx context.Context, content *codecty
 func (c *Contract) voteHelper(
 	ctx context.Context,
 	voter sdk.AccAddress,
-	proposalId *big.Int,
+	proposalID *big.Int,
 	option int32,
 	metadata string,
 ) ([]any, error) {
 	_, err := c.msgServer.Vote(ctx, &v1.MsgVote{
-		ProposalId: proposalId.Uint64(),
+		ProposalId: proposalID.Uint64(),
 		Voter:      voter.String(),
 		Option:     v1.VoteOption(option),
 		Metadata:   metadata,
@@ -116,7 +121,7 @@ func (c *Contract) voteHelper(
 func (c *Contract) voteWeightedHelper(
 	ctx context.Context,
 	voter sdk.AccAddress,
-	proposalId *big.Int,
+	proposalID *big.Int,
 	options []generated.IGovernanceModuleWeightedVoteOption,
 	metadata string,
 ) ([]any, error) {
@@ -131,7 +136,7 @@ func (c *Contract) voteWeightedHelper(
 
 	_, err := c.msgServer.VoteWeighted(
 		ctx, &v1.MsgVoteWeighted{
-			ProposalId: proposalId.Uint64(),
+			ProposalId: proposalID.Uint64(),
 			Voter:      voter.String(),
 			Options:    msgOptions,
 			Metadata:   metadata,

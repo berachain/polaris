@@ -191,7 +191,7 @@ func (c *Contract) Vote(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	proposalId, ok := utils.GetAs[*big.Int](args[0])
+	proposalID, ok := utils.GetAs[*big.Int](args[0])
 	if !ok {
 		return nil, polarisprecompile.ErrInvalidBigInt
 	}
@@ -205,7 +205,7 @@ func (c *Contract) Vote(
 	}
 	voter := sdk.AccAddress(caller.Bytes())
 
-	return c.voteHelper(ctx, voter, proposalId, options, metadata)
+	return c.voteHelper(ctx, voter, proposalID, options, metadata)
 }
 
 // `VoteWeighted` is the method for the `voteWeighted` method of the governance precompile contract.
@@ -216,7 +216,7 @@ func (c *Contract) VoteWeight(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	proposalId, ok := utils.GetAs[*big.Int](args[0])
+	proposalID, ok := utils.GetAs[*big.Int](args[0])
 	if !ok {
 		return nil, polarisprecompile.ErrInvalidBigInt
 	}
@@ -229,5 +229,5 @@ func (c *Contract) VoteWeight(
 		return nil, polarisprecompile.ErrInvalidString
 	}
 	voter := sdk.AccAddress(caller.Bytes())
-	return c.voteWeightedHelper(ctx, voter, proposalId, options, metadata)
+	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
