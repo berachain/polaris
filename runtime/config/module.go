@@ -68,7 +68,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	evmmodulev1alpha1 "pkg.berachain.dev/polaris/api/polaris/evm/module/v1alpha1"
-	evmtypes "pkg.berachain.dev/polaris/x/evm/types"
+	evmtypes "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types"
 )
 
 var (

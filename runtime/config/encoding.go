@@ -31,7 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
 	cryptocodec "pkg.berachain.dev/polaris/pkg/cosmos/crypto/codec"
-	evmante "pkg.berachain.dev/polaris/x/evm/ante"
+	evmante "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/ante"
 )
 
 func MakeEncodingConfig(mb module.BasicManager) params.EncodingConfig {

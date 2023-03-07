@@ -25,7 +25,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "polaris/evm/v1alpha1/params.proto";
 
-option go_package = "pkg.berachain.dev/polaris/x/evm/types";
+option go_package = "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types";
 
 // `QueryService` provides defines the gRPC querier service.
 service QueryService {

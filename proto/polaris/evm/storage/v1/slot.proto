@@ -22,7 +22,7 @@ syntax = "proto3";
 
 package polaris.evm.storage.v1;
 
-option go_package = "pkg.berachain.dev/polaris/x/evm/plugins/state/storage";
+option go_package = "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/plugins/state/storage";
 
 // `Slot` represents a single key/value pair of evm state data.
 message Slot {

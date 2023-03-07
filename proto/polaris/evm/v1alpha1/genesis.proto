@@ -24,7 +24,7 @@ package polaris.evm.v1alpha1;
 import "gogoproto/gogo.proto";
 import "polaris/evm/v1alpha1/params.proto";
 
-option go_package = "pkg.berachain.dev/polaris/x/evm/types";
+option go_package = "pkg.berachain.dev/polaris/pkg/cosmos/x/evm/types";
 
 // GenesisState defines the evm module's genesis state.
 message GenesisState {
