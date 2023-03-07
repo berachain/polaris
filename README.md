@@ -81,7 +81,7 @@ This meant that we had to built Polaris with serveral core principles in mind:
 
 3. Clone, Setup and Test:
 
-  ```bash
+  ```sh
   cd $HOME
   git clone https://github.com/berachain/polaris
   cd polaris
