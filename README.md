@@ -28,7 +28,7 @@ Polaris introduces the new standard for EVM integrations. With improvements to s
 
 This meant that we had to built Polaris with serveral core principles in mind:
 
-1. **Modular**: Every component is built out as a distinct package, central to Polaris, where each component is designed as a library with thorough testing, documentation, and benchmarking. The goal is for developers to use these components by importing them and combine them creatively to integrate an EVM environment into their application.
+1. **Modular**: Every component is built out as a distinct, logical package, with thorough testing, documentation, and benchmarking. The goal is for developers to use these components as individual pieces and combine them creatively to integrate an EVM environment into almost any application.
 2. **Configurabile**: We want as many different application frameworks, consensus engines and teams using Polaris as possible. In order to support a wide variety of use cases, Polaris has to be highly configurable.
 3. **Performant**: Polaris must be able to perform at the highest level to remain competitive in today's fast-paced and demanding crypto space.
 4. **Contributor Friendly**: Depsite currently being BUSL-1.1 licensed, the goal for Polaris is to attract high quality contributors in order to build adoption.
