@@ -6,79 +6,29 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bank "github.com/cosmos/cosmos-sdk/x/bank"
+	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/gov"
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/testutil"
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	anothertestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/testutil"
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
+	polarisprecompile "pkg.berachain.dev/polaris/precompile"
 	"pkg.berachain.dev/polaris/precompile/contracts/solidity/generated"
 	testutil "pkg.berachain.dev/polaris/testing/utils"
+	evmutils "pkg.berachain.dev/polaris/x/evm/utils"
 )
 
-func setupTest(ctrl *gomock.Controller) (ctx sdk.Context, bk bankkeeper.Keeper, gk *governancekeeper.Keeper) {
-	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
-
-	// Create the distribution keeper.
-	dk := govtestutil.NewMockDistributionKeeper(ctrl)
-
-	// Create the codec.
-	encCfg := anothertestutil.MakeTestEncodingConfig(
-		gov.AppModuleBasic{},
-		bank.AppModuleBasic{},
-	)
-
-	// Register the governance module account.
-	ak.SetModuleAccount(
-		ctx,
-		authtypes.NewEmptyModuleAccount(governancetypes.ModuleName, authtypes.Minter),
-	)
-
-	// Create the governance keeper.
-	msr := baseapp.NewMsgServiceRouter()
-	gk = governancekeeper.NewKeeper(
-		encCfg.Codec,
-		testutil.EvmKey, // test key.
-		ak,
-		bk,
-		sk,
-		dk,
-		msr,
-		governancetypes.DefaultConfig(),
-		authtypes.NewModuleAddress(governancetypes.ModuleName).String(),
-	)
-
-	// Register all the handlers for the MsgServiceRouter.
-	msr.SetInterfaceRegistry(encCfg.InterfaceRegistry)
-	v1.RegisterMsgServer(msr, governancekeeper.NewMsgServerImpl(gk))
-	msr.SetInterfaceRegistry(encCfg.InterfaceRegistry)
-	banktypes.RegisterMsgServer(msr, bankkeeper.NewMsgServerImpl(bk))
-
-	// Set the Params.
-	params := v1.DefaultParams()
-	gk.SetParams(ctx, params)
-
-	// Set the first proposal ID.
-	gk.SetProposalID(ctx, 1)
-
-	// Set the bank balance of the governance account to hella "stake".
-	FundGovernanceAccount(ctx, *gk, bk, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1000000000000000000))))
-
-	return ctx, bk, gk
-}
-
+// Test Reporter to use governance module tests with Ginkgo.
 type GinkgoTestReporter struct{}
 
 func (g GinkgoTestReporter) Errorf(format string, args ...interface{}) {
@@ -89,74 +39,214 @@ func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 	Fail(fmt.Sprintf(format, args...))
 }
 
+func fundAccount(ctx sdk.Context, bk bankkeeper.Keeper, acc sdk.AccAddress, coins sdk.Coins) {
+	if err := bk.MintCoins(ctx, governancetypes.ModuleName, coins); err != nil {
+		panic(err)
+	}
+	if err := bk.SendCoinsFromModuleToAccount(ctx, governancetypes.ModuleName, acc, coins); err != nil {
+		panic(err)
+	}
+}
+
+// Helper functions for setting up the tests.
+func setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
+	sdk.Context,
+	bankkeeper.Keeper,
+	*governancekeeper.Keeper,
+) {
+	// Setup the keepers and context.
+	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
+	dk := govtestutil.NewMockDistributionKeeper(ctrl)
+
+	// Register the governance module account.
+	ak.SetModuleAccount(
+		ctx,
+		authtypes.NewEmptyModuleAccount(governancetypes.ModuleName, authtypes.Minter),
+	)
+
+	// Create the codec.
+	encCfg := cosmostestutil.MakeTestEncodingConfig(
+		gov.AppModuleBasic{},
+		bank.AppModuleBasic{},
+	)
+
+	// Create the base app msgRouter.
+	msr := baseapp.NewMsgServiceRouter()
+
+	// Create the governance keeper.
+	gk := governancekeeper.NewKeeper(
+		encCfg.Codec,
+		testutil.EvmKey,
+		ak,
+		bk,
+		sk,
+		dk,
+		msr,
+		governancetypes.DefaultConfig(),
+		authtypes.NewModuleAddress(governancetypes.ModuleName).String(),
+	)
+
+	// Register the msg Service Handlers.
+	msr.SetInterfaceRegistry(encCfg.InterfaceRegistry)
+	v1.RegisterMsgServer(msr, governancekeeper.NewMsgServerImpl(gk))
+	banktypes.RegisterMsgServer(msr, bankkeeper.NewMsgServerImpl(bk))
+
+	// Set the Params and first proposal ID.
+	params := v1.DefaultParams()
+	gk.SetParams(ctx, params)
+	gk.SetProposalID(ctx, 1)
+
+	// Fund the caller with some coins.
+	fundAccount(ctx, bk, caller, sdk.NewCoins(sdk.NewInt64Coin("usdc", 100000000)))
+
+	return ctx, bk, gk
+}
+
 func TestStakingPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "precompile/governance")
 }
 
-var _ = Describe("Governance precompile", func() {
+var _ = Describe("Governance Precompile", func() {
 	var (
 		ctx      sdk.Context
-		gk       *governancekeeper.Keeper
 		bk       bankkeeper.Keeper
+		gk       *governancekeeper.Keeper
+		caller   sdk.AccAddress
 		mockCtrl *gomock.Controller
-		caller   common.Address
-
 		contract *Contract
 	)
 
 	BeforeEach(func() {
 		t := GinkgoTestReporter{}
 		mockCtrl = gomock.NewController(t)
-		ctx, bk, gk = setupTest(mockCtrl)
+		caller = evmutils.AddressToAccAddress(testutil.Alice)
+		ctx, bk, gk = setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewContract(&gk))
-		caller = common.HexToAddress("0x1000000001231231")
-		FundAccount(ctx, bk, sdk.AccAddress(caller.Bytes()), sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1000000000000000000))))
 	})
 
 	AfterEach(func() {
 		mockCtrl.Finish()
 	})
 
-	When("submitProposalHelper", func() {
+	When("Submitting a proposal", func() {
+		It("should fail if the message is not of type", func() {
+			res, err := contract.SubmitProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				"invalid",
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidAny))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if the initial deposit is wrong type", func() {
+			res, err := contract.SubmitProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				[]*codectypes.Any{},
+				"invalid",
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidCoin))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if metadata is of wrong type", func() {
+			res, err := contract.SubmitProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				[]*codectypes.Any{},
+				[]generated.IGovernanceModuleCoin{},
+				123,
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidString))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if title is of wrong type", func() {
+			res, err := contract.SubmitProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				[]*codectypes.Any{},
+				[]generated.IGovernanceModuleCoin{},
+				"metadata",
+				123,
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidString))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if summary is of wrong type", func() {
+			res, err := contract.SubmitProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				[]*codectypes.Any{},
+				[]generated.IGovernanceModuleCoin{},
+				"metadata",
+				"title",
+				123,
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidString))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if expadited is of wrong type", func() {
+			res, err := contract.SubmitProposal(
+				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				[]*codectypes.Any{},
+				[]generated.IGovernanceModuleCoin{},
+				"metadata",
+				"title",
+				"summary",
+				123,
+			)
+			Expect(err).To(MatchError(polarisprecompile.ErrInvalidBool))
+			Expect(res).To(BeNil())
+		})
 		It("should succeed", func() {
-			initDeposit := sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100)))
+			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("usdc", 100))
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
-			bankMsg := &banktypes.MsgSend{
+			fundAccount(ctx, bk, govAcct, initDeposit)
+			message := &banktypes.MsgSend{
 				FromAddress: govAcct.String(),
-				ToAddress:   sdk.AccAddress(caller.Bytes()).String(),
+				ToAddress:   caller.String(),
 				Amount:      initDeposit,
 			}
-			msg, err := codectypes.NewAnyWithValue(bankMsg)
-			Expect(err).To(BeNil())
-			res, err := contract.submitProposalHelper(
+
+			metadata := "metadata"
+			title := "title"
+			summary := "summary"
+
+			msg, err := codectypes.NewAnyWithValue(message)
+			Expect(err).ToNot(HaveOccurred())
+
+			res, err := contract.SubmitProposal(
 				ctx,
+				evmutils.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
 				[]*codectypes.Any{msg},
 				[]generated.IGovernanceModuleCoin{
 					{
 						Amount: big.NewInt(100),
-						Denom:  "stake",
+						Denom:  "usdc",
 					},
 				},
-				sdk.AccAddress(caller.Bytes()),
-				"metadata",
-				"title",
-				"summary",
+				metadata,
+				title,
+				summary,
 				false,
 			)
-			Expect(err).To(BeNil())
-			fmt.Println(res, bk)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).ToNot(BeNil())
 		})
 	})
 })
-
-func FundAccount(ctx sdk.Context, bk bankkeeper.Keeper, account sdk.AccAddress, coins sdk.Coins) error {
-	if err := bk.MintCoins(ctx, governancetypes.ModuleName, coins); err != nil {
-		return err
-	}
-	return bk.SendCoinsFromModuleToAccount(ctx, governancetypes.ModuleName, account, coins)
-}
-
-func FundGovernanceAccount(ctx sdk.Context, gk governancekeeper.Keeper, bk bankkeeper.Keeper, coins sdk.Coins) error {
-	return FundAccount(ctx, bk, gk.GetGovernanceAccount(ctx).GetAddress(), coins)
-}
