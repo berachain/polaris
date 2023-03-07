@@ -21,13 +21,56 @@
 package duocachekv
 
 import (
+	"bytes"
+
 	storetypes "cosmossdk.io/store/types"
 )
 
-// `store` defines a cache kv store that supports two
+// `store` defines a cachekv store that supports reading from/writing to 2 synchronized cachekv
+// stores. The first store is the source-of-truth store which will write to its parent, and the
+// second store is the revision store which is used to store the checkpoint.
 type store struct {
-	// `sot` is the source-of-truth store.
-	sot storetypes.CacheKVStore
+	// `CacheKVStore` is the source-of-truth store.
+	storetypes.CacheKVStore
 	// `revision` is the kv store that is stored as a checkpoint.
 	revision storetypes.KVStore
+}
+
+// `NewStoreFrom` creates and returns a new `store` from a given source-of-truth store `sot` and
+// revision store `revision`.
+func NewStoreFrom(sot storetypes.CacheKVStore, revision storetypes.KVStore) storetypes.CacheKVStore {
+	return &store{
+		CacheKVStore: sot,
+		revision:     revision,
+	}
+}
+
+// Get returns nil if key doesn't exist. Panics on nil key.
+func (s *store) Get(key []byte) []byte {
+	sotVal, revisionVal := s.CacheKVStore.Get(key), s.revision.Get(key)
+	if sotVal == nil || revisionVal == nil || !bytes.Equal(sotVal, revisionVal) {
+		panic("inconsistent state")
+	}
+	return sotVal
+}
+
+// Has checks if a key exists. Panics on nil key.
+func (s *store) Has(key []byte) bool {
+	sotHas, revisionHas := s.CacheKVStore.Has(key), s.revision.Has(key)
+	if sotHas != revisionHas {
+		panic("inconsistent state")
+	}
+	return sotHas
+}
+
+// Set sets the key. Panics on nil key or value.
+func (s *store) Set(key, value []byte) {
+	s.CacheKVStore.Set(key, value)
+	s.revision.Set(key, value)
+}
+
+// Delete deletes the key. Panics on nil key.
+func (s *store) Delete(key []byte) {
+	s.CacheKVStore.Delete(key)
+	s.revision.Delete(key)
 }

@@ -28,6 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	"pkg.berachain.dev/polaris/lib/utils"
 	polarisstore "pkg.berachain.dev/polaris/store"
+	"pkg.berachain.dev/polaris/store/duocachekv"
 )
 
 const (
@@ -48,6 +49,8 @@ type store struct {
 	storetypes.MultiStore
 	// `root` is the mapMultiStore used before the first snapshot is called
 	root mapMultiStore
+	// `sot` is the source of truth mapMultiStore
+	sot mapMultiStore
 	// `journal` holds the snapshots of cachemultistores
 	journal ds.Stack[mapMultiStore]
 }
@@ -57,6 +60,7 @@ func NewStoreFrom(ms storetypes.MultiStore) polarisstore.ControllableMulti {
 	return &store{
 		MultiStore: ms,
 		root:       make(mapMultiStore),
+		sot:        make(mapMultiStore),
 		journal:    stack.New[mapMultiStore](initJournalCapacity),
 	}
 }
@@ -87,8 +91,9 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 		return cacheKVStore
 	}
 
-	// get kvstore from mapMultiStore and set cachekv to memory
-	cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
+	// get kvstore from mapMultiStore and set duocachekv to memory
+	sotKV := cachekv.NewStore(s.GetCommittedKVStore(key))
+	cms[key] = duocachekv.NewStoreFrom(sotKV, sotKV)
 	return cms[key]
 }
 
@@ -103,7 +108,8 @@ func (s *store) Snapshot() int {
 	// build revision of cms by cachewrapping each cachekv store
 	revision := make(mapMultiStore)
 	for key, cacheKVStore := range cms {
-		revision[key] = utils.MustGetAs[storetypes.CacheKVStore](cacheKVStore.CacheWrap())
+		revisionKV := utils.MustGetAs[storetypes.CacheKVStore](cacheKVStore.CacheWrap())
+		revision[key] = duocachekv.NewStoreFrom(s.sot[key], revisionKV)
 	}
 
 	// push the revision to the journal and return the size BEFORE snapshot
