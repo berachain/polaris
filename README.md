@@ -41,10 +41,10 @@ This meant that we had to built Polaris with serveral core principles in mind:
     ├── eth                     # The core Polaris VM implementation
     ├── lib                     # Library files usable throughout the repo
     ├── pkg                     
-    │   └── cosmos              # A Cosmos-SDK integration of Polaris.
+    │   └── cosmos              # A Cosmos integration of Polaris
     │         ├── ....
     │         ├── ....
-    │         └── x/evm         # Cosmos-SDK `x/evm` module
+    │         └── x/evm         # Cosmos `x/evm` module
     ├── testutil                # Various testing utilities
     ├── LICENSE                 # Licensing information
     └── README.md               # This README
