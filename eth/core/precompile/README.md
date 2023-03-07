@@ -1,6 +1,6 @@
 # Precompiles
 
-Polaris supports the execution of **stateless** and **stateful** precompiled contracts. 
+Polaris Ethereum supports the execution of **stateless** and **stateful** precompiled contracts. 
 
 ## Stateless Precompiles
 
@@ -29,6 +29,6 @@ Stateful Precompiles can be implemented by adhering to the `StatefulImpl` interf
         this field will be automatically populated.
 
 Examples of stateful precompiles that run in a Cosmos SDK-based host chain can be found in the
-[precompile](https://github.com/berachain/polaris/tree/main/precompile) directory.
+[precompile](https://github.com/berachain/polaris/tree/main/pkg/cosmos/precompile) directory.
 
 
