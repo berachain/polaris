@@ -21,14 +21,11 @@
 package hd
 
 import (
-	bip39 "github.com/cosmos/go-bip39"
-
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 const (
@@ -53,24 +50,7 @@ func (s ethSecp256k1Algo) Name() hd.PubKeyType {
 
 // `Derive` derives and returns the eth_secp256k1 private key for the given mnemonic and HD path.
 func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
-	return func(mnemonic, bip39Passphrase, hdPath string) ([]byte, error) {
-		seed, err := bip39.NewSeedWithErrorChecking(mnemonic, bip39Passphrase)
-		if err != nil {
-			return nil, err
-		}
-
-		masterPriv, ch := hd.ComputeMastersFromSeed(seed)
-		if len(hdPath) == 0 {
-			return ECDSAify(masterPriv[:])
-		}
-
-		derivedKey, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hdPath)
-		if err != nil {
-			return nil, err
-		}
-
-		return ECDSAify(derivedKey)
-	}
+	return hd.Secp256k1.Derive()
 }
 
 // `Generate` generates a eth_secp256k1 private key from the given bytes.
@@ -82,16 +62,4 @@ func (s ethSecp256k1Algo) Generate() hd.GenerateFn {
 			Key: bzArr,
 		}
 	}
-}
-
-// `ECDSAify` converts a private key to an ECDSA private key.
-func ECDSAify(key []byte) ([]byte, error) {
-	// Convert the private key to an ECDSA private key.
-	x, err := ethsecp256k1.PrivKey{Key: key}.ToECDSA()
-	if err != nil {
-		return nil, err
-	}
-
-	// Return the private key as a byte slice.
-	return crypto.FromECDSA(x), nil
 }
