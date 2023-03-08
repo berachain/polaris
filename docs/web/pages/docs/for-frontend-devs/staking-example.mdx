@@ -6,8 +6,9 @@ in this section, which will be linked to a [Local Node](../running-a-node/runnin
 use the [staking precompile](../precompile-overview) feature to obtain information about validators 
 and delegators from the EVM, as well as to create delegate transactions 
 on the EVM natively.
+<div className="steps-container">
 
-## Requirements
+### Requirements
 
 - [Node.js](https://nodejs.org/en/download/) v12.0.0 or higher
 - [Yarn](https://classic.yarnpkg.com/en/docs/install) v1.22.0 or higher
@@ -18,7 +19,7 @@ on the EVM natively.
 - Basic knowledge of [Rainbow Kit](https://www.rainbowkit.com/)
 - [Metamask configured](../using-metamask)
 - A running [Local Node](../running-a-node/running-locally)
-## Setup Wagmi Project
+### Setup Wagmi Project
 
 Run the following command to create a folder
 that contains a sample wagmi / rainbowkit / next dApp
@@ -71,7 +72,7 @@ Run the following command to install the remaining dependencies:
 
 `yarn add bignumber.js @chakra-ui/react @emotion/react @emotion/styled framer-motion`
 
-## Configuring Chakra
+### Configuring Chakra
 
 Before we continue, let's configure Chakra UI.
 
@@ -172,7 +173,7 @@ export default App
 
 We now have a basic themed Chakra UI setup.
 
-## Configuring `wagmi.ts`
+### Configuring `wagmi.ts`
 
 In order to point this dapp towards a Polaris VM local node, 
 we need to modify `wagmi.ts`.
@@ -235,7 +236,7 @@ export { chains }
 ```
 
 
-## Adding Utility Functions
+### Adding Utility Functions
 
 We will need to add some utility functions to our dApp. These functions will help us interact with the Polaris VM precompile.
 
@@ -338,7 +339,7 @@ export const getHexEllipsis = (hexAddress: string) => {
 </FileTree>
 
 
-## Adding ABIs
+### Adding ABIs
 
 We will need to add a way to handle ABIs in the application. ABI handling is a common issue across 
 dApps. This is the way I prefer to do it.
@@ -931,7 +932,7 @@ after creating `src/abi/IStakingModule.abi.js` your file tree should look like t
 </FileTree>
 
 
-## Styling & Populating The Homepage
+### Styling & Populating The Homepage
 
 Now that we have a base skeleton for our dApp, we can start adding some styling and content.
 Lets start by adding some basic styling and positioning to our homepage. We want to
@@ -971,7 +972,7 @@ export default Page
 
 Note how we are missing a `components/Staking` component. We will add this in the next step.
 
-## Creating the Staking Component & Adding Functionality
+### Creating the Staking Component & Adding Functionality
 
 Now that we have our homepage styled, we can start adding some functionality to our dApp.
 
@@ -1159,7 +1160,7 @@ const Staking = () => {
 export default Staking
 ```
 
-## Run the Application
+### Run the Application
 
 Now that we have created the Staking component, we can run the application and test it out!
 
@@ -1171,7 +1172,7 @@ This will open a browser window at `http://localhost:3000/` and you should see t
 
 ![](/staking-example.png)
 
-## Conclusion
+### Conclusion
 
 Congratulations! You have now created a staking application using the EVM! You can now delegate your tBera to a validator and earn rewards!
 Prior to Polaris VM's precompiled contracts, the UX of this task would be more complicated and foreign as it involves
@@ -1179,3 +1180,4 @@ many moving parts and having to use Cosmos through Metamask. Now, with the Staki
 Cosmos through an EVM native experience!
 
 You can view this example and others like it on our examples repository on Github [here](https://github.com/berachain/polaris-examples)
+</div>
