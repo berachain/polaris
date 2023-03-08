@@ -84,15 +84,3 @@ var _ = Describe("HD", func() {
 			To(Equal(crypto.PubkeyToAddress(wallet.PublicKey).String()))
 	})
 })
-
-// `ECDSAify` converts a private key to an ECDSA private key.
-func ECDSAify(key []byte) ([]byte, error) {
-	// Convert the private key to an ECDSA private key.
-	x, err := ethsecp256k1.PrivKey{Key: key}.ToECDSA()
-	if err != nil {
-		return nil, err
-	}
-
-	// Return the private key as a byte slice.
-	return crypto.FromECDSA(x), nil
-}
