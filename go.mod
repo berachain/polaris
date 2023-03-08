@@ -6,7 +6,7 @@ require (
 	github.com/bufbuild/buf v1.15.0
 	github.com/carolynvs/magex v0.9.0
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
-	github.com/ethereum/go-ethereum v1.11.3
+	github.com/ethereum/go-ethereum v1.11.2
 	github.com/golangci/golangci-lint v1.51.2
 	github.com/google/addlicense v1.1.1
 	github.com/magefile/mage v1.14.0
