@@ -38,7 +38,7 @@ This meant that we had to built Polaris with serveral core principles in mind:
     .
     ├── build                   # Build scripts and utils
     ├── docs                    # Documentation files
-    ├── eth                     # The core Polaris VM implementation
+    ├── eth                     # The core Polaris Ethereum implementation
     ├── lib                     # Library files usable throughout the repo
     ├── host                     
     │   ├── cosmos              # A Cosmos integration of Polaris

@@ -11,14 +11,14 @@ export default {
     banner: {
         key: '2.0-release',
         text: <a href="https://medium.com/berachain-foundation/introducing-polaris-vm-2a0b77d777f8" target="_blank">
-          🎉 Introducing Polaris VM! 
+          🎉 Introducing Polaris Ethereum! 
         </a>,
     },
     useNextSeoProps() {
         const { route } = useRouter()
         if (route !== '/') {
             return {
-                titleTemplate: '%s – Polaris VM Docs'
+                titleTemplate: '%s – Polaris Ethereum Docs'
             }
         }
     },
@@ -33,23 +33,23 @@ export default {
                 <meta httpEquiv="Content-Language" content="en" />
                 <meta
                     name="description"
-                    content="Polaris VM brings EVM to Cosmos in a new way"
+                    content="Polaris Ethereum brings EVM to Cosmos in a new way"
                 />
                 <meta
                     name="og:description"
-                    content="Polaris VM brings EVM to Cosmos in a new way"
+                    content="Polaris Ethereum brings EVM to Cosmos in a new way"
                 />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:image" content="/header.png" />
                 <meta name="twitter:site:domain" content="https://polaris.berachain.dev/" />
-                <meta property="twitter:description" content="Polaris VM brings EVM to Cosmos in a new way"/>
+                <meta property="twitter:description" content="Polaris Ethereum brings EVM to Cosmos in a new way"/>
                 <meta name="twitter:url" content="https://polaris.berachain.dev/" />
                 <meta
                     name="og:title"
-                    content={title ? title + ' – Polaris VM' : 'Polaris VM'}
+                    content={title ? title + ' – Polaris Ethereum' : 'Polaris Ethereum'}
                 />
                 <meta name="og:image" content={socialCard} />
-                <meta name="apple-mobile-web-app-title" content="Polaris VM" />
+                <meta name="apple-mobile-web-app-title" content="Polaris Ethereum" />
                 <link rel="icon" href="/milky-way.png" type="image/png" />
                 <link rel="icon" href="/milky-way.ico"/>
                 <link
