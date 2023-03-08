@@ -71,38 +71,38 @@ interface IStakingModule {
     function getActiveValidators() external view returns (address[] memory);
 
     /**
-     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to 
+     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
      * `validatorAddress`
      */
     function getDelegation(
-        address delegatorAddress, 
+        address delegatorAddress,
         address validatorAddress
     ) external view returns (uint256);
 
     /**
-     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to 
+     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
      * `validatorAddress` (at hex bech32 address)
      */
     function getDelegation(
-        string calldata delegatorAddress, 
+        string calldata delegatorAddress,
         string calldata validatorAddress
     ) external view returns (uint256);
 
     /**
-     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between 
+     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between
      * `delegatorAddress` and `validatorAddress`
      */
     function getUnbondingDelegation(
-        address delegatorAddress, 
+        address delegatorAddress,
         address validatorAddress
     ) external view returns (UnbondingDelegationEntry[] memory);
 
     /**
-     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between 
+     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between
      * `delegatorAddress` and `validatorAddress` (at hex bech32 address)
      */
     function getUnbondingDelegation(
-        string calldata delegatorAddress, 
+        string calldata delegatorAddress,
         string calldata validatorAddress
     ) external view returns (UnbondingDelegationEntry[] memory);
 
@@ -111,8 +111,8 @@ interface IStakingModule {
      * `dstValidator`
      */
     function getRedelegations(
-        address delegatorAddress, 
-        address srcValidator, 
+        address delegatorAddress,
+        address srcValidator,
         address dstValidator
     ) external view returns (RedelegationEntry[] memory);
 
@@ -131,32 +131,36 @@ interface IStakingModule {
     /**
      * @dev msg.sender delegates the `amount` of tokens to `validatorAddress`
      */
-    function delegate(address validatorAddress, uint256 amount)
-        external
-        payable;
+    function delegate(
+        address validatorAddress,
+        uint256 amount
+    ) external payable;
 
     /**
      * @dev msg.sender delegates the `amount` of tokens to `validatorAddress` (at hex bech32
      * address)
      */
-    function delegate(string calldata validatorAddress, uint256 amount)
-        external
-        payable;
+    function delegate(
+        string calldata validatorAddress,
+        uint256 amount
+    ) external payable;
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress`
      */
-    function undelegate(address validatorAddress, uint256 amount)
-        external
-        payable;
+    function undelegate(
+        address validatorAddress,
+        uint256 amount
+    ) external payable;
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress` (at hex bech32
      * address)
      */
-    function undelegate(string calldata validatorAddress, uint256 amount)
-        external
-        payable;
+    function undelegate(
+        string calldata validatorAddress,
+        uint256 amount
+    ) external payable;
 
     /**
      * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
@@ -168,7 +172,7 @@ interface IStakingModule {
     ) external payable;
 
     /**
-     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr` 
+     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
      * (at hex bech32 addresses)
      */
     function beginRedelegate(

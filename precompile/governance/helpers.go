@@ -77,7 +77,7 @@ func (c *Contract) cancelProposalHelper(
 		return nil, err
 	}
 
-	return []any{big.NewInt(int64(res.ProposalId))}, nil
+	return []any{big.NewInt(res.CanceledTime.Unix()), big.NewInt(int64(res.CanceledHeight))}, nil
 }
 
 // `execLegacyContentHelper` is a helper function for the `ExecLegacyContent`

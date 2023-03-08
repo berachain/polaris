@@ -100,6 +100,18 @@ func (c *Contract) PrecompileMethods() precompile.Methods {
 			AbiSig:  "voteWeighted(uint256,[]tuple,string)",
 			Execute: c.VoteWeighted,
 		},
+		{
+			AbiSig:  "getProposal(uint256)",
+			Execute: c.GetProposal,
+		},
+		{
+			AbiSig:  "getProposalsStringAddr(int32,string,string)",
+			Execute: c.GetProposalStringAddr,
+		},
+		{
+			AbiSig:  "getProposalsAddr(int32,address,address)",
+			Execute: c.GetProposalsAddr,
+		},
 	}
 }
 

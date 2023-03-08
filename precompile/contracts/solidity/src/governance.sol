@@ -22,6 +22,9 @@ pragma solidity ^0.8.4;
 
 interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
+    /**
+     *@dev Submit a proposal to the governance module. Returns the proposal id.
+     */
     function submitProposal(
         bytes calldata message,
         Coin[] calldata initialDeposit,
@@ -31,16 +34,26 @@ interface IGovernanceModule {
         bool expedited
     ) external returns (uint64);
 
+    /**
+     *@dev Cancel a proposal. Returns the cancled time and height.
+      burned.
+     */
     function cancelProposal(
         uint256 proposalId
-    ) external returns (uint256, uint256, uint256);
+    ) external returns (uint256, uint256);
 
+    /**
+     *@dev Vote on a proposal.
+     */
     function vote(
         uint256 proposalId,
         int32 option,
         string memory metadata
     ) external;
 
+    /**
+     *@dev Vote on a proposal with weights.
+     */
     function voteWeighted(
         uint256 proposalId,
         WeightedVoteOption[] calldata options,
@@ -48,16 +61,26 @@ interface IGovernanceModule {
     ) external;
 
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
+
+    /**
+     *@dev Get the proposal with the given id.
+     */
     function getProposal(
         uint256 proposalId
     ) external view returns (Proposal memory);
 
+    /**
+     *@dev Get proposals with a given status, voter, and depositor, using bech32 strings.
+     */
     function getProposalsStringAddr(
         int32 proposalStatus,
         string calldata voter,
         string calldata depositor
     ) external view returns (Proposal[] memory);
 
+    /**
+     *@dev Get proposals with a given status, voter, and depositor, using eth addresses.
+     */
     function getProposalsAddr(
         int32 proposalStatus,
         address voter,
@@ -83,6 +106,10 @@ interface IGovernanceModule {
         string weight;
     }
 
+    /**
+     * @dev Represents a governance module `Proposal`.
+     * Note: this struct is generated in precompile/generated/i_staking_module.abigen.go
+     */
     struct Proposal {
         uint64 id;
         bytes message;
@@ -99,6 +126,10 @@ interface IGovernanceModule {
         string proposer;
     }
 
+    /**
+     * @dev Represents a governance module `TallyResult`.
+     * Note: this struct is generated in precompile/generated/i_staking_module.abigen.go
+     */
     struct TallyResult {
         string yesCount;
         string abstainCount;
