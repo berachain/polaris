@@ -37,7 +37,7 @@ import (
 
 func TestBankPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "precompile/bank")
+	RunSpecs(t, "host/cosmos/precompile/bank")
 }
 
 var _ = Describe("Bank Precompile Test", func() {

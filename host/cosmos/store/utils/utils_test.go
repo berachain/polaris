@@ -30,7 +30,7 @@ import (
 func TestUtils(t *testing.T) {
 	_ = t
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "store/utils")
+	RunSpecs(t, "host/cosmos/store/utils")
 }
 
 // var testKey = storetypes.NewKVStoreKey("test")

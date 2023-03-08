@@ -29,5 +29,5 @@ import (
 
 func TestTypes(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/types")
+	RunSpecs(t, "host/cosmos/x/evm/types")
 }

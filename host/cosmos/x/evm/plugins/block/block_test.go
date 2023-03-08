@@ -29,5 +29,5 @@ import (
 
 func TestBlockPlugin(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/block")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/block")
 }

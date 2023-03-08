@@ -31,7 +31,7 @@ import (
 
 func TestOffchain(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "store/offchain")
+	RunSpecs(t, "host/cosmos/store/offchain")
 }
 
 var (

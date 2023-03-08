@@ -37,7 +37,7 @@ import (
 
 func TestDistributionPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "precompile/distribution")
+	RunSpecs(t, "host/cosmos/precompile/distribution")
 }
 
 var _ = Describe("Distribution Precompile Test", func() {

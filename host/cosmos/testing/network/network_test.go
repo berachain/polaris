@@ -29,7 +29,7 @@ import (
 
 func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "testutil/network:integration")
+	RunSpecs(t, "host/cosmos/testutil/network:integration")
 }
 
 var _ = Describe("Network", func() {

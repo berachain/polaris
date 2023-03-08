@@ -29,5 +29,5 @@ import (
 
 func TestGas(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/gas")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/gas")
 }

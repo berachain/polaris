@@ -47,7 +47,7 @@ import (
 
 func TestStakingPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "precompile/staking")
+	RunSpecs(t, "host/cosmos/precompile/staking")
 }
 
 func createValAddrs(count int) ([]sdk.AccAddress, []sdk.ValAddress) {

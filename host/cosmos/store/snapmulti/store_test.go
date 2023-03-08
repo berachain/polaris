@@ -37,7 +37,7 @@ import (
 
 func TestSnapMulti(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "store/snapmulti")
+	RunSpecs(t, "host/cosmos/store/snapmulti")
 }
 
 var _ = Describe("Snapmulti Store", func() {

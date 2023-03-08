@@ -25,10 +25,10 @@ import (
 	"math/big"
 	"testing"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/address"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -39,7 +39,7 @@ import (
 
 func TestAddressPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "precompile/address")
+	RunSpecs(t, "host/cosmos/precompile/address")
 }
 
 var _ = Describe("Address Precompile", func() {

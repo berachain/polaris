@@ -29,5 +29,5 @@ import (
 
 func TestKeeper(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/keeper")
+	RunSpecs(t, "host/cosmos/x/evm/keeper")
 }

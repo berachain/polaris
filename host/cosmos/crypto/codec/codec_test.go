@@ -31,7 +31,7 @@ import (
 
 func TestCodec(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto/codec")
+	RunSpecs(t, "host/cosmos/crypto/codec")
 }
 
 var _ = Describe("Codec", func() {

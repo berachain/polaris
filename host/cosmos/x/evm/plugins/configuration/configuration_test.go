@@ -29,5 +29,5 @@ import (
 
 func TestConfigurationPlugin(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/configuration")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/configuration")
 }

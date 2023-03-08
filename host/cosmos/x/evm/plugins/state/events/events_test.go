@@ -29,5 +29,5 @@ import (
 
 func TestEvents(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/state/events")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/state/events")
 }

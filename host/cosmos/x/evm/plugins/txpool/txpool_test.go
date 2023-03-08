@@ -29,5 +29,5 @@ import (
 
 func TestTxpool(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/txpool")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/txpool")
 }

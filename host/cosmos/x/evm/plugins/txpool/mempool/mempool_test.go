@@ -29,7 +29,7 @@ import (
 
 func TestEthPool(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/txpool/mempool")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/txpool/mempool")
 }
 
 var _ = Describe(`EthTxPool`, func() {

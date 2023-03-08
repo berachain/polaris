@@ -35,7 +35,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "runtime/config")
+	RunSpecs(t, "host/cosmos/runtime/config")
 }
 
 var _ = Describe("Configuration", func() {

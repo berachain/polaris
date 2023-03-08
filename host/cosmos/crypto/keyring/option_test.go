@@ -51,7 +51,7 @@ func registerCodec() {
 
 func TestKeyring(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto/keyring")
+	RunSpecs(t, "host/cosmos/crypto/keyring")
 }
 
 var _ = Describe("Keyring", func() {

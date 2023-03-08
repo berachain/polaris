@@ -32,7 +32,7 @@ import (
 
 func TestStorage(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/state/storage")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/state/storage")
 }
 
 var _ = Describe("StorageTest", func() {

@@ -29,5 +29,5 @@ import (
 
 func TestHD(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "crypto/hd")
+	RunSpecs(t, "host/cosmos/crypto/hd")
 }

@@ -29,5 +29,5 @@ import (
 
 func TestPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "x/evm/plugins/precompile")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/precompile")
 }

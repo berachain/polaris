@@ -34,7 +34,7 @@ import (
 
 func TestByteCode(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "store/bytecode")
+	RunSpecs(t, "host/cosmos/store/bytecode")
 }
 
 var _ = Describe("bytecodeStore", func() {
