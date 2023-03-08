@@ -84,3 +84,16 @@ var _ = Describe("HD", func() {
 			To(Equal(crypto.PubkeyToAddress(wallet.PublicKey).String()))
 	})
 })
+
+var _ = Describe("Prove EDSCAify isn't needed", func() {
+	It("should round trip", func() {
+		// Generate a random private key.
+		key, err := ethsecp256k1.GenPrivKey()
+		Expect(err).NotTo(HaveOccurred())
+
+		// Convert the private key to an ECDSA private key.
+		x, err := ethsecp256k1.PrivKey{Key: key.Key}.ToECDSA()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(key.Key).To(Equal(crypto.FromECDSA(x)))
+	})
+})
