@@ -24,11 +24,11 @@ import (
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
+	polarisstore "pkg.berachain.dev/polaris/cosmos/store"
+	"pkg.berachain.dev/polaris/cosmos/store/duocachekv"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	"pkg.berachain.dev/polaris/lib/utils"
-	polarisstore "pkg.berachain.dev/polaris/store"
-	"pkg.berachain.dev/polaris/store/duocachekv"
 )
 
 const (
