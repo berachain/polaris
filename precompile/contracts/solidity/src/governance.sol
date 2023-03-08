@@ -47,6 +47,17 @@ interface IGovernanceModule {
         string calldata metadata
     ) external;
 
+    ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
+    function getProposal(
+        uint256 proposalId
+    ) external view returns (Proposal memory);
+
+    function getProposalsStringAddr(
+        int32 proposalStatus,
+        string calldata voter,
+        string calldata depositor
+    ) external view returns (Proposal[] memory);
+
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
     /**
      * @dev Represents a cosmos coin.
@@ -64,5 +75,28 @@ interface IGovernanceModule {
     struct WeightedVoteOption {
         int32 voteOption;
         string weight;
+    }
+
+    struct Proposal {
+        uint64 id;
+        bytes message;
+        int32 status;
+        TallyResult finalTallyResult;
+        uint64 submitTime;
+        uint64 depositEndTime;
+        Coin[] totalDeposit;
+        uint64 votingStartTime;
+        uint64 votingEndTime;
+        string metadata;
+        string title;
+        string summary;
+        string proposer;
+    }
+
+    struct TallyResult {
+        string yesCount;
+        string abstainCount;
+        string noCount;
+        string noWithVetoCount;
     }
 }

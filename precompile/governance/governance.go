@@ -207,3 +207,52 @@ func (c *Contract) VoteWeighted(
 	voter := sdk.AccAddress(caller.Bytes())
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
+
+// `GetProposal` is the method for the `getProposal` method of the governance precompile contract.
+func (c *Contract) GetProposal(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	proposalID, ok := utils.GetAs[*big.Int](args[0])
+	if !ok {
+		return nil, polarisprecompile.ErrInvalidBigInt
+	}
+
+	return c.getProposalHelper(ctx, proposalID)
+}
+
+// `GetProposalsStringAddr` is the method for the `getProposalsStringAddr` method of the governance precompile contract.
+func (c *Contract) GetProposalStringAddr(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	proposalStatus, ok := utils.GetAs[int32](args[0])
+	if !ok {
+		return nil, polarisprecompile.ErrInvalidInt32
+	}
+	voter, ok := utils.GetAs[string](args[1])
+	if !ok {
+		return nil, polarisprecompile.ErrInvalidString
+	}
+	depositor, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, polarisprecompile.ErrInvalidString
+	}
+
+	voterAddr, err := sdk.AccAddressFromBech32(voter)
+	if err != nil {
+		return nil, err
+	}
+	depositorAddr, err := sdk.AccAddressFromBech32(depositor)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.getProposalsHelper(ctx, proposalStatus, voterAddr, depositorAddr)
+}

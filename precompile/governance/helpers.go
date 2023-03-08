@@ -94,6 +94,7 @@ func (c *Contract) execLegacyContentHelper(
 	if err != nil {
 		return nil, err
 	}
+
 	return []any{}, nil
 }
 
@@ -114,6 +115,7 @@ func (c *Contract) voteHelper(
 	if err != nil {
 		return nil, err
 	}
+
 	return []any{}, nil
 }
 
@@ -147,4 +149,77 @@ func (c *Contract) voteWeightedHelper(
 	}
 
 	return []any{}, nil
+}
+
+// `getProposalHelper` is a helper function for the `GetProposal` method of the governance precompile contract.
+func (c *Contract) getProposalHelper(ctx context.Context, proposalID *big.Int) ([]any, error) {
+	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
+		ProposalId: proposalID.Uint64(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return []any{transformProposalToABIProposal(*res.Proposal)}, nil
+}
+
+// `getProposalsHelper` is a helper function for the `GetProposal` method of the governance precompile contract.
+func (c *Contract) getProposalsHelper(
+	ctx context.Context,
+	proposalStatus int32,
+	voter,
+	depositor sdk.AccAddress,
+) ([]any, error) {
+	res, err := c.querier.Proposals(ctx, &v1.QueryProposalsRequest{
+		ProposalStatus: v1.ProposalStatus(proposalStatus),
+		Voter:          voter.String(),
+		Depositor:      depositor.String(),
+		Pagination:     nil,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var proposals []generated.IGovernanceModuleProposal
+	for _, proposal := range res.Proposals {
+		proposals = append(proposals, transformProposalToABIProposal(*proposal))
+	}
+
+	return []any{proposals}, nil
+}
+
+// `transformProposalToABIProposal` is a helper function to transform a `v1.Proposal` to an `IGovernanceModule.Proposal`.
+func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceModuleProposal {
+	var message []byte
+	for _, msg := range proposal.Messages {
+		message = append(message, msg.Value...)
+	}
+
+	var totalDeposit []generated.IGovernanceModuleCoin
+	for _, coin := range proposal.TotalDeposit {
+		totalDeposit = append(totalDeposit, generated.IGovernanceModuleCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return generated.IGovernanceModuleProposal{
+		Id:      proposal.Id,
+		Message: message,
+		Status:  int32(proposal.Status), // Status is an alias for int32.
+		FinalTallyResult: generated.IGovernanceModuleTallyResult{
+			YesCount:        proposal.FinalTallyResult.YesCount,
+			AbstainCount:    proposal.FinalTallyResult.AbstainCount,
+			NoCount:         proposal.FinalTallyResult.NoCount,
+			NoWithVetoCount: proposal.FinalTallyResult.NoWithVetoCount,
+		},
+		SubmitTime:      uint64(proposal.SubmitTime.Unix()),
+		DepositEndTime:  uint64(proposal.DepositEndTime.Unix()),
+		TotalDeposit:    totalDeposit,
+		VotingStartTime: uint64(proposal.VotingStartTime.Unix()),
+		VotingEndTime:   uint64(proposal.VotingEndTime.Unix()),
+		Metadata:        proposal.Metadata,
+		Title:           proposal.Title,
+		Summary:         proposal.Summary,
+		Proposer:        proposal.Proposer,
+	}
 }

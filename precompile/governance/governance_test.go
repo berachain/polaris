@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"math/big"
 	"testing"
+	"time"
 
 	"cosmossdk.io/math"
 	"github.com/golang/mock/gomock"
@@ -129,7 +130,7 @@ func setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	return ctx, bk, gk
 }
 
-func TestStakingPrecompile(t *testing.T) {
+func TestGovernancePrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "precompile/governance")
 }
@@ -470,6 +471,143 @@ var _ = Describe("Governance Precompile", func() {
 				Expect(res).ToNot(BeNil())
 			})
 		})
+		When("Reading Methods", func() {
+			BeforeEach(func() {
+				gk.SetProposal(ctx, v1.Proposal{
+					Id:               2,
+					Proposer:         caller.String(),
+					Messages:         []*codectypes.Any{},
+					Status:           v1.StatusVotingPeriod,
+					FinalTallyResult: &v1.TallyResult{},
+					SubmitTime:       &time.Time{},
+					DepositEndTime:   &time.Time{},
+					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
+					VotingStartTime:  &time.Time{},
+					VotingEndTime:    &time.Time{},
+					Metadata:         "metadata",
+					Title:            "title",
+					Summary:          "summary",
+					Expedited:        false,
+				})
+				gk.SetProposal(ctx, v1.Proposal{
+					Id:               3,
+					Proposer:         caller.String(),
+					Messages:         []*codectypes.Any{},
+					Status:           v1.StatusVotingPeriod,
+					FinalTallyResult: &v1.TallyResult{},
+					SubmitTime:       &time.Time{},
+					DepositEndTime:   &time.Time{},
+					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
+					VotingStartTime:  &time.Time{},
+					VotingEndTime:    &time.Time{},
+					Metadata:         "metadata",
+					Title:            "title",
+					Summary:          "summary",
+					Expedited:        false,
+				})
+			})
+			When("GetProposal", func() {
+				It("should fail if the proposal ID is of invalid type", func() {
+					res, err := contract.GetProposal(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						"invalid",
+					)
+					Expect(err).To(MatchError(polarisprecompile.ErrInvalidBigInt))
+					Expect(res).To(BeNil())
+				})
+				It("should get the proposal", func() {
+					res, err := contract.GetProposal(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						big.NewInt(2),
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+					Expect(len(res)).To(Equal(1))
+				})
+			})
+			When("GetProposalsStringAddr", func() {
+				It("should fail if the proposal status is of invalid type", func() {
+					res, err := contract.GetProposalStringAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						"invalid",
+					)
+					Expect(err).To(MatchError(polarisprecompile.ErrInvalidInt32))
+					Expect(res).To(BeNil())
+				})
+				It("should fail if the voter string is not string", func() {
+					res, err := contract.GetProposalStringAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						123,
+					)
+					Expect(err).To(MatchError(polarisprecompile.ErrInvalidString))
+					Expect(res).To(BeNil())
+				})
+				It("should fail if the voter address is not string", func() {
+					res, err := contract.GetProposalStringAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						"addr",
+						123,
+					)
+					Expect(err).To(MatchError(polarisprecompile.ErrInvalidString))
+					Expect(res).To(BeNil())
+				})
+				It("should fail if the voter address is not valid bech32", func() {
+					res, err := contract.GetProposalStringAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						"addr",
+						"addr",
+					)
+					Expect(err).To(HaveOccurred())
+					Expect(res).To(BeNil())
+				})
+				It("should fail if the depositor address is not bech32", func() {
+					res, err := contract.GetProposalStringAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						caller.String(),
+						"addr",
+					)
+					Expect(err).To(HaveOccurred())
+					Expect(res).To(BeNil())
+				})
+				It("should get the proposals", func() {
+					res, err := contract.GetProposalStringAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						caller.String(),
+						caller.String(),
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+		})
 	})
-
 })
