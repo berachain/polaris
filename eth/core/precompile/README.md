@@ -1,6 +1,6 @@
 # Precompiles
 
-Polaris Ethereum supports the execution of **stateless** and **stateful** precompiled contracts. 
+Polaris VM supports the execution of **stateless** and **stateful** precompiled contracts. 
 
 ## Stateless Precompiles
 
