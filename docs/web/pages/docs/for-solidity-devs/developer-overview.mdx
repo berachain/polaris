@@ -6,9 +6,9 @@ how to use your existing projects on Polaris Ethereum, as well as any additional
 
 ## Polaris Ethereum EVM 
 
-Polaris Ethereum's EVM is designed to be as interoperable with go-ethereum as possible, which means that any tool that works with [Geth](https://geth.ethereum.org/) can also be used to interact with Polaris Ethereum. The EVM is still responsible for executing Solidity smart contracts and managing the chain's data structures and blocks. By using CometBFT's consensus protocol and the Cosmos-SDK, Polaris Ethereum is able to access Cosmos-SDK properties through [precompiles](../building-precompiles/intro-to-precompiles), while also remaining compatible with all Ethereum Solidity smart contracts.
+Polaris' EVM is designed to be as interoperable with go-ethereum as possible, which means that any tool that works with [Geth](https://geth.ethereum.org/) can also be used to interact with Polaris Ethereum. The EVM is still responsible for executing Solidity smart contracts and managing the chain's data structures and blocks. By using CometBFT's consensus protocol and the Cosmos-SDK, Polaris Ethereum is able to access Cosmos-SDK properties through [precompiles](../building-precompiles/intro-to-precompiles), while also remaining compatible with all Ethereum Solidity smart contracts.
 
-It's important to note that Polaris Ethereum's EVM is interoperable with its Cosmos-SDK Application Layer. This means that Smart Contract Developers have access to base Cosmos-SDK modules through the EVM. With this new feature, developers can access Cosmos features like on-chain governance, the IBC protocol, and various other Cosmos-SDK modules.
+It's important to note that Polaris' EVM is interoperable with its Cosmos-SDK Application Layer. This means that Smart Contract Developers have access to base Cosmos-SDK modules through the EVM. With this new feature, developers can access Cosmos features like on-chain governance, the IBC protocol, and various other Cosmos-SDK modules.
 
 From the perspective of a Smart Contract, it will run in the same way as it would on Ethereum, but with additional contract addresses that provide access to the chain's Cosmos-SDK modules.
 
@@ -19,7 +19,7 @@ contract address and an ABI which you can find [here](../precompile-overview).
 
 For an example contract that interacts with Polaris Ethereum's staking precompile you
 can reference our [Liquid Staking Example](https://github.com/berachain/polaris-precompile-dapp-examples).
-## Accessing Polaris Ethereum's EVM
+## Accessing Polaris' EVM
 
 ### Running a local Polaris Ethereum Development environment
 For a guide on how to run a local development environment, please refer to the [Local Machine](../running-a-node/running-locally) section.
