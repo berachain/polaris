@@ -1,14 +1,17 @@
-## Running a Local Polaris VM Cosmos-SDK Chain
+## Running a Local Polaris Ethereum Cosmos-SDK Chain
+
+<div className="steps-container">
+## Running a Local Polaris Ethereum Cosmos-SDK Chain
 
 ### From Binary
 
-The easiest way to install a Cosmos-SDK Blockchain running Polaris VM is to download a pre-built binary. You can find the latest binaries on the [releases](https://github.com/berachain/polaris/releases) page.
+The easiest way to install a Cosmos-SDK Blockchain running Polaris Ethereum is to download a pre-built binary. You can find the latest binaries on the [releases](https://github.com/berachain/polaris/releases) page.
 
 ### From Source
 
 **Step 1: Install Golang & Foundry**
 
-Go v1.20+ or higher is required for Polaris VM
+Go v1.20+ or higher is required for Polaris Ethereum
 
 1. Install [Go 1.20+ from the official site](https://go.dev/dl/) or the method of your choice. Ensure that your `GOPATH` and `GOBIN` environment variables are properly set up by using the following commands:
 
@@ -36,7 +39,7 @@ Go v1.20+ or higher is required for Polaris VM
    go version
    ```
 
-[Foundry](https://book.getfoundry.sh/getting-started/installation) is required for Polaris VM
+[Foundry](https://book.getfoundry.sh/getting-started/installation) is required for Polaris Ethereum
 
 3. Install Foundry:
 
@@ -44,7 +47,7 @@ Go v1.20+ or higher is required for Polaris VM
    curl -L https://foundry.paradigm.xyz | bash
    ```
 
-**Step 2: Get Polaris VM source code**
+**Step 2: Get Polaris Ethereum source code**
 
 Clone the `polaris` repo from the [official repo](https://github.com/berachain/polaris/) and check
 out the `main` branch for the latest stable release.
@@ -91,3 +94,4 @@ After ensuring dependecies are installed correctly, run the following command to
 ```bash
 mage start
 ```
+</div>

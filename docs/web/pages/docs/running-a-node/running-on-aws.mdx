@@ -1,4 +1,4 @@
-## Running a Polaris VM Cosmos-SDK Chain on AWS
+## Running a Polaris Ethereum Cosmos-SDK Chain on AWS
 
 The recommended way to run fault tolerant nodes that can scale to millions of requests per second would be
 with orchestration tool like [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/). Another option is to run the node on an [EC2](https://aws.amazon.com/pm/ec2/) instance.
@@ -7,14 +7,16 @@ AWS offers [Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/) which
 It allows us to run lightweight pods in which you can deploy container images. On a failure, a new container automatically comes up. Each pod
 can also be attached to a volume that can provide elastic disk storage. It also allows us to scale horizontally by adding more nodes/pods/containers on demand to the network.
 
-### Example EKS architecture
+<div className="steps-container">
+
+## Example EKS architecture
 
 Currently, the application runs in 1 container so we can deploy 1 container in each pod. Pod is the smallest resource that
 Kubernetes can manage. It can have 1 or more than 1 containers.
 
 Before we can set up pods, we need to set up our EKS cluster -
 
-**Step 1: Install AWS CLI and configure AWS Credentials**
+### Install AWS CLI and configure AWS Credentials
 
 1. Install AWS CLI for your local machine from [docs](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
@@ -36,7 +38,7 @@ Before we can set up pods, we need to set up our EKS cluster -
    }
    ```
 
-**Step 2: Install eksctl and kubectl**
+### Install eksctl and kubectl
 
 `eksctl` allows us to manage our EKS cluster and `kubectl` allows us to manage kubernetes resources.
 
@@ -56,7 +58,7 @@ Before we can set up pods, we need to set up our EKS cluster -
    kubectl version
    ```
 
-**Step 3: Set up EKS cluster**
+### Set up EKS cluster
 
 EKS is a managed Kubernetes cluster and AWS will manage our nodes for us. Clusters can also have controllers/add-ons
 that help control and incorporate cloud specific resources
@@ -71,7 +73,7 @@ that help control and incorporate cloud specific resources
 
 2. Setup AWS load balancer controller from [docs](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html). This will help kubernetes manage our AWS load balancer.
 
-**Step 4: View Kubernetes resources**
+### View Kubernetes resources
 
 1. View your cluster nodes (which were deployed by eksctl)
 
@@ -85,7 +87,7 @@ that help control and incorporate cloud specific resources
    ip-192-168-36-235.us-west-2.compute.internal   Ready    <none>   45h   v1.24.10-eks-48e63af   192.168.36.235   192.168.36.235    Amazon Linux 2   5.10.165-143.735.amzn2.x86_64   containerd://1.6.6
    ```
 
-**Step 5: Create kubernetes resources**
+### Create kubernetes resources
 
     Kubernetes allows us to deploy a few types of `workloads` and `services`. Workloads control the pods and Services control the access to the pod.
     For our simple case, we will use workload of type `Deployment` and service of type `LoadBalancer`. Our container is deployed inside the pod.
@@ -201,3 +203,4 @@ For our service, as we want our node to be access from the public internet, we w
    ```sh
    curl -X POST <load_balancer_url>/eth/rpc -H 'Content-Type: application/json' -d '{ "jsonrpc":"2.0", "method":"eth_blockNumber", "params":[], "id":1}'
    ```
+</div>
