@@ -1,4 +1,5 @@
-# The Polaris Playground
+![](./docs/web/public/playground.png)
+&nbsp;
 
 > The Polaris Playground is a simple, in-memory local development environment for Polaris VM. It is intended to be used for development and testing of experimental Polaris VM features, by simulating an extremely simple blockchain. It is not intended for production use.
 
@@ -10,3 +11,4 @@
 $ docker-compose up
 ```
 
+🚧 THE PLAYGROUND IS COMING SOON MY DUDES 🚧
