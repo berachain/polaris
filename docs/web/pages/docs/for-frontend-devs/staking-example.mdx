@@ -158,7 +158,7 @@ function App({ Component, pageProps }: AppProps) {
     <WagmiConfig client={client}>
       <RainbowKitProvider chains={chains}>
         <NextHead>
-          <title>Polaris VM Example Dapp</title>
+          <title>Polaris Ethereum Example Dapp</title>
         </NextHead>
         <ChakraProvider theme={theme}>
           {mounted && <Component {...pageProps} />}
@@ -175,7 +175,7 @@ We now have a basic themed Chakra UI setup.
 
 ### Configuring `wagmi.ts`
 
-In order to point this dapp towards a Polaris VM local node, 
+In order to point this dapp towards a Polaris Ethereum local node, 
 we need to modify `wagmi.ts`.
 
 Make `wagmi.ts` look like this:
@@ -186,14 +186,14 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { metaMaskWallet } from '@rainbow-me/rainbowkit/wallets';
 
-// Configure chain information for local Polaris VM chain
+// Configure chain information for local Polaris Ethereum chain
 const polarisChain: Chain = {
   id: 69420,
-  name: 'Polaris VM's,
+  name: 'Polaris Ethereum's,
   network: 'polaris',
   nativeCurrency: {
     decimals: 18,
-    name: 'Polaris VM's,
+    name: 'Polaris Ethereum's,
     symbol: 'tbera',
   },
   rpcUrls: {
@@ -206,7 +206,7 @@ const polarisChain: Chain = {
   }
 };
 
-// Configure Wagmi client with Polaris VM chain
+// Configure Wagmi client with Polaris Ethereum chain
 const { provider, chains } = configureChains(
   [polarisChain],
   [
@@ -238,7 +238,7 @@ export { chains }
 
 ### Adding Utility Functions
 
-We will need to add some utility functions to our dApp. These functions will help us interact with the Polaris VM precompile.
+We will need to add some utility functions to our dApp. These functions will help us interact with the Polaris Ethereum precompile.
 
 ### Creating a `utils` Folder
 Under the `src` folder, create a new folder called `utils`. This will hold our utility functions.
@@ -959,10 +959,10 @@ function Page() {
         {/* Rainbow Kit Connect Button floating top right of the screen */}
         <ConnectButton />
       </Box>
-      <Text fontSize={'4xl'}>Polaris VM Staking Precompile Example</Text>
-      <Text fontSize={'xl'}>Ensure you have a Local <Link color={'#1da1f1'} href='TODO ADD LINK'>Polaris VM Node running.</Link></Text>
+      <Text fontSize={'4xl'}>Polaris Ethereum Staking Precompile Example</Text>
+      <Text fontSize={'xl'}>Ensure you have a Local <Link color={'#1da1f1'} href='TODO ADD LINK'>Polaris Ethereum Node running.</Link></Text>
       <Staking />
-      <Text fontSize={'xs'}>To learn more about Polaris VM please reference our <Link color={'#1da1f1'} href='TODO ADD LINK'>docs</Link></Text>
+      <Text fontSize={'xs'}>To learn more about Polaris Ethereum please reference our <Link color={'#1da1f1'} href='TODO ADD LINK'>docs</Link></Text>
     </Flex>
   )
 }
@@ -1175,7 +1175,7 @@ This will open a browser window at `http://localhost:3000/` and you should see t
 ### Conclusion
 
 Congratulations! You have now created a staking application using the EVM! You can now delegate your tBera to a validator and earn rewards!
-Prior to Polaris VM's precompiled contracts, the UX of this task would be more complicated and foreign as it involves
+Prior to Polaris Ethereum's precompiled contracts, the UX of this task would be more complicated and foreign as it involves
 many moving parts and having to use Cosmos through Metamask. Now, with the Staking precompile, we can enjoy interacting with 
 Cosmos through an EVM native experience!
 

@@ -7,7 +7,7 @@ import { Callout, FileTree } from "nextra-theme-docs";
 ## Introduction
 
 This guide shows how to deploy and interact with smart contracts using foundry
-on a local Polaris VM EVM network.
+on a local Polaris Ethereum EVM network.
 
 [Foundry toolchain](https://github.com/foundry-rs/foundry) is a smart contract
 development toolchain written in Rust. It manages your dependencies, compiles
@@ -17,7 +17,7 @@ command-line.
 ## Recommended Knowledge
 
 - Basic understanding of [Solidity](https://docs.soliditylang.org) and [Cosmos](https://docs.cosmos.network/main).
-- Basic understanding of the [Polaris VM's architecture](../../architecture)
+- Basic understanding of the [Polaris Ethereum's architecture](../../architecture)
 - Basic understanding of [Liquid Staking](https://docs.stride.zone/docs/getting-started-liquid-stake)
 
 ## Requirements
@@ -26,9 +26,9 @@ command-line.
   Foundry](https://github.com/foundry-rs/foundry#installation) and run `foundryup`. This
   installation includes the `forge` and `cast` binaries used in this
   walk-through.
-- You have a running instance of Polaris VM EVM. See [Local Machine](../../running-a-node/running-locally) to run Polaris VM locally.
+- You have a running instance of Polaris Ethereum EVM. See [Local Machine](../../running-a-node/running-locally) to run Polaris Ethereum locally.
 
-## Polaris VM Liquid Staking Smart Contract Example
+## Polaris Ethereum Liquid Staking Smart Contract Example
 
 ### Create A New Project With forge
 
@@ -53,11 +53,15 @@ Let's create a new project called "polaris-lsd-example" with forge.
   </FileTree.Folder>
 </FileTree>
 
+<<<<<<< HEAD
 ### Add Configurations For Local Polaris VM
+=======
+#### 2. Add Configurations For Local Polaris Ethereum
+>>>>>>> main
 
 <Callout emoji="💡">
-  Ensure that you have a local instance of Polaris VM Running. See [Local
-  Machine](../../running-a-node/running-locally) to run Polaris VM locally.
+  Ensure that you have a local instance of Polaris Ethereum Running. See [Local
+  Machine](../../running-a-node/running-locally) to run Polaris Ethereum locally.
 </Callout>
 
 You can add a profile to your foundry project by appending the following lines to the end of your foundry.toml file:
@@ -78,7 +82,7 @@ evm_version = 'berlin'
 eth_rpc_url = 'http://localhost:1317/eth/rpc'
 ```
 
-To test the configurations above, let's deploy the generated contract in the "Counter.sol" file to the Polaris VM localnet:
+To test the configurations above, let's deploy the generated contract in the "Counter.sol" file to the Polaris Ethereum localnet:
 
 ```bash
 FOUNDRY_PROFILE=polaris_local forge create Counter --private-key=xxxxxxxxxxx
@@ -560,6 +564,6 @@ FOUNDRY_PROFILE=polaris_local cast send --private-key=xxxxxxxxxxx <deployed_cont
 
 ###  🎉 Congratulations! 🎉
 
-Congratulations! You have successfully created and deployed a Liquid Staking contract on Polaris VM via Foundry!
+Congratulations! You have successfully created and deployed a Liquid Staking contract on Polaris Ethereum via Foundry!
 
 </div>

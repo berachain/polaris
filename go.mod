@@ -12,7 +12,7 @@ require (
 	github.com/golangci/golangci-lint v1.51.2
 	github.com/google/addlicense v1.1.1
 	github.com/magefile/mage v1.14.0
-	github.com/matryer/moq v0.3.0
+	github.com/matryer/moq v0.3.1
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/securego/gosec/v2 v2.15.0
 	github.com/segmentio/golines v0.11.0
