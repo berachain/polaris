@@ -58,6 +58,12 @@ interface IGovernanceModule {
         string calldata depositor
     ) external view returns (Proposal[] memory);
 
+    function getProposalsAddr(
+        int32 proposalStatus,
+        address voter,
+        address depositor
+    ) external view returns (Proposal[] memory);
+
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
     /**
      * @dev Represents a cosmos coin.

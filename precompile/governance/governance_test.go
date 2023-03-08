@@ -608,6 +608,57 @@ var _ = Describe("Governance Precompile", func() {
 					Expect(res).ToNot(BeNil())
 				})
 			})
+			When("GetProposalsAddr", func() {
+				It("should fail if the proposal status is of invalid type", func() {
+					res, err := contract.GetProposalsAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						"invalid",
+					)
+					Expect(err).To(MatchError(polarisprecompile.ErrInvalidInt32))
+					Expect(res).To(BeNil())
+				})
+				It("should fail if the voter address is not common.Address", func() {
+					res, err := contract.GetProposalsAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						"addr",
+					)
+					Expect(err).To(MatchError(polarisprecompile.ErrInvalidHexAddress))
+					Expect(res).To(BeNil())
+				})
+				It("should fail if the depositor address is not common.Address", func() {
+					res, err := contract.GetProposalsAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						evmutils.AccAddressToEthAddress(caller),
+						"addr",
+					)
+					Expect(err).To(MatchError(polarisprecompile.ErrInvalidHexAddress))
+					Expect(res).To(BeNil())
+				})
+				It("should get the proposals", func() {
+					res, err := contract.GetProposalsAddr(
+						ctx,
+						evmutils.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+						evmutils.AccAddressToEthAddress(caller),
+						evmutils.AccAddressToEthAddress(caller),
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
 		})
 	})
 })

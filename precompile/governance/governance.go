@@ -256,3 +256,27 @@ func (c *Contract) GetProposalStringAddr(
 
 	return c.getProposalsHelper(ctx, proposalStatus, voterAddr, depositorAddr)
 }
+
+// `GetProposalsAddr` is the method for the `getProposalsAddr` method of the governance precompile contract.
+func (c *Contract) GetProposalsAddr(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	proposalStatus, ok := utils.GetAs[int32](args[0])
+	if !ok {
+		return nil, polarisprecompile.ErrInvalidInt32
+	}
+	voter, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, polarisprecompile.ErrInvalidHexAddress
+	}
+	depositor, ok := utils.GetAs[common.Address](args[2])
+	if !ok {
+		return nil, polarisprecompile.ErrInvalidHexAddress
+	}
+
+	return c.getProposalsHelper(ctx, proposalStatus, voter.Bytes(), depositor.Bytes())
+}
