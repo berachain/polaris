@@ -80,24 +80,6 @@ func (c *Contract) cancelProposalHelper(
 	return []any{big.NewInt(res.CanceledTime.Unix()), big.NewInt(int64(res.CanceledHeight))}, nil
 }
 
-// `execLegacyContentHelper` is a helper function for the `ExecLegacyContent`
-// method of the governance precompile contract.
-func (c *Contract) execLegacyContentHelper(
-	ctx context.Context,
-	content *codectypes.Any,
-	authority string,
-) ([]any, error) {
-	_, err := c.msgServer.ExecLegacyContent(ctx, &v1.MsgExecLegacyContent{
-		Content:   content,
-		Authority: authority,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return []any{}, nil
-}
-
 // `voteHelper` is a helper function for the `Vote` method of the governance precompile contract.
 func (c *Contract) voteHelper(
 	ctx context.Context,
@@ -179,7 +161,7 @@ func (c *Contract) getProposalsHelper(
 		return nil, err
 	}
 
-	var proposals []generated.IGovernanceModuleProposal
+	proposals := make([]generated.IGovernanceModuleProposal, 0)
 	for _, proposal := range res.Proposals {
 		proposals = append(proposals, transformProposalToABIProposal(*proposal))
 	}
@@ -187,14 +169,15 @@ func (c *Contract) getProposalsHelper(
 	return []any{proposals}, nil
 }
 
-// `transformProposalToABIProposal` is a helper function to transform a `v1.Proposal` to an `IGovernanceModule.Proposal`.
+// `transformProposalToABIProposal` is a helper function to transform a `v1.Proposal`
+// to an `IGovernanceModule.Proposal`.
 func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceModuleProposal {
-	var message []byte
+	message := make([]byte, 0)
 	for _, msg := range proposal.Messages {
 		message = append(message, msg.Value...)
 	}
 
-	var totalDeposit []generated.IGovernanceModuleCoin
+	totalDeposit := make([]generated.IGovernanceModuleCoin, 0)
 	for _, coin := range proposal.TotalDeposit {
 		totalDeposit = append(totalDeposit, generated.IGovernanceModuleCoin{
 			Denom:  coin.Denom,

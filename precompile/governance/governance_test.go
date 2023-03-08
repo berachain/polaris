@@ -26,8 +26,9 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/golang/mock/gomock"
+
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -528,7 +529,7 @@ var _ = Describe("Governance Precompile", func() {
 					)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(res).ToNot(BeNil())
-					Expect(len(res)).To(Equal(1))
+					Expect(res).To(HaveLen(1))
 				})
 			})
 			When("GetProposalsStringAddr", func() {
