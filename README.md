@@ -40,11 +40,12 @@ This meant that we had to built Polaris with serveral core principles in mind:
     ├── docs                    # Documentation files
     ├── eth                     # The core Polaris VM implementation
     ├── lib                     # Library files usable throughout the repo
-    ├── pkg                     
-    │   └── cosmos              # A Cosmos integration of Polaris
-    │         ├── ....
-    │         ├── ....
-    │         └── x/evm         # Cosmos `x/evm` module
+    ├── host                     
+    │   ├── cosmos              # A Cosmos integration of Polaris
+    │   │     ├── ....
+    │   │     ├── ....
+    │   │     └── x/evm         # Cosmos `x/evm` module
+    │   └── playground          # We love the playground
     ├── testutil                # Various testing utilities
     ├── LICENSE                 # Licensing information
     └── README.md               # This README

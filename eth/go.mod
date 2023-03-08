@@ -9,7 +9,7 @@ replace (
 )
 
 require (
-	github.com/ethereum/go-ethereum v1.11.2
+	github.com/ethereum/go-ethereum v1.11.3
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.2
 	pkg.berachain.dev/polaris/lib v0.0.0-00010101000000-000000000000
