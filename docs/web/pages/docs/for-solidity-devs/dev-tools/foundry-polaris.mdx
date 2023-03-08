@@ -2,6 +2,8 @@ import { Callout, FileTree } from "nextra-theme-docs";
 
 # Using Foundry with Polaris
 
+<div className="steps-container">
+
 ## Introduction
 
 This guide shows how to deploy and interact with smart contracts using foundry
@@ -28,7 +30,7 @@ command-line.
 
 ## Polaris Ethereum Liquid Staking Smart Contract Example
 
-#### 1. Create A New Project With forge
+### Create A New Project With forge
 
 Let's create a new project called "polaris-lsd-example" with forge.
 `forge init polaris-lsd-example`
@@ -51,7 +53,7 @@ Let's create a new project called "polaris-lsd-example" with forge.
   </FileTree.Folder>
 </FileTree>
 
-#### 2. Add Configurations For Local Polaris Ethereum
+### Add Configurations For Local Polaris Ethereum
 
 <Callout emoji="💡">
   Ensure that you have a local instance of Polaris Ethereum Running. See [Local
@@ -90,7 +92,7 @@ FOUNDRY_PROFILE=polaris_local forge create Counter --private-key=xxxxxxxxxxx
 
 If everything goes well, forge will print out the address of the deployed contract and the transaction hash for the deployment.
 
-#### 3. Install Dependencies
+### Install Dependencies
 
 We will build the Liquid Staking contract based on [Solmate](https://github.com/transmissions11/solmate) contracts.
 
@@ -98,7 +100,7 @@ To install solmate, run the following command:
 
 `forge install transmissions11/solmate`
 
-#### 4. Add Remappings.txt
+### Add Remappings.txt
 
 Foundry installs all dependencies as git submodules under the directory of "lib".
 And to make it easier to import the dependencies, let's create a `remappings.txt` file with the following contents:
@@ -130,7 +132,7 @@ Your file system should now look like this:
   </FileTree.Folder>
 </FileTree>
 
-#### 5. Create The Staking Module interface
+### Create The Staking Module interface
 
 We need a way of interacting with the staking module. This can be done through the use of an Interface.
 More information on Interfaces in Solidity can be found [here](https://www.alchemy.com/overviews/solidity-interface#:~:text=What%20is%20the%20Solidity%20interface,and%20functions%20on%20a%20contract.)
@@ -385,7 +387,7 @@ Your file system should now look like this after adding `IStakingModule.sol`:
   </FileTree.Folder>
 </FileTree>
 
-#### 6. Create The Liquid Staking Contract
+### Create The Liquid Staking Contract
 
 We are now going to create the Liquid Staking Contract.
 Create a new file under the `src` directory called `LiquidStaking.sol` and add the following code:
@@ -489,7 +491,7 @@ Your file system should now look like this after adding `LiquidStaking.sol`:
   </FileTree.Folder>
 </FileTree>
 
-##### Functionality
+### Functionality
 
 `LiquidStaking.sol` is a Solidity smart contract that implements a basic liquid staking mechanism,
 allowing users to delegate tokens to a validator and receive staked tokens in return.
@@ -504,7 +506,7 @@ The key features of the contract are:
 Overall, this contract allows users to stake their tokens through a validator,
 receiving a tokenized version of their stake that can be traded or transferred like any other ERC20 token. _Note_: this is an example and not production code.
 
-#### 7. Deploy The Liquid Staking Contract
+### Deploy The Liquid Staking Contract
 
 To deploy your Liquid Staking contract you can run the following script:
 
@@ -547,7 +549,7 @@ FOUNDRY_PROFILE=polaris_local forge script src/examples/Deploy.s.sol:Deploy --br
 
 If everything goes well, forge will print out the address of the deployed contract and the transaction hash for the deployment.
 
-#### 8. Test The Liquid Staking Contract
+### Test The Liquid Staking Contract
 
 We can now test our Liquid Staking contract by delegating and receiving
 a tokenized version of our stake. To do so, run the following script:
@@ -556,6 +558,8 @@ a tokenized version of our stake. To do so, run the following script:
 FOUNDRY_PROFILE=polaris_local cast send --private-key=xxxxxxxxxxx <deployed_contract_address> ‘delegate()’ 1
 ```
 
-#### 9. 🎉 Congratulations! 🎉
+###  🎉 Congratulations! 🎉
 
 Congratulations! You have successfully created and deployed a Liquid Staking contract on Polaris Ethereum via Foundry!
+
+</div>
