@@ -71,7 +71,7 @@ func BuildPolarisApp() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./pkg/cosmos/cmd/" + cmd,
+		"./host/cosmos/cmd/" + cmd,
 	}
 	return goBuild(args...)
 }
@@ -127,7 +127,7 @@ func Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./pkg/cosmos/cmd/polard",
+		"./host/cosmos/cmd/polard",
 	}
 
 	return goInstall(args...)

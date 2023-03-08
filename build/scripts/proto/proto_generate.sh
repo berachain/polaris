@@ -44,7 +44,7 @@ for dir in $proto_dirs; do
 done
 
 # move proto files to the right places
-cp -r pkg.berachain.dev/polaris/cosmos/* ../pkg/cosmos
+cp -r pkg.berachain.dev/polaris/cosmos/* ../host/cosmos
 rm -rf pkg.berachain.dev
 
 cd ../

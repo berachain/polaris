@@ -38,7 +38,7 @@ import (
 
 func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "pkg/cosmos/cmd/polard/cmd:integration")
+	RunSpecs(t, "host/cosmos/cmd/polard/cmd:integration")
 }
 
 var _ = Describe("Init command", func() {
