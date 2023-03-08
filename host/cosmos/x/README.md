@@ -2,4 +2,4 @@
 
 Polaris implements the following custom modules:
 
-* `evm` - Intergrates the Polaris VM as a Cosmos-SDK module
+* `evm` - Intergrates the Polaris Ethereum as a Cosmos-SDK module
