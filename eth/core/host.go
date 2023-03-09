@@ -62,7 +62,7 @@ type (
 		NewHeaderWithBlockNumber(int64) *types.Header
 		// `GetHeaderByNumber` returns the block header at the given block number.
 		GetHeaderByNumber(int64) (*types.Header, error)
-		// `GetHeaderByNumber` returns the block header at the given block number.
+		// `GetBlockByNumber` returns the block at the given block number.
 		GetBlockByNumber(int64) (*types.Block, error)
 		// `GetBlockByHash` returns the block at the given block hash.
 		GetBlockByHash(common.Hash) (*types.Block, error)

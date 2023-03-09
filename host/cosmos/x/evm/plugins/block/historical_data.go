@@ -51,7 +51,7 @@ func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretype
 	numBz := sdk.Uint64ToBigEndian(blockNum)
 	prefix.NewStore(p.offchainStore, blockHashToNumPrefix).Set(blockHash.Bytes(), numBz)
 
-	// stpre block hash to receipts.
+	// store block hash to receipts.
 	receiptsBz, err := marshalReceipts(receipts)
 	if err != nil {
 		p.ctx.Logger().Error(
