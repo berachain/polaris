@@ -22,6 +22,7 @@ package governance
 
 import (
 	"context"
+	"fmt"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -141,6 +142,28 @@ func (c *Contract) getProposalHelper(ctx context.Context, proposalID uint64) ([]
 		return nil, err
 	}
 	return []any{transformProposalToABIProposal(*res.Proposal)}, nil
+}
+
+// `getProposalsHelper` is a helper function for the `GetProposal` method of the governance precompile contract.
+func (c *Contract) getProposalsHelper(
+	ctx context.Context,
+	proposalStatus int32,
+) ([]any, error) {
+	res, err := c.querier.Proposals(ctx, &v1.QueryProposalsRequest{
+		ProposalStatus: v1.ProposalStatus(proposalStatus),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("RES", res)
+
+	proposals := make([]generated.IGovernanceModuleProposal, 0)
+	for _, proposal := range res.Proposals {
+		proposals = append(proposals, transformProposalToABIProposal(*proposal))
+	}
+
+	return []any{proposals}, nil
 }
 
 // `transformProposalToABIProposal` is a helper function to transform a `v1.Proposal`

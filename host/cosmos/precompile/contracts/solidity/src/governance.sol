@@ -49,6 +49,20 @@ interface IGovernanceModule {
         uint256 proposalId
     ) external view returns (Proposal memory);
 
+    /**
+     *@dev Get proposals with a given status.
+     */
+    function getProposalsStringAddr(
+        int32 proposalStatus
+    ) external view returns (Proposal[] memory);
+
+    /**
+     *@dev Get proposals with a given status, voter, and depositor, using eth addresses.
+     */
+    function getProposalsAddr(
+        int32 proposalStatus
+    ) external view returns (Proposal[] memory);
+
     ////////////////////////////////////////// Utils  ///////////////////////////////////////////////////
 
     /**

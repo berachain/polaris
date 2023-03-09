@@ -39,6 +39,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -446,6 +447,34 @@ var _ = Describe("Governance Precompile", func() {
 					Expect(err).ToNot(HaveOccurred())
 					Expect(res).ToNot(BeNil())
 					Expect(res).To(HaveLen(1))
+				})
+			})
+			When("GetProposals", func() {
+				BeforeEach(func() {
+					// Not filled proposal, hence will panic the parser.
+					contract.CancelProposal(ctx, common.Address(caller), big.NewInt(0), false, uint64(1))
+				})
+				It("should fail if the status is of invalid type", func() {
+					res, err := contract.GetProposals(
+						ctx,
+						cosmlib.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						"",
+					)
+					Expect(err).To(MatchError(precompile.ErrInvalidInt32))
+					Expect(res).To(BeNil())
+				})
+				It("should get the proposals", func() {
+					res, err := contract.GetProposals(
+						ctx,
+						cosmlib.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						int32(0),
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
 				})
 			})
 		})

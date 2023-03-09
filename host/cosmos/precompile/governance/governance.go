@@ -191,3 +191,19 @@ func (c *Contract) GetProposal(
 
 	return c.getProposalHelper(ctx, proposalID)
 }
+
+// `GetProposals` is the method for the `getProposal` method of the governance precompile contract.
+func (c *Contract) GetProposals(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	proposalStatus, ok := utils.GetAs[int32](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidInt32
+	}
+
+	return c.getProposalsHelper(ctx, proposalStatus)
+}
