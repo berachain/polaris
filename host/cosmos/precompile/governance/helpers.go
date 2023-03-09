@@ -22,7 +22,6 @@ package governance
 
 import (
 	"context"
-	"fmt"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -155,8 +154,6 @@ func (c *Contract) getProposalsHelper(
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("RES", res)
 
 	proposals := make([]generated.IGovernanceModuleProposal, 0)
 	for _, proposal := range res.Proposals {

@@ -49,8 +49,8 @@ type Contract struct {
 	querier   v1.QueryServer
 }
 
-// `NewContract` creates a new precompile contract for the governance module.
-func NewContract(gk **govkeeper.Keeper) coreprecompile.StatefulImpl {
+// `NewPrecompileContract` creates a new precompile contract for the governance module.
+func NewPrecompileContract(gk **govkeeper.Keeper) coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.GovernanceModuleMetaData.ABI)); err != nil {
 		panic(err)
@@ -67,7 +67,30 @@ func NewContract(gk **govkeeper.Keeper) coreprecompile.StatefulImpl {
 // `PrecompileMethods` implements the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 	return coreprecompile.Methods{
-		{},
+		{
+			AbiSig:  "submitProposal(bytes,[]tuple,string,string,string,bool)",
+			Execute: c.SubmitProposal,
+		},
+		{
+			AbiSig:  "cancelProposal(uint64)",
+			Execute: c.CancelProposal,
+		},
+		{
+			AbiSig:  "vote(uint64,int32,string)",
+			Execute: c.Vote,
+		},
+		{
+			AbiSig:  "voteWeighted(uint64,[]tuple,string)",
+			Execute: c.VoteWeighted,
+		},
+		{
+			AbiSig:  "getProposal(uint64)",
+			Execute: c.GetProposal,
+		},
+		{
+			AbiSig:  "getProposals(int32)",
+			Execute: c.GetProposals,
+		},
 	}
 }
 

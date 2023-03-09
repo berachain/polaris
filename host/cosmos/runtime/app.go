@@ -93,6 +93,7 @@ import (
 	addressprecompile "pkg.berachain.dev/polaris/cosmos/precompile/address"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/cosmos/precompile/distribution"
+	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
@@ -315,6 +316,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			bankprecompile.NewPrecompileContract(),
 			addressprecompile.NewPrecompileContract(),
 			distribution.NewPrecompileContract(),
+			govprecompile.NewPrecompileContract(&app.GovKeeper),
 		},
 		app.CreateQueryContext,
 	)
