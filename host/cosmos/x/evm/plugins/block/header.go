@@ -46,7 +46,7 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 
 // `GetHeaderByNumber` returns the header at the given height, using the plugin's query context.
 //
-// `GetHeaderByNumber` implements core.BlockPlugin.
+// `GetHeaderByNumber` implements core.HeaderPlugin.
 func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")

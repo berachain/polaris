@@ -45,7 +45,7 @@ type StateProcessor struct {
 	mtx sync.Mutex
 
 	// `bp` provides block functions from the underlying chain the EVM is running on
-	bp BlockPlugin
+	bp HeaderPlugin
 	// `gp` provides gas functions from the underlying chain the EVM is running on
 	gp GasPlugin
 	// `cp` provides configuration functions from the underlying chain the EVM is running on
@@ -83,7 +83,7 @@ func NewStateProcessor(
 ) *StateProcessor {
 	sp := &StateProcessor{
 		mtx:      sync.Mutex{},
-		bp:       host.GetBlockPlugin(),
+		bp:       host.GetHeaderPlugin(),
 		gp:       host.GetGasPlugin(),
 		cp:       host.GetConfigurationPlugin(),
 		pp:       host.GetPrecompilePlugin(),

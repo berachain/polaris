@@ -37,7 +37,7 @@ type chainContext struct {
 
 // `GetHeader` returns the header for the given hash and height. This is used by the `GetHashFn`.
 func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
-	header, _ := cc.blockchain.host.GetBlockPlugin().GetHeaderByNumber(int64(height))
+	header, _ := cc.blockchain.host.GetHeaderPlugin().GetHeaderByNumber(int64(height))
 	return header
 }
 

@@ -28,8 +28,8 @@ import (
 
 func NewMockHost() *PolarisHostChainMock {
 	mockedPolarisHostChain := &PolarisHostChainMock{
-		GetBlockPluginFunc: func() core.BlockPlugin {
-			panic("mock out the GetBlockPlugin method")
+		GetBlockPluginFunc: func() core.HeaderPlugin {
+			panic("mock out the GetHeaderPlugin method")
 		},
 		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
 			return NewConfigurationPluginMock()

@@ -31,12 +31,14 @@ import (
 
 // `PolarisHostChain` defines the plugins that the chain running Polaris EVM should implement.
 type PolarisHostChain interface {
-	// `GetBlockPlugin` returns the `BlockPlugin` of the Polaris host chain.
+	// `GetBlockPlugin` returns the OPTIONAL `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
 	// `GetConfigurationPlugin` returns the `ConfigurationPlugin` of the Polaris host chain.
 	GetConfigurationPlugin() ConfigurationPlugin
 	// `GetGasPlugin` returns the `GasPlugin` of the Polaris host chain.
 	GetGasPlugin() GasPlugin
+	// `GetHeaderPlugin` returns the `HeaderPlugin` of the Polaris host chain.
+	GetHeaderPlugin() HeaderPlugin
 	// `GetPrecompilePlugin` returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
 	// `GetStatePlugin` returns the `StatePlugin` of the Polaris host chain.
@@ -52,27 +54,37 @@ type PolarisHostChain interface {
 // The following plugins should be implemented by the chain running Polaris EVM and exposed via
 // the `PolarisHostChain` interface. All plugins should be resettable with a given context.
 type (
-	// `BlockPlugin` defines the methods that the chain running Polaris EVM should implement to
-	// support the `BlockPlugin` interface.
-	BlockPlugin interface {
-		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
-		// `BlockPlugin` to a default state.
+	// `HeaderPlugin` defines the methods that the chain running Polaris EVM should implement to
+	// support getting and setting block headers.
+	HeaderPlugin interface {
+		// `HeaderPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
+		// `HeaderPlugin` to a default state.
 		libtypes.Preparable
 		// `NewHeaderWithBlockNumber` returns a new block header with the given block number.
 		NewHeaderWithBlockNumber(int64) *types.Header
 		// `GetHeaderByNumber` returns the block header at the given block number.
 		GetHeaderByNumber(int64) (*types.Header, error)
-		// `GetBlockByNumber` returns the block at the given block number.
-		GetBlockByNumber(int64) (*types.Block, error)
-		// `GetBlockByHash` returns the block at the given block hash.
-		GetBlockByHash(common.Hash) (*types.Block, error)
-		// `GetTransactionByHash` returns the transaction lookup entry at the given
-		// transaction hash.
-		GetTransactionByHash(common.Hash) (*types.TxLookupEntry, error)
-		// `GetReceiptByHash` returns the receipts at the given block hash.
-		GetReceiptsByHash(common.Hash) (types.Receipts, error)
+		// `SetHeaderByNumber` sets the block header at the given block number.
+		SetHeaderByNumber(int64, *types.Header)
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
+	}
+
+	// `ConfigurationPlugin` defines the methods that the chain running Polaris EVM should
+	// implement in order to configuration the parameters of the Polaris EVM.
+	ConfigurationPlugin interface {
+		// `ConfigurationPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset
+		// the `ConfigurationPlugin` to a default state.
+		libtypes.Preparable
+		// `ChainConfig` returns the current chain configuration of the Polaris EVM.
+		ChainConfig() *params.ChainConfig
+		// `ExtraEips` returns the extra EIPs that the Polaris EVM supports.
+		ExtraEips() []int
+		// `The fee collector is utilized on chains that have a fee collector account. This was added
+		// specifically to support Cosmos-SDK chains, where we want the coinbase in the block header
+		// to be the operator address of the proposer, but we want the coinbase in the BlockContext
+		// to be the FeeCollectorAccount.
+		FeeCollector() *common.Address
 	}
 
 	// `GasPlugin` is an interface that allows the Polaris EVM to consume gas on the host chain.
@@ -106,24 +118,6 @@ type (
 		GetStateByNumber(int64) (StatePlugin, error)
 	}
 
-	// `ConfigurationPlugin` defines the methods that the chain running Polaris EVM should
-	// implement in order to configuration the parameters of the Polaris EVM.
-	ConfigurationPlugin interface {
-		// `ConfigurationPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset
-		// the `ConfigurationPlugin` to a default state.
-		libtypes.Preparable
-		// `ChainConfig` returns the current chain configuration of the Polaris EVM.
-		ChainConfig() *params.ChainConfig
-		// `ExtraEips` returns the extra EIPs that the Polaris EVM supports.
-		ExtraEips() []int
-
-		// `The fee collector is utilized on chains that have a fee collector account. This was added
-		// specifically to support Cosmos-SDK chains, where we want the coinbase in the block header
-		// to be the operator address of the proposer, but we want the coinbase in the BlockContext
-		// to be the FeeCollectorAccount.
-		FeeCollector() *common.Address
-	}
-
 	TxPoolPlugin interface {
 		SendTx(tx *types.Transaction) error
 		GetAllTransactions() (types.Transactions, error)
@@ -138,6 +132,22 @@ type (
 
 // `The following plugins are OPTIONAL to be implemented by the chain running Polaris EVM.
 type (
+	// `BlockPlugin` defines the methods that the chain running Polaris EVM should implement in
+	// order to support storing historical blocks, receipts, and transactions. This plugin will be
+	// used by the RPC backend to support certain methods on the Ethereum JSON RPC spec.
+	// Implementing this plugin is optional.
+	BlockPlugin interface {
+		// `GetBlockByNumber` returns the block at the given block number.
+		GetBlockByNumber(int64) (*types.Block, error)
+		// `GetBlockByHash` returns the block at the given block hash.
+		GetBlockByHash(common.Hash) (*types.Block, error)
+		// `GetTransactionByHash` returns the transaction lookup entry at the given
+		// transaction hash.
+		GetTransactionByHash(common.Hash) (*types.TxLookupEntry, error)
+		// `GetReceiptByHash` returns the receipts at the given block hash.
+		GetReceiptsByHash(common.Hash) (types.Receipts, error)
+	}
+
 	// `PrecompilePlugin` defines the methods that the chain running Polaris EVM should implement
 	// in order to support running their own stateful precompiled contracts. Implementing this
 	// plugin is optional.

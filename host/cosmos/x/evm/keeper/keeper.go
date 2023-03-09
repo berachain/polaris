@@ -147,8 +147,8 @@ func (k *Keeper) Setup(
 	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
-// `GetBlockPlugin` returns the block plugin.
-func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
+// `GetHeaderPlugin` returns the block plugin.
+func (k *Keeper) GetHeaderPlugin() core.HeaderPlugin {
 	return k.bp
 }
 

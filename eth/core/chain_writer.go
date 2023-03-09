@@ -51,7 +51,7 @@ type ChainWriter interface {
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	// Prepare the Block, Gas, and Configuration plugins for the block.
-	bc.host.GetBlockPlugin().Prepare(ctx)
+	bc.host.GetHeaderPlugin().Prepare(ctx)
 	bc.host.GetGasPlugin().Prepare(ctx)
 	bc.host.GetConfigurationPlugin().Prepare(ctx)
 
@@ -86,7 +86,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
 
-	header := bc.host.GetBlockPlugin().NewHeaderWithBlockNumber(height)
+	header := bc.host.GetHeaderPlugin().NewHeaderWithBlockNumber(height)
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),

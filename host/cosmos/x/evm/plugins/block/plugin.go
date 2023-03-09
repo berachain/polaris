@@ -40,7 +40,7 @@ const bf = uint64(1)
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosPolaris
-	core.BlockPlugin
+	core.HeaderPlugin
 
 	// `UpdateOffChainStorage` updates the offchain storage with the new block and receipts.
 	UpdateOffChainStorage(*coretypes.Block, coretypes.Receipts)
@@ -70,7 +70,7 @@ func NewPlugin(offchainStore storetypes.CacheKVStore, storekey storetypes.StoreK
 	}
 }
 
-// `Prepare` implements core.BlockPlugin.
+// `Prepare` implements core.HeaderPlugin.
 func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
@@ -78,7 +78,7 @@ func (p *plugin) Prepare(ctx context.Context) {
 // `BaseFee` returns the base fee for the current block.
 // TODO: implement properly with DynamicFee Module of some kind.
 //
-// `BaseFee` implements core.BlockPlugin.
+// `BaseFee` implements core.HeaderPlugin.
 func (p *plugin) BaseFee() uint64 {
 	return bf
 }

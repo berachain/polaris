@@ -114,7 +114,7 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 	}
 
 	// check the block plugin
-	receipts, err := bc.host.GetBlockPlugin().GetReceiptsByHash(blockHash)
+	receipts, err := bc.host.GetHeaderPlugin().GetReceiptsByHash(blockHash)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (bc *blockchain) GetTransaction(
 	}
 
 	// check the block plugin
-	txLookupEntry, err := bc.host.GetBlockPlugin().GetTransactionByHash(txHash)
+	txLookupEntry, err := bc.host.GetHeaderPlugin().GetTransactionByHash(txHash)
 	if err != nil {
 		return nil, common.Hash{}, 0, 0, err
 	}
@@ -158,7 +158,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 	}
 
 	// check the block plugin
-	block, err := bc.host.GetBlockPlugin().GetBlockByNumber(number)
+	block, err := bc.host.GetHeaderPlugin().GetBlockByNumber(number)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 	}
 
 	// check the block plugin
-	block, err := bc.host.GetBlockPlugin().GetBlockByHash(hash)
+	block, err := bc.host.GetHeaderPlugin().GetBlockByHash(hash)
 	if err != nil {
 		return nil, err
 	}
