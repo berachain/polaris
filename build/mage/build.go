@@ -40,6 +40,7 @@ var (
 	goGenerate  = mi.RunCmdV("go", "generate")
 	goModVerify = mi.RunCmdV("go", "mod", "verify")
 	goModTidy   = mi.RunCmdV("go", "mod", "tidy")
+	goWorkSync  = mi.RunCmdV("go", "work", "sync")
 
 	// Directories.
 	outdir = "./bin"
@@ -182,6 +183,11 @@ func GenerateCheck() error {
 // Runs 'go tidy' on the entire project.
 func Tidy() error {
 	return goModTidy()
+}
+
+// Runs 'go work sync' on the entire project.
+func Sync() error {
+	return goWorkSync()
 }
 
 // Cleans the project.
