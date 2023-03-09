@@ -30,7 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/rpc/api"
+	"pkg.berachain.dev/polaris/cosmos/rpc/api"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 

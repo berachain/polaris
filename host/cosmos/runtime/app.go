@@ -94,12 +94,12 @@ import (
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
+	"pkg.berachain.dev/polaris/cosmos/rpc"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	evmrpc "pkg.berachain.dev/polaris/cosmos/x/evm/rpc"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -460,7 +460,7 @@ func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.AP
 		panic(err)
 	}
 	// Register Ethereum JSON-RPC API as needed by polaris.
-	evmrpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
+	rpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
 }
 
 // GetMaccPerms returns a copy of the module account permissions
