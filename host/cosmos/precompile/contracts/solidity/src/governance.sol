@@ -42,6 +42,13 @@ interface IGovernanceModule {
 
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
 
+    /**
+     *@dev Get the proposal with the given id.
+     */
+    function getProposal(
+        uint256 proposalId
+    ) external view returns (Proposal memory);
+
     ////////////////////////////////////////// Utils  ///////////////////////////////////////////////////
 
     /**

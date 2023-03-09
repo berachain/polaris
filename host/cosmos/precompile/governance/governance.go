@@ -175,3 +175,19 @@ func (c *Contract) VoteWeighted(
 	voter := sdk.AccAddress(caller.Bytes())
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
+
+// `GetProposal` is the method for the `getProposal` method of the governance precompile contract.
+func (c *Contract) GetProposal(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	proposalID, ok := utils.GetAs[uint64](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidUint64
+	}
+
+	return c.getProposalHelper(ctx, proposalID)
+}

@@ -23,6 +23,7 @@ package governance
 import (
 	"math/big"
 	"testing"
+	"time"
 
 	"cosmossdk.io/math"
 	"github.com/golang/mock/gomock"
@@ -383,6 +384,69 @@ var _ = Describe("Governance Precompile", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).ToNot(BeNil())
+			})
+		})
+
+		When("Reading Methods", func() {
+			BeforeEach(func() {
+				gk.SetProposal(ctx, v1.Proposal{
+					Id:               2,
+					Proposer:         caller.String(),
+					Messages:         []*codectypes.Any{},
+					Status:           v1.StatusVotingPeriod,
+					FinalTallyResult: &v1.TallyResult{},
+					SubmitTime:       &time.Time{},
+					DepositEndTime:   &time.Time{},
+					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
+					VotingStartTime:  &time.Time{},
+					VotingEndTime:    &time.Time{},
+					Metadata:         "metadata",
+					Title:            "title",
+					Summary:          "summary",
+					Expedited:        false,
+				})
+				gk.SetProposal(ctx, v1.Proposal{
+					Id:               3,
+					Proposer:         caller.String(),
+					Messages:         []*codectypes.Any{},
+					Status:           v1.StatusVotingPeriod,
+					FinalTallyResult: &v1.TallyResult{},
+					SubmitTime:       &time.Time{},
+					DepositEndTime:   &time.Time{},
+					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
+					VotingStartTime:  &time.Time{},
+					VotingEndTime:    &time.Time{},
+					Metadata:         "metadata",
+					Title:            "title",
+					Summary:          "summary",
+					Expedited:        false,
+				})
+			})
+
+			When("GetProposal", func() {
+				It("should fail if the proposal ID is of invalid type", func() {
+					res, err := contract.GetProposal(
+						ctx,
+						cosmlib.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						"invalid",
+					)
+					Expect(err).To(MatchError(precompile.ErrInvalidUint64))
+					Expect(res).To(BeNil())
+				})
+				It("should get the proposal", func() {
+					res, err := contract.GetProposal(
+						ctx,
+						cosmlib.AccAddressToEthAddress(caller),
+						big.NewInt(0),
+						false,
+						uint64(2),
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+					Expect(res).To(HaveLen(1))
+				})
 			})
 		})
 	})
