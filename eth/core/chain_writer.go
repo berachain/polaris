@@ -39,7 +39,7 @@ type ChainWriter interface {
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
-	Finalize(context.Context) (*types.Block, types.Receipts, error)
+	Finalize(context.Context) error
 	// `SendTx` sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
@@ -104,7 +104,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 }
 
 // `Finalize` finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) (*types.Block, types.Receipts, error) {
+func (bc *blockchain) Finalize(ctx context.Context) error {
 	block, receipts, err := bc.processor.Finalize(ctx)
 	if block != nil {
 		bc.currentBlock.Store(block)
@@ -112,7 +112,7 @@ func (bc *blockchain) Finalize(ctx context.Context) (*types.Block, types.Receipt
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
 	}
-	return block, receipts, err
+	return err
 }
 
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {

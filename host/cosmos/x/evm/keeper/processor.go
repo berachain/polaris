@@ -73,22 +73,22 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 // `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
 func (k *Keeper) EndBlocker(ctx context.Context) {
 	// Finalize the block and retrieve it from the processor.
-	block, receipts, err := k.polaris.Finalize(ctx)
+	err := k.polaris.Finalize(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	// Save the historical header in the IAVL Tree.
-	// TODO: move this to within the eth folder? And do the historical data the
-	// way geth does it?
-	err = k.bp.SetHeader(block.Header())
-	if err != nil {
-		panic(err)
-	}
+	// // Save the historical header in the IAVL Tree.
+	// // TODO: move this to within the eth folder? And do the historical data the
+	// // way geth does it?
+	// err = k.bp.SetHeader(block.Header())
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// TODO: this is sketchy and needs to be refactored later.
-	// Save the block data to the off-chain storage.
-	if k.offChainKv != nil {
-		k.bp.UpdateOffChainStorage(block, receipts)
-	}
+	// // TODO: this is sketchy and needs to be refactored later.
+	// // Save the block data to the off-chain storage.
+	// if k.offChainKv != nil {
+	// 	k.bp.UpdateOffChainStorage(block, receipts)
+	// }
 }
