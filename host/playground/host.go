@@ -20,4 +20,41 @@
 
 package playground
 
-type Host struct{}
+import (
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/playground/plugins"
+)
+
+type HostChain struct{}
+
+// `GetBlockPlugin` implements `core.PolarisHostChain`.
+func (h *HostChain) GetBlockPlugin() core.BlockPlugin {
+	return plugins.NewBlockPlugin()
+}
+
+// `GetConfigurationPlugin` implements `core.PolarisHostChain`.
+func (h *HostChain) GetConfigurationPlugin() core.ConfigurationPlugin {
+	return plugins.NewConfigurationPlugin()
+}
+
+// `GetGasPlugin` implements `core.PolarisHostChain`.
+func (h *HostChain) GetGasPlugin() core.GasPlugin {
+	return plugins.NewGasPlugin()
+}
+
+// The Playground Host Chain does not support stateful precompiles.
+//
+// `GetPrecompilePlugin` implements `core.PolarisHostChain`.
+func (h *HostChain) GetPrecompilePlugin() core.PrecompilePlugin {
+	return nil
+}
+
+// `GetStatePlugin` implements `core.PolarisHostChain`.
+func (h *HostChain) GetStatePlugin() core.StatePlugin {
+	return plugins.NewStatePlugin()
+}
+
+// `GetTxPoolPlugin` implements `core.PolarisHostChain`.
+func (h *HostChain) GetTxPoolPlugin() core.TxPoolPlugin {
+	return plugins.NewTxPoolPlugin()
+}
