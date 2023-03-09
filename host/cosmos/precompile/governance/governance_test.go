@@ -31,6 +31,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -190,48 +191,48 @@ var _ = Describe("Governance Precompile", func() {
 		})
 	})
 
-	// When("Canceling a proposal", func() {
-	// 	It("should fail if the proposal ID is invalid", func() {
-	// 		res, err := contract.CancelProposal(
-	// 			ctx,
-	// 			cosmlib.AccAddressToEthAddress(caller),
-	// 			big.NewInt(0),
-	// 			false,
-	// 			"invalid",
-	// 		)
-	// 		Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-	// 		Expect(res).To(BeNil())
-	// 	})
-	// 	It("should fail if the proposal does not exist", func() {
-	// 		res, err := contract.CancelProposal(
-	// 			ctx,
-	// 			cosmlib.AccAddressToEthAddress(caller),
-	// 			big.NewInt(0),
-	// 			false,
-	// 			big.NewInt(1),
-	// 		)
-	// 		Expect(err).To(HaveOccurred())
-	// 		Expect(res).To(BeNil())
-	// 	})
-	// 	It("should succeed", func() {
-	// 		gk.SetProposal(ctx, v1.Proposal{
-	// 			Id:       1,
-	// 			Proposer: caller.String(),
-	// 			Messages: []*codectypes.Any{},
-	// 			Status:   v1.StatusVotingPeriod,
-	// 		})
-	// 		res, err := contract.CancelProposal(
-	// 			ctx,
-	// 			cosmlib.AccAddressToEthAddress(caller),
-	// 			big.NewInt(0),
-	// 			false,
-	// 			big.NewInt(1),
-	// 		)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		Expect(res).ToNot(BeNil())
-	// 	})
+	When("Canceling a proposal", func() {
+		It("should fail if the proposal ID is invalid", func() {
+			res, err := contract.CancelProposal(
+				ctx,
+				cosmlib.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				"invalid",
+			)
+			Expect(err).To(MatchError(precompile.ErrInvalidUint64))
+			Expect(res).To(BeNil())
+		})
+		It("should fail if the proposal does not exist", func() {
+			res, err := contract.CancelProposal(
+				ctx,
+				cosmlib.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				big.NewInt(1),
+			)
+			Expect(err).To(HaveOccurred())
+			Expect(res).To(BeNil())
+		})
+		It("should succeed", func() {
+			gk.SetProposal(ctx, v1.Proposal{
+				Id:       1,
+				Proposer: caller.String(),
+				Messages: []*codectypes.Any{},
+				Status:   v1.StatusVotingPeriod,
+			})
+			res, err := contract.CancelProposal(
+				ctx,
+				cosmlib.AccAddressToEthAddress(caller),
+				big.NewInt(0),
+				false,
+				uint64(1),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).ToNot(BeNil())
+		})
 
-	// })
+	})
 
 	// When("Voting on a proposal", func() {
 	// 	BeforeEach(func() {

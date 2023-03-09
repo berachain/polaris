@@ -22,7 +22,6 @@ package governance
 
 import (
 	"context"
-	"math/big"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -60,5 +59,22 @@ func (c *Contract) submitProposalHelper(
 		return nil, err
 	}
 
-	return []any{big.NewInt(int64(res.ProposalId))}, nil
+	return []any{res.ProposalId}, nil
+}
+
+// `cancelProposalHelper` is a helper function for the `CancelProposal` method of the governance precompile contract.
+func (c *Contract) cancelProposalHelper(
+	ctx context.Context,
+	proposer sdk.AccAddress,
+	proposalID uint64,
+) ([]any, error) {
+	res, err := c.msgServer.CancelProposal(ctx, &v1.MsgCancelProposal{
+		ProposalId: proposalID,
+		Proposer:   proposer.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{uint64(res.CanceledTime.Unix()), res.CanceledHeight}, nil
 }

@@ -109,3 +109,20 @@ func (c *Contract) SubmitProposal(
 
 	return c.submitProposalHelper(ctx, message, initialDeposit, proposer, metadata, title, summary, expedited)
 }
+
+// `CancelProposal` is the method for the `cancelProposal` method of the governance precompile contract.
+func (c *Contract) CancelProposal(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	id, ok := utils.GetAs[uint64](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidUint64
+	}
+	proposer := sdk.AccAddress(caller.Bytes())
+
+	return c.cancelProposalHelper(ctx, proposer, id)
+}

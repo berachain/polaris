@@ -19,7 +19,7 @@ interface IGovernanceModule {
       burned.
      */
     function cancelProposal(
-        uint256 proposalId
+        uint64 proposalId
     ) external returns (uint64, uint64);
 
     /**
@@ -27,7 +27,7 @@ interface IGovernanceModule {
      * Note: this struct is generated as go struct that is then used in the precompile.
      */
     struct Coin {
-        uint256 amount;
+        uint64 amount;
         string denom;
     }
 }
