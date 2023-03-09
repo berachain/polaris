@@ -18,18 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+//nolint:forbidigo // its okay.
 package mage
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/TwiN/go-color"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
 
 	mi "pkg.berachain.dev/polaris/build/mage/internal"
-
-	"github.com/TwiN/go-color"
 )
 
 var (
@@ -58,7 +58,8 @@ var (
 
 // Runs a series of commonly used commands.
 func All() error {
-	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint, BuildPolarisCosmosApp, BuildPolarisPlaygroundApp, TestUnit, TestIntegration}
+	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint,
+		BuildPolarisCosmosApp, BuildPolarisPlaygroundApp, TestUnit, TestIntegration}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err

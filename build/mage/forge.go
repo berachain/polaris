@@ -18,6 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+//nolint:forbidigo // its okay.
 package mage
 
 import (
@@ -25,6 +26,7 @@ import (
 	"os"
 
 	"github.com/TwiN/go-color"
+
 	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 

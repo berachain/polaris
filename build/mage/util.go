@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+
+	"github.com/TwiN/go-color"
 )
 
 func PrintMageName() {
@@ -35,7 +37,7 @@ func PrintMageName() {
 	slice := strings.Split(f.Name(), ".")
 	name := slice[len(slice)-1]
 	//nolint:forbidigo // This is a mage file
-	fmt.Printf("Running %s...\n",
+	fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("Running %s...",
 		name,
-	)
+	)))
 }
