@@ -18,12 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+//nolint:forbidigo // its okay.
 package mage
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/TwiN/go-color"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
 
@@ -38,6 +40,7 @@ var (
 	goGenerate  = mi.RunCmdV("go", "generate")
 	goModVerify = mi.RunCmdV("go", "mod", "verify")
 	goModTidy   = mi.RunCmdV("go", "mod", "tidy")
+	goWorkSync  = mi.RunCmdV("go", "work", "sync")
 
 	// Directories.
 	outdir = "./bin"
@@ -56,7 +59,8 @@ var (
 
 // Runs a series of commonly used commands.
 func All() error {
-	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint, BuildPolarisApp, Test, TestIntegration}
+	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint,
+		BuildPolarisCosmosApp, BuildPolarisPlaygroundApp, TestUnit, TestIntegration}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err
@@ -65,7 +69,8 @@ func All() error {
 	return nil
 }
 
-func BuildPolarisApp() error {
+// Runs `go build` on the cosmos app.
+func BuildPolarisCosmosApp() error {
 	cmd := "polard"
 	args := []string{
 		generateBuildTags(),
@@ -73,6 +78,20 @@ func BuildPolarisApp() error {
 		"-o", generateOutDirectory(cmd),
 		"./host/cosmos/cmd/" + cmd,
 	}
+	fmt.Println(color.Ize(color.Yellow, "Building Cosmos app..."))
+	return goBuild(args...)
+}
+
+// Runs `go build` on the playground app.
+func BuildPolarisPlaygroundApp() error {
+	cmd := "playground"
+	args := []string{
+		generateBuildTags(),
+		generateLinkerFlags(production, statically),
+		"-o", generateOutDirectory(cmd),
+		"./host/playground/cmd/",
+	}
+	fmt.Println(color.Ize(color.Yellow, "Building Playground app..."))
 	return goBuild(args...)
 }
 
@@ -92,7 +111,13 @@ func Build() error {
 		return err
 	}
 
-	if err = BuildPolarisApp(); err != nil {
+	// Build the cosmos app
+	if err = BuildPolarisCosmosApp(); err != nil {
+		return err
+	}
+
+	// Build the playground app
+	if err = BuildPolarisPlaygroundApp(); err != nil {
 		return err
 	}
 
@@ -158,6 +183,11 @@ func GenerateCheck() error {
 // Runs 'go tidy' on the entire project.
 func Tidy() error {
 	return goModTidy()
+}
+
+// Runs 'go work sync' on the entire project.
+func Sync() error {
+	return goWorkSync()
 }
 
 // Cleans the project.
