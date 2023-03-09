@@ -31,14 +31,14 @@ import (
 
 // `PolarisHostChain` defines the plugins that the chain running Polaris EVM should implement.
 type PolarisHostChain interface {
-	// `GetBlockPlugin` returns the OPTIONAL `BlockPlugin` of the Polaris host chain.
+	// `GetBlockPlugin` returns the `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
 	// `GetConfigurationPlugin` returns the `ConfigurationPlugin` of the Polaris host chain.
 	GetConfigurationPlugin() ConfigurationPlugin
 	// `GetGasPlugin` returns the `GasPlugin` of the Polaris host chain.
 	GetGasPlugin() GasPlugin
-	// `GetHeaderPlugin` returns the `HeaderPlugin` of the Polaris host chain.
-	GetHeaderPlugin() HeaderPlugin
+	// `GetHistoricalPlugin` returns the OPTIONAL `HistoricalPlugin` of the Polaris host chain.
+	GetHistoricalPlugin() HistoricalPlugin
 	// `GetPrecompilePlugin` returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
 	// `GetStatePlugin` returns the `StatePlugin` of the Polaris host chain.
@@ -54,11 +54,11 @@ type PolarisHostChain interface {
 // The following plugins should be implemented by the chain running Polaris EVM and exposed via
 // the `PolarisHostChain` interface. All plugins should be resettable with a given context.
 type (
-	// `HeaderPlugin` defines the methods that the chain running Polaris EVM should implement to
+	// `BlockPlugin` defines the methods that the chain running Polaris EVM should implement to
 	// support getting and setting block headers.
-	HeaderPlugin interface {
-		// `HeaderPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
-		// `HeaderPlugin` to a default state.
+	BlockPlugin interface {
+		// `BlockPlugin` implements `libtypes.Preparable`. Calling `Prepare` should reset the
+		// `BlockPlugin` to a default state.
 		libtypes.Preparable
 		// `NewHeaderWithBlockNumber` returns a new block header with the given block number.
 		NewHeaderWithBlockNumber(int64) *types.Header
@@ -118,10 +118,16 @@ type (
 		GetStateByNumber(int64) (StatePlugin, error)
 	}
 
+	// `TxPoolPlugin` defines the methods that the chain running Polaris EVM should implement to
+	// support the transaction pool.
 	TxPoolPlugin interface {
+		// `SendTx` submits the tx to the transaction pool.
 		SendTx(tx *types.Transaction) error
+		// `GetAllTransactions` returns all transactions in the transaction pool.
 		GetAllTransactions() (types.Transactions, error)
+		// `GetTransaction` returns the transaction from the pool with the given hash.
 		GetTransaction(common.Hash) *types.Transaction
+		// `GetNonce` returns the nonce of the given address in the transaction pool.
 		GetNonce(common.Address) (uint64, error)
 	}
 )
@@ -132,19 +138,19 @@ type (
 
 // `The following plugins are OPTIONAL to be implemented by the chain running Polaris EVM.
 type (
-	// `BlockPlugin` defines the methods that the chain running Polaris EVM should implement in
-	// order to support storing historical blocks, receipts, and transactions. This plugin will be
-	// used by the RPC backend to support certain methods on the Ethereum JSON RPC spec.
+	// `HistoricalPlugin` defines the methods that the chain running Polaris EVM should implement
+	// in order to support storing historical blocks, receipts, and transactions. This plugin will
+	// be used by the RPC backend to support certain methods on the Ethereum JSON RPC spec.
 	// Implementing this plugin is optional.
-	BlockPlugin interface {
-		// `BlockPlugin` implements `libtypes.Preparable`.
+	HistoricalPlugin interface {
+		// `HistoricalPlugin` implements `libtypes.Preparable`.
 		libtypes.Preparable
 		// `GetBlockByNumber` returns the block at the given block number.
 		GetBlockByNumber(int64) (*types.Block, error)
 		// `GetBlockByHash` returns the block at the given block hash.
 		GetBlockByHash(common.Hash) (*types.Block, error)
-		// `GetTransactionByHash` returns the transaction lookup entry at the given
-		// transaction hash.
+		// `GetTransactionByHash` returns the transaction lookup entry at the given transaction
+		// hash.
 		GetTransactionByHash(common.Hash) (*types.TxLookupEntry, error)
 		// `GetReceiptByHash` returns the receipts at the given block hash.
 		GetReceiptsByHash(common.Hash) (types.Receipts, error)

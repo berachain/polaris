@@ -34,7 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/gas"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/header"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
@@ -68,7 +68,7 @@ type Keeper struct {
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
-	hp  header.Plugin
+	hp  historical.Plugin
 	pp  precompile.Plugin
 	sp  state.Plugin
 	txp txpool.Plugin
@@ -101,10 +101,10 @@ func NewKeeper(
 	k.rpcProvider = evmrpc.NewProvider(cfg)
 
 	// Build the Plugins
-	k.bp = block.NewPlugin(k.hp, k.offChainKv, storeKey)
+	k.bp = block.NewPlugin(storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
-	k.hp = header.NewPlugin(storeKey)
+	k.hp = historical.NewPlugin(k.bp, k.offChainKv, storeKey)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	return k
 }
@@ -144,19 +144,15 @@ func (k *Keeper) Setup(
 
 	// Set the query context function for the block and state plugins
 	k.sp.SetQueryContextFn(qc)
-	k.hp.SetQueryContextFn(qc)
+	k.bp.SetQueryContextFn(qc)
 
 	// Build the Polaris EVM Provider
 	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
-// `GetHeaderPlugin` returns the header plugin.
-func (k *Keeper) GetHeaderPlugin() core.HeaderPlugin {
-	return k.hp
-}
-
+// `GetBlockPlugin` returns the header plugin.
 func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
-	return nil
+	return k.bp
 }
 
 // `GetConfigurationPlugin` returns the configuration plugin.
@@ -167,6 +163,10 @@ func (k *Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
 // `GetGasPlugin` returns the gas plugin.
 func (k *Keeper) GetGasPlugin() core.GasPlugin {
 	return k.gp
+}
+
+func (k *Keeper) GetHistoricalPlugin() core.HistoricalPlugin {
+	return k.hp
 }
 
 // `GetPrecompilePlugin` returns the precompile plugin.

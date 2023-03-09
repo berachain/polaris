@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package header
+package block
 
 import (
 	"errors"
@@ -46,7 +46,7 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 
 // `GetHeaderByNumber` returns the header at the given height, using the plugin's query context.
 //
-// `GetHeaderByNumber` implements core.HeaderPlugin.
+// `GetHeaderByNumber` implements core.BlockPlugin.
 func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")

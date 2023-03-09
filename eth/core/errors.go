@@ -22,4 +22,9 @@ package core
 
 import "errors"
 
-var ErrBlockOutOfGas = errors.New("block is out of gas")
+var (
+	ErrBlockOutOfGas    = errors.New("block is out of gas")
+	ErrBlockNotFound    = errors.New("block not found")
+	ErrReceiptsNotFound = errors.New("receipts not found")
+	ErrTxNotFound       = errors.New("transaction not found")
+)

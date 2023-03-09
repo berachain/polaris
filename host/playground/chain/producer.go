@@ -34,7 +34,7 @@ type blockProducer struct {
 }
 
 // `ProduceBlock` produces a block from the mempool and returns it
-func (bp *blockProducer) ProduceBlock() (*types.Block, error) {
+func (bp *blockProducer) ProduceBlock() error {
 	bp.currentBlockNum++
 
 	ctx := context.Background()
@@ -48,15 +48,15 @@ func (bp *blockProducer) ProduceBlock() (*types.Block, error) {
 	for _, txn := range txs {
 		_, err := bp.polaris.ProcessTransaction(context.Background(), txn)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	// Finalize the block.
-	block, _, err := bp.polaris.Finalize(ctx)
+	err := bp.polaris.Finalize(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return block, nil
+	return nil
 }

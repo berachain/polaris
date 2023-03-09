@@ -45,10 +45,10 @@ var (
 
 // `blockchain` is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
-	// below are the host chain plugins that the Polaris EVM is running on.
+	// the host chain plugins that the Polaris EVM is running on.
 	bp BlockPlugin
 	cp ConfigurationPlugin
-	hp HeaderPlugin
+	hp HistoricalPlugin
 	gp GasPlugin
 	sp StatePlugin
 	tp TxPoolPlugin
@@ -94,7 +94,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
-		hp:             host.GetHeaderPlugin(),
+		hp:             host.GetHistoricalPlugin(),
 		gp:             host.GetGasPlugin(),
 		sp:             host.GetStatePlugin(),
 		tp:             host.GetTxPoolPlugin(),

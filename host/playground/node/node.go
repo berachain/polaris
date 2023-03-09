@@ -67,7 +67,7 @@ func (r *runner) Start() error {
 			return nil
 		case <-time.After(r.blocktime):
 			log.Error().Msg("producing block")
-			if _, err := r.chain.ProduceBlock(); err != nil {
+			if err := r.chain.ProduceBlock(); err != nil {
 				log.Error().Err(err).Msg("failed to produce block")
 				return err
 			}

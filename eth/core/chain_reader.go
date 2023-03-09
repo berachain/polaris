@@ -113,15 +113,20 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 		return receipts, nil
 	}
 
-	// // check the block plugin
-	// receipts, err := bc.hp.GetReceiptsByHash(blockHash)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		return nil, ErrReceiptsNotFound
+	}
+
+	// check the historical plugin
+	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
+	if err != nil {
+		return nil, err
+	}
 
 	// cache the found receipts for next time and return
-	// bc.receiptsCache.Add(blockHash, receipts)
-	return nil, errors.New("receipts not found")
+	bc.receiptsCache.Add(blockHash, receipts)
+	return receipts, nil
 }
 
 // `GetTransaction` gets a transaction by hash. It also returns the block hash of the
@@ -136,18 +141,22 @@ func (bc *blockchain) GetTransaction(
 		return txLookupEntry.Tx, txLookupEntry.BlockHash,
 			txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 	}
-	return nil, common.Hash{}, 0, 0, errors.New("transaction not found")
 
-	// check the block plugin
-	// txLookupEntry, err := bc.bp.GetTransactionByHash(txHash)
-	// if err != nil {
-	// 	return nil, common.Hash{}, 0, 0, err
-	// }
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		return nil, common.Hash{}, 0, 0, ErrTxNotFound
+	}
 
-	// // cache the found transaction for next time and return
-	// bc.txLookupCache.Add(txHash, txLookupEntry)
-	// return txLookupEntry.Tx, txLookupEntry.BlockHash,
-	// 	txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
+	// check the historical plugin
+	txLookupEntry, err := bc.hp.GetTransactionByHash(txHash)
+	if err != nil {
+		return nil, common.Hash{}, 0, 0, err
+	}
+
+	// cache the found transaction for next time and return
+	bc.txLookupCache.Add(txHash, txLookupEntry)
+	return txLookupEntry.Tx, txLookupEntry.BlockHash,
+		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 }
 
 // `GetBlock` retrieves a block from the database by hash and number, caching it if found.
@@ -158,16 +167,21 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 		return block, nil
 	}
 
-	// check the block plugin
-	// block, err := bc.bp.GetBlockByNumber(number)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		return nil, ErrBlockNotFound
+	}
+
+	// check the historical plugin
+	block, err := bc.hp.GetBlockByNumber(number)
+	if err != nil {
+		return nil, err
+	}
 
 	// // Cache the found block for next time and return
-	// bc.blockNumCache.Add(block.Number().Int64(), block)
-	// bc.blockHashCache.Add(block.Hash(), block)
-	return nil, errors.New("block not found")
+	bc.blockNumCache.Add(number, block)
+	bc.blockHashCache.Add(block.Hash(), block)
+	return nil, ErrBlockNotFound
 }
 
 // `GetBlockByHash` retrieves a block from the database by hash, caching it if found.
@@ -178,16 +192,21 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 		return block, nil
 	}
 
-	// check the block plugin
-	// block, err := bc.bp.GetBlockByHash(hash)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		return nil, ErrBlockNotFound
+	}
 
-	// // Cache the found block for next time and return
-	// bc.blockNumCache.Add(block.Number().Int64(), block)
-	// bc.blockHashCache.Add(block.Hash(), block)
-	return nil, errors.New("block not found")
+	// check the historical plugin
+	block, err := bc.hp.GetBlockByHash(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	// Cache the found block for next time and return
+	bc.blockNumCache.Add(block.Number().Int64(), block)
+	bc.blockHashCache.Add(hash, block)
+	return block, nil
 }
 
 // =========================================================================

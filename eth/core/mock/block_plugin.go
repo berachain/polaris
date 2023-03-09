@@ -26,10 +26,10 @@ import (
 
 const testBaseFee = 69
 
-//go:generate moq -out ./block_plugin.mock.go -pkg mock ../ HeaderPlugin
-func NewBlockPluginMock() *BlockPluginMock {
-	// make and configure a mocked core.HeaderPlugin
-	mockedBlockPlugin := &BlockPluginMock{
+//go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
+func NewHistoricalPluginMock() *HistoricalPluginMock {
+	// make and configure a mocked core.BlockPlugin
+	mockedHistoricalPlugin := &HistoricalPluginMock{
 		BaseFeeFunc: func() uint64 {
 			return testBaseFee
 		},
@@ -37,5 +37,5 @@ func NewBlockPluginMock() *BlockPluginMock {
 			// no-op
 		},
 	}
-	return mockedBlockPlugin
+	return mockedHistoricalPlugin
 }

@@ -34,8 +34,6 @@ type (
 		GethStateDB
 		// `Finalize` finalizes the state transition.
 		libtypes.Finalizeable
-		// `Reset` resets the context for the new transaction.
-		libtypes.Resettable
 		// `GetContext` returns the current context of the state plugin.
 		GetContext() context.Context
 	}

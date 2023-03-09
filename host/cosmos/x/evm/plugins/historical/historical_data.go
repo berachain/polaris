@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package historical
 
 import (
 	"fmt"
@@ -43,7 +43,7 @@ var (
 	versionKey                = []byte{0x11}
 )
 
-// `StoreBlock` implements `core.BlockPlugin`.
+// `StoreBlock` implements `core.HistoricalPlugin`.
 func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	blockNum := block.NumberU64()
 
@@ -62,7 +62,7 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	return nil
 }
 
-// `StoreReceipts` implements `core.BlockPlugin`.
+// `StoreReceipts` implements `core.HistoricalPlugin`.
 func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
 	// store block hash to receipts.
 	receiptsBz, err := marshalReceipts(receipts)
@@ -77,7 +77,7 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 	return nil
 }
 
-// `StoreTransactions` implements `core.BlockPlugin`.
+// `StoreTransactions` implements `core.HistoricalPlugin`.
 func (p *plugin) StoreTransactions(
 	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {

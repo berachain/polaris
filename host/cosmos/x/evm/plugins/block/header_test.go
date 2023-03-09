@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package header
+package block
 
 import (
 	dbm "github.com/cosmos/cosmos-db"
