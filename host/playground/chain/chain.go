@@ -18,43 +18,66 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package playground
+package chain
 
 import (
 	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/playground/plugins"
 )
 
-type HostChain struct{}
+// The playground chain implements the polaris host chain interface.
+var _ core.PolarisHostChain = (*Playground)(nil)
+
+// `Playground` is the playground chain.
+type Playground struct {
+	blockProducer *blockProducer
+	mempool       MempoolReader
+}
+
+// `NewPlayground` creates a new playground chain.
+func NewPlayground(mempool MempoolReader) *Playground {
+	playground := &Playground{
+		mempool: mempool,
+	}
+	playground.blockProducer = &blockProducer{
+		polaris: core.NewChain(playground),
+	}
+	return playground
+}
+
+func (p *Playground) ProduceBlock() (*coretypes.Block, error) {
+	return p.blockProducer.ProduceBlock()
+}
 
 // `GetBlockPlugin` implements `core.PolarisHostChain`.
-func (h *HostChain) GetBlockPlugin() core.BlockPlugin {
+func (p *Playground) GetBlockPlugin() core.BlockPlugin {
 	return plugins.NewBlockPlugin()
 }
 
 // `GetConfigurationPlugin` implements `core.PolarisHostChain`.
-func (h *HostChain) GetConfigurationPlugin() core.ConfigurationPlugin {
+func (p *Playground) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return plugins.NewConfigurationPlugin()
 }
 
 // `GetGasPlugin` implements `core.PolarisHostChain`.
-func (h *HostChain) GetGasPlugin() core.GasPlugin {
+func (p *Playground) GetGasPlugin() core.GasPlugin {
 	return plugins.NewGasPlugin()
+}
+
+// `GetStatePlugin` implements `core.PolarisHostChain`.
+func (p *Playground) GetStatePlugin() core.StatePlugin {
+	return plugins.NewStatePlugin()
+}
+
+// `GetTxPoolPlugin` implements `core.PolarisHostChain`.
+func (p *Playground) GetTxPoolPlugin() core.TxPoolPlugin {
+	return plugins.NewTxPoolPlugin()
 }
 
 // The Playground Host Chain does not support stateful precompiles.
 //
 // `GetPrecompilePlugin` implements `core.PolarisHostChain`.
-func (h *HostChain) GetPrecompilePlugin() core.PrecompilePlugin {
+func (p *Playground) GetPrecompilePlugin() core.PrecompilePlugin {
 	return nil
-}
-
-// `GetStatePlugin` implements `core.PolarisHostChain`.
-func (h *HostChain) GetStatePlugin() core.StatePlugin {
-	return plugins.NewStatePlugin()
-}
-
-// `GetTxPoolPlugin` implements `core.PolarisHostChain`.
-func (h *HostChain) GetTxPoolPlugin() core.TxPoolPlugin {
-	return plugins.NewTxPoolPlugin()
 }
