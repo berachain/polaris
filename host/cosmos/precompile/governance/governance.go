@@ -126,3 +126,28 @@ func (c *Contract) CancelProposal(
 
 	return c.cancelProposalHelper(ctx, proposer, id)
 }
+
+// `Vote` is the method for the `vote` method of the governance precompile contract.
+func (c *Contract) Vote(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	proposalID, ok := utils.GetAs[uint64](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidUint64
+	}
+	options, ok := utils.GetAs[int32](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidInt32
+	}
+	metadata, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	voter := sdk.AccAddress(caller.Bytes())
+
+	return c.voteHelper(ctx, voter, proposalID, options, metadata)
+}

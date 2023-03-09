@@ -23,11 +23,55 @@ interface IGovernanceModule {
     ) external returns (uint64, uint64);
 
     /**
+     *@dev Vote on a proposal.
+     */
+    function vote(
+        uint64 proposalId,
+        int32 option,
+        string memory metadata
+    ) external;
+
+    ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
+
+    ////////////////////////////////////////// Utils  ///////////////////////////////////////////////////
+
+    /**
      * @dev Represents a cosmos coin.
      * Note: this struct is generated as go struct that is then used in the precompile.
      */
     struct Coin {
         uint64 amount;
         string denom;
+    }
+
+    /**
+     * @dev Represents a governance module `Proposal`.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct Proposal {
+        uint64 id;
+        bytes message;
+        int32 status;
+        TallyResult finalTallyResult;
+        uint64 submitTime;
+        uint64 depositEndTime;
+        Coin[] totalDeposit;
+        uint64 votingStartTime;
+        uint64 votingEndTime;
+        string metadata;
+        string title;
+        string summary;
+        string proposer;
+    }
+
+    /**
+     * @dev Represents a governance module `TallyResult`.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct TallyResult {
+        string yesCount;
+        string abstainCount;
+        string noCount;
+        string noWithVetoCount;
     }
 }

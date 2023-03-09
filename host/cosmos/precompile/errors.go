@@ -31,4 +31,5 @@ var (
 	ErrInvalidAny        = errors.New("invalid any")
 	ErrInvalidCoin       = errors.New("invalid coin")
 	ErrInvalidBool       = errors.New("invalid bool")
+	ErrInvalidInt32      = errors.New("invalid int32")
 )

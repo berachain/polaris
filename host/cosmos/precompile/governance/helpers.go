@@ -78,3 +78,24 @@ func (c *Contract) cancelProposalHelper(
 
 	return []any{uint64(res.CanceledTime.Unix()), res.CanceledHeight}, nil
 }
+
+// `voteHelper` is a helper function for the `Vote` method of the governance precompile contract.
+func (c *Contract) voteHelper(
+	ctx context.Context,
+	voter sdk.AccAddress,
+	proposalID uint64,
+	option int32,
+	metadata string,
+) ([]any, error) {
+	_, err := c.msgServer.Vote(ctx, &v1.MsgVote{
+		ProposalId: proposalID,
+		Voter:      voter.String(),
+		Option:     v1.VoteOption(option),
+		Metadata:   metadata,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{}, nil
+}
