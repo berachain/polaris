@@ -45,8 +45,14 @@ var (
 
 // `blockchain` is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
-	// `host` is the host chain that the Polaris EVM is running on.
-	host PolarisHostChain
+	// below are the host chain plugins that the Polaris EVM is running on.
+	bp BlockPlugin
+	cp ConfigurationPlugin
+	hp HeaderPlugin
+	gp GasPlugin
+	sp StatePlugin
+	tp TxPoolPlugin
+
 	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor
 	// `statedb` is the state database that is used to mange state during transactions.
@@ -86,8 +92,12 @@ type blockchain struct {
 // `NewChain` creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // temp.
 	bc := &blockchain{
-		host:           host,
-		statedb:        state.NewStateDB(host.GetStatePlugin()),
+		bp:             host.GetBlockPlugin(),
+		cp:             host.GetConfigurationPlugin(),
+		hp:             host.GetHeaderPlugin(),
+		gp:             host.GetGasPlugin(),
+		sp:             host.GetStatePlugin(),
+		tp:             host.GetTxPoolPlugin(),
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
 		blockNumCache:  lru.NewCache[int64, *types.Block](defaultCacheSizeBytes),
@@ -97,6 +107,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // temp.
 		scope:          event.SubscriptionScope{},
 	}
 	bc.cc = &chainContext{bc}
-	bc.processor = NewStateProcessor(bc.host, bc.statedb, bc.vmConfig)
+	bc.statedb = state.NewStateDB(bc.sp)
+	bc.processor = NewStateProcessor(host, bc.statedb, bc.vmConfig)
 	return bc
 }

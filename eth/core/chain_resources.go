@@ -38,7 +38,7 @@ type ChainResources interface {
 // `GetStateByNumber` returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
 func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
-	sp, err := bc.host.GetStatePlugin().GetStateByNumber(number)
+	sp, err := bc.sp.GetStateByNumber(number)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (bc *blockchain) GetEVM(
 
 // `NewEVMBlockContext` creates a new block context for use in the EVM.
 func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
-	feeCollector := bc.host.GetConfigurationPlugin().FeeCollector()
+	feeCollector := bc.cp.FeeCollector()
 	if feeCollector == nil {
 		feeCollector = &header.Coinbase
 	}

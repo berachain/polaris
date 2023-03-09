@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package header
 
 import (
 	"errors"
@@ -28,13 +28,13 @@ import (
 
 	"github.com/ethereum/go-ethereum/rlp"
 
-	"pkg.berachain.dev/polaris/eth/core/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/rpc"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // ===========================================================================
-// Polaris Block Tracking
+// Polaris Block Header Tracking
 // ===========================================================================.
 
 var SGHeaderKey = []byte{0xb0}
@@ -47,7 +47,7 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 // `GetHeaderByNumber` returns the header at the given height, using the plugin's query context.
 //
 // `GetHeaderByNumber` implements core.HeaderPlugin.
-func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
+func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
 	}
@@ -80,7 +80,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
 }
 
 // `SetHeader` saves a block to the store.
-func (p *plugin) SetHeader(header *types.Header) error {
+func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
 	bz, err := marshalHeader(header)
 	if err != nil {
 		return err
@@ -110,12 +110,12 @@ func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 	return iavlHeight, nil
 }
 
-func unmarshalHeader(data []byte) (*types.Header, error) {
-	header := &types.Header{}
+func unmarshalHeader(data []byte) (*coretypes.Header, error) {
+	header := &coretypes.Header{}
 	err := rlp.DecodeBytes(data, header)
 	return header, err
 }
 
-func marshalHeader(header *types.Header) ([]byte, error) {
+func marshalHeader(header *coretypes.Header) ([]byte, error) {
 	return rlp.EncodeToBytes(header)
 }

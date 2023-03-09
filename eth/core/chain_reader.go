@@ -62,7 +62,7 @@ type ChainTxPoolReader interface {
 
 // `ChainConfig` returns the Ethereum chain config of the Polaris chain.
 func (bc *blockchain) ChainConfig() *params.ChainConfig {
-	return bc.host.GetConfigurationPlugin().ChainConfig()
+	return bc.cp.ChainConfig()
 }
 
 // =========================================================================
@@ -113,15 +113,15 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 		return receipts, nil
 	}
 
-	// check the block plugin
-	receipts, err := bc.host.GetHeaderPlugin().GetReceiptsByHash(blockHash)
-	if err != nil {
-		return nil, err
-	}
+	// // check the block plugin
+	// receipts, err := bc.hp.GetReceiptsByHash(blockHash)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// cache the found receipts for next time and return
-	bc.receiptsCache.Add(blockHash, receipts)
-	return nil, nil
+	// bc.receiptsCache.Add(blockHash, receipts)
+	return nil, errors.New("receipts not found")
 }
 
 // `GetTransaction` gets a transaction by hash. It also returns the block hash of the
@@ -136,17 +136,18 @@ func (bc *blockchain) GetTransaction(
 		return txLookupEntry.Tx, txLookupEntry.BlockHash,
 			txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 	}
+	return nil, common.Hash{}, 0, 0, errors.New("transaction not found")
 
 	// check the block plugin
-	txLookupEntry, err := bc.host.GetHeaderPlugin().GetTransactionByHash(txHash)
-	if err != nil {
-		return nil, common.Hash{}, 0, 0, err
-	}
+	// txLookupEntry, err := bc.bp.GetTransactionByHash(txHash)
+	// if err != nil {
+	// 	return nil, common.Hash{}, 0, 0, err
+	// }
 
-	// cache the found transaction for next time and return
-	bc.txLookupCache.Add(txHash, txLookupEntry)
-	return txLookupEntry.Tx, txLookupEntry.BlockHash,
-		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
+	// // cache the found transaction for next time and return
+	// bc.txLookupCache.Add(txHash, txLookupEntry)
+	// return txLookupEntry.Tx, txLookupEntry.BlockHash,
+	// 	txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 }
 
 // `GetBlock` retrieves a block from the database by hash and number, caching it if found.
@@ -158,15 +159,15 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 	}
 
 	// check the block plugin
-	block, err := bc.host.GetHeaderPlugin().GetBlockByNumber(number)
-	if err != nil {
-		return nil, err
-	}
+	// block, err := bc.bp.GetBlockByNumber(number)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	// Cache the found block for next time and return
-	bc.blockNumCache.Add(block.Number().Int64(), block)
-	bc.blockHashCache.Add(block.Hash(), block)
-	return block, nil
+	// // Cache the found block for next time and return
+	// bc.blockNumCache.Add(block.Number().Int64(), block)
+	// bc.blockHashCache.Add(block.Hash(), block)
+	return nil, errors.New("block not found")
 }
 
 // `GetBlockByHash` retrieves a block from the database by hash, caching it if found.
@@ -178,15 +179,15 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 	}
 
 	// check the block plugin
-	block, err := bc.host.GetHeaderPlugin().GetBlockByHash(hash)
-	if err != nil {
-		return nil, err
-	}
+	// block, err := bc.bp.GetBlockByHash(hash)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	// Cache the found block for next time and return
-	bc.blockNumCache.Add(block.Number().Int64(), block)
-	bc.blockHashCache.Add(block.Hash(), block)
-	return block, nil
+	// // Cache the found block for next time and return
+	// bc.blockNumCache.Add(block.Number().Int64(), block)
+	// bc.blockHashCache.Add(block.Hash(), block)
+	return nil, errors.New("block not found")
 }
 
 // =========================================================================
@@ -196,17 +197,17 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 // `GetPoolTransactions` returns all of the transactions that are currently in
 // the mempool.
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
-	return bc.host.GetTxPoolPlugin().GetAllTransactions()
+	return bc.tp.GetAllTransactions()
 }
 
 // `GetPoolTransaction` returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
-	return bc.host.GetTxPoolPlugin().GetTransaction(hash)
+	return bc.tp.GetTransaction(hash)
 }
 
 // TODO: define behaviour for this function.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	nonce, err := bc.host.GetTxPoolPlugin().GetNonce(addr)
+	nonce, err := bc.tp.GetNonce(addr)
 	// defer b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
 	return nonce, err
 }

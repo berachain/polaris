@@ -34,6 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/gas"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/header"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
@@ -67,6 +68,7 @@ type Keeper struct {
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
+	hp  header.Plugin
 	pp  precompile.Plugin
 	sp  state.Plugin
 	txp txpool.Plugin
@@ -99,9 +101,10 @@ func NewKeeper(
 	k.rpcProvider = evmrpc.NewProvider(cfg)
 
 	// Build the Plugins
-	k.bp = block.NewPlugin(k.offChainKv, storeKey)
+	k.bp = block.NewPlugin(k.hp, k.offChainKv, storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
+	k.hp = header.NewPlugin(storeKey)
 	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	return k
 }
@@ -141,15 +144,19 @@ func (k *Keeper) Setup(
 
 	// Set the query context function for the block and state plugins
 	k.sp.SetQueryContextFn(qc)
-	k.bp.SetQueryContextFn(qc)
+	k.hp.SetQueryContextFn(qc)
 
 	// Build the Polaris EVM Provider
 	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
-// `GetHeaderPlugin` returns the block plugin.
+// `GetHeaderPlugin` returns the header plugin.
 func (k *Keeper) GetHeaderPlugin() core.HeaderPlugin {
-	return k.bp
+	return k.hp
+}
+
+func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
+	return nil
 }
 
 // `GetConfigurationPlugin` returns the configuration plugin.
@@ -179,7 +186,7 @@ func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
 
 // `GetAllPlugins` returns all the plugins.
 func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosPolaris {
-	return []plugins.BaseCosmosPolaris{k.bp, k.cp, k.gp, k.pp, k.sp}
+	return []plugins.BaseCosmosPolaris{k.hp, k.cp, k.gp, k.pp, k.sp}
 }
 
 // `GetRPCProvider` returns the RPC provider. We use this in `app.go` to register

@@ -50,10 +50,11 @@ type ChainWriter interface {
 
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	// Prepare the Block, Gas, and Configuration plugins for the block.
-	bc.host.GetHeaderPlugin().Prepare(ctx)
-	bc.host.GetGasPlugin().Prepare(ctx)
-	bc.host.GetConfigurationPlugin().Prepare(ctx)
+	// Prepare the Block, Header, Gas, and Configuration plugins for the block.
+	bc.bp.Prepare(ctx)
+	bc.hp.Prepare(ctx)
+	bc.gp.Prepare(ctx)
+	bc.cp.Prepare(ctx)
 
 	// If we are processing a new block, then we assume that the previous was finalized.
 	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
@@ -86,7 +87,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
 
-	header := bc.host.GetHeaderPlugin().NewHeaderWithBlockNumber(height)
+	header := bc.hp.NewHeaderWithBlockNumber(height)
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
@@ -98,7 +99,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	// Reset the StateDB and Gas plugin for the tx.
 	bc.statedb.Reset(ctx)
-	bc.host.GetGasPlugin().Reset(ctx)
+	bc.gp.Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
@@ -106,15 +107,32 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 // `Finalize` finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
 	block, receipts, err := bc.processor.Finalize(ctx)
+	if err != nil {
+		return err
+	}
+
+	// cache the block and receipts
 	if block != nil {
 		bc.currentBlock.Store(block)
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
 	}
+
+	// store the block, receipts, and txs on the host chain
+	blockHash := block.Hash()
+	err = bc.bp.StoreBlock(block)
+	if err != nil {
+		return err
+	}
+	err = bc.bp.StoreReceipts(blockHash, receipts)
+	if err != nil {
+		return err
+	}
+	err = bc.bp.StoreTransactions(block.Number().Int64(), blockHash, block.Transactions())
 	return err
 }
 
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return bc.host.GetTxPoolPlugin().SendTx(signedTx)
+	return bc.tp.SendTx(signedTx)
 }

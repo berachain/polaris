@@ -43,44 +43,13 @@ var (
 	versionKey                = []byte{0x11}
 )
 
-// `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
-func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretypes.Receipts) {
-	blockHash, blockNum := block.Hash(), block.NumberU64()
+// `StoreBlock` implements `core.BlockPlugin`.
+func (p *plugin) StoreBlock(block *coretypes.Block) error {
+	blockNum := block.NumberU64()
 
 	// store block hash to block number.
 	numBz := sdk.Uint64ToBigEndian(blockNum)
-	prefix.NewStore(p.offchainStore, blockHashToNumPrefix).Set(blockHash.Bytes(), numBz)
-
-	// store block hash to receipts.
-	receiptsBz, err := marshalReceipts(receipts)
-	if err != nil {
-		p.ctx.Logger().Error(
-			"UpdateOffChainStorage: failed to marshal receipts at block number %d", blockNum,
-		)
-		panic(err)
-	}
-	prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Set(blockHash.Bytes(), receiptsBz)
-
-	// store all txns in the block.
-	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
-	for txIndex, tx := range block.Transactions() {
-		txLookupEntry := &coretypes.TxLookupEntry{
-			Tx:        tx,
-			TxIndex:   uint64(txIndex),
-			BlockHash: blockHash,
-			BlockNum:  blockNum,
-		}
-		var tleBz []byte
-		tleBz, err = txLookupEntry.MarshalBinary()
-		if err != nil {
-			p.ctx.Logger().Error(
-				"UpdateOffChainStorage: failed to marshal tx %s at block number %d",
-				tx.Hash().Hex(), blockNum,
-			)
-			panic(err)
-		}
-		txStore.Set(tx.Hash().Bytes(), tleBz)
-	}
+	prefix.NewStore(p.offchainStore, blockHashToNumPrefix).Set(block.Hash().Bytes(), numBz)
 
 	// store the version offchain for consistency.
 	if sdk.BigEndianToUint64(p.offchainStore.Get(versionKey)) != blockNum-1 {
@@ -89,12 +58,57 @@ func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretype
 	p.offchainStore.Set(versionKey, numBz)
 	// flush the underlying buffer to disk.
 	p.offchainStore.Write()
+
+	return nil
+}
+
+// `StoreReceipts` implements `core.BlockPlugin`.
+func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
+	// store block hash to receipts.
+	receiptsBz, err := marshalReceipts(receipts)
+	if err != nil {
+		p.ctx.Logger().Error(
+			"UpdateOffChainStorage: failed to marshal receipts at block hash %s", blockHash.Hex(),
+		)
+		return err
+	}
+	prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Set(blockHash.Bytes(), receiptsBz)
+
+	return nil
+}
+
+// `StoreTransactions` implements `core.BlockPlugin`.
+func (p *plugin) StoreTransactions(
+	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
+) error {
+	// store all txns in the block.
+	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
+	for txIndex, tx := range txs {
+		txLookupEntry := &coretypes.TxLookupEntry{
+			Tx:        tx,
+			TxIndex:   uint64(txIndex),
+			BlockHash: blockHash,
+			BlockNum:  uint64(blockNum),
+		}
+		var tleBz []byte
+		tleBz, err := txLookupEntry.MarshalBinary()
+		if err != nil {
+			p.ctx.Logger().Error(
+				"UpdateOffChainStorage: failed to marshal tx %s at block number %d",
+				tx.Hash().Hex(), blockNum,
+			)
+			return err
+		}
+		txStore.Set(tx.Hash().Bytes(), tleBz)
+	}
+
+	return nil
 }
 
 // `GetBlockByNumber` returns the block at the given height.
 func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	// get header from on chain.
-	header, err := p.GetHeaderByNumber(number)
+	header, err := p.hp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +152,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
 	}
 	number := int64(sdk.BigEndianToUint64(numBz))
-	header, err := p.GetHeaderByNumber(number)
+	header, err := p.hp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}

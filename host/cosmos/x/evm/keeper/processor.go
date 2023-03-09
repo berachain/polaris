@@ -77,18 +77,4 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 	if err != nil {
 		panic(err)
 	}
-
-	// // Save the historical header in the IAVL Tree.
-	// // TODO: move this to within the eth folder? And do the historical data the
-	// // way geth does it?
-	// err = k.bp.SetHeader(block.Header())
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // TODO: this is sketchy and needs to be refactored later.
-	// // Save the block data to the off-chain storage.
-	// if k.offChainKv != nil {
-	// 	k.bp.UpdateOffChainStorage(block, receipts)
-	// }
 }

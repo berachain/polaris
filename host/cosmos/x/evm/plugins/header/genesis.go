@@ -18,30 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package header
 
 import (
-	"github.com/ethereum/go-ethereum/consensus"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// Compile-time interface assertion.
-var _ ChainContext = (*chainContext)(nil)
+// `InitGenesis` performs genesis initialization for the evm module. no-op.
+func (p *plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
 
-// `chainContext` is a wrapper around `StateProcessor` that implements the `ChainContext` interface.
-type chainContext struct {
-	*blockchain
-}
-
-// `GetHeader` returns the header for the given hash and height. This is used by the `GetHashFn`.
-func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
-	header, _ := cc.blockchain.hp.GetHeaderByNumber(int64(height))
-	return header
-}
-
-// `Engine` returns the consensus engine. For our use case, this never gets called.
-func (cc *chainContext) Engine() consensus.Engine {
-	return nil
-}
+// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
+// module. no-op.
+func (p *plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}

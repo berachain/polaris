@@ -65,7 +65,7 @@ type (
 		// `GetHeaderByNumber` returns the block header at the given block number.
 		GetHeaderByNumber(int64) (*types.Header, error)
 		// `SetHeaderByNumber` sets the block header at the given block number.
-		SetHeaderByNumber(int64, *types.Header)
+		SetHeaderByNumber(int64, *types.Header) error
 		// `BaseFee` returns the base fee of the current block.
 		BaseFee() uint64
 	}
@@ -137,6 +137,8 @@ type (
 	// used by the RPC backend to support certain methods on the Ethereum JSON RPC spec.
 	// Implementing this plugin is optional.
 	BlockPlugin interface {
+		// `BlockPlugin` implements `libtypes.Preparable`.
+		libtypes.Preparable
 		// `GetBlockByNumber` returns the block at the given block number.
 		GetBlockByNumber(int64) (*types.Block, error)
 		// `GetBlockByHash` returns the block at the given block hash.
@@ -146,6 +148,12 @@ type (
 		GetTransactionByHash(common.Hash) (*types.TxLookupEntry, error)
 		// `GetReceiptByHash` returns the receipts at the given block hash.
 		GetReceiptsByHash(common.Hash) (types.Receipts, error)
+		// `StoreBlock` stores the given block.
+		StoreBlock(*types.Block) error
+		// `StoreReceipts` stores the receipts for the given block hash.
+		StoreReceipts(common.Hash, types.Receipts) error
+		// `StoreTransactions` stores the transactions for the given block hash.
+		StoreTransactions(int64, common.Hash, types.Transactions) error
 	}
 
 	// `PrecompilePlugin` defines the methods that the chain running Polaris EVM should implement
