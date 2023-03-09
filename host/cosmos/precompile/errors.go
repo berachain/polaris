@@ -28,4 +28,7 @@ var (
 	ErrInvalidBigInt     = errors.New("invalid big int")
 	ErrInvalidUint64     = errors.New("invalid uint64")
 	ErrInvalidInt64      = errors.New("invalid int64")
+	ErrInvalidAny        = errors.New("invalid any")
+	ErrInvalidCoin       = errors.New("invalid coin")
+	ErrInvalidBool       = errors.New("invalid bool")
 )
