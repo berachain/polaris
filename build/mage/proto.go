@@ -37,7 +37,7 @@ var (
 	// Docker Args
 	// TODO: remove once https://github.com/cosmos/cosmos-sdk/pull/13960 is merged
 	protoImageName    = "ghcr.io/cosmos/proto-builder"
-	protoImageVersion = "0.12.0"
+	protoImageVersion = "0.12.1"
 	protoDir          = "proto"
 )
 
