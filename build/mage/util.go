@@ -35,10 +35,7 @@ func PrintMageName() {
 	slice := strings.Split(f.Name(), ".")
 	name := slice[len(slice)-1]
 	//nolint:forbidigo // This is a mage file
-	fmt.Printf(`===========================
-Running %s...
-===========================
-`,
+	fmt.Printf("Running %s...\n",
 		name,
 	)
 }

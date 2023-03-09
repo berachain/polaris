@@ -28,6 +28,8 @@ import (
 	"github.com/magefile/mage/target"
 
 	mi "pkg.berachain.dev/polaris/build/mage/internal"
+
+	"github.com/TwiN/go-color"
 )
 
 var (
@@ -56,7 +58,7 @@ var (
 
 // Runs a series of commonly used commands.
 func All() error {
-	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint, BuildPolarisApp, Test, TestIntegration}
+	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint, BuildPolarisCosmosApp, BuildPolarisPlaygroundApp, TestUnit, TestIntegration}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err
@@ -65,7 +67,8 @@ func All() error {
 	return nil
 }
 
-func BuildPolarisApp() error {
+// Runs `go build` on the cosmos app.
+func BuildPolarisCosmosApp() error {
 	cmd := "polard"
 	args := []string{
 		generateBuildTags(),
@@ -73,6 +76,20 @@ func BuildPolarisApp() error {
 		"-o", generateOutDirectory(cmd),
 		"./host/cosmos/cmd/" + cmd,
 	}
+	fmt.Println(color.Ize(color.Yellow, "Building Cosmos app..."))
+	return goBuild(args...)
+}
+
+// Runs `go build` on the playground app.
+func BuildPolarisPlaygroundApp() error {
+	cmd := "playground"
+	args := []string{
+		generateBuildTags(),
+		generateLinkerFlags(production, statically),
+		"-o", generateOutDirectory(cmd),
+		"./host/playground/cmd/",
+	}
+	fmt.Println(color.Ize(color.Yellow, "Building Playground app..."))
 	return goBuild(args...)
 }
 
@@ -92,7 +109,13 @@ func Build() error {
 		return err
 	}
 
-	if err = BuildPolarisApp(); err != nil {
+	// Build the cosmos app
+	if err = BuildPolarisCosmosApp(); err != nil {
+		return err
+	}
+
+	// Build the playground app
+	if err = BuildPolarisPlaygroundApp(); err != nil {
 		return err
 	}
 
