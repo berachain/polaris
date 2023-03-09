@@ -24,6 +24,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/golang/mock/gomock"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -101,7 +102,7 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(0),
 				false,
 				[]*codectypes.Any{},
-				[]generated.Coin{},
+				[]generated.IGovernanceModuleCoin{},
 				123,
 			)
 			Expect(err).To(MatchError(precompile.ErrInvalidString))
@@ -114,7 +115,7 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(0),
 				false,
 				[]*codectypes.Any{},
-				[]generated.Coin{},
+				[]generated.IGovernanceModuleCoin{},
 				"metadata",
 				123,
 			)
@@ -128,7 +129,7 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(0),
 				false,
 				[]*codectypes.Any{},
-				[]generated.Coin{},
+				[]generated.IGovernanceModuleCoin{},
 				"metadata",
 				"title",
 				123,
@@ -143,7 +144,7 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(0),
 				false,
 				[]*codectypes.Any{},
-				[]generated.Coin{},
+				[]generated.IGovernanceModuleCoin{},
 				"metadata",
 				"title",
 				"summary",
@@ -175,9 +176,9 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(0),
 				false,
 				[]*codectypes.Any{msg},
-				[]generated.Coin{
+				[]generated.IGovernanceModuleCoin{
 					{
-						Amount: big.NewInt(100),
+						Amount: 100,
 						Denom:  "usdc",
 					},
 				},
@@ -307,6 +308,82 @@ var _ = Describe("Governance Precompile", func() {
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
+		})
+
+		When("Voting Weight", func() {
+			It("should fail if the proposal ID is of invalid type", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					cosmlib.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					"invalid",
+					[]generated.IGovernanceModuleWeightedVoteOption{},
+					"metadata",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
+				Expect(res).To(BeNil())
+			})
+			It("should fail if the vote option is of invalid type", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					cosmlib.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					uint64(1),
+					12,
+					"metadata",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidOptions))
+				Expect(res).To(BeNil())
+			})
+			It("should fail if the metadata is of invalid type", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					cosmlib.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					uint64(1),
+					[]generated.IGovernanceModuleWeightedVoteOption{},
+					123,
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+			It("should fail if the proposal does not exist", func() {
+				res, err := contract.VoteWeighted(
+					ctx,
+					cosmlib.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					uint64(1000),
+					[]generated.IGovernanceModuleWeightedVoteOption{},
+					"metadata",
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+			It("should succeed", func() {
+				weight, err := math.LegacyNewDecFromStr("0.4")
+				Expect(err).ToNot(HaveOccurred())
+				options := []generated.IGovernanceModuleWeightedVoteOption{
+					{
+						VoteOption: int32(1),
+						Weight:     weight.String(),
+					},
+				}
+				res, err := contract.VoteWeighted(
+					ctx,
+					cosmlib.AccAddressToEthAddress(caller),
+					big.NewInt(0),
+					false,
+					uint64(1),
+					options,
+					"metadata",
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
 		})
 	})
 

@@ -83,7 +83,7 @@ func (c *Contract) SubmitProposal(
 	if !ok {
 		return nil, precompile.ErrInvalidAny
 	}
-	initialDeposit, ok := utils.GetAs[[]generated.Coin](args[1])
+	initialDeposit, ok := utils.GetAs[[]generated.IGovernanceModuleCoin](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidCoin
 	}
@@ -150,4 +150,28 @@ func (c *Contract) Vote(
 	voter := sdk.AccAddress(caller.Bytes())
 
 	return c.voteHelper(ctx, voter, proposalID, options, metadata)
+}
+
+// `VoteWeighted` is the method for the `voteWeighted` method of the governance precompile contract.
+func (c *Contract) VoteWeighted(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	proposalID, ok := utils.GetAs[uint64](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidBigInt
+	}
+	options, ok := utils.GetAs[[]generated.IGovernanceModuleWeightedVoteOption](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidOptions
+	}
+	metadata, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	voter := sdk.AccAddress(caller.Bytes())
+	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }

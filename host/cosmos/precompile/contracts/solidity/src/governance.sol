@@ -31,6 +31,15 @@ interface IGovernanceModule {
         string memory metadata
     ) external;
 
+    /**
+     *@dev Vote on a proposal with weights.
+     */
+    function voteWeighted(
+        uint64 proposalId,
+        WeightedVoteOption[] calldata options,
+        string calldata metadata
+    ) external;
+
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
 
     ////////////////////////////////////////// Utils  ///////////////////////////////////////////////////
@@ -42,6 +51,15 @@ interface IGovernanceModule {
     struct Coin {
         uint64 amount;
         string denom;
+    }
+
+    /**
+     * @dev Represents a governance module `WeightedVoteOption`.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct WeightedVoteOption {
+        int32 voteOption;
+        string weight;
     }
 
     /**

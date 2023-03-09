@@ -34,7 +34,7 @@ import (
 func (c *Contract) submitProposalHelper(
 	ctx context.Context,
 	messages []*codectypes.Any,
-	initialDeposit []generated.Coin,
+	initialDeposit []generated.IGovernanceModuleCoin,
 	proposer sdk.AccAddress,
 	metadata, title, summary string,
 	expedited bool,
@@ -43,7 +43,7 @@ func (c *Contract) submitProposalHelper(
 
 	// Convert the initial deposit to sdk.Coin.
 	for _, coin := range initialDeposit {
-		coins = append(coins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
+		coins = append(coins, sdk.NewCoin(coin.Denom, sdk.NewIntFromUint64(coin.Amount)))
 	}
 
 	res, err := c.msgServer.SubmitProposal(ctx, &v1.MsgSubmitProposal{
@@ -93,6 +93,38 @@ func (c *Contract) voteHelper(
 		Option:     v1.VoteOption(option),
 		Metadata:   metadata,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{}, nil
+}
+
+// `voteWeighted` is a helper function for the `VoteWeighted` method of the governance precompile contract.
+func (c *Contract) voteWeightedHelper(
+	ctx context.Context,
+	voter sdk.AccAddress,
+	proposalID uint64,
+	options []generated.IGovernanceModuleWeightedVoteOption,
+	metadata string,
+) ([]any, error) {
+	// Convert the options to v1.WeightedVoteOption.
+	msgOptions := make([]*v1.WeightedVoteOption, len(options))
+	for i, option := range options {
+		msgOptions[i] = &v1.WeightedVoteOption{
+			Option: v1.VoteOption(option.VoteOption),
+			Weight: option.Weight,
+		}
+	}
+
+	_, err := c.msgServer.VoteWeighted(
+		ctx, &v1.MsgVoteWeighted{
+			ProposalId: proposalID,
+			Voter:      voter.String(),
+			Options:    msgOptions,
+			Metadata:   metadata,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
