@@ -28,6 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
+	evmrpc "pkg.berachain.dev/polaris/cosmos/rpc"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -37,7 +38,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	evmrpc "pkg.berachain.dev/polaris/cosmos/x/evm/rpc"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core"

@@ -26,8 +26,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/rpc"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/rpc"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
