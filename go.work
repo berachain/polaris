@@ -1,7 +1,6 @@
 go 1.20
 
 use (
-	.
 	./build
 	./eth
 	./host/cosmos

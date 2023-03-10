@@ -518,8 +518,5 @@ google.golang.org/grpc v1.51.0/go.mod h1:wgNDFcnuBGmxLKI/qn4T+m5BtEBYXJPvibbUPsA
 google.golang.org/grpc v1.52.0/go.mod h1:pu6fVzoFb+NBYNAvQL08ic+lvB2IojljRYuun5vorUY=
 gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=
-pkg.berachain.dev/polaris/build v0.0.0-20230310201153-ea9d998ad04d/go.mod h1:H0EVk9WWbiXe/2F8q8srlEkT+prpLsbnCFwtPhLrG8k=
-pkg.berachain.dev/polaris/cosmos v0.0.0-20230310201153-ea9d998ad04d/go.mod h1:TyYZgef2Ic7ZnQ5VhMYCM9kjFJlEAHRSJWzo/0RcjEo=
-pkg.berachain.dev/polaris/playground v0.0.0-20230310201153-ea9d998ad04d/go.mod h1:wNuls1FSVeyUZ+eVZZBas8KjV0cx4w++A4hn6oyzGrc=
 rsc.io/tmplfunc v0.0.3/go.mod h1:AG3sTPzElb1Io3Yg4voV9AGZJuleGAwaVRxL9M49PhA=
 sigs.k8s.io/yaml v1.2.0/go.mod h1:yfXDCHCao9+ENCvLSE62v9VSji2MKu5jeNfTrofGhJc=
