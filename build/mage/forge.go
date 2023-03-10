@@ -18,18 +18,21 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+//nolint:forbidigo // its okay.
 package mage
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/TwiN/go-color"
+
 	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (
 	// Commands.
-	forgeBuild = mi.RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi")
+	forgeBuild = mi.RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
 	forgeClean = mi.RunCmdV("forge", "clean")
 	forgeTest  = mi.RunCmdV("forge", "test")
 	forgeFmt   = mi.RunCmdV("forge", "fmt")
@@ -41,6 +44,7 @@ var (
 
 // Runs `forge build` in all smart contract directories.
 func ForgeBuild() error {
+	fmt.Println(color.Ize(color.Yellow, "Building Solidity contracts..."))
 	return forgeWrapper(forgeBuild)
 }
 

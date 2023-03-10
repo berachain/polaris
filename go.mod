@@ -5,6 +5,7 @@ go 1.20
 replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
 
 require (
+	github.com/TwiN/go-color v1.4.0
 	github.com/bufbuild/buf v1.15.1
 	github.com/carolynvs/magex v0.9.0
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
