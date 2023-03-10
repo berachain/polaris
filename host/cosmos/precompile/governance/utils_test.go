@@ -27,6 +27,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -37,7 +38,6 @@ import (
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"

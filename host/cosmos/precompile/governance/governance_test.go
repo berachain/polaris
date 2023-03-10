@@ -25,8 +25,9 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/golang/mock/gomock"
+
+	"cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -452,7 +453,8 @@ var _ = Describe("Governance Precompile", func() {
 			When("GetProposals", func() {
 				BeforeEach(func() {
 					// Not filled proposal, hence will panic the parser.
-					contract.CancelProposal(ctx, common.Address(caller), big.NewInt(0), false, uint64(1))
+					_, err := contract.CancelProposal(ctx, common.Address(caller), big.NewInt(0), false, uint64(1))
+					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should fail if the status is of invalid type", func() {
 					res, err := contract.GetProposals(
