@@ -23,7 +23,6 @@ package mage
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/TwiN/go-color"
 
@@ -76,19 +75,8 @@ func ForgeFmt() error {
 
 // Wraps forge commands with the proper directory change.
 func forgeWrapper(forgeFunc func(args ...string) error) error {
-	rootCwd, _ := os.Getwd()
 	for _, dir := range allForgeDirs {
-		// Change to the directory where the contracts are.
-		if err := os.Chdir(dir); err != nil {
-			return err
-		}
-		// Run the forge command.
-		if err := forgeFunc(); err != nil {
-			return err
-		}
-
-		// Go back to the starting directory.
-		if err := os.Chdir(rootCwd); err != nil {
+		if err := mi.ExecuteInDirectory(dir, forgeFunc, false); err != nil {
 			return err
 		}
 	}

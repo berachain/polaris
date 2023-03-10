@@ -21,12 +21,13 @@
 package mage
 
 import (
+	"os"
 	"strings"
 
 	"github.com/magefile/mage/sh"
 )
 
-var allPkgs, _ = sh.Output("go", "list", "./...")
+var allPkgs, _ = sh.Output("go", "list", "pkg.berachain.dev/polaris/...")
 
 // RunCmd is a helper function that returns a function that runs the given
 // command with the given arguments.
@@ -66,4 +67,38 @@ func filter[T any](ss []T, test func(T) bool) []T {
 		}
 	}
 	return ret
+}
+
+// Executes a function in a given directory.
+func ExecuteInDirectory(dir string, f func(args ...string) error, withArgs bool) error {
+	rootCwd, _ := os.Getwd()
+	// Change to the directory where the contracts are.
+	if err := os.Chdir(dir); err != nil {
+		return err
+	}
+	// Run the command
+	if withArgs {
+		if err := f(dir); err != nil {
+			return err
+		}
+	} else {
+		if err := f(); err != nil {
+			return err
+		}
+	}
+
+	// Go back to the starting directory.
+	if err := os.Chdir(rootCwd); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ExecuteForAllModules(dirs []string, f func(args ...string) error, withArgs bool) error {
+	for _, dir := range dirs {
+		if err := ExecuteInDirectory(dir, f, withArgs); err != nil {
+			return err
+		}
+	}
+	return nil
 }
