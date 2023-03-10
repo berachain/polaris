@@ -55,6 +55,8 @@ var (
 	// Variables and Helpers.
 	production = false
 	statically = false
+
+	moduleDirs = []string{"eth", "host/cosmos", "host/playground", "lib"}
 )
 
 // Runs a series of commonly used commands.
@@ -164,15 +166,22 @@ func Generate() error {
 	if err := goInstall(moq); err != nil {
 		return err
 	}
-	return goGenerate("-x", "./...")
+	for _, dir := range moduleDirs {
+		if err := mi.ExecuteInDirectory(dir, func(...string) error { return goGenerate("./...") }); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Runs `go generate` on the entire project and verifies that no files were
 // changed.
 func GenerateCheck() error {
 	PrintMageName()
-	if err := Generate(); err != nil {
-		return err
+	for _, dir := range moduleDirs {
+		if err := mi.ExecuteInDirectory(dir, func(...string) error { return goGenerate("./...") }); err != nil {
+			return err
+		}
 	}
 	if err := gitDiff(); err != nil {
 		return fmt.Errorf("generated files are out of date: %w", err)
@@ -182,7 +191,12 @@ func GenerateCheck() error {
 
 // Runs 'go tidy' on the entire project.
 func Tidy() error {
-	return goModTidy()
+	for _, dir := range moduleDirs {
+		if err := mi.ExecuteInDirectory(dir, func(...string) error { return goModTidy() }); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Runs 'go work sync' on the entire project.
