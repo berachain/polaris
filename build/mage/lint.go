@@ -51,17 +51,27 @@ func Format() error {
 // Run `golangci-lint`.
 func GolangCiLint() error {
 	PrintMageName()
-	return goRun(golangCi,
-		"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "./...",
-	)
+	for _, dir := range moduleDirs {
+		if err := goRun(golangCi,
+			"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "./"+dir+"/"+"...",
+		); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Run `golangci-lint` with --fix.
 func GolangCiLintFix() error {
 	PrintMageName()
-	return goRun(golangCi,
-		"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "--fix", "./...",
-	)
+	for _, dir := range moduleDirs {
+		if err := goRun(golangCi,
+			"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "--fix", "./"+dir+"/"+"...",
+		); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Run `golines`.
@@ -81,13 +91,25 @@ func Gosec() error {
 // Run `addlicense`.
 func License() error {
 	PrintMageName()
-	return goRun(addlicense,
-		"-v", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./.")
+	for _, dir := range moduleDirs {
+		if err := goRun(addlicense,
+			"-v", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./"+dir+"/"+".",
+		); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Run `addlicense` with -check.
 func LicenseCheck() error {
 	PrintMageName()
-	return goRun(addlicense,
-		"-v", "-check", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./.")
+	for _, dir := range moduleDirs {
+		if err := goRun(addlicense,
+			"-v", "-check", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./"+dir+"/"+".",
+		); err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+
 	"pkg.berachain.dev/polaris/playground/pkg/chain"
 )
 
@@ -35,7 +36,7 @@ type Runner interface {
 // `runner` is the main node runner.
 type runner struct {
 	blocktime  time.Duration
-	rpcService *rpcService
+	rpcService RPCService
 	stop       chan struct{}
 	chain      *chain.Playground
 }
@@ -57,7 +58,7 @@ func NewRunner(blocktime time.Duration) Runner {
 	}
 }
 
-// `Start` starts the node
+// `Start` starts the node.
 func (r *runner) Start() error {
 	for {
 		select {

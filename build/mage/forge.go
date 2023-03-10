@@ -76,7 +76,7 @@ func ForgeFmt() error {
 // Wraps forge commands with the proper directory change.
 func forgeWrapper(forgeFunc func(args ...string) error) error {
 	for _, dir := range allForgeDirs {
-		if err := mi.ExecuteInDirectory(dir, forgeFunc); err != nil {
+		if err := mi.ExecuteInDirectory(dir, forgeFunc, false); err != nil {
 			return err
 		}
 	}
