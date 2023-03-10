@@ -56,7 +56,7 @@ var (
 	production = false
 	statically = false
 
-	moduleDirs = []string{"eth", "host/cosmos", "host/playground", "lib"}
+	moduleDirs = []string{"build", "eth", "host/cosmos", "host/playground", "lib"}
 )
 
 // Runs a series of commonly used commands.
