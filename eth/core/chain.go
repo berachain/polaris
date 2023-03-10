@@ -90,7 +90,7 @@ type blockchain struct {
 // =========================================================================
 
 // `NewChain` creates and returns a `api.Chain` with the given EVM chain configuration and host.
-func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // temp.
+func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
@@ -108,6 +108,8 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // temp.
 	}
 	bc.cc = &chainContext{bc}
 	bc.statedb = state.NewStateDB(bc.sp)
-	bc.processor = NewStateProcessor(host, bc.statedb, bc.vmConfig)
+	bc.processor = NewStateProcessor(
+		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,
+	)
 	return bc
 }

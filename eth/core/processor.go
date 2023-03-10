@@ -44,12 +44,10 @@ type StateProcessor struct {
 	// current block.
 	mtx sync.Mutex
 
-	// `bp` provides block functions from the underlying chain the EVM is running on
-	bp BlockPlugin
-	// `gp` provides gas functions from the underlying chain the EVM is running on
-	gp GasPlugin
-	// `cp` provides configuration functions from the underlying chain the EVM is running on
+	// `cp` provides configuration functions from the underlying chain the EVM is running on.
 	cp ConfigurationPlugin
+	// `gp` provides gas functions from the underlying chain the EVM is running on.
+	gp GasPlugin
 	// `pp` is responsible for keeping track of the stateful precompile containers that are
 	// available to the EVM and executing them.
 	pp PrecompilePlugin
@@ -77,16 +75,17 @@ type StateProcessor struct {
 // `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
 // commit flag.
 func NewStateProcessor(
-	host PolarisHostChain,
+	cp ConfigurationPlugin,
+	gp GasPlugin,
+	pp PrecompilePlugin,
 	statedb vm.PolarisStateDB,
 	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{
 		mtx:      sync.Mutex{},
-		bp:       host.GetBlockPlugin(),
-		gp:       host.GetGasPlugin(),
-		cp:       host.GetConfigurationPlugin(),
-		pp:       host.GetPrecompilePlugin(),
+		cp:       cp,
+		gp:       gp,
+		pp:       pp,
 		vmConfig: vmConfig,
 		statedb:  statedb,
 	}
