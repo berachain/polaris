@@ -5,7 +5,7 @@ underlying consensus layer. This folder's directory structure closely resembles 
 is meant to be a thin wrapper around the existing geth codebase. The following architecture diagram
 shows how Polaris Ethereum integrates into the application level of a host chain.
 
-![polaris_hld (1)](https://user-images.githubusercontent.com/113940816/223547650-0cb7c3ae-ac40-4281-bbf6-849a5b86d6f8.jpeg)
+![polaris_architecture.png](../docs/web/public/polaris_architecture.png)
 
 ## api
 
