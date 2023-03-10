@@ -5,6 +5,7 @@ go 1.20
 // Required for supporting stateful precompiled contracts.
 replace (
 	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
+	pkg.berachain.dev/polaris/lib => ../lib
 )
 
 require (
