@@ -115,6 +115,7 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil, ErrReceiptsNotFound
 	}
 
@@ -144,6 +145,7 @@ func (bc *blockchain) GetTransaction(
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil, common.Hash{}, 0, 0, ErrTxNotFound
 	}
 
@@ -169,6 +171,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil, ErrBlockNotFound
 	}
 
@@ -194,6 +197,7 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil, ErrBlockNotFound
 	}
 
@@ -227,6 +231,6 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 // TODO: define behaviour for this function.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
 	nonce, err := bc.tp.GetNonce(addr)
-	// defer b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
+	defer bc.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
 	return nonce, err
 }

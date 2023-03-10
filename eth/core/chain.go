@@ -30,6 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/log"
 )
 
 // By default we are storing up to 64mb of historical data for each cache.
@@ -83,6 +84,7 @@ type blockchain struct {
 	cc            ChainContext
 	chainHeadFeed event.Feed
 	scope         event.SubscriptionScope
+	logger        log.Logger
 }
 
 // =========================================================================
@@ -105,6 +107,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
 		chainHeadFeed:  event.Feed{},
 		scope:          event.SubscriptionScope{},
+		logger:         log.Root(),
 	}
 	bc.cc = &chainContext{bc}
 	bc.statedb = state.NewStateDB(bc.sp)

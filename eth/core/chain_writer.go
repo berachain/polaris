@@ -50,6 +50,8 @@ type ChainWriter interface {
 
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
+	bc.logger.Info("Preparing block", "height", height)
+
 	// Prepare the Block, Configuration, Gas, and Historical plugins for the block.
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
@@ -99,6 +101,8 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
+	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
+
 	// Reset the Gas and State plugins for the tx.
 	bc.gp.Reset(ctx)
 	bc.sp.Reset(ctx)
@@ -113,6 +117,9 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		return err
 	}
 
+	blockHash := block.Hash()
+	bc.logger.Info("Finalizing block", block, blockHash.Hex(), "num txs", len(receipts))
+
 	// cache the block and receipts
 	if block != nil {
 		bc.currentBlock.Store(block)
@@ -123,7 +130,6 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
-		blockHash := block.Hash()
 		err = bc.hp.StoreBlock(block)
 		if err != nil {
 			return err
