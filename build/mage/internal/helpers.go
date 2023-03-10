@@ -69,7 +69,7 @@ func filter[T any](ss []T, test func(T) bool) []T {
 	return ret
 }
 
-// Wraps forge commands with the proper directory change.
+// Executes a function in a given directory.
 func ExecuteInDirectory(dir string, f func(args ...string) error) error {
 	rootCwd, _ := os.Getwd()
 	// Change to the directory where the contracts are.
