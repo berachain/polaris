@@ -23,13 +23,9 @@ package precompile
 import (
 	"context"
 	"math/big"
-	"regexp"
-	"strings"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/errors/debug"
 )
 
 /**
@@ -80,59 +76,11 @@ type Method struct {
 	RequiredGas uint64
 }
 
-var (
-	funcNameRegex = regexp.MustCompile(`^[a-zA-Z_$]{1,}[a-zA-Z0-9_$]*`)
-	typeRegex     = regexp.MustCompile(`^[a-z]+[0-9]*$`)
-)
-
 // `ValidateBasic` returns an error if this a precompile `Method` has invalid fields.
 func (m *Method) ValidateBasic() error {
 	// ensure all required fields are nonempty
 	if len(m.AbiSig) == 0 || m.AbiMethod != nil || m.Execute == nil {
 		return ErrIncompleteMethod
-	}
-
-	// validate user-defined abi signature (AbiSig) according to geth ABI signature definition
-	// check only 1 `(` exists in the string
-	nameAndArgs := strings.Split(m.AbiSig, "(")
-	if len(nameAndArgs) != 2 { //nolint:gomnd // the constant 2 will never change.
-		return errors.Wrapf(
-			ErrAbiSigInvalid,
-			"%s does not contain exactly 1 '('",
-			debug.GetFnName(m.Execute),
-		)
-	}
-	// check that the method name is valid according to Solidity
-	if name := nameAndArgs[0]; !funcNameRegex.MatchString(name) {
-		return errors.Wrapf(
-			ErrAbiSigInvalid,
-			"%s does not have a valid method name",
-			debug.GetFnName(m.Execute),
-		)
-	}
-	// check that only 1 `)` exists and its the last character
-	args := strings.Split(nameAndArgs[1], ")")
-	if len(args) != 2 || len(args[1]) > 0 {
-		return errors.Wrapf(
-			ErrAbiSigInvalid,
-			"%s does not does not end with 1 ')'",
-			debug.GetFnName(m.Execute),
-		)
-	}
-	// if no args are provided, sig is valid
-	if len(args[0]) == 0 {
-		return nil
-	}
-	// check that each provided type is valid if some args are provided
-	types := strings.Split(args[0], ",")
-	for _, t := range types {
-		if len(t) == 0 || !typeRegex.MatchString(t) {
-			return errors.Wrapf(
-				ErrAbiSigInvalid,
-				"%s has incorrect argument types",
-				debug.GetFnName(m.Execute),
-			)
-		}
 	}
 
 	return nil

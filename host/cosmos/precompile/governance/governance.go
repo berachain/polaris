@@ -68,7 +68,7 @@ func NewPrecompileContract(gk **govkeeper.Keeper) coreprecompile.StatefulImpl {
 func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 	return coreprecompile.Methods{
 		{
-			AbiSig:  "submitProposal(bytes,[]tuple,string,string,string,bool)",
+			AbiSig:  "submitProposal(bytes,(uint64,string)[],string,string,string,bool)",
 			Execute: c.SubmitProposal,
 		},
 		{
@@ -80,7 +80,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 			Execute: c.Vote,
 		},
 		{
-			AbiSig:  "voteWeighted(uint64,[]tuple,string)",
+			AbiSig:  "voteWeighted(uint64,(int32,string)[],string)",
 			Execute: c.VoteWeighted,
 		},
 		{

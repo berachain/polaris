@@ -139,7 +139,7 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(err).To(MatchError(precompile.ErrInvalidString))
 			Expect(res).To(BeNil())
 		})
-		It("should fail if expadited is of wrong type", func() {
+		It("should fail if expedited is of wrong type", func() {
 			res, err := contract.SubmitProposal(
 				ctx,
 				cosmlib.AccAddressToEthAddress(caller),
