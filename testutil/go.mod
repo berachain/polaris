@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris
+module github.com/berachain/polaris
 
 go 1.20
 
