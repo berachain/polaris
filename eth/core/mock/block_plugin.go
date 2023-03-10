@@ -24,6 +24,6 @@ package mock
 
 //go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
 
-// func NewBlockPluginMock() *BlockPluginMock {
-
-// }
+func NewBlockPluginMock() *BlockPluginMock {
+	return &BlockPluginMock{}
+}

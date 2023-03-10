@@ -22,6 +22,6 @@ package mock
 
 //go:generate moq -out ./historical_plugin.mock.go -pkg mock ../ HistoricalPlugin
 
-// func NewHistoricalPluginMock() *HistoricalPluginMock {
-
-// }
+func NewHistoricalPluginMock() *HistoricalPluginMock {
+	return &HistoricalPluginMock{}
+}
