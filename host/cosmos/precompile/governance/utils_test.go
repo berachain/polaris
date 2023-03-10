@@ -64,11 +64,7 @@ func fundAccount(ctx sdk.Context, bk bankkeeper.Keeper, acc sdk.AccAddress, coin
 }
 
 // Helper functions for setting up the tests.
-func setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
-	sdk.Context,
-	bankkeeper.Keeper,
-	*governancekeeper.Keeper,
-) {
+func setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkeeper.Keeper, *governancekeeper.Keeper) {
 	// Setup the keepers and context.
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 	dk := govtestutil.NewMockDistributionKeeper(ctrl)
