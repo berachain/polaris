@@ -99,9 +99,9 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	// Reset the StateDB and Gas plugin for the tx.
-	bc.sp.Reset(ctx)
+	// Reset the Gas and State plugins for the tx.
 	bc.gp.Reset(ctx)
+	bc.sp.Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
