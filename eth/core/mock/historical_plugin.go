@@ -20,25 +20,8 @@
 
 package mock
 
-//go:generate moq -out ./host.mock.go -pkg mock ../ PolarisHostChain
+//go:generate moq -out ./historical_plugin.mock.go -pkg mock ../ HistoricalPlugin
 
-// func NewMockHost() *PolarisHostChainMock {
-// 	mockedPolarisHostChain := &PolarisHostChainMock{
-// 		GetHistoricalPluginFunc: func() core.BlockPlugin {
-// 			panic("mock out the GetBlockPlugin method")
-// 		},
-// 		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
-// 			return NewConfigurationPluginMock()
-// 		},
-// 		GetGasPluginFunc: func() core.GasPlugin {
-// 			return NewGasPluginMock()
-// 		},
-// 		GetPrecompilePluginFunc: func() core.PrecompilePlugin {
-// 			panic("mock out the GetStatePlugin method")
-// 		},
-// 		GetStatePluginFunc: func() core.StatePlugin {
-// 			panic("mock out the GetStatePlugin method")
-// 		},
-// 	}
-// 	return mockedPolarisHostChain
+// func NewHistoricalPluginMock() *HistoricalPluginMock {
+
 // }
