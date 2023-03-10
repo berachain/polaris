@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"pkg.berachain.dev/polaris/playground/chain"
+	"pkg.berachain.dev/polaris/playground/pkg/chain"
 )
 
 // `Runner` is the interface for the node runner.
