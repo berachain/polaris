@@ -118,7 +118,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 
 	blockHash := block.Hash()
-	bc.logger.Info("Finalizing block", block, blockHash.Hex(), "num txs", len(receipts))
+	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
 	// cache the block and receipts
 	if block != nil {
