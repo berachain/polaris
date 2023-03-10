@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"pkg.berachain.dev/polaris/playground/node"
+	"pkg.berachain.dev/polaris/playground/pkg/node"
 )
 
 // RootCmd creates a new root command for polard. It is called once in the
