@@ -3,6 +3,7 @@ module pkg.berachain.dev/polaris/playground
 go 1.20
 
 replace (
+	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
 	pkg.berachain.dev/polaris/eth => ../../eth
 	pkg.berachain.dev/polaris/lib => ../../lib
 )
@@ -10,7 +11,7 @@ replace (
 require (
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.6.1
-	pkg.berachain.dev/polaris/eth v0.0.0-20211102110000-000000000000
+	pkg.berachain.dev/polaris/eth v0.0.0-20230310200034-65aecd1e8e5e
 )
 
 require (
@@ -29,7 +30,6 @@ require (
 	github.com/getsentry/sentry-go v0.19.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -51,6 +51,7 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
+	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
@@ -65,5 +66,5 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.29.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230307225606-328549977998 // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230310200034-65aecd1e8e5e // indirect
 )
