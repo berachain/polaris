@@ -33,7 +33,7 @@ type blockProducer struct {
 	currentBlockNum int64
 }
 
-// `ProduceBlock` produces a block from the mempool and returns it
+// `ProduceBlock` produces a block from the mempool and returns it.
 func (bp *blockProducer) ProduceBlock() error {
 	bp.currentBlockNum++
 

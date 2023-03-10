@@ -33,7 +33,6 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
-	// . "github.com/onsi/gomega"
 )
 
 var _ = Describe("Historical Plugin", func() {
