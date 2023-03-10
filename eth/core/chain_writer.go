@@ -39,7 +39,7 @@ type ChainWriter interface {
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
 	// `Finalize` finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
-	Finalize(context.Context) (*types.Block, types.Receipts, error)
+	Finalize(context.Context) error
 	// `SendTx` sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
@@ -50,10 +50,15 @@ type ChainWriter interface {
 
 // `Prepare` prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	// Prepare the Block, Gas, and Configuration plugins for the block.
-	bc.host.GetBlockPlugin().Prepare(ctx)
-	bc.host.GetGasPlugin().Prepare(ctx)
-	bc.host.GetConfigurationPlugin().Prepare(ctx)
+	bc.logger.Info("Preparing block", "height", height)
+
+	// Prepare the Block, Configuration, Gas, and Historical plugins for the block.
+	bc.bp.Prepare(ctx)
+	bc.cp.Prepare(ctx)
+	bc.gp.Prepare(ctx)
+	if bc.hp != nil {
+		bc.hp.Prepare(ctx)
+	}
 
 	// If we are processing a new block, then we assume that the previous was finalized.
 	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
@@ -86,7 +91,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
 
-	header := bc.host.GetBlockPlugin().NewHeaderWithBlockNumber(height)
+	header := bc.bp.NewHeaderWithBlockNumber(height)
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
@@ -96,25 +101,56 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 
 // `ProcessTransaction` processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	// Reset the StateDB and Gas plugin for the tx.
-	bc.statedb.Reset(ctx)
-	bc.host.GetGasPlugin().Reset(ctx)
+	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
+
+	// Reset the Gas and State plugins for the tx.
+	bc.gp.Reset(ctx)
+	bc.sp.Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
 
 // `Finalize` finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) (*types.Block, types.Receipts, error) {
+func (bc *blockchain) Finalize(ctx context.Context) error {
 	block, receipts, err := bc.processor.Finalize(ctx)
+	if err != nil {
+		return err
+	}
+
+	blockHash, blockNum := block.Hash(), block.Number().Int64()
+	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
+
+	// mark the current block and receipts
 	if block != nil {
 		bc.currentBlock.Store(block)
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
 	}
-	return block, receipts, err
+
+	// store the block header on the host chain
+	err = bc.bp.SetHeaderByNumber(blockNum, block.Header())
+	if err != nil {
+		return err
+	}
+
+	// store the block, receipts, and txs on the host chain if historical plugin is supported
+	if bc.hp != nil {
+		err = bc.hp.StoreBlock(block)
+		if err != nil {
+			return err
+		}
+		err = bc.hp.StoreReceipts(blockHash, receipts)
+		if err != nil {
+			return err
+		}
+		err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions())
+		return err
+	}
+
+	return nil
 }
 
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return bc.host.GetTxPoolPlugin().SendTx(signedTx)
+	return bc.tp.SendTx(signedTx)
 }

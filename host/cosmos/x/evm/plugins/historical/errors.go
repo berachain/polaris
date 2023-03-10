@@ -18,13 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package historical
 
 import "errors"
 
 var (
-	ErrBlockOutOfGas    = errors.New("block is out of gas")
-	ErrBlockNotFound    = errors.New("block not found")
-	ErrReceiptsNotFound = errors.New("receipts not found")
-	ErrTxNotFound       = errors.New("transaction not found")
+	ErrBlockNotFound = errors.New("block not found, is your node pruned?")
 )

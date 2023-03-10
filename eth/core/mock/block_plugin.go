@@ -20,22 +20,10 @@
 
 package mock
 
-import (
-	"context"
-)
-
-const testBaseFee = 69
+// const testBaseFee = 69
 
 //go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
+
 func NewBlockPluginMock() *BlockPluginMock {
-	// make and configure a mocked core.BlockPlugin
-	mockedBlockPlugin := &BlockPluginMock{
-		BaseFeeFunc: func() uint64 {
-			return testBaseFee
-		},
-		PrepareFunc: func(contextMoqParam context.Context) {
-			// no-op
-		},
-	}
-	return mockedBlockPlugin
+	return &BlockPluginMock{}
 }

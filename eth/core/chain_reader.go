@@ -62,7 +62,7 @@ type ChainTxPoolReader interface {
 
 // `ChainConfig` returns the Ethereum chain config of the Polaris chain.
 func (bc *blockchain) ChainConfig() *params.ChainConfig {
-	return bc.host.GetConfigurationPlugin().ChainConfig()
+	return bc.cp.ChainConfig()
 }
 
 // =========================================================================
@@ -113,15 +113,21 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 		return receipts, nil
 	}
 
-	// check the block plugin
-	receipts, err := bc.host.GetBlockPlugin().GetReceiptsByHash(blockHash)
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
+		return nil, ErrReceiptsNotFound
+	}
+
+	// check the historical plugin
+	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if err != nil {
 		return nil, err
 	}
 
 	// cache the found receipts for next time and return
 	bc.receiptsCache.Add(blockHash, receipts)
-	return nil, nil
+	return receipts, nil
 }
 
 // `GetTransaction` gets a transaction by hash. It also returns the block hash of the
@@ -137,8 +143,14 @@ func (bc *blockchain) GetTransaction(
 			txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 	}
 
-	// check the block plugin
-	txLookupEntry, err := bc.host.GetBlockPlugin().GetTransactionByHash(txHash)
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
+		return nil, common.Hash{}, 0, 0, ErrTxNotFound
+	}
+
+	// check the historical plugin
+	txLookupEntry, err := bc.hp.GetTransactionByHash(txHash)
 	if err != nil {
 		return nil, common.Hash{}, 0, 0, err
 	}
@@ -157,16 +169,22 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 		return block, nil
 	}
 
-	// check the block plugin
-	block, err := bc.host.GetBlockPlugin().GetBlockByNumber(number)
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
+		return nil, ErrBlockNotFound
+	}
+
+	// check the historical plugin
+	block, err := bc.hp.GetBlockByNumber(number)
 	if err != nil {
 		return nil, err
 	}
 
-	// Cache the found block for next time and return
-	bc.blockNumCache.Add(block.Number().Int64(), block)
+	// // Cache the found block for next time and return
+	bc.blockNumCache.Add(number, block)
 	bc.blockHashCache.Add(block.Hash(), block)
-	return block, nil
+	return nil, ErrBlockNotFound
 }
 
 // `GetBlockByHash` retrieves a block from the database by hash, caching it if found.
@@ -177,15 +195,21 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 		return block, nil
 	}
 
-	// check the block plugin
-	block, err := bc.host.GetBlockPlugin().GetBlockByHash(hash)
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
+		return nil, ErrBlockNotFound
+	}
+
+	// check the historical plugin
+	block, err := bc.hp.GetBlockByHash(hash)
 	if err != nil {
 		return nil, err
 	}
 
 	// Cache the found block for next time and return
 	bc.blockNumCache.Add(block.Number().Int64(), block)
-	bc.blockHashCache.Add(block.Hash(), block)
+	bc.blockHashCache.Add(hash, block)
 	return block, nil
 }
 
@@ -196,17 +220,17 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 // `GetPoolTransactions` returns all of the transactions that are currently in
 // the mempool.
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
-	return bc.host.GetTxPoolPlugin().GetAllTransactions()
+	return bc.tp.GetAllTransactions()
 }
 
 // `GetPoolTransaction` returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
-	return bc.host.GetTxPoolPlugin().GetTransaction(hash)
+	return bc.tp.GetTransaction(hash)
 }
 
 // TODO: define behaviour for this function.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	nonce, err := bc.host.GetTxPoolPlugin().GetNonce(addr)
-	// defer b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
+	nonce, err := bc.tp.GetNonce(addr)
+	defer bc.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
 	return nonce, err
 }

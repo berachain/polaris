@@ -66,7 +66,7 @@ var _ = Describe("Plugin", func() {
 				}
 				bz, err := storedParams.Marshal()
 				Expect(err).ToNot(HaveOccurred())
-				p.paramsStore.Set(paramsPrefix, bz)
+				p.paramsStore.Set([]byte{types.ParamsKey}, bz)
 
 				params := p.GetParams()
 				Expect(params).To(Equal(&storedParams))
@@ -75,7 +75,7 @@ var _ = Describe("Plugin", func() {
 
 		Context("when the params store contains invalid params", func() {
 			It("should panic", func() {
-				p.paramsStore.Set(paramsPrefix, []byte("invalid params"))
+				p.paramsStore.Set([]byte{types.ParamsKey}, []byte("invalid params"))
 				Expect(func() { p.GetParams() }).To(Panic())
 			})
 		})
@@ -91,7 +91,7 @@ var _ = Describe("Plugin", func() {
 			p.SetParams(&params)
 
 			var storedParams types.Params
-			bz := p.paramsStore.Get(paramsPrefix)
+			bz := p.paramsStore.Get([]byte{types.ParamsKey})
 			Expect(bz).ToNot(BeNil())
 
 			err := storedParams.Unmarshal(bz)

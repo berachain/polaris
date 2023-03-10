@@ -21,13 +21,8 @@
 package state
 
 import (
+	types "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
-)
-
-const (
-	keyPrefixCode byte = iota
-	keyPrefixStorage
-	keyPrefixCodeHash
 )
 
 // NOTE: we use copy to build keys for max performance: https://github.com/golang/go/issues/55905
@@ -35,7 +30,7 @@ const (
 // StorageKeyFor returns a prefix to iterate over a given account storage (multiple slots).
 func StorageKeyFor(address common.Address) []byte {
 	bz := make([]byte, 1+common.AddressLength)
-	copy(bz, []byte{keyPrefixStorage})
+	copy(bz, []byte{types.StorageKeyPrefix})
 	copy(bz[1:], address[:])
 	return bz
 }
@@ -48,7 +43,7 @@ func AddressFromStorageKey(key []byte) common.Address {
 // `SlotKeyFor` defines the full key under which an account storage slot is stored.
 func SlotKeyFor(address common.Address, slot common.Hash) []byte {
 	bz := make([]byte, 1+common.AddressLength+common.HashLength)
-	copy(bz, []byte{keyPrefixStorage})
+	copy(bz, []byte{types.StorageKeyPrefix})
 	copy(bz[1:], address[:])
 	copy(bz[1+common.AddressLength:], slot[:])
 	return bz
@@ -67,7 +62,7 @@ func AddressFromSlotKey(key []byte) common.Address {
 // `CodeHashKeyFor` defines the full key under which an addreses codehash is stored.
 func CodeHashKeyFor(address common.Address) []byte {
 	bz := make([]byte, 1+common.AddressLength)
-	copy(bz, []byte{keyPrefixCodeHash})
+	copy(bz, []byte{types.CodeHashKeyPrefix})
 	copy(bz[1:], address[:])
 	return bz
 }
@@ -75,7 +70,7 @@ func CodeHashKeyFor(address common.Address) []byte {
 // `CodeKeyFor` defines the full key under which an addreses code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
 	bz := make([]byte, 1+common.HashLength)
-	copy(bz, []byte{keyPrefixCode})
+	copy(bz, []byte{types.CodeKeyPrefix})
 	copy(bz[1:], codeHash[:])
 	return bz
 }

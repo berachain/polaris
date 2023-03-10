@@ -22,7 +22,6 @@ package chain
 
 import (
 	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/playground/pkg/plugins"
 )
 
@@ -46,7 +45,7 @@ func NewPlayground(mempool MempoolReader) *Playground {
 	return playground
 }
 
-func (p *Playground) ProduceBlock() (*coretypes.Block, error) {
+func (p *Playground) ProduceBlock() error {
 	return p.blockProducer.ProduceBlock()
 }
 
@@ -79,5 +78,12 @@ func (p *Playground) GetTxPoolPlugin() core.TxPoolPlugin {
 //
 // `GetPrecompilePlugin` implements `core.PolarisHostChain`.
 func (p *Playground) GetPrecompilePlugin() core.PrecompilePlugin {
+	return nil
+}
+
+// The Playground Host Chain does not support historical data.
+//
+// `GetHistoricalPlugin` implements `core.PolarisHostChain`.
+func (p *Playground) GetHistoricalPlugin() core.HistoricalPlugin {
 	return nil
 }

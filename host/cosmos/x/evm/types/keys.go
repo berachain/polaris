@@ -18,13 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package types
 
-import "errors"
-
-var (
-	ErrBlockOutOfGas    = errors.New("block is out of gas")
-	ErrBlockNotFound    = errors.New("block not found")
-	ErrReceiptsNotFound = errors.New("receipts not found")
-	ErrTxNotFound       = errors.New("transaction not found")
+const (
+	CodeKeyPrefix byte = iota
+	StorageKeyPrefix
+	CodeHashKeyPrefix
+	BlockHashKeyToNumPrefix
+	BlockHashKeyToReceiptsPrefix
+	TxHashKeyToTxPrefix
+	VersionKey
+	HeaderKey
+	ParamsKey
 )

@@ -23,7 +23,6 @@ package configuration
 import (
 	"context"
 
-	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,8 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
 )
-
-var paramsPrefix = []byte("params")
 
 // `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
@@ -64,7 +61,7 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 // `Prepare` implements the core.ConfigurationPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = prefix.NewStore(sCtx.KVStore(p.storeKey), paramsPrefix)
+	p.paramsStore = sCtx.KVStore(p.storeKey)
 }
 
 func (p *plugin) GetEvmDenom() string {

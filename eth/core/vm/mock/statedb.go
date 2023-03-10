@@ -21,7 +21,6 @@
 package mock
 
 import (
-	"context"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -98,9 +97,6 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		},
 		HasSuicidedFunc: func(address common.Address) bool {
 			return false
-		},
-		ResetFunc: func(contextMoqParam context.Context) {
-			// no-op
 		},
 		RevertToSnapshotFunc: func(n int) {
 

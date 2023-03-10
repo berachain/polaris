@@ -18,8 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package historical
 
-type StakingKeeper interface {
-	// TODO: coinbase stuff
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestHistoricalPlugin(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "host/cosmos/x/evm/plugins/historical")
 }

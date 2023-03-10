@@ -26,18 +26,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/rlp"
-
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/rpc"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // ===========================================================================
-// Polaris Block Tracking
+// Polaris Block Header Tracking
 // ===========================================================================.
-
-var SGHeaderKey = []byte{0xb0}
 
 // `SetQueryContextFn` sets the query context func for the plugin.
 func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
@@ -47,7 +44,7 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 // `GetHeaderByNumber` returns the header at the given height, using the plugin's query context.
 //
 // `GetHeaderByNumber` implements core.BlockPlugin.
-func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
+func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
 	}
@@ -63,11 +60,11 @@ func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
 	}
 
 	// Unmarshal the header from the context kv store.
-	bz := ctx.KVStore(p.storekey).Get(SGHeaderKey)
+	bz := ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
 	if bz == nil {
 		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
-	header, err := unmarshalHeader(bz)
+	header, err := coretypes.UnmarshalHeader(bz)
 	if err != nil {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
@@ -80,12 +77,12 @@ func (p *plugin) GetHeaderByNumber(height int64) (*types.Header, error) {
 }
 
 // `SetHeader` saves a block to the store.
-func (p *plugin) SetHeader(header *types.Header) error {
-	bz, err := marshalHeader(header)
+func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
+	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return err
 	}
-	p.ctx.KVStore(p.storekey).Set(SGHeaderKey, bz)
+	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
 	return nil
 }
 
@@ -108,14 +105,4 @@ func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 	}
 
 	return iavlHeight, nil
-}
-
-func unmarshalHeader(data []byte) (*types.Header, error) {
-	header := &types.Header{}
-	err := rlp.DecodeBytes(data, header)
-	return header, err
-}
-
-func marshalHeader(header *types.Header) ([]byte, error) {
-	return rlp.EncodeToBytes(header)
 }

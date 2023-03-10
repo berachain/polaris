@@ -92,7 +92,7 @@ var _ = Describe("StateProcessor", func() {
 		pp.RegisterFunc = func(pc vm.PrecompileContainer) error {
 			return nil
 		}
-		sp = core.NewStateProcessor(host, sdb, &vm.Config{})
+		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
@@ -211,6 +211,7 @@ var _ = Describe("StateProcessor", func() {
 var _ = Describe("No precompile plugin provided", func() {
 	It("should use the default plugin if none is provided", func() {
 		host := mock.NewMockHost()
+		cp := mock.NewConfigurationPluginMock()
 		bp := mock.NewBlockPluginMock()
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
@@ -228,12 +229,12 @@ var _ = Describe("No precompile plugin provided", func() {
 			return gp
 		}
 		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
-			return mock.NewConfigurationPluginMock()
+			return cp
 		}
 		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
 			return nil
 		}
-		sp := core.NewStateProcessor(host, vmmock.NewEmptyStateDB(), &vm.Config{})
+		sp := core.NewStateProcessor(cp, gp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
 			sp.Prepare(context.Background(), nil, &types.Header{
 				GasLimit: 1000000,
