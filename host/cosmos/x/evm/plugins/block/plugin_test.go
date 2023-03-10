@@ -18,16 +18,11 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package historical
+package block
 
 import (
-	"testing"
-
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	// . "github.com/onsi/gomega"
 )
 
-func TestHistoricalPlugin(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "host/cosmos/x/evm/plugins/historical")
-}
+var _ = Describe("Block Plugin", func() {})

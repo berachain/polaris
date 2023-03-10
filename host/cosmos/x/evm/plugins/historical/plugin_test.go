@@ -29,25 +29,24 @@ import (
 
 	offchain "pkg.berachain.dev/polaris/cosmos/store/offchain"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	// . "github.com/onsi/gomega"
 )
 
-var _ = Describe("Block Plugin", func() {
+var _ = Describe("Historical Plugin", func() {
 	var ctx sdk.Context
 	var p *plugin
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
 		sk := testutil.EvmKey // testing key.
-		p = utils.MustGetAs[*plugin](NewPlugin(offchain.NewFromDB(dbm.NewMemDB()), sk))
+		p = utils.MustGetAs[*plugin](
+			NewPlugin(block.NewPlugin(sk), offchain.NewFromDB(dbm.NewMemDB()), sk),
+		)
 		p.Prepare(ctx)
-	})
-
-	It("should give the constant base fee", func() {
-		Expect(p.BaseFee()).To(Equal(bf))
 	})
 
 	// It("should get the header at current height", func() {

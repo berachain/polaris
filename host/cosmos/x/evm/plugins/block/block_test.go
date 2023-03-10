@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package historical
+package block
 
 import (
 	"testing"
@@ -27,7 +27,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestHistoricalPlugin(t *testing.T) {
+func TestBlockPlugin(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "host/cosmos/x/evm/plugins/historical")
+	RunSpecs(t, "host/cosmos/x/evm/plugins/block")
 }
