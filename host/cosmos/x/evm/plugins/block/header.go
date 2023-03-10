@@ -26,6 +26,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/rpc"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -34,8 +35,6 @@ import (
 // ===========================================================================
 // Polaris Block Header Tracking
 // ===========================================================================.
-
-var SGHeaderKey = []byte{0xb0}
 
 // `SetQueryContextFn` sets the query context func for the plugin.
 func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
@@ -61,7 +60,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 	}
 
 	// Unmarshal the header from the context kv store.
-	bz := ctx.KVStore(p.storekey).Get(SGHeaderKey)
+	bz := ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
 	if bz == nil {
 		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
@@ -83,7 +82,7 @@ func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
 	if err != nil {
 		return err
 	}
-	p.ctx.KVStore(p.storekey).Set(SGHeaderKey, bz)
+	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
 	return nil
 }
 

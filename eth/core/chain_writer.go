@@ -117,15 +117,21 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		return err
 	}
 
-	blockHash := block.Hash()
+	blockHash, blockNum := block.Hash(), block.Number().Int64()
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
-	// cache the block and receipts
+	// mark the current block and receipts
 	if block != nil {
 		bc.currentBlock.Store(block)
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
+	}
+
+	// store the block header on the host chain
+	err = bc.bp.SetHeaderByNumber(blockNum, block.Header())
+	if err != nil {
+		return err
 	}
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
@@ -138,7 +144,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		err = bc.hp.StoreTransactions(block.Number().Int64(), blockHash, block.Transactions())
+		err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions())
 		return err
 	}
 

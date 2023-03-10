@@ -21,6 +21,7 @@
 package state
 
 import (
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -32,7 +33,7 @@ var _ = Describe("StorageKeyFor", func() {
 		address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
 		prefix := StorageKeyFor(address)
 		Expect(prefix).To(HaveLen(1 + common.AddressLength))
-		Expect(prefix[0]).To(Equal(keyPrefixStorage))
+		Expect(prefix[0]).To(Equal(types.StorageKeyPrefix))
 		Expect(prefix[1:]).To(Equal(address.Bytes()))
 	})
 })
@@ -53,7 +54,7 @@ var _ = Describe("SlotKeyFor", func() {
 		slot := common.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")
 		key := SlotKeyFor(address, slot)
 		Expect(key).To(HaveLen(1 + common.AddressLength + common.HashLength))
-		Expect(key[0]).To(Equal(keyPrefixStorage))
+		Expect(key[0]).To(Equal(types.StorageKeyPrefix))
 		Expect(key[1 : 1+common.AddressLength]).To(Equal(address.Bytes()))
 		Expect(key[1+common.AddressLength:]).To(Equal(slot.Bytes()))
 	})
@@ -76,7 +77,7 @@ var _ = Describe("CodeHashKeyFor or a given account", func() {
 	address := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
 	key := CodeHashKeyFor(address)
 	Expect(key).To(HaveLen(1 + common.AddressLength))
-	Expect(key[0]).To(Equal(keyPrefixCodeHash))
+	Expect(key[0]).To(Equal(types.CodeHashKeyPrefix))
 	Expect(key[1:]).To(Equal(address.Bytes()))
 })
 
@@ -93,7 +94,7 @@ var _ = Describe("CodeKeyFor", func() {
 		address := common.HexToHash("0x1234567890abcdef1234567890abcdef12345678")
 		key := CodeKeyFor(address)
 		Expect(key).To(HaveLen(1 + common.HashLength))
-		Expect(key[0]).To(Equal(keyPrefixCode))
+		Expect(key[0]).To(Equal(types.CodeKeyPrefix))
 		Expect(key[1:]).To(Equal(address.Bytes()))
 	})
 })

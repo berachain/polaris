@@ -90,11 +90,12 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 
 	parentHash := common.Hash{}
 	if number > 1 {
-		if header, err := p.GetHeaderByNumber(number - 1); err == nil {
-			parentHash = header.Hash()
-		} else {
+		header, err := p.GetHeaderByNumber(number - 1)
+		if err != nil {
+			// halt the chain.
 			panic("parent header not found")
 		}
+		parentHash = header.Hash()
 	}
 
 	return &coretypes.Header{
