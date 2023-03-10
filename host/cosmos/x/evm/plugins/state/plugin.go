@@ -511,7 +511,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 		return nil, err
 	}
 
-	// Create a StateDB with the requested chain height.
+	// Create a State Plugin with the requested chain height.
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
 	sp.Reset(ctx)
 	return sp, nil

@@ -22,7 +22,7 @@ package chain
 
 import (
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/playground/plugins"
+	"pkg.berachain.dev/polaris/playground/pkg/plugins"
 )
 
 // The playground chain implements the polaris host chain interface.
