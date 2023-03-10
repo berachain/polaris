@@ -17,24 +17,22 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
+//
 //nolint:forbidigo // its okay.
-package mage
+package main
 
 import (
 	"fmt"
 
 	"github.com/TwiN/go-color"
-
-	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (
 	// Commands.
-	forgeBuild = mi.RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
-	forgeClean = mi.RunCmdV("forge", "clean")
-	forgeTest  = mi.RunCmdV("forge", "test")
-	forgeFmt   = mi.RunCmdV("forge", "fmt")
+	forgeBuild = RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
+	forgeClean = RunCmdV("forge", "clean")
+	forgeTest  = RunCmdV("forge", "test")
+	forgeFmt   = RunCmdV("forge", "fmt")
 
 	// Directories.
 	testContractsDir = "./eth/testutil/contracts/solidity"
@@ -76,7 +74,7 @@ func ForgeFmt() error {
 // Wraps forge commands with the proper directory change.
 func forgeWrapper(forgeFunc func(args ...string) error) error {
 	for _, dir := range allForgeDirs {
-		if err := mi.ExecuteInDirectory(dir, forgeFunc, false); err != nil {
+		if err := ExecuteInDirectory(dir, forgeFunc, false); err != nil {
 			return err
 		}
 	}

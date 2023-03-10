@@ -5,19 +5,24 @@
 *The project is still work in progress, see the [disclaimer below](#-warning-under-construction-).*
 
 <div>
-  <a href="https://codecov.io/gh/berachain/polaris" > 
+  <a href="https://codecov.io/gh/berachain/polaris" target="_blank">
     <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=5SYYGUS8GW"/> 
   </a>
-  <a href="https://pkg.go.dev/pkg.berachain.dev/polaris">
+  <a href="https://pkg.go.dev/pkg.berachain.dev/polaris" target="_blank">
     <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
   </a>
-  <a href="https://magefile.org"> 
+  <a href="https://magefile.org" target="_blank">
     <img alt="Built with Mage" src="https://magefile.org/badge.svg" />
   </a>
-  <a href="https://twitter.com/berachain">
+  <a href="https://t.me/polaris_devs" target="_blank">
+    <img alt="Telegram Chat" src="https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fpolaris_devs">
+  </a>
+  <a href="https://twitter.com/berachain" target="_blank">
     <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/berachain">
   </a>
 </div>
+
+
 
 # Welcome to Polaris
 
@@ -36,16 +41,16 @@ This meant that we had to built Polaris with serveral core principles in mind:
 > Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into sections to help reduce cognitive overhead.
 
     .
-    ├── build                   # Build scripts and utils
     ├── docs                    # Documentation files
-    ├── eth                     # The core Polaris Ethereum implementation
+    ├── eth                     # Polaris Ethereum implementation
     ├── lib                     # Library files usable throughout the repo
-    ├── host                     
-    │   ├── cosmos              # A Cosmos integration of Polaris
+    ├── host                    # Various host chain implementations.
+    │   ├── cosmos              # Cosmos integration of Polaris
     │   │     ├── ....
     │   │     ├── ....
     │   │     └── x/evm         # Cosmos `x/evm` module
-    │   └── playground          # We love the playground
+    │   └── playground          # Testing Playground for Polaris
+    ├── magefiles               # Build scripts and utils
     ├── testutil                # Various testing utilities
     ├── LICENSE                 # Licensing information
     └── README.md               # This README
@@ -86,7 +91,7 @@ This meant that we had to built Polaris with serveral core principles in mind:
   git clone https://github.com/berachain/polaris
   cd polaris
   git checkout main
-  go run build/setup.go
+  go run magefiles/setup/setup.go
   mage test
   ```
 

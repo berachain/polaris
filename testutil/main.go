@@ -1,3 +1,0 @@
-package testutil
-
-var ()

@@ -530,3 +530,7 @@ gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
+pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e h1:BgdGhs/3Q3hA5KfJQ0pf9YnoBvPLhkDp24MpDOw7fhg=
+pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e/go.mod h1:imtsMzCdgRbT15PgNknovIq682gefJ+ynYzJlOBxG9Y=
+pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d h1:fONCvuI28ZdbeR1g5f5e7p8tKYsLhrroi9ZKyPwgmoc=
+pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d/go.mod h1:IwNmYEDv1c6TvL3WgpGm7Jg+b7PBUQJyIAgyd/RmQek=

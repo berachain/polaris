@@ -10,8 +10,6 @@ replace (
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-	pkg.berachain.dev/polaris/eth => ../../eth
-	pkg.berachain.dev/polaris/lib => ../../lib
 )
 
 require (
@@ -36,7 +34,8 @@ require (
 	github.com/cosmos/cosmos-sdk v0.48.0
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.6
-	github.com/ethereum/go-ethereum v1.11.3
+	github.com/ethereum/go-ethereum v1.11.4
+	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -49,8 +48,8 @@ require (
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.29.0
-	pkg.berachain.dev/polaris/eth v0.0.1-alpha.0.20230310224229-ede3de74fb93
-	pkg.berachain.dev/polaris/lib v0.0.1-alpha.0.20230310224229-ede3de74fb93
+	pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d
 )
 
 require (
@@ -127,7 +126,6 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect

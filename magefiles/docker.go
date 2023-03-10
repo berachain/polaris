@@ -17,14 +17,11 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
-package mage
-
-import mi "pkg.berachain.dev/polaris/build/mage/internal"
+package main
 
 var (
 	// Commands.
-	dockerBuild = mi.RunCmdV("docker", "build", "--rm=false")
+	dockerBuild = RunCmdV("docker", "build", "--rm=false")
 
 	// Variables.
 	baseDockerPath         = "./build/docker/"

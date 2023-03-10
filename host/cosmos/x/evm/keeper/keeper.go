@@ -112,7 +112,7 @@ func NewKeeper(
 // `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
 func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
-		logger := ctx.Logger().With("module", "geth")
+		logger := ctx.Logger().With("module", "polaris-geth")
 		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
 		case ethlog.LvlTrace, ethlog.LvlDebug:
 			logger.Debug(r.Msg, r.Ctx...)

@@ -17,15 +17,12 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
-package mage
+package main
 
 import (
 	"os"
 
 	"github.com/magefile/mage/sh"
-
-	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (
@@ -37,25 +34,17 @@ var (
 	raceArgs = append(junitArgs, []string{"-race"}...)
 
 	// Commands.
-	goTest     = mi.RunCmdV("go", "test", "-mod=readonly")
-	ginkgoTest = mi.RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
+	goTest     = RunCmdV("go", "test", "-mod=readonly")
+	ginkgoTest = RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
 
 	// Packages.
-	packagesUnit = mi.GoListFilter(false, "integration", "e2e", "build")
-	// packagesIntegration = mi.GoListFilter(true, "integration").
-	packagesEvm = mi.GoListFilter(true, "evm")
+	packagesUnit = GoListFilter(false, "integration", "e2e", "magefiles")
+	// packagesIntegration = GoListFilter(true, "integration").
+	packagesEvm = GoListFilter(true, "evm")
 )
 
-// Starts a testnet and builds it if necessary.
+// Starts a local development net and builds it if necessary.
 func Start() error {
-	if err := Build(); err != nil {
-		return err
-	}
-	return StartNoBuild()
-}
-
-// Starts a testnet without building it.
-func StartNoBuild() error {
 	return sh.RunV("./host/cosmos/runtime/init.sh")
 }
 

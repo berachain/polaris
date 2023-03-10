@@ -105,7 +105,8 @@ type (
 		// `GasConsumed` returns the amount of gas used by the current transaction.
 		GasConsumed() uint64
 		// `BlockGasConsumed` returns the amount of gas used during the current block. The value
-		// returned should include any gas consumed during this transaction. It should not panic.
+		// returned should NOT include any gas consumed during this transaction.
+		// It should not panic.
 		BlockGasConsumed() uint64
 		// `BlockGasLimit` returns the gas limit of the current block. It should not panic.
 		BlockGasLimit() uint64

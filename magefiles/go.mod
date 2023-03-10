@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/build
+module pkg.berachain.dev/polaris/magefiles
 
 go 1.20
 
@@ -7,7 +7,7 @@ require (
 	github.com/bufbuild/buf v1.15.1
 	github.com/carolynvs/magex v0.9.0
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
-	github.com/ethereum/go-ethereum v1.11.3
+	github.com/ethereum/go-ethereum v1.11.4
 	github.com/golangci/golangci-lint v1.51.2
 	github.com/google/addlicense v1.1.1
 	github.com/magefile/mage v1.14.0
@@ -133,7 +133,6 @@ require (
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/holiman/big v0.0.0-20221017200358-a027dc42d04e // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/holiman/uint256 v1.2.1 // indirect
 	github.com/huin/goupnp v1.1.0 // indirect
@@ -284,28 +283,4 @@ require (
 	mvdan.cc/interfacer v0.0.0-20180901003855-c20040233aed // indirect
 	mvdan.cc/lint v0.0.0-20170908181259-adc824a0674b // indirect
 	mvdan.cc/unparam v0.0.0-20221223090309-7455f1af531d // indirect
-)
-
-retract (
-	v0.0.0-20230310212241-1ca32f693fd5
-	v0.0.0-20230310200610-f2c94e073da5
-	v0.0.0-20230310200610-f2c94e073da5
-	v0.0.0-20230310200034-65aecd1e8e5e
-	v0.0.0-20230310192606-c3a4822e2e7d
-	v0.0.0-20230310192606-c3a4822e2e7d
-	v0.0.0-20230309204117-1336a6c0933d
-	v0.0.0-20230309204117-1336a6c0933d
-	v0.0.0-20230309194907-b4fc9cd720c6
-	v0.0.0-20230309194907-b4fc9cd720c6
-	v0.0.0-20230309193858-90d8085fff36
-	v0.0.0-20230309193858-90d8085fff36
-	v0.0.0-20230309180646-1820f2aff71f
-	v0.0.0-20230309180646-1820f2aff71f
-	v0.0.0-20230309170310-eac18103fde8
-	v0.0.0-20230309170310-eac18103fde8
-	v0.0.0-20230308225244-3ccb0884ff89
-	v0.0.0-20230308225244-3ccb0884ff89
-	v0.0.0-20230308205117-3e572a936060
-	v0.0.0-20230308205117-3e572a936060
-	v0.0.0-20230308171751-abeca01ded9d
 )

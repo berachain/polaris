@@ -23,8 +23,8 @@ coverage:
     project:
       default:
         threshold: 2%
-        target: 50%
-        # flags: 
+        # target: 50%
+        # flags:
         #   - unit
         #   - integration
 
