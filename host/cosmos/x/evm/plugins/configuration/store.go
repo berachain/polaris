@@ -26,7 +26,7 @@ import (
 
 // `GetParams` is used to get the params for the evm module.
 func (p *plugin) GetParams() *types.Params {
-	bz := p.paramsStore.Get(paramsPrefix)
+	bz := p.paramsStore.Get([]byte{types.ParamsKey})
 	if bz == nil {
 		return &types.Params{}
 	}
@@ -43,5 +43,5 @@ func (p *plugin) SetParams(params *types.Params) {
 	if err != nil {
 		panic(err)
 	}
-	p.paramsStore.Set(paramsPrefix, bz)
+	p.paramsStore.Set([]byte{types.ParamsKey}, bz)
 }

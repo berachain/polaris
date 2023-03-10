@@ -37,36 +37,26 @@ import (
 // TODO: change this.
 const bf = uint64(1)
 
-// `Plugin` is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.BlockPlugin
 
-	// `UpdateOffChainStorage` updates the offchain storage with the new block and receipts.
-	UpdateOffChainStorage(*coretypes.Block, coretypes.Receipts)
-	// `SetHeader` saves a block to the store.
-	SetHeader(header *coretypes.Header) error
 	// `SetQueryContextFn` sets the function used for querying historical block headers.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 }
 
-// `plugin` keeps track of polaris blocks via headers.
 type plugin struct {
 	// `ctx` is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
 	// `storekey` is the store key for the header store.
 	storekey storetypes.StoreKey
-	//  `offchainStore` is the offchain store, used for accessing offchain data.
-	offchainStore storetypes.CacheKVStore
 	// `getQueryContext` allows for querying block headers.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
 }
 
-// `NewPlugin` creates a new instance of the block plugin from the given context.
-func NewPlugin(offchainStore storetypes.CacheKVStore, storekey storetypes.StoreKey) Plugin {
+func NewPlugin(storekey storetypes.StoreKey) Plugin {
 	return &plugin{
-		offchainStore: offchainStore,
-		storekey:      storekey,
+		storekey: storekey,
 	}
 }
 
@@ -100,11 +90,12 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 
 	parentHash := common.Hash{}
 	if number > 1 {
-		if header, err := p.GetHeaderByNumber(number - 1); err == nil {
-			parentHash = header.Hash()
-		} else {
+		header, err := p.GetHeaderByNumber(number - 1)
+		if err != nil {
+			// halt the chain.
 			panic("parent header not found")
 		}
+		parentHash = header.Hash()
 	}
 
 	return &coretypes.Header{

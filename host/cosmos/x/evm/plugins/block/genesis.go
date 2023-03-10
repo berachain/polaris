@@ -27,8 +27,8 @@ import (
 )
 
 // `InitGenesis` performs genesis initialization for the evm module. no-op.
-func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
+func (p *plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
 
 // `ExportGenesis` returns the exported genesis state as raw bytes for the evm
 // module. no-op.
-func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
+func (p *plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}

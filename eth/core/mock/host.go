@@ -20,16 +20,14 @@
 
 package mock
 
-import (
-	"pkg.berachain.dev/polaris/eth/core"
-)
+import "pkg.berachain.dev/polaris/eth/core"
 
 //go:generate moq -out ./host.mock.go -pkg mock ../ PolarisHostChain
 
 func NewMockHost() *PolarisHostChainMock {
 	mockedPolarisHostChain := &PolarisHostChainMock{
 		GetBlockPluginFunc: func() core.BlockPlugin {
-			panic("mock out the GetBlockPlugin method")
+			return NewBlockPluginMock()
 		},
 		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
 			return NewConfigurationPluginMock()
@@ -37,11 +35,14 @@ func NewMockHost() *PolarisHostChainMock {
 		GetGasPluginFunc: func() core.GasPlugin {
 			return NewGasPluginMock()
 		},
+		GetHistoricalPluginFunc: func() core.HistoricalPlugin {
+			return NewHistoricalPluginMock()
+		},
 		GetPrecompilePluginFunc: func() core.PrecompilePlugin {
-			panic("mock out the GetStatePlugin method")
+			return NewPrecompilePluginMock()
 		},
 		GetStatePluginFunc: func() core.StatePlugin {
-			panic("mock out the GetStatePlugin method")
+			return &StatePluginMock{}
 		},
 	}
 	return mockedPolarisHostChain

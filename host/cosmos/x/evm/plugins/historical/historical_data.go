@@ -18,100 +18,106 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package historical
 
 import (
 	"fmt"
-	"unsafe"
 
 	"cosmossdk.io/store/prefix"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
-var (
-	blockHashToNumPrefix      = []byte{0xb}
-	blockHashToReceiptsPrefix = []byte{0xbb}
-	txHashToTxPrefix          = []byte{0x10}
-	versionKey                = []byte{0x11}
-)
-
-// `UpdateOffChainStorage` is called by the `EndBlocker` to update the off-chain storage.
-func (p *plugin) UpdateOffChainStorage(block *coretypes.Block, receipts coretypes.Receipts) {
-	blockHash, blockNum := block.Hash(), block.NumberU64()
+// `StoreBlock` implements `core.HistoricalPlugin`.
+func (p *plugin) StoreBlock(block *coretypes.Block) error {
+	blockNum := block.NumberU64()
 
 	// store block hash to block number.
 	numBz := sdk.Uint64ToBigEndian(blockNum)
-	prefix.NewStore(p.offchainStore, blockHashToNumPrefix).Set(blockHash.Bytes(), numBz)
+	prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
 
-	// stpre block hash to receipts.
-	receiptsBz, err := marshalReceipts(receipts)
+	// store the version offchain for consistency.
+	if sdk.BigEndianToUint64(p.offchainStore.Get([]byte{types.VersionKey})) != blockNum-1 {
+		panic("off-chain store's latest block number is not synced")
+	}
+	p.offchainStore.Set([]byte{types.VersionKey}, numBz)
+	// flush the underlying buffer to disk.
+	p.offchainStore.Write()
+
+	return nil
+}
+
+// `StoreReceipts` implements `core.HistoricalPlugin`.
+func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
+	// store block hash to receipts.
+	receiptsBz, err := coretypes.MarshalReceipts(receipts)
 	if err != nil {
 		p.ctx.Logger().Error(
-			"UpdateOffChainStorage: failed to marshal receipts at block number %d", blockNum,
+			"UpdateOffChainStorage: failed to marshal receipts at block hash %s", blockHash.Hex(),
 		)
-		panic(err)
+		return err
 	}
-	prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Set(blockHash.Bytes(), receiptsBz)
+	prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Set(blockHash.Bytes(), receiptsBz)
 
+	return nil
+}
+
+// `StoreTransactions` implements `core.HistoricalPlugin`.
+func (p *plugin) StoreTransactions(
+	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
+) error {
 	// store all txns in the block.
-	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
-	for txIndex, tx := range block.Transactions() {
+	txStore := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix})
+	for txIndex, tx := range txs {
 		txLookupEntry := &coretypes.TxLookupEntry{
 			Tx:        tx,
 			TxIndex:   uint64(txIndex),
 			BlockHash: blockHash,
-			BlockNum:  blockNum,
+			BlockNum:  uint64(blockNum),
 		}
 		var tleBz []byte
-		tleBz, err = txLookupEntry.MarshalBinary()
+		tleBz, err := txLookupEntry.MarshalBinary()
 		if err != nil {
 			p.ctx.Logger().Error(
 				"UpdateOffChainStorage: failed to marshal tx %s at block number %d",
 				tx.Hash().Hex(), blockNum,
 			)
-			panic(err)
+			return err
 		}
 		txStore.Set(tx.Hash().Bytes(), tleBz)
 	}
 
-	// store the version offchain for consistency.
-	if sdk.BigEndianToUint64(p.offchainStore.Get(versionKey)) != blockNum-1 {
-		panic("off-chain store's latest block number is not synced")
-	}
-	p.offchainStore.Set(versionKey, numBz)
-	// flush the underlying buffer to disk.
-	p.offchainStore.Write()
+	return nil
 }
 
 // `GetBlockByNumber` returns the block at the given height.
 func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	// get header from on chain.
-	header, err := p.GetHeaderByNumber(number)
+	header, err := p.hp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}
 
 	// get receipts from off chain.
 	blockHash := header.Hash()
-	receiptsBz := prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Get(blockHash.Bytes())
+	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
-	receipts, err := unmarshalReceipts(receiptsBz)
+	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
 
 	// get txns from off chain.
-	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
+	txStore := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix})
 	txs := make(coretypes.Transactions, len(receipts))
 	for _, receipt := range receipts {
 		tleBz := txStore.Get(receipt.TxHash.Bytes())
@@ -133,12 +139,12 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 // `GetBlockByHash` returns the block at the given hash.
 func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
 	// get block number from off chain.
-	numBz := prefix.NewStore(p.offchainStore, blockHashToNumPrefix).Get(blockHash.Bytes())
+	numBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
 		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
 	}
 	number := int64(sdk.BigEndianToUint64(numBz))
-	header, err := p.GetHeaderByNumber(number)
+	header, err := p.hp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}
@@ -147,17 +153,17 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	}
 
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Get(blockHash.Bytes())
+	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
-	receipts, err := unmarshalReceipts(receiptsBz)
+	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
 
 	// get txns from off chain.
-	txStore := prefix.NewStore(p.offchainStore, txHashToTxPrefix)
+	txStore := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix})
 	txs := make(coretypes.Transactions, len(receipts))
 	for _, receipt := range receipts {
 		tleBz := txStore.Get(receipt.TxHash.Bytes())
@@ -179,7 +185,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 // `GetTransactionByHash` returns the transaction lookup entry with the given hash.
 func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
-	tleBz := prefix.NewStore(p.offchainStore, txHashToTxPrefix).Get(txHash.Bytes())
+	tleBz := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
 		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
 	}
@@ -194,33 +200,13 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 // `GetReceiptsByHash` returns the receipts with the given block hash.
 func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.offchainStore, blockHashToReceiptsPrefix).Get(blockHash.Bytes())
+	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
-	receipts, err := unmarshalReceipts(receiptsBz)
+	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
 	return receipts, nil
-}
-
-func marshalReceipts(receipts coretypes.Receipts) ([]byte, error) {
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	receiptsForStorage := *(*[]*coretypes.ReceiptForStorage)(unsafe.Pointer(&receipts))
-
-	bz, err := rlp.EncodeToBytes(receiptsForStorage)
-	if err != nil {
-		return nil, err
-	}
-	return bz, nil
-}
-
-func unmarshalReceipts(bz []byte) (coretypes.Receipts, error) {
-	var receiptsForStorage []*coretypes.ReceiptForStorage
-	if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
-		return nil, err
-	}
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	return *(*coretypes.Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
 }

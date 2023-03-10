@@ -18,13 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package types
 
-import "errors"
+import "github.com/ethereum/go-ethereum/rlp"
 
-var (
-	ErrBlockOutOfGas    = errors.New("block is out of gas")
-	ErrBlockNotFound    = errors.New("block not found")
-	ErrReceiptsNotFound = errors.New("receipts not found")
-	ErrTxNotFound       = errors.New("transaction not found")
-)
+// `MarshalHeader` marshals a header, as type `Header`, to bytes using rlp encoding.
+func MarshalHeader(header *Header) ([]byte, error) {
+	return rlp.EncodeToBytes(header)
+}
+
+// `UnmarshalHeader` unmarshals a header from bytes to `Header` using rlp decoding.
+func UnmarshalHeader(data []byte) (*Header, error) {
+	header := &Header{}
+	err := rlp.DecodeBytes(data, header)
+	return header, err
+}

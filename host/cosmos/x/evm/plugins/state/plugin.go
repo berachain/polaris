@@ -32,7 +32,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/store/snapmulti"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	types "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -340,7 +340,7 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetKVStore(p.storeKey),
-		[]byte{keyPrefixCodeHash},
+		[]byte{types.CodeHashKeyPrefix},
 	)
 	defer it.Close()
 
@@ -408,7 +408,7 @@ func (p *plugin) SetStorage(addr common.Address, storage map[common.Hash]common.
 func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Hash) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetCommittedKVStore(p.storeKey),
-		[]byte{keyPrefixStorage},
+		[]byte{types.StorageKeyPrefix},
 	)
 	defer it.Close()
 
@@ -511,7 +511,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 		return nil, err
 	}
 
-	// Create a StateDB with the requested chain height.
+	// Create a State Plugin with the requested chain height.
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
 	sp.Reset(ctx)
 	return sp, nil

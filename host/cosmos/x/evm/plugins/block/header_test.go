@@ -21,13 +21,10 @@
 package block
 
 import (
-	dbm "github.com/cosmos/cosmos-db"
-
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	offchain "pkg.berachain.dev/polaris/cosmos/store/offchain"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -40,8 +37,7 @@ var _ = Describe("Header", func() {
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
-		sk := testutil.EvmKey // testing key.
-		p = utils.MustGetAs[*plugin](NewPlugin(offchain.NewFromDB(dbm.NewMemDB()), sk))
+		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey))
 		p.Prepare(ctx)
 	})
 

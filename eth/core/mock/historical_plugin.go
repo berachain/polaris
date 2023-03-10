@@ -18,10 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package mock
 
-import "errors"
+//go:generate moq -out ./historical_plugin.mock.go -pkg mock ../ HistoricalPlugin
 
-var (
-	ErrBlockNotFound = errors.New("block not found, is your node pruned?")
-)
+func NewHistoricalPluginMock() *HistoricalPluginMock {
+	return &HistoricalPluginMock{}
+}

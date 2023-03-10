@@ -18,30 +18,34 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package types
 
 import (
-	"github.com/ethereum/go-ethereum/consensus"
+	"unsafe"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
-// Compile-time interface assertion.
-var _ ChainContext = (*chainContext)(nil)
+// `MarshalReceipts` marshals `Receipts`, as type `[]*ReceiptForStorage`, to bytes using rlp
+// encoding.
+func MarshalReceipts(receipts Receipts) ([]byte, error) {
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	receiptsForStorage := *(*[]*ReceiptForStorage)(unsafe.Pointer(&receipts))
 
-// `chainContext` is a wrapper around `StateProcessor` that implements the `ChainContext` interface.
-type chainContext struct {
-	*blockchain
+	bz, err := rlp.EncodeToBytes(receiptsForStorage)
+	if err != nil {
+		return nil, err
+	}
+	return bz, nil
 }
 
-// `GetHeader` returns the header for the given hash and height. This is used by the `GetHashFn`.
-func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
-	header, _ := cc.blockchain.bp.GetHeaderByNumber(int64(height))
-	return header
-}
-
-// `Engine` returns the consensus engine. For our use case, this never gets called.
-func (cc *chainContext) Engine() consensus.Engine {
-	return nil
+// `UnmarshalReceipts` unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using
+// rlp decoding.
+func UnmarshalReceipts(bz []byte) (Receipts, error) {
+	var receiptsForStorage []*ReceiptForStorage
+	if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
+		return nil, err
+	}
+	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	return *(*Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
 }

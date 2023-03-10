@@ -18,13 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package historical
 
-import "errors"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-var (
-	ErrBlockOutOfGas    = errors.New("block is out of gas")
-	ErrBlockNotFound    = errors.New("block not found")
-	ErrReceiptsNotFound = errors.New("receipts not found")
-	ErrTxNotFound       = errors.New("transaction not found")
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
+
+// `InitGenesis` performs genesis initialization for the evm module. no-op.
+func (p plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}
+
+// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
+// module. no-op.
+func (p plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {}

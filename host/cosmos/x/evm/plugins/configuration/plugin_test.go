@@ -21,7 +21,6 @@
 package configuration
 
 import (
-	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,7 +54,7 @@ var _ = Describe("Plugin", func() {
 			p.Prepare(ctx)
 
 			// Check that the params store is initialized.
-			expect := prefix.NewStore(ctx.KVStore(p.storeKey), paramsPrefix)
+			expect := ctx.KVStore(p.storeKey)
 			Expect(p.paramsStore).To(Equal(expect))
 		})
 	})
@@ -77,7 +76,7 @@ var _ = Describe("Plugin", func() {
 				}
 				bz, err := storedParams.Marshal()
 				Expect(err).ToNot(HaveOccurred())
-				p.paramsStore.Set(paramsPrefix, bz)
+				p.paramsStore.Set([]byte{types.ParamsKey}, bz)
 
 				config := p.ChainConfig()
 				Expect(config).To(Equal(params.DefaultChainConfig))
@@ -86,7 +85,7 @@ var _ = Describe("Plugin", func() {
 
 		Context("when the params store contains invalid params", func() {
 			It("should panic", func() {
-				p.paramsStore.Set(paramsPrefix, []byte("invalid params"))
+				p.paramsStore.Set([]byte{types.ParamsKey}, []byte("invalid params"))
 				Expect(func() { p.ChainConfig() }).To(Panic())
 			})
 		})

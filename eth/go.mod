@@ -2,17 +2,16 @@ module pkg.berachain.dev/polaris/eth
 
 go 1.20
 
-// Required for supporting stateful precompiled contracts.
-replace (
-	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
-	pkg.berachain.dev/polaris/lib => ../lib
-)
+replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
+
+// TODO: REMOVE WHEN PKG SERVER IS FIXED
+replace pkg.berachain.dev/polaris/lib => ../lib
 
 require (
 	github.com/ethereum/go-ethereum v1.11.3
 	github.com/onsi/ginkgo/v2 v2.9.0
-	github.com/onsi/gomega v1.27.2
-	pkg.berachain.dev/polaris/lib v0.0.0-20230310200034-65aecd1e8e5e
+	github.com/onsi/gomega v1.27.3
+	pkg.berachain.dev/polaris/lib v0.0.1-alpha.0.20230310224229-ede3de74fb93
 )
 
 require (
@@ -76,6 +75,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
+	github.com/stretchr/testify v1.8.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
@@ -93,5 +93,4 @@ require (
 	google.golang.org/protobuf v1.29.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-// pkg.berachain.dev/polaris/eth
 )

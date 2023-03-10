@@ -5,10 +5,8 @@ package mock
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"sync"
 )
 
@@ -25,26 +23,17 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() uint64 {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetBlockByHashFunc: func(hash common.Hash) (*types.Block, error) {
-//				panic("mock out the GetBlockByHash method")
-//			},
-//			GetBlockByNumberFunc: func(n int64) (*types.Block, error) {
-//				panic("mock out the GetBlockByNumber method")
-//			},
 //			GetHeaderByNumberFunc: func(n int64) (*types.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
-//			},
-//			GetReceiptsByHashFunc: func(hash common.Hash) (types.Receipts, error) {
-//				panic("mock out the GetReceiptsByHash method")
-//			},
-//			GetTransactionByHashFunc: func(hash common.Hash) (*coretypes.TxLookupEntry, error) {
-//				panic("mock out the GetTransactionByHash method")
 //			},
 //			NewHeaderWithBlockNumberFunc: func(n int64) *types.Header {
 //				panic("mock out the NewHeaderWithBlockNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
+//			},
+//			SetHeaderByNumberFunc: func(n int64, header *types.Header) error {
+//				panic("mock out the SetHeaderByNumber method")
 //			},
 //		}
 //
@@ -56,20 +45,8 @@ type BlockPluginMock struct {
 	// BaseFeeFunc mocks the BaseFee method.
 	BaseFeeFunc func() uint64
 
-	// GetBlockByHashFunc mocks the GetBlockByHash method.
-	GetBlockByHashFunc func(hash common.Hash) (*types.Block, error)
-
-	// GetBlockByNumberFunc mocks the GetBlockByNumber method.
-	GetBlockByNumberFunc func(n int64) (*types.Block, error)
-
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
 	GetHeaderByNumberFunc func(n int64) (*types.Header, error)
-
-	// GetReceiptsByHashFunc mocks the GetReceiptsByHash method.
-	GetReceiptsByHashFunc func(hash common.Hash) (types.Receipts, error)
-
-	// GetTransactionByHashFunc mocks the GetTransactionByHash method.
-	GetTransactionByHashFunc func(hash common.Hash) (*coretypes.TxLookupEntry, error)
 
 	// NewHeaderWithBlockNumberFunc mocks the NewHeaderWithBlockNumber method.
 	NewHeaderWithBlockNumberFunc func(n int64) *types.Header
@@ -77,35 +54,18 @@ type BlockPluginMock struct {
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
+	// SetHeaderByNumberFunc mocks the SetHeaderByNumber method.
+	SetHeaderByNumberFunc func(n int64, header *types.Header) error
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// BaseFee holds details about calls to the BaseFee method.
 		BaseFee []struct {
 		}
-		// GetBlockByHash holds details about calls to the GetBlockByHash method.
-		GetBlockByHash []struct {
-			// Hash is the hash argument value.
-			Hash common.Hash
-		}
-		// GetBlockByNumber holds details about calls to the GetBlockByNumber method.
-		GetBlockByNumber []struct {
-			// N is the n argument value.
-			N int64
-		}
 		// GetHeaderByNumber holds details about calls to the GetHeaderByNumber method.
 		GetHeaderByNumber []struct {
 			// N is the n argument value.
 			N int64
-		}
-		// GetReceiptsByHash holds details about calls to the GetReceiptsByHash method.
-		GetReceiptsByHash []struct {
-			// Hash is the hash argument value.
-			Hash common.Hash
-		}
-		// GetTransactionByHash holds details about calls to the GetTransactionByHash method.
-		GetTransactionByHash []struct {
-			// Hash is the hash argument value.
-			Hash common.Hash
 		}
 		// NewHeaderWithBlockNumber holds details about calls to the NewHeaderWithBlockNumber method.
 		NewHeaderWithBlockNumber []struct {
@@ -117,15 +77,19 @@ type BlockPluginMock struct {
 			// ContextMoqParam is the contextMoqParam argument value.
 			ContextMoqParam context.Context
 		}
+		// SetHeaderByNumber holds details about calls to the SetHeaderByNumber method.
+		SetHeaderByNumber []struct {
+			// N is the n argument value.
+			N int64
+			// Header is the header argument value.
+			Header *types.Header
+		}
 	}
 	lockBaseFee                  sync.RWMutex
-	lockGetBlockByHash           sync.RWMutex
-	lockGetBlockByNumber         sync.RWMutex
 	lockGetHeaderByNumber        sync.RWMutex
-	lockGetReceiptsByHash        sync.RWMutex
-	lockGetTransactionByHash     sync.RWMutex
 	lockNewHeaderWithBlockNumber sync.RWMutex
 	lockPrepare                  sync.RWMutex
+	lockSetHeaderByNumber        sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
@@ -152,70 +116,6 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 	mock.lockBaseFee.RLock()
 	calls = mock.calls.BaseFee
 	mock.lockBaseFee.RUnlock()
-	return calls
-}
-
-// GetBlockByHash calls GetBlockByHashFunc.
-func (mock *BlockPluginMock) GetBlockByHash(hash common.Hash) (*types.Block, error) {
-	if mock.GetBlockByHashFunc == nil {
-		panic("BlockPluginMock.GetBlockByHashFunc: method is nil but BlockPlugin.GetBlockByHash was just called")
-	}
-	callInfo := struct {
-		Hash common.Hash
-	}{
-		Hash: hash,
-	}
-	mock.lockGetBlockByHash.Lock()
-	mock.calls.GetBlockByHash = append(mock.calls.GetBlockByHash, callInfo)
-	mock.lockGetBlockByHash.Unlock()
-	return mock.GetBlockByHashFunc(hash)
-}
-
-// GetBlockByHashCalls gets all the calls that were made to GetBlockByHash.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetBlockByHashCalls())
-func (mock *BlockPluginMock) GetBlockByHashCalls() []struct {
-	Hash common.Hash
-} {
-	var calls []struct {
-		Hash common.Hash
-	}
-	mock.lockGetBlockByHash.RLock()
-	calls = mock.calls.GetBlockByHash
-	mock.lockGetBlockByHash.RUnlock()
-	return calls
-}
-
-// GetBlockByNumber calls GetBlockByNumberFunc.
-func (mock *BlockPluginMock) GetBlockByNumber(n int64) (*types.Block, error) {
-	if mock.GetBlockByNumberFunc == nil {
-		panic("BlockPluginMock.GetBlockByNumberFunc: method is nil but BlockPlugin.GetBlockByNumber was just called")
-	}
-	callInfo := struct {
-		N int64
-	}{
-		N: n,
-	}
-	mock.lockGetBlockByNumber.Lock()
-	mock.calls.GetBlockByNumber = append(mock.calls.GetBlockByNumber, callInfo)
-	mock.lockGetBlockByNumber.Unlock()
-	return mock.GetBlockByNumberFunc(n)
-}
-
-// GetBlockByNumberCalls gets all the calls that were made to GetBlockByNumber.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetBlockByNumberCalls())
-func (mock *BlockPluginMock) GetBlockByNumberCalls() []struct {
-	N int64
-} {
-	var calls []struct {
-		N int64
-	}
-	mock.lockGetBlockByNumber.RLock()
-	calls = mock.calls.GetBlockByNumber
-	mock.lockGetBlockByNumber.RUnlock()
 	return calls
 }
 
@@ -248,70 +148,6 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 	mock.lockGetHeaderByNumber.RLock()
 	calls = mock.calls.GetHeaderByNumber
 	mock.lockGetHeaderByNumber.RUnlock()
-	return calls
-}
-
-// GetReceiptsByHash calls GetReceiptsByHashFunc.
-func (mock *BlockPluginMock) GetReceiptsByHash(hash common.Hash) (types.Receipts, error) {
-	if mock.GetReceiptsByHashFunc == nil {
-		panic("BlockPluginMock.GetReceiptsByHashFunc: method is nil but BlockPlugin.GetReceiptsByHash was just called")
-	}
-	callInfo := struct {
-		Hash common.Hash
-	}{
-		Hash: hash,
-	}
-	mock.lockGetReceiptsByHash.Lock()
-	mock.calls.GetReceiptsByHash = append(mock.calls.GetReceiptsByHash, callInfo)
-	mock.lockGetReceiptsByHash.Unlock()
-	return mock.GetReceiptsByHashFunc(hash)
-}
-
-// GetReceiptsByHashCalls gets all the calls that were made to GetReceiptsByHash.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetReceiptsByHashCalls())
-func (mock *BlockPluginMock) GetReceiptsByHashCalls() []struct {
-	Hash common.Hash
-} {
-	var calls []struct {
-		Hash common.Hash
-	}
-	mock.lockGetReceiptsByHash.RLock()
-	calls = mock.calls.GetReceiptsByHash
-	mock.lockGetReceiptsByHash.RUnlock()
-	return calls
-}
-
-// GetTransactionByHash calls GetTransactionByHashFunc.
-func (mock *BlockPluginMock) GetTransactionByHash(hash common.Hash) (*coretypes.TxLookupEntry, error) {
-	if mock.GetTransactionByHashFunc == nil {
-		panic("BlockPluginMock.GetTransactionByHashFunc: method is nil but BlockPlugin.GetTransactionByHash was just called")
-	}
-	callInfo := struct {
-		Hash common.Hash
-	}{
-		Hash: hash,
-	}
-	mock.lockGetTransactionByHash.Lock()
-	mock.calls.GetTransactionByHash = append(mock.calls.GetTransactionByHash, callInfo)
-	mock.lockGetTransactionByHash.Unlock()
-	return mock.GetTransactionByHashFunc(hash)
-}
-
-// GetTransactionByHashCalls gets all the calls that were made to GetTransactionByHash.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetTransactionByHashCalls())
-func (mock *BlockPluginMock) GetTransactionByHashCalls() []struct {
-	Hash common.Hash
-} {
-	var calls []struct {
-		Hash common.Hash
-	}
-	mock.lockGetTransactionByHash.RLock()
-	calls = mock.calls.GetTransactionByHash
-	mock.lockGetTransactionByHash.RUnlock()
 	return calls
 }
 
@@ -376,5 +212,41 @@ func (mock *BlockPluginMock) PrepareCalls() []struct {
 	mock.lockPrepare.RLock()
 	calls = mock.calls.Prepare
 	mock.lockPrepare.RUnlock()
+	return calls
+}
+
+// SetHeaderByNumber calls SetHeaderByNumberFunc.
+func (mock *BlockPluginMock) SetHeaderByNumber(n int64, header *types.Header) error {
+	if mock.SetHeaderByNumberFunc == nil {
+		panic("BlockPluginMock.SetHeaderByNumberFunc: method is nil but BlockPlugin.SetHeaderByNumber was just called")
+	}
+	callInfo := struct {
+		N      int64
+		Header *types.Header
+	}{
+		N:      n,
+		Header: header,
+	}
+	mock.lockSetHeaderByNumber.Lock()
+	mock.calls.SetHeaderByNumber = append(mock.calls.SetHeaderByNumber, callInfo)
+	mock.lockSetHeaderByNumber.Unlock()
+	return mock.SetHeaderByNumberFunc(n, header)
+}
+
+// SetHeaderByNumberCalls gets all the calls that were made to SetHeaderByNumber.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.SetHeaderByNumberCalls())
+func (mock *BlockPluginMock) SetHeaderByNumberCalls() []struct {
+	N      int64
+	Header *types.Header
+} {
+	var calls []struct {
+		N      int64
+		Header *types.Header
+	}
+	mock.lockSetHeaderByNumber.RLock()
+	calls = mock.calls.SetHeaderByNumber
+	mock.lockSetHeaderByNumber.RUnlock()
 	return calls
 }

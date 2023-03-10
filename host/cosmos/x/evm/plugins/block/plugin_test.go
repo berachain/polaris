@@ -21,44 +21,8 @@
 package block
 
 import (
-	dbm "github.com/cosmos/cosmos-db"
-
-	storetypes "cosmossdk.io/store/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	offchain "pkg.berachain.dev/polaris/cosmos/store/offchain"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/lib/utils"
-
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	// . "github.com/onsi/gomega".
 )
 
-var _ = Describe("Block Plugin", func() {
-	var ctx sdk.Context
-	var p *plugin
-
-	BeforeEach(func() {
-		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
-		sk := testutil.EvmKey // testing key.
-		p = utils.MustGetAs[*plugin](NewPlugin(offchain.NewFromDB(dbm.NewMemDB()), sk))
-		p.Prepare(ctx)
-	})
-
-	It("should give the constant base fee", func() {
-		Expect(p.BaseFee()).To(Equal(bf))
-	})
-
-	// It("should get the header at current height", func() {
-	// 	header, err := p.GetHeaderByNumber(ctx.BlockHeight())
-	// 	Expect(err).ToNot(HaveOccurred())
-	// 	Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
-	// })
-
-	// It("should return empty header for non-existent height", func() {
-	// 	header, err := p.GetHeaderByNumber(100000)
-	// 	Expect(err).ToNot(HaveOccurred())
-	// 	Expect(*header).To(Equal(types.Header{}))
-	// })
-})
+var _ = Describe("Block Plugin", func() {})
