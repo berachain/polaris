@@ -29,4 +29,5 @@ const (
 	TxHashKeyToTxPrefix
 	VersionKey
 	HeaderKey
+	ParamsKey
 )
