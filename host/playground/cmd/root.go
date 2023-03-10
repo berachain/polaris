@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
 	"pkg.berachain.dev/polaris/playground/pkg/node"
 )
 
@@ -33,8 +34,7 @@ func RootCmd() *cobra.Command {
 		Use:   "playground",
 		Short: "playground app",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			runner := node.NewRunner(3 * time.Second /* blocktime */)
-			return runner.Start()
+			return node.NewRunner(time.Second /* blocktime */).Start()
 		},
 	}
 	return rootCmd

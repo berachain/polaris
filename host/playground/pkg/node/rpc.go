@@ -20,9 +20,11 @@
 
 package node
 
+type RPCService interface {
+}
 type rpcService struct {
 }
 
-func NewRPCService() *rpcService {
+func NewRPCService() RPCService {
 	return &rpcService{}
 }

@@ -70,20 +70,35 @@ func filter[T any](ss []T, test func(T) bool) []T {
 }
 
 // Executes a function in a given directory.
-func ExecuteInDirectory(dir string, f func(args ...string) error) error {
+func ExecuteInDirectory(dir string, f func(args ...string) error, withArgs bool) error {
 	rootCwd, _ := os.Getwd()
 	// Change to the directory where the contracts are.
 	if err := os.Chdir(dir); err != nil {
 		return err
 	}
-	// Run the forge command.
-	if err := f(); err != nil {
-		return err
+	// Run the command
+	if withArgs {
+		if err := f(dir); err != nil {
+			return err
+		}
+	} else {
+		if err := f(); err != nil {
+			return err
+		}
 	}
 
 	// Go back to the starting directory.
 	if err := os.Chdir(rootCwd); err != nil {
 		return err
+	}
+	return nil
+}
+
+func ExecuteForAllModules(dirs []string, f func(args ...string) error, withArgs bool) error {
+	for _, dir := range dirs {
+		if err := ExecuteInDirectory(dir, f, withArgs); err != nil {
+			return err
+		}
 	}
 	return nil
 }
