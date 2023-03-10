@@ -94,3 +94,11 @@ require (
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+retract (
+	v0.0.0-20230307214417-162fc0715f14
+	v0.0.0-20230307182559-3a66f5832c06
+	v0.0.0-20230307175244-96d10ab8f090
+	v0.0.0-20230306221333-c32182f7bc42
+	v0.0.0-20230306211355-15b3e5ed41ab
+)
