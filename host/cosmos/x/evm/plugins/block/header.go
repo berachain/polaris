@@ -26,8 +26,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/rlp"
-
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/rpc"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -67,7 +65,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 	if bz == nil {
 		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
-	header, err := unmarshalHeader(bz)
+	header, err := coretypes.UnmarshalHeader(bz)
 	if err != nil {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
@@ -81,7 +79,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 
 // `SetHeader` saves a block to the store.
 func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
-	bz, err := marshalHeader(header)
+	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return err
 	}
@@ -108,14 +106,4 @@ func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 	}
 
 	return iavlHeight, nil
-}
-
-func unmarshalHeader(data []byte) (*coretypes.Header, error) {
-	header := &coretypes.Header{}
-	err := rlp.DecodeBytes(data, header)
-	return header, err
-}
-
-func marshalHeader(header *coretypes.Header) ([]byte, error) {
-	return rlp.EncodeToBytes(header)
 }

@@ -22,13 +22,11 @@ package historical
 
 import (
 	"fmt"
-	"unsafe"
 
 	"cosmossdk.io/store/prefix"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -65,7 +63,7 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 // `StoreReceipts` implements `core.HistoricalPlugin`.
 func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
 	// store block hash to receipts.
-	receiptsBz, err := marshalReceipts(receipts)
+	receiptsBz, err := coretypes.MarshalReceipts(receipts)
 	if err != nil {
 		p.ctx.Logger().Error(
 			"UpdateOffChainStorage: failed to marshal receipts at block hash %s", blockHash.Hex(),
@@ -119,7 +117,7 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
-	receipts, err := unmarshalReceipts(receiptsBz)
+	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
@@ -165,7 +163,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
-	receipts, err := unmarshalReceipts(receiptsBz)
+	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
@@ -212,29 +210,9 @@ func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, e
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
-	receipts, err := unmarshalReceipts(receiptsBz)
+	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
 	return receipts, nil
-}
-
-func marshalReceipts(receipts coretypes.Receipts) ([]byte, error) {
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	receiptsForStorage := *(*[]*coretypes.ReceiptForStorage)(unsafe.Pointer(&receipts))
-
-	bz, err := rlp.EncodeToBytes(receiptsForStorage)
-	if err != nil {
-		return nil, err
-	}
-	return bz, nil
-}
-
-func unmarshalReceipts(bz []byte) (coretypes.Receipts, error) {
-	var receiptsForStorage []*coretypes.ReceiptForStorage
-	if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
-		return nil, err
-	}
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	return *(*coretypes.Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
 }
