@@ -11,7 +11,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.3
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
-	pkg.berachain.dev/polaris/lib v0.0.1-alpha.0.20230310224229-ede3de74fb93
+	pkg.berachain.dev/polaris/lib v0.0.1-alpha.0.20230310235258-2728d13bae51
 )
 
 require (
