@@ -11,7 +11,7 @@ replace (
 require (
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.6.1
-	pkg.berachain.dev/polaris/eth v0.0.0-20230310200034-65aecd1e8e5e
+	pkg.berachain.dev/polaris/eth v0.0.1-alpha.0.20230310224229-ede3de74fb93
 )
 
 require (
@@ -66,5 +66,5 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.29.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230310200034-65aecd1e8e5e // indirect
+	pkg.berachain.dev/polaris/lib v0.0.1-alpha.0.20230310224229-ede3de74fb93 // indirect
 )
