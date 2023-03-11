@@ -17,12 +17,26 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
-//go:build mage
-
 package main
 
 import (
-	//mage:import
-	_ "pkg.berachain.dev/polaris/build/mage"
+	"fmt"
+	"runtime"
+	"strings"
+
+	"github.com/TwiN/go-color"
 )
+
+func PrintMageName() {
+	skip := 2
+	size := 10
+	pc := make([]uintptr, size) // at least 1 entry needed
+	runtime.Callers(skip, pc)
+	f := runtime.FuncForPC(pc[0])
+	slice := strings.Split(f.Name(), ".")
+	name := slice[len(slice)-1]
+	//nolint:forbidigo // This is a mage file
+	fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("Running %s...",
+		name,
+	)))
+}

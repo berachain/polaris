@@ -17,9 +17,9 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
+//
 //nolint:forbidigo // its okay.
-package mage
+package main
 
 import (
 	"fmt"
@@ -28,19 +28,17 @@ import (
 	"github.com/TwiN/go-color"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
-
-	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (
 	// Commands.
-	goInstall   = mi.RunCmdV("go", "install", "-mod=readonly")
-	goBuild     = mi.RunCmdV("go", "build", "-mod=readonly")
-	goRun       = mi.RunCmdV("go", "run")
-	goGenerate  = mi.RunCmdV("go", "generate")
-	goModVerify = mi.RunCmdV("go", "mod", "verify")
-	goModTidy   = mi.RunCmdV("go", "mod", "tidy")
-	goWorkSync  = mi.RunCmdV("go", "work", "sync")
+	goInstall   = RunCmdV("go", "install", "-mod=readonly")
+	goBuild     = RunCmdV("go", "build", "-mod=readonly")
+	goRun       = RunCmdV("go", "run")
+	goGenerate  = RunCmdV("go", "generate")
+	goModVerify = RunCmdV("go", "mod", "verify")
+	goModTidy   = RunCmdV("go", "mod", "tidy")
+	goWorkSync  = RunCmdV("go", "work", "sync")
 
 	// Directories.
 	outdir = "./bin"
@@ -56,7 +54,7 @@ var (
 	production = false
 	statically = false
 
-	moduleDirs = []string{"build", "eth", "host/cosmos", "host/playground", "lib"}
+	moduleDirs = []string{"eth", "host/cosmos", "host/playground", "magefiles", "lib"}
 )
 
 // Runs a series of commonly used commands.
@@ -166,7 +164,7 @@ func Generate() error {
 	if err := goInstall(moq); err != nil {
 		return err
 	}
-	if err := mi.ExecuteForAllModules(moduleDirs, goGenerate, true); err != nil {
+	if err := ExecuteForAllModules(moduleDirs, goGenerate, true); err != nil {
 		return err
 	}
 	return nil
@@ -176,7 +174,7 @@ func Generate() error {
 // changed.
 func GenerateCheck() error {
 	PrintMageName()
-	if err := mi.ExecuteForAllModules(moduleDirs, goGenerate, true); err != nil {
+	if err := ExecuteForAllModules(moduleDirs, goGenerate, true); err != nil {
 		return err
 	}
 	if err := gitDiff(); err != nil {
@@ -187,7 +185,7 @@ func GenerateCheck() error {
 
 // Runs 'go tidy' on the entire project.
 func Tidy() error {
-	return mi.ExecuteForAllModules(moduleDirs, goModTidy, false)
+	return ExecuteForAllModules(moduleDirs, goModTidy, false)
 }
 
 // Runs 'go work sync' on the entire project.

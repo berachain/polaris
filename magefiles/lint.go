@@ -17,8 +17,7 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
-package mage
+package main
 
 const (
 	golangCi   = "github.com/golangci/golangci-lint/cmd/golangci-lint"
@@ -53,7 +52,7 @@ func GolangCiLint() error {
 	PrintMageName()
 	for _, dir := range moduleDirs {
 		if err := goRun(golangCi,
-			"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "./"+dir+"/"+"...",
+			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "./"+dir+"/"+"...",
 		); err != nil {
 			return err
 		}
@@ -66,7 +65,7 @@ func GolangCiLintFix() error {
 	PrintMageName()
 	for _, dir := range moduleDirs {
 		if err := goRun(golangCi,
-			"run", "--timeout=10m", "--concurrency", "4", "--config=build/.golangci.yaml", "-v", "--fix", "./"+dir+"/"+"...",
+			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "--fix", "./"+dir+"/"+"...",
 		); err != nil {
 			return err
 		}
@@ -93,7 +92,7 @@ func License() error {
 	PrintMageName()
 	for _, dir := range moduleDirs {
 		if err := goRun(addlicense,
-			"-v", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./"+dir+"/"+".",
+			"-v", "-f", "./LICENSE.header", "-ignore", "docs/web/**", "./"+dir+"/"+".",
 		); err != nil {
 			return err
 		}
@@ -106,7 +105,7 @@ func LicenseCheck() error {
 	PrintMageName()
 	for _, dir := range moduleDirs {
 		if err := goRun(addlicense,
-			"-v", "-check", "-f", "./build/LICENSE.header", "-ignore", "docs/web/**", "./"+dir+"/"+".",
+			"-v", "-check", "-f", "./LICENSE.header", "-ignore", "docs/web/**", "./"+dir+"/"+".",
 		); err != nil {
 			return err
 		}

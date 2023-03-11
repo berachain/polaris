@@ -17,22 +17,19 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
-package mage
+package main
 
 import (
 	"fmt"
 	"os"
-
-	mi "pkg.berachain.dev/polaris/build/mage/internal"
 )
 
 var (
 	// Buf Commands.
 	bufRepo = "github.com/bufbuild/buf/cmd/buf"
-	// bufBuild  = mi.RunCmdV("go", "run", bufRepo, "build").
-	bufFormat = mi.RunCmdV("go", "run", bufRepo, "format", "-w")
-	bufLint   = mi.RunCmdV("go", "run", bufRepo, "lint", "--error-format=json")
+	// bufBuild  = RunCmdV("go", "run", bufRepo, "build").
+	bufFormat = RunCmdV("go", "run", bufRepo, "format", "-w")
+	bufLint   = RunCmdV("go", "run", bufRepo, "lint", "--error-format=json")
 
 	// Docker Args
 	// TODO: remove once https://github.com/cosmos/cosmos-sdk/pull/13960 is merged
@@ -42,7 +39,7 @@ var (
 )
 
 func dockerRunProtoImage(pwd string) func(args ...string) error {
-	return mi.RunCmdV("docker",
+	return RunCmdV("docker",
 		"run", "--rm", "-v", pwd+":/workspace",
 		"--workdir", "/workspace",
 		protoImageName+":"+protoImageVersion)

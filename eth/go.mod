@@ -8,7 +8,7 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0
 replace pkg.berachain.dev/polaris/lib => ../lib
 
 require (
-	github.com/ethereum/go-ethereum v1.11.3
+	github.com/ethereum/go-ethereum v1.11.4
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
 	pkg.berachain.dev/polaris/lib v0.0.1-alpha.0.20230310235258-2728d13bae51
@@ -75,7 +75,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
