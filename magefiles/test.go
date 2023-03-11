@@ -43,16 +43,8 @@ var (
 	packagesEvm = GoListFilter(true, "evm")
 )
 
-// Starts a testnet and builds it if necessary.
+// Starts a local development net and builds it if necessary.
 func Start() error {
-	if err := Build(); err != nil {
-		return err
-	}
-	return StartNoBuild()
-}
-
-// Starts a testnet without building it.
-func StartNoBuild() error {
 	return sh.RunV("./host/cosmos/runtime/init.sh")
 }
 
