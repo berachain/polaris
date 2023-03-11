@@ -34,19 +34,15 @@ jobs:
         go-version: [1.20.1]
     runs-on: ${{ matrix.os }}
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
-      - 
-        name: Install Foundry
+      - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-      - 
-        name: Setup Golang
+      - name: Setup Golang
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-      - 
-        name: Cache Golang Deps
+      - name: Cache Golang Deps
         uses: actions/cache@v3
         with:
           path: |
@@ -55,19 +51,16 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
-      - 
-        name: Install Go Tools
-        run : |
-           go run build/setup.go
-      -
-        name: Run ${{ matrix.args }}
+      - name: Install Go Tools
+        run: |
+          go run magefiles/setup/setup.go
+      - name: Run ${{ matrix.args }}
         uses: magefile/mage-action@v2
         with:
           version: latest
           args: ${{ matrix.args }}
 
-      - 
-        name: Upload Coverage Report
+      - name: Upload Coverage Report
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -75,4 +68,3 @@ jobs:
           fail_ci_if_error: true
           verbose: true
         if: ${{ matrix.args == 'testunitcover' || matrix.args == 'testintegrationcover' }}
-        

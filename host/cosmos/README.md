@@ -56,7 +56,7 @@ cd $HOME
 git clone https://github.com/berachain/polaris
 cd polaris
 git checkout main
-go run build/setup.go
+go run magefiles/setup/setup.go
 ```
 
 **Step 3: Build the Node Software**
