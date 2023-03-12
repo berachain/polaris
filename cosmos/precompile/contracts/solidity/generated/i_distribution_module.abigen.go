@@ -29,9 +29,15 @@ var (
 	_ = abi.ConvertType
 )
 
+// IBankModuleCoin is an auto generated low-level Go binding around an user-defined struct.
+type IBankModuleCoin struct {
+	Amount uint64
+	Denom  string
+}
+
 // DistributionModuleMetaData contains all meta data concerning the DistributionModule contract.
 var DistributionModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"WithdrawRewards\",\"type\":\"event\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"WithdrawRewards\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"addr\",\"type\":\"string\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // DistributionModuleABI is the input ABI used to generate the binding from.
@@ -178,6 +184,69 @@ func (_DistributionModule *DistributionModuleTransactorRaw) Transfer(opts *bind.
 // Transact invokes the (paid) contract method with params as input values.
 func (_DistributionModule *DistributionModuleTransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
 	return _DistributionModule.Contract.contract.Transact(opts, method, params...)
+}
+
+// SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
+//
+// Solidity: function setWithdrawAddress(address withdrawAddress) returns()
+func (_DistributionModule *DistributionModuleTransactor) SetWithdrawAddress(opts *bind.TransactOpts, withdrawAddress common.Address) (*types.Transaction, error) {
+	return _DistributionModule.contract.Transact(opts, "setWithdrawAddress", withdrawAddress)
+}
+
+// SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
+//
+// Solidity: function setWithdrawAddress(address withdrawAddress) returns()
+func (_DistributionModule *DistributionModuleSession) SetWithdrawAddress(withdrawAddress common.Address) (*types.Transaction, error) {
+	return _DistributionModule.Contract.SetWithdrawAddress(&_DistributionModule.TransactOpts, withdrawAddress)
+}
+
+// SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
+//
+// Solidity: function setWithdrawAddress(address withdrawAddress) returns()
+func (_DistributionModule *DistributionModuleTransactorSession) SetWithdrawAddress(withdrawAddress common.Address) (*types.Transaction, error) {
+	return _DistributionModule.Contract.SetWithdrawAddress(&_DistributionModule.TransactOpts, withdrawAddress)
+}
+
+// SetWithdrawAddress0 is a paid mutator transaction binding the contract method 0xd494d225.
+//
+// Solidity: function setWithdrawAddress(string addr) returns()
+func (_DistributionModule *DistributionModuleTransactor) SetWithdrawAddress0(opts *bind.TransactOpts, addr string) (*types.Transaction, error) {
+	return _DistributionModule.contract.Transact(opts, "setWithdrawAddress0", addr)
+}
+
+// SetWithdrawAddress0 is a paid mutator transaction binding the contract method 0xd494d225.
+//
+// Solidity: function setWithdrawAddress(string addr) returns()
+func (_DistributionModule *DistributionModuleSession) SetWithdrawAddress0(addr string) (*types.Transaction, error) {
+	return _DistributionModule.Contract.SetWithdrawAddress0(&_DistributionModule.TransactOpts, addr)
+}
+
+// SetWithdrawAddress0 is a paid mutator transaction binding the contract method 0xd494d225.
+//
+// Solidity: function setWithdrawAddress(string addr) returns()
+func (_DistributionModule *DistributionModuleTransactorSession) SetWithdrawAddress0(addr string) (*types.Transaction, error) {
+	return _DistributionModule.Contract.SetWithdrawAddress0(&_DistributionModule.TransactOpts, addr)
+}
+
+// WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
+//
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint64,string)[])
+func (_DistributionModule *DistributionModuleTransactor) WithdrawDelegatorReward(opts *bind.TransactOpts, delegator common.Address, validator common.Address) (*types.Transaction, error) {
+	return _DistributionModule.contract.Transact(opts, "withdrawDelegatorReward", delegator, validator)
+}
+
+// WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
+//
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint64,string)[])
+func (_DistributionModule *DistributionModuleSession) WithdrawDelegatorReward(delegator common.Address, validator common.Address) (*types.Transaction, error) {
+	return _DistributionModule.Contract.WithdrawDelegatorReward(&_DistributionModule.TransactOpts, delegator, validator)
+}
+
+// WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
+//
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint64,string)[])
+func (_DistributionModule *DistributionModuleTransactorSession) WithdrawDelegatorReward(delegator common.Address, validator common.Address) (*types.Transaction, error) {
+	return _DistributionModule.Contract.WithdrawDelegatorReward(&_DistributionModule.TransactOpts, delegator, validator)
 }
 
 // DistributionModuleWithdrawRewardsIterator is returned from FilterWithdrawRewards and is used to iterate over the raw logs and unpacked data for WithdrawRewards events raised by the DistributionModule contract.

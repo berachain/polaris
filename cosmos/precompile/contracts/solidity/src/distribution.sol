@@ -20,10 +20,31 @@
 
 pragma solidity ^0.8.4;
 
+import {IBankModule} from "./bank.sol";
+
 /**
  * @dev Interface of the distribution module's precompiled contract
  */
 interface IDistributionModule {
+    /**
+     * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
+     */
+    function setWithdrawAddress(address withdrawAddress) external;
+
+    /**
+     * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
+     * Howver taking in a bech32 address.
+     */
+    function setWithdrawAddress(string calldata withdrawAddress) external;
+
+    /**
+     * @dev Withdraw the rewrads accumilated by the caller(msg.sender). Returns the rewards claimed.
+     */
+    function withdrawDelegatorReward(
+        address delegator,
+        address validator
+    ) external returns (IBankModule.Coin[] memory);
+
     /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
      * `validator` as rewards.
