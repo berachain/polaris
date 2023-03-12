@@ -29,6 +29,6 @@ Stateful Precompiles can be implemented by adhering to the `StatefulImpl` interf
         this field will be automatically populated.
 
 Examples of stateful precompiles that run in a Cosmos SDK-based host chain can be found in the
-[precompile](https://github.com/berachain/polaris/tree/main/host/cosmos/precompile) directory.
+[precompile](https://github.com/berachain/polaris/tree/main/cosmos/precompile) directory.
 
 

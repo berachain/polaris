@@ -45,7 +45,7 @@ var (
 
 // Starts a local development net and builds it if necessary.
 func Start() error {
-	return sh.RunV("./host/cosmos/runtime/init.sh")
+	return sh.RunV("./cosmos/runtime/init.sh")
 }
 
 // Starts a local docs page.
@@ -79,6 +79,7 @@ func TestUnit() error {
 	if err := ForgeBuild(); err != nil {
 		return err
 	}
+	PrintMageName()
 	return testUnit()
 }
 
@@ -105,6 +106,7 @@ func TestUnitRace() error {
 	args := []string{
 		"--skip", ".*integration.*",
 	}
+	PrintMageName()
 	return ginkgoTest(append(raceArgs, args...)...)
 }
 
@@ -113,7 +115,7 @@ func TestUnitBenchmark() error {
 	if err := ForgeBuild(); err != nil {
 		return err
 	}
-
+	PrintMageName()
 	return testUnitBenchmark()
 }
 
@@ -145,6 +147,7 @@ func TestIntegration() error {
 	if err := ForgeBuild(); err != nil {
 		return err
 	}
+	PrintMageName()
 	return testIntegration()
 }
 
@@ -161,6 +164,7 @@ func TestIntegrationCover() error {
 	if err := ForgeBuild(); err != nil {
 		return err
 	}
+	PrintMageName()
 	return testIntegrationCover()
 }
 

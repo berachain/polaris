@@ -29,10 +29,10 @@ var (
 	jsonrpcDockerPath      = "./jsonrpc/Dockerfile"
 	imageName              = "berachain-node"
 	testImageVersion       = "e2e-test-dev"
-	goVersion              = "1.20.1"
+	goVersion              = "1.20.2"
 	debianStaticImage      = "gcr.io/distroless/static-debian11"
 	golangAlpine           = "golang:1.20-alpine3.17"
-	precompileContractsDir = "./host/cosmos/precompile/contracts/solidity"
+	precompileContractsDir = "./cosmos/precompile/contracts/solidity"
 )
 
 // Build a lightweight docker image for berad.
