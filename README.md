@@ -1,4 +1,4 @@
-<h1 align="center"> Polaris ❄️🔭 </h1>
+<h1 align="center"> Polaris Monorepo ❄️🔭 </h1>
 
 ![](./docs/web/public/bear_banner.png)
 
@@ -24,7 +24,7 @@
 
 
 
-# Welcome to Polaris
+## What is Polaris?
 
 Polaris introduces the new standard for EVM integrations. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations. 
 
@@ -36,24 +36,23 @@ This meant that we had to built Polaris with serveral core principles in mind:
 4. **Contributor Friendly**: Depsite currently being BUSL-1.1 licensed, the goal for Polaris is to attract high quality contributors in order to build adoption. We are going to adjust licensing to a contributor based scheme as we work with teams / approach production readiness.
 6. **Have Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp.
 
-# Repository Layout
+## Directory Structure
 
 > Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into sections to help reduce cognitive overhead.
+## Directory Structure
 
-    .
-    ├── docs                    # Documentation files
-    ├── eth                     # Polaris Ethereum implementation
-    ├── lib                     # Library files usable throughout the repo
-    ├── host                    # Various host chain implementations.
-    │   ├── cosmos              # Cosmos integration of Polaris
-    │   │     ├── ....
-    │   │     ├── ....
-    │   │     └── x/evm         # Cosmos `x/evm` module
-    │   └── playground          # Testing Playground for Polaris
-    ├── magefiles               # Build scripts and utils
-    ├── testutil                # Various testing utilities
-    ├── LICENSE                 # Licensing information
-    └── README.md               # This README
+<pre>
+~~ Polaris Core ~~
+├── <a href="./docs">docs</a>: Documentation for Polaris.
+├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
+├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
+├── <a href="./testutil">testutil</a>: A collection of testing utilities.\
+├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
+
+~~ Host Chain Implementations ~~
+├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
+└── <a href="./playground">playground</a>: Polaris integrated into a simple, simulated blockchain.
+</pre>
 
 
 ## Build & Test
