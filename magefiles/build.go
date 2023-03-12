@@ -54,7 +54,7 @@ var (
 	production = false
 	statically = false
 
-	moduleDirs = []string{"eth", "host/cosmos", "host/playground", "magefiles", "lib"}
+	moduleDirs = []string{"eth", "cosmos", "playground", "magefiles", "lib"}
 )
 
 // Runs a series of commonly used commands.
@@ -76,7 +76,7 @@ func BuildPolarisCosmosApp() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./host/cosmos/cmd/" + cmd,
+		"./cosmos/cmd/" + cmd,
 	}
 	fmt.Println(color.Ize(color.Yellow, "Building Cosmos app..."))
 	return goBuild(args...)
@@ -89,7 +89,7 @@ func BuildPolarisPlaygroundApp() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./host/playground/cmd/",
+		"./playground/cmd/",
 	}
 	fmt.Println(color.Ize(color.Yellow, "Building Playground app..."))
 	return goBuild(args...)
@@ -152,7 +152,7 @@ func Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./host/cosmos/cmd/polard",
+		"./cosmos/cmd/polard",
 	}
 
 	return goInstall(args...)

@@ -43,7 +43,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
 ## Directory Structure
 
-> Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into sections to help reduce cognitive overhead.
+> Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into logical sections, helping to reduce cognitive overhead.
 
 <pre>
 🔭 Polaris Core 🔭

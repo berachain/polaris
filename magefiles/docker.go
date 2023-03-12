@@ -32,7 +32,7 @@ var (
 	goVersion              = "1.20.1"
 	debianStaticImage      = "gcr.io/distroless/static-debian11"
 	golangAlpine           = "golang:1.20-alpine3.17"
-	precompileContractsDir = "./host/cosmos/precompile/contracts/solidity"
+	precompileContractsDir = "./cosmos/precompile/contracts/solidity"
 )
 
 // Build a lightweight docker image for berad.

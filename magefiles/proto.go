@@ -35,7 +35,7 @@ var (
 	// TODO: remove once https://github.com/cosmos/cosmos-sdk/pull/13960 is merged
 	protoImageName    = "ghcr.io/cosmos/proto-builder"
 	protoImageVersion = "0.12.1"
-	protoDir          = "host/cosmos/proto"
+	protoDir          = "cosmos/proto"
 )
 
 func dockerRunProtoImage(pwd string) func(args ...string) error {
@@ -65,7 +65,7 @@ func ProtoGen() error {
 	}
 
 	return dockerRunProtoImage(dir)(
-		"sh", "./host/cosmos/build/scripts/proto_generate.sh",
+		"sh", "./cosmos/build/scripts/proto_generate.sh",
 	)
 }
 
