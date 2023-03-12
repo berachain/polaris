@@ -26,30 +26,35 @@
 
 ## What is Polaris?
 
-Polaris introduces the new standard for EVM integrations. With improvements to speed, security, reliability, and an extended set of features, Polaris will be able to support the next generation of decentralized applications while offering a compelling alternative to existing implementations. 
+Introducing Polaris, the revolutionary framework designed to simplify the integration of an Ethereum Virtual Machine (EVM) into your application. Polaris is built with a clean, easy-to-integrate API that eliminates the need for developers to spend time hacking together their own EVM integration solutions. Our framework is highly modular, allowing you to choose the components that best fit your needs and integrate an EVM environment into virtually any application.
 
-This meant that we had to built Polaris with serveral core principles in mind:
+Polaris is built with serveral core principles in mind:
 
-1. **Modular**: Every component is built out as a distinct, logical package, with thorough testing, documentation, and benchmarking. The goal is for developers to use these components as individual pieces and combine them creatively to integrate an EVM environment into almost any application.
-2. **Configurable**: We want as many different application frameworks, consensus engines and teams using Polaris as possible. In order to support a wide variety of use cases, Polaris has to be highly configurable.
-3. **Performant**: Polaris must perform at the highest level to remain competitive in today's fast-paced and demanding crypto space.
-4. **Contributor Friendly**: Depsite currently being BUSL-1.1 licensed, the goal for Polaris is to attract high quality contributors in order to build adoption. We are going to adjust licensing to a contributor based scheme as we work with teams / approach production readiness.
-6. **Have Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp.
+1. **Modularity**: Each component is developed as a distinct package, complete with thorough testing, documentation, and benchmarking. You can use these components individually or combine them to create innovative EVM integrations.
+2. **Configurability**: We want Polaris to be accessible to as many teams and use cases as possible. To support this, our framework is highly configurable, allowing you to tailor it to your specific needs.
+3. **Performance**: In today's competitive crypto landscape, performance is key. Polaris is optimized to deliver the highest levels of performance and efficiency.
+4. **Contributor Friendliness**: We believe that open collaboration is key to driving innovation in blockchain development. While Polaris is currently licensed under BUSL-1.1, we plan to adjust our licensing to support contributor-based schemes as we approach production readiness.
+5. **Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp ghlf.
+
+## Documentation
+
+If you want to build on top of Polaris, take a look at our [documentation](http://polaris.berachain.dev/).
+If you want to help contribute to the framework, check out the [Framework Specs](./specs/).
 
 ## Directory Structure
 
 > Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into sections to help reduce cognitive overhead.
-## Directory Structure
 
 <pre>
-~~ Polaris Core ~~
+🔭 Polaris Core 🔭
+├── <a href="./bindings">bindings</a>: Documentation for Polaris.
 ├── <a href="./docs">docs</a>: Documentation for Polaris.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
-├── <a href="./testutil">testutil</a>: A collection of testing utilities.\
+├── <a href="./testutil">testutil</a>: A collection of testing utilities.
 ├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
 
-~~ Host Chain Implementations ~~
+⛄️ Host Chain Implementations ⛄️
 ├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
 └── <a href="./playground">playground</a>: Polaris integrated into a simple, simulated blockchain.
 </pre>
