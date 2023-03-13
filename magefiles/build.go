@@ -32,13 +32,12 @@ import (
 
 var (
 	// Commands.
-	goInstall   = RunCmdV("go", "install", "-mod=readonly")
-	goBuild     = RunCmdV("go", "build", "-mod=readonly")
-	goRun       = RunCmdV("go", "run")
-	goGenerate  = RunCmdV("go", "generate")
-	goModVerify = RunCmdV("go", "mod", "verify")
-	goModTidy   = RunCmdV("go", "mod", "tidy")
-	goWorkSync  = RunCmdV("go", "work", "sync")
+	goInstall  = RunCmdV("go", "install", "-mod=readonly")
+	goBuild    = RunCmdV("go", "build", "-mod=readonly")
+	goRun      = RunCmdV("go", "run")
+	goGenerate = RunCmdV("go", "generate")
+	goModTidy  = RunCmdV("go", "mod", "tidy")
+	goWorkSync = RunCmdV("go", "work", "sync")
 
 	// Directories.
 	outdir = "./bin"
@@ -129,12 +128,6 @@ func BuildRelease() error {
 	PrintMageName()
 	production = true
 	statically = false
-
-	// Verify dependencies.
-	if err := goModVerify(); err != nil {
-		return err
-	}
-
 	return Build()
 }
 
@@ -144,15 +137,10 @@ func Install() error {
 	production = true
 	statically = false
 
-	// Verify dependencies.
-	if err := goModVerify(); err != nil {
-		return err
-	}
-
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./cosmos/cmd/polard",
+		"./cmd/polard",
 	}
 
 	return goInstall(args...)
