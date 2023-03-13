@@ -88,7 +88,8 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		}
 
 		// Send logs and chain events.
-		if logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
+		var logs []*types.Log
+		if logs, ok = utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
 			if len(logs) > 0 {
 				bc.logsFeed.Send(logs)
 			}
