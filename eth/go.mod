@@ -2,13 +2,13 @@ module pkg.berachain.dev/polaris/eth
 
 go 1.20
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230306205832-364e922bfe8d
 
 require (
 	github.com/ethereum/go-ethereum v1.11.4
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
-	pkg.berachain.dev/polaris/lib v0.0.0-20230311143829-8bfd0e776c4e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
 
 require (

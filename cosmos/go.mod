@@ -8,7 +8,7 @@ replace (
 	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230305125317-672b052f323b
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230305125317-672b052f323b
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
-	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230306205832-364e922bfe8d
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
@@ -48,8 +48,8 @@ require (
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.29.0
-	pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e
-	pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d
+	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
+	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
 
 require (
