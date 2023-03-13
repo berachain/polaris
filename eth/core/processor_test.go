@@ -125,16 +125,17 @@ var _ = Describe("StateProcessor", func() {
 
 	Context("Empty block", func() {
 		It("should build a an empty block", func() {
-			block, receipts, err := sp.Finalize(context.Background())
+			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
 			Expect(receipts).To(BeEmpty())
+			Expect(logs).To(BeEmpty())
 		})
 	})
 
 	Context("Block with transactions", func() {
 		BeforeEach(func() {
-			_, _, err := sp.Finalize(context.Background())
+			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 
 			sp.Prepare(context.Background(), nil, dummyHeader)
@@ -144,10 +145,11 @@ var _ = Describe("StateProcessor", func() {
 			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
-			block, receipts, err := sp.Finalize(context.Background())
+			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
 			Expect(receipts).To(BeEmpty())
+			Expect(logs).To(BeEmpty())
 		})
 
 		It("should not error on a signed transaction", func() {

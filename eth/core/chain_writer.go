@@ -87,7 +87,16 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 			bc.receiptsCache.Add(blockHash, receipts)
 		}
 
-		// TODO: synchronize chain head feed.
+		// Send logs and chain events.
+		var logs []*types.Log
+		if logs, ok = utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
+			if len(logs) > 0 {
+				bc.logsFeed.Send(logs)
+			}
+			bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
+		}
+
+		// Send chain head event.
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
 
@@ -112,10 +121,14 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 
 // `Finalize` finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, err := bc.processor.Finalize(ctx)
+	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
 	}
+
+	// store the pending logs
+	bc.pendingLogsFeed.Send(logs)
+	bc.currentLogs.Store(logs)
 
 	blockHash, blockNum := block.Hash(), block.Number().Int64()
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
