@@ -39,7 +39,7 @@ type ChainReader interface {
 
 // `ChainBlockReader` defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
-	CurrentBlock() (*types.Block, error)
+	CurrentBlock() (*types.Header, error)
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
 	FinalizedBlock() (*types.Block, error)
 	GetReceipts(common.Hash) (types.Receipts, error)
@@ -70,12 +70,12 @@ func (bc *blockchain) ChainConfig() *params.ChainConfig {
 // =========================================================================
 
 // `CurrentBlock` returns the current block of the blockchain.
-func (bc *blockchain) CurrentBlock() (*types.Block, error) {
-	cb, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
-	if cb == nil || !ok {
+func (bc *blockchain) CurrentBlock() (*types.Header, error) {
+	ch, ok := utils.GetAs[*types.Header](bc.currentBlock.Load())
+	if ch == nil || !ok {
 		return nil, errors.New("current block cannot be loaded from cache")
 	}
-	bc.blockNumCache.Add(cb.Number().Int64(), cb)
+	bc.blockNumCache.Add(ch.Number.Int64(), ch)
 	bc.blockHashCache.Add(cb.Hash(), cb)
 	return cb, nil
 }

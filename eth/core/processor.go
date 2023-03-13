@@ -140,7 +140,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
 	txHash := tx.Hash()
-	msg, err := tx.AsMessage(sp.signer, sp.header.BaseFee)
+	msg, err := TransactionToMessage(tx, sp.signer, sp.header.BaseFee)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply tx %d [%s]", len(sp.txs), txHash.Hex())
 	}
@@ -185,7 +185,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
-	if msg.To() == nil {
+	if msg.To == nil {
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 

@@ -212,7 +212,7 @@ func (b *backend) CurrentHeader() *types.Header {
 }
 
 // `CurrentBlock` returns the current block from the local chain.
-func (b *backend) CurrentBlock() *types.Block {
+func (b *backend) CurrentBlock() *types.Header {
 	block, err := b.chain.CurrentBlock()
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
@@ -354,7 +354,7 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // `GetEVM` returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethStateDB,
+func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) (*vm.GethEVM, func() error, error) {
 	if vmConfig == nil {
