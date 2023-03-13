@@ -494,9 +494,9 @@ func (b *backend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription 
 	return b.chain.SubscribeLogsEvent(ch)
 }
 
-func (b *backend) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	return b.chain.SubscribePendingLogsEvent(ch)
-}
+// func (b *backend) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
+// 	return b.chain.SubscribePendingLogsEvent(ch)
+// }
 
 func (b *backend) BloomStatus() (uint64, uint64) {
 	// TODO: Implement your code here

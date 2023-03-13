@@ -81,15 +81,14 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 			)
 		}
 
-		// Cache receipts and send chain event, logs event.
+		// Cache receipts.
 		var receipts types.Receipts
 		if receipts, ok = utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
 			bc.receiptsCache.Add(blockHash, receipts)
+		}
 
-			var logs []*types.Log
-			for _, receipt := range receipts {
-				logs = append(logs, receipt.Logs...)
-			}
+		// Send logs and chain events.
+		if logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
 			if len(logs) > 0 {
 				bc.logsFeed.Send(logs)
 			}
@@ -126,8 +125,9 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		return err
 	}
 
-	// send the pending logs event.
+	// store the pending logs
 	bc.pendingLogsFeed.Send(logs)
+	bc.currentLogs.Store(logs)
 
 	blockHash, blockNum := block.Hash(), block.Number().Int64()
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))

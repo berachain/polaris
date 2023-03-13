@@ -67,6 +67,8 @@ type blockchain struct {
 	finalizedBlock atomic.Value
 	// `currentReceipts` is the current/pending receipts.
 	currentReceipts atomic.Value
+	// `currentLogs` is the current/pending logs.
+	currentLogs atomic.Value
 
 	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
 	// blocks. blockHash -> receipts
