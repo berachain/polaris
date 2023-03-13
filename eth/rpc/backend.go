@@ -373,7 +373,7 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
 	b.logger.Info("called eth.rpc.backend.SubscribeChainEvent", "ch", ch)
-	panic("SubscribeChainEvent not implemented")
+	return b.chain.SubscribeChainEvent(ch)
 }
 
 func (b *backend) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription {
@@ -383,7 +383,7 @@ func (b *backend) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.S
 
 func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.Subscription {
 	b.logger.Info("called eth.rpc.backend.SubscribeChainSideEvent", "ch", ch)
-	panic("SubscribeChainSideEvent not implemented")
+	return b.chain.SubscribeChainSideEvent(ch)
 }
 
 // ==============================================================================
@@ -485,18 +485,17 @@ func (b *backend) GetLogs(
 }
 
 func (b *backend) SubscribeRemovedLogsEvent(ch chan<- core.RemovedLogsEvent) event.Subscription {
-	// TODO: Implement your code here
-	return nil
+	b.logger.Info("called eth.rpc.backend.SubscribeRemovedLogsEvent", "ch", ch)
+	return b.chain.SubscribeRemovedLogsEvent(ch)
 }
 
 func (b *backend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	// TODO: Implement your code here
-	return nil
+	b.logger.Info("called eth.rpc.backend.SubscribeLogsEvent", "ch", ch)
+	return b.chain.SubscribeLogsEvent(ch)
 }
 
 func (b *backend) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	// TODO: Implement your code here
-	return nil
+	return b.chain.SubscribePendingLogsEvent(ch)
 }
 
 func (b *backend) BloomStatus() (uint64, uint64) {

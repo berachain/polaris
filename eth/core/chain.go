@@ -81,10 +81,17 @@ type blockchain struct {
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
-	cc            ChainContext
-	chainHeadFeed event.Feed
-	scope         event.SubscriptionScope
-	logger        log.Logger
+	cc     ChainContext
+	logger log.Logger
+
+	// subscription event feeds
+	scope           event.SubscriptionScope
+	chainFeed       event.Feed
+	chainHeadFeed   event.Feed
+	logsFeed        event.Feed
+	pendingLogsFeed event.Feed
+	rmLogsFeed      event.Feed // currently never used
+	chainSideFeed   event.Feed // currently never used
 }
 
 // =========================================================================
