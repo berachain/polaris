@@ -8,7 +8,7 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.
 require (
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.6.1
-	pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
 )
 
 require (
@@ -62,5 +62,5 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.29.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d // indirect
 )

@@ -214,7 +214,7 @@ func (sp *StateProcessor) ProcessTransaction(
 // `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(
 	_ context.Context,
-) (*types.Block, types.Receipts, error) {
+) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
@@ -223,6 +223,7 @@ func (sp *StateProcessor) Finalize(
 	// to ensure that the block hash, logs and bloom filter have the correct information.
 	blockHash, blockNumber := sp.header.Hash(), sp.header.Number.Uint64()
 	var logIndex uint
+	var logs []*types.Log
 	for txIndex, receipt := range sp.receipts {
 		// Edit the receipts to include the block hash and bloom filter.
 		for _, log := range receipt.Logs {
@@ -230,6 +231,7 @@ func (sp *StateProcessor) Finalize(
 			log.BlockHash = blockHash
 			log.Index = logIndex
 			logIndex++
+			logs = append(logs, log)
 		}
 		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 		receipt.BlockHash = blockHash
@@ -241,7 +243,7 @@ func (sp *StateProcessor) Finalize(
 	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
-	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, nil
+	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, logs, nil
 }
 
 // ===========================================================================

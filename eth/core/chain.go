@@ -67,6 +67,8 @@ type blockchain struct {
 	finalizedBlock atomic.Value
 	// `currentReceipts` is the current/pending receipts.
 	currentReceipts atomic.Value
+	// `currentLogs` is the current/pending logs.
+	currentLogs atomic.Value
 
 	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
 	// blocks. blockHash -> receipts
@@ -81,10 +83,17 @@ type blockchain struct {
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
-	cc            ChainContext
-	chainHeadFeed event.Feed
-	scope         event.SubscriptionScope
-	logger        log.Logger
+	cc     ChainContext
+	logger log.Logger
+
+	// subscription event feeds
+	scope           event.SubscriptionScope
+	chainFeed       event.Feed
+	chainHeadFeed   event.Feed
+	logsFeed        event.Feed
+	pendingLogsFeed event.Feed
+	rmLogsFeed      event.Feed // currently never used
+	chainSideFeed   event.Feed // currently never used
 }
 
 // =========================================================================

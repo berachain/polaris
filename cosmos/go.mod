@@ -48,8 +48,8 @@ require (
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.29.0
-	pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e
-	pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d
+	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
+	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
 
 require (
