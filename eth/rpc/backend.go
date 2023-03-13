@@ -202,25 +202,24 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 
 // `CurrentHeader` returns the current header from the local chains.
 func (b *backend) CurrentHeader() *types.Header {
-	block, err := b.chain.CurrentBlock()
+	header, err := b.chain.CurrentBlock()
 	if err != nil {
-		b.logger.Error("eth.rpc.backend.CurrentHeader", "block", block, "err", err)
+		b.logger.Error("eth.rpc.backend.CurrentHeader", "header", header, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", block.Header())
-	return block.Header()
+	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", header)
+	return header
 }
 
 // `CurrentBlock` returns the current block from the local chain.
-func (b *backend) CurrentBlock() *types.Block {
-	block, err := b.chain.CurrentBlock()
+func (b *backend) CurrentBlock() *types.Header {
+	header, err := b.chain.CurrentBlock()
 	if err != nil {
-		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
+		b.logger.Error("eth.rpc.backend.CurrentBlock", "header", header, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentBlock", "header", block.Header(),
-		"num_txs", len(block.Transactions()))
-	return block
+	b.logger.Info("called eth.rpc.backend.CurrentBlock", "header", header)
+	return header
 }
 
 // `BlockByNumber` returns the block identified by `number`.
@@ -354,7 +353,7 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // `GetEVM` returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethStateDB,
+func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) (*vm.GethEVM, func() error, error) {
 	if vmConfig == nil {
