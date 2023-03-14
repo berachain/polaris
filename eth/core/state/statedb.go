@@ -223,6 +223,8 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 			sdb.AddAddress(coinbase)
 		}
 	}
+	
+	sdb.transientStorage = newTransientStorage()
 }
 
 // =============================================================================
