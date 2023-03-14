@@ -42,9 +42,6 @@ type stateDB struct {
 	// Plugin is injected by the chain running the Polaris EVM.
 	Plugin
 
-	// Transient storage
-	transientStorage transientStorage
-
 	// Journals built internally and required for the stateDB.
 	LogsJournal
 	RefundJournal
@@ -82,7 +79,6 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 
 	return &stateDB{
 		Plugin:            sp,
-		transientStorage:  newTransientStorage(),
 		LogsJournal:       lj,
 		RefundJournal:     rj,
 		AccessListJournal: aj,
@@ -187,13 +183,12 @@ func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (boo
 
 // `GetTransientState` implements `stateDB`
 func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	return sdb.transientStorage.Get(addr, key)
+	return sdb.GetTransient(addr, key)
 }
 
 // `GetTransientState` implements `stateDB`
 func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	sdb.TransientJournal.AddTransient(addr, key, value)
-	sdb.transientStorage.Set(addr, key, value)
+	sdb.AddTransient(addr, key, value)
 }
 
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
@@ -223,8 +218,8 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 			sdb.AddAddress(coinbase)
 		}
 	}
-	
-	sdb.transientStorage = newTransientStorage()
+
+	sdb.TransientJournal.Finalize()
 }
 
 // =============================================================================

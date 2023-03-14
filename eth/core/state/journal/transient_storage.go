@@ -26,22 +26,48 @@ import (
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
 
+// transientStorage is a representation of EIP-1153 "Transient Storage".
+type transientStorage map[common.Address]map[common.Hash]common.Hash
 
-type transientChange struct {
-	account 	*common.Address
-	key 		common.Hash
-	previous 	common.Hash
+// Set sets the transient-storage `value` for `key` at the given `addr`.
+func (t transientStorage) Set(addr common.Address, key, value common.Hash) {
+	if _, ok := t[addr]; !ok {
+		t[addr] = make(map[common.Hash]common.Hash)
+	}
+	t[addr][key] = value
+}
+
+// Get gets the transient storage for `key` at the given `addr`.
+func (t transientStorage) Get(addr common.Address, key common.Hash) common.Hash {
+	val, ok := t[addr]
+	if !ok {
+		return common.Hash{}
+	}
+	return val[key]
+}
+
+// Copy does a deep copy of the transientStorage
+func (t transientStorage) Copy() transientStorage {
+	storage := make(transientStorage)
+	for storKey, storVal := range t {
+		valDeepCopy := make(map[common.Hash]common.Hash, len(storVal))
+		for key, val := range storVal {
+			valDeepCopy[key] = val
+		}
+		storage[storKey] = valDeepCopy
+	}
+	return storage
 }
 
 // `transient` is a `Store` that tracks the transient state.
 type transient struct {
-	ds.Stack[transientChange]
+	ds.Stack[transientStorage]
 }
 
 // `NewTransientStorage` returns a new `transient` journal.
 func NewTransient() *transient {
 	return &transient{
-		stack.New[transientChange](initCapacity),
+		stack.New[transientStorage](initCapacity),
 	}
 }
 
@@ -52,24 +78,15 @@ func (t *transient) RegistryKey() string {
 
 
 // `AddTransient` adds a transient change to the `transient` store.
-func (t *transient) AddTransient(account common.Address, key common.Hash, previous common.Hash) {
-	t.Push(transientChange{
-		account: 	&account,
-		key: 		key,
-		previous: 	previous,
-	})
+func (t *transient) AddTransient(account common.Address, key common.Hash, val common.Hash) {
+	currentState := t.Peek().Copy()
+	currentState.Set(account, key, val)
+	t.Push(currentState)
 }
 
 // `GetTransient` returns previous transient storage state for a given account + key.
-func (t *transient) GetPrevTransient(account common.Address, key common.Hash) *common.Hash {
-	size := t.Size()
-	for i := size - 1; i >= 0; i-- {
-		itemAt := t.PeekAt(i)
-		if itemAt.account == &account && itemAt.key == key {
-			return &itemAt.previous
-		}
-	}
-	return nil
+func (t *transient) GetTransient(account common.Address, key common.Hash) common.Hash {
+	return t.Peek().Get(account, key)
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
@@ -84,5 +101,5 @@ func (t *transient) RevertToSnapshot(id int) {
 
 // `Finalize` implements `libtypes.Controllable`.
 func (t *transient) Finalize() {
-	t.Stack =  stack.New[transientChange](initCapacity)
+	t.Stack =  stack.New[transientStorage](initCapacity)
 }
