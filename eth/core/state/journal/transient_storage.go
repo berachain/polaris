@@ -65,6 +65,8 @@ type transientStorage struct {
 }
 
 // `NewTransientStorage` returns a new `transient` journal.
+//
+//nolint:revive // only used as a `state.TransientStorageJournal`.
 func NewTransientStorage() *transientStorage {
 	return &transientStorage{
 		stack.New[transientState](initCapacity),
