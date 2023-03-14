@@ -28,14 +28,14 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-// `ChainResources` is the interface that defines functions for code paths within the chain to acquire
+// ChainResources is the interface that defines functions for code paths within the chain to acquire
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 }
 
-// `GetStateByNumber` returns a statedb configured to read what the state of the blockchain is/was
+// GetStateByNumber returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
 func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	sp, err := bc.sp.GetStateByNumber(number)
@@ -45,7 +45,7 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	return state.NewStateDB(sp), nil
 }
 
-// `GetEVM` returns an EVM ready to be used for executing transactions. It is used by both the StateProcessor
+// GetEVM returns an EVM ready to be used for executing transactions. It is used by both the StateProcessor
 // to acquire a new EVM at the start of every block. As well as by the backend to acquire an EVM for running
 // gas estimations, eth_call etc.
 func (bc *blockchain) GetEVM(
@@ -58,7 +58,7 @@ func (bc *blockchain) GetEVM(
 	)
 }
 
-// `NewEVMBlockContext` creates a new block context for use in the EVM.
+// NewEVMBlockContext creates a new block context for use in the EVM.
 func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
 	feeCollector := bc.cp.FeeCollector()
 	if feeCollector == nil {

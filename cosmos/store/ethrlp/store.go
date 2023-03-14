@@ -27,26 +27,26 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-// `EthereumRlpEncoded` is an interface that should be used to work with all ethereum rlp encoded data.
+// EthereumRlpEncoded is an interface that should be used to work with all ethereum rlp encoded data.
 type EthereumRlpEncoded interface {
 	Hash() common.Hash
 	MarshalBinary() ([]byte, error)
 	UnmarshalBinary([]byte) error
 }
 
-// `EthereumRlpStore` is a wrapper around the parent store that allows to store and retrieve,
+// EthereumRlpStore is a wrapper around the parent store that allows to store and retrieve,
 // implement `EthereumRlpEncoded` interface.
 type EthereumRlpStore[T EthereumRlpEncoded] struct {
 	storetypes.KVStore
 	parent storetypes.KVStore
 }
 
-// `NewRlpEncodedStore` creates a new instance of `EthereumRlpStore` from provided parent store and key prefix.
+// NewRlpEncodedStore creates a new instance of `EthereumRlpStore` from provided parent store and key prefix.
 func NewRlpEncodedStore[T EthereumRlpEncoded](parent storetypes.KVStore, keyPrefix []byte) *EthereumRlpStore[T] {
 	return &EthereumRlpStore[T]{parent: prefix.NewStore(parent, keyPrefix)}
 }
 
-// `Set` stores the provided data in the parent store.
+// Set stores the provided data in the parent store.
 func (rlps *EthereumRlpStore[T]) Set(key []byte, data T) {
 	bz, err := data.MarshalBinary()
 	if err != nil {
@@ -56,7 +56,7 @@ func (rlps *EthereumRlpStore[T]) Set(key []byte, data T) {
 	rlps.parent.Set(key, bz)
 }
 
-// `Get` retrieves the unmarshalled data from the parent store.
+// Get retrieves the unmarshalled data from the parent store.
 func (rlps *EthereumRlpStore[T]) Get(key []byte) (T, bool) {
 	var t T
 	bz := rlps.parent.Get(key)

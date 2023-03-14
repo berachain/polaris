@@ -27,7 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
 
-// `logs` is a state plugin that tracks Ethereum logs.
+// logs is a state plugin that tracks Ethereum logs.
 type logs struct {
 	// Reset every tx.
 	ds.Stack[*coretypes.Log] // journal of tx logs
@@ -36,7 +36,7 @@ type logs struct {
 	txIndex int
 }
 
-// `NewLogs` returns a new `logs` journal.
+// NewLogs returns a new `logs` journal.
 //
 //nolint:revive // only used as a `state.LogsJournal`.
 func NewLogs() *logs {
@@ -45,12 +45,12 @@ func NewLogs() *logs {
 	}
 }
 
-// `RegistryKey` implements `libtypes.Registrable`.
+// RegistryKey implements `libtypes.Registrable`.
 func (l *logs) RegistryKey() string {
 	return logsRegistryKey
 }
 
-// `SetTxContext` sets the transaction hash and index for the current transaction.
+// SetTxContext sets the transaction hash and index for the current transaction.
 func (l *logs) SetTxContext(thash common.Hash, ti int) {
 	l.txHash = thash
 	l.txIndex = ti
@@ -60,14 +60,14 @@ func (l *logs) TxIndex() int {
 	return l.txIndex
 }
 
-// `AddLog` adds a log to the `Logs` store.
+// AddLog adds a log to the `Logs` store.
 func (l *logs) AddLog(log *coretypes.Log) {
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
 	l.Push(log)
 }
 
-// `Logs` returns the logs for the current tx with the existing metadata.
+// Logs returns the logs for the current tx with the existing metadata.
 func (l *logs) Logs() []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
@@ -77,7 +77,7 @@ func (l *logs) Logs() []*coretypes.Log {
 	return buf
 }
 
-// `GetLogs` returns the logs for the tx with the given metadata.
+// GetLogs returns the logs for the tx with the given metadata.
 func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
@@ -89,23 +89,23 @@ func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash)
 	return buf
 }
 
-// `Snapshot` takes a snapshot of the `Logs` store.
+// Snapshot takes a snapshot of the `Logs` store.
 //
-// `Snapshot` implements `libtypes.Snapshottable`.
+// Snapshot implements `libtypes.Snapshottable`.
 func (l *logs) Snapshot() int {
 	return l.Size()
 }
 
-// `RevertToSnapshot` reverts the `Logs` store to a given snapshot id.
+// RevertToSnapshot reverts the `Logs` store to a given snapshot id.
 //
-// `RevertToSnapshot` implements `libtypes.Snapshottable`.
+// RevertToSnapshot implements `libtypes.Snapshottable`.
 func (l *logs) RevertToSnapshot(id int) {
 	l.PopToSize(id)
 }
 
-// `Finalize` clears the journal of the tx logs.
+// Finalize clears the journal of the tx logs.
 //
-// `Finalize` implements `libtypes.Controllable`.
+// Finalize implements `libtypes.Controllable`.
 func (l *logs) Finalize() {
 	*l = *NewLogs()
 }

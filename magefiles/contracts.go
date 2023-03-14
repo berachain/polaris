@@ -31,25 +31,40 @@ import (
 	"fmt"
 
 	"github.com/TwiN/go-color"
+	"github.com/magefile/mage/mg"
 )
 
 var (
-	// Commands.
 	forgeBuild = RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
 	forgeClean = RunCmdV("forge", "clean")
 	forgeTest  = RunCmdV("forge", "test")
 	forgeFmt   = RunCmdV("forge", "fmt")
 )
 
+// Compile-time assertion that we implement the interface correctly.
+var _ MageModule = (*Contracts)(nil)
+
+// Contracts is a namespace for smart contract related commands.
+type Contracts mg.Namespace
+
+// directory returns the directory name for the Cosmos SDK chain.
+func (Contracts) directory() string {
+	return "contracts"
+}
+
+// ===========================================================================
+// Build
+// ===========================================================================
+
 // Runs `forge build` in all smart contract directories.
-func ForgeBuild() error {
+func (Contracts) Build() error {
 	fmt.Println(color.Ize(color.Yellow, "Building Solidity contracts..."))
 	return forgeWrapper(forgeBuild)
 }
 
 // Check that the generated forge build source files are up to date.
-func ForgeBuildCheck() error {
-	if err := ForgeBuild(); err != nil {
+func (c Contracts) BuildCheck() error {
+	if err := c.Build(); err != nil {
 		return err
 	}
 	if err := gitDiff(); err != nil {
@@ -59,19 +74,39 @@ func ForgeBuildCheck() error {
 }
 
 // Run `forge clean` in all smart contract directories.
-func ForgeClean() error {
+func (Contracts) Clean() error {
 	return forgeWrapper(forgeClean)
 }
 
+// ===========================================================================
+// Test
+// ===========================================================================
+
 // Run `forge test` in all smart contract directories.
-func ForgeTest() error {
+func (c Contracts) Test() error {
+	if err := c.TestUnit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Run `forge test` in all smart contract directories.
+func (Contracts) TestUnit() error {
 	return forgeWrapper(forgeTest)
 }
 
 // Run `forge fmt` in all smart contract directories.
-func ForgeFmt() error {
+func (Contracts) Fmt() error {
 	return forgeWrapper(forgeFmt)
 }
+
+func (Contracts) TestIntegration() error {
+	return forgeWrapper(forgeTest)
+}
+
+// ===========================================================================
+// Helper
+// ===========================================================================
 
 // Wraps forge commands with the proper directory change.
 func forgeWrapper(forgeFunc func(args ...string) error) error {

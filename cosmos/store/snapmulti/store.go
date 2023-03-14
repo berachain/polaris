@@ -34,24 +34,24 @@ const (
 	initJournalCapacity = 16
 )
 
-// `mapMultiStore` represents a cached multistore, which is just a map of store keys to its
+// mapMultiStore represents a cached multistore, which is just a map of store keys to its
 // corresponding cache kv store currently being used.
 type mapMultiStore map[storetypes.StoreKey]storetypes.CacheKVStore
 
-// `store` is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
+// store is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
 // It journals revisions by cache-wrapping the cachekv stores on a call to `Snapshot`. In this
 // store's lifecycle, any operations done before the first call to snapshot will be enforced on the
 // root `mapMultiStore`.
 type store struct {
-	// `MultiStore` is the underlying multistore
+	// MultiStore is the underlying multistore
 	storetypes.MultiStore
-	// `root` is the mapMultiStore used before the first snapshot is called
+	// root is the mapMultiStore used before the first snapshot is called
 	root mapMultiStore
-	// `journal` holds the snapshots of cachemultistores
+	// journal holds the snapshots of cachemultistores
 	journal ds.Stack[mapMultiStore]
 }
 
-// `NewStoreFrom` creates and returns a new `store` from a given Multistore `ms`.
+// NewStoreFrom creates and returns a new `store` from a given Multistore `ms`.
 func NewStoreFrom(ms storetypes.MultiStore) *store { //nolint:revive // its okay.
 	return &store{
 		MultiStore: ms,
@@ -60,18 +60,18 @@ func NewStoreFrom(ms storetypes.MultiStore) *store { //nolint:revive // its okay
 	}
 }
 
-// `RegistryKey` implements `libtypes.Registrable`.
+// RegistryKey implements `libtypes.Registrable`.
 func (s *store) RegistryKey() string {
 	return storeRegistryKey
 }
 
-// `GetCommittedKVStore` returns the KV Store from the given Multistore. This function follows
+// GetCommittedKVStore returns the KV Store from the given Multistore. This function follows
 // the Multistore's normal `GetKVStore` code path.
 func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return s.MultiStore.GetKVStore(key)
 }
 
-// `GetKVStore` shadows the SDK's `storetypes.MultiStore` function. Routes native module calls to
+// GetKVStore shadows the SDK's `storetypes.MultiStore` function. Routes native module calls to
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
 func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
@@ -91,7 +91,7 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return cms[key]
 }
 
-// `Snapshot` implements `libtypes.Snapshottable`.
+// Snapshot implements `libtypes.Snapshottable`.
 func (s *store) Snapshot() int {
 	cms := s.journal.Peek()
 	if cms == nil {
@@ -109,16 +109,16 @@ func (s *store) Snapshot() int {
 	return s.journal.Push(revision) - 1
 }
 
-// `Revert` implements `libtypes.Snapshottable`.
+// Revert implements `libtypes.Snapshottable`.
 func (s *store) RevertToSnapshot(id int) {
-	// `id` is the new size of the journal we want to maintain.
+	// id is the new size of the journal we want to maintain.
 	s.journal.PopToSize(id)
 }
 
-// `Finalize` commits each of the individual cachekv stores to its corresponding parent cachekv stores
+// Finalize commits each of the individual cachekv stores to its corresponding parent cachekv stores
 // in the journal. Finally it commits the root cachekv stores.
 //
-// `Finalize` implements `libtypes.Controllable`.
+// Finalize implements `libtypes.Controllable`.
 func (s *store) Finalize() {
 	// Recursively pop the journal and write each cachekv store to its parent cachekv store.
 	for revision := s.journal.Peek(); s.journal.Size() > 0; revision = s.journal.Pop() {

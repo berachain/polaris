@@ -40,7 +40,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `Plugin` is the interface that must be implemented by the plugin.
+// Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.PrecompilePlugin
@@ -52,10 +52,10 @@ type Plugin interface {
 	GetLogFactory() events.PrecompileLogFactory
 }
 
-// `plugin` runs precompile containers in the Cosmos environment with the context gas configs.
+// plugin runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
-	// `precompiles` is all supported precompile contracts.
+	// precompiles is all supported precompile contracts.
 	precompiles []vm.RegistrablePrecompile
 	// kvGasConfig is the gas config for the KV store.
 	kvGasConfig storetypes.GasConfig
@@ -65,7 +65,7 @@ type plugin struct {
 	plf events.PrecompileLogFactory
 }
 
-// `NewPlugin` creates and returns a `plugin` with the default kv gas configs.
+// NewPlugin creates and returns a `plugin` with the default kv gas configs.
 func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 	return &plugin{
 		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
@@ -78,7 +78,7 @@ func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 	}
 }
 
-// `GetPrecompiles` implements `core.PrecompilePlugin`.
+// GetPrecompiles implements `core.PrecompilePlugin`.
 func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
 	return p.precompiles
 }
@@ -103,11 +103,11 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 	p.transientKVGasConfig = transientKVGasConfig
 }
 
-// `Run` runs the a precompile container and returns the remaining gas after execution by injecting
+// Run runs the a precompile container and returns the remaining gas after execution by injecting
 // a Cosmos SDK `GasMeter`. This function returns an error if the precompile execution returns an
 // error or insufficient gas is provided.
 //
-// `Run` implements `core.PrecompilePlugin`.
+// Run implements `core.PrecompilePlugin`.
 func (p *plugin) Run(
 	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,

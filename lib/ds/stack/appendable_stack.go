@@ -17,7 +17,7 @@ package stack
 
 import "pkg.berachain.dev/polaris/lib/ds"
 
-// `aStack` is a struct that holds a slice of Items as a last in, first out data structure.
+// aStack is a struct that holds a slice of Items as a last in, first out data structure.
 // It is implemented by the built-in `append` operation.
 type aStack[T any] struct {
 	head int // should always be size - 1
@@ -31,7 +31,7 @@ func NewA[T any]() ds.Stack[T] {
 	}
 }
 
-// `Peek` implements `Stack`.
+// Peek implements `Stack`.
 func (a *aStack[T]) Peek() T {
 	if a.head == -1 {
 		var t T
@@ -40,7 +40,7 @@ func (a *aStack[T]) Peek() T {
 	return a.buf[a.head]
 }
 
-// `PeekAt` implements `Stack`.
+// PeekAt implements `Stack`.
 func (a *aStack[T]) PeekAt(index int) T {
 	if index < 0 || index > a.head {
 		panic("index out of bounds")
@@ -48,26 +48,26 @@ func (a *aStack[T]) PeekAt(index int) T {
 	return a.buf[index]
 }
 
-// `Push` implements `Stack`.
+// Push implements `Stack`.
 func (a *aStack[T]) Push(i T) int {
 	a.buf = append(a.buf, i)
 	a.head++
 	return a.head + 1
 }
 
-// `Size` implements `Stack`.
+// Size implements `Stack`.
 func (a *aStack[T]) Size() int {
 	return a.head + 1
 }
 
-// `Capacity` is the same as size.
+// Capacity is the same as size.
 //
-// `Capacity` implements `Stack`.
+// Capacity implements `Stack`.
 func (a *aStack[T]) Capacity() int {
 	return a.Size()
 }
 
-// `Pop` implements `Stack`.
+// Pop implements `Stack`.
 func (a *aStack[T]) Pop() T {
 	if a.head == -1 {
 		var t T
@@ -77,7 +77,7 @@ func (a *aStack[T]) Pop() T {
 	return a.buf[a.head+1]
 }
 
-// `PopToSize` implements `Stack`.
+// PopToSize implements `Stack`.
 func (a *aStack[T]) PopToSize(newSize int) T {
 	if newSize < 0 || newSize > a.head+1 {
 		panic("newSize out of bounds")

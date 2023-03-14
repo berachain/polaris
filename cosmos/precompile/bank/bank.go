@@ -31,12 +31,12 @@ import (
 	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
-// `Contract` is the precompile contract for the bank module.
+// Contract is the precompile contract for the bank module.
 type Contract struct {
 	precompile.BaseContract
 }
 
-// `NewPrecompileContract` returns a new instance of the bank precompile contract.
+// NewPrecompileContract returns a new instance of the bank precompile contract.
 func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.BankModuleMetaData.ABI)); err != nil {

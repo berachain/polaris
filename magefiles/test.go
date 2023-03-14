@@ -42,17 +42,7 @@ var (
 	// Commands.
 	goTest     = RunCmdV("go", "test", "-mod=readonly")
 	ginkgoTest = RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
-
-	// Packages.
-	packagesUnit = GoListFilter(false, "integration", "e2e", "magefiles")
-	// packagesIntegration = GoListFilter(true, "integration").
-	packagesEvm = GoListFilter(true, "evm")
 )
-
-// Starts a local development net and builds it if necessary.
-func Start() error {
-	return sh.RunV("./cosmos/runtime/init.sh")
-}
 
 // Starts a local docs page.
 func Docs() error {
@@ -64,25 +54,9 @@ func Docs() error {
 	return sh.RunV("yarn", "dev")
 }
 
-// Runs all main tests.
-func Test() error {
-	tests := []func() error{testUnit /*, testIntegration, testUnitBenchmark*/}
-
-	if err := ForgeBuild(); err != nil {
-		return err
-	}
-
-	for _, t := range tests {
-		if err := t(); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // Runs the unit tests.
 func TestUnit() error {
-	if err := ForgeBuild(); err != nil {
+	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 	PrintMageName()
@@ -95,7 +69,7 @@ func testUnit() error {
 
 // Runs the unit tests with coverage.
 func TestUnitCover() error {
-	if err := ForgeBuild(); err != nil {
+	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 	args := []string{
@@ -106,7 +80,7 @@ func TestUnitCover() error {
 
 // Runs the unit tests with race detection.
 func TestUnitRace() error {
-	if err := ForgeBuild(); err != nil {
+	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 	args := []string{
@@ -118,7 +92,7 @@ func TestUnitRace() error {
 
 // Runs the unit tests with benchmarking.
 func TestUnitBenchmark() error {
-	if err := ForgeBuild(); err != nil {
+	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 	PrintMageName()
@@ -129,28 +103,24 @@ func testUnitBenchmark() error {
 	args := []string{
 		"-bench=.",
 	}
-	return goTest(
-		append(args, packagesUnit...)...,
-	)
+	return goTest(args...)
 }
 
 // Runs the unit tests with benchmarking.
 func TestUnitEvmBenchmark() error {
-	if err := ForgeBuild(); err != nil {
+	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 
 	args := []string{
 		"-bench=.",
 	}
-	return goTest(
-		append(args, packagesEvm...)...,
-	)
+	return goTest(args...)
 }
 
 // Runs the integration tests.
 func TestIntegration() error {
-	if err := ForgeBuild(); err != nil {
+	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 	PrintMageName()
@@ -167,7 +137,7 @@ func testIntegration() error {
 
 // Runs the integration tests with coverage.
 func TestIntegrationCover() error {
-	if err := ForgeBuild(); err != nil {
+	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 	PrintMageName()

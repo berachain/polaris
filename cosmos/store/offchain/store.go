@@ -41,14 +41,14 @@ var _ storetypes.KVStore = (*Store)(nil)
 // TODO: Upgrade this implementation to use a tree based structure to store the data off-chain.
 // TODO: Replace TransientStoreType with a new type?
 
-// `Store` represents a store used for storing persistent data off-chain while also
+// Store represents a store used for storing persistent data off-chain while also
 // utilizing the multistore. We must register this store with the multistore as a transient store,
 // in order to ensure that we don't include the contents of this store in the chain's AppHash.
 type Store struct {
 	*cachekv.Store
 }
 
-// `NewOffChainKVStore` creates a new store and connects it to an file
+// NewOffChainKVStore creates a new store and connects it to an file
 // system based database located at: <flags.FlagHome/data/<name>.
 func NewOffChainKVStore(name string, appOpts types.AppOptions) *Store {
 	dbDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data")
@@ -62,7 +62,7 @@ func NewOffChainKVStore(name string, appOpts types.AppOptions) *Store {
 	}
 }
 
-// `NewFromDB` creates a new store and connects it to the provided database.
+// NewFromDB creates a new store and connects it to the provided database.
 func NewFromDB(db dbm.DB) *Store {
 	return &Store{
 		cachekv.NewStore(&dbadapter.Store{DB: db}),

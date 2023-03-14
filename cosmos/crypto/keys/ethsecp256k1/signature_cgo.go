@@ -24,8 +24,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-// `Sign` signs the provided message using the ECDSA private key. It returns an error if the
-// `Sign` creates a recoverable ECDSA signature on the `secp256k1` curve over the
+// Sign signs the provided message using the ECDSA private key. It returns an error if the
+// Sign creates a recoverable ECDSA signature on the `secp256k1` curve over the
 // provided hash of the message. The produced signature is 65 bytes
 // where the last byte contains the recovery ID.
 func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
@@ -41,7 +41,7 @@ func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
 	return crypto.EthSign(digestBz, key)
 }
 
-// `VerifySignature` verifies that the ECDSA public key created a given signature over
+// VerifySignature verifies that the ECDSA public key created a given signature over
 // the provided message. The signature should be in [R || S] format.
 func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 	// This is a little hacky, but in order to work around the fact that the Cosmos-SDK typically

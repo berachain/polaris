@@ -33,6 +33,14 @@ import (
 	"github.com/TwiN/go-color"
 )
 
+type MageModule interface {
+	directory() string
+	Build() error
+	Test() error
+	TestUnit() error
+	TestIntegration() error
+}
+
 func PrintMageName() {
 	skip := 2
 	size := 10

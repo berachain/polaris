@@ -30,15 +30,15 @@ type BaseContract interface {
 	coreprecompile.StatefulImpl
 }
 
-// `baseContract` is a base implementation of `StatefulImpl`.
+// baseContract is a base implementation of `StatefulImpl`.
 type baseContract struct {
-	// `abi` stores the ABI of the precompile.
+	// abi stores the ABI of the precompile.
 	abi abi.ABI
-	// `address stores the` address of the precompile.
+	// address stores the address of the precompile.
 	address common.Address
 }
 
-// `NewBaseContract` creates a new `BasePrecompile`.
+// NewBaseContract creates a new `BasePrecompile`.
 func NewBaseContract(contractAbi abi.ABI, address common.Address) BaseContract {
 	return &baseContract{
 		abi:     contractAbi,
@@ -46,27 +46,27 @@ func NewBaseContract(contractAbi abi.ABI, address common.Address) BaseContract {
 	}
 }
 
-// `RegistryKey` implements StatefulImpl.
+// RegistryKey implements StatefulImpl.
 func (c *baseContract) RegistryKey() common.Address {
 	return c.address
 }
 
-// `ABIMethods` implements StatefulImpl.
+// ABIMethods implements StatefulImpl.
 func (c *baseContract) ABIMethods() map[string]abi.Method {
 	return c.abi.Methods
 }
 
-// `ABIEvents` implements StatefulImpl.
+// ABIEvents implements StatefulImpl.
 func (c *baseContract) ABIEvents() map[string]abi.Event {
 	return c.abi.Events
 }
 
-// `CustomValueDecoders` implements StatefulImpl.
+// CustomValueDecoders implements StatefulImpl.
 func (c *baseContract) CustomValueDecoders() coreprecompile.ValueDecoders {
 	return nil
 }
 
-// `PrecompileMethods` implements StatefulImpl.
+// PrecompileMethods implements StatefulImpl.
 func (c *baseContract) PrecompileMethods() coreprecompile.Methods {
 	return coreprecompile.Methods{}
 }

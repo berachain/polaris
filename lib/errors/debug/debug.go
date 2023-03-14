@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// `GetFnName` returns the name of a function `fn`.
+// GetFnName returns the name of a function `fn`.
 func GetFnName(fn any) string {
 	fullName := runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
 	brokenUpName := strings.Split(fullName, ".") // guarantees len(brokenUpName) >= 1

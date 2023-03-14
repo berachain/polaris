@@ -32,27 +32,27 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `EthTxPool` is a mempool for Ethereum transactions. It wraps a
+// EthTxPool is a mempool for Ethereum transactions. It wraps a
 // PriorityNonceMempool and caches transactions that are added to the mempool by
 // ethereum transaction hash.
 type EthTxPool struct {
 	sdkmempool.Mempool
 
-	// `ethTxCache` caches transactions that are added to the mempool
+	// ethTxCache caches transactions that are added to the mempool
 	// so that they can be retrieved later
 	ethTxCache map[common.Hash]*coretypes.Transaction
 
-	// // `nonceCache` caches the pending nonce by txhash
+	// // nonceCache caches the pending nonce by txhash
 	// nonceCache map[common.Address]*coretypes.Transaction
 
-	// // `minedBlockCache` caches the mined transaction by block hash
+	// // minedBlockCache caches the mined transaction by block hash
 	// minedBlockCache map[common.Hash][]*coretypes.Transaction
 
-	// `blockNumberCache`
+	// blockNumberCache
 
 }
 
-// `New` is called when the mempool is created.
+// New is called when the mempool is created.
 func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 	return &EthTxPool{
 		Mempool:    m,
@@ -60,7 +60,7 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 	}
 }
 
-// `Insert` is called when a transaction is added to the mempool.
+// Insert is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	// Call the base mempool's Insert method
 	if err := etp.Mempool.Insert(ctx, tx); err != nil {
@@ -78,12 +78,12 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	return nil
 }
 
-// `GetTx` is called when a transaction is retrieved from the mempool.
+// GetTx is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return etp.ethTxCache[hash]
 }
 
-// `GetPoolTransactions` is called when the mempool is retrieved.
+// GetPoolTransactions is called when the mempool is retrieved.
 func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
 	txs := make(coretypes.Transactions, 0, len(etp.ethTxCache))
 	for _, tx := range etp.ethTxCache {
@@ -92,7 +92,7 @@ func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
 	return txs
 }
 
-// `Remove` is called when a transaction is removed from the mempool.
+// Remove is called when a transaction is removed from the mempool.
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	// Call the base mempool's Remove method
 	if err := etp.Mempool.Remove(tx); err != nil {

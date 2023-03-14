@@ -20,21 +20,21 @@
 
 package api
 
-// `CometBackend` is the collection of methods required to satisfy the comet
+// CometBackend is the collection of methods required to satisfy the comet
 // RPC API.
 type CometBackend interface {
 }
 
-// `CometAPI` is the collection of comet RPC API methods.
+// CometAPI is the collection of comet RPC API methods.
 type CometAPI interface {
 }
 
-// `cometAPI` offers network related RPC methods.
+// cometAPI offers network related RPC methods.
 type cometAPI struct {
 	b CometAPI
 }
 
-// `NewCometAPI` creates a new net API instance.
+// NewCometAPI creates a new net API instance.
 func NewCometAPI(b CometBackend) CometAPI {
 	return &cometAPI{b}
 }

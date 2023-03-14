@@ -29,14 +29,14 @@ import (
 // Compile-time interface assertions.
 var _ sdk.Msg = (*UpdateParamsRequest)(nil)
 
-// `GetSigners` returns the expected signers for the request.
+// GetSigners returns the expected signers for the request.
 func (m UpdateParamsRequest) GetSigners() []sdk.AccAddress {
 	//#nosec G703: // purposely leave error unhandled.
 	addr, _ := sdk.AccAddressFromBech32(m.Authority)
 	return []sdk.AccAddress{addr}
 }
 
-// `ValidateBasic` validates the request.
+// ValidateBasic validates the request.
 func (m *UpdateParamsRequest) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return errorslib.Wrap(err, "invalid authority address")

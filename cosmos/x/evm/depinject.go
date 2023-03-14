@@ -40,7 +40,7 @@ func init() {
 	appmodule.Register(&modulev1alpha1.Module{}, appmodule.Provide(ProvideModule))
 }
 
-// `DepInjectInput` is the input for the dep inject framework.
+// DepInjectInput is the input for the dep inject framework.
 type DepInjectInput struct {
 	depinject.In
 
@@ -56,7 +56,7 @@ type DepInjectInput struct {
 	GetPrecompiles func() func() []vm.RegistrablePrecompile `optional:"true"`
 }
 
-// `DepInjectOutput` is the output for the dep inject framework.
+// DepInjectOutput is the output for the dep inject framework.
 type DepInjectOutput struct {
 	depinject.Out
 
@@ -64,7 +64,7 @@ type DepInjectOutput struct {
 	Module appmodule.AppModule
 }
 
-// `ProvideModule` is a function that provides the module to the application.
+// ProvideModule is a function that provides the module to the application.
 func ProvideModule(in DepInjectInput) DepInjectOutput {
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)

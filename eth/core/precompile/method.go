@@ -42,8 +42,8 @@ import (
  *          this field will be automatically populated.
  **/
 
-// `Executable` is a type of function that stateful precompiled contract will implement. Each
-// `Executable` should directly correspond to an ABI method.
+// Executable is a type of function that stateful precompiled contract will implement. Each
+// Executable should directly correspond to an ABI method.
 type Executable func(
 	ctx context.Context,
 	caller common.Address,
@@ -52,31 +52,31 @@ type Executable func(
 	args ...any,
 ) (ret []any, err error)
 
-// `Method` is a struct that contains the required information for the EVM to execute a stateful
+// Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {
-	// `AbiMethod` is the ABI `Methods` struct corresponding to this precompile's executable. NOTE:
+	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable. NOTE:
 	// this field should be left empty (as nil) as this will automatically be populated by the
 	// corresponding interface's ABI.
 	AbiMethod *abi.Method
 
-	// `AbiSig` returns the method's string signature according to the ABI spec.
+	// AbiSig returns the method's string signature according to the ABI spec.
 	// e.g.		function foo(uint32 a, int b) = "foo(uint32,int256)"
 	// Note that there are no spaces and variable names in the signature.
 	// Also note that "int" is substitute for its canonical representation "int256".
 	AbiSig string
 
-	// `Execute` is the precompile's executable which will execute the logic of the implemented
+	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
 	Execute Executable
 
-	// `RequiredGas` is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
+	// RequiredGas is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
 	// This field is optional; if left empty, the precompile's executable should consume gas using
 	// the native gas meter.
 	RequiredGas uint64
 }
 
-// `ValidateBasic` returns an error if this a precompile `Method` has invalid fields.
+// ValidateBasic returns an error if this a precompile `Method` has invalid fields.
 func (m *Method) ValidateBasic() error {
 	// ensure all required fields are nonempty
 	if len(m.AbiSig) == 0 || m.AbiMethod != nil || m.Execute == nil {
@@ -86,6 +86,6 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
-// `Methods` is a type that represents a list of precompile methods. This is what a stateful
+// Methods is a type that represents a list of precompile methods. This is what a stateful
 // precompiled contract implementation should expose.
 type Methods []*Method

@@ -32,28 +32,28 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// `Serializer` defines that interface that allows serializes an Ethereum transactions
+// Serializer defines that interface that allows serializes an Ethereum transactions
 // to Cosmos native transaction types / formats.
 type Serializer interface {
-	// `Serialize` serializes the given transaction into a byte slice.
+	// Serialize serializes the given transaction into a byte slice.
 	Serialize(tx *coretypes.Transaction) ([]byte, error)
 	// 'SerializeToSdkTx converts an ethereum transaction to a Cosmos transaction.
 	SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error)
 }
 
-// `serializer` represents the transaction pool plugin.
+// serializer represents the transaction pool plugin.
 type serializer struct {
 	clientCtx client.Context
 }
 
-// `NewSerializer` returns a new `Serializer`.
+// NewSerializer returns a new `Serializer`.
 func NewSerializer(clientCtx client.Context) Serializer {
 	return &serializer{
 		clientCtx: clientCtx,
 	}
 }
 
-// `Serialize` converts an Ethereum transaction to txBytes which allows for it to
+// Serialize converts an Ethereum transaction to txBytes which allows for it to
 // broadcast it to CometBFT.
 func (s *serializer) Serialize(signedTx *coretypes.Transaction) ([]byte, error) {
 	// First, we convert the Ethereum transaction to a Cosmos transaction.
@@ -73,7 +73,7 @@ func (s *serializer) Serialize(signedTx *coretypes.Transaction) ([]byte, error) 
 	return txBytes, nil
 }
 
-// `BuildCosmosTxFromEthTx` converts an ethereum transaction to a Cosmos
+// BuildCosmosTxFromEthTx converts an ethereum transaction to a Cosmos
 // transaction.
 func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
 	// TODO: do we really need to use extensions for anything? Since we

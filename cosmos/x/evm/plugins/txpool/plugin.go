@@ -34,21 +34,21 @@ import (
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
-// `Plugin` represents the transaction pool plugin.
+// Plugin represents the transaction pool plugin.
 var _ Plugin = (*plugin)(nil)
 
-// `Plugin` represents the transaction pool plugin.
+// Plugin represents the transaction pool plugin.
 type Plugin interface {
 	core.TxPoolPlugin
 }
 
-// `plugin` represents the transaction pool plugin.
+// plugin represents the transaction pool plugin.
 type plugin struct {
 	mempool     *mempool.EthTxPool
 	rpcProvider rpc.Provider
 }
 
-// `NewPlugin` returns a new transaction pool plugin.
+// NewPlugin returns a new transaction pool plugin.
 func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
 	return &plugin{
 		mempool:     ethTxMempool,
@@ -56,7 +56,7 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 	}
 }
 
-// `SendTx` sends a transaction to the transaction pool. It takes in a signed
+// SendTx sends a transaction to the transaction pool. It takes in a signed
 // ethereum transaction from the rpc backend and wraps it in a Cosmos
 // transaction. The Cosmos transaction is then broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
@@ -80,7 +80,7 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	return nil
 }
 
-// `SendPrivTx` sends a private transaction to the transaction pool. It takes in
+// SendPrivTx sends a private transaction to the transaction pool. It takes in
 // a signed ethereum transaction from the rpc backend and wraps it in a Cosmos
 // transaction. The Cosmos transaction is injected into the local mempool, but is
 // NOT gossiped to peers.
@@ -96,12 +96,12 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	return p.mempool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
 }
 
-// `GetAllTransactions` returns all transactions in the transaction pool.
+// GetAllTransactions returns all transactions in the transaction pool.
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
 	return p.mempool.GetPoolTransactions(), nil
 }
 
-// `GetTransactions` returns the transaction by hash in the transaction pool.
+// GetTransactions returns the transaction by hash in the transaction pool.
 func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return p.mempool.GetTransaction(hash)
 }

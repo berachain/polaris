@@ -38,7 +38,7 @@ var _ sdk.Msg = (*EthTransactionRequest)(nil)
 
 // var _ authsigning.Tx = (*EthTransactionRequest)(nil)
 
-// `NewFromTransaction` sets the transaction data from an `coretypes.Transaction`.
+// NewFromTransaction sets the transaction data from an `coretypes.Transaction`.
 func NewFromTransaction(tx *coretypes.Transaction) *EthTransactionRequest {
 	etr := new(EthTransactionRequest)
 	bz, err := tx.MarshalBinary()
@@ -50,12 +50,12 @@ func NewFromTransaction(tx *coretypes.Transaction) *EthTransactionRequest {
 	return etr
 }
 
-// `GetMsgs` returns the message(s) contained in the transaction.
+// GetMsgs returns the message(s) contained in the transaction.
 func (etr *EthTransactionRequest) GetMsgs() []sdk.Msg {
 	return []sdk.Msg{etr}
 }
 
-// `GetSigners` returns the address(es) that must sign over the transaction.
+// GetSigners returns the address(es) that must sign over the transaction.
 func (etr *EthTransactionRequest) GetSigners() []sdk.AccAddress {
 	sender, err := etr.GetSender()
 	if err != nil {
@@ -67,7 +67,7 @@ func (etr *EthTransactionRequest) GetSigners() []sdk.AccAddress {
 	return signers
 }
 
-// `AsTransaction` extracts the transaction as an `coretypes.Transaction`.
+// AsTransaction extracts the transaction as an `coretypes.Transaction`.
 func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
 	t := new(coretypes.Transaction)
 	err := t.UnmarshalBinary(etr.Data)
@@ -83,28 +83,28 @@ func (etr *EthTransactionRequest) GetSignBytes() ([]byte, error) {
 		Hash(t).Bytes(), nil
 }
 
-// `GetSender` extracts the sender address from the signature values using the latest signer for the given chainID.
+// GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *EthTransactionRequest) GetSender() (common.Address, error) {
 	t := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(t.ChainId())
 	return signer.Sender(t)
 }
 
-// `GetSender` extracts the sender address from the signature values using the latest signer for the given chainID.
+// GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *EthTransactionRequest) GetPubKey() ([]byte, error) {
 	t := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(t.ChainId())
 	return signer.PubKey(t)
 }
 
-// `GetSender` extracts the sender address from the signature values using the latest signer for the given chainID.
+// GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
 	t := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(t.ChainId())
 	return signer.Signature(t)
 }
 
-// `GetGas` returns the gas limit of the transaction.
+// GetGas returns the gas limit of the transaction.
 func (etr *EthTransactionRequest) GetGas() uint64 {
 	tx := etr.AsTransaction()
 	if tx == nil {
@@ -113,7 +113,7 @@ func (etr *EthTransactionRequest) GetGas() uint64 {
 	return tx.Gas()
 }
 
-// `GetGasPrice` returns the gas price of the transaction.
+// GetGasPrice returns the gas price of the transaction.
 func (etr *EthTransactionRequest) ValidateBasic() error {
 	if len(etr.Data) == 0 {
 		return errors.New("transaction data cannot be empty")

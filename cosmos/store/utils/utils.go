@@ -20,7 +20,7 @@
 
 package utils
 
-// // `KVStoreReader` is a subset of the `KVStore` interface that only exposes read
+// // KVStoreReader is a subset of the `KVStore` interface that only exposes read
 // // methods.
 // type KVStoreReader interface {
 // 	// Get returns nil if key doesn't exist. Panics on nil key.
@@ -30,7 +30,7 @@ package utils
 // 	Has(key []byte) bool
 // }
 
-// // `KVStoreReaderAtBlockHeight` returns a KVStoreReader at a given height. If the height is greater
+// // KVStoreReaderAtBlockHeight returns a KVStoreReader at a given height. If the height is greater
 // // than or equal to the current height, the reader will be at the latest height. We return the store
 // // with the modified height as a `KVStoreReader` since it does not make any sense to return a `KVStore`
 // // since we cannot update historical versions of the tree.
