@@ -192,10 +192,10 @@ pkg/**/.*.yaml
 
 # forge
 */**/solidity-files-cache.json
-eth/testutil/contracts/solidity/out/**/*.bin
-eth/testutil/contracts/solidity/out/**/*.json
-eth/testutil/contracts/solidity/lib/
-precompile/contracts/solidity/out/
+contracts/out/**/*.bin
+contracts/out/**/*.json
+contracts/out/lib/
+contracts/out/
 */**/broadcast
 */**/*.bin
 */**/*.json

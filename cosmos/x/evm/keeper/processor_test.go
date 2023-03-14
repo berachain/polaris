@@ -34,7 +34,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	pcgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	generated "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -187,7 +187,7 @@ var _ = Describe("Processor", func() {
 		})
 
 		It("should successfully deploy a valid contract and call it", func() {
-			legacyTxData.Data = common.FromHex(generated.SolmateERC20Bin)
+			legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
@@ -203,7 +203,7 @@ var _ = Describe("Processor", func() {
 			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
 			legacyTxData.To = &deployAddress
 			var solmateABI abi.ABI
-			err = solmateABI.UnmarshalJSON([]byte(generated.SolmateERC20ABI))
+			err = solmateABI.UnmarshalJSON([]byte(bindings.SolmateERC20ABI))
 			Expect(err).ToNot(HaveOccurred())
 			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
 			Expect(err).ToNot(HaveOccurred())

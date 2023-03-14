@@ -158,7 +158,7 @@ func Generate() error {
 	if err := goInstall(moq); err != nil {
 		return err
 	}
-	if err := ExecuteForAllModules(moduleDirs, goGenerate, true); err != nil {
+	if err := ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false); err != nil {
 		return err
 	}
 	return nil
@@ -168,7 +168,7 @@ func Generate() error {
 // changed.
 func GenerateCheck() error {
 	PrintMageName()
-	if err := ExecuteForAllModules(moduleDirs, goGenerate, true); err != nil {
+	if err := ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false); err != nil {
 		return err
 	}
 	if err := gitDiff(); err != nil {

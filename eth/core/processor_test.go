@@ -24,7 +24,7 @@ import (
 	"context"
 	"math/big"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
@@ -176,13 +176,13 @@ var _ = Describe("StateProcessor", func() {
 				if addr != dummyContract {
 					return nil
 				}
-				return common.Hex2Bytes(generated.NonRevertableTxMetaData.Bin)
+				return common.Hex2Bytes(bindings.NonRevertableTxMetaData.Bin)
 			}
 			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
 				if addr != dummyContract {
 					return common.Hash{}
 				}
-				return crypto.Keccak256Hash(common.Hex2Bytes(generated.NonRevertableTxMetaData.Bin))
+				return crypto.Keccak256Hash(common.Hex2Bytes(bindings.NonRevertableTxMetaData.Bin))
 			}
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
