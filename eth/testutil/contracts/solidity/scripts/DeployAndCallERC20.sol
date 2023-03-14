@@ -1,6 +1,6 @@
 pragma solidity ^0.8.17;
 
-import "@forge-std/Script.sol";
+import "../lib/forge-std/src/Script.sol";
 import "../src/SolmateERC20.sol";
 
 contract DeployAndCallERC20 is Script {
