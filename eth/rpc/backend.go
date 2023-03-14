@@ -202,24 +202,25 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 
 // `CurrentHeader` returns the current header from the local chains.
 func (b *backend) CurrentHeader() *types.Header {
-	header, err := b.chain.CurrentBlock()
+	block, err := b.chain.CurrentBlock()
 	if err != nil {
-		b.logger.Error("eth.rpc.backend.CurrentHeader", "header", header, "err", err)
+		b.logger.Error("eth.rpc.backend.CurrentHeader", "block", block, "err", err)
 		return nil
 	}
+	header := block.Header()
 	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", header)
 	return header
 }
 
 // `CurrentBlock` returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Header {
-	header, err := b.chain.CurrentBlock()
+	block, err := b.chain.CurrentBlock()
 	if err != nil {
-		b.logger.Error("eth.rpc.backend.CurrentBlock", "header", header, "err", err)
+		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentBlock", "header", header)
-	return header
+	b.logger.Info("called eth.rpc.backend.CurrentBlock", "block", block)
+	return block.Header()
 }
 
 // `BlockByNumber` returns the block identified by `number`.
