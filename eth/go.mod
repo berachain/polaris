@@ -9,6 +9,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.4
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230314162058-3208a7e5461e
 	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
 
