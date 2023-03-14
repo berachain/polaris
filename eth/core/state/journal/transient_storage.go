@@ -46,7 +46,7 @@ func (t transientState) Get(addr common.Address, key common.Hash) common.Hash {
 	return val[key]
 }
 
-// Copy does a deep copy of the transientState
+// Copy does a deep copy of the transientState.
 func (t transientState) Copy() transientState {
 	storage := make(transientState)
 	for storKey, storVal := range t {
