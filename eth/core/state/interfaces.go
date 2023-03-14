@@ -126,9 +126,10 @@ type (
 
 	TransientJournal interface {
 		// `TransientJournal` implements `libtypes.Controllable`.
-		AddTransient(account common.Address, key common.Hash, previous common.Hash)
+		libtypes.Controllable[string]
 		// `AddTransient` adds a given transient storage change to the transient journal.
-		GetPrevTransient(account common.Address, key common.Hash) *common.Hash
+		AddTransient(account common.Address, key common.Hash, previous common.Hash)
 		// `GetPrevTransient` returns the previous transient state given an address and key.
+		GetPrevTransient(account common.Address, key common.Hash) *common.Hash
 	}
 )
