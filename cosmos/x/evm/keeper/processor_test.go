@@ -33,7 +33,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	pcgenerated "pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
+	pcgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"

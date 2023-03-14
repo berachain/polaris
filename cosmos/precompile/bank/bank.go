@@ -24,9 +24,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )

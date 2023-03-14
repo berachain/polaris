@@ -10,6 +10,7 @@ replace (
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230306205832-364e922bfe8d
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+	pkg.berachain.dev/polaris/contracts => ../contracts
 )
 
 require (
@@ -48,6 +49,7 @@ require (
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.29.0
+	pkg.berachain.dev/polaris/contracts v0.0.0-00010101000000-000000000000
 	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
 	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
