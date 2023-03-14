@@ -1,5 +1,3 @@
-package bytecode
-
 // SPDX-License-Identifier: BUSL-1.1
 //
 // Copyright (C) 2023, Berachain Foundation. All rights reserved.
@@ -19,6 +17,8 @@ package bytecode
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
+
+package bytecode
 
 import (
 	"path/filepath"

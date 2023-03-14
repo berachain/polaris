@@ -47,7 +47,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
 <pre>
 🔭 Polaris Core 🔭
-├── <a href="./bindings">bindings</a>: Documentation for Polaris.
+├── <a href="./contracts">contracts</a>: Contracts and bindings for Polaris (and hosts).
 ├── <a href="./docs">docs</a>: Documentation for Polaris.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
