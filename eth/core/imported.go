@@ -54,6 +54,8 @@ var (
 	NewEVMBlockContext = core.NewEVMBlockContext
 	// `GetHashFn` returns a GetHashFunc.
 	GetHashFn = core.GetHashFn
+	// `TransactionToMessage` converts a transaction to a message.
+	TransactionToMessage = core.TransactionToMessage
 )
 
 var (

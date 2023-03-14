@@ -69,7 +69,7 @@ func (bc *blockchain) ChainConfig() *params.ChainConfig {
 // BlockReader
 // =========================================================================
 
-// `CurrentBlock` returns the current block of the blockchain.
+// `CurrentHeader` returns the current header of the blockchain.
 func (bc *blockchain) CurrentBlock() (*types.Block, error) {
 	cb, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
 	if cb == nil || !ok {

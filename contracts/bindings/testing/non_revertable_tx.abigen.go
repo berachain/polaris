@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package generated
+package testing
 
 import (
 	"errors"
@@ -32,7 +32,7 @@ var (
 // NonRevertableTxMetaData contains all meta data concerning the NonRevertableTx contract.
 var NonRevertableTxMetaData = &bind.MetaData{
 	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]",
-	Bin: "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212205206a54f3e5dc5af32b3095ceba73837e3bd884281d28a81fc73db328196cbf164736f6c63430008110033",
+	Bin: "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212203d63aff7b178386ca12b3dcfa63afae8d6f238b5bf4c03531badcd154921b0eb64736f6c63430008110033",
 }
 
 // NonRevertableTxABI is the input ABI used to generate the binding from.

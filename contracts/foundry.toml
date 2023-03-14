@@ -5,6 +5,12 @@ evm_version = 'london'
 solc_version = '0.8.17'
 cache = true
 force = false
+remappings = [
+    '@solmate/=lib/solmate/src/',
+    '@forge-std/=lib/forge-std/src/',
+    '@interfaces/=interfaces/',
+    '@src/=src/',
+]
 
 [profile.ci]
 fuzz_runs = 8192
