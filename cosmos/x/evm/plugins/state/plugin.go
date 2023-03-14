@@ -50,15 +50,15 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
-// `Plugin` is the interface that must be implemented by the plugin.
+// Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.StatePlugin
-	// `SetQueryContextFn` sets the query context func for the plugin.
+	// SetQueryContextFn sets the query context func for the plugin.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
-	// `IterateState` iterates over the state of all accounts and calls the given callback function.
+	// IterateState iterates over the state of all accounts and calls the given callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
-	// `IterateCode` iterates over the code of all accounts and calls the given callback function.
+	// IterateCode iterates over the code of all accounts and calls the given callback function.
 	IterateCode(fn func(addr common.Address, code []byte) bool)
 }
 
@@ -112,7 +112,7 @@ type plugin struct {
 	cp ConfigurationPlugin
 }
 
-// `NewPlugin` returns a plugin with the given context and keepers.
+// NewPlugin returns a plugin with the given context and keepers.
 func NewPlugin(
 	ak AccountKeeper,
 	bk BankKeeper,
@@ -129,7 +129,7 @@ func NewPlugin(
 	}
 }
 
-// `Reset` implements `core.StatePlugin`.
+// Reset implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
@@ -168,12 +168,12 @@ func (p *plugin) Reset(ctx context.Context) {
 	p.Controller = ctrl
 }
 
-// `GetContext` implements `core.StatePlugin`.
+// GetContext implements `core.StatePlugin`.
 func (p *plugin) GetContext() context.Context {
 	return p.ctx
 }
 
-// `RegistryKey` implements `libtypes.Registrable`.
+// RegistryKey implements `libtypes.Registrable`.
 func (p *plugin) RegistryKey() string {
 	return pluginRegistryKey
 }
@@ -194,7 +194,7 @@ func (p *plugin) CreateAccount(addr common.Address) {
 	p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
-// `Exist` implements the `StatePlugin` interface by reporting whether the given account address
+// Exist implements the `StatePlugin` interface by reporting whether the given account address
 // exists in the state. Notably this also returns true for suicided accounts, which is accounted
 // for since, `RemoveAccount()` is not called until Commit.
 func (p *plugin) Exist(addr common.Address) bool {
@@ -336,7 +336,7 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
-// `IterateCode` iterates over all the addresses with code and calls the given method.
+// IterateCode iterates over all the addresses with code and calls the given method.
 func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetKVStore(p.storeKey),
@@ -362,7 +362,7 @@ func (p *plugin) GetCodeSize(addr common.Address) int {
 // State
 // =============================================================================
 
-// `GetCommittedState` implements the `StatePlugin` interface by returning the
+// GetCommittedState implements the `StatePlugin` interface by returning the
 // committed state of slot in the given address.
 func (p *plugin) GetCommittedState(
 	addr common.Address,
@@ -371,13 +371,13 @@ func (p *plugin) GetCommittedState(
 	return getStateFromStore(p.cms.GetCommittedKVStore(p.storeKey), addr, slot)
 }
 
-// `GetState` implements the `StatePlugin` interface by returning the current state
+// GetState implements the `StatePlugin` interface by returning the current state
 // of slot in the given address.
 func (p *plugin) GetState(addr common.Address, slot common.Hash) common.Hash {
 	return getStateFromStore(p.cms.GetKVStore(p.storeKey), addr, slot)
 }
 
-// `SetState` sets the state of an address.
+// SetState sets the state of an address.
 func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 	// For performance reasons, we don't check to ensure the account exists before we execute.
 	// This is reasonably safe since under normal operation, SetState is only ever called by the
@@ -397,14 +397,14 @@ func (p *plugin) SetState(addr common.Address, key, value common.Hash) {
 	p.cms.GetKVStore(p.storeKey).Set(SlotKeyFor(addr, key), value[:])
 }
 
-// `SetStorage` sets the storage of an address.
+// SetStorage sets the storage of an address.
 func (p *plugin) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
 	for key, value := range storage {
 		p.SetState(addr, key, value)
 	}
 }
 
-// `IterateState` iterates over all the contract state, and calls the given function.
+// IterateState iterates over all the contract state, and calls the given function.
 func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Hash) bool) {
 	it := storetypes.KVStorePrefixIterator(
 		p.cms.GetCommittedKVStore(p.storeKey),
@@ -426,11 +426,11 @@ func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Has
 // ForEachStorage
 // =============================================================================
 
-// `ForEachStorage` implements the `StatePlugin` interface by iterating through the contract state
+// ForEachStorage implements the `StatePlugin` interface by iterating through the contract state
 // contract storage, the iteration order is not defined.
 //
 // Note: We do not support iterating through any storage that is modified before calling
-// `ForEachStorage`; only committed state is iterated through.
+// ForEachStorage; only committed state is iterated through.
 func (p *plugin) ForEachStorage(
 	addr common.Address,
 	cb func(key, value common.Hash) bool,
@@ -481,12 +481,12 @@ func (p *plugin) DeleteAccounts(accounts []common.Address) {
 // Historical State
 // =============================================================================
 
-// `SetQueryContextFn` sets the query context func for the plugin.
+// SetQueryContextFn sets the query context func for the plugin.
 func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
 	p.getQueryContext = gqc
 }
 
-// `GetStateByNumber` implements `core.StatePlugin`.
+// GetStateByNumber implements `core.StatePlugin`.
 func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("no query context function set in host chain")
@@ -517,7 +517,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	return sp, nil
 }
 
-// `getStateFromStore` returns the current state of the slot in the given address.
+// getStateFromStore returns the current state of the slot in the given address.
 func getStateFromStore(
 	store storetypes.KVStore,
 	addr common.Address, slot common.Hash,

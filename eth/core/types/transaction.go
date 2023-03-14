@@ -26,7 +26,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-// `TxLookupEntry` is a positional metadata to help looking up a transaction by hash.
+// TxLookupEntry is a positional metadata to help looking up a transaction by hash.
 //
 //go:generate rlpgen -type TxLookupEntry -out transaction.rlpgen.go -decoder
 type TxLookupEntry struct {
@@ -36,12 +36,12 @@ type TxLookupEntry struct {
 	BlockHash common.Hash
 }
 
-// `UnmarshalBinary` decodes a tx lookup entry from the Ethereum RLP format.
+// UnmarshalBinary decodes a tx lookup entry from the Ethereum RLP format.
 func (tle *TxLookupEntry) UnmarshalBinary(data []byte) error {
 	return rlp.DecodeBytes(data, tle)
 }
 
-// `MarshalBinary` encodes the tx lookup enßtry into the Ethereum RLP format.
+// MarshalBinary encodes the tx lookup enßtry into the Ethereum RLP format.
 func (tle *TxLookupEntry) MarshalBinary() ([]byte, error) {
 	bz, err := rlp.EncodeToBytes(tle)
 	if err != nil {

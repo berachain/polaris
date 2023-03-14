@@ -25,12 +25,12 @@ import (
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
 
-// `refund` is a `Store` that tracks the refund counter.
+// refund is a `Store` that tracks the refund counter.
 type refund struct {
 	ds.Stack[uint64] // journal of historical refunds.
 }
 
-// `NewRefund` creates and returns a `refund` journal.
+// NewRefund creates and returns a `refund` journal.
 //
 //nolint:revive // only used as a `state.RefundJournal`.
 func NewRefund() *refund {
@@ -39,43 +39,43 @@ func NewRefund() *refund {
 	}
 }
 
-// `RegistryKey` implements `libtypes.Registrable`.
+// RegistryKey implements `libtypes.Registrable`.
 func (r *refund) RegistryKey() string {
 	return refundRegistryKey
 }
 
-// `GetRefund` returns the current value of the refund counter.
+// GetRefund returns the current value of the refund counter.
 func (r *refund) GetRefund() uint64 {
 	// When the refund counter is empty, the stack will return 0 by design.
 	return r.Peek()
 }
 
-// `AddRefund` sets the refund counter to the given `gas`.
+// AddRefund sets the refund counter to the given `gas`.
 func (r *refund) AddRefund(gas uint64) {
 	r.Push(r.Peek() + gas)
 }
 
-// `SubRefund` subtracts the given `gas` from the refund counter.
+// SubRefund subtracts the given `gas` from the refund counter.
 func (r *refund) SubRefund(gas uint64) {
 	r.Push(r.Peek() - gas)
 }
 
-// `Snapshot` returns the current size of the refund counter, which is used to
+// Snapshot returns the current size of the refund counter, which is used to
 // revert the refund counter to a previous value.
 //
-// `Snapshot` implements `libtypes.Snapshottable`.
+// Snapshot implements `libtypes.Snapshottable`.
 func (r *refund) Snapshot() int {
 	return r.Size()
 }
 
-// `RevertToSnapshot` reverts the refund counter to the value at the given `snap`.
+// RevertToSnapshot reverts the refund counter to the value at the given `snap`.
 //
-// `RevertToSnapshot` implements `libtypes.Snapshottable`.
+// RevertToSnapshot implements `libtypes.Snapshottable`.
 func (r *refund) RevertToSnapshot(id int) {
 	r.PopToSize(id)
 }
 
-// `Finalize` implements `libtypes.Controllable`.
+// Finalize implements `libtypes.Controllable`.
 func (r *refund) Finalize() {
 	r.Stack = stack.New[uint64](initCapacity)
 }

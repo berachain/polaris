@@ -32,12 +32,12 @@ import (
 )
 
 var (
-	// `emptyCodeHash` is the Keccak256 Hash of empty code
+	// emptyCodeHash is the Keccak256 Hash of empty code
 	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 	emptyCodeHash = crypto.Keccak256Hash(nil)
 )
 
-// `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
+// stateDB is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
 	// Plugin is injected by the chain running the Polaris EVM.
 	Plugin
@@ -47,7 +47,7 @@ type stateDB struct {
 	RefundJournal
 	AccessListJournal
 
-	// `ctrl` is used to manage snapshots and reverts across plugins and journals.
+	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
@@ -58,7 +58,7 @@ type stateDB struct {
 	suicides []common.Address
 }
 
-// `NewStateDB` returns a `vm.PolarisStateDB` with the given `StatePlugin`.
+// NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
@@ -106,7 +106,7 @@ func (sdb *stateDB) Suicide(addr common.Address) bool {
 	return true
 }
 
-// `HasSuicided` implements the `PolarisStateDB` interface by returning if the contract was suicided
+// HasSuicided implements the `PolarisStateDB` interface by returning if the contract was suicided
 // in current transaction.
 func (sdb *stateDB) HasSuicided(addr common.Address) bool {
 	for _, suicide := range sdb.suicides {
@@ -117,7 +117,7 @@ func (sdb *stateDB) HasSuicided(addr common.Address) bool {
 	return false
 }
 
-// `Empty` implements the `PolarisStateDB` interface by returning whether the state object
+// Empty implements the `PolarisStateDB` interface by returning whether the state object
 // is either non-existent or empty according to the EIP161 epecification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
@@ -132,12 +132,12 @@ func (sdb *stateDB) Empty(addr common.Address) bool {
 // Snapshot
 // =============================================================================
 
-// `Snapshot` implements `stateDB`.
+// Snapshot implements `stateDB`.
 func (sdb *stateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
 }
 
-// `RevertToSnapshot` implements `stateDB`.
+// RevertToSnapshot implements `stateDB`.
 func (sdb *stateDB) RevertToSnapshot(id int) {
 	sdb.ctrl.RevertToSnapshot(id)
 }
@@ -146,7 +146,7 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Finalize
 // =============================================================================
 
-// `Finalize` deletes the suicided accounts, clears the suicides list, and finalizes all plugins.
+// Finalize deletes the suicided accounts, clears the suicides list, and finalizes all plugins.
 func (sdb *stateDB) Finalize() {
 	sdb.DeleteAccounts(sdb.suicides)
 	sdb.suicides = make([]common.Address, 1)
@@ -173,7 +173,7 @@ func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Has
 
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
 //
-// `Prepare` implements `stateDB`.
+// Prepare implements `stateDB`.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {

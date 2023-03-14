@@ -23,17 +23,17 @@ package log
 import "errors"
 
 var (
-	// `ErrEthEventNotRegistered` is returned when an incoming event is not mapped to any
+	// ErrEthEventNotRegistered is returned when an incoming event is not mapped to any
 	// registered Ethereum event.
 	ErrEthEventNotRegistered = errors.New("no Ethereum event was registered for this Cosmos event")
-	// `ErrNoAttributeKeyFound` is returned when no Cosmos event attribute is provided for a
+	// ErrNoAttributeKeyFound is returned when no Cosmos event attribute is provided for a
 	// certain Ethereum event's argument.
 	ErrNoAttributeKeyFound = errors.New("this Ethereum event argument has no matching Cosmos attribute key")
-	// `ErrNotEnoughAttributes` is returned when a Cosmos event does not have enough attributes for
+	// ErrNotEnoughAttributes is returned when a Cosmos event does not have enough attributes for
 	// its corresponding Ethereum event; there are less Cosmos event attributes than Ethereum event
 	// arguments.
 	ErrNotEnoughAttributes = errors.New("not enough event attributes provided")
-	// `ErrNoValueDecoderFunc` is returned when a Cosmos event's attribute key is not mapped to any
+	// ErrNoValueDecoderFunc is returned when a Cosmos event's attribute key is not mapped to any
 	// attribute value decoder function.
 	ErrNoValueDecoderFunc = errors.New("no value decoder function is found for event attribute key")
 )

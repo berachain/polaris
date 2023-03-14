@@ -27,17 +27,17 @@ import (
 )
 
 type (
-	// `PrecompileLogFactory` is used to build an Ethereum log from a Cosmos event.
+	// PrecompileLogFactory is used to build an Ethereum log from a Cosmos event.
 	PrecompileLogFactory interface {
-		// `Build` builds an Ethereum log from a Cosmos event.
+		// Build builds an Ethereum log from a Cosmos event.
 		Build(*sdk.Event) (*coretypes.Log, error)
 	}
 
-	// `LogsDB` defines the required function to add a log to the StateDB. This ensures a
+	// LogsDB defines the required function to add a log to the StateDB. This ensures a
 	// precompile runner can only add logs to the StateDB and not modify any other state on the
 	// StateDB.
 	LogsDB interface {
-		// `AddLog` adds a log to the database.
+		// AddLog adds a log to the database.
 		AddLog(*coretypes.Log)
 	}
 )

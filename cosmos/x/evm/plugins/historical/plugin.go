@@ -31,25 +31,25 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
-// `Plugin` is the interface that must be implemented by the plugin.
+// Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.HistoricalPlugin
 }
 
-// `plugin` keeps track of polaris blocks via headers.
+// plugin keeps track of polaris blocks via headers.
 type plugin struct {
-	// `ctx` is the current block context, used for accessing current block info and kv stores.
+	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
-	// `hp` represents the header plugin, used for accessing historical block headers.
+	// hp represents the header plugin, used for accessing historical block headers.
 	hp core.BlockPlugin
-	// `storekey` is the store key for the header store.
+	// storekey is the store key for the header store.
 	storekey storetypes.StoreKey
 	//  `offchainStore` is the offchain store, used for accessing offchain data.
 	offchainStore storetypes.CacheKVStore
 }
 
-// `NewPlugin` creates a new instance of the block plugin from the given context.
+// NewPlugin creates a new instance of the block plugin from the given context.
 func NewPlugin(
 	hp core.BlockPlugin, offchainStore storetypes.CacheKVStore, storekey storetypes.StoreKey,
 ) Plugin {
@@ -60,7 +60,7 @@ func NewPlugin(
 	}
 }
 
-// `Prepare` implements core.HistoricalPlugin.
+// Prepare implements core.HistoricalPlugin.
 func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }

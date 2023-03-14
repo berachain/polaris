@@ -28,17 +28,17 @@ import (
 )
 
 type (
-	// `PolarisStateDB` defines an extension to the interface provided by Go-Ethereum to support
+	// PolarisStateDB defines an extension to the interface provided by Go-Ethereum to support
 	// additional state transition functionalities.
 	PolarisStateDB interface {
 		GethStateDB
-		// `Finalize` finalizes the state transition.
+		// Finalize finalizes the state transition.
 		libtypes.Finalizeable
-		// `GetContext` returns the current context of the state plugin.
+		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
 	}
 
-	// `RegistrablePrecompile` is a type for the base precompile implementation, which only needs
+	// RegistrablePrecompile is a type for the base precompile implementation, which only needs
 	// to provide an Ethereum address of where its contract is found.
 	RegistrablePrecompile = libtypes.Registrable[common.Address]
 )

@@ -25,7 +25,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// `AccountKeeper` defines the expected account keeper.
+// AccountKeeper defines the expected account keeper.
 type AccountKeeper interface {
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
@@ -37,7 +37,7 @@ type AccountKeeper interface {
 	IterateAccounts(ctx sdk.Context, cb func(account sdk.AccountI) bool)
 }
 
-// `BankKeeper` defines the expected bank keeper.
+// BankKeeper defines the expected bank keeper.
 type BankKeeper interface {
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string,

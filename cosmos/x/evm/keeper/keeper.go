@@ -52,7 +52,7 @@ import (
 var _ core.PolarisHostChain = (*Keeper)(nil)
 
 type Keeper struct {
-	// `provider` is the struct that houses the Polaris EVM.
+	// provider is the struct that houses the Polaris EVM.
 	polaris *eth.PolarisProvider
 	// We store a reference to the `rpcProvider` so that we can register it with
 	// the cosmos mux router.
@@ -61,7 +61,7 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	// The offchain KV store.
 	offChainKv *offchain.Store
-	// `authority` is the bech32 address that is allowed to execute governance proposals.
+	// authority is the bech32 address that is allowed to execute governance proposals.
 	authority string
 
 	// The various plugins that are are used to implement `core.PolarisHostChain`.
@@ -109,7 +109,7 @@ func NewKeeper(
 	return k
 }
 
-// `ConfigureGethLogger` configures the Geth logger to use the Cosmos logger.
+// ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
 func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
 		logger := ctx.Logger().With("module", "polaris-geth")
@@ -125,12 +125,12 @@ func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	}))
 }
 
-// `Logger` returns a module-specific logger.
+// Logger returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
-// `Setup` sets up the precompile and state plugins with the given precompiles and keepers. It also
+// Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
 // sets the query context function for the block and state plugins (to support historical queries).
 func (k *Keeper) Setup(
 	ak state.AccountKeeper,
@@ -150,17 +150,17 @@ func (k *Keeper) Setup(
 	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
 }
 
-// `GetBlockPlugin` returns the header plugin.
+// GetBlockPlugin returns the header plugin.
 func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
 	return k.bp
 }
 
-// `GetConfigurationPlugin` returns the configuration plugin.
+// GetConfigurationPlugin returns the configuration plugin.
 func (k *Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return k.cp
 }
 
-// `GetGasPlugin` returns the gas plugin.
+// GetGasPlugin returns the gas plugin.
 func (k *Keeper) GetGasPlugin() core.GasPlugin {
 	return k.gp
 }
@@ -169,27 +169,27 @@ func (k *Keeper) GetHistoricalPlugin() core.HistoricalPlugin {
 	return k.hp
 }
 
-// `GetPrecompilePlugin` returns the precompile plugin.
+// GetPrecompilePlugin returns the precompile plugin.
 func (k *Keeper) GetPrecompilePlugin() core.PrecompilePlugin {
 	return k.pp
 }
 
-// `GetStatePlugin` returns the state plugin.
+// GetStatePlugin returns the state plugin.
 func (k *Keeper) GetStatePlugin() core.StatePlugin {
 	return k.sp
 }
 
-// `GetTxPoolPlugin` returns the txpool plugin.
+// GetTxPoolPlugin returns the txpool plugin.
 func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
 	return k.txp
 }
 
-// `GetAllPlugins` returns all the plugins.
+// GetAllPlugins returns all the plugins.
 func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosPolaris {
 	return []plugins.BaseCosmosPolaris{k.hp, k.cp, k.gp, k.pp, k.sp}
 }
 
-// `GetRPCProvider` returns the RPC provider. We use this in `app.go` to register
+// GetRPCProvider returns the RPC provider. We use this in `app.go` to register
 // the Ethereum JSONRPC server with the application mux server.
 func (k *Keeper) GetRPCProvider() evmrpc.Provider {
 	return k.rpcProvider

@@ -26,7 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-// `RegisterInterfaces` registers the client interfaces to protobuf Any.
+// RegisterInterfaces registers the client interfaces to protobuf Any.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),

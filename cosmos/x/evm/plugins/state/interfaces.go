@@ -29,30 +29,30 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-// `ControllableEventManager` defines a cache EventManager that is controllable (snapshottable
+// ControllableEventManager defines a cache EventManager that is controllable (snapshottable
 // and registrable). It also supports precompile execution by allowing the caller to native events
 // as Eth logs.
 type ControllableEventManager interface {
 	libtypes.Controllable[string]
 	sdk.EventManagerI
 
-	// `BeginPrecompileExecution` begins a precompile execution by setting the logs DB.
+	// BeginPrecompileExecution begins a precompile execution by setting the logs DB.
 	BeginPrecompileExecution(events.LogsDB)
-	// `EndPrecompileExecution` ends a precompile execution by resetting the logs DB to nil.
+	// EndPrecompileExecution ends a precompile execution by resetting the logs DB to nil.
 	EndPrecompileExecution()
 }
 
-// `ControllableMultiStore` defines a cache MultiStore that is controllable (snapshottable and
+// ControllableMultiStore defines a cache MultiStore that is controllable (snapshottable and
 // registrable). It also supports getting the committed KV store from the MultiStore.
 type ControllableMultiStore interface {
 	libtypes.Controllable[string]
 	storetypes.MultiStore
 
-	// `GetCommittedKVStore` returns the committed KV store from the MultiStore.
+	// GetCommittedKVStore returns the committed KV store from the MultiStore.
 	GetCommittedKVStore(storetypes.StoreKey) storetypes.KVStore
 }
 
-// `AccountKeeper` defines the expected account keeper.
+// AccountKeeper defines the expected account keeper.
 type AccountKeeper interface {
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
@@ -64,7 +64,7 @@ type AccountKeeper interface {
 	IterateAccounts(ctx sdk.Context, cb func(account sdk.AccountI) bool)
 }
 
-// `BankKeeper` defines the expected bank keeper.
+// BankKeeper defines the expected bank keeper.
 type BankKeeper interface {
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string,
@@ -76,9 +76,9 @@ type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
-// `PrecompilePlugin` defines the expected precompile plugin.
+// PrecompilePlugin defines the expected precompile plugin.
 type PrecompilePlugin interface {
-	// `GetLogFactory` returns the log factory for the precompile plugin.
+	// GetLogFactory returns the log factory for the precompile plugin.
 	GetLogFactory() events.PrecompileLogFactory
 }
 

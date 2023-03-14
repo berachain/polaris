@@ -23,17 +23,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-//
-//nolint:forbidigo // its okay.
 package main
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/TwiN/go-color"
 	"github.com/magefile/mage/sh"
-	"github.com/magefile/mage/target"
 )
 
 var (
@@ -55,106 +50,16 @@ var (
 	// Dependencies.
 	moq = "github.com/matryer/moq"
 
-	// Variables and Helpers.
-	production = false
-	statically = false
-
 	moduleDirs = []string{"contracts", "eth", "cosmos", "playground", "magefiles", "lib"}
 )
 
-// Runs a series of commonly used commands.
-func All() error {
-	cmds := []func() error{ForgeBuild, Generate, Proto, Format, Lint,
-		BuildPolarisCosmosApp, BuildPolarisPlaygroundApp, TestUnit, TestIntegration}
-	for _, cmd := range cmds {
-		if err := cmd(); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// Runs `go build` on the cosmos app.
-func BuildPolarisCosmosApp() error {
-	cmd := "polard"
-	args := []string{
-		generateBuildTags(),
-		generateLinkerFlags(production, statically),
-		"-o", generateOutDirectory(cmd),
-		"./cosmos/cmd/" + cmd,
-	}
-	fmt.Println(color.Ize(color.Yellow, "Building Cosmos app..."))
-	return goBuild(args...)
-}
-
-// Runs `go build` on the playground app.
-func BuildPolarisPlaygroundApp() error {
-	cmd := "playground"
-	args := []string{
-		generateBuildTags(),
-		generateLinkerFlags(production, statically),
-		"-o", generateOutDirectory(cmd),
-		"./playground/cmd/",
-	}
-	fmt.Println(color.Ize(color.Yellow, "Building Playground app..."))
-	return goBuild(args...)
-}
-
-// Runs `go build` on the entire project.
-func Build() error {
-	PrintMageName()
-	// If outdir doesn't exist, create.
-	_, err := target.Dir(outdir)
-	if os.IsNotExist(err) {
-		if err = sh.Run("mkdir", "-p", outdir); err != nil {
-			return err
-		}
-	}
-
-	// Build all solidity contracts.
-	if err = ForgeBuild(); err != nil {
-		return err
-	}
-
-	// Build the cosmos app
-	if err = BuildPolarisCosmosApp(); err != nil {
-		return err
-	}
-
-	// Build the playground app
-	if err = BuildPolarisPlaygroundApp(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Runs `go build` on the entire project with the release flags.
-func BuildRelease() error {
-	PrintMageName()
-	production = true
-	statically = false
-	return Build()
-}
-
-// Runs `go install` on the entire project.
-func Install() error {
-	PrintMageName()
-	production = true
-	statically = false
-
-	args := []string{
-		generateBuildTags(),
-		generateLinkerFlags(production, statically),
-		"./cmd/polard",
-	}
-
-	return goInstall(args...)
-}
+// ===========================================================================
+// Go Language Tools
+// ===========================================================================.
 
 // Runs `go generate` on the entire project.
 func Generate() error {
-	PrintMageName()
+	LogGreen("Running 'go generate' on the entire project...")
 	if err := goInstall(moq); err != nil {
 		return err
 	}
@@ -167,7 +72,7 @@ func Generate() error {
 // Runs `go generate` on the entire project and verifies that no files were
 // changed.
 func GenerateCheck() error {
-	PrintMageName()
+	LogGreen("Running 'go generate' on the entire project and verifying that no files were changed...")
 	if err := ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false); err != nil {
 		return err
 	}
@@ -195,7 +100,7 @@ func Clean() error {
 	}
 
 	// Remove solidity build artifacts.
-	if err := ForgeClean(); err != nil {
+	if err := (Contracts{}).Clean(); err != nil {
 		return err
 	}
 

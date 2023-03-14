@@ -28,12 +28,12 @@ import (
 	"pkg.berachain.dev/polaris/playground/pkg/chain"
 )
 
-// `Runner` is the interface for the node runner.
+// Runner is the interface for the node runner.
 type Runner interface {
 	Start() error
 }
 
-// `runner` is the main node runner.
+// runner is the main node runner.
 type runner struct {
 	blocktime  time.Duration
 	rpcService RPCService
@@ -41,7 +41,7 @@ type runner struct {
 	chain      *chain.Playground
 }
 
-// `NewRunner` creates a new node runner.
+// NewRunner creates a new node runner.
 func NewRunner(blocktime time.Duration) Runner {
 	// Setup RPC
 	rpcService := NewRPCService()
@@ -58,7 +58,7 @@ func NewRunner(blocktime time.Duration) Runner {
 	}
 }
 
-// `Start` starts the node.
+// Start starts the node.
 func (r *runner) Start() error {
 	for {
 		select {
@@ -76,7 +76,7 @@ func (r *runner) Start() error {
 	}
 }
 
-// `Stop` stops the node.
+// Stop stops the node.
 func (r *runner) Stop() {
 	r.stop <- struct{}{}
 }

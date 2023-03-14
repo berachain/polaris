@@ -35,7 +35,7 @@ var (
 	_ fmt.Stringer              = (*Slot)(nil)
 )
 
-// `NewSlot` creates a new State instance.
+// NewSlot creates a new State instance.
 func NewSlot(key, value common.Hash) *Slot {
 	return &Slot{
 		Key:   key.Hex(),
@@ -43,7 +43,7 @@ func NewSlot(key, value common.Hash) *Slot {
 	}
 }
 
-// `ValidateBasic` checks to make sure the key is not empty.
+// ValidateBasic checks to make sure the key is not empty.
 func (s *Slot) ValidateBasic() error {
 	if strings.TrimSpace(s.Key) == "" {
 		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
@@ -52,7 +52,7 @@ func (s *Slot) ValidateBasic() error {
 	return nil
 }
 
-// `Clone` implements `types.Cloneable`.
+// Clone implements `types.Cloneable`.
 func (s *Slot) Clone() *Slot {
 	return &Slot{
 		Key:   s.Key,

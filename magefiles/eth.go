@@ -25,24 +25,30 @@
 
 package main
 
-import (
-	"fmt"
-	"runtime"
-	"strings"
+import "github.com/magefile/mage/mg"
 
-	"github.com/TwiN/go-color"
-)
+type Eth mg.Namespace
 
-func PrintMageName() {
-	skip := 2
-	size := 10
-	pc := make([]uintptr, size) // at least 1 entry needed
-	runtime.Callers(skip, pc)
-	f := runtime.FuncForPC(pc[0])
-	slice := strings.Split(f.Name(), ".")
-	name := slice[len(slice)-1]
-	//nolint:forbidigo // This is a mage file
-	fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("Running %s...",
-		name,
-	)))
+func (Eth) directory() string {
+	return "eth"
+}
+
+// ===========================================================================
+// Test
+// ===========================================================================
+
+func (e Eth) Test() error {
+	return testUnit(e.directory())
+}
+
+// Runs all unit tests for the Cosmos SDK chain.
+func (e Eth) TestUnit() error {
+	LogGreen("Running all Polaris Ethereum unit tests...")
+	return testUnit(e.directory())
+}
+
+// Runs all integration for the Cosmos SDK chain.
+func (e Eth) TestIntegration() error {
+	LogGreen("Running all Polaris Ethereum integration tests...")
+	return testIntegration(e.directory())
 }

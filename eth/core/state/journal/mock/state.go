@@ -37,7 +37,7 @@ type Account struct {
 	CodeHash common.Hash
 }
 
-// `NewEmptyStatePlugin` returns an empty `StatePluginMock`.
+// NewEmptyStatePlugin returns an empty `StatePluginMock`.
 func NewEmptyStatePlugin() *PluginMock {
 	Accounts = make(map[common.Address]*Account)
 	return &PluginMock{

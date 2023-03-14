@@ -5,7 +5,7 @@ package mock
 
 //go:generate moq -out ./controllable.mock.go -skip-ensure -pkg mock ../ Controllable
 
-// `ControllableMock` is a mock for the `Controllable` interface.
+// ControllableMock is a mock for the `Controllable` interface.
 func NewControllableMock1[K string]() *ControllableMock[K] {
 	return &ControllableMock[K]{
 		RevertToSnapshotFunc: func(n int) {},

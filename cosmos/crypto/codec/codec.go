@@ -27,7 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 )
 
-// `RegisterInterfaces` registers the ethsecp256k1 key types.
+// RegisterInterfaces registers the ethsecp256k1 key types.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &ethsecp256k1.PubKey{})
 	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &ethsecp256k1.PrivKey{})

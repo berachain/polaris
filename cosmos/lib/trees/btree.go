@@ -36,24 +36,24 @@ const (
 
 var ErrKeyEmpty = errors.New("key cannot be empty")
 
-// `BTree` is an interface that defines the methods a binary tree must implement.
+// BTree is an interface that defines the methods a binary tree must implement.
 type BTree interface {
-	// `Set` sets the key to value.
+	// Set sets the key to value.
 	Set(key, value []byte)
 
-	// `Get` gets the value at key.
+	// Get gets the value at key.
 	Get(key []byte) []byte
 
-	// `Delete` deletes key.
+	// Delete deletes key.
 	Delete(key []byte)
 
-	// `Iterator` returns an iterator between start and end.
+	// Iterator returns an iterator between start and end.
 	Iterator(start, end []byte) (dbm.Iterator, error)
 
-	// `ReverseIterator` returns a reverse iterator between start and end.
+	// ReverseIterator returns a reverse iterator between start and end.
 	ReverseIterator(start, end []byte) (dbm.Iterator, error)
 
-	// `Copy` returns a shallow copy of BTree.
+	// Copy returns a shallow copy of BTree.
 	Copy() BTree
 }
 

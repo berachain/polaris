@@ -29,18 +29,18 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `ChainWriter` defines methods that are used to perform state and block transitions.
+// ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
+	// Prepare prepares the chain for a new block. This method is called before the first tx in
 	// the block.
 	Prepare(context.Context, int64)
-	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
+	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
-	// `Finalize` finalizes the block and returns the block. This method is called after the last
+	// Finalize finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
 	Finalize(context.Context) error
-	// `SendTx` sends the given transaction to the tx pool.
+	// SendTx sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
 
@@ -48,7 +48,7 @@ type ChainWriter interface {
 // Block Processing
 // =========================================================================
 
-// `Prepare` prepares the blockchain for processing a new block at the given height.
+// Prepare prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	bc.logger.Info("Preparing block", "height", height)
 
@@ -106,7 +106,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	)
 }
 
-// `ProcessTransaction` processes the given transaction and returns the receipt.
+// ProcessTransaction processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
@@ -117,7 +117,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
 
-// `Finalize` finalizes the current block.
+// Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
 	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {

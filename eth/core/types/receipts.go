@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-// `MarshalReceipts` marshals `Receipts`, as type `[]*ReceiptForStorage`, to bytes using rlp
+// MarshalReceipts marshals `Receipts`, as type `[]*ReceiptForStorage`, to bytes using rlp
 // encoding.
 func MarshalReceipts(receipts Receipts) ([]byte, error) {
 	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
@@ -39,7 +39,7 @@ func MarshalReceipts(receipts Receipts) ([]byte, error) {
 	return bz, nil
 }
 
-// `UnmarshalReceipts` unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using
+// UnmarshalReceipts unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using
 // rlp decoding.
 func UnmarshalReceipts(bz []byte) (Receipts, error) {
 	var receiptsForStorage []*ReceiptForStorage
