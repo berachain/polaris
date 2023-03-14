@@ -30,6 +30,9 @@ var _ state.Plugin = &PluginMock{}
 //			DeleteAccountsFunc: func(addresss []common.Address)  {
 //				panic("mock out the DeleteAccounts method")
 //			},
+//			EmptyFunc: func(address common.Address) bool {
+//				panic("mock out the Empty method")
+//			},
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
 //			},
@@ -108,6 +111,9 @@ type PluginMock struct {
 
 	// DeleteAccountsFunc mocks the DeleteAccounts method.
 	DeleteAccountsFunc func(addresss []common.Address)
+
+	// EmptyFunc mocks the Empty method.
+	EmptyFunc func(address common.Address) bool
 
 	// ExistFunc mocks the Exist method.
 	ExistFunc func(address common.Address) bool
@@ -190,6 +196,11 @@ type PluginMock struct {
 		DeleteAccounts []struct {
 			// Addresss is the addresss argument value.
 			Addresss []common.Address
+		}
+		// Empty holds details about calls to the Empty method.
+		Empty []struct {
+			// Address is the address argument value.
+			Address common.Address
 		}
 		// Exist holds details about calls to the Exist method.
 		Exist []struct {
@@ -312,6 +323,7 @@ type PluginMock struct {
 	lockAddBalance        sync.RWMutex
 	lockCreateAccount     sync.RWMutex
 	lockDeleteAccounts    sync.RWMutex
+	lockEmpty             sync.RWMutex
 	lockExist             sync.RWMutex
 	lockFinalize          sync.RWMutex
 	lockForEachStorage    sync.RWMutex
@@ -432,6 +444,38 @@ func (mock *PluginMock) DeleteAccountsCalls() []struct {
 	mock.lockDeleteAccounts.RLock()
 	calls = mock.calls.DeleteAccounts
 	mock.lockDeleteAccounts.RUnlock()
+	return calls
+}
+
+// Empty calls EmptyFunc.
+func (mock *PluginMock) Empty(address common.Address) bool {
+	if mock.EmptyFunc == nil {
+		panic("PluginMock.EmptyFunc: method is nil but Plugin.Empty was just called")
+	}
+	callInfo := struct {
+		Address common.Address
+	}{
+		Address: address,
+	}
+	mock.lockEmpty.Lock()
+	mock.calls.Empty = append(mock.calls.Empty, callInfo)
+	mock.lockEmpty.Unlock()
+	return mock.EmptyFunc(address)
+}
+
+// EmptyCalls gets all the calls that were made to Empty.
+// Check the length with:
+//
+//	len(mockedPlugin.EmptyCalls())
+func (mock *PluginMock) EmptyCalls() []struct {
+	Address common.Address
+} {
+	var calls []struct {
+		Address common.Address
+	}
+	mock.lockEmpty.RLock()
+	calls = mock.calls.Empty
+	mock.lockEmpty.RUnlock()
 	return calls
 }
 

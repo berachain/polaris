@@ -20,7 +20,19 @@
 
 package journal
 
+import (
+	"math/big"
+
+	"pkg.berachain.dev/polaris/eth/common"
+)
+
 // `suicideStatePlugin` defines the required funtions from the StatePlugin that the suicide journal
 // needs.
 type suicideStatePlugin interface {
+	// GetCodeHash returns the code hash of the given account.
+	GetCodeHash(common.Address) common.Hash
+	// GetBalance returns the balance of the given account.
+	GetBalance(common.Address) *big.Int
+	// SubBalance subtracts amount from the given account.
+	SubBalance(common.Address, *big.Int)
 }

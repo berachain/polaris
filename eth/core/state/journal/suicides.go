@@ -22,26 +22,93 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
 
+// emptyCodeHash is the Keccak256 Hash of empty code
+// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
+var emptyCodeHash = crypto.Keccak256Hash(nil)
+
+// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
+// for the code and state to still be accessible even after the account has been deleted.
+// We chose to keep track of them in a separate slice, rather than a map, because the
+// number of accounts that will be suicided in a single transaction is expected to be
+// very low.
 type suicides struct {
-	ds.Stack[*common.Address] // journal of suicide address per call.
+	// journal of suicide address per call, very rare to suicide so we alloc only 1 address
+	journal ds.Stack[*common.Address]
+	ssp     suicideStatePlugin
 }
 
-// `NewSuicides` returns a new `suicides` journal.
+// NewSuicides returns a new `suicides` journal.
 //
 //nolint:revive // only used as a `state.SuicidesJournal`.
-func NewSuicides() *suicides {
+func NewSuicides(ssp suicideStatePlugin) *suicides {
 	return &suicides{
-		Stack: stack.New[*common.Address](initCapacity),
+		journal: stack.New[*common.Address](initCapacity),
+		ssp:     ssp,
 	}
 }
 
-// `RegistryKey` implements `libtypes.Registrable`.
+// RegistryKey implements `libtypes.Registrable`.
 func (s *suicides) RegistryKey() string {
 	return suicidesRegistryKey
 }
 
+// Suicide implements the PolarisStateDB interface by marking the given address as suicided.
+// This clears the account balance, but the code and state of the address remains available
+// until after Commit is called.
+func (s *suicides) Suicide(addr common.Address) bool {
+	// only smart contracts can commit suicide
+	ch := s.ssp.GetCodeHash(addr)
+	if (ch == common.Hash{}) || ch == emptyCodeHash {
+		return false
+	}
 
+	// Reduce it's balance to 0.
+	s.ssp.SubBalance(addr, s.ssp.GetBalance(addr))
+
+	// add to journal.
+	s.journal.Push(&addr)
+	return true
+}
+
+// HasSuicided implements the `PolarisStateDB` interface by returning if the contract was suicided
+// in current transaction.
+func (s *suicides) HasSuicided(addr common.Address) bool {
+	for i := s.journal.Size() - 1; i >= 0; i-- {
+		if *s.journal.PeekAt(i) == addr {
+			return true
+		}
+	}
+	return false
+}
+
+// GetSuicides implements state.SuicidesJournal.
+func (s *suicides) GetSuicides() []common.Address {
+	var suicidalAddrs []common.Address
+	for i := 0; i < s.journal.Size(); i++ {
+		suicidalAddrs = append(suicidalAddrs, *s.journal.PeekAt(i))
+	}
+	return suicidalAddrs
+}
+
+// Snapshot implements libtypes.Controllable.
+func (s *suicides) Snapshot() int {
+	return s.journal.Size()
+}
+
+// RevertToSnapshot implements libtypes.Controllable.
+func (s *suicides) RevertToSnapshot(id int) {
+	s.journal.PopToSize(id)
+}
+
+// Finalize implements libtypes.Controllable.
+func (s *suicides) Finalize() {
+	*s = suicides{
+		journal: stack.New[*common.Address](initCapacity),
+		ssp:     s.ssp,
+	}
+}

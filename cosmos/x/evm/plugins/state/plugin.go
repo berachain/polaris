@@ -179,7 +179,7 @@ func (p *plugin) RegistryKey() string {
 }
 
 // ===========================================================================
-// Account
+// Accounts
 // ===========================================================================
 
 // CreateAccount implements the `StatePlugin` interface by creating a new account
@@ -199,6 +199,17 @@ func (p *plugin) CreateAccount(addr common.Address) {
 // for since, `RemoveAccount()` is not called until Commit.
 func (p *plugin) Exist(addr common.Address) bool {
 	return p.ak.HasAccount(p.ctx, addr[:])
+}
+
+// Empty implements the `PolarisStateDB` interface by returning whether the state object
+// is either non-existent or empty according to the EIP161 epecification
+// (balance = nonce = code = 0)
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
+func (p *plugin) Empty(addr common.Address) bool {
+	ch := p.GetCodeHash(addr)
+	return p.GetNonce(addr) == 0 &&
+		(ch == emptyCodeHash || ch == common.Hash{}) &&
+		p.GetBalance(addr).Sign() == 0
 }
 
 // =============================================================================

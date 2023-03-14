@@ -44,14 +44,17 @@ type Plugin interface {
 	// Exist reports whether the given account exists in state. Notably this should also return
 	// true for suicided accounts.
 	Exist(common.Address) bool
+	// Empty returns whether the given account is considered empty. Empty is defined according to
+	// EIP161 (balance = nonce = code = 0).
+	Empty(common.Address) bool
 
 	// GetBalance returns the balance of the given account.
 	GetBalance(common.Address) *big.Int
 	// SetBalance sets the balance of the given account.
 	SetBalance(common.Address, *big.Int)
-	// AddBalance adds amount to the given account.
-	SubBalance(common.Address, *big.Int)
 	// SubBalance subtracts amount from the given account.
+	SubBalance(common.Address, *big.Int)
+	// AddBalance adds amount to the given account.
 	AddBalance(common.Address, *big.Int)
 
 	// GetNonce returns the nonce of the given account.
@@ -131,5 +134,7 @@ type (
 		Suicide(common.Address) bool
 		// `HasSuicided` returns whether the address is suicided.
 		HasSuicided(common.Address) bool
+		// `GetSuicides` returns all suicided addresses from the tx.
+		GetSuicides() []common.Address
 	}
 )
