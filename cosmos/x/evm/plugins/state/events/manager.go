@@ -75,7 +75,10 @@ func (m *manager) EmitEvent(event sdk.Event) {
 
 	// add the event to the logs journal if in precompile execution
 	if m.ldb != nil {
-		m.convertToLog(&event)
+		err := m.convertToLog(&event)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -86,9 +89,14 @@ func (m *manager) EmitEvents(events sdk.Events) {
 
 	// add the events to the logs journal if in precompile execution
 	if m.ldb != nil {
-		for i := range events {
-			m.convertToLog(&events[i])
-		}
+		go func() {
+			for i := range events {
+				err := m.convertToLog(&events[i])
+				if err != nil {
+					panic(err)
+				}
+			}
+		}()
 	}
 }
 
@@ -119,10 +127,11 @@ func (m *manager) RevertToSnapshot(id int) {
 func (m *manager) Finalize() {}
 
 // `convertToLog` builds an Eth log from the given Cosmos event and adds it to the logs journal.
-func (m *manager) convertToLog(event *sdk.Event) {
+func (m *manager) convertToLog(event *sdk.Event) error {
 	log, err := m.plf.Build(event)
 	if err != nil {
-		panic(errors.Wrapf(err, "cannot convert Cosmos event %s to Eth log", event.Type))
+		return errors.Wrapf(err, "cannot convert Cosmos event %s to Eth log", event.Type)
 	}
 	m.ldb.AddLog(log)
+	return nil
 }
