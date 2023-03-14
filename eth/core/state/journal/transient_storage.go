@@ -59,7 +59,7 @@ func (t transientState) Copy() transientState {
 	return storage
 }
 
-// `transientStorage` is a `Store` that tracks the transient state.
+// `transientStorage` is a journal that tracks the transient state.
 type transientStorage struct {
 	ds.Stack[transientState]
 }
@@ -75,7 +75,6 @@ func NewTransientStorage() *transientStorage {
 func (t *transientStorage) RegistryKey() string {
 	return transientRegistryKey
 }
-
 
 // `AddTransient` adds a transient change to the `transient` store.
 func (t *transientStorage) SetTransientState(addr common.Address, key, value common.Hash) {

@@ -47,7 +47,7 @@ var _ = Describe("TransientStorage", func() {
 	It("should add without impacting previous state", func() {
 		ts.SetTransientState(alice, key, value)
 		ts.SetTransientState(bob, key, value)
-		Expect(ts.PeekAt(0).Get(bob, key), nil)
+		Expect(ts.PeekAt(0).Get(bob, key), common.Hash{})
 	})
 
 
@@ -60,8 +60,8 @@ var _ = Describe("TransientStorage", func() {
 		Expect(ts.GetTransientState(alice, key), value2)
 
 		ts.SetTransientState(bob, key, value) 		// {alice:value2, bob: value}
-		ts.RevertToSnapshot(before)					// {alice:value}
+		ts.RevertToSnapshot(before)			// {alice:value}
 		Expect(ts.GetTransientState(alice, key), value)
-		Expect(ts.GetTransientState(bob, key), nil)
+		Expect(ts.GetTransientState(bob, key), common.Hash{})
 	})
 })

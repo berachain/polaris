@@ -78,13 +78,13 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	_ = ctrl.Register(tj)
 
 	return &stateDB{
-		Plugin:            		  sp,
-		LogsJournal:       		  lj,
-		RefundJournal:     		  rj,
-		AccessListJournal: 		  aj,
-		TransientStorageJournal:  tj,
-		ctrl:              		  ctrl,
-		suicides:          		  make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		Plugin:            		sp,
+		LogsJournal:       		lj,
+		RefundJournal:     		rj,
+		AccessListJournal: 		aj,
+		TransientStorageJournal:  	tj,
+		ctrl:              		ctrl,
+		suicides:          		make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}
 }
 
