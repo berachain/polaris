@@ -61,14 +61,14 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	}
 
 	// If we are processing a new block, then we assume that the previous was finalized.
-	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
+	if block := bc.currentBlock.Load(); block != nil {
 		// Cache finalized block.
 		blockHash, blockNum := block.Hash(), block.NumberU64()
 		bc.finalizedBlock.Store(block)
 		bc.blockNumCache.Add(int64(blockNum), block)
 		bc.blockHashCache.Add(blockHash, block)
 
-		// Cache transaction data
+		// Cache transaction data.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -82,14 +82,12 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		}
 
 		// Cache receipts.
-		var receipts types.Receipts
-		if receipts, ok = utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
+		if receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
 			bc.receiptsCache.Add(blockHash, receipts)
 		}
 
 		// Send logs and chain events.
-		var logs []*types.Log
-		if logs, ok = utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
+		if logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
 			if len(logs) > 0 {
 				bc.logsFeed.Send(logs)
 			}
