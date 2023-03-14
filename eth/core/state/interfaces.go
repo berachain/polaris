@@ -124,12 +124,12 @@ type (
 		ContainsAddress(address common.Address) bool
 	}
 
-	TransientJournal interface {
+	TransientStorageJournal interface {
 		// `TransientJournal` implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
-		// `AddTransient` adds a given transient storage change to the transient journal.
-		AddTransient(account common.Address, key common.Hash, previous common.Hash)
-		// `GetTransient` returns the previous transient state given an address and key.
-		GetTransient(account common.Address, key common.Hash) common.Hash
+		// `GetTransientState` returns a transiet storage for a given account.
+		GetTransientState(addr common.Address, key common.Hash) common.Hash
+		// `SetTransientState` sets a given transient storage change to the transient journal.
+		SetTransientState(addr common.Address, key, value common.Hash)
 	}
 )

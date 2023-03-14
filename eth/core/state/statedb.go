@@ -46,7 +46,7 @@ type stateDB struct {
 	LogsJournal
 	RefundJournal
 	AccessListJournal
-	TransientJournal
+	TransientStorageJournal
 
 	// `ctrl` is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
@@ -65,7 +65,7 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
 	aj := journal.NewAccesslist()
-	tj := journal.NewTransient()
+	tj := journal.NewTransientStorage()
 
 	// Build the controller and register the plugins and journals
 
@@ -78,13 +78,13 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	_ = ctrl.Register(tj)
 
 	return &stateDB{
-		Plugin:            sp,
-		LogsJournal:       lj,
-		RefundJournal:     rj,
-		AccessListJournal: aj,
-		TransientJournal:  tj,
-		ctrl:              ctrl,
-		suicides:          make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		Plugin:            		  sp,
+		LogsJournal:       		  lj,
+		RefundJournal:     		  rj,
+		AccessListJournal: 		  aj,
+		TransientStorageJournal:  tj,
+		ctrl:              		  ctrl,
+		suicides:          		  make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}
 }
 
@@ -181,16 +181,6 @@ func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (boo
 	return sdb.Contains(addr, slot)
 }
 
-// `GetTransientState` implements `stateDB`
-func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	return sdb.GetTransient(addr, key)
-}
-
-// `GetTransientState` implements `stateDB`
-func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	sdb.AddTransient(addr, key, value)
-}
-
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
 //
 // `Prepare` implements `stateDB`.
@@ -218,8 +208,6 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 			sdb.AddAddress(coinbase)
 		}
 	}
-
-	sdb.TransientJournal.Finalize()
 }
 
 // =============================================================================
