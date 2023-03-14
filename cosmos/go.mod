@@ -10,7 +10,6 @@ replace (
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230313222742-b18b15fecd70
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-	pkg.berachain.dev/polaris/contracts => ../contracts
 )
 
 require (
@@ -49,7 +48,7 @@ require (
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.29.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-00010101000000-000000000000
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230314162058-3208a7e5461e
 	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
 	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
