@@ -116,4 +116,13 @@ var _ = Describe("StateDB", func() {
 		sdb.Finalize()
 		Expect(sdb.HasSuicided(bob)).To(BeFalse())
 	})
+
+	It("should have consistent gets and sets", func() {
+		key := common.Hash{0x01}
+		value := common.Hash{0x02}
+		addr := common.Address{}
+
+		sdb.SetTransientState(addr, key, value)
+		Expect(sdb.GetTransientState(addr, key), value)
+	})
 })
