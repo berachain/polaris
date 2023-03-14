@@ -43,11 +43,7 @@ func (t transientState) Get(addr common.Address, key common.Hash) common.Hash {
 	if !ok {
 		return common.Hash{}
 	}
-	hash, ok := val[key]
-	if !ok {
-		return common.Hash{}
-	}
-	return hash
+	return val[key]
 }
 
 // Copy does a deep copy of the transientState
