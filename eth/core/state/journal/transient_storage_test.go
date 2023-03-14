@@ -28,10 +28,10 @@ import (
 )
 
 var (
-	alice = common.Address{1}
-	bob = common.Address{2}
-	key = common.Hash{0x01}
-	value = common.Hash{0x02}
+	alice  = common.Address{1}
+	bob    = common.Address{2}
+	key    = common.Hash{0x01}
+	value  = common.Hash{0x02}
 	value2 = common.Hash{0x03}
 )
 
@@ -50,17 +50,16 @@ var _ = Describe("TransientStorage", func() {
 		Expect(ts.PeekAt(0).Get(bob, key), common.Hash{})
 	})
 
-
 	It("should have consistent gets and sets", func() {
-		ts.SetTransientState(alice, key, value) 	// {alice:value}
+		ts.SetTransientState(alice, key, value) // {alice:value}
 		Expect(ts.GetTransientState(alice, key), value)
 
 		before := ts.Snapshot()
-		ts.SetTransientState(alice, key, value2)	// {alice:value2}
+		ts.SetTransientState(alice, key, value2) // {alice:value2}
 		Expect(ts.GetTransientState(alice, key), value2)
 
-		ts.SetTransientState(bob, key, value) 		// {alice:value2, bob: value}
-		ts.RevertToSnapshot(before)			// {alice:value}
+		ts.SetTransientState(bob, key, value) // {alice:value2, bob: value}
+		ts.RevertToSnapshot(before)           // {alice:value}
 		Expect(ts.GetTransientState(alice, key), value)
 		Expect(ts.GetTransientState(bob, key), common.Hash{})
 	})

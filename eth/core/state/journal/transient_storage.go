@@ -22,6 +22,7 @@ package journal
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
@@ -106,5 +107,5 @@ func (t *transientStorage) RevertToSnapshot(id int) {
 
 // `Finalize` implements `libtypes.Controllable`.
 func (t *transientStorage) Finalize() {
-	t.Stack =  stack.New[transientState](initCapacity)
+	t.Stack = stack.New[transientState](initCapacity)
 }
