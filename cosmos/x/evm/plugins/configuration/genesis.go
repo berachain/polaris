@@ -26,14 +26,14 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// `InitGenesis` performs genesis initialization for the evm module. It returns
+// InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
 func (p *plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
 	p.Prepare(ctx)
 	p.SetParams(&genesisState.Params)
 }
 
-// `ExportGenesis` returns the exported genesis state as raw bytes for the evm
+// ExportGenesis returns the exported genesis state as raw bytes for the evm
 // module.
 func (p *plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
 	p.Prepare(ctx)

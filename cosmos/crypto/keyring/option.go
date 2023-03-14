@@ -27,7 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/crypto/hd"
 )
 
-// `EthSecp256k1Option` defines a function keys options for the ethereum Secp256k1 curve.
+// EthSecp256k1Option defines a function keys options for the ethereum Secp256k1 curve.
 // It supports ethsecp256k1 and secp256k1 keys for accounts.
 func EthSecp256k1Option() keyring.Option {
 	return func(options *keyring.Options) {

@@ -35,7 +35,7 @@ import (
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
-// `StoreBlock` implements `core.HistoricalPlugin`.
+// StoreBlock implements `core.HistoricalPlugin`.
 func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	blockNum := block.NumberU64()
 
@@ -54,7 +54,7 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	return nil
 }
 
-// `StoreReceipts` implements `core.HistoricalPlugin`.
+// StoreReceipts implements `core.HistoricalPlugin`.
 func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
 	// store block hash to receipts.
 	receiptsBz, err := coretypes.MarshalReceipts(receipts)
@@ -69,7 +69,7 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 	return nil
 }
 
-// `StoreTransactions` implements `core.HistoricalPlugin`.
+// StoreTransactions implements `core.HistoricalPlugin`.
 func (p *plugin) StoreTransactions(
 	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
@@ -97,7 +97,7 @@ func (p *plugin) StoreTransactions(
 	return nil
 }
 
-// `GetBlockByNumber` returns the block at the given height.
+// GetBlockByNumber returns the block at the given height.
 func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	// get header from on chain.
 	header, err := p.hp.GetHeaderByNumber(number)
@@ -136,7 +136,7 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
 }
 
-// `GetBlockByHash` returns the block at the given hash.
+// GetBlockByHash returns the block at the given hash.
 func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
 	// get block number from off chain.
 	numBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
@@ -182,7 +182,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
 }
 
-// `GetTransactionByHash` returns the transaction lookup entry with the given hash.
+// GetTransactionByHash returns the transaction lookup entry with the given hash.
 func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
 	tleBz := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
@@ -197,7 +197,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 	return tle, nil
 }
 
-// `GetReceiptsByHash` returns the receipts with the given block hash.
+// GetReceiptsByHash returns the receipts with the given block hash.
 func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
 	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())

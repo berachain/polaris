@@ -31,12 +31,12 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// `SignMode_SIGN_MODE_ETHEREUM` defines the sign mode for Ethereum transactions.
+// SignMode_SIGN_MODE_ETHEREUM defines the sign mode for Ethereum transactions.
 //
 //nolint:revive,stylecheck // underscores used for sign modes.
 const SignMode_SIGN_MODE_ETHEREUM signingtypes.SignMode = 42069
 
-// `CustomSignModeHandlers` returns the custom sign mode handlers for the EVM module.
+// CustomSignModeHandlers returns the custom sign mode handlers for the EVM module.
 func CustomSignModeHandlers() []signing.SignModeHandler {
 	return []signing.SignModeHandler{
 		SignModeEthTxHandler{},
@@ -45,20 +45,20 @@ func CustomSignModeHandlers() []signing.SignModeHandler {
 
 var _ signing.SignModeHandlerWithContext = (*SignModeEthTxHandler)(nil)
 
-// `SignModeEthTx` defines the sign mode for Ethereum transactions.
+// SignModeEthTx defines the sign mode for Ethereum transactions.
 type SignModeEthTxHandler struct{}
 
-// `Modes` returns the sign modes for the EVM module.
+// Modes returns the sign modes for the EVM module.
 func (s SignModeEthTxHandler) Modes() []signingtypes.SignMode {
 	return []signingtypes.SignMode{s.DefaultMode()}
 }
 
-// `DefaultMode` returns the default sign mode for the EVM module.
+// DefaultMode returns the default sign mode for the EVM module.
 func (s SignModeEthTxHandler) DefaultMode() signingtypes.SignMode {
 	return SignMode_SIGN_MODE_ETHEREUM
 }
 
-// `GetSignBytes` returns the sign bytes for the given sign mode and transaction.
+// GetSignBytes returns the sign bytes for the given sign mode and transaction.
 func (s SignModeEthTxHandler) GetSignBytes(
 	mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx,
 ) ([]byte, error) {
@@ -69,7 +69,7 @@ func (s SignModeEthTxHandler) GetSignBytes(
 	return ethTx.GetSignBytes()
 }
 
-// `GetSignBytes` returns the sign bytes for the given sign mode and transaction.
+// GetSignBytes returns the sign bytes for the given sign mode and transaction.
 func (s SignModeEthTxHandler) GetSignBytesWithContext(_ context.Context,
 	mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx) ([]byte, error) {
 	return s.GetSignBytes(mode, data, tx)

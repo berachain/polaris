@@ -29,13 +29,13 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// `BeginBlocker` is called during the BeginBlock processing of the ABCI lifecycle.
+// BeginBlocker is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	k.polaris.Prepare(ctx, sCtx.BlockHeight())
 }
 
-// `ProcessTransaction` is called during the DeliverTx processing of the ABCI lifecycle.
+// ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
@@ -70,7 +70,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	return execResult, err
 }
 
-// `EndBlocker` is called during the EndBlock processing of the ABCI lifecycle.
+// EndBlocker is called during the EndBlock processing of the ABCI lifecycle.
 func (k *Keeper) EndBlocker(ctx context.Context) {
 	// Finalize the block and retrieve it from the processor.
 	err := k.polaris.Finalize(ctx)

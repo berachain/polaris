@@ -27,13 +27,13 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// `blockProducer` is the block producer.
+// blockProducer is the block producer.
 type blockProducer struct {
 	polaris         api.Chain
 	currentBlockNum int64
 }
 
-// `ProduceBlock` produces a block from the mempool and returns it.
+// ProduceBlock produces a block from the mempool and returns it.
 func (bp *blockProducer) ProduceBlock() error {
 	bp.currentBlockNum++
 

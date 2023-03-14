@@ -25,40 +25,40 @@ import (
 )
 
 type (
-	// `ChainContext` provides information about the current blockchain to the EVM.
+	// ChainContext provides information about the current blockchain to the EVM.
 	ChainContext = core.ChainContext
-	// `ChainEvent` contains information about the chain.
+	// ChainEvent contains information about the chain.
 	ChainEvent = core.ChainEvent
-	// `ChainHeadEvent` is posted when a new head block is added to the chain.
+	// ChainHeadEvent is posted when a new head block is added to the chain.
 	ChainHeadEvent = core.ChainHeadEvent
-	// `ChainSideEvent` is posted when a new side block is added to the chain.
+	// ChainSideEvent is posted when a new side block is added to the chain.
 	ChainSideEvent = core.ChainSideEvent
-	// `ExecutionResult` is the result of executing a transaction.
+	// ExecutionResult is the result of executing a transaction.
 	ExecutionResult = core.ExecutionResult
-	// `GasPool` is a pool of gas that can be consumed by transactions.
+	// GasPool is a pool of gas that can be consumed by transactions.
 	GasPool = core.GasPool
-	// `NewTxsEvent` is posted when a batch of transactions enter the transaction pool.
+	// NewTxsEvent is posted when a batch of transactions enter the transaction pool.
 	NewTxsEvent = core.NewTxsEvent
-	// `Message` contains data used ype used to execute transactions.
+	// Message contains data used ype used to execute transactions.
 	Message = core.Message
-	// `RemovedLogsEvent` is posted pre-removal of a set of logs.
+	// RemovedLogsEvent is posted pre-removal of a set of logs.
 	RemovedLogsEvent = core.RemovedLogsEvent
 )
 
 var (
-	// `ApplyMessage` puts a message through the EVM.
+	// ApplyMessage puts a message through the EVM.
 	ApplyMessage = core.ApplyMessage
-	// `NewEVMTxContext` creates a new context for use in the EVM.
+	// NewEVMTxContext creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
-	// `NewEVMBlockContext` creates a new block context for a given header.
+	// NewEVMBlockContext creates a new block context for a given header.
 	NewEVMBlockContext = core.NewEVMBlockContext
-	// `GetHashFn` returns a GetHashFunc.
+	// GetHashFn returns a GetHashFunc.
 	GetHashFn = core.GetHashFn
-	// `TransactionToMessage` converts a transaction to a message.
+	// TransactionToMessage converts a transaction to a message.
 	TransactionToMessage = core.TransactionToMessage
 )
 
 var (
-	// `ErrInsufficientBalanceForGas` is the error return when gas required to execute a transaction overflows.
+	// ErrInsufficientBalanceForGas is the error return when gas required to execute a transaction overflows.
 	ErrGasUintOverflow = core.ErrGasUintOverflow
 )

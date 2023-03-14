@@ -22,7 +22,7 @@ const (
 	two         = 2
 )
 
-// `stack` is a struct that holds a slice of Items as a last in, first out data structure.
+// stack is a struct that holds a slice of Items as a last in, first out data structure.
 // It is implemented by pre-allocating a buffer with a capacity.
 type stack[T any] struct {
 	size     int
@@ -38,7 +38,7 @@ func New[T any](initialCapacity int) ds.Stack[T] {
 	}
 }
 
-// `Peek` implements `Stack`.
+// Peek implements `Stack`.
 func (s *stack[T]) Peek() T {
 	if s.size == 0 {
 		var t T
@@ -47,7 +47,7 @@ func (s *stack[T]) Peek() T {
 	return s.buf[s.size-1]
 }
 
-// `PeekAt` implements `Stack`.
+// PeekAt implements `Stack`.
 func (s *stack[T]) PeekAt(index int) T {
 	if index >= s.size {
 		panic("index out of bounds")
@@ -55,7 +55,7 @@ func (s *stack[T]) PeekAt(index int) T {
 	return s.buf[index]
 }
 
-// `Push` implements `Stack`.
+// Push implements `Stack`.
 func (s *stack[T]) Push(i T) int {
 	s.expandIfRequired()
 	s.buf[s.size] = i
@@ -63,17 +63,17 @@ func (s *stack[T]) Push(i T) int {
 	return s.size
 }
 
-// `Size` implements `Stack`.
+// Size implements `Stack`.
 func (s *stack[T]) Size() int {
 	return s.size
 }
 
-// `Capacity` implements `Stack`.
+// Capacity implements `Stack`.
 func (s *stack[T]) Capacity() int {
 	return s.capacity
 }
 
-// `Pop` implements `Stack`.
+// Pop implements `Stack`.
 func (s *stack[T]) Pop() T {
 	if s.size == 0 {
 		var t T
@@ -84,7 +84,7 @@ func (s *stack[T]) Pop() T {
 	return s.buf[s.size]
 }
 
-// `PopToSize` implements `Stack`.
+// PopToSize implements `Stack`.
 func (s *stack[T]) PopToSize(newSize int) T {
 	if newSize > s.size {
 		panic("newSize out of bounds")
@@ -95,7 +95,7 @@ func (s *stack[T]) PopToSize(newSize int) T {
 	return s.buf[s.size]
 }
 
-// `expandIfRequired` expands the stack if the size is equal to the capacity.
+// expandIfRequired expands the stack if the size is equal to the capacity.
 func (s *stack[T]) expandIfRequired() {
 	if s.size < s.capacity {
 		return
@@ -106,7 +106,7 @@ func (s *stack[T]) expandIfRequired() {
 	s.capacity *= resizeRatio
 }
 
-// `shrinkIfRequired` shrinks the stack if the size is less than the capacity/resizeRatio.
+// shrinkIfRequired shrinks the stack if the size is less than the capacity/resizeRatio.
 func (s *stack[T]) shrinkIfRequired() {
 	if newCap := s.capacity / resizeRatio; s.size < newCap {
 		newBuf := make([]T, newCap)

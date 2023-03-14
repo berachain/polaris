@@ -30,7 +30,7 @@ type accessList struct {
 	journal     ds.Stack[*AccessList] // journal of access lists.
 }
 
-// `NewAccesslist` returns a new `accessList` journal.
+// NewAccesslist returns a new `accessList` journal.
 //
 //nolint:revive // only used as a `state.AccessListJournal`.
 func NewAccesslist() *accessList {
@@ -42,25 +42,25 @@ func NewAccesslist() *accessList {
 	}
 }
 
-// `RegistryKey` implements `libtypes.Registrable`.
+// RegistryKey implements `libtypes.Registrable`.
 func (al *accessList) RegistryKey() string {
 	return accessListRegistryKey
 }
 
-// `Snapshot` implements `libtypes.Snapshottable`.
+// Snapshot implements `libtypes.Snapshottable`.
 func (al *accessList) Snapshot() int {
 	al.AccessList = al.AccessList.Copy()
 	al.journal.Push(al.AccessList)
 	return al.journal.Size() - 1
 }
 
-// `RevertToSnapshot` implements `libtypes.Snapshottable`.
+// RevertToSnapshot implements `libtypes.Snapshottable`.
 func (al *accessList) RevertToSnapshot(id int) {
 	al.journal.PopToSize(id)
 	al.AccessList = al.journal.Peek()
 }
 
-// `Finalize` implements `libtypes.Controllable`.
+// Finalize implements `libtypes.Controllable`.
 func (al *accessList) Finalize() {
 	al.journal = stack.New[*AccessList](initCapacity)
 	al.journal.Push(NewAccessList())

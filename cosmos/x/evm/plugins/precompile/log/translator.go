@@ -29,12 +29,12 @@ import (
 	"pkg.berachain.dev/polaris/lib/errors"
 )
 
-// `makeTopics` generates the Ethereum log `Topics` field for a valid cosmos event. `Topics` is a
+// makeTopics generates the Ethereum log `Topics` field for a valid cosmos event. `Topics` is a
 // slice of at most 4 hashes, in which the first topic is the Ethereum event's ID. The optional and
 // following 3 topics are hashes of the Ethereum event's indexed arguments. This function builds
 // this slice of `Topics` by building a filter query of all the corresponding arguments:
 // [eventID, indexed_arg1, ...]. Then this query is converted to topics using geth's
-// `abi.MakeTopics` function, which outputs hashes of all arguments in the query. The slice of
+// abi.MakeTopics function, which outputs hashes of all arguments in the query. The slice of
 // hashes is returned.
 func (f *Factory) makeTopics(pl *precompileLog, event *sdk.Event) ([]common.Hash, error) {
 	filterQuery := make([]any, len(pl.indexedInputs)+1)
@@ -70,7 +70,7 @@ func (f *Factory) makeTopics(pl *precompileLog, event *sdk.Event) ([]common.Hash
 	return topics[0], nil
 }
 
-// `makeData` returns the Ethereum log `Data` field for a valid cosmos event. `Data` is a slice of
+// makeData returns the Ethereum log `Data` field for a valid cosmos event. `Data` is a slice of
 // bytes which store an Ethereum event's non-indexed arguments, packed into bytes. This function
 // packs the values of the incoming Cosmos event's attributes, which correspond to the
 // Ethereum event's non-indexed arguments, into bytes and returns a byte slice.
@@ -107,7 +107,7 @@ func (f *Factory) makeData(pl *precompileLog, event *sdk.Event) ([]byte, error) 
 	return data, nil
 }
 
-// `getValueDecoder` returns an attribute value decoder function for a certain Cosmos event
+// getValueDecoder returns an attribute value decoder function for a certain Cosmos event
 // attribute key.
 func (f *Factory) getValueDecoder(attrKey string) (precompile.ValueDecoder, error) {
 	// try custom precompile event attributes

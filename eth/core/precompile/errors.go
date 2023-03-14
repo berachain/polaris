@@ -23,30 +23,30 @@ package precompile
 import "errors"
 
 var (
-	// `ErrIncompleteMethod` is returned when a `FnAndGas` has missing, or nil, required fields.
+	// ErrIncompleteMethod is returned when a `FnAndGas` has missing, or nil, required fields.
 	ErrIncompleteMethod = errors.New("incomplete precompile Method")
 
-	// `ErrAbiSigInvalid` is returned when a user-provided ABI signature (`FnAndGas.AbiSig`) does
+	// ErrAbiSigInvalid is returned when a user-provided ABI signature (`FnAndGas.AbiSig`) does
 	// not match the Go-Ethereum style function signatures. Please check
 	// core/vm/precompile/container/types.go for more information.
 	ErrAbiSigInvalid = errors.New("user-provided ABI signature invalid: ")
 
-	// `ErrMethodNotFound` is returned when the precompile method is not found.
+	// ErrMethodNotFound is returned when the precompile method is not found.
 	ErrMethodNotFound = errors.New("precompile method not found in contract ABI")
 
-	// `ErrContainerHasNoMethods` is returned when a stateful container function is invoked but no
+	// ErrContainerHasNoMethods is returned when a stateful container function is invoked but no
 	// precompile methods were registered.
 	ErrContainerHasNoMethods = errors.New("the stateful precompile has no methods to run")
 
-	// `ErrInvalidInputToPrecompile` is returned when a precompile container receives invalid
+	// ErrInvalidInputToPrecompile is returned when a precompile container receives invalid
 	// input.
 	ErrInvalidInputToPrecompile = errors.New("input bytes to precompile container are invalid")
 
-	// `ErrWrongContainerFactory` is returned when the wrong precompile container factory is used
+	// ErrWrongContainerFactory is returned when the wrong precompile container factory is used
 	// to build a precompile contract.
 	ErrWrongContainerFactory = errors.New("this precompile contract implementation is not implemented")
 
-	// `ErrNoPrecompileMethodForABIMethod` is returned when no precompile method is provided for a
+	// ErrNoPrecompileMethodForABIMethod is returned when no precompile method is provided for a
 	// corresponding ABI method.
 	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
 )

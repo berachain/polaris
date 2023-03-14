@@ -29,7 +29,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `ChainReader` defines methods that are used to read the state and blocks of the chain.
+// ChainReader defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
 	ChainBlockReader
 	ChainTxPoolReader
@@ -37,7 +37,7 @@ type ChainReader interface {
 	ChainConfig() *params.ChainConfig
 }
 
-// `ChainBlockReader` defines methods that are used to read information about blocks in the chain.
+// ChainBlockReader defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
 	CurrentBlock() (*types.Block, error)
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
@@ -48,7 +48,7 @@ type ChainBlockReader interface {
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
-// `ChainTxPoolReader` defines methods that are used to read information about the state
+// ChainTxPoolReader defines methods that are used to read information about the state
 // of the mempool.
 type ChainTxPoolReader interface {
 	GetPoolTransactions() (types.Transactions, error)
@@ -60,7 +60,7 @@ type ChainTxPoolReader interface {
 // Configuration
 // =========================================================================
 
-// `ChainConfig` returns the Ethereum chain config of the Polaris chain.
+// ChainConfig returns the Ethereum chain config of the Polaris chain.
 func (bc *blockchain) ChainConfig() *params.ChainConfig {
 	return bc.cp.ChainConfig()
 }
@@ -69,7 +69,7 @@ func (bc *blockchain) ChainConfig() *params.ChainConfig {
 // BlockReader
 // =========================================================================
 
-// `CurrentHeader` returns the current header of the blockchain.
+// CurrentHeader returns the current header of the blockchain.
 func (bc *blockchain) CurrentBlock() (*types.Block, error) {
 	cb, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
 	if cb == nil || !ok {
@@ -80,7 +80,7 @@ func (bc *blockchain) CurrentBlock() (*types.Block, error) {
 	return cb, nil
 }
 
-// `CurrentReceipts` returns the current receipts of the blockchain.
+// CurrentReceipts returns the current receipts of the blockchain.
 func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts, error) {
 	cb, err := bc.CurrentBlock()
 	if err != nil {
@@ -94,7 +94,7 @@ func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts, e
 	return cb, cr, nil
 }
 
-// `FinalizedBlock` returns the last finalized block of the blockchain.
+// FinalizedBlock returns the last finalized block of the blockchain.
 func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
 	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
 	if fb == nil || !ok {
@@ -105,7 +105,7 @@ func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
 	return fb, nil
 }
 
-// `GetReceipts` gathers the receipts that were created in the block defined by
+// GetReceipts gathers the receipts that were created in the block defined by
 // the given hash.
 func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
 	// check the cache
@@ -130,7 +130,7 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 	return receipts, nil
 }
 
-// `GetTransaction` gets a transaction by hash. It also returns the block hash of the
+// GetTransaction gets a transaction by hash. It also returns the block hash of the
 // block that the transaction was inluded in, the block number, and the index of the
 // transaction in the block. It only retrieves transactions that are included in the chain
 // and does not acquire transactions that are in the mempool.
@@ -161,7 +161,7 @@ func (bc *blockchain) GetTransaction(
 		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 }
 
-// `GetBlock` retrieves a block from the database by hash and number, caching it if found.
+// GetBlock retrieves a block from the database by hash and number, caching it if found.
 func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error) {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
@@ -187,7 +187,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 	return nil, ErrBlockNotFound
 }
 
-// `GetBlockByHash` retrieves a block from the database by hash, caching it if found.
+// GetBlockByHash retrieves a block from the database by hash, caching it if found.
 func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, error) {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
@@ -217,13 +217,13 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 // TransactionPoolReader
 // =========================================================================
 
-// `GetPoolTransactions` returns all of the transactions that are currently in
+// GetPoolTransactions returns all of the transactions that are currently in
 // the mempool.
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
 	return bc.tp.GetAllTransactions()
 }
 
-// `GetPoolTransaction` returns a transaction from the mempool by hash.
+// GetPoolTransaction returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 	return bc.tp.GetTransaction(hash)
 }

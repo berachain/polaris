@@ -20,21 +20,21 @@
 
 package api
 
-// `CosmosBackend` is the collection of methods required to satisfy the cosmos
+// CosmosBackend is the collection of methods required to satisfy the cosmos
 // RPC API.
 type CosmosBackend interface {
 }
 
-// `CosmosAPI` is the collection of cosmos RPC API methods.
+// CosmosAPI is the collection of cosmos RPC API methods.
 type CosmosAPI interface {
 }
 
-// `cosmosAPI` offers network related RPC methods.
+// cosmosAPI offers network related RPC methods.
 type cosmosAPI struct {
 	b CosmosAPI
 }
 
-// `NewNetAPI` creates a new net API instance.
+// NewNetAPI creates a new net API instance.
 func NewCosmosAPI(b CosmosBackend) CosmosAPI {
 	return &cosmosAPI{b}
 }

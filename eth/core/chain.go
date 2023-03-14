@@ -44,7 +44,7 @@ var (
 	_ ChainResources  = (*blockchain)(nil)
 )
 
-// `blockchain` is the canonical, persistent object that operates the Polaris EVM.
+// blockchain is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
 	// the host chain plugins that the Polaris EVM is running on.
 	bp BlockPlugin
@@ -54,32 +54,32 @@ type blockchain struct {
 	sp StatePlugin
 	tp TxPoolPlugin
 
-	// `StateProcessor` is the canonical, persistent state processor that runs the EVM.
+	// StateProcessor is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor
-	// `statedb` is the state database that is used to mange state during transactions.
+	// statedb is the state database that is used to mange state during transactions.
 	statedb vm.PolarisStateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
 
-	// `currentBlock` is the current/pending block.
+	// currentBlock is the current/pending block.
 	currentBlock atomic.Pointer[types.Block]
-	// `finalizedBlock` is the finalized/latest block.
+	// finalizedBlock is the finalized/latest block.
 	finalizedBlock atomic.Pointer[types.Block]
-	// `currentReceipts` is the current/pending receipts.
+	// currentReceipts is the current/pending receipts.
 	currentReceipts atomic.Value
-	// `currentLogs` is the current/pending logs.
+	// currentLogs is the current/pending logs.
 	currentLogs atomic.Value
 
-	// `receiptsCache` is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
+	// receiptsCache is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
 	// blocks. blockHash -> receipts
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
-	// `blockNumCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockNumCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockNum -> block
 	blockNumCache *lru.Cache[int64, *types.Block]
-	// `blockHashCache` is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockHashCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockHash -> block
 	blockHashCache *lru.Cache[common.Hash, *types.Block]
-	// `txLookupCache` is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of
+	// txLookupCache is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
@@ -100,7 +100,7 @@ type blockchain struct {
 // Constructor
 // =========================================================================
 
-// `NewChain` creates and returns a `api.Chain` with the given EVM chain configuration and host.
+// NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),

@@ -34,7 +34,7 @@ var (
 	versionPrefix  = []byte{0x2}
 )
 
-// `CodeKeyFor` defines the full key under which an addreses code is stored.
+// CodeKeyFor defines the full key under which an addreses code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
 	bz := make([]byte, 1+common.HashLength)
 	copy(bz, byteCodePrefix)
@@ -42,17 +42,17 @@ func CodeKeyFor(codeHash common.Hash) []byte {
 	return bz
 }
 
-// `StoreCode` stores the byte code at the code hash key.
+// StoreCode stores the byte code at the code hash key.
 func (s Store) StoreCode(code []byte) {
 	prefix.NewStore(s.Store, byteCodePrefix).Set(CodeKeyFor(crypto.Keccak256Hash(code)), code)
 }
 
-// `GetCode` returns the byte code for the given code hash.
+// GetCode returns the byte code for the given code hash.
 func (s Store) GetCode(codeHash common.Hash) []byte {
 	return prefix.NewStore(s.Store, byteCodePrefix).Get(CodeKeyFor(codeHash))
 }
 
-// `IterateCode` iterates over the byte code and calls the given callback function. Break the
+// IterateCode iterates over the byte code and calls the given callback function. Break the
 // iteration if the callback function returns true.
 func (s Store) IterateCode(start, end []byte, cb func(codeHash common.Hash, code []byte) bool) {
 	iter := prefix.NewStore(s.Store, byteCodePrefix).Iterator(start, end)
@@ -64,12 +64,12 @@ func (s Store) IterateCode(start, end []byte, cb func(codeHash common.Hash, code
 	}
 }
 
-// `SetVersion` sets the version of the byte code store. The version is used for the store snapshots.
+// SetVersion sets the version of the byte code store. The version is used for the store snapshots.
 func (s Store) SetVersion(version int64) {
 	prefix.NewStore(s.Store, versionPrefix).Set(versionPrefix, sdk.Uint64ToBigEndian(uint64(version)))
 }
 
-// `GetVersion` returns the version of the byte code store.
+// GetVersion returns the version of the byte code store.
 func (s Store) GetVersion() int64 {
 	return int64(sdk.BigEndianToUint64(prefix.NewStore(s.Store, versionPrefix).Get(versionPrefix)))
 }

@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	// `EthSecp256k1Type` defines the ECDSA secp256k1 used on Ethereum.
+	// EthSecp256k1Type defines the ECDSA secp256k1 used on Ethereum.
 	EthSecp256k1Type = hd.PubKeyType(ethsecp256k1.KeyType)
 )
 
@@ -40,20 +40,20 @@ var (
 	EthSecp256k1 = ethSecp256k1Algo{}
 )
 
-// `ethSecp256k1Algo` implements the `keyring.SignatureAlgo` interface for the eth_secp256k1 algorithm.
+// ethSecp256k1Algo implements the `keyring.SignatureAlgo` interface for the eth_secp256k1 algorithm.
 type ethSecp256k1Algo struct{}
 
-// `Name` returns eth_secp256k1.
+// Name returns eth_secp256k1.
 func (s ethSecp256k1Algo) Name() hd.PubKeyType {
 	return EthSecp256k1Type
 }
 
-// `Derive` derives and returns the eth_secp256k1 private key for the given mnemonic and HD path.
+// Derive derives and returns the eth_secp256k1 private key for the given mnemonic and HD path.
 func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
 	return hd.Secp256k1.Derive()
 }
 
-// `Generate` generates a eth_secp256k1 private key from the given bytes.
+// Generate generates a eth_secp256k1 private key from the given bytes.
 func (s ethSecp256k1Algo) Generate() hd.GenerateFn {
 	return func(bz []byte) cryptotypes.PrivKey {
 		bzArr := make([]byte, ethsecp256k1.PrivKeySize)

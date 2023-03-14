@@ -23,25 +23,25 @@ package config
 import "time"
 
 var (
-	// `DefaultAPINamespaces` is the default namespaces the JSON-RPC server exposes.
+	// DefaultAPINamespaces is the default namespaces the JSON-RPC server exposes.
 	DefaultAPINamespaces = []string{"eth", "net"}
 )
 
 const (
-	// `DefaultBaseRoute` is the default base path for the JSON-RPC server.
+	// DefaultBaseRoute is the default base path for the JSON-RPC server.
 	DefaultBaseRoute = "/"
 
-	// `DefaultRPCGasCap` is the default gas cap for the JSON-RPC server.
+	// DefaultRPCGasCap is the default gas cap for the JSON-RPC server.
 	DefaultRPCGasCap = 50000000
 
-	// `DefaultRPCTxFeeCap` is the default transaction fee cap for the JSON-RPC server.
+	// DefaultRPCTxFeeCap is the default transaction fee cap for the JSON-RPC server.
 	DefaultRPCTxFeeCap = 1.0 // 1 ether
 
-	// `DefaultRPCEVMTimeout` is the default timeout for the JSON-RPC server.
+	// DefaultRPCEVMTimeout is the default timeout for the JSON-RPC server.
 	DefaultRPCEVMTimeout = 5 * time.Second
 )
 
-// `DefaultServer` returns the default JSON-RPC server config.
+// DefaultServer returns the default JSON-RPC server config.
 func DefaultServer() *Server {
 	return &Server{
 		EnabledAPIs:   DefaultAPINamespaces,

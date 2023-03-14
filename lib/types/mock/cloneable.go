@@ -7,17 +7,17 @@ import libtypes "pkg.berachain.dev/polaris/lib/types"
 
 //go:generate moq -out ./cloneable.mock.go -pkg mock ../ Cloneable
 
-// `WrappedCloneableMock` is a mock for the `Cloneable` interface.
+// WrappedCloneableMock is a mock for the `Cloneable` interface.
 var _ libtypes.Cloneable[*WrappedCloneableMock] = &WrappedCloneableMock{}
 
-// `WrappedCloneableMock` is a mock for the `Cloneable` interface.
+// WrappedCloneableMock is a mock for the `Cloneable` interface.
 // It wraps the `CloneableMock` and adds a `val` field.
 type WrappedCloneableMock struct {
 	CloneableMock[WrappedCloneableMock]
 	val int
 }
 
-// `NewWrappedCloneableMock` returns a new `WrappedCloneableMock`.
+// NewWrappedCloneableMock returns a new `WrappedCloneableMock`.
 func NewWrappedCloneableMock[T any](val int) *WrappedCloneableMock {
 	return &WrappedCloneableMock{
 		CloneableMock: CloneableMock[WrappedCloneableMock]{
@@ -29,7 +29,7 @@ func NewWrappedCloneableMock[T any](val int) *WrappedCloneableMock {
 	}
 }
 
-// `Clone` returns a clone of the mock.
+// Clone returns a clone of the mock.
 func (mco *WrappedCloneableMock) Clone() *WrappedCloneableMock {
 	mco.CloneableMock.Clone()
 	return &WrappedCloneableMock{
@@ -40,7 +40,7 @@ func (mco *WrappedCloneableMock) Clone() *WrappedCloneableMock {
 	}
 }
 
-// `Val` returns the value of the mock.
+// Val returns the value of the mock.
 func (mco *WrappedCloneableMock) Val() int {
 	return mco.val
 }

@@ -28,16 +28,16 @@ import (
 )
 
 const (
-	// `DefaultEvmDenom` is the default EVM denom.
+	// DefaultEvmDenom is the default EVM denom.
 	DefaultEvmDenom = "abera"
 )
 
 var (
-	// `DefaultExtraEIPs` is the default extra EIPs.
+	// DefaultExtraEIPs is the default extra EIPs.
 	DefaultExtraEIPs = []int64{}
 )
 
-// `DefaultParams` contains the default values for all parameters.
+// DefaultParams contains the default values for all parameters.
 func DefaultParams() *Params {
 	return &Params{
 		EvmDenom:    DefaultEvmDenom,
@@ -46,7 +46,7 @@ func DefaultParams() *Params {
 	}
 }
 
-// `EthereumChainConfig` returns the chain config as a struct.
+// EthereumChainConfig returns the chain config as a struct.
 func (p Params) EthereumChainConfig() *params.ChainConfig {
 	if p.ChainConfig == "" {
 		return nil
@@ -54,7 +54,7 @@ func (p Params) EthereumChainConfig() *params.ChainConfig {
 	return enclib.MustUnmarshalJSON[params.ChainConfig]([]byte(p.ChainConfig))
 }
 
-// `ValidateBasic` is used to validate the parameters.
+// ValidateBasic is used to validate the parameters.
 func (p *Params) ValidateBasic() error {
 	if p.EvmDenom == "" {
 		return ErrNoEvmDenom

@@ -26,30 +26,35 @@
 package main
 
 import (
-	"os"
-
-	"github.com/magefile/mage/sh"
+	"github.com/magefile/mage/mg"
 )
 
-var (
+// var moduleNamespaces = []MageModule{
+// 	&Contracts{},
+// 	&Cosmos{},
+// 	&Eth{},
+// 	&Playground{},
+// }
 
-	// Arguments.
-	junitArgs = []string{"--junit-report", "out.xml"}
-	coverArgs = append(junitArgs, []string{"--cover", "--coverprofile",
-		"coverage-testunitcover.txt", "--covermode", "atomic"}...)
-	raceArgs = append(junitArgs, []string{"-race"}...)
+type MageModule interface {
+	directory() string
+	Test() error
+	TestUnit() error
+	TestIntegration() error
+}
 
-	// Commands.
-	goTest     = RunCmdV("go", "test", "-mod=readonly")
-	ginkgoTest = RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
-)
-
-// Starts a local docs page.
-func Docs() error {
-	_ = os.Chdir("docs/web")
-	defer func() { _ = os.Chdir("../..") }()
-	if err := sh.RunV("yarn"); err != nil {
-		return err
-	}
-	return sh.RunV("yarn", "dev")
+// Runs a series of commonly used commands.
+func All() {
+	mg.SerialDeps(
+		Contracts{}.Build,
+		Generate,
+		Proto.All,
+		Format,
+		Lint,
+		Cosmos{}.Build,
+		Playground{}.Build,
+		Contracts{}.Test,
+		Cosmos{}.Test,
+		Playground{}.Test,
+	)
 }

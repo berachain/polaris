@@ -28,28 +28,28 @@ type (
 )
 
 var (
-	// `RefundQuotient` is the refund quotient parameter.
+	// RefundQuotient is the refund quotient parameter.
 	RefundQuotient = params.RefundQuotient
-	// `RefundQuotientEIP3529` is the refund quotient parameter for EIP-3529.
+	// RefundQuotientEIP3529 is the refund quotient parameter for EIP-3529.
 	RefundQuotientEIP3529 = params.RefundQuotientEIP3529
-	// `TxAccessListAddressGas` is the cost of an address for a transaction with an access list.
+	// TxAccessListAddressGas is the cost of an address for a transaction with an access list.
 	TxAccessListAddressGas = params.TxAccessListAddressGas
-	// `TxAccessListAddressGasEIP2930` is the cost of an address for a transaction with an access
+	// TxAccessListAddressGasEIP2930 is the cost of an address for a transaction with an access
 	// list.
 	TxAccessListStorageKeyGas = params.TxAccessListStorageKeyGas
-	// `TxDataNonZeroGasFrontier` is the cost of a non-zero byte of data for a transaction.
+	// TxDataNonZeroGasFrontier is the cost of a non-zero byte of data for a transaction.
 	TxDataNonZeroGasFrontier = params.TxDataNonZeroGasFrontier
-	// `TxDataNonZeroGasEIP2028` is the cost of a non-zero byte of data for a transaction.
+	// TxDataNonZeroGasEIP2028 is the cost of a non-zero byte of data for a transaction.
 	TxDataNonZeroGasEIP2028 = params.TxDataNonZeroGasEIP2028
-	// `TxDataZeroGas` is the cost of a zero byte of data or code for a transaction.
+	// TxDataZeroGas is the cost of a zero byte of data or code for a transaction.
 	TxDataZeroGas = params.TxDataZeroGas
-	// `TxGasContractCreation` is the amount of gas that is refunded for a contract creation
+	// TxGasContractCreation is the amount of gas that is refunded for a contract creation
 	// transaction.
 	TxGasContractCreation = params.TxGasContractCreation
-	// `TxGas` is the amount of gas that is refunded for a transaction.
+	// TxGas is the amount of gas that is refunded for a transaction.
 	TxGas = params.TxGas
-	// `MainnetChainConfig` is the chain parameters to run a node on the main network.
+	// MainnetChainConfig is the chain parameters to run a node on the main network.
 	MainnetChainConfig = params.MainnetChainConfig
-	// `IdentityBaseGas` is the base gas required to execute the identity pre-compiled contract.
+	// IdentityBaseGas is the base gas required to execute the identity pre-compiled contract.
 	IdentityBaseGas = params.IdentityBaseGas
 )

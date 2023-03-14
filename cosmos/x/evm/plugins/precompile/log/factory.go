@@ -31,17 +31,17 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `Factory` is a `PrecompileLogFactory` that builds Ethereum logs from Cosmos events. All Ethereum
+// Factory is a `PrecompileLogFactory` that builds Ethereum logs from Cosmos events. All Ethereum
 // events must be registered with the factory before it can build logs during state transitions.
 type Factory struct {
-	// `events` is a registry of precompile logs, indexed by the Cosmos event type.
+	// events is a registry of precompile logs, indexed by the Cosmos event type.
 	events libtypes.Registry[string, *precompileLog]
-	// `customValueDecoders` is a map of Cosmos attribute keys to attribute value decoder
+	// customValueDecoders is a map of Cosmos attribute keys to attribute value decoder
 	// functions for custom events.
 	customValueDecoders precompile.ValueDecoders
 }
 
-// `NewFactory` returns a `Factory` with the events and custom value decoders of the given
+// NewFactory returns a `Factory` with the events and custom value decoders of the given
 // precompiles registered.
 func NewFactory(precompiles []vm.RegistrablePrecompile) *Factory {
 	f := &Factory{
@@ -52,9 +52,9 @@ func NewFactory(precompiles []vm.RegistrablePrecompile) *Factory {
 	return f
 }
 
-// `Build` builds an Ethereum log from a Cosmos event.
+// Build builds an Ethereum log from a Cosmos event.
 //
-// `Build` implements `events.PrecompileLogFactory`.
+// Build implements `events.PrecompileLogFactory`.
 func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
 	// get the precompile log for the Cosmos event type
 	pl := f.events.Get(event.Type)
@@ -83,7 +83,7 @@ func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
 	return log, nil
 }
 
-// `registerAllEvents` registers all Ethereum events from the provided precompiles with the factory.
+// registerAllEvents registers all Ethereum events from the provided precompiles with the factory.
 func (f *Factory) registerAllEvents(precompiles []vm.RegistrablePrecompile) {
 	for _, pc := range precompiles {
 		if spc, ok := utils.GetAs[precompile.StatefulImpl](pc); ok {

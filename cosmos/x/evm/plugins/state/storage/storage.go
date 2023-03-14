@@ -31,12 +31,12 @@ import (
 var _ libtypes.Cloneable[Storage] = Storage{}
 var _ fmt.Stringer = Storage{}
 
-// `Storage` represents the account Storage map as a slice of single key-value
+// Storage represents the account Storage map as a slice of single key-value
 // Slot pairs. This helps to ensure that the Storage map can be iterated over
 // deterministically.
 type Storage []*Slot
 
-// `ValidateBasic` performs basic validation of the Storage data structure.
+// ValidateBasic performs basic validation of the Storage data structure.
 // It checks for duplicate keys and calls `ValidateBasic` on each `State`.
 func (s Storage) ValidateBasic() error {
 	seenSlots := make(map[string]struct{})
@@ -54,7 +54,7 @@ func (s Storage) ValidateBasic() error {
 	return nil
 }
 
-// `String` implements `fmt.Stringer`.
+// String implements `fmt.Stringer`.
 func (s Storage) String() string {
 	var str string
 	for _, slot := range s {
@@ -64,7 +64,7 @@ func (s Storage) String() string {
 	return str
 }
 
-// `Clone` implements `types.Cloneable`.
+// Clone implements `types.Cloneable`.
 func (s Storage) Clone() Storage {
 	cpy := make(Storage, len(s))
 	copy(cpy, s)

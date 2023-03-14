@@ -33,11 +33,11 @@ import (
 )
 
 const (
-	// `PrivKeySize` defines the length of the PrivKey byte array.
+	// PrivKeySize defines the length of the PrivKey byte array.
 	PrivKeySize = 32
-	// `PubKeySize` defines the length of the PubKey byte array.
+	// PubKeySize defines the length of the PubKey byte array.
 	PubKeySize = PrivKeySize + 1
-	// `KeyType` is the string constant for the secp256k1 algorithm.
+	// KeyType is the string constant for the secp256k1 algorithm.
 	KeyType = "eth_secp256k1"
 )
 
@@ -45,18 +45,18 @@ const (
 // Private Key
 // ====================================================================================================
 
-// `PrivKey` is a wrapper around the Ethereum secp256k1 private key type. This wrapper conforms to
-// `crypotypes.Pubkey` to allow for the use of the Ethereum secp256k1 private key type within the Cosmos SDK.
+// PrivKey is a wrapper around the Ethereum secp256k1 private key type. This wrapper conforms to
+// crypotypes.Pubkey to allow for the use of the Ethereum secp256k1 private key type within the Cosmos SDK.
 
 // Compile-time type assertion.
 var _ cryptotypes.PrivKey = &PrivKey{}
 
-// `Bytes` returns the byte representation of the ECDSA Private Key.
+// Bytes returns the byte representation of the ECDSA Private Key.
 func (privKey PrivKey) Bytes() []byte {
 	return privKey.Key
 }
 
-// `PubKey` returns the ECDSA private key's public key. If the privkey is not valid
+// PubKey returns the ECDSA private key's public key. If the privkey is not valid
 // it returns a nil value.
 func (privKey PrivKey) PubKey() cryptotypes.PubKey {
 	ecdsaPrivKey, err := privKey.ToECDSA()
@@ -69,17 +69,17 @@ func (privKey PrivKey) PubKey() cryptotypes.PubKey {
 	}
 }
 
-// `Equals` returns true if two ECDSA private keys are equal and false otherwise.
+// Equals returns true if two ECDSA private keys are equal and false otherwise.
 func (privKey PrivKey) Equals(other cryptotypes.LedgerPrivKey) bool {
 	return privKey.Type() == other.Type() && subtle.ConstantTimeCompare(privKey.Bytes(), other.Bytes()) == 1
 }
 
-// `Type` returns eth_secp256k1.
+// Type returns eth_secp256k1.
 func (privKey PrivKey) Type() string {
 	return KeyType
 }
 
-// `GenPrivKey` generates a new random private key. It returns an error upon
+// GenPrivKey generates a new random private key. It returns an error upon
 // failure.
 func GenPrivKey() (*PrivKey, error) {
 	priv, err := crypto.GenerateEthKey()
@@ -92,7 +92,7 @@ func GenPrivKey() (*PrivKey, error) {
 	}, nil
 }
 
-// `ToECDSA` returns the ECDSA private key as a reference to ecdsa.PrivateKey type.
+// ToECDSA returns the ECDSA private key as a reference to ecdsa.PrivateKey type.
 func (privKey PrivKey) ToECDSA() (*ecdsa.PrivateKey, error) {
 	return crypto.ToECDSA(privKey.Bytes())
 }
@@ -101,13 +101,13 @@ func (privKey PrivKey) ToECDSA() (*ecdsa.PrivateKey, error) {
 // Public Key
 // ====================================================================================================
 
-// `Pubkey` is a wrapper around the Ethereum secp256k1 public key type. This wrapper conforms to
-// `crypotypes.Pubkey` to allow for the use of the Ethereum secp256k1 public key type within the Cosmos SDK.
+// Pubkey is a wrapper around the Ethereum secp256k1 public key type. This wrapper conforms to
+// crypotypes.Pubkey to allow for the use of the Ethereum secp256k1 public key type within the Cosmos SDK.
 
 // Compile-time type assertion.
 var _ cryptotypes.PubKey = &PubKey{}
 
-// `Address` returns the address of the ECDSA public key.
+// Address returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.
 func (pubKey PubKey) Address() cmcrypto.Address {
 	key, err := crypto.DecompressPubkey(pubKey.Key)
@@ -118,17 +118,17 @@ func (pubKey PubKey) Address() cmcrypto.Address {
 	return cmcrypto.Address(crypto.PubkeyToAddress(*key).Bytes())
 }
 
-// `Bytes` returns the pubkey byte format.
+// Bytes returns the pubkey byte format.
 func (pubKey *PubKey) Bytes() []byte {
 	return pubKey.Key
 }
 
-// `Type` returns eth_secp256k1.
+// Type returns eth_secp256k1.
 func (pubKey *PubKey) Type() string {
 	return KeyType
 }
 
-// `Equals` returns true if the pubkey type is the same and their bytes are deeply equal.
+// Equals returns true if the pubkey type is the same and their bytes are deeply equal.
 func (pubKey PubKey) Equals(other cryptotypes.PubKey) bool {
 	return pubKey.Type() == other.Type() && bytes.Equal(pubKey.Bytes(), other.Bytes())
 }

@@ -21,7 +21,14 @@
 package network_test
 
 import (
+	"context"
+	"os"
 	"testing"
+	"time"
+
+	"github.com/ethereum/go-ethereum/ethclient"
+
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -33,19 +40,23 @@ func TestNetwork(t *testing.T) {
 }
 
 var _ = Describe("Network", func() {
-	// var net *network.Network
+	var net *network.Network
 	BeforeEach(func() {
-		// net = network.New(GinkgoT(), network.DefaultConfig())
-		// time.Sleep(10 * time.Second)
-		// _, _ = net.WaitForHeightWithTimeout(3, 15*time.Second)
+		net = network.New(GinkgoT(), network.DefaultConfig())
+		time.Sleep(10 * time.Second)
+		_, err := net.WaitForHeightWithTimeout(3, 15*time.Second)
+		Expect(err).ToNot(HaveOccurred())
+
+		// TODO: FIX THE OFFCHAIN DB
+		os.RemoveAll("data")
 	})
 
-	// It("eth_chainId", func() {
-	// 	// Dial an Ethereum RPC Endpoint
-	// 	client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
-	// 	Expect(err).To(BeNil())
-	// 	chainID, err := client.ChainID(context.Background())
-	// 	Expect(err).To(BeNil())
-	// 	Expect(chainID.String()).To(Equal("42069"))
-	// })
+	It("eth_chainId", func() {
+		// Dial an Ethereum RPC Endpoint
+		client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
+		Expect(err).ToNot(HaveOccurred())
+		chainID, err := client.ChainID(context.Background())
+		Expect(err).ToNot(HaveOccurred())
+		Expect(chainID.String()).To(Equal("69420"))
+	})
 })
