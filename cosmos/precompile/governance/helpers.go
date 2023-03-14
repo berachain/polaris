@@ -27,7 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 )
 
 // `submitProposalHelper` is a helper function for the `SubmitProposal` method of the governance precompile contract.

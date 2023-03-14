@@ -33,7 +33,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	pcgenerated "pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
+	pcgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -47,7 +47,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/eth/testutil/contracts/solidity/generated"
+	"pkg.berachain.dev/polaris/contracts/solidity/generated"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
