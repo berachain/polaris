@@ -36,7 +36,7 @@ import (
 
 func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testutil/network:integration")
+	RunSpecs(t, "cosmos/testing/network:integration")
 }
 
 var _ = Describe("Network", func() {
