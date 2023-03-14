@@ -192,11 +192,6 @@ func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) comm
 
 // `GetTransientState` implements `stateDB`
 func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	prev := sdb.GetTransientState(addr, key)
-	if prev == value {
-		return
-	}
-
 	sdb.TransientJournal.AddTransient(addr, key, value)
 	sdb.transientStorage.Set(addr, key, value)
 }
