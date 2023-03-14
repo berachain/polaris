@@ -21,6 +21,7 @@
 package journal
 
 import (
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
@@ -45,6 +46,22 @@ func NewAccesslist() *accessList {
 // `RegistryKey` implements `libtypes.Registrable`.
 func (al *accessList) RegistryKey() string {
 	return accessListRegistryKey
+}
+
+func (al *accessList) AddAddressToAccessList(addr common.Address) {
+	al.AddAddress(addr)
+}
+
+func (al *accessList) AddSlotToAccessList(addr common.Address, slot common.Hash) {
+	al.AddSlot(addr, slot)
+}
+
+func (al *accessList) AddressInAccessList(addr common.Address) bool {
+	return al.ContainsAddress(addr)
+}
+
+func (al *accessList) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
+	return al.Contains(addr, slot)
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.

@@ -20,16 +20,28 @@
 
 package journal
 
-const (
-	// `initCapacity` is the initial capacity of the journals.
-	// TODO: determine appropriate value.
-	initCapacity = 32
-	// `refundRegistryKey` is the registry key for the refund journal.
-	refundRegistryKey = `refund`
-	// `logsRegistryKey` is the registry key for the logs journal.
-	logsRegistryKey = `logs`
-	// `accessListRegistryKey` is the registry key for the access list journal.
-	accessListRegistryKey = `accessList`
-	// `suicidesRegistryKey` is the registry key for the suicides journal.
-	suicidesRegistryKey = `suicides`
+import (
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/lib/ds"
+	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
+
+type suicides struct {
+	ds.Stack[*common.Address] // journal of suicide address per call.
+}
+
+// `NewSuicides` returns a new `suicides` journal.
+//
+//nolint:revive // only used as a `state.SuicidesJournal`.
+func NewSuicides() *suicides {
+	return &suicides{
+		Stack: stack.New[*common.Address](initCapacity),
+	}
+}
+
+// `RegistryKey` implements `libtypes.Registrable`.
+func (s *suicides) RegistryKey() string {
+	return suicidesRegistryKey
+}
+
+

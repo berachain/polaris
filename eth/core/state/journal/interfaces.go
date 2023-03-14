@@ -20,16 +20,7 @@
 
 package journal
 
-const (
-	// `initCapacity` is the initial capacity of the journals.
-	// TODO: determine appropriate value.
-	initCapacity = 32
-	// `refundRegistryKey` is the registry key for the refund journal.
-	refundRegistryKey = `refund`
-	// `logsRegistryKey` is the registry key for the logs journal.
-	logsRegistryKey = `logs`
-	// `accessListRegistryKey` is the registry key for the access list journal.
-	accessListRegistryKey = `accessList`
-	// `suicidesRegistryKey` is the registry key for the suicides journal.
-	suicidesRegistryKey = `suicides`
-)
+// `suicideStatePlugin` defines the required funtions from the StatePlugin that the suicide journal
+// needs.
+type suicideStatePlugin interface {
+}

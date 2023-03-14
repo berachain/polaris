@@ -27,8 +27,8 @@ var _ state.Plugin = &PluginMock{}
 //			CreateAccountFunc: func(address common.Address)  {
 //				panic("mock out the CreateAccount method")
 //			},
-//			DeleteSuicidesFunc: func(addresss []common.Address)  {
-//				panic("mock out the DeleteSuicides method")
+//			DeleteAccountsFunc: func(addresss []common.Address)  {
+//				panic("mock out the DeleteAccounts method")
 //			},
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
@@ -106,8 +106,8 @@ type PluginMock struct {
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
 
-	// DeleteSuicidesFunc mocks the DeleteSuicides method.
-	DeleteSuicidesFunc func(addresss []common.Address)
+	// DeleteAccountsFunc mocks the DeleteAccounts method.
+	DeleteAccountsFunc func(addresss []common.Address)
 
 	// ExistFunc mocks the Exist method.
 	ExistFunc func(address common.Address) bool
@@ -186,8 +186,8 @@ type PluginMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
-		// DeleteSuicides holds details about calls to the DeleteSuicides method.
-		DeleteSuicides []struct {
+		// DeleteAccounts holds details about calls to the DeleteAccounts method.
+		DeleteAccounts []struct {
 			// Addresss is the addresss argument value.
 			Addresss []common.Address
 		}
@@ -311,7 +311,7 @@ type PluginMock struct {
 	}
 	lockAddBalance        sync.RWMutex
 	lockCreateAccount     sync.RWMutex
-	lockDeleteSuicides    sync.RWMutex
+	lockDeleteAccounts    sync.RWMutex
 	lockExist             sync.RWMutex
 	lockFinalize          sync.RWMutex
 	lockForEachStorage    sync.RWMutex
@@ -403,35 +403,35 @@ func (mock *PluginMock) CreateAccountCalls() []struct {
 	return calls
 }
 
-// DeleteSuicides calls DeleteSuicidesFunc.
-func (mock *PluginMock) DeleteSuicides(addresss []common.Address) {
-	if mock.DeleteSuicidesFunc == nil {
-		panic("PluginMock.DeleteSuicidesFunc: method is nil but Plugin.DeleteSuicides was just called")
+// DeleteAccounts calls DeleteAccountsFunc.
+func (mock *PluginMock) DeleteAccounts(addresss []common.Address) {
+	if mock.DeleteAccountsFunc == nil {
+		panic("PluginMock.DeleteAccountsFunc: method is nil but Plugin.DeleteAccounts was just called")
 	}
 	callInfo := struct {
 		Addresss []common.Address
 	}{
 		Addresss: addresss,
 	}
-	mock.lockDeleteSuicides.Lock()
-	mock.calls.DeleteSuicides = append(mock.calls.DeleteSuicides, callInfo)
-	mock.lockDeleteSuicides.Unlock()
-	mock.DeleteSuicidesFunc(addresss)
+	mock.lockDeleteAccounts.Lock()
+	mock.calls.DeleteAccounts = append(mock.calls.DeleteAccounts, callInfo)
+	mock.lockDeleteAccounts.Unlock()
+	mock.DeleteAccountsFunc(addresss)
 }
 
-// DeleteSuicidesCalls gets all the calls that were made to DeleteSuicides.
+// DeleteAccountsCalls gets all the calls that were made to DeleteAccounts.
 // Check the length with:
 //
-//	len(mockedPlugin.DeleteSuicidesCalls())
-func (mock *PluginMock) DeleteSuicidesCalls() []struct {
+//	len(mockedPlugin.DeleteAccountsCalls())
+func (mock *PluginMock) DeleteAccountsCalls() []struct {
 	Addresss []common.Address
 } {
 	var calls []struct {
 		Addresss []common.Address
 	}
-	mock.lockDeleteSuicides.RLock()
-	calls = mock.calls.DeleteSuicides
-	mock.lockDeleteSuicides.RUnlock()
+	mock.lockDeleteAccounts.RLock()
+	calls = mock.calls.DeleteAccounts
+	mock.lockDeleteAccounts.RUnlock()
 	return calls
 }
 

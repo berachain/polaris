@@ -78,8 +78,8 @@ type Plugin interface {
 	// `ForEachStorage` iterates over the storage of an account and calls the given callback
 	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
-	// `DeleteSuicides` removes the given accounts from the state.
-	DeleteSuicides([]common.Address)
+	// `DeleteAccounts` removes the given accounts from the state.
+	DeleteAccounts([]common.Address)
 }
 
 type (
@@ -114,13 +114,22 @@ type (
 	AccessListJournal interface {
 		// `AccessListJournal` implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
-		// `AddAddress` adds the given `address` to the access list.
-		AddAddress(address common.Address) bool
-		// `AddSlot` adds the given `slot` to the access list.
-		AddSlot(address common.Address, slot common.Hash) (addrChange bool, slotChange bool)
-		// `Contains` returns whether the given `address` and `slot` are in the access list.
-		Contains(address common.Address, slot common.Hash) (addressPresent bool, slotPresent bool)
-		// `ContainsAddress` returns whether the given `address` is in the access list.
-		ContainsAddress(address common.Address) bool
+		// `AddAddressToAccessList` adds the given address to the access list.
+		AddAddressToAccessList(common.Address)
+		// `AddSlotToAccessList` adds the given slot to the access list for the given address.
+		AddSlotToAccessList(common.Address, common.Hash)
+		// `SlotInAccessList` returns whether the given address and slot are in the access list.
+		SlotInAccessList(common.Address, common.Hash) (addressPresent bool, slotPresent bool)
+		// `AddressInAccessList` returns whether the given address is in the access list.
+		AddressInAccessList(common.Address) bool
+	}
+
+	SuicidesJournal interface {
+		// `SuicidesJournal` implements `libtypes.Controllable`.
+		libtypes.Controllable[string]
+		// `Suicide` marks the given address as suicided.
+		Suicide(common.Address) bool
+		// `HasSuicided` returns whether the address is suicided.
+		HasSuicided(common.Address) bool
 	}
 )

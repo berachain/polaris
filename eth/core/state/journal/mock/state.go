@@ -57,7 +57,7 @@ func NewEmptyStatePlugin() *PluginMock {
 				CodeHash: crypto.Keccak256Hash(nil),
 			}
 		},
-		DeleteSuicidesFunc: func(addresss []common.Address) {
+		DeleteAccountsFunc: func(addresss []common.Address) {
 			for _, addr := range addresss {
 				delete(Accounts, addr)
 			}

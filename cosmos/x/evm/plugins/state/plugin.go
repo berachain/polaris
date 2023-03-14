@@ -453,24 +453,24 @@ func (p *plugin) ForEachStorage(
 	return nil
 }
 
-// `DeleteSuicides` manually deletes the given suicidal accounts.
-func (p *plugin) DeleteSuicides(suicides []common.Address) {
-	for _, suicidalAddr := range suicides {
-		acct := p.ak.GetAccount(p.ctx, suicidalAddr[:])
+// `DeleteAccounts` manually deletes the given accounts.
+func (p *plugin) DeleteAccounts(accounts []common.Address) {
+	for _, account := range accounts {
+		acct := p.ak.GetAccount(p.ctx, account[:])
 		if acct == nil {
 			// handles the double suicide case
 			continue
 		}
 
 		// clear storage
-		_ = p.ForEachStorage(suicidalAddr,
+		_ = p.ForEachStorage(account,
 			func(key, _ common.Hash) bool {
-				p.SetState(suicidalAddr, key, common.Hash{})
+				p.SetState(account, key, common.Hash{})
 				return true
 			})
 
 		// clear the codehash from this account
-		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(suicidalAddr))
+		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(account))
 
 		// remove auth account
 		p.ak.RemoveAccount(p.ctx, acct)

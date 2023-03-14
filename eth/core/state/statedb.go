@@ -148,34 +148,14 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 
 // `Finalize` deletes the suicided accounts, clears the suicides list, and finalizes all plugins.
 func (sdb *stateDB) Finalize() {
-	sdb.DeleteSuicides(sdb.suicides)
+	sdb.DeleteAccounts(sdb.suicides)
 	sdb.suicides = make([]common.Address, 1)
 	sdb.ctrl.Finalize()
 }
 
 // =============================================================================
-// AccessList and Transient Storage
+// TODO: Transient State
 // =============================================================================
-
-// `AddAddressToAccessList` implements `stateDB`.
-func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
-	sdb.AddAddress(addr)
-}
-
-// `AddSlotToAccessList` implements `stateDB`.
-func (sdb *stateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
-	sdb.AddSlot(addr, slot)
-}
-
-// `AddressInAccessList` implements `stateDB`.
-func (sdb *stateDB) AddressInAccessList(addr common.Address) bool {
-	return sdb.ContainsAddress(addr)
-}
-
-// `SlotInAccessList` implements `stateDB`.
-func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
-	return sdb.Contains(addr, slot)
-}
 
 // TODO: `GetTransientState` implements the `PolarisStateDB` interface by returning the transient state
 func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
@@ -187,6 +167,10 @@ func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Has
 	panic("not supported by Polaris")
 }
 
+// =============================================================================
+// Prepare
+// =============================================================================
+
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
 //
 // `Prepare` implements `stateDB`.
@@ -196,22 +180,22 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 		// Clear out any leftover from previous executions
 		sdb.AccessListJournal = journal.NewAccesslist()
 
-		sdb.AddAddress(sender)
+		sdb.AddAddressToAccessList(sender)
 		if dest != nil {
-			sdb.AddAddress(*dest)
+			sdb.AddAddressToAccessList(*dest)
 			// If it's a create-tx, the destination will be added inside evm.create
 		}
 		for _, addr := range precompiles {
-			sdb.AddAddress(addr)
+			sdb.AddAddressToAccessList(addr)
 		}
 		for _, el := range txAccesses {
-			sdb.AddAddress(el.Address)
+			sdb.AddAddressToAccessList(el.Address)
 			for _, key := range el.StorageKeys {
-				sdb.AddSlot(el.Address, key)
+				sdb.AddSlotToAccessList(el.Address, key)
 			}
 		}
 		if rules.IsShanghai { // EIP-3651: warm coinbase
-			sdb.AddAddress(coinbase)
+			sdb.AddAddressToAccessList(coinbase)
 		}
 	}
 }
