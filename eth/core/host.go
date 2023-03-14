@@ -29,7 +29,7 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-// PolarisHostChain defines the plugins that the chain running Polaris EVM should implement.
+// PolarisHostChain defines the plugins that the chain running the Polaris EVM should implement.
 type PolarisHostChain interface {
 	// GetBlockPlugin returns the `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
@@ -51,10 +51,10 @@ type PolarisHostChain interface {
 // Mandatory Plugins
 // =============================================================================
 
-// The following plugins should be implemented by the chain running Polaris EVM and exposed via
+// The following plugins should be implemented by the chain running the Polaris EVM and exposed via
 // the `PolarisHostChain` interface. All plugins should be resettable with a given context.
 type (
-	// BlockPlugin defines the methods that the chain running Polaris EVM should implement to
+	// BlockPlugin defines the methods that the chain running the Polaris EVM should implement to
 	// support getting and setting block headers.
 	BlockPlugin interface {
 		// BlockPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the

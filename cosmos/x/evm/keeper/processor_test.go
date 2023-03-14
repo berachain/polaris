@@ -103,6 +103,7 @@ var _ = Describe("Processor", func() {
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
 		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil)
+		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
