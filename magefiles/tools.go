@@ -55,18 +55,6 @@ var (
 	moduleDirs = []string{"contracts", "eth", "cosmos", "playground", "magefiles", "lib"}
 )
 
-// Runs a series of commonly used commands.
-func All() error {
-	cmds := []func() error{Contracts{}.Build, Generate, Proto, Format, Lint,
-		Cosmos{}.Build, Playground{}.Build, TestUnit, TestIntegration}
-	for _, cmd := range cmds {
-		if err := cmd(); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // ===========================================================================
 // Go Language Tools
 // ===========================================================================.

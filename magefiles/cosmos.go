@@ -99,11 +99,13 @@ func (c Cosmos) BuildRelease() error {
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) BuildDocker() error {
+	PrintMageName()
 	return c.dockerBuildBeradWith(goVersion, debianStaticImage, version)
 }
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) BuildDockerDebug() error {
+	PrintMageName()
 	return c.dockerBuildBeradWith(goVersion, golangAlpine, version)
 }
 
@@ -143,27 +145,19 @@ func (Cosmos) Install() error {
 // ===========================================================================
 
 // Runs all main tests.
-func (Cosmos) Test() error {
-	tests := []func() error{testUnit}
-
-	if err := (Contracts{}.Build()); err != nil {
-		return err
-	}
-
-	for _, t := range tests {
-		if err := t(); err != nil {
-			return err
-		}
-	}
-	return nil
+func (c Cosmos) Test() error {
+	PrintMageName()
+	return testUnit(c.directory())
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
-func (Cosmos) TestUnit() error {
-	return testUnit()
+func (c Cosmos) TestUnit() error {
+	PrintMageName()
+	return testUnit(c.directory())
 }
 
 // Runs all integration for the Cosmos SDK chain.
-func (Cosmos) TestIntegration() error {
-	return testIntegration()
+func (c Cosmos) TestIntegration() error {
+	PrintMageName()
+	return testIntegration(c.directory())
 }

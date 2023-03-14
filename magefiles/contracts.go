@@ -30,11 +30,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/TwiN/go-color"
 	"github.com/magefile/mage/mg"
 )
 
 var (
+	// Commands.
 	forgeBuild = RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
 	forgeClean = RunCmdV("forge", "clean")
 	forgeTest  = RunCmdV("forge", "test")
@@ -47,7 +47,6 @@ var _ MageModule = (*Contracts)(nil)
 // Contracts is a namespace for smart contract related commands.
 type Contracts mg.Namespace
 
-// directory returns the directory name for the Cosmos SDK chain.
 func (Contracts) directory() string {
 	return "contracts"
 }
@@ -58,7 +57,7 @@ func (Contracts) directory() string {
 
 // Runs `forge build` in all smart contract directories.
 func (Contracts) Build() error {
-	fmt.Println(color.Ize(color.Yellow, "Building Solidity contracts..."))
+	PrintMageName()
 	return forgeWrapper(forgeBuild)
 }
 
@@ -92,15 +91,18 @@ func (c Contracts) Test() error {
 
 // Run `forge test` in all smart contract directories.
 func (Contracts) TestUnit() error {
+	PrintMageName()
 	return forgeWrapper(forgeTest)
 }
 
 // Run `forge fmt` in all smart contract directories.
 func (Contracts) Fmt() error {
+	PrintMageName()
 	return forgeWrapper(forgeFmt)
 }
 
 func (Contracts) TestIntegration() error {
+	PrintMageName()
 	return forgeWrapper(forgeTest)
 }
 

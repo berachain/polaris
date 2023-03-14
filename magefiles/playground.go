@@ -82,27 +82,16 @@ func (Playground) Install() error {
 // ===========================================================================
 
 // Runs all main tests.
-func (Playground) Test() error {
-	tests := []func() error{testUnit}
-
-	if err := (Contracts{}.Build()); err != nil {
-		return err
-	}
-
-	for _, t := range tests {
-		if err := t(); err != nil {
-			return err
-		}
-	}
-	return nil
+func (p Playground) Test() error {
+	return testUnit(p.directory())
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
-func (Playground) TestUnit() error {
-	return testUnit()
+func (p Playground) TestUnit() error {
+	return testUnit(p.directory())
 }
 
 // Runs all integration for the Cosmos SDK chain.
-func (Playground) TestIntegration() error {
-	return testIntegration()
+func (p Playground) TestIntegration() error {
+	return testIntegration(p.directory())
 }

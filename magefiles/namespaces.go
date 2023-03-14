@@ -26,30 +26,28 @@
 package main
 
 import (
-	"fmt"
-	"runtime"
-	"strings"
-
-	"github.com/TwiN/go-color"
+	"github.com/magefile/mage/mg"
 )
 
-type MageModule interface {
-	directory() string
-	Test() error
-	TestUnit() error
-	TestIntegration() error
+var moduleNamespaces = []MageModule{
+	&Contracts{},
+	&Cosmos{},
+	&Eth{},
+	&Playground{},
 }
 
-func PrintMageName() {
-	skip := 2
-	size := 10
-	pc := make([]uintptr, size) // at least 1 entry needed
-	runtime.Callers(skip, pc)
-	f := runtime.FuncForPC(pc[0])
-	slice := strings.Split(f.Name(), ".")
-	name := slice[len(slice)-1]
-	//nolint:forbidigo // This is a mage file
-	fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("Running %s...",
-		name,
-	)))
+// Runs a series of commonly used commands.
+func All() {
+	mg.SerialDeps(
+		Contracts{}.Build,
+		Generate,
+		Proto.All,
+		Format,
+		Lint,
+		Cosmos{}.Build,
+		Playground{}.Build,
+		Contracts{}.Test,
+		Cosmos{}.Test,
+		Playground{}.Test,
+	)
 }

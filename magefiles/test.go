@@ -60,11 +60,11 @@ func TestUnit() error {
 		return err
 	}
 	PrintMageName()
-	return testUnit()
+	return testUnit(".")
 }
 
-func testUnit() error {
-	return ginkgoTest("--skip", ".*integration.*")
+func testUnit(path string) error {
+	return ginkgoTest("--skip", ".*integration.*", path+"/...")
 }
 
 // Runs the unit tests with coverage.
@@ -124,13 +124,13 @@ func TestIntegration() error {
 		return err
 	}
 	PrintMageName()
-	return testIntegration()
+	return testIntegration(".")
 }
 
-func testIntegration() error {
+func testIntegration(path string) error {
 	args := []string{
 		"-timeout", "30m",
-		"--focus", ".*integration.*",
+		"--focus", ".*integration.*", path + "/...",
 	}
 	return ginkgoTest(args...)
 }

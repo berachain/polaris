@@ -25,31 +25,31 @@
 
 package main
 
-import (
-	"fmt"
-	"runtime"
-	"strings"
+import "github.com/magefile/mage/mg"
 
-	"github.com/TwiN/go-color"
-)
+type Eth mg.Namespace
 
-type MageModule interface {
-	directory() string
-	Test() error
-	TestUnit() error
-	TestIntegration() error
+func (Eth) directory() string {
+	return "eth"
 }
 
-func PrintMageName() {
-	skip := 2
-	size := 10
-	pc := make([]uintptr, size) // at least 1 entry needed
-	runtime.Callers(skip, pc)
-	f := runtime.FuncForPC(pc[0])
-	slice := strings.Split(f.Name(), ".")
-	name := slice[len(slice)-1]
-	//nolint:forbidigo // This is a mage file
-	fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("Running %s...",
-		name,
-	)))
+// ===========================================================================
+// Test
+// ===========================================================================
+
+func (e Eth) Test() error {
+	PrintMageName()
+	return testUnit(e.directory())
+}
+
+// Runs all unit tests for the Cosmos SDK chain.
+func (e Eth) TestUnit() error {
+	PrintMageName()
+	return testUnit(e.directory())
+}
+
+// Runs all integration for the Cosmos SDK chain.
+func (e Eth) TestIntegration() error {
+	PrintMageName()
+	return testIntegration(e.directory())
 }
