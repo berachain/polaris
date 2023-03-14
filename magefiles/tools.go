@@ -23,8 +23,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-//
-
 package main
 
 import (
@@ -61,7 +59,7 @@ var (
 
 // Runs `go generate` on the entire project.
 func Generate() error {
-	PrintMageName()
+	LogGreen("Running 'go generate' on the entire project...")
 	if err := goInstall(moq); err != nil {
 		return err
 	}
@@ -74,7 +72,7 @@ func Generate() error {
 // Runs `go generate` on the entire project and verifies that no files were
 // changed.
 func GenerateCheck() error {
-	PrintMageName()
+	LogGreen("Running 'go generate' on the entire project and verifying that no files were changed...")
 	if err := ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false); err != nil {
 		return err
 	}

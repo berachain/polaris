@@ -57,7 +57,7 @@ func (Contracts) directory() string {
 
 // Runs `forge build` in all smart contract directories.
 func (Contracts) Build() error {
-	PrintMageName()
+	LogGreen("Building solidity contracts with foundry...")
 	return forgeWrapper(forgeBuild)
 }
 

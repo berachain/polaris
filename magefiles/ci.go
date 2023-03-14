@@ -26,14 +26,12 @@
 package main
 
 import (
-	"fmt"
-	"runtime"
-	"strings"
-
-	"github.com/TwiN/go-color"
+	"github.com/magefile/mage/mg"
 )
 
-// TODO: REMOVE
+type CI mg.Namespace
+
+// Build builds the project.
 func Build() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
@@ -54,7 +52,7 @@ func TestUnit() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	PrintMageName()
+	LogGreen("Running all unit tests...")
 	return testUnit(".")
 }
 
@@ -70,6 +68,7 @@ func TestUnitCover() error {
 	args := []string{
 		"--skip", ".*integration.*",
 	}
+	LogGreen("Running all unit tests with coverage...")
 	return ginkgoTest(append(coverArgs, args...)...)
 }
 
@@ -81,7 +80,7 @@ func TestUnitRace() error {
 	args := []string{
 		"--skip", ".*integration.*",
 	}
-	PrintMageName()
+	LogGreen("Running all unit tests with --race...")
 	return ginkgoTest(append(raceArgs, args...)...)
 }
 
@@ -90,23 +89,12 @@ func TestUnitBenchmark() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	PrintMageName()
+
+	LogGreen("Running all unit tests with benchmarking...")
 	return testUnitBenchmark()
 }
 
 func testUnitBenchmark() error {
-	args := []string{
-		"-bench=.",
-	}
-	return goTest(args...)
-}
-
-// Runs the unit tests with benchmarking.
-func TestUnitEvmBenchmark() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-
 	args := []string{
 		"-bench=.",
 	}
@@ -118,7 +106,7 @@ func TestIntegration() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	PrintMageName()
+	LogGreen("Running all integration tests")
 	return testIntegration(".")
 }
 
@@ -135,7 +123,7 @@ func TestIntegrationCover() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	PrintMageName()
+	LogGreen("Running all integration tests with coverage")
 	return testIntegrationCover()
 }
 
@@ -146,18 +134,4 @@ func testIntegrationCover() error {
 		"--focus", ".*integration.*",
 	}
 	return ginkgoTest(args...)
-}
-
-func PrintMageName() {
-	skip := 2
-	size := 10
-	pc := make([]uintptr, size) // at least 1 entry needed
-	runtime.Callers(skip, pc)
-	f := runtime.FuncForPC(pc[0])
-	slice := strings.Split(f.Name(), ".")
-	name := slice[len(slice)-1]
-
-	fmt.Println(color.Ize(color.Yellow, fmt.Sprintf("Running %s...",
-		name,
-	)))
 }

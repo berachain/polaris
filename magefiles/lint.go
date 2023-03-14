@@ -55,7 +55,7 @@ func Format() error {
 
 // Run `golangci-lint`.
 func GolangCiLint() error {
-	PrintMageName()
+	LogGreen("Running golangci-lint...")
 	for _, dir := range moduleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "./"+dir+"/"+"...",
@@ -68,7 +68,7 @@ func GolangCiLint() error {
 
 // Run `golangci-lint` with --fix.
 func GolangCiLintFix() error {
-	PrintMageName()
+	LogGreen("Running golangci-lint --fix...")
 	for _, dir := range moduleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "--fix", "./"+dir+"/"+"...",
@@ -81,7 +81,7 @@ func GolangCiLintFix() error {
 
 // Run `golines`.
 func Golines() error {
-	PrintMageName()
+	LogGreen("Running golines...")
 	return goRun(golines,
 		"--reformat-tags", "--shorten-comments", "--write-output", "--max-len=99", "-l", "./.",
 	)
@@ -89,13 +89,13 @@ func Golines() error {
 
 // Run `gosec`.
 func Gosec() error {
-	PrintMageName()
+	LogGreen("Running gosec...")
 	return goRun(gosec, "-exclude-generated", "./...")
 }
 
 // Run `addlicense`.
 func License() error {
-	PrintMageName()
+	LogGreen("Running addlicense...")
 	if err := ExecuteForAllModules(moduleDirs, func(args ...string) error {
 		if err := goRun(addlicense,
 			"-v", "-f", "./LICENSE.header", "./.",
@@ -111,7 +111,7 @@ func License() error {
 
 // Run `addlicense`.
 func LicenseCheck() error {
-	PrintMageName()
+	LogGreen("Running addlicense -check...")
 	if err := ExecuteForAllModules(moduleDirs, func(args ...string) error {
 		if err := goRun(addlicense,
 			"-check", "-v", "-f", "./LICENSE.header", "./.",
