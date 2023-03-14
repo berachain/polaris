@@ -121,8 +121,14 @@ var _ = Describe("StateDB", func() {
 		key := common.Hash{0x01}
 		value := common.Hash{0x02}
 		addr := common.Address{}
+		value2 := common.Hash{0x03}
 
 		sdb.SetTransientState(addr, key, value)
+		Expect(sdb.GetTransientState(addr, key), value)
+		before := sdb.Snapshot()
+		sdb.SetTransientState(addr, key, value2)
+		Expect(sdb.GetTransientState(addr, key), value2)
+		sdb.RevertToSnapshot(before)
 		Expect(sdb.GetTransientState(addr, key), value)
 	})
 })

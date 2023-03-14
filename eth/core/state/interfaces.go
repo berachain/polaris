@@ -123,4 +123,12 @@ type (
 		// `ContainsAddress` returns whether the given `address` is in the access list.
 		ContainsAddress(address common.Address) bool
 	}
+
+	TransientJournal interface {
+		// `TransientJournal` implements `libtypes.Controllable`.
+		AddTransient(account common.Address, key common.Hash, previous common.Hash)
+		// `AddTransient` adds a given transient storage change to the transient journal.
+		GetPrevTransient(account common.Address, key common.Hash) *common.Hash
+		// `GetPrevTransient` returns the previous transient state given an address and key.
+	}
 )

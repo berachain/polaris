@@ -49,6 +49,7 @@ type stateDB struct {
 	LogsJournal
 	RefundJournal
 	AccessListJournal
+	TransientJournal
 
 	// `ctrl` is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
@@ -67,6 +68,7 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
 	aj := journal.NewAccesslist()
+	tj := journal.NewTransient()
 
 	// Build the controller and register the plugins and journals
 
@@ -76,13 +78,15 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	_ = ctrl.Register(rj)
 	_ = ctrl.Register(aj)
 	_ = ctrl.Register(sp)
+	_ = ctrl.Register(tj)
 
 	return &stateDB{
 		Plugin:            sp,
-		transientStorage: newTransientStorage(),
+		transientStorage:  newTransientStorage(),
 		LogsJournal:       lj,
 		RefundJournal:     rj,
 		AccessListJournal: aj,
+		TransientJournal:  tj,
 		ctrl:              ctrl,
 		suicides:          make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}
@@ -193,6 +197,7 @@ func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Has
 		return
 	}
 
+	sdb.TransientJournal.AddTransient(addr, key, value)
 	sdb.transientStorage.Set(addr, key, value)
 }
 
