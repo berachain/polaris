@@ -29,11 +29,18 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-var moduleNamespaces = []MageModule{
-	&Contracts{},
-	&Cosmos{},
-	&Eth{},
-	&Playground{},
+// var moduleNamespaces = []MageModule{
+// 	&Contracts{},
+// 	&Cosmos{},
+// 	&Eth{},
+// 	&Playground{},
+// }
+
+type MageModule interface {
+	directory() string
+	Test() error
+	TestUnit() error
+	TestIntegration() error
 }
 
 // Runs a series of commonly used commands.

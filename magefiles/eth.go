@@ -38,18 +38,17 @@ func (Eth) directory() string {
 // ===========================================================================
 
 func (e Eth) Test() error {
-	PrintMageName()
 	return testUnit(e.directory())
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
 func (e Eth) TestUnit() error {
-	PrintMageName()
+	LogGreen("Running all Polaris Ethereum unit tests...")
 	return testUnit(e.directory())
 }
 
 // Runs all integration for the Cosmos SDK chain.
 func (e Eth) TestIntegration() error {
-	PrintMageName()
+	LogGreen("Running all Polaris Ethereum integration tests...")
 	return testIntegration(e.directory())
 }

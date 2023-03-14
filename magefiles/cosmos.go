@@ -26,9 +26,6 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/TwiN/go-color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
@@ -42,8 +39,8 @@ var (
 	dockerBuild = RunCmdV("docker", "build", "--rm=false")
 
 	// Variables.
-	baseDockerPath  = "./build/docker/"
-	beradDockerPath = baseDockerPath + "berad.Dockerfile"
+	baseDockerPath  = "./cosmos/"
+	beradDockerPath = baseDockerPath + "Dockerfile"
 	imageName       = "polaris-cosmos"
 	// testImageVersion       = "e2e-test-dev".
 	goVersion              = "1.20.2"
@@ -74,6 +71,7 @@ func Start() error {
 
 // Builds the Cosmos SDK chain.
 func (Cosmos) Build() error {
+	LogGreen("Building the Cosmos SDK chain...")
 	cmd := "polard"
 	args := []string{
 		generateBuildTags(),
@@ -81,13 +79,12 @@ func (Cosmos) Build() error {
 		"-o", generateOutDirectory(cmd),
 		"./cosmos/cmd/" + cmd,
 	}
-	fmt.Println(color.Ize(color.Yellow, "Building Cosmos app..."))
 	return goBuild(args...)
 }
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) BuildRelease() error {
-	PrintMageName()
+	LogGreen("Building release version of the Cosmos SDK chain...")
 	production = true
 	statically = false
 	return c.Build()
@@ -99,13 +96,13 @@ func (c Cosmos) BuildRelease() error {
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) BuildDocker() error {
-	PrintMageName()
+	LogGreen("Build a release docker image for the Cosmos SDK chain...")
 	return c.dockerBuildBeradWith(goVersion, debianStaticImage, version)
 }
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) BuildDockerDebug() error {
-	PrintMageName()
+	LogGreen("Build a debug docker image for the Cosmos SDK chain...")
 	return c.dockerBuildBeradWith(goVersion, golangAlpine, version)
 }
 
@@ -127,7 +124,7 @@ func (c Cosmos) dockerBuildBeradWith(goVersion, runnerImage, imageVersion string
 
 // Installs a release version of the Cosmos SDK chain.
 func (Cosmos) Install() error {
-	PrintMageName()
+	LogGreen("Installing the Cosmos SDK chain...")
 	production = true
 	statically = false
 
@@ -146,18 +143,24 @@ func (Cosmos) Install() error {
 
 // Runs all main tests.
 func (c Cosmos) Test() error {
-	PrintMageName()
-	return testUnit(c.directory())
+	if err := testUnit(c.directory()); err != nil {
+		return err
+	}
+
+	if err := testIntegration(c.directory()); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
 func (c Cosmos) TestUnit() error {
-	PrintMageName()
+	LogGreen("Running unit tests for the Cosmos SDK chain.")
 	return testUnit(c.directory())
 }
 
 // Runs all integration for the Cosmos SDK chain.
 func (c Cosmos) TestIntegration() error {
-	PrintMageName()
+	LogGreen("Running integration tests for the Cosmos SDK chain.")
 	return testIntegration(c.directory())
 }

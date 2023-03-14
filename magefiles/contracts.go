@@ -24,7 +24,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 //
-//nolint:forbidigo // its okay.
+
 package main
 
 import (
@@ -91,18 +91,18 @@ func (c Contracts) Test() error {
 
 // Run `forge test` in all smart contract directories.
 func (Contracts) TestUnit() error {
-	PrintMageName()
+	LogGreen("Running foundry unit tests...")
 	return forgeWrapper(forgeTest)
 }
 
 // Run `forge fmt` in all smart contract directories.
 func (Contracts) Fmt() error {
-	PrintMageName()
+	LogGreen("Running forge fmt...")
 	return forgeWrapper(forgeFmt)
 }
 
 func (Contracts) TestIntegration() error {
-	PrintMageName()
+	LogGreen("Running foundry integration tests...")
 	return forgeWrapper(forgeTest)
 }
 
