@@ -62,9 +62,9 @@ type blockchain struct {
 	vmConfig *vm.Config
 
 	// `currentBlock` is the current/pending block.
-	currentBlock atomic.Value
+	currentBlock atomic.Pointer[types.Block]
 	// `finalizedBlock` is the finalized/latest block.
-	finalizedBlock atomic.Value
+	finalizedBlock atomic.Pointer[types.Block]
 	// `currentReceipts` is the current/pending receipts.
 	currentReceipts atomic.Value
 	// `currentLogs` is the current/pending logs.
