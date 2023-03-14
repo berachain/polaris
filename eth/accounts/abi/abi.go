@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-// `maxIndexedArgs` is the maximum number of indexed arguments allowed in an Ethereum event log.
+// maxIndexedArgs is the maximum number of indexed arguments allowed in an Ethereum event log.
 const maxIndexedArgs = 3
 
 type (
@@ -43,7 +43,7 @@ var (
 	NewType    = abi.NewType
 )
 
-// `ToMixedCase` converts a under_score formatted string to mixedCase format (camelCase with the
+// ToMixedCase converts a under_score formatted string to mixedCase format (camelCase with the
 // first letter lowercase). This function is inspired by the geth `abi.ToCamelCase“ function.
 func ToMixedCase(input string) string {
 	parts := strings.Split(input, "_")
@@ -55,7 +55,7 @@ func ToMixedCase(input string) string {
 	return strings.Join(parts, "")
 }
 
-// `ToUnderScore` converts a mixedCase formatted string to under_score format. This function is
+// ToUnderScore converts a mixedCase formatted string to under_score format. This function is
 // inspired by the geth `abi.ToCamelCase` function, but has the opposite behavior.
 func ToUnderScore(input string) string {
 	var output string
@@ -68,7 +68,7 @@ func ToUnderScore(input string) string {
 	return strings.ToLower(output)
 }
 
-// `GetIndexed` extracts indexed arguments from a set of arguments. Will panic if more than 3
+// GetIndexed extracts indexed arguments from a set of arguments. Will panic if more than 3
 // indexed arguments are provided by the inputs ABI.
 func GetIndexed(args abi.Arguments) abi.Arguments {
 	var indexed abi.Arguments

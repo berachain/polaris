@@ -5,7 +5,7 @@ Polaris Ethereum supports the execution of **stateless** and **stateful** precom
 ## Stateless Precompiles
 
 Stateless precompiles run completely in the EVM and do not rely on state from the native host chain.
-Go-ethereum provides implementations of several stateless precompiles at hardcoded addresses [here](https://github.com/berachain/go-ethereum/blob/stateful-v1.11.2/core/vm/contracts.go). More stateless
+Go-ethereum provides implementations of several stateless precompiles at hardcoded addresses [here](https://github.com/berachain/polaris-geth/blob/stateful-v1.11.4/core/vm/contracts.go). More stateless
 precompiles can be added by adhering to the `StatelessImpl`, defined in [interfaces.go](https://github.com/berachain/polaris/blob/main/eth/core/precompile/interfaces.go#L48).
 
 If no custom precompiles are added by the host chain, the [default precompile plugin](https://github.com/berachain/polaris/blob/main/eth/core/precompile/default_plugin.go) will execute 

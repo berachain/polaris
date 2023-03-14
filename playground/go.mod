@@ -2,12 +2,13 @@ module pkg.berachain.dev/polaris/playground
 
 go 1.20
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
+// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230313222742-b18b15fecd70
 
 require (
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.6.1
-	pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
 )
 
 require (
@@ -26,11 +27,11 @@ require (
 	github.com/getsentry/sentry-go v0.19.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/holiman/big v0.0.0-20221017200358-a027dc42d04e // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/holiman/uint256 v1.2.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -47,7 +48,6 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
@@ -62,5 +62,5 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.29.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d // indirect
 )

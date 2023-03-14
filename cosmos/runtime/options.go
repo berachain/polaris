@@ -27,7 +27,7 @@ import (
 	cryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 )
 
-// `PolarisAppOptions` is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
+// PolarisAppOptions is a list of `func(*baseapp.BaseApp)` that are used to configure the baseapp.
 func PolarisAppOptions(
 	interfaceRegistry types.InterfaceRegistry, baseAppOptions ...func(*baseapp.BaseApp),
 ) []func(*baseapp.BaseApp) {

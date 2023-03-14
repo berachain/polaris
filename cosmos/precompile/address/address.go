@@ -26,9 +26,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -36,12 +36,12 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `Contract` is the precompile contract for the address util.
+// Contract is the precompile contract for the address util.
 type Contract struct {
 	precompile.BaseContract
 }
 
-// `NewPrecompileContract` returns a new instance of the address utils precompile contract.
+// NewPrecompileContract returns a new instance of the address utils precompile contract.
 func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.AddressMetaData.ABI)); err != nil {
@@ -54,7 +54,7 @@ func NewPrecompileContract() coreprecompile.StatefulImpl {
 	}
 }
 
-// `PrecompileMethods` implements StatefulImpl.
+// PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 	return coreprecompile.Methods{
 		{
@@ -70,7 +70,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 	}
 }
 
-// `ConvertHexToBech32` converts a common.Address to a bech32 string.
+// ConvertHexToBech32 converts a common.Address to a bech32 string.
 func (c *Contract) ConvertHexToBech32(
 	ctx context.Context,
 	caller common.Address,
@@ -85,7 +85,7 @@ func (c *Contract) ConvertHexToBech32(
 	return []any{cosmlib.AddressToAccAddress(addr)}, nil
 }
 
-// `ConvertBech32ToHexAddress` converts a bech32 string to a common.Address.
+// ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
 func (c *Contract) ConvertBech32ToHexAddress(
 	ctx context.Context,
 	caller common.Address,

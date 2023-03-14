@@ -33,52 +33,52 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-// `gasMeterDescriptor` is the descriptor for the gas meter used in the plugin.
+// gasMeterDescriptor is the descriptor for the gas meter used in the plugin.
 const gasMeterDescriptor = `polaris-gas-plugin`
 
-// `Plugin` is the interface that must be implemented by the plugin.
+// Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.GasPlugin
 }
 
-// `plugin` wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
+// plugin wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
 // to implement the core.GasPlugin interface.
 type plugin struct {
 	gasMeter      storetypes.GasMeter
 	blockGasMeter storetypes.GasMeter
 }
 
-// `NewPlugin` creates a new instance of the gas plugin from a given context.
+// NewPlugin creates a new instance of the gas plugin from a given context.
 func NewPlugin() Plugin {
 	return &plugin{}
 }
 
-// `Prepare` implements the core.GasPlugin interface.
+// Prepare implements the core.GasPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.gasMeter = sCtx.GasMeter()
 	p.blockGasMeter = sCtx.BlockGasMeter()
 }
 
-// `Reset` implements the core.GasPlugin interface.
+// Reset implements the core.GasPlugin interface.
 func (p *plugin) Reset(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.gasMeter = sCtx.GasMeter()
 	p.blockGasMeter = sCtx.BlockGasMeter()
 }
 
-// `GasRemaining` implements the core.GasPlugin interface.
+// GasRemaining implements the core.GasPlugin interface.
 func (p *plugin) GasRemaining() uint64 {
 	return p.gasMeter.GasRemaining()
 }
 
-// `BlockGasLimit` implements the core.GasPlugin interface.
+// BlockGasLimit implements the core.GasPlugin interface.
 func (p *plugin) BlockGasLimit() uint64 {
 	return p.blockGasMeter.Limit()
 }
 
-// `TxConsumeGas` implements the core.GasPlugin interface.
+// TxConsumeGas implements the core.GasPlugin interface.
 func (p *plugin) ConsumeGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	// TODO: probably faster / cleaner to just wrap .ConsumeGas in a panic handler, or write our
@@ -95,22 +95,22 @@ func (p *plugin) ConsumeGas(amount uint64) error {
 	return nil
 }
 
-// `GasConsumed` returns the gas used during the current transaction.
+// GasConsumed returns the gas used during the current transaction.
 //
-// `GasConsumed` implements the core.GasPlugin interface.
+// GasConsumed implements the core.GasPlugin interface.
 func (p *plugin) GasConsumed() uint64 {
 	return p.gasMeter.GasConsumed()
 }
 
-// `BlockGasConsumed` returns the cumulative gas used during the current block. If the cumulative
+// BlockGasConsumed returns the cumulative gas used during the current block. If the cumulative
 // gas used is greater than the block gas limit, we expect for Polaris to handle it.
 //
-// `BlockGasConsumed` implements the core.GasPlugin interface.
+// BlockGasConsumed implements the core.GasPlugin interface.
 func (p *plugin) BlockGasConsumed() uint64 {
 	return p.blockGasMeter.GasConsumed()
 }
 
-// `addUint64Overflow` performs the addition operation on two uint64 integers and returns a boolean
+// addUint64Overflow performs the addition operation on two uint64 integers and returns a boolean
 // on whether or not the result overflows.
 func addUint64Overflow(a, b uint64) (uint64, bool) {
 	if math.MaxUint64-a < b {

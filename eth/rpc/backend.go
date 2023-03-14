@@ -64,7 +64,7 @@ type PolarisBackend interface {
 	rpcapi.NetBackend
 }
 
-// `backend` represents the backend for the JSON-RPC service.
+// backend represents the backend for the JSON-RPC service.
 type backend struct {
 	chain     api.Chain
 	rpcConfig *config.Server
@@ -76,7 +76,7 @@ type backend struct {
 // Constructor
 // ==============================================================================
 
-// `NewPolarisBackend` returns a new `Backend` object.
+// NewPolarisBackend returns a new `Backend` object.
 func NewPolarisBackend(chain api.Chain, rpcConfig *config.Server) PolarisBackend {
 	b := &backend{
 		// accountManager: accounts.NewManager(&accounts.Config{InsecureUnlockAllowed: true}),
@@ -92,7 +92,7 @@ func NewPolarisBackend(chain api.Chain, rpcConfig *config.Server) PolarisBackend
 // General Ethereum API
 // ==============================================================================
 
-// `SyncProgress` returns the current progress of the sync algorithm.
+// SyncProgress returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
 	// Consider implementing this in the future.
 	b.logger.Warn("called eth.rpc.backend.SyncProgress", "sync_progress", "not implemented")
@@ -102,13 +102,13 @@ func (b *backend) SyncProgress() ethereum.SyncProgress {
 	}
 }
 
-// `SuggestGasTipCap` returns the recommended gas tip cap for a new transaction.
+// SuggestGasTipCap returns the recommended gas tip cap for a new transaction.
 func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 	defer b.logger.Info("called eth.rpc.backend.SuggestGasTipCap", "suggested_tip_cap")
 	return b.gpo.SuggestTipCap(ctx)
 }
 
-// `FeeHistory` returns the base fee and gas used history of the last N blocks.
+// FeeHistory returns the base fee and gas used history of the last N blocks.
 func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
 	b.logger.Info("called eth.rpc.backend.FeeHistory", "blockCount", blockCount,
@@ -116,39 +116,39 @@ func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock Bloc
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
-// `ChainDb` is unused in Polaris.
+// ChainDb is unused in Polaris.
 func (b *backend) ChainDb() ethdb.Database { //nolint:stylecheck // conforms to interface.
 	return ethdb.Database(nil)
 }
 
-// `AccountManager` is unused in Polaris.
+// AccountManager is unused in Polaris.
 func (b *backend) AccountManager() *accounts.Manager {
 	return nil
 }
 
-// `ExtRPCEnabled` returns whether the RPC endpoints are exposed over external
+// ExtRPCEnabled returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
 	return b.rpcConfig.Enabled
 }
 
-// `RPCGasCap` returns the global gas cap for eth_call over rpc: this is
+// RPCGasCap returns the global gas cap for eth_call over rpc: this is
 // if the user doesn't specify a cap.
 func (b *backend) RPCGasCap() uint64 {
 	return b.rpcConfig.RPCGasCap
 }
 
-// `RPCEVMTimeout` returns the global timeout for eth_call over rpc.
+// RPCEVMTimeout returns the global timeout for eth_call over rpc.
 func (b *backend) RPCEVMTimeout() time.Duration {
 	return b.rpcConfig.RPCEVMTimeout
 }
 
-// `RPCTxFeeCap` returns the global gas price cap for transactions over rpc.
+// RPCTxFeeCap returns the global gas price cap for transactions over rpc.
 func (b *backend) RPCTxFeeCap() float64 {
 	return b.rpcConfig.RPCTxFeeCap
 }
 
-// `UnprotectedAllowed` returns whether unprotected transactions are alloweds.
+// UnprotectedAllowed returns whether unprotected transactions are alloweds.
 // We will consider implementing these later, But our opinion is that
 // there is no reason in 2023 not to use these.
 func (b *backend) UnprotectedAllowed() bool {
@@ -159,13 +159,13 @@ func (b *backend) UnprotectedAllowed() bool {
 // Blockchain API
 // ==============================================================================
 
-// `SetHead` is used for state sync on ethereum, we leave state sync up to the host
+// SetHead is used for state sync on ethereum, we leave state sync up to the host
 // chain and thus it is not implemented in Polaris.
 func (b *backend) SetHead(number uint64) {
 	panic("not implemented")
 }
 
-// `HeaderByNumber` returns the block header at the given block number.
+// HeaderByNumber returns the block header at the given block number.
 func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.Header, error) {
 	block, err := b.polarisBlockByNumber(number)
 	if err != nil {
@@ -176,7 +176,7 @@ func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.
 	return block.Header(), nil
 }
 
-// `HeaderByHash` returns the block header with the given hash.
+// HeaderByHash returns the block header with the given hash.
 func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
 	block, err := b.polarisBlockByHash(hash)
 	if err != nil {
@@ -187,7 +187,7 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Head
 	return block.Header(), nil
 }
 
-// `HeaderByNumberOrHash` returns the header identified by `number` or `hash`.
+// HeaderByNumberOrHash returns the header identified by `number` or `hash`.
 func (b *backend) HeaderByNumberOrHash(_ context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Header, error) {
@@ -200,30 +200,30 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 	return block.Header(), nil
 }
 
-// `CurrentHeader` returns the current header from the local chains.
+// CurrentHeader returns the current header from the local chains.
 func (b *backend) CurrentHeader() *types.Header {
 	block, err := b.chain.CurrentBlock()
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.CurrentHeader", "block", block, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", block.Header())
-	return block.Header()
+	header := block.Header()
+	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", header)
+	return header
 }
 
-// `CurrentBlock` returns the current block from the local chain.
-func (b *backend) CurrentBlock() *types.Block {
+// CurrentBlock returns the current block from the local chain.
+func (b *backend) CurrentBlock() *types.Header {
 	block, err := b.chain.CurrentBlock()
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
 		return nil
 	}
-	b.logger.Info("called eth.rpc.backend.CurrentBlock", "header", block.Header(),
-		"num_txs", len(block.Transactions()))
-	return block
+	b.logger.Info("called eth.rpc.backend.CurrentBlock", "block", block)
+	return block.Header()
 }
 
-// `BlockByNumber` returns the block identified by `number`.
+// BlockByNumber returns the block identified by `number`.
 func (b *backend) BlockByNumber(_ context.Context, number BlockNumber) (*types.Block, error) {
 	block, err := b.polarisBlockByNumber(number)
 	if err != nil {
@@ -235,7 +235,7 @@ func (b *backend) BlockByNumber(_ context.Context, number BlockNumber) (*types.B
 	return block, nil
 }
 
-// `BlockByHash` returns the block with the given `hash`.
+// BlockByHash returns the block with the given `hash`.
 func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block, error) {
 	block, err := b.polarisBlockByHash(hash)
 	b.logger.Info("BlockByHash", "hash", hash, "block", block)
@@ -248,7 +248,7 @@ func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block
 	return block, nil
 }
 
-// `BlockByNumberOrHash` returns the block identified by `number` or `hash`.
+// BlockByNumberOrHash returns the block identified by `number` or `hash`.
 func (b *backend) BlockByNumberOrHash(_ context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Block, error) {
@@ -321,7 +321,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 	return state, block.Header(), nil
 }
 
-// `PendingBlockAndReceipts` returns the pending block (equivalent to current block in Polaris)
+// PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	block, receipts, err := b.chain.CurrentBlockAndReceipts()
@@ -334,7 +334,7 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	return block, receipts
 }
 
-// `GetReceipts` returns the receipts for the given block hash.
+// GetReceipts returns the receipts for the given block hash.
 func (b *backend) GetReceipts(_ context.Context, bhash common.Hash) (types.Receipts, error) {
 	receipts, err := b.chain.GetReceipts(bhash)
 	if err != nil {
@@ -346,15 +346,15 @@ func (b *backend) GetReceipts(_ context.Context, bhash common.Hash) (types.Recei
 	return receipts, nil
 }
 
-// `GetTd` returns the total difficulty of a block in the canonical chain.
+// GetTd returns the total difficulty of a block in the canonical chain.
 // This is hardcoded to 69, as it is only applicable in a PoW chain.
 func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 	b.logger.Info("called eth.rpc.backend.GetTd", "hash", hash)
 	return new(big.Int).SetInt64(69)
 }
 
-// `GetEVM` returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethStateDB,
+// GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
+func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) (*vm.GethEVM, func() error, error) {
 	if vmConfig == nil {
@@ -373,7 +373,7 @@ func (b *backend) GetEVM(ctx context.Context, msg core.Message, state vm.GethSta
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
 	b.logger.Info("called eth.rpc.backend.SubscribeChainEvent", "ch", ch)
-	panic("SubscribeChainEvent not implemented")
+	return b.chain.SubscribeChainEvent(ch)
 }
 
 func (b *backend) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription {
@@ -383,7 +383,7 @@ func (b *backend) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.S
 
 func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.Subscription {
 	b.logger.Info("called eth.rpc.backend.SubscribeChainSideEvent", "ch", ch)
-	panic("SubscribeChainSideEvent not implemented")
+	return b.chain.SubscribeChainSideEvent(ch)
 }
 
 // ==============================================================================
@@ -440,7 +440,7 @@ func (b *backend) SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscripti
 	return nil
 }
 
-// `ChainConfig` returns the chain configuration.
+// ChainConfig returns the chain configuration.
 func (b *backend) ChainConfig() *params.ChainConfig {
 	b.logger.Info("called eth.rpc.backend.ChainConfig")
 	return b.chain.ChainConfig()
@@ -450,7 +450,7 @@ func (b *backend) Engine() consensus.Engine {
 	panic("not implemented")
 }
 
-// `GetBody retrieves the block body corresponding to block by has or number.`.
+// GetBody retrieves the block body corresponding to block by has or number..
 func (b *backend) GetBody(_ context.Context, hash common.Hash,
 	number BlockNumber,
 ) (*types.Body, error) {
@@ -467,7 +467,7 @@ func (b *backend) GetBody(_ context.Context, hash common.Hash,
 	return block.Body(), nil
 }
 
-// `GetLogs` returns the logs for the given block hash or number.
+// GetLogs returns the logs for the given block hash or number.
 func (b *backend) GetLogs(
 	_ context.Context, blockHash common.Hash, number uint64,
 ) ([][]*types.Log, error) {
@@ -485,18 +485,17 @@ func (b *backend) GetLogs(
 }
 
 func (b *backend) SubscribeRemovedLogsEvent(ch chan<- core.RemovedLogsEvent) event.Subscription {
-	// TODO: Implement your code here
-	return nil
+	b.logger.Info("called eth.rpc.backend.SubscribeRemovedLogsEvent", "ch", ch)
+	return b.chain.SubscribeRemovedLogsEvent(ch)
 }
 
 func (b *backend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	// TODO: Implement your code here
-	return nil
+	b.logger.Info("called eth.rpc.backend.SubscribeLogsEvent", "ch", ch)
+	return b.chain.SubscribeLogsEvent(ch)
 }
 
 func (b *backend) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	// TODO: Implement your code here
-	return nil
+	return b.chain.SubscribePendingLogsEvent(ch)
 }
 
 func (b *backend) BloomStatus() (uint64, uint64) {
@@ -527,7 +526,7 @@ func (b *backend) PeerCount() hexutil.Uint {
 // Polaris Helpers
 // ==============================================================================
 
-// `polarisBlockByNumberOrHash` returns the block identified by `number` or `hash`.
+// polarisBlockByNumberOrHash returns the block identified by `number` or `hash`.
 func (b *backend) polarisBlockByNumberOrHash(
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Block, error) {
@@ -562,12 +561,12 @@ func (b *backend) polarisBlockByNumberOrHash(
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
 
-// `polarisBlockByHash` returns the polaris block identified by `hash`.
+// polarisBlockByHash returns the polaris block identified by `hash`.
 func (b *backend) polarisBlockByHash(hash common.Hash) (*types.Block, error) {
 	return b.chain.GetPolarisBlockByHash(hash)
 }
 
-// `polarisBlockByNumber` returns the polaris block identified by `number.
+// polarisBlockByNumber returns the polaris block identified by `number.
 func (b *backend) polarisBlockByNumber(number BlockNumber) (*types.Block, error) {
 	switch number { //nolint:nolintlint,exhaustive // golangci-lint bug?
 	case SafeBlockNumber, FinalizedBlockNumber:

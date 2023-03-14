@@ -23,48 +23,44 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/event"
 
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 type ChainSubscriber interface {
-	SubscribeRemovedLogsEvent(chan<- RemovedLogsEvent) event.Subscription
+	SubscribeRemovedLogsEvent(chan<- RemovedLogsEvent) event.Subscription // currently not used
 	SubscribeChainEvent(chan<- ChainEvent) event.Subscription
 	SubscribeChainHeadEvent(chan<- ChainHeadEvent) event.Subscription
+	SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Subscription // currently not used
+	SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription
+	SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription
 }
 
 // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
 func (bc *blockchain) SubscribeRemovedLogsEvent(ch chan<- RemovedLogsEvent) event.Subscription {
-	// return bc.scope.Track(bc.rmLogsFeed.Subscribe(ch))
-	return nil
+	return bc.scope.Track(bc.rmLogsFeed.Subscribe(ch))
 }
 
 // SubscribeChainEvent registers a subscription of ChainEvent.
 func (bc *blockchain) SubscribeChainEvent(ch chan<- ChainEvent) event.Subscription {
-	// return bc.scope.Track(bc.chainFeed.Subscribe(ch))
-	return nil
+	return bc.scope.Track(bc.chainFeed.Subscribe(ch))
 }
 
 // SubscribeChainHeadEvent registers a subscription of ChainHeadEvent.
 func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Subscription {
-	// TODO: synchronize chain head feed.
 	return bc.scope.Track(bc.chainHeadFeed.Subscribe(ch))
 }
 
 // SubscribeChainSideEvent registers a subscription of ChainSideEvent.
 func (bc *blockchain) SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Subscription {
-	// return bc.scope.Track(bc.chainSideFeed.Subscribe(ch))
-	return nil
+	return bc.scope.Track(bc.chainSideFeed.Subscribe(ch))
 }
 
 // SubscribeLogsEvent registers a subscription of []*types.Log.
-func (bc *blockchain) SubscribeLogsEvent(ch chan<- []*coretypes.Log) event.Subscription {
-	// return bc.scope.Track(bc.logsFeed.Subscribe(ch))
-	return nil
+func (bc *blockchain) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
+	return bc.scope.Track(bc.logsFeed.Subscribe(ch))
 }
 
-// SubscribeBlockProcessingEvent registers a subscription of bool where true means
-// block processing has started while false means it has stopped.
-func (bc *blockchain) SubscribeBlockProcessingEvent(ch chan<- bool) event.Subscription {
-	// return bc.scope.Track(bc.blockProcFeed.Subscribe(ch))
-	return nil
+// SubscribePendingLogsEvent registers a subscription of []*types.Log.
+func (bc *blockchain) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
+	return bc.scope.Track(bc.pendingLogsFeed.Subscribe(ch))
 }

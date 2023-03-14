@@ -36,14 +36,14 @@ import (
 // Polaris Block Header Tracking
 // ===========================================================================.
 
-// `SetQueryContextFn` sets the query context func for the plugin.
+// SetQueryContextFn sets the query context func for the plugin.
 func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
 	p.getQueryContext = gqc
 }
 
-// `GetHeaderByNumber` returns the header at the given height, using the plugin's query context.
+// GetHeaderByNumber returns the header at the given height, using the plugin's query context.
 //
-// `GetHeaderByNumber` implements core.BlockPlugin.
+// GetHeaderByNumber implements core.BlockPlugin.
 func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
@@ -76,7 +76,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 	return header, nil
 }
 
-// `SetHeader` saves a block to the store.
+// SetHeader saves a block to the store.
 func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
@@ -86,7 +86,7 @@ func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
 	return nil
 }
 
-// `getIAVLHeight` returns the IAVL height for the given block number.
+// getIAVLHeight returns the IAVL height for the given block number.
 func (p *plugin) getIAVLHeight(number int64) (int64, error) {
 	var iavlHeight int64
 	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // covers all cases.

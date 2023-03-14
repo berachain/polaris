@@ -23,39 +23,39 @@ package log
 import "github.com/ethereum/go-ethereum/log"
 
 type (
-	// `Record` is a log record.
+	// Record is a log record.
 	Record = log.Record
 
-	// `Logger` defines the logger interface.
+	// Logger defines the logger interface.
 	Logger = log.Logger
 
-	// `Handler` defines the log handler interface.
+	// Handler defines the log handler interface.
 	Handler = log.Handler
 )
 
 var (
-	// `Root` is the root logger.
+	// Root is the root logger.
 	Root = log.Root
 
-	// `LvlTrace` is the trace log level.
+	// LvlTrace is the trace log level.
 	LvlTrace = log.LvlTrace
 
-	// `LvlDebug` is the debug log level.
+	// LvlDebug is the debug log level.
 	LvlDebug = log.LvlDebug
 
-	// `LvlInfo` is the info log level.
+	// LvlInfo is the info log level.
 	LvlInfo = log.LvlInfo
 
-	// `LvlWarn` is the warn log level.
+	// LvlWarn is the warn log level.
 	LvlWarn = log.LvlWarn
 
-	// `LvlError` is the error log level.
+	// LvlError is the error log level.
 	LvlError = log.LvlError
 
-	// `LvlCrit` is the critical log level.
+	// LvlCrit is the critical log level.
 	LvlCrit = log.LvlCrit
 
-	// `FuncHandler` is the function handler for overriding the logging method within
+	// FuncHandler is the function handler for overriding the logging method within
 	// the go-ethereum codebase.
 	FuncHandler = log.FuncHandler
 )

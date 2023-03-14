@@ -28,13 +28,13 @@ import (
 // The playground chain implements the polaris host chain interface.
 var _ core.PolarisHostChain = (*Playground)(nil)
 
-// `Playground` is the playground chain.
+// Playground is the playground chain.
 type Playground struct {
 	blockProducer *blockProducer
 	mempool       MempoolReader
 }
 
-// `NewPlayground` creates a new playground chain.
+// NewPlayground creates a new playground chain.
 func NewPlayground(mempool MempoolReader) *Playground {
 	playground := &Playground{
 		mempool: mempool,
@@ -49,41 +49,41 @@ func (p *Playground) ProduceBlock() error {
 	return p.blockProducer.ProduceBlock()
 }
 
-// `GetBlockPlugin` implements `core.PolarisHostChain`.
+// GetBlockPlugin implements `core.PolarisHostChain`.
 func (p *Playground) GetBlockPlugin() core.BlockPlugin {
 	return plugins.NewBlockPlugin()
 }
 
-// `GetConfigurationPlugin` implements `core.PolarisHostChain`.
+// GetConfigurationPlugin implements `core.PolarisHostChain`.
 func (p *Playground) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return plugins.NewConfigurationPlugin()
 }
 
-// `GetGasPlugin` implements `core.PolarisHostChain`.
+// GetGasPlugin implements `core.PolarisHostChain`.
 func (p *Playground) GetGasPlugin() core.GasPlugin {
 	return plugins.NewGasPlugin()
 }
 
-// `GetStatePlugin` implements `core.PolarisHostChain`.
+// GetStatePlugin implements `core.PolarisHostChain`.
 func (p *Playground) GetStatePlugin() core.StatePlugin {
 	return plugins.NewStatePlugin()
 }
 
-// `GetTxPoolPlugin` implements `core.PolarisHostChain`.
+// GetTxPoolPlugin implements `core.PolarisHostChain`.
 func (p *Playground) GetTxPoolPlugin() core.TxPoolPlugin {
 	return plugins.NewTxPoolPlugin()
 }
 
 // The Playground Host Chain does not support stateful precompiles.
 //
-// `GetPrecompilePlugin` implements `core.PolarisHostChain`.
+// GetPrecompilePlugin implements `core.PolarisHostChain`.
 func (p *Playground) GetPrecompilePlugin() core.PrecompilePlugin {
 	return nil
 }
 
 // The Playground Host Chain does not support historical data.
 //
-// `GetHistoricalPlugin` implements `core.PolarisHostChain`.
+// GetHistoricalPlugin implements `core.PolarisHostChain`.
 func (p *Playground) GetHistoricalPlugin() core.HistoricalPlugin {
 	return nil
 }

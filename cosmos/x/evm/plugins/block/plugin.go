@@ -41,16 +41,16 @@ type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.BlockPlugin
 
-	// `SetQueryContextFn` sets the function used for querying historical block headers.
+	// SetQueryContextFn sets the function used for querying historical block headers.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 }
 
 type plugin struct {
-	// `ctx` is the current block context, used for accessing current block info and kv stores.
+	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
-	// `storekey` is the store key for the header store.
+	// storekey is the store key for the header store.
 	storekey storetypes.StoreKey
-	// `getQueryContext` allows for querying block headers.
+	// getQueryContext allows for querying block headers.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
 }
 
@@ -60,20 +60,20 @@ func NewPlugin(storekey storetypes.StoreKey) Plugin {
 	}
 }
 
-// `Prepare` implements core.BlockPlugin.
+// Prepare implements core.BlockPlugin.
 func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
 
-// `BaseFee` returns the base fee for the current block.
+// BaseFee returns the base fee for the current block.
 // TODO: implement properly with DynamicFee Module of some kind.
 //
-// `BaseFee` implements core.BlockPlugin.
+// BaseFee implements core.BlockPlugin.
 func (p *plugin) BaseFee() uint64 {
 	return bf
 }
 
-// `NewHeaderWithBlockNumber` builds an ethereum style block header from the current
+// NewHeaderWithBlockNumber builds an ethereum style block header from the current
 // context.
 func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 	cometHeader := p.ctx.BlockHeader()
@@ -99,45 +99,45 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 	}
 
 	return &coretypes.Header{
-		// `ParentHash` is set to the hash of the previous block.
+		// ParentHash is set to the hash of the previous block.
 		ParentHash: parentHash,
-		// `UncleHash` is set empty as CometBFT does not have uncles.
+		// UncleHash is set empty as CometBFT does not have uncles.
 		UncleHash: coretypes.EmptyUncleHash,
 		// TODO: Use staking keeper to get the operator address.
 		Coinbase: common.BytesToAddress(cometHeader.ProposerAddress),
-		// `Root` is set to the hash of the state after the transactions are applied.
+		// Root is set to the hash of the state after the transactions are applied.
 		Root: common.BytesToHash(cometHeader.AppHash),
-		// `TxHash` is set to the hash of the transactions in the block. We take the
-		// `DataHash` from the `sdk.Context` opposed to using DeriveSha on the PolarisBlock,
+		// TxHash is set to the hash of the transactions in the block. We take the
+		// DataHash from the `sdk.Context` opposed to using DeriveSha on the PolarisBlock,
 		// in order to include non-evm transactions block hash.
 		TxHash: txHash,
 		// We simply map the cosmos "BlockHeight" to the ethereum "BlockNumber".
 		Number: big.NewInt(cometHeader.Height),
-		// `GasLimit` is set to the block gas limit.
+		// GasLimit is set to the block gas limit.
 		GasLimit: blockGasLimitFromCosmosContext(p.ctx),
-		// `Time` is set to the block timestamp.
+		// Time is set to the block timestamp.
 		Time: uint64(cometHeader.Time.UTC().Unix()),
-		// `BaseFee` is set to the block base fee.
+		// BaseFee is set to the block base fee.
 		BaseFee: big.NewInt(int64(p.BaseFee())),
-		// `ReceiptHash` set to empty. It is filled during `Finalize` in the StateProcessor.
+		// ReceiptHash set to empty. It is filled during `Finalize` in the StateProcessor.
 		ReceiptHash: common.Hash{},
-		// `Bloom` is set to empty. It is filled during `Finalize` in the StateProcessor.
+		// Bloom is set to empty. It is filled during `Finalize` in the StateProcessor.
 		Bloom: coretypes.Bloom{},
-		// `GasUsed` is set to 0. It is filled during `Finalize` in the StateProcessor.
+		// GasUsed is set to 0. It is filled during `Finalize` in the StateProcessor.
 		GasUsed: 0,
-		// `Difficulty` is set to 0 as it is only used in PoW consensus.
+		// Difficulty is set to 0 as it is only used in PoW consensus.
 		Difficulty: big.NewInt(0),
-		// `MixDigest` is set empty as it is only used in PoW consensus.
+		// MixDigest is set empty as it is only used in PoW consensus.
 		MixDigest: common.Hash{},
-		// `Nonce` is set empty as it is only used in PoW consensus.
+		// Nonce is set empty as it is only used in PoW consensus.
 		Nonce: coretypes.BlockNonce{},
-		// `Extra` is unused in Polaris, but can be used to store additional information, e.g.
+		// Extra is unused in Polaris, but can be used to store additional information, e.g.
 		// the host block hash.
 		Extra: []byte(nil),
 	}
 }
 
-// `blockGasLimitFromCosmosContext` returns the maximum gas limit for the current block, as defined
+// blockGasLimitFromCosmosContext returns the maximum gas limit for the current block, as defined
 // by either the block gas meter or the consensus parameters if the gas meter is not set or is an
 // InfiniteGasMeter. If neither the gas meter nor the consensus parameters are available, it
 // returns 0. This shouldn't be an issue in practice but we include this function for completeness

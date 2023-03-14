@@ -27,13 +27,13 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
-// `PolarisProvider` is the only object that an implementing chain should use.
+// PolarisProvider is the only object that an implementing chain should use.
 type PolarisProvider struct {
 	api.Chain
 	rps rpc.Service
 }
 
-// `NewPolarisProvider` creates a new `PolarisEVM` instance for use on an underlying blockchain.
+// NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
 func NewPolarisProvider(
 	host core.PolarisHostChain,
 	rps rpc.Service,

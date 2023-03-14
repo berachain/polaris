@@ -24,7 +24,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// `GetParams` is used to get the params for the evm module.
+// GetParams is used to get the params for the evm module.
 func (p *plugin) GetParams() *types.Params {
 	bz := p.paramsStore.Get([]byte{types.ParamsKey})
 	if bz == nil {
@@ -37,7 +37,7 @@ func (p *plugin) GetParams() *types.Params {
 	return &params
 }
 
-// `SetParams` is used to set the params for the evm module.
+// SetParams is used to set the params for the evm module.
 func (p *plugin) SetParams(params *types.Params) {
 	bz, err := params.Marshal()
 	if err != nil {

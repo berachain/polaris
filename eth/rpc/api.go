@@ -22,7 +22,7 @@ package rpc
 
 import "pkg.berachain.dev/polaris/eth/rpc/api"
 
-// `GetAPIs` returns a list of all available APIs.
+// GetAPIs returns a list of all available APIs.
 func GetAPIs(apiBackend PolarisBackend) []API {
 	nonceLock := new(AddrLocker)
 	return []API{

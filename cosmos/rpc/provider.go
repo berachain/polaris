@@ -27,7 +27,7 @@ import (
 	rpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
 )
 
-// `Provider` is an interface that defines the methods required to register the
+// Provider is an interface that defines the methods required to register the
 // JSON-RPC servers with the Cosmos API server.
 type Provider interface {
 	ethrpc.Service
@@ -35,13 +35,13 @@ type Provider interface {
 	GetClientCtx() client.Context
 }
 
-// `provider` implements the `Provider` interface.
+// provider implements the `Provider` interface.
 type provider struct {
 	ethrpc.Service
 	clientCtx client.Context
 }
 
-// `NewProvider` returns a new `Provider` object. The provider object is used to
+// NewProvider returns a new `Provider` object. The provider object is used to
 // register the JSON-RPC servers with the API server.
 func NewProvider(rpcConfig *rpcconfig.Server) Provider {
 	return &provider{
@@ -49,12 +49,12 @@ func NewProvider(rpcConfig *rpcconfig.Server) Provider {
 	}
 }
 
-// `GetClientCtx` returns the client context.
+// GetClientCtx returns the client context.
 func (p *provider) GetClientCtx() client.Context {
 	return p.clientCtx
 }
 
-// `SetClientContext` sets the client context.
+// SetClientContext sets the client context.
 func (p *provider) SetClientContext(ctx client.Context) {
 	p.clientCtx = ctx
 }

@@ -26,9 +26,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-// `PubkeyFromTx` returns the public key of the signer of the transaction.
+// PubkeyFromTx returns the public key of the signer of the transaction.
 func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
-	// `signer.PubKey` returns the uncompressed public key.
+	// signer.PubKey returns the uncompressed public key.
 	uncompressed, err := signer.PubKey(signedTx)
 	if err != nil {
 		return &ethsecp256k1.PubKey{}, err

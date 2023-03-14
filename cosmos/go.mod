@@ -2,13 +2,13 @@ module pkg.berachain.dev/polaris/cosmos
 
 go 1.20
 
-// Required for supporting stateful precompiled contracts.
 replace (
 	cosmossdk.io/x/evidence => cosmossdk.io/x/evidence v0.0.0-20230305125317-672b052f323b
 	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230305125317-672b052f323b
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230305125317-672b052f323b
 	github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
-	github.com/ethereum/go-ethereum => github.com/berachain/go-ethereum v0.0.0-20230306205832-364e922bfe8d
+	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230313222742-b18b15fecd70
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
@@ -48,8 +48,9 @@ require (
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.29.0
-	pkg.berachain.dev/polaris/eth v0.0.0-20230311143829-8bfd0e776c4e
-	pkg.berachain.dev/polaris/lib v0.0.0-20230311063951-d1bb1d8dc12d
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230314162058-3208a7e5461e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
+	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
 
 require (
@@ -120,6 +121,7 @@ require (
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
+	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -152,7 +154,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
-	github.com/holiman/big v0.0.0-20221017200358-a027dc42d04e // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/holiman/uint256 v1.2.1 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
@@ -192,7 +193,6 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect

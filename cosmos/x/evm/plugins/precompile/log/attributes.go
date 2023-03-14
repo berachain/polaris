@@ -35,11 +35,11 @@ import (
 )
 
 const (
-	// `intBase` is the base `int`s are parsed in, 10.
+	// intBase is the base `int`s are parsed in, 10.
 	intBase = 10
-	// `int64Bits` is the number of bits stored in a variabe of `int64` type.
+	// int64Bits is the number of bits stored in a variabe of `int64` type.
 	int64Bits = 64
-	// `notFound` is a default return value for searches in which an item was not found.
+	// notFound is a default return value for searches in which an item was not found.
 	notFound = -1
 )
 
@@ -47,7 +47,7 @@ const (
 // Default Attribute Value Decoder Getter
 // ==============================================================================
 
-// `defaultCosmosValueDecoders` is a map of default Cosmos event attribute value decoder functions
+// defaultCosmosValueDecoders is a map of default Cosmos event attribute value decoder functions
 // for the default Cosmos SDK event `attributeKey`s. NOTE: only the event attributes of default
 // Cosmos SDK modules (bank, staking) are supported by this function.
 var defaultCosmosValueDecoders = precompile.ValueDecoders{
@@ -78,9 +78,9 @@ var (
 	_ precompile.ValueDecoder = ConvertInt64
 )
 
-// `ConvertSdkCoin` converts the string representation of an `sdk.Coin` to a `*big.Int`.
+// ConvertSdkCoin converts the string representation of an `sdk.Coin` to a `*big.Int`.
 //
-// `ConvertSdkCoin` is a `precompile.ValueDecoder`.
+// ConvertSdkCoin is a `precompile.ValueDecoder`.
 func ConvertSdkCoin(attributeValue string) (any, error) {
 	// extract the sdk.Coin from string value
 	coin, err := sdk.ParseCoinNormalized(attributeValue)
@@ -91,10 +91,10 @@ func ConvertSdkCoin(attributeValue string) (any, error) {
 	return coin.Amount.BigInt(), nil
 }
 
-// `ConvertValAddressFromBech32` converts a bech32 string representing a validator address to a
-// `common.Address`.
+// ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
+// common.Address.
 //
-// `ConvertValAddressFromBech32` is a `precompile.ValueDecoder`.
+// ConvertValAddressFromBech32 is a `precompile.ValueDecoder`.
 func ConvertValAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value
 	valAddress, err := sdk.ValAddressFromBech32(attributeValue)
@@ -105,10 +105,10 @@ func ConvertValAddressFromBech32(attributeValue string) (any, error) {
 	return cosmlib.ValAddressToEthAddress(valAddress), nil
 }
 
-// `ConvertAccAddressFromBech32` converts a bech32 string representing an account address to a
-// `common.Address`.
+// ConvertAccAddressFromBech32 converts a bech32 string representing an account address to a
+// common.Address.
 //
-// `ConvertAccAddressFromBech32` is a `precompile.ValueDecoder`.
+// ConvertAccAddressFromBech32 is a `precompile.ValueDecoder`.
 func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value
 	accAddress, err := sdk.AccAddressFromBech32(attributeValue)
@@ -119,10 +119,10 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 	return cosmlib.AccAddressToEthAddress(accAddress), nil
 }
 
-// `ConvertInt64` converts a creation height (from the Cosmos SDK staking module) `string`
+// ConvertInt64 converts a creation height (from the Cosmos SDK staking module) `string`
 // to an `int64`.
 //
-// `ConvertInt64` is a `precompile.ValueDecoder`.
+// ConvertInt64 is a `precompile.ValueDecoder`.
 func ConvertInt64(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, int64Bits)
 }
@@ -131,7 +131,7 @@ func ConvertInt64(attributeValue string) (any, error) {
 // Helpers
 // ==============================================================================
 
-// `validateAttributes` validates an incoming Cosmos `event`. Specifically, it verifies that the
+// validateAttributes validates an incoming Cosmos `event`. Specifically, it verifies that the
 // number of attributes provided by the Cosmos `event` are adequate for it's corresponding
 // Ethereum events.
 func validateAttributes(pl *precompileLog, event *sdk.Event) error {
@@ -141,7 +141,7 @@ func validateAttributes(pl *precompileLog, event *sdk.Event) error {
 	return nil
 }
 
-// `searchAttributesForArg` does a linear search through the given slice `attributes` for any
+// searchAttributesForArg does a linear search through the given slice `attributes` for any
 // attribute having a key that matches an Ethereum input `argName`. This function returns the index
 // where `argName` was found or -1 if `argName` was not found.
 // Complexity: O(N*M), N = len(`attributes`), M = average length of attribute key strings.
