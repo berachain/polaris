@@ -48,18 +48,22 @@ func (al *accessList) RegistryKey() string {
 	return accessListRegistryKey
 }
 
+// AddAddressToAccessList implements `state.AccessListJournal`.
 func (al *accessList) AddAddressToAccessList(addr common.Address) {
 	al.AddAddress(addr)
 }
 
+// AddSlotToAccessList implements `state.AccessListJournal`.
 func (al *accessList) AddSlotToAccessList(addr common.Address, slot common.Hash) {
 	al.AddSlot(addr, slot)
 }
 
+// AddressInAccessList implements `state.AccessListJournal`.
 func (al *accessList) AddressInAccessList(addr common.Address) bool {
 	return al.ContainsAddress(addr)
 }
 
+// SlotInAccessList implements `state.AccessListJournal`.
 func (al *accessList) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
 	return al.Contains(addr, slot)
 }
