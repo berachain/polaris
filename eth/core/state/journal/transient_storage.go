@@ -43,7 +43,11 @@ func (t transientState) Get(addr common.Address, key common.Hash) common.Hash {
 	if !ok {
 		return common.Hash{}
 	}
-	return val[key]
+	hash, ok := val[key]
+	if !ok {
+		return common.Hash{}
+	}
+	return hash
 }
 
 // Copy does a deep copy of the transientState
@@ -78,7 +82,11 @@ func (t *transientStorage) RegistryKey() string {
 
 // `AddTransient` adds a transient change to the `transient` store.
 func (t *transientStorage) SetTransientState(addr common.Address, key, value common.Hash) {
-	currentState := t.Peek().Copy()
+	currentState := t.Peek()
+	if currentState.Get(addr, key) == value {
+		return
+	}
+	currentState = currentState.Copy()
 	currentState.Set(addr, key, value)
 	t.Push(currentState)
 }
