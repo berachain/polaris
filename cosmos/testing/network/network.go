@@ -21,6 +21,7 @@
 package network
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -35,11 +36,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
+	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type (
@@ -51,6 +58,16 @@ const (
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
+	megamoney   = 1000000000000000000
+)
+
+var (
+	DummyContract   = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
+	TestKey, _      = ethsecp256k1.GenPrivKey()
+	ECDSATestKey, _ = TestKey.ToECDSA()
+	AddressFromKey  = TestKey.PubKey().Address()
+	Signer          = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+	TestAddress     = crypto.PubkeyToAddress(ECDSATestKey.PublicKey)
 )
 
 type TestingT interface {
@@ -99,12 +116,12 @@ func DefaultConfig() network.Config {
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
 			)
 		},
-		GenesisState:    runtime.ModuleBasics.DefaultGenesis(encoding.Codec),
+		GenesisState:    BuildGenesisState(),
 		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       sdk.DefaultBondDenom,
-		MinGasPrices:    fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),
+		MinGasPrices:    fmt.Sprintf("0.00006%s", sdk.DefaultBondDenom),
 		AccountTokens:   sdk.TokensFromConsensusPower(thousand, sdk.DefaultPowerReduction),
 		StakingTokens:   sdk.TokensFromConsensusPower(fivehundred, sdk.DefaultPowerReduction),
 		BondedTokens:    sdk.TokensFromConsensusPower(onehundred, sdk.DefaultPowerReduction),
@@ -115,4 +132,27 @@ func DefaultConfig() network.Config {
 	}
 
 	return cfg
+}
+
+func BuildGenesisState() map[string]json.RawMessage {
+	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
+	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
+	var authState authtypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
+	newAccount, err := authtypes.NewBaseAccountWithPubKey(TestKey.PubKey())
+	if err != nil {
+		panic(err)
+	}
+	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
+	authState.Accounts = append(authState.Accounts, accounts[0])
+	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
+	var bankState banktypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
+	bankState.Balances = append(bankState.Balances, banktypes.Balance{
+		Address: newAccount.Address,
+		// TODO MAKE CONFIGURABLE EVM DENOM
+		Coins: sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
+	})
+	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
+	return genState
 }

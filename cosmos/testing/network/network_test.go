@@ -36,17 +36,21 @@ import (
 
 func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testutil/network:integration")
+	RunSpecs(t, "cosmos/testing/network:integration")
 }
+
+const defaultTimeout = 10 * time.Second
 
 var _ = Describe("Network", func() {
 	var net *network.Network
 	BeforeEach(func() {
 		net = network.New(GinkgoT(), network.DefaultConfig())
-		time.Sleep(10 * time.Second)
-		_, err := net.WaitForHeightWithTimeout(3, 15*time.Second)
+		time.Sleep(5 * time.Second)
+		_, err := net.WaitForHeightWithTimeout(3, defaultTimeout)
 		Expect(err).ToNot(HaveOccurred())
+	})
 
+	AfterEach(func() {
 		// TODO: FIX THE OFFCHAIN DB
 		os.RemoveAll("data")
 	})
