@@ -28,7 +28,6 @@ import (
 	cdb "github.com/cosmos/cosmos-db"
 
 	pruningtypes "cosmossdk.io/store/pruning/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -37,6 +36,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
@@ -148,17 +148,11 @@ func BuildGenesisState() map[string]json.RawMessage {
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 	var bankState banktypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
-	fmt.Println(bankState.GetBalances())
 	bankState.Balances = append(bankState.Balances, banktypes.Balance{
 		Address: newAccount.Address,
 		// TODO MAKE CONFIGURABLE EVM DENOM
 		Coins: sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
 	})
-	fmt.Println(bankState.GetBalances())
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
-
-	fmt.Println(bankState.GetBalances())
-	fmt.Println(authState.GetAccounts())
-
 	return genState
 }

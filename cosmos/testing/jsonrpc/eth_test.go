@@ -32,8 +32,6 @@ import (
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -86,10 +84,6 @@ var _ = Describe("Network", func() {
 	})
 
 	It("should deploy, mint tokens, and check balance", func() {
-		// Dial an Ethereum RPC Endpoint
-		client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
-		Expect(err).ToNot(HaveOccurred())
-
 		nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
 		Expect(err).ToNot(HaveOccurred())
 
@@ -138,12 +132,12 @@ var _ = Describe("Network", func() {
 	})
 })
 
-func expectSuccessReceipt(
-	client *ethclient.Client,
-	hash common.Hash,
-) *coretypes.Receipt {
-	receipt, err := client.TransactionReceipt(context.Background(), hash)
-	Expect(err).ToNot(HaveOccurred())
-	Expect(receipt.Status).To(Equal(uint64(0x1)))
-	return receipt
-}
+// func expectSuccessReceipt(
+// 	client *ethclient.Client,
+// 	hash common.Hash,
+// ) *coretypes.Receipt {
+// 	receipt, err := client.TransactionReceipt(context.Background(), hash)
+// 	Expect(err).ToNot(HaveOccurred())
+// 	Expect(receipt.Status).To(Equal(uint64(0x1)))
+// 	return receipt
+// }
