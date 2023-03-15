@@ -148,3 +148,9 @@ type (
 		SetTransientState(addr common.Address, key, value common.Hash)
 	}
 )
+
+// precompilePlugin defines the expected precompile plugin for the statedb.
+type precompilePlugin interface {
+	// Has returns whether a precompile contract exists at the address.
+	Has(addr common.Address) bool
+}

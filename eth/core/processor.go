@@ -148,8 +148,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.Reset(txContext, sp.statedb)
-	sp.statedb.SetTxContext(txHash, len(sp.txs))
-	// TODO: have reset called here to ensure that the state is reset to the correct state no MATTER WHAT.
+	sp.statedb.Reset(txHash, len(sp.txs))
 
 	// Set the gasPool to have the remaining gas in the block.
 	// By setting the gas pool to the delta between the block gas limit and the cumulative gas

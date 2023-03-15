@@ -30,12 +30,6 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-// PrecompilePlugin defines the expected precompile plugin.
-type PrecompilePlugin interface {
-	// GetLogFactory returns the log factory for the precompile plugin.
-	Has(addr common.Address) bool
-}
-
 // stateDB is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
 	// Plugin is injected by the chain running the Polaris EVM.
@@ -52,11 +46,11 @@ type stateDB struct {
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
 	// pp is the precompile plugin.
-	pp PrecompilePlugin
+	pp precompilePlugin
 }
 
 // NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
-func NewStateDB(sp Plugin, pp PrecompilePlugin) vm.PolarisStateDB {
+func NewStateDB(sp Plugin, pp precompilePlugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
@@ -85,6 +79,20 @@ func NewStateDB(sp Plugin, pp PrecompilePlugin) vm.PolarisStateDB {
 	}
 }
 
+// Reset sets the TxContext for the current transaction and also manually clears any state from the
+// previous tx in the journals, in case the previous tx reverted (Finalize was not called).
+func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
+	sdb.LogsJournal.Finalize()
+	sdb.RefundJournal.Finalize()
+	sdb.AccessListJournal.Finalize()
+	sdb.TransientStorageJournal.Finalize()
+	sdb.SuicidesJournal.Finalize()
+
+	sdb.LogsJournal.SetTxContext(txHash, txIndex)
+}
+
+// GetCode overrides the GetCode on the Plugin to return a non-empty byte slice for precompiles.
+// THis is required for supporting calling precompiles as a transaction.
 func (sdb *stateDB) GetCode(addr common.Address) []byte {
 	if sdb.pp != nil && sdb.pp.Has(addr) {
 		return []byte{0x01}
