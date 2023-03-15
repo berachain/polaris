@@ -119,7 +119,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		logger:         log.Root(),
 	}
 	bc.cc = &chainContext{bc}
-	bc.statedb = state.NewStateDB(bc.sp)
+	bc.statedb = state.NewStateDB(bc.sp, host.GetPrecompilePlugin())
 	bc.processor = NewStateProcessor(
 		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,
 	)

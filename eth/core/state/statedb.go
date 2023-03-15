@@ -30,6 +30,12 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
+// PrecompilePlugin defines the expected precompile plugin.
+type PrecompilePlugin interface {
+	// GetLogFactory returns the log factory for the precompile plugin.
+	Has(addr common.Address) bool
+}
+
 // stateDB is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
 	// Plugin is injected by the chain running the Polaris EVM.
@@ -44,10 +50,13 @@ type stateDB struct {
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
+
+	// pp is the precompile plugin.
+	pp PrecompilePlugin
 }
 
 // NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
-func NewStateDB(sp Plugin) vm.PolarisStateDB {
+func NewStateDB(sp Plugin, pp PrecompilePlugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
@@ -72,7 +81,15 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 		TransientStorageJournal: tj,
 		SuicidesJournal:         sj,
 		ctrl:                    ctrl,
+		pp:                      pp,
 	}
+}
+
+func (sdb *stateDB) GetCode(addr common.Address) []byte {
+	if sdb.pp != nil && sdb.pp.Has(addr) {
+		return []byte{0x01}
+	}
+	return sdb.Plugin.GetCode(addr)
 }
 
 // =============================================================================
@@ -103,7 +120,7 @@ func (sdb *stateDB) Finalize() {
 // Prepare
 // =============================================================================
 
-// Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
+// Implementation taken directly from the `stateDB` in Go-Ethereum.
 //
 // Prepare implements `stateDB`.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
@@ -160,7 +177,7 @@ func (sdb *stateDB) Commit(_ bool) (common.Hash, error) {
 }
 
 func (sdb *stateDB) Copy() StateDBI {
-	return NewStateDB(sdb.Plugin)
+	return NewStateDB(sdb.Plugin, sdb.pp)
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {

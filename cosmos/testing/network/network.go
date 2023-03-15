@@ -47,6 +47,8 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
+
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type (
@@ -120,8 +122,8 @@ func DefaultConfig() network.Config {
 		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
-		BondDenom:       sdk.DefaultBondDenom,
-		MinGasPrices:    fmt.Sprintf("0.00006%s", sdk.DefaultBondDenom),
+		BondDenom:       "abera",
+		MinGasPrices:    fmt.Sprintf("0.00006%s", "abera"),
 		AccountTokens:   sdk.TokensFromConsensusPower(thousand, sdk.DefaultPowerReduction),
 		StakingTokens:   sdk.TokensFromConsensusPower(fivehundred, sdk.DefaultPowerReduction),
 		BondedTokens:    sdk.TokensFromConsensusPower(onehundred, sdk.DefaultPowerReduction),
@@ -137,6 +139,8 @@ func DefaultConfig() network.Config {
 func BuildGenesisState() map[string]json.RawMessage {
 	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
 	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
+
+	// Auth module
 	var authState authtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
 	newAccount, err := authtypes.NewBaseAccountWithPubKey(TestKey.PubKey())
@@ -146,13 +150,21 @@ func BuildGenesisState() map[string]json.RawMessage {
 	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
 	authState.Accounts = append(authState.Accounts, accounts[0])
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
+
+	// Bank module
 	var bankState banktypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
 	bankState.Balances = append(bankState.Balances, banktypes.Balance{
 		Address: newAccount.Address,
-		// TODO MAKE CONFIGURABLE EVM DENOM
-		Coins: sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
+		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
 	})
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
+
+	// Staking module
+	var stakingState stakingtypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[stakingtypes.ModuleName], &stakingState)
+	stakingState.Params.BondDenom = "abera"
+	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
+
 	return genState
 }

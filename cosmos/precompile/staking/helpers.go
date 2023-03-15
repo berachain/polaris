@@ -27,6 +27,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -42,13 +44,15 @@ func (c *Contract) getDelegationHelper(
 		DelegatorAddr: del.String(),
 		ValidatorAddr: val.String(),
 	})
-	if err != nil {
+	if status.Code(err) == codes.NotFound {
+		return []any{big.NewInt(0)}, nil
+	} else if err != nil {
 		return nil, err
 	}
 
 	delegation := res.GetDelegationResponse()
 	if delegation == nil {
-		return nil, err
+		return []any{big.NewInt(0)}, nil
 	}
 
 	return []any{delegation.Balance.Amount.BigInt()}, nil
@@ -64,7 +68,9 @@ func (c *Contract) getUnbondingDelegationHelper(
 		DelegatorAddr: del.String(),
 		ValidatorAddr: val.String(),
 	})
-	if err != nil {
+	if status.Code(err) == codes.NotFound {
+		return []any{big.NewInt(0)}, nil
+	} else if err != nil {
 		return nil, errors.New("unbonding delegation not found")
 	}
 

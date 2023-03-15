@@ -25,12 +25,11 @@ import (
 	"math/big"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
-	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -45,19 +44,9 @@ func TestRpc(t *testing.T) {
 var _ = Describe("Network", func() {
 	var net *network.Network
 	var client *ethclient.Client
-	var rpcClient *gethrpc.Client
-	var ctx context.Context
 	BeforeEach(func() {
-		net = network.New(GinkgoT(), network.DefaultConfig())
-		time.Sleep(1 * time.Second)
-		_, err := net.WaitForHeightWithTimeout(1, defaultTimeout)
-		Expect(err).ToNot(HaveOccurred())
-
-		// Dial an Ethereum RPC Endpoint
-		rpcClient, err = gethrpc.DialContext(ctx, net.Validators[0].APIAddress+"/eth/rpc")
-		Expect(err).ToNot(HaveOccurred())
-		client = ethclient.NewClient(rpcClient)
-		Expect(err).ToNot(HaveOccurred())
+		net, client = StartPolarisNetwork(GinkgoT())
+		_ = net
 	})
 
 	AfterEach(func() {
