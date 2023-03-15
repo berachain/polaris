@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package jsonrpc_test
+package jsonrpc
 
 import (
 	"context"
@@ -65,79 +65,35 @@ var _ = Describe("Network", func() {
 		os.RemoveAll("data")
 	})
 
-	It("eth_chainId", func() {
+	It("eth_chainId, eth_gasPrice, eth_blockNumber, eth_getBalance", func() {
 		chainID, err := client.ChainID(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 		Expect(chainID.String()).To(Equal("69420"))
-	})
-
-	It("eth_gasPrice", func() {
 		gasPrice, err := client.SuggestGasPrice(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 		Expect(gasPrice).ToNot(BeNil())
-	})
-
-	It("eth_blockNumber", func() {
 		blockNumber, err := client.BlockNumber(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 		Expect(blockNumber).To(BeNumerically(">", 0))
-	})
-
-	It("should deploy, mint tokens, and check balance", func() {
-		nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
-		Expect(err).ToNot(HaveOccurred())
-
-		// Set up the auth object
-		gasPrice, err := client.SuggestGasPrice(context.Background())
-		Expect(err).ToNot(HaveOccurred())
-
-		chainID, err := client.ChainID(context.Background())
-
-		Expect(err).ToNot(HaveOccurred())
-
-		auth, err := bind.NewKeyedTransactorWithChainID(network.ECDSATestKey, chainID)
-		Expect(err).ToNot(HaveOccurred())
-
-		// Build transaction opts object.
-		auth.Nonce = big.NewInt(int64(nonce))
-		auth.Value = big.NewInt(0)        // in wei
-		auth.GasLimit = uint64(3_000_000) // in units
-		auth.GasPrice = gasPrice
-
 		balance, err := client.BalanceAt(context.Background(), network.TestAddress, nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
+	})
 
-		// // Deploy the contract
-		// _, _, _, err = bindings.DeploySolmateERC20(auth, client)
-		// Expect(err).ToNot(HaveOccurred())
-		// _, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		// defer cancel()
-		// _, err = bind.WaitMined(ctx, client, tx)
-		// Expect(err).ToNot(HaveOccurred())
+	It("should deploy, mint tokens, and check balance", func() {
+		// Deploy the contract
+		erc20Contract := DeployERC20(BuildTransactor(network.ECDSATestKey, client), client)
 
-		// // Mint tokens
-		// auth.Nonce = big.NewInt(int64(nonce + 1))
-		// tx, err = contract.Mint(auth, network.TestAddress, big.NewInt(100000000))
-		// Expect(err).ToNot(HaveOccurred())
-		// ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
-		// defer cancel()
-		// _, err = bind.WaitMined(ctx, client, tx)
-		// Expect(err).ToNot(HaveOccurred())
+		// Mint tokens
+		tx, err := erc20Contract.Mint(BuildTransactor(network.ECDSATestKey, client),
+			network.TestAddress, big.NewInt(100000000))
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(client, tx)
+		ExpectSuccessReceipt(client, tx)
 
-		// // Check the balance
-		// balance, err := contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
-		// Expect(err).ToNot(HaveOccurred())
-		// Expect(balance.String()).To(Equal("100000000"))
+		// Check the erc20 balance
+		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
 	})
 })
-
-// func expectSuccessReceipt(
-// 	client *ethclient.Client,
-// 	hash common.Hash,
-// ) *coretypes.Receipt {
-// 	receipt, err := client.TransactionReceipt(context.Background(), hash)
-// 	Expect(err).ToNot(HaveOccurred())
-// 	Expect(receipt.Status).To(Equal(uint64(0x1)))
-// 	return receipt
-// }
