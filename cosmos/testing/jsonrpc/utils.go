@@ -50,10 +50,6 @@ func BuildTransactor(
 	Expect(err).ToNot(HaveOccurred())
 	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
 	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
-
-	Expect(err).ToNot(HaveOccurred())
-	// Set up the auth object
-	gasPrice, err := client.SuggestGasPrice(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 
 	// Get the ChainID from the RPC.
@@ -65,8 +61,6 @@ func BuildTransactor(
 	Expect(err).ToNot(HaveOccurred())
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0) // in wei
-	auth.GasLimit = 3_000_000  // in units
-	auth.GasPrice = gasPrice
 	return auth
 }
 
