@@ -157,13 +157,10 @@ func (sp *StateProcessor) ProcessTransaction(
 	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
 
 	// Apply the state transition.
-	beforeGas := gasPool
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
-
-	fmt.Println("GAS POOL USED", beforeGas-gasPool)
 
 	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
 	// while still ensuring that we consume all the gas.

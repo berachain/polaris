@@ -151,7 +151,8 @@ func BuildGenesisState() map[string]json.RawMessage {
 	fmt.Println(bankState.GetBalances())
 	bankState.Balances = append(bankState.Balances, banktypes.Balance{
 		Address: newAccount.Address,
-		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
+		// TODO MAKE CONFIGURABLE EVM DENOM
+		Coins: sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
 	})
 	fmt.Println(bankState.GetBalances())
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
