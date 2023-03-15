@@ -47,6 +47,8 @@ type Plugin interface {
 	// Empty returns whether the given account is considered empty. Empty is defined according to
 	// EIP161 (balance = nonce = code = 0).
 	Empty(common.Address) bool
+	// `DeleteAccounts` removes the given accounts from the state.
+	DeleteAccounts([]common.Address)
 
 	// GetBalance returns the balance of the given account.
 	GetBalance(common.Address) *big.Int
@@ -70,6 +72,7 @@ type Plugin interface {
 	SetCode(common.Address, []byte)
 	// GetCodeSize returns the size of the code associated with a given account.
 	GetCodeSize(common.Address) int
+
 	// GetCommittedState returns the committed value from account storage.
 	GetCommittedState(common.Address, common.Hash) common.Hash
 	// GetState returns the value from account storage.
@@ -81,8 +84,6 @@ type Plugin interface {
 	// ForEachStorage iterates over the storage of an account and calls the given callback
 	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
-	// `DeleteAccounts` removes the given accounts from the state.
-	DeleteAccounts([]common.Address)
 }
 
 type (

@@ -27,7 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-//go:generate moq -out ./state.mock.go -pkg mock ../../ Plugin
+//go:generate moq -out ./state.mock.go -skip-ensure -pkg mock ../../ Plugin
 
 var Accounts map[common.Address]*Account
 
@@ -134,7 +134,9 @@ func NewEmptyStatePlugin() *PluginMock {
 				panic("acct doesnt exist")
 			}
 			Accounts[address] = &Account{
-				Balance: Accounts[address].Balance.Sub(Accounts[address].Balance, intMoqParam),
+				Balance:  Accounts[address].Balance.Sub(Accounts[address].Balance, intMoqParam),
+				Code:     Accounts[address].Code,
+				CodeHash: Accounts[address].CodeHash,
 			}
 		},
 	}

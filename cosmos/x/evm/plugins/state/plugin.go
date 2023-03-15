@@ -212,6 +212,30 @@ func (p *plugin) Empty(addr common.Address) bool {
 		p.GetBalance(addr).Sign() == 0
 }
 
+// `DeleteAccounts` manually deletes the given accounts.
+func (p *plugin) DeleteAccounts(accounts []common.Address) {
+	for _, account := range accounts {
+		acct := p.ak.GetAccount(p.ctx, account[:])
+		if acct == nil {
+			// handles the double suicide case
+			continue
+		}
+
+		// clear storage
+		_ = p.ForEachStorage(account,
+			func(key, _ common.Hash) bool {
+				p.SetState(account, key, common.Hash{})
+				return true
+			})
+
+		// clear the codehash from this account
+		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(account))
+
+		// remove auth account
+		p.ak.RemoveAccount(p.ctx, acct)
+	}
+}
+
 // =============================================================================
 // Balance
 // =============================================================================
@@ -370,7 +394,7 @@ func (p *plugin) GetCodeSize(addr common.Address) int {
 }
 
 // =============================================================================
-// State
+// Storage
 // =============================================================================
 
 // GetCommittedState implements the `StatePlugin` interface by returning the
@@ -433,10 +457,6 @@ func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Has
 	}
 }
 
-// =============================================================================
-// ForEachStorage
-// =============================================================================
-
 // ForEachStorage implements the `StatePlugin` interface by iterating through the contract state
 // contract storage, the iteration order is not defined.
 //
@@ -464,28 +484,15 @@ func (p *plugin) ForEachStorage(
 	return nil
 }
 
-// `DeleteAccounts` manually deletes the given accounts.
-func (p *plugin) DeleteAccounts(accounts []common.Address) {
-	for _, account := range accounts {
-		acct := p.ak.GetAccount(p.ctx, account[:])
-		if acct == nil {
-			// handles the double suicide case
-			continue
-		}
-
-		// clear storage
-		_ = p.ForEachStorage(account,
-			func(key, _ common.Hash) bool {
-				p.SetState(account, key, common.Hash{})
-				return true
-			})
-
-		// clear the codehash from this account
-		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(account))
-
-		// remove auth account
-		p.ak.RemoveAccount(p.ctx, acct)
+// getStateFromStore returns the current state of the slot in the given address.
+func getStateFromStore(
+	store storetypes.KVStore,
+	addr common.Address, slot common.Hash,
+) common.Hash {
+	if value := store.Get(SlotKeyFor(addr, slot)); value != nil {
+		return common.BytesToHash(value)
 	}
+	return common.Hash{}
 }
 
 // =============================================================================
@@ -526,15 +533,4 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
 	sp.Reset(ctx)
 	return sp, nil
-}
-
-// getStateFromStore returns the current state of the slot in the given address.
-func getStateFromStore(
-	store storetypes.KVStore,
-	addr common.Address, slot common.Hash,
-) common.Hash {
-	if value := store.Get(SlotKeyFor(addr, slot)); value != nil {
-		return common.BytesToHash(value)
-	}
-	return common.Hash{}
 }

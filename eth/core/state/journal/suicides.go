@@ -59,8 +59,9 @@ type suicides struct {
 //nolint:revive // only used as a state.SuicidesJournal.
 func NewSuicides(ssp suicideStatePlugin) *suicides {
 	return &suicides{
-		journal: stack.New[*common.Address](initCapacity),
-		ssp:     ssp,
+		journal:      stack.New[*common.Address](initCapacity),
+		ssp:          ssp,
+		lastSnapshot: -1,
 	}
 }
 
@@ -127,7 +128,8 @@ func (s *suicides) RevertToSnapshot(id int) {
 // Finalize implements libtypes.Controllable.
 func (s *suicides) Finalize() {
 	*s = suicides{
-		journal: stack.New[*common.Address](initCapacity),
-		ssp:     s.ssp,
+		journal:      stack.New[*common.Address](initCapacity),
+		ssp:          s.ssp,
+		lastSnapshot: -1,
 	}
 }

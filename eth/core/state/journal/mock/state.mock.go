@@ -7,13 +7,8 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
-	"pkg.berachain.dev/polaris/eth/core/state"
 	"sync"
 )
-
-// Ensure, that PluginMock does implement state.Plugin.
-// If this is not the case, regenerate this file with moq.
-var _ state.Plugin = &PluginMock{}
 
 // PluginMock is a mock implementation of state.Plugin.
 //
