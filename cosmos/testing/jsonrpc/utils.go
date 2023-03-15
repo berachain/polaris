@@ -22,7 +22,6 @@ package jsonrpc
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"math/big"
 	"time"
 
@@ -42,7 +41,6 @@ const (
 
 // BuildTransactor builds a transaction opts object.
 func BuildTransactor(
-	key *ecdsa.PrivateKey,
 	client *ethclient.Client,
 ) *bind.TransactOpts {
 	// Get the nonce from the RPC.

@@ -82,10 +82,10 @@ var _ = Describe("Network", func() {
 
 	It("should deploy, mint tokens, and check balance", func() {
 		// Deploy the contract
-		erc20Contract := DeployERC20(BuildTransactor(network.ECDSATestKey, client), client)
+		erc20Contract := DeployERC20(BuildTransactor(client), client)
 
 		// Mint tokens
-		tx, err := erc20Contract.Mint(BuildTransactor(network.ECDSATestKey, client),
+		tx, err := erc20Contract.Mint(BuildTransactor(client),
 			network.TestAddress, big.NewInt(100000000))
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(client, tx)
