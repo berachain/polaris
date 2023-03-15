@@ -44,14 +44,19 @@ type Plugin interface {
 	// Exist reports whether the given account exists in state. Notably this should also return
 	// true for suicided accounts.
 	Exist(common.Address) bool
+	// Empty returns whether the given account is considered empty. Empty is defined according to
+	// EIP161 (balance = nonce = code = 0).
+	Empty(common.Address) bool
+	// `DeleteAccounts` removes the given accounts from the state.
+	DeleteAccounts([]common.Address)
 
 	// GetBalance returns the balance of the given account.
 	GetBalance(common.Address) *big.Int
 	// SetBalance sets the balance of the given account.
 	SetBalance(common.Address, *big.Int)
-	// AddBalance adds amount to the given account.
-	SubBalance(common.Address, *big.Int)
 	// SubBalance subtracts amount from the given account.
+	SubBalance(common.Address, *big.Int)
+	// AddBalance adds amount to the given account.
 	AddBalance(common.Address, *big.Int)
 
 	// GetNonce returns the nonce of the given account.
@@ -67,6 +72,7 @@ type Plugin interface {
 	SetCode(common.Address, []byte)
 	// GetCodeSize returns the size of the code associated with a given account.
 	GetCodeSize(common.Address) int
+
 	// GetCommittedState returns the committed value from account storage.
 	GetCommittedState(common.Address, common.Hash) common.Hash
 	// GetState returns the value from account storage.
@@ -78,8 +84,6 @@ type Plugin interface {
 	// ForEachStorage iterates over the storage of an account and calls the given callback
 	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
-	// DeleteSuicides removes the given accounts from the state.
-	DeleteSuicides([]common.Address)
 }
 
 type (
@@ -114,14 +118,25 @@ type (
 	AccessListJournal interface {
 		// AccessListJournal implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
-		// AddAddress adds the given `address` to the access list.
-		AddAddress(address common.Address) bool
-		// AddSlot adds the given `slot` to the access list.
-		AddSlot(address common.Address, slot common.Hash) (addrChange bool, slotChange bool)
-		// Contains returns whether the given `address` and `slot` are in the access list.
-		Contains(address common.Address, slot common.Hash) (addressPresent bool, slotPresent bool)
-		// ContainsAddress returns whether the given `address` is in the access list.
-		ContainsAddress(address common.Address) bool
+		// `AddAddressToAccessList` adds the given address to the access list.
+		AddAddressToAccessList(common.Address)
+		// `AddSlotToAccessList` adds the given slot to the access list for the given address.
+		AddSlotToAccessList(common.Address, common.Hash)
+		// `SlotInAccessList` returns whether the given address and slot are in the access list.
+		SlotInAccessList(common.Address, common.Hash) (addressPresent bool, slotPresent bool)
+		// `AddressInAccessList` returns whether the given address is in the access list.
+		AddressInAccessList(common.Address) bool
+	}
+
+	SuicidesJournal interface {
+		// `SuicidesJournal` implements `libtypes.Controllable`.
+		libtypes.Controllable[string]
+		// `Suicide` marks the given address as suicided.
+		Suicide(common.Address) bool
+		// `HasSuicided` returns whether the address is suicided.
+		HasSuicided(common.Address) bool
+		// `GetSuicides` returns all suicided addresses from the tx.
+		GetSuicides() []common.Address
 	}
 
 	TransientStorageJournal interface {

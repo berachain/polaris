@@ -27,8 +27,11 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			CreateAccountFunc: func(address common.Address)  {
 //				panic("mock out the CreateAccount method")
 //			},
-//			DeleteSuicidesFunc: func(addresss []common.Address)  {
-//				panic("mock out the DeleteSuicides method")
+//			DeleteAccountsFunc: func(addresss []common.Address)  {
+//				panic("mock out the DeleteAccounts method")
+//			},
+//			EmptyFunc: func(address common.Address) bool {
+//				panic("mock out the Empty method")
 //			},
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
@@ -109,8 +112,11 @@ type StatePluginMock struct {
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
 
-	// DeleteSuicidesFunc mocks the DeleteSuicides method.
-	DeleteSuicidesFunc func(addresss []common.Address)
+	// DeleteAccountsFunc mocks the DeleteAccounts method.
+	DeleteAccountsFunc func(addresss []common.Address)
+
+	// EmptyFunc mocks the Empty method.
+	EmptyFunc func(address common.Address) bool
 
 	// ExistFunc mocks the Exist method.
 	ExistFunc func(address common.Address) bool
@@ -192,10 +198,15 @@ type StatePluginMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
-		// DeleteSuicides holds details about calls to the DeleteSuicides method.
-		DeleteSuicides []struct {
+		// DeleteAccounts holds details about calls to the DeleteAccounts method.
+		DeleteAccounts []struct {
 			// Addresss is the addresss argument value.
 			Addresss []common.Address
+		}
+		// Empty holds details about calls to the Empty method.
+		Empty []struct {
+			// Address is the address argument value.
+			Address common.Address
 		}
 		// Exist holds details about calls to the Exist method.
 		Exist []struct {
@@ -322,7 +333,8 @@ type StatePluginMock struct {
 	}
 	lockAddBalance        sync.RWMutex
 	lockCreateAccount     sync.RWMutex
-	lockDeleteSuicides    sync.RWMutex
+	lockDeleteAccounts    sync.RWMutex
+	lockEmpty             sync.RWMutex
 	lockExist             sync.RWMutex
 	lockFinalize          sync.RWMutex
 	lockForEachStorage    sync.RWMutex
@@ -415,35 +427,67 @@ func (mock *StatePluginMock) CreateAccountCalls() []struct {
 	return calls
 }
 
-// DeleteSuicides calls DeleteSuicidesFunc.
-func (mock *StatePluginMock) DeleteSuicides(addresss []common.Address) {
-	if mock.DeleteSuicidesFunc == nil {
-		panic("StatePluginMock.DeleteSuicidesFunc: method is nil but StatePlugin.DeleteSuicides was just called")
+// DeleteAccounts calls DeleteAccountsFunc.
+func (mock *StatePluginMock) DeleteAccounts(addresss []common.Address) {
+	if mock.DeleteAccountsFunc == nil {
+		panic("StatePluginMock.DeleteAccountsFunc: method is nil but StatePlugin.DeleteAccounts was just called")
 	}
 	callInfo := struct {
 		Addresss []common.Address
 	}{
 		Addresss: addresss,
 	}
-	mock.lockDeleteSuicides.Lock()
-	mock.calls.DeleteSuicides = append(mock.calls.DeleteSuicides, callInfo)
-	mock.lockDeleteSuicides.Unlock()
-	mock.DeleteSuicidesFunc(addresss)
+	mock.lockDeleteAccounts.Lock()
+	mock.calls.DeleteAccounts = append(mock.calls.DeleteAccounts, callInfo)
+	mock.lockDeleteAccounts.Unlock()
+	mock.DeleteAccountsFunc(addresss)
 }
 
-// DeleteSuicidesCalls gets all the calls that were made to DeleteSuicides.
+// DeleteAccountsCalls gets all the calls that were made to DeleteAccounts.
 // Check the length with:
 //
-//	len(mockedStatePlugin.DeleteSuicidesCalls())
-func (mock *StatePluginMock) DeleteSuicidesCalls() []struct {
+//	len(mockedStatePlugin.DeleteAccountsCalls())
+func (mock *StatePluginMock) DeleteAccountsCalls() []struct {
 	Addresss []common.Address
 } {
 	var calls []struct {
 		Addresss []common.Address
 	}
-	mock.lockDeleteSuicides.RLock()
-	calls = mock.calls.DeleteSuicides
-	mock.lockDeleteSuicides.RUnlock()
+	mock.lockDeleteAccounts.RLock()
+	calls = mock.calls.DeleteAccounts
+	mock.lockDeleteAccounts.RUnlock()
+	return calls
+}
+
+// Empty calls EmptyFunc.
+func (mock *StatePluginMock) Empty(address common.Address) bool {
+	if mock.EmptyFunc == nil {
+		panic("StatePluginMock.EmptyFunc: method is nil but StatePlugin.Empty was just called")
+	}
+	callInfo := struct {
+		Address common.Address
+	}{
+		Address: address,
+	}
+	mock.lockEmpty.Lock()
+	mock.calls.Empty = append(mock.calls.Empty, callInfo)
+	mock.lockEmpty.Unlock()
+	return mock.EmptyFunc(address)
+}
+
+// EmptyCalls gets all the calls that were made to Empty.
+// Check the length with:
+//
+//	len(mockedStatePlugin.EmptyCalls())
+func (mock *StatePluginMock) EmptyCalls() []struct {
+	Address common.Address
+} {
+	var calls []struct {
+		Address common.Address
+	}
+	mock.lockEmpty.RLock()
+	calls = mock.calls.Empty
+	mock.lockEmpty.RUnlock()
 	return calls
 }
 

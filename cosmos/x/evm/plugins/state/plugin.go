@@ -179,7 +179,7 @@ func (p *plugin) RegistryKey() string {
 }
 
 // ===========================================================================
-// Account
+// Accounts
 // ===========================================================================
 
 // CreateAccount implements the `StatePlugin` interface by creating a new account
@@ -199,6 +199,41 @@ func (p *plugin) CreateAccount(addr common.Address) {
 // for since, `RemoveAccount()` is not called until Commit.
 func (p *plugin) Exist(addr common.Address) bool {
 	return p.ak.HasAccount(p.ctx, addr[:])
+}
+
+// Empty implements the `PolarisStateDB` interface by returning whether the state object
+// is either non-existent or empty according to the EIP161 epecification
+// (balance = nonce = code = 0)
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
+func (p *plugin) Empty(addr common.Address) bool {
+	ch := p.GetCodeHash(addr)
+	return p.GetNonce(addr) == 0 &&
+		(ch == emptyCodeHash || ch == common.Hash{}) &&
+		p.GetBalance(addr).Sign() == 0
+}
+
+// `DeleteAccounts` manually deletes the given accounts.
+func (p *plugin) DeleteAccounts(accounts []common.Address) {
+	for _, account := range accounts {
+		acct := p.ak.GetAccount(p.ctx, account[:])
+		if acct == nil {
+			// handles the double suicide case
+			continue
+		}
+
+		// clear storage
+		_ = p.ForEachStorage(account,
+			func(key, _ common.Hash) bool {
+				p.SetState(account, key, common.Hash{})
+				return true
+			})
+
+		// clear the codehash from this account
+		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(account))
+
+		// remove auth account
+		p.ak.RemoveAccount(p.ctx, acct)
+	}
 }
 
 // =============================================================================
@@ -359,7 +394,7 @@ func (p *plugin) GetCodeSize(addr common.Address) int {
 }
 
 // =============================================================================
-// State
+// Storage
 // =============================================================================
 
 // GetCommittedState implements the `StatePlugin` interface by returning the
@@ -422,10 +457,6 @@ func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Has
 	}
 }
 
-// =============================================================================
-// ForEachStorage
-// =============================================================================
-
 // ForEachStorage implements the `StatePlugin` interface by iterating through the contract state
 // contract storage, the iteration order is not defined.
 //
@@ -453,28 +484,15 @@ func (p *plugin) ForEachStorage(
 	return nil
 }
 
-// DeleteSuicides manually deletes the given suicidal accounts.
-func (p *plugin) DeleteSuicides(suicides []common.Address) {
-	for _, suicidalAddr := range suicides {
-		acct := p.ak.GetAccount(p.ctx, suicidalAddr[:])
-		if acct == nil {
-			// handles the double suicide case
-			continue
-		}
-
-		// clear storage
-		_ = p.ForEachStorage(suicidalAddr,
-			func(key, _ common.Hash) bool {
-				p.SetState(suicidalAddr, key, common.Hash{})
-				return true
-			})
-
-		// clear the codehash from this account
-		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(suicidalAddr))
-
-		// remove auth account
-		p.ak.RemoveAccount(p.ctx, acct)
+// getStateFromStore returns the current state of the slot in the given address.
+func getStateFromStore(
+	store storetypes.KVStore,
+	addr common.Address, slot common.Hash,
+) common.Hash {
+	if value := store.Get(SlotKeyFor(addr, slot)); value != nil {
+		return common.BytesToHash(value)
 	}
+	return common.Hash{}
 }
 
 // =============================================================================
@@ -515,15 +533,4 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
 	sp.Reset(ctx)
 	return sp, nil
-}
-
-// getStateFromStore returns the current state of the slot in the given address.
-func getStateFromStore(
-	store storetypes.KVStore,
-	addr common.Address, slot common.Hash,
-) common.Hash {
-	if value := store.Get(SlotKeyFor(addr, slot)); value != nil {
-		return common.BytesToHash(value)
-	}
-	return common.Hash{}
 }
