@@ -30,6 +30,8 @@ const (
 	logsRegistryKey = `logs`
 	// accessListRegistryKey is the registry key for the access list journal.
 	accessListRegistryKey = `accessList`
+	// `suicidesRegistryKey` is the registry key for the suicides journal.
+	suicidesRegistryKey = `suicides`
 	// `transientRegistryKey` is the registry key for the transient journal.
 	transientRegistryKey = `transient`
 )
