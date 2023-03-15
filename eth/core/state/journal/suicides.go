@@ -42,9 +42,9 @@ type suicides struct {
 	ssp     suicideStatePlugin
 }
 
-// NewSuicides returns a new `suicides` journal.
+// NewSuicides returns a new suicides journal.
 //
-//nolint:revive // only used as a `state.SuicidesJournal`.
+//nolint:revive // only used as a state.SuicidesJournal.
 func NewSuicides(ssp suicideStatePlugin) *suicides {
 	return &suicides{
 		journal: stack.New[*common.Address](initCapacity),
@@ -52,7 +52,7 @@ func NewSuicides(ssp suicideStatePlugin) *suicides {
 	}
 }
 
-// RegistryKey implements `libtypes.Registrable`.
+// RegistryKey implements libtypes.Registrable.
 func (s *suicides) RegistryKey() string {
 	return suicidesRegistryKey
 }
@@ -75,7 +75,7 @@ func (s *suicides) Suicide(addr common.Address) bool {
 	return true
 }
 
-// HasSuicided implements the `PolarisStateDB` interface by returning if the contract was suicided
+// HasSuicided implements the PolarisStateDB interface by returning if the contract was suicided
 // in current transaction.
 func (s *suicides) HasSuicided(addr common.Address) bool {
 	for i := s.journal.Size() - 1; i >= 0; i-- {

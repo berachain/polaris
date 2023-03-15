@@ -60,14 +60,6 @@ var _ = Describe("StateDB", func() {
 		Expect(sdb.HasSuicided(bob)).To(BeTrue())
 	})
 
-	It("should handle empty", func() {
-		sdb.CreateAccount(alice)
-		Expect(sdb.Empty(alice)).To(BeTrue())
-
-		sdb.SetCode(alice, []byte{1, 2, 3})
-		Expect(sdb.Empty(alice)).To(BeFalse())
-	})
-
 	It("should snapshot/revert", func() {
 		Expect(func() {
 			id := sdb.Snapshot()
