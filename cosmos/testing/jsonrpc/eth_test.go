@@ -50,7 +50,7 @@ var _ = Describe("Network", func() {
 	BeforeEach(func() {
 		net = network.New(GinkgoT(), network.DefaultConfig())
 		time.Sleep(1 * time.Second)
-		_, err := net.WaitForHeightWithTimeout(1, 15*time.Second)
+		_, err := net.WaitForHeightWithTimeout(1, defaultTimeout)
 		Expect(err).ToNot(HaveOccurred())
 
 		// Dial an Ethereum RPC Endpoint
