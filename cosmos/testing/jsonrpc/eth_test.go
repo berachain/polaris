@@ -22,13 +22,18 @@ package jsonrpc_test
 
 import (
 	"context"
+	"math/big"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
+	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -42,6 +47,8 @@ func TestRpc(t *testing.T) {
 var _ = Describe("Network", func() {
 	var net *network.Network
 	var client *ethclient.Client
+	var rpcClient *gethrpc.Client
+	var ctx context.Context
 	BeforeEach(func() {
 		net = network.New(GinkgoT(), network.DefaultConfig())
 		time.Sleep(1 * time.Second)
@@ -49,7 +56,9 @@ var _ = Describe("Network", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// Dial an Ethereum RPC Endpoint
-		client, err = ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
+		rpcClient, err = gethrpc.DialContext(ctx, net.Validators[0].APIAddress+"/eth/rpc")
+		Expect(err).ToNot(HaveOccurred())
+		client = ethclient.NewClient(rpcClient)
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -76,4 +85,65 @@ var _ = Describe("Network", func() {
 		Expect(blockNumber).To(BeNumerically(">", 0))
 	})
 
+	It("should deploy, mint tokens, and check balance", func() {
+		// Dial an Ethereum RPC Endpoint
+		client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
+		Expect(err).ToNot(HaveOccurred())
+
+		nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Set up the auth object
+		gasPrice, err := client.SuggestGasPrice(context.Background())
+		Expect(err).ToNot(HaveOccurred())
+
+		chainID, err := client.ChainID(context.Background())
+
+		Expect(err).ToNot(HaveOccurred())
+
+		auth, err := bind.NewKeyedTransactorWithChainID(network.ECDSATestKey, chainID)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Build transaction opts object.
+		auth.Nonce = big.NewInt(int64(nonce))
+		auth.Value = big.NewInt(0)        // in wei
+		auth.GasLimit = uint64(3_000_000) // in units
+		auth.GasPrice = gasPrice
+
+		balance, err := client.BalanceAt(context.Background(), network.TestAddress, nil)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
+
+		// // Deploy the contract
+		// _, _, _, err = bindings.DeploySolmateERC20(auth, client)
+		// Expect(err).ToNot(HaveOccurred())
+		// _, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		// defer cancel()
+		// _, err = bind.WaitMined(ctx, client, tx)
+		// Expect(err).ToNot(HaveOccurred())
+
+		// // Mint tokens
+		// auth.Nonce = big.NewInt(int64(nonce + 1))
+		// tx, err = contract.Mint(auth, network.TestAddress, big.NewInt(100000000))
+		// Expect(err).ToNot(HaveOccurred())
+		// ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+		// defer cancel()
+		// _, err = bind.WaitMined(ctx, client, tx)
+		// Expect(err).ToNot(HaveOccurred())
+
+		// // Check the balance
+		// balance, err := contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
+		// Expect(err).ToNot(HaveOccurred())
+		// Expect(balance.String()).To(Equal("100000000"))
+	})
 })
+
+func expectSuccessReceipt(
+	client *ethclient.Client,
+	hash common.Hash,
+) *coretypes.Receipt {
+	receipt, err := client.TransactionReceipt(context.Background(), hash)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(receipt.Status).To(Equal(uint64(0x1)))
+	return receipt
+}

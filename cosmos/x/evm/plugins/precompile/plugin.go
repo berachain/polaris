@@ -72,8 +72,8 @@ func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 		precompiles: precompiles,
 		// TODO: Re-enable gas config for precompiles.
 		// https://github.com/berachain/polaris/issues/393
-		kvGasConfig:          storetypes.GasConfig{},
-		transientKVGasConfig: storetypes.GasConfig{},
+		kvGasConfig:          storetypes.KVGasConfig(),
+		transientKVGasConfig: storetypes.TransientGasConfig(),
 		plf:                  log.NewFactory(precompiles),
 	}
 }
