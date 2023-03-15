@@ -3,7 +3,6 @@ module pkg.berachain.dev/polaris/magefiles
 go 1.20
 
 require (
-	github.com/TwiN/go-color v1.4.0
 	github.com/bufbuild/buf v1.15.1
 	github.com/carolynvs/magex v0.9.0
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
@@ -271,7 +270,7 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
-	google.golang.org/protobuf v1.29.0 // indirect
+	google.golang.org/protobuf v1.29.1 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
