@@ -46,6 +46,7 @@ type stateDB struct {
 	LogsJournal
 	RefundJournal
 	AccessListJournal
+	TransientStorageJournal
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
@@ -64,6 +65,7 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
 	aj := journal.NewAccesslist()
+	tj := journal.NewTransientStorage()
 
 	// Build the controller and register the plugins and journals
 
@@ -73,14 +75,16 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	_ = ctrl.Register(rj)
 	_ = ctrl.Register(aj)
 	_ = ctrl.Register(sp)
+	_ = ctrl.Register(tj)
 
 	return &stateDB{
-		Plugin:            sp,
-		LogsJournal:       lj,
-		RefundJournal:     rj,
-		AccessListJournal: aj,
-		ctrl:              ctrl,
-		suicides:          make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		Plugin:                  sp,
+		LogsJournal:             lj,
+		RefundJournal:           rj,
+		AccessListJournal:       aj,
+		TransientStorageJournal: tj,
+		ctrl:                    ctrl,
+		suicides:                make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
 	}
 }
 
@@ -175,16 +179,6 @@ func (sdb *stateDB) AddressInAccessList(addr common.Address) bool {
 // SlotInAccessList implements `stateDB`.
 func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
 	return sdb.Contains(addr, slot)
-}
-
-// TODO: `GetTransientState` implements the `PolarisStateDB` interface by returning the transient state
-func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	panic("not supported by Polaris")
-}
-
-// TODO: `SetTransientState` implements the `PolarisStateDB` interface by setting the transient state
-func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	panic("not supported by Polaris")
 }
 
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
