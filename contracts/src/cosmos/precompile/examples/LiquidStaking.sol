@@ -73,16 +73,20 @@ contract LiquidStaking is ERC20 {
         return staking.getDelegation(address(this), validatorAddress);
     }
 
+    function getActiveValidators() public view returns (address [] memory) {
+        return staking.getActiveValidators();
+    }
+
     /**
      * @dev Delegates Base Denom to the validator.
      * @param amount amount of Base Denom to delegate.
      */
     function delegate(uint256 amount) public {
-        if (amount == 0) revert ZeroAmount();
+        // if (amount == 0) revert ZeroAmount();
 
         // Delegate the amount to the validator.
         staking.delegate(validatorAddress, amount);
-        _mint(msg.sender, amount);
+        // _mint(msg.sender, amount);
     }
 
     /**
@@ -93,5 +97,9 @@ contract LiquidStaking is ERC20 {
         if (amount == 0) revert ZeroAmount();
         _burn(msg.sender, amount);
         payable(msg.sender).transfer(amount);
+    }
+
+    function receive() public payable {
+        return;
     }
 }
