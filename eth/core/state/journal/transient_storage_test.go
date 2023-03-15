@@ -63,4 +63,11 @@ var _ = Describe("TransientStorage", func() {
 		Expect(ts.GetTransientState(alice, key), value)
 		Expect(ts.GetTransientState(bob, key), common.Hash{})
 	})
+
+	It("should correctly finalize", func() {
+		ts.SetTransientState(alice, key, value)
+		ts.Finalize()
+		Expect(ts.Size(), 0)
+		Expect(func() { ts.Finalize() }).ToNot(Panic())
+	})
 })
