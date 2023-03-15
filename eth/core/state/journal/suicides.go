@@ -21,6 +21,8 @@
 package journal
 
 import (
+	"math/big"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/ds"
@@ -30,6 +32,16 @@ import (
 // emptyCodeHash is the Keccak256 Hash of empty code
 // 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 var emptyCodeHash = crypto.Keccak256Hash(nil)
+
+// `suicideStatePlugin` defines the required funtions from the StatePlugin for the suicide journal.
+type suicideStatePlugin interface {
+	// GetCodeHash returns the code hash of the given account.
+	GetCodeHash(common.Address) common.Hash
+	// GetBalance returns the balance of the given account.
+	GetBalance(common.Address) *big.Int
+	// SubBalance subtracts amount from the given account.
+	SubBalance(common.Address, *big.Int)
+}
 
 // Dirty tracking of suicided accounts, we have to keep track of these manually, in order for the
 // code and state to still be accessible even after the account has been deleted.
