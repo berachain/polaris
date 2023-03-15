@@ -31,15 +31,15 @@ import (
 // 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 var emptyCodeHash = crypto.Keccak256Hash(nil)
 
-// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
-// for the code and state to still be accessible even after the account has been deleted.
-// We chose to keep track of them in a separate slice, rather than a map, because the
-// number of accounts that will be suicided in a single transaction is expected to be
-// very low.
+// Dirty tracking of suicided accounts, we have to keep track of these manually, in order for the
+// code and state to still be accessible even after the account has been deleted.
+// NOTE: we are only supporting one suicided address per EVM call (and consequently per snapshot).
 type suicides struct {
 	// journal of suicide address per call, very rare to suicide so we alloc only 1 address
 	journal ds.Stack[*common.Address]
 	ssp     suicideStatePlugin
+	// lastSnapshot ensures that only 1 address is being suicided per snapshot
+	lastSnapshot int
 }
 
 // NewSuicides returns a new suicides journal.
@@ -61,6 +61,12 @@ func (s *suicides) RegistryKey() string {
 // This clears the account balance, but the code and state of the address remains available
 // until after Commit is called.
 func (s *suicides) Suicide(addr common.Address) bool {
+	// ensure only one suicide per snapshot call
+	if s.journal.Size() > s.lastSnapshot {
+		// pushed one suicide for this contract call, can do no more
+		return false
+	}
+
 	// only smart contracts can commit suicide
 	ch := s.ssp.GetCodeHash(addr)
 	if (ch == common.Hash{}) || ch == emptyCodeHash {
@@ -97,7 +103,8 @@ func (s *suicides) GetSuicides() []common.Address {
 
 // Snapshot implements libtypes.Controllable.
 func (s *suicides) Snapshot() int {
-	return s.journal.Size()
+	s.lastSnapshot = s.journal.Size()
+	return s.lastSnapshot
 }
 
 // RevertToSnapshot implements libtypes.Controllable.
