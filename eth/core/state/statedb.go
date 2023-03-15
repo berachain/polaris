@@ -40,6 +40,7 @@ type stateDB struct {
 	RefundJournal
 	AccessListJournal
 	SuicidesJournal
+	TransientStorageJournal
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
@@ -52,6 +53,7 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	rj := journal.NewRefund()
 	aj := journal.NewAccesslist()
 	sj := journal.NewSuicides(sp)
+	tj := journal.NewTransientStorage()
 
 	// Build the controller and register the plugins and journals
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
@@ -60,14 +62,16 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	_ = ctrl.Register(rj)
 	_ = ctrl.Register(aj)
 	_ = ctrl.Register(sj)
+	_ = ctrl.Register(tj)
 
 	return &stateDB{
-		Plugin:            sp,
-		LogsJournal:       lj,
-		RefundJournal:     rj,
-		AccessListJournal: aj,
-		SuicidesJournal:   sj,
-		ctrl:              ctrl,
+		Plugin:                  sp,
+		LogsJournal:             lj,
+		RefundJournal:           rj,
+		AccessListJournal:       aj,
+		TransientStorageJournal: tj,
+		SuicidesJournal:         sj,
+		ctrl:                    ctrl,
 	}
 }
 
@@ -93,20 +97,6 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 func (sdb *stateDB) Finalize() {
 	sdb.DeleteAccounts(sdb.GetSuicides())
 	sdb.ctrl.Finalize()
-}
-
-// =============================================================================
-// TODO: Transient State
-// =============================================================================
-
-// TODO: `GetTransientState` implements the `PolarisStateDB` interface by returning the transient state
-func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	panic("not supported by Polaris")
-}
-
-// TODO: `SetTransientState` implements the `PolarisStateDB` interface by setting the transient state
-func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	panic("not supported by Polaris")
 }
 
 // =============================================================================
