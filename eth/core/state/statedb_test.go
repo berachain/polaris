@@ -48,6 +48,8 @@ var _ = Describe("StateDB", func() {
 	})
 
 	It("Should suicide correctly", func() {
+		sdb.Snapshot()
+
 		sdb.CreateAccount(alice)
 		Expect(sdb.Suicide(alice)).To(BeFalse())
 		Expect(sdb.HasSuicided(alice)).To(BeFalse())
@@ -98,6 +100,8 @@ var _ = Describe("StateDB", func() {
 	})
 
 	It("should delete suicides on finalize", func() {
+		sdb.Snapshot()
+
 		sdb.CreateAccount(bob)
 		sdb.SetCode(bob, []byte{1, 2, 3})
 		sdb.AddBalance(bob, big.NewInt(10))
