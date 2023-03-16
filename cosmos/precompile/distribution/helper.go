@@ -22,10 +22,10 @@ func (c *Contract) setWithdrawAddressHelper(ctx context.Context, delegator, with
 }
 
 // `withdrawDelegatorRewards` is a helper function for the `WithdrawDelegatorRewards` method.
-func (c *Contract) withdrawDelegatorRewardsHelper(ctx context.Context, delegator, withdrawer sdk.AccAddress) ([]any, error) {
+func (c *Contract) withdrawDelegatorRewardsHelper(ctx context.Context, delegator sdk.AccAddress, validator sdk.ValAddress) ([]any, error) {
 	res, err := c.msgServer.WithdrawDelegatorReward(ctx, &distributiontypes.MsgWithdrawDelegatorReward{
 		DelegatorAddress: delegator.String(),
-		ValidatorAddress: withdrawer.String(),
+		ValidatorAddress: validator.String(),
 	})
 	if err != nil {
 		return nil, err

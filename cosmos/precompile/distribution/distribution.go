@@ -71,6 +71,14 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 			AbiSig:  "setWithdrawAddress(string)",
 			Execute: c.SetWithdrawAddressBech32,
 		},
+		{
+			AbiSig:  "withdrawDelegatorReward(address,address)",
+			Execute: c.WithdrawDelegatorReward,
+		},
+		{
+			AbiSig:  "withdrawDelegatorReward(string,string)",
+			Execute: c.SetWithdrawAddressBech32,
+		},
 	}
 }
 
@@ -108,4 +116,51 @@ func (c *Contract) SetWithdrawAddressBech32(
 	}
 
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), addr)
+}
+
+// `WithdrawDelegatorReward` is the precompile contract method for the `withdrawDelegatorReward(address,address)` method.
+func (c *Contract) WithdrawDelegatorReward(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	delegator, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	validator, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+
+	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
+}
+
+func (c *Contract) WithdrawDelegatorRewardBech32(
+	ctx context.Context,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	delegator, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	validator, ok := utils.GetAs[string](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	delegatorAddr, err := sdk.AccAddressFromBech32(delegator)
+	if err != nil {
+		return nil, err
+	}
+	validatorAddr, err := sdk.ValAddressFromBech32(validator)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.withdrawDelegatorRewardsHelper(ctx, delegatorAddr, validatorAddr)
 }

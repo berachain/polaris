@@ -25,14 +25,21 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distrtestutil "github.com/cosmos/cosmos-sdk/x/distribution/testutil"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -59,7 +66,7 @@ func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 	Fail(fmt.Sprintf(format, args...))
 }
 
-func setup() (sdk.Context, *distrkeeper.Keeper) {
+func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeeper.BaseKeeper) {
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 
 	encCfg := cosmostestutil.MakeTestEncodingConfig(
@@ -82,7 +89,9 @@ func setup() (sdk.Context, *distrkeeper.Keeper) {
 	params.WithdrawAddrEnabled = true
 	dk.SetParams(ctx, params)
 
-	return ctx, &dk
+	dk.SetFeePool(ctx, distributiontypes.InitialFeePool())
+
+	return ctx, &dk, &sk, &bk
 }
 
 var _ = Describe("Distribution Precompile Test", func() {
@@ -94,6 +103,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		ctx sdk.Context
 		dk  *distrkeeper.Keeper
+		sk  *stakingkeeper.Keeper
+		bk  *bankkeeper.BaseKeeper
 	)
 
 	BeforeEach(func() {
@@ -101,7 +112,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		amt = sdk.NewCoin("denom", sdk.NewInt(100))
 
 		// Set up the contracts and keepers.
-		ctx, dk = setup()
+		ctx, dk, sk, bk = setup()
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&dk))
 
 		// Register the events.
@@ -181,6 +192,173 @@ var _ = Describe("Distribution Precompile Test", func() {
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
+		})
+	})
+
+	When("Withdraw Delegator Rewards", func() {
+		var valAddr sdk.ValAddress
+		var addr sdk.AccAddress
+		var tokens sdk.DecCoins
+
+		BeforeEach(func() {
+			PKS := simtestutil.CreateTestPubKeys(5)
+			valConsPk0 := PKS[0]
+			valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
+			valAddr = sdk.ValAddress(valConsAddr0)
+			addr = sdk.AccAddress(valAddr)
+			val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
+			Expect(err).ToNot(HaveOccurred())
+
+			// Set the validator.
+			sk.SetValidator(ctx, val)
+
+			// Create the delegation.
+			sk.SetDelegation(ctx, stakingtypes.Delegation{
+				DelegatorAddress: addr.String(),
+				ValidatorAddress: valAddr.String(),
+				Shares:           val.DelegatorShares,
+			})
+
+			// Run the hooks.
+			err = dk.Hooks().AfterValidatorCreated(ctx, valAddr)
+			Expect(err).ToNot(HaveOccurred())
+			err = dk.Hooks().BeforeDelegationCreated(ctx, addr, valAddr)
+			Expect(err).ToNot(HaveOccurred())
+			err = dk.Hooks().AfterDelegationModified(ctx, addr, valAddr)
+			Expect(err).ToNot(HaveOccurred())
+
+			// Next Block.
+			ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+
+			// Allocate some rewards.
+			initial := sdk.TokensFromConsensusPower(10, sdk.DefaultPowerReduction)
+			tokens = sdk.DecCoins{sdk.NewDecCoin(sdk.DefaultBondDenom, initial)}
+
+			// Allocate the rewards.
+			dk.AllocateTokensToValidator(ctx, val, tokens)
+
+			// Historical Count should be 2.
+			Expect(dk.GetValidatorHistoricalReferenceCount(ctx)).To(Equal(uint64(2)))
+
+			// Fund the distribution module account.
+			coins, _ := tokens.TruncateDecimal()
+			err = bk.MintCoins(ctx, distributiontypes.ModuleName, coins)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		When("Withdraw Delegator Rewards common address", func() {
+			It("should fail if not common address", func() {
+				res, err := contract.WithdrawDelegatorReward(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					"0x0000000000",
+					cosmlib.ValAddressToEthAddress(valAddr),
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if validator address not common.address", func() {
+				res, err := contract.WithdrawDelegatorReward(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					cosmlib.AccAddressToEthAddress(addr),
+					"0x0000000000",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+				Expect(res).To(BeNil())
+			})
+
+			It("Success", func() {
+				res, err := contract.WithdrawDelegatorReward(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					cosmlib.AccAddressToEthAddress(addr),
+					cosmlib.ValAddressToEthAddress(valAddr),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				resTyped := utils.MustGetAs[[]generated.IBankModuleCoin](res[0])
+				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				rewards, _ := tokens.TruncateDecimal()
+				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.Uint64()))
+			})
+		})
+
+		When("Withdraw Delegator Rewards bech32 address", func() {
+			It("should fail if delegator address not string", func() {
+				res, err := contract.WithdrawDelegatorRewardBech32(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					1,
+					valAddr.String(),
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if validator address not string", func() {
+				res, err := contract.WithdrawDelegatorRewardBech32(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					addr.String(),
+					1,
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if delegator address not bech32", func() {
+				res, err := contract.WithdrawDelegatorRewardBech32(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					"invalid",
+					valAddr.String(),
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if validator address not bech32", func() {
+				res, err := contract.WithdrawDelegatorRewardBech32(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					addr.String(),
+					"invalid",
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("Success", func() {
+				res, err := contract.WithdrawDelegatorRewardBech32(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					addr.String(),
+					valAddr.String(),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				resTyped := utils.MustGetAs[[]generated.IBankModuleCoin](res[0])
+				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				rewards, _ := tokens.TruncateDecimal()
+				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.Uint64()))
+			})
+
 		})
 	})
 })
