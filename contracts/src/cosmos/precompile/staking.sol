@@ -138,7 +138,8 @@ interface IStakingModule {
      */
     function delegate(address validatorAddress, uint256 amount)
         external
-        payable;
+        payable
+        returns (bool);
 
     /**
      * @dev msg.sender delegates the `amount` of tokens to `validatorAddress` (at hex bech32
@@ -146,14 +147,16 @@ interface IStakingModule {
      */
     function delegate(string calldata validatorAddress, uint256 amount)
         external
-        payable;
+        payable
+        returns (bool);
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress`
      */
     function undelegate(address validatorAddress, uint256 amount)
         external
-        payable;
+        payable
+        returns (bool);
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress` (at hex bech32
@@ -161,7 +164,8 @@ interface IStakingModule {
      */
     function undelegate(string calldata validatorAddress, uint256 amount)
         external
-        payable;
+        payable
+        returns (bool);
 
     /**
      * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
@@ -170,7 +174,7 @@ interface IStakingModule {
         address srcValidator,
         address dstValidator,
         uint256 amount
-    ) external payable;
+    ) external payable returns (bool);
 
     /**
      * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr` 
@@ -180,7 +184,7 @@ interface IStakingModule {
         string calldata srcValidator,
         string calldata dstValidator,
         uint256 amount
-    ) external payable;
+    ) external payable returns (bool);
 
     /**
      * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
@@ -192,7 +196,7 @@ interface IStakingModule {
         address validatorAddress,
         uint256 amount,
         int64 creationHeight
-    ) external payable;
+    ) external payable returns (bool);
 
     /**
      * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
@@ -204,7 +208,7 @@ interface IStakingModule {
         string calldata validatorAddress,
         uint256 amount,
         int64 creationHeight
-    ) external payable;
+    ) external payable returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 

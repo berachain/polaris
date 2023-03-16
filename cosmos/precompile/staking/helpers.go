@@ -120,10 +120,10 @@ func (c *Contract) delegateHelper(
 	caller common.Address,
 	amount *big.Int,
 	validatorAddress sdk.ValAddress,
-) error {
+) ([]any, error) {
 	denom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
@@ -131,7 +131,7 @@ func (c *Contract) delegateHelper(
 		validatorAddress,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
-	return err
+	return []any{err == nil}, err
 }
 
 // undelegateHelper is the helper function for `undelegate`.
@@ -140,10 +140,10 @@ func (c *Contract) undelegateHelper(
 	caller common.Address,
 	amount *big.Int,
 	val sdk.ValAddress,
-) error {
+) ([]any, error) {
 	denom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
@@ -151,8 +151,7 @@ func (c *Contract) undelegateHelper(
 		val,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
-
-	return err
+	return []any{err == nil}, err
 }
 
 // beginRedelegateHelper is the helper function for `beginRedelegate`.
@@ -161,10 +160,10 @@ func (c *Contract) beginRedelegateHelper(
 	caller common.Address,
 	amount *big.Int,
 	srcVal, dstVal sdk.ValAddress,
-) error {
+) ([]any, error) {
 	bondDenom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.BeginRedelegate(
@@ -176,8 +175,7 @@ func (c *Contract) beginRedelegateHelper(
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
 		),
 	)
-
-	return err
+	return []any{err == nil}, err
 }
 
 // cancelRedelegateHelper is the helper function for `cancelRedelegate`.
@@ -187,10 +185,10 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 	amount *big.Int,
 	val sdk.ValAddress,
 	creationHeight int64,
-) error {
+) ([]any, error) {
 	bondDenom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.CancelUnbondingDelegation(
@@ -202,8 +200,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
 		),
 	)
-
-	return err
+	return []any{err != nil}, err
 }
 
 func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {

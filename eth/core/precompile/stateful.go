@@ -22,7 +22,6 @@ package precompile
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -82,8 +81,6 @@ func (sc *stateful) Run(
 		return nil, ErrMethodNotFound
 	}
 
-	fmt.Println("calling precompile method:", method.AbiMethod.Sig)
-
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
@@ -105,12 +102,6 @@ func (sc *stateful) Run(
 	}
 
 	// Pack the return values and return, if any exist.
-	// if vals == nil && len(method.AbiMethod.Outputs) > 0 {
-	// 	for range method.AbiMethod.Outputs {
-
-	// 	}
-	// }
-
 	ret, err := method.AbiMethod.Outputs.Pack(vals...)
 	if err != nil {
 		return nil, err

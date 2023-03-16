@@ -54,14 +54,22 @@ contract Deploy is Script {
         // );
         // console.logString("IN DEPLOY");
         // console.logBytes(data1);
-        // require(success1, "Failed to get active validators");   
+        // require(success1, "Failed to get active validators 2 ");   
 
         (bool success12, bytes memory data12) = address(ls).call(
-            abi.encodeWithSignature("getActiveValidatorsMock()")
+            abi.encodeWithSignature("compareMock()")
         );
         console.logString("IN DEPLOY2");
         console.logBytes(data12);
-        require(success12, "Failed to get active validators");   
+
+
+        (bool success122, bytes memory data122) = address(ls).call(
+            abi.encodeWithSignature("getActiveValidators()")
+        );
+        console.logString("IN DEPLOY3");
+        console.logBytes(data122);
+        // console.logBool(success12);
+        // require(success12, "Failed to get active validators 3");   
         // require(success1, "Failed to get active validators");   
         // console.logBytes(data1);
         // address validator = abi.decodeWithSignature("getActiveValidators()", data1, (address[]))[0];

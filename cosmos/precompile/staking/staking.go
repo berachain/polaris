@@ -309,7 +309,7 @@ func (c *Contract) DelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
 // DelegateStringInput implements the `delegate(string,uint256)` method.
@@ -334,7 +334,7 @@ func (c *Contract) DelegateStringInput(
 		return nil, err
 	}
 
-	return nil, c.delegateHelper(ctx, caller, amount, val)
+	return c.delegateHelper(ctx, caller, amount, val)
 }
 
 // UndelegateAddrInput implements the `undelegate(address,uint256)` method.
@@ -354,7 +354,7 @@ func (c *Contract) UndelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
 // UndelegateStringInput implements the `undelegate(string,uint256)` method.
@@ -379,7 +379,7 @@ func (c *Contract) UndelegateStringInput(
 		return nil, err
 	}
 
-	return nil, c.undelegateHelper(ctx, caller, amount, val)
+	return c.undelegateHelper(ctx, caller, amount, val)
 }
 
 // BeginRedelegateAddrInput implements the `beginRedelegate(address,address,uint256)` method.
@@ -403,7 +403,7 @@ func (c *Contract) BeginRedelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.beginRedelegateHelper(
+	return c.beginRedelegateHelper(
 		ctx,
 		caller,
 		amount,
@@ -442,7 +442,7 @@ func (c *Contract) BeginRedelegateStringInput(
 		return nil, err
 	}
 
-	return nil, c.beginRedelegateHelper(ctx, caller, amount, src, dst)
+	return c.beginRedelegateHelper(ctx, caller, amount, src, dst)
 }
 
 // CancelRedelegateAddrInput implements the `cancelRedelegate(address,address,uint256,int64)` method.
@@ -466,7 +466,7 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 		return nil, precompile.ErrInvalidInt64
 	}
 
-	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
+	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
 }
 
 // CancelRedelegateStringInput implements the `cancelRedelegate(string,string,uint256,int64)` method.
@@ -495,7 +495,7 @@ func (c *Contract) CancelUnbondingDelegationStringInput(
 		return nil, err
 	}
 
-	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, val, creationHeight)
+	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, val, creationHeight)
 }
 
 // GetActiveValidators implements the `getActiveValidators()` method.

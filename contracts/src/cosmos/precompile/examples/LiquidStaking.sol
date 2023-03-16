@@ -27,7 +27,7 @@ pragma solidity ^0.8.17;
 
 import {IStakingModule} from "../staking.sol";
 import {ERC20} from "../../../../lib/ERC20.sol";
-import "../../../../lib/forge-std/src/console2.sol";
+// import "../../../../lib/forge-std/src/console2.sol";
 
 /**
  * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
@@ -78,17 +78,23 @@ contract LiquidStaking is ERC20 {
         return staking.getDelegation(address(this), validatorAddress);
     }
 
-    function getActiveValidators() public returns (address[] memory) {
-        // address[] memory x = staking.getActiveValidators();
-        // emit HELLO("HELLO0");
-        (bool success1, bytes memory data1) = address(staking).call(
-            abi.encodeWithSignature("getActiveValidators()")
-        );
-        // emit HELLO("HELLO1");
-        require(success1, "Failed to get active validators");   
-        // emit Success(success1);
-        // emit Data(data1);
-        return abi.decode(data1, (address[]));
+    function getActiveValidators() public view returns (address[] memory) {
+        return staking.getActiveValidators();
+        // // emit HELLO("HELLO0");
+        // (bool success1, bytes memory data1) = address(staking).staticcall(
+        //     abi.encodeWithSignature("getActiveValidators()")
+        // );
+        // // emit HELLO("HELLO1");
+        // require(success1, "Failed to get active validators 1");   
+        // // emit Success(success1);
+        // // emit Data(data1);
+        // console2.logString("pre decode");
+        // console2.logBytes(data1);
+        // // return 
+        // address[] memory x = new address[](1);
+        // x[0] = 0x4FC768b13a96E8EbFDECfB85D86D9dC498f5B062;
+        // // return x;
+        // return abi.decode(data1, (address[]));
     }
 
     function getActiveValidatorsMock() public view returns (address[] memory) {
@@ -97,18 +103,28 @@ contract LiquidStaking is ERC20 {
         return x;
     }
 
+    function compareMock() public view returns (bool) {
+        (bool success12, bytes memory data12) = address(this).staticcall(
+            abi.encodeWithSignature("getActiveValidatorsMock()")
+        );
+        address[] memory real =  getActiveValidators();
+        // console2.logAddress(real);
+        // address mock = getActiveValidatorsMock()[0];
+        // console2.logAddress(mock);
+        return true;
+    }
+
     /**
      * @dev Delegates Base Denom to the validator.
      * @param amount amount of Base Denom to delegate.
      */
-    function delegate(uint256 amount) public {
+    function delegate(uint256 amount) public payable {
         // if (amount == 0) revert ZeroAmount();
 
         // Delegate the amount to the validator.
-        console2.logString("before");
-        staking.delegate(validatorAddress, amount);
-        console2.logString("After");
-        // _mint(msg.sender, amount);
+        bool success = staking.delegate(validatorAddress, amount);
+        require(success, "Failed to delegate 1");
+        _mint(msg.sender, amount);
     }
 
     /**
@@ -121,7 +137,7 @@ contract LiquidStaking is ERC20 {
         payable(msg.sender).transfer(amount);
     }
 
-    function receive() public payable {
+    receive() external payable {
         return;
     }
 }
