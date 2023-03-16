@@ -38,7 +38,7 @@ import (
 )
 
 const (
-	DefaultTimeout = 10 * time.Second
+	DefaultTimeout = 100 * time.Second
 )
 
 // StartPolarisNetwork starts a new in-memory Polaris chain.

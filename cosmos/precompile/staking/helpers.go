@@ -45,6 +45,7 @@ func (c *Contract) getDelegationHelper(
 		ValidatorAddr: val.String(),
 	})
 	if status.Code(err) == codes.NotFound {
+		// handle the case where the delegation does not exist
 		return []any{big.NewInt(0)}, nil
 	} else if err != nil {
 		return nil, err
@@ -220,6 +221,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		if err != nil {
 			return nil, err
 		}
+		sdk.UnwrapSDKContext(ctx).Logger().Error("valAddr", "valAddr", common.BytesToAddress(valAddr.Bytes()).String())
 		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
 

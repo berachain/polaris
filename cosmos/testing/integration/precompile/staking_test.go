@@ -93,7 +93,8 @@ var _ = Describe("Staking", func() {
 		ExpectMined(client, tx)
 		ExpectSuccessReceipt(client, tx)
 
-		tx, err = contract.Delegate(BuildTransactor(client), big.NewInt(100000000000))
+		txr = BuildTransactor(client)
+		tx, err = contract.Delegate(txr, big.NewInt(100000000000))
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(client, tx)
 		ExpectSuccessReceipt(client, tx)

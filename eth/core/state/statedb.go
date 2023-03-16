@@ -44,13 +44,10 @@ type stateDB struct {
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
-
-	// pp is the precompile plugin.
-	pp precompilePlugin
 }
 
 // NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
-func NewStateDB(sp Plugin, pp precompilePlugin) vm.PolarisStateDB {
+func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
@@ -75,9 +72,12 @@ func NewStateDB(sp Plugin, pp precompilePlugin) vm.PolarisStateDB {
 		TransientStorageJournal: tj,
 		SuicidesJournal:         sj,
 		ctrl:                    ctrl,
-		pp:                      pp,
 	}
 }
+
+// =============================================================================
+// Reset
+// =============================================================================
 
 // Reset sets the TxContext for the current transaction and also manually clears any state from the
 // previous tx in the journals, in case the previous tx reverted (Finalize was not called).
@@ -91,14 +91,14 @@ func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
 	sdb.LogsJournal.SetTxContext(txHash, txIndex)
 }
 
-// GetCode overrides the GetCode on the Plugin to return a non-empty byte slice for precompiles.
-// THis is required for supporting calling precompiles as a transaction.
-func (sdb *stateDB) GetCode(addr common.Address) []byte {
-	if sdb.pp != nil && sdb.pp.Has(addr) {
-		return []byte{0x01}
-	}
-	return sdb.Plugin.GetCode(addr)
-}
+// // GetCode overrides the GetCode on the Plugin to return a non-empty byte slice for precompiles.
+// // THis is required for supporting calling precompiles as a transaction.
+// func (sdb *stateDB) GetCode(addr common.Address) []byte {
+// 	// if sdb.pp != nil && sdb.pp.Has(addr) {
+// 	// 	return []byte{0x01}
+// 	// }
+// 	return sdb.Plugin.GetCode(addr)
+// }
 
 // =============================================================================
 // Snapshot
@@ -185,7 +185,7 @@ func (sdb *stateDB) Commit(_ bool) (common.Hash, error) {
 }
 
 func (sdb *stateDB) Copy() StateDBI {
-	return NewStateDB(sdb.Plugin, sdb.pp)
+	return NewStateDB(sdb.Plugin)
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {

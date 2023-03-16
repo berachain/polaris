@@ -27,6 +27,7 @@ pragma solidity ^0.8.17;
 
 import {IStakingModule} from "../staking.sol";
 import {ERC20} from "../../../../lib/ERC20.sol";
+import "../../../../lib/forge-std/src/console2.sol";
 
 /**
  * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
@@ -40,6 +41,10 @@ contract LiquidStaking is ERC20 {
     // State
     IStakingModule public staking;
     address public validatorAddress;
+
+    event HELLO(string message);
+    event Success(bool indexed success);
+    event Data(bytes data);
 
     // Errors
     error ZeroAddress();
@@ -69,12 +74,27 @@ contract LiquidStaking is ERC20 {
      * @dev Returns the total amount of assets delegated to the validator.
      * @return amount total amount of assets delegated to the validator.
      */
-    function totalDelegated() public view returns (uint256 amount) {
+    function totalDelegated() public returns (uint256 amount) {
         return staking.getDelegation(address(this), validatorAddress);
     }
 
-    function getActiveValidators() public view returns (address [] memory) {
-        return staking.getActiveValidators();
+    function getActiveValidators() public returns (address[] memory) {
+        // address[] memory x = staking.getActiveValidators();
+        // emit HELLO("HELLO0");
+        (bool success1, bytes memory data1) = address(staking).call(
+            abi.encodeWithSignature("getActiveValidators()")
+        );
+        // emit HELLO("HELLO1");
+        require(success1, "Failed to get active validators");   
+        // emit Success(success1);
+        // emit Data(data1);
+        return abi.decode(data1, (address[]));
+    }
+
+    function getActiveValidatorsMock() public view returns (address[] memory) {
+        address[] memory x = new address[](1);
+        x[0] = 0x4FC768b13a96E8EbFDECfB85D86D9dC498f5B062;
+        return x;
     }
 
     /**
@@ -85,7 +105,9 @@ contract LiquidStaking is ERC20 {
         // if (amount == 0) revert ZeroAmount();
 
         // Delegate the amount to the validator.
+        console2.logString("before");
         staking.delegate(validatorAddress, amount);
+        console2.logString("After");
         // _mint(msg.sender, amount);
     }
 

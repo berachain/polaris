@@ -27,25 +27,53 @@ pragma solidity ^0.8.4;
 
 import "../../../../lib/forge-std/src/Script.sol";
 import "../../../../lib/forge-std/src/console2.sol";
-import "./LiquidStaking.sol";
 import "../staking.sol";
+import "./LiquidStaking.sol";
 
 contract Deploy is Script {
-    LiquidStaking public staking;
-    address immutable precompile =
+    address precompile =
         address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
-    address public validator = address(0x12); // @dev : Change this to the validator running.
+    IStakingModule staking = IStakingModule(precompile);
 
     function run() public {
         vm.startBroadcast();
-        staking = new LiquidStaking("name", "SYMB", precompile, validator);
-        // address[] memory vals = precompile.getActiveValidators();
-        (bool success, bytes memory data) = precompile.call(
-            abi.encodeWithSignature("getActiveValidators()")
+        
+        LiquidStaking ls = new LiquidStaking(
+            "hello",
+            "sss",
+            precompile,
+            address(0xE77B9d929c8599b811265145e397AcA50591b246)
         );
-        console.logBool(success);
-        console.logBytes(data);
-        require(success, "Failed to get active validators");
+
+
+        // require(x != bytes(""), "Failed to get active validators");
+        // // staking.getDelegation(0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4, 0x60445cEEc8f3239524c03ba79117c8c343e8D2E3);
+        // address[] memory vals = staking.getActiveValidators();
+        // (bool success1, bytes memory data1) = address(ls).call(
+        //     abi.encodeWithSignature("getActiveValidators()")
+        // );
+        // console.logString("IN DEPLOY");
+        // console.logBytes(data1);
+        // require(success1, "Failed to get active validators");   
+
+        (bool success12, bytes memory data12) = address(ls).call(
+            abi.encodeWithSignature("getActiveValidatorsMock()")
+        );
+        console.logString("IN DEPLOY2");
+        console.logBytes(data12);
+        require(success12, "Failed to get active validators");   
+        // require(success1, "Failed to get active validators");   
+        // console.logBytes(data1);
+        // address validator = abi.decodeWithSignature("getActiveValidators()", data1, (address[]))[0];
+        // console.logAddress(validator);
+
+        // (bool success2, bytes memory data2) = precompile.call(
+        //     abi.encodeWithSignature("delegate(address,uint256)", address(0x4ca86164278f898bA3C07a7179c07c7A4d2619D7), 889000000000000)
+        // );
+        // console.logBool(success2);
+        // console.logBytes(data2);
+        // staking.delegate(address(0x4ca86164278f898bA3C07a7179c07c7A4d2619D7), 889000000000000);
+
         vm.stopBroadcast();
     }
 }
