@@ -26,6 +26,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -37,14 +38,14 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/lib/utils"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -73,7 +74,14 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 		distribution.AppModuleBasic{},
 	)
 
-	ak.SetModuleAccount(ctx, authtypes.NewEmptyModuleAccount(distributiontypes.ModuleName, authtypes.Minter, authtypes.Burner))
+	ak.SetModuleAccount(
+		ctx,
+		authtypes.NewEmptyModuleAccount(
+			distributiontypes.ModuleName,
+			authtypes.Minter,
+			authtypes.Burner,
+		),
+	)
 
 	dk := distrkeeper.NewKeeper(
 		encCfg.Codec,
@@ -87,7 +95,8 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 
 	params := distributiontypes.DefaultParams()
 	params.WithdrawAddrEnabled = true
-	dk.SetParams(ctx, params)
+	err := dk.SetParams(ctx, params)
+	Expect(err).ToNot(HaveOccurred())
 
 	dk.SetFeePool(ctx, distributiontypes.InitialFeePool())
 
@@ -196,7 +205,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 	})
 
 	When("Withdraw Delegator Rewards", func() {
-		var valAddr sdk.ValAddress
 		var addr sdk.AccAddress
 		var tokens sdk.DecCoins
 

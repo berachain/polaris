@@ -118,7 +118,8 @@ func (c *Contract) SetWithdrawAddressBech32(
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), addr)
 }
 
-// `WithdrawDelegatorReward` is the precompile contract method for the `withdrawDelegatorReward(address,address)` method.
+// `WithdrawDelegatorReward` is the precompile contract method for the `withdrawDelegatorReward(address,address)`
+// method.
 func (c *Contract) WithdrawDelegatorReward(
 	ctx context.Context,
 	caller common.Address,
