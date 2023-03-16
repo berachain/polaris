@@ -21,6 +21,9 @@
 package rpc
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/rpc/config"
@@ -33,6 +36,7 @@ type Service interface {
 	GetHTTP() *Server
 	GetWS() *Server
 	GetConfig() *config.Server
+	GetWSHandler() http.Handler
 }
 
 // Service is a wrapper around go-ethereum JSON-RPC server(s). That also
@@ -50,12 +54,13 @@ type service struct {
 
 // New returns a new `Service` object.
 func NewService(cfg *config.Server) Service {
-	return &service{
+	service := &service{
 		backend: nil,
 		config:  cfg,
 		http:    NewServer(),
 		ws:      NewServer(),
 	}
+	return service
 }
 
 // RegisterAPIs registers the JSON-RPC APIs with the API service.
@@ -87,4 +92,10 @@ func (s *service) GetHTTP() *Server {
 // GetWS returns the WS server.
 func (s *service) GetWS() *Server {
 	return s.ws
+}
+
+// GetWSHandler returns the WSHandler.
+func (s *service) GetWSHandler() http.Handler {
+	fmt.Println("GETTING FUNKY HANDLER")
+	return s.ws.WebsocketHandler([]string{"*"})
 }

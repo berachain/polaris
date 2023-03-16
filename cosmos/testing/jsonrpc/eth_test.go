@@ -24,6 +24,7 @@ import (
 	"context"
 	"math/big"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -45,6 +46,8 @@ func TestRpc(t *testing.T) {
 var _ = Describe("Network", func() {
 	var net *network.Network
 	var client *ethclient.Client
+	var wsClient *ethclient.Client
+	_ = wsClient
 	var rpcClient *gethrpc.Client
 	var ctx context.Context
 	BeforeEach(func() {
@@ -95,5 +98,16 @@ var _ = Describe("Network", func() {
 		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
+	})
+
+	Context("websockets", func() {
+		It("should connect", func() {
+			// Dial an Ethereum RPC Endpoint
+			wsaddr := "ws" + strings.TrimPrefix(net.Validators[0].APIAddress+"/eth/rpc/ws", "http")
+			ws, err := gethrpc.DialWebsocket(context.Background(), wsaddr, "")
+			Expect(err).ToNot(HaveOccurred())
+			wsClient = ethclient.NewClient(ws)
+			Expect(err).ToNot(HaveOccurred())
+		})
 	})
 })
