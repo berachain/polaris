@@ -105,6 +105,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -169,7 +170,7 @@ type PolarisApp struct {
 	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	MintKeeper            mintkeeper.Keeper
-	DistrKeeper           *distrkeeper.Keeper
+	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             *govkeeper.Keeper
 	CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
@@ -305,6 +306,8 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
+	// Pntr to a Pntr
+	dk := &app.DistrKeeper
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
@@ -314,7 +317,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
 			addressprecompile.NewPrecompileContract(),
-			distrprecompile.NewPrecompileContract(&app.DistrKeeper),
+			distrprecompile.NewPrecompileContract(&dk),
 			govprecompile.NewPrecompileContract(&app.GovKeeper),
 		},
 		app.CreateQueryContext,
