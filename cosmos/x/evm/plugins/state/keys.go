@@ -35,12 +35,12 @@ func StorageKeyFor(address common.Address) []byte {
 	return bz
 }
 
-// `AddressFromStorageKey` returns the address from a storage key.
+// AddressFromStorageKey returns the address from a storage key.
 func AddressFromStorageKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1:])
 }
 
-// `SlotKeyFor` defines the full key under which an account storage slot is stored.
+// SlotKeyFor defines the full key under which an account storage slot is stored.
 func SlotKeyFor(address common.Address, slot common.Hash) []byte {
 	bz := make([]byte, 1+common.AddressLength+common.HashLength)
 	copy(bz, []byte{types.StorageKeyPrefix})
@@ -49,17 +49,17 @@ func SlotKeyFor(address common.Address, slot common.Hash) []byte {
 	return bz
 }
 
-// `SlotFromSlotKeyFor` returns the slot from a slot key.
+// SlotFromSlotKeyFor returns the slot from a slot key.
 func SlotFromSlotKey(key []byte) common.Hash {
 	return common.BytesToHash(key[1+common.AddressLength:])
 }
 
-// `AddressFromSlotKey` returns the address from a slot key.
+// AddressFromSlotKey returns the address from a slot key.
 func AddressFromSlotKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1 : 1+common.AddressLength])
 }
 
-// `CodeHashKeyFor` defines the full key under which an addreses codehash is stored.
+// CodeHashKeyFor defines the full key under which an addreses codehash is stored.
 func CodeHashKeyFor(address common.Address) []byte {
 	bz := make([]byte, 1+common.AddressLength)
 	copy(bz, []byte{types.CodeHashKeyPrefix})
@@ -67,7 +67,7 @@ func CodeHashKeyFor(address common.Address) []byte {
 	return bz
 }
 
-// `CodeKeyFor` defines the full key under which an addreses code is stored.
+// CodeKeyFor defines the full key under which an addreses code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
 	bz := make([]byte, 1+common.HashLength)
 	copy(bz, []byte{types.CodeKeyPrefix})
@@ -75,12 +75,12 @@ func CodeKeyFor(codeHash common.Hash) []byte {
 	return bz
 }
 
-// `CodeHashFromKey` returns the code hash from a code hash key.
+// CodeHashFromKey returns the code hash from a code hash key.
 func CodeHashFromKey(key []byte) common.Hash {
 	return common.BytesToHash(key[1:])
 }
 
-// `AddressFromCodeHashKey` returns the address from a code hash key.
+// AddressFromCodeHashKey returns the address from a code hash key.
 func AddressFromCodeHashKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1:])
 }

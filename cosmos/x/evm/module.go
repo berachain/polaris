@@ -36,7 +36,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// `ConsensusVersion` defines the current x/evm module consensus version.
+// ConsensusVersion defines the current x/evm module consensus version.
 const ConsensusVersion = 1
 
 var (
@@ -50,25 +50,25 @@ var (
 // AppModuleBasic
 // ==============================================================================
 
-// `AppModuleBasic` defines the basic application module used by the evm module.
+// AppModuleBasic defines the basic application module used by the evm module.
 type AppModuleBasic struct{}
 
-// `Name` returns the evm module's name.
+// Name returns the evm module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// `RegisterLegacyAminoCodec` registers the evm module's types on the given LegacyAmino codec.
+// RegisterLegacyAminoCodec registers the evm module's types on the given LegacyAmino codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	// types.RegisterLegacyAminoCodec(cdc)
 }
 
-// `RegisterInterfaces` registers the module's interface types.
+// RegisterInterfaces registers the module's interface types.
 func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
 	types.RegisterInterfaces(r)
 }
 
-// `RegisterGRPCGatewayRoutes` registers the gRPC Gateway routes for the evm module.
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the evm module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
 	// if err := types.RegisterQueryServiceHandlerClient(context.Background(), mux,
 	// types.NewQueryClient(clientCtx)); err != nil {
@@ -78,12 +78,12 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 
 }
 
-// `GetTxCmd` returns no root tx command for the evm module.
+// GetTxCmd returns no root tx command for the evm module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return nil
 }
 
-// `GetQueryCmd` returns the root query command for the evm module.
+// GetQueryCmd returns the root query command for the evm module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return nil
 }
@@ -92,7 +92,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule
 // ==============================================================================
 
-// `AppModule` implements an application module for the evm module.
+// AppModule implements an application module for the evm module.
 type AppModule struct {
 	AppModuleBasic
 	keeper     *keeper.Keeper
@@ -100,7 +100,7 @@ type AppModule struct {
 	bankKeeper BankKeeper
 }
 
-// `NewAppModule` creates a new AppModule object.
+// NewAppModule creates a new AppModule object.
 func NewAppModule(
 	keeper *keeper.Keeper,
 	ak AccountKeeper,
@@ -114,31 +114,31 @@ func NewAppModule(
 	}
 }
 
-// `IsOnePerModuleType` implements the depinject.OnePerModuleType interface.
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (am AppModule) IsOnePerModuleType() {}
 
-// `IsAppModule` implements the appmodule.AppModule interface.
+// IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
 
-// `RegisterInvariants` registers the evm module invariants.
+// RegisterInvariants registers the evm module invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// `RegisterServices` registers a gRPC query service to respond to the
+// RegisterServices registers a gRPC query service to respond to the
 // module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServiceServer(cfg.MsgServer(), am.keeper)
 	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-// `ConsensusVersion` implements AppModule/ConsensusVersion.
+// ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// `BeginBlock` returns the begin blocker for the evm module.
+// BeginBlock returns the begin blocker for the evm module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	am.keeper.BeginBlocker(ctx)
 }
 
-// `EndBlock` returns the end blocker for the evm module. It returns no validator
+// EndBlock returns the end blocker for the evm module. It returns no validator
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	am.keeper.EndBlocker(ctx)

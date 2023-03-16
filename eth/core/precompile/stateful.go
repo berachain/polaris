@@ -31,14 +31,14 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `NumBytesMethodID` is the number of bytes used to represent a ABI method's ID.
+// NumBytesMethodID is the number of bytes used to represent a ABI method's ID.
 const NumBytesMethodID = 4
 
-// `stateful` is a container for running stateful and dynamic precompiled contracts.
+// stateful is a container for running stateful and dynamic precompiled contracts.
 type stateful struct {
-	// `RegistrablePrecompile` is the base precompile implementation.
+	// RegistrablePrecompile is the base precompile implementation.
 	vm.RegistrablePrecompile
-	// `idsToMethods` is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
+	// idsToMethods is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
 	// (geth abi format). Please check core/precompile/container/method.go for more information.
@@ -47,7 +47,7 @@ type stateful struct {
 	// fallback     *Method // TODO: implement
 }
 
-// `NewStateful` creates and returns a new `stateful` with the given method ids precompile functions map.
+// NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
 	rp vm.RegistrablePrecompile, idsToMethods map[string]*Method,
 ) vm.PrecompileContainer {
@@ -57,10 +57,10 @@ func NewStateful(
 	}
 }
 
-// `Run` loads the corresponding precompile method for given input, executes it, and handles
+// Run loads the corresponding precompile method for given input, executes it, and handles
 // output.
 //
-// `Run` implements `PrecompileContainer`.
+// Run implements `PrecompileContainer`.
 func (sc *stateful) Run(
 	ctx context.Context,
 	input []byte,
@@ -110,9 +110,9 @@ func (sc *stateful) Run(
 	return ret, nil
 }
 
-// `RequiredGas` checks the Method corresponding to input for the required gas amount.
+// RequiredGas checks the Method corresponding to input for the required gas amount.
 //
-// `RequiredGas` implements PrecompileContainer.
+// RequiredGas implements PrecompileContainer.
 func (sc *stateful) RequiredGas(input []byte) uint64 {
 	if sc.idsToMethods == nil || len(input) < NumBytesMethodID {
 		return 0

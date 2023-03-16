@@ -33,7 +33,7 @@ import (
 // Compile-time check to ensure `Keeper` implements the `MsgServiceServer` interface.
 var _ types.MsgServiceServer = &Keeper{}
 
-// `EthTransaction` implements the  MsgServiceServer interface. It processes an incoming request
+// EthTransaction implements the  MsgServiceServer interface. It processes an incoming request
 // and applies it to the Polaris Chain.
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
@@ -57,7 +57,7 @@ func (k *Keeper) EthTransaction(
 	}, nil
 }
 
-// `UpdateParams`  processes an incoming request and applies it to the Configuration plugin to
+// UpdateParams  processes an incoming request and applies it to the Configuration plugin to
 // update things about both the Polaris Chain as well as the EVM Module.
 func (k *Keeper) UpdateParams(
 	ctx context.Context, req *types.UpdateParamsRequest,

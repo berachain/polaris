@@ -1,5 +1,3 @@
-package bytecode
-
 // SPDX-License-Identifier: BUSL-1.1
 //
 // Copyright (C) 2023, Berachain Foundation. All rights reserved.
@@ -20,6 +18,8 @@ package bytecode
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+package bytecode
+
 import (
 	"path/filepath"
 
@@ -38,7 +38,7 @@ import (
 // Compile-time interface assertion.
 var _ storetypes.KVStore = (*Store)(nil)
 
-// `Store` is a wrapper around `cachekv.Store` that implements the `storetypes.KVStore`
+// Store is a wrapper around `cachekv.Store` that implements the `storetypes.KVStore`
 // interface. It is used to store the bytecode of contracts offchain. This is done to
 // reduce the size of the state and to avoid the need to store the bytecode in the
 // state.
@@ -46,7 +46,7 @@ type Store struct {
 	*cachekv.Store
 }
 
-// `NewByteCodeStore` creates a new store and connects it to an file system based database
+// NewByteCodeStore creates a new store and connects it to an file system based database
 // located at: <flags.FlagHome/data/bytecode>.
 func NewByteCodeStore(appOpts types.AppOptions) *Store {
 	dbDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data")
@@ -60,7 +60,7 @@ func NewByteCodeStore(appOpts types.AppOptions) *Store {
 	}
 }
 
-// `NewFromDB` creates a new store from a given database.
+// NewFromDB creates a new store from a given database.
 func NewFromDB(db dbm.DB) *Store {
 	return &Store{
 		cachekv.NewStore(&dbadapter.Store{DB: db}),

@@ -31,16 +31,16 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `Contract` is the precompile contract for the governance module.
+// Contract is the precompile contract for the governance module.
 type Contract struct {
 	precompile.BaseContract
 
@@ -48,7 +48,7 @@ type Contract struct {
 	querier   v1.QueryServer
 }
 
-// `NewPrecompileContract` creates a new precompile contract for the governance module.
+// NewPrecompileContract creates a new precompile contract for the governance module.
 func NewPrecompileContract(gk **govkeeper.Keeper) coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.GovernanceModuleMetaData.ABI)); err != nil {
@@ -63,7 +63,7 @@ func NewPrecompileContract(gk **govkeeper.Keeper) coreprecompile.StatefulImpl {
 	}
 }
 
-// `PrecompileMethods` implements the `coreprecompile.StatefulImpl` interface.
+// PrecompileMethods implements the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 	return coreprecompile.Methods{
 		{
@@ -93,7 +93,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 	}
 }
 
-// `SubmitProposal` is the method for the `submitProposal` method of the governance precompile contract.
+// SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
 	caller common.Address,
@@ -132,7 +132,7 @@ func (c *Contract) SubmitProposal(
 	return c.submitProposalHelper(ctx, message, initialDeposit, proposer, metadata, title, summary, expedited)
 }
 
-// `CancelProposal` is the method for the `cancelProposal` method of the governance precompile contract.
+// CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
 func (c *Contract) CancelProposal(
 	ctx context.Context,
 	caller common.Address,
@@ -149,7 +149,7 @@ func (c *Contract) CancelProposal(
 	return c.cancelProposalHelper(ctx, proposer, id)
 }
 
-// `Vote` is the method for the `vote` method of the governance precompile contract.
+// Vote is the method for the `vote` method of the governance precompile contract.
 func (c *Contract) Vote(
 	ctx context.Context,
 	caller common.Address,
@@ -174,7 +174,7 @@ func (c *Contract) Vote(
 	return c.voteHelper(ctx, voter, proposalID, options, metadata)
 }
 
-// `VoteWeighted` is the method for the `voteWeighted` method of the governance precompile contract.
+// VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
 func (c *Contract) VoteWeighted(
 	ctx context.Context,
 	caller common.Address,
@@ -198,7 +198,7 @@ func (c *Contract) VoteWeighted(
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
 
-// `GetProposal` is the method for the `getProposal` method of the governance precompile contract.
+// GetProposal is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposal(
 	ctx context.Context,
 	caller common.Address,
@@ -214,7 +214,7 @@ func (c *Contract) GetProposal(
 	return c.getProposalHelper(ctx, proposalID)
 }
 
-// `GetProposals` is the method for the `getProposal` method of the governance precompile contract.
+// GetProposals is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposals(
 	ctx context.Context,
 	caller common.Address,

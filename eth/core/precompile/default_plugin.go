@@ -31,28 +31,28 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-// `defaultPlugin` is the default precompile plugin, should any chain running Polaris EVM not
+// defaultPlugin is the default precompile plugin, should any chain running Polaris EVM not
 // implement their own precompile plugin. Notably, this plugin can only run the default stateless
 // precompiles provided by Go-Ethereum.
 type defaultPlugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 }
 
-// `NewDefaultPlugin` returns a new instance of the default precompile plugin.
+// NewDefaultPlugin returns a new instance of the default precompile plugin.
 func NewDefaultPlugin() Plugin {
 	return &defaultPlugin{
 		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
 	}
 }
 
-// `GetPrecompiles` implements `core.PrecompilePlugin`.
+// GetPrecompiles implements `core.PrecompilePlugin`.
 func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
 	return GetDefaultPrecompiles(rules)
 }
 
-// `Run` supports executing stateless precompiles with the background context.
+// Run supports executing stateless precompiles with the background context.
 //
-// `Run` implements `core.PrecompilePlugin`.
+// Run implements `core.PrecompilePlugin`.
 func (dp *defaultPlugin) Run(
 	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,

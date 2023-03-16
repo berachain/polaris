@@ -34,9 +34,9 @@ const (
 	dynamicContainerName   = `DynamicContainerImpl`
 )
 
-// `AbstractFactory` is an interface that all precompile container factories must adhere to.
+// AbstractFactory is an interface that all precompile container factories must adhere to.
 type AbstractFactory interface {
-	// `Build` builds and returns the precompile container for the type of container/factory.
+	// Build builds and returns the precompile container for the type of container/factory.
 	Build(vm.RegistrablePrecompile) (vm.PrecompileContainer, error)
 }
 
@@ -51,18 +51,18 @@ var (
 // Stateless Container Factory
 // ===========================================================================
 
-// `StatelessFactory` is used to build stateless precompile containers.
+// StatelessFactory is used to build stateless precompile containers.
 type StatelessFactory struct{}
 
-// `NewStatelessFactory` creates and returns a new `StatelessFactory`.
+// NewStatelessFactory creates and returns a new `StatelessFactory`.
 func NewStatelessFactory() *StatelessFactory {
 	return &StatelessFactory{}
 }
 
-// `Build` returns a stateless precompile container for the given base contract implememntation.
+// Build returns a stateless precompile container for the given base contract implememntation.
 // This function will return an error if the given contract is not a stateless implementation.
 //
-// `Build` implements `AbstractFactory`.
+// Build implements `AbstractFactory`.
 func (sf *StatelessFactory) Build(
 	rp vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
@@ -77,19 +77,19 @@ func (sf *StatelessFactory) Build(
 // Stateful Container Factory
 // ===========================================================================
 
-// `StatefulFactory` is used to build stateful precompile containers.
+// StatefulFactory is used to build stateful precompile containers.
 type StatefulFactory struct {
 }
 
-// `NewStatefulFactory` creates and returns a new `StatefulFactory`.
+// NewStatefulFactory creates and returns a new `StatefulFactory`.
 func NewStatefulFactory() *StatefulFactory {
 	return &StatefulFactory{}
 }
 
-// `Build` returns a stateful precompile container for the given base contract implementation.
+// Build returns a stateful precompile container for the given base contract implementation.
 // This function will return an error if the given contract is not a stateful implementation.
 //
-// `Build` implements `AbstractFactory`.
+// Build implements `AbstractFactory`.
 func (sf *StatefulFactory) Build(
 	rp vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {
@@ -112,7 +112,7 @@ func (sf *StatefulFactory) Build(
 	return NewStateful(rp, idsToMethods), nil
 }
 
-// `buildIdsToMethods` builds the stateful precompile container for the given `precompileMethods`
+// buildIdsToMethods builds the stateful precompile container for the given `precompileMethods`
 // and `abiMethods`. This function will return an error if every method in `abiMethods` does not
 // have a valid, corresponding `Method`.
 func (sf *StatefulFactory) buildIdsToMethods(
@@ -155,12 +155,12 @@ func (sf *StatefulFactory) buildIdsToMethods(
 // Dynamic Container Factory
 // ===========================================================================
 
-// `DynamicFactory` is used to build dynamic precompile containers.
+// DynamicFactory is used to build dynamic precompile containers.
 type DynamicFactory struct {
 	*StatefulFactory
 }
 
-// `NewDynamicFactory` creates and returns a new `DynamicFactory` for the given
+// NewDynamicFactory creates and returns a new `DynamicFactory` for the given
 // log registry `lr`.
 func NewDynamicFactory() *DynamicFactory {
 	return &DynamicFactory{
@@ -168,10 +168,10 @@ func NewDynamicFactory() *DynamicFactory {
 	}
 }
 
-// `Build` returns a dynamic precompile container for the given base contract implememntation.
+// Build returns a dynamic precompile container for the given base contract implememntation.
 // This function will return an error if the given contract is not a dyanmic implementation.
 //
-// `Build` implements `AbstractFactory`.
+// Build implements `AbstractFactory`.
 func (dcf *DynamicFactory) Build(
 	rp vm.RegistrablePrecompile,
 ) (vm.PrecompileContainer, error) {

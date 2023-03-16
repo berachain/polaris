@@ -68,7 +68,7 @@ func BenchmarkArbitraryStateTransition(b *testing.B) {
 				sp.RevertToSnapshot(snapshots[len(snapshots)/2])
 			}
 
-			sp.DeleteSuicides([]common.Address{testutil.Alice}) // will invoke a delete
+			sp.DeleteAccounts([]common.Address{testutil.Alice}) // will invoke a delete
 		}
 
 		// commit only once

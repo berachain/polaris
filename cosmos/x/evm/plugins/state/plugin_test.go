@@ -81,6 +81,14 @@ var _ = Describe("State Plugin", func() {
 			sp.CreateAccount(alice)
 			Expect(sp.Exist(alice)).To(BeTrue())
 		})
+
+		It("should handle empty", func() {
+			sp.CreateAccount(alice)
+			Expect(sp.Empty(alice)).To(BeTrue())
+
+			sp.SetCode(alice, []byte{1, 2, 3})
+			Expect(sp.Empty(alice)).To(BeFalse())
+		})
 	})
 
 	Describe("TestBalance", func() {
@@ -323,7 +331,7 @@ var _ = Describe("State Plugin", func() {
 			})
 
 			It("should remove storage/codehash/acct", func() {
-				sp.DeleteSuicides([]common.Address{alice, alice})
+				sp.DeleteAccounts([]common.Address{alice, alice})
 				Expect(ak.HasAccount(ctx, alice[:])).To(BeFalse())
 				Expect(sp.GetCode(alice)).To(BeNil())
 				Expect(sp.GetState(alice, common.BytesToHash([]byte{1}))).To(Equal(common.Hash{}))

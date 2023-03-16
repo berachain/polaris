@@ -35,7 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
-// `Plugin` is the interface that must be implemented by the plugin.
+// Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.ConfigurationPlugin
@@ -44,21 +44,21 @@ type Plugin interface {
 	GetEvmDenom() string
 }
 
-// `plugin` implements the core.ConfigurationPlugin interface.
+// plugin implements the core.ConfigurationPlugin interface.
 type plugin struct {
 	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
 	evmDenom    string
 }
 
-// `NewPlugin` returns a new plugin instance.
+// NewPlugin returns a new plugin instance.
 func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 	}
 }
 
-// `Prepare` implements the core.ConfigurationPlugin interface.
+// Prepare implements the core.ConfigurationPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = sCtx.KVStore(p.storeKey)
@@ -71,12 +71,12 @@ func (p *plugin) GetEvmDenom() string {
 	return p.evmDenom
 }
 
-// `ChainConfig` implements the core.ConfigurationPlugin interface.
+// ChainConfig implements the core.ConfigurationPlugin interface.
 func (p *plugin) ChainConfig() *params.ChainConfig {
 	return p.GetParams().EthereumChainConfig()
 }
 
-// `ExtraEips` implements the core.ConfigurationPlugin interface.
+// ExtraEips implements the core.ConfigurationPlugin interface.
 func (p *plugin) ExtraEips() []int {
 	eips := make([]int, 0)
 	for _, e := range p.GetParams().ExtraEIPs {
@@ -85,7 +85,7 @@ func (p *plugin) ExtraEips() []int {
 	return eips
 }
 
-// `FeeCollector` implements the core.ConfigurationPlugin interface.
+// FeeCollector implements the core.ConfigurationPlugin interface.
 func (p *plugin) FeeCollector() *common.Address {
 	// TODO: parameterize fee collector name.
 	addr := common.BytesToAddress([]byte(authtypes.FeeCollectorName))

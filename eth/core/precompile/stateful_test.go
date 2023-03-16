@@ -26,10 +26,10 @@ import (
 	"math/big"
 	"reflect"
 
+	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	solidity "pkg.berachain.dev/polaris/eth/testutil/contracts/solidity/generated"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"

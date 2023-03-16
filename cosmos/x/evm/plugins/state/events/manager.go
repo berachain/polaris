@@ -33,18 +33,18 @@ const (
 	managerRegistryKey  = `events`
 )
 
-// `manager` is a controllable event manager that supports snapshots and reverts for emitted Cosmos
+// manager is a controllable event manager that supports snapshots and reverts for emitted Cosmos
 // events. During precompile execution, it is also used to Cosmos events to the Eth logs journal.
 type manager struct {
-	// `EventManager` is the underlying Cosmos SDK event manager floating around on the context.
+	// EventManager is the underlying Cosmos SDK event manager floating around on the context.
 	*sdk.EventManager
-	// `ldb` is the reference to the StateDB for adding Eth logs during precompile execution.
+	// ldb is the reference to the StateDB for adding Eth logs during precompile execution.
 	ldb LogsDB
-	// `plf` is used to build Eth logs from Cosmos events.
+	// plf is used to build Eth logs from Cosmos events.
 	plf PrecompileLogFactory
 }
 
-// `NewManager` creates and returns a controllable event manager from the given Cosmos SDK context.
+// NewManager creates and returns a controllable event manager from the given Cosmos SDK context.
 //
 //nolint:revive // only used as a `state.ControllableEventManager`.
 func NewManagerFrom(em sdk.EventManagerI, plf PrecompileLogFactory) *manager {
@@ -54,21 +54,21 @@ func NewManagerFrom(em sdk.EventManagerI, plf PrecompileLogFactory) *manager {
 	}
 }
 
-// `BeginPrecompileExecution` is called when a precompile is about to be executed. This function
+// BeginPrecompileExecution is called when a precompile is about to be executed. This function
 // sets the `LogsDB` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
 // add logs to the journal.
 func (m *manager) BeginPrecompileExecution(ldb LogsDB) {
 	m.ldb = ldb
 }
 
-// `EndPrecompileExecution` is called when a precompile has finished executing. This function
+// EndPrecompileExecution is called when a precompile has finished executing. This function
 // sets the `LogsDB` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
 // to the journal.
 func (m *manager) EndPrecompileExecution() {
 	m.ldb = nil
 }
 
-// `EmitEvent` overrides the Cosmos SDK's `EventManager.EmitEvent` method to build Eth logs from
+// EmitEvent overrides the Cosmos SDK's `EventManager.EmitEvent` method to build Eth logs from
 // the emitted event and add them to the journal.
 func (m *manager) EmitEvent(event sdk.Event) {
 	m.EventManager.EmitEvent(event)
@@ -79,7 +79,7 @@ func (m *manager) EmitEvent(event sdk.Event) {
 	}
 }
 
-// `EmitEvents` overrides the Cosmos SDK's `EventManager.EmitEvents` method to build Eth logs from
+// EmitEvents overrides the Cosmos SDK's `EventManager.EmitEvents` method to build Eth logs from
 // the emitted events and add them to the journal.
 func (m *manager) EmitEvents(events sdk.Events) {
 	m.EventManager.EmitEvents(events)
@@ -92,17 +92,17 @@ func (m *manager) EmitEvents(events sdk.Events) {
 	}
 }
 
-// `Registry` implements `libtypes.Registrable`.
+// Registry implements `libtypes.Registrable`.
 func (m *manager) RegistryKey() string {
 	return managerRegistryKey
 }
 
-// `Snapshot` implements `libtypes.Snapshottable`.
+// Snapshot implements `libtypes.Snapshottable`.
 func (m *manager) Snapshot() int {
 	return len(m.Events())
 }
 
-// `RevertToSnapshot` implements `libtypes.Snapshottable`.
+// RevertToSnapshot implements `libtypes.Snapshottable`.
 func (m *manager) RevertToSnapshot(id int) {
 	// only get the events up to the snapshot id
 	revertTo := m.Events()[:id]
@@ -115,10 +115,10 @@ func (m *manager) RevertToSnapshot(id int) {
 	m.EventManager.EmitEvents(revertTo)
 }
 
-// `Finalize` implements `libtypes.Finalizable`.
+// Finalize implements `libtypes.Finalizable`.
 func (m *manager) Finalize() {}
 
-// `convertToLog` builds an Eth log from the given Cosmos event and adds it to the logs journal.
+// convertToLog builds an Eth log from the given Cosmos event and adds it to the logs journal.
 func (m *manager) convertToLog(event *sdk.Event) {
 	log, err := m.plf.Build(event)
 	if err != nil {

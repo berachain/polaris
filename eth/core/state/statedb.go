@@ -25,19 +25,12 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/snapshot"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-var (
-	// `emptyCodeHash` is the Keccak256 Hash of empty code
-	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
-	emptyCodeHash = crypto.Keccak256Hash(nil)
-)
-
-// `stateDB` is a struct that holds the plugins and controller to manage Ethereum state.
+// stateDB is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
 	// Plugin is injected by the chain running the Polaris EVM.
 	Plugin
@@ -46,98 +39,52 @@ type stateDB struct {
 	LogsJournal
 	RefundJournal
 	AccessListJournal
+	SuicidesJournal
+	TransientStorageJournal
 
-	// `ctrl` is used to manage snapshots and reverts across plugins and journals.
+	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
-
-	// Dirty tracking of suicided accounts, we have to keep track of these manually, in order
-	// for the code and state to still be accessible even after the account has been deleted.
-	// We chose to keep track of them in a separate slice, rather than a map, because the
-	// number of accounts that will be suicided in a single transaction is expected to be
-	// very low.
-	suicides []common.Address
 }
 
-// `NewStateDB` returns a `vm.PolarisStateDB` with the given `StatePlugin`.
+// NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
 	aj := journal.NewAccesslist()
+	sj := journal.NewSuicides(sp)
+	tj := journal.NewTransientStorage()
 
 	// Build the controller and register the plugins and journals
-
-	// TODO: journal registration
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
+	_ = ctrl.Register(sp)
 	_ = ctrl.Register(lj)
 	_ = ctrl.Register(rj)
 	_ = ctrl.Register(aj)
-	_ = ctrl.Register(sp)
+	_ = ctrl.Register(sj)
+	_ = ctrl.Register(tj)
 
 	return &stateDB{
-		Plugin:            sp,
-		LogsJournal:       lj,
-		RefundJournal:     rj,
-		AccessListJournal: aj,
-		ctrl:              ctrl,
-		suicides:          make([]common.Address, 1), // very rare to suicide, so we alloc 1 slot.
+		Plugin:                  sp,
+		LogsJournal:             lj,
+		RefundJournal:           rj,
+		AccessListJournal:       aj,
+		TransientStorageJournal: tj,
+		SuicidesJournal:         sj,
+		ctrl:                    ctrl,
 	}
-}
-
-// =============================================================================
-// Suicide
-// =============================================================================
-
-// Suicide implements the PolarisStateDB interface by marking the given address as suicided.
-// This clears the account balance, but the code and state of the address remains available
-// until after Commit is called.
-func (sdb *stateDB) Suicide(addr common.Address) bool {
-	// only smart contracts can commit suicide
-	ch := sdb.GetCodeHash(addr)
-	if (ch == common.Hash{}) || ch == emptyCodeHash {
-		return false
-	}
-
-	// Reduce it's balance to 0.
-	sdb.SubBalance(addr, sdb.GetBalance(addr))
-
-	// Mark the underlying account for deletion in `Commit()`.
-	sdb.suicides = append(sdb.suicides, addr)
-	return true
-}
-
-// `HasSuicided` implements the `PolarisStateDB` interface by returning if the contract was suicided
-// in current transaction.
-func (sdb *stateDB) HasSuicided(addr common.Address) bool {
-	for _, suicide := range sdb.suicides {
-		if addr == suicide {
-			return true
-		}
-	}
-	return false
-}
-
-// `Empty` implements the `PolarisStateDB` interface by returning whether the state object
-// is either non-existent or empty according to the EIP161 epecification
-// (balance = nonce = code = 0)
-// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
-func (sdb *stateDB) Empty(addr common.Address) bool {
-	ch := sdb.GetCodeHash(addr)
-	return sdb.GetNonce(addr) == 0 &&
-		(ch == emptyCodeHash || ch == common.Hash{}) &&
-		sdb.GetBalance(addr).Sign() == 0
 }
 
 // =============================================================================
 // Snapshot
 // =============================================================================
 
-// `Snapshot` implements `stateDB`.
+// Snapshot implements `stateDB`.
 func (sdb *stateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
 }
 
-// `RevertToSnapshot` implements `stateDB`.
+// RevertToSnapshot implements `stateDB`.
 func (sdb *stateDB) RevertToSnapshot(id int) {
 	sdb.ctrl.RevertToSnapshot(id)
 }
@@ -146,72 +93,41 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Finalize
 // =============================================================================
 
-// `Finalize` deletes the suicided accounts, clears the suicides list, and finalizes all plugins.
+// Finalize deletes the suicided accounts and finalizes all plugins.
 func (sdb *stateDB) Finalize() {
-	sdb.DeleteSuicides(sdb.suicides)
-	sdb.suicides = make([]common.Address, 1)
+	sdb.DeleteAccounts(sdb.GetSuicides())
 	sdb.ctrl.Finalize()
 }
 
 // =============================================================================
-// AccessList and Transient Storage
+// Prepare
 // =============================================================================
-
-// `AddAddressToAccessList` implements `stateDB`.
-func (sdb *stateDB) AddAddressToAccessList(addr common.Address) {
-	sdb.AddAddress(addr)
-}
-
-// `AddSlotToAccessList` implements `stateDB`.
-func (sdb *stateDB) AddSlotToAccessList(addr common.Address, slot common.Hash) {
-	sdb.AddSlot(addr, slot)
-}
-
-// `AddressInAccessList` implements `stateDB`.
-func (sdb *stateDB) AddressInAccessList(addr common.Address) bool {
-	return sdb.ContainsAddress(addr)
-}
-
-// `SlotInAccessList` implements `stateDB`.
-func (sdb *stateDB) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
-	return sdb.Contains(addr, slot)
-}
-
-// TODO: `GetTransientState` implements the `PolarisStateDB` interface by returning the transient state
-func (sdb *stateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	panic("not supported by Polaris")
-}
-
-// TODO: `SetTransientState` implements the `PolarisStateDB` interface by setting the transient state
-func (sdb *stateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	panic("not supported by Polaris")
-}
 
 // Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
 //
-// `Prepare` implements `stateDB`.
+// Prepare implements `stateDB`.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {
 		// Clear out any leftover from previous executions
 		sdb.AccessListJournal = journal.NewAccesslist()
 
-		sdb.AddAddress(sender)
+		sdb.AddAddressToAccessList(sender)
 		if dest != nil {
-			sdb.AddAddress(*dest)
+			sdb.AddAddressToAccessList(*dest)
 			// If it's a create-tx, the destination will be added inside evm.create
 		}
 		for _, addr := range precompiles {
-			sdb.AddAddress(addr)
+			sdb.AddAddressToAccessList(addr)
 		}
 		for _, el := range txAccesses {
-			sdb.AddAddress(el.Address)
+			sdb.AddAddressToAccessList(el.Address)
 			for _, key := range el.StorageKeys {
-				sdb.AddSlot(el.Address, key)
+				sdb.AddSlotToAccessList(el.Address, key)
 			}
 		}
 		if rules.IsShanghai { // EIP-3651: warm coinbase
-			sdb.AddAddress(coinbase)
+			sdb.AddAddressToAccessList(coinbase)
 		}
 	}
 }

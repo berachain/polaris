@@ -33,7 +33,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	pcgenerated "pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
+	pcgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -47,7 +48,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/eth/testutil/contracts/solidity/generated"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -103,6 +103,7 @@ var _ = Describe("Processor", func() {
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
 		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil)
+		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
@@ -187,7 +188,7 @@ var _ = Describe("Processor", func() {
 		})
 
 		It("should successfully deploy a valid contract and call it", func() {
-			legacyTxData.Data = common.FromHex(generated.SolmateERC20Bin)
+			legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
@@ -203,7 +204,7 @@ var _ = Describe("Processor", func() {
 			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
 			legacyTxData.To = &deployAddress
 			var solmateABI abi.ABI
-			err = solmateABI.UnmarshalJSON([]byte(generated.SolmateERC20ABI))
+			err = solmateABI.UnmarshalJSON([]byte(bindings.SolmateERC20ABI))
 			Expect(err).ToNot(HaveOccurred())
 			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
 			Expect(err).ToNot(HaveOccurred())

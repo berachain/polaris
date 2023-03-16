@@ -32,7 +32,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-// `delegationHelper` is the helper function for `getDelegation`.
+// delegationHelper is the helper function for `getDelegation`.
 func (c *Contract) getDelegationHelper(
 	ctx context.Context,
 	del sdk.AccAddress,
@@ -54,7 +54,7 @@ func (c *Contract) getDelegationHelper(
 	return []any{delegation.Balance.Amount.BigInt()}, nil
 }
 
-// `getUnbondingDelegationHelper` is the helper function for `getUnbondingDelegation`.
+// getUnbondingDelegationHelper is the helper function for `getUnbondingDelegation`.
 func (c *Contract) getUnbondingDelegationHelper(
 	ctx context.Context,
 	del sdk.AccAddress,
@@ -71,7 +71,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 	return []any{res.GetUnbond().Entries}, nil
 }
 
-// `getRedelegationsHelper` is the helper function for `getRedelegations.
+// getRedelegationsHelper is the helper function for `getRedelegations.
 func (c *Contract) getRedelegationsHelper(
 	ctx context.Context,
 	del sdk.AccAddress,
@@ -107,7 +107,7 @@ func (c *Contract) getRedelegationsHelper(
 	return []any{redelegationEntries}, err
 }
 
-// `delegateHelper` is the helper function for `delegate`.
+// delegateHelper is the helper function for `delegate`.
 func (c *Contract) delegateHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -127,7 +127,7 @@ func (c *Contract) delegateHelper(
 	return err
 }
 
-// `undelegateHelper` is the helper function for `undelegate`.
+// undelegateHelper is the helper function for `undelegate`.
 func (c *Contract) undelegateHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -148,7 +148,7 @@ func (c *Contract) undelegateHelper(
 	return err
 }
 
-// `beginRedelegateHelper` is the helper function for `beginRedelegate`.
+// beginRedelegateHelper is the helper function for `beginRedelegate`.
 func (c *Contract) beginRedelegateHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -173,7 +173,7 @@ func (c *Contract) beginRedelegateHelper(
 	return err
 }
 
-// `cancelRedelegateHelper` is the helper function for `cancelRedelegate`.
+// cancelRedelegateHelper is the helper function for `cancelRedelegate`.
 func (c *Contract) cancelUnbondingDelegationHelper(
 	ctx context.Context,
 	caller common.Address,
@@ -220,7 +220,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	return []any{addrs}, nil
 }
 
-// `bondDenom` returns the bond denom from the staking module.
+// bondDenom returns the bond denom from the staking module.
 func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 	res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})
 	if err != nil {

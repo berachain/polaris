@@ -48,6 +48,8 @@ var _ = Describe("StateDB", func() {
 	})
 
 	It("Should suicide correctly", func() {
+		sdb.Snapshot()
+
 		sdb.CreateAccount(alice)
 		Expect(sdb.Suicide(alice)).To(BeFalse())
 		Expect(sdb.HasSuicided(alice)).To(BeFalse())
@@ -58,14 +60,6 @@ var _ = Describe("StateDB", func() {
 		Expect(sdb.Suicide(bob)).To(BeTrue())
 		Expect(sdb.GetBalance(bob).Uint64()).To(Equal(uint64(0)))
 		Expect(sdb.HasSuicided(bob)).To(BeTrue())
-	})
-
-	It("should handle empty", func() {
-		sdb.CreateAccount(alice)
-		Expect(sdb.Empty(alice)).To(BeTrue())
-
-		sdb.SetCode(alice, []byte{1, 2, 3})
-		Expect(sdb.Empty(alice)).To(BeFalse())
 	})
 
 	It("should snapshot/revert", func() {
@@ -106,6 +100,8 @@ var _ = Describe("StateDB", func() {
 	})
 
 	It("should delete suicides on finalize", func() {
+		sdb.Snapshot()
+
 		sdb.CreateAccount(bob)
 		sdb.SetCode(bob, []byte{1, 2, 3})
 		sdb.AddBalance(bob, big.NewInt(10))

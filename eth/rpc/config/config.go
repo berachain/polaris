@@ -23,15 +23,15 @@ package config
 import "time"
 
 type (
-	// `Server` defines the configuration for the JSON-RPC server.
+	// Server defines the configuration for the JSON-RPC server.
 	Server struct {
-		// `Enabled` defines whether the JSON-RPC server should be enabled.
+		// Enabled defines whether the JSON-RPC server should be enabled.
 		Enabled bool `mapstructure:"enabled"`
 
-		// `API` defines a list of JSON-RPC namespaces to be enabled.
+		// API defines a list of JSON-RPC namespaces to be enabled.
 		EnabledAPIs []string `mapstructure:"api"`
 
-		// `HTTPBaseRoute` defines the base path for the JSON-RPC server.
+		// HTTPBaseRoute defines the base path for the JSON-RPC server.
 		BaseRoute string `mapstructure:"base-path"`
 
 		// RPCGasCap is the global gas cap for eth-call variants.

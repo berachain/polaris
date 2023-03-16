@@ -26,7 +26,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc/config"
 )
 
-// `Service` is the interface for the JSON-RPC service.
+// Service is the interface for the JSON-RPC service.
 type Service interface {
 	SetBackend(PolarisBackend)
 	RegisterAPIs(extraAPIs func(PolarisBackend) []API) error
@@ -35,20 +35,20 @@ type Service interface {
 	GetConfig() *config.Server
 }
 
-// `Service` is a wrapper around go-ethereum JSON-RPC server(s). That also
+// Service is a wrapper around go-ethereum JSON-RPC server(s). That also
 // supplies a backend to handle the requests.
 type service struct {
-	// `backend` is the backend for the service.
+	// backend is the backend for the service.
 	backend PolarisBackend
-	// `config` is the configuration for the service.
+	// config is the configuration for the service.
 	config *config.Server
-	// `http` is the externally facing JSON-RPC Server.
+	// http is the externally facing JSON-RPC Server.
 	http *Server
-	// `ws` is the externally facing JSON-RPC Server.
+	// ws is the externally facing JSON-RPC Server.
 	ws *Server
 }
 
-// `New` returns a new `Service` object.
+// New returns a new `Service` object.
 func NewService(cfg *config.Server) Service {
 	return &service{
 		backend: nil,
@@ -58,7 +58,7 @@ func NewService(cfg *config.Server) Service {
 	}
 }
 
-// `RegisterAPIs` registers the JSON-RPC APIs with the API service.
+// RegisterAPIs registers the JSON-RPC APIs with the API service.
 func (s *service) RegisterAPIs(extraAPIs func(PolarisBackend) []API) error {
 	apis := append(GetAPIs(s.backend), extraAPIs(s.backend)...)
 	for _, srv := range []*Server{s.http, s.ws} {
@@ -69,22 +69,22 @@ func (s *service) RegisterAPIs(extraAPIs func(PolarisBackend) []API) error {
 	return nil
 }
 
-// `SetBackend` sets the backend for the service.
+// SetBackend sets the backend for the service.
 func (s *service) SetBackend(backend PolarisBackend) {
 	s.backend = backend
 }
 
-// `GetConfig` returns the configuration for the service.
+// GetConfig returns the configuration for the service.
 func (s *service) GetConfig() *config.Server {
 	return s.config
 }
 
-// `GetHTTP` returns the HTTP server.
+// GetHTTP returns the HTTP server.
 func (s *service) GetHTTP() *Server {
 	return s.http
 }
 
-// `GetWS` returns the WS server.
+// GetWS returns the WS server.
 func (s *service) GetWS() *Server {
 	return s.ws
 }

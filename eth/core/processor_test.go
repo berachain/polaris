@@ -24,6 +24,7 @@ import (
 	"context"
 	"math/big"
 
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
@@ -32,7 +33,6 @@ import (
 	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/eth/testutil/contracts/solidity/generated"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -125,16 +125,17 @@ var _ = Describe("StateProcessor", func() {
 
 	Context("Empty block", func() {
 		It("should build a an empty block", func() {
-			block, receipts, err := sp.Finalize(context.Background())
+			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
 			Expect(receipts).To(BeEmpty())
+			Expect(logs).To(BeEmpty())
 		})
 	})
 
 	Context("Block with transactions", func() {
 		BeforeEach(func() {
-			_, _, err := sp.Finalize(context.Background())
+			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 
 			sp.Prepare(context.Background(), nil, dummyHeader)
@@ -144,10 +145,11 @@ var _ = Describe("StateProcessor", func() {
 			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
-			block, receipts, err := sp.Finalize(context.Background())
+			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
 			Expect(receipts).To(BeEmpty())
+			Expect(logs).To(BeEmpty())
 		})
 
 		It("should not error on a signed transaction", func() {
@@ -174,13 +176,13 @@ var _ = Describe("StateProcessor", func() {
 				if addr != dummyContract {
 					return nil
 				}
-				return common.Hex2Bytes(generated.NonRevertableTxMetaData.Bin)
+				return common.Hex2Bytes(bindings.NonRevertableTxMetaData.Bin)
 			}
 			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
 				if addr != dummyContract {
 					return common.Hash{}
 				}
-				return crypto.Keccak256Hash(common.Hex2Bytes(generated.NonRevertableTxMetaData.Bin))
+				return crypto.Keccak256Hash(common.Hex2Bytes(bindings.NonRevertableTxMetaData.Bin))
 			}
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract

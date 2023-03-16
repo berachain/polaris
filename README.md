@@ -47,11 +47,10 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
 <pre>
 🔭 Polaris Core 🔭
-├── <a href="./bindings">bindings</a>: Documentation for Polaris.
+├── <a href="./contracts">contracts</a>: Contracts and bindings for Polaris (and hosts).
 ├── <a href="./docs">docs</a>: Documentation for Polaris.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
-├── <a href="./testutil">testutil</a>: A collection of testing utilities.
 ├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
 
 ⛄️ Host Chain Implementations ⛄️
@@ -82,22 +81,30 @@ If you want to help contribute to the framework, check out the [Framework Specs]
    brew install go
    export PATH=$PATH:/opt/homebrew/bin/go
    export PATH=$PATH:$(go env GOPATH)/bin
+   ```
 
 2. Install Foundry:
+
    ```sh
    curl -L https://foundry.paradigm.xyz | bash
    ```
 
 3. Clone, Setup and Test:
 
-  ```sh
-  cd $HOME
-  git clone https://github.com/berachain/polaris
-  cd polaris
-  git checkout main
-  go run magefiles/setup/setup.go
-  mage test
-  ```
+   ```sh
+   cd $HOME
+   git clone https://github.com/berachain/polaris
+   cd polaris
+   git checkout main
+   go run magefiles/setup/setup.go
+   mage cosmos:test
+   ```
+
+4. Start a local development network:
+
+   ```sh
+   mage start
+   ```
 
 ## 🚧 WARNING: UNDER CONSTRUCTION 🚧
 
@@ -105,4 +112,3 @@ This project is work in progress and subject to frequent changes as we are still
 It has not been audited for security purposes and should not be used in production yet.
 
 The network will have an Ethereum JSON-RPC server running at `http://localhost:1317/eth/rpc` and a Tendermint RPC server running at `http://localhost:26657`.
-

@@ -29,18 +29,18 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `ChainWriter` defines methods that are used to perform state and block transitions.
+// ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	// `Prepare` prepares the chain for a new block. This method is called before the first tx in
+	// Prepare prepares the chain for a new block. This method is called before the first tx in
 	// the block.
 	Prepare(context.Context, int64)
-	// `ProcessTransaction` processes the given transaction and returns the receipt after applying
+	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
-	// `Finalize` finalizes the block and returns the block. This method is called after the last
+	// Finalize finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
 	Finalize(context.Context) error
-	// `SendTx` sends the given transaction to the tx pool.
+	// SendTx sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
 
@@ -48,7 +48,7 @@ type ChainWriter interface {
 // Block Processing
 // =========================================================================
 
-// `Prepare` prepares the blockchain for processing a new block at the given height.
+// Prepare prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	bc.logger.Info("Preparing block", "height", height)
 
@@ -61,14 +61,14 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	}
 
 	// If we are processing a new block, then we assume that the previous was finalized.
-	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
+	if block := bc.currentBlock.Load(); block != nil {
 		// Cache finalized block.
 		blockHash, blockNum := block.Hash(), block.NumberU64()
 		bc.finalizedBlock.Store(block)
 		bc.blockNumCache.Add(int64(blockNum), block)
 		bc.blockHashCache.Add(blockHash, block)
 
-		// Cache transaction data
+		// Cache transaction data.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -82,12 +82,19 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		}
 
 		// Cache receipts.
-		var receipts types.Receipts
-		if receipts, ok = utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
+		if receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
 			bc.receiptsCache.Add(blockHash, receipts)
 		}
 
-		// TODO: synchronize chain head feed.
+		// Send logs and chain events.
+		if logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
+			if len(logs) > 0 {
+				bc.logsFeed.Send(logs)
+			}
+			bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
+		}
+
+		// Send chain head event.
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
 
@@ -99,7 +106,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	)
 }
 
-// `ProcessTransaction` processes the given transaction and returns the receipt.
+// ProcessTransaction processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
@@ -110,12 +117,16 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
 
-// `Finalize` finalizes the current block.
+// Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, err := bc.processor.Finalize(ctx)
+	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
 	}
+
+	// store the pending logs
+	bc.pendingLogsFeed.Send(logs)
+	bc.currentLogs.Store(logs)
 
 	blockHash, blockNum := block.Hash(), block.Number().Int64()
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))

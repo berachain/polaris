@@ -21,6 +21,7 @@
 package journal
 
 import (
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
@@ -30,7 +31,7 @@ type accessList struct {
 	journal     ds.Stack[*AccessList] // journal of access lists.
 }
 
-// `NewAccesslist` returns a new `accessList` journal.
+// NewAccesslist returns a new `accessList` journal.
 //
 //nolint:revive // only used as a `state.AccessListJournal`.
 func NewAccesslist() *accessList {
@@ -42,9 +43,29 @@ func NewAccesslist() *accessList {
 	}
 }
 
-// `RegistryKey` implements `libtypes.Registrable`.
+// RegistryKey implements `libtypes.Registrable`.
 func (al *accessList) RegistryKey() string {
 	return accessListRegistryKey
+}
+
+// AddAddressToAccessList implements `state.AccessListJournal`.
+func (al *accessList) AddAddressToAccessList(addr common.Address) {
+	al.AddAddress(addr)
+}
+
+// AddSlotToAccessList implements `state.AccessListJournal`.
+func (al *accessList) AddSlotToAccessList(addr common.Address, slot common.Hash) {
+	al.AddSlot(addr, slot)
+}
+
+// AddressInAccessList implements `state.AccessListJournal`.
+func (al *accessList) AddressInAccessList(addr common.Address) bool {
+	return al.ContainsAddress(addr)
+}
+
+// SlotInAccessList implements `state.AccessListJournal`.
+func (al *accessList) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
+	return al.Contains(addr, slot)
 }
 
 // `Snapshot` implements `libtypes.Snapshottable`.
@@ -54,13 +75,13 @@ func (al *accessList) Snapshot() int {
 	return al.journal.Size() - 1
 }
 
-// `RevertToSnapshot` implements `libtypes.Snapshottable`.
+// RevertToSnapshot implements `libtypes.Snapshottable`.
 func (al *accessList) RevertToSnapshot(id int) {
 	al.journal.PopToSize(id)
 	al.AccessList = al.journal.Peek()
 }
 
-// `Finalize` implements `libtypes.Controllable`.
+// Finalize implements `libtypes.Controllable`.
 func (al *accessList) Finalize() {
 	al.journal = stack.New[*AccessList](initCapacity)
 	al.journal.Push(NewAccessList())

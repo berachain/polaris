@@ -27,7 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-// `InitGenesis` takes in a pointer to a genesis state object and populates the KV store.
+// InitGenesis takes in a pointer to a genesis state object and populates the KV store.
 func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
 
@@ -48,7 +48,7 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Finalize()
 }
 
-// `Export` genesis modifies a pointer to a genesis state object and populates it.
+// Export genesis modifies a pointer to a genesis state object and populates it.
 func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
 

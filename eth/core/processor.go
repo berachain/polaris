@@ -35,33 +35,33 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// `initialTxsCapacity` is the initial capacity of the transactions and receipts slice.
+// initialTxsCapacity is the initial capacity of the transactions and receipts slice.
 const initialTxsCapacity = 256
 
-// `StateProcessor` is responsible for processing blocks, transactions, and updating the state.
+// StateProcessor is responsible for processing blocks, transactions, and updating the state.
 type StateProcessor struct {
-	// `mtx` is used to make sure we don't try to prepare a new block before finalizing the
+	// mtx is used to make sure we don't try to prepare a new block before finalizing the
 	// current block.
 	mtx sync.Mutex
 
-	// `cp` provides configuration functions from the underlying chain the EVM is running on.
+	// cp provides configuration functions from the underlying chain the EVM is running on.
 	cp ConfigurationPlugin
-	// `gp` provides gas functions from the underlying chain the EVM is running on.
+	// gp provides gas functions from the underlying chain the EVM is running on.
 	gp GasPlugin
-	// `pp` is responsible for keeping track of the stateful precompile containers that are
+	// pp is responsible for keeping track of the stateful precompile containers that are
 	// available to the EVM and executing them.
 	pp PrecompilePlugin
 
-	// `signer` is the signer used to verify transaction signatures. We need this in order to to
+	// signer is the signer used to verify transaction signatures. We need this in order to to
 	// extract the underlying message from a transaction object in `ProcessTransaction`.
 	signer types.Signer
 
-	// `evm` is the EVM that is used to process transactions. We re-use a single EVM for processing
+	// evm is the EVM that is used to process transactions. We re-use a single EVM for processing
 	// the entire block. This is done in order to reduce memory allocs.
 	evm *vm.GethEVM
-	// `statedb` is the state database that is used to mange state during transactions.
+	// statedb is the state database that is used to mange state during transactions.
 	statedb vm.PolarisStateDB
-	// `vmConfig` is the configuration for the EVM.
+	// vmConfig is the configuration for the EVM.
 	vmConfig *vm.Config
 
 	// We store information about the current block being processed so that we can access it
@@ -72,7 +72,7 @@ type StateProcessor struct {
 	receipts types.Receipts
 }
 
-// `NewStateProcessor` creates a new state processor with the given host, statedb, vmConfig, and
+// NewStateProcessor creates a new state processor with the given host, statedb, vmConfig, and
 // commit flag.
 func NewStateProcessor(
 	cp ConfigurationPlugin,
@@ -104,7 +104,7 @@ func NewStateProcessor(
 // Block, Tx Lifecycle
 // ==============================================================================
 
-// `Prepare` prepares the state processor for processing a block.
+// Prepare prepares the state processor for processing a block.
 func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
@@ -135,12 +135,12 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 	sp.evm = evm
 }
 
-// `ProcessTransaction` applies a transaction to the current state of the blockchain.
+// ProcessTransaction applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
 	txHash := tx.Hash()
-	msg, err := tx.AsMessage(sp.signer, sp.header.BaseFee)
+	msg, err := TransactionToMessage(tx, sp.signer, sp.header.BaseFee)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply tx %d [%s]", len(sp.txs), txHash.Hex())
 	}
@@ -185,7 +185,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// If the transaction created a contract, store the creation address in the receipt.
-	if msg.To() == nil {
+	if msg.To == nil {
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
@@ -211,10 +211,10 @@ func (sp *StateProcessor) ProcessTransaction(
 	return result, nil
 }
 
-// `Finalize` finalizes the block in the state processor and returns the receipts and bloom filter.
+// Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(
 	_ context.Context,
-) (*types.Block, types.Receipts, error) {
+) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
@@ -223,6 +223,7 @@ func (sp *StateProcessor) Finalize(
 	// to ensure that the block hash, logs and bloom filter have the correct information.
 	blockHash, blockNumber := sp.header.Hash(), sp.header.Number.Uint64()
 	var logIndex uint
+	var logs []*types.Log
 	for txIndex, receipt := range sp.receipts {
 		// Edit the receipts to include the block hash and bloom filter.
 		for _, log := range receipt.Logs {
@@ -230,6 +231,7 @@ func (sp *StateProcessor) Finalize(
 			log.BlockHash = blockHash
 			log.Index = logIndex
 			logIndex++
+			logs = append(logs, log)
 		}
 		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 		receipt.BlockHash = blockHash
@@ -241,14 +243,14 @@ func (sp *StateProcessor) Finalize(
 	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
-	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, nil
+	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, logs, nil
 }
 
 // ===========================================================================
 // Utilities
 // ===========================================================================
 
-// `BuildPrecompiles` builds the given precompiles and registers them with the precompile plugins.
+// BuildPrecompiles builds the given precompiles and registers them with the precompile plugins.
 func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {
 	for _, pc := range precompiles {
 		// skip registering precompiles that are already registered.

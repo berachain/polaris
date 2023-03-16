@@ -29,7 +29,7 @@ import (
 
 //go:generate moq -out ./statedb.mock.go -pkg mock ../ PolarisStateDB
 
-// `NewEmptyStateDB` creates a new `StateDBMock` instance.
+// NewEmptyStateDB creates a new `StateDBMock` instance.
 func NewEmptyStateDB() *PolarisStateDBMock {
 	mockedPolarisStateDB := &PolarisStateDBMock{
 		AddAddressToAccessListFunc: func(addr common.Address) {

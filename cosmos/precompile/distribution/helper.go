@@ -26,7 +26,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	generated "pkg.berachain.dev/polaris/cosmos/precompile/contracts/solidity/generated"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 )
 
 // `setWithdrawAddressHelper` is a helper function for the `SetWithdrawAddress` method.
