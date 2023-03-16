@@ -22,7 +22,6 @@ package staking
 
 import (
 	"context"
-	"errors"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -70,9 +69,9 @@ func (c *Contract) getUnbondingDelegationHelper(
 		ValidatorAddr: val.String(),
 	})
 	if status.Code(err) == codes.NotFound {
-		return []any{big.NewInt(0)}, nil
+		return []any{[]stakingtypes.UnbondingDelegationEntry{}}, nil
 	} else if err != nil {
-		return nil, errors.New("unbonding delegation not found")
+		return nil, err
 	}
 
 	return []any{res.GetUnbond().Entries}, nil
@@ -93,6 +92,11 @@ func (c *Contract) getRedelegationsHelper(
 			DstValidatorAddr: dstValidator.String(),
 		},
 	)
+	if status.Code(err) == codes.NotFound {
+		return []any{[]stakingtypes.RedelegationEntry{}}, nil
+	} else if err != nil {
+		return nil, err
+	}
 
 	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
 	for _, r := range rsp.GetRedelegationResponses() {
@@ -210,6 +214,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Iterate over all validators and return their addresses.
 	addrs := make([]common.Address, 0, len(res.Validators))
 	for _, val := range res.Validators {
@@ -221,7 +226,6 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		sdk.UnwrapSDKContext(ctx).Logger().Error("valAddr", "valAddr", common.BytesToAddress(valAddr.Bytes()).String())
 		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
-
 	return []any{addrs}, nil
 }
 
