@@ -35,6 +35,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -87,6 +88,7 @@ func SetupMinimalKeepers() (
 			"evm":                          {authtypes.Minter, authtypes.Burner},
 			"staking":                      {authtypes.Minter, authtypes.Burner},
 			"gov":                          {authtypes.Minter, authtypes.Burner},
+			distributiontypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		},
 		"bera",
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),

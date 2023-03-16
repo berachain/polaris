@@ -46,6 +46,15 @@ interface IDistributionModule {
     ) external returns (IBankModule.Coin[] memory);
 
     /**
+     * @dev Withdraw the rewrads accumilated by the delegator from the validagor. Returns the rewards claimed.
+     * However taking in a bech32 address.
+     */
+    function withdrawDelegatorReward(
+        string calldata delegator,
+        string calldata validator
+    ) external returns (IBankModule.Coin[] memory);
+
+    /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
      * `validator` as rewards.
      */

@@ -69,7 +69,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 		},
 		{
 			AbiSig:  "setWithdrawAddress(string)",
-			Execute: c.SetWIthdrawAddressBech32,
+			Execute: c.SetWithdrawAddressBech32,
 		},
 	}
 }
@@ -90,8 +90,8 @@ func (c *Contract) SetWithdrawAddress(
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddr.Bytes()))
 }
 
-// `SetWIthdrawAddressBech32` is the precompile contract method for the `setWithdrawAddress(string)` method.
-func (c *Contract) SetWIthdrawAddressBech32(
+// `SetWithdrawAddressBech32` is the precompile contract method for the `setWithdrawAddress(string)` method.
+func (c *Contract) SetWithdrawAddressBech32(
 	ctx context.Context,
 	caller common.Address,
 	value *big.Int,
