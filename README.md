@@ -97,18 +97,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
    cd polaris
    git checkout main
    go run magefiles/setup/setup.go
-   ```
-  
-   Run integration tests:
-
-   ```sh
-   mage testIntegration
-   ```
-
-   Run unit tests:
-
-   ```sh
-   mage testUnit
+   mage cosmos:test
    ```
 
 4. Start a local development network:
