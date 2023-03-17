@@ -31,9 +31,7 @@ interface MockPrecompileInterface {
         string timeStamp;
     }
 
-    function getOutput(
-        string calldata str
-    ) external returns (Object[] calldata);
+    function getOutput(string calldata str) external returns (Object[] calldata);
 
     function getOutputPartial() external returns (Object calldata);
 

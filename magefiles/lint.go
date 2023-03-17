@@ -33,7 +33,7 @@ const (
 )
 
 func Lint() error {
-	cmds := []func() error{GolangCiLint, LicenseCheck, Gosec, Proto{}.Lint}
+	cmds := []func() error{GolangCiLint, LicenseCheck, Gosec, Proto{}.Lint, Contracts{}.Fmt}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err
@@ -44,7 +44,7 @@ func Lint() error {
 
 // Run all formatters.
 func Format() error {
-	cmds := []func() error{Golines, License, GolangCiLintFix, Proto{}.Format}
+	cmds := []func() error{Golines, License, GolangCiLintFix, Proto{}.Format, Contracts{}.Fmt}
 	for _, cmd := range cmds {
 		if err := cmd(); err != nil {
 			return err

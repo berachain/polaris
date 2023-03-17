@@ -41,11 +41,7 @@ interface IStakingModule {
      * @dev Emitted by the staking module when `amount` tokens are redelegated from
      * `sourceValidator` to `destinationValidator`
      */
-    event Redelegate(
-        address indexed sourceValidator,
-        address indexed destinationValidator,
-        uint256 amount
-    );
+    event Redelegate(address indexed sourceValidator, address indexed destinationValidator, uint256 amount);
 
     /**
      * @dev Emitted by the staking module when `amount` tokens are used to create `validator`
@@ -62,10 +58,7 @@ interface IStakingModule {
      * unbonding delegation with `validator`
      */
     event CancelUnbondingDelegation(
-        address indexed validator,
-        address indexed delegator,
-        uint256 amount,
-        int64 creationHeight
+        address indexed validator, address indexed delegator, uint256 amount, int64 creationHeight
     );
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
@@ -76,50 +69,46 @@ interface IStakingModule {
     function getActiveValidators() external view returns (address[] memory);
 
     /**
-     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to 
+     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
      * `validatorAddress`
      */
-    function getDelegation(
-        address delegatorAddress, 
-        address validatorAddress
-    ) external view returns (uint256);
+    function getDelegation(address delegatorAddress, address validatorAddress) external view returns (uint256);
 
     /**
-     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to 
+     * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
      * `validatorAddress` (at hex bech32 address)
      */
-    function getDelegation(
-        string calldata delegatorAddress, 
-        string calldata validatorAddress
-    ) external view returns (uint256);
+    function getDelegation(string calldata delegatorAddress, string calldata validatorAddress)
+        external
+        view
+        returns (uint256);
 
     /**
-     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between 
+     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between
      * `delegatorAddress` and `validatorAddress`
      */
-    function getUnbondingDelegation(
-        address delegatorAddress, 
-        address validatorAddress
-    ) external view returns (UnbondingDelegationEntry[] memory);
+    function getUnbondingDelegation(address delegatorAddress, address validatorAddress)
+        external
+        view
+        returns (UnbondingDelegationEntry[] memory);
 
     /**
-     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between 
+     * @dev Returns a time-ordered list of all UnbondingDelegationEntries between
      * `delegatorAddress` and `validatorAddress` (at hex bech32 address)
      */
-    function getUnbondingDelegation(
-        string calldata delegatorAddress, 
-        string calldata validatorAddress
-    ) external view returns (UnbondingDelegationEntry[] memory);
+    function getUnbondingDelegation(string calldata delegatorAddress, string calldata validatorAddress)
+        external
+        view
+        returns (UnbondingDelegationEntry[] memory);
 
     /**
      * @dev Returns a list of `delegatorAddress`'s redelegating bonds from `srcValidator` to
      * `dstValidator`
      */
-    function getRedelegations(
-        address delegatorAddress, 
-        address srcValidator, 
-        address dstValidator
-    ) external view returns (RedelegationEntry[] memory);
+    function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator)
+        external
+        view
+        returns (RedelegationEntry[] memory);
 
     /**
      * @dev Returns a list of `delegatorAddress`'s redelegating bonds from `srcValidator` to
@@ -136,51 +125,37 @@ interface IStakingModule {
     /**
      * @dev msg.sender delegates the `amount` of tokens to `validatorAddress`
      */
-    function delegate(address validatorAddress, uint256 amount)
-        external
-        payable;
+    function delegate(address validatorAddress, uint256 amount) external payable;
 
     /**
      * @dev msg.sender delegates the `amount` of tokens to `validatorAddress` (at hex bech32
      * address)
      */
-    function delegate(string calldata validatorAddress, uint256 amount)
-        external
-        payable;
+    function delegate(string calldata validatorAddress, uint256 amount) external payable;
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress`
      */
-    function undelegate(address validatorAddress, uint256 amount)
-        external
-        payable;
+    function undelegate(address validatorAddress, uint256 amount) external payable;
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress` (at hex bech32
      * address)
      */
-    function undelegate(string calldata validatorAddress, uint256 amount)
-        external
-        payable;
+    function undelegate(string calldata validatorAddress, uint256 amount) external payable;
 
     /**
      * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
      */
-    function beginRedelegate(
-        address srcValidator,
-        address dstValidator,
-        uint256 amount
-    ) external payable;
+    function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) external payable;
 
     /**
-     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr` 
+     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
      * (at hex bech32 addresses)
      */
-    function beginRedelegate(
-        string calldata srcValidator,
-        string calldata dstValidator,
-        uint256 amount
-    ) external payable;
+    function beginRedelegate(string calldata srcValidator, string calldata dstValidator, uint256 amount)
+        external
+        payable;
 
     /**
      * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
@@ -188,11 +163,9 @@ interface IStakingModule {
      *
      * Provide the `creationHeight` of the original unbonding delegation
      */
-    function cancelUnbondingDelegation(
-        address validatorAddress,
-        uint256 amount,
-        int64 creationHeight
-    ) external payable;
+    function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight)
+        external
+        payable;
 
     /**
      * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
@@ -200,11 +173,9 @@ interface IStakingModule {
      *
      * Provide the `creationHeight` of the original unbonding delegation
      */
-    function cancelUnbondingDelegation(
-        string calldata validatorAddress,
-        uint256 amount,
-        int64 creationHeight
-    ) external payable;
+    function cancelUnbondingDelegation(string calldata validatorAddress, uint256 amount, int64 creationHeight)
+        external
+        payable;
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
