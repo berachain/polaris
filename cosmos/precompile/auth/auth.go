@@ -18,13 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package address
+package auth
 
 import (
 	"context"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -36,20 +37,22 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// Contract is the precompile contract for the address util.
+// Contract is the precompile contract for the auth module.
 type Contract struct {
 	precompile.BaseContract
 }
 
-// NewPrecompileContract returns a new instance of the address utils precompile contract.
+// NewPrecompileContract returns a new instance of the auth module precompile contract.
 func NewPrecompileContract() coreprecompile.StatefulImpl {
 	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.AddressMetaData.ABI)); err != nil {
+	if err := contractAbi.UnmarshalJSON([]byte(generated.AuthModuleMetaData.ABI)); err != nil {
 		panic(err)
 	}
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			contractAbi, common.BytesToAddress([]byte{19}),
+			contractAbi, cosmlib.AccAddressToEthAddress(
+				authtypes.NewModuleAddress(authtypes.ModuleName),
+			),
 		),
 	}
 }
@@ -78,11 +81,24 @@ func (c *Contract) ConvertHexToBech32(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	addr, ok := utils.GetAs[common.Address](args[0])
+	hexAddr, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	return []any{cosmlib.AddressToAccAddress(addr)}, nil
+
+	// try val address first
+	valAddr, err := sdk.ValAddressFromHex(hexAddr.String())
+	if err == nil {
+		return []any{valAddr.String()}, nil
+	}
+
+	// try account address
+	accAddr, err := sdk.AccAddressFromHexUnsafe(hexAddr.String())
+	if err == nil {
+		return []any{accAddr.String()}, nil
+	}
+
+	return nil, precompile.ErrInvalidHexAddress
 }
 
 // ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
@@ -93,13 +109,22 @@ func (c *Contract) ConvertBech32ToHexAddress(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	addr, ok := utils.GetAs[string](args[0])
+	bech32Addr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	accAddr, err := sdk.AccAddressFromBech32(addr)
-	if err != nil {
-		return nil, err
+
+	// try account address first
+	accAddr, err := sdk.AccAddressFromBech32(bech32Addr)
+	if err == nil {
+		return []any{cosmlib.AccAddressToEthAddress(accAddr)}, nil
 	}
-	return []any{cosmlib.AccAddressToEthAddress(accAddr)}, nil
+
+	// try validator address
+	valAddr, err := sdk.ValAddressFromBech32(bech32Addr)
+	if err == nil {
+		return []any{cosmlib.ValAddressToEthAddress(valAddr)}, nil
+	}
+
+	return nil, precompile.ErrInvalidBech32Address
 }

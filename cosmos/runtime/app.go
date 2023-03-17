@@ -90,7 +90,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	addressprecompile "pkg.berachain.dev/polaris/cosmos/precompile/address"
+	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
@@ -313,7 +313,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			// TODO: add more precompiles here
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
-			addressprecompile.NewPrecompileContract(),
+			authprecompile.NewPrecompileContract(),
 			distrprecompile.NewPrecompileContract(),
 			govprecompile.NewPrecompileContract(&app.GovKeeper),
 		},

@@ -26,9 +26,9 @@
 pragma solidity ^0.8.4;
 
 /**
- * @dev Interface of the address  precompiled contract
+ * @dev Interface of the auth module precompiled contract
  */
-interface IAddress {
+interface IAuthModule {
     /**
      * @dev Returns the bech32 representation of the given address.
      */
