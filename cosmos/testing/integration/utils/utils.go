@@ -47,7 +47,7 @@ func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Clien
 	var client *ethclient.Client
 	net := network.New(t, network.DefaultConfig())
 	time.Sleep(1 * time.Second)
-	_, err = net.WaitForHeightWithTimeout(2, DefaultTimeout)
+	_, err = net.WaitForHeightWithTimeout(1, DefaultTimeout)
 	Expect(err).ToNot(HaveOccurred())
 
 	// Dial an Ethereum RPC Endpoint

@@ -27,7 +27,6 @@ pragma solidity ^0.8.17;
 
 import {IStakingModule} from "../staking.sol";
 import {ERC20} from "../../../../lib/ERC20.sol";
-// import "../../../../lib/forge-std/src/console2.sol";
 
 /**
  * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
@@ -78,6 +77,9 @@ contract LiquidStaking is ERC20 {
         return staking.getDelegation(address(this), validatorAddress);
     }
 
+    /**
+     * @dev Returns all active validators.
+     */
     function getActiveValidators() public view returns (address[] memory) {
         return staking.getActiveValidators();
     }
