@@ -27,7 +27,7 @@ package contracts
 
 //go:generate abigen --pkg precompile --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./bindings/cosmos/precompile/i_staking_module.abigen.go --type StakingModule
 //go:generate abigen --pkg precompile --abi ./out/bank.sol/IBankModule.abi.json --bin ./out/bank.sol/IbankModule.bin --out ./bindings/cosmos/precompile/i_bank_module.abigen.go --type BankModule
-//go:generate abigen --pkg precompile --abi ./out/address.sol/IAddress.abi.json --bin ./out/address.sol/IAddress.bin --out ./bindings/cosmos/precompile/i_address.abigen.go --type Address
+//go:generate abigen --pkg precompile --abi ./out/auth.sol/IAuthModule.abi.json --bin ./out/auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/i_auth.abigen.go --type AuthModule
 //go:generate abigen --pkg precompile --abi ./out/distribution.sol/IDistributionModule.abi.json --bin ./out/distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/i_distribution_module.abigen.go --type DistributionModule
 //go:generate abigen --pkg precompile --abi ./out/governance.sol/IGovernanceModule.abi.json --bin ./out/governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
 
