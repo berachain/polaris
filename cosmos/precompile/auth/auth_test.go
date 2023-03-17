@@ -25,6 +25,8 @@ import (
 	"math/big"
 	"testing"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -32,8 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
-
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
