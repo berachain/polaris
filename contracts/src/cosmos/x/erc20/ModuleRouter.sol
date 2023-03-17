@@ -50,58 +50,71 @@ contract ERC20ModuleRouter {
      * @dev Transfer tokens to Cosmos
      * @param token The address of the token to transfer
      * @param amount The amount of tokens to transfer
-     * @param receiver The address of the receiver
+     * @param recipient The address of the recipient
      */
-    function transferToCosmos(IERC20 token, address receiver, uint256 amount) public {
+    function transferToCosmos(IERC20 token, address recipient, uint256 amount) public {
         // Transfer tokens to the Router.
         require(token.transferFrom(msg.sender, address(this), amount), "transfer failed");
 
         // Call the ERC20Module to handle the incoming transfer (mint bank module tokens to the user).
-        require(erc20Module.handleIncoming(receiver, address(token), amount), "handle incoming failed");
+        (int8 handlerType, bool success) = erc20Module.handleIncoming(recipient, address(token), amount);
+        require(success, "handle incoming failed");
+
+        // If handlerType is 0 (mint), mint the tokens to the recipient.
+        if (handlerType == 0) {
+            PolarisERC20(address(token)).burn(amount);
+        }
     }
 
     /**
      * @dev Transfer tokens to Cosmos
      * @param denom The denom to transfer.
-     * @param receiver The address of the receiver
+     * @param recipient The address of the recipient
      * @param amount The amount of tokens to transfer
      */
-    function transferToCosmos(string memory denom, address receiver, uint256 amount) public {
+    function transferToCosmos(string memory denom, address recipient, uint256 amount) public {
         address token = erc20Module.addressForDenom(denom);
         require(token != address(0), "unregistered denom");
-        transferToCosmos(IERC20(token), receiver, amount);
+        transferToCosmos(IERC20(token), recipient, amount);
     }
 
     /**
      * @dev Transfer tokens from Cosmos
      * @param denom The denom to transfer.
      * @param amount The amount of tokens to transfer
-     * @param receiver The address of the receiver
+     * @param recipient The address of the recipient
      */
-    function transferFromCosmos(string memory denom, address receiver, uint256 amount) public {
-        IERC20 token;
+    function transferFromCosmos(string memory denom, address recipient, uint256 amount) public {
+        address token;
         // Call the ERC20Module to handle the outgoing transfer (burn bank module tokens from the user).
         // If the ERC20Module returns true, it means that it requires that the shim deploy a new ERC20 token
         // to represent the bank module denom that we supplued.
-        if (erc20Module.handleOutgoing(msg.sender, receiver, denom, amount)) {
+        (int8 handlerType, bool requiresDeploy) = erc20Module.handleOutgoing(msg.sender, recipient, denom, amount);
+        if (requiresDeploy) {
             // Deploy a new ERC20 token.
-            token = IERC20(address(new PolarisERC20(denom, denom)));
+            token = address(new PolarisERC20(denom, denom));
             // If the ERC20Module fails to handle the post deploy request, revert.
             require(erc20Module.handleDeploy(address(token)), "handle deploy failed");
         }
-        // Transfer tokens to the receiver.
-        require(token.transfer(receiver, amount), "transfer failed");
+        
+        // If handlerType is 0 (mint), mint the tokens to the recipient.
+        if (handlerType == 0) {
+            PolarisERC20(token).mint(amount);
+        }
+
+        // Transfer tokens to the recipient.
+        require(IERC20(token).transfer(recipient, amount), "transfer failed");
     }
 
     /**
      * @dev Transfer tokens from Cosmos
      * @param token The address of the token to transfer
      * @param amount The amount of tokens to transfer
-     * @param receiver The address of the receiver
+     * @param recipient The address of the recipient
      */
-    function transferFromCosmos(IERC20 token, address receiver, uint256 amount) public {
+    function transferFromCosmos(IERC20 token, address recipient, uint256 amount) public {
         string memory denom = erc20Module.denomForAddress(address(token));
         require(bytes(denom).length > 0, "unregistered token");
-        transferFromCosmos(denom, receiver, amount);
+        transferFromCosmos(denom, recipient, amount);
     }
 }

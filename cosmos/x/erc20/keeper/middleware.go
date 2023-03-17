@@ -59,7 +59,7 @@ func (k *Keeper) HandleIncomingERC20(
 // HandleIncomingERC20 handles an incoming ERC20 transfer.
 func (k *Keeper) HandleOutgoingDenom(
 	ctx sdk.Context, sender, recipient common.Address, denom string, amount *big.Int,
-) (bool, error) {
+) (int8, bool, error) {
 	// For safety we check the deploy lock.
 	if !k.deployLock.TryLock() {
 		panic("deploy lock is already locked")
@@ -72,16 +72,16 @@ func (k *Keeper) HandleOutgoingDenom(
 
 		// If the denom is found, we need to burn the corresponding bank denom.
 		if err = k.BurnCoinsFromAddress(ctx, sender, denom, amount); err != nil {
-			return false, err
+			return -1, false, err
 		}
 
 		// We return false to signify to the shim that we don't need to trigger the deployment.
-		return false, nil
+		return types.ShimHandlerType(denom), false, nil
 	}
 
 	// If the token was not found, it means the smart contract shim needs to follow up with a second call back into
 	// the keeper after deploying the contract in order to register it and burn the coins.
-	return true, nil
+	return types.ShimHandlerType(denom), true, nil
 }
 
 // HandleDeployed handles the deployment of the ERC20 contract. If HandleOutgoingDenom returns true,

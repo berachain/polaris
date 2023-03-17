@@ -41,16 +41,20 @@ contract PolarisERC20 is ERC20 {
     }
 
     /**
-     * @dev mint is used to mint tokens.
-     * @param to The address to mint tokens to.
+     * @dev Mint new tokens.
+     * @param amount The amount of tokens to mint.
      */
-    function mint(address to, uint256 amount) public {
+    function mint(uint256 amount) public {
         require(msg.sender == deployer, "only deployer can mint");
-        _mint(to, amount);
+        _mint(deployer, amount);
     }
 
-    function burn(address from, uint256 amount) public {
+    /**
+     * @dev Burn tokens.
+     * @param amount The amount of tokens to burn.
+     */
+    function burn(uint256 amount) public {
         require(msg.sender == deployer, "only deployer can burn");
-        _burn(from, amount);
+        _burn(deployer, amount);
     }
 }
