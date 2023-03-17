@@ -93,7 +93,6 @@ func NewStateProcessor(
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
 	} else {
-		// build and register the native precompile contracts
 		sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
 	}
 
