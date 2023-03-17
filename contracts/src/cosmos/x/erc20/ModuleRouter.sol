@@ -88,16 +88,15 @@ contract ERC20ModuleRouter {
         address token;
         // Call the ERC20Module to handle the outgoing transfer (burn bank module tokens from the user).
         // If the ERC20Module returns true, it means that it requires that the shim deploy a new ERC20 token
-        // to represent the bank module denom that we supplued.
+        // to represent the bank module denom that we supplied.
         (int8 handlerType, bool requiresDeploy) = erc20Module.handleOutgoing(msg.sender, recipient, denom, amount);
         if (requiresDeploy) {
-            // Deploy a new ERC20 token.
             token = address(new PolarisERC20(denom, denom));
             // If the ERC20Module fails to handle the post deploy request, revert.
             require(erc20Module.handleDeploy(address(token)), "handle deploy failed");
         }
         
-        // If handlerType is 0 (mint), mint the tokens to the recipient.
+        // If handlerType is 0 (MintBurn), mint the tokens to the recipient.
         if (handlerType == 0) {
             PolarisERC20(token).mint(amount);
         }
