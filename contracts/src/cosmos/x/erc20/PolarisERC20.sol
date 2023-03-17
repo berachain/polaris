@@ -25,11 +25,9 @@
 
 pragma solidity ^0.8.19;
 
-
 import {ERC20} from "../../../../lib/ERC20.sol";
 
 contract PolarisERC20 is ERC20 {
-
     // deployer represents the router.
     address immutable deployer;
 
@@ -45,7 +43,6 @@ contract PolarisERC20 is ERC20 {
     /**
      * @dev mint is used to mint tokens.
      * @param to The address to mint tokens to.
-     
      */
     function mint(address to, uint256 amount) public {
         require(msg.sender == deployer, "only deployer can mint");

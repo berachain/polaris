@@ -28,7 +28,6 @@ pragma solidity ^0.8.19;
 import {IERC20Module} from "../../precompile/erc20.sol";
 import {PolarisERC20} from "./PolarisERC20.sol";
 
-
 interface IERC20 {
     function transfer(address recipient, uint256 amount) external returns (bool);
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
@@ -38,10 +37,6 @@ interface IERC20 {
 // ERC20Module. It is responsible managing the state of the ERC20
 contract ERC20ModuleRouter {
     IERC20Module public erc20Module;
-
-
-    mapping(string => address) public denomToToken;
-    mapping(address => string) public tokenToDenom;
 
     /**
      * @dev Constructor function
@@ -57,54 +52,56 @@ contract ERC20ModuleRouter {
      * @param amount The amount of tokens to transfer
      * @param receiver The address of the receiver
      */
-    function transferToCosmos(IERC20 token, address receiver, uint256 amount) external {
-        // Transfer tokens to the ERC20Module.
-        token.transferFrom(msg.sender, address(this), amount);
-
-        // If the token is not registered, register it.
-        if (keccak256(abi.encodePacked(tokenToDenom[address(token)])) == keccak256(abi.encodePacked(""))) {
-            string memory denom = string(abi.encode("polaris/", address(token)));
-            tokenToDenom[address(token)] = denom;
-            denomToToken[denom] = address(token);
-        }
+    function transferToCosmos(IERC20 token, address receiver, uint256 amount) public {
+        // Transfer tokens to the Router.
+        require(token.transferFrom(msg.sender, address(this), amount), "transfer failed");
 
         // Call the ERC20Module to handle the incoming transfer (mint bank module tokens to the user).
-        erc20Module.handleIncoming(receiver, address(token), amount);
+        require(erc20Module.handleIncoming(receiver, address(token), amount), "handle incoming failed");
+    }
+
+    /**
+     * @dev Transfer tokens to Cosmos
+     * @param denom The denom to transfer.
+     * @param receiver The address of the receiver
+     * @param amount The amount of tokens to transfer
+     */
+    function transferToCosmos(string memory denom, address receiver, uint256 amount) public {
+        address token = erc20Module.addressForDenom(denom);
+        require(token != address(0), "unregistered denom");
+        transferToCosmos(IERC20(token), receiver, amount);
+    }
+
+    /**
+     * @dev Transfer tokens from Cosmos
+     * @param denom The denom to transfer.
+     * @param amount The amount of tokens to transfer
+     * @param receiver The address of the receiver
+     */
+    function transferFromCosmos(string memory denom, address receiver, uint256 amount) public {
+        IERC20 token;
+        // Call the ERC20Module to handle the outgoing transfer (burn bank module tokens from the user).
+        // If the ERC20Module returns true, it means that it requires that the shim deploy a new ERC20 token
+        // to represent the bank module denom that we supplued.
+        if (erc20Module.handleOutgoing(msg.sender, receiver, denom, amount)) {
+            // Deploy a new ERC20 token.
+            token = IERC20(address(new PolarisERC20(denom, denom)));
+            // If the ERC20Module fails to handle the post deploy request, revert.
+            require(erc20Module.handleDeploy(address(token)), "handle deploy failed");
+        }
+        // Transfer tokens to the receiver.
+        require(token.transfer(receiver, amount), "transfer failed");
     }
 
     /**
      * @dev Transfer tokens from Cosmos
      * @param token The address of the token to transfer
      * @param amount The amount of tokens to transfer
-     * @param receiver The address of the receiver    
+     * @param receiver The address of the receiver
      */
-    function transferFromCosmos(IERC20 token, uint256 amount, address receiver) external {
-        // Call the ERC20Module to handle the outgoing transfer (burn bank module tokens from the user).
-        erc20Module.handleOutgoing(msg.sender, receiver, address(token), amount);
-
-        // Transfer tokens to the receiver.
-        token.transfer(receiver, amount);
-    }
-
-    /**
-     * @dev Transfer tokens from Cosmos
-     * @param denom The denom of the token to transfer
-     * @param amount The amount of tokens to transfer
-     * @param receiver The address of the receiver    
-     */
-    function transferFromCosmos(string memory denom, uint256 amount, address receiver) external {
-        // Call the ERC20Module to handle the outgoing transfer.
-        (address te, bool needsDeploy) = erc20Module.handleOutgoingString(msg.sender, receiver, denom, amount);
-
-        // // Get or deploy the ERC20 contract.
-        address token = denomToToken[denom];
-        // if (token) {
-        //     token = address(new PolarisERC20(denom, denom, 18));
-        //     denomToToken[denom] = token;
-        //     tokenToDenom[token] = denom;
-        // }
-
-        // Transfer tokens to the receiver.
-        IERC20(token).transfer(receiver, amount);
+    function transferFromCosmos(IERC20 token, address receiver, uint256 amount) public {
+        string memory denom = erc20Module.denomForAddress(address(token));
+        require(bytes(denom).length > 0, "unregistered token");
+        transferFromCosmos(denom, receiver, amount);
     }
 }

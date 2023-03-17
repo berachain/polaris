@@ -53,12 +53,9 @@ contract LiquidStaking is ERC20 {
      * @param _stakingprecompile The address of the staking precompile contract.
      * @param _validatorAddress The address of the validator to delegate to.
      */
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        address _stakingprecompile,
-        address _validatorAddress
-    ) ERC20(_name, _symbol, 18) {
+    constructor(string memory _name, string memory _symbol, address _stakingprecompile, address _validatorAddress)
+        ERC20(_name, _symbol, 18)
+    {
         if (_stakingprecompile == address(0)) revert ZeroAddress();
         if (_validatorAddress == address(0)) revert ZeroAddress();
         staking = IStakingModule(_stakingprecompile);

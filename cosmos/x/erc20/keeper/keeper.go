@@ -22,13 +22,16 @@ package keeper
 
 import (
 	"fmt"
+	"sync"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/erc20/store"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
 // Keeper of this module maintains collections of erc20.
@@ -36,6 +39,8 @@ type Keeper struct {
 	storeKey   storetypes.StoreKey
 	bankKeeper BankKeeper
 	authority  sdk.AccAddress
+
+	deployLock sync.Mutex
 }
 
 // NewKeeper creates new instances of the erc20 Keeper.
@@ -51,7 +56,18 @@ func NewKeeper(
 	}
 }
 
+// DenomKVStore returns a KVStore for the given denom.
+func (k *Keeper) DenomKVStore(ctx sdk.Context) store.DenomKVStore {
+	return store.NewDenomKVStore(ctx.KVStore(k.storeKey))
+}
+
+// RegisterDenomTokenPair registers a new token pair.
+func (k *Keeper) RegisterDenomTokenPair(ctx sdk.Context, denom string, token common.Address) {
+	k.DenomKVStore(ctx).SetAddressForDenom(denom, token)
+	k.DenomKVStore(ctx).SetDenomForAddress(token, denom)
+}
+
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

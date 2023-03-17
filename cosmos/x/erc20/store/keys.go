@@ -18,16 +18,22 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package store
+
+import (
+	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+	"pkg.berachain.dev/polaris/eth/common"
+)
 
 const (
-	CodeKeyPrefix byte = iota
-	StorageKeyPrefix
-	CodeHashKeyPrefix
-	BlockHashKeyToNumPrefix
-	BlockHashKeyToReceiptsPrefix
-	TxHashKeyToTxPrefix
-	VersionKey
-	HeaderKey
-	ParamsKey
+	DenomToAddressKeyPrefix byte = iota
+	AddressToDenomKeyPrefix
 )
+
+func AddressForDenomKey(denom string) []byte {
+	return append([]byte(types.StoreKey), append([]byte{AddressToDenomKeyPrefix}, []byte(denom)...)...)
+}
+
+func DenomToAddressKey(address common.Address) []byte {
+	return append([]byte(types.StoreKey), append([]byte{DenomToAddressKeyPrefix}, address.Bytes()...)...)
+}

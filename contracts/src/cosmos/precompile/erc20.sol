@@ -30,6 +30,10 @@ pragma solidity ^0.8.4;
  */
 interface IERC20Module {
     function handleIncoming(address recipient, address token, uint256 amount) external returns (bool);
-    function handleOutgoing(address sender, address recipient, address token, uint256 amount) external returns (bool);
-    function handleOutgoingString(address sender, address recipient, string memory denom, uint256 amount) external returns (address, bool);
+    function handleOutgoing(address sender, address recipient, string memory denom, uint256 amount)
+        external
+        returns (bool);
+    function handleDeploy(address token) external returns (bool);
+    function denomForAddress(address token) external view returns (string memory);
+    function addressForDenom(string memory denom) external view returns (address);
 }
