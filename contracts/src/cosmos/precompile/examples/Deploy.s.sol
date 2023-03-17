@@ -35,6 +35,8 @@ contract Deploy is Script {
         address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
     IStakingModule staking = IStakingModule(precompile);
 
+    // TODO: script is broken because it runs its own evm. Fix Foundry.
+
     function run() public {
         vm.startBroadcast();
         
@@ -45,18 +47,18 @@ contract Deploy is Script {
             address(0xE77B9d929c8599b811265145e397AcA50591b246)
         );
 
-        address[] memory vals = staking.getActiveValidators();
+        // address[] memory vals = staking.getActiveValidators();
 
-        (bool success, bytes memory data) = address(ls).call(
+        (bool success, bytes memory data) = address(ls).staticcall(
             abi.encodeWithSignature("getActiveValidators()")
         );
         require(success, "Failed to get active validators from the call");
-        address[] memory vals2 = abi.decode(data, (address[]));
+        // address[] memory vals2 = abi.decode(data, (address[]));
 
-        require(vals.length == vals2.length, "Lengths are not equal");
-        for (uint256 i = 0; i < vals.length; i++) {
-            require(vals[i] == vals2[i], "Addresses are not equal");
-        }
+        // require(vals.length == vals2.length, "Lengths are not equal");
+        // for (uint256 i = 0; i < vals.length; i++) {
+        //     require(vals[i] == vals2[i], "Addresses are not equal");
+        // }
 
         vm.stopBroadcast();
     }

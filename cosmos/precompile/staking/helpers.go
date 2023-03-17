@@ -224,7 +224,6 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		if err != nil {
 			return nil, err
 		}
-		sdk.UnwrapSDKContext(ctx).Logger().Error("valAddr", "valAddr", common.BytesToAddress(valAddr.Bytes()).String())
 		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
 	return []any{addrs}, nil
