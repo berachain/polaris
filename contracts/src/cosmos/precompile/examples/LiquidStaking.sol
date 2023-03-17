@@ -74,44 +74,12 @@ contract LiquidStaking is ERC20 {
      * @dev Returns the total amount of assets delegated to the validator.
      * @return amount total amount of assets delegated to the validator.
      */
-    function totalDelegated() public returns (uint256 amount) {
+    function totalDelegated() public view returns (uint256 amount) {
         return staking.getDelegation(address(this), validatorAddress);
     }
 
     function getActiveValidators() public view returns (address[] memory) {
         return staking.getActiveValidators();
-        // // emit HELLO("HELLO0");
-        // (bool success1, bytes memory data1) = address(staking).staticcall(
-        //     abi.encodeWithSignature("getActiveValidators()")
-        // );
-        // // emit HELLO("HELLO1");
-        // require(success1, "Failed to get active validators 1");   
-        // // emit Success(success1);
-        // // emit Data(data1);
-        // console2.logString("pre decode");
-        // console2.logBytes(data1);
-        // // return 
-        // address[] memory x = new address[](1);
-        // x[0] = 0x4FC768b13a96E8EbFDECfB85D86D9dC498f5B062;
-        // // return x;
-        // return abi.decode(data1, (address[]));
-    }
-
-    function getActiveValidatorsMock() public view returns (address[] memory) {
-        address[] memory x = new address[](1);
-        x[0] = 0x4FC768b13a96E8EbFDECfB85D86D9dC498f5B062;
-        return x;
-    }
-
-    function compareMock() public view returns (bool) {
-        (bool success12, bytes memory data12) = address(this).staticcall(
-            abi.encodeWithSignature("getActiveValidatorsMock()")
-        );
-        address[] memory real =  getActiveValidators();
-        // console2.logAddress(real);
-        // address mock = getActiveValidatorsMock()[0];
-        // console2.logAddress(mock);
-        return true;
     }
 
     /**
@@ -119,7 +87,7 @@ contract LiquidStaking is ERC20 {
      * @param amount amount of Base Denom to delegate.
      */
     function delegate(uint256 amount) public payable {
-        // if (amount == 0) revert ZeroAmount();
+        if (amount == 0) revert ZeroAmount();
 
         // Delegate the amount to the validator.
         bool success = staking.delegate(validatorAddress, amount);

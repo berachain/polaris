@@ -45,42 +45,18 @@ contract Deploy is Script {
             address(0xE77B9d929c8599b811265145e397AcA50591b246)
         );
 
+        address[] memory vals = staking.getActiveValidators();
 
-        // require(x != bytes(""), "Failed to get active validators");
-        // // staking.getDelegation(0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4, 0x60445cEEc8f3239524c03ba79117c8c343e8D2E3);
-        // address[] memory vals = staking.getActiveValidators();
-        // (bool success1, bytes memory data1) = address(ls).call(
-        //     abi.encodeWithSignature("getActiveValidators()")
-        // );
-        // console.logString("IN DEPLOY");
-        // console.logBytes(data1);
-        // require(success1, "Failed to get active validators 2 ");   
-
-        (bool success12, bytes memory data12) = address(ls).call(
-            abi.encodeWithSignature("compareMock()")
-        );
-        console.logString("IN DEPLOY2");
-        console.logBytes(data12);
-
-
-        (bool success122, bytes memory data122) = address(ls).call(
+        (bool success, bytes memory data) = address(ls).call(
             abi.encodeWithSignature("getActiveValidators()")
         );
-        console.logString("IN DEPLOY3");
-        console.logBytes(data122);
-        // console.logBool(success12);
-        // require(success12, "Failed to get active validators 3");   
-        // require(success1, "Failed to get active validators");   
-        // console.logBytes(data1);
-        // address validator = abi.decodeWithSignature("getActiveValidators()", data1, (address[]))[0];
-        // console.logAddress(validator);
+        require(success, "Failed to get active validators from the call");
+        address[] memory vals2 = abi.decode(data, (address[]));
 
-        // (bool success2, bytes memory data2) = precompile.call(
-        //     abi.encodeWithSignature("delegate(address,uint256)", address(0x4ca86164278f898bA3C07a7179c07c7A4d2619D7), 889000000000000)
-        // );
-        // console.logBool(success2);
-        // console.logBytes(data2);
-        // staking.delegate(address(0x4ca86164278f898bA3C07a7179c07c7A4d2619D7), 889000000000000);
+        require(vals.length == vals2.length, "Lengths are not equal");
+        for (uint256 i = 0; i < vals.length; i++) {
+            require(vals[i] == vals2[i], "Addresses are not equal");
+        }
 
         vm.stopBroadcast();
     }

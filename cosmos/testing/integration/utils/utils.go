@@ -27,12 +27,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
+	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-
-	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	. "github.com/onsi/gomega" //nolint:stylecheck,revive // Gomega makes sense in tests.
 )

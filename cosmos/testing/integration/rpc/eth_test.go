@@ -29,11 +29,11 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 func TestRpc(t *testing.T) {
