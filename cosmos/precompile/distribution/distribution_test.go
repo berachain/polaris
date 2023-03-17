@@ -140,6 +140,12 @@ var _ = Describe("Distribution Precompile Test", func() {
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
+	When("PrecompileMethods", func() {
+		It("should return the correct methods", func() {
+			Expect(contract.PrecompileMethods()).To(HaveLen(4))
+		})
+	})
+
 	When("SetWithdrawAddress", func() {
 		It("should fail if not common address", func() {
 			res, err := contract.SetWithdrawAddress(
@@ -346,6 +352,19 @@ var _ = Describe("Distribution Precompile Test", func() {
 					false,
 					addr.String(),
 					"invalid",
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if delegator address not found", func() {
+				res, err := contract.WithdrawDelegatorRewardBech32(
+					ctx,
+					testutil.Alice,
+					big.NewInt(0),
+					false,
+					testutil.Bob.String(),
+					valAddr.String(),
 				)
 				Expect(err).To(HaveOccurred())
 				Expect(res).To(BeNil())
