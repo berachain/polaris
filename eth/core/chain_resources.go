@@ -42,7 +42,7 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return state.NewStateDB(sp), nil
+	return state.NewStateDB(sp, bc.pp), nil
 }
 
 // GetEVM returns an EVM ready to be used for executing transactions. It is used by both the StateProcessor

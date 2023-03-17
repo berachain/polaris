@@ -44,7 +44,7 @@ var _ = Describe("StateDB", func() {
 	var sdb vm.PolarisStateDB
 
 	BeforeEach(func() {
-		sdb = state.NewStateDB(mock.NewEmptyStatePlugin())
+		sdb = state.NewStateDB(mock.NewEmptyStatePlugin(), nil)
 	})
 
 	It("Should suicide correctly", func() {

@@ -51,6 +51,7 @@ type blockchain struct {
 	cp ConfigurationPlugin
 	hp HistoricalPlugin
 	gp GasPlugin
+	pp PrecompilePlugin
 	sp StatePlugin
 	tp TxPoolPlugin
 
@@ -107,6 +108,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),
 		gp:             host.GetGasPlugin(),
+		pp:             host.GetPrecompilePlugin(),
 		sp:             host.GetStatePlugin(),
 		tp:             host.GetTxPoolPlugin(),
 		vmConfig:       &vm.Config{},
@@ -119,9 +121,9 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		logger:         log.Root(),
 	}
 	bc.cc = &chainContext{bc}
-	bc.statedb = state.NewStateDB(bc.sp)
+	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = NewStateProcessor(
-		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,
+		bc.cp, bc.gp, bc.pp, bc.statedb, bc.vmConfig,
 	)
 	bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)

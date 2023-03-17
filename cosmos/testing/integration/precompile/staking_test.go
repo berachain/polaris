@@ -60,7 +60,7 @@ var _ = Describe("Staking", func() {
 		os.RemoveAll("data")
 	})
 
-	It("should call the precompile directly", func() {
+	It("should call view functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
@@ -69,8 +69,9 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		tx, err := stakingPrecompile.Delegate(BuildTransactor(client),
-			validator, big.NewInt(100000000000))
+		tx, err := stakingPrecompile.Delegate(
+			BuildTransactor(client), validator, big.NewInt(100000000000),
+		)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(client, tx)
 		ExpectSuccessReceipt(client, tx)
@@ -118,6 +119,6 @@ var _ = Describe("Staking", func() {
 
 		value, err = contract.TotalDelegated(nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(value.Cmp(big.NewInt(0))).To(Equal(0))
+		Expect(value.Cmp(big.NewInt(100000000000))).To(Equal(0))
 	})
 })

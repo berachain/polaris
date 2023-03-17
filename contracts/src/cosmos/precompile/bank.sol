@@ -63,4 +63,6 @@ interface IBankModule {
      * Note: `burner` is a module address
      */
     event Burn(address indexed burner, uint256 amount);   
+
+    
 }
