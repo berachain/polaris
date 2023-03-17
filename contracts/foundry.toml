@@ -2,7 +2,7 @@
 fuzz_runs = 1024
 ignored_error_codes = [1878, 5574]
 evm_version = 'london'
-solc_version = '0.8.17'
+solc_version = '0.8.19'
 cache = true
 force = false
 remappings = [
