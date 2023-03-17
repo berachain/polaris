@@ -27,11 +27,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -80,7 +82,24 @@ var _ = Describe("Network", func() {
 		Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
 	})
 
-	It("should deploy, mint tokens, and check balance", func() {
+	It("eth_estimateGas", func() {
+		// Estimate the gas required for a transaction
+		from := network.TestAddress
+		to := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
+		value := big.NewInt(1000000000000)
+
+		msg := ethereum.CallMsg{
+			From:  from,
+			To:    &to,
+			Value: value,
+		}
+
+		gas, err := client.EstimateGas(context.Background(), msg)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(gas).To(BeNumerically(">", 0))
+	})
+
+	It("should deploy, mint tokens, and check balance, eth_getTransactionByHash", func() {
 		// Deploy the contract
 		erc20Contract := DeployERC20(BuildTransactor(client), client)
 
@@ -88,8 +107,23 @@ var _ = Describe("Network", func() {
 		tx, err := erc20Contract.Mint(BuildTransactor(client),
 			network.TestAddress, big.NewInt(100000000))
 		Expect(err).ToNot(HaveOccurred())
+
+		// Get the transaction by its hash, it should be pending here.
+		txHash := tx.Hash() // TODO: UNCOMMENT
+		// fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
+		// Expect(err).ToNot(HaveOccurred())
+		// Expect(isPending).To(BeTrue())
+		// Expect(fetchedTx.Hash()).To(Equal(txHash))
+
+		// Wait for it to be mined.
 		ExpectMined(client, tx)
 		ExpectSuccessReceipt(client, tx)
+
+		// Get the transaction by its hash, it should be mined here.
+		fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(isPending).To(BeFalse())
+		Expect(fetchedTx.Hash()).To(Equal(txHash))
 
 		// Check the erc20 balance
 		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
