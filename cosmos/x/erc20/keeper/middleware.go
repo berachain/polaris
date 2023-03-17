@@ -67,12 +67,13 @@ func (k *Keeper) HandleOutgoingDenom(
 
 	// Get the ERC20 token corresponding to a given denom.
 	if _, err := k.DenomKVStore(ctx).GetAddressForDenom(denom); err != nil {
+		// If the token was found, that means we don't have to deploy it. So we need to unlock the lock.
+		defer k.deployLock.Unlock()
+
 		// If the denom is found, we need to burn the corresponding bank denom.
 		if err = k.BurnCoinsFromAddress(ctx, sender, denom, amount); err != nil {
 			return false, err
 		}
-		// If the token was found, that means we don't have to deploy it. So we need to unlock the lock.
-		k.deployLock.Unlock()
 
 		// We return false to signify to the shim that we don't need to trigger the deployment.
 		return false, nil
