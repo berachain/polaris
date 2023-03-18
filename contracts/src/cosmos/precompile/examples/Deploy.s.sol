@@ -31,15 +31,14 @@ import "../staking.sol";
 import "./LiquidStaking.sol";
 
 contract Deploy is Script {
-    address precompile =
-        address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
+    address precompile = address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
     IStakingModule staking = IStakingModule(precompile);
 
     // TODO: script is broken because it runs its own evm. Fix Foundry.
 
     function run() public {
         vm.startBroadcast();
-        
+
         LiquidStaking ls = new LiquidStaking(
             "hello",
             "sss",
@@ -49,9 +48,7 @@ contract Deploy is Script {
 
         // address[] memory vals = staking.getActiveValidators();
 
-        (bool success, bytes memory data) = address(ls).staticcall(
-            abi.encodeWithSignature("getActiveValidators()")
-        );
+        (bool success, bytes memory data) = address(ls).staticcall(abi.encodeWithSignature("getActiveValidators()"));
         require(success, "Failed to get active validators from the call");
         // address[] memory vals2 = abi.decode(data, (address[]));
 

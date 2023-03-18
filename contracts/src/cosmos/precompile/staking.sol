@@ -125,55 +125,41 @@ interface IStakingModule {
     /**
      * @dev msg.sender delegates the `amount` of tokens to `validatorAddress`
      */
-    function delegate(address validatorAddress, uint256 amount)
-        external
-        payable
-        returns (bool);
+    function delegate(address validatorAddress, uint256 amount) external payable returns (bool);
 
     /**
      * @dev msg.sender delegates the `amount` of tokens to `validatorAddress` (at hex bech32
      * address)
      */
-    function delegate(string calldata validatorAddress, uint256 amount)
-        external
-        payable
-        returns (bool);
+    function delegate(string calldata validatorAddress, uint256 amount) external payable returns (bool);
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress`
      */
-    function undelegate(address validatorAddress, uint256 amount)
-        external
-        payable
-        returns (bool);
+    function undelegate(address validatorAddress, uint256 amount) external payable returns (bool);
 
     /**
      * @dev msg.sender undelegates the `amount` of tokens from `validatorAddress` (at hex bech32
      * address)
      */
-    function undelegate(string calldata validatorAddress, uint256 amount)
+    function undelegate(string calldata validatorAddress, uint256 amount) external payable returns (bool);
+
+    /**
+     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
+     */
+    function beginRedelegate(address srcValidator, address dstValidator, uint256 amount)
         external
         payable
         returns (bool);
 
     /**
      * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
-     */
-    function beginRedelegate(
-        address srcValidator,
-        address dstValidator,
-        uint256 amount
-    ) external payable returns (bool);
-
-    /**
-     * @dev msg.sender redelegates the `amount` of tokens from `srcValidator` to `validtorDstAddr`
      * (at hex bech32 addresses)
      */
-    function beginRedelegate(
-        string calldata srcValidator,
-        string calldata dstValidator,
-        uint256 amount
-    ) external payable returns (bool);
+    function beginRedelegate(string calldata srcValidator, string calldata dstValidator, uint256 amount)
+        external
+        payable
+        returns (bool);
 
     /**
      * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
@@ -181,11 +167,10 @@ interface IStakingModule {
      *
      * Provide the `creationHeight` of the original unbonding delegation
      */
-    function cancelUnbondingDelegation(
-        address validatorAddress,
-        uint256 amount,
-        int64 creationHeight
-    ) external payable returns (bool);
+    function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight)
+        external
+        payable
+        returns (bool);
 
     /**
      * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
@@ -193,11 +178,10 @@ interface IStakingModule {
      *
      * Provide the `creationHeight` of the original unbonding delegation
      */
-    function cancelUnbondingDelegation(
-        string calldata validatorAddress,
-        uint256 amount,
-        int64 creationHeight
-    ) external payable returns (bool);
+    function cancelUnbondingDelegation(string calldata validatorAddress, uint256 amount, int64 creationHeight)
+        external
+        payable
+        returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
