@@ -77,9 +77,4 @@ func LogCyan(msg string, args ...interface{}) {
 // args: Key-value pairs to be printed
 func log(colorCode string, msg string, args ...interface{}) {
 	fmt.Printf("%s%s%s\n", colorCode, msg, resetColor)
-	for i := 0; i < len(args); i += 2 {
-		key := args[i]
-		value := args[i+1]
-		fmt.Printf("%s  %v: %v%s\n", colorCode, key, value, resetColor)
-	}
 }
