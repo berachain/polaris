@@ -32,16 +32,10 @@ interface IAuthModule {
     /**
      * @dev Returns the bech32 representation of the given address.
      */
-    function convertHexToBech32(address account)
-        external
-        view
-        returns (string memory);
+    function convertHexToBech32(address account) external view returns (string memory);
 
     /**
      * @dev Returns the hex representation of the given bech32 address.
      */
-    function convertBech32ToHexAddress(string calldata account)
-        external
-        view
-        returns (address);
+    function convertBech32ToHexAddress(string calldata account) external view returns (address);
 }
