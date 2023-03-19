@@ -1,3 +1,7 @@
+cosmossdk.io/log v0.0.0-20230305202224-89c956f8ed3a h1:RsQs9qgu7kOCZkrQmOMjV04VPmamSAaqOPgveNV0Pr4=
+cosmossdk.io/log v0.0.0-20230305202224-89c956f8ed3a/go.mod h1:ilL9YXutMQo36MS9CD1cFNUqqHadAtyf8+A2b2EqO5A=
+cosmossdk.io/math v1.0.0-beta.6.0.20230305125317-672b052f323b h1:1nPzZ+I1yZqIUJyRzBkn1V5DZ+iF+s3YlgM155IPPBk=
+cosmossdk.io/math v1.0.0-beta.6.0.20230305125317-672b052f323b/go.mod h1:Ygz4wBHrgc7g0N+8+MrnTfS9LLn9aaTGa9hKopuym5k=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
