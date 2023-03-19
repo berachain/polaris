@@ -105,18 +105,14 @@ var _ = Describe("Staking", func() {
 
 		// Send tokens to the contract
 		txr := BuildTransactor(client)
+		txr.GasLimit = 0
 		txr.Value = big.NewInt(100000000000)
-		tx, err = contract.Receive(txr)
-		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(client, tx)
-		ExpectSuccessReceipt(client, tx)
-
-		txr = BuildTransactor(client)
 		tx, err = contract.Delegate(txr, big.NewInt(100000000000))
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(client, tx)
 		ExpectSuccessReceipt(client, tx)
 
+		// Verify the delegation actually succeeded.
 		value, err = contract.TotalDelegated(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(value.Cmp(big.NewInt(100000000000))).To(Equal(0))
