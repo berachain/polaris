@@ -121,8 +121,8 @@ func DefaultConfig() network.Config {
 		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
-		BondDenom:       sdk.DefaultBondDenom,
-		MinGasPrices:    fmt.Sprintf("0.00006%s", sdk.DefaultBondDenom),
+		BondDenom:       "abera",
+		MinGasPrices:    fmt.Sprintf("0.00006%s", "abera"),
 		AccountTokens:   sdk.TokensFromConsensusPower(thousand, sdk.DefaultPowerReduction),
 		StakingTokens:   sdk.TokensFromConsensusPower(fivehundred, sdk.DefaultPowerReduction),
 		BondedTokens:    sdk.TokensFromConsensusPower(onehundred, sdk.DefaultPowerReduction),
@@ -162,6 +162,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 	// Staking module
 	var stakingState stakingtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[stakingtypes.ModuleName], &stakingState)
+	stakingState.Params.BondDenom = "abera"
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
 	return genState

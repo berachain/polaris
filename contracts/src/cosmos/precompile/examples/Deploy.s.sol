@@ -55,9 +55,8 @@ contract Deploy is Script {
         // require(success, "Failed to get active validators from the call");
         // address[] memory vals = abi.decode(data, (address[]));
 
-        // High-level call.       
+        // High-level call.
         // address[] memory vals = ls.getActiveValidators();
-
 
         // Calling the staking precompile contract directly.
         IStakingModule staking = IStakingModule(precompile);
