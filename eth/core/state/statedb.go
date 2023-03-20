@@ -44,13 +44,10 @@ type stateDB struct {
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
-
-	// pp allows the statedb to check if an address is a precompiled contract.
-	pp precompilePlugin
 }
 
 // NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
-func NewStateDB(sp Plugin, pp precompilePlugin) vm.PolarisStateDB {
+func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
 	rj := journal.NewRefund()
@@ -75,21 +72,7 @@ func NewStateDB(sp Plugin, pp precompilePlugin) vm.PolarisStateDB {
 		TransientStorageJournal: tj,
 		SuicidesJournal:         sj,
 		ctrl:                    ctrl,
-		pp:                      pp,
 	}
-}
-
-// =============================================================================
-// Precompile Override
-// =============================================================================
-
-// GetCode overrides the GetCode on the Plugin to return a non-empty byte slice for precompiles.
-// This essentially simulates the bytecode of a precompiled contract.
-func (sdb *stateDB) GetCode(addr common.Address) []byte {
-	if sdb.pp != nil && sdb.pp.Has(addr) {
-		return []byte{0x69}
-	}
-	return sdb.Plugin.GetCode(addr)
 }
 
 // =============================================================================
@@ -165,7 +148,7 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 // PreImage
 // =============================================================================
 
-// AddPreimage implements the the `StateDB“ interface, but currently
+// AddPreimage implements the the `StateDB`interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 
@@ -173,6 +156,16 @@ func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 	return nil
+}
+
+// =============================================================================
+// Code Size
+// =============================================================================
+
+// GetCodeSize implements the `StateDB` interface by returning the size of the
+// code associated with the given account.
+func (sdb *stateDB) GetCodeSize(addr common.Address) int {
+	return len(sdb.GetCode(addr))
 }
 
 // =============================================================================
@@ -189,7 +182,7 @@ func (sdb *stateDB) Commit(_ bool) (common.Hash, error) {
 }
 
 func (sdb *stateDB) Copy() StateDBI {
-	return NewStateDB(sdb.Plugin, sdb.pp)
+	return NewStateDB(sdb.Plugin)
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {

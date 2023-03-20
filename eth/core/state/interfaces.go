@@ -70,8 +70,6 @@ type Plugin interface {
 	GetCode(common.Address) []byte
 	// SetCode sets the code associated with a given account.
 	SetCode(common.Address, []byte)
-	// GetCodeSize returns the size of the code associated with a given account.
-	GetCodeSize(common.Address) int
 
 	// GetCommittedState returns the committed value from account storage.
 	GetCommittedState(common.Address, common.Hash) common.Hash

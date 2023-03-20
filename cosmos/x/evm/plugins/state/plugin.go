@@ -387,12 +387,6 @@ func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) 
 	}
 }
 
-// GetCodeSize implements the `StatePlugin` interface by returning the size of the
-// code associated with the given `StatePlugin`.
-func (p *plugin) GetCodeSize(addr common.Address) int {
-	return len(p.GetCode(addr))
-}
-
 // =============================================================================
 // Storage
 // =============================================================================
