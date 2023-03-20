@@ -159,6 +159,7 @@ var _ = Describe("Staking", func() {
 			It("should fail if input is not a common.Address", func() {
 				res, err := contract.DelegateAddrInput(
 					ctx,
+					nil,
 					caller,
 					big.NewInt(0),
 					true,
@@ -171,6 +172,7 @@ var _ = Describe("Staking", func() {
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.DelegateAddrInput(
 					ctx,
+					nil,
 					caller,
 					big.NewInt(0),
 					true,
@@ -198,8 +200,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				_, err = contract.DelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.ValAddressToEthAddress(val),
@@ -212,8 +213,7 @@ var _ = Describe("Staking", func() {
 		When("DelegateStringInput", func() {
 			It("should fail if input is not a string", func() {
 				res, err := contract.DelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					90909,
@@ -224,8 +224,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.DelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -237,8 +236,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the string is not a valid address", func() {
 				res, err := contract.DelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					"invalid",
@@ -266,6 +264,7 @@ var _ = Describe("Staking", func() {
 
 				_, err = contract.DelegateStringInput(
 					ctx,
+					nil,
 					caller,
 					big.NewInt(0),
 					false,
@@ -279,8 +278,7 @@ var _ = Describe("Staking", func() {
 		When("GetDelegationAddrInput", func() {
 			It("should return an error if the input del is not a common.Address", func() {
 				res, err := contract.GetDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					"0x", cosmlib.ValAddressToEthAddress(val),
@@ -291,8 +289,7 @@ var _ = Describe("Staking", func() {
 
 			It("should return an error if the val address is not common.address", func() {
 				res, err := contract.GetDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.AccAddressToEthAddress(del), "0x",
@@ -303,8 +300,7 @@ var _ = Describe("Staking", func() {
 
 			It("should return the correct delegation", func() {
 				res, err := contract.GetDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.AccAddressToEthAddress(del), cosmlib.ValAddressToEthAddress(val),
@@ -317,8 +313,7 @@ var _ = Describe("Staking", func() {
 		When("GetDelegationStringInput", func() {
 			It("should error if not string", func() {
 				res, err := contract.GetDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					0, val.String(),
@@ -329,8 +324,7 @@ var _ = Describe("Staking", func() {
 
 			It("should error if the val address is not a string", func() {
 				res, err := contract.GetDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					del.String(), 0,
@@ -341,8 +335,7 @@ var _ = Describe("Staking", func() {
 
 			It("should error if del not bech32", func() {
 				res, err := contract.GetDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					"0x", val.String(),
@@ -353,8 +346,7 @@ var _ = Describe("Staking", func() {
 
 			It("should return an error if the val is not bech32", func() {
 				res, err := contract.GetDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					del.String(), "0x",
@@ -365,8 +357,7 @@ var _ = Describe("Staking", func() {
 
 			It("should return the correct delegation", func() {
 				res, err := contract.GetDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					del.String(), val.String(),
@@ -379,8 +370,7 @@ var _ = Describe("Staking", func() {
 		When("UndelegateAddrInput", func() {
 			It("should fail if the input is not a common.Address", func() {
 				res, err := contract.UndelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					"0x",
@@ -392,8 +382,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.UndelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.ValAddressToEthAddress(val),
@@ -405,8 +394,7 @@ var _ = Describe("Staking", func() {
 
 			It("should succeed", func() {
 				_, err := contract.UndelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.ValAddressToEthAddress(val),
@@ -419,8 +407,7 @@ var _ = Describe("Staking", func() {
 		When("UndelegateStringInput", func() {
 			It("should fail if the input is not a string", func() {
 				res, err := contract.UndelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					90909,
@@ -432,8 +419,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.UndelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					val.String(),
@@ -445,8 +431,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the address is not of type bech32", func() {
 				res, err := contract.UndelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					"0x",
@@ -458,8 +443,7 @@ var _ = Describe("Staking", func() {
 
 			It("should succeed", func() {
 				_, err := contract.UndelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					val.String(),
@@ -472,8 +456,7 @@ var _ = Describe("Staking", func() {
 		When("BeginRedelegationsAddrInput", func() {
 			It("should fail if the srcValue is not a common.Address", func() {
 				res, err := contract.BeginRedelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					10,
@@ -486,8 +469,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the dstValue is not a common.Address", func() {
 				res, err := contract.BeginRedelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -500,8 +482,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.BeginRedelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -514,8 +495,7 @@ var _ = Describe("Staking", func() {
 
 			It("should succeed", func() {
 				_, err := contract.BeginRedelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -529,8 +509,7 @@ var _ = Describe("Staking", func() {
 		When("BeginRedelegationsStringInput", func() {
 			It("should fail if the srcValue is not a string", func() {
 				res, err := contract.BeginRedelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					10,
@@ -543,8 +522,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the dstValue is not a string", func() {
 				res, err := contract.BeginRedelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -557,8 +535,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.BeginRedelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -571,8 +548,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the srcValue is not of type bech32", func() {
 				res, err := contract.BeginRedelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					"0x",
@@ -585,8 +561,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the dstValue is not of type bech32", func() {
 				res, err := contract.BeginRedelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -599,8 +574,7 @@ var _ = Describe("Staking", func() {
 
 			It("should succeed", func() {
 				_, err := contract.BeginRedelegateStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -614,8 +588,7 @@ var _ = Describe("Staking", func() {
 		When("CancelUnbondingDelegationAddrInput", func() {
 			It("should fail if the address is not a common.Address", func() {
 				res, err := contract.CancelUnbondingDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					"cosmlib.ValAddressToEthAddress(val)",
@@ -628,8 +601,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.CancelUnbondingDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -642,8 +614,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if creation height is not an int64", func() {
 				res, err := contract.CancelUnbondingDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -661,8 +632,7 @@ var _ = Describe("Staking", func() {
 
 				// Undelegate.
 				_, err := contract.UndelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -671,8 +641,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				_, err = contract.CancelUnbondingDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -686,8 +655,7 @@ var _ = Describe("Staking", func() {
 		When("CancelUnbondingDelegationStringInput", func() {
 			It("should fail if the address is not a string", func() {
 				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					10,
@@ -700,8 +668,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the amount is not a *big.Int", func() {
 				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -714,8 +681,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if creation height is not an int64", func() {
 				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -728,8 +694,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if the address is not a bech32 address", func() {
 				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					"0x",
@@ -747,8 +712,7 @@ var _ = Describe("Staking", func() {
 
 				// Undelegate.
 				_, err := contract.UndelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -757,8 +721,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				_, err = contract.CancelUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					val.String(),
@@ -772,8 +735,7 @@ var _ = Describe("Staking", func() {
 		When("GetUnbondingDelegationAddrInput", func() {
 			It("should fail if address is not a common.Address", func() {
 				res, err := contract.GetUnbondingDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					caller,
@@ -788,8 +750,7 @@ var _ = Describe("Staking", func() {
 				amount, ok := new(big.Int).SetString("1", 10)
 				Expect(ok).To(BeTrue())
 				_, err := contract.UndelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -798,8 +759,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				res, err := contract.GetUnbondingDelegationAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					caller,
@@ -813,8 +773,7 @@ var _ = Describe("Staking", func() {
 		When("GetUnbondingDelegationStringInput", func() {
 			It("should fail if address is not a string", func() {
 				res, err := contract.GetUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					10,
@@ -825,8 +784,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if address is not a bech32 address", func() {
 				res, err := contract.GetUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					"0x",
@@ -840,8 +798,7 @@ var _ = Describe("Staking", func() {
 				amount, ok := new(big.Int).SetString("1", 10)
 				Expect(ok).To(BeTrue())
 				_, err := contract.UndelegateAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					false,
 					cosmlib.ValAddressToEthAddress(val),
@@ -850,8 +807,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				res, err := contract.GetUnbondingDelegationStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.AddressToAccAddress(caller).String(),
@@ -865,8 +821,7 @@ var _ = Describe("Staking", func() {
 		When("GetRedelegationsAddrInput", func() {
 			It("should fail if address is not a common.Address", func() {
 				res, err := contract.GetRedelegationsAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					caller,
@@ -879,8 +834,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if dst address is not a common.Address", func() {
 				res, err := contract.GetRedelegationsAddrInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.ValAddressToEthAddress(val),
@@ -894,8 +848,7 @@ var _ = Describe("Staking", func() {
 		When("GetRedelegationsStringInput", func() {
 			It("should fail if src address is not a string", func() {
 				res, err := contract.GetRedelegationsStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					10,
@@ -907,8 +860,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if dst address is not a string", func() {
 				res, err := contract.GetRedelegationsStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					val.String(),
@@ -920,8 +872,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if src address is not a bech32 address", func() {
 				res, err := contract.GetRedelegationsStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.AddressToAccAddress(caller).String(),
@@ -934,8 +885,7 @@ var _ = Describe("Staking", func() {
 
 			It("should fail if dst address is not a bech32 address", func() {
 				res, err := contract.GetRedelegationsStringInput(
-					ctx,
-					caller,
+					ctx, nil, caller,
 					big.NewInt(0),
 					true,
 					cosmlib.AddressToAccAddress(caller).String(),
@@ -1011,6 +961,7 @@ var _ = Describe("Staking", func() {
 						Expect(ok).To(BeTrue())
 						_, err := contract.UndelegateAddrInput(
 							ctx,
+							nil,
 							caller,
 							big.NewInt(0),
 							false,
@@ -1056,6 +1007,7 @@ var _ = Describe("Staking", func() {
 
 						_, err := contract.BeginRedelegateAddrInput(
 							ctx,
+							nil,
 							caller,
 							big.NewInt(0),
 							false,
@@ -1076,7 +1028,7 @@ var _ = Describe("Staking", func() {
 				sk.SetValidator(ctx, validator)
 
 				// Get the active validators.
-				res, err := contract.GetActiveValidators(ctx, caller, big.NewInt(0), true)
+				res, err := contract.GetActiveValidators(ctx, nil, caller, big.NewInt(0), true)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				addrs := utils.MustGetAs[[]common.Address](res[0])

@@ -5,7 +5,6 @@ package mock
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"math/big"
@@ -36,7 +35,7 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //			RegisterFunc: func(precompiledContract vm.PrecompiledContract) error {
 //				panic("mock out the Register method")
 //			},
-//			RunFunc: func(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
+//			RunFunc: func(evm vm.PrecompileEVM, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
 //				panic("mock out the Run method")
 //			},
 //		}
@@ -59,7 +58,7 @@ type PrecompilePluginMock struct {
 	RegisterFunc func(precompiledContract vm.PrecompiledContract) error
 
 	// RunFunc mocks the Run method.
-	RunFunc func(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error)
+	RunFunc func(evm vm.PrecompileEVM, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -85,8 +84,8 @@ type PrecompilePluginMock struct {
 		}
 		// Run holds details about calls to the Run method.
 		Run []struct {
-			// Sdb is the sdb argument value.
-			Sdb state.StateDBI
+			// Evm is the evm argument value.
+			Evm vm.PrecompileEVM
 			// P is the p argument value.
 			P vm.PrecompiledContract
 			// Input is the input argument value.
@@ -237,12 +236,12 @@ func (mock *PrecompilePluginMock) RegisterCalls() []struct {
 }
 
 // Run calls RunFunc.
-func (mock *PrecompilePluginMock) Run(sdb state.StateDBI, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
+func (mock *PrecompilePluginMock) Run(evm vm.PrecompileEVM, p vm.PrecompiledContract, input []byte, caller common.Address, value *big.Int, suppliedGas uint64, readonly bool) ([]byte, uint64, error) {
 	if mock.RunFunc == nil {
 		panic("PrecompilePluginMock.RunFunc: method is nil but PrecompilePlugin.Run was just called")
 	}
 	callInfo := struct {
-		Sdb         state.StateDBI
+		Evm         vm.PrecompileEVM
 		P           vm.PrecompiledContract
 		Input       []byte
 		Caller      common.Address
@@ -250,7 +249,7 @@ func (mock *PrecompilePluginMock) Run(sdb state.StateDBI, p vm.PrecompiledContra
 		SuppliedGas uint64
 		Readonly    bool
 	}{
-		Sdb:         sdb,
+		Evm:         evm,
 		P:           p,
 		Input:       input,
 		Caller:      caller,
@@ -261,7 +260,7 @@ func (mock *PrecompilePluginMock) Run(sdb state.StateDBI, p vm.PrecompiledContra
 	mock.lockRun.Lock()
 	mock.calls.Run = append(mock.calls.Run, callInfo)
 	mock.lockRun.Unlock()
-	return mock.RunFunc(sdb, p, input, caller, value, suppliedGas, readonly)
+	return mock.RunFunc(evm, p, input, caller, value, suppliedGas, readonly)
 }
 
 // RunCalls gets all the calls that were made to Run.
@@ -269,7 +268,7 @@ func (mock *PrecompilePluginMock) Run(sdb state.StateDBI, p vm.PrecompiledContra
 //
 //	len(mockedPrecompilePlugin.RunCalls())
 func (mock *PrecompilePluginMock) RunCalls() []struct {
-	Sdb         state.StateDBI
+	Evm         vm.PrecompileEVM
 	P           vm.PrecompiledContract
 	Input       []byte
 	Caller      common.Address
@@ -278,7 +277,7 @@ func (mock *PrecompilePluginMock) RunCalls() []struct {
 	Readonly    bool
 } {
 	var calls []struct {
-		Sdb         state.StateDBI
+		Evm         vm.PrecompileEVM
 		P           vm.PrecompiledContract
 		Input       []byte
 		Caller      common.Address

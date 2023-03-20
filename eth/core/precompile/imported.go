@@ -18,33 +18,12 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank
+package precompile
 
 import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
-// Contract is the precompile contract for the bank module.
-type Contract struct {
-	precompile.BaseContract
-}
-
-// NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract() ethprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.BankModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
-	return &Contract{
-		BaseContract: precompile.NewBaseContract(
-			contractAbi, cosmlib.AccAddressToEthAddress(
-				authtypes.NewModuleAddress(banktypes.ModuleName))),
-	}
-}
+type (
+	EVM = vm.PrecompileEVM
+)

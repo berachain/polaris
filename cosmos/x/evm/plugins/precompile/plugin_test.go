@@ -30,6 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -41,7 +42,7 @@ var ctx sdk.Context
 
 var _ = Describe("plugin", func() {
 	var p *plugin
-	var sdb *mockSDB
+	var e precompile.EVM
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext()
@@ -49,17 +50,17 @@ var _ = Describe("plugin", func() {
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
 		p = utils.MustGetAs[*plugin](NewPlugin(nil))
-		sdb = &mockSDB{}
+		e = &mockEVM{}
 	})
 
 	It("should use correctly consume gas", func() {
-		_, remainingGas, err := p.Run(sdb, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
+		_, remainingGas, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 30, false)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 
 	It("should error on insufficient gas", func() {
-		_, _, err := p.Run(sdb, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
+		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
@@ -76,6 +77,14 @@ var _ = Describe("plugin", func() {
 })
 
 // MOCKS BELOW.
+
+type mockEVM struct {
+	precompile.EVM
+}
+
+func (me *mockEVM) GetStateDB() vm.GethStateDB {
+	return &mockSDB{}
+}
 
 type mockSDB struct {
 	vm.PolarisStateDB
@@ -94,7 +103,7 @@ func (ms *mockStateless) RegistryKey() common.Address {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, input []byte,
+	ctx context.Context, evm precompile.EVM, input []byte,
 	caller common.Address, value *big.Int, readonly bool,
 ) ([]byte, error) {
 	sdk.UnwrapSDKContext(ctx).GasMeter().ConsumeGas(10, "")
