@@ -146,9 +146,3 @@ type (
 		SetTransientState(addr common.Address, key, value common.Hash)
 	}
 )
-
-type (
-	precompilePlugin interface {
-		Has(common.Address) bool
-	}
-)
