@@ -36,9 +36,7 @@ import (
 	. "github.com/onsi/gomega" //nolint:stylecheck,revive // Gomega makes sense in tests.
 )
 
-const (
-	DefaultTimeout = 100 * time.Second
-)
+const DefaultTimeout = 10 * time.Second
 
 // StartPolarisNetwork starts a new in-memory Polaris chain.
 func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Client) {

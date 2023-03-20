@@ -44,11 +44,9 @@ func TestRpc(t *testing.T) {
 }
 
 var _ = Describe("Network", func() {
-	var net *network.Network
 	var client *ethclient.Client
 	BeforeEach(func() {
-		net, client = StartPolarisNetwork(GinkgoT())
-		_ = net
+		_, client = StartPolarisNetwork(GinkgoT())
 	})
 
 	AfterEach(func() {

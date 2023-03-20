@@ -32,30 +32,46 @@ import "./LiquidStaking.sol";
 
 contract Deploy is Script {
     address precompile = address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
-    IStakingModule staking = IStakingModule(precompile);
 
-    // TODO: script is broken because it runs its own evm. Fix Foundry.
+    // TODO: script is broken because it runs its own evm; need Foundry fix.
 
     function run() public {
         vm.startBroadcast();
 
+        // Calling the Liquid Staking Contract, which calls the staking precompile.
         LiquidStaking ls = new LiquidStaking(
             "hello",
             "sss",
             precompile,
-            address(0xE77B9d929c8599b811265145e397AcA50591b246)
+            address(0x7F04B06a9C507B366567B09E82C4bC037e87d0e6)
         );
 
+        // Low-level call.
+        // (bool success, bytes memory data) = address(ls).staticcall(
+        //     abi.encodeWithSignature("getActiveValidators()")
+        // );
+        // console2.logBool(success);
+        // console2.logBytes(data);
+        // require(success, "Failed to get active validators from the call");
+        // address[] memory vals = abi.decode(data, (address[]));
+
+        // High-level call.       
+        // address[] memory vals = ls.getActiveValidators();
+
+
+        // Calling the staking precompile contract directly.
+        IStakingModule staking = IStakingModule(precompile);
+
+        // Low-level call.
+        // (bool success, bytes memory data) = address(staking).staticcall(
+        //     abi.encodeWithSignature("getActiveValidators()")
+        // );
+        // require(success, "Failed to get active validators from the call");
+        // console2.logBytes(data);
+        // address[] memory vals = abi.decode(data, (address[]));
+
+        // High-level call.
         // address[] memory vals = staking.getActiveValidators();
-
-        (bool success, bytes memory data) = address(ls).staticcall(abi.encodeWithSignature("getActiveValidators()"));
-        require(success, "Failed to get active validators from the call");
-        // address[] memory vals2 = abi.decode(data, (address[]));
-
-        // require(vals.length == vals2.length, "Lengths are not equal");
-        // for (uint256 i = 0; i < vals.length; i++) {
-        //     require(vals[i] == vals2[i], "Addresses are not equal");
-        // }
 
         vm.stopBroadcast();
     }

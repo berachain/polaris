@@ -41,7 +41,6 @@ contract LiquidStaking is ERC20 {
     IStakingModule public staking;
     address public validatorAddress;
 
-    event HELLO(string message);
     event Success(bool indexed success);
     event Data(bytes data);
 
