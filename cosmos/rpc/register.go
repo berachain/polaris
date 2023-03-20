@@ -30,7 +30,7 @@ import (
 // with routes on the native Cosmos API Server.
 func RegisterJSONRPCServer(ctx client.Context, rtr *mux.Router, provider Provider) {
 	cfg := provider.GetConfig()
+	rtr.PathPrefix(cfg.BaseRoute + "/ws").Handler(provider.GetWS().WebsocketHandler(cfg.Allowlist))
 	rtr.PathPrefix(cfg.BaseRoute).Handler(provider.GetHTTP())
-	rtr.PathPrefix(cfg.BaseRoute + "/ws").Handler(provider.GetWSHandler())
 	provider.SetClientContext(ctx)
 }
