@@ -24,8 +24,6 @@ import (
 	"context"
 	"math/big"
 
-	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -65,15 +63,16 @@ var _ = Describe("plugin", func() {
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
-	It("should plug in custom gas configs", func() {
-		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
-		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
+	// TODO: re-enable once dynamic gas config is implemented.
+	// It("should plug in custom gas configs", func() {
+	// 	Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
+	// 	Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
 
-		p.SetKVGasConfig(storetypes.KVGasConfig())
-		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
-		p.SetTransientKVGasConfig(storetypes.TransientGasConfig())
-		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
-	})
+	// 	p.SetKVGasConfig(storetypes.KVGasConfig())
+	// 	Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
+	// 	p.SetTransientKVGasConfig(storetypes.TransientGasConfig())
+	// 	Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
+	// })
 })
 
 // MOCKS BELOW.

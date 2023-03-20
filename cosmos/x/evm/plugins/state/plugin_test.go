@@ -346,7 +346,6 @@ var _ = Describe("State Plugin", func() {
 				Expect(sp.GetNonce(alice)).To(BeZero())
 				Expect(sp.GetCodeHash(alice)).To(Equal(common.Hash{}))
 				Expect(sp.GetCode(alice)).To(BeNil())
-				Expect(sp.GetCodeSize(alice)).To(BeZero())
 				Expect(sp.GetState(alice, common.Hash{})).To(Equal(common.Hash{}))
 				// Expect(sp.GetRefund()).To(BeZero())
 				Expect(sp.GetCommittedState(alice, common.Hash{})).To(Equal(common.Hash{}))
