@@ -18,17 +18,19 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package address_test
+package auth_test
 
 import (
 	"context"
 	"math/big"
 	"testing"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/cosmos/precompile/address"
+	"pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -39,23 +41,25 @@ import (
 
 func TestAddressPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/precompile/address")
+	RunSpecs(t, "cosmos/precompile/auth")
 }
 
 var _ = Describe("Address Precompile", func() {
-	var contract *address.Contract
+	var contract *auth.Contract
 
 	BeforeEach(func() {
-		contract = utils.MustGetAs[*address.Contract](address.NewPrecompileContract())
+		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract())
 	})
 
 	It("should have static registry key", func() {
-		Expect(contract.RegistryKey()).To(Equal(common.BytesToAddress([]byte{19})))
+		Expect(contract.RegistryKey()).To(Equal(
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(authtypes.ModuleName))),
+		)
 	})
 
 	It("should have correct ABI methods", func() {
 		var cAbi abi.ABI
-		err := cAbi.UnmarshalJSON([]byte(generated.AddressMetaData.ABI))
+		err := cAbi.UnmarshalJSON([]byte(generated.AuthModuleMetaData.ABI))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(contract.ABIMethods()).To(Equal(cAbi.Methods))
 	})
@@ -81,7 +85,7 @@ var _ = Describe("Address Precompile", func() {
 			Expect(res).To(BeNil())
 		})
 
-		It("should convert from hex to bech32", func() {
+		It("should not convert from invalid hex to bech32", func() {
 			res, err := contract.ConvertHexToBech32(
 				context.Background(),
 				common.Address{},
@@ -89,8 +93,8 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				common.BytesToAddress([]byte("test")),
 			)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(res[0]).To(Equal(cosmlib.AddressToAccAddress(common.BytesToAddress([]byte("test")))))
+			Expect(err).To(HaveOccurred())
+			Expect(res).To(BeNil())
 		})
 	})
 	When("Calling ConvertBech32ToHexAddress", func() {

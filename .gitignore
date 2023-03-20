@@ -191,6 +191,7 @@ pkg/**/.*.yaml
 /tmp
 
 # forge
+eth/testutil/contracts
 */**/solidity-files-cache.json
 contracts/out/**/*.bin
 contracts/out/**/*.json

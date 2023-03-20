@@ -41,45 +41,32 @@ interface IGovernanceModule {
 
     /**
      * @dev Cancel a proposal. Returns the cancled time and height.
-      burned.
+     *   burned.
      */
-    function cancelProposal(
-        uint64 proposalId
-    ) external returns (uint64, uint64);
+    function cancelProposal(uint64 proposalId) external returns (uint64, uint64);
 
     /**
-     *@dev Vote on a proposal.
+     * @dev Vote on a proposal.
      */
-    function vote(
-        uint64 proposalId,
-        int32 option,
-        string memory metadata
-    ) external;
+    function vote(uint64 proposalId, int32 option, string memory metadata) external;
 
     /**
      * @dev Vote on a proposal with weights.
      */
-    function voteWeighted(
-        uint64 proposalId,
-        WeightedVoteOption[] calldata options,
-        string calldata metadata
-    ) external;
+    function voteWeighted(uint64 proposalId, WeightedVoteOption[] calldata options, string calldata metadata)
+        external;
 
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
 
     /**
      * @dev Get the proposal with the given id.
      */
-    function getProposal(
-        uint64 proposalId
-    ) external view returns (Proposal memory);
+    function getProposal(uint64 proposalId) external view returns (Proposal memory);
 
     /**
-     *@dev Get proposals with a given status.
+     * @dev Get proposals with a given status.
      */
-    function getProposals(
-        int32 proposalStatus
-    ) external view returns (Proposal[] memory);
+    function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
 
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
 
