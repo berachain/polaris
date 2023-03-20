@@ -92,9 +92,6 @@ func NewEmptyStatePlugin() *PluginMock {
 			}
 			return Accounts[address].CodeHash
 		},
-		GetCodeSizeFunc: func(address common.Address) int {
-			panic("mock out the GetCodeSize method")
-		},
 		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			panic("mock out the GetCommittedState method")
 		},
