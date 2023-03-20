@@ -28,7 +28,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 // Contract is the precompile contract for the distribution module.
@@ -37,7 +37,7 @@ type Contract struct {
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract() coreprecompile.StatefulImpl {
+func NewPrecompileContract() ethprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(bindings.DistributionModuleMetaData.ABI)); err != nil {
 		panic(err)

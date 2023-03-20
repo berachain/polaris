@@ -32,7 +32,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -43,7 +43,7 @@ type Contract struct {
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract() coreprecompile.StatefulImpl {
+func NewPrecompileContract() ethprecompile.StatefulImpl {
 	var contractAbi abi.ABI
 	if err := contractAbi.UnmarshalJSON([]byte(generated.AuthModuleMetaData.ABI)); err != nil {
 		panic(err)
@@ -58,8 +58,8 @@ func NewPrecompileContract() coreprecompile.StatefulImpl {
 }
 
 // PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() coreprecompile.Methods {
-	return coreprecompile.Methods{
+func (c *Contract) PrecompileMethods() ethprecompile.Methods {
+	return ethprecompile.Methods{
 		{
 			AbiSig:      "convertHexToBech32(address)",
 			Execute:     c.ConvertHexToBech32,
@@ -76,7 +76,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 // ConvertHexToBech32 converts a common.Address to a bech32 string.
 func (c *Contract) ConvertHexToBech32(
 	ctx context.Context,
-	_ coreprecompile.EVM,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -105,7 +105,7 @@ func (c *Contract) ConvertHexToBech32(
 // ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
 func (c *Contract) ConvertBech32ToHexAddress(
 	ctx context.Context,
-	_ coreprecompile.EVM,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
