@@ -51,9 +51,6 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetCodeHashFunc: func(address common.Address) common.Hash {
 //				panic("mock out the GetCodeHash method")
 //			},
-//			GetCodeSizeFunc: func(address common.Address) int {
-//				panic("mock out the GetCodeSize method")
-//			},
 //			GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetCommittedState method")
 //			},
@@ -135,9 +132,6 @@ type StatePluginMock struct {
 
 	// GetCodeHashFunc mocks the GetCodeHash method.
 	GetCodeHashFunc func(address common.Address) common.Hash
-
-	// GetCodeSizeFunc mocks the GetCodeSize method.
-	GetCodeSizeFunc func(address common.Address) int
 
 	// GetCommittedStateFunc mocks the GetCommittedState method.
 	GetCommittedStateFunc func(address common.Address, hash common.Hash) common.Hash
@@ -235,11 +229,6 @@ type StatePluginMock struct {
 		}
 		// GetCodeHash holds details about calls to the GetCodeHash method.
 		GetCodeHash []struct {
-			// Address is the address argument value.
-			Address common.Address
-		}
-		// GetCodeSize holds details about calls to the GetCodeSize method.
-		GetCodeSize []struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
@@ -341,7 +330,6 @@ type StatePluginMock struct {
 	lockGetBalance        sync.RWMutex
 	lockGetCode           sync.RWMutex
 	lockGetCodeHash       sync.RWMutex
-	lockGetCodeSize       sync.RWMutex
 	lockGetCommittedState sync.RWMutex
 	lockGetContext        sync.RWMutex
 	lockGetNonce          sync.RWMutex
@@ -679,38 +667,6 @@ func (mock *StatePluginMock) GetCodeHashCalls() []struct {
 	mock.lockGetCodeHash.RLock()
 	calls = mock.calls.GetCodeHash
 	mock.lockGetCodeHash.RUnlock()
-	return calls
-}
-
-// GetCodeSize calls GetCodeSizeFunc.
-func (mock *StatePluginMock) GetCodeSize(address common.Address) int {
-	if mock.GetCodeSizeFunc == nil {
-		panic("StatePluginMock.GetCodeSizeFunc: method is nil but StatePlugin.GetCodeSize was just called")
-	}
-	callInfo := struct {
-		Address common.Address
-	}{
-		Address: address,
-	}
-	mock.lockGetCodeSize.Lock()
-	mock.calls.GetCodeSize = append(mock.calls.GetCodeSize, callInfo)
-	mock.lockGetCodeSize.Unlock()
-	return mock.GetCodeSizeFunc(address)
-}
-
-// GetCodeSizeCalls gets all the calls that were made to GetCodeSize.
-// Check the length with:
-//
-//	len(mockedStatePlugin.GetCodeSizeCalls())
-func (mock *StatePluginMock) GetCodeSizeCalls() []struct {
-	Address common.Address
-} {
-	var calls []struct {
-		Address common.Address
-	}
-	mock.lockGetCodeSize.RLock()
-	calls = mock.calls.GetCodeSize
-	mock.lockGetCodeSize.RUnlock()
 	return calls
 }
 

@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package jsonrpc
+package utils
 
 import (
 	"context"
@@ -27,6 +27,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
+	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
@@ -35,9 +36,25 @@ import (
 	. "github.com/onsi/gomega" //nolint:stylecheck,revive // Gomega makes sense in tests.
 )
 
-const (
-	defaultTimeout = 10 * time.Second
-)
+const DefaultTimeout = 10 * time.Second
+
+// StartPolarisNetwork starts a new in-memory Polaris chain.
+func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Client) {
+	var err error
+	var rpcClient *gethrpc.Client
+	var client *ethclient.Client
+	net := network.New(t, network.DefaultConfig())
+	time.Sleep(1 * time.Second)
+	_, err = net.WaitForHeightWithTimeout(1, DefaultTimeout)
+	Expect(err).ToNot(HaveOccurred())
+
+	// Dial an Ethereum RPC Endpoint
+	rpcClient, err = gethrpc.DialContext(context.Background(), net.Validators[0].APIAddress+"/eth/rpc")
+	Expect(err).ToNot(HaveOccurred())
+	client = ethclient.NewClient(rpcClient)
+	Expect(err).ToNot(HaveOccurred())
+	return net, client
+}
 
 // BuildTransactor builds a transaction opts object.
 func BuildTransactor(
@@ -67,7 +84,7 @@ func BuildTransactor(
 // ExpectedMined waits for a transaction to be mined.
 func ExpectMined(client *ethclient.Client, tx *coretypes.Transaction) {
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
 	_, err := bind.WaitMined(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())
@@ -80,7 +97,7 @@ func ExpectSuccessReceipt(
 	tx *coretypes.Transaction,
 ) *coretypes.Receipt {
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
 	_, err := bind.WaitMined(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())
@@ -103,7 +120,7 @@ func DeployERC20(
 	Expect(err).ToNot(HaveOccurred())
 
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
 	_, err = bind.WaitDeployed(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())

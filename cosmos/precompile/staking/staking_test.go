@@ -964,13 +964,15 @@ var _ = Describe("Staking", func() {
 						)
 						Expect(err).To(HaveOccurred())
 					})
-					It("should fail if there is no delegation", func() {
-						_, err := contract.getDelegationHelper(
+					It("should not error if there is no delegation", func() {
+						vals, err := contract.getDelegationHelper(
 							ctx,
 							del,
 							otherVal,
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(err).ToNot(HaveOccurred())
+						del := utils.MustGetAs[*big.Int](vals[0])
+						Expect(del.Cmp(big.NewInt(0))).To(Equal(0))
 					})
 					It("should succeed", func() {
 						_, err := contract.getDelegationHelper(
@@ -993,12 +995,14 @@ var _ = Describe("Staking", func() {
 					})
 
 					It("should fail if there is no unbonding delegation", func() {
-						_, err := contract.getUnbondingDelegationHelper(
+						vals, err := contract.getUnbondingDelegationHelper(
 							ctx,
 							cosmlib.AddressToAccAddress(caller),
 							otherVal,
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(err).ToNot(HaveOccurred())
+						_, ok := utils.GetAs[[]stakingtypes.UnbondingDelegationEntry](vals[0])
+						Expect(ok).To(BeTrue())
 					})
 
 					It("should succeed", func() {

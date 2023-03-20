@@ -181,7 +181,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 		return nil, err
 	}
 
-	// // Cache the found block for next time and return
+	// Cache the found block for next time and return
 	bc.blockNumCache.Add(number, block)
 	bc.blockHashCache.Add(block.Hash(), block)
 	return nil, ErrBlockNotFound
