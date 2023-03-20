@@ -76,6 +76,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 // ConvertHexToBech32 converts a common.Address to a bech32 string.
 func (c *Contract) ConvertHexToBech32(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -104,6 +105,7 @@ func (c *Contract) ConvertHexToBech32(
 // ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
 func (c *Contract) ConvertBech32ToHexAddress(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

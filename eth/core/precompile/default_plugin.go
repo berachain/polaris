@@ -54,7 +54,7 @@ func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []vm.RegistrablePre
 //
 // Run implements `core.PrecompilePlugin`.
 func (dp *defaultPlugin) Run(
-	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
+	evm EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	gasCost := pc.RequiredGas(input)
@@ -63,7 +63,7 @@ func (dp *defaultPlugin) Run(
 	}
 
 	suppliedGas -= gasCost
-	output, err := pc.Run(context.Background(), input, caller, value, readonly)
+	output, err := pc.Run(context.Background(), evm, input, caller, value, readonly)
 
 	return output, suppliedGas, err
 }

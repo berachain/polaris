@@ -96,6 +96,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -135,6 +136,7 @@ func (c *Contract) SubmitProposal(
 // CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
 func (c *Contract) CancelProposal(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -152,6 +154,7 @@ func (c *Contract) CancelProposal(
 // Vote is the method for the `vote` method of the governance precompile contract.
 func (c *Contract) Vote(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -177,6 +180,7 @@ func (c *Contract) Vote(
 // VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
 func (c *Contract) VoteWeighted(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -201,6 +205,7 @@ func (c *Contract) VoteWeighted(
 // GetProposal is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposal(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -217,6 +222,7 @@ func (c *Contract) GetProposal(
 // GetProposals is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposals(
 	ctx context.Context,
+	_ coreprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

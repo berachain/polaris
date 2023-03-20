@@ -33,6 +33,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/registry"
@@ -109,7 +110,7 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 //
 // Run implements `core.PrecompilePlugin`.
 func (p *plugin) Run(
-	sdb vm.GethStateDB, pc vm.PrecompileContainer, input []byte,
+	evm precompile.EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
@@ -118,6 +119,7 @@ func (p *plugin) Run(
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// get native Cosmos SDK context from the Polaris StateDB
+	sdb := evm.GetStateDB()
 	ctx := sdk.UnwrapSDKContext(utils.MustGetAs[vm.PolarisStateDB](sdb).GetContext())
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
@@ -129,6 +131,7 @@ func (p *plugin) Run(
 		ctx.WithGasMeter(gm).
 			WithKVGasConfig(p.kvGasConfig).
 			WithTransientKVGasConfig(p.transientKVGasConfig),
+		evm,
 		input,
 		caller,
 		value,
