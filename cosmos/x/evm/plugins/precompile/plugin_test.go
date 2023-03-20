@@ -63,6 +63,7 @@ var _ = Describe("plugin", func() {
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
+	// TODO: re-enable once dynamic gas config is implemented.
 	// It("should plug in custom gas configs", func() {
 	// 	Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
 	// 	Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
