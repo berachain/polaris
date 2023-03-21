@@ -50,16 +50,13 @@ type Contract struct {
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
 func NewPrecompileContract(gk **govkeeper.Keeper) ethprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.GovernanceModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
-
-	rk := cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName))
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(contractAbi, rk),
-		msgServer:    govkeeper.NewMsgServerImpl(*gk),
-		querier:      *gk,
+		BaseContract: precompile.NewBaseContract(
+			abi.MustUnmarshalJSON(generated.GovernanceModuleMetaData.ABI),
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+		),
+		msgServer: govkeeper.NewMsgServerImpl(*gk),
+		querier:   *gk,
 	}
 }
 

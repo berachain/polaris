@@ -44,13 +44,9 @@ type Contract struct {
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
 func NewPrecompileContract() ethprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.AuthModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			contractAbi, cosmlib.AccAddressToEthAddress(
+			abi.MustUnmarshalJSON(generated.AuthModuleMetaData.ABI), cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(authtypes.ModuleName),
 			),
 		),

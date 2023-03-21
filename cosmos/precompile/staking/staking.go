@@ -48,13 +48,9 @@ type Contract struct {
 
 // NewContract is the constructor of the staking contract.
 func NewPrecompileContract(sk *stakingkeeper.Keeper) ethprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.StakingModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			contractAbi, cosmlib.AccAddressToEthAddress(
+			abi.MustUnmarshalJSON(generated.StakingModuleMetaData.ABI), cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(stakingtypes.ModuleName))),
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
 		querier:   stakingkeeper.Querier{Keeper: sk},

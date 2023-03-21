@@ -38,13 +38,9 @@ type Contract struct {
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
 func NewPrecompileContract() ethprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(bindings.DistributionModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			contractAbi, cosmlib.AccAddressToEthAddress(
+			abi.MustUnmarshalJSON(bindings.DistributionModuleMetaData.ABI), cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(distributiontypes.ModuleName))),
 	}
 }

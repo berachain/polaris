@@ -18,29 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank
+package abi
 
-import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+import "github.com/ethereum/go-ethereum/accounts/abi"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-)
-
-// Contract is the precompile contract for the bank module.
-type Contract struct {
-	precompile.BaseContract
-}
-
-// NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract() ethprecompile.StatefulImpl {
-	return &Contract{
-		BaseContract: precompile.NewBaseContract(
-			abi.MustUnmarshalJSON(generated.BankModuleMetaData.ABI), cosmlib.AccAddressToEthAddress(
-				authtypes.NewModuleAddress(banktypes.ModuleName))),
+// MustUnmarshalJSON is a helper function that wraps abi.ABI.UnmarshalJSON and panics on error.
+func MustUnmarshalJSON(bz string) abi.ABI {
+	var ret abi.ABI
+	if err := ret.UnmarshalJSON([]byte(bz)); err != nil {
+		panic(err)
 	}
+	return ret
 }
