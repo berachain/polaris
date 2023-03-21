@@ -144,6 +144,9 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			RawDumpFunc: func(opts *state.DumpConfig) state.Dump {
 //				panic("mock out the RawDump method")
 //			},
+//			ResetFunc: func(txHash common.Hash, txIndex int)  {
+//				panic("mock out the Reset method")
+//			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
 //			},
@@ -321,6 +324,9 @@ type PolarisStateDBMock struct {
 
 	// RawDumpFunc mocks the RawDump method.
 	RawDumpFunc func(opts *state.DumpConfig) state.Dump
+
+	// ResetFunc mocks the Reset method.
+	ResetFunc func(txHash common.Hash, txIndex int)
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -591,6 +597,13 @@ type PolarisStateDBMock struct {
 			// Opts is the opts argument value.
 			Opts *state.DumpConfig
 		}
+		// Reset holds details about calls to the Reset method.
+		Reset []struct {
+			// TxHash is the txHash argument value.
+			TxHash common.Hash
+			// TxIndex is the txIndex argument value.
+			TxIndex int
+		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
 			// N is the n argument value.
@@ -733,6 +746,7 @@ type PolarisStateDBMock struct {
 	lockPreimages              sync.RWMutex
 	lockPrepare                sync.RWMutex
 	lockRawDump                sync.RWMutex
+	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSetBalance             sync.RWMutex
 	lockSetCode                sync.RWMutex
@@ -2053,6 +2067,42 @@ func (mock *PolarisStateDBMock) RawDumpCalls() []struct {
 	mock.lockRawDump.RLock()
 	calls = mock.calls.RawDump
 	mock.lockRawDump.RUnlock()
+	return calls
+}
+
+// Reset calls ResetFunc.
+func (mock *PolarisStateDBMock) Reset(txHash common.Hash, txIndex int) {
+	if mock.ResetFunc == nil {
+		panic("PolarisStateDBMock.ResetFunc: method is nil but PolarisStateDB.Reset was just called")
+	}
+	callInfo := struct {
+		TxHash  common.Hash
+		TxIndex int
+	}{
+		TxHash:  txHash,
+		TxIndex: txIndex,
+	}
+	mock.lockReset.Lock()
+	mock.calls.Reset = append(mock.calls.Reset, callInfo)
+	mock.lockReset.Unlock()
+	mock.ResetFunc(txHash, txIndex)
+}
+
+// ResetCalls gets all the calls that were made to Reset.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.ResetCalls())
+func (mock *PolarisStateDBMock) ResetCalls() []struct {
+	TxHash  common.Hash
+	TxIndex int
+} {
+	var calls []struct {
+		TxHash  common.Hash
+		TxIndex int
+	}
+	mock.lockReset.RLock()
+	calls = mock.calls.Reset
+	mock.lockReset.RUnlock()
 	return calls
 }
 

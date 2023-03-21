@@ -22,8 +22,10 @@ package staking
 
 import (
 	"context"
-	"errors"
 	"math/big"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -42,13 +44,16 @@ func (c *Contract) getDelegationHelper(
 		DelegatorAddr: del.String(),
 		ValidatorAddr: val.String(),
 	})
-	if err != nil {
+	if status.Code(err) == codes.NotFound {
+		// handle the case where the delegation does not exist
+		return []any{big.NewInt(0)}, nil
+	} else if err != nil {
 		return nil, err
 	}
 
 	delegation := res.GetDelegationResponse()
 	if delegation == nil {
-		return nil, err
+		return []any{big.NewInt(0)}, nil
 	}
 
 	return []any{delegation.Balance.Amount.BigInt()}, nil
@@ -64,8 +69,10 @@ func (c *Contract) getUnbondingDelegationHelper(
 		DelegatorAddr: del.String(),
 		ValidatorAddr: val.String(),
 	})
-	if err != nil {
-		return nil, errors.New("unbonding delegation not found")
+	if status.Code(err) == codes.NotFound {
+		return []any{[]stakingtypes.UnbondingDelegationEntry{}}, nil
+	} else if err != nil {
+		return nil, err
 	}
 
 	return []any{res.GetUnbond().Entries}, nil
@@ -86,6 +93,11 @@ func (c *Contract) getRedelegationsHelper(
 			DstValidatorAddr: dstValidator.String(),
 		},
 	)
+	if status.Code(err) == codes.NotFound {
+		return []any{[]stakingtypes.RedelegationEntry{}}, nil
+	} else if err != nil {
+		return nil, err
+	}
 
 	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
 	for _, r := range rsp.GetRedelegationResponses() {
@@ -113,10 +125,10 @@ func (c *Contract) delegateHelper(
 	caller common.Address,
 	amount *big.Int,
 	validatorAddress sdk.ValAddress,
-) error {
+) ([]any, error) {
 	denom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
@@ -124,7 +136,7 @@ func (c *Contract) delegateHelper(
 		validatorAddress,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
-	return err
+	return []any{err == nil}, err
 }
 
 // undelegateHelper is the helper function for `undelegate`.
@@ -133,10 +145,10 @@ func (c *Contract) undelegateHelper(
 	caller common.Address,
 	amount *big.Int,
 	val sdk.ValAddress,
-) error {
+) ([]any, error) {
 	denom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
@@ -144,8 +156,7 @@ func (c *Contract) undelegateHelper(
 		val,
 		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
 	))
-
-	return err
+	return []any{err == nil}, err
 }
 
 // beginRedelegateHelper is the helper function for `beginRedelegate`.
@@ -154,10 +165,10 @@ func (c *Contract) beginRedelegateHelper(
 	caller common.Address,
 	amount *big.Int,
 	srcVal, dstVal sdk.ValAddress,
-) error {
+) ([]any, error) {
 	bondDenom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.BeginRedelegate(
@@ -169,8 +180,7 @@ func (c *Contract) beginRedelegateHelper(
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
 		),
 	)
-
-	return err
+	return []any{err == nil}, err
 }
 
 // cancelRedelegateHelper is the helper function for `cancelRedelegate`.
@@ -180,10 +190,10 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 	amount *big.Int,
 	val sdk.ValAddress,
 	creationHeight int64,
-) error {
+) ([]any, error) {
 	bondDenom, err := c.bondDenom(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = c.msgServer.CancelUnbondingDelegation(
@@ -195,8 +205,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
 		),
 	)
-
-	return err
+	return []any{err != nil}, err
 }
 
 func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
@@ -206,6 +215,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Iterate over all validators and return their addresses.
 	addrs := make([]common.Address, 0, len(res.Validators))
 	for _, val := range res.Validators {
@@ -216,7 +226,6 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		}
 		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
-
 	return []any{addrs}, nil
 }
 

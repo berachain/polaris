@@ -46,6 +46,7 @@ import (
 // Executable should directly correspond to an ABI method.
 type Executable func(
 	ctx context.Context,
+	evm EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

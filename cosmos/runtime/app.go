@@ -311,12 +311,12 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
-			// TODO: add more precompiles here
+			// TODO: register more precompiles here.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
 			authprecompile.NewPrecompileContract(),
 			distrprecompile.NewPrecompileContract(),
-			govprecompile.NewPrecompileContract(&app.GovKeeper),
+			govprecompile.NewPrecompileContract(app.GovKeeper),
 		},
 		app.CreateQueryContext,
 	)

@@ -25,19 +25,53 @@
 
 pragma solidity ^0.8.4;
 
-// import "forge-std/Script.sol";
-// import "./LiquidStaking.sol";
-// import "../staking.sol";
+import "../../../../lib/forge-std/src/Script.sol";
+import "../../../../lib/forge-std/src/console2.sol";
+import "../staking.sol";
+import "./LiquidStaking.sol";
 
-// contract Deploy is Script {
-//     LiquidStaking public staking;
-//     address immutable precompile =
-//         address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
-//     address public validator = address(0x12); // @dev : Change this to the validator running.
+contract Deploy is Script {
+    address precompile = address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
 
-//     function run() public {
-//         vm.startBroadcast();
-//         staking = new LiquidStaking("name", "SYMB", precompile, validator);
-//         vm.stopBroadcast();
-//     }
-// }
+    // TODO: script is broken because it runs its own evm; need Foundry fix.
+
+    function run() public {
+        vm.startBroadcast();
+
+        // Calling the Liquid Staking Contract, which calls the staking precompile.
+        LiquidStaking ls = new LiquidStaking(
+            "hello",
+            "sss",
+            precompile,
+            address(0x7F04B06a9C507B366567B09E82C4bC037e87d0e6)
+        );
+
+        // Low-level call.
+        // (bool success, bytes memory data) = address(ls).staticcall(
+        //     abi.encodeWithSignature("getActiveValidators()")
+        // );
+        // console2.logBool(success);
+        // console2.logBytes(data);
+        // require(success, "Failed to get active validators from the call");
+        // address[] memory vals = abi.decode(data, (address[]));
+
+        // High-level call.
+        // address[] memory vals = ls.getActiveValidators();
+
+        // Calling the staking precompile contract directly.
+        IStakingModule staking = IStakingModule(precompile);
+
+        // Low-level call.
+        // (bool success, bytes memory data) = address(staking).staticcall(
+        //     abi.encodeWithSignature("getActiveValidators()")
+        // );
+        // require(success, "Failed to get active validators from the call");
+        // console2.logBytes(data);
+        // address[] memory vals = abi.decode(data, (address[]));
+
+        // High-level call.
+        // address[] memory vals = staking.getActiveValidators();
+
+        vm.stopBroadcast();
+    }
+}
