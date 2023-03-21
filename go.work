@@ -9,4 +9,4 @@ use (
 	./playground
 )
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230321144626-29251e594538
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230321174326-e3ca3ff6bc37
