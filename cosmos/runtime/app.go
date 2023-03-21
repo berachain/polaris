@@ -306,7 +306,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// setup evm keeper and all of its plugins.
-	app.EVMKeeper.Setup(
+	app.EVMKeeper.Host.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
