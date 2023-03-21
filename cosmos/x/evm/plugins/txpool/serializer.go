@@ -28,7 +28,6 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )

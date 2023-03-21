@@ -100,7 +100,7 @@ func (p *plugin) StoreTransactions(
 // GetBlockByNumber returns the block at the given height.
 func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	// get header from on chain.
-	header, err := p.hp.GetHeaderByNumber(number)
+	header, err := p.bp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
 	}
 	number := int64(sdk.BigEndianToUint64(numBz))
-	header, err := p.hp.GetHeaderByNumber(number)
+	header, err := p.bp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}
