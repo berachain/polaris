@@ -138,8 +138,12 @@ func (k *Keeper) Setup(
 	precompiles []vm.RegistrablePrecompile,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
+	for _, precompile := range precompiles {
+		_ = precompile.RegistryKey()
+	}
+
 	// Setup the precompile and state plugins
-	k.pp = precompile.NewPlugin(precompiles)
+	k.pp = precompile.NewPlugin(ak, precompiles)
 	k.sp = state.NewPlugin(ak, bk, k.storeKey, k.cp, k.pp)
 
 	// Set the query context function for the block and state plugins

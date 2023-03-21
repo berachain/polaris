@@ -20,19 +20,9 @@
 
 package precompile
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-)
-
-func (p *plugin) InitGenesis(ctx sdk.Context, _ *types.GenesisState) {
-	// verify every precompile contract's address is unique and exists in the account keeper
-	for _, precompile := range p.precompiles {
-		if p.ak.GetAccount(ctx, precompile.RegistryKey().Bytes()) == nil {
-			panic("precompile contract address is not a registered account")
-		}
-	}
+type AccountKeeper interface {
+	// GetAccount returns the account for the given address.
+	GetAccount(sdk.Context, sdk.AccAddress) sdk.AccountI
 }
-
-func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}

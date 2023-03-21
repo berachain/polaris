@@ -21,14 +21,11 @@
 package precompile
 
 import (
-	"bytes"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
@@ -66,25 +63,12 @@ type plugin struct {
 	transientKVGasConfig storetypes.GasConfig
 	// plf builds Eth events from Cosmos events, emitted during precompile execution.
 	plf events.PrecompileLogFactory
+	// ak is used to verify that every precompile contract's address exists on the account keeper.
+	ak AccountKeeper
 }
 
 // NewPlugin creates and returns a `plugin` with the default kv gas configs.
-func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
-	// verify every precompile contract's address is unique and corresponds to a specific Cosmos
-	// module account address, used by Polaris.
-	for _, precompile := range precompiles {
-		precompileAddr, counter := precompile.RegistryKey(), 0
-		for _, module := range config.DefaultModule {
-			if bytes.Equal(authtypes.NewModuleAddress(module.Name).Bytes(), precompileAddr.Bytes()) {
-				break
-			}
-			counter++
-		}
-		if counter == len(config.DefaultModule) {
-			panic("precompile contract address must correspond to a Cosmos module account address")
-		}
-	}
-
+func NewPlugin(ak AccountKeeper, precompiles []vm.RegistrablePrecompile) Plugin {
 	return &plugin{
 		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
 		precompiles: precompiles,
