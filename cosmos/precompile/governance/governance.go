@@ -34,7 +34,6 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -49,17 +48,14 @@ type Contract struct {
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(gk **govkeeper.Keeper) ethprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.GovernanceModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
-
-	rk := cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName))
+func NewPrecompileContract(gk *govkeeper.Keeper) ethprecompile.StatefulImpl {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(contractAbi, rk),
-		msgServer:    govkeeper.NewMsgServerImpl(*gk),
-		querier:      *gk,
+		BaseContract: precompile.NewBaseContract(
+			generated.GovernanceModuleMetaData.ABI,
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+		),
+		msgServer: govkeeper.NewMsgServerImpl(gk),
+		querier:   gk,
 	}
 }
 
