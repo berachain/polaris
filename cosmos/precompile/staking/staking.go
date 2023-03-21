@@ -26,7 +26,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
@@ -40,20 +39,21 @@ import (
 // Contract is the precompile contract for the staking module.
 type Contract struct {
 	precompile.BaseContract
-
-	msgServer stakingtypes.MsgServer
 	querier   stakingtypes.QueryServer
+	msgServer stakingtypes.MsgServer
 }
 
 // NewContract is the constructor of the staking contract.
-func NewPrecompileContract(sk *stakingkeeper.Keeper) ethprecompile.StatefulImpl {
+func NewPrecompileContract(
+	q stakingtypes.QueryServer, m stakingtypes.MsgServer,
+) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.StakingModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
 		),
-		msgServer: stakingkeeper.NewMsgServerImpl(sk),
-		querier:   stakingkeeper.Querier{Keeper: sk},
+		querier:   q,
+		msgServer: m,
 	}
 }
 

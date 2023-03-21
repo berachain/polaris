@@ -46,9 +46,7 @@ func NewPrecompileContract() ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.AuthModuleMetaData.ABI,
-			cosmlib.AccAddressToEthAddress(
-				authtypes.NewModuleAddress(authtypes.ModuleName),
-			),
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(authtypes.ModuleName)),
 		),
 	}
 }
