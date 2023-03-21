@@ -67,7 +67,7 @@ var _ = Describe("Governance Precompile", func() {
 		mockCtrl = gomock.NewController(t)
 		caller = cosmlib.AddressToAccAddress(testutil.Alice)
 		ctx, bk, gk = setup(mockCtrl, caller)
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&gk))
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(gk))
 	})
 
 	AfterEach(func() {

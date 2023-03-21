@@ -30,7 +30,6 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -46,7 +45,8 @@ type Contract struct {
 func NewPrecompileContract() ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			abi.MustUnmarshalJSON(generated.AuthModuleMetaData.ABI), cosmlib.AccAddressToEthAddress(
+			generated.AuthModuleMetaData.ABI,
+			cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(authtypes.ModuleName),
 			),
 		),

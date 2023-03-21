@@ -39,9 +39,9 @@ type baseContract struct {
 }
 
 // NewBaseContract creates a new `BasePrecompile`.
-func NewBaseContract(contractAbi abi.ABI, address common.Address) BaseContract {
+func NewBaseContract(abiStr string, address common.Address) BaseContract {
 	return &baseContract{
-		abi:     contractAbi,
+		abi:     abi.MustUnmarshalJSON(abiStr),
 		address: address,
 	}
 }
