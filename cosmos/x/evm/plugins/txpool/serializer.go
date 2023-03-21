@@ -48,10 +48,10 @@ type serializer struct {
 }
 
 // NewSerializer returns a new `Serializer`.
-func NewSerializer(cp ConfigurationPlugin,clientCtx client.Context) Serializer {
+func NewSerializer(cp ConfigurationPlugin, clientCtx client.Context) Serializer {
 	return &serializer{
 		clientCtx: clientCtx,
-		cp: cp,
+		cp:        cp,
 	}
 }
 
