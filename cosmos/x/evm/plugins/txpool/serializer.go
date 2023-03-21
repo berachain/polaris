@@ -28,6 +28,7 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -44,12 +45,14 @@ type Serializer interface {
 // serializer represents the transaction pool plugin.
 type serializer struct {
 	clientCtx client.Context
+	cp        configuration.Plugin
 }
 
 // NewSerializer returns a new `Serializer`.
-func NewSerializer(clientCtx client.Context) Serializer {
+func NewSerializer(cp configuration.Plugin,clientCtx client.Context) Serializer {
 	return &serializer{
 		clientCtx: clientCtx,
+		cp: cp,
 	}
 }
 
@@ -86,7 +89,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
 	if feeAmt.Sign() > 0 {
 		// TODO: properly get evm denomination.
-		fees = append(fees, sdk.NewCoin("abera", feeAmt))
+		fees = append(fees, sdk.NewCoin(s.cp.GetEvmDenom(), feeAmt))
 	}
 	tx.SetFeeAmount(fees)
 
