@@ -45,11 +45,11 @@ type Serializer interface {
 // serializer represents the transaction pool plugin.
 type serializer struct {
 	clientCtx client.Context
-	cp        configuration.Plugin
+	cp        ConfigurationPlugin
 }
 
 // NewSerializer returns a new `Serializer`.
-func NewSerializer(cp configuration.Plugin,clientCtx client.Context) Serializer {
+func NewSerializer(cp ConfigurationPlugin,clientCtx client.Context) Serializer {
 	return &serializer{
 		clientCtx: clientCtx,
 		cp: cp,
