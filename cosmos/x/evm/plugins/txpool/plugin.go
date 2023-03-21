@@ -27,7 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/rpc"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -47,11 +46,11 @@ type Plugin interface {
 type plugin struct {
 	mempool     *mempool.EthTxPool
 	rpcProvider rpc.Provider
-	cp          configuration.Plugin
+	cp          ConfigurationPlugin
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(cp configuration.Plugin, rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(cp ConfigurationPlugin, rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
 	return &plugin{
 		mempool:     ethTxMempool,
 		rpcProvider: rpcProvider,
