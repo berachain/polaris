@@ -90,7 +90,7 @@ var _ = Describe("Processor", func() {
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
 			ak, bk,
-			func() func() []vm.RegistrablePrecompile { return nil },
+			nil,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),

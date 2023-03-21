@@ -78,6 +78,7 @@ func NewPlugin(ak AccountKeeper, precompiles []vm.RegistrablePrecompile) Plugin 
 		kvGasConfig:          storetypes.GasConfig{},
 		transientKVGasConfig: storetypes.GasConfig{},
 		plf:                  log.NewFactory(precompiles),
+		ak:                   ak,
 	}
 }
 
