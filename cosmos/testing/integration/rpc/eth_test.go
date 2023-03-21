@@ -22,6 +22,7 @@ package jsonrpc
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"os"
 	"strings"
@@ -46,7 +47,7 @@ func TestRpc(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/jsonrpc:integration")
 }
 
-var _ = Describe("Network - RPC", func() {
+var _ = Describe("Network", func() {
 	var client *ethclient.Client
 	var wsClient *ethclient.Client
 	var rpcClient *gethrpc.Client
@@ -197,7 +198,20 @@ var _ = Describe("Network - RPC", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(sub).ToNot(BeNil())
 		})
+		It("should get recent blocks", func() {
+			ctx := context.Background()
+			headers := make(chan *gethtypes.Header)
+			sub, _ := wsClient.SubscribeNewHead(ctx, headers)
+			fmt.Print("Listening...")
+			select {
+			case err := <-sub.Err():
+				Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
+			case header := <-headers:
+				fmt.Printf("New block: %v", header.Number.Uint64())
+				_, err := wsClient.BlockByNumber(ctx, big.NewInt(header.Number.Int64()))
+				Expect(err).ToNot(HaveOccurred())
+			}
+		})
 	})
-	// TODO: add scenario tests for websockets
 
 })
