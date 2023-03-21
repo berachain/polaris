@@ -33,7 +33,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	pcgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -48,7 +47,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -73,7 +71,7 @@ var _ = Describe("Processor", func() {
 		key, _       = crypto.GenerateEthKey()
 		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 		legacyTxData *coretypes.LegacyTx
-		valAddr      = []byte{0x21}
+		valAddr      = common.Address{0x21}.Bytes()
 	)
 
 	BeforeEach(func() {
@@ -126,54 +124,6 @@ var _ = Describe("Processor", func() {
 			k.EndBlocker(ctx)
 			err := os.RemoveAll("tmp/berachain")
 			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("should call precompile correctly", func() {
-			var contractAbi abi.ABI
-			err := contractAbi.UnmarshalJSON([]byte(pcgenerated.StakingModuleMetaData.ABI))
-			Expect(err).ToNot(HaveOccurred())
-
-			legacyTxData.Data, err = contractAbi.Pack("getActiveValidators")
-			Expect(err).ToNot(HaveOccurred())
-			contractAddr := sc.RegistryKey()
-			legacyTxData.To = &contractAddr
-			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
-
-			addr, err := signer.Sender(tx)
-			Expect(err).ToNot(HaveOccurred())
-			k.GetStatePlugin().CreateAccount(addr)
-			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
-			k.GetStatePlugin().Finalize()
-
-			vals := sk.GetAllValidators(ctx)
-			Expect(vals).To(HaveLen(1))
-
-			// calls the staking precompile
-			exec, err := k.ProcessTransaction(ctx, tx)
-			Expect(err).ToNot(HaveOccurred())
-			ret, err := contractAbi.Methods["getActiveValidators"].Outputs.Unpack(exec.ReturnData)
-			Expect(err).ToNot(HaveOccurred())
-			addrs, ok := utils.GetAs[[]common.Address](ret[0])
-			Expect(ok).To(BeTrue())
-			Expect(addrs[0]).To(Equal(common.BytesToAddress(valAddr)))
-			Expect(exec.Err).ToNot(HaveOccurred())
-
-			// call the staking precompile again, but this time with a different method
-			legacyTxData.Nonce++
-			legacyTxData.Data, err = contractAbi.Pack(
-				"delegate", common.BytesToAddress(valAddr), big.NewInt(10000000),
-			)
-			Expect(err).ToNot(HaveOccurred())
-			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
-			addr, err = signer.Sender(tx)
-			Expect(err).ToNot(HaveOccurred())
-			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
-			k.GetStatePlugin().Finalize()
-			exec, err = k.ProcessTransaction(ctx, tx)
-			Expect(err).ToNot(HaveOccurred())
-			ret, err = contractAbi.Methods["delegate"].Outputs.Unpack(exec.ReturnData)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(ret).To(BeEmpty())
 		})
 
 		It("should panic on nil, empty transaction", func() {

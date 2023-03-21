@@ -127,7 +127,7 @@ func (ms *mockStateless) RequiredGas(input []byte) uint64 {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, input []byte,
+	ctx context.Context, evm precompile.EVM, input []byte,
 	caller common.Address, value *big.Int, readonly bool,
 ) ([]byte, error) {
 	return nil, nil

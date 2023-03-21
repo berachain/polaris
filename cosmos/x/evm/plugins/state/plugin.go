@@ -387,12 +387,6 @@ func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) 
 	}
 }
 
-// GetCodeSize implements the `StatePlugin` interface by returning the size of the
-// code associated with the given `StatePlugin`.
-func (p *plugin) GetCodeSize(addr common.Address) int {
-	return len(p.GetCode(addr))
-}
-
 // =============================================================================
 // Storage
 // =============================================================================
@@ -517,16 +511,21 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
 		iavlHeight = p.ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
-		// TODO: check is height == 1 correct?
 		iavlHeight = 1
 	default:
 		iavlHeight = number
 	}
 
-	// Get the query context at the given height.
-	ctx, err := p.getQueryContext(iavlHeight, false)
-	if err != nil {
-		return nil, err
+	var ctx sdk.Context
+	if p.ctx.BlockHeight() == iavlHeight {
+		ctx, _ = p.ctx.CacheContext()
+	} else {
+		// Get the query context at the given height.
+		var err error
+		ctx, err = p.getQueryContext(iavlHeight, false)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Create a State Plugin with the requested chain height.

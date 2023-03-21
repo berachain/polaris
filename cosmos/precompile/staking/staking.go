@@ -32,9 +32,8 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -47,23 +46,20 @@ type Contract struct {
 }
 
 // NewContract is the constructor of the staking contract.
-func NewPrecompileContract(sk *stakingkeeper.Keeper) coreprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(generated.StakingModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
+func NewPrecompileContract(sk *stakingkeeper.Keeper) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
-			contractAbi, cosmlib.AccAddressToEthAddress(
-				authtypes.NewModuleAddress(stakingtypes.ModuleName))),
+			generated.StakingModuleMetaData.ABI,
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
+		),
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
 		querier:   stakingkeeper.Querier{Keeper: sk},
 	}
 }
 
 // PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() coreprecompile.Methods {
-	return coreprecompile.Methods{
+func (c *Contract) PrecompileMethods() ethprecompile.Methods {
+	return ethprecompile.Methods{
 		{
 			AbiSig:  "getDelegation(address,address)",
 			Execute: c.GetDelegationAddrInput,
@@ -130,6 +126,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 // GetDelegationAddrInput implements `getDelegation(address)` method.
 func (c *Contract) GetDelegationAddrInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -152,6 +149,7 @@ func (c *Contract) GetDelegationAddrInput(
 // GetDelegationStringInput implements `getDelegation(string)` method.
 func (c *Contract) GetDelegationStringInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -180,6 +178,7 @@ func (c *Contract) GetDelegationStringInput(
 // GetUnbondingDelegationAddrInput implements the `getUnbondingDelegation(address)` method.
 func (c *Contract) GetUnbondingDelegationAddrInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -202,6 +201,7 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 // GetUnbondingDelegationStringInput implements the `getUnbondingDelegation(string)` method.
 func (c *Contract) GetUnbondingDelegationStringInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -230,6 +230,7 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 // GetRedelegationsAddrInput implements the `getRedelegations(address,address)` method.
 func (c *Contract) GetRedelegationsAddrInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -259,6 +260,7 @@ func (c *Contract) GetRedelegationsAddrInput(
 // GetRedelegationsStringInput implements the `getRedelegations(string,string)` method.
 func (c *Contract) GetRedelegationsStringInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -295,6 +297,7 @@ func (c *Contract) GetRedelegationsStringInput(
 // DelegateAddrInput implements the `delegate(address,uint256)` method.
 func (c *Contract) DelegateAddrInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -309,12 +312,13 @@ func (c *Contract) DelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
 // DelegateStringInput implements the `delegate(string,uint256)` method.
 func (c *Contract) DelegateStringInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -334,12 +338,13 @@ func (c *Contract) DelegateStringInput(
 		return nil, err
 	}
 
-	return nil, c.delegateHelper(ctx, caller, amount, val)
+	return c.delegateHelper(ctx, caller, amount, val)
 }
 
 // UndelegateAddrInput implements the `undelegate(address,uint256)` method.
 func (c *Contract) UndelegateAddrInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -354,12 +359,13 @@ func (c *Contract) UndelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
 // UndelegateStringInput implements the `undelegate(string,uint256)` method.
 func (c *Contract) UndelegateStringInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -379,12 +385,13 @@ func (c *Contract) UndelegateStringInput(
 		return nil, err
 	}
 
-	return nil, c.undelegateHelper(ctx, caller, amount, val)
+	return c.undelegateHelper(ctx, caller, amount, val)
 }
 
 // BeginRedelegateAddrInput implements the `beginRedelegate(address,address,uint256)` method.
 func (c *Contract) BeginRedelegateAddrInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -403,7 +410,7 @@ func (c *Contract) BeginRedelegateAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, c.beginRedelegateHelper(
+	return c.beginRedelegateHelper(
 		ctx,
 		caller,
 		amount,
@@ -415,6 +422,7 @@ func (c *Contract) BeginRedelegateAddrInput(
 // BeginRedelegateStringInput implements the `beginRedelegate(string,string,uint256)` method.
 func (c *Contract) BeginRedelegateStringInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -442,12 +450,13 @@ func (c *Contract) BeginRedelegateStringInput(
 		return nil, err
 	}
 
-	return nil, c.beginRedelegateHelper(ctx, caller, amount, src, dst)
+	return c.beginRedelegateHelper(ctx, caller, amount, src, dst)
 }
 
 // CancelRedelegateAddrInput implements the `cancelRedelegate(address,address,uint256,int64)` method.
 func (c *Contract) CancelUnbondingDelegationAddrInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -466,12 +475,13 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 		return nil, precompile.ErrInvalidInt64
 	}
 
-	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
+	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
 }
 
 // CancelRedelegateStringInput implements the `cancelRedelegate(string,string,uint256,int64)` method.
 func (c *Contract) CancelUnbondingDelegationStringInput(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -495,12 +505,13 @@ func (c *Contract) CancelUnbondingDelegationStringInput(
 		return nil, err
 	}
 
-	return nil, c.cancelUnbondingDelegationHelper(ctx, caller, amount, val, creationHeight)
+	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, val, creationHeight)
 }
 
 // GetActiveValidators implements the `getActiveValidators()` method.
 func (c *Contract) GetActiveValidators(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

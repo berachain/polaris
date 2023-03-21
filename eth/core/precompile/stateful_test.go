@@ -75,35 +75,35 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// empty input
-			_, err := empty.Run(ctx, blank, addr, value, readonly)
+			_, err := empty.Run(ctx, nil, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 			// invalid input
-			_, err = sc.Run(ctx, blank, addr, value, readonly)
+			_, err = sc.Run(ctx, nil, blank, addr, value, readonly)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, badInput, addr, value, readonly)
+			_, err = sc.Run(ctx, nil, badInput, addr, value, readonly)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
+			_, err = sc.Run(ctx, nil, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, getOutputPartialABI.ID, addr, value, readonly)
+			_, err = sc.Run(ctx, nil, getOutputPartialABI.ID, addr, value, readonly)
 			Expect(err.Error()).To(Equal("getOutputPartial: err during precompile execution"))
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, nil, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, nil, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -111,7 +111,7 @@ var _ = Describe("Stateful Container", func() {
 			// sc.WithStateDB(sdb)
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := sc.Run(ctx, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, nil, append(getOutputABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(HaveOccurred())
 			outputs, err := getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
@@ -168,6 +168,7 @@ type mockObject struct {
 
 func getOutput(
 	ctx context.Context,
+	evm precompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -189,6 +190,7 @@ func getOutput(
 
 func getOutputPartial(
 	ctx context.Context,
+	evm precompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -199,6 +201,7 @@ func getOutputPartial(
 
 func contractFuncAddrInput(
 	ctx context.Context,
+	evm precompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -213,6 +216,7 @@ func contractFuncAddrInput(
 
 func contractFuncStrInput(
 	ctx context.Context,
+	evm precompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
