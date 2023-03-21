@@ -46,15 +46,15 @@ func TestRpc(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/jsonrpc:integration")
 }
 
-var _ = Describe("Network", func() {
+var _ = Describe("Network - RPC", func() {
 	var client *ethclient.Client
-	var rpcClient *gethrpc.Client
 	var wsClient *ethclient.Client
+	var rpcClient *gethrpc.Client
 	var err error
 	var net *network.Network
-	ctx := context.Background()
+	var ctx context.Context
 	BeforeEach(func() {
-		net = StartPolarisNetwork(GinkgoT())
+		net, client = StartPolarisNetwork(GinkgoT())
 	})
 
 	AfterEach(func() {
@@ -66,7 +66,8 @@ var _ = Describe("Network", func() {
 
 		BeforeEach(func() {
 			// Dial an Ethereum RPC Endpoint
-			rpcClient, err = gethrpc.DialContext(context.Background(), net.Validators[0].APIAddress+"/eth/rpc")
+			ctx := context.Background()
+			rpcClient, err = gethrpc.DialContext(ctx, net.Validators[0].APIAddress+"/eth/rpc")
 			Expect(err).ToNot(HaveOccurred())
 			client = ethclient.NewClient(rpcClient)
 			Expect(err).ToNot(HaveOccurred())
@@ -164,6 +165,7 @@ var _ = Describe("Network", func() {
 
 	Context("checking websockets", func() {
 		BeforeEach(func() {
+			ctx = context.Background()
 			// Dial an Ethereum RPC Endpoint
 			wsaddr := "ws:" + strings.TrimPrefix(net.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
 			// rpcaddr := net.Validators[0].APIAddress + "/eth/rpc"

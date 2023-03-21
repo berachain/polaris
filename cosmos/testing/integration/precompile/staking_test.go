@@ -49,7 +49,7 @@ var _ = Describe("Staking", func() {
 	var stakingPrecompile *bindings.StakingModule
 
 	BeforeEach(func() {
-		net = StartPolarisNetwork(GinkgoT())
+		net, client = StartPolarisNetwork(GinkgoT())
 		validator = common.BytesToAddress(net.Validators[0].Address.Bytes())
 		stakingPrecompile, _ = bindings.NewStakingModule(
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), client)
