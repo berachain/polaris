@@ -114,7 +114,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		blockNumCache:  lru.NewCache[int64, *types.Block](defaultCacheSizeBytes),
 		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
 		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
-		chainHeadFeed:  event.Feed{},
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
 	}
