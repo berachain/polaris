@@ -27,6 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/rpc"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -46,13 +47,15 @@ type Plugin interface {
 type plugin struct {
 	mempool     *mempool.EthTxPool
 	rpcProvider rpc.Provider
+	cp          configuration.Plugin
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(cp configuration.Plugin, rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
 	return &plugin{
 		mempool:     ethTxMempool,
 		rpcProvider: rpcProvider,
+		cp:          cp,
 	}
 }
 
@@ -61,7 +64,7 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 // transaction. The Cosmos transaction is then broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Serialize the transaction to Bytes
-	txBytes, err := NewSerializer(p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
+	txBytes, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
@@ -85,7 +88,7 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 // transaction. The Cosmos transaction is injected into the local mempool, but is
 // NOT gossiped to peers.
 func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
-	cosmosTx, err := NewSerializer(p.rpcProvider.GetClientCtx()).SerializeToSdkTx(signedTx)
+	cosmosTx, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).SerializeToSdkTx(signedTx)
 	if err != nil {
 		return err
 	}
