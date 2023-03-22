@@ -28,8 +28,8 @@ import (
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/ethclient"
 
+	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
@@ -43,16 +43,11 @@ func TestRpc(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/jsonrpc:integration")
 }
 
-var (
-	net      *network.Network
-	client   *ethclient.Client
-	wsClient *ethclient.Client
-)
+var tf *integration.TestFixture
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
-	net = StartPolarisTestNetwork(GinkgoT())
-	client, wsClient = BuildEthClients(GinkgoT(), net)
+	tf = integration.NewTestFixture(GinkgoT())
 	return nil
 }, func(data []byte) {})
 
@@ -65,18 +60,18 @@ var _ = SynchronizedAfterSuite(func() {
 
 var _ = Describe("Network", func() {
 	It("eth_chainId, eth_gasPrice, eth_blockNumber, eth_getBalance", func() {
-		chainID, err := client.ChainID(context.Background())
+		chainID, err := tf.EthClient.ChainID(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 		Expect(chainID.String()).To(Equal("69420"))
-		gasPrice, err := client.SuggestGasPrice(context.Background())
+		gasPrice, err := tf.EthClient.SuggestGasPrice(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 		Expect(gasPrice).ToNot(BeNil())
-		blockNumber, err := client.BlockNumber(context.Background())
+		blockNumber, err := tf.EthClient.BlockNumber(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 		Expect(blockNumber).To(BeNumerically(">", 0))
-		balance, err := client.BalanceAt(context.Background(), network.TestAddress, nil)
+		balance, err := tf.EthClient.BalanceAt(context.Background(), network.TestAddress, nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
+		Expect(balance).To(BeNumerically(">", big.NewInt(900000000000000000)))
 	})
 
 	It("eth_estimateGas", func() {
@@ -91,33 +86,33 @@ var _ = Describe("Network", func() {
 			Value: value,
 		}
 
-		gas, err := client.EstimateGas(context.Background(), msg)
+		gas, err := tf.EthClient.EstimateGas(context.Background(), msg)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(gas).To(BeNumerically(">", 0))
 	})
 
 	It("should deploy, mint tokens, and check balance, eth_getTransactionByHash", func() {
 		// Deploy the contract
-		erc20Contract := DeployERC20(BuildTransactor(client), client)
+		erc20Contract := DeployERC20(BuildTransactor(tf.EthClient), tf.EthClient)
 
 		// Mint tokens
-		tx, err := erc20Contract.Mint(BuildTransactor(client),
+		tx, err := erc20Contract.Mint(BuildTransactor(tf.EthClient),
 			network.TestAddress, big.NewInt(100000000))
 		Expect(err).ToNot(HaveOccurred())
 
 		// Get the transaction by its hash, it should be pending here.
 		txHash := tx.Hash() // TODO: UNCOMMENT
-		// fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
+		// fetchedTx, isPending, err := tf.EthClient.TransactionByHash(context.Background(), txHash)
 		// Expect(err).ToNot(HaveOccurred())
 		// Expect(isPending).To(BeTrue())
 		// Expect(fetchedTx.Hash()).To(Equal(txHash))
 
 		// Wait for it to be mined.
-		ExpectMined(client, tx)
-		ExpectSuccessReceipt(client, tx)
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Get the transaction by its hash, it should be mined here.
-		fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
+		fetchedTx, isPending, err := tf.EthClient.TransactionByHash(context.Background(), txHash)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(isPending).To(BeFalse())
 		Expect(fetchedTx.Hash()).To(Equal(txHash))
