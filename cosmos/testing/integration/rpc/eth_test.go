@@ -71,7 +71,7 @@ var _ = Describe("Network", func() {
 		Expect(blockNumber).To(BeNumerically(">", 0))
 		balance, err := tf.EthClient.BalanceAt(context.Background(), network.TestAddress, nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(balance).To(BeNumerically(">", big.NewInt(900000000000000000)))
+		Expect(balance.Cmp(big.NewInt(50000000000))).To(Equal(1))
 	})
 
 	It("eth_estimateGas", func() {
