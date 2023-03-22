@@ -94,16 +94,17 @@ func NewKeeper(
 	return k
 }
 
-// Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
-// sets the query context function for the block and state plugins (to support historical queries).
+// Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	precompiles []vm.RegistrablePrecompile,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
-	// Setup the precompile and state plugins
+	// Setup plugins in the Host
 	k.Host.Setup(k.storeKey, ak, bk, precompiles, qc)
+
+	// Build the Polaris EVM Provider
 	k.polaris = eth.NewPolarisProvider(k.Host, k.rpcProvider, nil)
 }
 
