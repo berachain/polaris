@@ -41,17 +41,17 @@ const (
 	DefaultRPCEVMTimeout = 5 * time.Second
 )
 
-// DefaultAllowlist is the default origin allowlist (allows all by default) for the JSON-RPC server.
-var DefaultAllowlist = []string{"*"}
+// DefaultOriginAllowlist is the default origin allowlist (allows all by default) for the JSON-RPC server.
+var DefaultOriginAllowlist = []string{"*"}
 
 // DefaultServer returns the default JSON-RPC server config.
 func DefaultServer() *Server {
 	return &Server{
-		EnabledAPIs:   DefaultAPINamespaces,
-		BaseRoute:     DefaultBaseRoute,
-		RPCGasCap:     DefaultRPCGasCap,
-		RPCTxFeeCap:   DefaultRPCTxFeeCap,
-		RPCEVMTimeout: DefaultRPCEVMTimeout,
-		Allowlist:     DefaultAllowlist,
+		EnabledAPIs:     DefaultAPINamespaces,
+		BaseRoute:       DefaultBaseRoute,
+		RPCGasCap:       DefaultRPCGasCap,
+		RPCTxFeeCap:     DefaultRPCTxFeeCap,
+		RPCEVMTimeout:   DefaultRPCEVMTimeout,
+		OriginAllowlist: DefaultOriginAllowlist,
 	}
 }

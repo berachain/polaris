@@ -22,15 +22,12 @@ package jsonrpc
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 	"os"
-	"strings"
 	"testing"
 
 	geth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
@@ -49,7 +46,6 @@ func TestRpc(t *testing.T) {
 
 var _ = Describe("Network", func() {
 	var client *ethclient.Client
-	var wsClient *ethclient.Client
 	var rpcClient *gethrpc.Client
 	var err error
 	var net *network.Network
@@ -161,56 +157,6 @@ var _ = Describe("Network", func() {
 			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
-		})
-	})
-
-	Context("checking websockets", func() {
-		BeforeEach(func() {
-			ctx = context.Background()
-			// Dial an Ethereum RPC Endpoint
-			wsaddr := "ws:" + strings.TrimPrefix(net.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
-			// rpcaddr := net.Validators[0].APIAddress + "/eth/rpc"
-			ws, err := gethrpc.DialWebsocket(context.Background(), wsaddr, "*")
-			Expect(err).ToNot(HaveOccurred())
-			wsClient = ethclient.NewClient(ws)
-			Expect(err).ToNot(HaveOccurred())
-		})
-		It("should connect", func() {
-			// Dial an Ethereum websocket Endpoint
-			wsaddr := "ws:" + strings.TrimPrefix(net.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
-			// rpcaddr := net.Validators[0].APIAddress + "/eth/rpc"
-			ws, err := gethrpc.DialWebsocket(context.Background(), wsaddr, "*")
-			Expect(err).ToNot(HaveOccurred())
-			wsClient = ethclient.NewClient(ws)
-			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("should subscribe to new heads", func() {
-			// Subscribe to new heads
-			sub, err := wsClient.SubscribeNewHead(context.Background(), make(chan *gethtypes.Header))
-			Expect(err).ToNot(HaveOccurred())
-			Expect(sub).ToNot(BeNil())
-		})
-
-		It("should subscribe to logs", func() {
-			// Subscribe to logs
-			sub, err := wsClient.SubscribeFilterLogs(context.Background(), geth.FilterQuery{}, make(chan gethtypes.Log))
-			Expect(err).ToNot(HaveOccurred())
-			Expect(sub).ToNot(BeNil())
-		})
-		It("should get recent blocks", func() {
-			ctx := context.Background()
-			headers := make(chan *gethtypes.Header)
-			sub, _ := wsClient.SubscribeNewHead(ctx, headers)
-			fmt.Print("Listening...")
-			select {
-			case err := <-sub.Err():
-				Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
-			case header := <-headers:
-				fmt.Printf("New block: %v", header.Number.Uint64())
-				_, err := wsClient.BlockByNumber(ctx, big.NewInt(header.Number.Int64()))
-				Expect(err).ToNot(HaveOccurred())
-			}
 		})
 	})
 

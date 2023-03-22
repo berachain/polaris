@@ -44,7 +44,7 @@ type (
 		// send-transaction variants. The unit is ether.
 		RPCTxFeeCap float64 `mapstructure:"rpc-tx-fee-cap"`
 
-		// Allowlist defines a list of allowed origins for the JSON-RPC server.
-		Allowlist []string `mapstructure:"allowlist"`
+		// OriginAllowlist defines a list of allowed origins for the JSON-RPC server.
+		OriginAllowlist []string `mapstructure:"origin-allowlist"`
 	}
 )
