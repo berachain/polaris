@@ -105,6 +105,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -306,7 +307,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// setup evm keeper and all of its plugins.
-	app.EVMKeeper.Host.Setup(
+	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
