@@ -43,7 +43,6 @@ type Plugin interface {
 
 	// SetQueryContextFn sets the function used for querying historical block headers.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
-	// ask: what is this
 }
 
 type plugin struct {

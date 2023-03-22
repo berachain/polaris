@@ -92,6 +92,16 @@ func NewKeeper(
 	return k
 }
 
+func (k *Keeper) Setup(
+	ak state.AccountKeeper,
+	bk state.BankKeeper,
+	precompiles []vm.RegistrablePrecompile,
+	qc func(height int64, prove bool) (sdk.Context, error),
+) {
+	// Setup the precompile and state plugins
+	k.Setup(ak, bk, precompiles, qc)
+}
+
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
 func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
 	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
