@@ -43,17 +43,27 @@ func TestRpc(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/jsonrpc:integration")
 }
 
+var (
+	net      *network.Network
+	client   *ethclient.Client
+	wsClient *ethclient.Client
+)
+
+var _ = SynchronizedBeforeSuite(func() []byte {
+	// Setup the network and clients here.
+	net = StartPolarisTestNetwork(GinkgoT())
+	client, wsClient = BuildEthClients(GinkgoT(), net)
+	return nil
+}, func(data []byte) {})
+
+var _ = SynchronizedAfterSuite(func() {
+	// Local AfterSuite actions.
+}, func() {
+	// Global AfterSuite actions.
+	os.RemoveAll("data")
+})
+
 var _ = Describe("Network", func() {
-	var client *ethclient.Client
-	BeforeEach(func() {
-		_, client = StartPolarisNetwork(GinkgoT())
-	})
-
-	AfterEach(func() {
-		// TODO: FIX THE OFFCHAIN DB
-		os.RemoveAll("data")
-	})
-
 	It("eth_chainId, eth_gasPrice, eth_blockNumber, eth_getBalance", func() {
 		chainID, err := client.ChainID(context.Background())
 		Expect(err).ToNot(HaveOccurred())

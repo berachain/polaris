@@ -42,24 +42,29 @@ func TestCosmosPrecompiles(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/precompile:integration")
 }
 
+var net *network.Network
+var client *ethclient.Client
+var validator common.Address
+var stakingPrecompile *bindings.StakingModule
+
+var _ = SynchronizedBeforeSuite(func() []byte {
+	// Setup the network and clients here.
+	net = StartPolarisTestNetwork(GinkgoT())
+	client, _ = BuildEthClients(GinkgoT(), net)
+	validator = common.BytesToAddress(net.Validators[0].Address.Bytes())
+	stakingPrecompile, _ = bindings.NewStakingModule(
+		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), client)
+	return nil
+}, func(data []byte) {})
+
+var _ = SynchronizedAfterSuite(func() {
+	// Local AfterSuite actions.
+}, func() {
+	// Global AfterSuite actions.
+	os.RemoveAll("data")
+})
+
 var _ = Describe("Staking", func() {
-	var net *network.Network
-	var client *ethclient.Client
-	var validator common.Address
-	var stakingPrecompile *bindings.StakingModule
-
-	BeforeEach(func() {
-		net, client = StartPolarisNetwork(GinkgoT())
-		validator = common.BytesToAddress(net.Validators[0].Address.Bytes())
-		stakingPrecompile, _ = bindings.NewStakingModule(
-			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), client)
-	})
-
-	AfterEach(func() {
-		// TODO: FIX THE OFFCHAIN DB
-		os.RemoveAll("data")
-	})
-
 	It("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
