@@ -26,6 +26,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
+	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
+	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
+	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
+	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
@@ -62,6 +67,23 @@ var _ = Describe("plugin", func() {
 	It("should error on insufficient gas", func() {
 		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
+	})
+
+	It("should assert all precompile contract addresses are registered in account keeper", func() {
+		_, ak, _, _ := testutil.SetupMinimalKeepers()
+		pp := utils.MustGetAs[*plugin](NewPlugin(
+			ak,
+			[]vm.RegistrablePrecompile{
+				stakingprecompile.NewPrecompileContract(nil, nil),
+				bankprecompile.NewPrecompileContract(),
+				authprecompile.NewPrecompileContract(),
+				distrprecompile.NewPrecompileContract(),
+				govprecompile.NewPrecompileContract(nil, nil),
+			},
+		))
+		Expect(func() {
+			pp.InitGenesis(ctx, nil)
+		}).ToNot(Panic())
 	})
 
 	// TODO: re-enable once dynamic gas config is implemented.

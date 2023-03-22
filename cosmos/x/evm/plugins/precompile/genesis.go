@@ -21,6 +21,8 @@
 package precompile
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -30,10 +32,20 @@ import (
 func (p *plugin) InitGenesis(ctx sdk.Context, _ *types.GenesisState) {
 	// verify every precompile contract's address is unique and exists in the account keeper
 	for _, precompile := range p.precompiles {
-		if p.ak.GetAccount(ctx, cosmlib.AddressToAccAddress(precompile.RegistryKey())) == nil {
-			panic("precompile contract address is not a registered account")
+		fmt.Printf("\n")
+		fmt.Println(precompile.RegistryKey().Hex())
+
+		acc := p.ak.GetAccount(ctx, cosmlib.AddressToAccAddress(precompile.RegistryKey()))
+		if acc == nil {
+			fmt.Println("acc is nil")
+		} else {
+			fmt.Println("acc", acc.GetAddress().Bytes())
 		}
+
+		fmt.Printf("\n")
+		// panic("precompile contract address is not a registered account")
 	}
+	panic("precompile contract address is not a registered account")
 }
 
 func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
