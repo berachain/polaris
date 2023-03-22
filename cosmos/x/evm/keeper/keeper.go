@@ -105,7 +105,7 @@ func NewKeeper(
 	k.cp = configuration.NewPlugin(storeKey)
 	k.gp = gas.NewPlugin()
 	k.hp = historical.NewPlugin(k.bp, k.offChainKv, storeKey)
-	k.txp = txpool.NewPlugin(k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	k.txp = txpool.NewPlugin(k.cp, k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	return k
 }
 
