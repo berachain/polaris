@@ -56,7 +56,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 
 	ctx, err := p.getQueryContext(iavlHeight, false)
 	if err != nil {
-		return nil, errors.New("GetHeader: failed to use query context")
+		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
 	}
 
 	// Unmarshal the header from the context kv store.
