@@ -312,15 +312,15 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
 			// TODO: register more precompiles here.
-			stakingprecompile.NewPrecompileContract(
-				stakingkeeper.Querier{Keeper: app.StakingKeeper},
-				stakingkeeper.NewMsgServerImpl(app.StakingKeeper),
-			),
-			bankprecompile.NewPrecompileContract(),
-			authprecompile.NewPrecompileContract(),
+			authprecompile.NewPrecompileContract(), // not registered
+			bankprecompile.NewPrecompileContract(), // not registered
 			distrprecompile.NewPrecompileContract(),
 			govprecompile.NewPrecompileContract(
 				app.GovKeeper, govkeeper.NewMsgServerImpl(app.GovKeeper),
+			),
+			stakingprecompile.NewPrecompileContract( // not registered
+				stakingkeeper.Querier{Keeper: app.StakingKeeper},
+				stakingkeeper.NewMsgServerImpl(app.StakingKeeper),
 			),
 		},
 		app.CreateQueryContext,
@@ -346,8 +346,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	}
 
 	/****  Module Options ****/
-
-	// Set the query context function for the evm module.
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 

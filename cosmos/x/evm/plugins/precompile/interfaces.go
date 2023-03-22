@@ -25,4 +25,6 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 type AccountKeeper interface {
 	// GetAccount returns the account for the given address.
 	GetAccount(sdk.Context, sdk.AccAddress) sdk.AccountI
+	// SetAccount sets the account for the given address.
+	SetAccount(ctx sdk.Context, account sdk.AccountI)
 }
