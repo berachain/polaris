@@ -91,7 +91,6 @@ func NewKeeper(
 		k.offChainKv,
 		k.rpcProvider,
 	)
-	k.polaris = eth.NewPolarisProvider(k.Host, k.rpcProvider, nil)
 	return k
 }
 
@@ -105,6 +104,7 @@ func (k *Keeper) Setup(
 ) {
 	// Setup the precompile and state plugins
 	k.Host.Setup(k.storeKey, ak, bk, precompiles, qc)
+	k.polaris = eth.NewPolarisProvider(k.Host, k.rpcProvider, nil)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
