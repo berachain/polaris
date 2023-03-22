@@ -88,10 +88,14 @@ func NewKeeper(
 		authority,
 		appOpts,
 		ethTxMempool,
+		k.offChainKv,
+		k.rpcProvider,
 	)
 	return k
 }
 
+// Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
+// sets the query context function for the block and state plugins (to support historical queries).
 func (k *Keeper) Setup(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
@@ -99,7 +103,7 @@ func (k *Keeper) Setup(
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the precompile and state plugins
-	k.Setup(ak, bk, precompiles, qc)
+	k.Host.Setup(k.storeKey, ak, bk, precompiles, qc)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
