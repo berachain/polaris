@@ -18,19 +18,8 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package txpool
 
-import (
-	"github.com/gorilla/mux"
-
-	"github.com/cosmos/cosmos-sdk/client"
-)
-
-// RegisterJSONRPCServer provides a common function which registers the ethereum rpc servers
-// with routes on the native Cosmos API Server.
-func RegisterJSONRPCServer(ctx client.Context, rtr *mux.Router, provider Provider) {
-	cfg := provider.GetConfig()
-	rtr.PathPrefix(cfg.BaseRoute + "/ws").Handler(provider.GetWS().WebsocketHandler([]string{"*"}))
-	rtr.PathPrefix(cfg.BaseRoute).Handler(provider.GetHTTP())
-	provider.SetClientContext(ctx)
+type ConfigurationPlugin interface {
+	GetEvmDenom() string
 }

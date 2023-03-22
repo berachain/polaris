@@ -46,13 +46,15 @@ type Plugin interface {
 type plugin struct {
 	mempool     *mempool.EthTxPool
 	rpcProvider rpc.Provider
+	cp          ConfigurationPlugin
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(cp ConfigurationPlugin, rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin {
 	return &plugin{
 		mempool:     ethTxMempool,
 		rpcProvider: rpcProvider,
+		cp:          cp,
 	}
 }
 
@@ -61,7 +63,7 @@ func NewPlugin(rpcProvider rpc.Provider, ethTxMempool *mempool.EthTxPool) Plugin
 // transaction. The Cosmos transaction is then broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Serialize the transaction to Bytes
-	txBytes, err := NewSerializer(p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
+	txBytes, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
@@ -85,7 +87,7 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 // transaction. The Cosmos transaction is injected into the local mempool, but is
 // NOT gossiped to peers.
 func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
-	cosmosTx, err := NewSerializer(p.rpcProvider.GetClientCtx()).SerializeToSdkTx(signedTx)
+	cosmosTx, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).SerializeToSdkTx(signedTx)
 	if err != nil {
 		return err
 	}
