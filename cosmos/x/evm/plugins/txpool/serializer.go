@@ -44,12 +44,14 @@ type Serializer interface {
 // serializer represents the transaction pool plugin.
 type serializer struct {
 	clientCtx client.Context
+	cp        ConfigurationPlugin
 }
 
 // NewSerializer returns a new `Serializer`.
-func NewSerializer(clientCtx client.Context) Serializer {
+func NewSerializer(cp ConfigurationPlugin, clientCtx client.Context) Serializer {
 	return &serializer{
 		clientCtx: clientCtx,
+		cp:        cp,
 	}
 }
 
@@ -86,7 +88,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
 	if feeAmt.Sign() > 0 {
 		// TODO: properly get evm denomination.
-		fees = append(fees, sdk.NewCoin("abera", feeAmt))
+		fees = append(fees, sdk.NewCoin(s.cp.GetEvmDenom(), feeAmt))
 	}
 	tx.SetFeeAmount(fees)
 

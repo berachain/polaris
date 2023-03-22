@@ -41,8 +41,8 @@ type Plugin interface {
 type plugin struct {
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
-	// hp represents the header plugin, used for accessing historical block headers.
-	hp core.BlockPlugin
+	// bp represents the block plugin, used for accessing historical block headers.
+	bp core.BlockPlugin
 	// storekey is the store key for the header store.
 	storekey storetypes.StoreKey
 	//  `offchainStore` is the offchain store, used for accessing offchain data.
@@ -51,10 +51,10 @@ type plugin struct {
 
 // NewPlugin creates a new instance of the block plugin from the given context.
 func NewPlugin(
-	hp core.BlockPlugin, offchainStore storetypes.CacheKVStore, storekey storetypes.StoreKey,
+	bp core.BlockPlugin, offchainStore storetypes.CacheKVStore, storekey storetypes.StoreKey,
 ) Plugin {
 	return &plugin{
-		hp:            hp,
+		bp:            bp,
 		offchainStore: offchainStore,
 		storekey:      storekey,
 	}
