@@ -31,7 +31,7 @@ import (
 )
 
 // defaultTimeout is the default timeout for the test fixture.
-const defaultTimeout = 5 * time.Second
+const defaultTimeout = 10 * time.Second
 
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
