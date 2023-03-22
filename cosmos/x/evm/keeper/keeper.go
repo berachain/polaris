@@ -91,6 +91,7 @@ func NewKeeper(
 		k.offChainKv,
 		k.rpcProvider,
 	)
+	k.polaris = eth.NewPolarisProvider(k.Host, k.rpcProvider, nil)
 	return k
 }
 
