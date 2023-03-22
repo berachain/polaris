@@ -40,10 +40,10 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/polaris"
 	ethrpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -53,7 +53,7 @@ var _ core.PolarisHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// provider is the struct that houses the Polaris EVM.
-	polaris *eth.PolarisProvider
+	polaris *polaris.Provider
 	// We store a reference to the `rpcProvider` so that we can register it with
 	// the cosmos mux router.
 	rpcProvider evmrpc.Provider
@@ -147,7 +147,7 @@ func (k *Keeper) Setup(
 	k.bp.SetQueryContextFn(qc)
 
 	// Build the Polaris EVM Provider
-	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
+	k.polaris = polaris.NewProvider(polaris.Config{}, k, k.rpcProvider, nil)
 }
 
 // GetBlockPlugin returns the header plugin.

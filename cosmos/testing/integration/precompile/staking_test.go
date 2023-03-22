@@ -22,7 +22,6 @@ package precompile
 
 import (
 	"math/big"
-	"os"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -42,30 +41,25 @@ func TestCosmosPrecompiles(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/precompile:integration")
 }
 
+var net *network.Network
+var client *ethclient.Client
+var validator common.Address
+var stakingPrecompile *bindings.StakingModule
+
+var _ = BeforeSuite(func() {
+	net, client = StartPolarisNetwork(GinkgoT())
+	validator = common.BytesToAddress(net.Validators[0].Address.Bytes())
+	stakingPrecompile, _ = bindings.NewStakingModule(
+		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), client)
+})
+
 var _ = Describe("Staking", func() {
-	var net *network.Network
-	var client *ethclient.Client
-	var validator common.Address
-	var stakingPrecompile *bindings.StakingModule
-
-	BeforeEach(func() {
-		net, client = StartPolarisNetwork(GinkgoT())
-		validator = common.BytesToAddress(net.Validators[0].Address.Bytes())
-		stakingPrecompile, _ = bindings.NewStakingModule(
-			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), client)
-	})
-
-	AfterEach(func() {
-		// TODO: FIX THE OFFCHAIN DB
-		os.RemoveAll("data")
-	})
-
 	It("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
-		delegated, err := stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+		delegated, err := stakingPrecompile.GetDelegation(nil, network.TestAddresses[0], validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
@@ -76,7 +70,7 @@ var _ = Describe("Staking", func() {
 		ExpectMined(client, tx)
 		ExpectSuccessReceipt(client, tx)
 
-		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddresses[0], validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
 	})

@@ -21,13 +21,14 @@
 package network
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	cdb "github.com/cosmos/cosmos-db"
 
 	pruningtypes "cosmossdk.io/store/pruning/types"
+
+	"github.com/cometbft/cometbft/libs/rand"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -36,18 +37,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type (
@@ -60,15 +54,6 @@ const (
 	fivehundred = 500
 	onehundred  = 100
 	megamoney   = 1000000000000000000
-)
-
-var (
-	DummyContract   = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-	TestKey, _      = ethsecp256k1.GenPrivKey()
-	ECDSATestKey, _ = TestKey.ToECDSA()
-	AddressFromKey  = TestKey.PubKey().Address()
-	Signer          = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-	TestAddress     = crypto.PubkeyToAddress(ECDSATestKey.PublicKey)
 )
 
 type TestingT interface {
@@ -92,7 +77,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 		cfg = configs[0]
 	}
 
-	net, err := network.New(t, t.TempDir(), cfg)
+	net, err := network.New(t, t.TempDir()+rand.NewRand().Str(16), cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,37 +118,4 @@ func DefaultConfig() network.Config {
 	}
 
 	return cfg
-}
-
-func BuildGenesisState() map[string]json.RawMessage {
-	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
-	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
-
-	// Auth module
-	var authState authtypes.GenesisState
-	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
-	newAccount, err := authtypes.NewBaseAccountWithPubKey(TestKey.PubKey())
-	if err != nil {
-		panic(err)
-	}
-	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-	authState.Accounts = append(authState.Accounts, accounts[0])
-	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
-
-	// Bank module
-	var bankState banktypes.GenesisState
-	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
-	bankState.Balances = append(bankState.Balances, banktypes.Balance{
-		Address: newAccount.Address,
-		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
-	})
-	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
-
-	// Staking module
-	var stakingState stakingtypes.GenesisState
-	encoding.Codec.MustUnmarshalJSON(genState[stakingtypes.ModuleName], &stakingState)
-	stakingState.Params.BondDenom = "abera"
-	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
-
-	return genState
 }

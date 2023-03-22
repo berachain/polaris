@@ -23,6 +23,7 @@ package bytecode
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -37,12 +38,19 @@ func TestByteCode(t *testing.T) {
 	RunSpecs(t, "cosmos/store/bytecode")
 }
 
+var (
+	code1 = []byte{1}
+	dbDir types.AppOptions
+	store *Store
+)
+
+var _ = BeforeSuite(func() {
+	code1 = []byte{1}
+	dbDir = sims.NewAppOptionsWithFlagHome(GinkgoT().TempDir())
+	store = NewByteCodeStore(dbDir)
+})
+
 var _ = Describe("bytecodeStore", func() {
-	var (
-		code1 = []byte{1}
-		dbDir = sims.NewAppOptionsWithFlagHome("/tmp/berachain")
-		store = NewByteCodeStore(dbDir)
-	)
 
 	It("should set and get byte code", func() {
 		store.StoreCode(code1)

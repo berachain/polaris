@@ -44,7 +44,9 @@ func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Clien
 	net := network.New(t, network.DefaultConfig())
 	time.Sleep(1 * time.Second)
 	_, err = net.WaitForHeightWithTimeout(1, DefaultTimeout)
-	Expect(err).ToNot(HaveOccurred())
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Dial an Ethereum RPC Endpoint
 	rpcClient, err := gethrpc.DialContext(context.Background(), net.Validators[0].APIAddress+"/eth/rpc")
@@ -53,7 +55,6 @@ func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Clien
 	Expect(err).ToNot(HaveOccurred())
 
 	return net, client
-
 }
 
 // BuildTransactor builds a transaction opts object.
@@ -65,8 +66,8 @@ func BuildTransactor(
 	// Get the nonce from the RPC.
 	blockNumber, err := client.BlockNumber(context.Background())
 	Expect(err).ToNot(HaveOccurred())
-	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
-	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
+	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddresses[0])
+	nonce, err := client.NonceAt(context.Background(), network.TestAddresses[0], big.NewInt(int64(blockNumber)))
 	Expect(err).ToNot(HaveOccurred())
 
 	// Get the ChainID from the RPC.
@@ -74,7 +75,8 @@ func BuildTransactor(
 	Expect(err).ToNot(HaveOccurred())
 
 	// Build transaction opts object.
-	auth, err := bind.NewKeyedTransactorWithChainID(network.ECDSATestKey, chainID)
+	key, _ := network.TestKeys[0].ToECDSA()
+	auth, err := bind.NewKeyedTransactorWithChainID(key, chainID)
 	Expect(err).ToNot(HaveOccurred())
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0) // in wei

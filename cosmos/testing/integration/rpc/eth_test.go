@@ -92,7 +92,7 @@ var _ = Describe("Network", func() {
 			blockNumber, err := client.BlockNumber(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(blockNumber).To(BeNumerically(">", 0))
-			balance, err := client.BalanceAt(context.Background(), network.TestAddress, nil)
+			balance, err := client.BalanceAt(context.Background(), network.TestAddresses[0], nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
 		})
@@ -103,20 +103,20 @@ var _ = Describe("Network", func() {
 
 			// Mint tokens
 			tx, err := erc20Contract.Mint(BuildTransactor(client),
-				network.TestAddress, big.NewInt(100000000))
+				network.TestAddresses[0], big.NewInt(100000000))
 			Expect(err).ToNot(HaveOccurred())
 			ExpectMined(client, tx)
 			ExpectSuccessReceipt(client, tx)
 
 			// Check the erc20 balance
-			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
+			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddresses[0])
 			Expect(err).ToNot(HaveOccurred())
 			Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
 		})
 
 		It("eth_estimateGas", func() {
 			// Estimate the gas required for a transaction
-			from := network.TestAddress
+			from := network.TestAddresses[0]
 			to := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
 			value := big.NewInt(1000000000000)
 
@@ -137,7 +137,7 @@ var _ = Describe("Network", func() {
 
 			// Mint tokens
 			tx, err := erc20Contract.Mint(BuildTransactor(client),
-				network.TestAddress, big.NewInt(100000000))
+				network.TestAddresses[0], big.NewInt(100000000))
 			Expect(err).ToNot(HaveOccurred())
 
 			// Get the transaction by its hash, it should be pending here.
@@ -158,7 +158,7 @@ var _ = Describe("Network", func() {
 			Expect(fetchedTx.Hash()).To(Equal(txHash))
 
 			// Check the erc20 balance
-			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
+			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddresses[0])
 			Expect(err).ToNot(HaveOccurred())
 			Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
 		})

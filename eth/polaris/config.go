@@ -18,45 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package polaris
 
-import (
-	"github.com/ethereum/go-ethereum/eth/filters"
-
-	"pkg.berachain.dev/polaris/eth/rpc/api"
-)
-
-// GetAPIs returns a list of all available APIs.
-func GetAPIs(apiBackend PolarisBackend) []API {
-	nonceLock := new(AddrLocker)
-	return []API{
-		{
-			Namespace: "eth",
-			Service:   NewEthereumAPI(apiBackend),
-		}, {
-			Namespace: "eth",
-			Service:   NewBlockChainAPI(apiBackend),
-		},
-		{
-			Namespace: "eth",
-			Service:   NewTransactionAPI(apiBackend, nonceLock),
-		},
-		{
-			Namespace: "eth",
-			// TODO: config must be setup properly.
-			Service: NewFilterAPI(filters.NewFilterSystem(apiBackend, filters.Config{}), false),
-		},
-		{
-			Namespace: "txpool",
-			Service:   NewTxPoolAPI(apiBackend),
-		},
-		{
-			Namespace: "debug",
-			Service:   NewDebugAPI(apiBackend),
-		},
-		{
-			Namespace: "net",
-			Service:   api.NewNetAPI(apiBackend),
-		},
-	}
-}
+type Config struct{}

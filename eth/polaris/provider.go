@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package eth
+package polaris
 
 import (
 	"pkg.berachain.dev/polaris/eth/api"
@@ -27,19 +27,24 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
-// PolarisProvider is the only object that an implementing chain should use.
-type PolarisProvider struct {
+// Provider is the only object that an implementing chain should use.
+type Provider struct {
 	api.Chain
-	rps rpc.Service
+	config Config
+	rps    rpc.Service
 }
 
 // NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
-func NewPolarisProvider(
+func NewProvider(
+	config Config,
 	host core.PolarisHostChain,
 	rps rpc.Service,
 	logHandler log.Handler,
-) *PolarisProvider {
-	sp := &PolarisProvider{}
+) *Provider {
+	prov := &Provider{
+		config: config,
+	}
+
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
@@ -49,13 +54,13 @@ func NewPolarisProvider(
 	}
 
 	// Build the chain from the host.
-	sp.Chain = core.NewChain(host)
+	prov.Chain = core.NewChain(host)
 
 	// Build and set the RPC Backend.
 	if rps != nil {
-		sp.rps = rps
-		sp.rps.SetBackend(rpc.NewPolarisBackend(sp.Chain, rps.GetConfig()))
+		prov.rps = rps
+		prov.rps.SetBackend(rpc.NewPolarisBackend(prov.Chain, rps.GetConfig()))
 	}
 
-	return sp
+	return prov
 }

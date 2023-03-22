@@ -23,6 +23,7 @@ package offchain
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -35,18 +36,22 @@ func TestOffchain(t *testing.T) {
 }
 
 var (
-	dbDir = sims.NewAppOptionsWithFlagHome("./tmp/berachain")
-	name  = "indexer-test123"
+	dbDir types.AppOptions
+	name  string
+	byte1 = []byte{1}
+	byte2 = []byte{2}
+	byte3 = []byte{3}
+	byte4 = []byte{4}
+	store *Store
 )
 
+var _ = BeforeSuite(func() {
+	dbDir = sims.NewAppOptionsWithFlagHome(GinkgoT().TempDir() + "store_test")
+	name = "indexer-test123"
+	store = NewOffChainKVStore(name, dbDir)
+})
+
 var _ = Describe("offchainStore", func() {
-	var (
-		byte1 = []byte{1}
-		byte2 = []byte{2}
-		byte3 = []byte{3}
-		byte4 = []byte{4}
-		store = NewOffChainKVStore(name, dbDir)
-	)
 	It("checks for write to buffer", func() {
 		store.Set(byte1, byte2)
 		store.Set(byte3, byte4)

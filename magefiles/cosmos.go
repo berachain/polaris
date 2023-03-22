@@ -143,11 +143,11 @@ func (Cosmos) Install() error {
 
 // Runs all main tests.
 func (c Cosmos) Test() error {
-	if err := testUnit(c.directory()); err != nil {
+	if err := TestUnit(); err != nil {
 		return err
 	}
 
-	if err := testIntegration(c.directory()); err != nil {
+	if err := TestIntegration(); err != nil {
 		return err
 	}
 	return nil
