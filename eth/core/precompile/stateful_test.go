@@ -92,7 +92,7 @@ var _ = Describe("Stateful Container", func() {
 
 			// precompile exec error
 			_, err = sc.Run(ctx, nil, getOutputPartialABI.ID, addr, value, readonly)
-			Expect(err.Error()).To(Equal("getOutputPartial: err during precompile execution"))
+			Expect(err.Error()).To(Equal("err during precompile execution: getOutputPartial"))
 
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")

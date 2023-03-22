@@ -51,12 +51,12 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 
 	iavlHeight, err := p.getIAVLHeight(height)
 	if err != nil {
-		return nil, errors.New("GetHeader: invalid IAVL height")
+		return nil, errorslib.Wrapf(err, "GetHeader: invalid IAVL height")
 	}
 
 	ctx, err := p.getQueryContext(iavlHeight, false)
 	if err != nil {
-		return nil, errors.New("GetHeader: failed to use query context")
+		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
 	}
 
 	// Unmarshal the header from the context kv store.
@@ -80,7 +80,7 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
-		return err
+		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
 	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
 	return nil
