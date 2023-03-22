@@ -66,7 +66,7 @@ func BuildTransactor(
 	blockNumber, err := client.BlockNumber(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
-	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
+	nonce, err := client.NonceAt(context.Background(), network.TestAddresses[0], big.NewInt(int64(blockNumber)))
 	Expect(err).ToNot(HaveOccurred())
 
 	// Get the ChainID from the RPC.
@@ -74,7 +74,8 @@ func BuildTransactor(
 	Expect(err).ToNot(HaveOccurred())
 
 	// Build transaction opts object.
-	auth, err := bind.NewKeyedTransactorWithChainID(network.ECDSATestKey, chainID)
+	key, _ := network.TestKeys[0].ToECDSA()
+	auth, err := bind.NewKeyedTransactorWithChainID(key, chainID)
 	Expect(err).ToNot(HaveOccurred())
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0) // in wei

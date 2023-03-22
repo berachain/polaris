@@ -65,7 +65,7 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
-		delegated, err := stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+		delegated, err := stakingPrecompile.GetDelegation(nil, network.TestAddresses[0], validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
@@ -76,7 +76,7 @@ var _ = Describe("Staking", func() {
 		ExpectMined(client, tx)
 		ExpectSuccessReceipt(client, tx)
 
-		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddresses[0], validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
 	})

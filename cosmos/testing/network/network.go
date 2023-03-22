@@ -46,7 +46,6 @@ import (
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
@@ -63,13 +62,25 @@ const (
 )
 
 var (
-	DummyContract   = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-	TestKey, _      = ethsecp256k1.GenPrivKey()
-	ECDSATestKey, _ = TestKey.ToECDSA()
-	AddressFromKey  = TestKey.PubKey().Address()
-	Signer          = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-	TestAddress     = crypto.PubkeyToAddress(ECDSATestKey.PublicKey)
+	DummyContract = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
+	TestKeys      [numTestAccounts]*ethsecp256k1.PrivKey
+	TestAddresses [numTestAccounts]common.Address
+	Signer        = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 )
+
+const (
+	numTestAccounts = 10
+)
+
+var ()
+
+func init() {
+	for i := 0; i < numTestAccounts; i++ {
+		key, _ := ethsecp256k1.GenPrivKey()
+		TestKeys[i] = key
+		TestAddresses[i] = common.Address(key.PubKey().Address().Bytes())
+	}
+}
 
 type TestingT interface {
 	Fatal(args ...interface{})
@@ -139,24 +150,24 @@ func BuildGenesisState() map[string]json.RawMessage {
 	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
 	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
 
-	// Auth module
-	var authState authtypes.GenesisState
-	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
-	newAccount, err := authtypes.NewBaseAccountWithPubKey(TestKey.PubKey())
-	if err != nil {
-		panic(err)
-	}
-	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-	authState.Accounts = append(authState.Accounts, accounts[0])
-	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
-
-	// Bank module
+	// Auth + Bank module
 	var bankState banktypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
-	bankState.Balances = append(bankState.Balances, banktypes.Balance{
-		Address: newAccount.Address,
-		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
-	})
+	var authState authtypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
+	for i := 0; i < numTestAccounts; i++ {
+		newAccount, err := authtypes.NewBaseAccountWithPubKey(TestKeys[i].PubKey())
+		if err != nil {
+			panic(err)
+		}
+		accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
+		authState.Accounts = append(authState.Accounts, accounts[0])
+		bankState.Balances = append(bankState.Balances, banktypes.Balance{
+			Address: newAccount.Address,
+			Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
+		})
+	}
+	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 
 	// Staking module
