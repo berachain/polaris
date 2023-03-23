@@ -36,7 +36,10 @@ import (
 	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck  // Gomega makes sense in tests.
 )
 
-const DefaultTimeout = 10 * time.Second
+const (
+	DefaultTimeout = 10 * time.Second
+	TxTimeout      = 30 * time.Second
+)
 
 // StartPolarisNetwork starts a new in-memory Polaris chain.
 func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Client) {
@@ -65,7 +68,7 @@ func BuildTransactor(
 	blockNumber, err := client.BlockNumber(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
-	time.Sleep(4 * time.Second) // hacky stuff to make sure the nonce is correct.
+	time.Sleep(TxTimeout) // hacky stuff to make sure the nonce is correct.
 	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
 	Expect(err).ToNot(HaveOccurred())
 
