@@ -18,34 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package tracers
 
-import (
-	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/ethapi"
-	"github.com/ethereum/go-ethereum/rpc"
-)
+import "github.com/ethereum/go-ethereum/eth/tracers"
 
 type (
-	AddrLocker        = ethapi.AddrLocker
-	API               = rpc.API
-	Backend           = ethapi.Backend
-	BlockNumber       = rpc.BlockNumber
-	BlockNumberOrHash = rpc.BlockNumberOrHash
-	Server            = rpc.Server
-	TracersBackend    = tracers.Backend
-)
-
-var (
-	NewEthereumAPI       = ethapi.NewEthereumAPI
-	NewBlockChainAPI     = ethapi.NewBlockChainAPI
-	NewTransactionAPI    = ethapi.NewTransactionAPI
-	NewTxPoolAPI         = ethapi.NewTxPoolAPI
-	NewDebugAPI          = ethapi.NewDebugAPI
-	NewServer            = rpc.NewServer
-	SafeBlockNumber      = rpc.SafeBlockNumber
-	FinalizedBlockNumber = rpc.FinalizedBlockNumber
-	LatestBlockNumber    = rpc.LatestBlockNumber
-	PendingBlockNumber   = rpc.PendingBlockNumber
-	EarliestBlockNumber  = rpc.EarliestBlockNumber
+	StateReleaseFunc = tracers.StateReleaseFunc
 )

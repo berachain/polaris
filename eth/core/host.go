@@ -39,7 +39,7 @@ type PolarisHostChain interface {
 	GetGasPlugin() GasPlugin
 	// GetHistoricalPlugin returns the OPTIONAL `HistoricalPlugin` of the Polaris host chain.
 	GetHistoricalPlugin() HistoricalPlugin
-	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
+	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the P                                                                                                                  olaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
 	// GetStatePlugin returns the `StatePlugin` of the Polaris host chain.
 	GetStatePlugin() StatePlugin

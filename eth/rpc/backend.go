@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core/bloombits"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
+	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
 
@@ -39,6 +40,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -61,6 +63,7 @@ var DefaultGasPriceOracleConfig = gasprice.Config{
 
 type PolarisBackend interface {
 	Backend
+	TracersBackend
 	rpcapi.NetBackend
 }
 
@@ -260,6 +263,33 @@ func (b *backend) BlockByNumberOrHash(_ context.Context,
 	b.logger.Info("called eth.rpc.backend.BlockByNumberOrHash", "header", block.Header(),
 		"num_txs", len(block.Transactions()))
 	return block, nil
+}
+
+func (b *backend) StateAtBlock(
+	_ context.Context,
+	block *types.Block,
+	_ uint64,
+	_ state.StateDBI,
+	readOnly bool,
+	preferDisk bool,
+) (state.StateDBI, tracers.StateReleaseFunc, error) {
+	b.logger.Info("called eth.rpc.backend.StateAtBlock", "block", block)
+	state, err := b.chain.GetStateByNumber(block.Number().Int64())
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.StateAtBlock", "block", block, "err", err)
+		return nil, nil, err
+	}
+	return state, func() {}, nil
+}
+
+func (b *backend) StateAtTransaction(
+	ctx context.Context,
+	block *types.Block,
+	txIndex int,
+	reexec uint64,
+) (*core.Message, vm.BlockContext, state.StateDBI, tracers.StateReleaseFunc, error) {
+	b.logger.Info("called eth.rpc.backend.StateAtTransaction", "block", block, "txIndex", txIndex)
+	return b.chain.GetStateByTransaction(ctx, block, txIndex)
 }
 
 func (b *backend) StateAndHeaderByNumber(

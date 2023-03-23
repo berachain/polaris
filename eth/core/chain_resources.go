@@ -26,13 +26,29 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/tracers"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // ChainResources is the interface that defines functions for code paths within the chain to acquire
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
-	GetStateByNumber(int64) (vm.GethStateDB, error)
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetStateByNumber(int64) (vm.GethStateDB, error)
+	GetStateByTransaction(context.Context, *types.Block, int) (*Message, vm.BlockContext, state.StateDBI, tracers.StateReleaseFunc, error)
+}
+
+// GetEVM returns an EVM ready to be used for executing transactions. It is used by both the StateProcessor
+// to acquire a new EVM at the start of every block. As well as by the backend to acquire an EVM for running
+// gas estimations, eth_call etc.
+func (bc *blockchain) GetEVM(
+	_ context.Context, txContext vm.TxContext, state vm.PolarisStateDB,
+	header *types.Header, vmConfig *vm.Config,
+) *vm.GethEVM {
+	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
+	return vm.NewGethEVMWithPrecompiles(
+		bc.newEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
+	)
 }
 
 // GetStateByNumber returns a statedb configured to read what the state of the blockchain is/was
@@ -45,21 +61,41 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	return state.NewStateDB(sp), nil
 }
 
-// GetEVM returns an EVM ready to be used for executing transactions. It is used by both the StateProcessor
-// to acquire a new EVM at the start of every block. As well as by the backend to acquire an EVM for running
-// gas estimations, eth_call etc.
-func (bc *blockchain) GetEVM(
-	_ context.Context, txContext vm.TxContext, state vm.PolarisStateDB,
-	header *types.Header, vmConfig *vm.Config,
-) *vm.GethEVM {
-	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
-	return vm.NewGethEVMWithPrecompiles(
-		bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
+// GetStateByTransaction returns a statedb configured to read what the state of the blockchain is/was
+// at a given transaction. It also returns the message, block context and a release function for the
+// statedb.
+func (bc *blockchain) GetStateByTransaction(_ context.Context, block *types.Block, txIndex int) (
+	*Message, vm.BlockContext, state.StateDBI, tracers.StateReleaseFunc, error,
+) {
+	// get the statedb and state processor to execute the block.
+	statedb, err := bc.GetStateByNumber(block.Number().Int64())
+	if err != nil {
+		return nil, vm.BlockContext{}, nil, nil, err
+	}
+	sdb := utils.MustGetAs[vm.PolarisStateDB](statedb)
+	_ = NewStateProcessor(
+		bc.cp, bc.gp, bc.pp, sdb, bc.vmConfig,
 	)
+
+	// // prepare the plugins for the block and execute each transaction.
+	// ctx := sdb.GetContext()
+	// bc.bp.Prepare(ctx)
+	// bc.cp.Prepare(ctx)
+	// bc.gp.Prepare(ctx)
+	// if bc.hp != nil {
+	// 	bc.hp.Prepare(ctx)
+	// }
+
+	// for idx, tx := range block.Transactions() {
+	// 	bc.gp.Reset(ctx)
+	// 	bc.sp.Reset(ctx)
+	// }
+
+	return nil, vm.BlockContext{}, nil, nil, nil
 }
 
 // NewEVMBlockContext creates a new block context for use in the EVM.
-func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
+func (bc *blockchain) newEVMBlockContext(header *types.Header) vm.BlockContext {
 	feeCollector := bc.cp.FeeCollector()
 	if feeCollector == nil {
 		feeCollector = &header.Coinbase
