@@ -134,5 +134,5 @@ func (h *Host) GetTxPoolPlugin() core.TxPoolPlugin {
 
 // GetAllPlugins returns all the plugins.
 func (h *Host) GetAllPlugins() []plugins.BaseCosmosPolaris {
-	return []plugins.BaseCosmosPolaris{h.hp, h.cp, h.gp, h.pp, h.sp}
+	return []plugins.BaseCosmosPolaris{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
 }

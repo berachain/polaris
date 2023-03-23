@@ -27,6 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/rpc"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -40,6 +41,7 @@ var _ Plugin = (*plugin)(nil)
 // Plugin represents the transaction pool plugin.
 type Plugin interface {
 	core.TxPoolPlugin
+	plugins.BaseCosmosPolaris
 }
 
 // plugin represents the transaction pool plugin.

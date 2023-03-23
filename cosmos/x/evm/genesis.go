@@ -58,6 +58,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
 	am.keeper.ConfigureGethLogger(ctx)
 
+	// TODO: remove InitGenesis from the interfaces, do check and run instead
 	// Initialize all the plugins.
 	for _, plugin := range am.keeper.Host.GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genesisState)
