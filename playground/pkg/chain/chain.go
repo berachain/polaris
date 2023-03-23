@@ -21,6 +21,8 @@
 package chain
 
 import (
+	"context"
+
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/playground/pkg/plugins"
 )
@@ -60,7 +62,7 @@ func (p *Playground) GetConfigurationPlugin() core.ConfigurationPlugin {
 }
 
 // GetNewGasPlugin implements `core.PolarisHostChain`.
-func (p *Playground) GetNewGasPlugin() core.GasPlugin {
+func (p *Playground) GetNewGasPlugin(_ context.Context) core.GasPlugin {
 	return plugins.NewGasPlugin()
 }
 

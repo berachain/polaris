@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // gasMeterDescriptor is the descriptor for the gas meter used in the plugin.
@@ -51,6 +52,13 @@ type plugin struct {
 
 // NewPlugin creates a new instance of the gas plugin from a given context.
 func NewPlugin(ctx context.Context) Plugin {
+	if !utils.Implements[sdk.Context](ctx) {
+		return &plugin{
+			gasMeter:      storetypes.NewInfiniteGasMeter(),
+			blockGasMeter: storetypes.NewInfiniteGasMeter(),
+		}
+	}
+
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	return &plugin{
 		gasMeter:      sdkCtx.GasMeter(),

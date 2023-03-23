@@ -23,7 +23,10 @@ package configuration
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	ethparams "pkg.berachain.dev/polaris/eth/params"
+
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	enclib "pkg.berachain.dev/polaris/lib/encoding"
 )
 
 // GetParams is used to get the params for the evm module.
@@ -32,10 +35,20 @@ func (p *plugin) GetParams(ctx sdk.Context) *types.Params {
 	if bz == nil {
 		return &types.Params{}
 	}
+
 	var params types.Params
 	if err := params.Unmarshal(bz); err != nil {
 		panic(err)
 	}
+
+	// update cached values
+	if p.evmDenom != params.EvmDenom {
+		p.evmDenom = params.EvmDenom
+	}
+	if newChainConfig := enclib.MustUnmarshalJSON[ethparams.ChainConfig]([]byte(params.ChainConfig)); p.chainConfig != newChainConfig { //nolint:lll // ok.
+		p.chainConfig = newChainConfig
+	}
+
 	return &params
 }
 
@@ -46,4 +59,8 @@ func (p *plugin) SetParams(ctx sdk.Context, params *types.Params) {
 		panic(err)
 	}
 	ctx.KVStore(p.storeKey).Set([]byte{types.ParamsKey}, bz)
+
+	// update cached values
+	p.evmDenom = params.EvmDenom
+	p.chainConfig = enclib.MustUnmarshalJSON[ethparams.ChainConfig]([]byte(params.ChainConfig))
 }

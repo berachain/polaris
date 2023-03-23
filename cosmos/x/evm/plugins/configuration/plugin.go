@@ -33,6 +33,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Plugin is the interface that must be implemented by the plugin.
@@ -47,7 +48,10 @@ type Plugin interface {
 // plugin implements the core.ConfigurationPlugin interface.
 type plugin struct {
 	storeKey storetypes.StoreKey
-	evmDenom string
+
+	// cached values
+	evmDenom    string
+	chainConfig *params.ChainConfig
 }
 
 // NewPlugin returns a new plugin instance.
@@ -59,14 +63,20 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 
 func (p *plugin) GetEvmDenom(ctx sdk.Context) string {
 	if p.evmDenom == "" {
-		p.evmDenom = p.GetParams(ctx).EvmDenom
+		p.GetParams(ctx)
 	}
 	return p.evmDenom
 }
 
 // ChainConfig implements the core.ConfigurationPlugin interface.
 func (p *plugin) ChainConfig(ctx context.Context) *params.ChainConfig {
-	return p.GetParams(sdk.UnwrapSDKContext(ctx)).EthereumChainConfig()
+	if p.chainConfig == nil {
+		if !utils.Implements[sdk.Context](ctx) {
+			return params.DefaultChainConfig
+		}
+		p.GetParams(sdk.UnwrapSDKContext(ctx))
+	}
+	return p.chainConfig
 }
 
 // ExtraEips implements the core.ConfigurationPlugin interface.
