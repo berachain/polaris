@@ -65,6 +65,7 @@ func BuildTransactor(
 	blockNumber, err := client.BlockNumber(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
+	time.Sleep(4 * time.Second) // hacky stuff to make sure the nonce is correct.
 	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
 	Expect(err).ToNot(HaveOccurred())
 

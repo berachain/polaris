@@ -134,11 +134,7 @@ var _ = Describe("Network", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// Get the transaction by its hash, it should be pending here.
-		txHash := tx.Hash() // TODO: UNCOMMENT
-		// fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
-		// Expect(err).ToNot(HaveOccurred())
-		// Expect(isPending).To(BeTrue())
-		// Expect(fetchedTx.Hash()).To(Equal(txHash))
+		txHash := tx.Hash()
 
 		// Wait for it to be mined.
 		ExpectMined(client, tx)
