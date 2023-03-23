@@ -51,7 +51,7 @@ type Keeper struct {
 	// authority is the bech32 address that is allowed to execute governance proposals.
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
-	Host *Host
+	host *host
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -80,7 +80,7 @@ func NewKeeper(
 	cfg.BaseRoute = "/eth/rpc"
 	k.rpcProvider = evmrpc.NewProvider(cfg)
 
-	k.Host = NewHost(
+	k.host = NewHost(
 		storeKey,
 		ak,
 		bk,
@@ -101,10 +101,10 @@ func (k *Keeper) Setup(
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup plugins in the Host
-	k.Host.Setup(k.storeKey, ak, bk, precompiles, qc)
+	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)
 
 	// Build the Polaris EVM Provider
-	k.polaris = eth.NewPolarisProvider(k.Host, k.rpcProvider, nil)
+	k.polaris = eth.NewPolarisProvider(k.host, k.rpcProvider, nil)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
@@ -132,4 +132,8 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 // the Ethereum JSONRPC server with the application mux server.
 func (k *Keeper) GetRPCProvider() evmrpc.Provider {
 	return k.rpcProvider
+}
+
+func (k *Keeper) GetHost() *host {
+	return k.host
 }

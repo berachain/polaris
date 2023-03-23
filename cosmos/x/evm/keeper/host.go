@@ -44,10 +44,10 @@ import (
 )
 
 // Compile-time interface assertion.
-var _ core.PolarisHostChain = (*Host)(nil)
+var _ core.PolarisHostChain = (*host)(nil)
 
-type Host struct {
-	// The various plugins that are are used to implement `core.PolarisHostChain`.
+type host struct {
+	// The various plugins that are are used to implement `core.PolarishostChain`.
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
@@ -57,7 +57,7 @@ type Host struct {
 	txp txpool.Plugin
 }
 
-// NewHost creates new instances of the plugin host.
+// Newhost creates new instances of the plugin host.
 func NewHost(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
@@ -67,9 +67,9 @@ func NewHost(
 	ethTxMempool sdkmempool.Mempool,
 	offChainKv *offchain.Store,
 	rpcProvider evmrpc.Provider,
-) *Host {
+) *host {
 	// We setup the host with some Cosmos standard sauce.
-	h := &Host{}
+	h := &host{}
 
 	// Build the Plugins
 	h.bp = block.NewPlugin(storeKey)
@@ -82,7 +82,7 @@ func NewHost(
 
 // Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
 // sets the query context function for the block and state plugins (to support historical queries).
-func (h *Host) Setup(
+func (h *host) Setup(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
@@ -99,40 +99,40 @@ func (h *Host) Setup(
 }
 
 // GetBlockPlugin returns the header plugin.
-func (h *Host) GetBlockPlugin() core.BlockPlugin {
+func (h *host) GetBlockPlugin() core.BlockPlugin {
 	return h.bp
 }
 
 // GetConfigurationPlugin returns the configuration plugin.
-func (h *Host) GetConfigurationPlugin() core.ConfigurationPlugin {
+func (h *host) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return h.cp
 }
 
 // GetGasPlugin returns the gas plugin.
-func (h *Host) GetGasPlugin() core.GasPlugin {
+func (h *host) GetGasPlugin() core.GasPlugin {
 	return h.gp
 }
 
-func (h *Host) GetHistoricalPlugin() core.HistoricalPlugin {
+func (h *host) GetHistoricalPlugin() core.HistoricalPlugin {
 	return h.hp
 }
 
 // GetPrecompilePlugin returns the precompile plugin.
-func (h *Host) GetPrecompilePlugin() core.PrecompilePlugin {
+func (h *host) GetPrecompilePlugin() core.PrecompilePlugin {
 	return h.pp
 }
 
 // GetStatePlugin returns the state plugin.
-func (h *Host) GetStatePlugin() core.StatePlugin {
+func (h *host) GetStatePlugin() core.StatePlugin {
 	return h.sp
 }
 
 // GetTxPoolPlugin returns the txpool plugin.
-func (h *Host) GetTxPoolPlugin() core.TxPoolPlugin {
+func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
 	return h.txp
 }
 
 // GetAllPlugins returns all the plugins.
-func (h *Host) GetAllPlugins() []plugins.BaseCosmosPolaris {
+func (h *host) GetAllPlugins() []plugins.BaseCosmosPolaris {
 	return []plugins.BaseCosmosPolaris{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
 }

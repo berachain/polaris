@@ -71,7 +71,7 @@ func (k *Keeper) UpdateParams(
 	}
 
 	// Update the params.
-	k.Host.cp.Prepare(ctx)
-	k.Host.cp.SetParams(&req.Params)
+	k.host.cp.Prepare(ctx)
+	k.host.cp.SetParams(&req.Params)
 	return &types.UpdateParamsResponse{}, nil
 }

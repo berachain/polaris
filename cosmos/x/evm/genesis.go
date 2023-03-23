@@ -60,7 +60,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 
 	// TODO: remove InitGenesis from the interfaces, do check and run instead
 	// Initialize all the plugins.
-	for _, plugin := range am.keeper.Host.GetAllPlugins() {
+	for _, plugin := range am.keeper.GetHost().GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genesisState)
 	}
 
@@ -79,7 +79,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	genesisState := new(types.GenesisState)
-	for _, plugin := range am.keeper.Host.GetAllPlugins() {
+	for _, plugin := range am.keeper.GetHost().GetAllPlugins() {
 		plugin.ExportGenesis(ctx, genesisState)
 	}
 	return cdc.MustMarshalJSON(genesisState)
