@@ -40,10 +40,9 @@ var _ = Describe("Network with WS", func() {
 	BeforeEach(func() {
 		ctx = context.Background()
 	})
-	It("should connect -- multiple ", func() {
+	It("should connect -- multiple clients", func() {
 		// Dial an Ethereum websocket Endpoint
 		wsaddr := "ws:" + strings.TrimPrefix(tf.Network.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
-		// rpcaddr := net.Validators[0].APIAddress + "/eth/rpc"
 		ws, err := gethrpc.DialWebsocket(ctx, wsaddr, "*")
 		Expect(err).ToNot(HaveOccurred())
 		wsClient := ethclient.NewClient(ws)

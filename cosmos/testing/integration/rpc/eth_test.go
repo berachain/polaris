@@ -80,39 +80,34 @@ var _ = Describe("Network", func() {
 		Expect(c).ToNot(BeNil())
 	})
 
-	It("eth_chainId, eth_gasPrice, eth_blockNumber, eth_getBalance", func() {
-		chainID, err := client.ChainID(context.Background())
-		Expect(err).ToNot(HaveOccurred())
+	It("should support eth_chainId", func() {
+		chainID, err := client.ChainID(ctx)
 		Expect(chainID.String()).To(Equal("69420"))
-		gasPrice, err := client.SuggestGasPrice(context.Background())
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	It("should support eth_gasPrice", func() {
+
+		gasPrice, err := tf.EthClient.SuggestGasPrice(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 		Expect(gasPrice).ToNot(BeNil())
-		blockNumber, err := client.BlockNumber(context.Background())
+	})
+
+	It("should support eth_blockNumber", func() {
+		// Get the latest block
+		blockNumber, err := client.BlockNumber(ctx)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(blockNumber).To(BeNumerically(">", 0))
-		balance, err := client.BalanceAt(context.Background(), network.TestAddress, nil)
+	})
+
+	It("should support eth_getBalance", func() {
+		// Get the balance of an account
+		balance, err := client.BalanceAt(ctx, network.TestAddress, nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance.Uint64()).To(BeNumerically(">", 0))
 	})
 
-	It("should deploy, mint tokens, and check balance", func() {
-		// Deploy the contract
-		erc20Contract := DeployERC20(BuildTransactor(client), client)
-
-		// Mint tokens
-		tx, err := erc20Contract.Mint(BuildTransactor(client),
-			network.TestAddress, big.NewInt(100000000))
-		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(client, tx)
-		ExpectSuccessReceipt(client, tx)
-
-		// Check the erc20 balance
-		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(erc20Balance.Uint64()).To(BeNumerically(">", 0))
-	})
-
-	It("eth_estimateGas", func() {
+	It("should support eth_estimateGas", func() {
 		// Estimate the gas required for a transaction
 		from := network.TestAddress
 		to := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
@@ -124,12 +119,12 @@ var _ = Describe("Network", func() {
 			Value: value,
 		}
 
-		gas, err := client.EstimateGas(context.Background(), msg)
+		gas, err := client.EstimateGas(ctx, msg)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(gas).To(BeNumerically(">", 0))
 	})
 
-	It("should deploy, mint tokens, and check balance, eth_getTransactionByHash", func() {
+	It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 		// Deploy the contract
 		erc20Contract := DeployERC20(BuildTransactor(client), client)
 
@@ -150,7 +145,7 @@ var _ = Describe("Network", func() {
 		ExpectSuccessReceipt(client, tx)
 
 		// Get the transaction by its hash, it should be mined here.
-		fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
+		fetchedTx, isPending, err := client.TransactionByHash(ctx, txHash)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(isPending).To(BeFalse())
 		Expect(fetchedTx.Hash()).To(Equal(txHash))

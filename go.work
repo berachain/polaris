@@ -8,4 +8,3 @@ use (
 	./magefiles
 	./playground
 )
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230321213944-019945fbf8fc
