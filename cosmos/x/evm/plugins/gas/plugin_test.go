@@ -44,13 +44,11 @@ var _ = Describe("plugin", func() {
 		// new block
 		blockGasMeter = storetypes.NewGasMeter(blockGasLimit)
 		ctx = testutil.NewContext().WithBlockGasMeter(blockGasMeter)
-		p = utils.MustGetAs[*plugin](NewPlugin())
-		p.Reset(ctx)
-		p.Prepare(ctx)
+		p = utils.MustGetAs[*plugin](NewPlugin(ctx))
 	})
 
 	It("correctly consume, refund, and report cumulative in the same block", func() {
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p = utils.MustGetAs[*plugin](NewPlugin(testutil.NewContext().WithBlockGasMeter(blockGasMeter)))
 
 		// tx 1
 		p.gasMeter = storetypes.NewGasMeter(1000)
@@ -65,7 +63,7 @@ var _ = Describe("plugin", func() {
 		// as block gas is handled by the baseapp.
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 1
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p = utils.MustGetAs[*plugin](NewPlugin(testutil.NewContext().WithBlockGasMeter(blockGasMeter)))
 
 		// tx 2
 		p.gasMeter = storetypes.NewGasMeter(1000)
@@ -77,7 +75,7 @@ var _ = Describe("plugin", func() {
 		Expect(p.BlockGasConsumed()).To(Equal(uint64(250))) // shouldn't have consumed any additional gas yet.
 		blockGasMeter.ConsumeGas(1000, "")                  // finalize tx 2
 		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p = utils.MustGetAs[*plugin](NewPlugin(testutil.NewContext().WithBlockGasMeter(blockGasMeter)))
 
 		// tx 3
 		p.gasMeter = storetypes.NewGasMeter(1000)
@@ -110,14 +108,14 @@ var _ = Describe("plugin", func() {
 	It("should error on block gas overconsumption", func() {
 		Expect(p.BlockGasLimit()).To(Equal(blockGasLimit))
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p = utils.MustGetAs[*plugin](NewPlugin(testutil.NewContext().WithBlockGasMeter(blockGasMeter)))
 
 		// tx 1
 		err := p.ConsumeGas(1000)
 		Expect(err).ToNot(HaveOccurred())
 		blockGasMeter.ConsumeGas(1000, "") // finalize tx 1
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p = utils.MustGetAs[*plugin](NewPlugin(testutil.NewContext().WithBlockGasMeter(blockGasMeter)))
 
 		// tx 2
 		err = p.ConsumeGas(1000)

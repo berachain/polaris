@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"math/big"
 	"pkg.berachain.dev/polaris/eth/core"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/lib/types"
 	"sync"
 )
 
@@ -26,7 +26,7 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //			GetFunc: func(addr common.Address) vm.PrecompiledContract {
 //				panic("mock out the Get method")
 //			},
-//			GetPrecompilesFunc: func(rules *params.Rules) []libtypes.Registrable[Address] {
+//			GetPrecompilesFunc: func(rules *params.Rules) []types.Registrable[Address] {
 //				panic("mock out the GetPrecompiles method")
 //			},
 //			HasFunc: func(addr common.Address) bool {
@@ -49,7 +49,7 @@ type PrecompilePluginMock struct {
 	GetFunc func(addr common.Address) vm.PrecompiledContract
 
 	// GetPrecompilesFunc mocks the GetPrecompiles method.
-	GetPrecompilesFunc func(rules *params.Rules) []libtypes.Registrable[Address]
+	GetPrecompilesFunc func(rules *params.Rules) []types.Registrable[Address]
 
 	// HasFunc mocks the Has method.
 	HasFunc func(addr common.Address) bool
@@ -140,7 +140,7 @@ func (mock *PrecompilePluginMock) GetCalls() []struct {
 }
 
 // GetPrecompiles calls GetPrecompilesFunc.
-func (mock *PrecompilePluginMock) GetPrecompiles(rules *params.Rules) []libtypes.Registrable[Address] {
+func (mock *PrecompilePluginMock) GetPrecompiles(rules *params.Rules) []types.Registrable[Address] {
 	if mock.GetPrecompilesFunc == nil {
 		panic("PrecompilePluginMock.GetPrecompilesFunc: method is nil but PrecompilePlugin.GetPrecompiles was just called")
 	}

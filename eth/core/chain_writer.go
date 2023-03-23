@@ -54,16 +54,13 @@ type ChainWriter interface {
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	bc.logger.Info("Preparing block", "height", height)
 
-	// Prepare the Gas and State plugin for the block.
-	bc.gp.Prepare(ctx)
-	bc.sp.Reset(ctx)
-
 	// If we are processing a new block, then we assume that the previous was finalized.
 	header := bc.bp.NewHeaderWithBlockNumber(ctx, height)
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
 		header,
+		bc.host.GetNewGasPlugin(ctx),
 	)
 }
 
@@ -71,15 +68,12 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
-	// Reset the Gas plugin for the tx.
-	bc.gp.Reset(ctx)
-
-	return bc.processor.ProcessTransaction(ctx, tx)
+	return bc.processor.ProcessTransaction(ctx, tx, bc.host.GetNewGasPlugin(ctx))
 }
 
 // Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, logs, err := bc.processor.Finalize(ctx)
+	block, receipts, logs, err := bc.processor.Finalize(ctx, bc.host.GetNewGasPlugin(ctx))
 	if err != nil {
 		return err
 	}

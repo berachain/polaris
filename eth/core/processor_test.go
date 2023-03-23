@@ -74,14 +74,13 @@ var _ = Describe("StateProcessor", func() {
 		sdb = vmmock.NewEmptyStateDB()
 		host = mock.NewMockHost()
 		bp = mock.NewBlockPluginMock()
-		gp = mock.NewGasPluginMock()
 		cp = mock.NewConfigurationPluginMock()
 		pp = mock.NewPrecompilePluginMock()
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
-		host.GetNewGasPluginFunc = func() core.GasPlugin {
-			return gp
+		host.GetNewGasPluginFunc = func(_ context.Context) core.GasPlugin {
+			return mock.NewGasPluginMock()
 		}
 		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
 			return cp
@@ -92,7 +91,7 @@ var _ = Describe("StateProcessor", func() {
 		pp.RegisterFunc = func(pc vm.PrecompileContainer) error {
 			return nil
 		}
-		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
+		sp = core.NewStateProcessor(cp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
@@ -120,12 +119,12 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), nil, dummyHeader)
+		sp.Prepare(context.Background(), nil, dummyHeader, host.GetNewGasPlugin(context.Background()))
 	})
 
 	Context("Empty block", func() {
 		It("should build a an empty block", func() {
-			block, receipts, logs, err := sp.Finalize(context.Background())
+			block, receipts, logs, err := sp.Finalize(context.Background(), host.GetNewGasPlugin(context.Background()))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
 			Expect(receipts).To(BeEmpty())
@@ -135,17 +134,19 @@ var _ = Describe("StateProcessor", func() {
 
 	Context("Block with transactions", func() {
 		BeforeEach(func() {
-			_, _, _, err := sp.Finalize(context.Background())
+			_, _, _, err := sp.Finalize(context.Background(), host.GetNewGasPlugin(context.Background()))
 			Expect(err).ToNot(HaveOccurred())
 
-			sp.Prepare(context.Background(), nil, dummyHeader)
+			sp.Prepare(context.Background(), nil, dummyHeader, host.GetNewGasPlugin(context.Background()))
 		})
 
 		It("should error on an unsigned transaction", func() {
-			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
+			receipt, err := sp.ProcessTransaction(
+				context.Background(), types.NewTx(legacyTxData), host.GetNewGasPlugin(context.Background()),
+			)
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
-			block, receipts, logs, err := sp.Finalize(context.Background())
+			block, receipts, logs, err := sp.Finalize(context.Background(), host.GetNewGasPlugin(context.Background()))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
 			Expect(receipts).To(BeEmpty())
@@ -227,8 +228,8 @@ var _ = Describe("No precompile plugin provided", func() {
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
-		host.GetNewGasPluginFunc = func() core.GasPlugin {
-			return gp
+		host.GetNewGasPluginFunc = func(_ context.Context) core.GasPlugin {
+			return mock.NewGasPluginMock()
 		}
 		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
 			return cp
@@ -236,11 +237,11 @@ var _ = Describe("No precompile plugin provided", func() {
 		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
 			return nil
 		}
-		sp := core.NewStateProcessor(cp, gp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
+		sp := core.NewStateProcessor(cp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
 			sp.Prepare(context.Background(), nil, &types.Header{
 				GasLimit: 1000000,
-			})
+			}, host.GetNewGasPlugin(context.Background()))
 		}).ToNot(Panic())
 	})
 })

@@ -20,7 +20,11 @@
 
 package mock
 
-import "pkg.berachain.dev/polaris/eth/core"
+import (
+	"context"
+
+	"pkg.berachain.dev/polaris/eth/core"
+)
 
 //go:generate moq -out ./host.mock.go -pkg mock ../ PolarisHostChain
 
@@ -32,7 +36,7 @@ func NewMockHost() *PolarisHostChainMock {
 		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
 			return NewConfigurationPluginMock()
 		},
-		GetNewGasPluginFunc: func() core.GasPlugin {
+		GetNewGasPluginFunc: func(_ context.Context) core.GasPlugin {
 			return NewGasPluginMock()
 		},
 		GetHistoricalPluginFunc: func() core.HistoricalPlugin {

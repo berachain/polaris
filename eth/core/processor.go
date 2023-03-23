@@ -46,8 +46,6 @@ type StateProcessor struct {
 
 	// cp provides configuration functions from the underlying chain the EVM is running on.
 	cp ConfigurationPlugin
-	// gp provides gas functions from the underlying chain the EVM is running on.
-	gp GasPlugin
 	// pp is responsible for keeping track of the stateful precompile containers that are
 	// available to the EVM and executing them.
 	pp PrecompilePlugin
@@ -76,7 +74,6 @@ type StateProcessor struct {
 // commit flag.
 func NewStateProcessor(
 	cp ConfigurationPlugin,
-	gp GasPlugin,
 	pp PrecompilePlugin,
 	statedb vm.PolarisStateDB,
 	vmConfig *vm.Config,
@@ -84,7 +81,6 @@ func NewStateProcessor(
 	sp := &StateProcessor{
 		mtx:      sync.Mutex{},
 		cp:       cp,
-		gp:       gp,
 		pp:       pp,
 		vmConfig: vmConfig,
 		statedb:  statedb,
@@ -104,7 +100,9 @@ func NewStateProcessor(
 // ==============================================================================
 
 // Prepare prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(
+	ctx context.Context, evm *vm.GethEVM, header *types.Header, gp GasPlugin,
+) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -115,8 +113,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
 	// Ensure that the gas plugin and header are in sync.
-	if sp.header.GasLimit != sp.gp.BlockGasLimit() {
-		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit()))
+	if sp.header.GasLimit != gp.BlockGasLimit() {
+		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, gp.BlockGasLimit()))
 	}
 
 	// We must re-create the signer since we are processing a new block and the block number has
@@ -136,7 +134,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
-	ctx context.Context, tx *types.Transaction,
+	ctx context.Context, tx *types.Transaction, gp GasPlugin,
 ) (*ExecutionResult, error) {
 	txHash := tx.Hash()
 	msg, err := TransactionToMessage(tx, sp.signer, sp.header.BaseFee)
@@ -147,13 +145,14 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.Reset(txContext, sp.statedb)
-	sp.statedb.Reset(txHash, len(sp.txs))
+	sp.statedb.Reset(ctx)
+	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
 	// Set the gasPool to have the remaining gas in the block.
 	// By setting the gas pool to the delta between the block gas limit and the cumulative gas
 	// used, we intrinsic handle the case where the transaction on our host chain might have
 	// fully reverted, when it fact it should've been a vm error saying out of gas.
-	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
+	gasPool := GasPool(gp.BlockGasLimit() - gp.BlockGasConsumed())
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
@@ -163,21 +162,21 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
 	// while still ensuring that we consume all the gas.
-	if result.UsedGas > sp.gp.GasRemaining() {
-		result.UsedGas = sp.gp.GasRemaining()
+	if result.UsedGas > gp.GasRemaining() {
+		result.UsedGas = gp.GasRemaining()
 		result.Err = vm.ErrOutOfGas
 	}
 
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
 	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.
-	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
+	if err = gp.ConsumeGas(result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
 	// Create a new receipt for the transaction.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
-		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
+		CumulativeGasUsed: gp.BlockGasConsumed() + gp.GasConsumed(),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
 		Logs:              sp.statedb.Logs(),
@@ -212,7 +211,7 @@ func (sp *StateProcessor) ProcessTransaction(
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(
-	_ context.Context,
+	_ context.Context, gp GasPlugin,
 ) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
@@ -239,7 +238,7 @@ func (sp *StateProcessor) Finalize(
 	}
 
 	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = sp.gp.BlockGasConsumed()
+	sp.header.GasUsed = gp.BlockGasConsumed()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, logs, nil

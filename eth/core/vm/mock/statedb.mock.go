@@ -144,7 +144,7 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			RawDumpFunc: func(opts *state.DumpConfig) state.Dump {
 //				panic("mock out the RawDump method")
 //			},
-//			ResetFunc: func(txHash common.Hash, txIndex int)  {
+//			ResetFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Reset method")
 //			},
 //			RevertToSnapshotFunc: func(n int)  {
@@ -168,7 +168,7 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			SetTransientStateFunc: func(addr common.Address, key common.Hash, value common.Hash)  {
 //				panic("mock out the SetTransientState method")
 //			},
-//			SetTxContextFunc: func(thash common.Hash, ti int)  {
+//			SetTxContextFunc: func(txHash common.Hash, txIndex int)  {
 //				panic("mock out the SetTxContext method")
 //			},
 //			SlotInAccessListFunc: func(addr common.Address, slot common.Hash) (bool, bool) {
@@ -326,7 +326,7 @@ type PolarisStateDBMock struct {
 	RawDumpFunc func(opts *state.DumpConfig) state.Dump
 
 	// ResetFunc mocks the Reset method.
-	ResetFunc func(txHash common.Hash, txIndex int)
+	ResetFunc func(contextMoqParam context.Context)
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -350,7 +350,7 @@ type PolarisStateDBMock struct {
 	SetTransientStateFunc func(addr common.Address, key common.Hash, value common.Hash)
 
 	// SetTxContextFunc mocks the SetTxContext method.
-	SetTxContextFunc func(thash common.Hash, ti int)
+	SetTxContextFunc func(txHash common.Hash, txIndex int)
 
 	// SlotInAccessListFunc mocks the SlotInAccessList method.
 	SlotInAccessListFunc func(addr common.Address, slot common.Hash) (bool, bool)
@@ -599,10 +599,8 @@ type PolarisStateDBMock struct {
 		}
 		// Reset holds details about calls to the Reset method.
 		Reset []struct {
-			// TxHash is the txHash argument value.
-			TxHash common.Hash
-			// TxIndex is the txIndex argument value.
-			TxIndex int
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
 		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
@@ -657,10 +655,10 @@ type PolarisStateDBMock struct {
 		}
 		// SetTxContext holds details about calls to the SetTxContext method.
 		SetTxContext []struct {
-			// Thash is the thash argument value.
-			Thash common.Hash
-			// Ti is the ti argument value.
-			Ti int
+			// TxHash is the txHash argument value.
+			TxHash common.Hash
+			// TxIndex is the txIndex argument value.
+			TxIndex int
 		}
 		// SlotInAccessList holds details about calls to the SlotInAccessList method.
 		SlotInAccessList []struct {
@@ -2071,21 +2069,19 @@ func (mock *PolarisStateDBMock) RawDumpCalls() []struct {
 }
 
 // Reset calls ResetFunc.
-func (mock *PolarisStateDBMock) Reset(txHash common.Hash, txIndex int) {
+func (mock *PolarisStateDBMock) Reset(contextMoqParam context.Context) {
 	if mock.ResetFunc == nil {
 		panic("PolarisStateDBMock.ResetFunc: method is nil but PolarisStateDB.Reset was just called")
 	}
 	callInfo := struct {
-		TxHash  common.Hash
-		TxIndex int
+		ContextMoqParam context.Context
 	}{
-		TxHash:  txHash,
-		TxIndex: txIndex,
+		ContextMoqParam: contextMoqParam,
 	}
 	mock.lockReset.Lock()
 	mock.calls.Reset = append(mock.calls.Reset, callInfo)
 	mock.lockReset.Unlock()
-	mock.ResetFunc(txHash, txIndex)
+	mock.ResetFunc(contextMoqParam)
 }
 
 // ResetCalls gets all the calls that were made to Reset.
@@ -2093,12 +2089,10 @@ func (mock *PolarisStateDBMock) Reset(txHash common.Hash, txIndex int) {
 //
 //	len(mockedPolarisStateDB.ResetCalls())
 func (mock *PolarisStateDBMock) ResetCalls() []struct {
-	TxHash  common.Hash
-	TxIndex int
+	ContextMoqParam context.Context
 } {
 	var calls []struct {
-		TxHash  common.Hash
-		TxIndex int
+		ContextMoqParam context.Context
 	}
 	mock.lockReset.RLock()
 	calls = mock.calls.Reset
@@ -2363,21 +2357,21 @@ func (mock *PolarisStateDBMock) SetTransientStateCalls() []struct {
 }
 
 // SetTxContext calls SetTxContextFunc.
-func (mock *PolarisStateDBMock) SetTxContext(thash common.Hash, ti int) {
+func (mock *PolarisStateDBMock) SetTxContext(txHash common.Hash, txIndex int) {
 	if mock.SetTxContextFunc == nil {
 		panic("PolarisStateDBMock.SetTxContextFunc: method is nil but PolarisStateDB.SetTxContext was just called")
 	}
 	callInfo := struct {
-		Thash common.Hash
-		Ti    int
+		TxHash  common.Hash
+		TxIndex int
 	}{
-		Thash: thash,
-		Ti:    ti,
+		TxHash:  txHash,
+		TxIndex: txIndex,
 	}
 	mock.lockSetTxContext.Lock()
 	mock.calls.SetTxContext = append(mock.calls.SetTxContext, callInfo)
 	mock.lockSetTxContext.Unlock()
-	mock.SetTxContextFunc(thash, ti)
+	mock.SetTxContextFunc(txHash, txIndex)
 }
 
 // SetTxContextCalls gets all the calls that were made to SetTxContext.
@@ -2385,12 +2379,12 @@ func (mock *PolarisStateDBMock) SetTxContext(thash common.Hash, ti int) {
 //
 //	len(mockedPolarisStateDB.SetTxContextCalls())
 func (mock *PolarisStateDBMock) SetTxContextCalls() []struct {
-	Thash common.Hash
-	Ti    int
+	TxHash  common.Hash
+	TxIndex int
 } {
 	var calls []struct {
-		Thash common.Hash
-		Ti    int
+		TxHash  common.Hash
+		TxIndex int
 	}
 	mock.lockSetTxContext.RLock()
 	calls = mock.calls.SetTxContext

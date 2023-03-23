@@ -22,11 +22,15 @@ package core
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/ethereum/go-ethereum/core"
 
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/tracers"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // ChainResources is the interface that defines functions for code paths within the chain to acquire
@@ -68,30 +72,58 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.PolarisStateDB, error) 
 func (bc *blockchain) GetStateByTransaction(_ context.Context, block *types.Block, txIndex int) (
 	*Message, vm.BlockContext, state.StateDBI, tracers.StateReleaseFunc, error,
 ) {
-	// get the statedb and state processor to execute the block.
+	// get the statedb and state processor to execute the block
 	statedb, err := bc.GetStateByNumber(block.Number().Int64())
 	if err != nil {
 		return nil, vm.BlockContext{}, nil, nil, err
 	}
-	_ = NewStateProcessor(
-		bc.cp, bc.gp, bc.pp, statedb, bc.vmConfig,
+	vmConfig := &vm.Config{Debug: true}
+	processor := NewStateProcessor(bc.cp, bc.pp, statedb, vmConfig)
+
+	// prepare the state processor for executing the block
+	ctx, header := statedb.GetContext(), block.Header()
+	processor.Prepare(
+		ctx,
+		bc.GetEVM(ctx, vm.TxContext{}, statedb, header, vmConfig),
+		header,
+		bc.host.GetNewGasPlugin(ctx),
 	)
 
-	// // prepare the plugins for the block and execute each transaction.
-	// ctx := sdb.GetContext()
+	// execute all the transactions until we reach the txIndex
+	for idx, tx := range block.Transactions() {
+		txHash := tx.Hash()
+		var msg *core.Message
+		msg, err = TransactionToMessage(tx, processor.signer, header.BaseFee)
+		if err != nil {
+			return nil, vm.BlockContext{}, nil, nil,
+				errorslib.Wrapf(
+					err, "could not apply tx %d [%s] while tracing block %d",
+					idx, txHash.Hex(), block.NumberU64(),
+				)
+		}
+		txContext := NewEVMTxContext(msg)
+		processor.evm.Reset(txContext, statedb)
+		statedb.Reset(ctx)
+		statedb.SetTxContext(txHash, idx)
 
-	// bc.cp.Prepare(ctx)
-	// bc.gp.Prepare(ctx)
-	// if bc.hp != nil {
-	// 	bc.hp.Prepare(ctx)
-	// }
+		if idx == txIndex {
+			// break condition
+			return msg, processor.evm.Context, statedb, func() {}, nil
+		}
 
-	// for idx, tx := range block.Transactions() {
-	// 	bc.gp.Reset(ctx)
-	// 	bc.sp.Reset(ctx)
-	// }
+		if _, err = ApplyMessage(processor.evm, msg, new(GasPool).AddGas(tx.Gas())); err != nil {
+			return nil, vm.BlockContext{}, nil, nil,
+				errorslib.Wrapf(
+					err, "tx %d [%s] failed while tracing block %d",
+					idx, txHash.Hex(), block.NumberU64(),
+				)
+		}
 
-	return nil, vm.BlockContext{}, nil, nil, nil
+		statedb.Finalize()
+	}
+
+	return nil, vm.BlockContext{}, nil, nil,
+		fmt.Errorf("txIndex %d out of range while tracing block %d", txIndex, block.NumberU64())
 }
 
 // NewEVMBlockContext creates a new block context for use in the EVM.

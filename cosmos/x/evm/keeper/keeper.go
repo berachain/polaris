@@ -21,6 +21,8 @@
 package keeper
 
 import (
+	"context"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -67,7 +69,6 @@ type Keeper struct {
 	// The various plugins that are are used to implement `core.PolarisHostChain`.
 	bp  block.Plugin
 	cp  configuration.Plugin
-	gp  gas.Plugin
 	hp  historical.Plugin
 	pp  precompile.Plugin
 	sp  state.Plugin
@@ -103,7 +104,6 @@ func NewKeeper(
 	// Build the Plugins
 	k.bp = block.NewPlugin(storeKey)
 	k.cp = configuration.NewPlugin(storeKey)
-	k.gp = gas.NewPlugin()
 	k.hp = historical.NewPlugin(k.bp, k.offChainKv, storeKey)
 	k.txp = txpool.NewPlugin(k.cp, k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	return k
@@ -161,8 +161,8 @@ func (k *Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
 }
 
 // GetNewGasPlugin returns the gas plugin.
-func (k *Keeper) GetNewGasPlugin() core.GasPlugin {
-	return k.gp
+func (k *Keeper) GetNewGasPlugin(ctx context.Context) core.GasPlugin {
+	return gas.NewPlugin(ctx)
 }
 
 func (k *Keeper) GetHistoricalPlugin() core.HistoricalPlugin {
@@ -186,7 +186,7 @@ func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
 
 // GetAllPlugins returns all the plugins.
 func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosPolaris {
-	return []plugins.BaseCosmosPolaris{k.hp, k.cp, k.gp, k.pp, k.sp}
+	return []plugins.BaseCosmosPolaris{k.hp, k.cp, gas.NewPlugin(context.Background()), k.pp, k.sp}
 }
 
 // GetRPCProvider returns the RPC provider. We use this in `app.go` to register

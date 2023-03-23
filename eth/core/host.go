@@ -28,22 +28,21 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/params"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 // PolarisHostChain defines the plugins that the chain running the Polaris EVM should implement.
 type PolarisHostChain interface {
-	// GetBlockPlugin returns a new `BlockPlugin` of the Polaris host chain.
+	// GetBlockPlugin returns the `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
-	// GetConfigurationPlugin returns a new `ConfigurationPlugin` of the Polaris host chain.
+	// GetConfigurationPlugin returns the `ConfigurationPlugin` of the Polaris host chain.
 	GetConfigurationPlugin() ConfigurationPlugin
 	// GetNewGasPlugin returns a new `GasPlugin` of the Polaris host chain.
-	GetNewGasPlugin() GasPlugin
-	// GetHistoricalPlugin returns a new, OPTIONAL `HistoricalPlugin` of the Polaris host chain.
+	GetNewGasPlugin(context.Context) GasPlugin
+	// GetHistoricalPlugin returns the OPTIONAL `HistoricalPlugin` of the Polaris host chain.
 	GetHistoricalPlugin() HistoricalPlugin
 	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
-	// GetStatePlugin returns a new `StatePlugin` of the Polaris host chain.
+	// GetStatePlugin returns a `StatePlugin` of the Polaris host chain.
 	GetStatePlugin() StatePlugin
 	// GetTxPoolPlugin returns the `TxPoolPlugin` of the Polaris host chain.
 	GetTxPoolPlugin() TxPoolPlugin
@@ -86,12 +85,6 @@ type (
 	// GasPlugin is an interface that allows the Polaris EVM to consume gas on the host chain.
 	// STATEFUL.
 	GasPlugin interface {
-		// GasPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
-		// GasPlugin to a default state.
-		libtypes.Preparable
-		// GasPlugin implements `libtypes.Resettable`. Calling `Reset` should reset the
-		// GasPlugin to a default state
-		libtypes.Resettable
 		// ConsumeGas consumes the supplied amount of gas. It should not panic due to a
 		// GasOverflow and should return `core.ErrOutOfGas` if the amount of gas remaining is
 		// less than the amount requested. If the requested amount is greater than the amount of

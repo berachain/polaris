@@ -50,22 +50,12 @@ type plugin struct {
 }
 
 // NewPlugin creates a new instance of the gas plugin from a given context.
-func NewPlugin() Plugin {
-	return &plugin{}
-}
-
-// Prepare implements the core.GasPlugin interface.
-func (p *plugin) Prepare(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.gasMeter = sCtx.GasMeter()
-	p.blockGasMeter = sCtx.BlockGasMeter()
-}
-
-// Reset implements the core.GasPlugin interface.
-func (p *plugin) Reset(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.gasMeter = sCtx.GasMeter()
-	p.blockGasMeter = sCtx.BlockGasMeter()
+func NewPlugin(ctx context.Context) Plugin {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return &plugin{
+		gasMeter:      sdkCtx.GasMeter(),
+		blockGasMeter: sdkCtx.BlockGasMeter(),
+	}
 }
 
 // GasRemaining implements the core.GasPlugin interface.

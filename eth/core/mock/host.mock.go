@@ -4,6 +4,7 @@
 package mock
 
 import (
+	"context"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"sync"
@@ -28,7 +29,7 @@ var _ core.PolarisHostChain = &PolarisHostChainMock{}
 //			GetHistoricalPluginFunc: func() core.HistoricalPlugin {
 //				panic("mock out the GetHistoricalPlugin method")
 //			},
-//			GetNewGasPluginFunc: func() core.GasPlugin {
+//			GetNewGasPluginFunc: func(contextMoqParam context.Context) core.GasPlugin {
 //				panic("mock out the GetNewGasPlugin method")
 //			},
 //			GetPrecompilePluginFunc: func() precompile.Plugin {
@@ -57,7 +58,7 @@ type PolarisHostChainMock struct {
 	GetHistoricalPluginFunc func() core.HistoricalPlugin
 
 	// GetNewGasPluginFunc mocks the GetNewGasPlugin method.
-	GetNewGasPluginFunc func() core.GasPlugin
+	GetNewGasPluginFunc func(contextMoqParam context.Context) core.GasPlugin
 
 	// GetPrecompilePluginFunc mocks the GetPrecompilePlugin method.
 	GetPrecompilePluginFunc func() precompile.Plugin
@@ -81,6 +82,8 @@ type PolarisHostChainMock struct {
 		}
 		// GetNewGasPlugin holds details about calls to the GetNewGasPlugin method.
 		GetNewGasPlugin []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
 		}
 		// GetPrecompilePlugin holds details about calls to the GetPrecompilePlugin method.
 		GetPrecompilePlugin []struct {
@@ -183,16 +186,19 @@ func (mock *PolarisHostChainMock) GetHistoricalPluginCalls() []struct {
 }
 
 // GetNewGasPlugin calls GetNewGasPluginFunc.
-func (mock *PolarisHostChainMock) GetNewGasPlugin() core.GasPlugin {
+func (mock *PolarisHostChainMock) GetNewGasPlugin(contextMoqParam context.Context) core.GasPlugin {
 	if mock.GetNewGasPluginFunc == nil {
 		panic("PolarisHostChainMock.GetNewGasPluginFunc: method is nil but PolarisHostChain.GetNewGasPlugin was just called")
 	}
 	callInfo := struct {
-	}{}
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
 	mock.lockGetNewGasPlugin.Lock()
 	mock.calls.GetNewGasPlugin = append(mock.calls.GetNewGasPlugin, callInfo)
 	mock.lockGetNewGasPlugin.Unlock()
-	return mock.GetNewGasPluginFunc()
+	return mock.GetNewGasPluginFunc(contextMoqParam)
 }
 
 // GetNewGasPluginCalls gets all the calls that were made to GetNewGasPlugin.
@@ -200,8 +206,10 @@ func (mock *PolarisHostChainMock) GetNewGasPlugin() core.GasPlugin {
 //
 //	len(mockedPolarisHostChain.GetNewGasPluginCalls())
 func (mock *PolarisHostChainMock) GetNewGasPluginCalls() []struct {
+	ContextMoqParam context.Context
 } {
 	var calls []struct {
+		ContextMoqParam context.Context
 	}
 	mock.lockGetNewGasPlugin.RLock()
 	calls = mock.calls.GetNewGasPlugin

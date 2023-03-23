@@ -95,7 +95,7 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 
 // Reset sets the TxContext for the current transaction and also manually clears any state from the
 // previous tx in the journals, in case the previous tx reverted (Finalize was not called).
-func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
+func (sdb *stateDB) SetTxContext(txHash common.Hash, txIndex int) {
 	sdb.LogsJournal.Finalize()
 	sdb.RefundJournal.Finalize()
 	sdb.AccessListJournal.Finalize()
