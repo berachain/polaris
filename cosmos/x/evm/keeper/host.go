@@ -46,6 +46,18 @@ import (
 // Compile-time interface assertion.
 var _ core.PolarisHostChain = (*host)(nil)
 
+type Host interface {
+	core.PolarisHostChain
+	GetAllPlugins() []plugins.BaseCosmosPolaris
+	Setup(
+		storetypes.StoreKey,
+		state.AccountKeeper,
+		state.BankKeeper,
+		[]vm.RegistrablePrecompile,
+		func(height int64, prove bool) (sdk.Context, error),
+	)
+}
+
 type host struct {
 	// The various plugins that are are used to implement `core.PolarishostChain`.
 	bp  block.Plugin
@@ -67,7 +79,7 @@ func NewHost(
 	ethTxMempool sdkmempool.Mempool,
 	offChainKv *offchain.Store,
 	rpcProvider evmrpc.Provider,
-) *host {
+) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
 

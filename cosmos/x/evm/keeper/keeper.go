@@ -51,7 +51,7 @@ type Keeper struct {
 	// authority is the bech32 address that is allowed to execute governance proposals.
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
-	host *host
+	host Host
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -134,6 +134,7 @@ func (k *Keeper) GetRPCProvider() evmrpc.Provider {
 	return k.rpcProvider
 }
 
-func (k *Keeper) GetHost() *host {
+// GetHost returns the Host that contains all plugins.
+func (k *Keeper) GetHost() Host {
 	return k.host
 }

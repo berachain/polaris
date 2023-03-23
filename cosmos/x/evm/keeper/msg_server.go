@@ -27,7 +27,9 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time check to ensure `Keeper` implements the `MsgServiceServer` interface.
@@ -71,7 +73,8 @@ func (k *Keeper) UpdateParams(
 	}
 
 	// Update the params.
-	k.host.cp.Prepare(ctx)
-	k.host.cp.SetParams(&req.Params)
+	cp := utils.MustGetAs[configuration.Plugin](k.host.GetConfigurationPlugin())
+	cp.Prepare(ctx)
+	cp.SetParams(&req.Params)
 	return &types.UpdateParamsResponse{}, nil
 }
