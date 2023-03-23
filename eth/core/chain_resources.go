@@ -79,7 +79,7 @@ func (bc *blockchain) GetStateByTransaction(_ context.Context, block *types.Bloc
 
 	// // prepare the plugins for the block and execute each transaction.
 	// ctx := sdb.GetContext()
-	// bc.bp.Prepare(ctx)
+	 
 	// bc.cp.Prepare(ctx)
 	// bc.gp.Prepare(ctx)
 	// if bc.hp != nil {
