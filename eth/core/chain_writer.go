@@ -40,6 +40,8 @@ type ChainWriter interface {
 	// Finalize finalizes the block and returns the block. This method is called after the last
 	// tx in the block.
 	Finalize(context.Context) error
+	// Commit commits the current block to the blockchain and emits chain events.
+	Commit(context.Context)
 	// SendTx sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
@@ -61,43 +63,6 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	}
 
 	// If we are processing a new block, then we assume that the previous was finalized.
-	if block := bc.currentBlock.Load(); block != nil {
-		// Cache finalized block.
-		blockHash, blockNum := block.Hash(), block.NumberU64()
-		bc.finalizedBlock.Store(block)
-		bc.blockNumCache.Add(int64(blockNum), block)
-		bc.blockHashCache.Add(blockHash, block)
-
-		// Cache transaction data.
-		for txIndex, tx := range block.Transactions() {
-			bc.txLookupCache.Add(
-				tx.Hash(),
-				&types.TxLookupEntry{
-					Tx:        tx,
-					TxIndex:   uint64(txIndex),
-					BlockNum:  blockNum,
-					BlockHash: blockHash,
-				},
-			)
-		}
-
-		// Cache receipts.
-		if receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
-			bc.receiptsCache.Add(blockHash, receipts)
-		}
-
-		// Send logs and chain events.
-		if logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
-			if len(logs) > 0 {
-				bc.logsFeed.Send(logs)
-			}
-			bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
-		}
-
-		// Send chain head event.
-		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
-	}
-
 	header := bc.bp.NewHeaderWithBlockNumber(height)
 	bc.processor.Prepare(
 		ctx,
@@ -160,6 +125,46 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// Commit commits the current block to the blockchain and emits chain events.
+func (bc *blockchain) Commit(ctx context.Context) {
+	if block := bc.currentBlock.Load(); block != nil {
+		// Cache finalized block.
+		blockHash, blockNum := block.Hash(), block.NumberU64()
+		bc.finalizedBlock.Store(block)
+		bc.blockNumCache.Add(int64(blockNum), block)
+		bc.blockHashCache.Add(blockHash, block)
+
+		// Cache transaction data.
+		for txIndex, tx := range block.Transactions() {
+			bc.txLookupCache.Add(
+				tx.Hash(),
+				&types.TxLookupEntry{
+					Tx:        tx,
+					TxIndex:   uint64(txIndex),
+					BlockNum:  blockNum,
+					BlockHash: blockHash,
+				},
+			)
+		}
+
+		// Cache receipts.
+		if receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
+			bc.receiptsCache.Add(blockHash, receipts)
+		}
+
+		// Send logs and chain events.
+		if logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
+			if len(logs) > 0 {
+				bc.logsFeed.Send(logs)
+			}
+			bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
+		}
+
+		// Send chain head event.
+		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+	}
 }
 
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
