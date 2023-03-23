@@ -31,6 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
+	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
@@ -43,6 +44,21 @@ func TestRpc(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "cosmos/testing/jsonrpc:integration")
 }
+
+var tf *integration.TestFixture
+
+var _ = SynchronizedBeforeSuite(func() []byte {
+	// Setup the network and clients here.
+	tf = integration.NewTestFixture(GinkgoT())
+	return nil
+}, func(data []byte) {})
+
+var _ = SynchronizedAfterSuite(func() {
+	// Local AfterSuite actions.
+}, func() {
+	// Global AfterSuite actions.
+	os.RemoveAll("data")
+})
 
 var _ = Describe("Network", func() {
 	var client *ethclient.Client

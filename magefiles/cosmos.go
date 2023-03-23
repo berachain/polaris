@@ -143,11 +143,11 @@ func (Cosmos) Install() error {
 
 // Runs all main tests.
 func (c Cosmos) Test() error {
-	if err := testUnit(c.directory()); err != nil {
+	if err := TestUnit(); err != nil {
 		return err
 	}
 
-	if err := testIntegration(c.directory()); err != nil {
+	if err := TestIntegration(); err != nil {
 		return err
 	}
 	return nil
@@ -162,5 +162,9 @@ func (c Cosmos) TestUnit() error {
 // Runs all integration for the Cosmos SDK chain.
 func (c Cosmos) TestIntegration() error {
 	LogGreen("Running integration tests for the Cosmos SDK chain.")
+<<<<<<< HEAD
 	return testIntegration(c.directory() + "/testing")
+=======
+	return testIntegration(c.directory() + "/testing/integration")
+>>>>>>> main
 }

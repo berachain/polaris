@@ -1,10 +1,5 @@
-github.com/berachain/polaris-geth v0.0.0-20230321144626-29251e594538 h1:beEFvc51Jsjl7uAGFalWsMesCyAFnShK8kDaYo+3O5k=
-github.com/berachain/polaris-geth v0.0.0-20230321144626-29251e594538/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
-github.com/berachain/polaris-geth v0.0.0-20230321174326-e3ca3ff6bc37 h1:fJ35H3dcsWeipCXh91yH5tIGcDXOUr3n+LgYj3PY3d0=
-github.com/berachain/polaris-geth v0.0.0-20230321174326-e3ca3ff6bc37/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
-github.com/go-playground/assert/v2 v2.0.1 h1:MsBgLAaY856+nPRTKrp3/OZK38U/wa0CcBYNjji3q3A=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=
 github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
