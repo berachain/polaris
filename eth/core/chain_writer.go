@@ -41,7 +41,7 @@ type ChainWriter interface {
 	// tx in the block.
 	Finalize(context.Context) error
 	// Commit commits the current block to the blockchain and emits chain events.
-	Commit(context.Context) error
+	Commit(context.Context)
 	// SendTx sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
@@ -128,7 +128,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 }
 
 // Commit commits the current block to the blockchain and emits chain events.
-func (bc *blockchain) Commit(ctx context.Context) error {
+func (bc *blockchain) Commit(ctx context.Context) {
 	if block := bc.currentBlock.Load(); block != nil {
 		// Cache finalized block.
 		blockHash, blockNum := block.Hash(), block.NumberU64()
@@ -165,8 +165,6 @@ func (bc *blockchain) Commit(ctx context.Context) error {
 		// Send chain head event.
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
-
-	return nil
 }
 
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
