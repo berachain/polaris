@@ -37,8 +37,8 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	core.ConfigurationPlugin
 	plugins.BaseCosmosPolaris
+	core.ConfigurationPlugin
 	SetParams(params *types.Params)
 	GetParams() *types.Params
 	GetEvmDenom() string

@@ -46,6 +46,8 @@ import (
 // Compile-time interface assertion.
 var _ core.PolarisHostChain = (*host)(nil)
 
+// Host is the interface that must be implemented by the host.
+// It includes core.PolarisHostChain and functions that are called in other packages.
 type Host interface {
 	core.PolarisHostChain
 	GetAllPlugins() []plugins.BaseCosmosPolaris
