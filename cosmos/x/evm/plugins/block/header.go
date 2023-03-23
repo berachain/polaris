@@ -21,6 +21,7 @@
 package block
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -41,35 +42,49 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 	p.getQueryContext = gqc
 }
 
-// GetHeaderByNumber returns the header at the given height, using the plugin's query context.
+// GetHeaderByNumber returns the header at the given height. It verifies the height and determines
+// whether to use the current context height or the plugin's query context for a historical height.
 //
 // GetHeaderByNumber implements core.BlockPlugin.
-func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
+func (p *plugin) GetHeaderByNumber(ctx context.Context, height int64) (*coretypes.Header, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
 	}
 
-	iavlHeight, err := p.getIAVLHeight(height)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	iavlHeight, err := p.getIAVLHeight(sdkCtx, height)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "GetHeader: invalid IAVL height")
 	}
 
-	ctx, err := p.getQueryContext(iavlHeight, false)
+	var header *coretypes.Header
+	if iavlHeight == sdkCtx.BlockHeight() {
+		header, err = p.getHeaderFromStore(sdkCtx)
+	} else {
+		header, err = p.GetHeaderByHistoricalNumber(iavlHeight)
+	}
+
+	if int64(header.Number.Uint64()) != height {
+		panic("header number is not equal to the given iavl tree height")
+	}
+
+	return header, err
+}
+
+// GetHeaderByHistoricalNumber returns the header at the given height. It does not verify the
+// height and always uses the query context for a historical height.
+func (p *plugin) GetHeaderByHistoricalNumber(height int64) (*coretypes.Header, error) {
+	sdkCtx, err := p.getQueryContext(height, false)
 	if err != nil {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
 	}
 
-	// Unmarshal the header from the context kv store.
-	bz := ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
-	if bz == nil {
-		return nil, errors.New("GetHeader: polaris header not found in kvstore")
-	}
-	header, err := coretypes.UnmarshalHeader(bz)
+	header, err := p.getHeaderFromStore(sdkCtx)
 	if err != nil {
-		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
+		return nil, errorslib.Wrap(err, "GetHeader: failed to get header from store")
 	}
 
-	if int64(header.Number.Uint64()) != iavlHeight {
+	if int64(header.Number.Uint64()) != height {
 		panic("header number is not equal to the given iavl tree height")
 	}
 
@@ -77,23 +92,37 @@ func (p *plugin) GetHeaderByNumber(height int64) (*coretypes.Header, error) {
 }
 
 // SetHeader saves a block to the store.
-func (p *plugin) SetHeaderByNumber(_ int64, header *coretypes.Header) error {
+func (p *plugin) SetHeaderByNumber(ctx context.Context, _ int64, header *coretypes.Header) error {
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
-	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
+	sdk.UnwrapSDKContext(ctx).KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
 	return nil
 }
 
+func (p *plugin) getHeaderFromStore(ctx sdk.Context) (*coretypes.Header, error) {
+	// Unmarshal the header from the context kv store.
+	bz := ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
+	if bz == nil {
+		return nil, errors.New("polaris header not found in kvstore")
+	}
+	header, err := coretypes.UnmarshalHeader(bz)
+	if err != nil {
+		return nil, errorslib.Wrap(err, "failed to unmarshal")
+	}
+
+	return header, nil
+}
+
 // getIAVLHeight returns the IAVL height for the given block number.
-func (p *plugin) getIAVLHeight(number int64) (int64, error) {
+func (p *plugin) getIAVLHeight(ctx sdk.Context, number int64) (int64, error) {
 	var iavlHeight int64
 	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // covers all cases.
 	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
-		iavlHeight = p.ctx.BlockHeight() - 1
+		iavlHeight = ctx.BlockHeight() - 1
 	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
-		iavlHeight = p.ctx.BlockHeight()
+		iavlHeight = ctx.BlockHeight()
 	case rpc.EarliestBlockNumber:
 		iavlHeight = 1
 	default:

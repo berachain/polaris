@@ -54,16 +54,12 @@ type ChainWriter interface {
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	bc.logger.Info("Preparing block", "height", height)
 
-	// Prepare the Block, Configuration, Gas, and Historical plugins for the block.
-	bc.bp.Prepare(ctx)
-	bc.cp.Prepare(ctx)
+	// Prepare the Gas and State plugin for the block.
 	bc.gp.Prepare(ctx)
-	if bc.hp != nil {
-		bc.hp.Prepare(ctx)
-	}
+	bc.sp.Reset(ctx)
 
 	// If we are processing a new block, then we assume that the previous was finalized.
-	header := bc.bp.NewHeaderWithBlockNumber(height)
+	header := bc.bp.NewHeaderWithBlockNumber(ctx, height)
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
@@ -75,9 +71,8 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
-	// Reset the Gas and State plugins for the tx.
+	// Reset the Gas plugin for the tx.
 	bc.gp.Reset(ctx)
-	bc.sp.Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
@@ -105,22 +100,22 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 
 	// store the block header on the host chain
-	err = bc.bp.SetHeaderByNumber(blockNum, block.Header())
+	err = bc.bp.SetHeaderByNumber(ctx, blockNum, block.Header())
 	if err != nil {
 		return err
 	}
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
-		err = bc.hp.StoreBlock(block)
+		err = bc.hp.StoreBlock(ctx, block)
 		if err != nil {
 			return err
 		}
-		err = bc.hp.StoreReceipts(blockHash, receipts)
+		err = bc.hp.StoreReceipts(ctx, blockHash, receipts)
 		if err != nil {
 			return err
 		}
-		err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions())
+		err = bc.hp.StoreTransactions(ctx, blockNum, blockHash, block.Transactions())
 		return err
 	}
 
@@ -167,6 +162,6 @@ func (bc *blockchain) Commit(ctx context.Context) {
 	}
 }
 
-func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return bc.tp.SendTx(signedTx)
+func (bc *blockchain) SendTx(ctx context.Context, signedTx *types.Transaction) error {
+	return bc.tp.SendTx(ctx, signedTx)
 }

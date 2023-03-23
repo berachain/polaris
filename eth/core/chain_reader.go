@@ -21,6 +21,7 @@
 package core
 
 import (
+	"context"
 	"errors"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -34,7 +35,7 @@ type ChainReader interface {
 	ChainBlockReader
 	ChainTxPoolReader
 	ChainSubscriber
-	ChainConfig() *params.ChainConfig
+	ChainConfig(context.Context) *params.ChainConfig
 }
 
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
@@ -42,10 +43,10 @@ type ChainBlockReader interface {
 	CurrentBlock() (*types.Block, error)
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
 	FinalizedBlock() (*types.Block, error)
-	GetReceipts(common.Hash) (types.Receipts, error)
-	GetPolarisBlockByHash(common.Hash) (*types.Block, error)
-	GetPolarisBlockByNumber(int64) (*types.Block, error)
-	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
+	GetReceipts(context.Context, common.Hash) (types.Receipts, error)
+	GetPolarisBlockByHash(context.Context, common.Hash) (*types.Block, error)
+	GetPolarisBlockByNumber(context.Context, int64) (*types.Block, error)
+	GetTransaction(context.Context, common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
 // ChainTxPoolReader defines methods that are used to read information about the state
@@ -53,7 +54,7 @@ type ChainBlockReader interface {
 type ChainTxPoolReader interface {
 	GetPoolTransactions() (types.Transactions, error)
 	GetPoolTransaction(common.Hash) *types.Transaction
-	GetPoolNonce(common.Address) (uint64, error)
+	GetPoolNonce(context.Context, common.Address) (uint64, error)
 }
 
 // =========================================================================
@@ -61,8 +62,8 @@ type ChainTxPoolReader interface {
 // =========================================================================
 
 // ChainConfig returns the Ethereum chain config of the Polaris chain.
-func (bc *blockchain) ChainConfig() *params.ChainConfig {
-	return bc.cp.ChainConfig()
+func (bc *blockchain) ChainConfig(ctx context.Context) *params.ChainConfig {
+	return bc.cp.ChainConfig(ctx)
 }
 
 // =========================================================================
@@ -107,7 +108,7 @@ func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
 
 // GetReceipts gathers the receipts that were created in the block defined by
 // the given hash.
-func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
+func (bc *blockchain) GetReceipts(ctx context.Context, blockHash common.Hash) (types.Receipts, error) {
 	// check the cache
 	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
 		return receipts, nil
@@ -120,7 +121,7 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 	}
 
 	// check the historical plugin
-	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
+	receipts, err := bc.hp.GetReceiptsByHash(ctx, blockHash)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 // transaction in the block. It only retrieves transactions that are included in the chain
 // and does not acquire transactions that are in the mempool.
 func (bc *blockchain) GetTransaction(
-	txHash common.Hash,
+	ctx context.Context, txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	// check the cache
 	if txLookupEntry, ok := bc.txLookupCache.Get(txHash); ok {
@@ -150,7 +151,7 @@ func (bc *blockchain) GetTransaction(
 	}
 
 	// check the historical plugin
-	txLookupEntry, err := bc.hp.GetTransactionByHash(txHash)
+	txLookupEntry, err := bc.hp.GetTransactionByHash(ctx, txHash)
 	if err != nil {
 		return nil, common.Hash{}, 0, 0, err
 	}
@@ -162,7 +163,7 @@ func (bc *blockchain) GetTransaction(
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error) {
+func (bc *blockchain) GetPolarisBlockByNumber(ctx context.Context, number int64) (*types.Block, error) {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
@@ -176,7 +177,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 	}
 
 	// check the historical plugin
-	block, err := bc.hp.GetBlockByNumber(number)
+	block, err := bc.hp.GetBlockByNumber(ctx, number)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +189,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, error) {
+func (bc *blockchain) GetPolarisBlockByHash(ctx context.Context, hash common.Hash) (*types.Block, error) {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
 		bc.blockNumCache.Add(block.Number().Int64(), block)
@@ -202,7 +203,7 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 	}
 
 	// check the historical plugin
-	block, err := bc.hp.GetBlockByHash(hash)
+	block, err := bc.hp.GetBlockByHash(ctx, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -229,8 +230,8 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 }
 
 // TODO: define behaviour for this function.
-func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	nonce, err := bc.tp.GetNonce(addr)
+func (bc *blockchain) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
+	nonce, err := bc.tp.GetNonce(ctx, addr)
 	defer bc.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
 	return nonce, err
 }

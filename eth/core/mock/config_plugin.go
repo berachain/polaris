@@ -34,17 +34,14 @@ import (
 func NewConfigurationPluginMock() *ConfigurationPluginMock {
 	// make and configure a mocked core.ConfigurationPlugin
 	mockedConfigurationPlugin := &ConfigurationPluginMock{
-		ChainConfigFunc: func() *params.ChainConfig {
+		ChainConfigFunc: func(_ context.Context) *params.ChainConfig {
 			return params.DefaultChainConfig
 		},
-		ExtraEipsFunc: func() []int {
+		ExtraEipsFunc: func(_ context.Context) []int {
 			return []int{}
 		},
-		FeeCollectorFunc: func() *common.Address {
+		FeeCollectorFunc: func(_ context.Context) *common.Address {
 			return &common.Address{}
-		},
-		PrepareFunc: func(contextMoqParam context.Context) {
-			// no-op
 		},
 	}
 	return mockedConfigurationPlugin

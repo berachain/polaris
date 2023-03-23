@@ -49,8 +49,8 @@ type blockchain struct {
 	// the host chain plugins that the Polaris EVM is running on.
 	bp BlockPlugin
 	cp ConfigurationPlugin
-	hp HistoricalPlugin
 	gp GasPlugin
+	hp HistoricalPlugin
 	pp PrecompilePlugin
 	sp StatePlugin
 	tp TxPoolPlugin
@@ -84,7 +84,6 @@ type blockchain struct {
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
-	cc     ChainContext
 	logger log.Logger
 
 	// subscription event feeds
@@ -106,8 +105,8 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
+		gp:             host.GetNewGasPlugin(),
 		hp:             host.GetHistoricalPlugin(),
-		gp:             host.GetGasPlugin(),
 		pp:             host.GetPrecompilePlugin(),
 		sp:             host.GetStatePlugin(),
 		tp:             host.GetTxPoolPlugin(),
@@ -120,7 +119,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
 	}
-	bc.cc = &chainContext{bc}
 	bc.statedb = state.NewStateDB(bc.sp)
 	bc.processor = NewStateProcessor(bc.cp, bc.gp, bc.pp, bc.statedb, bc.vmConfig)
 	bc.currentBlock.Store(nil)

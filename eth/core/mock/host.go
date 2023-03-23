@@ -32,7 +32,7 @@ func NewMockHost() *PolarisHostChainMock {
 		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
 			return NewConfigurationPluginMock()
 		},
-		GetGasPluginFunc: func() core.GasPlugin {
+		GetNewGasPluginFunc: func() core.GasPlugin {
 			return NewGasPluginMock()
 		},
 		GetHistoricalPluginFunc: func() core.HistoricalPlugin {

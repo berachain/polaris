@@ -21,6 +21,8 @@
 package core
 
 import (
+	"context"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -31,17 +33,17 @@ import (
 
 // PolarisHostChain defines the plugins that the chain running the Polaris EVM should implement.
 type PolarisHostChain interface {
-	// GetBlockPlugin returns the `BlockPlugin` of the Polaris host chain.
+	// GetBlockPlugin returns a new `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
-	// GetConfigurationPlugin returns the `ConfigurationPlugin` of the Polaris host chain.
+	// GetConfigurationPlugin returns a new `ConfigurationPlugin` of the Polaris host chain.
 	GetConfigurationPlugin() ConfigurationPlugin
-	// GetGasPlugin returns the `GasPlugin` of the Polaris host chain.
-	GetGasPlugin() GasPlugin
-	// GetHistoricalPlugin returns the OPTIONAL `HistoricalPlugin` of the Polaris host chain.
+	// GetNewGasPlugin returns a new `GasPlugin` of the Polaris host chain.
+	GetNewGasPlugin() GasPlugin
+	// GetHistoricalPlugin returns a new, OPTIONAL `HistoricalPlugin` of the Polaris host chain.
 	GetHistoricalPlugin() HistoricalPlugin
-	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the P                                                                                                                  olaris host chain.
+	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
-	// GetStatePlugin returns the `StatePlugin` of the Polaris host chain.
+	// GetStatePlugin returns a new `StatePlugin` of the Polaris host chain.
 	GetStatePlugin() StatePlugin
 	// GetTxPoolPlugin returns the `TxPoolPlugin` of the Polaris host chain.
 	GetTxPoolPlugin() TxPoolPlugin
@@ -55,39 +57,34 @@ type PolarisHostChain interface {
 // the `PolarisHostChain` interface. All plugins should be resettable with a given context.
 type (
 	// BlockPlugin defines the methods that the chain running the Polaris EVM should implement to
-	// support getting and setting block headers.
+	// support getting and setting block headers. STATELESS.
 	BlockPlugin interface {
-		// BlockPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
-		// BlockPlugin to a default state.
-		libtypes.Preparable
 		// NewHeaderWithBlockNumber returns a new block header with the given block number.
-		NewHeaderWithBlockNumber(int64) *types.Header
+		NewHeaderWithBlockNumber(context.Context, int64) *types.Header
 		// GetHeaderByNumber returns the block header at the given block number.
-		GetHeaderByNumber(int64) (*types.Header, error)
+		GetHeaderByNumber(context.Context, int64) (*types.Header, error)
 		// SetHeaderByNumber sets the block header at the given block number.
-		SetHeaderByNumber(int64, *types.Header) error
+		SetHeaderByNumber(context.Context, int64, *types.Header) error
 		// BaseFee returns the base fee of the current block.
-		BaseFee() uint64
+		BaseFee(context.Context) uint64
 	}
 
 	// ConfigurationPlugin defines the methods that the chain running Polaris EVM should
-	// implement in order to configuration the parameters of the Polaris EVM.
+	// implement in order to configuration the parameters of the Polaris EVM. STATELESS.
 	ConfigurationPlugin interface {
-		// ConfigurationPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset
-		// the `ConfigurationPlugin` to a default state.
-		libtypes.Preparable
 		// ChainConfig returns the current chain configuration of the Polaris EVM.
-		ChainConfig() *params.ChainConfig
+		ChainConfig(context.Context) *params.ChainConfig
 		// ExtraEips returns the extra EIPs that the Polaris EVM supports.
-		ExtraEips() []int
+		ExtraEips(context.Context) []int
 		// `The fee collector is utilized on chains that have a fee collector account. This was added
 		// specifically to support Cosmos-SDK chains, where we want the coinbase in the block header
 		// to be the operator address of the proposer, but we want the coinbase in the BlockContext
 		// to be the FeeCollectorAccount.
-		FeeCollector() *common.Address
+		FeeCollector(context.Context) *common.Address
 	}
 
 	// GasPlugin is an interface that allows the Polaris EVM to consume gas on the host chain.
+	// STATEFUL.
 	GasPlugin interface {
 		// GasPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// GasPlugin to a default state.
@@ -113,6 +110,7 @@ type (
 	}
 
 	// StatePlugin defines the methods that the chain running Polaris EVM should implement.
+	// STATEFUL.
 	StatePlugin interface {
 		state.Plugin
 		// GetStateByNumber returns the state at the given block height.
@@ -120,16 +118,16 @@ type (
 	}
 
 	// TxPoolPlugin defines the methods that the chain running Polaris EVM should implement to
-	// support the transaction pool.
+	// support the transaction pool. STATELESS.
 	TxPoolPlugin interface {
 		// SendTx submits the tx to the transaction pool.
-		SendTx(tx *types.Transaction) error
+		SendTx(context.Context, *types.Transaction) error
 		// GetAllTransactions returns all transactions in the transaction pool.
 		GetAllTransactions() (types.Transactions, error)
 		// GetTransaction returns the transaction from the pool with the given hash.
 		GetTransaction(common.Hash) *types.Transaction
 		// GetNonce returns the nonce of the given address in the transaction pool.
-		GetNonce(common.Address) (uint64, error)
+		GetNonce(context.Context, common.Address) (uint64, error)
 	}
 )
 
@@ -142,29 +140,27 @@ type (
 	// HistoricalPlugin defines the methods that the chain running Polaris EVM should implement
 	// in order to support storing historical blocks, receipts, and transactions. This plugin will
 	// be used by the RPC backend to support certain methods on the Ethereum JSON RPC spec.
-	// Implementing this plugin is optional.
+	// Implementing this plugin is optional. STATELESS.
 	HistoricalPlugin interface {
-		// HistoricalPlugin implements `libtypes.Preparable`.
-		libtypes.Preparable
 		// GetBlockByNumber returns the block at the given block number.
-		GetBlockByNumber(int64) (*types.Block, error)
+		GetBlockByNumber(context.Context, int64) (*types.Block, error)
 		// GetBlockByHash returns the block at the given block hash.
-		GetBlockByHash(common.Hash) (*types.Block, error)
+		GetBlockByHash(context.Context, common.Hash) (*types.Block, error)
 		// GetTransactionByHash returns the transaction lookup entry at the given transaction
 		// hash.
-		GetTransactionByHash(common.Hash) (*types.TxLookupEntry, error)
+		GetTransactionByHash(context.Context, common.Hash) (*types.TxLookupEntry, error)
 		// GetReceiptByHash returns the receipts at the given block hash.
-		GetReceiptsByHash(common.Hash) (types.Receipts, error)
+		GetReceiptsByHash(context.Context, common.Hash) (types.Receipts, error)
 		// StoreBlock stores the given block.
-		StoreBlock(*types.Block) error
+		StoreBlock(context.Context, *types.Block) error
 		// StoreReceipts stores the receipts for the given block hash.
-		StoreReceipts(common.Hash, types.Receipts) error
+		StoreReceipts(context.Context, common.Hash, types.Receipts) error
 		// StoreTransactions stores the transactions for the given block hash.
-		StoreTransactions(int64, common.Hash, types.Transactions) error
+		StoreTransactions(context.Context, int64, common.Hash, types.Transactions) error
 	}
 
 	// PrecompilePlugin defines the methods that the chain running Polaris EVM should implement
 	// in order to support running their own stateful precompiled contracts. Implementing this
-	// plugin is optional.
+	// plugin is optional. STATELESS.
 	PrecompilePlugin = precompile.Plugin
 )

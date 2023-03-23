@@ -21,6 +21,8 @@
 package txpool
 
 import (
+	"context"
+
 	errorsmod "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -61,9 +63,9 @@ func NewPlugin(cp ConfigurationPlugin, rpcProvider rpc.Provider, ethTxMempool *m
 // SendTx sends a transaction to the transaction pool. It takes in a signed
 // ethereum transaction from the rpc backend and wraps it in a Cosmos
 // transaction. The Cosmos transaction is then broadcasted to the network.
-func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
+func (p *plugin) SendTx(ctx context.Context, signedEthTx *coretypes.Transaction) error {
 	// Serialize the transaction to Bytes
-	txBytes, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).Serialize(signedEthTx)
+	txBytes, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).Serialize(ctx, signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
@@ -86,8 +88,8 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 // a signed ethereum transaction from the rpc backend and wraps it in a Cosmos
 // transaction. The Cosmos transaction is injected into the local mempool, but is
 // NOT gossiped to peers.
-func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
-	cosmosTx, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).SerializeToSdkTx(signedTx)
+func (p *plugin) SendPrivTx(ctx context.Context, signedTx *coretypes.Transaction) error {
+	cosmosTx, err := NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).SerializeToSdkTx(ctx, signedTx)
 	if err != nil {
 		return err
 	}
@@ -108,7 +110,7 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return p.mempool.GetTransaction(hash)
 }
 
-func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
+func (p *plugin) GetNonce(_ context.Context, addr common.Address) (uint64, error) {
 	// TODO: implement this
 	return 0, nil
 }

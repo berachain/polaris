@@ -20,19 +20,16 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //
 //		// make and configure a mocked core.BlockPlugin
 //		mockedBlockPlugin := &BlockPluginMock{
-//			BaseFeeFunc: func() uint64 {
+//			BaseFeeFunc: func(contextMoqParam context.Context) uint64 {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetHeaderByNumberFunc: func(n int64) (*types.Header, error) {
+//			GetHeaderByNumberFunc: func(contextMoqParam context.Context, n int64) (*types.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
 //			},
-//			NewHeaderWithBlockNumberFunc: func(n int64) *types.Header {
+//			NewHeaderWithBlockNumberFunc: func(contextMoqParam context.Context, n int64) *types.Header {
 //				panic("mock out the NewHeaderWithBlockNumber method")
 //			},
-//			PrepareFunc: func(contextMoqParam context.Context)  {
-//				panic("mock out the Prepare method")
-//			},
-//			SetHeaderByNumberFunc: func(n int64, header *types.Header) error {
+//			SetHeaderByNumberFunc: func(contextMoqParam context.Context, n int64, header *types.Header) error {
 //				panic("mock out the SetHeaderByNumber method")
 //			},
 //		}
@@ -43,42 +40,42 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //	}
 type BlockPluginMock struct {
 	// BaseFeeFunc mocks the BaseFee method.
-	BaseFeeFunc func() uint64
+	BaseFeeFunc func(contextMoqParam context.Context) uint64
 
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
-	GetHeaderByNumberFunc func(n int64) (*types.Header, error)
+	GetHeaderByNumberFunc func(contextMoqParam context.Context, n int64) (*types.Header, error)
 
 	// NewHeaderWithBlockNumberFunc mocks the NewHeaderWithBlockNumber method.
-	NewHeaderWithBlockNumberFunc func(n int64) *types.Header
-
-	// PrepareFunc mocks the Prepare method.
-	PrepareFunc func(contextMoqParam context.Context)
+	NewHeaderWithBlockNumberFunc func(contextMoqParam context.Context, n int64) *types.Header
 
 	// SetHeaderByNumberFunc mocks the SetHeaderByNumber method.
-	SetHeaderByNumberFunc func(n int64, header *types.Header) error
+	SetHeaderByNumberFunc func(contextMoqParam context.Context, n int64, header *types.Header) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// BaseFee holds details about calls to the BaseFee method.
 		BaseFee []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
 		}
 		// GetHeaderByNumber holds details about calls to the GetHeaderByNumber method.
 		GetHeaderByNumber []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
 			// N is the n argument value.
 			N int64
 		}
 		// NewHeaderWithBlockNumber holds details about calls to the NewHeaderWithBlockNumber method.
 		NewHeaderWithBlockNumber []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
 			// N is the n argument value.
 			N int64
 		}
-		// Prepare holds details about calls to the Prepare method.
-		Prepare []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-		}
 		// SetHeaderByNumber holds details about calls to the SetHeaderByNumber method.
 		SetHeaderByNumber []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
 			// N is the n argument value.
 			N int64
 			// Header is the header argument value.
@@ -88,21 +85,23 @@ type BlockPluginMock struct {
 	lockBaseFee                  sync.RWMutex
 	lockGetHeaderByNumber        sync.RWMutex
 	lockNewHeaderWithBlockNumber sync.RWMutex
-	lockPrepare                  sync.RWMutex
 	lockSetHeaderByNumber        sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
-func (mock *BlockPluginMock) BaseFee() uint64 {
+func (mock *BlockPluginMock) BaseFee(contextMoqParam context.Context) uint64 {
 	if mock.BaseFeeFunc == nil {
 		panic("BlockPluginMock.BaseFeeFunc: method is nil but BlockPlugin.BaseFee was just called")
 	}
 	callInfo := struct {
-	}{}
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
 	mock.lockBaseFee.Lock()
 	mock.calls.BaseFee = append(mock.calls.BaseFee, callInfo)
 	mock.lockBaseFee.Unlock()
-	return mock.BaseFeeFunc()
+	return mock.BaseFeeFunc(contextMoqParam)
 }
 
 // BaseFeeCalls gets all the calls that were made to BaseFee.
@@ -110,8 +109,10 @@ func (mock *BlockPluginMock) BaseFee() uint64 {
 //
 //	len(mockedBlockPlugin.BaseFeeCalls())
 func (mock *BlockPluginMock) BaseFeeCalls() []struct {
+	ContextMoqParam context.Context
 } {
 	var calls []struct {
+		ContextMoqParam context.Context
 	}
 	mock.lockBaseFee.RLock()
 	calls = mock.calls.BaseFee
@@ -120,19 +121,21 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 }
 
 // GetHeaderByNumber calls GetHeaderByNumberFunc.
-func (mock *BlockPluginMock) GetHeaderByNumber(n int64) (*types.Header, error) {
+func (mock *BlockPluginMock) GetHeaderByNumber(contextMoqParam context.Context, n int64) (*types.Header, error) {
 	if mock.GetHeaderByNumberFunc == nil {
 		panic("BlockPluginMock.GetHeaderByNumberFunc: method is nil but BlockPlugin.GetHeaderByNumber was just called")
 	}
 	callInfo := struct {
-		N int64
+		ContextMoqParam context.Context
+		N               int64
 	}{
-		N: n,
+		ContextMoqParam: contextMoqParam,
+		N:               n,
 	}
 	mock.lockGetHeaderByNumber.Lock()
 	mock.calls.GetHeaderByNumber = append(mock.calls.GetHeaderByNumber, callInfo)
 	mock.lockGetHeaderByNumber.Unlock()
-	return mock.GetHeaderByNumberFunc(n)
+	return mock.GetHeaderByNumberFunc(contextMoqParam, n)
 }
 
 // GetHeaderByNumberCalls gets all the calls that were made to GetHeaderByNumber.
@@ -140,10 +143,12 @@ func (mock *BlockPluginMock) GetHeaderByNumber(n int64) (*types.Header, error) {
 //
 //	len(mockedBlockPlugin.GetHeaderByNumberCalls())
 func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
-	N int64
+	ContextMoqParam context.Context
+	N               int64
 } {
 	var calls []struct {
-		N int64
+		ContextMoqParam context.Context
+		N               int64
 	}
 	mock.lockGetHeaderByNumber.RLock()
 	calls = mock.calls.GetHeaderByNumber
@@ -152,19 +157,21 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 }
 
 // NewHeaderWithBlockNumber calls NewHeaderWithBlockNumberFunc.
-func (mock *BlockPluginMock) NewHeaderWithBlockNumber(n int64) *types.Header {
+func (mock *BlockPluginMock) NewHeaderWithBlockNumber(contextMoqParam context.Context, n int64) *types.Header {
 	if mock.NewHeaderWithBlockNumberFunc == nil {
 		panic("BlockPluginMock.NewHeaderWithBlockNumberFunc: method is nil but BlockPlugin.NewHeaderWithBlockNumber was just called")
 	}
 	callInfo := struct {
-		N int64
+		ContextMoqParam context.Context
+		N               int64
 	}{
-		N: n,
+		ContextMoqParam: contextMoqParam,
+		N:               n,
 	}
 	mock.lockNewHeaderWithBlockNumber.Lock()
 	mock.calls.NewHeaderWithBlockNumber = append(mock.calls.NewHeaderWithBlockNumber, callInfo)
 	mock.lockNewHeaderWithBlockNumber.Unlock()
-	return mock.NewHeaderWithBlockNumberFunc(n)
+	return mock.NewHeaderWithBlockNumberFunc(contextMoqParam, n)
 }
 
 // NewHeaderWithBlockNumberCalls gets all the calls that were made to NewHeaderWithBlockNumber.
@@ -172,10 +179,12 @@ func (mock *BlockPluginMock) NewHeaderWithBlockNumber(n int64) *types.Header {
 //
 //	len(mockedBlockPlugin.NewHeaderWithBlockNumberCalls())
 func (mock *BlockPluginMock) NewHeaderWithBlockNumberCalls() []struct {
-	N int64
+	ContextMoqParam context.Context
+	N               int64
 } {
 	var calls []struct {
-		N int64
+		ContextMoqParam context.Context
+		N               int64
 	}
 	mock.lockNewHeaderWithBlockNumber.RLock()
 	calls = mock.calls.NewHeaderWithBlockNumber
@@ -183,54 +192,24 @@ func (mock *BlockPluginMock) NewHeaderWithBlockNumberCalls() []struct {
 	return calls
 }
 
-// Prepare calls PrepareFunc.
-func (mock *BlockPluginMock) Prepare(contextMoqParam context.Context) {
-	if mock.PrepareFunc == nil {
-		panic("BlockPluginMock.PrepareFunc: method is nil but BlockPlugin.Prepare was just called")
-	}
-	callInfo := struct {
-		ContextMoqParam context.Context
-	}{
-		ContextMoqParam: contextMoqParam,
-	}
-	mock.lockPrepare.Lock()
-	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
-	mock.lockPrepare.Unlock()
-	mock.PrepareFunc(contextMoqParam)
-}
-
-// PrepareCalls gets all the calls that were made to Prepare.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.PrepareCalls())
-func (mock *BlockPluginMock) PrepareCalls() []struct {
-	ContextMoqParam context.Context
-} {
-	var calls []struct {
-		ContextMoqParam context.Context
-	}
-	mock.lockPrepare.RLock()
-	calls = mock.calls.Prepare
-	mock.lockPrepare.RUnlock()
-	return calls
-}
-
 // SetHeaderByNumber calls SetHeaderByNumberFunc.
-func (mock *BlockPluginMock) SetHeaderByNumber(n int64, header *types.Header) error {
+func (mock *BlockPluginMock) SetHeaderByNumber(contextMoqParam context.Context, n int64, header *types.Header) error {
 	if mock.SetHeaderByNumberFunc == nil {
 		panic("BlockPluginMock.SetHeaderByNumberFunc: method is nil but BlockPlugin.SetHeaderByNumber was just called")
 	}
 	callInfo := struct {
-		N      int64
-		Header *types.Header
+		ContextMoqParam context.Context
+		N               int64
+		Header          *types.Header
 	}{
-		N:      n,
-		Header: header,
+		ContextMoqParam: contextMoqParam,
+		N:               n,
+		Header:          header,
 	}
 	mock.lockSetHeaderByNumber.Lock()
 	mock.calls.SetHeaderByNumber = append(mock.calls.SetHeaderByNumber, callInfo)
 	mock.lockSetHeaderByNumber.Unlock()
-	return mock.SetHeaderByNumberFunc(n, header)
+	return mock.SetHeaderByNumberFunc(contextMoqParam, n, header)
 }
 
 // SetHeaderByNumberCalls gets all the calls that were made to SetHeaderByNumber.
@@ -238,12 +217,14 @@ func (mock *BlockPluginMock) SetHeaderByNumber(n int64, header *types.Header) er
 //
 //	len(mockedBlockPlugin.SetHeaderByNumberCalls())
 func (mock *BlockPluginMock) SetHeaderByNumberCalls() []struct {
-	N      int64
-	Header *types.Header
+	ContextMoqParam context.Context
+	N               int64
+	Header          *types.Header
 } {
 	var calls []struct {
-		N      int64
-		Header *types.Header
+		ContextMoqParam context.Context
+		N               int64
+		Header          *types.Header
 	}
 	mock.lockSetHeaderByNumber.RLock()
 	calls = mock.calls.SetHeaderByNumber

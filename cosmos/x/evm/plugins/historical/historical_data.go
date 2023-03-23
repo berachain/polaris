@@ -21,6 +21,7 @@
 package historical
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/store/prefix"
@@ -36,7 +37,7 @@ import (
 )
 
 // StoreBlock implements `core.HistoricalPlugin`.
-func (p *plugin) StoreBlock(block *coretypes.Block) error {
+func (p *plugin) StoreBlock(_ context.Context, block *coretypes.Block) error {
 	blockNum := block.NumberU64()
 
 	// store block hash to block number.
@@ -55,14 +56,13 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 }
 
 // StoreReceipts implements `core.HistoricalPlugin`.
-func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
+func (p *plugin) StoreReceipts(_ context.Context, blockHash common.Hash, receipts coretypes.Receipts) error {
 	// store block hash to receipts.
 	receiptsBz, err := coretypes.MarshalReceipts(receipts)
 	if err != nil {
-		p.ctx.Logger().Error(
-			"UpdateOffChainStorage: failed to marshal receipts at block hash %s", blockHash.Hex(),
+		return errorslib.Wrapf(
+			err, "UpdateOffChainStorage: failed to marshal receipts at block hash %s", blockHash.Hex(),
 		)
-		return err
 	}
 	prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Set(blockHash.Bytes(), receiptsBz)
 
@@ -71,7 +71,7 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 
 // StoreTransactions implements `core.HistoricalPlugin`.
 func (p *plugin) StoreTransactions(
-	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
+	_ context.Context, blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
 	// store all txns in the block.
 	txStore := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix})
@@ -85,11 +85,11 @@ func (p *plugin) StoreTransactions(
 		var tleBz []byte
 		tleBz, err := txLookupEntry.MarshalBinary()
 		if err != nil {
-			p.ctx.Logger().Error(
+			return errorslib.Wrapf(
+				err,
 				"UpdateOffChainStorage: failed to marshal tx %s at block number %d",
 				tx.Hash().Hex(), blockNum,
 			)
-			return err
 		}
 		txStore.Set(tx.Hash().Bytes(), tleBz)
 	}
@@ -98,9 +98,9 @@ func (p *plugin) StoreTransactions(
 }
 
 // GetBlockByNumber returns the block at the given height.
-func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
+func (p *plugin) GetBlockByNumber(_ context.Context, number int64) (*coretypes.Block, error) {
 	// get header from on chain.
-	header, err := p.bp.GetHeaderByNumber(number)
+	header, err := p.bp.GetHeaderByHistoricalNumber(number)
 	if err != nil {
 		return nil, err
 	}
@@ -137,19 +137,19 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 }
 
 // GetBlockByHash returns the block at the given hash.
-func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
+func (p *plugin) GetBlockByHash(_ context.Context, blockHash common.Hash) (*coretypes.Block, error) {
 	// get block number from off chain.
 	numBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
 		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
 	}
 	number := int64(sdk.BigEndianToUint64(numBz))
-	header, err := p.bp.GetHeaderByNumber(number)
+	header, err := p.bp.GetHeaderByHistoricalNumber(number)
 	if err != nil {
 		return nil, err
 	}
 	if int64(header.Number.Uint64()) != number || header.Hash() != blockHash {
-		panic("header number or hash is not equal to the given number or hash")
+		panic("header number or hash is not equal to the given block number or hash")
 	}
 
 	// get receipts from off chain.
@@ -183,7 +183,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 }
 
 // GetTransactionByHash returns the transaction lookup entry with the given hash.
-func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
+func (p *plugin) GetTransactionByHash(_ context.Context, txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
 	tleBz := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
@@ -198,7 +198,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 }
 
 // GetReceiptsByHash returns the receipts with the given block hash.
-func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
+func (p *plugin) GetReceiptsByHash(_ context.Context, blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
 	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {

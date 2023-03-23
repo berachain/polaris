@@ -25,11 +25,11 @@ var _ core.PolarisHostChain = &PolarisHostChainMock{}
 //			GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
 //				panic("mock out the GetConfigurationPlugin method")
 //			},
-//			GetGasPluginFunc: func() core.GasPlugin {
-//				panic("mock out the GetGasPlugin method")
-//			},
 //			GetHistoricalPluginFunc: func() core.HistoricalPlugin {
 //				panic("mock out the GetHistoricalPlugin method")
+//			},
+//			GetNewGasPluginFunc: func() core.GasPlugin {
+//				panic("mock out the GetNewGasPlugin method")
 //			},
 //			GetPrecompilePluginFunc: func() precompile.Plugin {
 //				panic("mock out the GetPrecompilePlugin method")
@@ -53,11 +53,11 @@ type PolarisHostChainMock struct {
 	// GetConfigurationPluginFunc mocks the GetConfigurationPlugin method.
 	GetConfigurationPluginFunc func() core.ConfigurationPlugin
 
-	// GetGasPluginFunc mocks the GetGasPlugin method.
-	GetGasPluginFunc func() core.GasPlugin
-
 	// GetHistoricalPluginFunc mocks the GetHistoricalPlugin method.
 	GetHistoricalPluginFunc func() core.HistoricalPlugin
+
+	// GetNewGasPluginFunc mocks the GetNewGasPlugin method.
+	GetNewGasPluginFunc func() core.GasPlugin
 
 	// GetPrecompilePluginFunc mocks the GetPrecompilePlugin method.
 	GetPrecompilePluginFunc func() precompile.Plugin
@@ -76,11 +76,11 @@ type PolarisHostChainMock struct {
 		// GetConfigurationPlugin holds details about calls to the GetConfigurationPlugin method.
 		GetConfigurationPlugin []struct {
 		}
-		// GetGasPlugin holds details about calls to the GetGasPlugin method.
-		GetGasPlugin []struct {
-		}
 		// GetHistoricalPlugin holds details about calls to the GetHistoricalPlugin method.
 		GetHistoricalPlugin []struct {
+		}
+		// GetNewGasPlugin holds details about calls to the GetNewGasPlugin method.
+		GetNewGasPlugin []struct {
 		}
 		// GetPrecompilePlugin holds details about calls to the GetPrecompilePlugin method.
 		GetPrecompilePlugin []struct {
@@ -94,8 +94,8 @@ type PolarisHostChainMock struct {
 	}
 	lockGetBlockPlugin         sync.RWMutex
 	lockGetConfigurationPlugin sync.RWMutex
-	lockGetGasPlugin           sync.RWMutex
 	lockGetHistoricalPlugin    sync.RWMutex
+	lockGetNewGasPlugin        sync.RWMutex
 	lockGetPrecompilePlugin    sync.RWMutex
 	lockGetStatePlugin         sync.RWMutex
 	lockGetTxPoolPlugin        sync.RWMutex
@@ -155,33 +155,6 @@ func (mock *PolarisHostChainMock) GetConfigurationPluginCalls() []struct {
 	return calls
 }
 
-// GetGasPlugin calls GetGasPluginFunc.
-func (mock *PolarisHostChainMock) GetGasPlugin() core.GasPlugin {
-	if mock.GetGasPluginFunc == nil {
-		panic("PolarisHostChainMock.GetGasPluginFunc: method is nil but PolarisHostChain.GetGasPlugin was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockGetGasPlugin.Lock()
-	mock.calls.GetGasPlugin = append(mock.calls.GetGasPlugin, callInfo)
-	mock.lockGetGasPlugin.Unlock()
-	return mock.GetGasPluginFunc()
-}
-
-// GetGasPluginCalls gets all the calls that were made to GetGasPlugin.
-// Check the length with:
-//
-//	len(mockedPolarisHostChain.GetGasPluginCalls())
-func (mock *PolarisHostChainMock) GetGasPluginCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockGetGasPlugin.RLock()
-	calls = mock.calls.GetGasPlugin
-	mock.lockGetGasPlugin.RUnlock()
-	return calls
-}
-
 // GetHistoricalPlugin calls GetHistoricalPluginFunc.
 func (mock *PolarisHostChainMock) GetHistoricalPlugin() core.HistoricalPlugin {
 	if mock.GetHistoricalPluginFunc == nil {
@@ -206,6 +179,33 @@ func (mock *PolarisHostChainMock) GetHistoricalPluginCalls() []struct {
 	mock.lockGetHistoricalPlugin.RLock()
 	calls = mock.calls.GetHistoricalPlugin
 	mock.lockGetHistoricalPlugin.RUnlock()
+	return calls
+}
+
+// GetNewGasPlugin calls GetNewGasPluginFunc.
+func (mock *PolarisHostChainMock) GetNewGasPlugin() core.GasPlugin {
+	if mock.GetNewGasPluginFunc == nil {
+		panic("PolarisHostChainMock.GetNewGasPluginFunc: method is nil but PolarisHostChain.GetNewGasPlugin was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetNewGasPlugin.Lock()
+	mock.calls.GetNewGasPlugin = append(mock.calls.GetNewGasPlugin, callInfo)
+	mock.lockGetNewGasPlugin.Unlock()
+	return mock.GetNewGasPluginFunc()
+}
+
+// GetNewGasPluginCalls gets all the calls that were made to GetNewGasPlugin.
+// Check the length with:
+//
+//	len(mockedPolarisHostChain.GetNewGasPluginCalls())
+func (mock *PolarisHostChainMock) GetNewGasPluginCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetNewGasPlugin.RLock()
+	calls = mock.calls.GetNewGasPlugin
+	mock.lockGetNewGasPlugin.RUnlock()
 	return calls
 }
 

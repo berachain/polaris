@@ -45,7 +45,8 @@ var _ = Describe("Historical Plugin", func() {
 		p = utils.MustGetAs[*plugin](
 			NewPlugin(block.NewPlugin(sk), offchain.NewFromDB(dbm.NewMemDB()), sk),
 		)
-		p.Prepare(ctx)
+		_ = p
+		_ = ctx
 	})
 
 	// It("should get the header at current height", func() {

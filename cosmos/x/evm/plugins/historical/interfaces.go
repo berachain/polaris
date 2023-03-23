@@ -20,6 +20,14 @@
 
 package historical
 
-type StakingKeeper interface {
-	// TODO: coinbase stuff
-}
+import coretypes "pkg.berachain.dev/polaris/eth/core/types"
+
+type (
+	StakingKeeper interface {
+		// TODO: coinbase stuff
+	}
+
+	BlockPlugin interface {
+		GetHeaderByHistoricalNumber(number int64) (*coretypes.Header, error)
+	}
+)

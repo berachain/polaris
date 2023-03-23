@@ -492,6 +492,6 @@ func (mpp *mockPrecompilePlugin) GetLogFactory() events.PrecompileLogFactory {
 
 type mockConfigurationPlugin struct{}
 
-func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
+func (mcp *mockConfigurationPlugin) GetEvmDenom(_ sdk.Context) string {
 	return "abera"
 }

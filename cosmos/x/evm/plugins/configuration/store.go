@@ -21,12 +21,13 @@
 package configuration
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 // GetParams is used to get the params for the evm module.
-func (p *plugin) GetParams() *types.Params {
-	bz := p.paramsStore.Get([]byte{types.ParamsKey})
+func (p *plugin) GetParams(ctx sdk.Context) *types.Params {
+	bz := ctx.KVStore(p.storeKey).Get([]byte{types.ParamsKey})
 	if bz == nil {
 		return &types.Params{}
 	}
@@ -38,10 +39,10 @@ func (p *plugin) GetParams() *types.Params {
 }
 
 // SetParams is used to set the params for the evm module.
-func (p *plugin) SetParams(params *types.Params) {
+func (p *plugin) SetParams(ctx sdk.Context, params *types.Params) {
 	bz, err := params.Marshal()
 	if err != nil {
 		panic(err)
 	}
-	p.paramsStore.Set([]byte{types.ParamsKey}, bz)
+	ctx.KVStore(p.storeKey).Set([]byte{types.ParamsKey}, bz)
 }

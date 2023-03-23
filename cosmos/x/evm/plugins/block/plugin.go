@@ -43,11 +43,11 @@ type Plugin interface {
 
 	// SetQueryContextFn sets the function used for querying historical block headers.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
+	// GetHeaderByNumber returns the block header for the historical block number.
+	GetHeaderByHistoricalNumber(number int64) (*coretypes.Header, error)
 }
 
 type plugin struct {
-	// ctx is the current block context, used for accessing current block info and kv stores.
-	ctx sdk.Context
 	// storekey is the store key for the header store.
 	storekey storetypes.StoreKey
 	// getQueryContext allows for querying block headers.
@@ -60,23 +60,19 @@ func NewPlugin(storekey storetypes.StoreKey) Plugin {
 	}
 }
 
-// Prepare implements core.BlockPlugin.
-func (p *plugin) Prepare(ctx context.Context) {
-	p.ctx = sdk.UnwrapSDKContext(ctx)
-}
-
 // BaseFee returns the base fee for the current block.
 // TODO: implement properly with DynamicFee Module of some kind.
 //
 // BaseFee implements core.BlockPlugin.
-func (p *plugin) BaseFee() uint64 {
+func (p *plugin) BaseFee(_ context.Context) uint64 {
 	return bf
 }
 
 // NewHeaderWithBlockNumber builds an ethereum style block header from the current
 // context.
-func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
-	cometHeader := p.ctx.BlockHeader()
+func (p *plugin) NewHeaderWithBlockNumber(ctx context.Context, number int64) *coretypes.Header {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	cometHeader := sdkCtx.BlockHeader()
 	if cometHeader.Height != number {
 		panic("block height mismatch")
 	}
@@ -90,7 +86,7 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 
 	parentHash := common.Hash{}
 	if number > 1 {
-		header, err := p.GetHeaderByNumber(number - 1)
+		header, err := p.GetHeaderByNumber(ctx, number-1)
 		if err != nil {
 			// halt the chain.
 			panic("parent header not found")
@@ -114,11 +110,11 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 		// We simply map the cosmos "BlockHeight" to the ethereum "BlockNumber".
 		Number: big.NewInt(cometHeader.Height),
 		// GasLimit is set to the block gas limit.
-		GasLimit: blockGasLimitFromCosmosContext(p.ctx),
+		GasLimit: blockGasLimitFromCosmosContext(sdkCtx),
 		// Time is set to the block timestamp.
 		Time: uint64(cometHeader.Time.UTC().Unix()),
 		// BaseFee is set to the block base fee.
-		BaseFee: big.NewInt(int64(p.BaseFee())),
+		BaseFee: big.NewInt(int64(p.BaseFee(sdkCtx))),
 		// ReceiptHash set to empty. It is filled during `Finalize` in the StateProcessor.
 		ReceiptHash: common.Hash{},
 		// Bloom is set to empty. It is filled during `Finalize` in the StateProcessor.

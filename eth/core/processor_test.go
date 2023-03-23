@@ -80,7 +80,7 @@ var _ = Describe("StateProcessor", func() {
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
-		host.GetGasPluginFunc = func() core.GasPlugin {
+		host.GetNewGasPluginFunc = func() core.GasPlugin {
 			return gp
 		}
 		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
@@ -97,7 +97,7 @@ var _ = Describe("StateProcessor", func() {
 		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
+		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
 			header := dummyHeader
 			header.GasLimit = blockGasLimit
 			header.BaseFee = big.NewInt(1)
@@ -217,7 +217,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		bp := mock.NewBlockPluginMock()
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
-		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
+		bp.NewHeaderWithBlockNumberFunc = func(_ context.Context, height int64) *types.Header {
 			header := dummyHeader
 			header.GasLimit = 1000000
 			header.Number = new(big.Int)
@@ -227,7 +227,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
 		}
-		host.GetGasPluginFunc = func() core.GasPlugin {
+		host.GetNewGasPluginFunc = func() core.GasPlugin {
 			return gp
 		}
 		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {

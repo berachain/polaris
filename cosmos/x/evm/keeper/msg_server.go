@@ -25,6 +25,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -71,7 +72,6 @@ func (k *Keeper) UpdateParams(
 	}
 
 	// Update the params.
-	k.cp.Prepare(ctx)
-	k.cp.SetParams(&req.Params)
+	k.cp.SetParams(sdk.UnwrapSDKContext(ctx), &req.Params)
 	return &types.UpdateParamsResponse{}, nil
 }

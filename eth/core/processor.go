@@ -121,7 +121,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 
 	// We must re-create the signer since we are processing a new block and the block number has
 	// increased.
-	chainConfig := sp.cp.ChainConfig()
+	chainConfig := sp.cp.ChainConfig(ctx)
 	sp.signer = types.MakeSigner(chainConfig, sp.header.Number)
 
 	// Setup the EVM for this block.
@@ -130,7 +130,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
-	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
+	sp.vmConfig.ExtraEips = sp.cp.ExtraEips(ctx)
 	sp.evm = evm
 }
 

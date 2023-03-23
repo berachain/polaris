@@ -83,5 +83,5 @@ type PrecompilePlugin interface {
 }
 
 type ConfigurationPlugin interface {
-	GetEvmDenom() string
+	GetEvmDenom(ctx sdk.Context) string
 }

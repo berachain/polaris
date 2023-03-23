@@ -59,8 +59,8 @@ func (p *Playground) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return plugins.NewConfigurationPlugin()
 }
 
-// GetGasPlugin implements `core.PolarisHostChain`.
-func (p *Playground) GetGasPlugin() core.GasPlugin {
+// GetNewGasPlugin implements `core.PolarisHostChain`.
+func (p *Playground) GetNewGasPlugin() core.GasPlugin {
 	return plugins.NewGasPlugin()
 }
 

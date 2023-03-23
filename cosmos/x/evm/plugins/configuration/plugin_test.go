@@ -44,25 +44,14 @@ var _ = Describe("Plugin", func() {
 		ctx = testutil.NewContext()
 		storeKey := storetypes.NewKVStoreKey("evm")
 		p = &plugin{
-			storeKey:    storeKey,
-			paramsStore: ctx.KVStore(storeKey),
+			storeKey: storeKey,
 		}
-	})
-
-	Describe("Prepare", func() {
-		It("should initialize the params store", func() {
-			p.Prepare(ctx)
-
-			// Check that the params store is initialized.
-			expect := ctx.KVStore(p.storeKey)
-			Expect(p.paramsStore).To(Equal(expect))
-		})
 	})
 
 	Describe("ChainConfig", func() {
 		Context("when the params store is empty", func() {
 			It("should return nil", func() {
-				config := p.ChainConfig()
+				config := p.ChainConfig(ctx)
 				Expect(config).To(BeNil())
 			})
 		})
@@ -76,24 +65,24 @@ var _ = Describe("Plugin", func() {
 				}
 				bz, err := storedParams.Marshal()
 				Expect(err).ToNot(HaveOccurred())
-				p.paramsStore.Set([]byte{types.ParamsKey}, bz)
+				ctx.KVStore(p.storeKey).Set([]byte{types.ParamsKey}, bz)
 
-				config := p.ChainConfig()
+				config := p.ChainConfig(ctx)
 				Expect(config).To(Equal(params.DefaultChainConfig))
 			})
 		})
 
 		Context("when the params store contains invalid params", func() {
 			It("should panic", func() {
-				p.paramsStore.Set([]byte{types.ParamsKey}, []byte("invalid params"))
-				Expect(func() { p.ChainConfig() }).To(Panic())
+				ctx.KVStore(p.storeKey).Set([]byte{types.ParamsKey}, []byte("invalid params"))
+				Expect(func() { p.ChainConfig(ctx) }).To(Panic())
 			})
 		})
 	})
 
 	Describe("ExtraEips", func() {
 		It("should return an empty slice", func() {
-			eips := p.ExtraEips()
+			eips := p.ExtraEips(ctx)
 			Expect(eips).To(BeEmpty())
 		})
 	})

@@ -142,9 +142,10 @@ var _ = Describe("Processor", func() {
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
-			k.GetStatePlugin().CreateAccount(addr)
-			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
-			k.GetStatePlugin().Finalize()
+			sp := k.GetStatePlugin()
+			sp.CreateAccount(addr)
+			sp.AddBalance(addr, big.NewInt(1000000000))
+			sp.Finalize()
 
 			// create the contract
 			result, err := k.ProcessTransaction(ctx, tx)

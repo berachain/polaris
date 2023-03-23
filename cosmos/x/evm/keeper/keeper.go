@@ -160,8 +160,8 @@ func (k *Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return k.cp
 }
 
-// GetGasPlugin returns the gas plugin.
-func (k *Keeper) GetGasPlugin() core.GasPlugin {
+// GetNewGasPlugin returns the gas plugin.
+func (k *Keeper) GetNewGasPlugin() core.GasPlugin {
 	return k.gp
 }
 

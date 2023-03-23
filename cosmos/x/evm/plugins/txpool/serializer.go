@@ -21,6 +21,8 @@
 package txpool
 
 import (
+	"context"
+
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -36,9 +38,9 @@ import (
 // to Cosmos native transaction types / formats.
 type Serializer interface {
 	// Serialize serializes the given transaction into a byte slice.
-	Serialize(tx *coretypes.Transaction) ([]byte, error)
+	Serialize(ctx context.Context, tx *coretypes.Transaction) ([]byte, error)
 	// 'SerializeToSdkTx converts an ethereum transaction to a Cosmos transaction.
-	SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error)
+	SerializeToSdkTx(ctx context.Context, tx *coretypes.Transaction) (sdk.Tx, error)
 }
 
 // serializer represents the transaction pool plugin.
@@ -57,9 +59,9 @@ func NewSerializer(cp ConfigurationPlugin, clientCtx client.Context) Serializer 
 
 // Serialize converts an Ethereum transaction to txBytes which allows for it to
 // broadcast it to CometBFT.
-func (s *serializer) Serialize(signedTx *coretypes.Transaction) ([]byte, error) {
+func (s *serializer) Serialize(ctx context.Context, signedTx *coretypes.Transaction) ([]byte, error) {
 	// First, we convert the Ethereum transaction to a Cosmos transaction.
-	cosmosTx, err := s.SerializeToSdkTx(signedTx)
+	cosmosTx, err := s.SerializeToSdkTx(ctx, signedTx)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +79,7 @@ func (s *serializer) Serialize(signedTx *coretypes.Transaction) ([]byte, error) 
 
 // BuildCosmosTxFromEthTx converts an ethereum transaction to a Cosmos
 // transaction.
-func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
+func (s *serializer) SerializeToSdkTx(ctx context.Context, signedTx *coretypes.Transaction) (sdk.Tx, error) {
 	// TODO: do we really need to use extensions for anything? Since we
 	// are using the standard ante handler stuff I don't think we actually need to.
 	tx := s.clientCtx.TxConfig.NewTxBuilder()
@@ -88,7 +90,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
 	if feeAmt.Sign() > 0 {
 		// TODO: properly get evm denomination.
-		fees = append(fees, sdk.NewCoin(s.cp.GetEvmDenom(), feeAmt))
+		fees = append(fees, sdk.NewCoin(s.cp.GetEvmDenom(sdk.UnwrapSDKContext(ctx)), feeAmt))
 	}
 	tx.SetFeeAmount(fees)
 

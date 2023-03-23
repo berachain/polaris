@@ -44,15 +44,14 @@ var _ = Describe("Plugin", func() {
 		ctx = testutil.NewContext()
 		storeKey := storetypes.NewKVStoreKey("evm")
 		p = &plugin{
-			storeKey:    storeKey,
-			paramsStore: ctx.KVStore(storeKey),
+			storeKey: storeKey,
 		}
 	})
 
 	Describe("GetParams", func() {
 		Context("when the params store is empty", func() {
 			It("should return the default params", func() {
-				params := p.GetParams()
+				params := p.GetParams(ctx)
 				Expect(params).To(Equal(&types.Params{}))
 			})
 		})
@@ -66,17 +65,17 @@ var _ = Describe("Plugin", func() {
 				}
 				bz, err := storedParams.Marshal()
 				Expect(err).ToNot(HaveOccurred())
-				p.paramsStore.Set([]byte{types.ParamsKey}, bz)
+				ctx.KVStore(p.storeKey).Set([]byte{types.ParamsKey}, bz)
 
-				params := p.GetParams()
+				params := p.GetParams(ctx)
 				Expect(params).To(Equal(&storedParams))
 			})
 		})
 
 		Context("when the params store contains invalid params", func() {
 			It("should panic", func() {
-				p.paramsStore.Set([]byte{types.ParamsKey}, []byte("invalid params"))
-				Expect(func() { p.GetParams() }).To(Panic())
+				ctx.KVStore(p.storeKey).Set([]byte{types.ParamsKey}, []byte("invalid params"))
+				Expect(func() { p.GetParams(ctx) }).To(Panic())
 			})
 		})
 	})
@@ -88,10 +87,10 @@ var _ = Describe("Plugin", func() {
 				ExtraEIPs:   []int64{123},
 				ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
 			}
-			p.SetParams(&params)
+			p.SetParams(ctx, &params)
 
 			var storedParams types.Params
-			bz := p.paramsStore.Get([]byte{types.ParamsKey})
+			bz := ctx.KVStore(p.storeKey).Get([]byte{types.ParamsKey})
 			Expect(bz).ToNot(BeNil())
 
 			err := storedParams.Unmarshal(bz)
