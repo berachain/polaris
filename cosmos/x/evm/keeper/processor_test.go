@@ -103,7 +103,7 @@ var _ = Describe("Processor", func() {
 		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil)
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
-		for _, plugin := range k.GetAllPlugins() {
+		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
 
@@ -142,9 +142,9 @@ var _ = Describe("Processor", func() {
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
-			k.GetStatePlugin().CreateAccount(addr)
-			k.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
-			k.GetStatePlugin().Finalize()
+			k.GetHost().GetStatePlugin().CreateAccount(addr)
+			k.GetHost().GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetHost().GetStatePlugin().Finalize()
 
 			// create the contract
 			result, err := k.ProcessTransaction(ctx, tx)
