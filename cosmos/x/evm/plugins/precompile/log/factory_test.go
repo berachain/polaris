@@ -173,7 +173,7 @@ var _ = Describe("Factory", func() {
 			)
 			log, err := f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("invalid_arg: no value decoder function is found for event attribute key"))
+			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: invalid_arg"))
 		})
 
 		It("should error on decoders returning errors", func() {
@@ -238,7 +238,7 @@ var _ = Describe("Factory", func() {
 			)
 			log, err := f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("customAmount: this Ethereum event argument has no matching Cosmos attribute key"))
+			Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: customAmount"))
 
 			event = sdk.NewEvent(
 				"custom_unbonding_delegation",
@@ -247,7 +247,7 @@ var _ = Describe("Factory", func() {
 			)
 			log, err = f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("customValidator: this Ethereum event argument has no matching Cosmos attribute key"))
+			Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: customValidator"))
 		})
 	})
 })
