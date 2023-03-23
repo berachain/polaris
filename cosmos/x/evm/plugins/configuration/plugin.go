@@ -42,7 +42,7 @@ type Plugin interface {
 	core.ConfigurationPlugin
 	SetParams(ctx sdk.Context, params *types.Params)
 	GetParams(ctx sdk.Context) *types.Params
-	GetEvmDenom(ctx sdk.Context) string
+	GetEvmDenom(ctx context.Context) string
 }
 
 // plugin implements the core.ConfigurationPlugin interface.
@@ -61,9 +61,12 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 	}
 }
 
-func (p *plugin) GetEvmDenom(ctx sdk.Context) string {
+func (p *plugin) GetEvmDenom(ctx context.Context) string {
 	if p.evmDenom == "" {
-		p.GetParams(ctx)
+		if !utils.Implements[sdk.Context](ctx) {
+			return types.DefaultEvmDenom
+		}
+		p.GetParams(sdk.UnwrapSDKContext(ctx))
 	}
 	return p.evmDenom
 }

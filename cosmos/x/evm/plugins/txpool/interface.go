@@ -20,8 +20,8 @@
 
 package txpool
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import "context"
 
 type ConfigurationPlugin interface {
-	GetEvmDenom(ctx sdk.Context) string
+	GetEvmDenom(ctx context.Context) string
 }

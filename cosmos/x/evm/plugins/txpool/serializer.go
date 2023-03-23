@@ -90,7 +90,7 @@ func (s *serializer) SerializeToSdkTx(ctx context.Context, signedTx *coretypes.T
 	feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
 	if feeAmt.Sign() > 0 {
 		// TODO: properly get evm denomination.
-		fees = append(fees, sdk.NewCoin(s.cp.GetEvmDenom(sdk.UnwrapSDKContext(ctx)), feeAmt))
+		fees = append(fees, sdk.NewCoin(s.cp.GetEvmDenom(ctx), feeAmt))
 	}
 	tx.SetFeeAmount(fees)
 
