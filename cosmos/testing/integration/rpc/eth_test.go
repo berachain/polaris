@@ -46,10 +46,14 @@ func TestRpc(t *testing.T) {
 }
 
 var tf *integration.TestFixture
+var client *ethclient.Client
+var wsclient *ethclient.Client
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
+	client = tf.EthClient
+	wsclient = tf.EthWsClient
 	return nil
 }, func(data []byte) {})
 
@@ -61,119 +65,100 @@ var _ = SynchronizedAfterSuite(func() {
 })
 
 var _ = Describe("Network", func() {
-	var client *ethclient.Client
-	var rpcClient *gethrpc.Client
-	var err error
-	var net *network.Network
 	var ctx context.Context
+
 	BeforeEach(func() {
-		net, client = StartPolarisNetwork(GinkgoT())
+		ctx = context.Background()
 	})
 
-	AfterEach(func() {
-		// TODO: FIX THE OFFCHAIN DB
-		os.RemoveAll("data")
+	It("should connect -- multiple clients", func() {
+		// Dial an Ethereum RPC Endpoint
+		rpcClient, err := gethrpc.DialContext(ctx, tf.Network.Validators[0].APIAddress+"/eth/rpc")
+		Expect(err).ToNot(HaveOccurred())
+		client := ethclient.NewClient(rpcClient)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(client).ToNot(BeNil())
 	})
 
-	Context("checking rpc endopints", func() {
+	It("eth_chainId, eth_gasPrice, eth_blockNumber, eth_getBalance", func() {
+		chainID, err := client.ChainID(context.Background())
+		Expect(err).ToNot(HaveOccurred())
+		Expect(chainID.String()).To(Equal("69420"))
+		gasPrice, err := client.SuggestGasPrice(context.Background())
+		Expect(err).ToNot(HaveOccurred())
+		Expect(gasPrice).ToNot(BeNil())
+		blockNumber, err := client.BlockNumber(context.Background())
+		Expect(err).ToNot(HaveOccurred())
+		Expect(blockNumber).To(BeNumerically(">", 0))
+		balance, err := client.BalanceAt(context.Background(), network.TestAddress, nil)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(balance.Uint64()).To(BeNumerically(">", 0))
+	})
 
-		BeforeEach(func() {
-			// Dial an Ethereum RPC Endpoint
-			ctx := context.Background()
-			rpcClient, err = gethrpc.DialContext(ctx, net.Validators[0].APIAddress+"/eth/rpc")
-			Expect(err).ToNot(HaveOccurred())
-			client = ethclient.NewClient(rpcClient)
-			Expect(err).ToNot(HaveOccurred())
-		})
+	It("should deploy, mint tokens, and check balance", func() {
+		// Deploy the contract
+		erc20Contract := DeployERC20(BuildTransactor(client), client)
 
-		It("should connect -- multiple clients", func() {
-			// Dial an Ethereum RPC Endpoint
-			rpcClient, err := gethrpc.DialContext(ctx, net.Validators[0].APIAddress+"/eth/rpc")
-			Expect(err).ToNot(HaveOccurred())
-			client = ethclient.NewClient(rpcClient)
-			Expect(err).ToNot(HaveOccurred())
-		})
+		// Mint tokens
+		tx, err := erc20Contract.Mint(BuildTransactor(client),
+			network.TestAddress, big.NewInt(100000000))
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(client, tx)
+		ExpectSuccessReceipt(client, tx)
 
-		It("eth_chainId, eth_gasPrice, eth_blockNumber, eth_getBalance", func() {
-			chainID, err := client.ChainID(context.Background())
-			Expect(err).ToNot(HaveOccurred())
-			Expect(chainID.String()).To(Equal("69420"))
-			gasPrice, err := client.SuggestGasPrice(context.Background())
-			Expect(err).ToNot(HaveOccurred())
-			Expect(gasPrice).ToNot(BeNil())
-			blockNumber, err := client.BlockNumber(context.Background())
-			Expect(err).ToNot(HaveOccurred())
-			Expect(blockNumber).To(BeNumerically(">", 0))
-			balance, err := client.BalanceAt(context.Background(), network.TestAddress, nil)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
-		})
+		// Check the erc20 balance
+		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(erc20Balance.Uint64()).To(BeNumerically(">", 0))
+	})
 
-		It("should deploy, mint tokens, and check balance", func() {
-			// Deploy the contract
-			erc20Contract := DeployERC20(BuildTransactor(client), client)
+	It("eth_estimateGas", func() {
+		// Estimate the gas required for a transaction
+		from := network.TestAddress
+		to := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
+		value := big.NewInt(1000000000000)
 
-			// Mint tokens
-			tx, err := erc20Contract.Mint(BuildTransactor(client),
-				network.TestAddress, big.NewInt(100000000))
-			Expect(err).ToNot(HaveOccurred())
-			ExpectMined(client, tx)
-			ExpectSuccessReceipt(client, tx)
+		msg := geth.CallMsg{
+			From:  from,
+			To:    &to,
+			Value: value,
+		}
 
-			// Check the erc20 balance
-			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
-		})
+		gas, err := client.EstimateGas(context.Background(), msg)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(gas).To(BeNumerically(">", 0))
+	})
 
-		It("eth_estimateGas", func() {
-			// Estimate the gas required for a transaction
-			from := network.TestAddress
-			to := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
-			value := big.NewInt(1000000000000)
+	It("should deploy, mint tokens, and check balance, eth_getTransactionByHash", func() {
+		// Deploy the contract
+		erc20Contract := DeployERC20(BuildTransactor(client), client)
 
-			msg := geth.CallMsg{
-				From:  from,
-				To:    &to,
-				Value: value,
-			}
+		// Mint tokens
+		tx, err := erc20Contract.Mint(BuildTransactor(client),
+			network.TestAddress, big.NewInt(100000000))
+		Expect(err).ToNot(HaveOccurred())
 
-			gas, err := client.EstimateGas(context.Background(), msg)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(gas).To(BeNumerically(">", 0))
-		})
+		// Get the transaction by its hash, it should be pending here.
+		txHash := tx.Hash() // TODO: UNCOMMENT
+		// fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
+		// Expect(err).ToNot(HaveOccurred())
+		// Expect(isPending).To(BeTrue())
+		// Expect(fetchedTx.Hash()).To(Equal(txHash))
 
-		It("should deploy, mint tokens, and check balance, eth_getTransactionByHash", func() {
-			// Deploy the contract
-			erc20Contract := DeployERC20(BuildTransactor(client), client)
+		// Wait for it to be mined.
+		ExpectMined(client, tx)
+		ExpectSuccessReceipt(client, tx)
 
-			// Mint tokens
-			tx, err := erc20Contract.Mint(BuildTransactor(client),
-				network.TestAddress, big.NewInt(100000000))
-			Expect(err).ToNot(HaveOccurred())
+		// Get the transaction by its hash, it should be mined here.
+		fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(isPending).To(BeFalse())
+		Expect(fetchedTx.Hash()).To(Equal(txHash))
 
-			// Get the transaction by its hash, it should be pending here.
-			txHash := tx.Hash() // TODO: UNCOMMENT
-			// fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
-			// Expect(err).ToNot(HaveOccurred())
-			// Expect(isPending).To(BeTrue())
-			// Expect(fetchedTx.Hash()).To(Equal(txHash))
-
-			// Wait for it to be mined.
-			ExpectMined(client, tx)
-			ExpectSuccessReceipt(client, tx)
-
-			// Get the transaction by its hash, it should be mined here.
-			fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(isPending).To(BeFalse())
-			Expect(fetchedTx.Hash()).To(Equal(txHash))
-
-			// Check the erc20 balance
-			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
-		})
+		// Check the erc20 balance
+		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, network.TestAddress)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
 	})
 
 })

@@ -162,9 +162,5 @@ func (c Cosmos) TestUnit() error {
 // Runs all integration for the Cosmos SDK chain.
 func (c Cosmos) TestIntegration() error {
 	LogGreen("Running integration tests for the Cosmos SDK chain.")
-<<<<<<< HEAD
-	return testIntegration(c.directory() + "/testing")
-=======
 	return testIntegration(c.directory() + "/testing/integration")
->>>>>>> main
 }

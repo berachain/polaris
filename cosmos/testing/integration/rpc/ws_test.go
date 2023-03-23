@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"os"
 	"strings"
 
 	geth "github.com/ethereum/go-ethereum"
@@ -32,72 +31,50 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 var _ = Describe("Network with WS", func() {
-	var wsClient *ethclient.Client
-	var net *network.Network
 	var ctx context.Context
 	BeforeEach(func() {
-		net, _ = StartPolarisNetwork(GinkgoT())
+		ctx = context.Background()
+	})
+	It("should connect -- multiple ", func() {
+		// Dial an Ethereum websocket Endpoint
+		wsaddr := "ws:" + strings.TrimPrefix(tf.Network.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
+		// rpcaddr := net.Validators[0].APIAddress + "/eth/rpc"
+		ws, err := gethrpc.DialWebsocket(ctx, wsaddr, "*")
+		Expect(err).ToNot(HaveOccurred())
+		wsClient := ethclient.NewClient(ws)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(wsClient).ToNot(BeNil())
 	})
 
-	AfterEach(func() {
-		// TODO: FIX THE OFFCHAIN DB
-		os.RemoveAll("data")
-	})
-	Context("checking websockets", func() {
-		BeforeEach(func() {
-			ctx = context.Background()
-			// Dial an Ethereum RPC Endpoint
-			wsaddr := "ws:" + strings.TrimPrefix(net.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
-			// rpcaddr := net.Validators[0].APIAddress + "/eth/rpc"
-			ws, err := gethrpc.DialWebsocket(ctx, wsaddr, "*")
-			Expect(err).ToNot(HaveOccurred())
-			wsClient = ethclient.NewClient(ws)
-			Expect(err).ToNot(HaveOccurred())
-		})
-		It("should connect", func() {
-			// Dial an Ethereum websocket Endpoint
-			wsaddr := "ws:" + strings.TrimPrefix(net.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
-			// rpcaddr := net.Validators[0].APIAddress + "/eth/rpc"
-			ws, err := gethrpc.DialWebsocket(ctx, wsaddr, "*")
-			Expect(err).ToNot(HaveOccurred())
-			wsClient = ethclient.NewClient(ws)
-			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("should subscribe to new heads", func() {
-			// Subscribe to new heads
-			sub, err := wsClient.SubscribeNewHead(ctx, make(chan *gethtypes.Header))
-			Expect(err).ToNot(HaveOccurred())
-			Expect(sub).ToNot(BeNil())
-		})
-
-		It("should subscribe to logs", func() {
-			// Subscribe to logs
-			sub, err := wsClient.SubscribeFilterLogs(ctx, geth.FilterQuery{}, make(chan gethtypes.Log))
-			Expect(err).ToNot(HaveOccurred())
-			Expect(sub).ToNot(BeNil())
-		})
-		It("should get recent blocks", func() {
-			headers := make(chan *gethtypes.Header)
-			sub, _ := wsClient.SubscribeNewHead(ctx, headers)
-			fmt.Print("Listening...")
-			select {
-			case err := <-sub.Err():
-				Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
-			case header := <-headers:
-				fmt.Printf("New block: %v", header.Number.Uint64())
-				_, err := wsClient.BlockByNumber(ctx, big.NewInt(header.Number.Int64()))
-				Expect(err).ToNot(HaveOccurred())
-			}
-		})
+	It("should subscribe to new heads", func() {
+		// Subscribe to new heads
+		sub, err := wsclient.SubscribeNewHead(ctx, make(chan *gethtypes.Header))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(sub).ToNot(BeNil())
 	})
 
+	It("should subscribe to logs", func() {
+		// Subscribe to logs
+		sub, err := wsclient.SubscribeFilterLogs(ctx, geth.FilterQuery{}, make(chan gethtypes.Log))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(sub).ToNot(BeNil())
+	})
+	It("should get recent blocks", func() {
+		headers := make(chan *gethtypes.Header)
+		sub, _ := wsclient.SubscribeNewHead(ctx, headers)
+		fmt.Print("Listening...")
+		select {
+		case err := <-sub.Err():
+			Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
+		case header := <-headers:
+			fmt.Printf("New block: %v", header.Number.Uint64())
+			_, err := wsclient.BlockByNumber(ctx, big.NewInt(header.Number.Int64()))
+			Expect(err).ToNot(HaveOccurred())
+		}
+	})
 })
