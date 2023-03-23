@@ -21,6 +21,8 @@
 package state
 
 import (
+	"context"
+
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -83,5 +85,5 @@ type PrecompilePlugin interface {
 }
 
 type ConfigurationPlugin interface {
-	GetEvmDenom(ctx sdk.Context) string
+	GetEvmDenom(ctx context.Context) string
 }
