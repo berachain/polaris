@@ -30,7 +30,6 @@ import (
 
 	evmrpc "pkg.berachain.dev/polaris/cosmos/rpc"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper/host"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
@@ -52,7 +51,7 @@ type Keeper struct {
 	// authority is the bech32 address that is allowed to execute governance proposals.
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
-	Host *host.Host
+	Host *Host
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -81,7 +80,7 @@ func NewKeeper(
 	cfg.BaseRoute = "/eth/rpc"
 	k.rpcProvider = evmrpc.NewProvider(cfg)
 
-	k.Host = host.NewHost(
+	k.Host = NewHost(
 		storeKey,
 		ak,
 		bk,

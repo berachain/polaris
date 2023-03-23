@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package host
+package keeper
 
 import (
 	storetypes "cosmossdk.io/store/types"
@@ -49,7 +49,7 @@ var _ core.PolarisHostChain = (*Host)(nil)
 type Host struct {
 	// The various plugins that are are used to implement `core.PolarisHostChain`.
 	bp  block.Plugin
-	Cp  configuration.Plugin
+	cp  configuration.Plugin
 	gp  gas.Plugin
 	hp  historical.Plugin
 	pp  precompile.Plugin
@@ -73,10 +73,10 @@ func NewHost(
 
 	// Build the Plugins
 	h.bp = block.NewPlugin(storeKey)
-	h.Cp = configuration.NewPlugin(storeKey)
+	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
 	h.hp = historical.NewPlugin(h.bp, offChainKv, storeKey)
-	h.txp = txpool.NewPlugin(h.Cp, rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin(h.cp, rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	return h
 }
 
@@ -91,7 +91,7 @@ func (h *Host) Setup(
 ) {
 	// Setup the precompile and state plugins
 	h.pp = precompile.NewPlugin(precompiles)
-	h.sp = state.NewPlugin(ak, bk, storeKey, h.Cp, h.pp)
+	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, h.pp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
@@ -105,7 +105,7 @@ func (h *Host) GetBlockPlugin() core.BlockPlugin {
 
 // GetConfigurationPlugin returns the configuration plugin.
 func (h *Host) GetConfigurationPlugin() core.ConfigurationPlugin {
-	return h.Cp
+	return h.cp
 }
 
 // GetGasPlugin returns the gas plugin.
@@ -134,5 +134,5 @@ func (h *Host) GetTxPoolPlugin() core.TxPoolPlugin {
 
 // GetAllPlugins returns all the plugins.
 func (h *Host) GetAllPlugins() []plugins.BaseCosmosPolaris {
-	return []plugins.BaseCosmosPolaris{h.hp, h.Cp, h.gp, h.pp, h.sp}
+	return []plugins.BaseCosmosPolaris{h.hp, h.cp, h.gp, h.pp, h.sp}
 }
