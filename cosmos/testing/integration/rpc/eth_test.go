@@ -75,9 +75,9 @@ var _ = Describe("Network", func() {
 		// Dial an Ethereum RPC Endpoint
 		rpcClient, err := gethrpc.DialContext(ctx, tf.Network.Validators[0].APIAddress+"/eth/rpc")
 		Expect(err).ToNot(HaveOccurred())
-		client := ethclient.NewClient(rpcClient)
+		c := ethclient.NewClient(rpcClient)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(client).ToNot(BeNil())
+		Expect(c).ToNot(BeNil())
 	})
 
 	It("eth_chainId, eth_gasPrice, eth_blockNumber, eth_getBalance", func() {

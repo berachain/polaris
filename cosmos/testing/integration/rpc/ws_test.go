@@ -67,12 +67,12 @@ var _ = Describe("Network with WS", func() {
 	It("should get recent blocks", func() {
 		headers := make(chan *gethtypes.Header)
 		sub, _ := wsclient.SubscribeNewHead(ctx, headers)
-		fmt.Print("Listening...")
+		GinkgoWriter.Println("Listening for blocks...")
 		select {
 		case err := <-sub.Err():
 			Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
 		case header := <-headers:
-			fmt.Printf("New block: %v", header.Number.Uint64())
+			GinkgoWriter.Printf("New block: %v", header.Number.Uint64())
 			_, err := wsclient.BlockByNumber(ctx, big.NewInt(header.Number.Int64()))
 			Expect(err).ToNot(HaveOccurred())
 		}

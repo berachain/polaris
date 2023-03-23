@@ -22,6 +22,7 @@ package rpc
 
 import (
 	"github.com/ethereum/go-ethereum/eth/filters"
+
 	"pkg.berachain.dev/polaris/eth/rpc/api"
 )
 

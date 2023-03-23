@@ -53,7 +53,6 @@ func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Clien
 	Expect(err).ToNot(HaveOccurred())
 
 	return net, client
-
 }
 
 // BuildTransactor builds a transaction opts object.
