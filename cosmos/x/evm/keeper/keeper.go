@@ -30,26 +30,13 @@ import (
 
 	evmrpc "pkg.berachain.dev/polaris/cosmos/rpc"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/gas"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	ethrpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
-
-// Compile-time interface assertion.
-var _ core.PolarisHostChain = (*Keeper)(nil)
 
 type Keeper struct {
 	// provider is the struct that houses the Polaris EVM.
@@ -63,15 +50,8 @@ type Keeper struct {
 	offChainKv *offchain.Store
 	// authority is the bech32 address that is allowed to execute governance proposals.
 	authority string
-
-	// The various plugins that are are used to implement `core.PolarisHostChain`.
-	bp  block.Plugin
-	cp  configuration.Plugin
-	gp  gas.Plugin
-	hp  historical.Plugin
-	pp  precompile.Plugin
-	sp  state.Plugin
-	txp txpool.Plugin
+	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
+	host Host
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -100,13 +80,31 @@ func NewKeeper(
 	cfg.BaseRoute = "/eth/rpc"
 	k.rpcProvider = evmrpc.NewProvider(cfg)
 
-	// Build the Plugins
-	k.bp = block.NewPlugin(storeKey)
-	k.cp = configuration.NewPlugin(storeKey)
-	k.gp = gas.NewPlugin()
-	k.hp = historical.NewPlugin(k.bp, k.offChainKv, storeKey)
-	k.txp = txpool.NewPlugin(k.cp, k.rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	k.host = NewHost(
+		storeKey,
+		ak,
+		bk,
+		authority,
+		appOpts,
+		ethTxMempool,
+		k.offChainKv,
+		k.rpcProvider,
+	)
 	return k
+}
+
+// Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
+func (k *Keeper) Setup(
+	ak state.AccountKeeper,
+	bk state.BankKeeper,
+	precompiles []vm.RegistrablePrecompile,
+	qc func(height int64, prove bool) (sdk.Context, error),
+) {
+	// Setup plugins in the Host
+	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)
+
+	// Build the Polaris EVM Provider
+	k.polaris = eth.NewPolarisProvider(k.host, k.rpcProvider, nil)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
@@ -130,67 +128,13 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
-// Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
-// sets the query context function for the block and state plugins (to support historical queries).
-func (k *Keeper) Setup(
-	ak state.AccountKeeper,
-	bk state.BankKeeper,
-	precompiles []vm.RegistrablePrecompile,
-	qc func(height int64, prove bool) (sdk.Context, error),
-) {
-	// Setup the precompile and state plugins
-	k.pp = precompile.NewPlugin(ak, precompiles)
-	k.sp = state.NewPlugin(ak, bk, k.storeKey, k.cp, k.pp)
-
-	// Set the query context function for the block and state plugins
-	k.sp.SetQueryContextFn(qc)
-	k.bp.SetQueryContextFn(qc)
-
-	// Build the Polaris EVM Provider
-	k.polaris = eth.NewPolarisProvider(k, k.rpcProvider, nil)
-}
-
-// GetBlockPlugin returns the header plugin.
-func (k *Keeper) GetBlockPlugin() core.BlockPlugin {
-	return k.bp
-}
-
-// GetConfigurationPlugin returns the configuration plugin.
-func (k *Keeper) GetConfigurationPlugin() core.ConfigurationPlugin {
-	return k.cp
-}
-
-// GetGasPlugin returns the gas plugin.
-func (k *Keeper) GetGasPlugin() core.GasPlugin {
-	return k.gp
-}
-
-func (k *Keeper) GetHistoricalPlugin() core.HistoricalPlugin {
-	return k.hp
-}
-
-// GetPrecompilePlugin returns the precompile plugin.
-func (k *Keeper) GetPrecompilePlugin() core.PrecompilePlugin {
-	return k.pp
-}
-
-// GetStatePlugin returns the state plugin.
-func (k *Keeper) GetStatePlugin() core.StatePlugin {
-	return k.sp
-}
-
-// GetTxPoolPlugin returns the txpool plugin.
-func (k *Keeper) GetTxPoolPlugin() core.TxPoolPlugin {
-	return k.txp
-}
-
-// GetAllPlugins returns all the plugins.
-func (k *Keeper) GetAllPlugins() []plugins.BaseCosmosPolaris {
-	return []plugins.BaseCosmosPolaris{k.hp, k.cp, k.gp, k.pp, k.sp}
-}
-
 // GetRPCProvider returns the RPC provider. We use this in `app.go` to register
 // the Ethereum JSONRPC server with the application mux server.
 func (k *Keeper) GetRPCProvider() evmrpc.Provider {
 	return k.rpcProvider
+}
+
+// GetHost returns the Host that contains all plugins.
+func (k *Keeper) GetHost() Host {
+	return k.host
 }
