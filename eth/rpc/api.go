@@ -20,7 +20,11 @@
 
 package rpc
 
-import "pkg.berachain.dev/polaris/eth/rpc/api"
+import (
+	"github.com/ethereum/go-ethereum/eth/filters"
+
+	"pkg.berachain.dev/polaris/eth/rpc/api"
+)
 
 // GetAPIs returns a list of all available APIs.
 func GetAPIs(apiBackend PolarisBackend) []API {
@@ -36,6 +40,11 @@ func GetAPIs(apiBackend PolarisBackend) []API {
 		{
 			Namespace: "eth",
 			Service:   NewTransactionAPI(apiBackend, nonceLock),
+		},
+		{
+			Namespace: "eth",
+			// TODO: config must be setup properly.
+			Service: NewFilterAPI(filters.NewFilterSystem(apiBackend, filters.Config{}), false),
 		},
 		{
 			Namespace: "txpool",

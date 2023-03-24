@@ -25,6 +25,9 @@ import "time"
 var (
 	// DefaultAPINamespaces is the default namespaces the JSON-RPC server exposes.
 	DefaultAPINamespaces = []string{"eth", "net"}
+
+	// DefaultOriginAllowlist is the default origin allowlist (allows all by default) for the JSON-RPC server.
+	DefaultOriginAllowlist = []string{"*"}
 )
 
 const (
@@ -44,10 +47,11 @@ const (
 // DefaultServer returns the default JSON-RPC server config.
 func DefaultServer() *Server {
 	return &Server{
-		EnabledAPIs:   DefaultAPINamespaces,
-		BaseRoute:     DefaultBaseRoute,
-		RPCGasCap:     DefaultRPCGasCap,
-		RPCTxFeeCap:   DefaultRPCTxFeeCap,
-		RPCEVMTimeout: DefaultRPCEVMTimeout,
+		EnabledAPIs:     DefaultAPINamespaces,
+		BaseRoute:       DefaultBaseRoute,
+		RPCGasCap:       DefaultRPCGasCap,
+		RPCTxFeeCap:     DefaultRPCTxFeeCap,
+		RPCEVMTimeout:   DefaultRPCEVMTimeout,
+		OriginAllowlist: DefaultOriginAllowlist,
 	}
 }
