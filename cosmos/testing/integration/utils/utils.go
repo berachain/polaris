@@ -27,15 +27,36 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
+	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
-	. "github.com/onsi/gomega" //nolint:stylecheck,revive // Gomega makes sense in tests.
+	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck  // Gomega makes sense in tests.
 )
 
-const DefaultTimeout = 10 * time.Second
+const (
+	DefaultTimeout = 10 * time.Second
+	TxTimeout      = 30 * time.Second
+)
+
+// StartPolarisNetwork starts a new in-memory Polaris chain.
+func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Client) {
+	var err error
+	net := network.New(t, network.DefaultConfig())
+	time.Sleep(1 * time.Second)
+	_, err = net.WaitForHeightWithTimeout(1, DefaultTimeout)
+	Expect(err).ToNot(HaveOccurred())
+
+	// Dial an Ethereum RPC Endpoint
+	rpcClient, err := gethrpc.DialContext(context.Background(), net.Validators[0].APIAddress+"/eth/rpc")
+	Expect(err).ToNot(HaveOccurred())
+	client := ethclient.NewClient(rpcClient)
+	Expect(err).ToNot(HaveOccurred())
+
+	return net, client
+}
 
 // BuildTransactor builds a transaction opts object.
 func BuildTransactor(
@@ -47,6 +68,7 @@ func BuildTransactor(
 	blockNumber, err := client.BlockNumber(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
+	time.Sleep(TxTimeout) // hacky stuff to make sure the nonce is correct.
 	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
 	Expect(err).ToNot(HaveOccurred())
 
