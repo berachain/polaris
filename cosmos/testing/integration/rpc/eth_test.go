@@ -23,15 +23,12 @@ package jsonrpc
 import (
 	"context"
 	"math/big"
-	"os"
-	"testing"
 
 	geth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
@@ -39,30 +36,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
-
-func TestRpc(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/jsonrpc:integration")
-}
-
-var tf *integration.TestFixture
-var client *ethclient.Client
-var wsclient *ethclient.Client
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	client = tf.EthClient
-	wsclient = tf.EthWsClient
-	return nil
-}, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})
 
 var _ = Describe("Network", func() {
 	var ctx context.Context
