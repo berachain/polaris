@@ -74,6 +74,9 @@ import (
 var (
 	// module account permissions.
 	ModuleAccPerms = []*authmodulev1.ModuleAccountPermission{
+		{Account: authtypes.ModuleName},
+		{Account: banktypes.ModuleName},
+		{Account: stakingtypes.ModuleName},
 		{Account: authtypes.FeeCollectorName},
 		{Account: distrtypes.ModuleName},
 		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},

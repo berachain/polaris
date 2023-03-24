@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"sync"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -130,6 +131,25 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = evm
+}
+
+func (sp *StateProcessor) RecordHostTransaction(
+	ctx context.Context, txHash common.Hash, status uint64,
+) {
+	// Create a new transaction object from the tx data.
+	gasUsed := sp.gp.GasConsumed()
+	receipt := &types.Receipt{
+		Type:              69,
+		TxHash:            txHash,
+		GasUsed:           gasUsed,
+		CumulativeGasUsed: gasUsed + sp.gp.BlockGasConsumed(),
+		BlockHash:         sp.header.Hash(),
+		BlockNumber:       sp.header.Number,
+		TransactionIndex:  uint(len(sp.txs)),
+	}
+
+	sp.txs = append(sp.txs, types.NewHostChainTx(txHash))
+	sp.receipts = append(sp.receipts, receipt)
 }
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.

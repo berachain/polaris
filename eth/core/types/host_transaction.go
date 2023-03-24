@@ -18,29 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package types
 
-import (
-	"fmt"
+import "pkg.berachain.dev/polaris/eth/common"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-)
-
-func (p *plugin) InitGenesis(ctx sdk.Context, _ *types.GenesisState) {
-	// ensure every precompile contract's address is unique and exists in the account keeper
-	for _, precompile := range p.precompiles {
-		if p.ak.GetAccount(ctx, cosmlib.AddressToAccAddress(precompile.RegistryKey())) == nil {
-			panic(
-				fmt.Sprintf(
-					"precompile contract address %s is not registered as an account",
-					precompile.RegistryKey().Hex(),
-				),
-			)
-		}
-	}
+type HostTxData struct {
+	TxData
+	txHash common.Hash
 }
 
-func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
+func NewHostChainTx(txHash common.Hash) *Transaction {
+	return NewTx(&HostTxData{txHash: txHash})
+}
