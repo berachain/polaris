@@ -21,6 +21,7 @@
 package state_test
 
 import (
+	"context"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -492,6 +493,6 @@ func (mpp *mockPrecompilePlugin) GetLogFactory() events.PrecompileLogFactory {
 
 type mockConfigurationPlugin struct{}
 
-func (mcp *mockConfigurationPlugin) GetEvmDenom(_ sdk.Context) string {
+func (mcp *mockConfigurationPlugin) GetEvmDenom(_ context.Context) string {
 	return "abera"
 }

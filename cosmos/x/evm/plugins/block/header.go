@@ -52,13 +52,14 @@ func (p *plugin) GetHeaderByNumber(ctx context.Context, height int64) (*coretype
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	iavlHeight, err := p.getIAVLHeight(sdkCtx, height)
+	currentHeight := sdkCtx.BlockHeight()
+	iavlHeight, err := p.resolveBlockHeight(height, currentHeight)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "GetHeader: invalid IAVL height")
 	}
 
 	var header *coretypes.Header
-	if iavlHeight == sdkCtx.BlockHeight() {
+	if iavlHeight == currentHeight {
 		header, err = p.getHeaderFromStore(sdkCtx)
 	} else {
 		header, err = p.GetHeaderByHistoricalNumber(iavlHeight)
@@ -115,14 +116,14 @@ func (p *plugin) getHeaderFromStore(ctx sdk.Context) (*coretypes.Header, error) 
 	return header, nil
 }
 
-// getIAVLHeight returns the IAVL height for the given block number.
-func (p *plugin) getIAVLHeight(ctx sdk.Context, number int64) (int64, error) {
+// resolveBlockHeight returns the IAVL height for the given block number and current height.
+func (p *plugin) resolveBlockHeight(number int64, currentHeight int64) (int64, error) {
 	var iavlHeight int64
 	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // covers all cases.
 	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
-		iavlHeight = ctx.BlockHeight() - 1
+		iavlHeight = currentHeight - 1
 	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
-		iavlHeight = ctx.BlockHeight()
+		iavlHeight = currentHeight
 	case rpc.EarliestBlockNumber:
 		iavlHeight = 1
 	default:
