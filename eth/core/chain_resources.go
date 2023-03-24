@@ -69,6 +69,9 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.PolarisStateDB, error) 
 // GetStateByTransaction returns a statedb configured to read what the state of the blockchain is/was
 // at a given transaction. It also returns the message, block context and a release function for the
 // statedb.
+//
+// NOTE: This trace block does not include processing transactions from the host chain. Need to
+// export this to a plugin function from the host chain. currently fucked.
 func (bc *blockchain) GetStateByTransaction(_ context.Context, block *types.Block, txIndex int) (
 	*Message, vm.BlockContext, state.StateDBI, tracers.StateReleaseFunc, error,
 ) {

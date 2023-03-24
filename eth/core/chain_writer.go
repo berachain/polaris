@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -83,6 +84,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	bc.currentLogs.Store(logs)
 
 	blockHash, blockNum := block.Hash(), block.Number().Int64()
+	fmt.Println("CHAIN WRITER FINALIZE", "blockHash", blockHash.Hex())
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
 	// mark the current block and receipts
