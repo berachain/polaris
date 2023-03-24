@@ -25,8 +25,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/trie"
-
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -242,7 +240,7 @@ func (sp *StateProcessor) Finalize(
 	}
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
-	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, logs, nil
+	return types.NewBlockWithHeader(sp.header).WithBody(sp.txs, nil), sp.receipts, logs, nil
 }
 
 // ===========================================================================
