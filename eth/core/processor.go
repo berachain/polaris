@@ -216,6 +216,9 @@ func (sp *StateProcessor) Finalize(
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
+	// Now that we are done processing the block, we update the header with the consumed gas.
+	sp.header.GasUsed = gp.BlockGasConsumed()
+
 	// We iterate over all of the receipts/transactions in the block and update the receipt to
 	// have the correct values. We must do this AFTER all the transactions have been processed
 	// to ensure that the block hash, logs and bloom filter have the correct information.
@@ -236,9 +239,6 @@ func (sp *StateProcessor) Finalize(
 		receipt.BlockNumber = sp.header.Number
 		receipt.TransactionIndex = uint(txIndex)
 	}
-
-	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = gp.BlockGasConsumed()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil)), sp.receipts, logs, nil

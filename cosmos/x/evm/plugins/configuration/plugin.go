@@ -61,6 +61,7 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 	}
 }
 
+// GetEvmDenom implements the configuration.Plugin interface.
 func (p *plugin) GetEvmDenom(ctx context.Context) string {
 	if p.evmDenom == "" {
 		if !utils.Implements[sdk.Context](ctx) {
