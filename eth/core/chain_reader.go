@@ -125,6 +125,17 @@ func (bc *blockchain) GetReceipts(ctx context.Context, blockHash common.Hash) (t
 	if err != nil {
 		return nil, err
 	}
+	// derive fields of receipts
+	block, err := bc.GetPolarisBlockByHash(ctx, blockHash)
+	if err != nil {
+		return nil, err
+	}
+	err = receipts.DeriveFields(
+		bc.ChainConfig(ctx), blockHash, block.NumberU64(), block.BaseFee(), block.Transactions(),
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	// cache the found receipts for next time and return
 	bc.receiptsCache.Add(blockHash, receipts)
