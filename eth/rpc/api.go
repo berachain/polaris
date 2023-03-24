@@ -20,7 +20,10 @@
 
 package rpc
 
-import "pkg.berachain.dev/polaris/eth/rpc/api"
+import (
+	"github.com/ethereum/go-ethereum/eth/tracers"
+	"pkg.berachain.dev/polaris/eth/rpc/api"
+)
 
 // GetAPIs returns a list of all available APIs.
 func GetAPIs(apiBackend PolarisBackend) []API {
@@ -44,6 +47,10 @@ func GetAPIs(apiBackend PolarisBackend) []API {
 		{
 			Namespace: "debug",
 			Service:   NewDebugAPI(apiBackend),
+		},
+		{
+			Namespace: "debug",
+			Service:   tracers.NewAPI(apiBackend),
 		},
 		{
 			Namespace: "net",
