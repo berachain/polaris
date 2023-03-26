@@ -76,6 +76,7 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 	}
 }
 
+// GenerateTransactOpts generates a new transaction options object for a key by it's name.
 func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	// Get the nonce from the RPC.
 	// TODO: switch to pending once the txpool is finished. https://github.com/berachain/polaris/issues/385

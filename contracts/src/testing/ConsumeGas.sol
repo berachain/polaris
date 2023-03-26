@@ -25,15 +25,17 @@
 
 pragma solidity ^0.8.4;
 
-import {ERC20} from "../../lib/ERC20.sol";
+contract ConsumeGas {
+    event GasConsumed(uint256 gasUsed);
 
-contract SolmateERC20 is ERC20 {
-    constructor() ERC20("Token", "TK", 18) {}
+    function consumeGas(uint256 targetGas) external {
+        uint256 initialGas = gasleft();
 
-    event Mint(address indexed to, uint256 amount);
+        while (gasleft() > initialGas - targetGas) {
+            // Do nothing, just consume gas
+        }
 
-    function mint(address to, uint256 amount) external {
-        _mint(to, amount);
-        emit Mint(to, amount);
+        uint256 gasUsed = initialGas - gasleft();
+        emit GasConsumed(gasUsed);
     }
 }
