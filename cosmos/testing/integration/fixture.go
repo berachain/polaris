@@ -22,12 +22,17 @@ package integration
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"math/big"
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 // defaultTimeout is the default timeout for the test fixture.
@@ -36,6 +41,7 @@ const defaultTimeout = 10 * time.Second
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
 type TestFixture struct {
+	t           network.TestingT
 	Network     *network.Network
 	EthClient   *ethclient.Client
 	EthWsClient *ethclient.Client
@@ -63,8 +69,48 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 
 	// Build and return the Test Fixture.
 	return &TestFixture{
+		t:           t,
 		Network:     net,
 		EthClient:   client,
 		EthWsClient: wsClient,
 	}
+}
+
+func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
+	// Get the nonce from the RPC.
+	// TODO: switch to pending once the txpool is finished. https://github.com/berachain/polaris/issues/385
+	// Get the nonce from the RPC.
+	blockNumber, err := tf.EthClient.BlockNumber(context.Background())
+	if err != nil {
+		tf.t.Fatal(err)
+	}
+	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
+	time.Sleep(2) // hacky stuff to make sure the nonce is correct. //nolint:gomnd // temporary.
+	nonce, err := tf.EthClient.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
+	if err != nil {
+		tf.t.Fatal(err)
+	}
+
+	// Get the ChainID from the RPC.
+	chainID, err := tf.EthClient.ChainID(context.Background())
+	if err != nil {
+		tf.t.Fatal(err)
+	}
+
+	// Build transaction opts object.
+	auth, err := bind.NewKeyedTransactorWithChainID(tf.PrivKey(name), chainID)
+	if err != nil {
+		tf.t.Fatal(err)
+	}
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0) // in wei
+	return auth
+}
+
+func (tf *TestFixture) PrivKey(name string) *ecdsa.PrivateKey {
+	return network.ECDSATestKey
+}
+
+func (tf *TestFixture) Address(name string) common.Address {
+	return crypto.PubkeyToAddress(tf.PrivKey(name).PublicKey)
 }
