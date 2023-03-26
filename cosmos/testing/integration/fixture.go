@@ -85,7 +85,8 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 		tf.t.Fatal(err)
 	}
 	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
-	time.Sleep(2) // hacky stuff to make sure the nonce is correct. //nolint:gomnd // temporary.
+	// hacky stuff to make sure the nonce is correct.
+	time.Sleep(2) //nolint:gomnd // temporary.
 	nonce, err := tf.EthClient.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
 	if err != nil {
 		tf.t.Fatal(err)
