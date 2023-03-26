@@ -73,7 +73,7 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		txr := BuildTransactor(tf.EthClient)
+		txr := tf.GenerateTransactOpts("")
 		txr.Value = big.NewInt(1000000000000)
 		tx, err := stakingPrecompile.Delegate(txr, validator, big.NewInt(100000000000))
 		Expect(err).ToNot(HaveOccurred())
@@ -87,7 +87,7 @@ var _ = Describe("Staking", func() {
 
 	It("should be able to call a precompile from a smart contract", func() {
 		_, tx, contract, err := tbindings.DeployLiquidStaking(
-			BuildTransactor(tf.EthClient),
+			tf.GenerateTransactOpts(""),
 			tf.EthClient,
 			"myToken",
 			"MTK",
@@ -108,7 +108,7 @@ var _ = Describe("Staking", func() {
 		Expect(addresses[0]).To(Equal(validator))
 
 		// Send tokens to the contract
-		txr := BuildTransactor(tf.EthClient)
+		txr := tf.GenerateTransactOpts("")
 		txr.GasLimit = 0
 		txr.Value = big.NewInt(100000000000)
 		tx, err = contract.Delegate(txr, big.NewInt(100000000000))
