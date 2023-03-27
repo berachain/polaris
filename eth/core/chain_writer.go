@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -70,7 +69,6 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	// We can use the finalized block's header here because we assume that the previous block was finalized.
 	if block := bc.finalizedBlock.Load(); block != nil {
 		header.BaseFee = misc.CalcBaseFee(bc.ChainConfig(), block.Header())
-		fmt.Println("NEW BASE FEE", header.BaseFee)
 	}
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
