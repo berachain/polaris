@@ -306,8 +306,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
-	// Pntr to a Pntr
-	// dk := &app.DistrKeeper // TODO: fix this
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
