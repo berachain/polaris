@@ -311,7 +311,7 @@ var _ = Describe("Governance Precompile", func() {
 				"metadata",
 			)
 			Expect(err).To(HaveOccurred())
-			Expect(res).To(BeNil())
+			Expect(res).To(HaveLen(1))
 		})
 		It("should succeed", func() {
 			res, err := contract.Vote(
@@ -383,7 +383,7 @@ var _ = Describe("Governance Precompile", func() {
 					"metadata",
 				)
 				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
+				Expect(res).To(HaveLen(1))
 			})
 			It("should succeed", func() {
 				weight, err := math.LegacyNewDecFromStr("0.4")
