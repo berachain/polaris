@@ -74,8 +74,11 @@ import (
 var (
 	// module account permissions.
 	ModuleAccPerms = []*authmodulev1.ModuleAccountPermission{
+		{Account: authtypes.ModuleName, Permissions: []string{}},
 		{Account: authtypes.FeeCollectorName},
-		{Account: distrtypes.ModuleName},
+		{Account: banktypes.ModuleName, Permissions: []string{}},
+		{Account: distrtypes.ModuleName, Permissions: []string{}},
+		{Account: stakingtypes.ModuleName, Permissions: []string{}},
 		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},

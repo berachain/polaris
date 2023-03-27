@@ -47,21 +47,27 @@ var (
 	validator         common.Address
 )
 
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
-	stakingPrecompile, _ = bindings.NewStakingModule(
-		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
-	return nil
-}, func(data []byte) {})
+var _ = SynchronizedBeforeSuite(
+	func() []byte {
+		// Setup the network and clients here.
+		tf = integration.NewTestFixture(GinkgoT())
+		validator = common.Address(tf.Network.Validators[0].Address.Bytes())
+		stakingPrecompile, _ = bindings.NewStakingModule(
+			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
+		return nil
+	},
+	func(data []byte) {},
+)
 
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})
+var _ = SynchronizedAfterSuite(
+	func() {
+		// Local AfterSuite actions.
+	},
+	func() {
+		// Global AfterSuite actions.
+		os.RemoveAll("data")
+	},
+)
 
 var _ = Describe("Staking", func() {
 	It("should call functions on the precompile directly", func() {
