@@ -43,5 +43,8 @@ type (
 		// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 		// send-transaction variants. The unit is ether.
 		RPCTxFeeCap float64 `mapstructure:"rpc-tx-fee-cap"`
+
+		// OriginAllowlist defines a list of allowed origins for the JSON-RPC server.
+		OriginAllowlist []string `mapstructure:"origin-allowlist"`
 	}
 )

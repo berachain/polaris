@@ -49,7 +49,7 @@ type IStakingModuleUnbondingDelegationEntry struct {
 
 // StakingModuleMetaData contains all meta data concerning the StakingModule contract.
 var StakingModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"CancelUnbondingDelegation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CreateValidator\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Delegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sourceValidator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"destinationValidator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Redelegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Unbond\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getActiveValidators\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"CancelUnbondingDelegation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CreateValidator\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Delegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sourceValidator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"destinationValidator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Redelegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Unbond\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getActiveValidators\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
 }
 
 // StakingModuleABI is the input ABI used to generate the binding from.
@@ -417,168 +417,168 @@ func (_StakingModule *StakingModuleCallerSession) GetUnbondingDelegation0(delega
 
 // BeginRedelegate is a paid mutator transaction binding the contract method 0x2e436cf2.
 //
-// Solidity: function beginRedelegate(string srcValidator, string dstValidator, uint256 amount) payable returns()
+// Solidity: function beginRedelegate(string srcValidator, string dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) BeginRedelegate(opts *bind.TransactOpts, srcValidator string, dstValidator string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "beginRedelegate", srcValidator, dstValidator, amount)
 }
 
 // BeginRedelegate is a paid mutator transaction binding the contract method 0x2e436cf2.
 //
-// Solidity: function beginRedelegate(string srcValidator, string dstValidator, uint256 amount) payable returns()
+// Solidity: function beginRedelegate(string srcValidator, string dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) BeginRedelegate(srcValidator string, dstValidator string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.BeginRedelegate(&_StakingModule.TransactOpts, srcValidator, dstValidator, amount)
 }
 
 // BeginRedelegate is a paid mutator transaction binding the contract method 0x2e436cf2.
 //
-// Solidity: function beginRedelegate(string srcValidator, string dstValidator, uint256 amount) payable returns()
+// Solidity: function beginRedelegate(string srcValidator, string dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) BeginRedelegate(srcValidator string, dstValidator string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.BeginRedelegate(&_StakingModule.TransactOpts, srcValidator, dstValidator, amount)
 }
 
 // BeginRedelegate0 is a paid mutator transaction binding the contract method 0xb3a8ae3b.
 //
-// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns()
+// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) BeginRedelegate0(opts *bind.TransactOpts, srcValidator common.Address, dstValidator common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "beginRedelegate0", srcValidator, dstValidator, amount)
 }
 
 // BeginRedelegate0 is a paid mutator transaction binding the contract method 0xb3a8ae3b.
 //
-// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns()
+// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) BeginRedelegate0(srcValidator common.Address, dstValidator common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.BeginRedelegate0(&_StakingModule.TransactOpts, srcValidator, dstValidator, amount)
 }
 
 // BeginRedelegate0 is a paid mutator transaction binding the contract method 0xb3a8ae3b.
 //
-// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns()
+// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) BeginRedelegate0(srcValidator common.Address, dstValidator common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.BeginRedelegate0(&_StakingModule.TransactOpts, srcValidator, dstValidator, amount)
 }
 
 // CancelUnbondingDelegation is a paid mutator transaction binding the contract method 0x69a2f536.
 //
-// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns()
+// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) CancelUnbondingDelegation(opts *bind.TransactOpts, validatorAddress common.Address, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "cancelUnbondingDelegation", validatorAddress, amount, creationHeight)
 }
 
 // CancelUnbondingDelegation is a paid mutator transaction binding the contract method 0x69a2f536.
 //
-// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns()
+// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleSession) CancelUnbondingDelegation(validatorAddress common.Address, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.Contract.CancelUnbondingDelegation(&_StakingModule.TransactOpts, validatorAddress, amount, creationHeight)
 }
 
 // CancelUnbondingDelegation is a paid mutator transaction binding the contract method 0x69a2f536.
 //
-// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns()
+// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) CancelUnbondingDelegation(validatorAddress common.Address, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.Contract.CancelUnbondingDelegation(&_StakingModule.TransactOpts, validatorAddress, amount, creationHeight)
 }
 
 // CancelUnbondingDelegation0 is a paid mutator transaction binding the contract method 0xab0341d3.
 //
-// Solidity: function cancelUnbondingDelegation(string validatorAddress, uint256 amount, int64 creationHeight) payable returns()
+// Solidity: function cancelUnbondingDelegation(string validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) CancelUnbondingDelegation0(opts *bind.TransactOpts, validatorAddress string, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "cancelUnbondingDelegation0", validatorAddress, amount, creationHeight)
 }
 
 // CancelUnbondingDelegation0 is a paid mutator transaction binding the contract method 0xab0341d3.
 //
-// Solidity: function cancelUnbondingDelegation(string validatorAddress, uint256 amount, int64 creationHeight) payable returns()
+// Solidity: function cancelUnbondingDelegation(string validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleSession) CancelUnbondingDelegation0(validatorAddress string, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.Contract.CancelUnbondingDelegation0(&_StakingModule.TransactOpts, validatorAddress, amount, creationHeight)
 }
 
 // CancelUnbondingDelegation0 is a paid mutator transaction binding the contract method 0xab0341d3.
 //
-// Solidity: function cancelUnbondingDelegation(string validatorAddress, uint256 amount, int64 creationHeight) payable returns()
+// Solidity: function cancelUnbondingDelegation(string validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) CancelUnbondingDelegation0(validatorAddress string, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.Contract.CancelUnbondingDelegation0(&_StakingModule.TransactOpts, validatorAddress, amount, creationHeight)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x026e402b.
 //
-// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns()
+// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) Delegate(opts *bind.TransactOpts, validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "delegate", validatorAddress, amount)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x026e402b.
 //
-// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns()
+// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) Delegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Delegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x026e402b.
 //
-// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns()
+// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) Delegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Delegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Delegate0 is a paid mutator transaction binding the contract method 0x03f24de1.
 //
-// Solidity: function delegate(string validatorAddress, uint256 amount) payable returns()
+// Solidity: function delegate(string validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) Delegate0(opts *bind.TransactOpts, validatorAddress string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "delegate0", validatorAddress, amount)
 }
 
 // Delegate0 is a paid mutator transaction binding the contract method 0x03f24de1.
 //
-// Solidity: function delegate(string validatorAddress, uint256 amount) payable returns()
+// Solidity: function delegate(string validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) Delegate0(validatorAddress string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Delegate0(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Delegate0 is a paid mutator transaction binding the contract method 0x03f24de1.
 //
-// Solidity: function delegate(string validatorAddress, uint256 amount) payable returns()
+// Solidity: function delegate(string validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) Delegate0(validatorAddress string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Delegate0(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Undelegate is a paid mutator transaction binding the contract method 0x4d99dd16.
 //
-// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns()
+// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) Undelegate(opts *bind.TransactOpts, validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "undelegate", validatorAddress, amount)
 }
 
 // Undelegate is a paid mutator transaction binding the contract method 0x4d99dd16.
 //
-// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns()
+// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) Undelegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Undelegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Undelegate is a paid mutator transaction binding the contract method 0x4d99dd16.
 //
-// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns()
+// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) Undelegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Undelegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Undelegate0 is a paid mutator transaction binding the contract method 0x8dfc8897.
 //
-// Solidity: function undelegate(string validatorAddress, uint256 amount) payable returns()
+// Solidity: function undelegate(string validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) Undelegate0(opts *bind.TransactOpts, validatorAddress string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "undelegate0", validatorAddress, amount)
 }
 
 // Undelegate0 is a paid mutator transaction binding the contract method 0x8dfc8897.
 //
-// Solidity: function undelegate(string validatorAddress, uint256 amount) payable returns()
+// Solidity: function undelegate(string validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) Undelegate0(validatorAddress string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Undelegate0(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Undelegate0 is a paid mutator transaction binding the contract method 0x8dfc8897.
 //
-// Solidity: function undelegate(string validatorAddress, uint256 amount) payable returns()
+// Solidity: function undelegate(string validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) Undelegate0(validatorAddress string, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Undelegate0(&_StakingModule.TransactOpts, validatorAddress, amount)
 }

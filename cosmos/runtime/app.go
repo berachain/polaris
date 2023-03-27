@@ -90,7 +90,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	addressprecompile "pkg.berachain.dev/polaris/cosmos/precompile/address"
+	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
@@ -105,6 +105,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -306,18 +307,18 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// Pntr to a Pntr
-	dk := &app.DistrKeeper
+	// dk := &app.DistrKeeper // TODO: fix this
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
-			// TODO: add more precompiles here
+			// TODO: register more precompiles here.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
-			addressprecompile.NewPrecompileContract(),
-			distrprecompile.NewPrecompileContract(&dk),
-			govprecompile.NewPrecompileContract(&app.GovKeeper),
+			authprecompile.NewPrecompileContract(),
+			distrprecompile.NewPrecompileContract(),
+			govprecompile.NewPrecompileContract(app.GovKeeper),
 		},
 		app.CreateQueryContext,
 	)

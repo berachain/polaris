@@ -53,7 +53,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{})
-			Expect(err.Error()).To(Equal("StatelessContainerImpl: this precompile contract implementation is not implemented"))
+			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatelessContainerImpl"))
 		})
 	})
 
@@ -70,7 +70,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockStateless{&mockBase{}})
-			Expect(err.Error()).To(Equal("StatefulContainerImpl: this precompile contract implementation is not implemented"))
+			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatefulContainerImpl"))
 		})
 	})
 
@@ -83,7 +83,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}})
-			Expect(err.Error()).To(Equal("getOutputPartial(): this ABI method does not have a corresponding precompile method"))
+			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
 		})
 
 		It("should error on invalid precompile methods", func() {
@@ -105,7 +105,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = dcf.Build(&mockStateful{&mockBase{}})
-			Expect(err.Error()).To(Equal("DynamicContainerImpl: this precompile contract implementation is not implemented"))
+			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: DynamicContainerImpl"))
 		})
 	})
 })
@@ -127,7 +127,7 @@ func (ms *mockStateless) RequiredGas(input []byte) uint64 {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, input []byte,
+	ctx context.Context, evm precompile.EVM, input []byte,
 	caller common.Address, value *big.Int, readonly bool,
 ) ([]byte, error) {
 	return nil, nil

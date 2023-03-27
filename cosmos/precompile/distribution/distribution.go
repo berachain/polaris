@@ -54,7 +54,7 @@ func NewPrecompileContract(dk **distrkeeper.Keeper) coreprecompile.StatefulImpl 
 	}
 	rk := cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName))
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(contractAbi, rk),
+		BaseContract: precompile.NewBaseContract(contractAbi., rk),
 		msgServer:    distrkeeper.NewMsgServerImpl(**dk),
 		querier:      distrkeeper.NewQuerier(**dk),
 	}

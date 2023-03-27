@@ -36,6 +36,8 @@ type (
 		libtypes.Finalizeable
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
+		// Reset resets the state for the next transaction.
+		Reset(txHash common.Hash, txIndex int)
 	}
 
 	// RegistrablePrecompile is a type for the base precompile implementation, which only needs
