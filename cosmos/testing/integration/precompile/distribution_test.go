@@ -21,9 +21,22 @@
 package precompile
 
 import (
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
 )
 
-var (
-	distributionPrecompile *bindings.DistributionModule
-)
+var _ = Describe("Distribution", func() {
+	It("should call functions on the precompile directly", func() {
+		txr := tf.GenerateTransactOpts("")
+		tx, err := distributionPrecompile.WithdrawDelegatorReward(
+			txr,
+			network.TestAddress,
+			validator,
+		)
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+	})
+})

@@ -50,6 +50,7 @@ func NewPrecompileContract(dk *distrkeeper.Keeper) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
+			// 0x93354845030274cD4bf1686Abd60AB28EC52e1a7
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName)),
 		),
 		msgServer: distrkeeper.NewMsgServerImpl(*dk),
