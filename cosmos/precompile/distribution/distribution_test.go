@@ -122,7 +122,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		// Set up the contracts and keepers.
 		ctx, dk, sk, bk = setup()
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(&dk))
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(dk))
 
 		// Register the events.
 		f = log.NewFactory([]vm.RegistrablePrecompile{contract})
@@ -150,6 +150,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		It("should fail if not common address", func() {
 			res, err := contract.SetWithdrawAddress(
 				ctx,
+				nil,
 				testutil.Alice,
 				big.NewInt(0),
 				false,
@@ -162,6 +163,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		It("should succeed", func() {
 			res, err := contract.SetWithdrawAddress(
 				ctx,
+				nil,
 				testutil.Alice,
 				big.NewInt(0),
 				false,
@@ -176,6 +178,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		It("should fail if not string", func() {
 			res, err := contract.SetWithdrawAddressBech32(
 				ctx,
+				nil,
 				testutil.Alice,
 				big.NewInt(0),
 				false,
@@ -188,6 +191,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		It("should fail if not bech32 string", func() {
 			res, err := contract.SetWithdrawAddressBech32(
 				ctx,
+				nil,
 				testutil.Alice,
 				big.NewInt(0),
 				false,
@@ -200,6 +204,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		It("should succeed", func() {
 			res, err := contract.SetWithdrawAddressBech32(
 				ctx,
+				nil,
 				testutil.Alice,
 				big.NewInt(0),
 				false,
@@ -264,6 +269,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("should fail if not common address", func() {
 				res, err := contract.WithdrawDelegatorReward(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -277,6 +283,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("should fail if validator address not common.address", func() {
 				res, err := contract.WithdrawDelegatorReward(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -290,6 +297,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("Success", func() {
 				res, err := contract.WithdrawDelegatorReward(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -308,6 +316,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("should fail if delegator address not string", func() {
 				res, err := contract.WithdrawDelegatorRewardBech32(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -321,6 +330,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("should fail if validator address not string", func() {
 				res, err := contract.WithdrawDelegatorRewardBech32(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -334,6 +344,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("should fail if delegator address not bech32", func() {
 				res, err := contract.WithdrawDelegatorRewardBech32(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -347,6 +358,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("should fail if validator address not bech32", func() {
 				res, err := contract.WithdrawDelegatorRewardBech32(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -360,6 +372,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("should fail if delegator address not found", func() {
 				res, err := contract.WithdrawDelegatorRewardBech32(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,
@@ -373,6 +386,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("Success", func() {
 				res, err := contract.WithdrawDelegatorRewardBech32(
 					ctx,
+					nil,
 					testutil.Alice,
 					big.NewInt(0),
 					false,

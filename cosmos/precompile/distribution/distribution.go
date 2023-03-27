@@ -28,13 +28,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -47,22 +46,20 @@ type Contract struct {
 }
 
 // `NewPrecompileContract` returns a new instance of the bank precompile contract.
-func NewPrecompileContract(dk **distrkeeper.Keeper) coreprecompile.StatefulImpl {
-	var contractAbi abi.ABI
-	if err := contractAbi.UnmarshalJSON([]byte(bindings.DistributionModuleMetaData.ABI)); err != nil {
-		panic(err)
-	}
-	rk := cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName))
+func NewPrecompileContract(dk *distrkeeper.Keeper) ethprecompile.StatefulImpl {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(contractAbi., rk),
-		msgServer:    distrkeeper.NewMsgServerImpl(**dk),
-		querier:      distrkeeper.NewQuerier(**dk),
+		BaseContract: precompile.NewBaseContract(
+			generated.DistributionModuleMetaData.ABI,
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName)),
+		),
+		msgServer: distrkeeper.NewMsgServerImpl(*dk),
+		querier:   distrkeeper.NewQuerier(*dk),
 	}
 }
 
 // `PrecompileMethods` implements the `coreprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() coreprecompile.Methods {
-	return coreprecompile.Methods{
+func (c *Contract) PrecompileMethods() ethprecompile.Methods {
+	return ethprecompile.Methods{
 		{
 			AbiSig:  "setWithdrawAddress(address)",
 			Execute: c.SetWithdrawAddress,
@@ -85,6 +82,7 @@ func (c *Contract) PrecompileMethods() coreprecompile.Methods {
 // `SetWithdrawAddress` is the precompile contract method for the `setWithdrawAddress(address)` method.
 func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -101,6 +99,7 @@ func (c *Contract) SetWithdrawAddress(
 // `SetWithdrawAddressBech32` is the precompile contract method for the `setWithdrawAddress(string)` method.
 func (c *Contract) SetWithdrawAddressBech32(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -122,6 +121,7 @@ func (c *Contract) SetWithdrawAddressBech32(
 // method.
 func (c *Contract) WithdrawDelegatorReward(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
@@ -141,6 +141,7 @@ func (c *Contract) WithdrawDelegatorReward(
 
 func (c *Contract) WithdrawDelegatorRewardBech32(
 	ctx context.Context,
+	_ ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,
