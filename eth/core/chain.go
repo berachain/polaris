@@ -83,7 +83,6 @@ type blockchain struct {
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
-	cc     ChainContext
 	logger log.Logger
 
 	// subscription event feeds
@@ -117,7 +116,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
 	}
-	bc.cc = &chainContext{bc}
 	bc.statedb = state.NewStateDB(bc.sp)
 	bc.processor = NewStateProcessor(
 		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,
