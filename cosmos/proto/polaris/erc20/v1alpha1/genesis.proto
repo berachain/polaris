@@ -26,7 +26,7 @@ import "polaris/erc20/v1alpha1/params.proto";
 
 option go_package = "pkg.berachain.dev/polaris/cosmos/x/erc20/types";
 
-// GenesisState defines the evm module's genesis state.
+// GenesisState defines the erc20 module's genesis state.
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
