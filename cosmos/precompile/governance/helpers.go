@@ -93,11 +93,8 @@ func (c *Contract) voteHelper(
 		Option:     v1.VoteOption(option),
 		Metadata:   metadata,
 	})
-	if err != nil {
-		return nil, err
-	}
 
-	return []any{}, nil
+	return []any{err == nil}, nil
 }
 
 // voteWeighted is a helper function for the `VoteWeighted` method of the governance precompile contract.
@@ -129,7 +126,7 @@ func (c *Contract) voteWeightedHelper(
 		return nil, err
 	}
 
-	return []any{}, nil
+	return []any{err == nil}, nil
 }
 
 // getProposalHelper is a helper function for the `GetProposal` method of the governance precompile contract.

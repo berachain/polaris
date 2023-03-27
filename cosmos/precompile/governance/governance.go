@@ -52,6 +52,7 @@ func NewPrecompileContract(gk *govkeeper.Keeper) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
+			// 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
 		msgServer: govkeeper.NewMsgServerImpl(gk),
