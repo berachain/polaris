@@ -66,8 +66,6 @@ type (
 		GetHeaderByNumber(int64) (*types.Header, error)
 		// SetHeaderByNumber sets the block header at the given block number.
 		SetHeaderByNumber(int64, *types.Header) error
-		// BaseFee returns the base fee of the current block.
-		BaseFee() uint64
 	}
 
 	// ConfigurationPlugin defines the methods that the chain running Polaris EVM should

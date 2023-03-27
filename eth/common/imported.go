@@ -40,4 +40,6 @@ var (
 	HexToAddress   = common.HexToAddress
 	Hex2Bytes      = common.Hex2Bytes
 	HexToHash      = common.HexToHash
+
+	Big0 = common.Big0
 )

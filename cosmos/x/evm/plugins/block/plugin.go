@@ -34,9 +34,6 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// TODO: change this.
-const bf = uint64(1)
-
 type Plugin interface {
 	plugins.BaseCosmosPolaris
 	core.BlockPlugin
@@ -65,14 +62,6 @@ func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
 
-// BaseFee returns the base fee for the current block.
-// TODO: implement properly with DynamicFee Module of some kind.
-//
-// BaseFee implements core.BlockPlugin.
-func (p *plugin) BaseFee() uint64 {
-	return bf
-}
-
 // NewHeaderWithBlockNumber builds an ethereum style block header from the current
 // context.
 func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
@@ -98,6 +87,7 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 		parentHash = header.Hash()
 	}
 
+	// BaseFee is set by the Polaris Ethereum module.
 	return &coretypes.Header{
 		// ParentHash is set to the hash of the previous block.
 		ParentHash: parentHash,
@@ -117,8 +107,6 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 		GasLimit: blockGasLimitFromCosmosContext(p.ctx),
 		// Time is set to the block timestamp.
 		Time: uint64(cometHeader.Time.UTC().Unix()),
-		// BaseFee is set to the block base fee.
-		BaseFee: big.NewInt(int64(p.BaseFee())),
 		// ReceiptHash set to empty. It is filled during `Finalize` in the StateProcessor.
 		ReceiptHash: common.Hash{},
 		// Bloom is set to empty. It is filled during `Finalize` in the StateProcessor.
