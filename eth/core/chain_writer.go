@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -66,21 +65,15 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	// If we are processing a new block, then we assume that the previous was finalized.
 	header := bc.bp.NewHeaderWithBlockNumber(height)
 
-	// Calculate and set base fee on header
-	parent := &types.Header{}
-	if height > 1 {
-		var err error
-		parent, err = bc.bp.GetHeaderByNumber(height - 1)
-		if err != nil {
-			panic(fmt.Sprintf("failed to get parent header at height %d", height-1))
-		}
+	// We can use the finalized block's header here because we assume that the previous block was
+	// finalized.
+	if parent := bc.finalizedBlock.Load(); parent != nil {
+		header.BaseFee = misc.CalcBaseFee(bc.ChainConfig(), parent.Header())
 	}
-	header.BaseFee = misc.CalcBaseFee(bc.cp.ChainConfig(), parent)
 
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
-		parent,
 		header,
 	)
 }

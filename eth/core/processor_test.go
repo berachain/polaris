@@ -34,7 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 
-	"github.com/ethereum/go-ethereum/consensus/misc"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -45,7 +44,6 @@ var (
 	signer        = types.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	_             = key
 	_             = signer
-	dummyParent   = &types.Header{}
 	dummyHeader   = &types.Header{
 		Number:   big.NewInt(1),
 		GasLimit: 1000000,
@@ -122,8 +120,7 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		dummyHeader.BaseFee = misc.CalcBaseFee(cp.ChainConfig(), dummyParent)
-		sp.Prepare(context.Background(), nil, dummyParent, dummyHeader)
+		sp.Prepare(context.Background(), nil, dummyHeader)
 	})
 
 	Context("Empty block", func() {
@@ -141,8 +138,7 @@ var _ = Describe("StateProcessor", func() {
 			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 
-			dummyHeader.BaseFee = misc.CalcBaseFee(cp.ChainConfig(), dummyParent)
-			sp.Prepare(context.Background(), nil, dummyParent, dummyHeader)
+			sp.Prepare(context.Background(), nil, dummyHeader)
 		})
 
 		It("should error on an unsigned transaction", func() {
@@ -242,9 +238,8 @@ var _ = Describe("No precompile plugin provided", func() {
 		}
 		sp := core.NewStateProcessor(cp, gp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
-			sp.Prepare(context.Background(), nil, dummyParent, &types.Header{
+			sp.Prepare(context.Background(), nil, &types.Header{
 				GasLimit: 1000000,
-				BaseFee:  misc.CalcBaseFee(cp.ChainConfig(), dummyParent),
 			})
 		}).ToNot(Panic())
 	})
