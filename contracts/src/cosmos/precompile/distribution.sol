@@ -29,13 +29,17 @@ interface IDistributionModule {
     /**
      * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
      */
-    function setWithdrawAddress(address withdrawAddress) external;
+    function setWithdrawAddress(
+        address withdrawAddress
+    ) external returns (bool);
 
     /**
      * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
      * Howver taking in a bech32 address.
      */
-    function setWithdrawAddress(string calldata withdrawAddress) external;
+    function setWithdrawAddress(
+        string calldata withdrawAddress
+    ) external returns (bool);
 
     /**
      * @dev Withdraw the rewrads accumilated by the caller(msg.sender). Returns the rewards claimed.

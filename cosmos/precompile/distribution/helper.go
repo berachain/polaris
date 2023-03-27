@@ -35,11 +35,7 @@ func (c *Contract) setWithdrawAddressHelper(ctx context.Context, delegator, with
 		DelegatorAddress: delegator.String(),
 		WithdrawAddress:  withdrawer.String(),
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	return []any{}, nil
+	return []any{err == nil}, nil
 }
 
 // `withdrawDelegatorRewards` is a helper function for the `WithdrawDelegatorRewards` method.
