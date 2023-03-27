@@ -21,7 +21,6 @@
 package store
 
 import (
-	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
@@ -31,9 +30,9 @@ const (
 )
 
 func AddressForDenomKey(denom string) []byte {
-	return append([]byte(types.StoreKey), append([]byte{AddressToDenomKeyPrefix}, []byte(denom)...)...)
+	return append([]byte{AddressToDenomKeyPrefix}, []byte(denom)...)
 }
 
 func DenomToAddressKey(address common.Address) []byte {
-	return append([]byte(types.StoreKey), append([]byte{DenomToAddressKeyPrefix}, address.Bytes()...)...)
+	return append([]byte{DenomToAddressKeyPrefix}, address.Bytes()...)
 }
