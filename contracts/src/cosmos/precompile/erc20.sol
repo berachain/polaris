@@ -25,15 +25,89 @@
 
 pragma solidity ^0.8.4;
 
+interface IERC20 {
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+
 /**
  * @dev Interface of the erc20 module's precompiled contract
  */
 interface IERC20Module {
-    function handleIncoming(address recipient, address token, uint256 amount) external returns (int8, bool);
-    function handleOutgoing(address sender, address recipient, string memory denom, uint256 amount)
-        external
-        returns (int8, bool);
-    function handleDeploy(address token) external returns (bool);
+    ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
+
+    /**
+     * @dev Emitted by the erc20 module when `amount` tokens are converted from ERC20 (of address 
+     * `token`) to Cosmos SDK coin (of denomination `denom`).
+     */
+    event TransferFromERC20ToCosmos(address indexed token, string indexed denom, uint256 amount);
+
+    /**
+     * @dev Emitted by the erc20 module when `amount` tokens are converted from Cosmos SDK coin (of 
+     * denomination `denom`) to ERC20 (of address `token`).
+     */
+    event TransferFromCosmosToERC20(string indexed denom, address indexed token, uint256 amount);
+
+    ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
+
+    /**
+     * @dev transferFromCosmosToERC20 converts Cosmos SDK coins to ERC20 tokens.
+     * @param token the ERC20 token being transfered to
+     * @param to the address to transfer to
+     * @param amount the amount of tokens to transfer
+     */
+    function transferFromCosmosToERC20(IERC20 token, address to, uint256 amount) external;
+
+    /**
+     * @dev transferFromCosmosToERC20 converts Cosmos SDK coins to ERC20 tokens.
+     * @param denom the denomination of the Cosmos SDK coin
+     * @param to the address to transfer to
+     * @param amount the amount of tokens to transfer
+     */
+    function transferFromCosmosToERC20(string calldata denom, address to, uint256 amount) external;
+
+    /**
+     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
+     * @param token the ERC20 token being transfered from
+     * @param to the address to transfer to
+     * @param amount the amount of tokens to transfer
+     */
+    function transferFromERC20ToCosmos(IERC20 token, address to, uint256 amount) external;
+
+    /**
+     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
+     * @param token the ERC20 token being transfered from
+     * @param to the bech32 address to transfer to
+     * @param amount the amount of tokens to transfer
+     */
+    function transferFromERC20ToCosmos(IERC20 token, string calldata to, uint256 amount) external;
+
+    /**
+     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
+     * @param denom the denomination of the Cosmos SDK coin
+     * @param to the address to transfer to
+     * @param amount the amount of tokens to transfer
+     */
+    function transferFromERC20ToCosmos(string calldata denom, address to, uint256 amount) external;
+
+    /**
+     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
+     * @param denom the denomination of the Cosmos SDK coin
+     * @param to the bech32 address to transfer to
+     * @param amount the amount of tokens to transfer
+     */
+    function transferFromERC20ToCosmos(string calldata denom, string calldata to, uint256 amount) external;
+
+    /////////////////////////////////////// READ METHODS //////////////////////////////////////////
+
+    /**
+     * @dev denomForAddress returns the denom for the given ERC20 address.
+     */
     function denomForAddress(address token) external view returns (string memory);
+
+    /**
+     * @dev addressForDenom returns the address for the given ERC20 denom.
+     */
     function addressForDenom(string memory denom) external view returns (address);
 }
