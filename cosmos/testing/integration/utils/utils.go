@@ -22,7 +22,6 @@ package utils
 
 import (
 	"context"
-	"math/big"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -56,32 +55,6 @@ func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Clien
 	Expect(err).ToNot(HaveOccurred())
 
 	return net, client
-}
-
-// BuildTransactor builds a transaction opts object.
-func BuildTransactor(
-	client *ethclient.Client,
-) *bind.TransactOpts {
-	// Get the nonce from the RPC.
-	// TODO: switch to pending once the txpool is finished. https://github.com/berachain/polaris/issues/385
-	// Get the nonce from the RPC.
-	blockNumber, err := client.BlockNumber(context.Background())
-	Expect(err).ToNot(HaveOccurred())
-	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
-	time.Sleep(TxTimeout) // hacky stuff to make sure the nonce is correct.
-	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
-	Expect(err).ToNot(HaveOccurred())
-
-	// Get the ChainID from the RPC.
-	chainID, err := client.ChainID(context.Background())
-	Expect(err).ToNot(HaveOccurred())
-
-	// Build transaction opts object.
-	auth, err := bind.NewKeyedTransactorWithChainID(network.ECDSATestKey, chainID)
-	Expect(err).ToNot(HaveOccurred())
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0) // in wei
-	return auth
 }
 
 // ExpectedMined waits for a transaction to be mined.

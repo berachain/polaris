@@ -1,4 +1,5 @@
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
+github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible h1:ieHXawdo9MXKnRkKuVWEfEN3PDQUqIjz/T8vMfIaHkM=
 github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
 github.com/go-playground/assert/v2 v2.0.1 h1:MsBgLAaY856+nPRTKrp3/OZK38U/wa0CcBYNjji3q3A=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
