@@ -93,7 +93,6 @@ func (sc *stateful) Run(
 		ctx,
 		evm,
 		caller,
-
 		value,
 		readonly,
 		unpackedArgs...,
