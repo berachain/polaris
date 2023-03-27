@@ -139,11 +139,12 @@ var _ = Describe("Processor", func() {
 
 		It("should successfully deploy a valid contract and call it", func() {
 			legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
+			legacyTxData.GasPrice = big.NewInt(10000000000)
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
 			k.GetHost().GetStatePlugin().CreateAccount(addr)
-			k.GetHost().GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetHost().GetStatePlugin().AddBalance(addr, big.NewInt(9000000000000000000))
 			k.GetHost().GetStatePlugin().Finalize()
 
 			// create the contract
