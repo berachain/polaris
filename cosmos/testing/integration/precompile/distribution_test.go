@@ -21,10 +21,11 @@
 package precompile
 
 import (
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
 )
 
 var _ = Describe("Distribution", func() {
