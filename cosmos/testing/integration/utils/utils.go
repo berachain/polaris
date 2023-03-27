@@ -18,56 +18,49 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package jsonrpc
+package utils
 
 import (
 	"context"
-	"math/big"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
+	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
-	. "github.com/onsi/gomega" //nolint:stylecheck,revive // Gomega makes sense in tests.
+	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck  // Gomega makes sense in tests.
 )
 
 const (
-	defaultTimeout = 10 * time.Second
+	DefaultTimeout = 10 * time.Second
+	TxTimeout      = 30 * time.Second
 )
 
-// BuildTransactor builds a transaction opts object.
-func BuildTransactor(
-	client *ethclient.Client,
-) *bind.TransactOpts {
-	// Get the nonce from the RPC.
-	// TODO: switch to pending once the txpool is finished. https://github.com/berachain/polaris/issues/385
-	// Get the nonce from the RPC.
-	blockNumber, err := client.BlockNumber(context.Background())
-	Expect(err).ToNot(HaveOccurred())
-	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
-	nonce, err := client.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
+// StartPolarisNetwork starts a new in-memory Polaris chain.
+func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Client) {
+	var err error
+	net := network.New(t, network.DefaultConfig())
+	time.Sleep(1 * time.Second)
+	_, err = net.WaitForHeightWithTimeout(1, DefaultTimeout)
 	Expect(err).ToNot(HaveOccurred())
 
-	// Get the ChainID from the RPC.
-	chainID, err := client.ChainID(context.Background())
+	// Dial an Ethereum RPC Endpoint
+	rpcClient, err := gethrpc.DialContext(context.Background(), net.Validators[0].APIAddress+"/eth/rpc")
+	Expect(err).ToNot(HaveOccurred())
+	client := ethclient.NewClient(rpcClient)
 	Expect(err).ToNot(HaveOccurred())
 
-	// Build transaction opts object.
-	auth, err := bind.NewKeyedTransactorWithChainID(network.ECDSATestKey, chainID)
-	Expect(err).ToNot(HaveOccurred())
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0) // in wei
-	return auth
+	return net, client
 }
 
 // ExpectedMined waits for a transaction to be mined.
 func ExpectMined(client *ethclient.Client, tx *coretypes.Transaction) {
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
 	_, err := bind.WaitMined(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())
@@ -80,7 +73,7 @@ func ExpectSuccessReceipt(
 	tx *coretypes.Transaction,
 ) *coretypes.Receipt {
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
 	_, err := bind.WaitMined(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())
@@ -103,7 +96,7 @@ func DeployERC20(
 	Expect(err).ToNot(HaveOccurred())
 
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
 	_, err = bind.WaitDeployed(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())

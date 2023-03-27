@@ -23,11 +23,11 @@ package precompile
 import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	coreprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 type BaseContract interface {
-	coreprecompile.StatefulImpl
+	ethprecompile.StatefulImpl
 }
 
 // baseContract is a base implementation of `StatefulImpl`.
@@ -39,9 +39,9 @@ type baseContract struct {
 }
 
 // NewBaseContract creates a new `BasePrecompile`.
-func NewBaseContract(contractAbi abi.ABI, address common.Address) BaseContract {
+func NewBaseContract(abiStr string, address common.Address) BaseContract {
 	return &baseContract{
-		abi:     contractAbi,
+		abi:     abi.MustUnmarshalJSON(abiStr),
 		address: address,
 	}
 }
@@ -62,11 +62,11 @@ func (c *baseContract) ABIEvents() map[string]abi.Event {
 }
 
 // CustomValueDecoders implements StatefulImpl.
-func (c *baseContract) CustomValueDecoders() coreprecompile.ValueDecoders {
+func (c *baseContract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return nil
 }
 
 // PrecompileMethods implements StatefulImpl.
-func (c *baseContract) PrecompileMethods() coreprecompile.Methods {
-	return coreprecompile.Methods{}
+func (c *baseContract) PrecompileMethods() ethprecompile.Methods {
+	return ethprecompile.Methods{}
 }

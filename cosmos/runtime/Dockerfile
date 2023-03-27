@@ -101,11 +101,7 @@ COPY --from=builder /polaris/init.sh /polaris/
 ENV HOME /polaris
 WORKDIR $HOME
 
-# TODO: reduce ports and clarify 
-EXPOSE 8545
-EXPOSE 8546
-EXPOSE 26654
-EXPOSE 26653
+# Expose the berad port
 EXPOSE 26656
 EXPOSE 26657
 EXPOSE 1317

@@ -76,6 +76,7 @@ var _ = Describe("Address Precompile", func() {
 		It("should fail on invalid inputs", func() {
 			res, err := contract.ConvertHexToBech32(
 				context.Background(),
+				nil,
 				common.Address{},
 				big.NewInt(0),
 				false,
@@ -88,6 +89,7 @@ var _ = Describe("Address Precompile", func() {
 		It("should not convert from invalid hex to bech32", func() {
 			res, err := contract.ConvertHexToBech32(
 				context.Background(),
+				nil,
 				common.Address{},
 				big.NewInt(0),
 				false,
@@ -101,6 +103,7 @@ var _ = Describe("Address Precompile", func() {
 		It("should error if invalid type", func() {
 			res, err := contract.ConvertBech32ToHexAddress(
 				context.Background(),
+				nil,
 				common.Address{},
 				big.NewInt(0),
 				false,
@@ -113,6 +116,7 @@ var _ = Describe("Address Precompile", func() {
 		It("should error if invalid bech32 address", func() {
 			res, err := contract.ConvertBech32ToHexAddress(
 				context.Background(),
+				nil,
 				common.Address{},
 				big.NewInt(0),
 				false,
@@ -125,6 +129,7 @@ var _ = Describe("Address Precompile", func() {
 		It("should convert from bech32 to hex", func() {
 			res, err := contract.ConvertBech32ToHexAddress(
 				context.Background(),
+				nil,
 				common.Address{},
 				big.NewInt(0),
 				false,

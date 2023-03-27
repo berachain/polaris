@@ -69,6 +69,7 @@ var _ = Describe("Method", func() {
 
 func mockExecutable(
 	ctx context.Context,
+	evm precompile.EVM,
 	caller common.Address,
 	value *big.Int,
 	readonly bool,

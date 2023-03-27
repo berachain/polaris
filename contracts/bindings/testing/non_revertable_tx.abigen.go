@@ -32,7 +32,7 @@ var (
 // NonRevertableTxMetaData contains all meta data concerning the NonRevertableTx contract.
 var NonRevertableTxMetaData = &bind.MetaData{
 	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]",
-	Bin: "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220f77f5955e93b354fea0a622fd39db01d8a6f2d4eda5ef55b1bf97506aea3addf64736f6c63430008130033",
+	Bin: "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122007b98bf09fbb0c35454e7c4dfe4304341e8f3b0800bfda44f94ae12c262ae4ba64736f6c63430008130033",
 }
 
 // NonRevertableTxABI is the input ABI used to generate the binding from.

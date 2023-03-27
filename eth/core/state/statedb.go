@@ -90,8 +90,20 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 }
 
 // =============================================================================
-// Finalize
+// Clean state
 // =============================================================================
+
+// Reset sets the TxContext for the current transaction and also manually clears any state from the
+// previous tx in the journals, in case the previous tx reverted (Finalize was not called).
+func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
+	sdb.LogsJournal.Finalize()
+	sdb.RefundJournal.Finalize()
+	sdb.AccessListJournal.Finalize()
+	sdb.TransientStorageJournal.Finalize()
+	sdb.SuicidesJournal.Finalize()
+
+	sdb.LogsJournal.SetTxContext(txHash, txIndex)
+}
 
 // Finalize deletes the suicided accounts and finalizes all plugins.
 func (sdb *stateDB) Finalize() {
@@ -103,7 +115,7 @@ func (sdb *stateDB) Finalize() {
 // Prepare
 // =============================================================================
 
-// Implementation taken directly from the `stateDB` in Go-Ethereum. TODO: reset the transient storage.
+// Implementation taken directly from the `stateDB` in Go-Ethereum.
 //
 // Prepare implements `stateDB`.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
@@ -136,7 +148,7 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 // PreImage
 // =============================================================================
 
-// AddPreimage implements the the `StateDB“ interface, but currently
+// AddPreimage implements the the `StateDB`interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 
@@ -144,6 +156,16 @@ func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 	return nil
+}
+
+// =============================================================================
+// Code Size
+// =============================================================================
+
+// GetCodeSize implements the `StateDB` interface by returning the size of the
+// code associated with the given account.
+func (sdb *stateDB) GetCodeSize(addr common.Address) int {
+	return len(sdb.GetCode(addr))
 }
 
 // =============================================================================

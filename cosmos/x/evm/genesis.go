@@ -58,8 +58,9 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
 	am.keeper.ConfigureGethLogger(ctx)
 
+	// TODO: remove InitGenesis from the interfaces, do check and run instead
 	// Initialize all the plugins.
-	for _, plugin := range am.keeper.GetAllPlugins() {
+	for _, plugin := range am.keeper.GetHost().GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genesisState)
 	}
 
@@ -78,7 +79,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	genesisState := new(types.GenesisState)
-	for _, plugin := range am.keeper.GetAllPlugins() {
+	for _, plugin := range am.keeper.GetHost().GetAllPlugins() {
 		plugin.ExportGenesis(ctx, genesisState)
 	}
 	return cdc.MustMarshalJSON(genesisState)

@@ -5,6 +5,7 @@ evm_version = 'london'
 solc_version = '0.8.19'
 cache = true
 force = false
+optimizer = false
 remappings = [
     '@solmate/=lib/solmate/src/',
     '@forge-std/=lib/forge-std/src/',
