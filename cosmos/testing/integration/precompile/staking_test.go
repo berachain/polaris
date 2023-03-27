@@ -42,9 +42,10 @@ func TestCosmosPrecompiles(t *testing.T) {
 }
 
 var (
-	tf                *integration.TestFixture
-	stakingPrecompile *bindings.StakingModule
-	validator         common.Address
+	tf                   *integration.TestFixture
+	stakingPrecompile    *bindings.StakingModule
+	governancePrecompile *bindings.GovernanceModule // TODO: merge with feat/distr-precompile where setup is refactored.
+	validator            common.Address
 )
 
 var _ = SynchronizedBeforeSuite(func() []byte {
@@ -53,6 +54,11 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
 	stakingPrecompile, _ = bindings.NewStakingModule(
 		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
+
+	// Setup the governance precompile.
+	governancePrecompile, _ = bindings.NewGovernanceModule(
+		common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"), tf.EthClient,
+	)
 	return nil
 }, func(data []byte) {})
 
