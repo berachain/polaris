@@ -23,8 +23,8 @@
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
-CHAINID="polaris-2061"
-MONIKER="localtestnet"
+CHAINID="polaris-devnet-1"
+MONIKER="devnet-seed1"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
@@ -32,7 +32,7 @@ KEYRING="test"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/polard instance
-HOMEDIR="./.tmp/polard"
+HOMEDIR="node"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -45,9 +45,6 @@ TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
 # used to exit on first error (any non-zero exit code)
 set -e
-
-# Reinstall daemon
-mage build
 
 # # User prompt if an existing local node configuration is found.
 # if [ -d "$HOMEDIR" ]; then
@@ -134,4 +131,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)m
-./bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+./bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR"  --api.address "tcp://0.0.0.0:1317"

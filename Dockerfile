@@ -59,30 +59,15 @@ ARG PRECOMPILE_CONTRACTS_DIR
 # COPY --from=foundry /polaris/${PRECOMPILE_CONTRACTS_DIR}/out /polaris//${PRECOMPILE_CONTRACTS_DIR}/out
 
 # Copy the go mod and sum files
-# COPY go.mod ./
-# COPY go.sum ./
+COPY go.work ./
+COPY go.work.sum ./
 
 
 # Build berad binary
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/root/go/pkg/mod \
-    VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
-    COMMIT=$(git log -1 --format='%H') && \
-    # GOARCH=amd64 \
-    # GOOS=linux \
-    go build \
-    -mod=readonly \
-    -tags "netgo,ledger,muslc" \
-    -ldflags "-X github.com/cosmos/cosmos-sdk/version.Name="berachain" \
-    -X github.com/cosmos/cosmos-sdk/version.AppName="berad" \
-    -X github.com/cosmos/cosmos-sdk/version.Version=$VERSION \
-    -X github.com/cosmos/cosmos-sdk/version.Commit=$COMMIT \
-    -X github.com/cosmos/cosmos-sdk/version.BuildTags='netgo,ledger,muslc' \
-    -X github.com/cosmos/cosmos-sdk/types.DBBackend="pebbledb" \
-    -w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
-    -trimpath \
-    -o /polaris/bin/ \
-    ./cosmos/...
+RUN go get -u -d github.com/magefile/mage
+RUN cd $GOPATH/src/github.com/magefile/mage
+RUN go run bootstrap.go
+RUN mage build
 
 #######################################################
 ###        Stage 3 - Prepare the Final Image        ###
@@ -95,7 +80,7 @@ RUN apk add --no-cache jq
 
 WORKDIR /polaris
 
-COPY --from=builder /polaris/bin/polard /polaris/bin/polard
+COPY --from=builder /polaris/bin/polard /bin/
 COPY --from=builder /polaris/init.sh /polaris/
 
 ENV HOME /polaris
