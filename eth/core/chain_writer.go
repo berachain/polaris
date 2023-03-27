@@ -22,7 +22,9 @@ package core
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -64,6 +66,14 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 
 	// If we are processing a new block, then we assume that the previous was finalized.
 	header := bc.bp.NewHeaderWithBlockNumber(height)
+
+	// We can use the finalized block's header here because we assume that the previous block was finalized.
+	if block := bc.finalizedBlock.Load(); block != nil {
+		header.BaseFee = misc.CalcBaseFee(bc.ChainConfig(), block.Header())
+		fmt.Println("NEW BASE FEE", header.BaseFee)
+	}
+
+	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),

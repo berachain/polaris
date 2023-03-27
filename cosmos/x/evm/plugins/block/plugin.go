@@ -27,15 +27,13 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/params"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
-
-// TODO: change this.
-const bf = uint64(1)
 
 type Plugin interface {
 	plugins.BaseCosmosPolaris
@@ -70,7 +68,7 @@ func (p *plugin) Prepare(ctx context.Context) {
 //
 // BaseFee implements core.BlockPlugin.
 func (p *plugin) BaseFee() uint64 {
-	return bf
+	return params.InitialBaseFee
 }
 
 // NewHeaderWithBlockNumber builds an ethereum style block header from the current
