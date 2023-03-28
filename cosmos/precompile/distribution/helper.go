@@ -35,7 +35,12 @@ func (c *Contract) setWithdrawAddressHelper(ctx context.Context, delegator, with
 		DelegatorAddress: delegator.String(),
 		WithdrawAddress:  withdrawer.String(),
 	})
-	return []any{err == nil}, nil
+	return []any{err == nil}, err
+}
+
+func (c *Contract) getWithdrawAddrEnabled(ctx context.Context) ([]any, error) {
+	res, err := c.querier.Params(ctx, &distributiontypes.QueryParamsRequest{})
+	return []any{res.Params.WithdrawAddrEnabled}, err
 }
 
 // `withdrawDelegatorRewards` is a helper function for the `WithdrawDelegatorRewards` method.

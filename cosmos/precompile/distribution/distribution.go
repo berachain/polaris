@@ -77,6 +77,10 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "withdrawDelegatorReward(string,string)",
 			Execute: c.SetWithdrawAddressBech32,
 		},
+		{
+			AbiSig:  "getWithdrawEnabled()",
+			Execute: c.GetWithdrawAddrEnabled,
+		},
 	}
 }
 
@@ -166,4 +170,15 @@ func (c *Contract) WithdrawDelegatorRewardBech32(
 	}
 
 	return c.withdrawDelegatorRewardsHelper(ctx, delegatorAddr, validatorAddr)
+}
+
+func (c *Contract) GetWithdrawAddrEnabled(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	return c.getWithdrawAddrEnabled(ctx)
 }

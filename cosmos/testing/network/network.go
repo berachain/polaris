@@ -37,6 +37,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -165,5 +166,24 @@ func BuildGenesisState() map[string]json.RawMessage {
 	stakingState.Params.BondDenom = "abera"
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
+	// Distribution module
+	var distrState distrtypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distrState)
+	distrState.Params = distrtypes.DefaultParams()
+	distrState.Params.WithdrawAddrEnabled = true
+	distrState.FeePool = distrtypes.InitialFeePool()
+	genState[distrtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&distrState)
+	// // Set the validator rewards
+	// validator := stakingState.Validators[0]
+	// distrState.ValidatorHistoricalRewards = []distrtypes.ValidatorHistoricalRewardsRecord{
+	// 	{
+	// 		ValidatorAddress: validator.OperatorAddress,
+	// 		Period:           0,
+	// 		Rewards: distrtypes.NewValidatorHistoricalRewards(
+	// 			sdk.NewDecCoins(sdk.NewDecCoinFromDec("abera", sdk.NewDec(onehundred))),
+	// 			1,
+	// 		),
+	// 	},
+	// }
 	return genState
 }
