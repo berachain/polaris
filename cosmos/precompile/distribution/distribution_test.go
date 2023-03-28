@@ -122,7 +122,10 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		// Set up the contracts and keepers.
 		ctx, dk, sk, bk = setup()
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(dk))
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
+			distrkeeper.NewMsgServerImpl(*dk),
+			distrkeeper.NewQuerier(*dk),
+		))
 
 		// Register the events.
 		f = log.NewFactory([]vm.RegistrablePrecompile{contract})

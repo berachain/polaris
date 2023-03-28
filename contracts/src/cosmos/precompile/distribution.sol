@@ -65,4 +65,10 @@ interface IDistributionModule {
      * `validator` as rewards.
      */
     event WithdrawRewards(address indexed validator, uint256 amount);
+
+    /**
+     * @dev Emitted by the distribution module when `withdrawAddress` is set to receive rewards 
+     * upon withdrawal.
+     */
+    event SetWithdrawAddress(address indexed withdrawAddress);
 }

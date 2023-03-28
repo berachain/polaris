@@ -87,6 +87,8 @@ var (
 	BlockAccAddrs = []string{
 		authtypes.FeeCollectorName,
 		distrtypes.ModuleName,
+		// Not allowed to receive funds, must change the address of the distribution module
+		// precompiled contract address
 		minttypes.ModuleName,
 		stakingtypes.BondedPoolName,
 		stakingtypes.NotBondedPoolName,

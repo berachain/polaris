@@ -54,7 +54,8 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
 
 	distributionPrecompile, _ = bindings.NewDistributionModule(
-		common.HexToAddress("0x93354845030274cD4bf1686Abd60AB28EC52e1a7"),
+		common.HexToAddress("0x69"),
+		// common.HexToAddress("0x93354845030274cD4bf1686Abd60AB28EC52e1a7"),
 		tf.EthClient,
 	)
 	return nil

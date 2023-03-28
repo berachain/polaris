@@ -315,7 +315,10 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
 			authprecompile.NewPrecompileContract(),
-			distrprecompile.NewPrecompileContract(&app.DistrKeeper),
+			distrprecompile.NewPrecompileContract(
+				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
+				distrkeeper.NewQuerier(app.DistrKeeper),
+			),
 			govprecompile.NewPrecompileContract(app.GovKeeper),
 		},
 		app.CreateQueryContext,

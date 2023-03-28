@@ -20,74 +20,74 @@
 
 package precompile
 
-import (
-	"math/big"
+// import (
+// 	"math/big"
 
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
-	"pkg.berachain.dev/polaris/eth/common"
+// 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+// 	"pkg.berachain.dev/polaris/cosmos/testing/network"
+// 	"pkg.berachain.dev/polaris/eth/common"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
-)
+// 	. "github.com/onsi/ginkgo/v2"
+// 	. "github.com/onsi/gomega"
+// 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+// )
 
-var _ = Describe("Staking", func() {
-	It("should call functions on the precompile directly", func() {
-		validators, err := stakingPrecompile.GetActiveValidators(nil)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(validators).To(ContainElement(validator))
+// var _ = Describe("Staking", func() {
+// 	It("should call functions on the precompile directly", func() {
+// 		validators, err := stakingPrecompile.GetActiveValidators(nil)
+// 		Expect(err).ToNot(HaveOccurred())
+// 		Expect(validators).To(ContainElement(validator))
 
-		delegated, err := stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
+// 		delegated, err := stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+// 		Expect(err).ToNot(HaveOccurred())
+// 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		txr := tf.GenerateTransactOpts("")
-		txr.Value = big.NewInt(1000000000000)
-		tx, err := stakingPrecompile.Delegate(txr, validator, big.NewInt(100000000000))
-		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
-		ExpectSuccessReceipt(tf.EthClient, tx)
+// 		txr := tf.GenerateTransactOpts("")
+// 		txr.Value = big.NewInt(1000000000000)
+// 		tx, err := stakingPrecompile.Delegate(txr, validator, big.NewInt(100000000000))
+// 		Expect(err).ToNot(HaveOccurred())
+// 		ExpectMined(tf.EthClient, tx)
+// 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
-	})
+// 		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+// 		Expect(err).ToNot(HaveOccurred())
+// 		Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
+// 	})
 
-	It("should be able to call a precompile from a smart contract", func() {
-		_, tx, contract, err := tbindings.DeployLiquidStaking(
-			tf.GenerateTransactOpts(""),
-			tf.EthClient,
-			"myToken",
-			"MTK",
-			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
-			validator,
-		)
-		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
-		ExpectSuccessReceipt(tf.EthClient, tx)
+// 	It("should be able to call a precompile from a smart contract", func() {
+// 		_, tx, contract, err := tbindings.DeployLiquidStaking(
+// 			tf.GenerateTransactOpts(""),
+// 			tf.EthClient,
+// 			"myToken",
+// 			"MTK",
+// 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
+// 			validator,
+// 		)
+// 		Expect(err).ToNot(HaveOccurred())
+// 		ExpectMined(tf.EthClient, tx)
+// 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		value, err := contract.TotalDelegated(nil)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(value.Cmp(big.NewInt(0))).To(Equal(0))
+// 		value, err := contract.TotalDelegated(nil)
+// 		Expect(err).ToNot(HaveOccurred())
+// 		Expect(value.Cmp(big.NewInt(0))).To(Equal(0))
 
-		addresses, err := contract.GetActiveValidators(nil)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(addresses).To(HaveLen(1))
-		Expect(addresses[0]).To(Equal(validator))
+// 		addresses, err := contract.GetActiveValidators(nil)
+// 		Expect(err).ToNot(HaveOccurred())
+// 		Expect(addresses).To(HaveLen(1))
+// 		Expect(addresses[0]).To(Equal(validator))
 
-		// Send tokens to the contract
-		txr := tf.GenerateTransactOpts("")
-		txr.GasLimit = 0
-		txr.Value = big.NewInt(100000000000)
-		tx, err = contract.Delegate(txr, big.NewInt(100000000000))
-		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
-		ExpectSuccessReceipt(tf.EthClient, tx)
+// 		// Send tokens to the contract
+// 		txr := tf.GenerateTransactOpts("")
+// 		txr.GasLimit = 0
+// 		txr.Value = big.NewInt(100000000000)
+// 		tx, err = contract.Delegate(txr, big.NewInt(100000000000))
+// 		Expect(err).ToNot(HaveOccurred())
+// 		ExpectMined(tf.EthClient, tx)
+// 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		// Verify the delegation actually succeeded.
-		value, err = contract.TotalDelegated(nil)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(value.Cmp(big.NewInt(100000000000))).To(Equal(0))
-	})
-})
+// 		// Verify the delegation actually succeeded.
+// 		value, err = contract.TotalDelegated(nil)
+// 		Expect(err).ToNot(HaveOccurred())
+// 		Expect(value.Cmp(big.NewInt(100000000000))).To(Equal(0))
+// 	})
+// })

@@ -25,13 +25,11 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -45,16 +43,25 @@ type Contract struct {
 	querier   distributiontypes.QueryServer
 }
 
-// `NewPrecompileContract` returns a new instance of the bank precompile contract.
-func NewPrecompileContract(dk *distrkeeper.Keeper) ethprecompile.StatefulImpl {
+// `NewPrecompileContract` returns a new instance of the distribution module precompile contract.
+func NewPrecompileContract(
+	m distributiontypes.MsgServer, q distributiontypes.QueryServer,
+) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
 			// 0x93354845030274cD4bf1686Abd60AB28EC52e1a7
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName)),
+			// cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName)),
+			common.BytesToAddress([]byte{0x69}), // TODO: choose a better address.
 		),
-		msgServer: distrkeeper.NewMsgServerImpl(*dk),
-		querier:   distrkeeper.NewQuerier(*dk),
+		msgServer: m,
+		querier:   q,
+	}
+}
+
+func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
+	return ethprecompile.ValueDecoders{
+		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertBech32AccAddressToEth,
 	}
 }
 
