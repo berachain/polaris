@@ -99,7 +99,10 @@ var _ = Describe("Processor", func() {
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
-		sc = staking.NewPrecompileContract(&sk)
+		sc = staking.NewPrecompileContract(
+			stakingkeeper.NewMsgServerImpl(&sk),
+			stakingkeeper.Querier{Keeper: &sk},
+		)
 		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil)
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())

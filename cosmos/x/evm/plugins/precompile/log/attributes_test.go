@@ -59,7 +59,7 @@ var _ = Describe("Attributes", func() {
 
 		It("should correctly convert ValAddress to common.Address", func() {
 			valAddr := sdk.ValAddress([]byte("alice"))
-			gethValue, err = ConvertValAddressFromBech32(valAddr.String())
+			gethValue, err = ConvertBech32ValAddressToEth(valAddr.String())
 			Expect(err).ToNot(HaveOccurred())
 			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(valAddrVal).To(Equal(cosmlib.ValAddressToEthAddress(valAddr)))
@@ -67,7 +67,7 @@ var _ = Describe("Attributes", func() {
 
 		It("should correctly convert AccAddress to common.Address", func() {
 			accAddr := sdk.AccAddress([]byte("alice"))
-			gethValue, err = ConvertAccAddressFromBech32(accAddr.String())
+			gethValue, err = ConvertBech32AccAddressToEth(accAddr.String())
 			Expect(err).ToNot(HaveOccurred())
 			accAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))

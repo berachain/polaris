@@ -77,8 +77,10 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
-		skPtr := &sk
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
+			stakingkeeper.NewMsgServerImpl(&sk),
+			stakingkeeper.Querier{Keeper: &sk},
+		))
 	})
 
 	When("AbiMethods", func() {
