@@ -20,19 +20,9 @@
 
 package store
 
-import (
-	"pkg.berachain.dev/polaris/eth/common"
+import "errors"
+
+var (
+	ErrDenomNotFound   = errors.New("denom not found")
+	ErrAddressNotFound = errors.New("address not found")
 )
-
-const (
-	DenomToAddressKeyPrefix byte = iota
-	AddressToDenomKeyPrefix
-)
-
-func AddressForDenomKey(denom string) []byte {
-	return append([]byte{AddressToDenomKeyPrefix}, []byte(denom)...)
-}
-
-func DenomToAddressKey(address common.Address) []byte {
-	return append([]byte{DenomToAddressKeyPrefix}, address.Bytes()...)
-}

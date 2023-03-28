@@ -26,11 +26,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-const (
-	MintBurn int8 = iota
-	Escrow
-)
-
 // polarisDenomPrefix represents the bank module prefix all polaris erc20 module
 // created denoms will have.
 const polarisDenomPrefix = "polaris/"

@@ -102,12 +102,18 @@ interface IERC20Module {
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**
-     * @dev denomForAddress returns the denom for the given ERC20 address.
+     * @dev denomForAddress returns the x/bank module denomination for the given ERC20 address.
      */
     function denomForAddress(address token) external view returns (string memory);
 
     /**
-     * @dev addressForDenom returns the address for the given ERC20 denom.
+     * @dev denomForAddress returns the x/bank module denomination for the given ERC20 address 
+     * `token` (in string bech32 format).
      */
-    function addressForDenom(string memory denom) external view returns (address);
+    function denomForAddress(string calldata token) external view returns (string memory);
+
+    /**
+     * @dev addressForDenom returns the ERC20 address for the given x/bank module denomination.
+     */
+    function addressForDenom(string calldata denom) external view returns (address);
 }

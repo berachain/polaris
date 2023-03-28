@@ -24,3 +24,13 @@ const (
 	StoreKey   = "erc20"
 	ModuleName = "erc20"
 )
+
+const (
+	DenomToAddressKeyPrefix byte = iota
+	AddressToDenomKeyPrefix
+)
+
+const (
+	MintBurn int8 = iota
+	Escrow
+)

@@ -21,80 +21,80 @@
 package store
 
 import (
-	"errors"
-	"fmt"
-
+	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
-
-var ErrDenomNotFound = errors.New("denom not found")
-var ErrAddressNotFound = errors.New("address not found")
 
 // DenomERC20 is the store type for ERC20 <-> x/bank module denominations.
 type DenomKVStore interface {
-	SetDenomForAddress(address common.Address, denom string)
+	SetDenomForAddress(address common.Address)
 	GetDenomForAddress(address common.Address) (string, error)
 	HasDenomForAddress(address common.Address) bool
-	SetAddressForDenom(denom string, address common.Address)
+	SetAddressForDenom(address common.Address)
 	GetAddressForDenom(denom string) (common.Address, error)
 	HasAddressForDenom(denom string) bool
 }
 
 // denomStore is a store that stores information regarding ERC20 <-> x/bank module denominations.
 type denomStore struct {
-	storetypes.KVStore
+	addressToDenom storetypes.KVStore
+	denomToAddress storetypes.KVStore
 }
 
-// NewDenomKVStore creates a new denomStore.
+// NewDenomKVStore creates a new DenomKVStore.
 func NewDenomKVStore(store storetypes.KVStore) DenomKVStore {
-	return &denomStore{store}
+	return &denomStore{
+		addressToDenom: prefix.NewStore(store, []byte{types.AddressToDenomKeyPrefix}),
+		denomToAddress: prefix.NewStore(store, []byte{types.DenomToAddressKeyPrefix}),
+	}
 }
 
 // ==============================================================================
 // ERC20 -> Denom
 // ==============================================================================
 
-// SetDenomForAddress sets the address correlated to a specific denomStore.
-func (ds denomStore) SetDenomForAddress(address common.Address, denom string) {
-	ds.Set(DenomToAddressKey(address), []byte(types.DenomForAddress(address)))
+// SetDenomForAddress sets the address correlated to a specific denomination.
+func (ds denomStore) SetDenomForAddress(address common.Address) {
+	ds.addressToDenom.Set(address.Bytes(), utils.UnsafeStrToBytes(types.DenomForAddress(address)))
 }
 
-// GetDenomForAddress returns the denomStore correlated to a specific address.
+// GetDenomForAddress returns the denomination correlated to a specific address.
 func (ds denomStore) GetDenomForAddress(address common.Address) (string, error) {
-	bz := ds.Get(DenomToAddressKey(address))
+	bz := ds.addressToDenom.Get(address.Bytes())
 	if bz == nil {
 		return "", ErrDenomNotFound
 	}
-	return string(bz), nil
+	return utils.UnsafeBytesToStr(bz), nil
 }
 
-// HasDenomForAddress returns true if the address has a denomStore.
+// HasDenomForAddress returns true if the address has a denomination.
 func (ds denomStore) HasDenomForAddress(address common.Address) bool {
-	return ds.Has(DenomToAddressKey(address))
+	return ds.addressToDenom.Has(address.Bytes())
 }
 
 // ==============================================================================
 // Denom -> ERC20
 // ==============================================================================
 
-// SetAddressForDenom sets the denomStore correlated to a specific address.
-func (ds denomStore) SetAddressForDenom(denom string, address common.Address) {
-	ds.Set(AddressForDenomKey(denom), address.Bytes())
+// SetAddressForDenom sets the denomination correlated to a specific address.
+func (ds denomStore) SetAddressForDenom(address common.Address) {
+	ds.denomToAddress.Set(utils.UnsafeStrToBytes(types.DenomForAddress(address)), address.Bytes())
 }
 
-// GetAddressForDenom returns the address correlated to a specific denomStore.
+// GetAddressForDenom returns the address correlated to a specific denomination.
 func (ds denomStore) GetAddressForDenom(denom string) (common.Address, error) {
-	bz := ds.Get(AddressForDenomKey(denom))
+	bz := ds.denomToAddress.Get(utils.UnsafeStrToBytes(denom))
 	if bz == nil {
-		return common.Address{}, fmt.Errorf("no address for denom %s", denom)
+		return common.Address{}, ErrDenomNotFound
 	}
 	return common.BytesToAddress(bz), nil
 }
 
-// HasAddressForDenom returns true if the denomStore has an address.
+// HasAddressForDenom returns true if the denomination has an address.
 func (ds denomStore) HasAddressForDenom(denom string) bool {
-	return ds.Has(AddressForDenomKey(denom))
+	return ds.denomToAddress.Has(utils.UnsafeStrToBytes(denom))
 }

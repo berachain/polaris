@@ -62,9 +62,9 @@ func (k *Keeper) DenomKVStore(ctx sdk.Context) store.DenomKVStore {
 }
 
 // RegisterDenomTokenPair registers a new token pair.
-func (k *Keeper) RegisterDenomTokenPair(ctx sdk.Context, denom string, token common.Address) {
-	k.DenomKVStore(ctx).SetAddressForDenom(denom, token)
-	k.DenomKVStore(ctx).SetDenomForAddress(token, denom)
+func (k *Keeper) RegisterDenomTokenPair(ctx sdk.Context, token common.Address) {
+	k.DenomKVStore(ctx).SetAddressForDenom(token)
+	k.DenomKVStore(ctx).SetDenomForAddress(token)
 }
 
 // Logger returns a module-specific logger.

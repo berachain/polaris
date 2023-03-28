@@ -48,8 +48,7 @@ func (k *Keeper) HandleIncomingERC20(
 	// If the denom is not found, we need to register it, this means that the token
 	// began it's life as an ERC20.
 	if errors.Is(err, store.ErrDenomNotFound) {
-		denom = types.DenomForAddress(token)
-		k.RegisterDenomTokenPair(ctx, denom, token)
+		k.RegisterDenomTokenPair(ctx, token)
 	}
 
 	// Mint x/bank coins to the given address.
@@ -90,7 +89,7 @@ func (k *Keeper) HandleOutgoingDenom(
 func (k *Keeper) HandleDeployed(ctx sdk.Context, token common.Address) {
 	// Once we know that the token was deployed, we can unlock the lock.
 	defer k.deployLock.Unlock()
-	k.RegisterDenomTokenPair(ctx, types.DenomForAddress(token), token)
+	k.RegisterDenomTokenPair(ctx, token)
 
 	// // For defensive programming practices, we also check the StateDB to ensure that the code exists.
 	// if code := k.GetCodeSize(token); codeSize == 0 {

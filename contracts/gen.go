@@ -27,9 +27,10 @@ package contracts
 
 //go:generate abigen --pkg precompile --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./bindings/cosmos/precompile/i_staking_module.abigen.go --type StakingModule
 //go:generate abigen --pkg precompile --abi ./out/bank.sol/IBankModule.abi.json --bin ./out/bank.sol/IbankModule.bin --out ./bindings/cosmos/precompile/i_bank_module.abigen.go --type BankModule
-//go:generate abigen --pkg precompile --abi ./out/auth.sol/IAuthModule.abi.json --bin ./out/auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/i_auth.abigen.go --type AuthModule
+//go:generate abigen --pkg precompile --abi ./out/auth.sol/IAuthModule.abi.json --bin ./out/auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/i_auth_module.abigen.go --type AuthModule
 //go:generate abigen --pkg precompile --abi ./out/distribution.sol/IDistributionModule.abi.json --bin ./out/distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/i_distribution_module.abigen.go --type DistributionModule
 //go:generate abigen --pkg precompile --abi ./out/governance.sol/IGovernanceModule.abi.json --bin ./out/governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
+//go:generate abigen --pkg precompile --abi ./out/ERC20.sol/ERC20.abi.json --bin ./out/ERC20.sol/IERC20.bin --out ./bindings/cosmos/precompile/i_erc20_module.abigen.go --type ERC20Module
 
 //go:generate abigen --pkg testing --abi ./out/SolmateERC20.sol/SolmateERC20.abi.json --bin ./out/SolmateERC20.sol/SolmateERC20.bin --out ./bindings/testing/solmate_erc20.abigen.go --type SolmateERC20
 //go:generate abigen --pkg testing --abi ./out/MockPrecompileInterface.sol/MockPrecompileInterface.abi.json --out ./bindings/testing/mock_precompile_interface.abigen.go --type MockPrecompile
