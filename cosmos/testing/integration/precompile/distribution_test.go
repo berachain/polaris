@@ -20,30 +20,30 @@
 
 package precompile
 
-// import (
-// 	"fmt"
-// 	"math/big"
+import (
+	"fmt"
+	"math/big"
 
-// 	. "github.com/onsi/ginkgo/v2"
-// 	. "github.com/onsi/gomega"
-// 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
-// )
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+)
 
-// var _ = Describe("Distribution", func() {
-// 	It("should call functions on the precompile directly", func() {
-// 		tx, err := distributionPrecompile.GetWithdrawEnabled(nil)
-// 		Expect(err).ToNot(HaveOccurred())
-// 		Expect(tx).To(BeTrue())
+var _ = Describe("Distribution", func() {
+	It("should call functions on the precompile directly", func() {
+		tx, err := distributionPrecompile.GetWithdrawEnabled(nil)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(tx).To(BeTrue())
 
-// 		fmt.Println("First Call")
+		fmt.Println("First Call")
 
-// 		txr := tf.GenerateTransactOpts("")
-// 		txr.GasLimit = 10e6
-// 		txr.Value = big.NewInt(10)
-// 		a, err := distributionPrecompile.SetWithdrawAddress(txr, validator)
-// 		Expect(err).ToNot(HaveOccurred())
-// 		Expect(a).ToNot(BeNil())
-// 		ExpectMined(tf.EthClient, a)
-// 		ExpectSuccessReceipt(tf.EthClient, a)
-// 	})
-// })
+		txr := tf.GenerateTransactOpts("")
+		txr.GasLimit = 10e6
+		txr.Value = big.NewInt(10)
+		a, err := distributionPrecompile.SetWithdrawAddress(txr, validator)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(a).ToNot(BeNil())
+		ExpectMined(tf.EthClient, a)
+		ExpectSuccessReceipt(tf.EthClient, a)
+	})
+})
