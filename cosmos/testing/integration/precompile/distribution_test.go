@@ -24,6 +24,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 )
 
 var _ = Describe("Distribution", func() {
@@ -32,11 +34,26 @@ var _ = Describe("Distribution", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(ok).To(BeTrue())
 
+		// Set withdraw address.
 		txr := tf.GenerateTransactOpts("")
 		tx, err := distributionPrecompile.SetWithdrawAddress(txr, validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(tx).ToNot(BeNil())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		// Set withdraw address bech32.
+		txr = tf.GenerateTransactOpts("")
+		bech32Addr := cosmlib.AddressToAccAddress(validator).String()
+		tx, err = distributionPrecompile.SetWithdrawAddress0(txr, bech32Addr)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(tx).ToNot(BeNil())
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		// Get withdraw enabled.
+		res, err := distributionPrecompile.GetWithdrawEnabled(nil)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(res).To(BeTrue())
 	})
 })

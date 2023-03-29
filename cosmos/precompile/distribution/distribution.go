@@ -59,9 +59,12 @@ func NewPrecompileContract(
 	}
 }
 
+// `CustomValueDecoders` overrides the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertBech32AccAddressToEth,
+		sdk.AttributeKeyAmount:                        log.ConvertInt64,
+		distributiontypes.AttributeKeyValidator:       log.ConvertBech32ValAddressToEth,
 	}
 }
 
@@ -151,6 +154,7 @@ func (c *Contract) WithdrawDelegatorReward(
 	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
 }
 
+// `WithdrawDelegatorRewardBech32` is the precompile contract method for the `withdrawDelegatorReward(string,string)`
 func (c *Contract) WithdrawDelegatorRewardBech32(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -179,6 +183,7 @@ func (c *Contract) WithdrawDelegatorRewardBech32(
 	return c.withdrawDelegatorRewardsHelper(ctx, delegatorAddr, validatorAddr)
 }
 
+// `GetWithdrawAddrEnabled` is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawAddrEnabled(
 	ctx context.Context,
 	_ ethprecompile.EVM,
