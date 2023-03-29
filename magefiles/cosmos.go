@@ -38,7 +38,7 @@ var (
 	// Commands.
 	dockerBuild = RunCmdV("docker", "build", "--rm=false")
 
-	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
+	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false", "GOOS=linux", "GOARCH=amd64")
 
 	// Variables.
 	// baseDockerPath  = "./cosmos/"

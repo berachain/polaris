@@ -24,7 +24,7 @@ import "time"
 
 var (
 	// DefaultAPINamespaces is the default namespaces the JSON-RPC server exposes.
-	DefaultAPINamespaces = []string{"eth", "net"}
+	DefaultAPINamespaces = []string{"eth", "net", "txpool"}
 
 	// DefaultOriginAllowlist is the default origin allowlist (allows all by default) for the JSON-RPC server.
 	DefaultOriginAllowlist = []string{"*"}

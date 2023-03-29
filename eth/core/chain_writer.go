@@ -29,6 +29,8 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
+// var wg = sync.WaitGroup{}
+
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
 	// Prepare prepares the chain for a new block. This method is called before the first tx in
@@ -84,6 +86,9 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 
 // Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
+	// wg.Add(1)
+	// defer wg.Done()
+
 	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
@@ -110,6 +115,8 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		return err
 	}
 
+	bc.Commit(ctx)
+
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
 		err = bc.hp.StoreBlock(block)
@@ -129,6 +136,8 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 // Commit commits the current block to the blockchain and emits chain events.
 func (bc *blockchain) Commit(ctx context.Context) {
+	// wg.Wait()
+
 	if block := bc.currentBlock.Load(); block != nil {
 		// Cache finalized block.
 		blockHash, blockNum := block.Hash(), block.NumberU64()

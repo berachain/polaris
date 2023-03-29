@@ -34,7 +34,7 @@ import (
 var (
 	// Commands.
 	goInstall  = RunCmdV("go", "install", "-mod=readonly")
-	goBuild    = RunCmdV("go", "build", "-mod=readonly", "GOOS=linux", "GOARCH=amd64")
+	goBuild    = RunCmdV("go", "build", "-mod=readonly")
 	goRun      = RunCmdV("go", "run")
 	goGenerate = RunCmdV("go", "generate")
 	goModTidy  = RunCmdV("go", "mod", "tidy")
