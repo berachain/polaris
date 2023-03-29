@@ -38,13 +38,13 @@ interface IERC20Module {
     ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
 
     /**
-     * @dev Emitted by the erc20 module when `amount` tokens are converted from ERC20 (of address 
+     * @dev Emitted by the erc20 module when `amount` tokens are converted from ERC20 (of address
      * `token`) to Cosmos SDK coin (of denomination `denom`).
      */
     event TransferFromERC20ToCosmos(address indexed token, string indexed denom, uint256 amount);
 
     /**
-     * @dev Emitted by the erc20 module when `amount` tokens are converted from Cosmos SDK coin (of 
+     * @dev Emitted by the erc20 module when `amount` tokens are converted from Cosmos SDK coin (of
      * denomination `denom`) to ERC20 (of address `token`).
      */
     event TransferFromCosmosToERC20(string indexed denom, address indexed token, uint256 amount);
@@ -107,7 +107,7 @@ interface IERC20Module {
     function denomForAddress(address token) external view returns (string memory);
 
     /**
-     * @dev denomForAddress returns the x/bank module denomination for the given ERC20 address 
+     * @dev denomForAddress returns the x/bank module denomination for the given ERC20 address
      * `token` (in string bech32 format).
      */
     function denomForAddress(string calldata token) external view returns (string memory);

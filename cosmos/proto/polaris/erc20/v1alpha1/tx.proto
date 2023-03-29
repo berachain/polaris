@@ -26,56 +26,55 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-
 option go_package = "pkg.berachain.dev/polaris/cosmos/x/erc20/types";
 
 // MsgService defines the x/erc20 Msg service.
 service MsgService {
-    option (cosmos.msg.v1.service) = true;
+  option (cosmos.msg.v1.service) = true;
 
-    // ConvertERC20ToCosmos converts ERC20 tokens to Cosmos tokens.
-    rpc ConvertERC20ToCosmos(ConvertERC20ToCosmosRequest) returns (ConvertERC20ToCosmosResponse) {
-        option (google.api.http).post = "/polaris/erc20/convert_erc20_to_cosmos";
-    }
+  // ConvertERC20ToCosmos converts ERC20 tokens to Cosmos tokens.
+  rpc ConvertERC20ToCosmos(ConvertERC20ToCosmosRequest) returns (ConvertERC20ToCosmosResponse) {
+    option (google.api.http).post = "/polaris/erc20/convert_erc20_to_cosmos";
+  }
 
-    // ConvertCosmosToERC20 converts Cosmos tokens to ERC20 tokens.
-    rpc ConvertCosmosToERC20(ConvertCosmosToERC20Request) returns (ConvertCosmosToERC20Response) {
-        option (google.api.http).post = "/polaris/erc20/convert_cosmos_to_erc20";
-    }
+  // ConvertCosmosToERC20 converts Cosmos tokens to ERC20 tokens.
+  rpc ConvertCosmosToERC20(ConvertCosmosToERC20Request) returns (ConvertCosmosToERC20Response) {
+    option (google.api.http).post = "/polaris/erc20/convert_cosmos_to_erc20";
+  }
 }
 
 // ConvertERC20ToCosmosRequest defines a message to convert ERC20 tokens to Cosmos tokens.
 message ConvertERC20ToCosmosRequest {
-    // token is the address of the ERC20 token.
-    string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
-    
-    // receipient is the address of the recipient.
-    string recipient = 2 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+  // token is the address of the ERC20 token.
+  string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 
-    // amount is the amount of tokens to convert.
-    string amount = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  // receipient is the address of the recipient.
+  string recipient = 2 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+
+  // amount is the amount of tokens to convert.
+  string amount = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
 }
 
 // ConvertERC20ToCosmosResponse defines the response for the ConvertERC20ToCosmosRequest.
 message ConvertERC20ToCosmosResponse {
-    // success indicates if the conversion was successful.
-    bool success = 1;
+  // success indicates if the conversion was successful.
+  bool success = 1;
 }
 
 // ConvertCosmosToERC20Request defines a message to convert Cosmos tokens to ERC20 tokens.
 message ConvertCosmosToERC20Request {
-    // token is the address of the ERC20 token.
-    string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+  // token is the address of the ERC20 token.
+  string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 
-    // recipient is the address of the recipient.
-    string recipient = 2 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+  // recipient is the address of the recipient.
+  string recipient = 2 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 
-    // amount is the amount of tokens to convert.
-    string amount = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
+  // amount is the amount of tokens to convert.
+  string amount = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
 }
 
 // ConvertCosmosToERC20Response defines the response for the ConvertCosmosToERC20Request.
 message ConvertCosmosToERC20Response {
-    // success indicates if the conversion was successful.
-    bool success = 1;
+  // success indicates if the conversion was successful.
+  bool success = 1;
 }

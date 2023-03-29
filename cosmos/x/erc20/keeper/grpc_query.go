@@ -19,3 +19,54 @@
 // TITLE.
 
 package keeper
+
+import (
+	"context"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+)
+
+// Compile-time interface assertion.
+var _ types.QueryServiceServer = Querier{}
+
+type Querier struct {
+	*Keeper
+}
+
+// ERC20AddressForDenom queries the ERC20 address for a given denom.
+func (q Querier) ERC20AddressForDenom(
+	ctx context.Context, req *types.ERC20AddressForDenomRequest,
+) (*types.ERC20AddressForDenomResponse, error) {
+	addr, err := q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.ERC20AddressForDenomResponse{
+		Address: cosmlib.AddressToAccAddress(addr).String(),
+	}, nil
+}
+
+// DenomForERC20Address queries the denom for a given ERC20 address.
+func (q Querier) DenomForERC20Address(
+	ctx context.Context, req *types.DenomForERC20AddressRequest,
+) (*types.DenomForERC20AddressResponse, error) {
+	addr, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	denom, err := q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetDenomForAddress(
+		cosmlib.AccAddressToEthAddress(addr),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.DenomForERC20AddressResponse{
+		Denom: denom,
+	}, nil
+}
