@@ -401,7 +401,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// `Params` defines the parameters for the x/evm module.
+// `Params` defines the parameters for the x/erc20 module.
 type Params struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
