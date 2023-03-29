@@ -21,11 +21,11 @@
 package precompile
 
 import (
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
-
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 )
 
 var _ = Describe("Distribution", func() {

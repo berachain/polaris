@@ -154,7 +154,7 @@ func (c *Contract) WithdrawDelegatorReward(
 	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
 }
 
-// `WithdrawDelegatorRewardBech32` is the precompile contract method for the `withdrawDelegatorReward(string,string)`
+// `WithdrawDelegatorRewardBech32` is the precompile contract method for the `withdrawDelegatorReward(string,string)`.
 func (c *Contract) WithdrawDelegatorRewardBech32(
 	ctx context.Context,
 	_ ethprecompile.EVM,
