@@ -82,22 +82,22 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' 's/timeout_propose = "3s"/timeout_propose = "1s"/g' "$CONFIG"
+        sed -i '' 's/timeout_propose = "3s"/timeout_propose = "3s"/g' "$CONFIG"
         sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' "$CONFIG"
         sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' "$CONFIG"
         sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "1s"/g' "$CONFIG"
         sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "1s"/g' "$CONFIG"
         sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_commit = "5s"/timeout_commit = "1s"/g' "$CONFIG"
+        sed -i '' 's/timeout_commit = "5s"/timeout_commit = "3s"/g' "$CONFIG"
         sed -i '' 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "15s"/g' "$CONFIG"
     else
-        sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' "$CONFIG"
+        sed -i 's/timeout_propose = "3s"/timeout_propose = "3s"/g' "$CONFIG"
         sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' "$CONFIG"
         sed -i 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' "$CONFIG"
         sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "1s"/g' "$CONFIG"
         sed -i 's/timeout_precommit = "1s"/timeout_precommit = "1s"/g' "$CONFIG"
         sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_commit = "5s"/timeout_commit = "1s"/g' "$CONFIG"
+        sed -i 's/timeout_commit = "5s"/timeout_commit = "3s"/g' "$CONFIG"
         sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "15s"/g' "$CONFIG"
     fi
 	# Allocate genesis accounts (cosmos formatted addresses)
