@@ -100,7 +100,11 @@ func (sc *stateful) Run(
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
-		return nil, errors.Wrap(err, debug.GetFnName(method.Execute))
+		return nil, errors.Wrapf(
+			vm.ErrExecutionReverted,
+			"vm error [%v] occured during precompile execution of [%s]",
+			err, debug.GetFnName(method.Execute),
+		)
 	}
 
 	// Pack the return values and return, if any exist.
