@@ -102,7 +102,7 @@ func (sc *stateful) Run(
 	if err != nil {
 		return nil, errors.Wrapf(
 			vm.ErrExecutionReverted,
-			"vm error [%v] occured during precompile execution of [%s]",
+			"vm error [%v] occurred during precompile execution of [%s]",
 			err, debug.GetFnName(method.Execute),
 		)
 	}
