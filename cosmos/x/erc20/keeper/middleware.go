@@ -26,6 +26,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/erc20/store"
 	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -52,7 +53,7 @@ func (k *Keeper) HandleIncomingERC20(
 	}
 
 	// Mint x/bank coins to the given address.
-	return types.ShimHandlerType(denom), denom, k.MintCoinsToAddress(ctx, recipient, denom, amount)
+	return types.ShimHandlerType(denom), denom, lib.MintCoinsToAddress(ctx, k.bankKeeper, recipient, denom, amount)
 }
 
 // HandleIncomingERC20 handles an incoming ERC20 transfer.
@@ -70,7 +71,7 @@ func (k *Keeper) HandleOutgoingDenom(
 		defer k.deployLock.Unlock()
 
 		// If the denom is found, we need to burn the corresponding bank denom.
-		if err = k.BurnCoinsFromAddress(ctx, sender, denom, amount); err != nil {
+		if err = lib.BurnCoinsFromAddress(ctx, k.bankKeeper, sender, denom, amount); err != nil {
 			return -1, false, err
 		}
 

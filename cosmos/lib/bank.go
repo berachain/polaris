@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package lib
 
 import (
 	"math/big"
@@ -30,15 +30,17 @@ import (
 )
 
 // MintCoinsToAddress mints coins to a given address.
-func (k *Keeper) MintCoinsToAddress(ctx sdk.Context, recipient common.Address, denom string, amount *big.Int) error {
+func MintCoinsToAddress(
+	ctx sdk.Context, bk BankKeeper, recipient common.Address, denom string, amount *big.Int,
+) error {
 	// Mint the corresponding bank denom.
 	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
+	if err := bk.MintCoins(ctx, types.ModuleName, coins); err != nil {
 		return err
 	}
 
 	// Send the bank denomination to the receipient.
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient.Bytes(), coins); err != nil {
+	if err := bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient.Bytes(), coins); err != nil {
 		return err
 	}
 
@@ -46,15 +48,17 @@ func (k *Keeper) MintCoinsToAddress(ctx sdk.Context, recipient common.Address, d
 }
 
 // BurnCoinsFromAddress burns coins from a given address.
-func (k *Keeper) BurnCoinsFromAddress(ctx sdk.Context, recipient common.Address, denom string, amount *big.Int) error {
+func BurnCoinsFromAddress(
+	ctx sdk.Context, bk BankKeeper, recipient common.Address, denom string, amount *big.Int,
+) error {
 	// Burn the corresponding bank denom.
 	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, recipient.Bytes(), types.ModuleName, coins); err != nil {
+	if err := bk.SendCoinsFromAccountToModule(ctx, recipient.Bytes(), types.ModuleName, coins); err != nil {
 		return err
 	}
 
 	// Burn the bank denomination.
-	if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins); err != nil {
+	if err := bk.BurnCoins(ctx, types.ModuleName, coins); err != nil {
 		return err
 	}
 

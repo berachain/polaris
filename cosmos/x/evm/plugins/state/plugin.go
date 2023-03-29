@@ -29,6 +29,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/store/snapmulti"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
@@ -261,17 +262,8 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
-
-	// Mint the coins to the evm module account
-	if err := p.bk.MintCoins(p.ctx, types.ModuleName, coins); err != nil {
-		panic(err)
-	}
-
-	// Send the coins from the evm module account to the destination address.
-	if err := p.bk.SendCoinsFromModuleToAccount(
-		p.ctx, types.ModuleName, addr[:], coins,
-	); err != nil {
+	err := lib.MintCoinsToAddress(p.ctx, p.bk, addr, p.cp.GetEvmDenom(), amount)
+	if err != nil {
 		panic(err)
 	}
 }
@@ -279,17 +271,8 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
-	coins := sdk.NewCoins(sdk.NewCoin(p.cp.GetEvmDenom(), sdk.NewIntFromBigInt(amount)))
-
-	// Send the coins from the source address to the evm module account.
-	if err := p.bk.SendCoinsFromAccountToModule(
-		p.ctx, addr[:], types.ModuleName, coins,
-	); err != nil {
-		panic(err)
-	}
-
-	// Burn the coins from the evm module account.
-	if err := p.bk.BurnCoins(p.ctx, types.ModuleName, coins); err != nil {
+	err := lib.BurnCoinsFromAddress(p.ctx, p.bk, addr, p.cp.GetEvmDenom(), amount)
+	if err != nil {
 		panic(err)
 	}
 }
