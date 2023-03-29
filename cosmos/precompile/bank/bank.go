@@ -22,6 +22,7 @@ package bank
 
 import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
@@ -33,14 +34,50 @@ import (
 // Contract is the precompile contract for the bank module.
 type Contract struct {
 	precompile.BaseContract
+
+	msgServer banktypes.MsgServer
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract() ethprecompile.StatefulImpl {
+func NewPrecompileContract(bk bankkeeper.Keeper) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.BankModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
+		msgServer: bankkeeper.NewMsgServerImpl(bk),
 	}
+}
+
+// PrecompileMethods implements StatefulImpl.
+func (c *Contract) PrecompileMethods() ethprecompile.Methods {
+	return ethprecompile.Methods{
+		// {
+		// 	AbiSig:  "getDelegation(address,address)",
+		// 	Execute: c.GetDelegationAddrInput,
+		// },
+	}
+}
+
+// GetBalance implements `GetBalance(address)` method.
+func (c *Contract) GetBalance(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	del, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	val, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+
+	return c.getDelegationHelper(
+		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
+	)
 }

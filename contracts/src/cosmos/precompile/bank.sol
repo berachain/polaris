@@ -29,6 +29,8 @@ pragma solidity ^0.8.4;
  * @dev Interface of all supported Cosmos events emitted by the bank module
  */
 interface IBankModule {
+    ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
+    
     /**
      * @dev Emitted by the bank module when `amount` tokens are sent to `recipient`
      */
@@ -63,4 +65,32 @@ interface IBankModule {
      * Note: `burner` is a module address
      */
     event Burn(address indexed burner, uint256 amount);
+    
+    /////////////////////////////////////// READ METHODS //////////////////////////////////////////
+
+    // func (k BaseKeeper) Balance(ctx context.Context, req *types.QueryBalanceRequest) (*types.QueryBalanceResponse, error) {
+        // The Balance endpoint allows users to query account balance by address for a given denomination.
+    function getBalance(address accountAddress, string denom) external view returns (uint256);
+
+// func (k BaseKeeper) AllBalances(ctx context.Context, req *types.QueryAllBalancesRequest) (*types.QueryAllBalancesResponse, error) {
+    // The AllBalances endpoint allows users to query account balance by address for all denominations.
+    function getAllBalance(address accountAddress) external view returns (uint256);
+
+// func (k BaseKeeper) TotalSupply(ctx context.Context, req *types.QueryTotalSupplyRequest) (*types.QueryTotalSupplyResponse, error) {
+//     function getTotalSupply() external view returns (uint256);
+
+// func (k BaseKeeper) SupplyOf(c context.Context, req *types.QuerySupplyOfRequest) (*types.QuerySupplyOfResponse, error) {
+//     function geSupplyOf() external view returns (uint256);
+
+    ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
+
+    /**
+     * @dev msg.sender delegates the `amount` of tokens to `validatorAddress`
+     */
+    function delegate(address validatorAddress, uint256 amount) external payable returns (bool);
+
+
+    //////////////////////////////////////////// UTILS ////////////////////////////////////////////
+
+
 }

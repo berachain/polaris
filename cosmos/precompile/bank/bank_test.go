@@ -24,9 +24,11 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -45,10 +47,12 @@ var _ = Describe("Bank Precompile Test", func() {
 		contract *bank.Contract
 		addr     sdk.AccAddress
 		factory  *log.Factory
+		bk       bankkeeper.BaseKeeper
 	)
 
 	BeforeEach(func() {
-		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract())
+		_, _, bk, _ = testutil.SetupMinimalKeepers()
+		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bk))
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.
