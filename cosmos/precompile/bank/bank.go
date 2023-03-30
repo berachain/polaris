@@ -21,14 +21,22 @@
 package bank
 
 import (
+	"context"
+	"math/big"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Contract is the precompile contract for the bank module.
@@ -36,6 +44,7 @@ type Contract struct {
 	precompile.BaseContract
 
 	msgServer banktypes.MsgServer
+	querier   banktypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
@@ -46,38 +55,106 @@ func NewPrecompileContract(bk bankkeeper.Keeper) ethprecompile.StatefulImpl {
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
 		msgServer: bankkeeper.NewMsgServerImpl(bk),
+		querier:   bk,
 	}
 }
 
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
+		{
+			AbiSig:  "getBalance(address,string)",
+			Execute: c.GetBalance,
+		},
 		// {
-		// 	AbiSig:  "getDelegation(address,address)",
-		// 	Execute: c.GetDelegationAddrInput,
+		// 	AbiSig:  "getAllBalance(address)",
+		// 	Execute: c.GetAllBalance,
 		// },
 	}
 }
 
-// GetBalance implements `GetBalance(address)` method.
+// GetBalance implements `getBalance(address,string)` method.
 func (c *Contract) GetBalance(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
+	_ common.Address,
+	_ *big.Int,
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
+	addr, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	val, ok := utils.GetAs[common.Address](args[1])
+	denom, ok := utils.GetAs[string](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
 
-	return c.getDelegationHelper(
-		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
-	)
+	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
+		Address: cosmlib.AddressToAccAddress(addr).String(),
+		Denom:   denom,
+	})
+	if status.Code(err) == codes.NotFound {
+		// handle the case where the delegation does not exist
+		return []any{big.NewInt(0)}, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	balance := res.GetBalance().Amount
+	return []any{balance.BigInt()}, nil
 }
+
+// // GetAllBalance implements `getAllBalance(address)` method.
+// func (c *Contract) GetAllBalance(
+// 	ctx context.Context,
+// 	_ ethprecompile.EVM,
+// 	_ common.Address,
+// 	_ *big.Int,
+// 	readonly bool,
+// 	args ...any,
+// ) ([]any, error) {
+// 	addr, ok := utils.GetAs[common.Address](args[0])
+// 	if !ok {
+// 		return nil, precompile.ErrInvalidHexAddress
+// 	}
+
+// 	// AllBalances(context.Context, *QueryAllBalancesRequest) (*QueryAllBalancesResponse, error)
+
+
+// 	// type QueryAllBalancesRequest struct {
+// 	// 	// address is the address to query balances for.
+// 	// 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+// 	// 	// pagination defines an optional pagination for the request.
+// 	// 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+// 	// 	// resolve_denom is the flag to resolve the denom into a human-readable form from the metadata.
+// 	// 	//
+// 	// 	// Since: cosmos-sdk 0.48
+// 	// 	ResolveDenom bool `protobuf:"varint,3,opt,name=resolve_denom,json=resolveDenom,proto3" json:"resolve_denom,omitempty"`
+// 	// }
+
+	
+// 	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+// 		Address: cosmlib.AddressToAccAddress(addr).String(),
+// 	})
+// 	if status.Code(err) == codes.NotFound {
+// 		// handle the case where the delegation does not exist
+// 		return []any{big.NewInt(0)}, nil
+// 	} else if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// type QueryAllBalancesResponse struct {
+// 	// 	// balances is the balances of all the coins.
+// 	// 	Balances github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=balances,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"balances"`
+// 	// 	// pagination defines the pagination in the response.
+// 	// 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+// 	// }
+
+// 	// ask: ?????????????????????????????????
+// 	// res.Balances
+// 	// res.Pagination
+
+// 	return []any{[]Coin}, nil
+// }

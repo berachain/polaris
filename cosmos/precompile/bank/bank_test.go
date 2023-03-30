@@ -21,15 +21,21 @@
 package bank_test
 
 import (
+	"math/big"
 	"testing"
 
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -48,10 +54,11 @@ var _ = Describe("Bank Precompile Test", func() {
 		addr     sdk.AccAddress
 		factory  *log.Factory
 		bk       bankkeeper.BaseKeeper
+		ctx      sdk.Context
 	)
 
 	BeforeEach(func() {
-		_, _, bk, _ = testutil.SetupMinimalKeepers()
+		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
 		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bk))
 		addr = sdk.AccAddress([]byte("bank"))
 
@@ -113,4 +120,69 @@ var _ = Describe("Bank Precompile Test", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
+
+	When("Calling Precompile Methods", func() {
+		var (
+			acc    sdk.AccAddress
+			caller common.Address
+		)
+
+		denom := "bera"
+
+		BeforeEach(func() {})
+
+		When("GetBalance", func() {
+			It("should fail if input is not a common.Address", func() {
+				res, err := contract.GetBalance(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					"0x",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+				Expect(res).To(BeNil())
+			})
+
+			It("should succeed", func() {
+				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+
+				acc = simtestutil.CreateRandomAccounts(1)[0]
+
+				err := FundAccount(
+					ctx,
+					bk,
+					acc,
+					sdk.NewCoins(
+						sdk.NewCoin(
+							denom,
+							sdk.NewIntFromBigInt(balanceAmount),
+						),
+					),
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				res, err := contract.GetBalance(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(acc),
+					denom,
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res[0]).To(Equal(balanceAmount))
+			})
+		})
+	})
 })
+
+func FundAccount(ctx sdk.Context, bk bankkeeper.BaseKeeper, account sdk.AccAddress, coins sdk.Coins) error {
+	if err := bk.MintCoins(ctx, evmtypes.ModuleName, coins); err != nil {
+		return err
+	}
+	return bk.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, account, coins)
+}

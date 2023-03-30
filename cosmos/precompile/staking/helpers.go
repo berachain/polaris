@@ -211,6 +211,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status: stakingtypes.BondStatusBonded,
+		// ask: no pagination?
 	})
 	if err != nil {
 		return nil, err

@@ -68,13 +68,14 @@ interface IBankModule {
     
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
-    // func (k BaseKeeper) Balance(ctx context.Context, req *types.QueryBalanceRequest) (*types.QueryBalanceResponse, error) {
-        // The Balance endpoint allows users to query account balance by address for a given denomination.
-    function getBalance(address accountAddress, string denom) external view returns (uint256);
 
-// func (k BaseKeeper) AllBalances(ctx context.Context, req *types.QueryAllBalancesRequest) (*types.QueryAllBalancesResponse, error) {
+    // The Balance endpoint allows users to query account balance by address for a given denomination.
+    // ask: return amount or Coin(amount, denom)?
+    function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
+
+
     // The AllBalances endpoint allows users to query account balance by address for all denominations.
-    function getAllBalance(address accountAddress) external view returns (uint256);
+    function getAllBalance(address accountAddress) external view returns (Coin[] memory);
 
 // func (k BaseKeeper) TotalSupply(ctx context.Context, req *types.QueryTotalSupplyRequest) (*types.QueryTotalSupplyResponse, error) {
 //     function getTotalSupply() external view returns (uint256);
@@ -84,13 +85,10 @@ interface IBankModule {
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
-    /**
-     * @dev msg.sender delegates the `amount` of tokens to `validatorAddress`
-     */
-    function delegate(address validatorAddress, uint256 amount) external payable returns (bool);
-
-
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
-
+    struct Coin {
+        uint256 amount;
+        string denom;
+    }
 }
