@@ -77,7 +77,7 @@ func (m *ERC20AddressForDenomRequest) GetDenom() string {
 
 // ERC20AddressForDenomResponse is the response type for the Query/ERC20AddressForDenom RPC method.
 type ERC20AddressForDenomResponse struct {
-	// address is the ERC20 address for the given denom.
+	// address is the ERC20 address (in bech32) for the given denom.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -123,7 +123,7 @@ func (m *ERC20AddressForDenomResponse) GetAddress() string {
 
 // DenomForERC20AddressRequest is the request type for the Query/DenomForERC20Address RPC method.
 type DenomForERC20AddressRequest struct {
-	// address is the ERC20 address to query the denom for.
+	// address is the ERC20 address (in bech32) to query the denom for.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 

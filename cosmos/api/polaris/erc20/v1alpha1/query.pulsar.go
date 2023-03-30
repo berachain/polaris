@@ -1770,7 +1770,7 @@ type ERC20AddressForDenomResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// address is the ERC20 address for the given denom.
+	// address is the ERC20 address (in bech32) for the given denom.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -1807,7 +1807,7 @@ type DenomForERC20AddressRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// address is the ERC20 address to query the denom for.
+	// address is the ERC20 address (in bech32) to query the denom for.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 

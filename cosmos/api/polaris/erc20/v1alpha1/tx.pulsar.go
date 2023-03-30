@@ -976,7 +976,7 @@ func (x *fastReflection_ConvertERC20ToCosmosResponse) ProtoMethods() *protoiface
 
 var (
 	md_ConvertCosmosToERC20Request           protoreflect.MessageDescriptor
-	fd_ConvertCosmosToERC20Request_token     protoreflect.FieldDescriptor
+	fd_ConvertCosmosToERC20Request_denom     protoreflect.FieldDescriptor
 	fd_ConvertCosmosToERC20Request_recipient protoreflect.FieldDescriptor
 	fd_ConvertCosmosToERC20Request_amount    protoreflect.FieldDescriptor
 )
@@ -984,7 +984,7 @@ var (
 func init() {
 	file_polaris_erc20_v1alpha1_tx_proto_init()
 	md_ConvertCosmosToERC20Request = File_polaris_erc20_v1alpha1_tx_proto.Messages().ByName("ConvertCosmosToERC20Request")
-	fd_ConvertCosmosToERC20Request_token = md_ConvertCosmosToERC20Request.Fields().ByName("token")
+	fd_ConvertCosmosToERC20Request_denom = md_ConvertCosmosToERC20Request.Fields().ByName("denom")
 	fd_ConvertCosmosToERC20Request_recipient = md_ConvertCosmosToERC20Request.Fields().ByName("recipient")
 	fd_ConvertCosmosToERC20Request_amount = md_ConvertCosmosToERC20Request.Fields().ByName("amount")
 }
@@ -1054,9 +1054,9 @@ func (x *fastReflection_ConvertCosmosToERC20Request) Interface() protoreflect.Pr
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_ConvertCosmosToERC20Request) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Token != "" {
-		value := protoreflect.ValueOfString(x.Token)
-		if !f(fd_ConvertCosmosToERC20Request_token, value) {
+	if x.Denom != "" {
+		value := protoreflect.ValueOfString(x.Denom)
+		if !f(fd_ConvertCosmosToERC20Request_denom, value) {
 			return
 		}
 	}
@@ -1087,8 +1087,8 @@ func (x *fastReflection_ConvertCosmosToERC20Request) Range(f func(protoreflect.F
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ConvertCosmosToERC20Request) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.token":
-		return x.Token != ""
+	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.denom":
+		return x.Denom != ""
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.recipient":
 		return x.Recipient != ""
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.amount":
@@ -1109,8 +1109,8 @@ func (x *fastReflection_ConvertCosmosToERC20Request) Has(fd protoreflect.FieldDe
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ConvertCosmosToERC20Request) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.token":
-		x.Token = ""
+	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.denom":
+		x.Denom = ""
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.recipient":
 		x.Recipient = ""
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.amount":
@@ -1131,8 +1131,8 @@ func (x *fastReflection_ConvertCosmosToERC20Request) Clear(fd protoreflect.Field
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ConvertCosmosToERC20Request) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.token":
-		value := x.Token
+	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.denom":
+		value := x.Denom
 		return protoreflect.ValueOfString(value)
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.recipient":
 		value := x.Recipient
@@ -1160,8 +1160,8 @@ func (x *fastReflection_ConvertCosmosToERC20Request) Get(descriptor protoreflect
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ConvertCosmosToERC20Request) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.token":
-		x.Token = value.Interface().(string)
+	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.denom":
+		x.Denom = value.Interface().(string)
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.recipient":
 		x.Recipient = value.Interface().(string)
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.amount":
@@ -1186,8 +1186,8 @@ func (x *fastReflection_ConvertCosmosToERC20Request) Set(fd protoreflect.FieldDe
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ConvertCosmosToERC20Request) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.token":
-		panic(fmt.Errorf("field token of message polaris.erc20.v1alpha1.ConvertCosmosToERC20Request is not mutable"))
+	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.denom":
+		panic(fmt.Errorf("field denom of message polaris.erc20.v1alpha1.ConvertCosmosToERC20Request is not mutable"))
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.recipient":
 		panic(fmt.Errorf("field recipient of message polaris.erc20.v1alpha1.ConvertCosmosToERC20Request is not mutable"))
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.amount":
@@ -1205,7 +1205,7 @@ func (x *fastReflection_ConvertCosmosToERC20Request) Mutable(fd protoreflect.Fie
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ConvertCosmosToERC20Request) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.token":
+	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.denom":
 		return protoreflect.ValueOfString("")
 	case "polaris.erc20.v1alpha1.ConvertCosmosToERC20Request.recipient":
 		return protoreflect.ValueOfString("")
@@ -1280,7 +1280,7 @@ func (x *fastReflection_ConvertCosmosToERC20Request) ProtoMethods() *protoiface.
 		var n int
 		var l int
 		_ = l
-		l = len(x.Token)
+		l = len(x.Denom)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -1335,10 +1335,10 @@ func (x *fastReflection_ConvertCosmosToERC20Request) ProtoMethods() *protoiface.
 			i--
 			dAtA[i] = 0x12
 		}
-		if len(x.Token) > 0 {
-			i -= len(x.Token)
-			copy(dAtA[i:], x.Token)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Token)))
+		if len(x.Denom) > 0 {
+			i -= len(x.Denom)
+			copy(dAtA[i:], x.Denom)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Denom)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -1393,7 +1393,7 @@ func (x *fastReflection_ConvertCosmosToERC20Request) ProtoMethods() *protoiface.
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -1421,7 +1421,7 @@ func (x *fastReflection_ConvertCosmosToERC20Request) ProtoMethods() *protoiface.
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Token = string(dAtA[iNdEx:postIndex])
+				x.Denom = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			case 2:
 				if wireType != 2 {
@@ -1971,9 +1971,9 @@ type ConvertERC20ToCosmosRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// token is the address of the ERC20 token.
+	// token is the bech32 address of the ERC20 token.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	// receipient is the address of the recipient.
+	// receipient is the bech32 address of the recipient.
 	Recipient string `protobuf:"bytes,2,opt,name=recipient,proto3" json:"recipient,omitempty"`
 	// amount is the amount of tokens to convert.
 	Amount string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
@@ -2063,9 +2063,9 @@ type ConvertCosmosToERC20Request struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// token is the address of the ERC20 token.
-	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	// recipient is the address of the recipient.
+	// denom is the denomination of the ERC20 token to convert to.
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// recipient is the bech32 address of the recipient.
 	Recipient string `protobuf:"bytes,2,opt,name=recipient,proto3" json:"recipient,omitempty"`
 	// amount is the amount of tokens to convert.
 	Amount string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
@@ -2091,9 +2091,9 @@ func (*ConvertCosmosToERC20Request) Descriptor() ([]byte, []int) {
 	return file_polaris_erc20_v1alpha1_tx_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ConvertCosmosToERC20Request) GetToken() string {
+func (x *ConvertCosmosToERC20Request) GetDenom() string {
 	if x != nil {
-		return x.Token
+		return x.Denom
 	}
 	return ""
 }
@@ -2179,9 +2179,9 @@ var file_polaris_erc20_v1alpha1_tx_proto_rawDesc = []byte{
 	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
 	0x22, 0xb2, 0x01, 0x0a, 0x1b, 0x43, 0x6f, 0x6e, 0x76, 0x65, 0x72, 0x74, 0x43, 0x6f, 0x73, 0x6d,
 	0x6f, 0x73, 0x54, 0x6f, 0x45, 0x52, 0x43, 0x32, 0x30, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x12, 0x2b, 0x0a, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42,
+	0x12, 0x2b, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42,
 	0x15, 0xd2, 0xb4, 0x2d, 0x11, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x63, 0x63, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x33, 0x0a,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x12, 0x33, 0x0a,
 	0x09, 0x72, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
 	0x42, 0x15, 0xd2, 0xb4, 0x2d, 0x11, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x63, 0x63,
 	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x09, 0x72, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65,

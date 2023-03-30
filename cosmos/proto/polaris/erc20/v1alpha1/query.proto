@@ -47,13 +47,13 @@ message ERC20AddressForDenomRequest {
 
 // ERC20AddressForDenomResponse is the response type for the Query/ERC20AddressForDenom RPC method.
 message ERC20AddressForDenomResponse {
-  // address is the ERC20 address for the given denom.
+  // address is the ERC20 address (in bech32) for the given denom.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 }
 
 // DenomForERC20AddressRequest is the request type for the Query/DenomForERC20Address RPC method.
 message DenomForERC20AddressRequest {
-  // address is the ERC20 address to query the denom for.
+  // address is the ERC20 address (in bech32) to query the denom for.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 }
 

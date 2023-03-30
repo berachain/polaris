@@ -45,10 +45,10 @@ service MsgService {
 
 // ConvertERC20ToCosmosRequest defines a message to convert ERC20 tokens to Cosmos tokens.
 message ConvertERC20ToCosmosRequest {
-  // token is the address of the ERC20 token.
+  // token is the bech32 address of the ERC20 token.
   string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 
-  // receipient is the address of the recipient.
+  // receipient is the bech32 address of the recipient.
   string recipient = 2 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 
   // amount is the amount of tokens to convert.
@@ -63,10 +63,10 @@ message ConvertERC20ToCosmosResponse {
 
 // ConvertCosmosToERC20Request defines a message to convert Cosmos tokens to ERC20 tokens.
 message ConvertCosmosToERC20Request {
-  // token is the address of the ERC20 token.
-  string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+  // denom is the denomination of the ERC20 token to convert to.
+  string denom = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 
-  // recipient is the address of the recipient.
+  // recipient is the bech32 address of the recipient.
   string recipient = 2 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 
   // amount is the amount of tokens to convert.
