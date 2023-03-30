@@ -21,6 +21,7 @@
 package bank_test
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -205,6 +206,68 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(balanceAmount))
+			})
+		})
+
+		When("GetAllBalance", func() {
+			It("should fail if input address is not a common.Address", func() {
+				res, err := contract.GetBalance(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					"0x",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+				Expect(res).To(BeNil())
+			})
+
+			It("should succeed", func() {
+				numOfDenoms := 3
+				acc = simtestutil.CreateRandomAccounts(1)[0]
+				for i := 0; i < numOfDenoms; i++ {
+					balanceAmountStr := fmt.Sprintf("%d000000000000000000", i+1)
+					balanceAmount, ok := new(big.Int).SetString(balanceAmountStr, 10)
+					Expect(ok).To(BeTrue())
+
+					err := FundAccount(
+						ctx,
+						bk,
+						acc,
+						sdk.NewCoins(
+							sdk.NewCoin(
+								fmt.Sprintf("denom_%d", i+1),
+								sdk.NewIntFromBigInt(balanceAmount),
+							),
+						),
+					)
+					Expect(err).ToNot(HaveOccurred())
+				}
+
+				res, err := contract.GetAllBalance(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(acc),
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				coins, ok := utils.GetAs[sdk.Coins](res[0])
+				Expect(ok).To(BeTrue())
+
+				for i, coin := range coins {
+					balanceAmountStr := fmt.Sprintf("%d000000000000000000", i+1)
+					balanceAmount, ok := new(big.Int).SetString(balanceAmountStr, 10)
+					Expect(ok).To(BeTrue())
+
+					// coin, ok := utils.GetAs[sdk.Coin](e)
+					Expect(ok).To(BeTrue())
+					Expect(coin.Denom).To(Equal(fmt.Sprintf("denom_%d", i+1)))
+					Expect(coin.Amount).To(Equal(sdk.NewIntFromBigInt(balanceAmount)))
+				}
 			})
 		})
 

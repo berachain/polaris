@@ -22,6 +22,7 @@ package bank
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -63,10 +64,10 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getBalance(address,string)",
 			Execute: c.GetBalance,
 		},
-		// {
-		// 	AbiSig:  "getAllBalance(address)",
-		// 	Execute: c.GetAllBalance,
-		// },
+		{
+			AbiSig:  "getAllBalance(address)",
+			Execute: c.GetAllBalance,
+		},
 		{
 			AbiSig:  "getSupplyOf(string)",
 			Execute: c.GetSupplyOf,
@@ -105,55 +106,64 @@ func (c *Contract) GetBalance(
 }
 
 // // GetAllBalance implements `getAllBalance(address)` method.
-// func (c *Contract) GetAllBalance(
-// 	ctx context.Context,
-// 	_ ethprecompile.EVM,
-// 	_ common.Address,
-// 	_ *big.Int,
-// 	readonly bool,
-// 	args ...any,
-// ) ([]any, error) {
-// 	addr, ok := utils.GetAs[common.Address](args[0])
-// 	if !ok {
-// 		return nil, precompile.ErrInvalidHexAddress
-// 	}
+func (c *Contract) GetAllBalance(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	addr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
 
-// 	// AllBalances(context.Context, *QueryAllBalancesRequest) (*QueryAllBalancesResponse, error)
+	// AllBalances(context.Context, *QueryAllBalancesRequest) (*QueryAllBalancesResponse, error)
 
-// 	// type QueryAllBalancesRequest struct {
-// 	// 	// address is the address to query balances for.
-// 	// 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-// 	// 	// pagination defines an optional pagination for the request.
-// 	// 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
-// 	// 	// resolve_denom is the flag to resolve the denom into a human-readable form from the metadata.
-// 	// 	//
-// 	// 	// Since: cosmos-sdk 0.48
-// 	// 	ResolveDenom bool `protobuf:"varint,3,opt,name=resolve_denom,json=resolveDenom,proto3" json:"resolve_denom,omitempty"`
-// 	// }
+	// type QueryAllBalancesRequest struct {
+	// 	// address is the address to query balances for.
+	// 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// 	// pagination defines an optional pagination for the request.
+	// 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	// 	// resolve_denom is the flag to resolve the denom into a human-readable form from the metadata.
+	// 	//
+	// 	// Since: cosmos-sdk 0.48
+	// 	ResolveDenom bool `protobuf:"varint,3,opt,name=resolve_denom,json=resolveDenom,proto3" json:"resolve_denom,omitempty"`
+	// }
 
-// 	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
-// 		Address: cosmlib.AddressToAccAddress(addr).String(),
-// 	})
-// 	if status.Code(err) == codes.NotFound {
-// 		// handle the case where the delegation does not exist
-// 		return []any{big.NewInt(0)}, nil
-// 	} else if err != nil {
-// 		return nil, err
-// 	}
+	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+		Address: cosmlib.AddressToAccAddress(addr).String(),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-// 	// type QueryAllBalancesResponse struct {
-// 	// 	// balances is the balances of all the coins.
-// 	// 	Balances github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=balances,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"balances"`
-// 	// 	// pagination defines the pagination in the response.
-// 	// 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
-// 	// }
+	// type QueryAllBalancesResponse struct {
+	// 	// balances is the balances of all the coins.
+	// 	Balances github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=balances,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"balances"`
+	// 	// pagination defines the pagination in the response.
+	// 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	// }
 
-// 	// ask: ?????????????????????????????????
-// 	// res.Balances
-// 	// res.Pagination
+	// ask: ?????????????????????????????????
+	// res.Balances
+	// res.Pagination
+	fmt.Println("bank.go")
+	fmt.Println(res.Balances)
+	fmt.Println(res.Balances[0].Amount)
+	fmt.Println(res.Balances[0].Denom)
+	fmt.Println(res.Balances.Len())
+	fmt.Println(res.Pagination)
 
-//		return []any{[]Coin}, nil
-//	}
+	// coins := sdk.NewCoins()
+	// for _, balance := range res.Balances{
+	// 	coins = append(coins, sdk.NewCoin(balance.Denom, balance.Amount))
+	// }
+
+	return []any{res.Balances}, nil
+}
+
 func (c *Contract) GetSupplyOf(
 	ctx context.Context,
 	_ ethprecompile.EVM,

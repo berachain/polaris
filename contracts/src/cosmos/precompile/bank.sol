@@ -87,8 +87,12 @@ interface IBankModule {
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
+    /**
+     * @dev Represents a cosmos coin.
+     * Note: this struct is generated as go struct that is then used in the precompile.
+     */
     struct Coin {
-        uint256 amount;
+        uint64 amount;
         string denom;
     }
 }
