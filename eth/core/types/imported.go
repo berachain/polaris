@@ -55,6 +55,8 @@ var (
 	DynamicFeeTxType       = types.DynamicFeeTxType
 	AccessListTxType       = types.AccessListTxType
 	DeriveSha              = types.DeriveSha
+	EmptyTxsHash           = types.EmptyTxsHash
+	EmptyReceiptsHash      = types.EmptyReceiptsHash
 	EmptyRootHash          = types.EmptyRootHash
 	EmptyUncleHash         = types.EmptyUncleHash
 	SignTx                 = types.SignTx

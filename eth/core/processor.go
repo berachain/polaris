@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/trie"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -215,8 +216,20 @@ func (sp *StateProcessor) Finalize(
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
-	// Now that we are done processing the block, we update the header with the consumed gas.
+	// Now that we are done processing the block, we update the header with the consumed gas,
+	// txHash, and receiptsHash.
 	sp.header.GasUsed = sp.gp.BlockGasConsumed()
+	hasher := trie.NewStackTrie(nil)
+	if len(sp.txs) == 0 {
+		sp.header.TxHash = types.EmptyTxsHash
+	} else {
+		sp.header.TxHash = types.DeriveSha(sp.txs, hasher)
+	}
+	if len(sp.receipts) == 0 {
+		sp.header.ReceiptHash = types.EmptyReceiptsHash
+	} else {
+		sp.header.ReceiptHash = types.DeriveSha(sp.receipts, hasher)
+	}
 
 	// We iterate over all of the receipts/transactions in the block and update the receipt to
 	// have the correct values. We must do this AFTER all the transactions have been processed
