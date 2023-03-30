@@ -38,7 +38,8 @@ import {ERC20} from "../../../../lib/ERC20.sol";
  */
 contract LiquidStaking is ERC20 {
     // State
-    IStakingModule public staking;
+    IStakingModule public immutable staking =
+        IStakingModule(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
     address public validatorAddress;
 
     event Success(bool indexed success);
@@ -53,15 +54,14 @@ contract LiquidStaking is ERC20 {
      * @dev Constructor that sets the staking precompile address and the validator address.
      * @param _name The name of the token.
      * @param _symbol The symbol of the token.
-     * @param _stakingprecompile The address of the staking precompile contract.
-     * @param _validatorAddress The address of the validator to delegate to.
      */
-    constructor(string memory _name, string memory _symbol, address _stakingprecompile, address _validatorAddress)
-        ERC20(_name, _symbol, 18)
-    {
-        if (_stakingprecompile == address(0)) revert ZeroAddress();
+    constructor(
+        string memory _name,
+        string memory _symbol
+    ) ERC20(_name, _symbol, 18) {
+        // Get the first active validator as an example.
+        address _validatorAddress = staking.getActiveValidators()[0];
         if (_validatorAddress == address(0)) revert ZeroAddress();
-        staking = IStakingModule(_stakingprecompile);
         validatorAddress = _validatorAddress;
     }
 
