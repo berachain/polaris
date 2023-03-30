@@ -30,6 +30,7 @@ import (
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -37,6 +38,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -164,6 +167,31 @@ func BuildGenesisState() map[string]json.RawMessage {
 	encoding.Codec.MustUnmarshalJSON(genState[stakingtypes.ModuleName], &stakingState)
 	stakingState.Params.BondDenom = "abera"
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
+
+	// Governance Module.
+	var governanceState v1.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &governanceState)
+	// Create the proposal message.
+	proposal := &v1.Proposal{
+		Id:               2,
+		Proposer:         TestAddress.String(),
+		Messages:         []*codectypes.Any{},
+		Status:           v1.StatusVotingPeriod,
+		FinalTallyResult: &v1.TallyResult{},
+		SubmitTime:       &time.Time{},
+		DepositEndTime:   &time.Time{},
+		TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
+		VotingStartTime:  &time.Time{},
+		VotingEndTime:    &time.Time{},
+		Metadata:         "metadata",
+		Title:            "title",
+		Summary:          "summary",
+		Expedited:        false,
+	}
+	// Append the proposal to the governance genesis state.
+	governanceState.Proposals = append(governanceState.Proposals, proposal)
+	// Add to the app genesis state.
+	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&governanceState)
 
 	return genState
 }

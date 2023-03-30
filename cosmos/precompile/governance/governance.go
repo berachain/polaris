@@ -66,7 +66,7 @@ func NewPrecompileContract(gk *govkeeper.Keeper) ethprecompile.StatefulImpl {
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
-			AbiSig:  "submitProposal(bytes,(uint64,string)[],string,string,string,bool)",
+			AbiSig:  "submitProposal(bytes,bytes)",
 			Execute: c.SubmitProposal,
 		},
 		{

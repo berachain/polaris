@@ -25,6 +25,8 @@ import (
 	"os"
 	"testing"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
@@ -34,6 +36,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 )
 
 func TestCosmosPrecompiles(t *testing.T) {
@@ -70,6 +75,40 @@ var _ = SynchronizedAfterSuite(func() {
 })
 
 var _ = Describe("Staking", func() {
+	// TODO: Move to own file once setup.go is merged in here.
+	When("Testing Governance Precompile", func() {
+		It("Should be able to submit a proposal", func() {
+			// Prepare the Message.
+			govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
+			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
+			message := &banktypes.MsgSend{
+				FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
+				ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				Amount:      initDeposit,
+			}
+			messageBz, err := message.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+			// Prepare the Proposal.
+			proposal := v1.MsgSubmitProposal{
+				InitialDeposit: initDeposit,
+				Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				Metadata:       "metadata",
+				Title:          "title",
+				Summary:        "summary",
+				Expedited:      false,
+			}
+			proposalBz, err := proposal.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+
+			// Submit the transaction.
+			txr := tf.GenerateTransactOpts("")
+			txr.Value = big.NewInt(100e16)
+			tx, err := governancePrecompile.SubmitProposal(txr, proposalBz, messageBz)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectMined(tf.EthClient, tx)
+		})
+	})
+
 	It("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
@@ -127,4 +166,5 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(value.Cmp(big.NewInt(100000000000))).To(Equal(0))
 	})
+
 })

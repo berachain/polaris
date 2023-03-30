@@ -31,12 +31,8 @@ interface IGovernanceModule {
      * @dev Submit a proposal to the governance module. Returns the proposal id.
      */
     function submitProposal(
-        bytes calldata message,
-        Coin[] calldata initialDeposit,
-        string calldata metadata,
-        string calldata title,
-        string calldata summary,
-        bool expedited
+        bytes calldata proposal,
+        bytes calldata message
     ) external returns (uint64);
 
     /**
