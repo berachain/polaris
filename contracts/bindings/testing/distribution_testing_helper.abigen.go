@@ -31,8 +31,8 @@ var (
 
 // DistributionTestHelperMetaData contains all meta data concerning the DistributionTestHelper contract.
 var DistributionTestHelperMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_distributionprecompile\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"distribution\",\"outputs\":[{\"internalType\":\"contractIDistributionModule\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_withdrawAddress\",\"type\":\"address\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561001057600080fd5b506040516104eb3803806104eb83398181016040528101906100329190610141565b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1603610098576040517fd92e233d00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505061016e565b600080fd5b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061010e826100e3565b9050919050565b61011e81610103565b811461012957600080fd5b50565b60008151905061013b81610115565b92915050565b600060208284031215610157576101566100de565b5b60006101658482850161012c565b91505092915050565b61036e8061017d6000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80633ab1a4941461003b5780635ee58efc14610057575b600080fd5b61005560048036038101906100509190610202565b610075565b005b61005f61017b565b60405161006c919061028e565b60405180910390f35b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff16036100db576040517fd92e233d00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b60008054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16633ab1a494826040518263ffffffff1660e01b815260040161013491906102b8565b6020604051808303816000875af1158015610153573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610177919061030b565b5050565b60008054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600080fd5b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006101cf826101a4565b9050919050565b6101df816101c4565b81146101ea57600080fd5b50565b6000813590506101fc816101d6565b92915050565b6000602082840312156102185761021761019f565b5b6000610226848285016101ed565b91505092915050565b6000819050919050565b600061025461024f61024a846101a4565b61022f565b6101a4565b9050919050565b600061026682610239565b9050919050565b60006102788261025b565b9050919050565b6102888161026d565b82525050565b60006020820190506102a3600083018461027f565b92915050565b6102b2816101c4565b82525050565b60006020820190506102cd60008301846102a9565b92915050565b60008115159050919050565b6102e8816102d3565b81146102f357600080fd5b50565b600081519050610305816102df565b92915050565b6000602082840312156103215761032061019f565b5b600061032f848285016102f6565b9150509291505056fea26469706673582212209bec1d2ad88f3d8f64fa1989060654055f796179f1bdbcf943b019953b10917964736f6c63430008130033",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_distributionprecompile\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"distribution\",\"outputs\":[{\"internalType\":\"contractIDistributionModule\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getWithdrawEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	Bin: "0x608060405234801561001057600080fd5b5060405161041338038061041383398181016040528101906100329190610141565b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1603610098576040517fd92e233d00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505061016e565b600080fd5b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061010e826100e3565b9050919050565b61011e81610103565b811461012957600080fd5b50565b60008151905061013b81610115565b92915050565b600060208284031215610157576101566100de565b5b60006101658482850161012c565b91505092915050565b6102968061017d6000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806339cc4c861461003b5780635ee58efc14610059575b600080fd5b610043610077565b604051610050919061014d565b60405180910390f35b61006161010e565b60405161006e91906101e7565b60405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166339cc4c866040518163ffffffff1660e01b8152600401602060405180830381865afa1580156100e5573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101099190610233565b905090565b60008054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60008115159050919050565b61014781610132565b82525050565b6000602082019050610162600083018461013e565b92915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b60006101ad6101a86101a384610168565b610188565b610168565b9050919050565b60006101bf82610192565b9050919050565b60006101d1826101b4565b9050919050565b6101e1816101c6565b82525050565b60006020820190506101fc60008301846101d8565b92915050565b600080fd5b61021081610132565b811461021b57600080fd5b50565b60008151905061022d81610207565b92915050565b60006020828403121561024957610248610202565b5b60006102578482850161021e565b9150509291505056fea26469706673582212205946d8b959aa65aa33304260088ff09812128fe4b562a2344f1cf598b42ce88664736f6c63430008130033",
 }
 
 // DistributionTestHelperABI is the input ABI used to generate the binding from.
@@ -233,23 +233,33 @@ func (_DistributionTestHelper *DistributionTestHelperCallerSession) Distribution
 	return _DistributionTestHelper.Contract.Distribution(&_DistributionTestHelper.CallOpts)
 }
 
-// SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
+// GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function setWithdrawAddress(address _withdrawAddress) returns()
-func (_DistributionTestHelper *DistributionTestHelperTransactor) SetWithdrawAddress(opts *bind.TransactOpts, _withdrawAddress common.Address) (*types.Transaction, error) {
-	return _DistributionTestHelper.contract.Transact(opts, "setWithdrawAddress", _withdrawAddress)
+// Solidity: function getWithdrawEnabled() view returns(bool)
+func (_DistributionTestHelper *DistributionTestHelperCaller) GetWithdrawEnabled(opts *bind.CallOpts) (bool, error) {
+	var out []interface{}
+	err := _DistributionTestHelper.contract.Call(opts, &out, "getWithdrawEnabled")
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
-// SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
+// GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function setWithdrawAddress(address _withdrawAddress) returns()
-func (_DistributionTestHelper *DistributionTestHelperSession) SetWithdrawAddress(_withdrawAddress common.Address) (*types.Transaction, error) {
-	return _DistributionTestHelper.Contract.SetWithdrawAddress(&_DistributionTestHelper.TransactOpts, _withdrawAddress)
+// Solidity: function getWithdrawEnabled() view returns(bool)
+func (_DistributionTestHelper *DistributionTestHelperSession) GetWithdrawEnabled() (bool, error) {
+	return _DistributionTestHelper.Contract.GetWithdrawEnabled(&_DistributionTestHelper.CallOpts)
 }
 
-// SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
+// GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function setWithdrawAddress(address _withdrawAddress) returns()
-func (_DistributionTestHelper *DistributionTestHelperTransactorSession) SetWithdrawAddress(_withdrawAddress common.Address) (*types.Transaction, error) {
-	return _DistributionTestHelper.Contract.SetWithdrawAddress(&_DistributionTestHelper.TransactOpts, _withdrawAddress)
+// Solidity: function getWithdrawEnabled() view returns(bool)
+func (_DistributionTestHelper *DistributionTestHelperCallerSession) GetWithdrawEnabled() (bool, error) {
+	return _DistributionTestHelper.Contract.GetWithdrawEnabled(&_DistributionTestHelper.CallOpts)
 }

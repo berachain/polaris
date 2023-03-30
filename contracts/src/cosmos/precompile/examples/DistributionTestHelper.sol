@@ -51,14 +51,7 @@ contract DistributionTestHelper {
         distribution = IDistributionModule(_distributionprecompile);
     }
 
-    /**
-     * @dev Helper function to call the distribution precompile `setWithdrawAddress` function.
-     * @param _withdrawAddress The address to withdraw to.
-     */
-    function setWithdrawAddress(address _withdrawAddress) external {
-        if (_withdrawAddress == address(0)) {
-            revert ZeroAddress();
-        }
-        distribution.setWithdrawAddress(_withdrawAddress);
+    function getWithdrawEnabled() external view returns (bool) {
+        return distribution.getWithdrawEnabled();
     }
 }

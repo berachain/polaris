@@ -26,12 +26,9 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -51,7 +48,8 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) ethprecompile.State
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+			//cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+			common.HexToAddress("0x99"),
 		),
 		msgServer: m,
 		querier:   q,
