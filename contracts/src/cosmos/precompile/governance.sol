@@ -30,52 +30,37 @@ interface IGovernanceModule {
     /**
      * @dev Submit a proposal to the governance module. Returns the proposal id.
      */
-    function submitProposal(
-        bytes calldata proposal,
-        bytes calldata message
-    ) external returns (uint64);
+    function submitProposal(bytes calldata proposal, bytes calldata message) external returns (uint64);
 
     /**
      * @dev Cancel a proposal. Returns the cancled time and height.
      *   burned.
      */
-    function cancelProposal(
-        uint64 proposalId
-    ) external returns (uint64, uint64);
+    function cancelProposal(uint64 proposalId) external returns (uint64, uint64);
 
     /**
      * @dev Vote on a proposal.
      */
-    function vote(
-        uint64 proposalId,
-        int32 option,
-        string memory metadata
-    ) external returns (bool);
+    function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool);
 
     /**
      * @dev Vote on a proposal with weights.
      */
-    function voteWeighted(
-        uint64 proposalId,
-        WeightedVoteOption[] calldata options,
-        string calldata metadata
-    ) external returns (bool);
+    function voteWeighted(uint64 proposalId, WeightedVoteOption[] calldata options, string calldata metadata)
+        external
+        returns (bool);
 
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
 
     /**
      * @dev Get the proposal with the given id.
      */
-    function getProposal(
-        uint64 proposalId
-    ) external view returns (Proposal memory);
+    function getProposal(uint64 proposalId) external view returns (Proposal memory);
 
     /**
      * @dev Get proposals with a given status.
      */
-    function getProposals(
-        int32 proposalStatus
-    ) external view returns (Proposal[] memory);
+    function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
 
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
 
@@ -131,10 +116,17 @@ interface IGovernanceModule {
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
      */
-    event SubmitProposal(
-        uint64 indexed proposalId,
-        string indexed proposalMessage
-    );
+    event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessages);
+
+    /**
+     * @dev Emitted by the governance module when `submitProposal` is called.
+     */
+    event SubmitProposal(uint64 indexed votingPeriodStart);
+
+    /**
+     * @dev Emitted by the governance module when `submitProposal` is called.
+     */
+    event ProposalDeposit(string indexed amount, uint64 indexed proposalId);
 
     /**
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.

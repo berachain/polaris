@@ -68,7 +68,7 @@ type IGovernanceModuleWeightedVoteOption struct {
 
 // GovernanceModuleMetaData contains all meta data concerning the GovernanceModule contract.
 var GovernanceModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"option\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"ProposalVote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"proposalMessage\",\"type\":\"string\"}],\"name\":\"SubmitProposal\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"cancelProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"getProposal\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int32\",\"name\":\"proposalStatus\",\"type\":\"int32\"}],\"name\":\"getProposals\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"proposal\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"}],\"name\":\"submitProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"internalType\":\"int32\",\"name\":\"option\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"vote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"int32\",\"name\":\"voteOption\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"weight\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.WeightedVoteOption[]\",\"name\":\"options\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"voteWeighted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"amount\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"ProposalDeposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"option\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"ProposalVote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"proposalMessages\",\"type\":\"string\"}],\"name\":\"SubmitProposal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"votingPeriodStart\",\"type\":\"uint64\"}],\"name\":\"SubmitProposal\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"cancelProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"getProposal\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int32\",\"name\":\"proposalStatus\",\"type\":\"int32\"}],\"name\":\"getProposals\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"proposal\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"}],\"name\":\"submitProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"internalType\":\"int32\",\"name\":\"option\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"vote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"int32\",\"name\":\"voteOption\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"weight\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.WeightedVoteOption[]\",\"name\":\"options\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"voteWeighted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // GovernanceModuleABI is the input ABI used to generate the binding from.
@@ -363,6 +363,159 @@ func (_GovernanceModule *GovernanceModuleTransactorSession) VoteWeighted(proposa
 	return _GovernanceModule.Contract.VoteWeighted(&_GovernanceModule.TransactOpts, proposalId, options, metadata)
 }
 
+// GovernanceModuleProposalDepositIterator is returned from FilterProposalDeposit and is used to iterate over the raw logs and unpacked data for ProposalDeposit events raised by the GovernanceModule contract.
+type GovernanceModuleProposalDepositIterator struct {
+	Event *GovernanceModuleProposalDeposit // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *GovernanceModuleProposalDepositIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(GovernanceModuleProposalDeposit)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(GovernanceModuleProposalDeposit)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *GovernanceModuleProposalDepositIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *GovernanceModuleProposalDepositIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// GovernanceModuleProposalDeposit represents a ProposalDeposit event raised by the GovernanceModule contract.
+type GovernanceModuleProposalDeposit struct {
+	Amount     common.Hash
+	ProposalId uint64
+	Raw        types.Log // Blockchain specific contextual infos
+}
+
+// FilterProposalDeposit is a free log retrieval operation binding the contract event 0x681baa610d7542e04a349c357ae16e813f6bb5d5e52b8bb39b365cef9d374d31.
+//
+// Solidity: event ProposalDeposit(string indexed amount, uint64 indexed proposalId)
+func (_GovernanceModule *GovernanceModuleFilterer) FilterProposalDeposit(opts *bind.FilterOpts, amount []string, proposalId []uint64) (*GovernanceModuleProposalDepositIterator, error) {
+
+	var amountRule []interface{}
+	for _, amountItem := range amount {
+		amountRule = append(amountRule, amountItem)
+	}
+	var proposalIdRule []interface{}
+	for _, proposalIdItem := range proposalId {
+		proposalIdRule = append(proposalIdRule, proposalIdItem)
+	}
+
+	logs, sub, err := _GovernanceModule.contract.FilterLogs(opts, "ProposalDeposit", amountRule, proposalIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return &GovernanceModuleProposalDepositIterator{contract: _GovernanceModule.contract, event: "ProposalDeposit", logs: logs, sub: sub}, nil
+}
+
+// WatchProposalDeposit is a free log subscription operation binding the contract event 0x681baa610d7542e04a349c357ae16e813f6bb5d5e52b8bb39b365cef9d374d31.
+//
+// Solidity: event ProposalDeposit(string indexed amount, uint64 indexed proposalId)
+func (_GovernanceModule *GovernanceModuleFilterer) WatchProposalDeposit(opts *bind.WatchOpts, sink chan<- *GovernanceModuleProposalDeposit, amount []string, proposalId []uint64) (event.Subscription, error) {
+
+	var amountRule []interface{}
+	for _, amountItem := range amount {
+		amountRule = append(amountRule, amountItem)
+	}
+	var proposalIdRule []interface{}
+	for _, proposalIdItem := range proposalId {
+		proposalIdRule = append(proposalIdRule, proposalIdItem)
+	}
+
+	logs, sub, err := _GovernanceModule.contract.WatchLogs(opts, "ProposalDeposit", amountRule, proposalIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(GovernanceModuleProposalDeposit)
+				if err := _GovernanceModule.contract.UnpackLog(event, "ProposalDeposit", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseProposalDeposit is a log parse operation binding the contract event 0x681baa610d7542e04a349c357ae16e813f6bb5d5e52b8bb39b365cef9d374d31.
+//
+// Solidity: event ProposalDeposit(string indexed amount, uint64 indexed proposalId)
+func (_GovernanceModule *GovernanceModuleFilterer) ParseProposalDeposit(log types.Log) (*GovernanceModuleProposalDeposit, error) {
+	event := new(GovernanceModuleProposalDeposit)
+	if err := _GovernanceModule.contract.UnpackLog(event, "ProposalDeposit", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
 // GovernanceModuleProposalVoteIterator is returned from FilterProposalVote and is used to iterate over the raw logs and unpacked data for ProposalVote events raised by the GovernanceModule contract.
 type GovernanceModuleProposalVoteIterator struct {
 	Event *GovernanceModuleProposalVote // Event containing the contract specifics and raw log
@@ -585,26 +738,26 @@ func (it *GovernanceModuleSubmitProposalIterator) Close() error {
 
 // GovernanceModuleSubmitProposal represents a SubmitProposal event raised by the GovernanceModule contract.
 type GovernanceModuleSubmitProposal struct {
-	ProposalId      uint64
-	ProposalMessage common.Hash
-	Raw             types.Log // Blockchain specific contextual infos
+	ProposalId       uint64
+	ProposalMessages common.Hash
+	Raw              types.Log // Blockchain specific contextual infos
 }
 
 // FilterSubmitProposal is a free log retrieval operation binding the contract event 0x49f3ba3f7499ad49b71e9f07e9b953519567c10f84a87cfeb5b56f83f1590887.
 //
-// Solidity: event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessage)
-func (_GovernanceModule *GovernanceModuleFilterer) FilterSubmitProposal(opts *bind.FilterOpts, proposalId []uint64, proposalMessage []string) (*GovernanceModuleSubmitProposalIterator, error) {
+// Solidity: event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessages)
+func (_GovernanceModule *GovernanceModuleFilterer) FilterSubmitProposal(opts *bind.FilterOpts, proposalId []uint64, proposalMessages []string) (*GovernanceModuleSubmitProposalIterator, error) {
 
 	var proposalIdRule []interface{}
 	for _, proposalIdItem := range proposalId {
 		proposalIdRule = append(proposalIdRule, proposalIdItem)
 	}
-	var proposalMessageRule []interface{}
-	for _, proposalMessageItem := range proposalMessage {
-		proposalMessageRule = append(proposalMessageRule, proposalMessageItem)
+	var proposalMessagesRule []interface{}
+	for _, proposalMessagesItem := range proposalMessages {
+		proposalMessagesRule = append(proposalMessagesRule, proposalMessagesItem)
 	}
 
-	logs, sub, err := _GovernanceModule.contract.FilterLogs(opts, "SubmitProposal", proposalIdRule, proposalMessageRule)
+	logs, sub, err := _GovernanceModule.contract.FilterLogs(opts, "SubmitProposal", proposalIdRule, proposalMessagesRule)
 	if err != nil {
 		return nil, err
 	}
@@ -613,19 +766,19 @@ func (_GovernanceModule *GovernanceModuleFilterer) FilterSubmitProposal(opts *bi
 
 // WatchSubmitProposal is a free log subscription operation binding the contract event 0x49f3ba3f7499ad49b71e9f07e9b953519567c10f84a87cfeb5b56f83f1590887.
 //
-// Solidity: event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessage)
-func (_GovernanceModule *GovernanceModuleFilterer) WatchSubmitProposal(opts *bind.WatchOpts, sink chan<- *GovernanceModuleSubmitProposal, proposalId []uint64, proposalMessage []string) (event.Subscription, error) {
+// Solidity: event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessages)
+func (_GovernanceModule *GovernanceModuleFilterer) WatchSubmitProposal(opts *bind.WatchOpts, sink chan<- *GovernanceModuleSubmitProposal, proposalId []uint64, proposalMessages []string) (event.Subscription, error) {
 
 	var proposalIdRule []interface{}
 	for _, proposalIdItem := range proposalId {
 		proposalIdRule = append(proposalIdRule, proposalIdItem)
 	}
-	var proposalMessageRule []interface{}
-	for _, proposalMessageItem := range proposalMessage {
-		proposalMessageRule = append(proposalMessageRule, proposalMessageItem)
+	var proposalMessagesRule []interface{}
+	for _, proposalMessagesItem := range proposalMessages {
+		proposalMessagesRule = append(proposalMessagesRule, proposalMessagesItem)
 	}
 
-	logs, sub, err := _GovernanceModule.contract.WatchLogs(opts, "SubmitProposal", proposalIdRule, proposalMessageRule)
+	logs, sub, err := _GovernanceModule.contract.WatchLogs(opts, "SubmitProposal", proposalIdRule, proposalMessagesRule)
 	if err != nil {
 		return nil, err
 	}
@@ -659,10 +812,154 @@ func (_GovernanceModule *GovernanceModuleFilterer) WatchSubmitProposal(opts *bin
 
 // ParseSubmitProposal is a log parse operation binding the contract event 0x49f3ba3f7499ad49b71e9f07e9b953519567c10f84a87cfeb5b56f83f1590887.
 //
-// Solidity: event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessage)
+// Solidity: event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessages)
 func (_GovernanceModule *GovernanceModuleFilterer) ParseSubmitProposal(log types.Log) (*GovernanceModuleSubmitProposal, error) {
 	event := new(GovernanceModuleSubmitProposal)
 	if err := _GovernanceModule.contract.UnpackLog(event, "SubmitProposal", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// GovernanceModuleSubmitProposal0Iterator is returned from FilterSubmitProposal0 and is used to iterate over the raw logs and unpacked data for SubmitProposal0 events raised by the GovernanceModule contract.
+type GovernanceModuleSubmitProposal0Iterator struct {
+	Event *GovernanceModuleSubmitProposal0 // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *GovernanceModuleSubmitProposal0Iterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(GovernanceModuleSubmitProposal0)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(GovernanceModuleSubmitProposal0)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *GovernanceModuleSubmitProposal0Iterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *GovernanceModuleSubmitProposal0Iterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// GovernanceModuleSubmitProposal0 represents a SubmitProposal0 event raised by the GovernanceModule contract.
+type GovernanceModuleSubmitProposal0 struct {
+	VotingPeriodStart uint64
+	Raw               types.Log // Blockchain specific contextual infos
+}
+
+// FilterSubmitProposal0 is a free log retrieval operation binding the contract event 0x2589017813316a7ce69cf2f6ff8f17600a136a66d98642921515379a8f205b9d.
+//
+// Solidity: event SubmitProposal(uint64 indexed votingPeriodStart)
+func (_GovernanceModule *GovernanceModuleFilterer) FilterSubmitProposal0(opts *bind.FilterOpts, votingPeriodStart []uint64) (*GovernanceModuleSubmitProposal0Iterator, error) {
+
+	var votingPeriodStartRule []interface{}
+	for _, votingPeriodStartItem := range votingPeriodStart {
+		votingPeriodStartRule = append(votingPeriodStartRule, votingPeriodStartItem)
+	}
+
+	logs, sub, err := _GovernanceModule.contract.FilterLogs(opts, "SubmitProposal0", votingPeriodStartRule)
+	if err != nil {
+		return nil, err
+	}
+	return &GovernanceModuleSubmitProposal0Iterator{contract: _GovernanceModule.contract, event: "SubmitProposal0", logs: logs, sub: sub}, nil
+}
+
+// WatchSubmitProposal0 is a free log subscription operation binding the contract event 0x2589017813316a7ce69cf2f6ff8f17600a136a66d98642921515379a8f205b9d.
+//
+// Solidity: event SubmitProposal(uint64 indexed votingPeriodStart)
+func (_GovernanceModule *GovernanceModuleFilterer) WatchSubmitProposal0(opts *bind.WatchOpts, sink chan<- *GovernanceModuleSubmitProposal0, votingPeriodStart []uint64) (event.Subscription, error) {
+
+	var votingPeriodStartRule []interface{}
+	for _, votingPeriodStartItem := range votingPeriodStart {
+		votingPeriodStartRule = append(votingPeriodStartRule, votingPeriodStartItem)
+	}
+
+	logs, sub, err := _GovernanceModule.contract.WatchLogs(opts, "SubmitProposal0", votingPeriodStartRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(GovernanceModuleSubmitProposal0)
+				if err := _GovernanceModule.contract.UnpackLog(event, "SubmitProposal0", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseSubmitProposal0 is a log parse operation binding the contract event 0x2589017813316a7ce69cf2f6ff8f17600a136a66d98642921515379a8f205b9d.
+//
+// Solidity: event SubmitProposal(uint64 indexed votingPeriodStart)
+func (_GovernanceModule *GovernanceModuleFilterer) ParseSubmitProposal0(log types.Log) (*GovernanceModuleSubmitProposal0, error) {
+	event := new(GovernanceModuleSubmitProposal0)
+	if err := _GovernanceModule.contract.UnpackLog(event, "SubmitProposal0", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
