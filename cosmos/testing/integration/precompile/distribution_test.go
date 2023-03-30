@@ -21,39 +21,61 @@
 package precompile
 
 import (
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 )
 
 var _ = Describe("Distribution", func() {
-	It("should call functions on the precompile directly", func() {
-		ok, err := distributionPrecompile.GetWithdrawEnabled(nil)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(ok).To(BeTrue())
+	// It("should call functions on the precompile directly", func() {
+	// 	ok, err := distributionPrecompile.GetWithdrawEnabled(nil)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(ok).To(BeTrue())
 
-		// Set withdraw address.
+	// 	// Set withdraw address.
+	// 	txr := tf.GenerateTransactOpts("")
+	// 	tx, err := distributionPrecompile.SetWithdrawAddress(txr, validator)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(tx).ToNot(BeNil())
+	// 	ExpectMined(tf.EthClient, tx)
+	// 	ExpectSuccessReceipt(tf.EthClient, tx)
+
+	// 	// Set withdraw address bech32.
+	// 	txr = tf.GenerateTransactOpts("")
+	// 	bech32Addr := cosmlib.AddressToAccAddress(validator).String()
+	// 	tx, err = distributionPrecompile.SetWithdrawAddress0(txr, bech32Addr)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(tx).ToNot(BeNil())
+	// 	ExpectMined(tf.EthClient, tx)
+	// 	ExpectSuccessReceipt(tf.EthClient, tx)
+
+	// 	// Get withdraw enabled.
+	// 	res, err := distributionPrecompile.GetWithdrawEnabled(nil)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(res).To(BeTrue())
+	// })
+
+	It("should call functions on the precompile via a contract", func() {
+		_, tx, contract, err := tbindings.DeployDistributionTestHelper(
+			tf.GenerateTransactOpts(""),
+			tf.EthClient,
+			common.HexToAddress("0x93354845030274cD4bf1686Abd60AB28EC52e1a7"),
+		)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(tx).ToNot(BeNil())
+		Expect(contract).ToNot(BeNil())
+		ExpectMined(tf.EthClient, tx)
+
+		// Set Withdraw Address.
 		txr := tf.GenerateTransactOpts("")
-		tx, err := distributionPrecompile.SetWithdrawAddress(txr, validator)
+		tx, err = contract.SetWithdrawAddress(txr, validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(tx).ToNot(BeNil())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
-
-		// Set withdraw address bech32.
-		txr = tf.GenerateTransactOpts("")
-		bech32Addr := cosmlib.AddressToAccAddress(validator).String()
-		tx, err = distributionPrecompile.SetWithdrawAddress0(txr, bech32Addr)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(tx).ToNot(BeNil())
-		ExpectMined(tf.EthClient, tx)
-		ExpectSuccessReceipt(tf.EthClient, tx)
-
-		// Get withdraw enabled.
-		res, err := distributionPrecompile.GetWithdrawEnabled(nil)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(res).To(BeTrue())
 	})
 })

@@ -29,6 +29,7 @@ import "../../../../lib/forge-std/src/Script.sol";
 import "../../../../lib/forge-std/src/console2.sol";
 import "../staking.sol";
 import "./LiquidStaking.sol";
+import "./DistributionTestHelper.sol";
 
 contract Deploy is Script {
     address precompile = address(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
@@ -45,6 +46,8 @@ contract Deploy is Script {
             precompile,
             address(0x7F04B06a9C507B366567B09E82C4bC037e87d0e6)
         );
+
+        DistributionTestHelper dth = new DistributionTestHelper(precompile);
 
         // Low-level call.
         // (bool success, bytes memory data) = address(ls).staticcall(
