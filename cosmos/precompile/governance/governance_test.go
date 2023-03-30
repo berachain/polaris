@@ -84,7 +84,7 @@ var _ = Describe("Governance Precompile", func() {
 				false,
 				"invalid",
 			)
-			Expect(err).To(MatchError(precompile.ErrInvalidAny))
+			Expect(err).To(MatchError(precompile.ErrInvalidBytes))
 			Expect(res).To(BeNil())
 		})
 		It("should fail if the initial deposit is wrong type", func() {
@@ -94,7 +94,7 @@ var _ = Describe("Governance Precompile", func() {
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{},
+				[]byte{},
 				"invalid",
 			)
 			Expect(err).To(MatchError(precompile.ErrInvalidCoin))
@@ -107,7 +107,7 @@ var _ = Describe("Governance Precompile", func() {
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{},
+				[]byte{},
 				[]generated.IGovernanceModuleCoin{},
 				123,
 			)
@@ -121,7 +121,7 @@ var _ = Describe("Governance Precompile", func() {
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{},
+				[]byte{},
 				[]generated.IGovernanceModuleCoin{},
 				"metadata",
 				123,
@@ -136,7 +136,7 @@ var _ = Describe("Governance Precompile", func() {
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{},
+				[]byte{},
 				[]generated.IGovernanceModuleCoin{},
 				"metadata",
 				"title",
@@ -152,7 +152,7 @@ var _ = Describe("Governance Precompile", func() {
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{},
+				[]byte{},
 				[]generated.IGovernanceModuleCoin{},
 				"metadata",
 				"title",
@@ -176,7 +176,7 @@ var _ = Describe("Governance Precompile", func() {
 			title := "title"
 			summary := "summary"
 
-			msg, err := codectypes.NewAnyWithValue(message)
+			msgBz, err := message.Marshal()
 			Expect(err).ToNot(HaveOccurred())
 
 			res, err := contract.SubmitProposal(
@@ -185,7 +185,7 @@ var _ = Describe("Governance Precompile", func() {
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{msg},
+				msgBz,
 				[]generated.IGovernanceModuleCoin{
 					{
 						Amount: 100,
