@@ -131,4 +131,17 @@ interface IGovernanceModule {
         string noCount;
         string noWithVetoCount;
     }
+
+    /**
+     * @dev Emitted by the governance module when `submitProposal` is called.
+     */
+    event SubmitProposal(
+        uint64 indexed proposalId,
+        string indexed proposalMessage
+    );
+
+    /**
+     * @dev Emitted by the governance module when `AddVote` is called in the msg server.
+     */
+    event ProposalVote(string indexed option, uint64 indexed proposalId);
 }

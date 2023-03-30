@@ -41,6 +41,10 @@ const (
 	int64Bits = 64
 	// notFound is a default return value for searches in which an item was not found.
 	notFound = -1
+	// uintBase is the base `uint`s are parsed in, 10.
+	uintBase = 10
+	// uint64Bits is the number of bits stored in a variabe of `uint64` type.
+	uint64Bits = 64
 )
 
 // ==============================================================================
@@ -125,6 +129,10 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 // ConvertInt64 is a `precompile.ValueDecoder`.
 func ConvertInt64(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, int64Bits)
+}
+
+func ConvertUint64(attributeValue string) (any, error) {
+	return strconv.ParseUint(attributeValue, uintBase, uint64Bits)
 }
 
 // ==============================================================================
