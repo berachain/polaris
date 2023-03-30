@@ -111,42 +111,19 @@ func (c *Contract) SubmitProposal(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	msgBz, ok := utils.GetAs[[]byte](args[0])
+	proposalBz, ok := utils.GetAs[[]byte](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidBytes
 	}
-	initialDeposit, ok := utils.GetAs[[]generated.IGovernanceModuleCoin](args[1])
+	messageBz, ok := utils.GetAs[[]byte](args[1])
 	if !ok {
-		return nil, precompile.ErrInvalidCoin
+		return nil, precompile.ErrInvalidBytes
 	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	title, ok := utils.GetAs[string](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	summary, ok := utils.GetAs[string](args[4])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	expedited, ok := utils.GetAs[bool](args[5])
-	if !ok {
-		return nil, precompile.ErrInvalidBool
-	}
-	// Unmarshal the message.
-	message, err := unmarshalMsgAndReturnAny(msgBz)
+	message, err := unmarshalMsgAndReturnAny(messageBz)
 	if err != nil {
 		return nil, err
 	}
-	// Wrap the message in a slice.
-	messageSlice := []*codectypes.Any{message}
-
-	// Caller is the proposer (msg.sender).
-	proposer := sdk.AccAddress(caller.Bytes())
-
-	return c.submitProposalHelper(ctx, messageSlice, initialDeposit, proposer, metadata, title, summary, expedited)
+	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
 }
 
 // `CancelProposal` is the method for the `cancelProposal` method of the governance precompile contract.

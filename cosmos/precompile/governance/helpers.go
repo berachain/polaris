@@ -22,6 +22,7 @@ package governance
 
 import (
 	"context"
+	"fmt"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,39 +31,24 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 )
 
-// submitProposalHelper is a helper function for the `SubmitProposal` method of the governance precompile contract.
-func (c *Contract) submitProposalHelper(
-	ctx context.Context,
-	messages []*codectypes.Any,
-	initialDeposit []generated.IGovernanceModuleCoin,
-	proposer sdk.AccAddress,
-	metadata, title, summary string,
-	expedited bool,
-) ([]any, error) {
-	coins := []sdk.Coin{}
-
-	// Convert the initial deposit to sdk.Coin.
-	for _, coin := range initialDeposit {
-		coins = append(coins, sdk.NewCoin(coin.Denom, sdk.NewIntFromUint64(coin.Amount)))
+// `submitProposalHelper` is a helper function for the `SubmitProposal` method of the governance precompile contract.
+func (c *Contract) submitProposalHelper(ctx context.Context, proposalBz []byte, message []*codectypes.Any) ([]any, error) {
+	// Decode the proposal.
+	var proposal v1.MsgSubmitProposal
+	if err := proposal.Unmarshal(proposalBz); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal proposal: %w", err)
 	}
+	proposal.Messages = message
 
-	res, err := c.msgServer.SubmitProposal(ctx, &v1.MsgSubmitProposal{
-		Messages:       messages,
-		InitialDeposit: coins,
-		Proposer:       proposer.String(),
-		Metadata:       metadata,
-		Title:          title,
-		Summary:        summary,
-		Expedited:      expedited,
-	})
+	// Submit the message.
+	res, err := c.msgServer.SubmitProposal(ctx, &proposal)
 	if err != nil {
 		return nil, err
 	}
-
 	return []any{res.ProposalId}, nil
 }
 
-// cancelProposalHelper is a helper function for the `CancelProposal` method of the governance precompile contract.
+// `cancelProposalHelper` is a helper function for the `CancelProposal` method of the governance precompile contract.
 func (c *Contract) cancelProposalHelper(
 	ctx context.Context,
 	proposer sdk.AccAddress,
@@ -79,7 +65,7 @@ func (c *Contract) cancelProposalHelper(
 	return []any{uint64(res.CanceledTime.Unix()), res.CanceledHeight}, nil
 }
 
-// voteHelper is a helper function for the `Vote` method of the governance precompile contract.
+// `voteHelper` is a helper function for the `Vote` method of the governance precompile contract.
 func (c *Contract) voteHelper(
 	ctx context.Context,
 	voter sdk.AccAddress,
@@ -97,7 +83,7 @@ func (c *Contract) voteHelper(
 	return []any{err == nil}, err
 }
 
-// voteWeighted is a helper function for the `VoteWeighted` method of the governance precompile contract.
+// `voteWeighted` is a helper function for the `VoteWeighted` method of the governance precompile contract.
 func (c *Contract) voteWeightedHelper(
 	ctx context.Context,
 	voter sdk.AccAddress,
@@ -125,7 +111,7 @@ func (c *Contract) voteWeightedHelper(
 	return []any{err == nil}, err
 }
 
-// getProposalHelper is a helper function for the `GetProposal` method of the governance precompile contract.
+// `getProposalHelper` is a helper function for the `GetProposal` method of the governance precompile contract.
 func (c *Contract) getProposalHelper(ctx context.Context, proposalID uint64) ([]any, error) {
 	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
 		ProposalId: proposalID,
@@ -136,7 +122,7 @@ func (c *Contract) getProposalHelper(ctx context.Context, proposalID uint64) ([]
 	return []any{transformProposalToABIProposal(*res.Proposal)}, nil
 }
 
-// getProposalsHelper is a helper function for the `GetProposal` method of the governance precompile contract.
+// `getProposalsHelper` is a helper function for the `GetProposal` method of the governance precompile contract.
 func (c *Contract) getProposalsHelper(
 	ctx context.Context,
 	proposalStatus int32,
@@ -156,7 +142,7 @@ func (c *Contract) getProposalsHelper(
 	return []any{proposals}, nil
 }
 
-// transformProposalToABIProposal is a helper function to transform a `v1.Proposal`
+// `transformProposalToABIProposal` is a helper function to transform a `v1.Proposal`
 // to an `IGovernanceModule.Proposal`.
 func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceModuleProposal {
 	message := make([]byte, 0)
