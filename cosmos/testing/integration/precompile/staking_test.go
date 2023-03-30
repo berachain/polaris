@@ -25,10 +25,13 @@ import (
 	"os"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -36,9 +39,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 )
 
 func TestCosmosPrecompiles(t *testing.T) {
@@ -75,40 +75,6 @@ var _ = SynchronizedAfterSuite(func() {
 })
 
 var _ = Describe("Staking", func() {
-	// TODO: Move to own file once setup.go is merged in here.
-	When("Testing Governance Precompile", func() {
-		It("Should be able to submit a proposal", func() {
-			// Prepare the Message.
-			govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
-			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
-			message := &banktypes.MsgSend{
-				FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
-				ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
-				Amount:      initDeposit,
-			}
-			messageBz, err := message.Marshal()
-			Expect(err).ToNot(HaveOccurred())
-			// Prepare the Proposal.
-			proposal := v1.MsgSubmitProposal{
-				InitialDeposit: initDeposit,
-				Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
-				Metadata:       "metadata",
-				Title:          "title",
-				Summary:        "summary",
-				Expedited:      false,
-			}
-			proposalBz, err := proposal.Marshal()
-			Expect(err).ToNot(HaveOccurred())
-
-			// Submit the transaction.
-			txr := tf.GenerateTransactOpts("")
-			txr.Value = big.NewInt(100e16)
-			tx, err := governancePrecompile.SubmitProposal(txr, proposalBz, messageBz)
-			Expect(err).ToNot(HaveOccurred())
-			ExpectMined(tf.EthClient, tx)
-		})
-	})
-
 	It("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
@@ -165,6 +131,74 @@ var _ = Describe("Staking", func() {
 		value, err = contract.TotalDelegated(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(value.Cmp(big.NewInt(100000000000))).To(Equal(0))
+	})
+	// TODO: Move to own file once setup.go is merged in here.
+	When("Testing Governance Precompile", func() {
+		It("Should be able to submit a proposal", func() {
+			// Prepare the Message.
+			govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
+			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
+			message := &banktypes.MsgSend{
+				FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
+				ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				Amount:      initDeposit,
+			}
+			messageBz, err := message.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+			// Prepare the Proposal.
+			proposal := v1.MsgSubmitProposal{
+				InitialDeposit: initDeposit,
+				Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				Metadata:       "metadata",
+				Title:          "title",
+				Summary:        "summary",
+				Expedited:      false,
+			}
+			proposalBz, err := proposal.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+
+			// Submit the transaction.
+			txr := tf.GenerateTransactOpts("")
+			txr.Value = big.NewInt(100)
+			tx, err := governancePrecompile.SubmitProposal(txr, proposalBz, messageBz)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectMined(tf.EthClient, tx)
+
+			// Get a proposal from the chain.
+			res, err := governancePrecompile.GetProposal(nil, 2)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res.Id).To(Equal(uint64(2)))
+
+			// Get the proposals from the chain.
+			proposals, err := governancePrecompile.GetProposals(nil, 0)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(proposals).To(HaveLen(2)) // one in genesis, one we just submitted.
+
+			// Vote on the proposal.
+			txr = tf.GenerateTransactOpts("")
+			tx, err = governancePrecompile.Vote(txr, 2, 1, "metadata")
+			Expect(err).ToNot(HaveOccurred())
+			ExpectMined(tf.EthClient, tx)
+
+			// TODO: Fix this test.
+			// Vote Weighted.
+			// txr = tf.GenerateTransactOpts("")
+			// weight, err := math.LegacyNewDecFromStr("0.4")
+			// Expect(err).ToNot(HaveOccurred())
+			// tx, err = governancePrecompile.VoteWeighted(
+			// 	txr,
+			// 	2,
+			// 	[]bindings.IGovernanceModuleWeightedVoteOption{
+			// 		{
+			// 			VoteOption: int32(1),
+			// 			Weight:     weight.String(),
+			// 		},
+			// 	},
+			// 	"metadata",
+			// )
+			// Expect(err).ToNot(HaveOccurred())
+			// ExpectMined(tf.EthClient, tx)
+		})
 	})
 
 })

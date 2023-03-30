@@ -172,17 +172,21 @@ func BuildGenesisState() map[string]json.RawMessage {
 	var governanceState v1.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &governanceState)
 	// Create the proposal message.
+	// subtract one hour from  time.Now .
+	voteStart := time.Now().Add(-time.Hour)
+	//nolint:gomnd // 2 days.
+	voteEnd := voteStart.Add(time.Hour * 24 * 2)
 	proposal := &v1.Proposal{
-		Id:               2,
+		Id:               2, //nolint:gomnd // not important.
 		Proposer:         TestAddress.String(),
 		Messages:         []*codectypes.Any{},
 		Status:           v1.StatusVotingPeriod,
 		FinalTallyResult: &v1.TallyResult{},
 		SubmitTime:       &time.Time{},
 		DepositEndTime:   &time.Time{},
-		TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
-		VotingStartTime:  &time.Time{},
-		VotingEndTime:    &time.Time{},
+		TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(onehundred))),
+		VotingStartTime:  &voteStart,
+		VotingEndTime:    &voteEnd,
 		Metadata:         "metadata",
 		Title:            "title",
 		Summary:          "summary",
