@@ -132,7 +132,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		BeforeEach(func() {})
 
 		When("GetBalance", func() {
-			It("should fail if input is not a common.Address", func() {
+			It("should fail if input address is not a common.Address", func() {
 				res, err := contract.GetBalance(
 					ctx,
 					nil,
@@ -140,8 +140,38 @@ var _ = Describe("Bank Precompile Test", func() {
 					big.NewInt(0),
 					true,
 					"0x",
+					"stake",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if input denom is not a valid string", func() {
+				res, err := contract.GetBalance(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(acc),
+					666,
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if input denom is not a valid denom", func() {
+				res, err := contract.GetBalance(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(acc),
+					"_invalid_denom",
+				)
+				// reDnmString = `[a-zA-Z][a-zA-Z0-9/:._-]{2,127}`
+				Expect(err).To(HaveOccurred())
 				Expect(res).To(BeNil())
 			})
 
@@ -175,6 +205,70 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(balanceAmount))
+			})
+		})
+
+		When("GetSupplyOf", func() {
+			It("should fail if input denom is not a valid string", func() {
+				res, err := contract.GetSupplyOf(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					666,
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if input denom is not a valid Denom", func() {
+				res, err := contract.GetSupplyOf(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					"_invalid_denom",
+				)
+				// fmt.Errorf("invalid denom: %s", denom)
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("should succeed", func() {
+				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+				balanceAmount3, ok := new(big.Int).SetString("66000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+
+				accs := simtestutil.CreateRandomAccounts(3)
+
+				for i := 0; i < 3; i++ {
+					err := FundAccount(
+						ctx,
+						bk,
+						accs[i],
+						sdk.NewCoins(
+							sdk.NewCoin(
+								denom,
+								sdk.NewIntFromBigInt(balanceAmount),
+							),
+						),
+					)
+					Expect(err).ToNot(HaveOccurred())
+				}
+
+				res, err := contract.GetSupplyOf(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					denom,
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res[0]).To(Equal(balanceAmount3))
 			})
 		})
 	})

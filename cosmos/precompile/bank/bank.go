@@ -28,9 +28,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -70,6 +67,10 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		// 	AbiSig:  "getAllBalance(address)",
 		// 	Execute: c.GetAllBalance,
 		// },
+		{
+			AbiSig:  "getSupplyOf(string)",
+			Execute: c.GetSupplyOf,
+		},
 	}
 }
 
@@ -88,17 +89,14 @@ func (c *Contract) GetBalance(
 	}
 	denom, ok := utils.GetAs[string](args[1])
 	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
+		return nil, precompile.ErrInvalidString
 	}
 
 	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: cosmlib.AddressToAccAddress(addr).String(),
 		Denom:   denom,
 	})
-	if status.Code(err) == codes.NotFound {
-		// handle the case where the delegation does not exist
-		return []any{big.NewInt(0)}, nil
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -122,7 +120,6 @@ func (c *Contract) GetBalance(
 
 // 	// AllBalances(context.Context, *QueryAllBalancesRequest) (*QueryAllBalancesResponse, error)
 
-
 // 	// type QueryAllBalancesRequest struct {
 // 	// 	// address is the address to query balances for.
 // 	// 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
@@ -134,7 +131,6 @@ func (c *Contract) GetBalance(
 // 	// 	ResolveDenom bool `protobuf:"varint,3,opt,name=resolve_denom,json=resolveDenom,proto3" json:"resolve_denom,omitempty"`
 // 	// }
 
-	
 // 	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
 // 		Address: cosmlib.AddressToAccAddress(addr).String(),
 // 	})
@@ -156,5 +152,28 @@ func (c *Contract) GetBalance(
 // 	// res.Balances
 // 	// res.Pagination
 
-// 	return []any{[]Coin}, nil
-// }
+//		return []any{[]Coin}, nil
+//	}
+func (c *Contract) GetSupplyOf(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	denom, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	res, err := c.querier.SupplyOf(ctx, &banktypes.QuerySupplyOfRequest{
+		Denom: denom,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	supply := res.GetAmount().Amount
+	return []any{supply.BigInt()}, nil
+}

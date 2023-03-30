@@ -80,8 +80,8 @@ interface IBankModule {
 // func (k BaseKeeper) TotalSupply(ctx context.Context, req *types.QueryTotalSupplyRequest) (*types.QueryTotalSupplyResponse, error) {
 //     function getTotalSupply() external view returns (uint256);
 
-// func (k BaseKeeper) SupplyOf(c context.Context, req *types.QuerySupplyOfRequest) (*types.QuerySupplyOfResponse, error) {
-//     function geSupplyOf() external view returns (uint256);
+
+    function geSupplyOf(string calldata denom) external view returns (uint256);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
