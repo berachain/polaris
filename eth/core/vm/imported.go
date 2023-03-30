@@ -43,6 +43,7 @@ type (
 var (
 	NewGethEVMWithPrecompiles     = vm.NewEVMWithPrecompiles
 	ErrOutOfGas                   = vm.ErrOutOfGas
+	ErrExecutionReverted          = vm.ErrExecutionReverted
 	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
 	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
 	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead
