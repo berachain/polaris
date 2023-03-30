@@ -27,11 +27,11 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -96,8 +96,13 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		govtypes.AttributeKeyProposalID: log.ConvertUint64,
-		govtypes.AttributeKeyProposalMessages: func(attributeValue string) (ethPrimitive any, err error) {
+		govtypes.AttributeKeyProposalMessages: func(attributeValue string) (any, error) {
 			return attributeValue, nil
+		},
+		govtypes.AttributeKeyVotingPeriodStart: log.ConvertUint64,
+		sdk.AttributeKeyAmount:                 log.ConvertSdkCoin,
+		govtypes.AttributeKeyOption: func(attributeValue string) (any, error) {
+			return "options", nil
 		},
 	}
 }
@@ -236,9 +241,9 @@ func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
 	if err := msg.Unmarshal(bz); err != nil {
 		return nil, err
 	}
-	any, err := codectypes.NewAnyWithValue(&msg)
+	anyValue, err := codectypes.NewAnyWithValue(&msg)
 	if err != nil {
 		return nil, err
 	}
-	return any, nil
+	return anyValue, nil
 }

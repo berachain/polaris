@@ -32,7 +32,11 @@ import (
 )
 
 // `submitProposalHelper` is a helper function for the `SubmitProposal` method of the governance precompile contract.
-func (c *Contract) submitProposalHelper(ctx context.Context, proposalBz []byte, message []*codectypes.Any) ([]any, error) {
+func (c *Contract) submitProposalHelper(
+	ctx context.Context,
+	proposalBz []byte,
+	message []*codectypes.Any,
+) ([]any, error) {
 	// Decode the proposal.
 	var proposal v1.MsgSubmitProposal
 	if err := proposal.Unmarshal(proposalBz); err != nil {
@@ -168,14 +172,12 @@ func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceM
 			NoCount:         proposal.FinalTallyResult.NoCount,
 			NoWithVetoCount: proposal.FinalTallyResult.NoWithVetoCount,
 		},
-		SubmitTime:      uint64(proposal.SubmitTime.Unix()),
-		DepositEndTime:  uint64(proposal.DepositEndTime.Unix()),
-		TotalDeposit:    totalDeposit,
-		VotingStartTime: uint64(proposal.VotingStartTime.Unix()),
-		VotingEndTime:   uint64(proposal.VotingEndTime.Unix()),
-		Metadata:        proposal.Metadata,
-		Title:           proposal.Title,
-		Summary:         proposal.Summary,
-		Proposer:        proposal.Proposer,
+		SubmitTime:     uint64(proposal.SubmitTime.Unix()),
+		DepositEndTime: uint64(proposal.DepositEndTime.Unix()),
+		TotalDeposit:   totalDeposit,
+		Metadata:       proposal.Metadata,
+		Title:          proposal.Title,
+		Summary:        proposal.Summary,
+		Proposer:       proposal.Proposer,
 	}
 }
