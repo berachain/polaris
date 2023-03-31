@@ -30,7 +30,7 @@ const (
 	AddressToDenomKeyPrefix
 )
 
-const (
-	MintBurn int8 = iota
-	Escrow
+var (
+	AttributeKeyToken = "token"
+	AttributeKeyDenom = "denom"
 )

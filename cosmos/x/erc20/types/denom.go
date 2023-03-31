@@ -40,13 +40,3 @@ func DenomForAddress(addr common.Address) string {
 func IsPolarisDenom(denom string) bool {
 	return len(denom) > 8 && denom[:8] == polarisDenomPrefix
 }
-
-// ShimHandlerType returns the type of the handler.
-func ShimHandlerType(denoom string) int8 {
-	// We mint burn for polaris controlled ERC20 tokens.
-	if IsPolarisDenom(denoom) {
-		return MintBurn
-	}
-	// We escrow for all other ERC20 tokens.
-	return Escrow
-}
