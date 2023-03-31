@@ -15,25 +15,25 @@ import (
 )
 
 var (
-	md_ERC20AddressForDenomRequest       protoreflect.MessageDescriptor
-	fd_ERC20AddressForDenomRequest_denom protoreflect.FieldDescriptor
+	md_ERC20AddressForCoinDenomRequest       protoreflect.MessageDescriptor
+	fd_ERC20AddressForCoinDenomRequest_denom protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_polaris_erc20_v1alpha1_query_proto_init()
-	md_ERC20AddressForDenomRequest = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("ERC20AddressForDenomRequest")
-	fd_ERC20AddressForDenomRequest_denom = md_ERC20AddressForDenomRequest.Fields().ByName("denom")
+	md_ERC20AddressForCoinDenomRequest = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("ERC20AddressForCoinDenomRequest")
+	fd_ERC20AddressForCoinDenomRequest_denom = md_ERC20AddressForCoinDenomRequest.Fields().ByName("denom")
 }
 
-var _ protoreflect.Message = (*fastReflection_ERC20AddressForDenomRequest)(nil)
+var _ protoreflect.Message = (*fastReflection_ERC20AddressForCoinDenomRequest)(nil)
 
-type fastReflection_ERC20AddressForDenomRequest ERC20AddressForDenomRequest
+type fastReflection_ERC20AddressForCoinDenomRequest ERC20AddressForCoinDenomRequest
 
-func (x *ERC20AddressForDenomRequest) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_ERC20AddressForDenomRequest)(x)
+func (x *ERC20AddressForCoinDenomRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_ERC20AddressForCoinDenomRequest)(x)
 }
 
-func (x *ERC20AddressForDenomRequest) slowProtoReflect() protoreflect.Message {
+func (x *ERC20AddressForCoinDenomRequest) slowProtoReflect() protoreflect.Message {
 	mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -45,43 +45,43 @@ func (x *ERC20AddressForDenomRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_ERC20AddressForDenomRequest_messageType fastReflection_ERC20AddressForDenomRequest_messageType
-var _ protoreflect.MessageType = fastReflection_ERC20AddressForDenomRequest_messageType{}
+var _fastReflection_ERC20AddressForCoinDenomRequest_messageType fastReflection_ERC20AddressForCoinDenomRequest_messageType
+var _ protoreflect.MessageType = fastReflection_ERC20AddressForCoinDenomRequest_messageType{}
 
-type fastReflection_ERC20AddressForDenomRequest_messageType struct{}
+type fastReflection_ERC20AddressForCoinDenomRequest_messageType struct{}
 
-func (x fastReflection_ERC20AddressForDenomRequest_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_ERC20AddressForDenomRequest)(nil)
+func (x fastReflection_ERC20AddressForCoinDenomRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_ERC20AddressForCoinDenomRequest)(nil)
 }
-func (x fastReflection_ERC20AddressForDenomRequest_messageType) New() protoreflect.Message {
-	return new(fastReflection_ERC20AddressForDenomRequest)
+func (x fastReflection_ERC20AddressForCoinDenomRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_ERC20AddressForCoinDenomRequest)
 }
-func (x fastReflection_ERC20AddressForDenomRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_ERC20AddressForDenomRequest
+func (x fastReflection_ERC20AddressForCoinDenomRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_ERC20AddressForCoinDenomRequest
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_ERC20AddressForDenomRequest) Descriptor() protoreflect.MessageDescriptor {
-	return md_ERC20AddressForDenomRequest
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_ERC20AddressForCoinDenomRequest
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_ERC20AddressForDenomRequest) Type() protoreflect.MessageType {
-	return _fastReflection_ERC20AddressForDenomRequest_messageType
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Type() protoreflect.MessageType {
+	return _fastReflection_ERC20AddressForCoinDenomRequest_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_ERC20AddressForDenomRequest) New() protoreflect.Message {
-	return new(fastReflection_ERC20AddressForDenomRequest)
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) New() protoreflect.Message {
+	return new(fastReflection_ERC20AddressForCoinDenomRequest)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_ERC20AddressForDenomRequest) Interface() protoreflect.ProtoMessage {
-	return (*ERC20AddressForDenomRequest)(x)
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Interface() protoreflect.ProtoMessage {
+	return (*ERC20AddressForCoinDenomRequest)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -89,10 +89,10 @@ func (x *fastReflection_ERC20AddressForDenomRequest) Interface() protoreflect.Pr
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_ERC20AddressForDenomRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.Denom != "" {
 		value := protoreflect.ValueOfString(x.Denom)
-		if !f(fd_ERC20AddressForDenomRequest_denom, value) {
+		if !f(fd_ERC20AddressForCoinDenomRequest_denom, value) {
 			return
 		}
 	}
@@ -109,15 +109,15 @@ func (x *fastReflection_ERC20AddressForDenomRequest) Range(f func(protoreflect.F
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_ERC20AddressForDenomRequest) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomRequest.denom":
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest.denom":
 		return x.Denom != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -127,15 +127,15 @@ func (x *fastReflection_ERC20AddressForDenomRequest) Has(fd protoreflect.FieldDe
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomRequest) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomRequest.denom":
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest.denom":
 		x.Denom = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -145,16 +145,16 @@ func (x *fastReflection_ERC20AddressForDenomRequest) Clear(fd protoreflect.Field
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_ERC20AddressForDenomRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomRequest.denom":
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest.denom":
 		value := x.Denom
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -168,15 +168,15 @@ func (x *fastReflection_ERC20AddressForDenomRequest) Get(descriptor protoreflect
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomRequest.denom":
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest.denom":
 		x.Denom = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -190,40 +190,40 @@ func (x *fastReflection_ERC20AddressForDenomRequest) Set(fd protoreflect.FieldDe
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomRequest.denom":
-		panic(fmt.Errorf("field denom of message polaris.erc20.v1alpha1.ERC20AddressForDenomRequest is not mutable"))
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest.denom":
+		panic(fmt.Errorf("field denom of message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_ERC20AddressForDenomRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomRequest.denom":
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest.denom":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_ERC20AddressForDenomRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.ERC20AddressForDenomRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -231,7 +231,7 @@ func (x *fastReflection_ERC20AddressForDenomRequest) WhichOneof(d protoreflect.O
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_ERC20AddressForDenomRequest) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -242,7 +242,7 @@ func (x *fastReflection_ERC20AddressForDenomRequest) GetUnknown() protoreflect.R
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomRequest) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -254,7 +254,7 @@ func (x *fastReflection_ERC20AddressForDenomRequest) SetUnknown(fields protorefl
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_ERC20AddressForDenomRequest) IsValid() bool {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) IsValid() bool {
 	return x != nil
 }
 
@@ -264,9 +264,9 @@ func (x *fastReflection_ERC20AddressForDenomRequest) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_ERC20AddressForDenomRequest) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_ERC20AddressForCoinDenomRequest) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*ERC20AddressForDenomRequest)
+		x := input.Message.Interface().(*ERC20AddressForCoinDenomRequest)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -292,7 +292,7 @@ func (x *fastReflection_ERC20AddressForDenomRequest) ProtoMethods() *protoiface.
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*ERC20AddressForDenomRequest)
+		x := input.Message.Interface().(*ERC20AddressForCoinDenomRequest)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -329,7 +329,7 @@ func (x *fastReflection_ERC20AddressForDenomRequest) ProtoMethods() *protoiface.
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*ERC20AddressForDenomRequest)
+		x := input.Message.Interface().(*ERC20AddressForCoinDenomRequest)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -361,10 +361,10 @@ func (x *fastReflection_ERC20AddressForDenomRequest) ProtoMethods() *protoiface.
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForDenomRequest: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForCoinDenomRequest: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForDenomRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForCoinDenomRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -435,25 +435,25 @@ func (x *fastReflection_ERC20AddressForDenomRequest) ProtoMethods() *protoiface.
 }
 
 var (
-	md_ERC20AddressForDenomResponse         protoreflect.MessageDescriptor
-	fd_ERC20AddressForDenomResponse_address protoreflect.FieldDescriptor
+	md_ERC20AddressForCoinDenomResponse       protoreflect.MessageDescriptor
+	fd_ERC20AddressForCoinDenomResponse_token protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_polaris_erc20_v1alpha1_query_proto_init()
-	md_ERC20AddressForDenomResponse = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("ERC20AddressForDenomResponse")
-	fd_ERC20AddressForDenomResponse_address = md_ERC20AddressForDenomResponse.Fields().ByName("address")
+	md_ERC20AddressForCoinDenomResponse = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("ERC20AddressForCoinDenomResponse")
+	fd_ERC20AddressForCoinDenomResponse_token = md_ERC20AddressForCoinDenomResponse.Fields().ByName("token")
 }
 
-var _ protoreflect.Message = (*fastReflection_ERC20AddressForDenomResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_ERC20AddressForCoinDenomResponse)(nil)
 
-type fastReflection_ERC20AddressForDenomResponse ERC20AddressForDenomResponse
+type fastReflection_ERC20AddressForCoinDenomResponse ERC20AddressForCoinDenomResponse
 
-func (x *ERC20AddressForDenomResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_ERC20AddressForDenomResponse)(x)
+func (x *ERC20AddressForCoinDenomResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_ERC20AddressForCoinDenomResponse)(x)
 }
 
-func (x *ERC20AddressForDenomResponse) slowProtoReflect() protoreflect.Message {
+func (x *ERC20AddressForCoinDenomResponse) slowProtoReflect() protoreflect.Message {
 	mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -465,43 +465,43 @@ func (x *ERC20AddressForDenomResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_ERC20AddressForDenomResponse_messageType fastReflection_ERC20AddressForDenomResponse_messageType
-var _ protoreflect.MessageType = fastReflection_ERC20AddressForDenomResponse_messageType{}
+var _fastReflection_ERC20AddressForCoinDenomResponse_messageType fastReflection_ERC20AddressForCoinDenomResponse_messageType
+var _ protoreflect.MessageType = fastReflection_ERC20AddressForCoinDenomResponse_messageType{}
 
-type fastReflection_ERC20AddressForDenomResponse_messageType struct{}
+type fastReflection_ERC20AddressForCoinDenomResponse_messageType struct{}
 
-func (x fastReflection_ERC20AddressForDenomResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_ERC20AddressForDenomResponse)(nil)
+func (x fastReflection_ERC20AddressForCoinDenomResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_ERC20AddressForCoinDenomResponse)(nil)
 }
-func (x fastReflection_ERC20AddressForDenomResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_ERC20AddressForDenomResponse)
+func (x fastReflection_ERC20AddressForCoinDenomResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_ERC20AddressForCoinDenomResponse)
 }
-func (x fastReflection_ERC20AddressForDenomResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_ERC20AddressForDenomResponse
+func (x fastReflection_ERC20AddressForCoinDenomResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_ERC20AddressForCoinDenomResponse
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_ERC20AddressForDenomResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_ERC20AddressForDenomResponse
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_ERC20AddressForCoinDenomResponse
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_ERC20AddressForDenomResponse) Type() protoreflect.MessageType {
-	return _fastReflection_ERC20AddressForDenomResponse_messageType
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Type() protoreflect.MessageType {
+	return _fastReflection_ERC20AddressForCoinDenomResponse_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_ERC20AddressForDenomResponse) New() protoreflect.Message {
-	return new(fastReflection_ERC20AddressForDenomResponse)
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) New() protoreflect.Message {
+	return new(fastReflection_ERC20AddressForCoinDenomResponse)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_ERC20AddressForDenomResponse) Interface() protoreflect.ProtoMessage {
-	return (*ERC20AddressForDenomResponse)(x)
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Interface() protoreflect.ProtoMessage {
+	return (*ERC20AddressForCoinDenomResponse)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -509,10 +509,10 @@ func (x *fastReflection_ERC20AddressForDenomResponse) Interface() protoreflect.P
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_ERC20AddressForDenomResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Address != "" {
-		value := protoreflect.ValueOfString(x.Address)
-		if !f(fd_ERC20AddressForDenomResponse_address, value) {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Token != "" {
+		value := protoreflect.ValueOfString(x.Token)
+		if !f(fd_ERC20AddressForCoinDenomResponse_token, value) {
 			return
 		}
 	}
@@ -529,15 +529,15 @@ func (x *fastReflection_ERC20AddressForDenomResponse) Range(f func(protoreflect.
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_ERC20AddressForDenomResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomResponse.address":
-		return x.Address != ""
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse.token":
+		return x.Token != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -547,15 +547,15 @@ func (x *fastReflection_ERC20AddressForDenomResponse) Has(fd protoreflect.FieldD
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomResponse.address":
-		x.Address = ""
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse.token":
+		x.Token = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -565,16 +565,16 @@ func (x *fastReflection_ERC20AddressForDenomResponse) Clear(fd protoreflect.Fiel
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_ERC20AddressForDenomResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomResponse.address":
-		value := x.Address
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse.token":
+		value := x.Token
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -588,15 +588,15 @@ func (x *fastReflection_ERC20AddressForDenomResponse) Get(descriptor protoreflec
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomResponse.address":
-		x.Address = value.Interface().(string)
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse.token":
+		x.Token = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -610,40 +610,40 @@ func (x *fastReflection_ERC20AddressForDenomResponse) Set(fd protoreflect.FieldD
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomResponse.address":
-		panic(fmt.Errorf("field address of message polaris.erc20.v1alpha1.ERC20AddressForDenomResponse is not mutable"))
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse.token":
+		panic(fmt.Errorf("field token of message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_ERC20AddressForDenomResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.ERC20AddressForDenomResponse.address":
+	case "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse.token":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForDenomResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForDenomResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_ERC20AddressForDenomResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.ERC20AddressForDenomResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -651,7 +651,7 @@ func (x *fastReflection_ERC20AddressForDenomResponse) WhichOneof(d protoreflect.
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_ERC20AddressForDenomResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -662,7 +662,7 @@ func (x *fastReflection_ERC20AddressForDenomResponse) GetUnknown() protoreflect.
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_ERC20AddressForDenomResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -674,7 +674,7 @@ func (x *fastReflection_ERC20AddressForDenomResponse) SetUnknown(fields protoref
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_ERC20AddressForDenomResponse) IsValid() bool {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) IsValid() bool {
 	return x != nil
 }
 
@@ -684,9 +684,9 @@ func (x *fastReflection_ERC20AddressForDenomResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_ERC20AddressForCoinDenomResponse) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*ERC20AddressForDenomResponse)
+		x := input.Message.Interface().(*ERC20AddressForCoinDenomResponse)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -698,7 +698,7 @@ func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface
 		var n int
 		var l int
 		_ = l
-		l = len(x.Address)
+		l = len(x.Token)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -712,7 +712,7 @@ func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*ERC20AddressForDenomResponse)
+		x := input.Message.Interface().(*ERC20AddressForCoinDenomResponse)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -731,10 +731,10 @@ func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.Address) > 0 {
-			i -= len(x.Address)
-			copy(dAtA[i:], x.Address)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Address)))
+		if len(x.Token) > 0 {
+			i -= len(x.Token)
+			copy(dAtA[i:], x.Token)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Token)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -749,7 +749,7 @@ func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*ERC20AddressForDenomResponse)
+		x := input.Message.Interface().(*ERC20AddressForCoinDenomResponse)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -781,15 +781,15 @@ func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForDenomResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForCoinDenomResponse: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForDenomResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ERC20AddressForCoinDenomResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -817,7 +817,7 @@ func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Address = string(dAtA[iNdEx:postIndex])
+				x.Token = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -855,25 +855,25 @@ func (x *fastReflection_ERC20AddressForDenomResponse) ProtoMethods() *protoiface
 }
 
 var (
-	md_DenomForERC20AddressRequest         protoreflect.MessageDescriptor
-	fd_DenomForERC20AddressRequest_address protoreflect.FieldDescriptor
+	md_CoinDenomForERC20AddressRequest       protoreflect.MessageDescriptor
+	fd_CoinDenomForERC20AddressRequest_token protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_polaris_erc20_v1alpha1_query_proto_init()
-	md_DenomForERC20AddressRequest = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("DenomForERC20AddressRequest")
-	fd_DenomForERC20AddressRequest_address = md_DenomForERC20AddressRequest.Fields().ByName("address")
+	md_CoinDenomForERC20AddressRequest = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("CoinDenomForERC20AddressRequest")
+	fd_CoinDenomForERC20AddressRequest_token = md_CoinDenomForERC20AddressRequest.Fields().ByName("token")
 }
 
-var _ protoreflect.Message = (*fastReflection_DenomForERC20AddressRequest)(nil)
+var _ protoreflect.Message = (*fastReflection_CoinDenomForERC20AddressRequest)(nil)
 
-type fastReflection_DenomForERC20AddressRequest DenomForERC20AddressRequest
+type fastReflection_CoinDenomForERC20AddressRequest CoinDenomForERC20AddressRequest
 
-func (x *DenomForERC20AddressRequest) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_DenomForERC20AddressRequest)(x)
+func (x *CoinDenomForERC20AddressRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_CoinDenomForERC20AddressRequest)(x)
 }
 
-func (x *DenomForERC20AddressRequest) slowProtoReflect() protoreflect.Message {
+func (x *CoinDenomForERC20AddressRequest) slowProtoReflect() protoreflect.Message {
 	mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -885,43 +885,43 @@ func (x *DenomForERC20AddressRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_DenomForERC20AddressRequest_messageType fastReflection_DenomForERC20AddressRequest_messageType
-var _ protoreflect.MessageType = fastReflection_DenomForERC20AddressRequest_messageType{}
+var _fastReflection_CoinDenomForERC20AddressRequest_messageType fastReflection_CoinDenomForERC20AddressRequest_messageType
+var _ protoreflect.MessageType = fastReflection_CoinDenomForERC20AddressRequest_messageType{}
 
-type fastReflection_DenomForERC20AddressRequest_messageType struct{}
+type fastReflection_CoinDenomForERC20AddressRequest_messageType struct{}
 
-func (x fastReflection_DenomForERC20AddressRequest_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_DenomForERC20AddressRequest)(nil)
+func (x fastReflection_CoinDenomForERC20AddressRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_CoinDenomForERC20AddressRequest)(nil)
 }
-func (x fastReflection_DenomForERC20AddressRequest_messageType) New() protoreflect.Message {
-	return new(fastReflection_DenomForERC20AddressRequest)
+func (x fastReflection_CoinDenomForERC20AddressRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_CoinDenomForERC20AddressRequest)
 }
-func (x fastReflection_DenomForERC20AddressRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_DenomForERC20AddressRequest
+func (x fastReflection_CoinDenomForERC20AddressRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_CoinDenomForERC20AddressRequest
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_DenomForERC20AddressRequest) Descriptor() protoreflect.MessageDescriptor {
-	return md_DenomForERC20AddressRequest
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_CoinDenomForERC20AddressRequest
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_DenomForERC20AddressRequest) Type() protoreflect.MessageType {
-	return _fastReflection_DenomForERC20AddressRequest_messageType
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Type() protoreflect.MessageType {
+	return _fastReflection_CoinDenomForERC20AddressRequest_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_DenomForERC20AddressRequest) New() protoreflect.Message {
-	return new(fastReflection_DenomForERC20AddressRequest)
+func (x *fastReflection_CoinDenomForERC20AddressRequest) New() protoreflect.Message {
+	return new(fastReflection_CoinDenomForERC20AddressRequest)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_DenomForERC20AddressRequest) Interface() protoreflect.ProtoMessage {
-	return (*DenomForERC20AddressRequest)(x)
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Interface() protoreflect.ProtoMessage {
+	return (*CoinDenomForERC20AddressRequest)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -929,10 +929,10 @@ func (x *fastReflection_DenomForERC20AddressRequest) Interface() protoreflect.Pr
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_DenomForERC20AddressRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Address != "" {
-		value := protoreflect.ValueOfString(x.Address)
-		if !f(fd_DenomForERC20AddressRequest_address, value) {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Token != "" {
+		value := protoreflect.ValueOfString(x.Token)
+		if !f(fd_CoinDenomForERC20AddressRequest_token, value) {
 			return
 		}
 	}
@@ -949,15 +949,15 @@ func (x *fastReflection_DenomForERC20AddressRequest) Range(f func(protoreflect.F
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_DenomForERC20AddressRequest) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressRequest.address":
-		return x.Address != ""
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest.token":
+		return x.Token != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -967,15 +967,15 @@ func (x *fastReflection_DenomForERC20AddressRequest) Has(fd protoreflect.FieldDe
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressRequest) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressRequest.address":
-		x.Address = ""
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest.token":
+		x.Token = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -985,16 +985,16 @@ func (x *fastReflection_DenomForERC20AddressRequest) Clear(fd protoreflect.Field
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_DenomForERC20AddressRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressRequest.address":
-		value := x.Address
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest.token":
+		value := x.Token
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1008,15 +1008,15 @@ func (x *fastReflection_DenomForERC20AddressRequest) Get(descriptor protoreflect
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressRequest.address":
-		x.Address = value.Interface().(string)
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest.token":
+		x.Token = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1030,40 +1030,40 @@ func (x *fastReflection_DenomForERC20AddressRequest) Set(fd protoreflect.FieldDe
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressRequest.address":
-		panic(fmt.Errorf("field address of message polaris.erc20.v1alpha1.DenomForERC20AddressRequest is not mutable"))
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest.token":
+		panic(fmt.Errorf("field token of message polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_DenomForERC20AddressRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressRequest.address":
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest.token":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_DenomForERC20AddressRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.DenomForERC20AddressRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1071,7 +1071,7 @@ func (x *fastReflection_DenomForERC20AddressRequest) WhichOneof(d protoreflect.O
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_DenomForERC20AddressRequest) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -1082,7 +1082,7 @@ func (x *fastReflection_DenomForERC20AddressRequest) GetUnknown() protoreflect.R
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressRequest) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -1094,7 +1094,7 @@ func (x *fastReflection_DenomForERC20AddressRequest) SetUnknown(fields protorefl
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_DenomForERC20AddressRequest) IsValid() bool {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) IsValid() bool {
 	return x != nil
 }
 
@@ -1104,9 +1104,9 @@ func (x *fastReflection_DenomForERC20AddressRequest) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_CoinDenomForERC20AddressRequest) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*DenomForERC20AddressRequest)
+		x := input.Message.Interface().(*CoinDenomForERC20AddressRequest)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1118,7 +1118,7 @@ func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.
 		var n int
 		var l int
 		_ = l
-		l = len(x.Address)
+		l = len(x.Token)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -1132,7 +1132,7 @@ func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*DenomForERC20AddressRequest)
+		x := input.Message.Interface().(*CoinDenomForERC20AddressRequest)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1151,10 +1151,10 @@ func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.Address) > 0 {
-			i -= len(x.Address)
-			copy(dAtA[i:], x.Address)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Address)))
+		if len(x.Token) > 0 {
+			i -= len(x.Token)
+			copy(dAtA[i:], x.Token)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Token)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -1169,7 +1169,7 @@ func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*DenomForERC20AddressRequest)
+		x := input.Message.Interface().(*CoinDenomForERC20AddressRequest)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1201,15 +1201,15 @@ func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: DenomForERC20AddressRequest: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CoinDenomForERC20AddressRequest: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: DenomForERC20AddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CoinDenomForERC20AddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -1237,7 +1237,7 @@ func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Address = string(dAtA[iNdEx:postIndex])
+				x.Token = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -1275,25 +1275,25 @@ func (x *fastReflection_DenomForERC20AddressRequest) ProtoMethods() *protoiface.
 }
 
 var (
-	md_DenomForERC20AddressResponse       protoreflect.MessageDescriptor
-	fd_DenomForERC20AddressResponse_denom protoreflect.FieldDescriptor
+	md_CoinDenomForERC20AddressResponse       protoreflect.MessageDescriptor
+	fd_CoinDenomForERC20AddressResponse_denom protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_polaris_erc20_v1alpha1_query_proto_init()
-	md_DenomForERC20AddressResponse = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("DenomForERC20AddressResponse")
-	fd_DenomForERC20AddressResponse_denom = md_DenomForERC20AddressResponse.Fields().ByName("denom")
+	md_CoinDenomForERC20AddressResponse = File_polaris_erc20_v1alpha1_query_proto.Messages().ByName("CoinDenomForERC20AddressResponse")
+	fd_CoinDenomForERC20AddressResponse_denom = md_CoinDenomForERC20AddressResponse.Fields().ByName("denom")
 }
 
-var _ protoreflect.Message = (*fastReflection_DenomForERC20AddressResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_CoinDenomForERC20AddressResponse)(nil)
 
-type fastReflection_DenomForERC20AddressResponse DenomForERC20AddressResponse
+type fastReflection_CoinDenomForERC20AddressResponse CoinDenomForERC20AddressResponse
 
-func (x *DenomForERC20AddressResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_DenomForERC20AddressResponse)(x)
+func (x *CoinDenomForERC20AddressResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_CoinDenomForERC20AddressResponse)(x)
 }
 
-func (x *DenomForERC20AddressResponse) slowProtoReflect() protoreflect.Message {
+func (x *CoinDenomForERC20AddressResponse) slowProtoReflect() protoreflect.Message {
 	mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1305,43 +1305,43 @@ func (x *DenomForERC20AddressResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_DenomForERC20AddressResponse_messageType fastReflection_DenomForERC20AddressResponse_messageType
-var _ protoreflect.MessageType = fastReflection_DenomForERC20AddressResponse_messageType{}
+var _fastReflection_CoinDenomForERC20AddressResponse_messageType fastReflection_CoinDenomForERC20AddressResponse_messageType
+var _ protoreflect.MessageType = fastReflection_CoinDenomForERC20AddressResponse_messageType{}
 
-type fastReflection_DenomForERC20AddressResponse_messageType struct{}
+type fastReflection_CoinDenomForERC20AddressResponse_messageType struct{}
 
-func (x fastReflection_DenomForERC20AddressResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_DenomForERC20AddressResponse)(nil)
+func (x fastReflection_CoinDenomForERC20AddressResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_CoinDenomForERC20AddressResponse)(nil)
 }
-func (x fastReflection_DenomForERC20AddressResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_DenomForERC20AddressResponse)
+func (x fastReflection_CoinDenomForERC20AddressResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_CoinDenomForERC20AddressResponse)
 }
-func (x fastReflection_DenomForERC20AddressResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_DenomForERC20AddressResponse
+func (x fastReflection_CoinDenomForERC20AddressResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_CoinDenomForERC20AddressResponse
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_DenomForERC20AddressResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_DenomForERC20AddressResponse
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_CoinDenomForERC20AddressResponse
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_DenomForERC20AddressResponse) Type() protoreflect.MessageType {
-	return _fastReflection_DenomForERC20AddressResponse_messageType
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Type() protoreflect.MessageType {
+	return _fastReflection_CoinDenomForERC20AddressResponse_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_DenomForERC20AddressResponse) New() protoreflect.Message {
-	return new(fastReflection_DenomForERC20AddressResponse)
+func (x *fastReflection_CoinDenomForERC20AddressResponse) New() protoreflect.Message {
+	return new(fastReflection_CoinDenomForERC20AddressResponse)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_DenomForERC20AddressResponse) Interface() protoreflect.ProtoMessage {
-	return (*DenomForERC20AddressResponse)(x)
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Interface() protoreflect.ProtoMessage {
+	return (*CoinDenomForERC20AddressResponse)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -1349,10 +1349,10 @@ func (x *fastReflection_DenomForERC20AddressResponse) Interface() protoreflect.P
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_DenomForERC20AddressResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.Denom != "" {
 		value := protoreflect.ValueOfString(x.Denom)
-		if !f(fd_DenomForERC20AddressResponse_denom, value) {
+		if !f(fd_CoinDenomForERC20AddressResponse_denom, value) {
 			return
 		}
 	}
@@ -1369,15 +1369,15 @@ func (x *fastReflection_DenomForERC20AddressResponse) Range(f func(protoreflect.
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_DenomForERC20AddressResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressResponse.denom":
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse.denom":
 		return x.Denom != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1387,15 +1387,15 @@ func (x *fastReflection_DenomForERC20AddressResponse) Has(fd protoreflect.FieldD
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressResponse.denom":
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse.denom":
 		x.Denom = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1405,16 +1405,16 @@ func (x *fastReflection_DenomForERC20AddressResponse) Clear(fd protoreflect.Fiel
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_DenomForERC20AddressResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressResponse.denom":
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse.denom":
 		value := x.Denom
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1428,15 +1428,15 @@ func (x *fastReflection_DenomForERC20AddressResponse) Get(descriptor protoreflec
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressResponse.denom":
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse.denom":
 		x.Denom = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1450,40 +1450,40 @@ func (x *fastReflection_DenomForERC20AddressResponse) Set(fd protoreflect.FieldD
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressResponse.denom":
-		panic(fmt.Errorf("field denom of message polaris.erc20.v1alpha1.DenomForERC20AddressResponse is not mutable"))
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse.denom":
+		panic(fmt.Errorf("field denom of message polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_DenomForERC20AddressResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.erc20.v1alpha1.DenomForERC20AddressResponse.denom":
+	case "polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse.denom":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.DenomForERC20AddressResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse"))
 		}
-		panic(fmt.Errorf("message polaris.erc20.v1alpha1.DenomForERC20AddressResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_DenomForERC20AddressResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.DenomForERC20AddressResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1491,7 +1491,7 @@ func (x *fastReflection_DenomForERC20AddressResponse) WhichOneof(d protoreflect.
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_DenomForERC20AddressResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -1502,7 +1502,7 @@ func (x *fastReflection_DenomForERC20AddressResponse) GetUnknown() protoreflect.
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_DenomForERC20AddressResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -1514,7 +1514,7 @@ func (x *fastReflection_DenomForERC20AddressResponse) SetUnknown(fields protoref
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_DenomForERC20AddressResponse) IsValid() bool {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) IsValid() bool {
 	return x != nil
 }
 
@@ -1524,9 +1524,9 @@ func (x *fastReflection_DenomForERC20AddressResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_DenomForERC20AddressResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_CoinDenomForERC20AddressResponse) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*DenomForERC20AddressResponse)
+		x := input.Message.Interface().(*CoinDenomForERC20AddressResponse)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1552,7 +1552,7 @@ func (x *fastReflection_DenomForERC20AddressResponse) ProtoMethods() *protoiface
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*DenomForERC20AddressResponse)
+		x := input.Message.Interface().(*CoinDenomForERC20AddressResponse)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1589,7 +1589,7 @@ func (x *fastReflection_DenomForERC20AddressResponse) ProtoMethods() *protoiface
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*DenomForERC20AddressResponse)
+		x := input.Message.Interface().(*CoinDenomForERC20AddressResponse)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1621,10 +1621,10 @@ func (x *fastReflection_DenomForERC20AddressResponse) ProtoMethods() *protoiface
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: DenomForERC20AddressResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CoinDenomForERC20AddressResponse: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: DenomForERC20AddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CoinDenomForERC20AddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -1727,18 +1727,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// ERC20AddressForDenomRequest is the request type for the Query/ERC20AddressForDenom RPC method.
-type ERC20AddressForDenomRequest struct {
+// ERC20AddressForCoinDenomRequest is the request type for the Query/ERC20AddressForCoinDenom RPC method.
+type ERC20AddressForCoinDenomRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// denom is the denom to query the ERC20 address for.
+	// denom is the SDK coin denomination to query the address of the ERC20 token for.
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (x *ERC20AddressForDenomRequest) Reset() {
-	*x = ERC20AddressForDenomRequest{}
+func (x *ERC20AddressForCoinDenomRequest) Reset() {
+	*x = ERC20AddressForCoinDenomRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1746,36 +1746,36 @@ func (x *ERC20AddressForDenomRequest) Reset() {
 	}
 }
 
-func (x *ERC20AddressForDenomRequest) String() string {
+func (x *ERC20AddressForCoinDenomRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ERC20AddressForDenomRequest) ProtoMessage() {}
+func (*ERC20AddressForCoinDenomRequest) ProtoMessage() {}
 
-// Deprecated: Use ERC20AddressForDenomRequest.ProtoReflect.Descriptor instead.
-func (*ERC20AddressForDenomRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ERC20AddressForCoinDenomRequest.ProtoReflect.Descriptor instead.
+func (*ERC20AddressForCoinDenomRequest) Descriptor() ([]byte, []int) {
 	return file_polaris_erc20_v1alpha1_query_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ERC20AddressForDenomRequest) GetDenom() string {
+func (x *ERC20AddressForCoinDenomRequest) GetDenom() string {
 	if x != nil {
 		return x.Denom
 	}
 	return ""
 }
 
-// ERC20AddressForDenomResponse is the response type for the Query/ERC20AddressForDenom RPC method.
-type ERC20AddressForDenomResponse struct {
+// ERC20AddressForCoinDenomResponse is the response type for the Query/ERC20AddressForCoinDenom RPC method.
+type ERC20AddressForCoinDenomResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// address is the ERC20 address (in bech32) for the given denom.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// token is the bech32 of the ERC20 token for the given SDK coin denomination.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 }
 
-func (x *ERC20AddressForDenomResponse) Reset() {
-	*x = ERC20AddressForDenomResponse{}
+func (x *ERC20AddressForCoinDenomResponse) Reset() {
+	*x = ERC20AddressForCoinDenomResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1783,36 +1783,36 @@ func (x *ERC20AddressForDenomResponse) Reset() {
 	}
 }
 
-func (x *ERC20AddressForDenomResponse) String() string {
+func (x *ERC20AddressForCoinDenomResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ERC20AddressForDenomResponse) ProtoMessage() {}
+func (*ERC20AddressForCoinDenomResponse) ProtoMessage() {}
 
-// Deprecated: Use ERC20AddressForDenomResponse.ProtoReflect.Descriptor instead.
-func (*ERC20AddressForDenomResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ERC20AddressForCoinDenomResponse.ProtoReflect.Descriptor instead.
+func (*ERC20AddressForCoinDenomResponse) Descriptor() ([]byte, []int) {
 	return file_polaris_erc20_v1alpha1_query_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ERC20AddressForDenomResponse) GetAddress() string {
+func (x *ERC20AddressForCoinDenomResponse) GetToken() string {
 	if x != nil {
-		return x.Address
+		return x.Token
 	}
 	return ""
 }
 
-// DenomForERC20AddressRequest is the request type for the Query/DenomForERC20Address RPC method.
-type DenomForERC20AddressRequest struct {
+// CoinDenomForERC20AddressRequest is the request type for the Query/CoinDenomForERC20Address RPC method.
+type CoinDenomForERC20AddressRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// address is the ERC20 address (in bech32) to query the denom for.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// token is the bech32 address of the ERC20 token to query the SDK coin denomination for.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 }
 
-func (x *DenomForERC20AddressRequest) Reset() {
-	*x = DenomForERC20AddressRequest{}
+func (x *CoinDenomForERC20AddressRequest) Reset() {
+	*x = CoinDenomForERC20AddressRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1820,36 +1820,36 @@ func (x *DenomForERC20AddressRequest) Reset() {
 	}
 }
 
-func (x *DenomForERC20AddressRequest) String() string {
+func (x *CoinDenomForERC20AddressRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DenomForERC20AddressRequest) ProtoMessage() {}
+func (*CoinDenomForERC20AddressRequest) ProtoMessage() {}
 
-// Deprecated: Use DenomForERC20AddressRequest.ProtoReflect.Descriptor instead.
-func (*DenomForERC20AddressRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CoinDenomForERC20AddressRequest.ProtoReflect.Descriptor instead.
+func (*CoinDenomForERC20AddressRequest) Descriptor() ([]byte, []int) {
 	return file_polaris_erc20_v1alpha1_query_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *DenomForERC20AddressRequest) GetAddress() string {
+func (x *CoinDenomForERC20AddressRequest) GetToken() string {
 	if x != nil {
-		return x.Address
+		return x.Token
 	}
 	return ""
 }
 
-// DenomForERC20AddressResponse is the response type for the Query/DenomForERC20Address RPC method.
-type DenomForERC20AddressResponse struct {
+// CoinDenomForERC20AddressResponse is the response type for the Query/CoinDenomForERC20Address RPC method.
+type CoinDenomForERC20AddressResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// denom is the denom for the given ERC20 address.
+	// denom is the SDK coin denomination for the given ERC20 token address.
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (x *DenomForERC20AddressResponse) Reset() {
-	*x = DenomForERC20AddressResponse{}
+func (x *CoinDenomForERC20AddressResponse) Reset() {
+	*x = CoinDenomForERC20AddressResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_polaris_erc20_v1alpha1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1857,18 +1857,18 @@ func (x *DenomForERC20AddressResponse) Reset() {
 	}
 }
 
-func (x *DenomForERC20AddressResponse) String() string {
+func (x *CoinDenomForERC20AddressResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DenomForERC20AddressResponse) ProtoMessage() {}
+func (*CoinDenomForERC20AddressResponse) ProtoMessage() {}
 
-// Deprecated: Use DenomForERC20AddressResponse.ProtoReflect.Descriptor instead.
-func (*DenomForERC20AddressResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CoinDenomForERC20AddressResponse.ProtoReflect.Descriptor instead.
+func (*CoinDenomForERC20AddressResponse) Descriptor() ([]byte, []int) {
 	return file_polaris_erc20_v1alpha1_query_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *DenomForERC20AddressResponse) GetDenom() string {
+func (x *CoinDenomForERC20AddressResponse) GetDenom() string {
 	if x != nil {
 		return x.Denom
 	}
@@ -1885,43 +1885,45 @@ var file_polaris_erc20_v1alpha1_query_proto_rawDesc = []byte{
 	0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
 	0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f,
 	0x61, 0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x33, 0x0a, 0x1b, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f, 0x72, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x22, 0x4f, 0x0a, 0x1c, 0x45, 0x52,
-	0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f, 0x72, 0x44, 0x65, 0x6e,
-	0x6f, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2f, 0x0a, 0x07, 0x61, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x15, 0xd2, 0xb4, 0x2d,
-	0x11, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x63, 0x63, 0x41, 0x64, 0x64, 0x72, 0x65,
-	0x73, 0x73, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x22, 0x4e, 0x0a, 0x1b, 0x44,
-	0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72,
-	0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2f, 0x0a, 0x07, 0x61, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x15, 0xd2, 0xb4, 0x2d,
-	0x11, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x63, 0x63, 0x41, 0x64, 0x64, 0x72, 0x65,
-	0x73, 0x73, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x22, 0x34, 0x0a, 0x1c, 0x44,
-	0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72,
-	0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x64,
-	0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x64, 0x65, 0x6e, 0x6f,
-	0x6d, 0x32, 0x88, 0x03, 0x0a, 0x0c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x65, 0x72, 0x76, 0x69,
-	0x63, 0x65, 0x12, 0xba, 0x01, 0x0a, 0x14, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72,
-	0x65, 0x73, 0x73, 0x46, 0x6f, 0x72, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x12, 0x33, 0x2e, 0x70, 0x6f,
-	0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x61, 0x6c,
-	0x70, 0x68, 0x61, 0x31, 0x2e, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
-	0x73, 0x46, 0x6f, 0x72, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x34, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x37, 0x0a, 0x1f, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64,
+	0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f, 0x72, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f,
+	0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f,
+	0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x22, 0x4f,
+	0x0a, 0x20, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f,
+	0x72, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x2b, 0x0a, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x42, 0x15, 0xd2, 0xb4, 0x2d, 0x11, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x63,
+	0x63, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x22,
+	0x4e, 0x0a, 0x1f, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45,
+	0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x2b, 0x0a, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x42, 0x15, 0xd2, 0xb4, 0x2d, 0x11, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x63,
+	0x63, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x22,
+	0x38, 0x0a, 0x20, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45,
+	0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x32, 0xa0, 0x03, 0x0a, 0x0c, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0xc6, 0x01, 0x0a, 0x18, 0x45,
+	0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f, 0x72, 0x43, 0x6f,
+	0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x12, 0x37, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69,
+	0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31,
+	0x2e, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f, 0x72,
+	0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x38, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30,
 	0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f, 0x72, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x37, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x31, 0x12, 0x2f,
-	0x2f, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76,
-	0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x5f, 0x61, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x5f, 0x66, 0x6f, 0x72, 0x5f, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x12,
-	0xba, 0x01, 0x0a, 0x14, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45, 0x52, 0x43, 0x32,
-	0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x33, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72,
-	0x69, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61,
-	0x31, 0x2e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x34, 0x2e,
-	0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31,
-	0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x46, 0x6f, 0x72, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e,
+	0x6f, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x37, 0x82, 0xd3, 0xe4, 0x93,
+	0x02, 0x31, 0x12, 0x2f, 0x2f, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2f, 0x65, 0x72, 0x63,
+	0x32, 0x30, 0x2f, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2f, 0x65, 0x72, 0x63, 0x32,
+	0x30, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x5f, 0x66, 0x6f, 0x72, 0x5f, 0x64, 0x65,
+	0x6e, 0x6f, 0x6d, 0x12, 0xc6, 0x01, 0x0a, 0x18, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f,
+	0x6d, 0x46, 0x6f, 0x72, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
+	0x12, 0x37, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30,
+	0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65,
+	0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45, 0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x38, 0x2e, 0x70, 0x6f, 0x6c, 0x61,
+	0x72, 0x69, 0x73, 0x2e, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68,
+	0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x44, 0x65, 0x6e, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x45,
 	0x52, 0x43, 0x32, 0x30, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x22, 0x37, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x31, 0x12, 0x2f, 0x2f, 0x70, 0x6f,
 	0x6c, 0x61, 0x72, 0x69, 0x73, 0x2f, 0x65, 0x72, 0x63, 0x32, 0x30, 0x2f, 0x76, 0x31, 0x61, 0x6c,
@@ -1957,16 +1959,16 @@ func file_polaris_erc20_v1alpha1_query_proto_rawDescGZIP() []byte {
 
 var file_polaris_erc20_v1alpha1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_polaris_erc20_v1alpha1_query_proto_goTypes = []interface{}{
-	(*ERC20AddressForDenomRequest)(nil),  // 0: polaris.erc20.v1alpha1.ERC20AddressForDenomRequest
-	(*ERC20AddressForDenomResponse)(nil), // 1: polaris.erc20.v1alpha1.ERC20AddressForDenomResponse
-	(*DenomForERC20AddressRequest)(nil),  // 2: polaris.erc20.v1alpha1.DenomForERC20AddressRequest
-	(*DenomForERC20AddressResponse)(nil), // 3: polaris.erc20.v1alpha1.DenomForERC20AddressResponse
+	(*ERC20AddressForCoinDenomRequest)(nil),  // 0: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest
+	(*ERC20AddressForCoinDenomResponse)(nil), // 1: polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse
+	(*CoinDenomForERC20AddressRequest)(nil),  // 2: polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest
+	(*CoinDenomForERC20AddressResponse)(nil), // 3: polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse
 }
 var file_polaris_erc20_v1alpha1_query_proto_depIdxs = []int32{
-	0, // 0: polaris.erc20.v1alpha1.QueryService.ERC20AddressForDenom:input_type -> polaris.erc20.v1alpha1.ERC20AddressForDenomRequest
-	2, // 1: polaris.erc20.v1alpha1.QueryService.DenomForERC20Address:input_type -> polaris.erc20.v1alpha1.DenomForERC20AddressRequest
-	1, // 2: polaris.erc20.v1alpha1.QueryService.ERC20AddressForDenom:output_type -> polaris.erc20.v1alpha1.ERC20AddressForDenomResponse
-	3, // 3: polaris.erc20.v1alpha1.QueryService.DenomForERC20Address:output_type -> polaris.erc20.v1alpha1.DenomForERC20AddressResponse
+	0, // 0: polaris.erc20.v1alpha1.QueryService.ERC20AddressForCoinDenom:input_type -> polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest
+	2, // 1: polaris.erc20.v1alpha1.QueryService.CoinDenomForERC20Address:input_type -> polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest
+	1, // 2: polaris.erc20.v1alpha1.QueryService.ERC20AddressForCoinDenom:output_type -> polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse
+	3, // 3: polaris.erc20.v1alpha1.QueryService.CoinDenomForERC20Address:output_type -> polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -1981,7 +1983,7 @@ func file_polaris_erc20_v1alpha1_query_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_polaris_erc20_v1alpha1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ERC20AddressForDenomRequest); i {
+			switch v := v.(*ERC20AddressForCoinDenomRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1993,7 +1995,7 @@ func file_polaris_erc20_v1alpha1_query_proto_init() {
 			}
 		}
 		file_polaris_erc20_v1alpha1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ERC20AddressForDenomResponse); i {
+			switch v := v.(*ERC20AddressForCoinDenomResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2005,7 +2007,7 @@ func file_polaris_erc20_v1alpha1_query_proto_init() {
 			}
 		}
 		file_polaris_erc20_v1alpha1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DenomForERC20AddressRequest); i {
+			switch v := v.(*CoinDenomForERC20AddressRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2017,7 +2019,7 @@ func file_polaris_erc20_v1alpha1_query_proto_init() {
 			}
 		}
 		file_polaris_erc20_v1alpha1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DenomForERC20AddressResponse); i {
+			switch v := v.(*CoinDenomForERC20AddressResponse); i {
 			case 0:
 				return &v.state
 			case 1:

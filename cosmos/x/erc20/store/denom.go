@@ -32,10 +32,10 @@ import (
 // DenomERC20 is the store type for ERC20 <-> x/bank module denominations.
 type DenomKVStore interface {
 	SetDenomForAddress(address common.Address)
-	GetDenomForAddress(address common.Address) (string, error)
+	GetDenomForAddress(address common.Address) string
 	HasDenomForAddress(address common.Address) bool
 	SetAddressForDenom(address common.Address)
-	GetAddressForDenom(denom string) (common.Address, error)
+	GetAddressForDenom(denom string) common.Address
 	HasAddressForDenom(denom string) bool
 }
 
@@ -63,12 +63,12 @@ func (ds denomStore) SetDenomForAddress(address common.Address) {
 }
 
 // GetDenomForAddress returns the denomination correlated to a specific address.
-func (ds denomStore) GetDenomForAddress(address common.Address) (string, error) {
+func (ds denomStore) GetDenomForAddress(address common.Address) string {
 	bz := ds.addressToDenom.Get(address.Bytes())
 	if bz == nil {
-		return "", ErrDenomNotFound
+		return ""
 	}
-	return utils.UnsafeBytesToStr(bz), nil
+	return utils.UnsafeBytesToStr(bz)
 }
 
 // HasDenomForAddress returns true if the address has a denomination.
@@ -86,12 +86,12 @@ func (ds denomStore) SetAddressForDenom(address common.Address) {
 }
 
 // GetAddressForDenom returns the address correlated to a specific denomination.
-func (ds denomStore) GetAddressForDenom(denom string) (common.Address, error) {
+func (ds denomStore) GetAddressForDenom(denom string) common.Address {
 	bz := ds.denomToAddress.Get(utils.UnsafeStrToBytes(denom))
 	if bz == nil {
-		return common.Address{}, ErrDenomNotFound
+		return common.Address{}
 	}
-	return common.BytesToAddress(bz), nil
+	return common.BytesToAddress(bz)
 }
 
 // HasAddressForDenom returns true if the denomination has an address.

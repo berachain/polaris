@@ -29,24 +29,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// ERC20AddressForDenomRequest is the request type for the Query/ERC20AddressForDenom RPC method.
-type ERC20AddressForDenomRequest struct {
-	// denom is the denom to query the ERC20 address for.
+// ERC20AddressForCoinDenomRequest is the request type for the Query/ERC20AddressForCoinDenom RPC method.
+type ERC20AddressForCoinDenomRequest struct {
+	// denom is the SDK coin denomination to query the address of the ERC20 token for.
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (m *ERC20AddressForDenomRequest) Reset()         { *m = ERC20AddressForDenomRequest{} }
-func (m *ERC20AddressForDenomRequest) String() string { return proto.CompactTextString(m) }
-func (*ERC20AddressForDenomRequest) ProtoMessage()    {}
-func (*ERC20AddressForDenomRequest) Descriptor() ([]byte, []int) {
+func (m *ERC20AddressForCoinDenomRequest) Reset()         { *m = ERC20AddressForCoinDenomRequest{} }
+func (m *ERC20AddressForCoinDenomRequest) String() string { return proto.CompactTextString(m) }
+func (*ERC20AddressForCoinDenomRequest) ProtoMessage()    {}
+func (*ERC20AddressForCoinDenomRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ffd29a6c0ff3273b, []int{0}
 }
-func (m *ERC20AddressForDenomRequest) XXX_Unmarshal(b []byte) error {
+func (m *ERC20AddressForCoinDenomRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ERC20AddressForDenomRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *ERC20AddressForCoinDenomRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_ERC20AddressForDenomRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_ERC20AddressForCoinDenomRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -56,43 +56,43 @@ func (m *ERC20AddressForDenomRequest) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-func (m *ERC20AddressForDenomRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ERC20AddressForDenomRequest.Merge(m, src)
+func (m *ERC20AddressForCoinDenomRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ERC20AddressForCoinDenomRequest.Merge(m, src)
 }
-func (m *ERC20AddressForDenomRequest) XXX_Size() int {
+func (m *ERC20AddressForCoinDenomRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *ERC20AddressForDenomRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ERC20AddressForDenomRequest.DiscardUnknown(m)
+func (m *ERC20AddressForCoinDenomRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ERC20AddressForCoinDenomRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ERC20AddressForDenomRequest proto.InternalMessageInfo
+var xxx_messageInfo_ERC20AddressForCoinDenomRequest proto.InternalMessageInfo
 
-func (m *ERC20AddressForDenomRequest) GetDenom() string {
+func (m *ERC20AddressForCoinDenomRequest) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
 	return ""
 }
 
-// ERC20AddressForDenomResponse is the response type for the Query/ERC20AddressForDenom RPC method.
-type ERC20AddressForDenomResponse struct {
-	// address is the ERC20 address (in bech32) for the given denom.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+// ERC20AddressForCoinDenomResponse is the response type for the Query/ERC20AddressForCoinDenom RPC method.
+type ERC20AddressForCoinDenomResponse struct {
+	// token is the bech32 of the ERC20 token for the given SDK coin denomination.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 }
 
-func (m *ERC20AddressForDenomResponse) Reset()         { *m = ERC20AddressForDenomResponse{} }
-func (m *ERC20AddressForDenomResponse) String() string { return proto.CompactTextString(m) }
-func (*ERC20AddressForDenomResponse) ProtoMessage()    {}
-func (*ERC20AddressForDenomResponse) Descriptor() ([]byte, []int) {
+func (m *ERC20AddressForCoinDenomResponse) Reset()         { *m = ERC20AddressForCoinDenomResponse{} }
+func (m *ERC20AddressForCoinDenomResponse) String() string { return proto.CompactTextString(m) }
+func (*ERC20AddressForCoinDenomResponse) ProtoMessage()    {}
+func (*ERC20AddressForCoinDenomResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ffd29a6c0ff3273b, []int{1}
 }
-func (m *ERC20AddressForDenomResponse) XXX_Unmarshal(b []byte) error {
+func (m *ERC20AddressForCoinDenomResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ERC20AddressForDenomResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *ERC20AddressForCoinDenomResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_ERC20AddressForDenomResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_ERC20AddressForCoinDenomResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -102,43 +102,43 @@ func (m *ERC20AddressForDenomResponse) XXX_Marshal(b []byte, deterministic bool)
 		return b[:n], nil
 	}
 }
-func (m *ERC20AddressForDenomResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ERC20AddressForDenomResponse.Merge(m, src)
+func (m *ERC20AddressForCoinDenomResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ERC20AddressForCoinDenomResponse.Merge(m, src)
 }
-func (m *ERC20AddressForDenomResponse) XXX_Size() int {
+func (m *ERC20AddressForCoinDenomResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *ERC20AddressForDenomResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ERC20AddressForDenomResponse.DiscardUnknown(m)
+func (m *ERC20AddressForCoinDenomResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ERC20AddressForCoinDenomResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ERC20AddressForDenomResponse proto.InternalMessageInfo
+var xxx_messageInfo_ERC20AddressForCoinDenomResponse proto.InternalMessageInfo
 
-func (m *ERC20AddressForDenomResponse) GetAddress() string {
+func (m *ERC20AddressForCoinDenomResponse) GetToken() string {
 	if m != nil {
-		return m.Address
+		return m.Token
 	}
 	return ""
 }
 
-// DenomForERC20AddressRequest is the request type for the Query/DenomForERC20Address RPC method.
-type DenomForERC20AddressRequest struct {
-	// address is the ERC20 address (in bech32) to query the denom for.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+// CoinDenomForERC20AddressRequest is the request type for the Query/CoinDenomForERC20Address RPC method.
+type CoinDenomForERC20AddressRequest struct {
+	// token is the bech32 address of the ERC20 token to query the SDK coin denomination for.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 }
 
-func (m *DenomForERC20AddressRequest) Reset()         { *m = DenomForERC20AddressRequest{} }
-func (m *DenomForERC20AddressRequest) String() string { return proto.CompactTextString(m) }
-func (*DenomForERC20AddressRequest) ProtoMessage()    {}
-func (*DenomForERC20AddressRequest) Descriptor() ([]byte, []int) {
+func (m *CoinDenomForERC20AddressRequest) Reset()         { *m = CoinDenomForERC20AddressRequest{} }
+func (m *CoinDenomForERC20AddressRequest) String() string { return proto.CompactTextString(m) }
+func (*CoinDenomForERC20AddressRequest) ProtoMessage()    {}
+func (*CoinDenomForERC20AddressRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ffd29a6c0ff3273b, []int{2}
 }
-func (m *DenomForERC20AddressRequest) XXX_Unmarshal(b []byte) error {
+func (m *CoinDenomForERC20AddressRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *DenomForERC20AddressRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *CoinDenomForERC20AddressRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_DenomForERC20AddressRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_CoinDenomForERC20AddressRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -148,43 +148,43 @@ func (m *DenomForERC20AddressRequest) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-func (m *DenomForERC20AddressRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DenomForERC20AddressRequest.Merge(m, src)
+func (m *CoinDenomForERC20AddressRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CoinDenomForERC20AddressRequest.Merge(m, src)
 }
-func (m *DenomForERC20AddressRequest) XXX_Size() int {
+func (m *CoinDenomForERC20AddressRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *DenomForERC20AddressRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DenomForERC20AddressRequest.DiscardUnknown(m)
+func (m *CoinDenomForERC20AddressRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CoinDenomForERC20AddressRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DenomForERC20AddressRequest proto.InternalMessageInfo
+var xxx_messageInfo_CoinDenomForERC20AddressRequest proto.InternalMessageInfo
 
-func (m *DenomForERC20AddressRequest) GetAddress() string {
+func (m *CoinDenomForERC20AddressRequest) GetToken() string {
 	if m != nil {
-		return m.Address
+		return m.Token
 	}
 	return ""
 }
 
-// DenomForERC20AddressResponse is the response type for the Query/DenomForERC20Address RPC method.
-type DenomForERC20AddressResponse struct {
-	// denom is the denom for the given ERC20 address.
+// CoinDenomForERC20AddressResponse is the response type for the Query/CoinDenomForERC20Address RPC method.
+type CoinDenomForERC20AddressResponse struct {
+	// denom is the SDK coin denomination for the given ERC20 token address.
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (m *DenomForERC20AddressResponse) Reset()         { *m = DenomForERC20AddressResponse{} }
-func (m *DenomForERC20AddressResponse) String() string { return proto.CompactTextString(m) }
-func (*DenomForERC20AddressResponse) ProtoMessage()    {}
-func (*DenomForERC20AddressResponse) Descriptor() ([]byte, []int) {
+func (m *CoinDenomForERC20AddressResponse) Reset()         { *m = CoinDenomForERC20AddressResponse{} }
+func (m *CoinDenomForERC20AddressResponse) String() string { return proto.CompactTextString(m) }
+func (*CoinDenomForERC20AddressResponse) ProtoMessage()    {}
+func (*CoinDenomForERC20AddressResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ffd29a6c0ff3273b, []int{3}
 }
-func (m *DenomForERC20AddressResponse) XXX_Unmarshal(b []byte) error {
+func (m *CoinDenomForERC20AddressResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *DenomForERC20AddressResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *CoinDenomForERC20AddressResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_DenomForERC20AddressResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_CoinDenomForERC20AddressResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -194,19 +194,19 @@ func (m *DenomForERC20AddressResponse) XXX_Marshal(b []byte, deterministic bool)
 		return b[:n], nil
 	}
 }
-func (m *DenomForERC20AddressResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DenomForERC20AddressResponse.Merge(m, src)
+func (m *CoinDenomForERC20AddressResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CoinDenomForERC20AddressResponse.Merge(m, src)
 }
-func (m *DenomForERC20AddressResponse) XXX_Size() int {
+func (m *CoinDenomForERC20AddressResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *DenomForERC20AddressResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_DenomForERC20AddressResponse.DiscardUnknown(m)
+func (m *CoinDenomForERC20AddressResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CoinDenomForERC20AddressResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DenomForERC20AddressResponse proto.InternalMessageInfo
+var xxx_messageInfo_CoinDenomForERC20AddressResponse proto.InternalMessageInfo
 
-func (m *DenomForERC20AddressResponse) GetDenom() string {
+func (m *CoinDenomForERC20AddressResponse) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
@@ -214,10 +214,10 @@ func (m *DenomForERC20AddressResponse) GetDenom() string {
 }
 
 func init() {
-	proto.RegisterType((*ERC20AddressForDenomRequest)(nil), "polaris.erc20.v1alpha1.ERC20AddressForDenomRequest")
-	proto.RegisterType((*ERC20AddressForDenomResponse)(nil), "polaris.erc20.v1alpha1.ERC20AddressForDenomResponse")
-	proto.RegisterType((*DenomForERC20AddressRequest)(nil), "polaris.erc20.v1alpha1.DenomForERC20AddressRequest")
-	proto.RegisterType((*DenomForERC20AddressResponse)(nil), "polaris.erc20.v1alpha1.DenomForERC20AddressResponse")
+	proto.RegisterType((*ERC20AddressForCoinDenomRequest)(nil), "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomRequest")
+	proto.RegisterType((*ERC20AddressForCoinDenomResponse)(nil), "polaris.erc20.v1alpha1.ERC20AddressForCoinDenomResponse")
+	proto.RegisterType((*CoinDenomForERC20AddressRequest)(nil), "polaris.erc20.v1alpha1.CoinDenomForERC20AddressRequest")
+	proto.RegisterType((*CoinDenomForERC20AddressResponse)(nil), "polaris.erc20.v1alpha1.CoinDenomForERC20AddressResponse")
 }
 
 func init() {
@@ -225,31 +225,31 @@ func init() {
 }
 
 var fileDescriptor_ffd29a6c0ff3273b = []byte{
-	// 374 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0xbf, 0x4e, 0x32, 0x41,
-	0x14, 0xc5, 0xd9, 0xef, 0x8b, 0x1a, 0x27, 0x36, 0x6e, 0xd0, 0x28, 0x90, 0x8d, 0xd9, 0xca, 0xc6,
-	0x19, 0xfe, 0x25, 0xd6, 0xa0, 0x12, 0x2b, 0x8d, 0x6b, 0x67, 0xb3, 0x19, 0x76, 0x47, 0xd8, 0x08,
-	0x7b, 0x87, 0x99, 0x85, 0x48, 0x6b, 0x65, 0x69, 0xe2, 0xab, 0x58, 0xf9, 0x04, 0x96, 0x44, 0x1b,
-	0x4b, 0x03, 0x3e, 0x88, 0x61, 0x66, 0x30, 0x9a, 0x2c, 0x18, 0xca, 0x9b, 0x3d, 0xe7, 0xec, 0xef,
-	0xdc, 0xb9, 0xc8, 0xe5, 0xd0, 0xa1, 0x22, 0x92, 0x84, 0x89, 0xa0, 0x5c, 0x24, 0x83, 0x12, 0xed,
-	0xf0, 0x36, 0x2d, 0x91, 0x5e, 0x9f, 0x89, 0x21, 0xe6, 0x02, 0x12, 0xb0, 0xb7, 0x8d, 0x06, 0x2b,
-	0x0d, 0x9e, 0x69, 0x72, 0xbb, 0x01, 0xc8, 0x2e, 0x48, 0x5f, 0xa9, 0x88, 0x1e, 0xb4, 0x25, 0x57,
-	0x68, 0x01, 0xb4, 0x3a, 0x8c, 0x50, 0x1e, 0x11, 0x1a, 0xc7, 0x90, 0xd0, 0x24, 0x82, 0xd8, 0x7c,
-	0x75, 0x2b, 0x28, 0x7f, 0xe2, 0x1d, 0x95, 0x8b, 0xb5, 0x30, 0x14, 0x4c, 0xca, 0x06, 0x88, 0x63,
-	0x16, 0x43, 0xd7, 0x63, 0xbd, 0x3e, 0x93, 0x89, 0x9d, 0x45, 0x2b, 0xe1, 0x74, 0xde, 0xb1, 0xf6,
-	0xac, 0xfd, 0x75, 0x4f, 0x0f, 0xee, 0x39, 0x2a, 0xa4, 0x9b, 0x24, 0x87, 0x58, 0x32, 0x9b, 0xa0,
-	0x35, 0xaa, 0x3f, 0x69, 0x5f, 0x7d, 0xeb, 0xf5, 0xe9, 0x60, 0xd3, 0x50, 0xd5, 0x82, 0xc0, 0xf8,
-	0xbc, 0x99, 0xca, 0x3d, 0x43, 0x79, 0x95, 0xd0, 0x00, 0xf1, 0x33, 0x78, 0x46, 0xb1, 0x74, 0x5e,
-	0x15, 0x15, 0xd2, 0xf3, 0x0c, 0x60, 0x6a, 0xad, 0xf2, 0xfd, 0x7f, 0xb4, 0x71, 0x31, 0x5d, 0xf6,
-	0x25, 0x13, 0x83, 0x28, 0x60, 0xf6, 0xb3, 0x85, 0xb2, 0x69, 0x45, 0xed, 0x0a, 0x4e, 0x7f, 0x07,
-	0xbc, 0x60, 0x97, 0xb9, 0xea, 0x72, 0x26, 0x8d, 0xea, 0x1e, 0xde, 0xbd, 0x7d, 0x3e, 0xfe, 0x2b,
-	0xd9, 0x84, 0xcc, 0x39, 0x0f, 0x35, 0xfa, 0xa6, 0xb9, 0x7f, 0x0d, 0xc2, 0x57, 0x6d, 0x14, 0x7c,
-	0xda, 0x12, 0xe6, 0xc3, 0x2f, 0x78, 0x82, 0xf9, 0xf0, 0x8b, 0xf6, 0xfc, 0x37, 0xbc, 0x42, 0x55,
-	0xd0, 0xbf, 0x6a, 0xd4, 0x4f, 0x5f, 0xc6, 0x8e, 0x35, 0x1a, 0x3b, 0xd6, 0xc7, 0xd8, 0xb1, 0x1e,
-	0x26, 0x4e, 0x66, 0x34, 0x71, 0x32, 0xef, 0x13, 0x27, 0x73, 0x85, 0xf9, 0x4d, 0x0b, 0x37, 0x99,
-	0xa0, 0x41, 0x9b, 0x46, 0x31, 0x0e, 0xd9, 0xe0, 0x3b, 0x5b, 0x1f, 0x04, 0xb9, 0x35, 0x3f, 0x49,
-	0x86, 0x9c, 0xc9, 0xe6, 0xaa, 0xba, 0xf3, 0xca, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbc, 0x91,
-	0x3a, 0x3b, 0x5e, 0x03, 0x00, 0x00,
+	// 381 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x93, 0xc1, 0x4e, 0xea, 0x40,
+	0x18, 0x85, 0xe9, 0xbd, 0xe1, 0x26, 0x77, 0xe2, 0xc6, 0x46, 0x0d, 0x12, 0x53, 0x48, 0x57, 0x26,
+	0xc6, 0x19, 0xc0, 0x05, 0x6c, 0x01, 0x25, 0xae, 0x34, 0xd6, 0x9d, 0x9b, 0x66, 0x68, 0x47, 0x68,
+	0x80, 0xf9, 0xcb, 0x4c, 0x21, 0xb2, 0xf5, 0x09, 0x4c, 0x7c, 0x01, 0x1f, 0xc2, 0x67, 0x30, 0x2e,
+	0x89, 0x6e, 0x5c, 0x1a, 0xf0, 0x41, 0x0c, 0x33, 0x85, 0x68, 0x42, 0xd3, 0xb0, 0xfc, 0xd3, 0x73,
+	0x4e, 0xcf, 0xf7, 0xcf, 0x0c, 0xb2, 0x43, 0xe8, 0x53, 0x11, 0x48, 0xc2, 0x84, 0x57, 0x29, 0x91,
+	0x71, 0x99, 0xf6, 0xc3, 0x2e, 0x2d, 0x93, 0xe1, 0x88, 0x89, 0x09, 0x0e, 0x05, 0x44, 0x60, 0xee,
+	0xc5, 0x1a, 0xac, 0x34, 0x78, 0xa9, 0xc9, 0xef, 0x7b, 0x20, 0x07, 0x20, 0x5d, 0xa5, 0x22, 0x7a,
+	0xd0, 0x96, 0xfc, 0x41, 0x07, 0xa0, 0xd3, 0x67, 0x84, 0x86, 0x01, 0xa1, 0x9c, 0x43, 0x44, 0xa3,
+	0x00, 0x78, 0xfc, 0xd5, 0xae, 0xa2, 0xc2, 0x99, 0xd3, 0xac, 0x94, 0xea, 0xbe, 0x2f, 0x98, 0x94,
+	0x2d, 0x10, 0x4d, 0x08, 0xf8, 0x29, 0xe3, 0x30, 0x70, 0xd8, 0x70, 0xc4, 0x64, 0x64, 0xee, 0xa0,
+	0xac, 0xbf, 0x98, 0x73, 0x46, 0xd1, 0x38, 0xfc, 0xef, 0xe8, 0xc1, 0xbe, 0x44, 0xc5, 0x64, 0xa3,
+	0x0c, 0x81, 0x4b, 0x66, 0x1e, 0xa1, 0x6c, 0x04, 0x3d, 0xc6, 0xb5, 0xb3, 0xb1, 0xfb, 0xf6, 0x7c,
+	0xbc, 0x1d, 0x77, 0xab, 0x7b, 0x5e, 0xec, 0x74, 0xb4, 0xc6, 0xbe, 0x40, 0x85, 0x55, 0x42, 0x0b,
+	0xc4, 0xcf, 0xf0, 0x65, 0x93, 0x8d, 0xf2, 0x6a, 0xa8, 0x98, 0x9c, 0x17, 0x17, 0x5c, 0x8b, 0x56,
+	0x79, 0xfa, 0x8b, 0xb6, 0xae, 0x16, 0x4b, 0xbf, 0x66, 0x62, 0x1c, 0x78, 0xcc, 0x7c, 0x31, 0x50,
+	0x2e, 0x09, 0xd6, 0xac, 0xe2, 0xf5, 0x67, 0x82, 0x53, 0xf6, 0x9a, 0xaf, 0x6d, 0x6e, 0xd4, 0xb5,
+	0xed, 0xea, 0xfd, 0xfb, 0xd7, 0xe3, 0x9f, 0xb2, 0x49, 0x48, 0xc2, 0x95, 0x51, 0xa3, 0x4b, 0x75,
+	0x84, 0x7b, 0x0b, 0xc2, 0x55, 0x64, 0x0a, 0x24, 0x69, 0x29, 0xc9, 0x20, 0x29, 0xc7, 0x92, 0x0c,
+	0x92, 0xb6, 0xff, 0x74, 0x10, 0x55, 0x5b, 0x01, 0xfc, 0x42, 0x6a, 0x9c, 0xbf, 0xce, 0x2c, 0x63,
+	0x3a, 0xb3, 0x8c, 0xcf, 0x99, 0x65, 0x3c, 0xcc, 0xad, 0xcc, 0x74, 0x6e, 0x65, 0x3e, 0xe6, 0x56,
+	0xe6, 0x06, 0x87, 0xbd, 0x0e, 0x6e, 0x33, 0x41, 0xbd, 0x2e, 0x0d, 0x38, 0xf6, 0xd9, 0x78, 0x95,
+	0xad, 0xaf, 0x0a, 0xb9, 0x8b, 0x7f, 0x12, 0x4d, 0x42, 0x26, 0xdb, 0xff, 0xd4, 0x3b, 0x38, 0xf9,
+	0x0e, 0x00, 0x00, 0xff, 0xff, 0xf1, 0xa9, 0x2d, 0x4d, 0x7e, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -264,10 +264,10 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryServiceClient interface {
-	// ERC20AddressForDenom queries the ERC20 address for a given denom.
-	ERC20AddressForDenom(ctx context.Context, in *ERC20AddressForDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForDenomResponse, error)
-	// DenomForERC20Address queries the denom for a given ERC20 address.
-	DenomForERC20Address(ctx context.Context, in *DenomForERC20AddressRequest, opts ...grpc.CallOption) (*DenomForERC20AddressResponse, error)
+	// ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
+	ERC20AddressForCoinDenom(ctx context.Context, in *ERC20AddressForCoinDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForCoinDenomResponse, error)
+	// CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
+	CoinDenomForERC20Address(ctx context.Context, in *CoinDenomForERC20AddressRequest, opts ...grpc.CallOption) (*CoinDenomForERC20AddressResponse, error)
 }
 
 type queryServiceClient struct {
@@ -278,18 +278,18 @@ func NewQueryServiceClient(cc grpc1.ClientConn) QueryServiceClient {
 	return &queryServiceClient{cc}
 }
 
-func (c *queryServiceClient) ERC20AddressForDenom(ctx context.Context, in *ERC20AddressForDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForDenomResponse, error) {
-	out := new(ERC20AddressForDenomResponse)
-	err := c.cc.Invoke(ctx, "/polaris.erc20.v1alpha1.QueryService/ERC20AddressForDenom", in, out, opts...)
+func (c *queryServiceClient) ERC20AddressForCoinDenom(ctx context.Context, in *ERC20AddressForCoinDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForCoinDenomResponse, error) {
+	out := new(ERC20AddressForCoinDenomResponse)
+	err := c.cc.Invoke(ctx, "/polaris.erc20.v1alpha1.QueryService/ERC20AddressForCoinDenom", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryServiceClient) DenomForERC20Address(ctx context.Context, in *DenomForERC20AddressRequest, opts ...grpc.CallOption) (*DenomForERC20AddressResponse, error) {
-	out := new(DenomForERC20AddressResponse)
-	err := c.cc.Invoke(ctx, "/polaris.erc20.v1alpha1.QueryService/DenomForERC20Address", in, out, opts...)
+func (c *queryServiceClient) CoinDenomForERC20Address(ctx context.Context, in *CoinDenomForERC20AddressRequest, opts ...grpc.CallOption) (*CoinDenomForERC20AddressResponse, error) {
+	out := new(CoinDenomForERC20AddressResponse)
+	err := c.cc.Invoke(ctx, "/polaris.erc20.v1alpha1.QueryService/CoinDenomForERC20Address", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -298,59 +298,59 @@ func (c *queryServiceClient) DenomForERC20Address(ctx context.Context, in *Denom
 
 // QueryServiceServer is the server API for QueryService service.
 type QueryServiceServer interface {
-	// ERC20AddressForDenom queries the ERC20 address for a given denom.
-	ERC20AddressForDenom(context.Context, *ERC20AddressForDenomRequest) (*ERC20AddressForDenomResponse, error)
-	// DenomForERC20Address queries the denom for a given ERC20 address.
-	DenomForERC20Address(context.Context, *DenomForERC20AddressRequest) (*DenomForERC20AddressResponse, error)
+	// ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
+	ERC20AddressForCoinDenom(context.Context, *ERC20AddressForCoinDenomRequest) (*ERC20AddressForCoinDenomResponse, error)
+	// CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
+	CoinDenomForERC20Address(context.Context, *CoinDenomForERC20AddressRequest) (*CoinDenomForERC20AddressResponse, error)
 }
 
 // UnimplementedQueryServiceServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServiceServer struct {
 }
 
-func (*UnimplementedQueryServiceServer) ERC20AddressForDenom(ctx context.Context, req *ERC20AddressForDenomRequest) (*ERC20AddressForDenomResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ERC20AddressForDenom not implemented")
+func (*UnimplementedQueryServiceServer) ERC20AddressForCoinDenom(ctx context.Context, req *ERC20AddressForCoinDenomRequest) (*ERC20AddressForCoinDenomResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ERC20AddressForCoinDenom not implemented")
 }
-func (*UnimplementedQueryServiceServer) DenomForERC20Address(ctx context.Context, req *DenomForERC20AddressRequest) (*DenomForERC20AddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DenomForERC20Address not implemented")
+func (*UnimplementedQueryServiceServer) CoinDenomForERC20Address(ctx context.Context, req *CoinDenomForERC20AddressRequest) (*CoinDenomForERC20AddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoinDenomForERC20Address not implemented")
 }
 
 func RegisterQueryServiceServer(s grpc1.Server, srv QueryServiceServer) {
 	s.RegisterService(&_QueryService_serviceDesc, srv)
 }
 
-func _QueryService_ERC20AddressForDenom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ERC20AddressForDenomRequest)
+func _QueryService_ERC20AddressForCoinDenom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ERC20AddressForCoinDenomRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServiceServer).ERC20AddressForDenom(ctx, in)
+		return srv.(QueryServiceServer).ERC20AddressForCoinDenom(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/polaris.erc20.v1alpha1.QueryService/ERC20AddressForDenom",
+		FullMethod: "/polaris.erc20.v1alpha1.QueryService/ERC20AddressForCoinDenom",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServiceServer).ERC20AddressForDenom(ctx, req.(*ERC20AddressForDenomRequest))
+		return srv.(QueryServiceServer).ERC20AddressForCoinDenom(ctx, req.(*ERC20AddressForCoinDenomRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _QueryService_DenomForERC20Address_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DenomForERC20AddressRequest)
+func _QueryService_CoinDenomForERC20Address_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoinDenomForERC20AddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServiceServer).DenomForERC20Address(ctx, in)
+		return srv.(QueryServiceServer).CoinDenomForERC20Address(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/polaris.erc20.v1alpha1.QueryService/DenomForERC20Address",
+		FullMethod: "/polaris.erc20.v1alpha1.QueryService/CoinDenomForERC20Address",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServiceServer).DenomForERC20Address(ctx, req.(*DenomForERC20AddressRequest))
+		return srv.(QueryServiceServer).CoinDenomForERC20Address(ctx, req.(*CoinDenomForERC20AddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -360,19 +360,19 @@ var _QueryService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ERC20AddressForDenom",
-			Handler:    _QueryService_ERC20AddressForDenom_Handler,
+			MethodName: "ERC20AddressForCoinDenom",
+			Handler:    _QueryService_ERC20AddressForCoinDenom_Handler,
 		},
 		{
-			MethodName: "DenomForERC20Address",
-			Handler:    _QueryService_DenomForERC20Address_Handler,
+			MethodName: "CoinDenomForERC20Address",
+			Handler:    _QueryService_CoinDenomForERC20Address_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "polaris/erc20/v1alpha1/query.proto",
 }
 
-func (m *ERC20AddressForDenomRequest) Marshal() (dAtA []byte, err error) {
+func (m *ERC20AddressForCoinDenomRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -382,12 +382,12 @@ func (m *ERC20AddressForDenomRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ERC20AddressForDenomRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *ERC20AddressForCoinDenomRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ERC20AddressForDenomRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *ERC20AddressForCoinDenomRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -402,7 +402,7 @@ func (m *ERC20AddressForDenomRequest) MarshalToSizedBuffer(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
-func (m *ERC20AddressForDenomResponse) Marshal() (dAtA []byte, err error) {
+func (m *ERC20AddressForCoinDenomResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -412,27 +412,27 @@ func (m *ERC20AddressForDenomResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ERC20AddressForDenomResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *ERC20AddressForCoinDenomResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ERC20AddressForDenomResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *ERC20AddressForCoinDenomResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+	if len(m.Token) > 0 {
+		i -= len(m.Token)
+		copy(dAtA[i:], m.Token)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Token)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *DenomForERC20AddressRequest) Marshal() (dAtA []byte, err error) {
+func (m *CoinDenomForERC20AddressRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -442,27 +442,27 @@ func (m *DenomForERC20AddressRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *DenomForERC20AddressRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *CoinDenomForERC20AddressRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *DenomForERC20AddressRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *CoinDenomForERC20AddressRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+	if len(m.Token) > 0 {
+		i -= len(m.Token)
+		copy(dAtA[i:], m.Token)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Token)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *DenomForERC20AddressResponse) Marshal() (dAtA []byte, err error) {
+func (m *CoinDenomForERC20AddressResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -472,12 +472,12 @@ func (m *DenomForERC20AddressResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *DenomForERC20AddressResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *CoinDenomForERC20AddressResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *DenomForERC20AddressResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *CoinDenomForERC20AddressResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -503,7 +503,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *ERC20AddressForDenomRequest) Size() (n int) {
+func (m *ERC20AddressForCoinDenomRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -516,33 +516,33 @@ func (m *ERC20AddressForDenomRequest) Size() (n int) {
 	return n
 }
 
-func (m *ERC20AddressForDenomResponse) Size() (n int) {
+func (m *ERC20AddressForCoinDenomResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Address)
+	l = len(m.Token)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
 }
 
-func (m *DenomForERC20AddressRequest) Size() (n int) {
+func (m *CoinDenomForERC20AddressRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Address)
+	l = len(m.Token)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
 }
 
-func (m *DenomForERC20AddressResponse) Size() (n int) {
+func (m *CoinDenomForERC20AddressResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -561,7 +561,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *ERC20AddressForDenomRequest) Unmarshal(dAtA []byte) error {
+func (m *ERC20AddressForCoinDenomRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -584,10 +584,10 @@ func (m *ERC20AddressForDenomRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ERC20AddressForDenomRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: ERC20AddressForCoinDenomRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ERC20AddressForDenomRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ERC20AddressForCoinDenomRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -643,7 +643,7 @@ func (m *ERC20AddressForDenomRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ERC20AddressForDenomResponse) Unmarshal(dAtA []byte) error {
+func (m *ERC20AddressForCoinDenomResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -666,15 +666,15 @@ func (m *ERC20AddressForDenomResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ERC20AddressForDenomResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: ERC20AddressForCoinDenomResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ERC20AddressForDenomResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ERC20AddressForCoinDenomResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -702,7 +702,7 @@ func (m *ERC20AddressForDenomResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
+			m.Token = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -725,7 +725,7 @@ func (m *ERC20AddressForDenomResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *DenomForERC20AddressRequest) Unmarshal(dAtA []byte) error {
+func (m *CoinDenomForERC20AddressRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -748,15 +748,15 @@ func (m *DenomForERC20AddressRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: DenomForERC20AddressRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: CoinDenomForERC20AddressRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: DenomForERC20AddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: CoinDenomForERC20AddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -784,7 +784,7 @@ func (m *DenomForERC20AddressRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
+			m.Token = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -807,7 +807,7 @@ func (m *DenomForERC20AddressRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *DenomForERC20AddressResponse) Unmarshal(dAtA []byte) error {
+func (m *CoinDenomForERC20AddressResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -830,10 +830,10 @@ func (m *DenomForERC20AddressResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: DenomForERC20AddressResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: CoinDenomForERC20AddressResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: DenomForERC20AddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: CoinDenomForERC20AddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

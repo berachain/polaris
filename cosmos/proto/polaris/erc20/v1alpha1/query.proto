@@ -28,37 +28,37 @@ option go_package = "pkg.berachain.dev/polaris/cosmos/x/erc20/types";
 
 // Query defines the gRPC querier service.
 service QueryService {
-  // ERC20AddressForDenom queries the ERC20 address for a given denom.
-  rpc ERC20AddressForDenom(ERC20AddressForDenomRequest) returns (ERC20AddressForDenomResponse) {
+  // ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
+  rpc ERC20AddressForCoinDenom(ERC20AddressForCoinDenomRequest) returns (ERC20AddressForCoinDenomResponse) {
     option (google.api.http).get = "/polaris/erc20/v1alpha1/erc20_address_for_denom";
   }
 
-  // DenomForERC20Address queries the denom for a given ERC20 address.
-  rpc DenomForERC20Address(DenomForERC20AddressRequest) returns (DenomForERC20AddressResponse) {
+  // CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
+  rpc CoinDenomForERC20Address(CoinDenomForERC20AddressRequest) returns (CoinDenomForERC20AddressResponse) {
     option (google.api.http).get = "/polaris/erc20/v1alpha1/denom_for_erc20_address";
   }
 }
 
-// ERC20AddressForDenomRequest is the request type for the Query/ERC20AddressForDenom RPC method.
-message ERC20AddressForDenomRequest {
-  // denom is the denom to query the ERC20 address for.
+// ERC20AddressForCoinDenomRequest is the request type for the Query/ERC20AddressForCoinDenom RPC method.
+message ERC20AddressForCoinDenomRequest {
+  // denom is the SDK coin denomination to query the address of the ERC20 token for.
   string denom = 1;
 }
 
-// ERC20AddressForDenomResponse is the response type for the Query/ERC20AddressForDenom RPC method.
-message ERC20AddressForDenomResponse {
-  // address is the ERC20 address (in bech32) for the given denom.
-  string address = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+// ERC20AddressForCoinDenomResponse is the response type for the Query/ERC20AddressForCoinDenom RPC method.
+message ERC20AddressForCoinDenomResponse {
+  // token is the bech32 of the ERC20 token for the given SDK coin denomination.
+  string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 }
 
-// DenomForERC20AddressRequest is the request type for the Query/DenomForERC20Address RPC method.
-message DenomForERC20AddressRequest {
-  // address is the ERC20 address (in bech32) to query the denom for.
-  string address = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+// CoinDenomForERC20AddressRequest is the request type for the Query/CoinDenomForERC20Address RPC method.
+message CoinDenomForERC20AddressRequest {
+  // token is the bech32 address of the ERC20 token to query the SDK coin denomination for.
+  string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
 }
 
-// DenomForERC20AddressResponse is the response type for the Query/DenomForERC20Address RPC method.
-message DenomForERC20AddressResponse {
-  // denom is the denom for the given ERC20 address.
+// CoinDenomForERC20AddressResponse is the response type for the Query/CoinDenomForERC20Address RPC method.
+message CoinDenomForERC20AddressResponse {
+  // denom is the SDK coin denomination for the given ERC20 token address.
   string denom = 1;
 }

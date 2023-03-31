@@ -39,18 +39,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	QueryService_ERC20AddressForDenom_FullMethodName = "/polaris.erc20.v1alpha1.QueryService/ERC20AddressForDenom"
-	QueryService_DenomForERC20Address_FullMethodName = "/polaris.erc20.v1alpha1.QueryService/DenomForERC20Address"
+	QueryService_ERC20AddressForCoinDenom_FullMethodName = "/polaris.erc20.v1alpha1.QueryService/ERC20AddressForCoinDenom"
+	QueryService_CoinDenomForERC20Address_FullMethodName = "/polaris.erc20.v1alpha1.QueryService/CoinDenomForERC20Address"
 )
 
 // QueryServiceClient is the client API for QueryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QueryServiceClient interface {
-	// ERC20AddressForDenom queries the ERC20 address for a given denom.
-	ERC20AddressForDenom(ctx context.Context, in *ERC20AddressForDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForDenomResponse, error)
-	// DenomForERC20Address queries the denom for a given ERC20 address.
-	DenomForERC20Address(ctx context.Context, in *DenomForERC20AddressRequest, opts ...grpc.CallOption) (*DenomForERC20AddressResponse, error)
+	// ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
+	ERC20AddressForCoinDenom(ctx context.Context, in *ERC20AddressForCoinDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForCoinDenomResponse, error)
+	// CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
+	CoinDenomForERC20Address(ctx context.Context, in *CoinDenomForERC20AddressRequest, opts ...grpc.CallOption) (*CoinDenomForERC20AddressResponse, error)
 }
 
 type queryServiceClient struct {
@@ -61,18 +61,18 @@ func NewQueryServiceClient(cc grpc.ClientConnInterface) QueryServiceClient {
 	return &queryServiceClient{cc}
 }
 
-func (c *queryServiceClient) ERC20AddressForDenom(ctx context.Context, in *ERC20AddressForDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForDenomResponse, error) {
-	out := new(ERC20AddressForDenomResponse)
-	err := c.cc.Invoke(ctx, QueryService_ERC20AddressForDenom_FullMethodName, in, out, opts...)
+func (c *queryServiceClient) ERC20AddressForCoinDenom(ctx context.Context, in *ERC20AddressForCoinDenomRequest, opts ...grpc.CallOption) (*ERC20AddressForCoinDenomResponse, error) {
+	out := new(ERC20AddressForCoinDenomResponse)
+	err := c.cc.Invoke(ctx, QueryService_ERC20AddressForCoinDenom_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryServiceClient) DenomForERC20Address(ctx context.Context, in *DenomForERC20AddressRequest, opts ...grpc.CallOption) (*DenomForERC20AddressResponse, error) {
-	out := new(DenomForERC20AddressResponse)
-	err := c.cc.Invoke(ctx, QueryService_DenomForERC20Address_FullMethodName, in, out, opts...)
+func (c *queryServiceClient) CoinDenomForERC20Address(ctx context.Context, in *CoinDenomForERC20AddressRequest, opts ...grpc.CallOption) (*CoinDenomForERC20AddressResponse, error) {
+	out := new(CoinDenomForERC20AddressResponse)
+	err := c.cc.Invoke(ctx, QueryService_CoinDenomForERC20Address_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,10 +83,10 @@ func (c *queryServiceClient) DenomForERC20Address(ctx context.Context, in *Denom
 // All implementations must embed UnimplementedQueryServiceServer
 // for forward compatibility
 type QueryServiceServer interface {
-	// ERC20AddressForDenom queries the ERC20 address for a given denom.
-	ERC20AddressForDenom(context.Context, *ERC20AddressForDenomRequest) (*ERC20AddressForDenomResponse, error)
-	// DenomForERC20Address queries the denom for a given ERC20 address.
-	DenomForERC20Address(context.Context, *DenomForERC20AddressRequest) (*DenomForERC20AddressResponse, error)
+	// ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
+	ERC20AddressForCoinDenom(context.Context, *ERC20AddressForCoinDenomRequest) (*ERC20AddressForCoinDenomResponse, error)
+	// CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
+	CoinDenomForERC20Address(context.Context, *CoinDenomForERC20AddressRequest) (*CoinDenomForERC20AddressResponse, error)
 	mustEmbedUnimplementedQueryServiceServer()
 }
 
@@ -94,11 +94,11 @@ type QueryServiceServer interface {
 type UnimplementedQueryServiceServer struct {
 }
 
-func (UnimplementedQueryServiceServer) ERC20AddressForDenom(context.Context, *ERC20AddressForDenomRequest) (*ERC20AddressForDenomResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ERC20AddressForDenom not implemented")
+func (UnimplementedQueryServiceServer) ERC20AddressForCoinDenom(context.Context, *ERC20AddressForCoinDenomRequest) (*ERC20AddressForCoinDenomResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ERC20AddressForCoinDenom not implemented")
 }
-func (UnimplementedQueryServiceServer) DenomForERC20Address(context.Context, *DenomForERC20AddressRequest) (*DenomForERC20AddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DenomForERC20Address not implemented")
+func (UnimplementedQueryServiceServer) CoinDenomForERC20Address(context.Context, *CoinDenomForERC20AddressRequest) (*CoinDenomForERC20AddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CoinDenomForERC20Address not implemented")
 }
 func (UnimplementedQueryServiceServer) mustEmbedUnimplementedQueryServiceServer() {}
 
@@ -113,38 +113,38 @@ func RegisterQueryServiceServer(s grpc.ServiceRegistrar, srv QueryServiceServer)
 	s.RegisterService(&QueryService_ServiceDesc, srv)
 }
 
-func _QueryService_ERC20AddressForDenom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ERC20AddressForDenomRequest)
+func _QueryService_ERC20AddressForCoinDenom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ERC20AddressForCoinDenomRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServiceServer).ERC20AddressForDenom(ctx, in)
+		return srv.(QueryServiceServer).ERC20AddressForCoinDenom(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: QueryService_ERC20AddressForDenom_FullMethodName,
+		FullMethod: QueryService_ERC20AddressForCoinDenom_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServiceServer).ERC20AddressForDenom(ctx, req.(*ERC20AddressForDenomRequest))
+		return srv.(QueryServiceServer).ERC20AddressForCoinDenom(ctx, req.(*ERC20AddressForCoinDenomRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _QueryService_DenomForERC20Address_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DenomForERC20AddressRequest)
+func _QueryService_CoinDenomForERC20Address_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoinDenomForERC20AddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServiceServer).DenomForERC20Address(ctx, in)
+		return srv.(QueryServiceServer).CoinDenomForERC20Address(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: QueryService_DenomForERC20Address_FullMethodName,
+		FullMethod: QueryService_CoinDenomForERC20Address_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServiceServer).DenomForERC20Address(ctx, req.(*DenomForERC20AddressRequest))
+		return srv.(QueryServiceServer).CoinDenomForERC20Address(ctx, req.(*CoinDenomForERC20AddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -157,12 +157,12 @@ var QueryService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ERC20AddressForDenom",
-			Handler:    _QueryService_ERC20AddressForDenom_Handler,
+			MethodName: "ERC20AddressForCoinDenom",
+			Handler:    _QueryService_ERC20AddressForCoinDenom_Handler,
 		},
 		{
-			MethodName: "DenomForERC20Address",
-			Handler:    _QueryService_DenomForERC20Address_Handler,
+			MethodName: "CoinDenomForERC20Address",
+			Handler:    _QueryService_CoinDenomForERC20Address_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

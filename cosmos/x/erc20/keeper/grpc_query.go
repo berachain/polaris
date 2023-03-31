@@ -32,41 +32,34 @@ import (
 // Compile-time interface assertion.
 var _ types.QueryServiceServer = Querier{}
 
+// Querier implements the QueryServer for the erc20 module.
 type Querier struct {
 	*Keeper
 }
 
-// ERC20AddressForDenom queries the ERC20 address for a given denom.
-func (q Querier) ERC20AddressForDenom(
-	ctx context.Context, req *types.ERC20AddressForDenomRequest,
-) (*types.ERC20AddressForDenomResponse, error) {
-	addr, err := q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.ERC20AddressForDenomResponse{
-		Address: cosmlib.AddressToAccAddress(addr).String(),
+// ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
+func (q Querier) ERC20AddressForCoinDenom(
+	ctx context.Context, req *types.ERC20AddressForCoinDenomRequest,
+) (*types.ERC20AddressForCoinDenomResponse, error) {
+	return &types.ERC20AddressForCoinDenomResponse{
+		Token: cosmlib.AddressToAccAddress(
+			q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom),
+		).String(),
 	}, nil
 }
 
-// DenomForERC20Address queries the denom for a given ERC20 address.
-func (q Querier) DenomForERC20Address(
-	ctx context.Context, req *types.DenomForERC20AddressRequest,
-) (*types.DenomForERC20AddressResponse, error) {
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+// CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
+func (q Querier) CoinDenomForERC20Address(
+	ctx context.Context, req *types.CoinDenomForERC20AddressRequest,
+) (*types.CoinDenomForERC20AddressResponse, error) {
+	addr, err := sdk.AccAddressFromBech32(req.Token)
 	if err != nil {
 		return nil, err
 	}
 
-	denom, err := q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetDenomForAddress(
-		cosmlib.AccAddressToEthAddress(addr),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.DenomForERC20AddressResponse{
-		Denom: denom,
+	return &types.CoinDenomForERC20AddressResponse{
+		Denom: q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetDenomForAddress(
+			cosmlib.AccAddressToEthAddress(addr),
+		),
 	}, nil
 }

@@ -39,81 +39,97 @@ interface IERC20Module {
 
     /**
      * @dev Emitted by the erc20 module when `amount` tokens are converted from ERC20 (of address
-     * `token`) to Cosmos SDK coin (of denomination `denom`).
+     * `token`) to an SDK coin (of denomination `denom`).
      */
-    event TransferFromERC20ToCosmos(address indexed token, string indexed denom, uint256 amount);
+    event ConvertERC20ToCoin(address indexed token, string indexed denom, uint256 amount);
 
     /**
-     * @dev Emitted by the erc20 module when `amount` tokens are converted from Cosmos SDK coin (of
+     * @dev Emitted by the erc20 module when `amount` tokens are converted from SDK coin (of
      * denomination `denom`) to ERC20 (of address `token`).
      */
-    event TransferFromCosmosToERC20(string indexed denom, address indexed token, uint256 amount);
+    event ConvertCoinToERC20(string indexed denom, address indexed token, uint256 amount);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**
-     * @dev transferFromCosmosToERC20 converts Cosmos SDK coins to ERC20 tokens.
-     * @param token the ERC20 token being transfered to
-     * @param to the address to transfer to
-     * @param amount the amount of tokens to transfer
+     * @dev `convertCoinToERC20` converts `amount` SDK coins to ERC20 tokens for `owner`.
+     * @param token the ERC20 token being converted to
+     * @param owner the account to convert for
+     * @param amount the amount of tokens to convert
      */
-    function transferFromCosmosToERC20(IERC20 token, address to, uint256 amount) external;
+    function convertCoinToERC20(IERC20 token, address owner, uint256 amount) external;
 
     /**
-     * @dev transferFromCosmosToERC20 converts Cosmos SDK coins to ERC20 tokens.
-     * @param denom the denomination of the Cosmos SDK coin
-     * @param to the address to transfer to
-     * @param amount the amount of tokens to transfer
+     * @dev `convertCoinToERC20` converts `amount` SDK coins to ERC20 tokens for `owner`.
+     * @param token the ERC20 token being converted to
+     * @param owner the account to convert for (bech32 address)
+     * @param amount the amount of tokens to convert
      */
-    function transferFromCosmosToERC20(string calldata denom, address to, uint256 amount) external;
+    function convertCoinToERC20(IERC20 token, string calldata owner, uint256 amount) external;
 
     /**
-     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
+     * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
+     * @param denom the denomination of the SDK coin being converted from
+     * @param owner the account to convert for
+     * @param amount the amount of tokens to convert
+     */
+    function convertCoinToERC20(string calldata denom, address owner, uint256 amount) external;
+
+    /**
+     * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
+     * @param denom the denomination of the SDK coin being converted from
+     * @param owner the account to convert for (bech32 address)
+     * @param amount the amount of tokens to convert
+     */
+    function convertCoinToERC20(string calldata denom, string calldata owner, uint256 amount) external;
+
+    /**
+     * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
+     * @param token the ERC20 token being converted from
+     * @param owner the account to convert for
+     * @param amount the amount of tokens to transfer
+     */
+    function convertERC20ToCoin(IERC20 token, address owner, uint256 amount) external;
+
+    /**
+     * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
      * @param token the ERC20 token being transfered from
-     * @param to the address to transfer to
+     * @param owner the account to convert for (bech32 address)
      * @param amount the amount of tokens to transfer
      */
-    function transferFromERC20ToCosmos(IERC20 token, address to, uint256 amount) external;
+    function convertERC20ToCoin(IERC20 token, string calldata owner, uint256 amount) external;
 
     /**
-     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
-     * @param token the ERC20 token being transfered from
-     * @param to the bech32 address to transfer to
+     * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
+     * @param denom the denomination of the SDK coin being converted to
+     * @param owner the account to convert for
      * @param amount the amount of tokens to transfer
      */
-    function transferFromERC20ToCosmos(IERC20 token, string calldata to, uint256 amount) external;
+    function convertERC20ToCoin(string calldata denom, address owner, uint256 amount) external;
 
     /**
-     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
-     * @param denom the denomination of the Cosmos SDK coin
-     * @param to the address to transfer to
+     * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
+     * @param denom the denomination of the SDK coin being converted to
+     * @param owner the account to convert for (bech32 address)
      * @param amount the amount of tokens to transfer
      */
-    function transferFromERC20ToCosmos(string calldata denom, address to, uint256 amount) external;
-
-    /**
-     * @dev transferFromERC20ToCosmos converts ERC20 tokens Cosmos SDK coins.
-     * @param denom the denomination of the Cosmos SDK coin
-     * @param to the bech32 address to transfer to
-     * @param amount the amount of tokens to transfer
-     */
-    function transferFromERC20ToCosmos(string calldata denom, string calldata to, uint256 amount) external;
+    function convertERC20ToCoin(string calldata denom, string calldata owner, uint256 amount) external;
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**
-     * @dev denomForAddress returns the x/bank module denomination for the given ERC20 address.
+     * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
      */
-    function denomForAddress(address token) external view returns (string memory);
+    function coinDenomForERC20Address(address token) external view returns (string memory);
 
     /**
-     * @dev denomForAddress returns the x/bank module denomination for the given ERC20 address
+     * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address
      * `token` (in string bech32 format).
      */
-    function denomForAddress(string calldata token) external view returns (string memory);
+    function coinDenomForERC20Address(string calldata token) external view returns (string memory);
 
     /**
-     * @dev addressForDenom returns the ERC20 address for the given x/bank module denomination.
+     * @dev erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
      */
-    function addressForDenom(string calldata denom) external view returns (address);
+    function erc20AddressForCoinDenom(string calldata denom) external view returns (address);
 }
