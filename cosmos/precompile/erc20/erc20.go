@@ -80,36 +80,52 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.ERC20AddressForCoinDenom,
 		},
 		{
-			AbiSig:  "convertCoinToERC20(IERC20,address,uint256)",
-			Execute: nil,
+			AbiSig: "convertCoinToERC20(address,address,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 		{
-			AbiSig:  "convertCoinToERC20(IERC20,string,uint256)",
-			Execute: nil,
+			AbiSig: "convertCoinToERC20(address,string,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 		{
-			AbiSig:  "convertCoinToERC20(string,address,uint256)",
-			Execute: nil,
+			AbiSig: "convertCoinToERC20(string,address,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 		{
-			AbiSig:  "convertCoinToERC20string,string,uint256)",
-			Execute: nil,
+			AbiSig: "convertCoinToERC20(string,string,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 		{
-			AbiSig:  "convertERC20ToCoin(IERC20,address,uint256)",
-			Execute: nil,
+			AbiSig: "convertERC20ToCoin(address,address,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 		{
-			AbiSig:  "convertERC20ToCoin(IERC20,string,uint256)",
-			Execute: nil,
+			AbiSig: "convertERC20ToCoin(address,string,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 		{
-			AbiSig:  "convertERC20ToCoin(string,address,uint256)",
-			Execute: nil,
+			AbiSig: "convertERC20ToCoin(string,address,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 		{
-			AbiSig:  "convertERC20ToCoin(string,string,uint256)",
-			Execute: nil,
+			AbiSig: "convertERC20ToCoin(string,string,uint256)",
+			Execute: func(ctx context.Context, evm ethprecompile.EVM, caller common.Address, value *big.Int, readonly bool, args ...any) (ret []any, err error) {
+				return nil, nil
+			},
 		},
 	}
 }

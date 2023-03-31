@@ -42,6 +42,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
@@ -58,6 +59,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		evmtypes.ModuleName,
+		erc20types.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -70,6 +72,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
+		erc20types.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		group.ModuleName,
@@ -96,6 +99,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		evmtypes.ModuleName,
+		erc20types.ModuleName,
 		crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,

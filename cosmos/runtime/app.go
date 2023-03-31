@@ -93,10 +93,13 @@ import (
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
+	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/rpc"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	"pkg.berachain.dev/polaris/cosmos/x/erc20"
+	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -105,6 +108,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -139,6 +143,7 @@ var (
 		vesting.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		evm.AppModuleBasic{},
+		erc20.AppModuleBasic{},
 	)
 	// application configuration (used by depinject).
 	AppConfig = appconfig.Compose(&appv1alpha1.Config{
@@ -181,7 +186,8 @@ type PolarisApp struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
 	// polaris keepers
-	EVMKeeper *evmkeeper.Keeper
+	EVMKeeper   *evmkeeper.Keeper
+	ERC20Keeper *erc20keeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -292,6 +298,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
+		&app.ERC20Keeper,
 	); err != nil {
 		panic(err)
 	}
@@ -316,6 +323,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			authprecompile.NewPrecompileContract(),
 			distrprecompile.NewPrecompileContract(),
 			govprecompile.NewPrecompileContract(app.GovKeeper),
+			erc20precompile.NewPrecompileContract(erc20keeper.Querier{Keeper: app.ERC20Keeper}),
 		},
 		app.CreateQueryContext,
 	)

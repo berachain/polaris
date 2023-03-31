@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package evm
+package erc20
 
 import (
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -36,7 +36,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 )
 
-// ConsensusVersion defines the current x/evm module consensus version.
+// ConsensusVersion defines the current x/erc20 module consensus version.
 const ConsensusVersion = 1
 
 var (
@@ -50,10 +50,10 @@ var (
 // AppModuleBasic
 // ==============================================================================
 
-// AppModuleBasic defines the basic application module used by the evm module.
+// AppModuleBasic defines the basic application module used by the erc20 module.
 type AppModuleBasic struct{}
 
-// Name returns the evm module's name.
+// Name returns the erc20 module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
@@ -92,7 +92,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule
 // ==============================================================================
 
-// AppModule implements an application module for the evm module.
+// AppModule implements an application module for the erc20 module.
 type AppModule struct {
 	AppModuleBasic
 	keeper     *keeper.Keeper
@@ -130,10 +130,10 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// BeginBlock returns the begin blocker for the evm module.
+// BeginBlock returns the begin blocker for the erc20 module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {}
 
-// EndBlock returns the end blocker for the evm module. It returns no validator
+// EndBlock returns the end blocker for the erc20 module. It returns no validator
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}

@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package evm
+package erc20
 
 import (
 	"cosmossdk.io/core/appmodule"

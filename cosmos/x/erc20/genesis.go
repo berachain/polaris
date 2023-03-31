@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package evm
+package erc20
 
 import (
 	"encoding/json"
@@ -33,13 +33,13 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 )
 
-// DefaultGenesis returns default genesis state as raw bytes for the evm
+// DefaultGenesis returns default genesis state as raw bytes for the erc20
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesis())
 }
 
-// ValidateGenesis performs genesis state validation for the evm module.
+// ValidateGenesis performs genesis state validation for the erc20 module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
@@ -48,7 +48,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	return types.ValidateGenesis(data)
 }
 
-// InitGenesis performs genesis initialization for the evm module. It returns
+// InitGenesis performs genesis initialization for the erc20 module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
@@ -56,7 +56,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the evm
+// ExportGenesis returns the exported genesis state as raw bytes for the erc20
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	genesisState := new(types.GenesisState)
