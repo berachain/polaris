@@ -68,20 +68,35 @@ interface IBankModule {
     
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
-
-    // The Balance endpoint allows users to query account balance by address for a given denomination.
-    // ask: return amount or Coin(amount, denom)?
+    /**
+     * @dev Returns the `amount` of account balance by address for a given denomination.
+     */
     function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
 
-
-    // The AllBalances endpoint allows users to query account balance by address for all denominations.
+    /**
+     * @dev Returns account balance by address for all denominations.
+     */
     function getAllBalance(address accountAddress) external view returns (Coin[] memory);
 
-// func (k BaseKeeper) TotalSupply(ctx context.Context, req *types.QueryTotalSupplyRequest) (*types.QueryTotalSupplyResponse, error) {
-//     function getTotalSupply() external view returns (uint256);
+    /**
+     * @dev Returns the `amount` of account balance by address for a given denomination.
+     */
+    function getSpendableBalanceByDenom(address accountAddress, string calldata denom) external view returns (uint256);
 
+    /**
+     * @dev Returns account balance by address for all denominations.
+     */
+    function getSpendableBalances(address accountAddress) external view returns (Coin[] memory);
 
-    function geSupplyOf(string calldata denom) external view returns (uint256);
+    /**
+     * @dev Returns the total supply of a single coin.
+     */
+    function getSupplyOf(string calldata denom) external view returns (uint256);
+
+    /**
+     * @dev Returns the total supply of a all coins.
+     */
+    function getTotalSupply() external view returns (Coin[] memory);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
@@ -94,5 +109,22 @@ interface IBankModule {
     struct Coin {
         uint64 amount;
         string denom;
+    }
+
+    struct DenomUnits {
+        string denom;
+        string[] aliases;
+    }
+    struct DenomMetadata {
+        string description;
+        DenomUnits denomUnits;
+        string base;
+        string display;
+        string name;
+        string symbol;
+    }
+
+    struct DenomsMetadata {
+        DenomMetadata[] metadatas;
     }
 }
