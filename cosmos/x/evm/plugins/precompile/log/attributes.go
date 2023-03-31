@@ -127,6 +127,14 @@ func ConvertInt64(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, int64Bits)
 }
 
+// ConvertString converts a given attribute of type string and returns the same string (as type
+// any).
+//
+// ConvertString is a `precompile.ValueDecoder`.
+func ConvertString(attributeValue string) (any, error) {
+	return attributeValue, nil
+}
+
 // ==============================================================================
 // Helpers
 // ==============================================================================

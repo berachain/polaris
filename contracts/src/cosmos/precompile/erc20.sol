@@ -49,10 +49,28 @@ interface IERC20Module {
      */
     event ConvertCoinToERC20(string indexed denom, address indexed token, uint256 amount);
 
+    /////////////////////////////////////// READ METHODS //////////////////////////////////////////
+
+    /**
+     * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
+     */
+    function coinDenomForERC20Address(address token) external view returns (string memory);
+
+    /**
+     * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address
+     * `token` (in string bech32 format).
+     */
+    function coinDenomForERC20Address(string calldata token) external view returns (string memory);
+
+    /**
+     * @dev erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
+     */
+    function erc20AddressForCoinDenom(string calldata denom) external view returns (address);
+    
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**
-     * @dev `convertCoinToERC20` converts `amount` SDK coins to ERC20 tokens for `owner`.
+     * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
      * @param token the ERC20 token being converted to
      * @param owner the account to convert for
      * @param amount the amount of tokens to convert
@@ -60,7 +78,7 @@ interface IERC20Module {
     function convertCoinToERC20(IERC20 token, address owner, uint256 amount) external;
 
     /**
-     * @dev `convertCoinToERC20` converts `amount` SDK coins to ERC20 tokens for `owner`.
+     * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
      * @param token the ERC20 token being converted to
      * @param owner the account to convert for (bech32 address)
      * @param amount the amount of tokens to convert
@@ -114,22 +132,4 @@ interface IERC20Module {
      * @param amount the amount of tokens to transfer
      */
     function convertERC20ToCoin(string calldata denom, string calldata owner, uint256 amount) external;
-
-    /////////////////////////////////////// READ METHODS //////////////////////////////////////////
-
-    /**
-     * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
-     */
-    function coinDenomForERC20Address(address token) external view returns (string memory);
-
-    /**
-     * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address
-     * `token` (in string bech32 format).
-     */
-    function coinDenomForERC20Address(string calldata token) external view returns (string memory);
-
-    /**
-     * @dev erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
-     */
-    function erc20AddressForCoinDenom(string calldata denom) external view returns (address);
 }

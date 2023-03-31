@@ -26,7 +26,7 @@ import "google/api/annotations.proto";
 
 option go_package = "pkg.berachain.dev/polaris/cosmos/x/erc20/types";
 
-// Query defines the gRPC querier service.
+// QueryService defines the gRPC querier service.
 service QueryService {
   // ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
   rpc ERC20AddressForCoinDenom(ERC20AddressForCoinDenomRequest) returns (ERC20AddressForCoinDenomResponse) {
