@@ -134,7 +134,7 @@ var _ = Describe("Staking", func() {
 	})
 	// TODO: Move to own file once setup.go is merged in here.
 	When("Testing Governance Precompile", func() {
-		It("Should be able to submit a proposal", func() {
+		It("Should be able to call precompile directly", func() {
 			// Prepare the Message.
 			govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
 			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
@@ -198,6 +198,46 @@ var _ = Describe("Staking", func() {
 			// )
 			// Expect(err).ToNot(HaveOccurred())
 			// ExpectMined(tf.EthClient, tx)
+		})
+
+		It("should be able to call from a contract", func() {
+			// Deploy the governance wrapper contract.
+			_, tx, contract, err := tbindings.DeployGovernanceWrapper(
+				tf.GenerateTransactOpts(""),
+				tf.EthClient,
+				common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectMined(tf.EthClient, tx)
+			ExpectSuccessReceipt(tf.EthClient, tx)
+
+			// Prepare the Message.
+			govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
+			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
+			message := &banktypes.MsgSend{
+				FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
+				ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				Amount:      initDeposit,
+			}
+			messageBz, err := message.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+			// Prepare the Proposal.
+			proposal := v1.MsgSubmitProposal{
+				InitialDeposit: initDeposit,
+				Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				Metadata:       "metadata",
+				Title:          "title",
+				Summary:        "summary",
+				Expedited:      false,
+			}
+			proposalBz, err := proposal.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+
+			// Send funds to the contract.
+			txr := tf.GenerateTransactOpts("")
+			tx, err = contract.SubmitProposalWrapepr(txr, proposalBz, messageBz)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectMined(tf.EthClient, tx)
 		})
 	})
 
