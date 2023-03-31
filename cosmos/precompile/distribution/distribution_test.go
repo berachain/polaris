@@ -118,7 +118,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	BeforeEach(func() {
 		valAddr = sdk.ValAddress([]byte("val"))
-		amt = sdk.NewCoin("denom", sdk.NewInt(100))
+		amt = sdk.NewCoin("abera", sdk.NewInt(100))
 
 		// Set up the contracts and keepers.
 		ctx, dk, sk, bk = setup()
@@ -145,7 +145,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			Expect(contract.PrecompileMethods()).To(HaveLen(4))
+			Expect(contract.PrecompileMethods()).To(HaveLen(5))
 		})
 	})
 
@@ -223,6 +223,12 @@ var _ = Describe("Distribution Precompile Test", func() {
 		var tokens sdk.DecCoins
 
 		BeforeEach(func() {
+			// Set the previous proposer.
+			dk.SetPreviousProposerConsAddr(
+				ctx,
+				sdk.ConsAddress(testutil.Alice.Bytes()),
+			)
+
 			PKS := simtestutil.CreateTestPubKeys(5)
 			valConsPk0 := PKS[0]
 			valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
@@ -266,6 +272,10 @@ var _ = Describe("Distribution Precompile Test", func() {
 			coins, _ := tokens.TruncateDecimal()
 			err = bk.MintCoins(ctx, distributiontypes.ModuleName, coins)
 			Expect(err).ToNot(HaveOccurred())
+
+			genState := dk.ExportGenesis(ctx)
+			fmt.Println("Gen-state: ", genState)
+
 		})
 
 		When("Withdraw Delegator Rewards common address", func() {
