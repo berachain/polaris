@@ -274,7 +274,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			genState := dk.ExportGenesis(ctx)
-			fmt.Println("Gen-state: ", genState)
+			Expect(err).ToNot(HaveOccurred())
+			fmt.Println("Gen-state", genState)
 
 		})
 

@@ -51,7 +51,6 @@ func NewPrecompileContract(
 		BaseContract: precompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
 			// 0x93354845030274cD4bf1686Abd60AB28EC52e1a7
-			// cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName)),
 			common.BytesToAddress([]byte{0x69}), // TODO: choose a better address.
 		),
 		msgServer: m,
