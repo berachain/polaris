@@ -69,10 +69,10 @@ func (dp *defaultPlugin) Run(
 }
 
 // EnableReentrancy implements `core.PrecompilePlugin`.
-func (dp *defaultPlugin) EnableReentrancy() {}
+func (dp *defaultPlugin) EnableReentrancy(context.Context) {}
 
 // DisableReentrancy implements `core.PrecompilePlugin`.
-func (dp *defaultPlugin) DisableReentrancy() {}
+func (dp *defaultPlugin) DisableReentrancy(context.Context) {}
 
 func GetDefaultPrecompiles(rules *params.Rules) []Registrable {
 	// Depending on the hard fork rules, we need to register a different set of precompiles.

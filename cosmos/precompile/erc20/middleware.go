@@ -24,7 +24,6 @@ import (
 	"context"
 	"math/big"
 
-	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -35,7 +34,17 @@ import (
 )
 
 // convertCoinToERC20 converts SDK coins to ERC20 tokens for an owner.
-func (c *Contract) convertCoinToERC20() {}
+func (c *Contract) convertCoinToERC20(
+	ctx context.Context,
+	caller common.Address,
+	evm ethprecompile.EVM,
+	value *big.Int,
+	denom string,
+	owner common.Address,
+	amount *big.Int,
+) error {
+	return nil
+}
 
 // convertERC20ToCoin converts ERC20 tokens to SDK coins for an owner.
 func (c *Contract) convertERC20ToCoin(
@@ -50,7 +59,7 @@ func (c *Contract) convertERC20ToCoin(
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// transfer amount ERC20 tokens from owner to ERC20 module precompile contract
-	err := c.transferERC20ToModule(evm, sdkCtx.GasMeter(), caller, owner, value, token, amount)
+	err := c.transferERC20ToModule(sdkCtx, evm, caller, owner, value, token, amount)
 	if err != nil {
 		return err
 	}
@@ -80,17 +89,17 @@ func (c *Contract) convertERC20ToCoin(
 // transferERC20ToModule transfers ERC20 tokens from an owner to ERC20 module precompile contract
 // by calling back into the EVM.
 func (c *Contract) transferERC20ToModule(
+	ctx sdk.Context,
 	evm ethprecompile.EVM,
-	gasMeter storetypes.GasMeter,
 	caller common.Address,
 	owner common.Address,
 	value *big.Int,
 	token common.Address,
 	amount *big.Int,
 ) error {
-	suppliedGas := gasMeter.GasRemaining()
+	suppliedGas := ctx.GasMeter().GasRemaining()
 
-	c.GetPlugin().EnableReentrancy()
+	c.GetPlugin().EnableReentrancy(ctx)
 
 	// call ERC20 contract to transferFrom owner to ERC20 module precompile contract
 	input, err := c.erc20ABI.Pack("transferFrom", owner, c.RegistryKey(), amount)
@@ -101,10 +110,10 @@ func (c *Contract) transferERC20ToModule(
 		vm.AccountRef(caller), token, input, suppliedGas, value,
 	)
 
-	c.GetPlugin().DisableReentrancy()
+	c.GetPlugin().DisableReentrancy(ctx)
 
 	// consume gas used by EVM during ERC20 transfer
-	defer gasMeter.ConsumeGas(suppliedGas-gasRemaining, "ERC20 transfer")
+	defer ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "ERC20 transfer")
 
 	return err
 }

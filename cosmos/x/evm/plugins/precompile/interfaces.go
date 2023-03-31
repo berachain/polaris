@@ -20,10 +20,10 @@
 
 package precompile
 
-import "context"
+import storetypes "cosmossdk.io/store/types"
 
 type (
 	StatePlugin interface {
-		Reset(context.Context)
+		SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 	}
 )

@@ -189,51 +189,60 @@ func (c *Contract) ERC20AddressForCoinDenom(
 // ConvertCoinToERC20StringAddr converts SDK coins to ERC20 tokens for an owner.
 func (c *Contract) ConvertCoinToERC20StringAddr(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
 	_ bool,
 	args ...any,
 ) ([]any, error) {
-	_, ok := utils.GetAs[string](args[0])
+	denom, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	_, ok = utils.GetAs[common.Address](args[1])
+	owner, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	_, ok = utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[2])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, nil
+	err := c.convertCoinToERC20(ctx, caller, evm, value, denom, owner, amount)
+	return []any{err == nil}, err
 }
 
 // ConvertCoinToERC20StringString converts SDK coins to ERC20 tokens for an owner.
 func (c *Contract) ConvertCoinToERC20StringString(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
 	_ bool,
 	args ...any,
 ) ([]any, error) {
-	_, ok := utils.GetAs[string](args[0])
+	denom, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	_, ok = utils.GetAs[string](args[1])
+	ownerBech32, ok := utils.GetAs[string](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidBech32Address
 	}
-	_, ok = utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[2])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	return nil, nil
+	owner, err := sdk.AccAddressFromBech32(ownerBech32)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.convertCoinToERC20(
+		ctx, caller, evm, value, denom, cosmlib.AccAddressToEthAddress(owner), amount,
+	)
+	return []any{err == nil}, err
 }
 
 // ConvertERC20ToCoinAddrAddr converts ERC20 tokens to SDK coins for an owner.

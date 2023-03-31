@@ -45,6 +45,7 @@ type stateful struct {
 	idsToMethods map[string]*Method
 	// receive      *Method // TODO: implement
 	// fallback     *Method // TODO: implement
+
 }
 
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.

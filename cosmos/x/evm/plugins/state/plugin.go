@@ -26,7 +26,6 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/lib"
@@ -61,6 +60,8 @@ type Plugin interface {
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// IterateCode iterates over the code of all accounts and calls the given callback function.
 	IterateCode(fn func(addr common.Address, code []byte) bool)
+	// SetGasConfig sets the gas config for the plugin.
+	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -146,12 +147,12 @@ func (p *plugin) Reset(ctx context.Context) {
 	// and proper gas consumption.
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
 
-	// We  also remove the KVStore gas metering from the context prior to entering the EVM
+	// We also remove the KVStore gas metering from the context prior to entering the EVM
 	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
-	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced individually.
-	// By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES in the EVM
-	// are not being charged additional gas unknowingly.
-	p.ctx = p.ctx.WithKVGasConfig(storetypes.GasConfig{}).WithTransientKVGasConfig(storetypes.GasConfig{})
+	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced
+	// individually. By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES
+	// in the EVM are not being charged additional gas unknowingly.
+	p.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 
 	// We setup a snapshot controller in order to properly handle reverts.
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
@@ -514,4 +515,12 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
 	sp.Reset(ctx)
 	return sp, nil
+}
+
+// =============================================================================
+// Other
+// =============================================================================
+
+func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
+	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
 }
