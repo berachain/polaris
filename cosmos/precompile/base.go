@@ -28,6 +28,8 @@ import (
 
 type BaseContract interface {
 	ethprecompile.StatefulImpl
+	
+	GetPlugin() ethprecompile.Plugin
 }
 
 // baseContract is a base implementation of `StatefulImpl`.
@@ -36,6 +38,8 @@ type baseContract struct {
 	abi abi.ABI
 	// address stores the address of the precompile.
 	address common.Address
+	// plugin stores the core precompile plugin.
+	plugin ethprecompile.Plugin
 }
 
 // NewBaseContract creates a new `BasePrecompile`.
@@ -69,4 +73,14 @@ func (c *baseContract) CustomValueDecoders() ethprecompile.ValueDecoders {
 // PrecompileMethods implements StatefulImpl.
 func (c *baseContract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{}
+}
+
+// SetPlugin implements BaseContract.
+func (c *baseContract) SetPlugin(plugin ethprecompile.Plugin) {
+	c.plugin = plugin
+}
+
+// GetPlugin implements BaseContract.
+func (c *baseContract) GetPlugin() ethprecompile.Plugin {
+	return c.plugin
 }

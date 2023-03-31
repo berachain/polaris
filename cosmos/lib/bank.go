@@ -25,22 +25,21 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
 // MintCoinsToAddress mints coins to a given address.
 func MintCoinsToAddress(
-	ctx sdk.Context, bk BankKeeper, recipient common.Address, denom string, amount *big.Int,
+	ctx sdk.Context, bk BankKeeper, moduleAcc string, recipient common.Address, denom string, amount *big.Int,
 ) error {
 	// Mint the corresponding bank denom.
 	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
-	if err := bk.MintCoins(ctx, types.ModuleName, coins); err != nil {
+	if err := bk.MintCoins(ctx, moduleAcc, coins); err != nil {
 		return err
 	}
 
 	// Send the bank denomination to the receipient.
-	if err := bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient.Bytes(), coins); err != nil {
+	if err := bk.SendCoinsFromModuleToAccount(ctx, moduleAcc, recipient.Bytes(), coins); err != nil {
 		return err
 	}
 
@@ -49,16 +48,16 @@ func MintCoinsToAddress(
 
 // BurnCoinsFromAddress burns coins from a given address.
 func BurnCoinsFromAddress(
-	ctx sdk.Context, bk BankKeeper, recipient common.Address, denom string, amount *big.Int,
+	ctx sdk.Context, bk BankKeeper, moduleAcc string, recipient common.Address, denom string, amount *big.Int,
 ) error {
 	// Burn the corresponding bank denom.
 	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
-	if err := bk.SendCoinsFromAccountToModule(ctx, recipient.Bytes(), types.ModuleName, coins); err != nil {
+	if err := bk.SendCoinsFromAccountToModule(ctx, recipient.Bytes(), moduleAcc, coins); err != nil {
 		return err
 	}
 
 	// Burn the bank denomination.
-	if err := bk.BurnCoins(ctx, types.ModuleName, coins); err != nil {
+	if err := bk.BurnCoins(ctx, moduleAcc, coins); err != nil {
 		return err
 	}
 

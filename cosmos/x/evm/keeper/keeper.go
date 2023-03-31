@@ -33,7 +33,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	ethrpcconfig "pkg.berachain.dev/polaris/eth/rpc/config"
 )
@@ -59,7 +59,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	getPrecompiles func() func() []vm.RegistrablePrecompile,
+	getPrecompiles func() func() []precompile.Registrable,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
@@ -97,7 +97,7 @@ func NewKeeper(
 func (k *Keeper) Setup(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	precompiles []vm.RegistrablePrecompile,
+	precompiles []precompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup plugins in the Host

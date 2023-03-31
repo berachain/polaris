@@ -35,11 +35,12 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/gas"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -55,13 +56,13 @@ type Host interface {
 		storetypes.StoreKey,
 		state.AccountKeeper,
 		state.BankKeeper,
-		[]vm.RegistrablePrecompile,
+		[]ethprecompile.Registrable,
 		func(height int64, prove bool) (sdk.Context, error),
 	)
 }
 
 type host struct {
-	// The various plugins that are are used to implement `core.PolarishostChain`.
+	// The various plugins that are are used to implement core.PolarisHostChain.
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
@@ -100,12 +101,12 @@ func (h *host) Setup(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	precompiles []vm.RegistrablePrecompile,
+	precompiles []ethprecompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the precompile and state plugins
-	h.pp = precompile.NewPlugin(precompiles)
-	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, h.pp)
+	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(precompiles))
+	h.pp = precompile.NewPlugin(precompiles, h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

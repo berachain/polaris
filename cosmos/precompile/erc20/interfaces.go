@@ -18,19 +18,18 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package erc20
 
 import (
-	"github.com/ethereum/go-ethereum/params"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-
-func NewPrecompilePluginMock() *PrecompilePluginMock {
-	return &PrecompilePluginMock{
-		GetPrecompilesFunc: func(_ *params.Rules) []precompile.Registrable {
-			return nil
-		},
+type (
+	ERC20Module interface {
+		erc20types.QueryServiceServer
+		RegisterDenomTokenPair(ctx sdk.Context, token common.Address)
 	}
-}
+)

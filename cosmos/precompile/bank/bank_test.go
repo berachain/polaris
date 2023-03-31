@@ -28,7 +28,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -52,7 +52,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.
-		factory = log.NewFactory([]vm.RegistrablePrecompile{contract})
+		factory = log.NewFactory([]ethprecompile.Registrable{contract})
 	})
 
 	It("should register the send event", func() {

@@ -52,7 +52,7 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, nil)
 		sp.Reset(ctx)
 	})
 

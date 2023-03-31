@@ -48,11 +48,11 @@ var _ = Describe("Container Factories", func() {
 		})
 
 		It("should build stateless precompile containers", func() {
-			pc, err := scf.Build(&mockStateless{&mockBase{}})
+			pc, err := scf.Build(&mockStateless{&mockBase{}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
-			_, err = scf.Build(&mockBase{})
+			_, err = scf.Build(&mockBase{}, nil)
 			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatelessContainerImpl"))
 		})
 	})
@@ -65,11 +65,11 @@ var _ = Describe("Container Factories", func() {
 		})
 
 		It("should correctly build stateful containers and log events", func() {
-			pc, err := scf.Build(&mockStateful{&mockBase{}})
+			pc, err := scf.Build(&mockStateful{&mockBase{}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
-			_, err = scf.Build(&mockStateless{&mockBase{}})
+			_, err = scf.Build(&mockStateless{&mockBase{}}, nil)
 			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatefulContainerImpl"))
 		})
 	})
@@ -82,12 +82,12 @@ var _ = Describe("Container Factories", func() {
 		})
 
 		It("should error on missing precompile method for ABI method", func() {
-			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}})
+			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}}, nil)
 			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
 		})
 
 		It("should error on invalid precompile methods", func() {
-			_, err := scf.Build(&invalidMockStateful{&mockStateful{&mockBase{}}})
+			_, err := scf.Build(&invalidMockStateful{&mockStateful{&mockBase{}}}, nil)
 			Expect(err.Error()).To(Equal("incomplete precompile Method"))
 		})
 	})
@@ -100,11 +100,11 @@ var _ = Describe("Container Factories", func() {
 		})
 
 		It("should properly build dynamic container", func() {
-			pc, err := dcf.Build(&mockDynamic{&mockStateful{&mockBase{}}})
+			pc, err := dcf.Build(&mockDynamic{&mockStateful{&mockBase{}}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
-			_, err = dcf.Build(&mockStateful{&mockBase{}})
+			_, err = dcf.Build(&mockStateful{&mockBase{}}, nil)
 			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: DynamicContainerImpl"))
 		})
 	})

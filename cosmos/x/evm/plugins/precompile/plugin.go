@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -28,9 +29,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -50,24 +49,32 @@ type Plugin interface {
 	SetKVGasConfig(storetypes.GasConfig)
 	TransientKVGasConfig() storetypes.GasConfig
 	SetTransientKVGasConfig(storetypes.GasConfig)
-	GetLogFactory() events.PrecompileLogFactory
+}
+
+// nativeContext is only active during precompile (native host chain) execution.
+type nativeContext struct {
+	inactive bool // inactive only during EVM reentrancy
+	ctx      sdk.Context
+	nativeGM storetypes.GasMeter
 }
 
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 	// precompiles is all supported precompile contracts.
-	precompiles []vm.RegistrablePrecompile
+	precompiles []precompile.Registrable
 	// kvGasConfig is the gas config for the KV store.
 	kvGasConfig storetypes.GasConfig
 	// transientKVGasConfig is the gas config for the transient KV store.
 	transientKVGasConfig storetypes.GasConfig
-	// plf builds Eth events from Cosmos events, emitted during precompile execution.
-	plf events.PrecompileLogFactory
+	// sp allows resetting the context for the reentrancy into the EVM.
+	sp StatePlugin
+	// ephemeral is the native context active during precompile execution.
+	ephemeral *nativeContext
 }
 
 // NewPlugin creates and returns a `plugin` with the default kv gas configs.
-func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
+func NewPlugin(precompiles []precompile.Registrable, sp StatePlugin) Plugin {
 	return &plugin{
 		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
 		precompiles: precompiles,
@@ -75,17 +82,13 @@ func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 		// https://github.com/berachain/polaris/issues/393
 		kvGasConfig:          storetypes.GasConfig{},
 		transientKVGasConfig: storetypes.GasConfig{},
-		plf:                  log.NewFactory(precompiles),
+		sp:                   sp,
 	}
 }
 
 // GetPrecompiles implements `core.PrecompilePlugin`.
-func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
+func (p *plugin) GetPrecompiles(_ *params.Rules) []precompile.Registrable {
 	return p.precompiles
-}
-
-func (p *plugin) GetLogFactory() events.PrecompileLogFactory {
-	return p.plf
 }
 
 func (p *plugin) KVGasConfig() storetypes.GasConfig {
@@ -113,22 +116,29 @@ func (p *plugin) Run(
 	evm precompile.EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
+	// only run precompile container if ephemeral ctx is nil
+	if p.ephemeral != nil {
+		return nil, suppliedGas, errors.New("precompile container is already running")
+	}
+	p.ephemeral = &nativeContext{} // set as active because we are entering native host chain execution
+
 	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewInfiniteGasMeter()
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// get native Cosmos SDK context from the Polaris StateDB
-	sdb := evm.GetStateDB()
-	ctx := sdk.UnwrapSDKContext(utils.MustGetAs[vm.PolarisStateDB](sdb).GetContext())
+	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
+	p.ephemeral.ctx = sdk.UnwrapSDKContext(sdb.GetContext())
+	p.ephemeral.nativeGM = p.ephemeral.ctx.GasMeter()
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
-	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
+	cem := utils.MustGetAs[state.ControllableEventManager](p.ephemeral.ctx.EventManager())
 	cem.BeginPrecompileExecution(sdb)
 
 	// run precompile container
 	ret, err := pc.Run(
-		ctx.WithGasMeter(gm).
+		p.ephemeral.ctx.WithGasMeter(gm).
 			WithKVGasConfig(p.kvGasConfig).
 			WithTransientKVGasConfig(p.transientKVGasConfig),
 		evm,
@@ -146,6 +156,46 @@ func (p *plugin) Run(
 		return nil, 0, vm.ErrOutOfGas
 	}
 
+	// clear ephemeral context so that the next precompile container can be run
+	p.ephemeral = nil
+
 	// valid precompile gas consumption => return supplied gas
 	return ret, suppliedGas - gm.GasConsumed(), err
+}
+
+// EnableReentrancy sets the state so that execution can enter the EVM again.
+//
+// EnableReentrancy implements `core.PrecompilePlugin`.
+func (p *plugin) EnableReentrancy() {
+	if p.ephemeral == nil || p.ephemeral.inactive {
+		// not in precompile execution, cannot (re)enable reentrancy
+		return
+	}
+
+	// reset the state plugin to the current context so that the next EVM execution can continue
+	// normally
+	p.sp.Reset(
+		sdk.NewContext(
+			p.ephemeral.ctx.MultiStore(),
+			p.ephemeral.ctx.BlockHeader(),
+			p.ephemeral.ctx.IsCheckTx(),
+			p.ephemeral.ctx.Logger(),
+		).WithGasMeter(p.ephemeral.nativeGM),
+	)
+
+	// native code is no longer active, EVM takes over
+	p.ephemeral.inactive = true
+}
+
+// DisableReentrancy sets the state so that execution cannot enter the EVM again.
+//
+// DisableReentrancy implements `core.PrecompilePlugin`.
+func (p *plugin) DisableReentrancy() {
+	if p.ephemeral == nil || !p.ephemeral.inactive {
+		// in precompile execution, so cannot (re)disable reentrancy
+		return
+	}
+
+	// EVM is done, native code is now active again
+	p.ephemeral.inactive = false
 }

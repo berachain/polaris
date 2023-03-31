@@ -46,7 +46,7 @@ func NewDefaultPlugin() Plugin {
 }
 
 // GetPrecompiles implements `core.PrecompilePlugin`.
-func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
+func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []Registrable {
 	return GetDefaultPrecompiles(rules)
 }
 
@@ -68,7 +68,13 @@ func (dp *defaultPlugin) Run(
 	return output, suppliedGas, err
 }
 
-func GetDefaultPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
+// EnableReentrancy implements `core.PrecompilePlugin`.
+func (dp *defaultPlugin) EnableReentrancy() {}
+
+// DisableReentrancy implements `core.PrecompilePlugin`.
+func (dp *defaultPlugin) DisableReentrancy() {}
+
+func GetDefaultPrecompiles(rules *params.Rules) []Registrable {
 	// Depending on the hard fork rules, we need to register a different set of precompiles.
 	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
 	switch {
@@ -80,7 +86,7 @@ func GetDefaultPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile {
 		addrToPrecompiles = vm.PrecompiledContractsHomestead
 	}
 
-	allPrecompiles := make([]vm.RegistrablePrecompile, 0, len(addrToPrecompiles))
+	allPrecompiles := make([]Registrable, 0, len(addrToPrecompiles))
 	for _, precompile := range addrToPrecompiles {
 		allPrecompiles = append(allPrecompiles, precompile)
 	}

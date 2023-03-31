@@ -66,32 +66,16 @@ interface IERC20Module {
      * @dev erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
      */
     function erc20AddressForCoinDenom(string calldata denom) external view returns (address);
-    
+
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**
      * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
-     * @param token the ERC20 token being converted to
-     * @param owner the account to convert for
-     * @param amount the amount of tokens to convert
-     */
-    function convertCoinToERC20(IERC20 token, address owner, uint256 amount) external;
-
-    /**
-     * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
-     * @param token the ERC20 token being converted to
-     * @param owner the account to convert for (bech32 address)
-     * @param amount the amount of tokens to convert
-     */
-    function convertCoinToERC20(IERC20 token, string calldata owner, uint256 amount) external;
-
-    /**
-     * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
      * @param denom the denomination of the SDK coin being converted from
      * @param owner the account to convert for
      * @param amount the amount of tokens to convert
      */
-    function convertCoinToERC20(string calldata denom, address owner, uint256 amount) external;
+    function convertCoinToERC20(string calldata denom, address owner, uint256 amount) external returns (bool);
 
     /**
      * @dev convertCoinToERC20 converts `amount` SDK coins to ERC20 tokens for `owner`.
@@ -99,7 +83,7 @@ interface IERC20Module {
      * @param owner the account to convert for (bech32 address)
      * @param amount the amount of tokens to convert
      */
-    function convertCoinToERC20(string calldata denom, string calldata owner, uint256 amount) external;
+    function convertCoinToERC20(string calldata denom, string calldata owner, uint256 amount) external returns (bool);
 
     /**
      * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
@@ -107,7 +91,7 @@ interface IERC20Module {
      * @param owner the account to convert for
      * @param amount the amount of tokens to transfer
      */
-    function convertERC20ToCoin(IERC20 token, address owner, uint256 amount) external;
+    function convertERC20ToCoin(IERC20 token, address owner, uint256 amount) external returns (bool);
 
     /**
      * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
@@ -115,21 +99,5 @@ interface IERC20Module {
      * @param owner the account to convert for (bech32 address)
      * @param amount the amount of tokens to transfer
      */
-    function convertERC20ToCoin(IERC20 token, string calldata owner, uint256 amount) external;
-
-    /**
-     * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
-     * @param denom the denomination of the SDK coin being converted to
-     * @param owner the account to convert for
-     * @param amount the amount of tokens to transfer
-     */
-    function convertERC20ToCoin(string calldata denom, address owner, uint256 amount) external;
-
-    /**
-     * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
-     * @param denom the denomination of the SDK coin being converted to
-     * @param owner the account to convert for (bech32 address)
-     * @param amount the amount of tokens to transfer
-     */
-    function convertERC20ToCoin(string calldata denom, string calldata owner, uint256 amount) external;
+    function convertERC20ToCoin(IERC20 token, string calldata owner, uint256 amount) external returns (bool);
 }

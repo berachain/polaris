@@ -104,7 +104,7 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
@@ -316,14 +316,16 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
-		[]vm.RegistrablePrecompile{
+		[]precompile.Registrable{
 			// TODO: register more precompiles here.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(),
 			authprecompile.NewPrecompileContract(),
 			distrprecompile.NewPrecompileContract(),
 			govprecompile.NewPrecompileContract(app.GovKeeper),
-			erc20precompile.NewPrecompileContract(erc20keeper.Querier{Keeper: app.ERC20Keeper}),
+			erc20precompile.NewPrecompileContract(
+				app.BankKeeper, app.ERC20Keeper,
+			),
 		},
 		app.CreateQueryContext,
 	)

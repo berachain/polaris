@@ -94,9 +94,8 @@ type plugin struct {
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
 	cms ControllableMultiStore
 
-	// Store a reference to the precompile plugin, which has a precompile log factory that builds
-	// Eth logs from Cosmos events
-	pp PrecompilePlugin
+	// Store a precompile log factory that builds Eth logs from Cosmos events
+	plf events.PrecompileLogFactory
 
 	// Store the evm store key for quick lookups to the evm store
 	storeKey storetypes.StoreKey
@@ -119,14 +118,14 @@ func NewPlugin(
 	bk BankKeeper,
 	storeKey storetypes.StoreKey,
 	cp ConfigurationPlugin,
-	pp PrecompilePlugin,
+	plf events.PrecompileLogFactory,
 ) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 		ak:       ak,
 		bk:       bk,
 		cp:       cp,
-		pp:       pp,
+		plf:      plf,
 	}
 }
 
@@ -141,7 +140,7 @@ func (p *plugin) Reset(ctx context.Context) {
 
 	// We have to build a custom event manager to use with the StateDB. This is because the we want
 	// a way to handle converting Cosmos events from precompiles into Ethereum logs.
-	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.pp.GetLogFactory())
+	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
 
 	// We need to build a custom configuration for the context in order to handle precompile event logs
 	// and proper gas consumption.
@@ -262,7 +261,7 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
-	err := lib.MintCoinsToAddress(p.ctx, p.bk, addr, p.cp.GetEvmDenom(), amount)
+	err := lib.MintCoinsToAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount)
 	if err != nil {
 		panic(err)
 	}
@@ -271,7 +270,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
-	err := lib.BurnCoinsFromAddress(p.ctx, p.bk, addr, p.cp.GetEvmDenom(), amount)
+	err := lib.BurnCoinsFromAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount)
 	if err != nil {
 		panic(err)
 	}
@@ -512,7 +511,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	}
 
 	// Create a State Plugin with the requested chain height.
-	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.pp)
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
 	sp.Reset(ctx)
 	return sp, nil
 }

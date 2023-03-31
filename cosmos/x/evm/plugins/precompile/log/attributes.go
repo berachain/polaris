@@ -76,6 +76,7 @@ var (
 	_ precompile.ValueDecoder = ConvertValAddressFromBech32
 	_ precompile.ValueDecoder = ConvertAccAddressFromBech32
 	_ precompile.ValueDecoder = ConvertInt64
+	_ precompile.ValueDecoder = ConvertString
 )
 
 // ConvertSdkCoin converts the string representation of an `sdk.Coin` to a `*big.Int`.

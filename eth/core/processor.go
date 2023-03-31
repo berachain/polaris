@@ -248,7 +248,7 @@ func (sp *StateProcessor) Finalize(
 // ===========================================================================
 
 // BuildPrecompiles builds the given precompiles and registers them with the precompile plugins.
-func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.RegistrablePrecompile) {
+func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable) {
 	for _, pc := range precompiles {
 		// skip registering precompiles that are already registered.
 		if sp.pp.Has(pc.RegistryKey()) {
@@ -273,7 +273,7 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []vm.Registrab
 		}
 
 		// build the precompile container and register with the plugin
-		container, err := af.Build(pc)
+		container, err := af.Build(pc, sp.pp)
 		if err != nil {
 			panic(err)
 		}

@@ -29,7 +29,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// DenomERC20 is the store type for ERC20 <-> x/bank module denominations.
+// DenomKVStore is the store type for ERC20 token address <-> SDK Coin denominations.
 type DenomKVStore interface {
 	SetDenomForAddress(address common.Address)
 	GetDenomForAddress(address common.Address) string
@@ -39,7 +39,8 @@ type DenomKVStore interface {
 	HasAddressForDenom(denom string) bool
 }
 
-// denomStore is a store that stores information regarding ERC20 <-> x/bank module denominations.
+// denomStore is a store that stores information regarding ERC20 token address <-> SDK Coin
+// denominations.
 type denomStore struct {
 	addressToDenom storetypes.KVStore
 	denomToAddress storetypes.KVStore

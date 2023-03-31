@@ -76,12 +76,6 @@ type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
-// PrecompilePlugin defines the expected precompile plugin.
-type PrecompilePlugin interface {
-	// GetLogFactory returns the log factory for the precompile plugin.
-	GetLogFactory() events.PrecompileLogFactory
-}
-
 type ConfigurationPlugin interface {
 	GetEvmDenom() string
 }

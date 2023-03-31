@@ -22,7 +22,6 @@ package keeper
 
 import (
 	"fmt"
-	"sync"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -39,8 +38,6 @@ type Keeper struct {
 	storeKey   storetypes.StoreKey
 	bankKeeper BankKeeper
 	authority  sdk.AccAddress
-
-	deployLock sync.Mutex
 }
 
 // NewKeeper creates new instances of the erc20 Keeper.

@@ -30,26 +30,21 @@ import (
 )
 
 // Compile-time interface assertion.
-var _ types.QueryServiceServer = Querier{}
-
-// Querier implements the QueryServer for the erc20 module.
-type Querier struct {
-	*Keeper
-}
+var _ types.QueryServiceServer = (*Keeper)(nil)
 
 // ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
-func (q Querier) ERC20AddressForCoinDenom(
+func (k *Keeper) ERC20AddressForCoinDenom(
 	ctx context.Context, req *types.ERC20AddressForCoinDenomRequest,
 ) (*types.ERC20AddressForCoinDenomResponse, error) {
 	return &types.ERC20AddressForCoinDenomResponse{
 		Token: cosmlib.AddressToAccAddress(
-			q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom),
+			k.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom),
 		).String(),
 	}, nil
 }
 
 // CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
-func (q Querier) CoinDenomForERC20Address(
+func (k *Keeper) CoinDenomForERC20Address(
 	ctx context.Context, req *types.CoinDenomForERC20AddressRequest,
 ) (*types.CoinDenomForERC20AddressResponse, error) {
 	addr, err := sdk.AccAddressFromBech32(req.Token)
@@ -58,7 +53,7 @@ func (q Querier) CoinDenomForERC20Address(
 	}
 
 	return &types.CoinDenomForERC20AddressResponse{
-		Denom: q.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetDenomForAddress(
+		Denom: k.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetDenomForAddress(
 			cosmlib.AccAddressToEthAddress(addr),
 		),
 	}, nil

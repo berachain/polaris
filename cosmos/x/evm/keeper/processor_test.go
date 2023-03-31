@@ -44,7 +44,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 
@@ -90,7 +89,7 @@ var _ = Describe("Processor", func() {
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
 			ak, bk,
-			func() func() []vm.RegistrablePrecompile { return nil },
+			func() func() []precompile.Registrable { return nil },
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),
@@ -100,7 +99,7 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil)
+		k.Setup(ak, bk, []precompile.Registrable{sc}, nil)
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {

@@ -18,19 +18,12 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package precompile
 
-import (
-	"github.com/ethereum/go-ethereum/params"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-)
+import "context"
 
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-
-func NewPrecompilePluginMock() *PrecompilePluginMock {
-	return &PrecompilePluginMock{
-		GetPrecompilesFunc: func(_ *params.Rules) []precompile.Registrable {
-			return nil
-		},
+type (
+	StatePlugin interface {
+		Reset(context.Context)
 	}
-}
+)
