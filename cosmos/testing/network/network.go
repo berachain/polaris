@@ -27,6 +27,7 @@ import (
 
 	cdb "github.com/cosmos/cosmos-db"
 
+	"cosmossdk.io/math"
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
@@ -34,12 +35,15 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 
+	distrtestutil "github.com/cosmos/cosmos-sdk/x/distribution/testutil"
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
@@ -149,7 +153,6 @@ func BuildGenesisState() map[string]json.RawMessage {
 	}
 	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
 	authState.Accounts = append(authState.Accounts, accounts[0])
-	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 
 	// Bank module
 	var bankState banktypes.GenesisState
@@ -158,13 +161,11 @@ func BuildGenesisState() map[string]json.RawMessage {
 		Address: newAccount.Address,
 		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
 	})
-	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 
 	// Staking module
 	var stakingState stakingtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[stakingtypes.ModuleName], &stakingState)
 	stakingState.Params.BondDenom = "abera"
-	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
 	// Distribution module
 	var distrState distrtypes.GenesisState
@@ -172,18 +173,57 @@ func BuildGenesisState() map[string]json.RawMessage {
 	distrState.Params = distrtypes.DefaultParams()
 	distrState.Params.WithdrawAddrEnabled = true
 	distrState.FeePool = distrtypes.InitialFeePool()
+
+	// Set the starting info for the delegator and validator.
+	PKS := simtestutil.CreateTestPubKeys(5)
+	valConsPk0 := PKS[0]
+	valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
+	valAddr := sdk.ValAddress(valConsAddr0)
+	addr := sdk.AccAddress(valAddr)
+	val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
+	if err != nil {
+		panic(err)
+	}
+	operator, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	// Set the validator.
+	stakingState.Validators = append(stakingState.Validators, val)
+	// Create the delegation.
+	stakingState.Delegations = append(stakingState.Delegations, stakingtypes.Delegation{
+		DelegatorAddress: cosmlib.AddressToAccAddress(TestAddress).String(), //TODO: Check if this is correct.
+		ValidatorAddress: valAddr.String(),
+		Shares:           val.DelegatorShares,
+	})
+	// Run the hooks.
+	// set initial historical rewards (period 0) with reference count of 1
+	distrState.ValidatorHistoricalRewards = append(distrState.ValidatorHistoricalRewards, distrtypes.ValidatorHistoricalRewardsRecord{
+		ValidatorAddress: operator.String(),
+		Period:           0,
+		Rewards:          distrtypes.NewValidatorHistoricalRewards(sdk.DecCoins{}, 1),
+	})
+	// Set validator current rewards.
+	distrState.ValidatorCurrentRewards = append(distrState.ValidatorCurrentRewards, distrtypes.ValidatorCurrentRewardsRecord{
+		ValidatorAddress: operator.String(),
+		Rewards:          distrtypes.NewValidatorCurrentRewards(sdk.DecCoins{}, 0),
+	})
+	// Set validator accumilated commission.
+	distrState.ValidatorAccumulatedCommissions = append(distrState.ValidatorAccumulatedCommissions, distrtypes.ValidatorAccumulatedCommissionRecord{
+		ValidatorAddress: operator.String(),
+		Accumulated:      distrtypes.InitialValidatorAccumulatedCommission(),
+	})
+	// Set validator outstanding rewards.
+	distrState.OutstandingRewards = append(distrState.OutstandingRewards, distrtypes.ValidatorOutstandingRewardsRecord{
+		ValidatorAddress:   operator.String(),
+		OutstandingRewards: sdk.DecCoins{},
+	})
+	fmt.Println(addr)
+
+	// Set the states into the genesis state.
+	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
+	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
+	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 	genState[distrtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&distrState)
-	// // Set the validator rewards
-	// validator := stakingState.Validators[0]
-	// distrState.ValidatorHistoricalRewards = []distrtypes.ValidatorHistoricalRewardsRecord{
-	// 	{
-	// 		ValidatorAddress: validator.OperatorAddress,
-	// 		Period:           0,
-	// 		Rewards: distrtypes.NewValidatorHistoricalRewards(
-	// 			sdk.NewDecCoins(sdk.NewDecCoinFromDec("abera", sdk.NewDec(onehundred))),
-	// 			1,
-	// 		),
-	// 	},
-	// }
 	return genState
 }

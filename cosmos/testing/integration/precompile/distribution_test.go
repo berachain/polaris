@@ -26,8 +26,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 )
 
 var _ = Describe("Distribution", func() {
@@ -57,6 +59,13 @@ var _ = Describe("Distribution", func() {
 		res, err := distributionPrecompile.GetWithdrawEnabled(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res).To(BeTrue())
+
+		// Withdraw rewards.
+		txr = tf.GenerateTransactOpts("")
+		tx, err = distributionPrecompile.WithdrawDelegatorReward(txr, network.TestAddress, validator)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(tx).ToNot(BeNil())
+
 	})
 
 	It("should call functions on the precompile via a contract", func() {
