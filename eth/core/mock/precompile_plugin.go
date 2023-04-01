@@ -22,6 +22,7 @@ package mock
 
 import (
 	"github.com/ethereum/go-ethereum/params"
+
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
 

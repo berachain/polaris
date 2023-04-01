@@ -28,8 +28,9 @@ import (
 )
 
 type (
-	ERC20Module interface {
+	ERC20Module interface { //nolint:revive // good name.
 		erc20types.QueryServiceServer
+
 		RegisterERC20CoinPair(ctx sdk.Context, token common.Address)
 		RegisterCoinERC20Pair(ctx sdk.Context, denom string, token common.Address)
 	}

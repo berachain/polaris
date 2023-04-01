@@ -23,14 +23,17 @@ package erc20
 import (
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/holiman/uint256"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
+// deployNewERC20Contract deploys a new ERC20 token contract by calling back into the EVM.
 func (c *Contract) deployNewERC20Contract(
 	ctx sdk.Context,
 	evm ethprecompile.EVM,
@@ -38,8 +41,9 @@ func (c *Contract) deployNewERC20Contract(
 	name string,
 	endowment *big.Int,
 ) (common.Address, error) {
-	c.GetPlugin().EnableReentrancy(ctx)
-	defer c.GetPlugin().DisableReentrancy(ctx)
+	plugin := c.GetPlugin()
+	plugin.EnableReentrancy(ctx)
+	defer plugin.DisableReentrancy(ctx)
 
 	// deploy new ERC20 token contract
 	code := common.FromHex(generated.PolarisERC20MetaData.Bin)
@@ -57,7 +61,7 @@ func (c *Contract) deployNewERC20Contract(
 	return contractAddr, err
 }
 
-// callERC20transferFrom transfers ERC20 tokens from by calling back into the EVM.
+// callERC20transferFrom transfers ERC20 tokens by calling back into the EVM.
 func (c *Contract) callERC20transferFrom(
 	ctx sdk.Context,
 	evm ethprecompile.EVM,
@@ -67,8 +71,9 @@ func (c *Contract) callERC20transferFrom(
 	to common.Address,
 	amount *big.Int,
 ) error {
-	c.GetPlugin().EnableReentrancy(ctx)
-	defer c.GetPlugin().DisableReentrancy(ctx)
+	plugin := c.GetPlugin()
+	plugin.EnableReentrancy(ctx)
+	defer plugin.DisableReentrancy(ctx)
 
 	// call ERC20 contract to transferFrom
 	input, err := c.polarisERC20ABI.Pack("transferFrom", from, to, amount)
@@ -85,6 +90,7 @@ func (c *Contract) callERC20transferFrom(
 	return err
 }
 
+// callERC20mint mints ERC20 tokens by calling back into the EVM.
 func (c *Contract) callERC20mint(
 	ctx sdk.Context,
 	evm ethprecompile.EVM,
@@ -93,8 +99,9 @@ func (c *Contract) callERC20mint(
 	to common.Address,
 	amount *big.Int,
 ) error {
-	c.GetPlugin().EnableReentrancy(ctx)
-	defer c.GetPlugin().DisableReentrancy(ctx)
+	plugin := c.GetPlugin()
+	plugin.EnableReentrancy(ctx)
+	defer plugin.DisableReentrancy(ctx)
 
 	// call ERC20 contract to mint
 	input, err := c.polarisERC20ABI.Pack("mint", to, amount)
@@ -109,4 +116,13 @@ func (c *Contract) callERC20mint(
 	// consume gas used by EVM during ERC20 mint
 	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "ERC20 mint")
 	return err
+}
+
+// ConvertCommonHexAddress is a value decoder.
+var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
+
+// ConvertCommonHexAddress converts a common hex address attribute to a common.Address and returns
+// it as type any.
+func ConvertCommonHexAddress(attributeValue string) (any, error) {
+	return common.HexToAddress(attributeValue), nil
 }

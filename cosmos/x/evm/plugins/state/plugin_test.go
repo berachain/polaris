@@ -26,9 +26,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/storage"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -483,12 +481,6 @@ var _ = Describe("State Plugin", func() {
 })
 
 // MOCKS BELOW.
-
-type mockPrecompilePlugin struct{}
-
-func (mpp *mockPrecompilePlugin) GetLogFactory() events.PrecompileLogFactory {
-	return log.NewFactory(nil)
-}
 
 type mockConfigurationPlugin struct{}
 

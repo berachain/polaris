@@ -74,7 +74,18 @@ func (c *Contract) convertCoinToERC20(
 		c.em.RegisterCoinERC20Pair(sdkCtx, denom, token)
 
 		// mint amount ERC20 tokens to the owner
-		return c.callERC20mint(sdkCtx, evm, caller, token, owner, amount)
+		if err = c.callERC20mint(sdkCtx, evm, c.RegistryKey(), token, owner, amount); err != nil {
+			return err
+		}
+
+		sdkCtx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				erc20types.EventTypeConvertCoinToERC20,
+				sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
+				sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
+			),
+		)
+		return nil
 	}
 
 	// convert ERC20 token bech32 address to common.Address
@@ -85,7 +96,18 @@ func (c *Contract) convertCoinToERC20(
 	token = cosmlib.AccAddressToEthAddress(tokenAcc)
 
 	// transfer amount ERC20 tokens from ERC20 module precompile contract to owner
-	return c.callERC20transferFrom(sdkCtx, evm, caller, token, c.RegistryKey(), owner, amount)
+	if err = c.callERC20transferFrom(sdkCtx, evm, caller, token, c.RegistryKey(), owner, amount); err != nil {
+		return err
+	}
+
+	sdkCtx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			erc20types.EventTypeConvertCoinToERC20,
+			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
+			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
+		),
+	)
+	return nil
 }
 
 // convertERC20ToCoin converts ERC20 tokens to SDK coins for an owner.
@@ -129,5 +151,16 @@ func (c *Contract) convertERC20ToCoin(
 	}
 
 	// mint amount SDK Coins and send to owner
-	return cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount)
+	if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
+		return err
+	}
+
+	sdkCtx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			erc20types.EventTypeConvertERC20ToCoin,
+			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
+			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
+		),
+	)
+	return nil
 }

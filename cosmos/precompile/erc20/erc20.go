@@ -57,8 +57,8 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 				authtypes.NewModuleAddress(erc20types.ModuleName),
 			),
 		),
-		bk:       bk,
-		em:       em,
+		bk:              bk,
+		em:              em,
 		polarisERC20ABI: abi.MustUnmarshalJSON(generated.PolarisERC20MetaData.ABI),
 	}
 }
@@ -66,7 +66,7 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 // CustomValueDecoders implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		erc20types.AttributeKeyToken: log.ConvertAccAddressFromBech32,
+		erc20types.AttributeKeyToken: ConvertCommonHexAddress,
 		erc20types.AttributeKeyDenom: log.ConvertString,
 	}
 }

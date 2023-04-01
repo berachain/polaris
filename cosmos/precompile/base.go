@@ -28,7 +28,7 @@ import (
 
 type BaseContract interface {
 	ethprecompile.StatefulImpl
-	
+
 	GetPlugin() ethprecompile.Plugin
 }
 
