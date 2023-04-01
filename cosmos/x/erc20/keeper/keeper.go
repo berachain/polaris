@@ -29,7 +29,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/erc20/store"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
@@ -58,10 +58,17 @@ func (k *Keeper) DenomKVStore(ctx sdk.Context) store.DenomKVStore {
 	return store.NewDenomKVStore(ctx.KVStore(k.storeKey))
 }
 
-// RegisterDenomTokenPair registers a new token pair.
-func (k *Keeper) RegisterDenomTokenPair(ctx sdk.Context, token common.Address) {
-	k.DenomKVStore(ctx).SetAddressForDenom(token)
-	k.DenomKVStore(ctx).SetDenomForAddress(token)
+// RegisterERC20CoinPair registers a new ERC 20 token <> SDK Coin pair for the given token and 
+// creates a Polaris coin denomination.
+func (k *Keeper) RegisterERC20CoinPair(ctx sdk.Context, token common.Address) {
+	// store the denomination as a Polaris coin denomination.
+	k.DenomKVStore(ctx).SetAddressDenomPair(token, types.NewPolarisDenomForAddress(token))
+}
+
+// RegisterCoinERC20Pair registers a new SDK Coin <> ERC 20 token pair for the given denom.
+func (k *Keeper) RegisterCoinERC20Pair(ctx sdk.Context, denom string, token common.Address) {
+	// store the new ERC20 address for the given denomination.
+	k.DenomKVStore(ctx).SetAddressDenomPair(token, denom)
 }
 
 // Logger returns a module-specific logger.

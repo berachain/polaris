@@ -30,7 +30,6 @@ import (
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // convertCoinToERC20 converts SDK coins to ERC20 tokens for an owner.
@@ -43,7 +42,50 @@ func (c *Contract) convertCoinToERC20(
 	owner common.Address,
 	amount *big.Int,
 ) error {
-	return nil
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	// burn amount SDK coins from owner
+	err := cosmlib.BurnCoinsFromAddress(
+		sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount,
+	)
+	if err != nil {
+		return err
+	}
+
+	// get ERC20 token address pairing with SDK coin denomination
+	resp, err := c.em.ERC20AddressForCoinDenom(
+		ctx, &erc20types.ERC20AddressForCoinDenomRequest{
+			Denom: denom,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	var token common.Address
+	if resp.Token == "" {
+		// deploy the new ERC20 token contract (deployer of this contract is the ERC20 module!)
+		token, err = c.deployNewERC20Contract(sdkCtx, evm, c.RegistryKey(), denom, value)
+		if err != nil {
+			return err
+		}
+
+		// create the new ERC20 token contract pairing with SDK coin denomination
+		c.em.RegisterCoinERC20Pair(sdkCtx, denom, token)
+
+		// mint amount ERC20 tokens to the owner
+		return c.callERC20mint(sdkCtx, evm, caller, token, owner, amount)
+	}
+
+	// convert ERC20 token bech32 address to common.Address
+	tokenAcc, err := sdk.AccAddressFromBech32(resp.Token)
+	if err != nil {
+		return err
+	}
+	token = cosmlib.AccAddressToEthAddress(tokenAcc)
+
+	// transfer amount ERC20 tokens from ERC20 module precompile contract to owner
+	return c.callERC20transferFrom(sdkCtx, evm, caller, token, c.RegistryKey(), owner, amount)
 }
 
 // convertERC20ToCoin converts ERC20 tokens to SDK coins for an owner.
@@ -51,7 +93,6 @@ func (c *Contract) convertERC20ToCoin(
 	ctx context.Context,
 	caller common.Address,
 	evm ethprecompile.EVM,
-	value *big.Int,
 	token common.Address,
 	owner common.Address,
 	amount *big.Int,
@@ -59,61 +100,34 @@ func (c *Contract) convertERC20ToCoin(
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// transfer amount ERC20 tokens from owner to ERC20 module precompile contract
-	err := c.transferERC20ToModule(sdkCtx, evm, caller, owner, value, token, amount)
+	err := c.callERC20transferFrom(sdkCtx, evm, caller, token, owner, c.RegistryKey(), amount)
 	if err != nil {
 		return err
 	}
 
 	// get SDK coin denomination pairing with ERC20 token
+	tokenString := cosmlib.AddressToAccAddress(token).String()
 	resp, err := c.em.CoinDenomForERC20Address(
-		ctx, &erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.AddressToAccAddress(token).String(),
-		},
+		ctx, &erc20types.CoinDenomForERC20AddressRequest{Token: tokenString},
 	)
 	if err != nil {
 		return err
 	}
 
+	// denomination not found, create new pair
 	denom := resp.Denom
 	if denom == "" {
-		// denomination not found, create new pair
-		c.em.RegisterDenomTokenPair(sdkCtx, token)
+		c.em.RegisterERC20CoinPair(sdkCtx, token)
+		// get the new denomination
+		resp, err = c.em.CoinDenomForERC20Address(
+			ctx, &erc20types.CoinDenomForERC20AddressRequest{Token: tokenString},
+		)
+		if err != nil {
+			return err
+		}
+		denom = resp.Denom
 	}
 
 	// mint amount SDK Coins and send to owner
-	cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount)
-
-	return nil
-}
-
-// transferERC20ToModule transfers ERC20 tokens from an owner to ERC20 module precompile contract
-// by calling back into the EVM.
-func (c *Contract) transferERC20ToModule(
-	ctx sdk.Context,
-	evm ethprecompile.EVM,
-	caller common.Address,
-	owner common.Address,
-	value *big.Int,
-	token common.Address,
-	amount *big.Int,
-) error {
-	suppliedGas := ctx.GasMeter().GasRemaining()
-
-	c.GetPlugin().EnableReentrancy(ctx)
-
-	// call ERC20 contract to transferFrom owner to ERC20 module precompile contract
-	input, err := c.erc20ABI.Pack("transferFrom", owner, c.RegistryKey(), amount)
-	if err != nil {
-		return err
-	}
-	_, gasRemaining, err := evm.Call(
-		vm.AccountRef(caller), token, input, suppliedGas, value,
-	)
-
-	c.GetPlugin().DisableReentrancy(ctx)
-
-	// consume gas used by EVM during ERC20 transfer
-	defer ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "ERC20 transfer")
-
-	return err
+	return cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount)
 }

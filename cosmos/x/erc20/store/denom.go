@@ -31,10 +31,9 @@ import (
 
 // DenomKVStore is the store type for ERC20 token address <-> SDK Coin denominations.
 type DenomKVStore interface {
-	SetDenomForAddress(address common.Address)
+	SetAddressDenomPair(address common.Address, denom string)
 	GetDenomForAddress(address common.Address) string
 	HasDenomForAddress(address common.Address) bool
-	SetAddressForDenom(address common.Address)
 	GetAddressForDenom(denom string) common.Address
 	HasAddressForDenom(denom string) bool
 }
@@ -54,17 +53,20 @@ func NewDenomKVStore(store storetypes.KVStore) DenomKVStore {
 	}
 }
 
+// TODO: marshal string denomination into bytes differently. Unsafe is not safe!
+
+// SetAddressDenomPair sets the ERC20 address <-> SDK coin denomination pair.
+func (ds *denomStore) SetAddressDenomPair(address common.Address, denom string) {
+	ds.addressToDenom.Set(address.Bytes(), utils.UnsafeStrToBytes(denom))
+	ds.denomToAddress.Set(utils.UnsafeStrToBytes(denom), address.Bytes())
+}
+
 // ==============================================================================
 // ERC20 -> Denom
 // ==============================================================================
 
-// SetDenomForAddress sets the address correlated to a specific denomination.
-func (ds denomStore) SetDenomForAddress(address common.Address) {
-	ds.addressToDenom.Set(address.Bytes(), utils.UnsafeStrToBytes(types.DenomForAddress(address)))
-}
-
 // GetDenomForAddress returns the denomination correlated to a specific address.
-func (ds denomStore) GetDenomForAddress(address common.Address) string {
+func (ds *denomStore) GetDenomForAddress(address common.Address) string {
 	bz := ds.addressToDenom.Get(address.Bytes())
 	if bz == nil {
 		return ""
@@ -73,7 +75,7 @@ func (ds denomStore) GetDenomForAddress(address common.Address) string {
 }
 
 // HasDenomForAddress returns true if the address has a denomination.
-func (ds denomStore) HasDenomForAddress(address common.Address) bool {
+func (ds *denomStore) HasDenomForAddress(address common.Address) bool {
 	return ds.addressToDenom.Has(address.Bytes())
 }
 
@@ -81,13 +83,8 @@ func (ds denomStore) HasDenomForAddress(address common.Address) bool {
 // Denom -> ERC20
 // ==============================================================================
 
-// SetAddressForDenom sets the denomination correlated to a specific address.
-func (ds denomStore) SetAddressForDenom(address common.Address) {
-	ds.denomToAddress.Set(utils.UnsafeStrToBytes(types.DenomForAddress(address)), address.Bytes())
-}
-
 // GetAddressForDenom returns the address correlated to a specific denomination.
-func (ds denomStore) GetAddressForDenom(denom string) common.Address {
+func (ds *denomStore) GetAddressForDenom(denom string) common.Address {
 	bz := ds.denomToAddress.Get(utils.UnsafeStrToBytes(denom))
 	if bz == nil {
 		return common.Address{}
@@ -96,6 +93,6 @@ func (ds denomStore) GetAddressForDenom(denom string) common.Address {
 }
 
 // HasAddressForDenom returns true if the denomination has an address.
-func (ds denomStore) HasAddressForDenom(denom string) bool {
+func (ds *denomStore) HasAddressForDenom(denom string) bool {
 	return ds.denomToAddress.Has(utils.UnsafeStrToBytes(denom))
 }

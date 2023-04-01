@@ -45,7 +45,7 @@ type Contract struct {
 	bk cosmlib.BankKeeper
 	em ERC20Module
 
-	erc20ABI abi.ABI
+	polarisERC20ABI abi.ABI
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
@@ -59,7 +59,7 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 		),
 		bk:       bk,
 		em:       em,
-		erc20ABI: abi.MustUnmarshalJSON(generated.ERC20MetaData.ABI),
+		polarisERC20ABI: abi.MustUnmarshalJSON(generated.PolarisERC20MetaData.ABI),
 	}
 }
 
@@ -250,7 +250,7 @@ func (c *Contract) ConvertERC20ToCoinAddrAddr(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
+	_ *big.Int,
 	_ bool,
 	args ...any,
 ) ([]any, error) {
@@ -267,7 +267,7 @@ func (c *Contract) ConvertERC20ToCoinAddrAddr(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertERC20ToCoin(ctx, caller, evm, value, token, owner, amount)
+	err := c.convertERC20ToCoin(ctx, caller, evm, token, owner, amount)
 	return []any{err == nil}, err
 }
 
@@ -276,7 +276,7 @@ func (c *Contract) ConvertERC20ToCoinAddrString(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
+	_ *big.Int,
 	_ bool,
 	args ...any,
 ) ([]any, error) {
@@ -299,7 +299,7 @@ func (c *Contract) ConvertERC20ToCoinAddrString(
 	}
 
 	err = c.convertERC20ToCoin(
-		ctx, caller, evm, value, token, cosmlib.AccAddressToEthAddress(owner), amount,
+		ctx, caller, evm, token, cosmlib.AccAddressToEthAddress(owner), amount,
 	)
 	return []any{err == nil}, err
 }

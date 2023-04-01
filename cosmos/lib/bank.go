@@ -30,7 +30,12 @@ import (
 
 // MintCoinsToAddress mints coins to a given address.
 func MintCoinsToAddress(
-	ctx sdk.Context, bk BankKeeper, moduleAcc string, recipient common.Address, denom string, amount *big.Int,
+	ctx sdk.Context,
+	bk BankKeeper,
+	moduleAcc string,
+	recipient common.Address,
+	denom string,
+	amount *big.Int,
 ) error {
 	// Mint the corresponding bank denom.
 	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
@@ -48,11 +53,16 @@ func MintCoinsToAddress(
 
 // BurnCoinsFromAddress burns coins from a given address.
 func BurnCoinsFromAddress(
-	ctx sdk.Context, bk BankKeeper, moduleAcc string, recipient common.Address, denom string, amount *big.Int,
+	ctx sdk.Context,
+	bk BankKeeper,
+	moduleAcc string,
+	sender common.Address,
+	denom string,
+	amount *big.Int,
 ) error {
 	// Burn the corresponding bank denom.
 	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
-	if err := bk.SendCoinsFromAccountToModule(ctx, recipient.Bytes(), moduleAcc, coins); err != nil {
+	if err := bk.SendCoinsFromAccountToModule(ctx, sender.Bytes(), moduleAcc, coins); err != nil {
 		return err
 	}
 

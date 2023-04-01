@@ -27,6 +27,7 @@ import (
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
 // Compile-time interface assertion.
@@ -36,11 +37,15 @@ var _ types.QueryServiceServer = (*Keeper)(nil)
 func (k *Keeper) ERC20AddressForCoinDenom(
 	ctx context.Context, req *types.ERC20AddressForCoinDenomRequest,
 ) (*types.ERC20AddressForCoinDenomResponse, error) {
-	return &types.ERC20AddressForCoinDenomResponse{
-		Token: cosmlib.AddressToAccAddress(
-			k.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom),
-		).String(),
-	}, nil
+	tokenAddr := k.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom)
+	var token string
+	if (tokenAddr == common.Address{}) {
+		token = ""
+	} else {
+		token = cosmlib.AddressToAccAddress(tokenAddr).String()
+	}
+
+	return &types.ERC20AddressForCoinDenomResponse{Token: token}, nil
 }
 
 // CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.

@@ -163,5 +163,6 @@ func (p *plugin) EnableReentrancy(_ context.Context) {
 // DisableReentrancy implements `core.PrecompilePlugin`.
 func (p *plugin) DisableReentrancy(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	// restore ctx gas configs for continuing precompile execution
 	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
 }

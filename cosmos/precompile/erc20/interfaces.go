@@ -30,6 +30,7 @@ import (
 type (
 	ERC20Module interface {
 		erc20types.QueryServiceServer
-		RegisterDenomTokenPair(ctx sdk.Context, token common.Address)
+		RegisterERC20CoinPair(ctx sdk.Context, token common.Address)
+		RegisterCoinERC20Pair(ctx sdk.Context, denom string, token common.Address)
 	}
 )
