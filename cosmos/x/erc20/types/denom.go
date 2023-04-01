@@ -39,8 +39,3 @@ func NewPolarisDenomForAddress(addr common.Address) string {
 func NewAddressForDenom(denom string) common.Address {
 	return common.BytesToAddress([]byte(denom))
 }
-
-// IsPolarisDenom returns true if the address is a Polaris native token.
-func IsPolarisDenom(denom string) bool {
-	return len(denom) > 8 && denom[:8] == polarisDenomPrefix
-}
