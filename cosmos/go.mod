@@ -7,7 +7,7 @@ replace (
 	cosmossdk.io/x/feegrant => cosmossdk.io/x/feegrant v0.0.0-20230305125317-672b052f323b
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230305125317-672b052f323b
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230321213944-019945fbf8fc
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230329183348-844cad7b5030
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
