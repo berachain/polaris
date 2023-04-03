@@ -59,6 +59,40 @@ contract GovernanceWrapper {
         return governanceModule.submitProposal(proposal, message);
     }
 
+    /**
+     * @dev get a proposal.
+     * @param proposalId The proposal id.
+     */
+    function getProposal(
+        uint64 proposalId
+    ) external view returns (IGovernanceModule.Proposal memory) {
+        return governanceModule.getProposal(proposalId);
+    }
+
+    /**
+     * @dev get proposals.
+     * @param proposalStatus The proposal status.
+     */
+    function getProposals(
+        int32 proposalStatus
+    ) external view returns (IGovernanceModule.Proposal[] memory) {
+        return governanceModule.getProposals(proposalStatus);
+    }
+
+    /**
+     * @dev Vote on a proposal.
+     * @param proposalId The proposal id.
+     * @param option The option.
+     * @param metadata The metadata.
+     */
+    function vote(
+        uint64 proposalId,
+        int32 option,
+        string memory metadata
+    ) external returns (bool) {
+        return governanceModule.vote(proposalId, option, metadata);
+    }
+
     // Fallback function for receiving funds.
     receive() external payable {}
 }
