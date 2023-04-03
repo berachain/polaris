@@ -62,8 +62,6 @@ type plugin struct {
 	transientKVGasConfig storetypes.GasConfig
 	// sp allows resetting the context for the reentrancy into the EVM.
 	sp StatePlugin
-	// // ephemeral is the native context active during precompile execution.
-	// ephemeral *nativeContext
 }
 
 // NewPlugin creates and returns a `plugin` with the default kv gas configs.
