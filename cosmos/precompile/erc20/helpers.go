@@ -33,8 +33,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-// deployNewERC20Contract deploys a new ERC20 token contract by calling back into the EVM.
-func (c *Contract) deployNewERC20Contract(
+// deployPolarisERC20Contract deploys a new ERC20 token contract by calling back into the EVM.
+func (c *Contract) deployPolarisERC20Contract(
 	ctx sdk.Context,
 	evm ethprecompile.EVM,
 	deployer common.Address,
@@ -57,12 +57,40 @@ func (c *Contract) deployNewERC20Contract(
 	)
 
 	// consume gas used by EVM during ERC20 deployment
-	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "ERC20 deployment")
+	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "Polaris ERC20 deployment")
 	return contractAddr, err
 }
 
-// callERC20transferFrom transfers ERC20 tokens by calling back into the EVM.
-func (c *Contract) callERC20transferFrom(
+// callPolarisERC20Mint mints ERC20 tokens by calling back into the EVM.
+func (c *Contract) callPolarisERC20Mint(
+	ctx sdk.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	token common.Address,
+	to common.Address,
+	amount *big.Int,
+) error {
+	plugin := c.GetPlugin()
+	plugin.EnableReentrancy(ctx)
+	defer plugin.DisableReentrancy(ctx)
+
+	// call ERC20 contract to mint
+	input, err := c.polarisERC20ABI.Pack("mint", to, amount)
+	if err != nil {
+		return err
+	}
+	suppliedGas := ctx.GasMeter().GasRemaining()
+	_, gasRemaining, err := evm.Call(
+		vm.AccountRef(caller), token, input, suppliedGas, big.NewInt(0),
+	)
+
+	// consume gas used by EVM during ERC20 mint
+	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "Polaris ERC20 mint")
+	return err
+}
+
+// callERC20TransferFrom transfers ERC20 tokens by calling back into the EVM.
+func (c *Contract) callERC20TransferFrom(
 	ctx sdk.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -90,21 +118,20 @@ func (c *Contract) callERC20transferFrom(
 	return err
 }
 
-// callERC20mint mints ERC20 tokens by calling back into the EVM.
-func (c *Contract) callERC20mint(
+func (c *Contract) callERC20Approve(
 	ctx sdk.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
 	token common.Address,
-	to common.Address,
+	spender common.Address,
 	amount *big.Int,
 ) error {
 	plugin := c.GetPlugin()
 	plugin.EnableReentrancy(ctx)
 	defer plugin.DisableReentrancy(ctx)
 
-	// call ERC20 contract to mint
-	input, err := c.polarisERC20ABI.Pack("mint", to, amount)
+	// call ERC20 contract to approve
+	input, err := c.polarisERC20ABI.Pack("approve", spender, amount)
 	if err != nil {
 		return err
 	}
@@ -113,8 +140,8 @@ func (c *Contract) callERC20mint(
 		vm.AccountRef(caller), token, input, suppliedGas, big.NewInt(0),
 	)
 
-	// consume gas used by EVM during ERC20 mint
-	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "ERC20 mint")
+	// consume gas used by EVM during ERC20 approve
+	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "ERC20 approve")
 	return err
 }
 

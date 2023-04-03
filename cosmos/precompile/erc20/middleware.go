@@ -65,7 +65,7 @@ func (c *Contract) convertCoinToERC20(
 	var token common.Address
 	if resp.Token == "" {
 		// deploy the new ERC20 token contract (deployer of this contract is the ERC20 module!)
-		token, err = c.deployNewERC20Contract(sdkCtx, evm, c.RegistryKey(), denom, value)
+		token, err = c.deployPolarisERC20Contract(sdkCtx, evm, c.RegistryKey(), denom, value)
 		if err != nil {
 			return err
 		}
@@ -74,30 +74,26 @@ func (c *Contract) convertCoinToERC20(
 		c.em.RegisterCoinERC20Pair(sdkCtx, denom, token)
 
 		// mint amount ERC20 tokens to the owner
-		if err = c.callERC20mint(sdkCtx, evm, c.RegistryKey(), token, owner, amount); err != nil {
+		if err = c.callPolarisERC20Mint(sdkCtx, evm, c.RegistryKey(), token, owner, amount); err != nil {
+			return err
+		}
+	} else {
+		// convert ERC20 token bech32 address to common.Address
+		tokenAcc, err := sdk.AccAddressFromBech32(resp.Token)
+		if err != nil {
+			return err
+		}
+		token = cosmlib.AccAddressToEthAddress(tokenAcc)
+
+		// approve the caller to transfer amountERC20 tokens from ERC20 module precompile contract
+		if err = c.callERC20Approve(sdkCtx, evm, c.RegistryKey(), token, caller, amount); err != nil {
 			return err
 		}
 
-		sdkCtx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				erc20types.EventTypeConvertCoinToERC20,
-				sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
-				sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
-			),
-		)
-		return nil
-	}
-
-	// convert ERC20 token bech32 address to common.Address
-	tokenAcc, err := sdk.AccAddressFromBech32(resp.Token)
-	if err != nil {
-		return err
-	}
-	token = cosmlib.AccAddressToEthAddress(tokenAcc)
-
-	// transfer amount ERC20 tokens from ERC20 module precompile contract to owner
-	if err = c.callERC20transferFrom(sdkCtx, evm, caller, token, c.RegistryKey(), owner, amount); err != nil {
-		return err
+		// transfer amount ERC20 tokens from ERC20 module precompile contract to owner
+		if err = c.callERC20TransferFrom(sdkCtx, evm, caller, token, c.RegistryKey(), owner, amount); err != nil {
+			return err
+		}
 	}
 
 	sdkCtx.EventManager().EmitEvent(
@@ -105,6 +101,7 @@ func (c *Contract) convertCoinToERC20(
 			erc20types.EventTypeConvertCoinToERC20,
 			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
 			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
 		),
 	)
 	return nil
@@ -121,9 +118,13 @@ func (c *Contract) convertERC20ToCoin(
 ) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
+	// approve the caller to transfer amount ERC20 tokens from owner
+	if err := c.callERC20Approve(sdkCtx, evm, owner, token, caller, amount); err != nil {
+		return err
+	}
+
 	// transfer amount ERC20 tokens from owner to ERC20 module precompile contract
-	err := c.callERC20transferFrom(sdkCtx, evm, caller, token, owner, c.RegistryKey(), amount)
-	if err != nil {
+	if err := c.callERC20TransferFrom(sdkCtx, evm, caller, token, owner, c.RegistryKey(), amount); err != nil {
 		return err
 	}
 
@@ -140,7 +141,7 @@ func (c *Contract) convertERC20ToCoin(
 	denom := resp.Denom
 	if denom == "" {
 		c.em.RegisterERC20CoinPair(sdkCtx, token)
-		// get the new denomination
+		// get the newly registered Polaris coin denomination
 		resp, err = c.em.CoinDenomForERC20Address(
 			ctx, &erc20types.CoinDenomForERC20AddressRequest{Token: tokenString},
 		)
@@ -160,6 +161,7 @@ func (c *Contract) convertERC20ToCoin(
 			erc20types.EventTypeConvertERC20ToCoin,
 			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
 			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
 		),
 	)
 	return nil

@@ -34,18 +34,13 @@ contract PolarisERC20 is ERC20 {
         _owner = msg.sender;
     }
 
-    event Mint(address indexed to, uint256 amount);
-    event Burn(address indexed from, uint256 amount);
-
     function mint(address to, uint256 amount) external {
         require(msg.sender == _owner, "PolarisERC20: only owner can mint");
         _mint(to, amount);
-        emit Mint(to, amount);
     }
 
     function burn(address from, uint256 amount) external {
         require(msg.sender == _owner, "PolarisERC20: only owner can burn");
         _burn(from, amount);
-        emit Burn(from, amount);
     }
 }
