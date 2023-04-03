@@ -23,12 +23,13 @@ package precompile
 import (
 	"math/big"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 var _ = Describe("Staking Precompile", func() {

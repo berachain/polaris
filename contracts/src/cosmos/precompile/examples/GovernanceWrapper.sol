@@ -24,6 +24,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 pragma solidity ^0.8.17;
+
 import {IGovernanceModule} from "../governance.sol";
 
 contract GovernanceWrapper {
@@ -49,10 +50,7 @@ contract GovernanceWrapper {
      * @param proposal The proposal.
      * @param message The message.
      */
-    function submitProposalWrapepr(
-        bytes calldata proposal,
-        bytes calldata message
-    ) external payable returns (uint64) {
+    function submitProposalWrapepr(bytes calldata proposal, bytes calldata message) external payable returns (uint64) {
         // so that the proposal can be executed.
         payable(address(this)).transfer(msg.value);
 
@@ -63,9 +61,7 @@ contract GovernanceWrapper {
      * @dev get a proposal.
      * @param proposalId The proposal id.
      */
-    function getProposal(
-        uint64 proposalId
-    ) external view returns (IGovernanceModule.Proposal memory) {
+    function getProposal(uint64 proposalId) external view returns (IGovernanceModule.Proposal memory) {
         return governanceModule.getProposal(proposalId);
     }
 
@@ -73,9 +69,7 @@ contract GovernanceWrapper {
      * @dev get proposals.
      * @param proposalStatus The proposal status.
      */
-    function getProposals(
-        int32 proposalStatus
-    ) external view returns (IGovernanceModule.Proposal[] memory) {
+    function getProposals(int32 proposalStatus) external view returns (IGovernanceModule.Proposal[] memory) {
         return governanceModule.getProposals(proposalStatus);
     }
 
@@ -85,11 +79,7 @@ contract GovernanceWrapper {
      * @param option The option.
      * @param metadata The metadata.
      */
-    function vote(
-        uint64 proposalId,
-        int32 option,
-        string memory metadata
-    ) external returns (bool) {
+    function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool) {
         return governanceModule.vote(proposalId, option, metadata);
     }
 
