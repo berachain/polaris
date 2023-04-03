@@ -128,7 +128,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			caller common.Address
 		)
 
-		denom := "bera"
+		denom := "abera"
 
 		BeforeEach(func() {})
 
@@ -260,11 +260,9 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				for i, coin := range coins {
 					balanceAmountStr := fmt.Sprintf("%d000000000000000000", i+1)
-					balanceAmount, ok := new(big.Int).SetString(balanceAmountStr, 10)
-					Expect(ok).To(BeTrue())
+					balanceAmount, ok2 := new(big.Int).SetString(balanceAmountStr, 10)
+					Expect(ok2).To(BeTrue())
 
-					// coin, ok := utils.GetAs[sdk.Coin](e)
-					Expect(ok).To(BeTrue())
 					Expect(coin.Denom).To(Equal(fmt.Sprintf("denom_%d", i+1)))
 					Expect(coin.Amount).To(Equal(sdk.NewIntFromBigInt(balanceAmount)))
 				}
@@ -400,11 +398,9 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				for i, coin := range coins {
 					balanceAmountStr := fmt.Sprintf("%d000000000000000000", i+1)
-					balanceAmount, ok := new(big.Int).SetString(balanceAmountStr, 10)
-					Expect(ok).To(BeTrue())
+					balanceAmount, ok2 := new(big.Int).SetString(balanceAmountStr, 10)
+					Expect(ok2).To(BeTrue())
 
-					// coin, ok := utils.GetAs[sdk.Coin](e)
-					Expect(ok).To(BeTrue())
 					Expect(coin.Denom).To(Equal(fmt.Sprintf("denom_%d", i+1)))
 					Expect(coin.Amount).To(Equal(sdk.NewIntFromBigInt(balanceAmount)))
 				}
@@ -519,6 +515,70 @@ var _ = Describe("Bank Precompile Test", func() {
 
 			})
 		})
+
+		When("GetDenomMetadata", func() {
+			It("should fail if input denom is not a valid string", func() {
+				res, err := contract.GetDenomMetadata(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					666,
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidString))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if input denom is not a valid Denom", func() {
+				res, err := contract.GetDenomMetadata(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					"_invalid_denom",
+				)
+
+				Expect(err).To(HaveOccurred())
+				Expect(res).To(BeNil())
+			})
+
+			It("should succeed", func() {
+
+				metadata := getTestMetadata()
+				bk.SetDenomMetaData(ctx, metadata[0])
+
+				res, err := contract.GetDenomMetadata(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					denom,
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res[0]).To(Equal(metadata[0]))
+			})
+		})
+
+		When("GetDenomsMetadata", func() {
+			It("should succeed", func() {
+				metadata := getTestMetadata()
+				bk.SetDenomMetaData(ctx, metadata[0])
+				bk.SetDenomMetaData(ctx, metadata[1])
+
+				res, err := contract.GetDenomsMetadata(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res[0]).To(Equal(metadata))
+			})
+		})
 	})
 })
 
@@ -527,4 +587,33 @@ func FundAccount(ctx sdk.Context, bk bankkeeper.BaseKeeper, account sdk.AccAddre
 		return err
 	}
 	return bk.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, account, coins)
+}
+
+func getTestMetadata() []banktypes.Metadata {
+	return []banktypes.Metadata{
+		{
+			Name:        "Berachain bera",
+			Symbol:      "BERA",
+			Description: "The Bera.",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
+				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
+				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
+			},
+			Base:    "abera",
+			Display: "bera",
+		},
+		{
+			Name:        "Token",
+			Symbol:      "TOKEN",
+			Description: "The native staking token of the Token Hub.",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "1token", Exponent: uint32(5), Aliases: []string{"decitoken"}},
+				{Denom: "2token", Exponent: uint32(4), Aliases: []string{"centitoken"}},
+				{Denom: "3token", Exponent: uint32(7), Aliases: []string{"dekatoken"}},
+			},
+			Base:    "utoken",
+			Display: "token",
+		},
+	}
 }

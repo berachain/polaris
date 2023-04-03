@@ -83,6 +83,14 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getTotalSupply()",
 			Execute: c.GetTotalSupply,
 		},
+		{
+			AbiSig:  "getDenomMetadata(string)",
+			Execute: c.GetDenomMetadata,
+		},
+		{
+			AbiSig:  "getDenomsMetadata()",
+			Execute: c.GetDenomsMetadata,
+		},
 	}
 }
 

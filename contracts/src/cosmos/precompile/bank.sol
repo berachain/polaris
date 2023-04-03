@@ -98,6 +98,17 @@ interface IBankModule {
      */
     function getTotalSupply() external view returns (Coin[] memory);
 
+
+    /**
+     * @dev Returns the denomination metadata
+     */
+    function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
+
+    /**
+     * @dev Returns the denomination metadata
+     */
+    function getDenomsMetadata() external view returns (DenomsMetadata memory);
+
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
@@ -111,13 +122,14 @@ interface IBankModule {
         string denom;
     }
 
-    struct DenomUnits {
+    struct DenomUnit {
         string denom;
         string[] aliases;
+        uint32 exponent;
     }
     struct DenomMetadata {
         string description;
-        DenomUnits denomUnits;
+        DenomUnit[] denomUnits;
         string base;
         string display;
         string name;
