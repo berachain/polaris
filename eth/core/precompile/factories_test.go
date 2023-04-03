@@ -165,6 +165,8 @@ func (ms *mockStateful) CustomValueDecoders() precompile.ValueDecoders {
 	return nil
 }
 
+func (ms *mockStateful) SetPlugin(precompile.Plugin) {}
+
 type badMockStateful struct {
 	*mockStateful
 }
