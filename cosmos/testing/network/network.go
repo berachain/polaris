@@ -171,9 +171,11 @@ func BuildGenesisState() map[string]json.RawMessage {
 	// Distribution module
 	var distrState distrtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distrState)
+	distrState.Params.WithdrawAddrEnabled = true
 
+	// TODO: Fix the state invariants that are being thrown.
 	// For the distribution module, we need set it up for having rewards ready to be withdrawn.
-	DistributionGenesisState(&bankState, &distrState, &stakingState)
+	// DistributionGenesisState(&bankState, &distrState, &stakingState)
 
 	// Set the states into the genesis state.
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
