@@ -83,7 +83,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 }
 
 // Finalize finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) error {
+func (bc *blockchain) Finalize(ctx context. ) error {
 	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err

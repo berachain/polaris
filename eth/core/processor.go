@@ -219,7 +219,7 @@ func (sp *StateProcessor) Finalize(
 	// Now that we are done processing the block, we update the header with the consumed gas.
 	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
-	// set the tx hash on the header
+	// Set the tx hash on the header so that the block hash is correct.
 	if len(sp.txs) == 0 {
 		sp.header.TxHash = types.EmptyTxsHash
 	} else {
