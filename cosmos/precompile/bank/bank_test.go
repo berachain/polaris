@@ -29,13 +29,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -129,8 +130,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		)
 
 		denom := "abera"
-
-		BeforeEach(func() {})
 
 		When("GetBalance", func() {
 			It("should fail if input address is not a common.Address", func() {
@@ -545,7 +544,6 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 
 			It("should succeed", func() {
-
 				metadata := getTestMetadata()
 				bk.SetDenomMetaData(ctx, metadata[0])
 
@@ -555,7 +553,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					denom,
+					metadata[0].Base,
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(metadata[0]))
@@ -577,6 +575,188 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(metadata))
+			})
+		})
+
+		When("Send", func() {
+			It("should fail if from address is not a common.Address", func() {
+				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+
+				acc = simtestutil.CreateRandomAccounts(1)[0]
+
+				res, err := contract.Send(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					"0x",
+					cosmlib.AccAddressToEthAddress(acc),
+					sdk.NewCoins(
+						sdk.NewCoin(
+							denom,
+							sdk.NewIntFromBigInt(balanceAmount),
+						),
+					),
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if to address is not a common.Address", func() {
+				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+
+				acc = simtestutil.CreateRandomAccounts(1)[0]
+
+				res, err := contract.Send(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(acc),
+					"0x",
+					sdk.NewCoins(
+						sdk.NewCoin(
+							denom,
+							sdk.NewIntFromBigInt(balanceAmount),
+						),
+					),
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+				Expect(res).To(BeNil())
+			})
+
+			It("should fail if amount is not sdk.Coins", func() {
+				accs := simtestutil.CreateRandomAccounts(2)
+				fromAcc, toAcc := accs[0], accs[1]
+
+				res, err := contract.Send(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(fromAcc),
+					cosmlib.AccAddressToEthAddress(toAcc),
+					"wrong type input",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
+				Expect(res).To(BeNil())
+			})
+
+			It("should succeed", func() {
+				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+
+				accs := simtestutil.CreateRandomAccounts(2)
+				fromAcc, toAcc := accs[0], accs[1]
+
+				coins := sdk.NewCoins(
+					sdk.NewCoin(
+						denom,
+						sdk.NewIntFromBigInt(balanceAmount),
+					),
+				)
+
+				err := FundAccount(
+					ctx,
+					bk,
+					fromAcc,
+					coins,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				bk.SetSendEnabled(ctx, denom, true)
+
+				_, err = contract.Send(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(fromAcc),
+					cosmlib.AccAddressToEthAddress(toAcc),
+					coins,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				balance, err := bk.Balance(ctx, banktypes.NewQueryBalanceRequest(toAcc, denom))
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(*balance.Balance).To(Equal(coins[0]))
+			})
+		})
+
+		When("MultiSend", func() {
+			It("should succeed", func() {
+				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+				balanceAmount2, ok := new(big.Int).SetString("44000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+
+				accs := simtestutil.CreateRandomAccounts(3)
+				fromAcc := accs[0]
+
+				coins := sdk.NewCoins(
+					sdk.NewCoin(
+						denom,
+						sdk.NewIntFromBigInt(balanceAmount),
+					),
+				)
+				coins2 := sdk.NewCoins(
+					sdk.NewCoin(
+						denom,
+						sdk.NewIntFromBigInt(balanceAmount2),
+					),
+				)
+
+				err := FundAccount(
+					ctx,
+					bk,
+					fromAcc,
+					coins2,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				var inputs []generated.IBankModuleInput
+				var outputs []generated.IBankModuleOutput
+
+				for i := 0; i < 2; i++ {
+					inputs = append(inputs, generated.IBankModuleInput{
+						Addr:  cosmlib.AccAddressToEthAddress(fromAcc),
+						Coins: utils.MustGetAs[generated.IBankModuleCoins](coins),
+					})
+				}
+
+				for i := 0; i < 2; i++ {
+					outputs = append(outputs, generated.IBankModuleOutput{
+						Addr:  cosmlib.AccAddressToEthAddress(accs[i+1]),
+						Coins: utils.MustGetAs[generated.IBankModuleCoins](coins),
+					})
+				}
+
+				bk.SetSendEnabled(ctx, denom, true)
+
+				_, err = contract.MultiSend(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					inputs,
+					outputs,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				for i := 1; i < 3; i++ {
+					balance, err2 := bk.Balance(ctx, banktypes.NewQueryBalanceRequest(accs[i], denom))
+					Expect(err2).ToNot(HaveOccurred())
+
+					Expect(*balance.Balance).To(Equal(coins[0]))
+				}
 			})
 		})
 	})

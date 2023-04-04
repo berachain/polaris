@@ -98,18 +98,21 @@ interface IBankModule {
      */
     function getTotalSupply() external view returns (Coin[] memory);
 
-
     /**
      * @dev Returns the denomination metadata
      */
     function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
 
     /**
-     * @dev Returns the denomination metadata
+     * @dev Returns all denominations metadata
      */
     function getDenomsMetadata() external view returns (DenomsMetadata memory);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
+
+    function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
+
+    function multiSend(Input[] calldata inputs, Output[] memory outputs) external payable returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
@@ -120,6 +123,10 @@ interface IBankModule {
     struct Coin {
         uint64 amount;
         string denom;
+    }
+
+    struct Coins {
+        Coin[] coins;
     }
 
     struct DenomUnit {
@@ -138,5 +145,15 @@ interface IBankModule {
 
     struct DenomsMetadata {
         DenomMetadata[] metadatas;
+    }
+
+    struct Input {
+        address addr;
+        Coins coins;
+    }
+    
+    struct Output {
+        address addr;
+        Coins coins;
     }
 }

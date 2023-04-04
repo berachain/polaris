@@ -24,6 +24,9 @@ import (
 	"context"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -90,6 +93,14 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:  "getDenomsMetadata()",
 			Execute: c.GetDenomsMetadata,
+		},
+		{
+			AbiSig:  "send(address,address,Coin)",
+			Execute: c.Send,
+		},
+		{
+			AbiSig:  "multiSend()",
+			Execute: c.MultiSend,
 		},
 	}
 }
@@ -283,4 +294,123 @@ func (c *Contract) GetDenomsMetadata(
 	}
 
 	return []any{res.Metadatas}, nil
+}
+
+func (c *Contract) Send(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	fromAddr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	toAddr, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	amount, ok := utils.GetAs[sdk.Coins](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidCoin
+	}
+
+	_, err := c.msgServer.Send(ctx, &banktypes.MsgSend{
+		FromAddress: cosmlib.AddressToAccAddress(fromAddr).String(),
+		ToAddress:   cosmlib.AddressToAccAddress(toAddr).String(),
+		Amount:      amount,
+	})
+	return []any{err == nil}, err
+}
+
+func (c *Contract) MultiSend(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	evmInputs, ok := utils.GetAs[[]generated.IBankModuleInput](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidAny
+	}
+	evmOutputs, ok := utils.GetAs[[]generated.IBankModuleOutput](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidAny
+	}
+
+	// Check total amounts are equal
+	totalInputCoins := sdk.NewCoins()
+	totalOutputCoins := sdk.NewCoins()
+
+	sdkInputs := make([]banktypes.Input, len(evmInputs))
+	sdkOutputs := make([]banktypes.Output, len(evmOutputs))
+
+	// Inputs, despite being `repeated`, only allows one sender input. This is
+	// checked in MsgMultiSend's ValidateBasic.
+	for i, evmInput := range evmInputs {
+		sdkCoins, ok2 := utils.GetAs[sdk.Coins](evmInput.Coins)
+		if !ok2 {
+			return nil, precompile.ErrInvalidCoin
+		}
+
+		totalInputCoins = sumCoins(totalInputCoins, sdkCoins)
+
+		sdkInputs[i] = banktypes.NewInput(
+			cosmlib.AddressToAccAddress(evmInput.Addr),
+			sdkCoins,
+		)
+	}
+
+	for i, evmOutput := range evmOutputs {
+		sdkCoins, ok2 := utils.GetAs[sdk.Coins](evmOutput.Coins)
+		if !ok2 {
+			return nil, precompile.ErrInvalidCoin
+		}
+
+		totalOutputCoins = sumCoins(totalOutputCoins, sdkCoins)
+
+		sdkOutputs[i] = banktypes.NewOutput(
+			cosmlib.AddressToAccAddress(evmOutput.Addr),
+			sdkCoins,
+		)
+	}
+
+	if !totalInputCoins.Equal(totalOutputCoins) {
+		return nil, precompile.ErrInvalidAny
+	}
+
+	_, err := c.msgServer.MultiSend(ctx, &banktypes.MsgMultiSend{
+		Inputs:  sdkInputs,
+		Outputs: sdkOutputs,
+	})
+	return []any{err == nil}, err
+}
+
+func sumCoins(coins1 sdk.Coins, coins2 sdk.Coins) sdk.Coins {
+	var tempMap map[string]sdkmath.Int
+	for _, coin := range coins1 {
+		if amount, found := tempMap[coin.Denom]; found {
+			tempMap[coin.Denom] = amount.Add(coin.Amount)
+		} else {
+			tempMap[coin.Denom] = coin.Amount
+		}
+	}
+
+	for _, coin := range coins2 {
+		if amount, found := tempMap[coin.Denom]; found {
+			tempMap[coin.Denom] = amount.Add(coin.Amount)
+		} else {
+			tempMap[coin.Denom] = coin.Amount
+		}
+	}
+
+	result := sdk.NewCoins()
+	for denom, amount := range tempMap {
+		result.Add(sdk.NewCoin(denom, amount))
+	}
+	return result
 }
