@@ -63,4 +63,12 @@ interface IBankModule {
      * Note: `burner` is a module address
      */
     event Burn(address indexed burner, uint256 amount);
+
+    /**
+     * @dev Represents sdk.Coin,
+     */
+    struct Coin {
+        uint64 amount;
+        string denom;
+    }
 }
