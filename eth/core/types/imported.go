@@ -56,6 +56,7 @@ var (
 	AccessListTxType       = types.AccessListTxType
 	DeriveSha              = types.DeriveSha
 	EmptyRootHash          = types.EmptyRootHash
+	EmptyTxsHash           = types.EmptyTxsHash
 	EmptyUncleHash         = types.EmptyUncleHash
 	SignTx                 = types.SignTx
 	NewTx                  = types.NewTx
