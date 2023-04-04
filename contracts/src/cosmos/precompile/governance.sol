@@ -132,4 +132,9 @@ interface IGovernanceModule {
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.
      */
     event ProposalVote(string indexed option, uint64 indexed proposalId);
+
+    /**
+     * @dev Emitted by the governance module when `cancelProposal` is called.
+     */
+    event CancelProposal(string indexed sender, uint64 indexed proposalId);
 }
