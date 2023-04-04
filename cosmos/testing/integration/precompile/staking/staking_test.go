@@ -89,21 +89,18 @@ var _ = Describe("Staking Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
 	})
-	It("should be able to call the staking precompile from a contract", func() {
-		// Deploy the contract.
+
+	It("should be able to call a precompile from a smart contract", func() {
 		contractAddr, tx, contract, err := tbindings.DeployLiquidStaking(
 			tf.GenerateTransactOpts(""),
 			tf.EthClient,
 			"myToken",
 			"MTK",
-			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
-			validator,
 		)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		// Should have no delegations.
 		delegated, err := stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
