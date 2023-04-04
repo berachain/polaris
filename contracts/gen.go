@@ -39,3 +39,4 @@ package contracts
 //go:generate abigen --pkg testing --abi ./out/LiquidStaking.sol/LiquidStaking.abi.json --bin ./out/LiquidStaking.sol/LiquidStaking.bin --out ./bindings/testing/liquid_staking.abigen.go --type LiquidStaking
 
 //go:generate abigen --pkg testing --abi ./out/GovernanceWrapper.sol/GovernanceWrapper.abi.json --bin ./out/GovernanceWrapper.sol/GovernanceWrapper.bin --out ./bindings/testing/governance_wrapper.abigen.go --type GovernanceWrapper
+//go:generate abigen --pkg testing --abi ./out/DistributionTestHelper.sol/DistributionTestHelper.abi.json --bin ./out/DistributionTestHelper.sol/DistributionTestHelper.bin --out ./bindings/testing/distribution_testing_helper.abigen.go --type DistributionTestHelper
