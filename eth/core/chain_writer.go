@@ -83,7 +83,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 }
 
 // Finalize finalizes the current block.
-func (bc *blockchain) Finalize(ctx context. ) error {
+func (bc *blockchain) Finalize(ctx context.Context) error {
 	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
@@ -128,7 +128,7 @@ func (bc *blockchain) Finalize(ctx context. ) error {
 }
 
 // Commit commits the current block to the blockchain and emits chain events.
-func (bc *blockchain) Commit(ctx context.Context) {
+func (bc *blockchain) Commit(_ context.Context) {
 	if block := bc.currentBlock.Load(); block != nil {
 		// Cache finalized block.
 		blockHash, blockNum := block.Hash(), block.NumberU64()
