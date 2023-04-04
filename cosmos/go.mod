@@ -3,13 +3,13 @@ module pkg.berachain.dev/polaris/cosmos
 go 1.20
 
 replace (
-	cosmossdk.io/api => github.com/berachain/cosmos-sdk/api v0.2.7-0.20230404215228-2eba6163564d
-	cosmossdk.io/depinject => github.com/berachain/cosmos-sdk/depinject v1.0.0-alpha.3.0.20230404215228-2eba6163564d
-	cosmossdk.io/simapp => github.com/berachain/cosmos-sdk/simapp v0.0.0-20230404215228-2eba6163564d
-	cosmossdk.io/x/evidence => github.com/berachain/cosmos-sdk/x/evidence v0.0.0-20230404215228-2eba6163564d
-	cosmossdk.io/x/feegrant => github.com/berachain/cosmos-sdk/x/feegrant v0.0.0-20230404215228-2eba6163564d
-	cosmossdk.io/x/upgrade => github.com/berachain/cosmos-sdk/x/upgrade v0.0.0-20230404215228-2eba6163564d
-	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230404215228-2eba6163564d
+	cosmossdk.io/api => github.com/berachain/cosmos-sdk/api v0.2.7-0.20230404234304-a7b930feebab
+	cosmossdk.io/depinject => github.com/berachain/cosmos-sdk/depinject v1.0.0-alpha.3.0.20230404234304-a7b930feebab
+	cosmossdk.io/simapp => github.com/berachain/cosmos-sdk/simapp v0.0.0-20230404234304-a7b930feebab
+	cosmossdk.io/x/evidence => github.com/berachain/cosmos-sdk/x/evidence v0.0.0-20230404234304-a7b930feebab
+	cosmossdk.io/x/feegrant => github.com/berachain/cosmos-sdk/x/feegrant v0.0.0-20230404234304-a7b930feebab
+	cosmossdk.io/x/upgrade => github.com/berachain/cosmos-sdk/x/upgrade v0.0.0-20230404234304-a7b930feebab
+	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230404234304-a7b930feebab
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230329183348-844cad7b5030

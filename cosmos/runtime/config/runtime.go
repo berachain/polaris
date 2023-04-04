@@ -72,6 +72,9 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		feegrant.ModuleName,
 		group.ModuleName,
 	},
+	Precommiters: []string{
+		evmtypes.ModuleName,
+	},
 	OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 		{
 			ModuleName: authtypes.ModuleName,
