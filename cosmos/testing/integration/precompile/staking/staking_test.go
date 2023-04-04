@@ -36,7 +36,7 @@ import (
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
-func TestCosmosPrecompiles(t *testing.T) {
+func TestStakingPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "cosmos/testing/integration/precompile/staking:integration")
 }
