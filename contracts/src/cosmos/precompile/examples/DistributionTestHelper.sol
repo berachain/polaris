@@ -59,9 +59,7 @@ contract DistributionTestHelper {
      * @dev Withdraw the rewrads accumilated by the caller(msg.sender).
      * @param _withdrawAddress The address of the delegator.
      */
-    function setWithdrawAddress(
-        address _withdrawAddress
-    ) external returns (bool) {
+    function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
         distribution.setWithdrawAddress(_withdrawAddress);
     }
 }

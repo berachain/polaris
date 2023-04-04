@@ -34,19 +34,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
-	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtestutil "github.com/cosmos/cosmos-sdk/x/distribution/testutil"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 
-	distrtestutil "github.com/cosmos/cosmos-sdk/x/distribution/testutil"
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -66,6 +65,7 @@ const (
 	fivehundred = 500
 	onehundred  = 100
 	megamoney   = 1000000000000000000
+	two         = 2
 )
 
 var (
@@ -118,13 +118,13 @@ func DefaultConfig() network.Config {
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor: func(val network.ValidatorI) servertypes.Application {
 			return runtime.NewPolarisApp(
-				val.GetCtx().Logger, cdb.NewMemDB(), nil, true, sims.EmptyAppOptions{},
+				val.GetCtx().Logger, cdb.NewMemDB(), nil, true, simtestutil.EmptyAppOptions{},
 				baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
 			)
 		},
 		GenesisState:    BuildGenesisState(),
-		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
+		TimeoutCommit:   two * time.Second,
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       "abera",
@@ -186,7 +186,11 @@ func BuildGenesisState() map[string]json.RawMessage {
 }
 
 // Pass in the genesis state of the bank module and the distribution module.
-func DistributionGenesisState(bankGenState *banktypes.GenesisState, distrGenState *distrtypes.GenesisState, stakingGenState *stakingtypes.GenesisState) {
+func DistributionGenesisState(
+	bankGenState *banktypes.GenesisState,
+	distrGenState *distrtypes.GenesisState,
+	stakingGenState *stakingtypes.GenesisState,
+) {
 	delegator := cosmlib.AddressToAccAddress(TestAddress)
 
 	// Set the allow set withdraw address to true.
@@ -196,11 +200,12 @@ func DistributionGenesisState(bankGenState *banktypes.GenesisState, distrGenStat
 	distrGenState.PreviousProposer = sdk.ConsAddress(testutil.Alice.Bytes()).String()
 
 	// Create the validator.
-	PKS := simtestutil.CreateTestPubKeys(5)
-	valConsPk0 := PKS[0]
+	//nolint: gomnd // magic numbers are fine in tests.
+	pks := simtestutil.CreateTestPubKeys(5)
+	valConsPk0 := pks[0]
 	valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
 	valAddr := sdk.ValAddress(valConsAddr0)
-	val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
+	val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(onehundred))
 	if err != nil {
 		panic(err)
 	}
@@ -210,40 +215,44 @@ func DistributionGenesisState(bankGenState *banktypes.GenesisState, distrGenStat
 	}
 
 	// Set the outstanding rewards.
-	reward := sdk.NewDecCoinsFromCoins(sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(100)))...)
-	distrGenState.OutstandingRewards = append(distrGenState.OutstandingRewards, distrtypes.ValidatorOutstandingRewardsRecord{
-		ValidatorAddress:   operator.String(),
-		OutstandingRewards: reward,
-	})
+	reward := sdk.NewDecCoinsFromCoins(sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred)))...)
+	distrGenState.OutstandingRewards = append(distrGenState.OutstandingRewards,
+		distrtypes.ValidatorOutstandingRewardsRecord{
+			ValidatorAddress:   operator.String(),
+			OutstandingRewards: reward,
+		})
 
 	// Set the validator historical rewards.
-	distrGenState.ValidatorHistoricalRewards = append(distrGenState.ValidatorHistoricalRewards, distrtypes.ValidatorHistoricalRewardsRecord{
-		ValidatorAddress: operator.String(),
-		Period:           1,
-		Rewards: distrtypes.ValidatorHistoricalRewards{
-			CumulativeRewardRatio: sdk.DecCoins{},
-			ReferenceCount:        2,
-		},
-	})
+	distrGenState.ValidatorHistoricalRewards = append(distrGenState.ValidatorHistoricalRewards,
+		distrtypes.ValidatorHistoricalRewardsRecord{
+			ValidatorAddress: operator.String(),
+			Period:           1,
+			Rewards: distrtypes.ValidatorHistoricalRewards{
+				CumulativeRewardRatio: sdk.DecCoins{},
+				ReferenceCount:        two,
+			},
+		})
 
 	// Set the validator current rewards.
-	distrGenState.ValidatorCurrentRewards = append(distrGenState.ValidatorCurrentRewards, distrtypes.ValidatorCurrentRewardsRecord{
-		ValidatorAddress: operator.String(),
-		Rewards: distrtypes.ValidatorCurrentRewards{
-			Rewards: reward,
-			Period:  2,
-		},
-	})
+	distrGenState.ValidatorCurrentRewards = append(distrGenState.ValidatorCurrentRewards,
+		distrtypes.ValidatorCurrentRewardsRecord{
+			ValidatorAddress: operator.String(),
+			Rewards: distrtypes.ValidatorCurrentRewards{
+				Rewards: reward,
+				Period:  two,
+			},
+		})
 
 	// Set the delegator starting info.
-	distrGenState.DelegatorStartingInfos = append(distrGenState.DelegatorStartingInfos, distrtypes.DelegatorStartingInfoRecord{
-		DelegatorAddress: delegator.String(),
-		ValidatorAddress: operator.String(),
-		StartingInfo: distrtypes.DelegatorStartingInfo{
-			PreviousPeriod: 1,
-			Stake:          sdk.MustNewDecFromStr("100"),
-		},
-	})
+	distrGenState.DelegatorStartingInfos = append(distrGenState.DelegatorStartingInfos,
+		distrtypes.DelegatorStartingInfoRecord{
+			DelegatorAddress: delegator.String(),
+			ValidatorAddress: operator.String(),
+			StartingInfo: distrtypes.DelegatorStartingInfo{
+				PreviousPeriod: 1,
+				Stake:          sdk.MustNewDecFromStr("onehundred"),
+			},
+		})
 
 	// Mint the tokens in the bank distr module.
 	moduleAddr, err := sdk.AccAddressFromBech32("cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl")
@@ -254,7 +263,7 @@ func DistributionGenesisState(bankGenState *banktypes.GenesisState, distrGenStat
 		bankGenState.Balances,
 		banktypes.Balance{
 			Address: moduleAddr.String(),
-			Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(100))),
+			Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred))),
 		})
 
 	// Mint the tokens in the not bonded pool.
@@ -265,7 +274,7 @@ func DistributionGenesisState(bankGenState *banktypes.GenesisState, distrGenStat
 	}
 	bankGenState.Balances = append(bankGenState.Balances, banktypes.Balance{
 		Address: notBondedPoolAddr.String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(100))),
+		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred))),
 	})
 
 	// Set Delegation in the staking module.
@@ -278,11 +287,3 @@ func DistributionGenesisState(bankGenState *banktypes.GenesisState, distrGenStat
 	// Add the validator to the staking state.
 	stakingGenState.Validators = append(stakingGenState.Validators, val)
 }
-
-// params:<community_tax:"20000000000000000" base_proposer_reward:"0" bonus_proposer_reward:"0" withdraw_addr_enabled:true > fee_pool:<> previous_proposer:"cosmosvalcons1qqqqqqqqqqqqqqqqqqqqqqqqv9kxjcm932vjev"
-// outstanding_rewards:<validator_address:"cosmosvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pn7fqfk" outstanding_rewards:<denom:"stake" amount:"10000000000000000000000000" > >
-//  validator_accumulated_commissions:<validator_address:"cosmosvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pn7fqfk" accumulated:<> >
-//  validator_historical_rewards:<validator_address:"cosmosvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pn7fqfk" period:1 rewards:<reference_count:2 > >
-//  validator_current_rewards:<validator_address:"cosmosvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pn7fqfk" rewards:<rewards:<denom:"stake" amount:"10000000000000000000000000" > period:2 > >
-//  delegator_starting_infos:<delegator_address:"cosmos1mnfm9c7cdgqnkk66sganp78m0ydmcr4pk2a499" validator_address:"cosmosvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pn7fqfk" start
-// ing_info:<previous_period:1 stake:"100000000000000000000">>

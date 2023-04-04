@@ -27,11 +27,11 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
@@ -105,7 +105,7 @@ var _ = Describe("Distribution Precompile", func() {
 		// Get withdraw address Enabled.
 		res, err := contract.GetWithdrawEnabled(nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(res).To(Equal(true))
+		Expect(res).To(BeTrue())
 
 		// Set withdraw address Common.Address.
 		txr := tf.GenerateTransactOpts("")
