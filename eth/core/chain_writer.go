@@ -64,6 +64,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 
 	// If we are processing a new block, then we assume that the previous was finalized.
 	header := bc.bp.NewHeaderWithBlockNumber(height)
+	// coinbase, gaslimit (gp), timestamp, 
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),

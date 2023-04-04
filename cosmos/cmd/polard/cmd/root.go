@@ -124,10 +124,12 @@ func NewRootCmd() *cobra.Command {
 			// an error will arise when using the --textual flag.
 			// ref: https://github.com/cosmos/cosmos-sdk/issues/11970
 
+			txSignModeHandler, _ := txmodule.NewTextualWithGRPCConn(initClientCtx)
+
 			txConfigWithTextual := tx.NewTxConfigWithTextual(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
 				tx.DefaultSignModes,
-				txmodule.NewTextualWithGRPCConn(initClientCtx),
+				txSignModeHandler,
 				[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
 			)
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)

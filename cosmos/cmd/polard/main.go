@@ -23,7 +23,7 @@ package main
 import (
 	"os"
 
-	"github.com/cosmos/cosmos-sdk/server"
+	"cosmossdk.io/log"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
 	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"
@@ -35,13 +35,7 @@ func main() {
 	config.SetupCosmosConfig()
 	rootCmd := cmd.NewRootCmd()
 	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
-		//nolint: errorlint // uhh fix?
-		switch e := err.(type) {
-		case server.ErrorCode:
-			os.Exit(e.Code)
-
-		default:
-			os.Exit(1)
-		}
+		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
+		os.Exit(1)
 	}
 }

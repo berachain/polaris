@@ -80,3 +80,11 @@ func (k *Keeper) EndBlocker(ctx context.Context) {
 		panic(err)
 	}
 }
+
+// func (k *Keeper) Precommit(ctx context.Context) {
+// 	k.polaris.Precommit(ctx)
+// }
+
+// func (k *Keeper) PrepareCheckState(ctx context.Context) {
+// 	k.polaris.PrepareCheckState(ctx)
+// }

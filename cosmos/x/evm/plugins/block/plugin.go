@@ -145,11 +145,7 @@ func (p *plugin) NewHeaderWithBlockNumber(number int64) *coretypes.Header {
 func blockGasLimitFromCosmosContext(ctx sdk.Context) uint64 {
 	blockGasMeter := ctx.BlockGasMeter()
 	if blockGasMeter == nil || blockGasMeter.Limit() == 0 {
-		cp := ctx.ConsensusParams()
-		if cp == nil || cp.Block == nil {
-			return 0
-		}
-		return uint64(cp.Block.MaxGas)
+		return uint64(ctx.ConsensusParams().Block.MaxGas)
 	}
 
 	return blockGasMeter.Limit()

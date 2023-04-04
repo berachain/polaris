@@ -86,7 +86,7 @@ func (app PolarisApp) RegisterUpgradeHandlers() {
 		UpgradeName,
 		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			// Migrate CometBFT consensus parameters from x/params module to a dedicated x/consensus module.
-			baseapp.MigrateParams(ctx, baseAppLegacySS, &app.ConsensusParamsKeeper)
+			baseapp.MigrateParams(ctx, baseAppLegacySS, nil)
 
 			// Note: this migration is optional,
 			// You can include x/gov proposal migration documented
