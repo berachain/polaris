@@ -22,11 +22,12 @@ package core
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.
@@ -37,11 +38,8 @@ type ChainWriter interface {
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
-	// Finalize finalizes the block and returns the block. This method is called after the last
-	// tx in the block.
+	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
-	// Commit commits the current block to the blockchain and emits chain events.
-	Commit(context.Context)
 	// SendTx sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
@@ -52,8 +50,6 @@ type ChainWriter interface {
 
 // Prepare prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	bc.logger.Info("Preparing block", "height", height)
-
 	// Prepare the Block, Configuration, Gas, and Historical plugins for the block.
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
@@ -62,8 +58,33 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.hp.Prepare(ctx)
 	}
 
-	// If we are processing a new block, then we assume that the previous was finalized.
-	header := bc.bp.NewHeaderWithBlockNumber(height)
+	coinbase, timestamp := bc.bp.GetNewBlockMetadata(height)
+	bc.logger.Info("Preparing block", "height", height, "coinbase", coinbase.Hex(), "timestamp", timestamp)
+
+	// Build the new block header.
+	var parentHash common.Hash
+	if height > 1 {
+		parent, err := bc.bp.GetHeaderByNumber(height - 1)
+		if err != nil {
+			panic(err)
+		}
+		parentHash = parent.Hash()
+	}
+	header := &types.Header{
+		ParentHash: parentHash,
+		UncleHash:  types.EmptyUncleHash,
+		Coinbase:   coinbase,
+		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
+		Difficulty: big.NewInt(0),
+		Number:     big.NewInt(height),
+		GasLimit:   bc.gp.BlockGasLimit(),
+		Time:       timestamp,
+		Extra:      []byte{}, // Polaris does not set the Extra field.
+		MixDigest:  common.Hash{},
+		Nonce:      types.BlockNonce{},
+		BaseFee:    big.NewInt(int64(bc.bp.BaseFee())), // TODO: change for EIP-1559.
+	}
+
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
@@ -89,20 +110,8 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		return err
 	}
 
-	// store the pending logs
-	bc.pendingLogsFeed.Send(logs)
-	bc.currentLogs.Store(logs)
-
 	blockHash, blockNum := block.Hash(), block.Number().Int64()
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
-
-	// mark the current block and receipts
-	if block != nil {
-		bc.currentBlock.Store(block)
-	}
-	if receipts != nil {
-		bc.currentReceipts.Store(receipts)
-	}
 
 	// store the block header on the host chain
 	err = bc.bp.SetHeaderByNumber(blockNum, block.Header())
@@ -112,28 +121,24 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
-		err = bc.hp.StoreBlock(block)
-		if err != nil {
+		if err = bc.hp.StoreBlock(block); err != nil {
 			return err
 		}
-		err = bc.hp.StoreReceipts(blockHash, receipts)
-		if err != nil {
+		if err = bc.hp.StoreReceipts(blockHash, receipts); err != nil {
 			return err
 		}
-		err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions())
-		return err
+		if err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions()); err != nil {
+			return err
+		}
 	}
 
-	return nil
-}
-
-// Commit commits the current block to the blockchain and emits chain events.
-func (bc *blockchain) Commit(ctx context.Context) {
-	if block := bc.currentBlock.Load(); block != nil {
-		// Cache finalized block.
-		blockHash, blockNum := block.Hash(), block.NumberU64()
+	// mark the current block and receipts and logs
+	if block != nil {
+		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
-		bc.blockNumCache.Add(int64(blockNum), block)
+
+		// Add to block caches.
+		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
 		// Cache transaction data.
@@ -143,28 +148,29 @@ func (bc *blockchain) Commit(ctx context.Context) {
 				&types.TxLookupEntry{
 					Tx:        tx,
 					TxIndex:   uint64(txIndex),
-					BlockNum:  blockNum,
+					BlockNum:  uint64(blockNum),
 					BlockHash: blockHash,
 				},
 			)
 		}
-
-		// Cache receipts.
-		if receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load()); ok {
-			bc.receiptsCache.Add(blockHash, receipts)
-		}
-
-		// Send logs and chain events.
-		if logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load()); ok {
-			if len(logs) > 0 {
-				bc.logsFeed.Send(logs)
-			}
-			bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
-		}
-
-		// Send chain head event.
-		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
+	if receipts != nil {
+		bc.currentReceipts.Store(receipts)
+		bc.receiptsCache.Add(blockHash, receipts)
+	}
+	if logs != nil {
+		bc.pendingLogsFeed.Send(logs)
+		bc.currentLogs.Store(logs)
+		if len(logs) > 0 {
+			bc.logsFeed.Send(logs)
+		}
+	}
+
+	// Send chain events.
+	bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
+	bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+
+	return nil
 }
 
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {

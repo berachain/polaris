@@ -39,12 +39,7 @@ contract Deploy is Script {
         vm.startBroadcast();
 
         // Calling the Liquid Staking Contract, which calls the staking precompile.
-        LiquidStaking ls = new LiquidStaking(
-            "hello",
-            "sss",
-            precompile,
-            address(0x7F04B06a9C507B366567B09E82C4bC037e87d0e6)
-        );
+        // LiquidStaking ls = new LiquidStaking("hello", "sss");
 
         // Low-level call.
         // (bool success, bytes memory data) = address(ls).staticcall(
@@ -59,7 +54,7 @@ contract Deploy is Script {
         // address[] memory vals = ls.getActiveValidators();
 
         // Calling the staking precompile contract directly.
-        IStakingModule staking = IStakingModule(precompile);
+        // IStakingModule staking = IStakingModule(precompile);
 
         // Low-level call.
         // (bool success, bytes memory data) = address(staking).staticcall(

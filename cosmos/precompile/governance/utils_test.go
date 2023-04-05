@@ -22,6 +22,7 @@ package governance
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/golang/mock/gomock"
 
@@ -38,6 +39,7 @@ import (
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	"pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -52,15 +54,6 @@ func (g GinkgoTestReporter) Errorf(format string, args ...interface{}) {
 
 func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 	Fail(fmt.Sprintf(format, args...))
-}
-
-func fundAccount(ctx sdk.Context, bk bankkeeper.Keeper, acc sdk.AccAddress, coins sdk.Coins) {
-	if err := bk.MintCoins(ctx, governancetypes.ModuleName, coins); err != nil {
-		panic(err)
-	}
-	if err := bk.SendCoinsFromModuleToAccount(ctx, governancetypes.ModuleName, acc, coins); err != nil {
-		panic(err)
-	}
 }
 
 // Helper functions for setting up the tests.
@@ -111,7 +104,12 @@ func setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	gk.SetProposalID(ctx, 1)
 
 	// Fund the caller with some coins.
-	fundAccount(ctx, bk, caller, sdk.NewCoins(sdk.NewInt64Coin("usdc", 100000000)))
+	err = lib.MintCoinsToAddress(
+		ctx, bk, governancetypes.ModuleName, lib.AccAddressToEthAddress(caller), "abera", big.NewInt(100000000),
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	return ctx, bk, gk
 }

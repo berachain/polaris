@@ -5,6 +5,7 @@ package mock
 
 import (
 	"context"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	"sync"
@@ -26,8 +27,8 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			GetHeaderByNumberFunc: func(n int64) (*types.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
 //			},
-//			NewHeaderWithBlockNumberFunc: func(n int64) *types.Header {
-//				panic("mock out the NewHeaderWithBlockNumber method")
+//			GetNewBlockMetadataFunc: func(n int64) (common.Address, uint64) {
+//				panic("mock out the GetNewBlockMetadata method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
@@ -48,8 +49,8 @@ type BlockPluginMock struct {
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
 	GetHeaderByNumberFunc func(n int64) (*types.Header, error)
 
-	// NewHeaderWithBlockNumberFunc mocks the NewHeaderWithBlockNumber method.
-	NewHeaderWithBlockNumberFunc func(n int64) *types.Header
+	// GetNewBlockMetadataFunc mocks the GetNewBlockMetadata method.
+	GetNewBlockMetadataFunc func(n int64) (common.Address, uint64)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -67,8 +68,8 @@ type BlockPluginMock struct {
 			// N is the n argument value.
 			N int64
 		}
-		// NewHeaderWithBlockNumber holds details about calls to the NewHeaderWithBlockNumber method.
-		NewHeaderWithBlockNumber []struct {
+		// GetNewBlockMetadata holds details about calls to the GetNewBlockMetadata method.
+		GetNewBlockMetadata []struct {
 			// N is the n argument value.
 			N int64
 		}
@@ -85,11 +86,11 @@ type BlockPluginMock struct {
 			Header *types.Header
 		}
 	}
-	lockBaseFee                  sync.RWMutex
-	lockGetHeaderByNumber        sync.RWMutex
-	lockNewHeaderWithBlockNumber sync.RWMutex
-	lockPrepare                  sync.RWMutex
-	lockSetHeaderByNumber        sync.RWMutex
+	lockBaseFee             sync.RWMutex
+	lockGetHeaderByNumber   sync.RWMutex
+	lockGetNewBlockMetadata sync.RWMutex
+	lockPrepare             sync.RWMutex
+	lockSetHeaderByNumber   sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
@@ -151,35 +152,35 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 	return calls
 }
 
-// NewHeaderWithBlockNumber calls NewHeaderWithBlockNumberFunc.
-func (mock *BlockPluginMock) NewHeaderWithBlockNumber(n int64) *types.Header {
-	if mock.NewHeaderWithBlockNumberFunc == nil {
-		panic("BlockPluginMock.NewHeaderWithBlockNumberFunc: method is nil but BlockPlugin.NewHeaderWithBlockNumber was just called")
+// GetNewBlockMetadata calls GetNewBlockMetadataFunc.
+func (mock *BlockPluginMock) GetNewBlockMetadata(n int64) (common.Address, uint64) {
+	if mock.GetNewBlockMetadataFunc == nil {
+		panic("BlockPluginMock.GetNewBlockMetadataFunc: method is nil but BlockPlugin.GetNewBlockMetadata was just called")
 	}
 	callInfo := struct {
 		N int64
 	}{
 		N: n,
 	}
-	mock.lockNewHeaderWithBlockNumber.Lock()
-	mock.calls.NewHeaderWithBlockNumber = append(mock.calls.NewHeaderWithBlockNumber, callInfo)
-	mock.lockNewHeaderWithBlockNumber.Unlock()
-	return mock.NewHeaderWithBlockNumberFunc(n)
+	mock.lockGetNewBlockMetadata.Lock()
+	mock.calls.GetNewBlockMetadata = append(mock.calls.GetNewBlockMetadata, callInfo)
+	mock.lockGetNewBlockMetadata.Unlock()
+	return mock.GetNewBlockMetadataFunc(n)
 }
 
-// NewHeaderWithBlockNumberCalls gets all the calls that were made to NewHeaderWithBlockNumber.
+// GetNewBlockMetadataCalls gets all the calls that were made to GetNewBlockMetadata.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.NewHeaderWithBlockNumberCalls())
-func (mock *BlockPluginMock) NewHeaderWithBlockNumberCalls() []struct {
+//	len(mockedBlockPlugin.GetNewBlockMetadataCalls())
+func (mock *BlockPluginMock) GetNewBlockMetadataCalls() []struct {
 	N int64
 } {
 	var calls []struct {
 		N int64
 	}
-	mock.lockNewHeaderWithBlockNumber.RLock()
-	calls = mock.calls.NewHeaderWithBlockNumber
-	mock.lockNewHeaderWithBlockNumber.RUnlock()
+	mock.lockGetNewBlockMetadata.RLock()
+	calls = mock.calls.GetNewBlockMetadata
+	mock.lockGetNewBlockMetadata.RUnlock()
 	return calls
 }
 

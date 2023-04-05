@@ -18,33 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package vm
+package lib
 
-import (
-	"github.com/ethereum/go-ethereum/core/vm"
-)
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
-type (
-	AccountRef          = vm.AccountRef
-	BlockContext        = vm.BlockContext
-	CanTransferFunc     = vm.CanTransferFunc
-	ContractRef         = vm.ContractRef
-	Config              = vm.Config
-	EVMLogger           = vm.EVMLogger
-	GethEVM             = vm.EVM
-	GethStateDB         = vm.StateDB
-	GetHashFunc         = vm.GetHashFunc
-	PrecompileContainer = vm.PrecompiledContract
-	PrecompileManager   = vm.PrecompileManager
-	TransferFunc        = vm.TransferFunc
-	TxContext           = vm.TxContext
-)
-
-var (
-	NewGethEVMWithPrecompiles     = vm.NewEVMWithPrecompiles
-	ErrOutOfGas                   = vm.ErrOutOfGas
-	ErrExecutionReverted          = vm.ErrExecutionReverted
-	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
-	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
-	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead
-)
+type BankKeeper interface {
+	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string,
+		recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress,
+		recipientModule string, amt sdk.Coins) error
+	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+}

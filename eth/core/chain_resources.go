@@ -52,7 +52,7 @@ func (bc *blockchain) GetEVM(
 	_ context.Context, txContext vm.TxContext, state vm.PolarisStateDB,
 	header *types.Header, vmConfig *vm.Config,
 ) *vm.GethEVM {
-	chainCfg := bc.processor.cp.ChainConfig() // todo: get chain config at height.
+	chainCfg := bc.processor.cp.ChainConfig() // TODO: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
 		bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
