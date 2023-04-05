@@ -95,11 +95,19 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.GetDenomsMetadata,
 		},
 		{
+			AbiSig:  "getDenomsOwners()",
+			Execute: nil,
+		},
+		{
+			AbiSig:  "getSendEnabled()",
+			Execute: c.GetSendEnabled,
+		},
+		{
 			AbiSig:  "send(address,address,Coin)",
 			Execute: c.Send,
 		},
 		{
-			AbiSig:  "multiSend()",
+			AbiSig:  "multiSend(Input[],Output[])",
 			Execute: c.MultiSend,
 		},
 	}
@@ -296,6 +304,36 @@ func (c *Contract) GetDenomsMetadata(
 	return []any{res.Metadatas}, nil
 }
 
+func (c *Contract) GetSendEnabled(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	denoms, ok := utils.GetAs[[]string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
+		Denoms: denoms,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// todo: test if "return []any{res.SendEnabled}, nil" works
+	// here we are dereferencing the values for safety
+	sendEnableds := make([]banktypes.SendEnabled, len(res.SendEnabled))
+	for i, p := range res.SendEnabled {
+		sendEnableds[i] = *p
+	}
+
+	return []any{sendEnableds}, nil
+}
+
 func (c *Contract) Send(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -342,7 +380,7 @@ func (c *Contract) MultiSend(
 		return nil, precompile.ErrInvalidAny
 	}
 
-	// Check total amounts are equal
+	// Check total amounts for inputs and outputs are equal
 	totalInputCoins := sdk.NewCoins()
 	totalOutputCoins := sdk.NewCoins()
 

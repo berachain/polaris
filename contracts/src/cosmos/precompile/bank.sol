@@ -108,6 +108,11 @@ interface IBankModule {
      */
     function getDenomsMetadata() external view returns (DenomsMetadata memory);
 
+    /**
+     * @dev Returns if the denom is enabled to send
+     */
+    function getSendEnabled(string[] calldata denoms) external view returns (SendEnabled memory);
+
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
@@ -141,6 +146,11 @@ interface IBankModule {
 
     struct DenomsMetadata {
         DenomMetadata[] metadatas;
+    }
+
+    struct SendEnabled {
+        string denom;
+        bool enabled;
     }
 
     struct Input {

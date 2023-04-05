@@ -578,6 +578,31 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 		})
 
+		When("GetSendEnabled", func() {
+			It("should succeed", func() {
+				enabledDenom := "enabledDenom"
+				disabledDenom := "disabledDenom"
+				demons := []string{enabledDenom, disabledDenom}
+				expectedResult := []banktypes.SendEnabled{
+					{Denom: enabledDenom, Enabled: true},
+				}
+
+				bk.SetSendEnabled(ctx, enabledDenom, true)
+
+				res, err := contract.GetSendEnabled(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					demons,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(res[0]).To(Equal(expectedResult))
+			})
+		})
+
 		When("Send", func() {
 			It("should fail if from address is not a common.Address", func() {
 				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
@@ -753,8 +778,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				}
 
 				bk.SetSendEnabled(ctx, denom, true)
-				fmt.Printf("\n%v\n", inputs)
-				fmt.Printf("%v\n", outputs)
+
 				_, err = contract.MultiSend(
 					ctx,
 					nil,
