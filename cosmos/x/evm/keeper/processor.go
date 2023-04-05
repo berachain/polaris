@@ -32,8 +32,6 @@ import (
 // BeginBlocker is called during the BeginBlock processing of the ABCI lifecycle.
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	// TODO: move this to the Committer phase of the ABCI lifecycle.
-	k.polaris.Commit(ctx) // commits the previous block before processing a new block.
 	k.polaris.Prepare(ctx, sCtx.BlockHeight())
 }
 
@@ -72,11 +70,8 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	return execResult, err
 }
 
-// EndBlocker is called during the EndBlock processing of the ABCI lifecycle.
-func (k *Keeper) EndBlocker(ctx context.Context) {
-	// Finalize the block and retrieve it from the processor.
-	err := k.polaris.Finalize(ctx)
-	if err != nil {
+func (k *Keeper) Precommit(ctx context.Context) {
+	if err := k.polaris.Finalize(ctx); err != nil {
 		panic(err)
 	}
 }
