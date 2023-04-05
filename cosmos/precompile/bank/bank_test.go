@@ -515,6 +515,23 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 		})
 
+		When("GetParams", func() {
+			It("should succeed", func() {
+				res, err := contract.GetParams(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				params, ok := utils.GetAs[banktypes.Params](res[0])
+				Expect(ok).To(BeTrue())
+				Expect(params.DefaultSendEnabled).To(BeFalse())
+			})
+		})
+
 		When("GetDenomMetadata", func() {
 			It("should fail if input denom is not a valid string", func() {
 				res, err := contract.GetDenomMetadata(

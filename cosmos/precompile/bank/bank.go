@@ -87,6 +87,10 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.GetTotalSupply,
 		},
 		{
+			AbiSig:  "getParams()",
+			Execute: c.GetParams,
+		},
+		{
 			AbiSig:  "getDenomMetadata(string)",
 			Execute: c.GetDenomMetadata,
 		},
@@ -95,11 +99,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.GetDenomsMetadata,
 		},
 		{
-			AbiSig:  "getDenomsOwners()",
-			Execute: nil,
-		},
-		{
-			AbiSig:  "getSendEnabled()",
+			AbiSig:  "getSendEnabled(string[])",
 			Execute: c.GetSendEnabled,
 		},
 		{
@@ -256,13 +256,31 @@ func (c *Contract) GetTotalSupply(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
+	// todo: add pagination here
 	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
 	if err != nil {
 		return nil, err
 	}
 
-	// res.supply has type sdk.Coins
 	return []any{res.GetSupply()}, nil
+}
+
+func (c *Contract) GetParams(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	res, err := c.querier.Params(ctx, &banktypes.QueryParamsRequest{})
+
+	if err != nil {
+		return nil, err
+	}
+
+	// note: res.Params.SendEnabled is deprecated
+	return []any{res.Params}, nil
 }
 
 func (c *Contract) GetDenomMetadata(
@@ -296,6 +314,7 @@ func (c *Contract) GetDenomsMetadata(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
+	// todo: add pagination here
 	res, err := c.querier.DenomsMetadata(ctx, &banktypes.QueryDenomsMetadataRequest{})
 	if err != nil {
 		return nil, err
@@ -303,6 +322,26 @@ func (c *Contract) GetDenomsMetadata(
 
 	return []any{res.Metadatas}, nil
 }
+
+// todo: this function without pagination is a bad idea
+// func (c *Contract) GetDenomsOwners(
+// 	ctx context.Context,
+// 	_ ethprecompile.EVM,
+// 	_ common.Address,
+// 	_ *big.Int,
+// 	readonly bool,
+// 	args ...any,
+// ) ([]any, error) {
+// 	res, err := c.querier.DenomOwners(ctx, &banktypes.QueryDenomOwnersRequest{
+// 		Denom: "",
+// 		Pagination: nil,
+// 	})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return []any{res.DenomOwners}, nil
+// }
 
 func (c *Contract) GetSendEnabled(
 	ctx context.Context,
@@ -384,6 +423,7 @@ func (c *Contract) MultiSend(
 	totalInputCoins := sdk.NewCoins()
 	totalOutputCoins := sdk.NewCoins()
 
+	// input params for c.msgServer.MultiSend
 	sdkInputs := make([]banktypes.Input, len(evmInputs))
 	sdkOutputs := make([]banktypes.Output, len(evmOutputs))
 

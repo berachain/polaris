@@ -99,6 +99,11 @@ interface IBankModule {
     function getTotalSupply() external view returns (Coin[] memory);
 
     /**
+     * @dev Returns the parameters of the bank module.
+     */
+    function getParams() external view returns (Param memory);
+
+    /**
      * @dev Returns the denomination metadata
      */
     function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
@@ -115,7 +120,18 @@ interface IBankModule {
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
+    /**
+     * @dev Send coins from one address to another.
+     */
     function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
+
+    /**
+     * @dev Send coins from one sender and to a series of different address. 
+     * If any of the receiving addresses do not correspond to an existing account, 
+     * a new account is created.
+     * 
+     * Inputs, despite being `repeated`, only allows one sender input. 
+     */
 
     function multiSend(Input[] calldata inputs, Output[] memory outputs) external payable returns (bool);
 
@@ -128,6 +144,10 @@ interface IBankModule {
     struct Coin {
         uint256 amount;
         string denom;
+    }
+
+    struct Param {
+        bool defaultSendEnabled;
     }
 
     struct DenomUnit {
