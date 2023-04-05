@@ -103,7 +103,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.GetSendEnabled,
 		},
 		{
-			AbiSig:  "send(address,address,Coin)",
+			AbiSig:  "send(address,address,(uint256,string))",
 			Execute: c.Send,
 		},
 		{
@@ -113,6 +113,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	}
 }
 
+// grpc_query functions
 // GetBalance implements `getBalance(address,string)` method.
 func (c *Contract) GetBalance(
 	ctx context.Context,
@@ -165,11 +166,10 @@ func (c *Contract) GetAllBalance(
 		return nil, err
 	}
 
-	// res.Balances has type sdk.Coins
 	return []any{res.Balances}, nil
 }
 
-// GetBalance implements `getBalance(address,string)` method.
+// GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
 func (c *Contract) GetSpendableBalanceByDenom(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -199,7 +199,7 @@ func (c *Contract) GetSpendableBalanceByDenom(
 	return []any{balance.BigInt()}, nil
 }
 
-// // GetAllBalance implements `getAllBalance(address)` method.
+// GetSpendableBalances implements `getSpendableBalances(address)` method.
 func (c *Contract) GetSpendableBalances(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -220,10 +220,10 @@ func (c *Contract) GetSpendableBalances(
 		return nil, err
 	}
 
-	// res.Balances has type sdk.Coins
 	return []any{res.Balances}, nil
 }
 
+// GetSupplyOf implements `GetSupplyOf(string)` method.
 func (c *Contract) GetSupplyOf(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -248,6 +248,7 @@ func (c *Contract) GetSupplyOf(
 	return []any{supply.BigInt()}, nil
 }
 
+// GetTotalSupply implements `getTotalSupply()` method.
 func (c *Contract) GetTotalSupply(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -262,9 +263,10 @@ func (c *Contract) GetTotalSupply(
 		return nil, err
 	}
 
-	return []any{res.GetSupply()}, nil
+	return []any{res.Supply}, nil
 }
 
+// GetParams implements `getParams()` method.
 func (c *Contract) GetParams(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -283,6 +285,7 @@ func (c *Contract) GetParams(
 	return []any{res.Params}, nil
 }
 
+// GetDenomMetadata implements `getDenomMetadata(string)` method.
 func (c *Contract) GetDenomMetadata(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -306,6 +309,7 @@ func (c *Contract) GetDenomMetadata(
 	return []any{res.Metadata}, nil
 }
 
+// GetDenomsMetadata implements `getDenomsMetadata()` method.
 func (c *Contract) GetDenomsMetadata(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -343,6 +347,7 @@ func (c *Contract) GetDenomsMetadata(
 // 	return []any{res.DenomOwners}, nil
 // }
 
+// GetSendEnabled implements `getSendEnabled(string[])` method.
 func (c *Contract) GetSendEnabled(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -373,6 +378,8 @@ func (c *Contract) GetSendEnabled(
 	return []any{sendEnableds}, nil
 }
 
+// msg_server functions
+// Send implements `send(address,address,(uint256,string))` method.
 func (c *Contract) Send(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -402,6 +409,7 @@ func (c *Contract) Send(
 	return []any{err == nil}, err
 }
 
+// MultiSend implements `multiSend(Input[],Output[])` method.
 func (c *Contract) MultiSend(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -468,6 +476,7 @@ func (c *Contract) MultiSend(
 	return []any{err == nil}, err
 }
 
+// helper functions
 func sumCoins(coins1 sdk.Coins, coins2 sdk.Coins) sdk.Coins {
 	tempMap := make(map[string]sdkmath.Int)
 	for _, coin := range coins1 {
