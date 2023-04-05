@@ -12,7 +12,7 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230405143654-e053c5207b76
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230329183348-844cad7b5030
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230404155410-eabc299e6c50
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 

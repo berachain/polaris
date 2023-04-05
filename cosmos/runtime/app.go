@@ -103,6 +103,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -191,6 +192,8 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
+
+	simappconfig.SetupCosmosConfig()
 }
 
 // NewPolarisApp returns a reference to an initialized PolarisApp.
@@ -212,7 +215,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
 		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
-			mempool.NewPriorityMempool(mempool.PriorityNonceMempoolConfig[uint64]{}),
+			mempool.NewPriorityMempool(mempool.DefaultPriorityNonceMempoolConfig()),
 		)
 		mempoolOpt = baseapp.SetMempool(
 			ethTxMempool,

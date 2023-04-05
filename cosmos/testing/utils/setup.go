@@ -21,7 +21,6 @@
 package utils
 
 import (
-	"sync"
 	"testing"
 
 	"cosmossdk.io/log"
@@ -54,14 +53,7 @@ var (
 	StakingKey = storetypes.NewKVStoreKey("staking")
 	Alice      = common.BytesToAddress([]byte("alice"))
 	Bob        = common.BytesToAddress([]byte("bob"))
-	initConfig sync.Once
 )
-
-func InitSdkConfig() {
-	initConfig.Do(func() {
-		config.SetupCosmosConfig()
-	})
-}
 
 // NewContext creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
@@ -79,7 +71,7 @@ func SetupMinimalKeepers() (
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
-	InitSdkConfig()
+	config.SetupCosmosConfig()
 	ctx := NewContext()
 
 	encodingConfig := testutil.MakeTestEncodingConfig(

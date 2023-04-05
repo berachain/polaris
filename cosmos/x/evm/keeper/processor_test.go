@@ -93,7 +93,7 @@ var _ = Describe("Processor", func() {
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
-				sdkmempool.PriorityNonceMempoolConfig[uint64]{}),
+				sdkmempool.DefaultPriorityNonceMempoolConfig()),
 			),
 		)
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])

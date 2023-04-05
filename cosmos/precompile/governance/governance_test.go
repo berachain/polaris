@@ -38,7 +38,6 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	"pkg.berachain.dev/polaris/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -167,9 +166,11 @@ var _ = Describe("Governance Precompile", func() {
 		It("should succeed", func() {
 			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
-			lib.MintCoinsToAddress(
-				ctx, bk, governancetypes.ModuleName, lib.AccAddressToEthAddress(govAcct), "abera", big.NewInt(100),
+			err := cosmlib.MintCoinsToAddress(
+				ctx, bk, governancetypes.ModuleName,
+				cosmlib.AccAddressToEthAddress(govAcct), "abera", big.NewInt(100),
 			)
+			Expect(err).ToNot(HaveOccurred())
 			message := &banktypes.MsgSend{
 				FromAddress: govAcct.String(),
 				ToAddress:   caller.String(),
