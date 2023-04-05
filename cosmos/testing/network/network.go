@@ -115,6 +115,7 @@ func DefaultConfig() network.Config {
 				val.GetCtx().Logger, cdb.NewMemDB(), nil, true, sims.EmptyAppOptions{},
 				baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
+				baseapp.SetChainID("polaris-2061"),
 			)
 		},
 		GenesisState:    BuildGenesisState(),
