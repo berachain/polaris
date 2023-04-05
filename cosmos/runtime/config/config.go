@@ -21,6 +21,8 @@
 package config
 
 import (
+	"sync"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/accounts"
@@ -43,14 +45,18 @@ const (
 	Bech32PrefixConsPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus + sdk.PrefixPublic
 )
 
+var initConfig sync.Once
+
 // SetupCosmosConfig sets up the Cosmos SDK configuration to be compatible with the semantics of etheruem.
 func SetupCosmosConfig() {
-	// set the address prefixes
-	config := sdk.GetConfig()
-	SetBech32Prefixes(config)
-	SetBip44CoinType(config)
-	RegisterDenoms()
-	config.Seal()
+	initConfig.Do(func() {
+		// set the address prefixes
+		config := sdk.GetConfig()
+		SetBech32Prefixes(config)
+		SetBip44CoinType(config)
+		RegisterDenoms()
+		config.Seal()
+	})
 }
 
 // SetBech32Prefixes sets the global prefixes to be used when serializing addresses and public keys to Bech32 strings.

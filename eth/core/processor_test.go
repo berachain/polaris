@@ -66,7 +66,6 @@ var _ = Describe("StateProcessor", func() {
 		cp            *mock.ConfigurationPluginMock
 		pp            *mock.PrecompilePluginMock
 		sp            *core.StateProcessor
-		blockNumber   uint64
 		blockGasLimit uint64
 	)
 
@@ -94,19 +93,10 @@ var _ = Describe("StateProcessor", func() {
 		}
 		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
-		blockNumber = params.DefaultChainConfig.LondonBlock.Uint64() + 1
 		blockGasLimit = 1000000
 
-		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
-			header := dummyHeader
-			header.GasLimit = blockGasLimit
-			header.BaseFee = big.NewInt(1)
-			header.Coinbase = common.BytesToAddress([]byte{2})
-			header.Number = big.NewInt(int64(blockNumber))
-			header.Time = uint64(3)
-			header.Difficulty = new(big.Int)
-			header.MixDigest = common.BytesToHash([]byte{})
-			return header
+		bp.GetNewBlockMetadataFunc = func(n int64) (common.Address, uint64) {
+			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
@@ -217,12 +207,8 @@ var _ = Describe("No precompile plugin provided", func() {
 		bp := mock.NewBlockPluginMock()
 		gp := mock.NewGasPluginMock()
 		gp.SetBlockGasLimit(1000000)
-		bp.NewHeaderWithBlockNumberFunc = func(height int64) *types.Header {
-			header := dummyHeader
-			header.GasLimit = 1000000
-			header.Number = new(big.Int)
-			header.Difficulty = new(big.Int)
-			return header
+		bp.GetNewBlockMetadataFunc = func(n int64) (common.Address, uint64) {
+			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
 		host.GetBlockPluginFunc = func() core.BlockPlugin {
 			return bp
