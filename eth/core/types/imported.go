@@ -66,7 +66,6 @@ var (
 	SignNewTx              = types.SignNewTx
 	MustSignNewTx          = types.MustSignNewTx
 	NewBlock               = types.NewBlock
-	NewBlockWithHeader     = types.NewBlockWithHeader
 	ErrInvalidSig          = types.ErrInvalidSig
 )
 

@@ -22,9 +22,11 @@ package core
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -48,8 +50,6 @@ type ChainWriter interface {
 
 // Prepare prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	bc.logger.Info("Preparing block", "height", height)
-
 	// Prepare the Block, Configuration, Gas, and Historical plugins for the block.
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
@@ -58,9 +58,32 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		bc.hp.Prepare(ctx)
 	}
 
-	// If we are processing a new block, then we assume that the previous was finalized.
-	header := bc.bp.NewHeaderWithBlockNumber(height)
-	// coinbase, gaslimit (gp), timestamp,
+	coinbase, timestamp := bc.bp.GetNewBlockMetadata(height)
+	bc.logger.Info("Preparing block", "height", height, "coinbase", coinbase.Hex(), "timestamp", timestamp)
+
+	// Build the new block header.
+	var parentHash common.Hash
+	if height > 1 {
+		parent, err := bc.bp.GetHeaderByNumber(height - 1)
+		if err != nil {
+			panic(err)
+		}
+		parentHash = parent.Hash()
+	}
+	header := &types.Header{
+		ParentHash: parentHash,
+		UncleHash:  types.EmptyUncleHash,
+		Coinbase:   coinbase,
+		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
+		Difficulty: big.NewInt(0),
+		Number:     big.NewInt(height),
+		GasLimit:   bc.gp.BlockGasLimit(),
+		Time:       timestamp,
+		Extra:      []byte{}, // Polaris does not set the Extra field.
+		MixDigest:  common.Hash{},
+		Nonce:      types.BlockNonce{},
+	}
+
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
