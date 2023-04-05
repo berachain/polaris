@@ -212,7 +212,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
-		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(mempool.NewPriorityMempool[uint64](mempool.PriorityNonceMempoolConfig[uint64]{}))
+		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(mempool.NewPriorityMempool(mempool.PriorityNonceMempoolConfig[uint64]{}))
 		mempoolOpt                   = baseapp.SetMempool(
 			ethTxMempool,
 		)

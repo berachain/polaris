@@ -28,6 +28,7 @@ import (
 
 	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -79,7 +80,7 @@ func SetupMinimalKeepers() (
 
 	ak := authkeeper.NewAccountKeeper(
 		encodingConfig.Codec,
-		AccKey,
+		runtime.NewKVStoreService(AccKey),
 		authtypes.ProtoBaseAccount,
 		map[string][]string{
 			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},

@@ -3,13 +3,13 @@ module pkg.berachain.dev/polaris/cosmos
 go 1.20
 
 replace (
-	cosmossdk.io/api => github.com/berachain/cosmos-sdk/api v0.2.7-0.20230404234304-a7b930feebab
-	cosmossdk.io/depinject => github.com/berachain/cosmos-sdk/depinject v1.0.0-alpha.3.0.20230404234304-a7b930feebab
-	cosmossdk.io/simapp => github.com/berachain/cosmos-sdk/simapp v0.0.0-20230404234304-a7b930feebab
-	cosmossdk.io/x/evidence => github.com/berachain/cosmos-sdk/x/evidence v0.0.0-20230404234304-a7b930feebab
-	cosmossdk.io/x/feegrant => github.com/berachain/cosmos-sdk/x/feegrant v0.0.0-20230404234304-a7b930feebab
-	cosmossdk.io/x/upgrade => github.com/berachain/cosmos-sdk/x/upgrade v0.0.0-20230404234304-a7b930feebab
-	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230404234304-a7b930feebab
+	cosmossdk.io/api => github.com/berachain/cosmos-sdk/api v0.2.7-0.20230405143654-e053c5207b76
+	cosmossdk.io/depinject => github.com/berachain/cosmos-sdk/depinject v1.0.0-alpha.3.0.20230405143654-e053c5207b76
+	cosmossdk.io/simapp => github.com/berachain/cosmos-sdk/simapp v0.0.0-20230405143654-e053c5207b76
+	cosmossdk.io/x/evidence => github.com/berachain/cosmos-sdk/x/evidence v0.0.0-20230405143654-e053c5207b76
+	cosmossdk.io/x/feegrant => github.com/berachain/cosmos-sdk/x/feegrant v0.0.0-20230405143654-e053c5207b76
+	cosmossdk.io/x/upgrade => github.com/berachain/cosmos-sdk/x/upgrade v0.0.0-20230405143654-e053c5207b76
+	github.com/cosmos/cosmos-sdk => github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20230405143654-e053c5207b76
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230329183348-844cad7b5030
@@ -46,7 +46,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
 	github.com/spf13/cast v1.5.0
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/tidwall/btree v1.6.0
 	google.golang.org/genproto v0.0.0-20230320184635-7606e756e683
