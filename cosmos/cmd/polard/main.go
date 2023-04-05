@@ -24,6 +24,7 @@ import (
 	"os"
 
 	"cosmossdk.io/log"
+
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
 	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"

@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -82,8 +81,6 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 
 // Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
-	fmt.Println("RUNNING FINALIZE")
-
 	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
@@ -100,13 +97,13 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
-		if err := bc.hp.StoreBlock(block); err != nil {
+		if err = bc.hp.StoreBlock(block); err != nil {
 			return err
 		}
-		if err := bc.hp.StoreReceipts(blockHash, receipts); err != nil {
+		if err = bc.hp.StoreReceipts(blockHash, receipts); err != nil {
 			return err
 		}
-		if err := bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions()); err != nil {
+		if err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions()); err != nil {
 			return err
 		}
 	}
@@ -117,7 +114,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		bc.finalizedBlock.Store(block)
 
 		// Add to block caches.
-		bc.blockNumCache.Add(int64(blockNum), block)
+		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
 		// Cache transaction data.
@@ -132,7 +129,6 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 				},
 			)
 		}
-
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)

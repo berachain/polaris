@@ -103,7 +103,6 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -212,8 +211,10 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
-		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(mempool.NewPriorityMempool(mempool.PriorityNonceMempoolConfig[uint64]{}))
-		mempoolOpt                   = baseapp.SetMempool(
+		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
+			mempool.NewPriorityMempool(mempool.PriorityNonceMempoolConfig[uint64]{}),
+		)
+		mempoolOpt = baseapp.SetMempool(
 			ethTxMempool,
 		)
 

@@ -29,7 +29,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -93,7 +92,9 @@ var _ = Describe("Processor", func() {
 			ak, bk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
-			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(mempool.PriorityNonceMempoolConfig[uint64]{})),
+			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
+				sdkmempool.PriorityNonceMempoolConfig[uint64]{}),
+			),
 		)
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())

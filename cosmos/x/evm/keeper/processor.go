@@ -71,5 +71,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 }
 
 func (k *Keeper) Precommit(ctx context.Context) {
-	k.polaris.Finalize(ctx)
+	if err := k.polaris.Finalize(ctx); err != nil {
+		panic(err)
+	}
 }
