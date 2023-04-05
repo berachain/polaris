@@ -45,8 +45,9 @@ type Plugin interface {
 // plugin wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
 // to implement the core.GasPlugin interface.
 type plugin struct {
-	gasMeter      storetypes.GasMeter
-	blockGasMeter storetypes.GasMeter
+	gasMeter        storetypes.GasMeter
+	blockGasMeter   storetypes.GasMeter
+	consensusMaxGas uint64
 }
 
 // NewPlugin creates a new instance of the gas plugin from a given context.
@@ -56,16 +57,12 @@ func NewPlugin() Plugin {
 
 // Prepare implements the core.GasPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.gasMeter = sCtx.GasMeter()
-	p.blockGasMeter = sCtx.BlockGasMeter()
+	p.resetMeters(sdk.UnwrapSDKContext(ctx))
 }
 
 // Reset implements the core.GasPlugin interface.
 func (p *plugin) Reset(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.gasMeter = sCtx.GasMeter()
-	p.blockGasMeter = sCtx.BlockGasMeter()
+	p.resetMeters(sdk.UnwrapSDKContext(ctx))
 }
 
 // GasRemaining implements the core.GasPlugin interface.
@@ -75,7 +72,10 @@ func (p *plugin) GasRemaining() uint64 {
 
 // BlockGasLimit implements the core.GasPlugin interface.
 func (p *plugin) BlockGasLimit() uint64 {
-	return p.blockGasMeter.Limit()
+	if blockGasLimit := p.blockGasMeter.Limit(); blockGasLimit != 0 {
+		return blockGasLimit
+	}
+	return p.consensusMaxGas
 }
 
 // TxConsumeGas implements the core.GasPlugin interface.
@@ -118,4 +118,17 @@ func addUint64Overflow(a, b uint64) (uint64, bool) {
 	}
 
 	return a + b, false
+}
+
+// if either of the gas meters on the sdk context are nil, this function will panic.
+func (p *plugin) resetMeters(ctx sdk.Context) {
+	if p.gasMeter = ctx.GasMeter(); p.gasMeter == nil {
+		panic("gas meter is nil")
+	}
+	if p.blockGasMeter = ctx.BlockGasMeter(); p.blockGasMeter == nil {
+		panic("block gas meter is nil")
+	}
+	if block := ctx.ConsensusParams().Block; block != nil {
+		p.consensusMaxGas = uint64(block.MaxGas)
+	}
 }

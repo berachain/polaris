@@ -18,23 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package main
+package lib
 
-import (
-	"os"
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"cosmossdk.io/log"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"
-	simapp "pkg.berachain.dev/polaris/cosmos/runtime"
-)
-
-func main() {
-	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
-		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
-		os.Exit(1)
-	}
+type BankKeeper interface {
+	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string,
+		recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress,
+		recipientModule string, amt sdk.Coins) error
+	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 }
