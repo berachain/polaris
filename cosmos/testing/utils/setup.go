@@ -21,6 +21,7 @@
 package utils
 
 import (
+	"sync"
 	"testing"
 
 	"cosmossdk.io/log"
@@ -41,6 +42,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -52,7 +54,14 @@ var (
 	StakingKey = storetypes.NewKVStoreKey("staking")
 	Alice      = common.BytesToAddress([]byte("alice"))
 	Bob        = common.BytesToAddress([]byte("bob"))
+	initConfig sync.Once
 )
+
+func InitSdkConfig() {
+	initConfig.Do(func() {
+		config.SetupCosmosConfig()
+	})
+}
 
 // NewContext creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
@@ -70,6 +79,7 @@ func SetupMinimalKeepers() (
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
+	InitSdkConfig()
 	ctx := NewContext()
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
@@ -89,7 +99,7 @@ func SetupMinimalKeepers() (
 			"staking":                      {authtypes.Minter, authtypes.Burner},
 			"gov":                          {authtypes.Minter, authtypes.Burner},
 		},
-		"bera",
+		config.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
