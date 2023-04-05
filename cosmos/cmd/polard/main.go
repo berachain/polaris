@@ -29,11 +29,9 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"
 	simapp "pkg.berachain.dev/polaris/cosmos/runtime"
-	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 )
 
 func main() {
-	config.SetupCosmosConfig()
 	rootCmd := cmd.NewRootCmd()
 	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
 		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
