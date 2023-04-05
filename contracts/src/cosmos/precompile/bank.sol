@@ -121,12 +121,8 @@ interface IBankModule {
      * Note: this struct is generated as go struct that is then used in the precompile.
      */
     struct Coin {
-        uint64 amount;
+        uint256 amount;
         string denom;
-    }
-
-    struct Coins {
-        Coin[] coins;
     }
 
     struct DenomUnit {
@@ -149,11 +145,11 @@ interface IBankModule {
 
     struct Input {
         address addr;
-        Coins coins;
+        Coin[] coins;
     }
     
     struct Output {
         address addr;
-        Coins coins;
+        Coin[] coins;
     }
 }

@@ -352,9 +352,9 @@ func (c *Contract) MultiSend(
 	// Inputs, despite being `repeated`, only allows one sender input. This is
 	// checked in MsgMultiSend's ValidateBasic.
 	for i, evmInput := range evmInputs {
-		sdkCoins, ok2 := utils.GetAs[sdk.Coins](evmInput.Coins)
-		if !ok2 {
-			return nil, precompile.ErrInvalidCoin
+		sdkCoins := sdk.NewCoins()
+		for _, coin := range evmInput.Coins {
+			sdkCoins = append(sdkCoins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
 		}
 
 		totalInputCoins = sumCoins(totalInputCoins, sdkCoins)
@@ -366,9 +366,9 @@ func (c *Contract) MultiSend(
 	}
 
 	for i, evmOutput := range evmOutputs {
-		sdkCoins, ok2 := utils.GetAs[sdk.Coins](evmOutput.Coins)
-		if !ok2 {
-			return nil, precompile.ErrInvalidCoin
+		sdkCoins := sdk.NewCoins()
+		for _, coin := range evmOutput.Coins {
+			sdkCoins = append(sdkCoins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
 		}
 
 		totalOutputCoins = sumCoins(totalOutputCoins, sdkCoins)
@@ -391,7 +391,7 @@ func (c *Contract) MultiSend(
 }
 
 func sumCoins(coins1 sdk.Coins, coins2 sdk.Coins) sdk.Coins {
-	var tempMap map[string]sdkmath.Int
+	tempMap := make(map[string]sdkmath.Int)
 	for _, coin := range coins1 {
 		if amount, found := tempMap[coin.Denom]; found {
 			tempMap[coin.Denom] = amount.Add(coin.Amount)

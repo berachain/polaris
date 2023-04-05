@@ -692,13 +692,18 @@ var _ = Describe("Bank Precompile Test", func() {
 
 		When("MultiSend", func() {
 			It("should succeed", func() {
+				// 3 accounts: acct[0], acct[1], acct[2]
+				// fund acct[0] with 44 bera
+				// acct[0] send 22bera to acct[1]
+				// acct[0] send 22bera to acct[2]
+				// multisend, then check remaining balances
 				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
 				Expect(ok).To(BeTrue())
 				balanceAmount2, ok := new(big.Int).SetString("44000000000000000000", 10)
 				Expect(ok).To(BeTrue())
 
-				accs := simtestutil.CreateRandomAccounts(3)
-				fromAcc := accs[0]
+				acct := simtestutil.CreateRandomAccounts(3)
+				fromAcc := acct[0]
 
 				coins := sdk.NewCoins(
 					sdk.NewCoin(
@@ -724,22 +729,32 @@ var _ = Describe("Bank Precompile Test", func() {
 				var inputs []generated.IBankModuleInput
 				var outputs []generated.IBankModuleOutput
 
+				var sendCoins []generated.IBankModuleCoin
+
+				for _, coin := range coins {
+					sendCoins = append(sendCoins, generated.IBankModuleCoin{
+						Denom:  coin.Denom,
+						Amount: coin.Amount.BigInt(),
+					})
+				}
+
 				for i := 0; i < 2; i++ {
 					inputs = append(inputs, generated.IBankModuleInput{
 						Addr:  cosmlib.AccAddressToEthAddress(fromAcc),
-						Coins: utils.MustGetAs[generated.IBankModuleCoins](coins),
+						Coins: sendCoins,
 					})
 				}
 
 				for i := 0; i < 2; i++ {
 					outputs = append(outputs, generated.IBankModuleOutput{
-						Addr:  cosmlib.AccAddressToEthAddress(accs[i+1]),
-						Coins: utils.MustGetAs[generated.IBankModuleCoins](coins),
+						Addr:  cosmlib.AccAddressToEthAddress(acct[i+1]),
+						Coins: sendCoins,
 					})
 				}
 
 				bk.SetSendEnabled(ctx, denom, true)
-
+				fmt.Printf("\n%v\n", inputs)
+				fmt.Printf("%v\n", outputs)
 				_, err = contract.MultiSend(
 					ctx,
 					nil,
@@ -752,7 +767,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				for i := 1; i < 3; i++ {
-					balance, err2 := bk.Balance(ctx, banktypes.NewQueryBalanceRequest(accs[i], denom))
+					balance, err2 := bk.Balance(ctx, banktypes.NewQueryBalanceRequest(acct[i], denom))
 					Expect(err2).ToNot(HaveOccurred())
 
 					Expect(*balance.Balance).To(Equal(coins[0]))
