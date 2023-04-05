@@ -128,5 +128,7 @@ func (p *plugin) resetMeters(ctx sdk.Context) {
 	if p.blockGasMeter = ctx.BlockGasMeter(); p.blockGasMeter == nil {
 		panic("block gas meter is nil")
 	}
-	p.consensusMaxGas = uint64(ctx.ConsensusParams().Block.MaxGas)
+	if block := ctx.ConsensusParams().Block; block != nil {
+		p.consensusMaxGas = uint64(block.MaxGas)
+	}
 }
