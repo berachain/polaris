@@ -529,10 +529,16 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 		iavlHeight = number
 	}
 
-	// Get the query context at the given height.
-	ctx, err := p.getQueryContext(iavlHeight, false)
-	if err != nil {
-		return nil, err
+	var ctx sdk.Context
+	if p.ctx.BlockHeight() == iavlHeight {
+		ctx, _ = p.ctx.CacheContext()
+	} else {
+		// Get the query context at the given height.
+		var err error
+		ctx, err = p.getQueryContext(iavlHeight, false)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Create a State Plugin with the requested chain height.
