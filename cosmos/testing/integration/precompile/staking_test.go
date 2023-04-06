@@ -107,7 +107,7 @@ var _ = Describe("Staking", func() {
 		Expect(addresses).To(HaveLen(1))
 		Expect(addresses[0]).To(Equal(validator))
 
-		// Send tokens to the contract
+		// Send tokens to the contract to delegate and mint LSD.
 		txr := tf.GenerateTransactOpts("")
 		txr.GasLimit = 0
 		txr.Value = delegateAmt
@@ -116,18 +116,17 @@ var _ = Describe("Staking", func() {
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		time.Sleep(6 * time.Second)
+		// Wait for a couple blocks to query.
+		time.Sleep(4 * time.Second)
 
 		// Verify the delegation actually succeeded.
 		delegated, err = stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
-		// check the balance of liquid staking erc 20 token is minted to sender
+		// Check the balance of LSD ERC20 is minted to sender.
 		balance, err := contract.BalanceOf(nil, network.TestAddress)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance.Cmp(delegateAmt)).To(Equal(0))
-
-		panic("see logs")
 	})
 })
