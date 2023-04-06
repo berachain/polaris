@@ -164,7 +164,7 @@ func (c *Contract) GetAllBalance(
 		return nil, err
 	}
 
-	return []any{res.Balances}, nil
+	return []any{c.sdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
@@ -218,7 +218,7 @@ func (c *Contract) GetSpendableBalances(
 		return nil, err
 	}
 
-	return []any{res.Balances}, nil
+	return []any{c.sdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSupplyOf implements `GetSupplyOf(string)` method.
@@ -261,7 +261,7 @@ func (c *Contract) GetTotalSupply(
 		return nil, err
 	}
 
-	return []any{res.Supply}, nil
+	return []any{c.sdkCoinsToEvmCoins(res.Supply)}, nil
 }
 
 // GetParams implements `getParams()` method.
@@ -407,7 +407,7 @@ func (c *Contract) Send(
 	return []any{err == nil}, err
 }
 
-// MultiSend implements `multiSend((address,(uint256,string)[])[],(address,(uint256,string)[])[])` method.
+// MultiSend implements `multiSend((address,(uint256,string)[]),(address,(uint256,string)[])[])` method.
 func (c *Contract) MultiSend(
 	ctx context.Context,
 	_ ethprecompile.EVM,

@@ -254,7 +254,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[sdk.Coins](res[0])
+				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
@@ -263,7 +263,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(ok2).To(BeTrue())
 
 					Expect(coin.Denom).To(Equal(fmt.Sprintf("denom_%d", i+1)))
-					Expect(coin.Amount).To(Equal(sdk.NewIntFromBigInt(balanceAmount)))
+					Expect(coin.Amount).To(Equal(balanceAmount))
 				}
 			})
 		})
@@ -392,7 +392,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[sdk.Coins](res[0])
+				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
@@ -401,7 +401,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(ok2).To(BeTrue())
 
 					Expect(coin.Denom).To(Equal(fmt.Sprintf("denom_%d", i+1)))
-					Expect(coin.Amount).To(Equal(sdk.NewIntFromBigInt(balanceAmount)))
+					Expect(coin.Amount).To(Equal(balanceAmount))
 				}
 			})
 		})
@@ -504,12 +504,12 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[sdk.Coins](res[0])
+				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i := 0; i < 3; i++ {
 					Expect(coins[i].Denom).To(Equal(fmt.Sprintf("%s%d", denom, i)))
-					Expect(coins[i].Amount).To(Equal(sdk.NewIntFromBigInt(balanceAmount3)))
+					Expect(coins[i].Amount).To(Equal(balanceAmount3))
 				}
 
 			})
