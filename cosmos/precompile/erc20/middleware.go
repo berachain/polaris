@@ -63,7 +63,7 @@ func (c *Contract) convertCoinToERC20(
 	}
 
 	var token common.Address
-	if resp.Token == "" {
+	if resp.Token == "" { //nolint:nestif // okay here.
 		// deploy the new ERC20 token contract (deployer of this contract is the ERC20 module!)
 		token, err = c.deployPolarisERC20Contract(sdkCtx, evm, c.RegistryKey(), denom, value)
 		if err != nil {
@@ -79,7 +79,8 @@ func (c *Contract) convertCoinToERC20(
 		}
 	} else {
 		// convert ERC20 token bech32 address to common.Address
-		tokenAcc, err := sdk.AccAddressFromBech32(resp.Token)
+		var tokenAcc sdk.AccAddress
+		tokenAcc, err = sdk.AccAddressFromBech32(resp.Token)
 		if err != nil {
 			return err
 		}
