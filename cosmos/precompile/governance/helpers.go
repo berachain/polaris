@@ -83,7 +83,6 @@ func (c *Contract) voteHelper(
 		Option:     v1.VoteOption(option),
 		Metadata:   metadata,
 	})
-
 	return []any{err == nil}, err
 }
 
