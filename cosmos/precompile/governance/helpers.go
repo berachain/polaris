@@ -39,9 +39,8 @@ func (c *Contract) submitProposalHelper(
 	metadata, title, summary string,
 	expedited bool,
 ) ([]any, error) {
-	coins := []sdk.Coin{}
-
-	// Convert the initial deposit to sdk.Coin.
+	// Convert the initial deposit to sdk.Coin
+	coins := sdk.Coins{}
 	for _, coin := range initialDeposit {
 		coins = append(coins, sdk.NewCoin(coin.Denom, sdk.NewIntFromUint64(coin.Amount)))
 	}
@@ -93,11 +92,7 @@ func (c *Contract) voteHelper(
 		Option:     v1.VoteOption(option),
 		Metadata:   metadata,
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	return []any{}, nil
+	return []any{err == nil}, err
 }
 
 // voteWeighted is a helper function for the `VoteWeighted` method of the governance precompile contract.
@@ -125,11 +120,7 @@ func (c *Contract) voteWeightedHelper(
 			Metadata:   metadata,
 		},
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	return []any{}, nil
+	return []any{err == nil}, err
 }
 
 // getProposalHelper is a helper function for the `GetProposal` method of the governance precompile contract.
