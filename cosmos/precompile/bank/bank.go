@@ -24,8 +24,6 @@ import (
 	"context"
 	"math/big"
 
-	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -107,7 +105,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.Send,
 		},
 		{
-			AbiSig:  "multiSend(Input[],Output[])",
+			AbiSig:  "multiSend((address,(uint256,string)[]),(address,(uint256,string)[])[])",
 			Execute: c.MultiSend,
 		},
 	}
@@ -409,7 +407,7 @@ func (c *Contract) Send(
 	return []any{err == nil}, err
 }
 
-// MultiSend implements `multiSend(Input[],Output[])` method.
+// MultiSend implements `multiSend((address,(uint256,string)[])[],(address,(uint256,string)[])[])` method.
 func (c *Contract) MultiSend(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -418,7 +416,7 @@ func (c *Contract) MultiSend(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	evmInputs, ok := utils.GetAs[[]generated.IBankModuleInput](args[0])
+	evmInput, ok := utils.GetAs[generated.IBankModuleInput](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidAny
 	}
@@ -427,29 +425,21 @@ func (c *Contract) MultiSend(
 		return nil, precompile.ErrInvalidAny
 	}
 
-	// Check total amounts for inputs and outputs are equal
-	totalInputCoins := sdk.NewCoins()
 	totalOutputCoins := sdk.NewCoins()
 
 	// input params for c.msgServer.MultiSend
-	sdkInputs := make([]banktypes.Input, len(evmInputs))
+	sdkInputs := make([]banktypes.Input, 1)
 	sdkOutputs := make([]banktypes.Output, len(evmOutputs))
 
-	// Inputs, despite being `repeated`, only allows one sender input. This is
-	// checked in MsgMultiSend's ValidateBasic.
-	for i, evmInput := range evmInputs {
-		sdkCoins := sdk.NewCoins()
-		for _, coin := range evmInput.Coins {
-			sdkCoins = append(sdkCoins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
-		}
-
-		totalInputCoins = sumCoins(totalInputCoins, sdkCoins)
-
-		sdkInputs[i] = banktypes.NewInput(
-			cosmlib.AddressToAccAddress(evmInput.Addr),
-			sdkCoins,
-		)
+	inputSdkCoins := sdk.NewCoins()
+	for _, coin := range evmInput.Coins {
+		inputSdkCoins = append(inputSdkCoins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
 	}
+
+	sdkInputs[0] = banktypes.NewInput(
+		cosmlib.AddressToAccAddress(evmInput.Addr),
+		inputSdkCoins,
+	)
 
 	for i, evmOutput := range evmOutputs {
 		sdkCoins := sdk.NewCoins()
@@ -457,7 +447,7 @@ func (c *Contract) MultiSend(
 			sdkCoins = append(sdkCoins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
 		}
 
-		totalOutputCoins = sumCoins(totalOutputCoins, sdkCoins)
+		totalOutputCoins = totalOutputCoins.Add(sdkCoins...)
 
 		sdkOutputs[i] = banktypes.NewOutput(
 			cosmlib.AddressToAccAddress(evmOutput.Addr),
@@ -465,7 +455,8 @@ func (c *Contract) MultiSend(
 		)
 	}
 
-	if !totalInputCoins.Equal(totalOutputCoins) {
+	// Check input amount and total amounts for outputs are equal
+	if !inputSdkCoins.Equal(totalOutputCoins) {
 		return nil, precompile.ErrInvalidAny
 	}
 
@@ -474,30 +465,4 @@ func (c *Contract) MultiSend(
 		Outputs: sdkOutputs,
 	})
 	return []any{err == nil}, err
-}
-
-// helper functions
-func sumCoins(coins1 sdk.Coins, coins2 sdk.Coins) sdk.Coins {
-	tempMap := make(map[string]sdkmath.Int)
-	for _, coin := range coins1 {
-		if amount, found := tempMap[coin.Denom]; found {
-			tempMap[coin.Denom] = amount.Add(coin.Amount)
-		} else {
-			tempMap[coin.Denom] = coin.Amount
-		}
-	}
-
-	for _, coin := range coins2 {
-		if amount, found := tempMap[coin.Denom]; found {
-			tempMap[coin.Denom] = amount.Add(coin.Amount)
-		} else {
-			tempMap[coin.Denom] = coin.Amount
-		}
-	}
-
-	result := sdk.NewCoins()
-	for denom, amount := range tempMap {
-		result.Add(sdk.NewCoin(denom, amount))
-	}
-	return result
 }

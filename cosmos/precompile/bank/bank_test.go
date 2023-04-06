@@ -768,29 +768,32 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				var inputs []generated.IBankModuleInput
-				var outputs []generated.IBankModuleOutput
-
-				var sendCoins []generated.IBankModuleCoin
+				var outputCoins []generated.IBankModuleCoin
+				var inputCoins []generated.IBankModuleCoin
 
 				for _, coin := range coins {
-					sendCoins = append(sendCoins, generated.IBankModuleCoin{
+					outputCoins = append(outputCoins, generated.IBankModuleCoin{
 						Denom:  coin.Denom,
 						Amount: coin.Amount.BigInt(),
 					})
 				}
 
-				for i := 0; i < 2; i++ {
-					inputs = append(inputs, generated.IBankModuleInput{
-						Addr:  cosmlib.AccAddressToEthAddress(fromAcc),
-						Coins: sendCoins,
+				for _, coin := range coins2 {
+					inputCoins = append(inputCoins, generated.IBankModuleCoin{
+						Denom:  coin.Denom,
+						Amount: coin.Amount.BigInt(),
 					})
 				}
 
-				for i := 0; i < 2; i++ {
+				input := generated.IBankModuleInput{
+					Addr:  cosmlib.AccAddressToEthAddress(fromAcc),
+					Coins: inputCoins,
+				}
+				var outputs []generated.IBankModuleOutput
+				for i := 1; i < 3; i++ {
 					outputs = append(outputs, generated.IBankModuleOutput{
-						Addr:  cosmlib.AccAddressToEthAddress(acct[i+1]),
-						Coins: sendCoins,
+						Addr:  cosmlib.AccAddressToEthAddress(acct[i]),
+						Coins: outputCoins,
 					})
 				}
 
@@ -802,7 +805,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					inputs,
+					input,
 					outputs,
 				)
 				Expect(err).ToNot(HaveOccurred())
