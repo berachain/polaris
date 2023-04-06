@@ -70,6 +70,8 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	return execResult, err
 }
 
+// `Precommit` is called during the Commit processing of the ABCI lifecycle, right before the state
+// is committed to the root multistore.
 func (k *Keeper) Precommit(ctx context.Context) {
 	if err := k.polaris.Finalize(ctx); err != nil {
 		panic(err)

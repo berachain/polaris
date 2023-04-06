@@ -66,6 +66,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetStateByNumberFunc: func(n int64) (core.StatePlugin, error) {
 //				panic("mock out the GetStateByNumber method")
 //			},
+//			PrepareFunc: func(contextMoqParam context.Context)  {
+//				panic("mock out the Prepare method")
+//			},
 //			RegistryKeyFunc: func() string {
 //				panic("mock out the RegistryKey method")
 //			},
@@ -147,6 +150,9 @@ type StatePluginMock struct {
 
 	// GetStateByNumberFunc mocks the GetStateByNumber method.
 	GetStateByNumberFunc func(n int64) (core.StatePlugin, error)
+
+	// PrepareFunc mocks the Prepare method.
+	PrepareFunc func(contextMoqParam context.Context)
 
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() string
@@ -259,6 +265,11 @@ type StatePluginMock struct {
 			// N is the n argument value.
 			N int64
 		}
+		// Prepare holds details about calls to the Prepare method.
+		Prepare []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+		}
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
@@ -335,6 +346,7 @@ type StatePluginMock struct {
 	lockGetNonce          sync.RWMutex
 	lockGetState          sync.RWMutex
 	lockGetStateByNumber  sync.RWMutex
+	lockPrepare           sync.RWMutex
 	lockRegistryKey       sync.RWMutex
 	lockReset             sync.RWMutex
 	lockRevertToSnapshot  sync.RWMutex
@@ -830,6 +842,38 @@ func (mock *StatePluginMock) GetStateByNumberCalls() []struct {
 	mock.lockGetStateByNumber.RLock()
 	calls = mock.calls.GetStateByNumber
 	mock.lockGetStateByNumber.RUnlock()
+	return calls
+}
+
+// Prepare calls PrepareFunc.
+func (mock *StatePluginMock) Prepare(contextMoqParam context.Context) {
+	if mock.PrepareFunc == nil {
+		panic("StatePluginMock.PrepareFunc: method is nil but StatePlugin.Prepare was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
+	mock.lockPrepare.Lock()
+	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
+	mock.lockPrepare.Unlock()
+	mock.PrepareFunc(contextMoqParam)
+}
+
+// PrepareCalls gets all the calls that were made to Prepare.
+// Check the length with:
+//
+//	len(mockedStatePlugin.PrepareCalls())
+func (mock *StatePluginMock) PrepareCalls() []struct {
+	ContextMoqParam context.Context
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+	}
+	mock.lockPrepare.RLock()
+	calls = mock.calls.Prepare
+	mock.lockPrepare.RUnlock()
 	return calls
 }
 
