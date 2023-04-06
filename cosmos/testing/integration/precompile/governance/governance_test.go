@@ -125,7 +125,8 @@ var _ = Describe("Governance Precompile Directly", func() {
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
-	It("should be able to call the precompile via a contract", func() {
+
+	It("should be able to call the precompile methods via a contract", func() {
 		// Deploy the contract.
 		_, tx, contract, err := tbindings.DeployGovernanceWrapper(
 			tf.GenerateTransactOpts(""),
@@ -136,15 +137,15 @@ var _ = Describe("Governance Precompile Directly", func() {
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		// Should be able to get proposals.
+		// Should be able to get proposal.
 		res, err := contract.GetProposal(nil, 2)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res.Id).To(Equal(uint64(2)))
 
 		// Should be able to get proposals.
-		proposalsRes, err := contract.GetProposals(nil, 0)
+		res1, err := contract.GetProposals(nil, 0)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(proposalsRes).To(HaveLen(1))
+		Expect(res1).To(HaveLen(1)) // just the genesis proposal.
 
 		// Should be able to create a proposal.
 		govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")

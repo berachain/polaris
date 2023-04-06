@@ -31,6 +31,7 @@ import (
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -40,6 +41,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtestutil "github.com/cosmos/cosmos-sdk/x/distribution/testutil"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -174,15 +177,44 @@ func BuildGenesisState() map[string]json.RawMessage {
 	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distrState)
 	distrState.Params.WithdrawAddrEnabled = true
 
+	//
+
 	// TODO: Fix the state invariants that are being thrown.
 	// For the distribution module, we need set it up for having rewards ready to be withdrawn.
 	// DistributionGenesisState(&bankState, &distrState, &stakingState)
+	// Governance Module.
+	var governanceState v1.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &governanceState)
+	// Create the proposal message.
+	// subtract one hour from  time.Now .
+	voteStart := time.Now().Add(-time.Hour)
+	//nolint:gomnd // 2 days.
+	voteEnd := voteStart.Add(time.Hour * 24 * 2)
+	proposal := &v1.Proposal{
+		Id:               2, //nolint:gomnd // not important.
+		Proposer:         TestAddress.String(),
+		Messages:         []*codectypes.Any{},
+		Status:           v1.StatusVotingPeriod,
+		FinalTallyResult: &v1.TallyResult{},
+		SubmitTime:       &time.Time{},
+		DepositEndTime:   &time.Time{},
+		TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(onehundred))),
+		VotingStartTime:  &voteStart,
+		VotingEndTime:    &voteEnd,
+		Metadata:         "metadata",
+		Title:            "title",
+		Summary:          "summary",
+		Expedited:        false,
+	}
+	// Append the proposal to the governance genesis state.
+	governanceState.Proposals = append(governanceState.Proposals, proposal)
 
 	// Set the states into the genesis state.
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 	genState[distrtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&distrState)
+	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&governanceState)
 	return genState
 }
 
