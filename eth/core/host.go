@@ -60,8 +60,9 @@ type (
 		// BlockPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// BlockPlugin to a default state.
 		libtypes.Preparable
-		// NewHeaderWithBlockNumber returns a new block header with the given block number.
-		NewHeaderWithBlockNumber(int64) *types.Header
+		// GetNewBlockMetadata returns a new block metadata (coinbase, timestamp) for the given
+		// block number.
+		GetNewBlockMetadata(int64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(int64) (*types.Header, error)
 		// SetHeaderByNumber sets the block header at the given block number.

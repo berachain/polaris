@@ -21,20 +21,22 @@
 package evm
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AccountKeeper defines the expected account keeper.
 type AccountKeeper interface {
-	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
+	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
-	HasAccount(ctx sdk.Context, addr sdk.AccAddress) bool
-	SetAccount(ctx sdk.Context, account sdk.AccountI)
-	RemoveAccount(ctx sdk.Context, account sdk.AccountI)
-	IterateAccounts(ctx sdk.Context, cb func(account sdk.AccountI) bool)
+	GetSequence(context.Context, sdk.AccAddress) (uint64, error)
+	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+	HasAccount(ctx context.Context, addr sdk.AccAddress) bool
+	SetAccount(ctx context.Context, account sdk.AccountI)
+	RemoveAccount(ctx context.Context, account sdk.AccountI)
+	IterateAccounts(ctx context.Context, cb func(account sdk.AccountI) bool)
 }
 
 // BankKeeper defines the expected bank keeper.

@@ -32,7 +32,6 @@ import (
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
@@ -51,9 +50,8 @@ type DepInjectInput struct {
 
 	Mempool sdkmempool.Mempool
 
-	AccountKeeper  AccountKeeper
-	BankKeeper     BankKeeper
-	GetPrecompiles func() func() []precompile.Registrable `optional:"true"`
+	AccountKeeper AccountKeeper
+	BankKeeper    BankKeeper
 }
 
 // DepInjectOutput is the output for the dep inject framework.
@@ -75,7 +73,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.Key,
 		in.AccountKeeper,
 		in.BankKeeper,
-		in.GetPrecompiles,
 		authority.String(),
 		in.AppOpts,
 		in.Mempool,

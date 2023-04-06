@@ -30,7 +30,6 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -56,7 +55,6 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 	BeginBlockers: []string{
 		upgradetypes.ModuleName,
-		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		evmtypes.ModuleName,
 		erc20types.ModuleName,
@@ -77,6 +75,9 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		feegrant.ModuleName,
 		group.ModuleName,
 	},
+	Precommiters: []string{
+		evmtypes.ModuleName,
+	},
 	OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 		{
 			ModuleName: authtypes.ModuleName,
@@ -90,7 +91,6 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	InitGenesis: []string{
-		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		distrtypes.ModuleName,

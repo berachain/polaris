@@ -42,7 +42,7 @@ const ConsensusVersion = 1
 var (
 	_ module.HasServices         = AppModule{}
 	_ module.BeginBlockAppModule = AppModule{}
-	_ module.EndBlockAppModule   = AppModule{}
+	_ module.PrecommitAppModule  = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
 )
 
@@ -138,9 +138,6 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	am.keeper.BeginBlocker(ctx)
 }
 
-// EndBlock returns the end blocker for the evm module. It returns no validator
-// updates.
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	am.keeper.EndBlocker(ctx)
-	return []abci.ValidatorUpdate{}
+func (am AppModule) Precommit(ctx sdk.Context) {
+	am.keeper.Precommit(ctx)
 }

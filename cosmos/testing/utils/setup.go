@@ -28,6 +28,7 @@ import (
 
 	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -40,6 +41,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -69,6 +71,7 @@ func SetupMinimalKeepers() (
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
+	config.SetupCosmosConfig()
 	ctx := NewContext()
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
@@ -79,7 +82,7 @@ func SetupMinimalKeepers() (
 
 	ak := authkeeper.NewAccountKeeper(
 		encodingConfig.Codec,
-		AccKey,
+		runtime.NewKVStoreService(AccKey),
 		authtypes.ProtoBaseAccount,
 		map[string][]string{
 			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
@@ -88,7 +91,7 @@ func SetupMinimalKeepers() (
 			"staking":                      {authtypes.Minter, authtypes.Burner},
 			"gov":                          {authtypes.Minter, authtypes.Burner},
 		},
-		"bera",
+		config.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

@@ -48,13 +48,14 @@ interface IGovernanceModule {
     /**
      * @dev Vote on a proposal.
      */
-    function vote(uint64 proposalId, int32 option, string memory metadata) external;
+    function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool);
 
     /**
      * @dev Vote on a proposal with weights.
      */
     function voteWeighted(uint64 proposalId, WeightedVoteOption[] calldata options, string calldata metadata)
-        external;
+        external
+        returns (bool);
 
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
 

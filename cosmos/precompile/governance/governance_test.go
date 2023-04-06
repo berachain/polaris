@@ -34,6 +34,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
@@ -163,9 +164,13 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(res).To(BeNil())
 		})
 		It("should succeed", func() {
-			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("usdc", 100))
+			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
-			fundAccount(ctx, bk, govAcct, initDeposit)
+			err := cosmlib.MintCoinsToAddress(
+				ctx, bk, governancetypes.ModuleName,
+				cosmlib.AccAddressToEthAddress(govAcct), "abera", big.NewInt(100),
+			)
+			Expect(err).ToNot(HaveOccurred())
 			message := &banktypes.MsgSend{
 				FromAddress: govAcct.String(),
 				ToAddress:   caller.String(),
@@ -189,7 +194,7 @@ var _ = Describe("Governance Precompile", func() {
 				[]generated.IGovernanceModuleCoin{
 					{
 						Amount: 100,
-						Denom:  "usdc",
+						Denom:  "abera",
 					},
 				},
 				metadata,
@@ -311,7 +316,7 @@ var _ = Describe("Governance Precompile", func() {
 				"metadata",
 			)
 			Expect(err).To(HaveOccurred())
-			Expect(res).To(BeNil())
+			Expect(res).To(HaveLen(1))
 		})
 		It("should succeed", func() {
 			res, err := contract.Vote(
@@ -383,7 +388,7 @@ var _ = Describe("Governance Precompile", func() {
 					"metadata",
 				)
 				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
+				Expect(res).To(HaveLen(1))
 			})
 			It("should succeed", func() {
 				weight, err := math.LegacyNewDecFromStr("0.4")

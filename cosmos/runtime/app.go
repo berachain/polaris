@@ -64,8 +64,6 @@ import (
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	consensus "github.com/cosmos/cosmos-sdk/x/consensus"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
@@ -122,7 +120,6 @@ var (
 		auth.AppModuleBasic{},
 		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 		bank.AppModuleBasic{},
-		capability.AppModuleBasic{},
 		staking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
@@ -169,7 +166,6 @@ type PolarisApp struct {
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
-	CapabilityKeeper      *capabilitykeeper.Keeper
 	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	MintKeeper            mintkeeper.Keeper
@@ -200,6 +196,8 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
+
+	simappconfig.SetupCosmosConfig()
 }
 
 // NewPolarisApp returns a reference to an initialized PolarisApp.
@@ -220,8 +218,10 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
-		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(mempool.NewPriorityMempool())
-		mempoolOpt                   = baseapp.SetMempool(
+		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
+			mempool.NewPriorityMempool(mempool.DefaultPriorityNonceMempoolConfig()),
+		)
+		mempoolOpt = baseapp.SetMempool(
 			ethTxMempool,
 		)
 
@@ -282,7 +282,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		&app.autoCliOpts,
 		&app.AccountKeeper,
 		&app.BankKeeper,
-		&app.CapabilityKeeper,
 		&app.StakingKeeper,
 		&app.SlashingKeeper,
 		&app.MintKeeper,
@@ -343,7 +342,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		ch,
 	)
 
-	if err := app.App.BaseApp.SetStreamingService(appOpts, app.appCodec, app.kvStoreKeys()); err != nil {
+	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
 		os.Exit(1)
 	}

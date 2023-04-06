@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/trie"
+
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -218,10 +220,15 @@ func (sp *StateProcessor) Finalize(
 	// Now that we are done processing the block, we update the header with the consumed gas.
 	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
+	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom) and
+	// reset the header for the next block.
+	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+	sp.header = nil
+
 	// We iterate over all of the receipts/transactions in the block and update the receipt to
 	// have the correct values. We must do this AFTER all the transactions have been processed
 	// to ensure that the block hash, logs and bloom filter have the correct information.
-	blockHash, blockNumber := sp.header.Hash(), sp.header.Number.Uint64()
+	blockHash, blockNumber, blockBloom := block.Hash(), block.NumberU64(), block.Bloom()
 	var logIndex uint
 	var logs []*types.Log
 	for txIndex, receipt := range sp.receipts {
@@ -233,14 +240,14 @@ func (sp *StateProcessor) Finalize(
 			logIndex++
 			logs = append(logs, log)
 		}
-		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
+		receipt.Bloom = blockBloom
 		receipt.BlockHash = blockHash
-		receipt.BlockNumber = sp.header.Number
+		receipt.BlockNumber = block.Number()
 		receipt.TransactionIndex = uint(txIndex)
 	}
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
-	return types.NewBlockWithHeader(sp.header).WithBody(sp.txs, nil), sp.receipts, logs, nil
+	return block, sp.receipts, logs, nil
 }
 
 // ===========================================================================

@@ -89,10 +89,11 @@ var _ = Describe("Processor", func() {
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
 			ak, bk,
-			func() func() []precompile.Registrable { return nil },
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
-			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool()),
+			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
+				sdkmempool.DefaultPriorityNonceMempoolConfig()),
+			),
 		)
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
@@ -120,7 +121,7 @@ var _ = Describe("Processor", func() {
 		})
 
 		AfterEach(func() {
-			k.EndBlocker(ctx)
+			k.Precommit(ctx)
 			err := os.RemoveAll("tmp/berachain")
 			Expect(err).ToNot(HaveOccurred())
 		})
