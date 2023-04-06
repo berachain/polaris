@@ -24,6 +24,7 @@ import (
 	"math/big"
 	"os"
 	"testing"
+	"time"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -115,6 +116,8 @@ var _ = Describe("Staking", func() {
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
+		time.Sleep(6 * time.Second)
+
 		// Verify the delegation actually succeeded.
 		delegated, err = stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -124,5 +127,7 @@ var _ = Describe("Staking", func() {
 		balance, err := contract.BalanceOf(nil, network.TestAddress)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance.Cmp(delegateAmt)).To(Equal(0))
+
+		panic("see logs")
 	})
 })

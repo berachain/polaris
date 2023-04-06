@@ -39,7 +39,6 @@ import {ERC20} from "../../../../lib/ERC20.sol";
 contract LiquidStaking is ERC20 {
     // State
     IStakingModule public immutable staking = IStakingModule(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
-    // address public validatorAddress;
 
     event Success(bool indexed success);
     event Data(bytes data);
@@ -56,13 +55,13 @@ contract LiquidStaking is ERC20 {
      */
     constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol, 18) {}
 
-    // /**
-    //  * @dev Returns the total amount of assets delegated to the validator.
-    //  * @return amount total amount of assets delegated to the validator.
-    //  */
-    // function totalDelegated() public view returns (uint256 amount) {
-    //     return staking.getDelegation(address(this), validatorAddress);
-    // }
+    /**
+     * @dev Returns the total amount of assets delegated to the validator.
+     * @return amount total amount of assets delegated to the validator.
+     */
+    function totalDelegated(address validatorAddress) public view returns (uint256 amount) {
+        return staking.getDelegation(address(this), validatorAddress);
+    }
 
     /**
      * @dev Returns all active validators.

@@ -50,7 +50,8 @@ type ChainWriter interface {
 
 // Prepare prepares the blockchain for processing a new block at the given height.
 func (bc *blockchain) Prepare(ctx context.Context, height int64) {
-	// Prepare the Block, Configuration, Gas, and Historical plugins for the block.
+	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
+	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
 	bc.gp.Prepare(ctx)
@@ -97,7 +98,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
 	// Reset the Gas and State plugins for the tx.
-	bc.gp.Reset(ctx)
+	bc.gp.Reset(ctx) // TODO: may not need this.
 	bc.sp.Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)
