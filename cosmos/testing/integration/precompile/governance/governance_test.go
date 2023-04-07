@@ -147,7 +147,7 @@ var _ = Describe("Governance Precompile Directly", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res1).To(HaveLen(1)) // just the genesis proposal.
 
-		// Should be able to create a proposal.
+		// // Should be able to create a proposal.
 		govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
 		initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
 		message := &banktypes.MsgSend{

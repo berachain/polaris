@@ -28,7 +28,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
@@ -50,15 +49,15 @@ type Contract struct {
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(gk *govkeeper.Keeper) ethprecompile.StatefulImpl {
+func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
 			// 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
-		msgServer: govkeeper.NewMsgServerImpl(gk),
-		querier:   gk,
+		msgServer: m,
+		querier:   q,
 	}
 }
 
