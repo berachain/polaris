@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"math/big"
+	"time"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
@@ -42,15 +43,15 @@ var _ = Describe("Staking", func() {
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
 		txr := tf.GenerateTransactOpts("")
-		txr.Value = big.NewInt(1000000000000)
-		tx, err := stakingPrecompile.Delegate(txr, validator, big.NewInt(100000000000))
+		txr.Value = delegateAmt
+		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
+		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {
@@ -73,18 +74,26 @@ var _ = Describe("Staking", func() {
 		Expect(addresses).To(HaveLen(1))
 		Expect(addresses[0]).To(Equal(validator))
 
-		// Send tokens to the contract
+		// Send tokens to the contract to delegate and mint LSD.
 		txr := tf.GenerateTransactOpts("")
 		txr.GasLimit = 0
-		txr.Value = big.NewInt(100000000000)
-		tx, err = contract.Delegate(txr, big.NewInt(100000000000))
+		txr.Value = delegateAmt
+		tx, err = contract.Delegate(txr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
+		// Wait for a couple blocks to query.
+		time.Sleep(4 * time.Second)
+
 		// Verify the delegation actually succeeded.
 		delegated, err = stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
+		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
+
+		// Check the balance of LSD ERC20 is minted to sender.
+		balance, err := contract.BalanceOf(nil, network.TestAddress)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(balance.Cmp(delegateAmt)).To(Equal(0))
 	})
 })

@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"math/big"
 	"os"
 	"testing"
 
@@ -40,16 +41,14 @@ func TestCosmosPrecompiles(t *testing.T) {
 var (
 	tf                *integration.TestFixture
 	stakingPrecompile *bindings.StakingModule
-	bankPrecompile    *bindings.BankModule
 	validator         common.Address
+	delegateAmt       = big.NewInt(123450000000)
 )
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
 	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
-	bankPrecompile, _ = bindings.NewBankModule(
-		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient)
 	stakingPrecompile, _ = bindings.NewStakingModule(
 		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
 	return nil
