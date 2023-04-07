@@ -121,7 +121,7 @@ func (s *store) RevertToSnapshot(id int) {
 // Finalize implements `libtypes.Controllable`.
 func (s *store) Finalize() {
 	// Recursively pop the journal and write each cachekv store to its parent cachekv store.
-	for revision := s.journal.Peek(); s.journal.Size() > 0; revision = s.journal.Pop() {
+	for revision := s.journal.Pop(); revision != nil; revision = s.journal.Pop() {
 		for key, cacheKVStore := range revision {
 			cacheKVStore.Write()
 			delete(revision, key)

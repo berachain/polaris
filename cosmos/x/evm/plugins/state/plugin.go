@@ -129,6 +129,19 @@ func NewPlugin(
 	}
 }
 
+// Prepare sets up the context on the state plugin for a new block. It sets the gas configs to be 0
+// so that query calls to the EVM (ones that do not invoke a new transaction) do not charge gas.
+//
+// Prepare implements `core.StatePlugin`.
+func (p *plugin) Prepare(ctx context.Context) {
+	p.ctx = sdk.UnwrapSDKContext(ctx).
+		WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{})
+}
+
+// Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
+// multi store so that Cosmos KV store changes can revert according to the EVM.
+//
 // Reset implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -146,7 +159,7 @@ func (p *plugin) Reset(ctx context.Context) {
 	// and proper gas consumption.
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
 
-	// We  also remove the KVStore gas metering from the context prior to entering the EVM
+	// We also remove the KVStore gas metering from the context prior to entering the EVM
 	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
 	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced individually.
 	// By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES in the EVM
