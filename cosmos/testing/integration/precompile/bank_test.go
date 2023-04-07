@@ -33,6 +33,20 @@ var _ = Describe("Bank", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
+
+
+
+	//  function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
+
+	
+	//  function getAllBalance(address accountAddress) external view returns (Coin[] memory);
+ 
+	//  function getSpendableBalanceByDenom(address accountAddress, string calldata denom) external view returns (uint256);
+ 
+	
+	//  function getSpendableBalances(address accountAddress) external view returns (Coin[] memory);
+ 
+	
 		aberaSupply, err := bankPrecompile.GetSupplyOf(nil, "abera")
 		Expect(err).ToNot(HaveOccurred())
 		fmt.Println("aberaSupply is: ", aberaSupply)
@@ -41,7 +55,23 @@ var _ = Describe("Bank", func() {
 		Expect(err).ToNot(HaveOccurred())
 		fmt.Println("totalSupply is: ", totalSupply)
 
-		
+	//  function getParams() external view returns (Param memory);
+ 
+	
+	//  function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
+
+	//  function getDenomsMetadata() external view returns (DenomsMetadata memory);
+ 
+
+	//  function getSendEnabled(string[] calldata denoms) external view returns (SendEnabled memory);
+ 
+	
+
+	//  function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
+ 
+	
+	//  function multiSend(Input calldata input, Output[] memory outputs) external payable returns (bool);
+ 
 	})
 
 	// It("should be able to call a precompile from a smart contract", func() {

@@ -63,12 +63,20 @@ const (
 )
 
 var (
-	DummyContract   = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-	TestKey, _      = ethsecp256k1.GenPrivKey()
-	ECDSATestKey, _ = TestKey.ToECDSA()
-	AddressFromKey  = TestKey.PubKey().Address()
-	Signer          = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-	TestAddress     = crypto.PubkeyToAddress(ECDSATestKey.PublicKey)
+	DummyContract    = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
+	TestKey, _       = ethsecp256k1.GenPrivKey()
+	TestKey2, _      = ethsecp256k1.GenPrivKey()
+	TestKey3, _      = ethsecp256k1.GenPrivKey()
+	ECDSATestKey, _  = TestKey.ToECDSA()
+	ECDSATestKey2, _ = TestKey2.ToECDSA()
+	ECDSATestKey3, _ = TestKey3.ToECDSA()
+	AddressFromKey   = TestKey.PubKey().Address()
+	AddressFromKey2  = TestKey2.PubKey().Address()
+	AddressFromKey3  = TestKey3.PubKey().Address()
+	Signer           = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+	TestAddress      = crypto.PubkeyToAddress(ECDSATestKey.PublicKey)
+	TestAddress2     = crypto.PubkeyToAddress(ECDSATestKey2.PublicKey)
+	TestAddress3     = crypto.PubkeyToAddress(ECDSATestKey3.PublicKey)
 )
 
 type TestingT interface {

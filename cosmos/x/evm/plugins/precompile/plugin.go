@@ -109,7 +109,6 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 // error or insufficient gas is provided.
 //
 // Run implements `core.PrecompilePlugin`.
-
 func (p *plugin) Run(
 	evm precompile.EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
