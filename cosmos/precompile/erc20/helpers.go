@@ -33,6 +33,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
+// salt is used to generate unique contract addresses for each ERC20 token.
+var salt uint64
+
 // deployPolarisERC20Contract deploys a new ERC20 token contract by calling back into the EVM.
 func (c *Contract) deployPolarisERC20Contract(
 	ctx sdk.Context,
@@ -53,8 +56,9 @@ func (c *Contract) deployPolarisERC20Contract(
 	}
 	suppliedGas := ctx.GasMeter().GasRemaining()
 	_, contractAddr, gasRemaining, err := evm.Create2(
-		vm.AccountRef(deployer), append(code, args...), suppliedGas, endowment, uint256.NewInt(0),
+		vm.AccountRef(deployer), append(code, args...), suppliedGas, endowment, uint256.NewInt(salt),
 	)
+	salt++
 
 	// consume gas used by EVM during ERC20 deployment
 	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "Polaris ERC20 deployment")
