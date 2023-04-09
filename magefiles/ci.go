@@ -26,10 +26,59 @@
 package main
 
 import (
+	"sync"
+
 	"github.com/magefile/mage/mg"
+	"github.com/magefile/mage/sh"
+	"github.com/pterm/pterm"
 )
 
 type CI mg.Namespace
+
+var (
+	// tools.
+	buf = "github.com/bufbuild/buf/cmd/buf"
+	// gosec        = "github.com/cosmos/gosec/v2/cmd/gosec"
+	golangcilint = "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	// addlicense   = "github.com/google/addlicense"
+	// moq          = "github.com/matryer/moq"
+	ginkgo = "github.com/onsi/ginkgo/v2/ginkgo"
+	// golines      = "github.com/segmentio/golines"
+	rlpgen = "github.com/ethereum/go-ethereum/rlp/rlpgen"
+	abigen = "github.com/ethereum/go-ethereum/cmd/abigen"
+	gci    = "github.com/daixiang0/gci"
+
+	tools = []string{buf, gosec, golangcilint, addlicense,
+		moq, ginkgo, golines, rlpgen, abigen, gci}
+)
+
+// func BB() error {
+// 	utils.IntroScreen(false)
+// 	return nil
+// }
+
+func InstallTools() error {
+	pterm.DefaultCenter.Println("Installing Golang Tools")
+
+	progressBar, _ := pterm.DefaultProgressbar.WithTotal(len(tools)).WithTitle("Progress").Start()
+	var wg sync.WaitGroup
+	wg.Add(len(tools))
+
+	for _, tool := range tools {
+		go func(tool string) {
+			defer wg.Done()
+			_ = sh.Run("go", "install", tool)
+			progressBar.Increment()
+		}(tool)
+	}
+
+	wg.Wait()
+	progressBar.Stop()
+
+	pterm.DefaultCenter.Println("Golang Tools Installation Completed")
+
+	return nil
+}
 
 // Build builds the project.
 func Build() error {

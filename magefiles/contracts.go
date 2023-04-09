@@ -28,17 +28,8 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/magefile/mage/mg"
-)
-
-var (
-	// Commands.
-	forgeBuild = RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
-	forgeClean = RunCmdV("forge", "clean")
-	forgeTest  = RunCmdV("forge", "test")
-	forgeFmt   = RunCmdV("forge", "fmt")
+	"pkg.berachain.dev/polaris/magefiles/cmd"
 )
 
 // Compile-time assertion that we implement the interface correctly.
@@ -51,69 +42,32 @@ func (Contracts) directory() string {
 	return "contracts"
 }
 
-// ===========================================================================
-// Build
-// ===========================================================================
-
 // Runs `forge build` in all smart contract directories.
 func (Contracts) Build() error {
-	LogGreen("Building solidity contracts with foundry...")
-	return forgeWrapper(forgeBuild)
+	return cmd.ForgeBuild()
 }
 
 // Check that the generated forge build source files are up to date.
 func (c Contracts) BuildCheck() error {
-	if err := c.Build(); err != nil {
-		return err
-	}
-	if err := gitDiff(); err != nil {
-		return fmt.Errorf("generated files are out of date: %w", err)
-	}
-	return nil
+	return cmd.ForgeBuildCheck()
 }
 
 // Run `forge clean` in all smart contract directories.
 func (Contracts) Clean() error {
-	return forgeWrapper(forgeClean)
+	return cmd.ForgeClean()
 }
-
-// ===========================================================================
-// Test
-// ===========================================================================
 
 // Run `forge test` in all smart contract directories.
 func (c Contracts) Test() error {
-	if err := c.TestUnit(); err != nil {
-		return err
-	}
-	return nil
+	return cmd.ForgeTest()
 }
 
 // Run `forge test` in all smart contract directories.
 func (Contracts) TestUnit() error {
-	LogGreen("Running foundry unit tests...")
-	return forgeWrapper(forgeTest)
+	return cmd.ForgeTestUnit()
 }
 
 // Run `forge fmt` in all smart contract directories.
 func (Contracts) Fmt() error {
-	LogGreen("Running forge fmt...")
-	return forgeWrapper(forgeFmt)
-}
-
-func (Contracts) TestIntegration() error {
-	LogGreen("Running foundry integration tests...")
-	return forgeWrapper(forgeTest)
-}
-
-// ===========================================================================
-// Helper
-// ===========================================================================
-
-// Wraps forge commands with the proper directory change.
-func forgeWrapper(forgeFunc func(args ...string) error) error {
-	if err := ExecuteInDirectory("./contracts", forgeFunc, false); err != nil {
-		return err
-	}
-	return nil
+	return cmd.ForgeFmt()
 }

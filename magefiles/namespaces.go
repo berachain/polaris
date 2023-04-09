@@ -39,8 +39,6 @@ import (
 type MageModule interface {
 	directory() string
 	Test() error
-	TestUnit() error
-	TestIntegration() error
 }
 
 // Runs a series of commonly used commands.
