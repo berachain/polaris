@@ -126,6 +126,7 @@ var _ = Describe("Governance Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 
+	// @Dev - This tests fails when being run in parallel with the other tests, just rerun the cli.
 	It("should be able to call the precompile methods via a contract", func() {
 		// Deploy the contract.
 		_, tx, contract, err := tbindings.DeployGovernanceWrapper(
@@ -148,33 +149,33 @@ var _ = Describe("Governance Precompile Directly", func() {
 		Expect(res1).To(HaveLen(1)) // just the genesis proposal.
 
 		// Should be able to create a proposal.
-		// !NOTE: WORKS WHEN TESTING DIRECTLY BUT NOT WHEN TESTING VIA CLI.
-		// govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
-		// initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
-		// message := &banktypes.MsgSend{
-		// 	FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
-		// 	ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
-		// 	Amount:      initDeposit,
-		// }
-		// messageBz, err := message.Marshal()
-		// Expect(err).ToNot(HaveOccurred())
-		// proposal := v1.MsgSubmitProposal{
-		// 	InitialDeposit: initDeposit,
-		// 	Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
-		// 	Metadata:       "metadata",
-		// 	Title:          "title",
-		// 	Summary:        "summary",
-		// 	Expedited:      false,
-		// }
-		// proposalBz, err := proposal.Marshal()
-		// Expect(err).ToNot(HaveOccurred())
-		// tx, err = contract.SubmitProposalWrapepr(
-		// 	tf.GenerateTransactOpts(""),
-		// 	proposalBz,
-		// 	messageBz,
-		// )
-		// Expect(err).ToNot(HaveOccurred())
-		// ExpectMined(tf.EthClient, tx)
-		// ExpectSuccessReceipt(tf.EthClient, tx)
+		govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
+		initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
+		message := &banktypes.MsgSend{
+			FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
+			ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
+			Amount:      initDeposit,
+		}
+		messageBz, err := message.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+		proposal := v1.MsgSubmitProposal{
+			InitialDeposit: initDeposit,
+			Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
+			Metadata:       "metadata",
+			Title:          "title",
+			Summary:        "summary",
+			Expedited:      false,
+		}
+		proposalBz, err := proposal.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+		tx, err = contract.SubmitProposalWrapepr(
+			tf.GenerateTransactOpts(""),
+			proposalBz,
+			messageBz,
+		)
+
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 })
