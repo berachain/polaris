@@ -22,57 +22,15 @@ package precompile
 
 import (
 	"math/big"
-	"os"
-	"testing"
 	"time"
-
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
-	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
-	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
+
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 )
-
-func TestCosmosPrecompiles(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/precompile:integration")
-}
-
-var (
-	tf                *integration.TestFixture
-	stakingPrecompile *bindings.StakingModule
-	erc20Precompile   *bindings.ERC20Module
-	validator         common.Address
-	delegateAmt       = big.NewInt(123450000000)
-)
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
-	stakingPrecompile, _ = bindings.NewStakingModule(
-		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
-	erc20Precompile, _ = bindings.NewERC20Module(
-		cosmlib.AccAddressToEthAddress(
-			authtypes.NewModuleAddress(erc20types.ModuleName),
-		), tf.EthClient)
-	return nil
-}, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})
 
 var _ = Describe("Staking", func() {
 	It("should call functions on the precompile directly", func() {

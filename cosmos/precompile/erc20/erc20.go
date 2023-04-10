@@ -183,7 +183,16 @@ func (c *Contract) ERC20AddressForCoinDenom(
 		return nil, err
 	}
 
-	return []any{resp.Token}, nil
+	tokenAddr := common.Address{}
+	if resp.Token != "" {
+		tokenAccAddr, err := sdk.AccAddressFromBech32(resp.Token)
+		if err != nil {
+			return nil, err
+		}
+		tokenAddr = cosmlib.AccAddressToEthAddress(tokenAccAddr)
+	}
+
+	return []any{tokenAddr}, nil
 }
 
 // ConvertCoinToERC20StringAddr converts SDK coins to ERC20 tokens for an owner.

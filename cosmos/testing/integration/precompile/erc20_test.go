@@ -21,11 +21,36 @@
 package precompile
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("ERC20", func() {
-	It("should call the erc20 contract directly", func() {
-		
+	Describe("calling the erc20 precompile directly", func() {
+		When("calling read-only methods", func() {
+			It("should handle empty inputs", func() {
+				denom, err := erc20Precompile.CoinDenomForERC20Address(nil, common.Address{})
+				Expect(err).ToNot(HaveOccurred())
+				Expect(denom).To(Equal(""))
+				_, err = erc20Precompile.CoinDenomForERC20Address0(nil, "")
+				Expect(err).To(HaveOccurred())
+				token, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(token).To(Equal(common.Address{}))
+			})
+
+			It("should handle non-empty inputs", func() {
+
+			})
+		})
+
+		When("calling write methods", func() {
+
+		})
+	})
+
+	Describe("calling the erc20 precompile via the another contract", func() {
+
 	})
 })
