@@ -23,6 +23,8 @@ package precompile
 import (
 	"fmt"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -34,19 +36,14 @@ var _ = Describe("Bank", func() {
 
 	It("should call functions on the precompile directly", func() {
 
+		//  function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
 
+		//  function getAllBalance(address accountAddress) external view returns (Coin[] memory);
 
-	//  function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
+		//  function getSpendableBalanceByDenom(address accountAddress, string calldata denom) external view returns (uint256);
 
-	
-	//  function getAllBalance(address accountAddress) external view returns (Coin[] memory);
- 
-	//  function getSpendableBalanceByDenom(address accountAddress, string calldata denom) external view returns (uint256);
- 
-	
-	//  function getSpendableBalances(address accountAddress) external view returns (Coin[] memory);
- 
-	
+		//  function getSpendableBalances(address accountAddress) external view returns (Coin[] memory);
+
 		aberaSupply, err := bankPrecompile.GetSupplyOf(nil, "abera")
 		Expect(err).ToNot(HaveOccurred())
 		fmt.Println("aberaSupply is: ", aberaSupply)
@@ -55,23 +52,28 @@ var _ = Describe("Bank", func() {
 		Expect(err).ToNot(HaveOccurred())
 		fmt.Println("totalSupply is: ", totalSupply)
 
-	//  function getParams() external view returns (Param memory);
- 
-	
-	//  function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
+		params, err := bankPrecompile.GetParams(nil)
+		Expect(err).ToNot(HaveOccurred())
+		fmt.Println("params is: ", params)
 
-	//  function getDenomsMetadata() external view returns (DenomsMetadata memory);
- 
+		// todo: set denom metadata then get 
+		getTestMetadata()
+		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, "abera")
+		Expect(err).ToNot(HaveOccurred())
+		fmt.Println("denomMetadata is: ", denomMetadata)
 
-	//  function getSendEnabled(string[] calldata denoms) external view returns (SendEnabled memory);
- 
-	
+		denomsMetadata, err := bankPrecompile.GetDenomsMetadata(nil)
+		Expect(err).ToNot(HaveOccurred())
+		fmt.Println("denomsMetadata is: ", denomsMetadata)
 
-	//  function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
- 
-	
-	//  function multiSend(Input calldata input, Output[] memory outputs) external payable returns (bool);
- 
+		//  function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
+
+		//  function getSendEnabled(string[] calldata denoms) external view returns (SendEnabled memory);
+
+		//  function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
+
+		//  function multiSend(Input calldata input, Output[] memory outputs) external payable returns (bool);
+
 	})
 
 	// It("should be able to call a precompile from a smart contract", func() {
@@ -109,3 +111,32 @@ var _ = Describe("Bank", func() {
 	// 	Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
 	// })
 })
+
+func getTestMetadata() []banktypes.Metadata {
+	return []banktypes.Metadata{
+		{
+			Name:        "Berachain bera",
+			Symbol:      "BERA",
+			Description: "The Bera.",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
+				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
+				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
+			},
+			Base:    "abera",
+			Display: "bera",
+		},
+		{
+			Name:        "Token",
+			Symbol:      "TOKEN",
+			Description: "The native staking token of the Token Hub.",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "1token", Exponent: uint32(5), Aliases: []string{"decitoken"}},
+				{Denom: "2token", Exponent: uint32(4), Aliases: []string{"centitoken"}},
+				{Denom: "3token", Exponent: uint32(7), Aliases: []string{"dekatoken"}},
+			},
+			Base:    "utoken",
+			Display: "token",
+		},
+	}
+}
