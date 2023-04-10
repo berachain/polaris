@@ -67,7 +67,7 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		erc20types.AttributeKeyToken: ConvertCommonHexAddress,
-		erc20types.AttributeKeyDenom: log.ConvertString,
+		erc20types.AttributeKeyDenom: log.ReturnStringAsIs,
 	}
 }
 

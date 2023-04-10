@@ -76,7 +76,7 @@ var (
 	_ precompile.ValueDecoder = ConvertValAddressFromBech32
 	_ precompile.ValueDecoder = ConvertAccAddressFromBech32
 	_ precompile.ValueDecoder = ConvertInt64
-	_ precompile.ValueDecoder = ConvertString
+	_ precompile.ValueDecoder = ReturnStringAsIs
 )
 
 // ConvertSdkCoin converts the string representation of an `sdk.Coin` to a `*big.Int`.
@@ -128,11 +128,11 @@ func ConvertInt64(attributeValue string) (any, error) {
 	return strconv.ParseInt(attributeValue, intBase, int64Bits)
 }
 
-// ConvertString converts a given attribute of type string and returns the same string (as type
+// ReturnStringAsIs converts a given attribute of type string and returns the same string (as type
 // any).
 //
-// ConvertString is a `precompile.ValueDecoder`.
-func ConvertString(attributeValue string) (any, error) {
+// ReturnStringAsIs is a `precompile.ValueDecoder`.
+func ReturnStringAsIs(attributeValue string) (any, error) {
 	return attributeValue, nil
 }
 
