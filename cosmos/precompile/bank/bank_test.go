@@ -721,7 +721,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					coins,
+					sdkCoinsToEvmCoins(coins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -855,4 +855,15 @@ func getTestMetadata() []banktypes.Metadata {
 			Display: "token",
 		},
 	}
+}
+
+func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
+	evmCoins := make([]generated.IBankModuleCoin, len(sdkCoins))
+	for i, coin := range sdkCoins {
+		evmCoins[i] = generated.IBankModuleCoin{
+			Amount: coin.Amount.BigInt(),
+			Denom:  coin.Denom,
+		}
+	}
+	return evmCoins
 }

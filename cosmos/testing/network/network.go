@@ -166,6 +166,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 		Address: newAccount.Address,
 		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
 	})
+	bankState.DenomMetadata = getTestMetadata()
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 
 	// Staking module
@@ -175,4 +176,33 @@ func BuildGenesisState() map[string]json.RawMessage {
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
 	return genState
+}
+
+func getTestMetadata() []banktypes.Metadata {
+	return []banktypes.Metadata{
+		{
+			Name:        "Berachain bera",
+			Symbol:      "BERA",
+			Description: "The Bera.",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
+				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
+				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
+			},
+			Base:    "abera",
+			Display: "bera",
+		},
+		{
+			Name:        "Token",
+			Symbol:      "TOKEN",
+			Description: "The native staking token of the Token Hub.",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "1token", Exponent: uint32(5), Aliases: []string{"decitoken"}},
+				{Denom: "2token", Exponent: uint32(4), Aliases: []string{"centitoken"}},
+				{Denom: "3token", Exponent: uint32(7), Aliases: []string{"dekatoken"}},
+			},
+			Base:    "utoken",
+			Display: "token",
+		},
+	}
 }

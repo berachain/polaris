@@ -22,8 +22,12 @@ package precompile
 
 import (
 	"fmt"
+	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -36,34 +40,59 @@ var _ = Describe("Bank", func() {
 
 	It("should call functions on the precompile directly", func() {
 
+		coinsToBeSent := []generated.IBankModuleCoin{
+			{
+				Denom:  "abera",
+				Amount: big.NewInt(10000000000000000),
+			},
+		}
+		fmt.Println("bytes for sending", []byte(fmt.Sprintf("%v", coinsToBeSent)))
+
+		fmt.Println("TestAddress1 is: ", network.TestAddress)
+		fmt.Println("TestAddress2 is: ", network.TestAddress2)
+		fmt.Println("coinsToBeSent is: ", coinsToBeSent)
+
+		tx, err := bankPrecompile.Send(tf.GenerateTransactOpts(""), network.TestAddress, network.TestAddress2, coinsToBeSent)
+		Expect(err).ShouldNot(HaveOccurred())
+		fmt.Println("tx is: ", tx)
+
 		//  function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
+		balance, err := bankPrecompile.GetBalance(nil, network.TestAddress2, "abera")
+		Expect(err).ShouldNot(HaveOccurred())
+		fmt.Println("balance is: ", balance)
+		Expect(balance).To(Equal(sdk.NewInt(10000000000000000)))
 
 		//  function getAllBalance(address accountAddress) external view returns (Coin[] memory);
+		allBalance, err := bankPrecompile.GetAllBalance(nil, network.TestAddress)
+		Expect(err).ShouldNot(HaveOccurred())
+		fmt.Println("balance is: ", allBalance)
+		// Expect(balance).To(Equal(sdk.NewInt(network.Megamoney)))
 
 		//  function getSpendableBalanceByDenom(address accountAddress, string calldata denom) external view returns (uint256);
 
 		//  function getSpendableBalances(address accountAddress) external view returns (Coin[] memory);
 
 		aberaSupply, err := bankPrecompile.GetSupplyOf(nil, "abera")
-		Expect(err).ToNot(HaveOccurred())
+		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("aberaSupply is: ", aberaSupply)
 
 		totalSupply, err := bankPrecompile.GetTotalSupply(nil)
-		Expect(err).ToNot(HaveOccurred())
+		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("totalSupply is: ", totalSupply)
 
 		params, err := bankPrecompile.GetParams(nil)
-		Expect(err).ToNot(HaveOccurred())
+		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("params is: ", params)
+		Expect(params.DefaultSendEnabled).To(BeTrue())
 
-		// todo: set denom metadata then get 
+		// todo: set denom metadata then get
 		getTestMetadata()
 		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, "abera")
-		Expect(err).ToNot(HaveOccurred())
+		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("denomMetadata is: ", denomMetadata)
 
 		denomsMetadata, err := bankPrecompile.GetDenomsMetadata(nil)
-		Expect(err).ToNot(HaveOccurred())
+		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("denomsMetadata is: ", denomsMetadata)
 
 		//  function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);

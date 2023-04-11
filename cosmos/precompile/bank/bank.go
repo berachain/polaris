@@ -101,7 +101,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.GetSendEnabled,
 		},
 		{
-			AbiSig:  "send(address,address,(uint256,string))",
+			AbiSig:  "send(address,address,(uint256,string)[])",
 			Execute: c.Send,
 		},
 		{
@@ -394,7 +394,7 @@ func (c *Contract) Send(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	amount, ok := utils.GetAs[sdk.Coins](args[2])
+	amount, ok := utils.GetAs[[]generated.IBankModuleCoin](args[2])
 	if !ok {
 		return nil, precompile.ErrInvalidCoin
 	}
@@ -402,7 +402,7 @@ func (c *Contract) Send(
 	_, err := c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.AddressToAccAddress(fromAddr).String(),
 		ToAddress:   cosmlib.AddressToAccAddress(toAddr).String(),
-		Amount:      amount,
+		Amount:      c.evmCoinsToSdkCoins(amount),
 	})
 	return []any{err == nil}, err
 }

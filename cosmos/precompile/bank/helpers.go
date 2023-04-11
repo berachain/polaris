@@ -22,8 +22,22 @@ package bank
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 )
+
+func (c *Contract) evmCoinsToSdkCoins(evmCoins []generated.IBankModuleCoin) sdk.Coins {
+	sdkCoins := sdk.NewCoins()
+	for _, evmCoin := range evmCoins {
+		sdkCoins = sdkCoins.Add(
+			sdk.Coin{
+				Amount: sdk.NewIntFromBigInt(evmCoin.Amount),
+				Denom:  evmCoin.Denom,
+			},
+		)
+	}
+	return sdkCoins
+}
 
 func (c *Contract) sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 	evmCoins := make([]generated.IBankModuleCoin, len(sdkCoins))

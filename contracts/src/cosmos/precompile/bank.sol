@@ -123,7 +123,7 @@ interface IBankModule {
     /**
      * @dev Send coins from one address to another.
      */
-    function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
+    function send(address fromAddress, address toAddress, Coin[] calldata amount) external payable returns (bool);
 
     /**
      * @dev Send coins from one sender and to a series of different address. 
