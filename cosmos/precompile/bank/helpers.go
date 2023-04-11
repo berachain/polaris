@@ -21,25 +21,17 @@
 package bank
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-func (c *Contract) evmCoinsToSdkCoins(evmCoins []generated.IBankModuleCoin) sdk.Coins {
-	sdkCoins := sdk.NewCoins()
-	for _, evmCoin := range evmCoins {
-		sdkCoins = sdkCoins.Add(
-			sdk.Coin{
-				Amount: sdk.NewIntFromBigInt(evmCoin.Amount),
-				Denom:  evmCoin.Denom,
-			},
-		)
-	}
-	return sdkCoins
-}
-
-func (c *Contract) sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
+// sdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
+func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 	evmCoins := make([]generated.IBankModuleCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
 		evmCoins[i] = generated.IBankModuleCoin{
@@ -48,4 +40,26 @@ func (c *Contract) sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModul
 		}
 	}
 	return evmCoins
+}
+
+// extractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
+func extractCoinsFromInput(coins any) (sdk.Coins, error) {
+	amounts, ok := utils.GetAs[[]struct {
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
+	}](coins)
+	if !ok {
+		return nil, precompile.ErrInvalidCoin
+	}
+
+	sdkCoins := sdk.NewCoins()
+	for _, evmCoin := range amounts {
+		sdkCoins = sdkCoins.Add(
+			sdk.Coin{
+				Amount: sdk.NewIntFromBigInt(evmCoin.Amount),
+				Denom:  evmCoin.Denom,
+			},
+		)
+	}
+	return sdkCoins, nil
 }

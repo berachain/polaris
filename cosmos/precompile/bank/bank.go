@@ -164,7 +164,7 @@ func (c *Contract) GetAllBalance(
 		return nil, err
 	}
 
-	return []any{c.sdkCoinsToEvmCoins(res.Balances)}, nil
+	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
@@ -218,7 +218,7 @@ func (c *Contract) GetSpendableBalances(
 		return nil, err
 	}
 
-	return []any{c.sdkCoinsToEvmCoins(res.Balances)}, nil
+	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSupplyOf implements `GetSupplyOf(string)` method.
@@ -261,7 +261,7 @@ func (c *Contract) GetTotalSupply(
 		return nil, err
 	}
 
-	return []any{c.sdkCoinsToEvmCoins(res.Supply)}, nil
+	return []any{sdkCoinsToEvmCoins(res.Supply)}, nil
 }
 
 // GetParams implements `getParams()` method.
@@ -394,15 +394,15 @@ func (c *Contract) Send(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	amount, ok := utils.GetAs[[]generated.IBankModuleCoin](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidCoin
+	amount, err := extractCoinsFromInput(args[2])
+	if err != nil {
+		return nil, err
 	}
 
-	_, err := c.msgServer.Send(ctx, &banktypes.MsgSend{
+	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.AddressToAccAddress(fromAddr).String(),
 		ToAddress:   cosmlib.AddressToAccAddress(toAddr).String(),
-		Amount:      c.evmCoinsToSdkCoins(amount),
+		Amount:      amount,
 	})
 	return []any{err == nil}, err
 }

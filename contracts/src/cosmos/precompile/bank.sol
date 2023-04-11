@@ -132,7 +132,7 @@ interface IBankModule {
      * 
      * Inputs, despite being `repeated`, only allows one sender input. 
      */
-    function multiSend(Input calldata input, Output[] memory outputs) external payable returns (bool);
+    function multiSend(Input calldata input, Output[] calldata outputs) external payable returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
