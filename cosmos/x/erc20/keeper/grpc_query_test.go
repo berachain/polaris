@@ -79,4 +79,26 @@ var _ = Describe("GRPC Query Server", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(resp.Denom).To(Equal(types.NewPolarisDenomForAddress(tokenAddr)))
 	})
+
+	It("should correctly handle coin --> erc20", func() {
+		denom := "osmo"
+		tokenAddr := common.BytesToAddress([]byte(denom))
+
+		// check the denom doesn't exist
+		resp, err := qs.ERC20AddressForCoinDenom(ctx, &types.ERC20AddressForCoinDenomRequest{
+			Denom: denom,
+		})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(resp.Token).To(BeEmpty())
+
+		// register the new denom for token
+		k.RegisterCoinERC20Pair(ctx, denom, tokenAddr)
+
+		// check the denom exists
+		resp, err = qs.ERC20AddressForCoinDenom(ctx, &types.ERC20AddressForCoinDenomRequest{
+			Denom: denom,
+		})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(resp.Token).To(Equal(cosmlib.AddressToAccAddress(tokenAddr).String()))
+	})
 })
