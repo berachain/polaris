@@ -29,6 +29,12 @@ var (
 	_ = abi.ConvertType
 )
 
+// IBankModuleBalance is an auto generated low-level Go binding around an user-defined struct.
+type IBankModuleBalance struct {
+	Addr  common.Address
+	Coins []IBankModuleCoin
+}
+
 // IBankModuleCoin is an auto generated low-level Go binding around an user-defined struct.
 type IBankModuleCoin struct {
 	Amount *big.Int
@@ -52,23 +58,6 @@ type IBankModuleDenomUnit struct {
 	Exponent uint32
 }
 
-// IBankModuleDenomsMetadata is an auto generated low-level Go binding around an user-defined struct.
-type IBankModuleDenomsMetadata struct {
-	Metadatas []IBankModuleDenomMetadata
-}
-
-// IBankModuleInput is an auto generated low-level Go binding around an user-defined struct.
-type IBankModuleInput struct {
-	Addr  common.Address
-	Coins []IBankModuleCoin
-}
-
-// IBankModuleOutput is an auto generated low-level Go binding around an user-defined struct.
-type IBankModuleOutput struct {
-	Addr  common.Address
-	Coins []IBankModuleCoin
-}
-
 // IBankModuleParam is an auto generated low-level Go binding around an user-defined struct.
 type IBankModuleParam struct {
 	DefaultSendEnabled bool
@@ -82,7 +71,7 @@ type IBankModuleSendEnabled struct {
 
 // BankModuleMetaData contains all meta data concerning the BankModule contract.
 var BankModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllBalance\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getDenomMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getDenomsMetadata\",\"outputs\":[{\"components\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata[]\",\"name\":\"metadatas\",\"type\":\"tuple[]\"}],\"internalType\":\"structIBankModule.DenomsMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getParams\",\"outputs\":[{\"components\":[{\"internalType\":\"bool\",\"name\":\"defaultSendEnabled\",\"type\":\"bool\"}],\"internalType\":\"structIBankModule.Param\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string[]\",\"name\":\"denoms\",\"type\":\"string[]\"}],\"name\":\"getSendEnabled\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"internalType\":\"structIBankModule.SendEnabled\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSpendableBalanceByDenom\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getSpendableBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSupplyOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalSupply\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"coins\",\"type\":\"tuple[]\"}],\"internalType\":\"structIBankModule.Input\",\"name\":\"input\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"coins\",\"type\":\"tuple[]\"}],\"internalType\":\"structIBankModule.Output[]\",\"name\":\"outputs\",\"type\":\"tuple[]\"}],\"name\":\"multiSend\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"fromAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"toAddress\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"send\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllBalance\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getDenomMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getDenomsMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getParams\",\"outputs\":[{\"components\":[{\"internalType\":\"bool\",\"name\":\"defaultSendEnabled\",\"type\":\"bool\"}],\"internalType\":\"structIBankModule.Param\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string[]\",\"name\":\"denoms\",\"type\":\"string[]\"}],\"name\":\"getSendEnabled\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"internalType\":\"structIBankModule.SendEnabled\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSpendableBalanceByDenom\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getSpendableBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSupplyOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalSupply\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"coins\",\"type\":\"tuple[]\"}],\"internalType\":\"structIBankModule.Balance\",\"name\":\"input\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"coins\",\"type\":\"tuple[]\"}],\"internalType\":\"structIBankModule.Balance[]\",\"name\":\"outputs\",\"type\":\"tuple[]\"}],\"name\":\"multiSend\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"fromAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"toAddress\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"send\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
 }
 
 // BankModuleABI is the input ABI used to generate the binding from.
@@ -326,16 +315,16 @@ func (_BankModule *BankModuleCallerSession) GetDenomMetadata(denom string) (IBan
 
 // GetDenomsMetadata is a free data retrieval call binding the contract method 0x2030bc6e.
 //
-// Solidity: function getDenomsMetadata() view returns(((string,(string,string[],uint32)[],string,string,string,string)[]))
-func (_BankModule *BankModuleCaller) GetDenomsMetadata(opts *bind.CallOpts) (IBankModuleDenomsMetadata, error) {
+// Solidity: function getDenomsMetadata() view returns((string,(string,string[],uint32)[],string,string,string,string)[])
+func (_BankModule *BankModuleCaller) GetDenomsMetadata(opts *bind.CallOpts) ([]IBankModuleDenomMetadata, error) {
 	var out []interface{}
 	err := _BankModule.contract.Call(opts, &out, "getDenomsMetadata")
 
 	if err != nil {
-		return *new(IBankModuleDenomsMetadata), err
+		return *new([]IBankModuleDenomMetadata), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new(IBankModuleDenomsMetadata)).(*IBankModuleDenomsMetadata)
+	out0 := *abi.ConvertType(out[0], new([]IBankModuleDenomMetadata)).(*[]IBankModuleDenomMetadata)
 
 	return out0, err
 
@@ -343,15 +332,15 @@ func (_BankModule *BankModuleCaller) GetDenomsMetadata(opts *bind.CallOpts) (IBa
 
 // GetDenomsMetadata is a free data retrieval call binding the contract method 0x2030bc6e.
 //
-// Solidity: function getDenomsMetadata() view returns(((string,(string,string[],uint32)[],string,string,string,string)[]))
-func (_BankModule *BankModuleSession) GetDenomsMetadata() (IBankModuleDenomsMetadata, error) {
+// Solidity: function getDenomsMetadata() view returns((string,(string,string[],uint32)[],string,string,string,string)[])
+func (_BankModule *BankModuleSession) GetDenomsMetadata() ([]IBankModuleDenomMetadata, error) {
 	return _BankModule.Contract.GetDenomsMetadata(&_BankModule.CallOpts)
 }
 
 // GetDenomsMetadata is a free data retrieval call binding the contract method 0x2030bc6e.
 //
-// Solidity: function getDenomsMetadata() view returns(((string,(string,string[],uint32)[],string,string,string,string)[]))
-func (_BankModule *BankModuleCallerSession) GetDenomsMetadata() (IBankModuleDenomsMetadata, error) {
+// Solidity: function getDenomsMetadata() view returns((string,(string,string[],uint32)[],string,string,string,string)[])
+func (_BankModule *BankModuleCallerSession) GetDenomsMetadata() ([]IBankModuleDenomMetadata, error) {
 	return _BankModule.Contract.GetDenomsMetadata(&_BankModule.CallOpts)
 }
 
@@ -544,21 +533,21 @@ func (_BankModule *BankModuleCallerSession) GetTotalSupply() ([]IBankModuleCoin,
 // MultiSend is a paid mutator transaction binding the contract method 0x48aeba0e.
 //
 // Solidity: function multiSend((address,(uint256,string)[]) input, (address,(uint256,string)[])[] outputs) payable returns(bool)
-func (_BankModule *BankModuleTransactor) MultiSend(opts *bind.TransactOpts, input IBankModuleInput, outputs []IBankModuleOutput) (*types.Transaction, error) {
+func (_BankModule *BankModuleTransactor) MultiSend(opts *bind.TransactOpts, input IBankModuleBalance, outputs []IBankModuleBalance) (*types.Transaction, error) {
 	return _BankModule.contract.Transact(opts, "multiSend", input, outputs)
 }
 
 // MultiSend is a paid mutator transaction binding the contract method 0x48aeba0e.
 //
 // Solidity: function multiSend((address,(uint256,string)[]) input, (address,(uint256,string)[])[] outputs) payable returns(bool)
-func (_BankModule *BankModuleSession) MultiSend(input IBankModuleInput, outputs []IBankModuleOutput) (*types.Transaction, error) {
+func (_BankModule *BankModuleSession) MultiSend(input IBankModuleBalance, outputs []IBankModuleBalance) (*types.Transaction, error) {
 	return _BankModule.Contract.MultiSend(&_BankModule.TransactOpts, input, outputs)
 }
 
 // MultiSend is a paid mutator transaction binding the contract method 0x48aeba0e.
 //
 // Solidity: function multiSend((address,(uint256,string)[]) input, (address,(uint256,string)[])[] outputs) payable returns(bool)
-func (_BankModule *BankModuleTransactorSession) MultiSend(input IBankModuleInput, outputs []IBankModuleOutput) (*types.Transaction, error) {
+func (_BankModule *BankModuleTransactorSession) MultiSend(input IBankModuleBalance, outputs []IBankModuleBalance) (*types.Transaction, error) {
 	return _BankModule.Contract.MultiSend(&_BankModule.TransactOpts, input, outputs)
 }
 

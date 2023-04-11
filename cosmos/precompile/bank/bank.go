@@ -22,6 +22,7 @@ package bank
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -129,6 +130,8 @@ func (c *Contract) GetBalance(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
+
+	fmt.Printf("\nin bank: \nget balance: addr: %v\n", cosmlib.AddressToAccAddress(addr).String())
 
 	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: cosmlib.AddressToAccAddress(addr).String(),
@@ -394,7 +397,14 @@ func (c *Contract) Send(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	amount, err := extractCoinsFromInput(args[2])
+	fmt.Printf("\nin bank: args[2] is: %v\n", args[2])
+
+	coins, err := extractCoinsFromInput(args[2])
+	fmt.Printf("\nin bank: amount: %v\n", coins)
+
+	fmt.Printf("\nin bank: fromAddr: %v\n", cosmlib.AddressToAccAddress(fromAddr).String())
+	fmt.Printf("\nin bank: toAddr: %v\n", cosmlib.AddressToAccAddress(toAddr).String())
+
 	if err != nil {
 		return nil, err
 	}
@@ -402,7 +412,7 @@ func (c *Contract) Send(
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.AddressToAccAddress(fromAddr).String(),
 		ToAddress:   cosmlib.AddressToAccAddress(toAddr).String(),
-		Amount:      amount,
+		Amount:      coins,
 	})
 	return []any{err == nil}, err
 }
@@ -416,11 +426,11 @@ func (c *Contract) MultiSend(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	evmInput, ok := utils.GetAs[generated.IBankModuleInput](args[0])
+	evmInput, ok := utils.GetAs[generated.IBankModuleBalance](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidAny
 	}
-	evmOutputs, ok := utils.GetAs[[]generated.IBankModuleOutput](args[1])
+	evmOutputs, ok := utils.GetAs[[]generated.IBankModuleBalance](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidAny
 	}

@@ -111,7 +111,7 @@ interface IBankModule {
     /**
      * @dev Returns all denominations metadata
      */
-    function getDenomsMetadata() external view returns (DenomsMetadata memory);
+    function getDenomsMetadata() external view returns (DenomMetadata[] memory);
 
     /**
      * @dev Returns if the denom is enabled to send
@@ -132,7 +132,7 @@ interface IBankModule {
      * 
      * Inputs, despite being `repeated`, only allows one sender input. 
      */
-    function multiSend(Input calldata input, Output[] calldata outputs) external payable returns (bool);
+    function multiSend(Balance calldata input, Balance[] calldata outputs) external payable returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
@@ -163,21 +163,12 @@ interface IBankModule {
         string symbol;
     }
 
-    struct DenomsMetadata {
-        DenomMetadata[] metadatas;
-    }
-
     struct SendEnabled {
         string denom;
         bool enabled;
     }
 
-    struct Input {
-        address addr;
-        Coin[] coins;
-    }
-    
-    struct Output {
+    struct Balance {
         address addr;
         Coin[] coins;
     }

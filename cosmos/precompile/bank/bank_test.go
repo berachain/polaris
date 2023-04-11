@@ -785,13 +785,13 @@ var _ = Describe("Bank Precompile Test", func() {
 					})
 				}
 
-				input := generated.IBankModuleInput{
+				input := generated.IBankModuleBalance{
 					Addr:  cosmlib.AccAddressToEthAddress(fromAcc),
 					Coins: inputCoins,
 				}
-				var outputs []generated.IBankModuleOutput
+				var outputs []generated.IBankModuleBalance
 				for i := 1; i < 3; i++ {
-					outputs = append(outputs, generated.IBankModuleOutput{
+					outputs = append(outputs, generated.IBankModuleBalance{
 						Addr:  cosmlib.AccAddressToEthAddress(acct[i]),
 						Coins: outputCoins,
 					})

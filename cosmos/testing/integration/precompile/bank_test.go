@@ -23,8 +23,8 @@ package precompile
 import (
 	"fmt"
 	"math/big"
+	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
@@ -55,17 +55,20 @@ var _ = Describe("Bank", func() {
 		tx, err := bankPrecompile.Send(tf.GenerateTransactOpts(""), network.TestAddress, network.TestAddress2, coinsToBeSent)
 		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("tx is: ", tx)
+		fmt.Printf("tx is: %v", *tx)
+
+		time.Sleep(4)
 
 		//  function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
 		balance, err := bankPrecompile.GetBalance(nil, network.TestAddress2, "abera")
 		Expect(err).ShouldNot(HaveOccurred())
-		fmt.Println("balance is: ", balance)
-		Expect(balance).To(Equal(sdk.NewInt(10000000000000000)))
+		fmt.Println("bera balance is: ", balance)
+		Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
 
 		//  function getAllBalance(address accountAddress) external view returns (Coin[] memory);
 		allBalance, err := bankPrecompile.GetAllBalance(nil, network.TestAddress)
 		Expect(err).ShouldNot(HaveOccurred())
-		fmt.Println("balance is: ", allBalance)
+		fmt.Println("all balance is: ", allBalance)
 		// Expect(balance).To(Equal(sdk.NewInt(network.Megamoney)))
 
 		//  function getSpendableBalanceByDenom(address accountAddress, string calldata denom) external view returns (uint256);
