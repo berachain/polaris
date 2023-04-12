@@ -410,5 +410,20 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 
 		})
+		When("Reading Params", func() {
+			It("Should get if withdraw forwarding is enabled", func() {
+				res, err := contract.GetWithdrawAddrEnabled(ctx, nil, testutil.Alice, big.NewInt(0), true)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(Equal([]any{true}))
+			})
+		})
+		When("Base Precompile Features", func() {
+			It("Should have custom value decoders", func() {
+				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
+			})
+			It("Should have correct amount of precompile methods", func() {
+				Expect(contract.PrecompileMethods()).To(HaveLen(5))
+			})
+		})
 	})
 })
