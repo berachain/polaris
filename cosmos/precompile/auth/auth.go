@@ -32,7 +32,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -59,12 +58,12 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:      "convertHexToBech32(address)",
 			Execute:     c.ConvertHexToBech32,
-			RequiredGas: params.IdentityBaseGas,
+			RequiredGas: 2000,
 		},
 		{
 			AbiSig:      "convertBech32ToHexAddress(string)",
 			Execute:     c.ConvertBech32ToHexAddress,
-			RequiredGas: params.IdentityBaseGas,
+			RequiredGas: 2000,
 		},
 	}
 }
