@@ -127,21 +127,22 @@ func (c *Contract) convertERC20ToCoin(
 	}
 
 	// get SDK coin denomination pairing with ERC20 token
-	tokenString := cosmlib.AddressToAccAddress(token).String()
+	tokenBech32 := cosmlib.AddressToAccAddress(token).String()
 	resp, err := c.em.CoinDenomForERC20Address(
-		ctx, &erc20types.CoinDenomForERC20AddressRequest{Token: tokenString},
+		ctx, &erc20types.CoinDenomForERC20AddressRequest{Token: tokenBech32},
 	)
 	if err != nil {
 		return err
 	}
-
-	// denomination not found, create new pair
 	denom := resp.Denom
+
+	// if denomination not found, create new pair
 	if denom == "" {
 		c.em.RegisterERC20CoinPair(sdkCtx, token)
+
 		// get the newly registered Polaris coin denomination
 		resp, err = c.em.CoinDenomForERC20Address(
-			ctx, &erc20types.CoinDenomForERC20AddressRequest{Token: tokenString},
+			ctx, &erc20types.CoinDenomForERC20AddressRequest{Token: tokenBech32},
 		)
 		if err != nil {
 			return err

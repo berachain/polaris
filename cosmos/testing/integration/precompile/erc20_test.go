@@ -21,10 +21,16 @@
 package precompile
 
 import (
+	"fmt"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
 )
 
 var _ = Describe("ERC20", func() {
@@ -65,7 +71,59 @@ var _ = Describe("ERC20", func() {
 		})
 
 		When("calling write methods", func() {
+			It("should error on non-existent inputs", func() {
+				// nonexistent address
+				_, err := erc20Precompile.ConvertERC20ToCoin0(
+					tf.GenerateTransactOpts(""),
+					common.BytesToAddress([]byte("sUSDC")),
+					network.TestAddress,
+					big.NewInt(123456789),
+				)
+				Expect(err).To(HaveOccurred())
 
+				// nonexistent address
+				_, err = erc20Precompile.ConvertERC20ToCoin(
+					tf.GenerateTransactOpts(""),
+					common.BytesToAddress([]byte("sUSDC")),
+					cosmlib.AddressToAccAddress(network.TestAddress).String(),
+					big.NewInt(123456789),
+				)
+				fmt.Println(err)
+				Expect(err).To(HaveOccurred())
+
+				// nonexistent denom
+				_, err = erc20Precompile.ConvertCoinToERC20(
+					tf.GenerateTransactOpts(""),
+					"bOSMO",
+					network.TestAddress,
+					big.NewInt(123456789),
+				)
+				fmt.Println(err)
+				Expect(err).To(HaveOccurred())
+
+				// nonexistent denom
+				_, err = erc20Precompile.ConvertCoinToERC200(
+					tf.GenerateTransactOpts(""),
+					"bOSMO",
+					cosmlib.AddressToAccAddress(network.TestAddress).String(),
+					big.NewInt(123456789),
+				)
+				fmt.Println(err)
+				Expect(err).To(HaveOccurred())
+			})
+
+			It("should handle non-empty inputs", func() {
+				// denom already exists
+				tx, err := erc20Precompile.ConvertCoinToERC200(
+					tf.GenerateTransactOpts(""),
+					"bATOM",
+					cosmlib.AddressToAccAddress(network.TestAddress).String(),
+					big.NewInt(123456789),
+				)
+				fmt.Println(tx)
+				fmt.Println(err)
+				// Expect(err).ToNot(HaveOccurred())
+			})
 		})
 	})
 

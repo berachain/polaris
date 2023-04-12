@@ -185,8 +185,8 @@ func (c *Contract) ERC20AddressForCoinDenom(
 
 	tokenAddr := common.Address{}
 	if resp.Token != "" {
-		tokenAccAddr, err := sdk.AccAddressFromBech32(resp.Token)
-		if err != nil {
+		var tokenAccAddr sdk.AccAddress
+		if tokenAccAddr, err = sdk.AccAddressFromBech32(resp.Token); err != nil {
 			return nil, err
 		}
 		tokenAddr = cosmlib.AccAddressToEthAddress(tokenAccAddr)
