@@ -76,47 +76,37 @@ interface IBankModule {
     /**
      * @dev Returns account balance by address for all denominations.
      */
-    function getAllBalance(address accountAddress) external view returns (Coin[] memory);
+    function getAllBalances(address accountAddress) external view returns (Coin[] memory);
 
     /**
      * @dev Returns the `amount` of account balance by address for a given denomination.
      */
-    function getSpendableBalanceByDenom(address accountAddress, string calldata denom) external view returns (uint256);
+    function getSpendableBalance(address accountAddress, string calldata denom) external view returns (uint256);
 
     /**
      * @dev Returns account balance by address for all denominations.
      */
-    function getSpendableBalances(address accountAddress) external view returns (Coin[] memory);
+    function getAllSpendableBalances(address accountAddress) external view returns (Coin[] memory);
 
     /**
      * @dev Returns the total supply of a single coin.
      */
-    function getSupplyOf(string calldata denom) external view returns (uint256);
+    function getSupply(string calldata denom) external view returns (uint256);
 
     /**
      * @dev Returns the total supply of a all coins.
      */
-    function getTotalSupply() external view returns (Coin[] memory);
+    function getAllSupply() external view returns (Coin[] memory);
 
     /**
-     * @dev Returns the parameters of the bank module.
+     * @dev Returns the denomination's metadata.
      */
-    function getParams() external view returns (Param memory);
-
-    /**
-     * @dev Returns the denomination metadata
-     */
-    function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
-
-    /**
-     * @dev Returns all denominations metadata
-     */
-    function getDenomsMetadata() external view returns (DenomMetadata[] memory);
+    function getMetadata(string calldata denom) external view returns (DenomMetadata memory);
 
     /**
      * @dev Returns if the denom is enabled to send
      */
-    function getSendEnabled(string[] calldata denoms) external view returns (SendEnabled memory);
+    function getSendEnabled(string calldata denom) external view returns (bool);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
@@ -125,14 +115,14 @@ interface IBankModule {
      */
     function send(address fromAddress, address toAddress, Coin[] calldata amount) external payable returns (bool);
 
-    /**
-     * @dev Send coins from one sender and to a series of different address. 
-     * If any of the receiving addresses do not correspond to an existing account, 
-     * a new account is created.
-     * 
-     * Inputs, despite being `repeated`, only allows one sender input. 
-     */
-    function multiSend(Balance calldata input, Balance[] calldata outputs) external payable returns (bool);
+    // /**
+    //  * @dev Send coins from one sender and to a series of different address. 
+    //  * If any of the receiving addresses do not correspond to an existing account, 
+    //  * a new account is created.
+    //  * 
+    //  * Inputs, despite being `repeated`, only allows one sender input. 
+    //  */
+    // function multiSend(Balance calldata input, Balance[] calldata outputs) external payable returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
@@ -145,15 +135,12 @@ interface IBankModule {
         string denom;
     }
 
-    struct Param {
-        bool defaultSendEnabled;
-    }
-
     struct DenomUnit {
         string denom;
         string[] aliases;
         uint32 exponent;
     }
+
     struct DenomMetadata {
         string description;
         DenomUnit[] denomUnits;
@@ -163,13 +150,8 @@ interface IBankModule {
         string symbol;
     }
 
-    struct SendEnabled {
-        string denom;
-        bool enabled;
-    }
-
-    struct Balance {
-        address addr;
-        Coin[] coins;
-    }
+    // struct Balance {
+    //     address addr;
+    //     Coin[] coins;
+    // }
 }
