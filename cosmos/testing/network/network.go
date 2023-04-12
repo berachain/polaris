@@ -215,7 +215,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 }
 
 func GetDistrValidator() common.Address {
-	pks := simtestutil.CreateTestPubKeys(2)
+	pks := simtestutil.CreateTestPubKeys(2) //nolint: gomnd // magic numbers are fine in tests.
 	valConsPk1 := pks[1]
 	valConsAddr1 := sdk.ConsAddress(valConsPk1.Address())
 	valAddr := sdk.ValAddress(valConsAddr1)
@@ -227,7 +227,6 @@ func DistrTestSetup(
 	dk *distrtypes.GenesisState,
 	sk *stakingtypes.GenesisState,
 ) {
-
 	// ==============================================================================
 	// Staking Keeper
 	// ==============================================================================
@@ -280,7 +279,7 @@ func DistrTestSetup(
 			ValidatorAddress: valAddr.String(),
 			Period:           1,
 			Rewards: distrtypes.ValidatorHistoricalRewards{
-				ReferenceCount: 2,
+				ReferenceCount: 2, //nolint:gomnd // test.
 			},
 		})
 
@@ -290,7 +289,7 @@ func DistrTestSetup(
 			ValidatorAddress: valAddr.String(),
 			Rewards: distrtypes.ValidatorCurrentRewards{
 				Rewards: sdk.NewDecCoins(sdk.NewDecCoin("abera", sdk.NewInt(onehundred))),
-				Period:  2,
+				Period:  2, //nolint:gomnd // test.
 			},
 		})
 
@@ -305,14 +304,6 @@ func DistrTestSetup(
 			},
 		})
 
-	// // Set the validator outstanding rewards.
-	// dk.OutstandingRewards = append(dk.OutstandingRewards, distrtypes.ValidatorOutstandingRewardsRecord{
-	// 	ValidatorAddress:   valAddr.String(),
-	// 	OutstandingRewards: sdk.NewDecCoins(sdk.NewDecCoin("abera", sdk.NewInt(onehundred))),
-	// })
-
-	// dk.FeePool.CommunityPool = append(dk.FeePool.CommunityPool, sdk.NewDecCoin("abera", sdk.NewInt(onehundred)))
-
 	// ==============================================================================
 	// Bank Keeper
 	// ==============================================================================
@@ -322,9 +313,4 @@ func DistrTestSetup(
 		Address: "polar1tygms3xhhs3yv487phx3dw4a95jn7t7l2g6um3", // Not Bonded Pool
 		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred))),
 	})
-	// // Create the balance for the distribution module account.
-	// bk.Balances = append(bk.Balances, banktypes.Balance{
-	// 	Address: "polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad", // Distribution Module Account
-	// 	Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(100))),
-	// })
 }
