@@ -28,7 +28,6 @@ import (
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 
@@ -90,6 +89,18 @@ var _ = Describe("Bank", func() {
 				Amount: big.NewInt(100),
 			},
 		}
+		evmDenomMetadata := precompile.IBankModuleDenomMetadata{
+			Name:        "Berachain bera",
+			Symbol:      "BERA",
+			Description: "The Bera.",
+			DenomUnits: []precompile.IBankModuleDenomUnit{
+				{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
+				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
+				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
+			},
+			Base:    "abera",
+			Display: "bera",
+		}
 
 		// TestAddress3 initially has 100 abera
 		balance, err := bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
@@ -109,7 +120,6 @@ var _ = Describe("Bank", func() {
 		balance, err = bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(1100)))
-		fmt.Print("\nbera balance of TestAddress3 is: ", balance, "\n\n")
 
 		// TestAddress2 has 100 abera and 100 atoken
 		allBalance, err := bankPrecompile.GetAllBalances(nil, network.TestAddress2)
@@ -130,15 +140,17 @@ var _ = Describe("Bank", func() {
 
 		totalSupply, err := bankPrecompile.GetAllSupply(nil)
 		Expect(err).ShouldNot(HaveOccurred())
-		fmt.Println("totalSupply is: ", totalSupply)
+		fmt.Printf("\ntotalSupply is: %v\n", totalSupply)
 
 		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("denomMetadata is: ", denomMetadata)
+		Expect(denomMetadata).To(Equal(evmDenomMetadata))
 
 		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, "abera")
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(sendEnabled).To(BeTrue())
+		
 	})
 
 	// It("should be able to call a precompile from a smart contract", func() {
@@ -176,32 +188,3 @@ var _ = Describe("Bank", func() {
 	// 	Expect(delegated.Cmp(big.NewInt(100000000000))).To(Equal(0))
 	// })
 })
-
-func getTestMetadata() []banktypes.Metadata {
-	return []banktypes.Metadata{
-		{
-			Name:        "Berachain bera",
-			Symbol:      "BERA",
-			Description: "The Bera.",
-			DenomUnits: []*banktypes.DenomUnit{
-				{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
-				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
-				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
-			},
-			Base:    "abera",
-			Display: "bera",
-		},
-		{
-			Name:        "Token",
-			Symbol:      "TOKEN",
-			Description: "The native staking token of the Token Hub.",
-			DenomUnits: []*banktypes.DenomUnit{
-				{Denom: "1token", Exponent: uint32(5), Aliases: []string{"decitoken"}},
-				{Denom: "2token", Exponent: uint32(4), Aliases: []string{"centitoken"}},
-				{Denom: "3token", Exponent: uint32(7), Aliases: []string{"dekatoken"}},
-			},
-			Base:    "utoken",
-			Display: "token",
-		},
-	}
-}
