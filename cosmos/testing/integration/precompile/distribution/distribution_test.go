@@ -70,6 +70,9 @@ var _ = SynchronizedAfterSuite(func() {
 
 var _ = Describe("Distribution Precompile", func() {
 	It("Should be able to call the precompile directly", func() {
+		// Wait one block.
+		tf.Network.WaitForNextBlock()
+
 		// Get withdraw address Enabled.
 		_, err := precompile.GetWithdrawEnabled(nil)
 		Expect(err).ToNot(HaveOccurred())
