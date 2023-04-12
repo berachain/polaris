@@ -24,12 +24,12 @@ import (
 	"math/big"
 	"time"
 
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
-
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 )
 
 var _ = Describe("Staking", func() {
