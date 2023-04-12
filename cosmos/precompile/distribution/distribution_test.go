@@ -272,6 +272,29 @@ var _ = Describe("Distribution Precompile Test", func() {
 			coins, _ := tokens.TruncateDecimal()
 			err = bk.MintCoins(ctx, distributiontypes.ModuleName, coins)
 			Expect(err).ToNot(HaveOccurred())
+
+			// Print out the genesis state of the distribution module.
+			fmt.Println("Validator Address:", valAddr)
+
+			// Distribution Module Address.
+			a := authtypes.NewEmptyModuleAccount(
+				distributiontypes.ModuleName,
+				authtypes.Minter,
+				authtypes.Burner,
+			)
+			fmt.Println("Distribution Module Account", a.Address)
+
+			// Print out the genesis state of the bank keeper module.
+			// bkg := bk.ExportGenesis(ctx)
+			// dkg := dk.ExportGenesis(ctx)
+			// skg := sk.ExportGenesis(ctx)
+			// fmt.Println("Bank Keeper Genesis", bkg)
+			// fmt.Println("Distribution Keeper Genesis", dkg)
+			// fmt.Println("Staking Keeper Genesis", skg)
+
+			fmt.Println("Caller", cosmlib.AddressToAccAddress(testutil.Alice).String())
+
+			fmt.Println("Validator", valAddr.String())
 		})
 
 		When("Withdraw Delegator Rewards common address", func() {

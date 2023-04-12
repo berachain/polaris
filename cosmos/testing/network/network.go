@@ -175,13 +175,10 @@ func BuildGenesisState() map[string]json.RawMessage {
 	// Distribution module
 	var distrState distrtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distrState)
-	distrState.Params.WithdrawAddrEnabled = true
 
-	//
+	// Set up the distribution keeper.
+	CorrectDistrKeeperTest(&bankState, &distrState, &stakingState)
 
-	// TODO: Fix the state invariants that are being thrown.
-	// For the distribution module, we need set it up for having rewards ready to be withdrawn.
-	// DistributionGenesisState(&bankState, &distrState, &stakingState)
 	// Governance Module.
 	var governanceState v1.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &governanceState)
@@ -283,12 +280,12 @@ func DistributionGenesisState(
 			ValidatorAddress: operator.String(),
 			StartingInfo: distrtypes.DelegatorStartingInfo{
 				PreviousPeriod: 1,
-				Stake:          sdk.MustNewDecFromStr("onehundred"),
+				Stake:          sdk.MustNewDecFromStr("100"),
 			},
 		})
 
 	// Mint the tokens in the bank distr module.
-	moduleAddr, err := sdk.AccAddressFromBech32("cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl")
+	moduleAddr, err := sdk.AccAddressFromBech32("polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad")
 	if err != nil {
 		panic(err)
 	}
@@ -301,7 +298,7 @@ func DistributionGenesisState(
 
 	// Mint the tokens in the not bonded pool.
 	// Add 100abera to the not bonded pool.
-	notBondedPoolAddr, err := sdk.AccAddressFromBech32("cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r")
+	notBondedPoolAddr, err := sdk.AccAddressFromBech32("polar1tygms3xhhs3yv487phx3dw4a95jn7t7l2g6um3")
 	if err != nil {
 		panic(err)
 	}
@@ -320,3 +317,137 @@ func DistributionGenesisState(
 	// Add the validator to the staking state.
 	stakingGenState.Validators = append(stakingGenState.Validators, val)
 }
+
+func GetDistrValidator() common.Address {
+	pks := simtestutil.CreateTestPubKeys(5)
+	valConsPk0 := pks[0]
+	valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
+	valAddr := sdk.ValAddress(valConsAddr0)
+	return cosmlib.ValAddressToEthAddress(valAddr)
+}
+
+func CorrectDistrKeeperTest(
+	bk *banktypes.GenesisState,
+	dk *distrtypes.GenesisState,
+	sk *stakingtypes.GenesisState,
+) {
+	// Create the validator.
+	//nolint: gomnd // magic numbers are fine in tests.
+	pks := simtestutil.CreateTestPubKeys(5)
+	valConsPk0 := pks[0]
+	valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
+	valAddr := sdk.ValAddress(valConsAddr0)
+	val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(onehundred))
+	if err != nil {
+		panic(err)
+	}
+	// operator, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// Set the validator.
+	val.Status = stakingtypes.Unbonded
+	val.Tokens = sdk.NewInt(onehundred)
+	val.DelegatorShares = sdk.NewDec(onehundred)
+	sk.Validators = append(sk.Validators, val)
+
+	// Set the delegations.
+	delegator := cosmlib.AddressToAccAddress(TestAddress)
+	sk.Delegations = append(sk.Delegations, stakingtypes.Delegation{
+		DelegatorAddress: delegator.String(),
+		ValidatorAddress: valAddr.String(),
+		Shares:           sdk.MustNewDecFromStr("100"),
+	})
+
+	// Params for the distribution module.
+	dk.Params = distrtypes.DefaultParams()
+	dk.Params.WithdrawAddrEnabled = true
+
+	// Set the previous proposer.
+	dk.PreviousProposer = "polarvalcons1qqqqqqqqqqqqqqqqqqqqqqqqv9kxjcm9rl8r2z"
+
+	// Set the validator accumulated commission.
+	dk.ValidatorAccumulatedCommissions = append(dk.ValidatorAccumulatedCommissions,
+		distrtypes.ValidatorAccumulatedCommissionRecord{
+			ValidatorAddress: valAddr.String(),
+		})
+
+	// Set the validator historical rewards.
+	dk.ValidatorHistoricalRewards = append(dk.ValidatorHistoricalRewards,
+		distrtypes.ValidatorHistoricalRewardsRecord{
+			ValidatorAddress: valAddr.String(),
+			Period:           1,
+			Rewards: distrtypes.ValidatorHistoricalRewards{
+				ReferenceCount: 2,
+			},
+		})
+
+	// Set the validator current rewards.
+	dk.ValidatorCurrentRewards = append(dk.ValidatorCurrentRewards,
+		distrtypes.ValidatorCurrentRewardsRecord{
+			ValidatorAddress: valAddr.String(),
+			Rewards: distrtypes.ValidatorCurrentRewards{
+				Rewards: sdk.NewDecCoins(sdk.NewDecCoin("abera", sdk.NewInt(onehundred))), // TODO: maybe change the denom
+				Period:  2,
+			},
+		})
+
+	// Set the delegator starting info.
+	dk.DelegatorStartingInfos = append(dk.DelegatorStartingInfos,
+		distrtypes.DelegatorStartingInfoRecord{
+			DelegatorAddress: delegator.String(),
+			ValidatorAddress: valAddr.String(),
+			StartingInfo: distrtypes.DelegatorStartingInfo{
+				PreviousPeriod: 1,
+				Stake:          sdk.NewDec(onehundred),
+			},
+		})
+
+	// Set the not bonded pool balance to 100.
+	bk.Balances = append(bk.Balances, banktypes.Balance{
+		Address: "polar1tygms3xhhs3yv487phx3dw4a95jn7t7l2g6um3", // Not Bonded Pool
+		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred))),
+	})
+	// Create the balance for the distribution module account.
+	bk.Balances = append(bk.Balances, banktypes.Balance{
+		Address: "polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad", // Distribution Module Account
+		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(100))),
+	})
+
+	// Set the validator outstanding rewards.
+	or := distrtypes.ValidatorOutstandingRewardsRecord{
+		ValidatorAddress:   valAddr.String(),
+		OutstandingRewards: sdk.NewDecCoins(sdk.NewDecCoin("abera", sdk.NewInt(onehundred))),
+	}
+	dk.OutstandingRewards = append(dk.OutstandingRewards, or)
+
+	// Need the module account expected balance to be 100.
+}
+
+// Validator Address: DCD3B2E3D86A013B5B5A823B30F8FB791BBC0EA1
+// Distribution Module Account polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad
+// Caller polar1qqqqqqqqqqqqqqqqqqqqqqqqv9kxjcm9t7yedv
+// Validator polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c
+
+// Distribution Module Account polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad
+
+// Bank Keeper Genesis
+// params:<>
+// balances:<address:"polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad" coins:<denom:"stake" amount:"10000000" > > supply:<denom:"stake" amount:"10000000" >
+
+// Distribution Keeper Genesis
+// params:<community_tax:"20000000000000000" base_proposer_reward:"0" bonus_proposer_reward:"0" withdraw_addr_enabled:true >
+// fee_pool:<>
+// previous_proposer:"polarvalcons1qqqqqqqqqqqqqqqqqqqqqqqqv9kxjcm9rl8r2z"
+// outstanding_rewards:<validator_address:"polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c" outstanding_rewards:<denom:"stake" amount:"10000000000000000000000000" >>
+// validator_accumulated_commissions:<validator_address:"polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c" accumulated:<> >
+// validator_historical_rewards:<validator_address:"polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c" period:1 rewards:<reference_count:2 >>
+// validator_current_rewards:<validator_address:"polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c" rewards:<rewards:<denom:"stake" amount:"10000000000000000000000000" > period:2>>
+// delegator_starting_infos:<delegator_address:"polar1mnfm9c7cdgqnkk66sganp78m0ydmcr4paejh3h" validator_address:"polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c"
+// starting_info:<previous_period:1 stake:"100000000000000000000">>
+
+// Staking Keeper Genesis
+// params:<min_commission_rate:"0" > last_total_power:"0"
+// validators:<operator_address:"polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c" consensus_pubkey:<type_url:"/cosmos.crypto.ed25519.PubKey" value:"\n \013H\\\374\016\354\306\031D\004HCo\217\311\337@Vo#i\347$\000(\024T\313U*\361\000"> status:BOND_STATUS_UNBONDED tokens:"100" delegator_shares:"100000000000000000000" description:<> unbonding_time:<> commission:<commission_rates:<rate:"0" max_rate:"0" max_change_rate:"0" > update_time:<> > min_self_delegation:"1" >
+// delegations:<delegator_address:"polar1mnfm9c7cdgqnkk66sganp78m0ydmcr4paejh3h" validator_address:"polarvaloper1mnfm9c7cdgqnkk66sganp78m0ydmcr4pptz36c" shares:"100000000000000000000" > exported:true

@@ -28,6 +28,7 @@ import (
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -81,6 +82,14 @@ var _ = Describe("Distribution Precompile", func() {
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
+		// Withdraw rewards.
+		txr = tf.GenerateTransactOpts("")
+		rv := network.GetDistrValidator()
+		tx, err = precompile.WithdrawDelegatorReward(txr, network.TestAddress, rv)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(tx).ToNot(BeNil())
+		ExpectMined(tf.EthClient, tx)
+
 		// Set withdraw address Bech32.
 		txr = tf.GenerateTransactOpts("")
 		bech32Addr := cosmlib.AddressToAccAddress(validator).String()
@@ -107,10 +116,20 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res).To(BeTrue())
 
-		// Set withdraw address Common.Address.
+		// Withdraw the rewards.
 		txr := tf.GenerateTransactOpts("")
+		rv := network.GetDistrValidator()
+		tx, err = contract.WithdrawRewards(txr, network.TestAddress, rv)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(tx).ToNot(BeNil())
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		// Set withdraw address Common.Address.
+		txr = tf.GenerateTransactOpts("")
 		tx, err = contract.SetWithdrawAddress(txr, validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(tx).ToNot(BeNil())
+
 	})
 })
