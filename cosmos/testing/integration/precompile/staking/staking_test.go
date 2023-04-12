@@ -18,19 +18,52 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package staking
 
 import (
 	"math/big"
+	"os"
+	"testing"
 	"time"
 
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
+
+func TestStakingPrecompile(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/testing/integration/precompile/staking")
+}
+
+var (
+	stf               *integration.TestFixture
+	stakingPrecompile *bindings.StakingModule
+	validator         common.Address
+	delegateAmt       = big.NewInt(123450000000)
+)
+
+var _ = SynchronizedBeforeSuite(func() []byte {
+	// Setup the network and clients here.
+	stf = integration.NewTestFixture(GinkgoT())
+	validator = common.Address(stf.Network.Validators[0].Address.Bytes())
+	stakingPrecompile, _ = bindings.NewStakingModule(
+		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), stf.EthClient)
+	return nil
+}, func(data []byte) {})
+
+var _ = SynchronizedAfterSuite(func() {
+	// Local AfterSuite actions.
+}, func() {
+	// Global AfterSuite actions.
+	os.RemoveAll("data")
+})
 
 var _ = Describe("Staking", func() {
 	It("should call functions on the precompile directly", func() {
@@ -42,12 +75,12 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		txr := tf.GenerateTransactOpts("")
+		txr := stf.GenerateTransactOpts("")
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		ExpectMined(stf.EthClient, tx)
+		ExpectSuccessReceipt(stf.EthClient, tx)
 
 		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -56,14 +89,14 @@ var _ = Describe("Staking", func() {
 
 	It("should be able to call a precompile from a smart contract", func() {
 		contractAddr, tx, contract, err := tbindings.DeployLiquidStaking(
-			tf.GenerateTransactOpts(""),
-			tf.EthClient,
+			stf.GenerateTransactOpts(""),
+			stf.EthClient,
 			"myToken",
 			"MTK",
 		)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		ExpectMined(stf.EthClient, tx)
+		ExpectSuccessReceipt(stf.EthClient, tx)
 
 		delegated, err := stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -75,13 +108,13 @@ var _ = Describe("Staking", func() {
 		Expect(addresses[0]).To(Equal(validator))
 
 		// Send tokens to the contract to delegate and mint LSD.
-		txr := tf.GenerateTransactOpts("")
+		txr := stf.GenerateTransactOpts("")
 		txr.GasLimit = 0
 		txr.Value = delegateAmt
 		tx, err = contract.Delegate(txr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		ExpectMined(stf.EthClient, tx)
+		ExpectSuccessReceipt(stf.EthClient, tx)
 
 		// Wait for a couple blocks to query.
 		time.Sleep(4 * time.Second)

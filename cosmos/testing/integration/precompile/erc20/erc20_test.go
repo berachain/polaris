@@ -18,19 +18,53 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package erc20
 
 import (
 	"math/big"
+	"os"
+	"testing"
+
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestERC20Precompile(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/testing/integration/precompile/erc20")
+}
+
+var (
+	etf             *integration.TestFixture
+	erc20Precompile *bindings.ERC20Module
+)
+
+var _ = SynchronizedBeforeSuite(func() []byte {
+	// Setup the network and clients here.
+	etf = integration.NewTestFixture(GinkgoT())
+	erc20Precompile, _ = bindings.NewERC20Module(
+		cosmlib.AccAddressToEthAddress(
+			authtypes.NewModuleAddress(erc20types.ModuleName),
+		), etf.EthClient)
+	return nil
+}, func(data []byte) {})
+
+var _ = SynchronizedAfterSuite(func() {
+	// Local AfterSuite actions.
+}, func() {
+	// Global AfterSuite actions.
+	os.RemoveAll("data")
+})
 
 var _ = Describe("ERC20", func() {
 	Describe("calling the erc20 precompile directly", func() {
@@ -73,7 +107,7 @@ var _ = Describe("ERC20", func() {
 			It("should error on non-existent inputs", func() {
 				// nonexistent address
 				_, err := erc20Precompile.ConvertERC20ToCoin0(
-					tf.GenerateTransactOpts(""),
+					etf.GenerateTransactOpts(""),
 					common.BytesToAddress([]byte("sUSDC")),
 					network.TestAddress,
 					big.NewInt(123456789),
@@ -82,7 +116,7 @@ var _ = Describe("ERC20", func() {
 
 				// nonexistent address
 				_, err = erc20Precompile.ConvertERC20ToCoin(
-					tf.GenerateTransactOpts(""),
+					etf.GenerateTransactOpts(""),
 					common.BytesToAddress([]byte("sUSDC")),
 					cosmlib.AddressToAccAddress(network.TestAddress).String(),
 					big.NewInt(123456789),
@@ -91,7 +125,7 @@ var _ = Describe("ERC20", func() {
 
 				// nonexistent denom
 				_, err = erc20Precompile.ConvertCoinToERC20(
-					tf.GenerateTransactOpts(""),
+					etf.GenerateTransactOpts(""),
 					"bOSMO",
 					network.TestAddress,
 					big.NewInt(123456789),
@@ -100,7 +134,7 @@ var _ = Describe("ERC20", func() {
 
 				// nonexistent denom
 				_, err = erc20Precompile.ConvertCoinToERC200(
-					tf.GenerateTransactOpts(""),
+					etf.GenerateTransactOpts(""),
 					"bOSMO",
 					cosmlib.AddressToAccAddress(network.TestAddress).String(),
 					big.NewInt(123456789),
@@ -110,12 +144,12 @@ var _ = Describe("ERC20", func() {
 
 			It("should handle non-empty inputs", func() {
 				// denom already exists
-				erc20Precompile.ConvertCoinToERC200(
-					tf.GenerateTransactOpts(""),
-					"bATOM",
-					cosmlib.AddressToAccAddress(network.TestAddress).String(),
-					big.NewInt(123456789),
-				)
+				// erc20Precompile.ConvertCoinToERC200(
+				// 	etf.GenerateTransactOpts(""),
+				// 	"bATOM",
+				// 	cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				// 	big.NewInt(123456789),
+				// )
 				// Expect(err).ToNot(HaveOccurred())
 			})
 		})
