@@ -91,12 +91,6 @@ var _ = Describe("Bank", func() {
 			},
 		}
 
-		fmt.Println("bytes for sending", []byte(fmt.Sprintf("%v", coinsToBeSent)))
-
-		fmt.Println("TestAddress1 is: ", network.TestAddress)
-		fmt.Println("TestAddress2 is: ", network.TestAddress2)
-		fmt.Println("coinsToBeSent is: ", coinsToBeSent)
-
 		// TestAddress3 initially has 100 abera
 		balance, err := bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
 		Expect(err).ShouldNot(HaveOccurred())
@@ -142,18 +136,9 @@ var _ = Describe("Bank", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("denomMetadata is: ", denomMetadata)
 
-		denomsMetadata, err := bankPrecompile.GetDenomsMetadata(nil)
-		Expect(err).ShouldNot(HaveOccurred())
-		fmt.Println("denomsMetadata is: ", denomsMetadata)
-
 		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, "abera")
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(sendEnabled).To(BeTrue())
-
-		//  function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
-
-		//  function multiSend(Input calldata input, Output[] memory outputs) external payable returns (bool);
-
 	})
 
 	// It("should be able to call a precompile from a smart contract", func() {

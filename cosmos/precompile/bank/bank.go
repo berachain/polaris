@@ -22,7 +22,6 @@ package bank
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -129,8 +128,6 @@ func (c *Contract) GetBalance(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-
-	fmt.Printf("\nin bank: \nget balance: addr: %v\n", cosmlib.AddressToAccAddress(addr).String())
 
 	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: cosmlib.AddressToAccAddress(addr).String(),
@@ -306,26 +303,45 @@ func (c *Contract) GetDenomMetadata(
 		return nil, err
 	}
 
-	return []any{res.Metadata}, nil
-}
+	r := res.Metadata
 
-// GetDenomsMetadata implements `getDenomsMetadata()` method.
-func (c *Contract) GetDenomsMetadata(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	readonly bool,
-	args ...any,
-) ([]any, error) {
-	// todo: add pagination here
-	res, err := c.querier.DenomsMetadata(ctx, &banktypes.QueryDenomsMetadataRequest{})
-	if err != nil {
-		return nil, err
+	denomUnits := make([]generated.IBankModuleDenomUnit, len(r.DenomUnits))
+	for i, d := range r.DenomUnits {
+		denomUnits[i] = generated.IBankModuleDenomUnit{
+			Denom:    d.Denom,
+			Aliases:  d.Aliases,
+			Exponent: d.Exponent,
+		}
 	}
 
-	return []any{res.Metadatas}, nil
+	result := generated.IBankModuleDenomMetadata{
+		Description: r.Description,
+		DenomUnits:  denomUnits,
+		Base:        r.Base,
+		Display:     r.Display,
+		Name:        r.Name,
+		Symbol:      r.Symbol,
+	}
+	return []any{result}, nil
 }
+
+// // GetDenomsMetadata implements `getDenomsMetadata()` method.
+// func (c *Contract) GetDenomsMetadata(
+// 	ctx context.Context,
+// 	_ ethprecompile.EVM,
+// 	_ common.Address,
+// 	_ *big.Int,
+// 	readonly bool,
+// 	args ...any,
+// ) ([]any, error) {
+// 	// todo: add pagination here
+// 	res, err := c.querier.DenomsMetadata(ctx, &banktypes.QueryDenomsMetadataRequest{})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return []any{res.Metadatas}, nil
+// }
 
 // todo: this function without pagination is a bad idea
 // func (c *Contract) GetDenomsOwners(
@@ -361,9 +377,6 @@ func (c *Contract) GetSendEnabled(
 		return nil, precompile.ErrInvalidString
 	}
 
-	fmt.Println("denommmmmmmm:   ", denom)
-	fmt.Println("denommmmmmmm:   ", []string{denom})
-
 	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
 		Denoms: []string{denom},
 	})
@@ -395,13 +408,7 @@ func (c *Contract) Send(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	fmt.Printf("\nin bank: args[2] is: %v\n", args[2])
-
 	coins, err := extractCoinsFromInput(args[2])
-	fmt.Printf("\nin bank: amount: %v\n", coins)
-
-	fmt.Printf("\nin bank: fromAddr: %v\n", cosmlib.AddressToAccAddress(fromAddr).String())
-	fmt.Printf("\nin bank: toAddr: %v\n", cosmlib.AddressToAccAddress(toAddr).String())
 
 	if err != nil {
 		return nil, err
