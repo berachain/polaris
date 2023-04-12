@@ -111,10 +111,6 @@ var _ = Describe("Governance Precompile Directly", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res.Id).To(Equal(uint64(2)))
 
-		// Wait for the next block to be mined.
-		err = tf.Network.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
-
 		// Should be able to vote on the proposal.
 		txr = tf.GenerateTransactOpts("")
 		tx, err = precompile.Vote(txr, 2, 1, "metadata")
