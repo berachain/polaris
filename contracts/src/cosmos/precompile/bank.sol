@@ -101,7 +101,7 @@ interface IBankModule {
     /**
      * @dev Returns the denomination's metadata.
      */
-    function getMetadata(string calldata denom) external view returns (DenomMetadata memory);
+    function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
 
     /**
      * @dev Returns if the denom is enabled to send

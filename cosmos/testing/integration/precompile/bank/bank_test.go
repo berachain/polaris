@@ -18,20 +18,51 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package bank
 
 import (
 	"fmt"
 	"math/big"
+	"os"
+	"testing"
+
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	"pkg.berachain.dev/polaris/eth/common"
 
+	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestCosmosPrecompiles(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/testing/precompile:integration")
+}
+
+var (
+	btf            *integration.TestFixture
+	bankPrecompile *bindings.BankModule
+)
+
+var _ = SynchronizedBeforeSuite(func() []byte {
+	// Setup the network and clients here.
+	btf = integration.NewTestFixture(GinkgoT())
+	bankPrecompile, _ = bindings.NewBankModule(
+		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), btf.EthClient)
+	return nil
+}, func(data []byte) {})
+
+var _ = SynchronizedAfterSuite(func() {
+	// Local AfterSuite actions.
+}, func() {
+	// Global AfterSuite actions.
+	os.RemoveAll("data")
+})
 
 var _ = Describe("Bank", func() {
 	denom := "abera"
@@ -86,29 +117,25 @@ var _ = Describe("Bank", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(100)))
 
-		allBalance, err := bankPrecompile.GetAllBalance(nil, network.TestAddress2)
+		allBalance, err := bankPrecompile.GetAllBalances(nil, network.TestAddress2)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(allBalance).To(Equal(expectedAllBalance))
 
-		spendableBalanceByDenom, err := bankPrecompile.GetSpendableBalanceByDenom(nil, network.TestAddress2, denom)
+		spendableBalanceByDenom, err := bankPrecompile.GetSpendableBalance(nil, network.TestAddress2, denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalanceByDenom).To(Equal(big.NewInt(100)))
 
-		spendableBalances, err := bankPrecompile.GetSpendableBalances(nil, network.TestAddress2)
+		spendableBalances, err := bankPrecompile.GetAllSpendableBalances(nil, network.TestAddress2)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalances).To(Equal(expectedAllBalance))
 
-		atokenSupply, err := bankPrecompile.GetSupplyOf(nil, denom2)
+		atokenSupply, err := bankPrecompile.GetSupply(nil, denom2)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(atokenSupply).To(Equal(big.NewInt(100)))
 
-		totalSupply, err := bankPrecompile.GetTotalSupply(nil)
+		totalSupply, err := bankPrecompile.GetAllSupply(nil)
 		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("totalSupply is: ", totalSupply)
-
-		params, err := bankPrecompile.GetParams(nil)
-		Expect(err).ShouldNot(HaveOccurred())
-		Expect(params.DefaultSendEnabled).To(BeTrue())
 
 		// denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, denom)
 		// Expect(err).ShouldNot(HaveOccurred())
@@ -120,7 +147,7 @@ var _ = Describe("Bank", func() {
 
 		//  function getSendEnabled(string[] calldata denoms) external view returns (SendEnabled memory);
 		fmt.Println("BEFORE!!!!!!!!!!!!!!!")
-		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, []string{ "abera", "atoken"})
+		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, "abera")
 		Expect(err).ShouldNot(HaveOccurred())
 		// Expect(sendEnabled).To(BeTrue())
 		fmt.Println("sendEnabled is: ", sendEnabled)
