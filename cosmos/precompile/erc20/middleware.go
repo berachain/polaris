@@ -99,7 +99,7 @@ func (c *Contract) convertCoinToERC20(
 			erc20types.EventTypeConvertCoinToERC20,
 			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
 			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+denom),
 		),
 	)
 	return nil
@@ -160,7 +160,7 @@ func (c *Contract) convertERC20ToCoin(
 			erc20types.EventTypeConvertERC20ToCoin,
 			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
 			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+denom),
 		),
 	)
 	return nil

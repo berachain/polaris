@@ -41,13 +41,13 @@ interface IERC20Module {
      * @dev Emitted by the erc20 module when `amount` tokens are converted from ERC20 (of address
      * `token`) to an SDK coin (of denomination `denom`).
      */
-    event ConvertERC20ToCoin(address indexed token, string indexed denom, uint256 amount);
+    event ConvertErc20ToCoin(address indexed token, string indexed denom, uint256 amount);
 
     /**
      * @dev Emitted by the erc20 module when `amount` tokens are converted from SDK coin (of
      * denomination `denom`) to ERC20 (of address `token`).
      */
-    event ConvertCoinToERC20(string indexed denom, address indexed token, uint256 amount);
+    event ConvertCoinToErc20(string indexed denom, address indexed token, uint256 amount);
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 

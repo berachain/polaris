@@ -31,8 +31,8 @@ const (
 )
 
 var (
-	EventTypeConvertERC20ToCoin = "convert_ERC20_to_coin"
-	EventTypeConvertCoinToERC20 = "convert_coin_to_ERC20"
+	EventTypeConvertERC20ToCoin = "convert_erc20_to_coin"
+	EventTypeConvertCoinToERC20 = "convert_coin_to_erc20"
 
 	AttributeKeyToken = "token"
 	AttributeKeyDenom = "denom"

@@ -25,18 +25,16 @@ import (
 	"os"
 	"testing"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/ethereum/go-ethereum/common"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
-	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 func TestERC20Precompile(t *testing.T) {
@@ -53,9 +51,12 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	etf = integration.NewTestFixture(GinkgoT())
 	erc20Precompile, _ = bindings.NewERC20Module(
-		cosmlib.AccAddressToEthAddress(
-			authtypes.NewModuleAddress(erc20types.ModuleName),
-		), etf.EthClient)
+		// cosmlib.AccAddressToEthAddress(
+		// 	authtypes.NewModuleAddress(erc20types.ModuleName),
+		// ),
+		common.HexToAddress("0x696969"),
+		etf.EthClient,
+	)
 	return nil
 }, func(data []byte) {})
 
@@ -112,17 +113,41 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(123456789),
 				)
 				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 
-				// _, err = erc20Precompile.ConvertCoinToERC200(
-				// 	etf.GenerateTransactOpts(""),
-				// 	"bOSMO",
-				// 	cosmlib.AddressToAccAddress(network.TestAddress).String(),
-				// 	big.NewInt(123456789),
-				// )
-				// Expect(err).To(HaveOccurred())
+				_, err = erc20Precompile.ConvertCoinToERC200(
+					etf.GenerateTransactOpts(""),
+					"bOSMO",
+					cosmlib.AddressToAccAddress(network.TestAddress).String(),
+					big.NewInt(123456789),
+				)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 			})
 
 			It("should handle non-empty inputs", func() {
+				// denom already exists
+				tx, err := erc20Precompile.ConvertCoinToERC20(
+					etf.GenerateTransactOpts(""),
+					"bATOM",
+					network.TestAddress,
+					big.NewInt(123456789),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				ExpectMined(etf.EthClient, tx)
+				ExpectSuccessReceipt(etf.EthClient, tx)
+
+				// // denom already exists
+				// tx, err = erc20Precompile.ConvertCoinToERC200(
+				// 	etf.GenerateTransactOpts(""),
+				// 	"bATOM",
+				// 	cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				// 	big.NewInt(123456789),
+				// )
+				// Expect(err).ToNot(HaveOccurred())
+				// ExpectMined(etf.EthClient, tx)
+				// ExpectSuccessReceipt(etf.EthClient, tx)
+
 				// // nonexistent address
 				// tx, err := erc20Precompile.ConvertERC20ToCoin0(
 				// 	etf.GenerateTransactOpts(""),
@@ -139,15 +164,6 @@ var _ = Describe("ERC20", func() {
 				// 	big.NewInt(123456789),
 				// )
 				// Expect(err).To(HaveOccurred())
-
-				// // denom already exists
-				// erc20Precompile.ConvertCoinToERC200(
-				// 	etf.GenerateTransactOpts(""),
-				// 	"bATOM",
-				// 	cosmlib.AddressToAccAddress(network.TestAddress).String(),
-				// 	big.NewInt(123456789),
-				// )
-				// Expect(err).ToNot(HaveOccurred())
 			})
 		})
 	})

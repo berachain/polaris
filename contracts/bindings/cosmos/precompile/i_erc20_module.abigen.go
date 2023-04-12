@@ -31,7 +31,7 @@ var (
 
 // ERC20ModuleMetaData contains all meta data concerning the ERC20Module contract.
 var ERC20ModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"ConvertCoinToERC20\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"ConvertERC20ToCoin\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"token\",\"type\":\"string\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"erc20AddressForCoinDenom\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"ConvertCoinToErc20\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"ConvertErc20ToCoin\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"token\",\"type\":\"string\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"erc20AddressForCoinDenom\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // ERC20ModuleABI is the input ABI used to generate the binding from.
@@ -357,9 +357,9 @@ func (_ERC20Module *ERC20ModuleTransactorSession) ConvertERC20ToCoin0(token comm
 	return _ERC20Module.Contract.ConvertERC20ToCoin0(&_ERC20Module.TransactOpts, token, owner, amount)
 }
 
-// ERC20ModuleConvertCoinToERC20Iterator is returned from FilterConvertCoinToERC20 and is used to iterate over the raw logs and unpacked data for ConvertCoinToERC20 events raised by the ERC20Module contract.
-type ERC20ModuleConvertCoinToERC20Iterator struct {
-	Event *ERC20ModuleConvertCoinToERC20 // Event containing the contract specifics and raw log
+// ERC20ModuleConvertCoinToErc20Iterator is returned from FilterConvertCoinToErc20 and is used to iterate over the raw logs and unpacked data for ConvertCoinToErc20 events raised by the ERC20Module contract.
+type ERC20ModuleConvertCoinToErc20Iterator struct {
+	Event *ERC20ModuleConvertCoinToErc20 // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -373,7 +373,7 @@ type ERC20ModuleConvertCoinToERC20Iterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *ERC20ModuleConvertCoinToERC20Iterator) Next() bool {
+func (it *ERC20ModuleConvertCoinToErc20Iterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -382,7 +382,7 @@ func (it *ERC20ModuleConvertCoinToERC20Iterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(ERC20ModuleConvertCoinToERC20)
+			it.Event = new(ERC20ModuleConvertCoinToErc20)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -397,7 +397,7 @@ func (it *ERC20ModuleConvertCoinToERC20Iterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(ERC20ModuleConvertCoinToERC20)
+		it.Event = new(ERC20ModuleConvertCoinToErc20)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -413,29 +413,29 @@ func (it *ERC20ModuleConvertCoinToERC20Iterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *ERC20ModuleConvertCoinToERC20Iterator) Error() error {
+func (it *ERC20ModuleConvertCoinToErc20Iterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *ERC20ModuleConvertCoinToERC20Iterator) Close() error {
+func (it *ERC20ModuleConvertCoinToErc20Iterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// ERC20ModuleConvertCoinToERC20 represents a ConvertCoinToERC20 event raised by the ERC20Module contract.
-type ERC20ModuleConvertCoinToERC20 struct {
+// ERC20ModuleConvertCoinToErc20 represents a ConvertCoinToErc20 event raised by the ERC20Module contract.
+type ERC20ModuleConvertCoinToErc20 struct {
 	Denom  common.Hash
 	Token  common.Address
 	Amount *big.Int
 	Raw    types.Log // Blockchain specific contextual infos
 }
 
-// FilterConvertCoinToERC20 is a free log retrieval operation binding the contract event 0xc91a30de75c4ebcec7934ee0cf942c5d169b61885099af2f106884cbb982f2f5.
+// FilterConvertCoinToErc20 is a free log retrieval operation binding the contract event 0x70864e74634e9cea7868b12aa348234d841d7b75499e6f2f14b1adba29db72c7.
 //
-// Solidity: event ConvertCoinToERC20(string indexed denom, address indexed token, uint256 amount)
-func (_ERC20Module *ERC20ModuleFilterer) FilterConvertCoinToERC20(opts *bind.FilterOpts, denom []string, token []common.Address) (*ERC20ModuleConvertCoinToERC20Iterator, error) {
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed token, uint256 amount)
+func (_ERC20Module *ERC20ModuleFilterer) FilterConvertCoinToErc20(opts *bind.FilterOpts, denom []string, token []common.Address) (*ERC20ModuleConvertCoinToErc20Iterator, error) {
 
 	var denomRule []interface{}
 	for _, denomItem := range denom {
@@ -446,17 +446,17 @@ func (_ERC20Module *ERC20ModuleFilterer) FilterConvertCoinToERC20(opts *bind.Fil
 		tokenRule = append(tokenRule, tokenItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "ConvertCoinToERC20", denomRule, tokenRule)
+	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "ConvertCoinToErc20", denomRule, tokenRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ERC20ModuleConvertCoinToERC20Iterator{contract: _ERC20Module.contract, event: "ConvertCoinToERC20", logs: logs, sub: sub}, nil
+	return &ERC20ModuleConvertCoinToErc20Iterator{contract: _ERC20Module.contract, event: "ConvertCoinToErc20", logs: logs, sub: sub}, nil
 }
 
-// WatchConvertCoinToERC20 is a free log subscription operation binding the contract event 0xc91a30de75c4ebcec7934ee0cf942c5d169b61885099af2f106884cbb982f2f5.
+// WatchConvertCoinToErc20 is a free log subscription operation binding the contract event 0x70864e74634e9cea7868b12aa348234d841d7b75499e6f2f14b1adba29db72c7.
 //
-// Solidity: event ConvertCoinToERC20(string indexed denom, address indexed token, uint256 amount)
-func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToERC20(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertCoinToERC20, denom []string, token []common.Address) (event.Subscription, error) {
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed token, uint256 amount)
+func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToErc20(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertCoinToErc20, denom []string, token []common.Address) (event.Subscription, error) {
 
 	var denomRule []interface{}
 	for _, denomItem := range denom {
@@ -467,7 +467,7 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToERC20(opts *bind.Watc
 		tokenRule = append(tokenRule, tokenItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "ConvertCoinToERC20", denomRule, tokenRule)
+	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "ConvertCoinToErc20", denomRule, tokenRule)
 	if err != nil {
 		return nil, err
 	}
@@ -477,8 +477,8 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToERC20(opts *bind.Watc
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(ERC20ModuleConvertCoinToERC20)
-				if err := _ERC20Module.contract.UnpackLog(event, "ConvertCoinToERC20", log); err != nil {
+				event := new(ERC20ModuleConvertCoinToErc20)
+				if err := _ERC20Module.contract.UnpackLog(event, "ConvertCoinToErc20", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -499,21 +499,21 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToERC20(opts *bind.Watc
 	}), nil
 }
 
-// ParseConvertCoinToERC20 is a log parse operation binding the contract event 0xc91a30de75c4ebcec7934ee0cf942c5d169b61885099af2f106884cbb982f2f5.
+// ParseConvertCoinToErc20 is a log parse operation binding the contract event 0x70864e74634e9cea7868b12aa348234d841d7b75499e6f2f14b1adba29db72c7.
 //
-// Solidity: event ConvertCoinToERC20(string indexed denom, address indexed token, uint256 amount)
-func (_ERC20Module *ERC20ModuleFilterer) ParseConvertCoinToERC20(log types.Log) (*ERC20ModuleConvertCoinToERC20, error) {
-	event := new(ERC20ModuleConvertCoinToERC20)
-	if err := _ERC20Module.contract.UnpackLog(event, "ConvertCoinToERC20", log); err != nil {
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed token, uint256 amount)
+func (_ERC20Module *ERC20ModuleFilterer) ParseConvertCoinToErc20(log types.Log) (*ERC20ModuleConvertCoinToErc20, error) {
+	event := new(ERC20ModuleConvertCoinToErc20)
+	if err := _ERC20Module.contract.UnpackLog(event, "ConvertCoinToErc20", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
 	return event, nil
 }
 
-// ERC20ModuleConvertERC20ToCoinIterator is returned from FilterConvertERC20ToCoin and is used to iterate over the raw logs and unpacked data for ConvertERC20ToCoin events raised by the ERC20Module contract.
-type ERC20ModuleConvertERC20ToCoinIterator struct {
-	Event *ERC20ModuleConvertERC20ToCoin // Event containing the contract specifics and raw log
+// ERC20ModuleConvertErc20ToCoinIterator is returned from FilterConvertErc20ToCoin and is used to iterate over the raw logs and unpacked data for ConvertErc20ToCoin events raised by the ERC20Module contract.
+type ERC20ModuleConvertErc20ToCoinIterator struct {
+	Event *ERC20ModuleConvertErc20ToCoin // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -527,7 +527,7 @@ type ERC20ModuleConvertERC20ToCoinIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *ERC20ModuleConvertERC20ToCoinIterator) Next() bool {
+func (it *ERC20ModuleConvertErc20ToCoinIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -536,7 +536,7 @@ func (it *ERC20ModuleConvertERC20ToCoinIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(ERC20ModuleConvertERC20ToCoin)
+			it.Event = new(ERC20ModuleConvertErc20ToCoin)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -551,7 +551,7 @@ func (it *ERC20ModuleConvertERC20ToCoinIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(ERC20ModuleConvertERC20ToCoin)
+		it.Event = new(ERC20ModuleConvertErc20ToCoin)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -567,29 +567,29 @@ func (it *ERC20ModuleConvertERC20ToCoinIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *ERC20ModuleConvertERC20ToCoinIterator) Error() error {
+func (it *ERC20ModuleConvertErc20ToCoinIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *ERC20ModuleConvertERC20ToCoinIterator) Close() error {
+func (it *ERC20ModuleConvertErc20ToCoinIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// ERC20ModuleConvertERC20ToCoin represents a ConvertERC20ToCoin event raised by the ERC20Module contract.
-type ERC20ModuleConvertERC20ToCoin struct {
+// ERC20ModuleConvertErc20ToCoin represents a ConvertErc20ToCoin event raised by the ERC20Module contract.
+type ERC20ModuleConvertErc20ToCoin struct {
 	Token  common.Address
 	Denom  common.Hash
 	Amount *big.Int
 	Raw    types.Log // Blockchain specific contextual infos
 }
 
-// FilterConvertERC20ToCoin is a free log retrieval operation binding the contract event 0x0b213018cf865d43fee6d4b7d1297aa959d18253c136d955b32d07119c6f500e.
+// FilterConvertErc20ToCoin is a free log retrieval operation binding the contract event 0x96438d218bb5eedb19e07f543833cc051021fbf1e06296b861c49b27f8cc96fb.
 //
-// Solidity: event ConvertERC20ToCoin(address indexed token, string indexed denom, uint256 amount)
-func (_ERC20Module *ERC20ModuleFilterer) FilterConvertERC20ToCoin(opts *bind.FilterOpts, token []common.Address, denom []string) (*ERC20ModuleConvertERC20ToCoinIterator, error) {
+// Solidity: event ConvertErc20ToCoin(address indexed token, string indexed denom, uint256 amount)
+func (_ERC20Module *ERC20ModuleFilterer) FilterConvertErc20ToCoin(opts *bind.FilterOpts, token []common.Address, denom []string) (*ERC20ModuleConvertErc20ToCoinIterator, error) {
 
 	var tokenRule []interface{}
 	for _, tokenItem := range token {
@@ -600,17 +600,17 @@ func (_ERC20Module *ERC20ModuleFilterer) FilterConvertERC20ToCoin(opts *bind.Fil
 		denomRule = append(denomRule, denomItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "ConvertERC20ToCoin", tokenRule, denomRule)
+	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "ConvertErc20ToCoin", tokenRule, denomRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ERC20ModuleConvertERC20ToCoinIterator{contract: _ERC20Module.contract, event: "ConvertERC20ToCoin", logs: logs, sub: sub}, nil
+	return &ERC20ModuleConvertErc20ToCoinIterator{contract: _ERC20Module.contract, event: "ConvertErc20ToCoin", logs: logs, sub: sub}, nil
 }
 
-// WatchConvertERC20ToCoin is a free log subscription operation binding the contract event 0x0b213018cf865d43fee6d4b7d1297aa959d18253c136d955b32d07119c6f500e.
+// WatchConvertErc20ToCoin is a free log subscription operation binding the contract event 0x96438d218bb5eedb19e07f543833cc051021fbf1e06296b861c49b27f8cc96fb.
 //
-// Solidity: event ConvertERC20ToCoin(address indexed token, string indexed denom, uint256 amount)
-func (_ERC20Module *ERC20ModuleFilterer) WatchConvertERC20ToCoin(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertERC20ToCoin, token []common.Address, denom []string) (event.Subscription, error) {
+// Solidity: event ConvertErc20ToCoin(address indexed token, string indexed denom, uint256 amount)
+func (_ERC20Module *ERC20ModuleFilterer) WatchConvertErc20ToCoin(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertErc20ToCoin, token []common.Address, denom []string) (event.Subscription, error) {
 
 	var tokenRule []interface{}
 	for _, tokenItem := range token {
@@ -621,7 +621,7 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertERC20ToCoin(opts *bind.Watc
 		denomRule = append(denomRule, denomItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "ConvertERC20ToCoin", tokenRule, denomRule)
+	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "ConvertErc20ToCoin", tokenRule, denomRule)
 	if err != nil {
 		return nil, err
 	}
@@ -631,8 +631,8 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertERC20ToCoin(opts *bind.Watc
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(ERC20ModuleConvertERC20ToCoin)
-				if err := _ERC20Module.contract.UnpackLog(event, "ConvertERC20ToCoin", log); err != nil {
+				event := new(ERC20ModuleConvertErc20ToCoin)
+				if err := _ERC20Module.contract.UnpackLog(event, "ConvertErc20ToCoin", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -653,12 +653,12 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertERC20ToCoin(opts *bind.Watc
 	}), nil
 }
 
-// ParseConvertERC20ToCoin is a log parse operation binding the contract event 0x0b213018cf865d43fee6d4b7d1297aa959d18253c136d955b32d07119c6f500e.
+// ParseConvertErc20ToCoin is a log parse operation binding the contract event 0x96438d218bb5eedb19e07f543833cc051021fbf1e06296b861c49b27f8cc96fb.
 //
-// Solidity: event ConvertERC20ToCoin(address indexed token, string indexed denom, uint256 amount)
-func (_ERC20Module *ERC20ModuleFilterer) ParseConvertERC20ToCoin(log types.Log) (*ERC20ModuleConvertERC20ToCoin, error) {
-	event := new(ERC20ModuleConvertERC20ToCoin)
-	if err := _ERC20Module.contract.UnpackLog(event, "ConvertERC20ToCoin", log); err != nil {
+// Solidity: event ConvertErc20ToCoin(address indexed token, string indexed denom, uint256 amount)
+func (_ERC20Module *ERC20ModuleFilterer) ParseConvertErc20ToCoin(log types.Log) (*ERC20ModuleConvertErc20ToCoin, error) {
+	event := new(ERC20ModuleConvertErc20ToCoin)
+	if err := _ERC20Module.contract.UnpackLog(event, "ConvertErc20ToCoin", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

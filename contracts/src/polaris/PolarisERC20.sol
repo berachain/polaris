@@ -25,7 +25,7 @@
 
 pragma solidity ^0.8.4;
 
-import {ERC20} from "./ERC20.sol";
+import {ERC20} from "../../lib/ERC20.sol";
 
 contract PolarisERC20 is ERC20 {
     address private _owner;

@@ -27,7 +27,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -49,7 +49,7 @@ func (c *Contract) deployPolarisERC20Contract(
 	defer plugin.DisableReentrancy(ctx)
 
 	// deploy new ERC20 token contract
-	code := common.FromHex(generated.PolarisERC20MetaData.Bin)
+	code := common.FromHex(pbindings.PolarisERC20MetaData.Bin)
 	args, err := c.polarisERC20ABI.Pack("", name, name)
 	if err != nil {
 		return common.Address{}, err
