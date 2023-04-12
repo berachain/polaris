@@ -21,6 +21,7 @@
 package log
 
 import (
+	"math/big"
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -83,6 +84,11 @@ var (
 //
 // ConvertSdkCoin is a `precompile.ValueDecoder`.
 func ConvertSdkCoin(attributeValue string) (any, error) {
+	// handle empty string
+	if attributeValue == "" {
+		return big.NewInt(0), nil
+	}
+
 	// extract the sdk.Coin from string value
 	coin, err := sdk.ParseCoinNormalized(attributeValue)
 	if err != nil {

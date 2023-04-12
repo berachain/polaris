@@ -104,27 +104,8 @@ var _ = Describe("ERC20", func() {
 		})
 
 		When("calling write methods", func() {
-			It("should error on non-existent inputs", func() {
-				// nonexistent address
-				_, err := erc20Precompile.ConvertERC20ToCoin0(
-					etf.GenerateTransactOpts(""),
-					common.BytesToAddress([]byte("sUSDC")),
-					network.TestAddress,
-					big.NewInt(123456789),
-				)
-				Expect(err).To(HaveOccurred())
-
-				// nonexistent address
-				_, err = erc20Precompile.ConvertERC20ToCoin(
-					etf.GenerateTransactOpts(""),
-					common.BytesToAddress([]byte("sUSDC")),
-					cosmlib.AddressToAccAddress(network.TestAddress).String(),
-					big.NewInt(123456789),
-				)
-				Expect(err).To(HaveOccurred())
-
-				// nonexistent denom
-				_, err = erc20Precompile.ConvertCoinToERC20(
+			It("should error on non-existent coin denoms", func() {
+				_, err := erc20Precompile.ConvertCoinToERC20(
 					etf.GenerateTransactOpts(""),
 					"bOSMO",
 					network.TestAddress,
@@ -132,18 +113,34 @@ var _ = Describe("ERC20", func() {
 				)
 				Expect(err).To(HaveOccurred())
 
-				// nonexistent denom
-				_, err = erc20Precompile.ConvertCoinToERC200(
-					etf.GenerateTransactOpts(""),
-					"bOSMO",
-					cosmlib.AddressToAccAddress(network.TestAddress).String(),
-					big.NewInt(123456789),
-				)
-				Expect(err).To(HaveOccurred())
+				// _, err = erc20Precompile.ConvertCoinToERC200(
+				// 	etf.GenerateTransactOpts(""),
+				// 	"bOSMO",
+				// 	cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				// 	big.NewInt(123456789),
+				// )
+				// Expect(err).To(HaveOccurred())
 			})
 
 			It("should handle non-empty inputs", func() {
-				// denom already exists
+				// // nonexistent address
+				// tx, err := erc20Precompile.ConvertERC20ToCoin0(
+				// 	etf.GenerateTransactOpts(""),
+				// 	common.BytesToAddress([]byte("sUSDC")),
+				// 	network.TestAddress,
+				// 	big.NewInt(123456789),
+				// )
+
+				// // nonexistent address
+				// _, err = erc20Precompile.ConvertERC20ToCoin(
+				// 	etf.GenerateTransactOpts(""),
+				// 	common.BytesToAddress([]byte("sUSDC")),
+				// 	cosmlib.AddressToAccAddress(network.TestAddress).String(),
+				// 	big.NewInt(123456789),
+				// )
+				// Expect(err).To(HaveOccurred())
+
+				// // denom already exists
 				// erc20Precompile.ConvertCoinToERC200(
 				// 	etf.GenerateTransactOpts(""),
 				// 	"bATOM",

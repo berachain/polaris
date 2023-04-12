@@ -57,8 +57,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
@@ -106,6 +104,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -349,8 +348,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 
 	/****  Module Options ****/
 
-	// Set the query context function for the evm module.
-
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
@@ -361,13 +358,13 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
-	// NOTE: this is not required apps that don't use the simulator for fuzz testing
+	// NOTE: this is not required for apps that don't use the simulator for fuzz testing
 	// transactions
-	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper,
-			authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-	}
-	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
+	// overrideModules := map[string]module.AppModuleSimulation{
+	// 	authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper,
+	// 		authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
+	// }
+	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, nil)
 
 	app.sm.RegisterStoreDecoders()
 

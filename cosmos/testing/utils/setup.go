@@ -88,6 +88,7 @@ func SetupMinimalKeepers() (
 			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			stakingtypes.BondedPoolName:    {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			"evm":                          {authtypes.Minter, authtypes.Burner},
+			"erc20":                        {authtypes.Minter, authtypes.Burner},
 			"staking":                      {authtypes.Minter, authtypes.Burner},
 			"gov":                          {authtypes.Minter, authtypes.Burner},
 		},
@@ -97,6 +98,8 @@ func SetupMinimalKeepers() (
 
 	ak.SetModuleAccount(ctx,
 		authtypes.NewEmptyModuleAccount("evm", authtypes.Minter, authtypes.Burner))
+	ak.SetModuleAccount(ctx,
+		authtypes.NewEmptyModuleAccount("erc20", authtypes.Minter, authtypes.Burner))
 
 	bk := bankkeeper.NewBaseKeeper(
 		encodingConfig.Codec,
