@@ -155,8 +155,20 @@ func BuildGenesisState() map[string]json.RawMessage {
 	if err != nil {
 		panic(err)
 	}
+	newAccount2, err := authtypes.NewBaseAccountWithPubKey(TestKey2.PubKey())
+	if err != nil {
+		panic(err)
+	}
+	newAccount3, err := authtypes.NewBaseAccountWithPubKey(TestKey3.PubKey())
+	if err != nil {
+		panic(err)
+	}
 	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
+	accounts2, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount2})
+	accounts3, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount3})
 	authState.Accounts = append(authState.Accounts, accounts[0])
+	authState.Accounts = append(authState.Accounts, accounts2[0])
+	authState.Accounts = append(authState.Accounts, accounts3[0])
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 
 	// Bank module
@@ -165,6 +177,17 @@ func BuildGenesisState() map[string]json.RawMessage {
 	bankState.Balances = append(bankState.Balances, banktypes.Balance{
 		Address: newAccount.Address,
 		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
+	})
+	bankState.Balances = append(bankState.Balances, banktypes.Balance{
+		Address: newAccount2.Address,
+		Coins: sdk.NewCoins(
+			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
+			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
+		),
+	})
+	bankState.Balances = append(bankState.Balances, banktypes.Balance{
+		Address: newAccount3.Address,
+		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred))),
 	})
 	bankState.DenomMetadata = getTestMetadata()
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
