@@ -190,6 +190,13 @@ func BuildGenesisState() map[string]json.RawMessage {
 		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred))),
 	})
 	bankState.DenomMetadata = getTestMetadata()
+	bankState.SendEnabled = []banktypes.SendEnabled{
+		{
+			Denom:   "abera",
+			Enabled: true,
+		},
+	}
+
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 
 	// Staking module

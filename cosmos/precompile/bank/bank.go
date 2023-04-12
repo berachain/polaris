@@ -361,21 +361,20 @@ func (c *Contract) GetSendEnabled(
 		return nil, precompile.ErrInvalidString
 	}
 
+	fmt.Println("denommmmmmmm:   ", denom)
+	fmt.Println("denommmmmmmm:   ", []string{denom})
+
 	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
 		Denoms: []string{denom},
 	})
 	if err != nil {
 		return nil, err
 	}
-
-	// todo: test if "return []any{res.SendEnabled}, nil" works
-	// here we are dereferencing the values for safety
-	sendEnableds := make([]banktypes.SendEnabled, len(res.SendEnabled))
-	for i, p := range res.SendEnabled {
-		sendEnableds[i] = *p
+	if len(res.SendEnabled) == 0 {
+		return nil, precompile.ErrInvalidString
 	}
 
-	return []any{sendEnableds}, nil
+	return []any{res.SendEnabled[0].Enabled}, nil
 }
 
 // msg_server functions

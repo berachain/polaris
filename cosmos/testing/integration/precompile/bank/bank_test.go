@@ -97,26 +97,27 @@ var _ = Describe("Bank", func() {
 		fmt.Println("TestAddress2 is: ", network.TestAddress2)
 		fmt.Println("coinsToBeSent is: ", coinsToBeSent)
 
-		// tx, err := bankPrecompile.Send(tf.GenerateTransactOpts(""), network.TestAddress, network.TestAddress3, coinsToBeSent)
-		// Expect(err).ShouldNot(HaveOccurred())
-		// fmt.Printf("tx is: %v", *tx)
-
-		// time.Sleep(4)
-
-		balance, err := bankPrecompile.GetBalance(nil, network.TestAddress, denom)
-		Expect(err).ShouldNot(HaveOccurred())
-		fmt.Println("bera balance of TestAddress is: ", balance)
-
-		//  function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
-		balance, err = bankPrecompile.GetBalance(nil, network.TestAddress2, denom)
-		Expect(err).ShouldNot(HaveOccurred())
-		fmt.Println("bera balance of TestAddress2 is: ", balance)
-		// Expect(balance).To(Equal(big.NewInt(1000000000000000000)))
-
-		balance, err = bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
+		// TestAddress3 initially has 100 abera
+		balance, err := bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(100)))
 
+		// Send 1000 bera from TestAddress to TestAddress3
+		tx, err := bankPrecompile.Send(btf.GenerateTransactOpts(""), network.TestAddress, network.TestAddress3, coinsToBeSent)
+		Expect(err).ShouldNot(HaveOccurred())
+		fmt.Printf("tx is: %v", *tx)
+
+		// Wait one block.
+		err = btf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
+
+		// TestAddress3 now has 1100 abera
+		balance, err = bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
+		Expect(err).ShouldNot(HaveOccurred())
+		Expect(balance).To(Equal(big.NewInt(1100)))
+		fmt.Print("\nbera balance of TestAddress3 is: ", balance, "\n\n")
+
+		// TestAddress2 has 100 abera and 100 atoken
 		allBalance, err := bankPrecompile.GetAllBalances(nil, network.TestAddress2)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(allBalance).To(Equal(expectedAllBalance))
@@ -137,21 +138,18 @@ var _ = Describe("Bank", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 		fmt.Println("totalSupply is: ", totalSupply)
 
-		// denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, denom)
-		// Expect(err).ShouldNot(HaveOccurred())
-		// fmt.Println("denomMetadata is: ", denomMetadata)
+		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, denom)
+		Expect(err).ShouldNot(HaveOccurred())
+		fmt.Println("denomMetadata is: ", denomMetadata)
 
-		// denomsMetadata, err := bankPrecompile.GetDenomsMetadata(nil)
-		// Expect(err).ShouldNot(HaveOccurred())
-		// fmt.Println("denomsMetadata is: ", denomsMetadata)
+		denomsMetadata, err := bankPrecompile.GetDenomsMetadata(nil)
+		Expect(err).ShouldNot(HaveOccurred())
+		fmt.Println("denomsMetadata is: ", denomsMetadata)
 
-		//  function getSendEnabled(string[] calldata denoms) external view returns (SendEnabled memory);
-		fmt.Println("BEFORE!!!!!!!!!!!!!!!")
 		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, "abera")
 		Expect(err).ShouldNot(HaveOccurred())
-		// Expect(sendEnabled).To(BeTrue())
-		fmt.Println("sendEnabled is: ", sendEnabled)
-		fmt.Println("AFTER!!!!!!!!!!!!!!!")
+		Expect(sendEnabled).To(BeTrue())
+
 		//  function send(address fromAddress, address toAddress, Coin calldata amount) external payable returns (bool);
 
 		//  function multiSend(Input calldata input, Output[] memory outputs) external payable returns (bool);

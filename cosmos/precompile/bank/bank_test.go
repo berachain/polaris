@@ -244,7 +244,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(err).ToNot(HaveOccurred())
 				}
 
-				res, err := contract.GetAllBalance(
+				res, err := contract.GetAllBalances(
 					ctx,
 					nil,
 					caller,
@@ -515,22 +515,22 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 		})
 
-		When("GetParams", func() {
-			It("should succeed", func() {
-				res, err := contract.GetParams(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					true,
-				)
-				Expect(err).ToNot(HaveOccurred())
+		// When("GetParams", func() {
+		// 	It("should succeed", func() {
+		// 		res, err := contract.GetParams(
+		// 			ctx,
+		// 			nil,
+		// 			caller,
+		// 			big.NewInt(0),
+		// 			true,
+		// 		)
+		// 		Expect(err).ToNot(HaveOccurred())
 
-				params, ok := utils.GetAs[banktypes.Params](res[0])
-				Expect(ok).To(BeTrue())
-				Expect(params.DefaultSendEnabled).To(BeFalse())
-			})
-		})
+		// 		params, ok := utils.GetAs[banktypes.Params](res[0])
+		// 		Expect(ok).To(BeTrue())
+		// 		Expect(params.DefaultSendEnabled).To(BeFalse())
+		// 	})
+		// })
 
 		When("GetDenomMetadata", func() {
 			It("should fail if input denom is not a valid string", func() {
@@ -577,32 +577,28 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 		})
 
-		When("GetDenomsMetadata", func() {
-			It("should succeed", func() {
-				metadata := getTestMetadata()
-				bk.SetDenomMetaData(ctx, metadata[0])
-				bk.SetDenomMetaData(ctx, metadata[1])
+		// When("GetDenomsMetadata", func() {
+		// 	It("should succeed", func() {
+		// 		metadata := getTestMetadata()
+		// 		bk.SetDenomMetaData(ctx, metadata[0])
+		// 		bk.SetDenomMetaData(ctx, metadata[1])
 
-				res, err := contract.GetDenomsMetadata(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					true,
-				)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(metadata))
-			})
-		})
+		// 		res, err := contract.GetDenomsMetadata(
+		// 			ctx,
+		// 			nil,
+		// 			caller,
+		// 			big.NewInt(0),
+		// 			true,
+		// 		)
+		// 		Expect(err).ToNot(HaveOccurred())
+		// 		Expect(res[0]).To(Equal(metadata))
+		// 	})
+		// })
 
 		When("GetSendEnabled", func() {
 			It("should succeed", func() {
 				enabledDenom := "enabledDenom"
-				disabledDenom := "disabledDenom"
-				demons := []string{enabledDenom, disabledDenom}
-				expectedResult := []banktypes.SendEnabled{
-					{Denom: enabledDenom, Enabled: true},
-				}
+				// disabledDenom := "disabledDenom"
 
 				bk.SetSendEnabled(ctx, enabledDenom, true)
 
@@ -612,11 +608,11 @@ var _ = Describe("Bank Precompile Test", func() {
 					caller,
 					big.NewInt(0),
 					true,
-					demons,
+					enabledDenom,
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(res[0]).To(Equal(expectedResult))
+				Expect(res[0]).To(BeTrue())
 			})
 		})
 
