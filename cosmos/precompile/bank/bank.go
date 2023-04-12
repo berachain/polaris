@@ -83,18 +83,10 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getAllSupply()",
 			Execute: c.GetTotalSupply,
 		},
-		// {
-		// 	AbiSig:  "getParams()",
-		// 	Execute: c.GetParams,
-		// },
 		{
 			AbiSig:  "getDenomMetadata(string)",
 			Execute: c.GetDenomMetadata,
 		},
-		// {
-		// 	AbiSig:  "getDenomsMetadata()",
-		// 	Execute: c.GetDenomsMetadata,
-		// },
 		{
 			AbiSig:  "getSendEnabled(string)",
 			Execute: c.GetSendEnabled,
@@ -103,10 +95,6 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "send(address,address,(uint256,string)[])",
 			Execute: c.Send,
 		},
-		// {
-		// 	AbiSig:  "multiSend((address,(uint256,string)[]),(address,(uint256,string)[])[])",
-		// 	Execute: c.MultiSend,
-		// },
 	}
 }
 
@@ -263,25 +251,6 @@ func (c *Contract) GetTotalSupply(
 	return []any{sdkCoinsToEvmCoins(res.Supply)}, nil
 }
 
-// // GetParams implements `getParams()` method.
-// func (c *Contract) GetParams(
-// 	ctx context.Context,
-// 	_ ethprecompile.EVM,
-// 	_ common.Address,
-// 	_ *big.Int,
-// 	readonly bool,
-// 	args ...any,
-// ) ([]any, error) {
-// 	res, err := c.querier.Params(ctx, &banktypes.QueryParamsRequest{})
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// note: res.Params.SendEnabled is deprecated
-// 	return []any{res.Params}, nil
-// }
-
 // GetDenomMetadata implements `getDenomMetadata(string)` method.
 func (c *Contract) GetDenomMetadata(
 	ctx context.Context,
@@ -324,44 +293,6 @@ func (c *Contract) GetDenomMetadata(
 	}
 	return []any{result}, nil
 }
-
-// // GetDenomsMetadata implements `getDenomsMetadata()` method.
-// func (c *Contract) GetDenomsMetadata(
-// 	ctx context.Context,
-// 	_ ethprecompile.EVM,
-// 	_ common.Address,
-// 	_ *big.Int,
-// 	readonly bool,
-// 	args ...any,
-// ) ([]any, error) {
-// 	// todo: add pagination here
-// 	res, err := c.querier.DenomsMetadata(ctx, &banktypes.QueryDenomsMetadataRequest{})
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return []any{res.Metadatas}, nil
-// }
-
-// todo: this function without pagination is a bad idea
-// func (c *Contract) GetDenomsOwners(
-// 	ctx context.Context,
-// 	_ ethprecompile.EVM,
-// 	_ common.Address,
-// 	_ *big.Int,
-// 	readonly bool,
-// 	args ...any,
-// ) ([]any, error) {
-// 	res, err := c.querier.DenomOwners(ctx, &banktypes.QueryDenomOwnersRequest{
-// 		Denom: "",
-// 		Pagination: nil,
-// 	})
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return []any{res.DenomOwners}, nil
-// }
 
 // GetSendEnabled implements `getSendEnabled(string[])` method.
 func (c *Contract) GetSendEnabled(
