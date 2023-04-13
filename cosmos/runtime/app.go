@@ -93,7 +93,6 @@ import (
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
-	"pkg.berachain.dev/polaris/cosmos/rpc"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -103,6 +102,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -318,6 +318,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		},
 		app.CreateQueryContext,
 		DefaultNodeHome+"/data",
+		ethTxMempool,
 	)
 
 	opt := ante.HandlerOptions{
@@ -460,8 +461,7 @@ func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.AP
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	// Register Ethereum JSON-RPC API as needed by polaris.
-	rpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
+	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

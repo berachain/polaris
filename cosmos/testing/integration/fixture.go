@@ -45,7 +45,7 @@ type TestFixture struct {
 	Network     *network.Network
 	EthClient   *ethclient.Client
 	EthWsClient *ethclient.Client
-	HttpAddr    string
+	HTTPAddr    string
 	WsAddr      string
 }
 
@@ -79,7 +79,7 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 		Network:     net,
 		EthClient:   client,
 		EthWsClient: wsClient,
-		HttpAddr:    httpAddr,
+		HTTPAddr:    httpAddr,
 		WsAddr:      wsaddr,
 	}
 }

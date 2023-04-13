@@ -23,11 +23,11 @@ package keeper
 import (
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	evmrpc "pkg.berachain.dev/polaris/cosmos/rpc"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -57,6 +57,8 @@ type Host interface {
 		state.BankKeeper,
 		[]vm.RegistrablePrecompile,
 		func(height int64, prove bool) (sdk.Context, error),
+		client.Context,
+		sdkmempool.Mempool,
 	)
 }
 
@@ -78,9 +80,7 @@ func NewHost(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool sdkmempool.Mempool,
 	offChainKv *offchain.Store,
-	rpcProvider evmrpc.Provider,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
@@ -90,7 +90,7 @@ func NewHost(
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
 	h.hp = historical.NewPlugin(h.bp, offChainKv, storeKey)
-	h.txp = txpool.NewPlugin(h.cp, rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+
 	return h
 }
 
@@ -102,10 +102,14 @@ func (h *host) Setup(
 	bk state.BankKeeper,
 	precompiles []vm.RegistrablePrecompile,
 	qc func(height int64, prove bool) (sdk.Context, error),
+	clientContext client.Context,
+	ethTxMempool sdkmempool.Mempool,
 ) {
 	// Setup the precompile and state plugins
 	h.pp = precompile.NewPlugin(precompiles)
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, h.pp)
+
+	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
