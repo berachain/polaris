@@ -49,8 +49,6 @@ type Keeper struct {
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
 	host Host
-
-	txpoolpp txpool.Plugin
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -79,6 +77,7 @@ func NewKeeper(
 		authority,
 		appOpts,
 		k.offChainKv,
+		ethTxMempool,
 	)
 	return k
 }
@@ -90,10 +89,9 @@ func (k *Keeper) Setup(
 	precompiles []vm.RegistrablePrecompile,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	datadir string,
-	ethTxMempool sdkmempool.Mempool,
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, ak, bk, precompiles, qc, client.Context{}, ethTxMempool)
+	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)
 
 	// Build the Polaris EVM Provider
 	k.polaris = eth.NewPolarisProvider(k.host, nil, datadir)

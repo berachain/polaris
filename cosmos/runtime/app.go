@@ -318,7 +318,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		},
 		app.CreateQueryContext,
 		DefaultNodeHome+"/data",
-		ethTxMempool,
 	)
 
 	opt := ante.HandlerOptions{
