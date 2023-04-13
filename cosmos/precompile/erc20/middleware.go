@@ -83,7 +83,7 @@ func (c *Contract) convertCoinToERC20(
 		}
 		token = cosmlib.AccAddressToEthAddress(tokenAcc)
 
-		// approve the caller to transfer amountERC20 tokens from ERC20 module precompile contract
+		// approve the caller to transfer amount ERC20 tokens from ERC20 module precompile contract
 		if err = c.callERC20Approve(sdkCtx, evm, c.RegistryKey(), token, caller, amount); err != nil {
 			return err
 		}
