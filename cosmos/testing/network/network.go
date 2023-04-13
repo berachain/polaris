@@ -264,9 +264,6 @@ func DistrTestSetup(
 	dk.Params = distrtypes.DefaultParams()
 	dk.Params.WithdrawAddrEnabled = true
 
-	// Set the previous proposer.
-	dk.PreviousProposer = "polarvalcons1qqqqqqqqqqqqqqqqqqqqqqqqv9kxjcm9rl8r2z"
-
 	// Set the validator accumulated commission.
 	dk.ValidatorAccumulatedCommissions = append(dk.ValidatorAccumulatedCommissions,
 		distrtypes.ValidatorAccumulatedCommissionRecord{

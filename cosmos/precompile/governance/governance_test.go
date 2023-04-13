@@ -125,7 +125,6 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(err).ToNot(HaveOccurred())
 			// Create and marshal the proposal.
 			proposal := v1.MsgSubmitProposal{
-				// Messages:       []*codectypes.Any{msg},
 				InitialDeposit: initDeposit,
 				Proposer:       caller.String(),
 				Metadata:       metadata,
