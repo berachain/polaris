@@ -53,17 +53,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-
-	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
-	am.keeper.ConfigureGethLogger(ctx)
-
-	// TODO: remove InitGenesis from the interfaces, do check and run instead
-	// Initialize all the plugins.
-	for _, plugin := range am.keeper.GetHost().GetAllPlugins() {
-		plugin.InitGenesis(ctx, &genesisState)
-	}
-
-	if err := am.keeper.PolarisProvider().StartServices(); err != nil {
+	if err := am.keeper.InitGenesis(ctx, genesisState); err != nil {
 		panic(err)
 	}
 	return []abci.ValidatorUpdate{}

@@ -53,6 +53,7 @@ var _ = Describe("Network", func() {
 	})
 
 	It("should produce blocks", func() {
-		net.WaitForHeightWithTimeout(5, defaultTimeout)
+		_, err := net.WaitForHeightWithTimeout(5, defaultTimeout)
+		Expect(err).ToNot(HaveOccurred())
 	})
 })

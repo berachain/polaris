@@ -102,7 +102,6 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
