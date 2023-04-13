@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package keeper_test
 
 import (
 	"math/big"
@@ -143,9 +143,9 @@ var _ = Describe("Processor", func() {
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
-			k.host.GetStatePlugin().CreateAccount(addr)
-			k.host.GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
-			k.host.GetStatePlugin().Finalize()
+			k.GetHost().GetStatePlugin().CreateAccount(addr)
+			k.GetHost().GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetHost().GetStatePlugin().Finalize()
 
 			// create the contract
 			result, err := k.ProcessTransaction(ctx, tx)
