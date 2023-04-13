@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: BUSL-1.1
+// SPDX-License-Identifier: MIT
 //
 // Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // Use of this software is govered by the Business Source License included
@@ -28,41 +28,56 @@ import {IBankModule} from "./bank.sol";
 interface IDistributionModule {
     /**
      * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
+     * @param withdrawAddress The address to set as the withdraw address.
      */
-    function setWithdrawAddress(address withdrawAddress) external returns (bool);
+    function setWithdrawAddress(
+        address withdrawAddress
+    ) external returns (bool);
 
     function getWithdrawEnabled() external view returns (bool);
 
     /**
      * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
      * Howver taking in a bech32 address.
+     * @param withdrawAddress The bech32 address to set as the withdraw address.
      */
-    function setWithdrawAddress(string calldata withdrawAddress) external returns (bool);
+    function setWithdrawAddress(
+        string calldata withdrawAddress
+    ) external returns (bool);
 
     /**
      * @dev Withdraw the rewrads accumilated by the caller(msg.sender). Returns the rewards claimed.
+     * @param delegator The delegator to withdraw the rewards from.
+     * @param validator The validator to withdraw the rewards from.
      */
-    function withdrawDelegatorReward(address delegator, address validator)
-        external
-        returns (IBankModule.Coin[] memory);
+    function withdrawDelegatorReward(
+        address delegator,
+        address validator
+    ) external returns (IBankModule.Coin[] memory);
 
     /**
      * @dev Withdraw the rewrads accumilated by the delegator from the validagor. Returns the rewards claimed.
      * However taking in a bech32 address.
+     * @param delegator The bech32 delegator to withdraw the rewards from.
+     * @param validator The bech32 validator to withdraw the rewards from.
      */
-    function withdrawDelegatorReward(string calldata delegator, string calldata validator)
-        external
-        returns (IBankModule.Coin[] memory);
+    function withdrawDelegatorReward(
+        string calldata delegator,
+        string calldata validator
+    ) external returns (IBankModule.Coin[] memory);
 
     /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
      * `validator` as rewards.
+     * @param validator The validator address to withdraw the rewards from.
+     * @param amount The amount of rewards withdrawn.
      */
     event WithdrawRewards(address indexed validator, uint256 amount);
 
     /**
      * @dev Emitted by the distribution module when `withdrawAddress` is set to receive rewards
      * upon withdrawal.
+     * @param withdrawAddress The address to set as the withdraw address.
      */
     event SetWithdrawAddress(address indexed withdrawAddress);
 }

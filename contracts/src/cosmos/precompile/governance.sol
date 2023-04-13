@@ -29,38 +29,63 @@ interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
     /**
      * @dev Submit a proposal to the governance module. Returns the proposal id.
+     * @param proposal The proposal to submit.
+     * @param message The message to submit with the proposal.
      */
-    function submitProposal(bytes calldata proposal, bytes calldata message) external returns (uint64);
+    function submitProposal(
+        bytes calldata proposal,
+        bytes calldata message
+    ) external returns (uint64);
 
     /**
      * @dev Cancel a proposal. Returns the cancled time and height.
      *   burned.
+     * @param proposalId The id of the proposal to cancel.
      */
-    function cancelProposal(uint64 proposalId) external returns (uint64, uint64);
+    function cancelProposal(
+        uint64 proposalId
+    ) external returns (uint64, uint64);
 
     /**
      * @dev Vote on a proposal.
+     * @param proposalId The id of the proposal to vote on.
+     * @param option The option to vote on.
+     * @param metadata The metadata to attach to the vote.
      */
-    function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool);
+    function vote(
+        uint64 proposalId,
+        int32 option,
+        string memory metadata
+    ) external returns (bool);
 
     /**
      * @dev Vote on a proposal with weights.
+     * @param proposalId The id of the proposal to vote on.
+     * @param options The options to vote on.
+     * @param metadata The metadata to attach to the vote.
      */
-    function voteWeighted(uint64 proposalId, WeightedVoteOption[] calldata options, string calldata metadata)
-        external
-        returns (bool);
+    function voteWeighted(
+        uint64 proposalId,
+        WeightedVoteOption[] calldata options,
+        string calldata metadata
+    ) external returns (bool);
 
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
 
     /**
      * @dev Get the proposal with the given id.
      */
-    function getProposal(uint64 proposalId) external view returns (Proposal memory);
+    function getProposal(
+        uint64 proposalId
+    ) external view returns (Proposal memory);
 
     /**
      * @dev Get proposals with a given status.
+     * @param proposalStatus The status of the proposals to get.
      */
-    function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
+    function getProposals(
+        int32 proposalStatus
+    ) external view returns (Proposal[] memory);
 
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
 
@@ -115,26 +140,38 @@ interface IGovernanceModule {
 
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
+     * @param proposalId The id of the proposal.
+     * @param proposalMessages The messages of the proposal.
      */
-    event SubmitProposal(uint64 indexed proposalId, string indexed proposalMessages);
+    event SubmitProposal(
+        uint64 indexed proposalId,
+        string indexed proposalMessages
+    );
 
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
+     * @param votingPeriodStart The start of the voting period.
      */
     event SubmitProposal(uint64 indexed votingPeriodStart);
 
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
+     * @param amount The amount of the deposit.
+     * @param proposalId The id of the proposal.
      */
     event ProposalDeposit(string indexed amount, uint64 indexed proposalId);
 
     /**
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.
+     * @param option The option of the vote.
+     * @param proposalId The id of the proposal.
      */
     event ProposalVote(string indexed option, uint64 indexed proposalId);
 
     /**
      * @dev Emitted by the governance module when `cancelProposal` is called.
+     * @param sender The sender of the cancel proposal.
+     * @param proposalId The id of the proposal.
      */
     event CancelProposal(string indexed sender, uint64 indexed proposalId);
 }
