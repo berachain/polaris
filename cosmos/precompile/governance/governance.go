@@ -99,10 +99,6 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 			return attributeValue, nil
 		},
 		govtypes.AttributeKeyVotingPeriodStart: log.ConvertUint64,
-		sdk.AttributeKeyAmount:                 log.ConvertSdkCoin,
-		govtypes.AttributeKeyOption: func(attributeValue string) (any, error) {
-			return "options", nil
-		},
 	}
 }
 

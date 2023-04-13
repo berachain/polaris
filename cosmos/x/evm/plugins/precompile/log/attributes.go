@@ -21,6 +21,7 @@
 package log
 
 import (
+	"math/big"
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -93,6 +94,23 @@ func ConvertSdkCoin(attributeValue string) (any, error) {
 	}
 	// convert the sdk.Coin to *big.Int
 	return coin.Amount.BigInt(), nil
+}
+
+// ConvertSdkCoins converts the string representation of an `sdk.Coins` to a `[]*big.Int`.
+func ConvertSdkCoins(attributeValue string) (any, error) {
+	// extract the sdk.Coins from string value.
+	coins, err := sdk.ParseCoinsNormalized(attributeValue)
+	if err != nil {
+		return nil, err
+	}
+
+	// convert the sdk.Coins to []*big.Int
+	coinsBigInt := make([]*big.Int, len(coins))
+	for i, coin := range coins {
+		coinsBigInt[i] = coin.Amount.BigInt()
+	}
+
+	return coinsBigInt, nil
 }
 
 // ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a

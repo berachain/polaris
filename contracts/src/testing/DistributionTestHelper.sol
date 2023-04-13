@@ -25,8 +25,8 @@
 
 pragma solidity ^0.8.17;
 
-import {IDistributionModule} from "../distribution.sol";
-import {ERC20} from "../../../../lib/ERC20.sol";
+import {IDistributionModule} from "../cosmos/precompile/distribution.sol";
+import {ERC20} from "lib/ERC20.sol";
 
 /**
  * @dev This contract is an example helper for calling the distribution precompile from another contract.
@@ -59,7 +59,9 @@ contract DistributionTestHelper {
      * @dev Withdraw the rewrads accumilated by the caller(msg.sender).
      * @param _withdrawAddress The address of the delegator.
      */
-    function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
+    function setWithdrawAddress(
+        address _withdrawAddress
+    ) external returns (bool) {
         distribution.setWithdrawAddress(_withdrawAddress);
     }
 
@@ -68,7 +70,13 @@ contract DistributionTestHelper {
      * @param _delegatorAddress The address of the delegator.
      * @param _validatorAddress The address of the validator.
      */
-    function withdrawRewards(address _delegatorAddress, address _validatorAddress) external {
-        distribution.withdrawDelegatorReward(_delegatorAddress, _validatorAddress);
+    function withdrawRewards(
+        address _delegatorAddress,
+        address _validatorAddress
+    ) external {
+        distribution.withdrawDelegatorReward(
+            _delegatorAddress,
+            _validatorAddress
+        );
     }
 }

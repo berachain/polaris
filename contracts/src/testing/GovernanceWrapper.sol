@@ -25,7 +25,7 @@
 
 pragma solidity ^0.8.17;
 
-import {IGovernanceModule} from "../governance.sol";
+import {IGovernanceModule} from "../cosmos/precompile/governance.sol";
 
 contract GovernanceWrapper {
     // State
@@ -50,7 +50,10 @@ contract GovernanceWrapper {
      * @param proposal The proposal.
      * @param message The message.
      */
-    function submitProposalWrapepr(bytes calldata proposal, bytes calldata message) external payable returns (uint64) {
+    function submitProposalWrapepr(
+        bytes calldata proposal,
+        bytes calldata message
+    ) external payable returns (uint64) {
         // so that the proposal can be executed.
         payable(address(this)).transfer(msg.value);
 
@@ -61,7 +64,9 @@ contract GovernanceWrapper {
      * @dev get a proposal.
      * @param proposalId The proposal id.
      */
-    function getProposal(uint64 proposalId) external view returns (IGovernanceModule.Proposal memory) {
+    function getProposal(
+        uint64 proposalId
+    ) external view returns (IGovernanceModule.Proposal memory) {
         return governanceModule.getProposal(proposalId);
     }
 
@@ -69,7 +74,9 @@ contract GovernanceWrapper {
      * @dev get proposals.
      * @param proposalStatus The proposal status.
      */
-    function getProposals(int32 proposalStatus) external view returns (IGovernanceModule.Proposal[] memory) {
+    function getProposals(
+        int32 proposalStatus
+    ) external view returns (IGovernanceModule.Proposal[] memory) {
         return governanceModule.getProposals(proposalStatus);
     }
 
