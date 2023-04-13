@@ -21,7 +21,7 @@
 package eth
 
 import (
-	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -32,8 +32,8 @@ import (
 // PolarisProvider is the only object that an implementing chain should use.
 type PolarisProvider struct {
 	api.Chain
-	rps    rpc.Service
-	accman *accounts.Manager
+	backend rpc.PolarisBackend
+	Node    *node.Node
 }
 
 // NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
@@ -41,6 +41,7 @@ func NewPolarisProvider(
 	host core.PolarisHostChain,
 	rps rpc.Service,
 	logHandler log.Handler,
+	datadir string,
 ) *PolarisProvider {
 	sp := &PolarisProvider{}
 	// When creating a Polaris EVM, we allow the implementing chain
@@ -54,18 +55,29 @@ func NewPolarisProvider(
 	// Build the chain from the host.
 	sp.Chain = core.NewChain(host)
 
-	// TODO: POLARIS.TOML
-	const insecureUnlockAllowed = true
-	sp.accman = accounts.NewManager(&accounts.Config{InsecureUnlockAllowed: insecureUnlockAllowed})
-
 	// Build and set the RPC Backend.
-	if rps != nil {
-		sp.rps = rps
-		sp.rps.SetBackend(rpc.NewPolarisBackend(sp.Chain, rps.GetConfig(), sp.accman))
+	sp.backend = rpc.NewPolarisBackend(sp.Chain, rps.GetConfig())
+
+	// TODO: Allow Proper Node Configuration Pass Through
+	cfg := node.DefaultConfig                        // todo: configure correctly.
+	cfg.P2P.MaxPeers = 0                             // todo: configure correctly.
+	cfg.HTTPModules = append(cfg.HTTPModules, "eth") // todo: configure correctly.
+	cfg.HTTPHost = "localhost"                       // todo: configure correctly.
+	cfg.WSHost = "localhost"                         // todo: configure correctly.
+	cfg.WSModules = append(cfg.WSModules, "eth")     // todo: configure correctly.
+	cfg.DataDir = datadir                            // todo: configure correctly.
+
+	var err error
+	sp.Node, err = node.New(&cfg)
+	if err != nil {
+		panic(err)
 	}
 
-	// Creates an empty AccountManager with no backends. Callers (e.g. cmd/geth)
-	// are required to add the backends later on.
-
 	return sp
+}
+
+// StartServices starts the standard go-ethereum node-services (i.e json-rpc).
+func (sp *PolarisProvider) StartServices() error {
+	sp.Node.RegisterAPIs(rpc.GetAPIs(sp.backend))
+	return sp.Node.Start()
 }

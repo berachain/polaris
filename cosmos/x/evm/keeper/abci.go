@@ -18,16 +18,26 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package keeper
 
 import (
-	"github.com/gorilla/mux"
+	"context"
 
-	"github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// RegisterJSONRPCServer provides a common function which registers the ethereum rpc servers
-// with routes on the native Cosmos API Server.
-func RegisterJSONRPCServer(ctx client.Context, rtr *mux.Router, provider Provider) {
-	provider.SetClientContext(ctx)
+// BeginBlocker is called during the BeginBlock processing of the ABCI lifecycle.
+func (k *Keeper) BeginBlocker(ctx context.Context) {
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	// Prepare the Polaris Ethereum block.
+	k.polaris.Prepare(ctx, sCtx.BlockHeight())
+}
+
+// Precommit is called during the Commit processing of the ABCI lifecycle, right before the state
+// is committed to the root multistore.
+func (k *Keeper) Precommit(ctx context.Context) {
+	// Finalize the Polaris Ethereum block.
+	if err := k.polaris.Finalize(ctx); err != nil {
+		panic(err)
+	}
 }

@@ -317,6 +317,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			govprecompile.NewPrecompileContract(app.GovKeeper),
 		},
 		app.CreateQueryContext,
+		DefaultNodeHome+"/data",
 	)
 
 	opt := ante.HandlerOptions{

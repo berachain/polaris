@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"strings"
 
 	geth "github.com/ethereum/go-ethereum"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -42,8 +41,7 @@ var _ = Describe("Network with WS", func() {
 	})
 	It("should connect -- multiple clients", func() {
 		// Dial an Ethereum websocket Endpoint
-		wsaddr := "ws:" + strings.TrimPrefix(tf.Network.Validators[0].APIAddress+"/eth/rpc/ws/", "http:")
-		ws, err := gethrpc.DialWebsocket(ctx, wsaddr, "*")
+		ws, err := gethrpc.DialWebsocket(ctx, tf.WsAddr, "*")
 		Expect(err).ToNot(HaveOccurred())
 		wsClient := ethclient.NewClient(ws)
 		Expect(err).ToNot(HaveOccurred())
@@ -63,6 +61,7 @@ var _ = Describe("Network with WS", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(sub).ToNot(BeNil())
 	})
+
 	It("should get recent blocks", func() {
 		headers := make(chan *gethtypes.Header)
 		sub, _ := wsclient.SubscribeNewHead(ctx, headers)

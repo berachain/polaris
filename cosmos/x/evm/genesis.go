@@ -30,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/rpc/api"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
@@ -64,14 +63,9 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 		plugin.InitGenesis(ctx, &genesisState)
 	}
 
-	// TODO: Clean this up its really jank, we should move this, feels like a bad spot for it, but works.
-	// Currently since we are registering TransactionAPI using the native ethereum backend, it needs to be able to
-	// read the chainID from the ConfigurationPlugin (which is on disk). If we are enabling the APIs before
-	// InitGenesis is called, then we get a nil pointer error since the ConfigurationPlugin is not yet initialized.
-	if err := am.keeper.GetRPCProvider().RegisterAPIs(api.GetExtraFn); err != nil {
+	if err := am.keeper.PolarisProvider().StartServices(); err != nil {
 		panic(err)
 	}
-
 	return []abci.ValidatorUpdate{}
 }
 

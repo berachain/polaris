@@ -98,12 +98,13 @@ func (k *Keeper) Setup(
 	bk state.BankKeeper,
 	precompiles []vm.RegistrablePrecompile,
 	qc func(height int64, prove bool) (sdk.Context, error),
+	datadir string,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)
 
 	// Build the Polaris EVM Provider
-	k.polaris = eth.NewPolarisProvider(k.host, k.rpcProvider, nil)
+	k.polaris = eth.NewPolarisProvider(k.host, k.rpcProvider, nil, datadir)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
@@ -136,4 +137,8 @@ func (k *Keeper) GetRPCProvider() evmrpc.Provider {
 // GetHost returns the Host that contains all plugins.
 func (k *Keeper) GetHost() Host {
 	return k.host
+}
+
+func (k *Keeper) PolarisProvider() *eth.PolarisProvider {
+	return k.polaris
 }
