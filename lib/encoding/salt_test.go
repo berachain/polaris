@@ -6,9 +6,10 @@ package encoding_test
 import (
 	"fmt"
 
+	"github.com/holiman/uint256"
+
 	enclib "pkg.berachain.dev/polaris/lib/encoding"
 
-	"github.com/holiman/uint256"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
