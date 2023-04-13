@@ -23,15 +23,13 @@ package erc20
 import (
 	"math/big"
 
-	"github.com/google/uuid"
-	"github.com/holiman/uint256"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	enclib "pkg.berachain.dev/polaris/lib/encoding"
 )
 
 // deployPolarisERC20Contract deploys a new ERC20 token contract by calling back into the EVM.
@@ -54,7 +52,11 @@ func (c *Contract) deployPolarisERC20Contract(
 	}
 	suppliedGas := ctx.GasMeter().GasRemaining()
 	_, contractAddr, gasRemaining, err := evm.Create2(
-		vm.AccountRef(deployer), append(code, args...), suppliedGas, endowment, generateUniqueSalt(),
+		vm.AccountRef(deployer),
+		append(code, args...),
+		suppliedGas,
+		endowment,
+		enclib.UniqueDeterminsticSalt([]byte(name)),
 	)
 
 	// consume gas used by EVM during ERC20 deployment
@@ -153,9 +155,4 @@ var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
 // it as type any.
 func ConvertCommonHexAddress(attributeValue string) (any, error) {
 	return common.HexToAddress(attributeValue), nil
-}
-
-// generateUniqueSalt generates a unique salt for use in CREATE2.
-func generateUniqueSalt() *uint256.Int {
-	return uint256.NewInt(uint64(uuid.New().ID()))
 }
