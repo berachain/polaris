@@ -65,7 +65,8 @@ func NewPolarisProvider(
 	cfg.HTTPHost = "localhost"                       // todo: configure correctly.
 	cfg.WSHost = "localhost"                         // todo: configure correctly.
 	cfg.WSModules = append(cfg.WSModules, "eth")     // todo: configure correctly.
-	cfg.DataDir = datadir                            // todo: configure correctly.
+	cfg.WSOrigins = []string{"*"}
+	cfg.DataDir = datadir // todo: configure correctly.
 
 	var err error
 	sp.Node, err = node.New(&cfg)
