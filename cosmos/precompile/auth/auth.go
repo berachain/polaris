@@ -35,6 +35,8 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
+const requiredGas = 5000
+
 // Contract is the precompile contract for the auth module.
 type Contract struct {
 	precompile.BaseContract
@@ -58,12 +60,12 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:      "convertHexToBech32(address)",
 			Execute:     c.ConvertHexToBech32,
-			RequiredGas: 2000,
+			RequiredGas: requiredGas,
 		},
 		{
 			AbiSig:      "convertBech32ToHexAddress(string)",
 			Execute:     c.ConvertBech32ToHexAddress,
-			RequiredGas: 2000,
+			RequiredGas: requiredGas,
 		},
 	}
 }
