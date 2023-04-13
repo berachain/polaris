@@ -35,7 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-const requiredGas = 5000
+const requiredGas = 1000
 
 // Contract is the precompile contract for the auth module.
 type Contract struct {
