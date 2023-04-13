@@ -29,7 +29,7 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 )
 
-// `setWithdrawAddressHelper` is a helper function for the `SetWithdrawAddress` method.
+// setWithdrawAddressHelper is a helper function for the `SetWithdrawAddress` method.
 func (c *Contract) setWithdrawAddressHelper(ctx context.Context, delegator, withdrawer sdk.AccAddress) ([]any, error) {
 	_, err := c.msgServer.SetWithdrawAddress(ctx, &distributiontypes.MsgSetWithdrawAddress{
 		DelegatorAddress: delegator.String(),
@@ -43,7 +43,7 @@ func (c *Contract) getWithdrawAddrEnabled(ctx context.Context) ([]any, error) {
 	return []any{res.Params.WithdrawAddrEnabled}, err
 }
 
-// `withdrawDelegatorRewards` is a helper function for the `WithdrawDelegatorRewards` method.
+// withdrawDelegatorRewards is a helper function for the `WithdrawDelegatorRewards` method.
 func (c *Contract) withdrawDelegatorRewardsHelper(
 	ctx context.Context,
 	delegator sdk.AccAddress,

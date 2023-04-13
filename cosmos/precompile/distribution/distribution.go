@@ -43,7 +43,7 @@ type Contract struct {
 	querier   distributiontypes.QueryServer
 }
 
-// `NewPrecompileContract` returns a new instance of the distribution module precompile contract.
+// NewPrecompileContract returns a new instance of the distribution module precompile contract.
 func NewPrecompileContract(
 	m distributiontypes.MsgServer, q distributiontypes.QueryServer,
 ) ethprecompile.StatefulImpl {
@@ -58,7 +58,7 @@ func NewPrecompileContract(
 	}
 }
 
-// `CustomValueDecoders` overrides the `coreprecompile.StatefulImpl` interface.
+// CustomValueDecoders overrides the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertAccAddressFromBech32,
@@ -67,7 +67,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-// `PrecompileMethods` implements the `coreprecompile.StatefulImpl` interface.
+// PrecompileMethods implements the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
@@ -93,7 +93,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	}
 }
 
-// `SetWithdrawAddress` is the precompile contract method for the `setWithdrawAddress(address)` method.
+// SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.
 func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -110,7 +110,7 @@ func (c *Contract) SetWithdrawAddress(
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddr.Bytes()))
 }
 
-// `SetWithdrawAddressBech32` is the precompile contract method for the `setWithdrawAddress(string)` method.
+// SetWithdrawAddressBech32 is the precompile contract method for the `setWithdrawAddress(string)` method.
 func (c *Contract) SetWithdrawAddressBech32(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -131,7 +131,7 @@ func (c *Contract) SetWithdrawAddressBech32(
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), addr)
 }
 
-// `WithdrawDelegatorReward` is the precompile contract method for the `withdrawDelegatorReward(address,address)`
+// WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
 // method.
 func (c *Contract) WithdrawDelegatorReward(
 	ctx context.Context,
@@ -153,7 +153,7 @@ func (c *Contract) WithdrawDelegatorReward(
 	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
 }
 
-// `WithdrawDelegatorRewardBech32` is the precompile contract method for the `withdrawDelegatorReward(string,string)`.
+// WithdrawDelegatorRewardBech32 is the precompile contract method for the `withdrawDelegatorReward(string,string)`.
 func (c *Contract) WithdrawDelegatorRewardBech32(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -182,7 +182,7 @@ func (c *Contract) WithdrawDelegatorRewardBech32(
 	return c.withdrawDelegatorRewardsHelper(ctx, delegatorAddr, validatorAddr)
 }
 
-// `GetWithdrawAddrEnabled` is the precompile contract method for the `getWithdrawEnabled()` method.
+// GetWithdrawAddrEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawAddrEnabled(
 	ctx context.Context,
 	_ ethprecompile.EVM,

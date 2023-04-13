@@ -31,7 +31,7 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 )
 
-// `submitProposalHelper` is a helper function for the `SubmitProposal` method of the governance precompile contract.
+// submitProposalHelper is a helper function for the `SubmitProposal` method of the governance precompile contract.
 func (c *Contract) submitProposalHelper(
 	ctx context.Context,
 	proposalBz []byte,
@@ -52,7 +52,7 @@ func (c *Contract) submitProposalHelper(
 	return []any{res.ProposalId}, nil
 }
 
-// `cancelProposalHelper` is a helper function for the `CancelProposal` method of the governance precompile contract.
+// cancelProposalHelper is a helper function for the `CancelProposal` method of the governance precompile contract.
 func (c *Contract) cancelProposalHelper(
 	ctx context.Context,
 	proposer sdk.AccAddress,
@@ -69,7 +69,7 @@ func (c *Contract) cancelProposalHelper(
 	return []any{uint64(res.CanceledTime.Unix()), res.CanceledHeight}, nil
 }
 
-// `voteHelper` is a helper function for the `Vote` method of the governance precompile contract.
+// voteHelper is a helper function for the `Vote` method of the governance precompile contract.
 func (c *Contract) voteHelper(
 	ctx context.Context,
 	voter sdk.AccAddress,
@@ -86,7 +86,7 @@ func (c *Contract) voteHelper(
 	return []any{err == nil}, err
 }
 
-// `voteWeighted` is a helper function for the `VoteWeighted` method of the governance precompile contract.
+// voteWeighted is a helper function for the `VoteWeighted` method of the governance precompile contract.
 func (c *Contract) voteWeightedHelper(
 	ctx context.Context,
 	voter sdk.AccAddress,
@@ -114,7 +114,7 @@ func (c *Contract) voteWeightedHelper(
 	return []any{err == nil}, err
 }
 
-// `getProposalHelper` is a helper function for the `GetProposal` method of the governance precompile contract.
+// getProposalHelper is a helper function for the `GetProposal` method of the governance precompile contract.
 func (c *Contract) getProposalHelper(ctx context.Context, proposalID uint64) ([]any, error) {
 	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
 		ProposalId: proposalID,
@@ -125,7 +125,7 @@ func (c *Contract) getProposalHelper(ctx context.Context, proposalID uint64) ([]
 	return []any{transformProposalToABIProposal(*res.Proposal)}, nil
 }
 
-// `getProposalsHelper` is a helper function for the `GetProposal` method of the governance precompile contract.
+// getProposalsHelper is a helper function for the `GetProposal` method of the governance precompile contract.
 func (c *Contract) getProposalsHelper(
 	ctx context.Context,
 	proposalStatus int32,
@@ -145,7 +145,7 @@ func (c *Contract) getProposalsHelper(
 	return []any{proposals}, nil
 }
 
-// `transformProposalToABIProposal` is a helper function to transform a `v1.Proposal`
+// transformProposalToABIProposal is a helper function to transform a `v1.Proposal`
 // to an `IGovernanceModule.Proposal`.
 func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceModuleProposal {
 	message := make([]byte, 0)

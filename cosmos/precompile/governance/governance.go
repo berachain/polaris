@@ -91,7 +91,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	}
 }
 
-// `CustomValueDecoders` implements the `ethprecompile.StatefulImpl` interface.
+// CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		govtypes.AttributeKeyProposalID: log.ConvertUint64,
@@ -106,7 +106,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-// `SubmitProposal` is the method for the `submitProposal` method of the governance precompile contract.
+// SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -130,7 +130,7 @@ func (c *Contract) SubmitProposal(
 	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
 }
 
-// `CancelProposal` is the method for the `cancelProposal` method of the governance precompile contract.
+// CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
 func (c *Contract) CancelProposal(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -148,7 +148,7 @@ func (c *Contract) CancelProposal(
 	return c.cancelProposalHelper(ctx, proposer, id)
 }
 
-// `Vote` is the method for the `vote` method of the governance precompile contract.
+// Vote is the method for the `vote` method of the governance precompile contract.
 func (c *Contract) Vote(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -174,7 +174,7 @@ func (c *Contract) Vote(
 	return c.voteHelper(ctx, voter, proposalID, options, metadata)
 }
 
-// `VoteWeighted` is the method for the `voteWeighted` method of the governance precompile contract.
+// VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
 func (c *Contract) VoteWeighted(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -199,7 +199,7 @@ func (c *Contract) VoteWeighted(
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
 
-// `GetProposal` is the method for the `getProposal` method of the governance precompile contract.
+// GetProposal is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposal(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -216,7 +216,7 @@ func (c *Contract) GetProposal(
 	return c.getProposalHelper(ctx, proposalID)
 }
 
-// `GetProposals` is the method for the `getProposal` method of the governance precompile contract.
+// GetProposals is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposals(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -233,7 +233,7 @@ func (c *Contract) GetProposals(
 	return c.getProposalsHelper(ctx, proposalStatus)
 }
 
-// `unmarshalMsgAndReturnAny` unmarshals `[]byte` into a `codectypes.Any` message.
+// unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
 // TODO: This is a temporary solution until we have a better way to unmarshal messages.
 func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
 	var msg banktypes.MsgSend
