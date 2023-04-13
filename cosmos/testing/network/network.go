@@ -264,12 +264,6 @@ func DistrTestSetup(
 	dk.Params = distrtypes.DefaultParams()
 	dk.Params.WithdrawAddrEnabled = true
 
-	// Set the validator accumulated commission.
-	dk.ValidatorAccumulatedCommissions = append(dk.ValidatorAccumulatedCommissions,
-		distrtypes.ValidatorAccumulatedCommissionRecord{
-			ValidatorAddress: valAddr.String(),
-		})
-
 	// Set the validator historical rewards.
 	dk.ValidatorHistoricalRewards = append(dk.ValidatorHistoricalRewards,
 		distrtypes.ValidatorHistoricalRewardsRecord{

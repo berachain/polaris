@@ -42,6 +42,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 
+	//nolint:stylecheck,revive // Ginkgo is the testing framework.
 	. "github.com/onsi/ginkgo/v2"
 )
 
@@ -105,6 +106,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 
 	// Fund the caller with some coins.
 	err = lib.MintCoinsToAddress(
+		//nolint:gomnd // magic number is fine here.
 		ctx, bk, governancetypes.ModuleName, lib.AccAddressToEthAddress(caller), "abera", big.NewInt(100000000),
 	)
 	if err != nil {
