@@ -26,21 +26,20 @@
 pragma solidity ^0.8.4;
 
 import {ERC20} from "../../lib/ERC20.sol";
+import {Owned} from "../../lib/Owned.sol";
 
-contract PolarisERC20 is ERC20 {
-    address private _owner;
+contract PolarisERC20 is Owned, ERC20 {
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol, 18) {
-        _owner = msg.sender;
-    }
+    constructor(string memory name, string memory symbol) 
+        Owned(msg.sender)
+        ERC20(name, symbol, 18) 
+    {}
 
-    function mint(address to, uint256 amount) external {
-        require(msg.sender == _owner, "PolarisERC20: only owner can mint");
+    function mint(address to, uint256 amount) onlyOwner external {
         _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) external {
-        require(msg.sender == _owner, "PolarisERC20: only owner can burn");
+    function burn(address from, uint256 amount) onlyOwner external {
         _burn(from, amount);
     }
 }
