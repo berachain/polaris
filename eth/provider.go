@@ -39,9 +39,9 @@ type PolarisProvider struct {
 
 // NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
 func NewPolarisProvider(
+	cfg *node.Config,
 	host core.PolarisHostChain,
 	logHandler log.Handler,
-	datadir string,
 ) *PolarisProvider {
 	sp := &PolarisProvider{}
 	// When creating a Polaris EVM, we allow the implementing chain
@@ -58,18 +58,8 @@ func NewPolarisProvider(
 	// Build and set the RPC Backend.
 	sp.backend = rpc.NewPolarisBackend(sp.Chain, config.DefaultServer())
 
-	// TODO: Allow Proper Node Configuration Pass Through
-	cfg := node.DefaultConfig                        // todo: configure correctly.
-	cfg.P2P.MaxPeers = 0                             // todo: configure correctly.
-	cfg.HTTPModules = append(cfg.HTTPModules, "eth") // todo: configure correctly.
-	cfg.HTTPHost = "localhost"                       // todo: configure correctly.
-	cfg.WSHost = "localhost"                         // todo: configure correctly.
-	cfg.WSModules = append(cfg.WSModules, "eth")     // todo: configure correctly.
-	cfg.WSOrigins = []string{"*"}
-	cfg.DataDir = datadir // todo: configure correctly.
-
 	var err error
-	sp.Node, err = node.New(&cfg)
+	sp.Node, err = node.New(cfg)
 	if err != nil {
 		panic(err)
 	}
