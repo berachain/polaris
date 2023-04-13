@@ -66,10 +66,11 @@ type PolarisBackend interface {
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	chain     api.Chain
-	rpcConfig *config.Server
-	gpo       *gasprice.Oracle
-	logger    log.Logger
+	accountManager *accounts.Manager
+	chain          api.Chain
+	rpcConfig      *config.Server
+	gpo            *gasprice.Oracle
+	logger         log.Logger
 }
 
 // ==============================================================================
@@ -77,12 +78,16 @@ type backend struct {
 // ==============================================================================
 
 // NewPolarisBackend returns a new `Backend` object.
-func NewPolarisBackend(chain api.Chain, rpcConfig *config.Server) PolarisBackend {
+func NewPolarisBackend(
+	chain api.Chain,
+	rpcConfig *config.Server,
+	accountManager *accounts.Manager,
+) PolarisBackend {
 	b := &backend{
-		// accountManager: accounts.NewManager(&accounts.Config{InsecureUnlockAllowed: true}),
-		chain:     chain,
-		rpcConfig: rpcConfig,
-		logger:    log.Root(),
+		accountManager: accountManager,
+		chain:          chain,
+		rpcConfig:      rpcConfig,
+		logger:         log.Root(),
 	}
 	b.gpo = gasprice.NewOracle(b, DefaultGasPriceOracleConfig)
 	return b

@@ -21,6 +21,8 @@
 package eth
 
 import (
+	"github.com/ethereum/go-ethereum/accounts"
+
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -30,7 +32,8 @@ import (
 // PolarisProvider is the only object that an implementing chain should use.
 type PolarisProvider struct {
 	api.Chain
-	rps rpc.Service
+	rps    rpc.Service
+	accman *accounts.Manager
 }
 
 // NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
@@ -51,11 +54,18 @@ func NewPolarisProvider(
 	// Build the chain from the host.
 	sp.Chain = core.NewChain(host)
 
+	// TODO: POLARIS.TOML
+	const insecureUnlockAllowed = true
+	sp.accman = accounts.NewManager(&accounts.Config{InsecureUnlockAllowed: insecureUnlockAllowed})
+
 	// Build and set the RPC Backend.
 	if rps != nil {
 		sp.rps = rps
-		sp.rps.SetBackend(rpc.NewPolarisBackend(sp.Chain, rps.GetConfig()))
+		sp.rps.SetBackend(rpc.NewPolarisBackend(sp.Chain, rps.GetConfig(), sp.accman))
 	}
+
+	// Creates an empty AccountManager with no backends. Callers (e.g. cmd/geth)
+	// are required to add the backends later on.
 
 	return sp
 }
