@@ -115,15 +115,6 @@ interface IBankModule {
      */
     function send(address fromAddress, address toAddress, Coin[] calldata amount) external payable returns (bool);
 
-    // /**
-    //  * @dev Send coins from one sender and to a series of different address. 
-    //  * If any of the receiving addresses do not correspond to an existing account, 
-    //  * a new account is created.
-    //  * 
-    //  * Inputs, despite being `repeated`, only allows one sender input. 
-    //  */
-    // function multiSend(Balance calldata input, Balance[] calldata outputs) external payable returns (bool);
-
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
     /**
@@ -135,12 +126,20 @@ interface IBankModule {
         string denom;
     }
 
+    /**
+     * @dev Represents a denom unit.
+     * Note: this struct is generated in generated/i_bank_module.abigen.go
+     */
     struct DenomUnit {
         string denom;
         string[] aliases;
         uint32 exponent;
     }
 
+    /**
+     * @dev Represents a denom metadata.
+     * Note: this struct is generated in generated/i_bank_module.abigen.go
+     */
     struct DenomMetadata {
         string description;
         DenomUnit[] denomUnits;
@@ -149,9 +148,4 @@ interface IBankModule {
         string name;
         string symbol;
     }
-
-    // struct Balance {
-    //     address addr;
-    //     Coin[] coins;
-    // }
 }

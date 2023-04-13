@@ -98,7 +98,6 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	}
 }
 
-// grpc_query functions
 // GetBalance implements `getBalance(address,string)` method.
 func (c *Contract) GetBalance(
 	ctx context.Context,
@@ -321,7 +320,6 @@ func (c *Contract) GetSendEnabled(
 	return []any{res.SendEnabled[0].Enabled}, nil
 }
 
-// msg_server functions
 // Send implements `send(address,address,(uint256,string))` method.
 func (c *Contract) Send(
 	ctx context.Context,
@@ -352,64 +350,3 @@ func (c *Contract) Send(
 	})
 	return []any{err == nil}, err
 }
-
-// note: not doing it now, it causes too much trouble
-// // MultiSend implements `multiSend((address,(uint256,string)[]),(address,(uint256,string)[])[])` method.
-// func (c *Contract) MultiSend(
-// 	ctx context.Context,
-// 	_ ethprecompile.EVM,
-// 	_ common.Address,
-// 	_ *big.Int,
-// 	readonly bool,
-// 	args ...any,
-// ) ([]any, error) {
-// 	evmInput, ok := utils.GetAs[generated.IBankModuleBalance](args[0])
-// 	if !ok {
-// 		return nil, precompile.ErrInvalidAny
-// 	}
-// 	evmOutputs, ok := utils.GetAs[[]generated.IBankModuleBalance](args[1])
-// 	if !ok {
-// 		return nil, precompile.ErrInvalidAny
-// 	}
-
-// 	totalOutputCoins := sdk.NewCoins()
-
-// 	// input params for c.msgServer.MultiSend
-// 	sdkInputs := make([]banktypes.Input, 1)
-// 	sdkOutputs := make([]banktypes.Output, len(evmOutputs))
-
-// 	inputSdkCoins := sdk.NewCoins()
-// 	for _, coin := range evmInput.Coins {
-// 		inputSdkCoins = append(inputSdkCoins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
-// 	}
-
-// 	sdkInputs[0] = banktypes.NewInput(
-// 		cosmlib.AddressToAccAddress(evmInput.Addr),
-// 		inputSdkCoins,
-// 	)
-
-// 	for i, evmOutput := range evmOutputs {
-// 		sdkCoins := sdk.NewCoins()
-// 		for _, coin := range evmOutput.Coins {
-// 			sdkCoins = append(sdkCoins, sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount)))
-// 		}
-
-// 		totalOutputCoins = totalOutputCoins.Add(sdkCoins...)
-
-// 		sdkOutputs[i] = banktypes.NewOutput(
-// 			cosmlib.AddressToAccAddress(evmOutput.Addr),
-// 			sdkCoins,
-// 		)
-// 	}
-
-// 	// Check input amount and total amounts for outputs are equal
-// 	if !inputSdkCoins.Equal(totalOutputCoins) {
-// 		return nil, precompile.ErrInvalidAny
-// 	}
-
-// 	_, err := c.msgServer.MultiSend(ctx, &banktypes.MsgMultiSend{
-// 		Inputs:  sdkInputs,
-// 		Outputs: sdkOutputs,
-// 	})
-// 	return []any{err == nil}, err
-// }

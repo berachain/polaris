@@ -43,7 +43,7 @@ func TestStakingPrecompile(t *testing.T) {
 }
 
 var (
-	stf               *integration.TestFixture
+	tf                *integration.TestFixture
 	stakingPrecompile *bindings.StakingModule
 	validator         common.Address
 	delegateAmt       = big.NewInt(123450000000)
@@ -51,10 +51,10 @@ var (
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
-	stf = integration.NewTestFixture(GinkgoT())
-	validator = common.Address(stf.Network.Validators[0].Address.Bytes())
+	tf = integration.NewTestFixture(GinkgoT())
+	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
 	stakingPrecompile, _ = bindings.NewStakingModule(
-		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), stf.EthClient)
+		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
 	return nil
 }, func(data []byte) {})
 
@@ -75,12 +75,12 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		txr := stf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("")
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(stf.EthClient, tx)
-		ExpectSuccessReceipt(stf.EthClient, tx)
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -89,14 +89,14 @@ var _ = Describe("Staking", func() {
 
 	It("should be able to call a precompile from a smart contract", func() {
 		contractAddr, tx, contract, err := tbindings.DeployLiquidStaking(
-			stf.GenerateTransactOpts(""),
-			stf.EthClient,
+			tf.GenerateTransactOpts(""),
+			tf.EthClient,
 			"myToken",
 			"MTK",
 		)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(stf.EthClient, tx)
-		ExpectSuccessReceipt(stf.EthClient, tx)
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		delegated, err := stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -108,13 +108,13 @@ var _ = Describe("Staking", func() {
 		Expect(addresses[0]).To(Equal(validator))
 
 		// Send tokens to the contract to delegate and mint LSD.
-		txr := stf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("")
 		txr.GasLimit = 0
 		txr.Value = delegateAmt
 		tx, err = contract.Delegate(txr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(stf.EthClient, tx)
-		ExpectSuccessReceipt(stf.EthClient, tx)
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for a couple blocks to query.
 		time.Sleep(4 * time.Second)

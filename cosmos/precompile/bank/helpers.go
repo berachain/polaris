@@ -44,6 +44,8 @@ func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 
 // extractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
 func extractCoinsFromInput(coins any) (sdk.Coins, error) {
+	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
+	// the any type input into IBankModuleCoin.
 	amounts, ok := utils.GetAs[[]struct {
 		Amount *big.Int `json:"amount"`
 		Denom  string   `json:"denom"`
