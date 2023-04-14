@@ -56,7 +56,7 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 			// cosmlib.AccAddressToEthAddress(
 			// 	authtypes.NewModuleAddress(erc20types.ModuleName),
 			// ),
-			common.HexToAddress("0x696969"),
+			common.HexToAddress("0x696969"), // TODO: module addresses are broken
 		),
 		bk:              bk,
 		em:              em,

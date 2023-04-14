@@ -22,7 +22,6 @@ package erc20
 
 import (
 	"context"
-	"errors"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -75,6 +74,11 @@ func (c *Contract) convertCoinToERC20(
 			return err
 		}
 		token = cosmlib.AccAddressToEthAddress(tokenAcc)
+
+		// return an error if the ERC20 token contract does not exist to revert the tx
+		if !evm.GetStateDB().Exist(token) {
+			return ErrTokenDoesNotExist
+		}
 	}
 
 	if erc20types.IsPolarisDenom(denom) {
@@ -131,18 +135,20 @@ func (c *Contract) convertERC20ToCoin(
 	if err != nil {
 		return err
 	}
-	if resp.Denom == "" {
+
+	denom := resp.Denom
+	if denom == "" {
 		// if denomination not found, create new pair with ERC20 token <> Polaris coin denomination
-		resp.Denom = c.em.RegisterERC20CoinPair(sdkCtx, token)
+		denom = c.em.RegisterERC20CoinPair(sdkCtx, token)
 	}
 
-	if erc20types.IsPolarisDenom(resp.Denom) {
+	if erc20types.IsPolarisDenom(denom) {
 		// converting ERC20 originated tokens to Polaris coins
 		// NOTE: owner must approve caller to spend amount ERC20 tokens
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
 		if !evm.GetStateDB().Exist(token) {
-			return errors.New("ERC20 token contract does not exist")
+			return ErrTokenDoesNotExist
 		}
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
@@ -160,16 +166,16 @@ func (c *Contract) convertERC20ToCoin(
 	}
 
 	// mint amount SDK/Polaris Coins to owner
-	if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, resp.Denom, amount); err != nil {
+	if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
 		return err
 	}
 
 	sdkCtx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			erc20types.EventTypeConvertERC20ToCoin,
-			sdk.NewAttribute(erc20types.AttributeKeyDenom, resp.Denom),
+			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
 			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+resp.Denom),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+denom),
 		),
 	)
 	return nil

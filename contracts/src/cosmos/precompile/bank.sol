@@ -29,6 +29,8 @@ pragma solidity ^0.8.4;
  * @dev Interface of all supported Cosmos events emitted by the bank module
  */
 interface IBankModule {
+    ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
+
     /**
      * @dev Emitted by the bank module when `amount` tokens are sent to `recipient`
      */
@@ -63,4 +65,11 @@ interface IBankModule {
      * Note: `burner` is a module address
      */
     event Burn(address indexed burner, uint256 amount);
+
+    /////////////////////////////////////// READ METHODS //////////////////////////////////////////
+
+    /**
+     * @dev Returns the `amount` of account balance by address for a given denomination.
+     */
+    function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
 }

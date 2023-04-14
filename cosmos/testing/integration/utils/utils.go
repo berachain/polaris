@@ -30,6 +30,7 @@ import (
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
+	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck  // Gomega makes sense in tests.
@@ -85,12 +86,31 @@ func ExpectSuccessReceipt(
 	return receipt
 }
 
+// ExpectFailedReceipt waits for the transaction to be mined and returns the receipt.
+// It also checks that the transaction was failed.
+func ExpectFailedReceipt(
+	client *ethclient.Client,
+	tx *coretypes.Transaction,
+) *coretypes.Receipt {
+	// Wait for the transaction to be mined.
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+	defer cancel()
+	_, err := bind.WaitMined(ctx, client, tx)
+	Expect(err).ToNot(HaveOccurred())
+
+	// Verify the receipt is good but status failed.
+	receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+	Expect(err).ToNot(HaveOccurred())
+	Expect(receipt.Status).To(Equal(uint64(0x0))) //nolint:gomnd // success.
+	return receipt
+}
+
 // DeployERC20 deploys a new ERC20 contract and waits for the transaction to be mined.
-// Upon success, it returns a binding to the contract.
+// Upon success, it returns a binding to the contract and the address of the contract.
 func DeployERC20(
 	auth *bind.TransactOpts,
 	client *ethclient.Client,
-) *bindings.SolmateERC20 {
+) (*bindings.SolmateERC20, common.Address) {
 	// Deploy the contract
 	expectedAddr, tx, contract, err := bindings.DeploySolmateERC20(auth, client)
 	Expect(err).ToNot(HaveOccurred())
@@ -111,5 +131,5 @@ func DeployERC20(
 	// Ensure that the contract address is correct.
 	Expect(expectedAddr).To(Equal(receipt.ContractAddress))
 
-	return contract
+	return contract, expectedAddr
 }

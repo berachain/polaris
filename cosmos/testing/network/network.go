@@ -23,7 +23,6 @@ package network
 import (
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"time"
 
 	cdb "github.com/cosmos/cosmos-db"
@@ -40,13 +39,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -174,33 +171,5 @@ func BuildGenesisState() map[string]json.RawMessage {
 	stakingState.Params.BondDenom = "abera"
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
-	// EVM module
-	var evmState evmtypes.GenesisState
-	encoding.Codec.MustUnmarshalJSON(genState[evmtypes.ModuleName], &evmState)
-	contractCode := common.FromHex(tbindings.SolmateERC20MetaData.Bin)
-	contractCodeHash := crypto.Keccak256Hash(contractCode).Hex()
-	evmState.HashToCode = map[string]string{
-		contractCodeHash: string(contractCode),
-	}
-	contract := &evmtypes.Contract{
-		CodeHash: contractCodeHash,
-		SlotToValue: map[string]string{
-			mappingKey(TestAddress, big.NewInt(1)).Hex(): balanceToValue(big.NewInt(initialERC20balance)).Hex(),
-		},
-	}
-	evmState.AddressToContract = map[string]*evmtypes.Contract{
-		common.HexToAddress("0x6969696969").Hex(): contract,
-	}
-	genState[evmtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&evmState)
-
 	return genState
-}
-
-func mappingKey(addr common.Address, slot *big.Int) common.Hash {
-	hashInput := append(addr.Bytes(), common.LeftPadBytes(slot.Bytes(), leftPad)...)
-	return crypto.Keccak256Hash(hashInput)
-}
-
-func balanceToValue(balance *big.Int) common.Hash {
-	return common.BigToHash(balance)
 }

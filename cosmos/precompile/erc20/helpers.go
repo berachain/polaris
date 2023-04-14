@@ -21,6 +21,7 @@
 package erc20
 
 import (
+	"errors"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,6 +32,15 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	enclib "pkg.berachain.dev/polaris/lib/encoding"
 )
+
+var (
+	// ErrTokenDoesNotExist is returned when a token contract does not exist.
+	ErrTokenDoesNotExist = errors.New("ERC20 token contract does not exist")
+)
+
+// ==============================================================================
+// EVM Callback Functions
+// ==============================================================================
 
 // deployPolarisERC20Contract deploys a new ERC20 token contract by calling back into the EVM.
 func (c *Contract) deployPolarisERC20Contract(
@@ -176,6 +186,10 @@ func (c *Contract) callERC20TransferFrom(
 	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "ERC20 transferFrom")
 	return err
 }
+
+// ==============================================================================
+// Event Attribute Value Decoders
+// ==============================================================================
 
 // ConvertCommonHexAddress is a value decoder.
 var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
