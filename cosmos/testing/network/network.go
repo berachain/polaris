@@ -59,10 +59,12 @@ type (
 )
 
 const (
-	thousand    = 1000
-	fivehundred = 500
-	onehundred  = 100
-	megamoney   = 1000000000000000000
+	thousand            = 1000
+	fivehundred         = 500
+	onehundred          = 100
+	initialERC20balance = 123456789
+	leftPad             = 32
+	megamoney           = 1000000000000000000
 )
 
 var (
@@ -183,7 +185,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 	contract := &evmtypes.Contract{
 		CodeHash: contractCodeHash,
 		SlotToValue: map[string]string{
-			mappingKey(TestAddress, big.NewInt(1)).Hex(): balanceToValue(big.NewInt(123456789)).Hex(),
+			mappingKey(TestAddress, big.NewInt(1)).Hex(): balanceToValue(big.NewInt(initialERC20balance)).Hex(),
 		},
 	}
 	evmState.AddressToContract = map[string]*evmtypes.Contract{
@@ -195,7 +197,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 }
 
 func mappingKey(addr common.Address, slot *big.Int) common.Hash {
-	hashInput := append(addr.Bytes(), common.LeftPadBytes(slot.Bytes(), 32)...)
+	hashInput := append(addr.Bytes(), common.LeftPadBytes(slot.Bytes(), leftPad)...)
 	return crypto.Keccak256Hash(hashInput)
 }
 
