@@ -40,7 +40,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/contracts/bindings/testing"
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
@@ -175,7 +175,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 	// EVM module
 	var evmState evmtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[evmtypes.ModuleName], &evmState)
-	contractCode := common.FromHex(testing.SolmateERC20MetaData.Bin)
+	contractCode := common.FromHex(tbindings.SolmateERC20MetaData.Bin)
 	contractCodeHash := crypto.Keccak256Hash(contractCode).Hex()
 	evmState.HashToCode = map[string]string{
 		contractCodeHash: string(contractCode),

@@ -200,7 +200,12 @@ var _ = Describe("ERC20", func() {
 			})
 
 			It("should handle a ERC20 originated token", func() {
-
+				// TODO: setting the genesis is not working!
+				// token, err := tbindings.NewSolmateERC20(common.HexToAddress("0x6969696969"), tf.EthClient)
+				// Expect(err).ToNot(HaveOccurred())
+				// balance, err := token.BalanceOf(nil, network.TestAddress)
+				// Expect(err).ToNot(HaveOccurred())
+				// Expect(balance).To(Equal(big.NewInt(123456789)))
 			})
 		})
 	})
