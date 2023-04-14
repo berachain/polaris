@@ -72,6 +72,14 @@ var _ = Describe("Attributes", func() {
 			accAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))
 		})
+
+		It("should correctly convert string to uint64", func() {
+			numStr := strconv.FormatUint(1, 10)
+			gethValue, err = ConvertUint64(numStr)
+			Expect(err).ToNot(HaveOccurred())
+			uint64Val := libutils.MustGetAs[uint64](gethValue)
+			Expect(uint64Val).To(Equal(uint64(1)))
+		})
 	})
 
 	Describe("Test Search Attributes for Argument", func() {
