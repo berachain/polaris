@@ -27,7 +27,6 @@ import (
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -40,7 +39,7 @@ func TestCosmosPrecompiles(t *testing.T) {
 }
 
 var (
-	tf            *integration.TestFixture
+	tf             *integration.TestFixture
 	bankPrecompile *bindings.BankModule
 )
 
@@ -94,12 +93,12 @@ var _ = Describe("Bank", func() {
 		}
 
 		// TestAddress3 initially has 100 abera
-		balance, err := bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
+		balance, err := bankPrecompile.GetBalance(nil, tf.Address("2"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(100)))
 
 		// Send 1000 bera from TestAddress to TestAddress3
-		_, err = bankPrecompile.Send(tf.GenerateTransactOpts(""), network.TestAddress, network.TestAddress3, coinsToBeSent)
+		_, err = bankPrecompile.Send(tf.GenerateTransactOpts("0"), tf.Address("0"), tf.Address("2"), coinsToBeSent)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		// Wait one block.
@@ -107,20 +106,20 @@ var _ = Describe("Bank", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// TestAddress3 now has 1100 abera
-		balance, err = bankPrecompile.GetBalance(nil, network.TestAddress3, denom)
+		balance, err = bankPrecompile.GetBalance(nil, tf.Address("2"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(1100)))
 
 		// TestAddress2 has 100 abera and 100 atoken
-		allBalance, err := bankPrecompile.GetAllBalances(nil, network.TestAddress2)
+		allBalance, err := bankPrecompile.GetAllBalances(nil, tf.Address("1"))
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(allBalance).To(Equal(expectedAllBalance))
 
-		spendableBalanceByDenom, err := bankPrecompile.GetSpendableBalance(nil, network.TestAddress2, denom)
+		spendableBalanceByDenom, err := bankPrecompile.GetSpendableBalance(nil, tf.Address("1"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalanceByDenom).To(Equal(big.NewInt(100)))
 
-		spendableBalances, err := bankPrecompile.GetAllSpendableBalances(nil, network.TestAddress2)
+		spendableBalances, err := bankPrecompile.GetAllSpendableBalances(nil, tf.Address("1"))
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalances).To(Equal(expectedAllBalance))
 
@@ -143,7 +142,7 @@ var _ = Describe("Bank", func() {
 
 	// It("should be able to call a precompile from a smart contract", func() {
 	// 	contractAddr, tx, contract, err := tbindings.DeployLiquidBank(
-	// 		tf.GenerateTransactOpts(""),
+	// 		tf.GenerateTransactOpts("0"),
 	// 		tf.EthClient,
 	// 		"myToken",
 	// 		"MTK",
@@ -162,7 +161,7 @@ var _ = Describe("Bank", func() {
 	// 	Expect(addresses[0]).To(Equal(validator))
 
 	// 	// Send tokens to the contract
-	// 	txr := tf.GenerateTransactOpts("")
+	// 	txr := tf.GenerateTransactOpts("0")
 	// 	txr.GasLimit = 0
 	// 	txr.Value = big.NewInt(100000000000)
 	// 	tx, err = contract.Delegate(txr, big.NewInt(100000000000))

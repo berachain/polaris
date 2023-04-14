@@ -46,7 +46,6 @@ import (
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
@@ -63,20 +62,8 @@ const (
 )
 
 var (
-	DummyContract    = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-	TestKey, _       = ethsecp256k1.GenPrivKey()
-	TestKey2, _      = ethsecp256k1.GenPrivKey()
-	TestKey3, _      = ethsecp256k1.GenPrivKey()
-	ECDSATestKey, _  = TestKey.ToECDSA()
-	ECDSATestKey2, _ = TestKey2.ToECDSA()
-	ECDSATestKey3, _ = TestKey3.ToECDSA()
-	AddressFromKey   = TestKey.PubKey().Address()
-	AddressFromKey2  = TestKey2.PubKey().Address()
-	AddressFromKey3  = TestKey3.PubKey().Address()
-	Signer           = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
-	TestAddress      = crypto.PubkeyToAddress(ECDSATestKey.PublicKey)
-	TestAddress2     = crypto.PubkeyToAddress(ECDSATestKey2.PublicKey)
-	TestAddress3     = crypto.PubkeyToAddress(ECDSATestKey3.PublicKey)
+	DummyContract = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
+	Signer        = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 )
 
 type TestingT interface {
@@ -93,9 +80,10 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 	if len(configs) > 1 {
 		panic("at most one config should be provided")
 	}
+
 	var cfg network.Config
 	if len(configs) == 0 {
-		cfg = DefaultConfig()
+		cfg = DefaultConfig(map[string]*ethsecp256k1.PrivKey{})
 	} else {
 		cfg = configs[0]
 	}
@@ -110,7 +98,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 
 // DefaultConfig will initialize config for the network with custom application,
 // genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig.
-func DefaultConfig() network.Config {
+func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
 	cfg := network.Config{
 		Codec:             encoding.Codec,
@@ -126,7 +114,7 @@ func DefaultConfig() network.Config {
 				baseapp.SetChainID("polaris-2061"),
 			)
 		},
-		GenesisState:    BuildGenesisState(),
+		GenesisState:    BuildGenesisState(keysMap),
 		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
@@ -144,51 +132,30 @@ func DefaultConfig() network.Config {
 	return cfg
 }
 
-func BuildGenesisState() map[string]json.RawMessage {
+func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json.RawMessage {
 	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
 	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
 
-	// Auth module
+	// Auth & Bank module
 	var authState authtypes.GenesisState
-	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
-	newAccount, err := authtypes.NewBaseAccountWithPubKey(TestKey.PubKey())
-	if err != nil {
-		panic(err)
-	}
-	newAccount2, err := authtypes.NewBaseAccountWithPubKey(TestKey2.PubKey())
-	if err != nil {
-		panic(err)
-	}
-	newAccount3, err := authtypes.NewBaseAccountWithPubKey(TestKey3.PubKey())
-	if err != nil {
-		panic(err)
-	}
-	accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
-	accounts2, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount2})
-	accounts3, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount3})
-	authState.Accounts = append(authState.Accounts, accounts[0])
-	authState.Accounts = append(authState.Accounts, accounts2[0])
-	authState.Accounts = append(authState.Accounts, accounts3[0])
-	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
-
-	// Bank module
 	var bankState banktypes.GenesisState
+
+	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
-	bankState.Balances = append(bankState.Balances, banktypes.Balance{
-		Address: newAccount.Address,
-		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
-	})
-	bankState.Balances = append(bankState.Balances, banktypes.Balance{
-		Address: newAccount2.Address,
-		Coins: sdk.NewCoins(
-			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
-			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
-		),
-	})
-	bankState.Balances = append(bankState.Balances, banktypes.Balance{
-		Address: newAccount3.Address,
-		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred))),
-	})
+
+	for mapKey, testKey := range keysMap {
+		newAccount, err := authtypes.NewBaseAccountWithPubKey(testKey.PubKey())
+		if err != nil {
+			panic(err)
+		}
+		accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
+		authState.Accounts = append(authState.Accounts, accounts[0])
+		bankState.Balances = append(bankState.Balances, banktypes.Balance{
+			Address: newAccount.Address,
+			Coins:   getCoinsForAccount(mapKey),
+		})
+	}
+
 	bankState.DenomMetadata = getTestMetadata()
 	bankState.SendEnabled = []banktypes.SendEnabled{
 		{
@@ -197,6 +164,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 		},
 	}
 
+	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 
 	// Staking module
@@ -208,6 +176,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 	return genState
 }
 
+//nolint:gomnd // its okay.
 func getTestMetadata() []banktypes.Metadata {
 	return []banktypes.Metadata{
 		{
@@ -234,5 +203,21 @@ func getTestMetadata() []banktypes.Metadata {
 			Base:    "utoken",
 			Display: "token",
 		},
+	}
+}
+
+func getCoinsForAccount(name string) sdk.Coins {
+	switch name {
+	case "0":
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
+	case "1":
+		return sdk.NewCoins(
+			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
+			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
+		)
+	case "2":
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred)))
+	default:
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred)))
 	}
 }

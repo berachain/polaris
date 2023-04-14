@@ -44,7 +44,7 @@ const defaultTimeout = 10 * time.Second
 var _ = Describe("Network", func() {
 	var net *network.Network
 	BeforeEach(func() {
-		net = network.New(GinkgoT(), network.DefaultConfig())
+		net = network.New(GinkgoT())
 		time.Sleep(5 * time.Second)
 		_, err := net.WaitForHeightWithTimeout(3, defaultTimeout)
 		Expect(err).ToNot(HaveOccurred())

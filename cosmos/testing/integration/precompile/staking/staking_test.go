@@ -29,7 +29,6 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -71,25 +70,25 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
-		delegated, err := stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+		delegated, err := stakingPrecompile.GetDelegation(nil, tf.Address("0"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("0")
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		delegated, err = stakingPrecompile.GetDelegation(nil, network.TestAddress, validator)
+		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("0"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {
 		contractAddr, tx, contract, err := tbindings.DeployLiquidStaking(
-			tf.GenerateTransactOpts(""),
+			tf.GenerateTransactOpts("0"),
 			tf.EthClient,
 			"myToken",
 			"MTK",
@@ -108,7 +107,7 @@ var _ = Describe("Staking", func() {
 		Expect(addresses[0]).To(Equal(validator))
 
 		// Send tokens to the contract to delegate and mint LSD.
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("0")
 		txr.GasLimit = 0
 		txr.Value = delegateAmt
 		tx, err = contract.Delegate(txr, delegateAmt)
@@ -125,7 +124,7 @@ var _ = Describe("Staking", func() {
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
 		// Check the balance of LSD ERC20 is minted to sender.
-		balance, err := contract.BalanceOf(nil, network.TestAddress)
+		balance, err := contract.BalanceOf(nil, tf.Address("0"))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance.Cmp(delegateAmt)).To(Equal(0))
 	})
