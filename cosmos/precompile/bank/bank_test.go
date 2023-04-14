@@ -544,6 +544,19 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 
 			It("should succeed", func() {
+				expectedResult := generated.IBankModuleDenomMetadata{
+					Name:        "Berachain bera",
+					Symbol:      "BERA",
+					Description: "The Bera.",
+					DenomUnits: []generated.IBankModuleDenomUnit{
+						{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
+						{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
+						{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
+					},
+					Base:    "abera",
+					Display: "bera",
+				}
+
 				metadata := getTestMetadata()
 				bk.SetDenomMetaData(ctx, metadata[0])
 
@@ -556,7 +569,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					metadata[0].Base,
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(metadata[0]))
+				Expect(res[0]).To(Equal(expectedResult))
 			})
 		})
 
