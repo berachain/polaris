@@ -200,7 +200,7 @@ var _ = Describe("ERC20", func() {
 			})
 
 			It("should handle a ERC20 originated token", func() {
-				
+
 			})
 		})
 	})

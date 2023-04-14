@@ -154,7 +154,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	// used, we intrinsic handle the case where the transaction on our host chain might have
 	// fully reverted, when it fact it should've been a vm error saying out of gas.
 	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
-	fmt.Println("givenGas", sp.gp.BlockGasLimit()-sp.gp.BlockGasConsumed())
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
@@ -162,16 +161,12 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	fmt.Println("result.UsedGas", result.UsedGas)
-
 	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
 	// while still ensuring that we consume all the gas.
 	if result.UsedGas > sp.gp.GasRemaining() {
 		result.UsedGas = sp.gp.GasRemaining()
 		result.Err = vm.ErrOutOfGas
 	}
-
-	fmt.Println("result.Err", result.Err)
 
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
 	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.

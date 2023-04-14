@@ -200,7 +200,7 @@ func (c *Contract) ERC20AddressForCoinDenom(
 func (c *Contract) ConvertCoinToERC20StringAddr(
 	ctx context.Context,
 	evm ethprecompile.EVM,
-	caller common.Address,
+	_ common.Address,
 	value *big.Int,
 	_ bool,
 	args ...any,
@@ -218,7 +218,7 @@ func (c *Contract) ConvertCoinToERC20StringAddr(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertCoinToERC20(ctx, caller, evm, value, denom, owner, amount)
+	err := c.convertCoinToERC20(ctx, evm, value, denom, owner, amount)
 	return []any{err == nil}, err
 }
 
@@ -226,7 +226,7 @@ func (c *Contract) ConvertCoinToERC20StringAddr(
 func (c *Contract) ConvertCoinToERC20StringString(
 	ctx context.Context,
 	evm ethprecompile.EVM,
-	caller common.Address,
+	_ common.Address,
 	value *big.Int,
 	_ bool,
 	args ...any,
@@ -250,7 +250,7 @@ func (c *Contract) ConvertCoinToERC20StringString(
 	}
 
 	err = c.convertCoinToERC20(
-		ctx, caller, evm, value, denom, cosmlib.AccAddressToEthAddress(owner), amount,
+		ctx, evm, value, denom, cosmlib.AccAddressToEthAddress(owner), amount,
 	)
 	return []any{err == nil}, err
 }

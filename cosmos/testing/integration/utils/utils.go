@@ -22,7 +22,6 @@ package utils
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -82,7 +81,6 @@ func ExpectSuccessReceipt(
 	// Verify the receipt is good.
 	receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
 	Expect(err).ToNot(HaveOccurred())
-	fmt.Println(receipt)
 	Expect(receipt.Status).To(Equal(uint64(0x1))) //nolint:gomnd // success.
 	return receipt
 }

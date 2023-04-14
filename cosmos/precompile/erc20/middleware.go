@@ -36,7 +36,6 @@ import (
 // convertCoinToERC20 converts SDK/Polaris coins to ERC20 tokens for an owner.
 func (c *Contract) convertCoinToERC20(
 	ctx context.Context,
-	caller common.Address,
 	evm ethprecompile.EVM,
 	value *big.Int,
 	denom string,
@@ -67,7 +66,7 @@ func (c *Contract) convertCoinToERC20(
 		// create the new ERC20 token contract pairing with SDK coin denomination
 		c.em.RegisterCoinERC20Pair(sdkCtx, denom, token)
 	} else {
-		// subsequent occurence of an IBC-originated SDK coin OR an ERC20 originated token's
+		// subsequent occurrence of an IBC-originated SDK coin OR an ERC20 originated token's
 		// Polaris coin counterpart
 
 		// convert ERC20 token bech32 address to common.Address
@@ -97,7 +96,7 @@ func (c *Contract) convertCoinToERC20(
 	}
 
 	// burn amount SDK/Polaris coins from owner
-	if err := cosmlib.BurnCoinsFromAddress(
+	if err = cosmlib.BurnCoinsFromAddress(
 		sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount,
 	); err != nil {
 		return err
@@ -150,14 +149,14 @@ func (c *Contract) convertERC20ToCoin(
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
-		if err := c.callERC20TransferFrom(sdkCtx, evm, caller, token, owner, c.RegistryKey(), amount); err != nil {
+		if err = c.callERC20TransferFrom(sdkCtx, evm, caller, token, owner, c.RegistryKey(), amount); err != nil {
 			return err
 		}
 	} else {
 		// converting Polaris ERC20 tokens to IBC-originated SDK coins
 
 		// burn amount ERC20 tokens from owner
-		if err := c.callPolarisERC20Burn(sdkCtx, evm, c.RegistryKey(), token, owner, amount); err != nil {
+		if err = c.callPolarisERC20Burn(sdkCtx, evm, c.RegistryKey(), token, owner, amount); err != nil {
 			return err
 		}
 	}
