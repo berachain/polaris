@@ -75,7 +75,6 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 	// 	panic(err)
 	// }
 	// evmrpc.RegisterJSONRPCServer(clientCtx, mux, app.EVMKeeper.GetRPCProvider()) maybe here?
-
 }
 
 // GetTxCmd returns no root tx command for the evm module.
@@ -123,8 +122,8 @@ func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 // RegisterServices registers a gRPC query service to respond to the
 // module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterQueryServiceServer(cfg.QueryServer(), am.keeper)
 	// types.RegisterMsgServiceServer(cfg.MsgServer(), am.keeper)
-	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
