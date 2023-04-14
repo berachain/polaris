@@ -54,7 +54,7 @@ interface IERC20Module {
     /**
      * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
      */
-    function coinDenomForERC20Address(address token) external view returns (string memory);
+    function coinDenomForERC20Address(IERC20 token) external view returns (string memory);
 
     /**
      * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address
@@ -65,7 +65,7 @@ interface IERC20Module {
     /**
      * @dev erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
      */
-    function erc20AddressForCoinDenom(string calldata denom) external view returns (address);
+    function erc20AddressForCoinDenom(string calldata denom) external view returns (IERC20);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 

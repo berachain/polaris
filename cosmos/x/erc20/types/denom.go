@@ -26,16 +26,25 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-// polarisDenomPrefix represents the bank module prefix all polaris erc20 module created denoms
-// will have.
-const polarisDenomPrefix = "polaris/"
+const (
+	// polarisDenomPrefix represents the bank module prefix all Polaris coin denominations will
+	// have (ERC20 originated token).
+	polarisDenomPrefix = "polaris/"
 
-// NewPolarisDenomForAddress returns a new Polaris Coin denom for a given ERC20 address.
-func NewPolarisDenomForAddress(addr common.Address) string {
-	return fmt.Sprintf("%s%s", polarisDenomPrefix, addr.Hex())
+	// lenPolarisDenomPrefix is the length of the polarisDenomPrefix.
+	lenPolarisDenomPrefix = 8
+
+	// lenPolarisDenom is the length of the (polarisDenomPrefix + 20 bytes + "0x") for the address.
+	lenPolarisDenom = 50
+)
+
+// NewPolarisDenomForAddress returns a new Polaris coin denomination for a given ERC20 originated
+// token address.
+func NewPolarisDenomForAddress(token common.Address) string {
+	return fmt.Sprintf("%s%s", polarisDenomPrefix, token.Hex())
 }
 
-// NewAddressForDenom returns a new ERC20 address for a given SDK Coin denom.
-func NewAddressForDenom(denom string) common.Address {
-	return common.BytesToAddress([]byte(denom))
+// IsPolarisDenom returns true if the given denom is a Polaris coin denomination.
+func IsPolarisDenom(denom string) bool {
+	return len(denom) == lenPolarisDenom && denom[:lenPolarisDenomPrefix] == polarisDenomPrefix
 }

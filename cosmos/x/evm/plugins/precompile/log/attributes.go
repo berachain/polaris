@@ -52,7 +52,7 @@ const (
 // for the default Cosmos SDK event `attributeKey`s. NOTE: only the event attributes of default
 // Cosmos SDK modules (bank, staking) are supported by this function.
 var defaultCosmosValueDecoders = precompile.ValueDecoders{
-	sdk.AttributeKeyAmount:                  ConvertSdkCoin,
+	sdk.AttributeKeyAmount:                  ConvertSdkCoins,
 	stakingtypes.AttributeKeyValidator:      ConvertValAddressFromBech32,
 	stakingtypes.AttributeKeySrcValidator:   ConvertValAddressFromBech32,
 	stakingtypes.AttributeKeyDstValidator:   ConvertValAddressFromBech32,
@@ -73,29 +73,36 @@ var defaultCosmosValueDecoders = precompile.ValueDecoders{
 // Compile-time assertions to ensure that the default attribute value decoder functions are
 // valueDecoders.
 var (
-	_ precompile.ValueDecoder = ConvertSdkCoin
+	_ precompile.ValueDecoder = ConvertSdkCoins
 	_ precompile.ValueDecoder = ConvertValAddressFromBech32
 	_ precompile.ValueDecoder = ConvertAccAddressFromBech32
 	_ precompile.ValueDecoder = ConvertInt64
 	_ precompile.ValueDecoder = ReturnStringAsIs
 )
 
-// ConvertSdkCoin converts the string representation of an `sdk.Coin` to a `*big.Int`.
+// ConvertSdkCoins converts the string representation of an `sdk.Coin` to a `*big.Int`. NOTE: only
+// 1 coin is supported. TODO: support multiple coins, will probably need to return a `[]*Coin`.
 //
-// ConvertSdkCoin is a `precompile.ValueDecoder`.
-func ConvertSdkCoin(attributeValue string) (any, error) {
+// ConvertSdkCoins is a `precompile.ValueDecoder`.
+func ConvertSdkCoins(attributeValue string) (any, error) {
 	// handle empty string
 	if attributeValue == "" {
 		return big.NewInt(0), nil
 	}
 
-	// extract the sdk.Coin from string value
-	coin, err := sdk.ParseCoinNormalized(attributeValue)
+	// extract the sdk.Coins from string value
+	coins, err := sdk.ParseCoinsNormalized(attributeValue)
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: remove when multiple coins are supported.
+	if len(coins) != 1 {
+		return nil, ErrNumberOfCoinsNotSupported
+	}
+
 	// convert the sdk.Coin to *big.Int
-	return coin.Amount.BigInt(), nil
+	return coins[0].Amount.BigInt(), nil
 }
 
 // ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a

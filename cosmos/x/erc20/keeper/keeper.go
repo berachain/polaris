@@ -58,14 +58,16 @@ func (k *Keeper) DenomKVStore(ctx sdk.Context) store.DenomKVStore {
 	return store.NewDenomKVStore(ctx.KVStore(k.storeKey))
 }
 
-// RegisterERC20CoinPair registers a new ERC 20 token <> SDK Coin pair for the given token and
-// creates a Polaris coin denomination.
-func (k *Keeper) RegisterERC20CoinPair(ctx sdk.Context, token common.Address) {
+// RegisterERC20CoinPair registers a new ERC20 originated token <> Polaris Coin pair and returns
+// the new Polaris Coin denom.
+func (k *Keeper) RegisterERC20CoinPair(ctx sdk.Context, token common.Address) string {
 	// store the denomination as a Polaris coin denomination.
-	k.DenomKVStore(ctx).SetAddressDenomPair(token, types.NewPolarisDenomForAddress(token))
+	polarisDenom := types.NewPolarisDenomForAddress(token)
+	k.DenomKVStore(ctx).SetAddressDenomPair(token, polarisDenom)
+	return polarisDenom
 }
 
-// RegisterCoinERC20Pair registers a new SDK Coin <> ERC 20 token pair for the given denom.
+// RegisterCoinERC20Pair registers a new IBC-originated SDK Coin <> ERC20 token pair.
 func (k *Keeper) RegisterCoinERC20Pair(ctx sdk.Context, denom string, token common.Address) {
 	// store the new ERC20 address for the given denomination.
 	k.DenomKVStore(ctx).SetAddressDenomPair(token, denom)

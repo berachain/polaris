@@ -24,7 +24,7 @@ package polaris.erc20.module.v1alpha1;
 
 import "cosmos/app/v1alpha1/module.proto";
 
-// Module is the config object of the evm module.
+// Module is the config object of the erc20 module.
 message Module {
   option (cosmos.app.v1alpha1.module) = {go_import: "pkg.berachain.dev/polaris/cosmos/x/erc20"};
 
