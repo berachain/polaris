@@ -189,6 +189,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 	evmState.AddressToContract = map[string]*evmtypes.Contract{
 		common.HexToAddress("0x6969696969").Hex(): contract,
 	}
+	genState[evmtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&evmState)
 
 	return genState
 }
