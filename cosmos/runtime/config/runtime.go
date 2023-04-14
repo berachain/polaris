@@ -42,6 +42,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 // DefaultRuntime represents a standard default runtime configuration.
@@ -106,6 +108,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensustypes.ModuleName,
+		buildertypes.ModuleName,
 	},
 	// When ExportGenesis is not specified, the export genesis module order
 	// is equal to the init genesis order

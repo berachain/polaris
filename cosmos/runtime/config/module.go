@@ -67,6 +67,9 @@ import (
 
 	evmmodulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+
+	buildermodule "github.com/skip-mev/pob/api/pob/builder/module/v1"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 var (
@@ -79,6 +82,7 @@ var (
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: buildertypes.ModuleName, Permissions: []string{}},
 	}
 
 	// blocked account addresses.
@@ -185,6 +189,12 @@ var (
 		{
 			Name:   evmtypes.ModuleName,
 			Config: appconfig.WrapAny(&evmmodulev1alpha1.Module{}),
+		},
+		{
+			Name: buildertypes.ModuleName,
+			Config: appconfig.WrapAny(&buildermodule.Module{
+				Authority: "polar1rsu5yln4n3pmwcpg73ahszn9r8lhtzj402zl4z",
+			}),
 		},
 	}
 )

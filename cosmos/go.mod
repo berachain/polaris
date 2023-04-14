@@ -13,11 +13,12 @@ replace (
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230404155410-eabc299e6c50
+	github.com/skip-mev/pob => ../../pob
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
 require (
-	cosmossdk.io/api v0.3.2-0.20230313131911-55bf5d4efbe7
+	cosmossdk.io/api v0.4.0
 	cosmossdk.io/client/v2 v2.0.0-20230309163709-87da587416ba
 	cosmossdk.io/core v0.6.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
@@ -45,6 +46,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
+	github.com/skip-mev/pob v0.0.0-00010101000000-000000000000
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
@@ -131,7 +133,7 @@ require (
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
-	github.com/golang/glog v1.0.0 // indirect
+	github.com/golang/glog v1.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
@@ -225,7 +227,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/zondax/hid v0.9.1 // indirect
 	github.com/zondax/ledger-go v0.14.1 // indirect
-	go.etcd.io/bbolt v1.3.6 // indirect
+	go.etcd.io/bbolt v1.3.7 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect

@@ -103,7 +103,14 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
+
+	// POB Imports
+	pobabci "github.com/skip-mev/pob/abci"
+	pobmempool "github.com/skip-mev/pob/mempool"
+	"github.com/skip-mev/pob/x/builder"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 )
 
 var (
@@ -136,6 +143,7 @@ var (
 		vesting.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		evm.AppModuleBasic{},
+		builder.AppModuleBasic{},
 	)
 	// application configuration (used by depinject).
 	AppConfig = appconfig.Compose(&appv1alpha1.Config{
@@ -181,6 +189,9 @@ type PolarisApp struct {
 
 	// simulation manager
 	sm *module.SimulationManager
+
+	// pob keeper
+	BuilderKeeper builderkeeper.Keeper
 }
 
 //nolint:gochecknoinits // its okay.
@@ -291,6 +302,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
+		&app.BuilderKeeper,
 	); err != nil {
 		panic(err)
 	}
@@ -299,6 +311,9 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	app.App = appBuilder.Build(logger, db, traceStore, PolarisAppOptions(
 		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
 	)
+
+	pobMempool := pobmempool.NewAuctionMempool(app.txConfig.TxDecoder(), app.txConfig.TxEncoder(), 0)
+	app.App.SetMempool(pobMempool)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
@@ -328,10 +343,18 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	}
 	ch, _ := evmante.NewAnteHandler(
 		opt,
+		app.BuilderKeeper,
+		app.txConfig.TxDecoder(),
+		app.txConfig.TxEncoder(),
+		pobMempool,
 	)
 	app.SetAnteHandler(
 		ch,
 	)
+
+	handler := pobabci.NewProposalHandler(pobMempool, nil, ch, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
+	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
+	app.App.SetProcessProposal(handler.ProcessProposalHandler())
 
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
