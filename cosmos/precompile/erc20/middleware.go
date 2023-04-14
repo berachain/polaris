@@ -96,9 +96,7 @@ func (c *Contract) convertCoinToERC20(
 	}
 
 	// burn amount SDK/Polaris coins from owner
-	if err = cosmlib.BurnCoinsFromAddress(
-		sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount,
-	); err != nil {
+	if err = cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
 		return err
 	}
 
