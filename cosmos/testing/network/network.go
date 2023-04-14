@@ -58,7 +58,9 @@ const (
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
-	megamoney   = 1000000000000000000
+	megamoney   = 1000000
+	gigamoney   = 1000000000
+	examoney    = 1000000000000000000
 )
 
 var (
@@ -148,7 +150,10 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 		if err != nil {
 			panic(err)
 		}
-		accounts, _ := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
+		accounts, err := authtypes.PackAccounts([]authtypes.GenesisAccount{newAccount})
+		if err != nil {
+			panic(err)
+		}
 		authState.Accounts = append(authState.Accounts, accounts[0])
 		bankState.Balances = append(bankState.Balances, banktypes.Balance{
 			Address: newAccount.Address,
@@ -209,15 +214,15 @@ func getTestMetadata() []banktypes.Metadata {
 func getCoinsForAccount(name string) sdk.Coins {
 	switch name {
 	case "0":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	case "1":
 		return sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
 			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
 		)
 	case "2":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(gigamoney)))
 	default:
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(onehundred)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
 	}
 }

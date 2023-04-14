@@ -23,7 +23,6 @@ package integration
 import (
 	"context"
 	"crypto/ecdsa"
-	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
@@ -61,7 +60,7 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 	// Always setup numberOfAccounts accounts.
 	keysMap := make(map[string]*ethsecp256k1.PrivKey)
 	setupTestAccounts(keysMap)
-	fmt.Printf("\n\n%v\n", keysMap)
+
 	// Build Testing Network.
 	net := network.New(t, network.DefaultConfig(keysMap))
 	_, err := net.WaitForHeightWithTimeout(1, defaultTimeout)

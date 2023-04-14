@@ -26,7 +26,6 @@
 pragma solidity ^0.8.17;
 
 import {IBankModule} from "../bank.sol";
-import {ERC20} from "../../../../lib/ERC20.sol";
 
 /**
  * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
@@ -36,11 +35,9 @@ import {ERC20} from "../../../../lib/ERC20.sol";
  * Doing it this way is unsafe since the user can delegate more straight through precomile.
  * And withdraw via the precompile.
  */
-contract Fundraiser is ERC20 {
+contract Fundraiser {
     address public owner;
-    uint256 public raisedAmount = 0;
-    mapping(string => uint256) public raisedFund;
-
+    
     // State
     IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
 
@@ -52,20 +49,21 @@ contract Fundraiser is ERC20 {
     error ZeroAmount();
     error InvalidValue();
 
-    /**
-     * @dev Constructor that sets the staking precompile address and the validator address.
-     * @param _name The name of the token.
-     * @param _symbol The symbol of the token.
-     */
-    constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol, 18) {
+    constructor() {
         owner = msg.sender;
     }
 
     function withdrawDonations() external {
         require(msg.sender == owner, "Funds will only be released to the owner");
-        
-        payable(owner).transfer(raisedAmount);
-        bank.send(this, owner, raisedAmount);
+        bank.send(address(this), owner, GetRaisedAmounts());
+    }
+
+    function Donate(IBankModule.Coin[] calldata coins) external {
+        bank.send(msg.sender, address(this), coins);
+    }
+    
+    function GetRaisedAmounts() public view returns (IBankModule.Coin[] memory){
+        return bank.getAllBalances(address(this));
     }
 
     receive() external payable {
@@ -74,6 +72,5 @@ contract Fundraiser is ERC20 {
         // the value field is not empty.
         // this allows the smart contract to receive ether just like a 
         // regular user account controlled by a private key would.
-        raisedAmount += msg.value;
     }
 }
