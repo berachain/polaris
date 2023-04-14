@@ -24,7 +24,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"math/big"
-	"strconv"
 	"strings"
 	"time"
 
@@ -39,7 +38,10 @@ import (
 
 // defaultTimeout is the default timeout for the test fixture.
 const defaultTimeout = 10 * time.Second
-const numberOfAccounts = 3
+
+const defaultNumberOfAccounts = 3
+
+var defaultAccountNames = []string{"MainAcc", "AccWith2Denoms", "AccWithLessAbera"}
 
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
@@ -94,7 +96,7 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	if err != nil {
 		tf.t.Fatal(err)
 	}
-	// nonce, err := client.PendingNonceAt(context.Background(), tf.Address("0"))
+	// nonce, err := client.PendingNonceAt(context.Background(), tf.Address("MainAcc"))
 	// hacky stuff to make sure the nonce is correct.
 	time.Sleep(2) //nolint:gomnd,staticcheck // temporary.
 	nonce, err := tf.EthClient.NonceAt(context.Background(), tf.Address(name), big.NewInt(int64(blockNumber)))
@@ -133,12 +135,8 @@ func (tf *TestFixture) CreateKeyWithName(name string) {
 }
 
 func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
-	for i := 0; i < numberOfAccounts; i++ {
+	for i := 0; i < defaultNumberOfAccounts; i++ {
 		newKey, _ := ethsecp256k1.GenPrivKey()
-		keysMap[strconv.Itoa(i)] = newKey
-		// newECDSATestKey, _ := newKey.ToECDSA()
-		// ECDSATestKeys = append(ECDSATestKeys, newECDSATestKey)
-		// AddressFromKeys = append(AddressFromKeys, newKey.PubKey().Address())
-		// TestAddresses = append(TestAddresses, crypto.PubkeyToAddress(newECDSATestKey.PublicKey))
+		keysMap[defaultAccountNames[i]] = newKey
 	}
 }

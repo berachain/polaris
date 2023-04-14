@@ -213,14 +213,14 @@ func getTestMetadata() []banktypes.Metadata {
 
 func getCoinsForAccount(name string) sdk.Coins {
 	switch name {
-	case "0":
+	case "MainAcc":
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
-	case "1":
+	case "AccWith2Denoms":
 		return sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
 			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
 		)
-	case "2":
+	case "AccWithLessAbera":
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(gigamoney)))
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
