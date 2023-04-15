@@ -44,20 +44,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
 	rpcapi "pkg.berachain.dev/polaris/eth/rpc/api"
-	"pkg.berachain.dev/polaris/eth/rpc/config"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
-
-var DefaultGasPriceOracleConfig = gasprice.Config{
-	Blocks:           20,
-	Percentile:       60,
-	MaxHeaderHistory: 256,
-	MaxBlockHistory:  256,
-	Default:          big.NewInt(1000000000),
-	MaxPrice:         big.NewInt(1000000000000000000),
-	IgnorePrice:      gasprice.DefaultIgnorePrice,
-}
 
 // PolarisBackend represents the backend object for a Polaris chain. It extends the standard
 // go-ethereum backend object.
@@ -69,7 +58,7 @@ type PolarisBackend interface {
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
 	chain     api.Chain
-	rpcConfig *config.Server
+	rpcConfig *Config
 	gpo       *gasprice.Oracle
 	logger    log.Logger
 }
@@ -81,14 +70,14 @@ type backend struct {
 // NewPolarisBackend returns a new `Backend` object.
 func NewPolarisBackend(
 	chain api.Chain,
-	rpcConfig *config.Server,
+	rpcConfig *Config,
 ) PolarisBackend {
 	b := &backend{
 		chain:     chain,
 		rpcConfig: rpcConfig,
 		logger:    log.Root(),
 	}
-	b.gpo = gasprice.NewOracle(b, DefaultGasPriceOracleConfig)
+	b.gpo = gasprice.NewOracle(b, rpcConfig.GPO)
 	return b
 }
 
@@ -133,7 +122,8 @@ func (b *backend) AccountManager() *accounts.Manager {
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
-	return b.rpcConfig.Enabled
+	return true
+	// return b.rpcConfig.Enabled
 }
 
 // RPCGasCap returns the global gas cap for eth_call over rpc: this is
