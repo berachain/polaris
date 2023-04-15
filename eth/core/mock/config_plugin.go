@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // const testBaseFee = 69
@@ -33,6 +34,9 @@ import (
 func NewConfigurationPluginMock() *ConfigurationPluginMock {
 	// make and configure a mocked core.ConfigurationPlugin
 	mockedConfigurationPlugin := &ConfigurationPluginMock{
+		ChainConfigFunc: func() *params.ChainConfig {
+			return params.DefaultChainConfig
+		},
 		ExtraEipsFunc: func() []int {
 			return []int{}
 		},

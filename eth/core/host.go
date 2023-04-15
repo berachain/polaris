@@ -25,6 +25,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/params"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -76,6 +77,8 @@ type (
 		// ConfigurationPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset
 		// the `ConfigurationPlugin` to a default state.
 		libtypes.Preparable
+		// ChainConfig returns the current chain configuration of the Polaris EVM.
+		ChainConfig() *params.ChainConfig
 		// ExtraEips returns the extra EIPs that the Polaris EVM supports.
 		ExtraEips() []int
 		// `The fee collector is utilized on chains that have a fee collector account. This was added
