@@ -1,0 +1,57 @@
+[ChainConfig]
+ChainID = 69420
+HomesteadBlock = 0
+DAOForkBlock = 0
+DAOForkSupport = true
+EIP150Block = 0
+EIP150Hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
+EIP155Block = 0
+EIP158Block = 0
+ByzantiumBlock = 0
+ConstantinopleBlock = 0
+PetersburgBlock = 0
+IstanbulBlock = 0
+MuirGlacierBlock = 0
+YoloV2Block = 0
+EWASMInterpreter = ""
+MuIRCompiler = ""
+
+[NodeConfig]
+Name = "my-node"
+UserIdent = "my-identity"
+Version = "1.0.0"
+DataDir = "/var/data/my-node"
+HTTPHost = "localhost"
+HTTPPort = 8545
+HTTPCors = ["*"]
+HTTPVirtualHosts = ["localhost"]
+HTTPModules = ["eth", "net"]
+AuthAddr = "localhost"
+AuthPort = 8546
+AuthVirtualHosts = ["localhost"]
+WSHost = "localhost"
+WSPort = 8546
+WSOrigins = ["*"]
+WSModules = ["eth", "net"]
+GraphQLCors = ["*"]
+GraphQLVirtualHosts = ["localhost"]
+
+[NodeConfig.HTTPTimeouts]
+ReadTimeout = "30s"
+ReadHeaderTimeout = "30s"
+WriteTimeout = "30s"
+IdleTimeout = "1m"
+
+[RPCConfig]
+RPCGasCap = 10000000
+RPCEVMTimeout = "10s"
+RPCTxFeeCap = 1
+
+[RPCConfig.GPO]
+Blocks = 10
+Percentile = 50
+MaxHeaderHistory = 192
+MaxBlockHistory = 5000
+Default = 1000000000
+MaxPrice = 100000000000
+IgnorePrice = 0

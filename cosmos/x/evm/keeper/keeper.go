@@ -35,14 +35,14 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/provider"
 )
 
 type Keeper struct {
 	// provider is the struct that houses the Polaris EVM.
-	polaris *eth.PolarisProvider
+	polaris *provider.PolarisProvider
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
 	// The offchain KV store.
@@ -96,7 +96,7 @@ func (k *Keeper) Setup(
 	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)
 
 	// Build the Polaris EVM Provider
-	k.polaris = eth.NewPolarisProvider(cfg, k.host, nil)
+	k.polaris = provider.NewPolarisProvider(cfg, k.host, nil)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.

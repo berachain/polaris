@@ -37,18 +37,18 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Config.
+// Config represents the configurable JSON-RPC parameters.
 type Config struct {
 	// Gas Price Oracle options
 	GPO gasprice.Config
 
 	// RPCGasCap is the global gas cap for eth-call variants.
-	RPCGasCap uint64 `mapstructure:"rpc-gas-cap"`
+	RPCGasCap uint64 `toml:",omitempty"`
 
 	// RPCEVMTimeout is the global timeout for eth-call.
-	RPCEVMTimeout time.Duration `mapstructure:"rpc-evm-timeout"`
+	RPCEVMTimeout time.Duration `toml:",omitempty"`
 
 	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 	// send-transaction variants. The unit is ether.
-	RPCTxFeeCap float64 `mapstructure:"rpc-tx-fee-cap"`
+	RPCTxFeeCap float64 `toml:",omitempty"`
 }

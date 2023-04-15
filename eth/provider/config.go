@@ -21,12 +21,38 @@
 package provider
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/BurntSushi/toml"
+
 	"github.com/ethereum/go-ethereum/node"
 
+	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
+// Config represents the configurable parameters for Polaris.
 type Config struct {
-	NodeConfig *node.Config
-	RPCConfig  *rpc.Config
+	ChainConfig params.ChainConfig
+	NodeConfig  node.Config
+	RPCConfig   rpc.Config
+}
+
+// ReadConfigFile reads in a Polaris config file from the fileystem.
+func ReadConfigFile(filename string) (*Config, error) {
+	var config Config
+
+	// Read the TOML file
+	bytes, err := os.ReadFile(filename) //#nosec: G304 // required.
+	if err != nil {
+		return nil, fmt.Errorf("error reading file %s: %w", filename, err)
+	}
+
+	// Unmarshal the TOML data into a struct
+	if err = toml.Unmarshal(bytes, &config); err != nil {
+		return nil, fmt.Errorf("error parsing TOML data: %w", err)
+	}
+
+	return &config, nil
 }
