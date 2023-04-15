@@ -90,6 +90,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
 		header,
+		bc.cc,
 	)
 }
 

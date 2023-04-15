@@ -62,7 +62,7 @@ type ChainTxPoolReader interface {
 
 // ChainConfig returns the Ethereum chain config of the Polaris chain.
 func (bc *blockchain) ChainConfig() *params.ChainConfig {
-	return bc.cp.ChainConfig()
+	return bc.cc
 }
 
 // =========================================================================

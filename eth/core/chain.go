@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // By default we are storing up to 64mb of historical data for each cache.
@@ -54,6 +55,8 @@ type blockchain struct {
 	sp StatePlugin
 	tp TxPoolPlugin
 
+	// cc is the chain config for this Polaris chain.
+	cc *params.ChainConfig
 	// StateProcessor is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor
 	// statedb is the state database that is used to mange state during transactions.
@@ -100,8 +103,9 @@ type blockchain struct {
 // =========================================================================
 
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
-func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
+func NewChain(cc *params.ChainConfig, host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
+		cc:             cc,
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),

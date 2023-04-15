@@ -22,6 +22,7 @@ package chain
 
 import (
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/playground/pkg/plugins"
 )
 
@@ -40,7 +41,7 @@ func NewPlayground(mempool MempoolReader) *Playground {
 		mempool: mempool,
 	}
 	playground.blockProducer = &blockProducer{
-		polaris: core.NewChain(playground),
+		polaris: core.NewChain(params.DefaultChainConfig, playground),
 	}
 	return playground
 }

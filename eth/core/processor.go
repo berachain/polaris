@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -104,7 +105,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // Prepare prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header, cc *params.ChainConfig) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -121,11 +122,10 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 
 	// We must re-create the signer since we are processing a new block and the block number has
 	// increased.
-	chainConfig := sp.cp.ChainConfig()
-	sp.signer = types.MakeSigner(chainConfig, sp.header.Number)
+	sp.signer = types.MakeSigner(cc, sp.header.Number)
 
 	// Setup the EVM for this block.
-	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
+	rules := cc.Rules(sp.header.Number, true, sp.header.Time)
 	// We re-register the default geth precompiles every block, this isn't optimal, but since
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.

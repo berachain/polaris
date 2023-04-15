@@ -6,7 +6,6 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/params"
 	"pkg.berachain.dev/polaris/eth/core"
 	"sync"
 )
@@ -21,9 +20,6 @@ var _ core.ConfigurationPlugin = &ConfigurationPluginMock{}
 //
 //		// make and configure a mocked core.ConfigurationPlugin
 //		mockedConfigurationPlugin := &ConfigurationPluginMock{
-//			ChainConfigFunc: func() *params.ChainConfig {
-//				panic("mock out the ChainConfig method")
-//			},
 //			ExtraEipsFunc: func() []int {
 //				panic("mock out the ExtraEips method")
 //			},
@@ -40,9 +36,6 @@ var _ core.ConfigurationPlugin = &ConfigurationPluginMock{}
 //
 //	}
 type ConfigurationPluginMock struct {
-	// ChainConfigFunc mocks the ChainConfig method.
-	ChainConfigFunc func() *params.ChainConfig
-
 	// ExtraEipsFunc mocks the ExtraEips method.
 	ExtraEipsFunc func() []int
 
@@ -54,9 +47,6 @@ type ConfigurationPluginMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// ChainConfig holds details about calls to the ChainConfig method.
-		ChainConfig []struct {
-		}
 		// ExtraEips holds details about calls to the ExtraEips method.
 		ExtraEips []struct {
 		}
@@ -69,37 +59,9 @@ type ConfigurationPluginMock struct {
 			ContextMoqParam context.Context
 		}
 	}
-	lockChainConfig  sync.RWMutex
 	lockExtraEips    sync.RWMutex
 	lockFeeCollector sync.RWMutex
 	lockPrepare      sync.RWMutex
-}
-
-// ChainConfig calls ChainConfigFunc.
-func (mock *ConfigurationPluginMock) ChainConfig() *params.ChainConfig {
-	if mock.ChainConfigFunc == nil {
-		panic("ConfigurationPluginMock.ChainConfigFunc: method is nil but ConfigurationPlugin.ChainConfig was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockChainConfig.Lock()
-	mock.calls.ChainConfig = append(mock.calls.ChainConfig, callInfo)
-	mock.lockChainConfig.Unlock()
-	return mock.ChainConfigFunc()
-}
-
-// ChainConfigCalls gets all the calls that were made to ChainConfig.
-// Check the length with:
-//
-//	len(mockedConfigurationPlugin.ChainConfigCalls())
-func (mock *ConfigurationPluginMock) ChainConfigCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockChainConfig.RLock()
-	calls = mock.calls.ChainConfig
-	mock.lockChainConfig.RUnlock()
-	return calls
 }
 
 // ExtraEips calls ExtraEipsFunc.

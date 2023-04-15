@@ -110,7 +110,7 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), nil, dummyHeader)
+		sp.Prepare(context.Background(), nil, dummyHeader, params.DefaultChainConfig)
 	})
 
 	Context("Empty block", func() {
@@ -128,7 +128,7 @@ var _ = Describe("StateProcessor", func() {
 			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 
-			sp.Prepare(context.Background(), nil, dummyHeader)
+			sp.Prepare(context.Background(), nil, dummyHeader, params.DefaultChainConfig)
 		})
 
 		It("should error on an unsigned transaction", func() {
@@ -226,7 +226,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		Expect(func() {
 			sp.Prepare(context.Background(), nil, &types.Header{
 				GasLimit: 1000000,
-			})
+			}, params.DefaultChainConfig)
 		}).ToNot(Panic())
 	})
 })
