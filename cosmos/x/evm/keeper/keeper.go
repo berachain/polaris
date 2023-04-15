@@ -29,8 +29,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"github.com/ethereum/go-ethereum/node"
-
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
@@ -90,7 +88,7 @@ func (k *Keeper) Setup(
 	bk state.BankKeeper,
 	precompiles []vm.RegistrablePrecompile,
 	qc func(height int64, prove bool) (sdk.Context, error),
-	cfg *node.Config,
+	cfg *provider.Config,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)

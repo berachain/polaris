@@ -103,6 +103,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -321,7 +322,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			govprecompile.NewPrecompileContract(app.GovKeeper),
 		},
 		app.CreateQueryContext,
-		&cfg.NodeConfig,
+		cfg,
 	)
 
 	opt := ante.HandlerOptions{

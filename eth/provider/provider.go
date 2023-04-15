@@ -38,7 +38,7 @@ type PolarisProvider struct {
 
 // NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
 func NewPolarisProvider(
-	cfg *node.Config,
+	cfg *Config,
 	host core.PolarisHostChain,
 	logHandler log.Handler,
 ) *PolarisProvider {
@@ -55,10 +55,10 @@ func NewPolarisProvider(
 	sp.Chain = core.NewChain(host)
 
 	// Build and set the RPC Backend.
-	sp.backend = rpc.NewPolarisBackend(sp.Chain, rpc.DefaultConfig())
+	sp.backend = rpc.NewPolarisBackend(sp.Chain, &cfg.RPCConfig)
 
 	var err error
-	sp.Node, err = node.New(cfg)
+	sp.Node, err = node.New(&cfg.NodeConfig)
 	if err != nil {
 		panic(err)
 	}
