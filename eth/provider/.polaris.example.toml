@@ -3,20 +3,20 @@ Name = "my-node"
 UserIdent = "my-identity"
 Version = "1.0.0"
 DataDir = "/var/data/my-node"
-HTTPHost = "localhost"
+HTTPHost = "0.0.0.0"
 HTTPPort = 8545
 HTTPCors = ["*"]
-HTTPVirtualHosts = ["localhost"]
+HTTPVirtualHosts = ["0.0.0.0"]
 HTTPModules = ["eth", "net"]
-AuthAddr = "localhost"
+AuthAddr = "0.0.0.0"
 AuthPort = 8546
-AuthVirtualHosts = ["localhost"]
-WSHost = "localhost"
+AuthVirtualHosts = ["0.0.0.0"]
+WSHost = "0.0.0.0"
 WSPort = 8546
 WSOrigins = ["*"]
 WSModules = ["eth", "net"]
 GraphQLCors = ["*"]
-GraphQLVirtualHosts = ["localhost"]
+GraphQLVirtualHosts = ["0.0.0.0"]
 
 [NodeConfig.HTTPTimeouts]
 ReadTimeout = "30s"

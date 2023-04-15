@@ -38,8 +38,8 @@ func DefaultConfig() *Config {
 	nodeCfg.P2P.MaxPeers = 0
 	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth")
 	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
-	nodeCfg.HTTPHost = "localhost"
-	nodeCfg.WSHost = "localhost"
+	nodeCfg.HTTPHost = "0.0.0.0"
+	nodeCfg.WSHost = "0.0.0.0"
 	nodeCfg.WSOrigins = []string{"*"}
 	c.NodeConfig = nodeCfg
 	c.RPCConfig = *rpc.DefaultConfig()
