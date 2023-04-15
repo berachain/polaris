@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	filepath = ".config.example.toml"
+	filepath = ".polaris.example.toml"
 )
 
 func TestProvider(t *testing.T) {
