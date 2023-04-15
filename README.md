@@ -111,4 +111,4 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 This project is work in progress and subject to frequent changes as we are still working on wiring up the final system.
 It has not been audited for security purposes and should not be used in production yet.
 
-The network will have an Ethereum JSON-RPC server running at `http://localhost:1317/eth/rpc` and a Tendermint RPC server running at `http://localhost:26657`.
+The network will have an Ethereum JSON-RPC server running at `http://localhost:8545` and a Tendermint RPC server running at `http://localhost:26657`.
