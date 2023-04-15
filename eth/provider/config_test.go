@@ -42,8 +42,6 @@ var _ = Describe("TestConfig", func() {
 	It("should read in the config correctly", func() {
 		config, err := ReadConfigFile(filepath)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(config.ChainConfig.ChainID).To(Equal(big.NewInt(69420)))
-		Expect(config.ChainConfig.HomesteadBlock).To(Equal(big.NewInt(0)))
 		Expect(config.NodeConfig.UserIdent).To(Equal("my-identity"))
 		Expect(config.NodeConfig.DataDir).To(Equal("/var/data/my-node"))
 		Expect(config.NodeConfig.HTTPHost).To(Equal("localhost"))

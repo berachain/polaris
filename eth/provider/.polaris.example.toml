@@ -1,21 +1,3 @@
-[ChainConfig]
-ChainID = 69420
-HomesteadBlock = 0
-DAOForkBlock = 0
-DAOForkSupport = true
-EIP150Block = 0
-EIP150Hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
-EIP155Block = 0
-EIP158Block = 0
-ByzantiumBlock = 0
-ConstantinopleBlock = 0
-PetersburgBlock = 0
-IstanbulBlock = 0
-MuirGlacierBlock = 0
-YoloV2Block = 0
-EWASMInterpreter = ""
-MuIRCompiler = ""
-
 [NodeConfig]
 Name = "my-node"
 UserIdent = "my-identity"

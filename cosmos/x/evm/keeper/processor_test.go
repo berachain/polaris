@@ -33,8 +33,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/ethereum/go-ethereum/node"
-
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -49,6 +47,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/provider"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -103,9 +102,9 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		cfg := node.DefaultConfig
-		cfg.DataDir = GinkgoT().TempDir()
-		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil, &cfg)
+		cfg := provider.DefaultConfig()
+		cfg.NodeConfig.DataDir = GinkgoT().TempDir()
+		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil, cfg)
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {

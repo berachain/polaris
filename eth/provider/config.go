@@ -28,14 +28,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
 // DefaultConfig returns the default configuration for the provider.
 func DefaultConfig() *Config {
 	c := Config{}
-	c.ChainConfig = *params.DefaultChainConfig
 	nodeCfg := node.DefaultConfig
 	nodeCfg.P2P.MaxPeers = 0
 	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth")
@@ -50,9 +48,8 @@ func DefaultConfig() *Config {
 
 // Config represents the configurable parameters for Polaris.
 type Config struct {
-	ChainConfig params.ChainConfig
-	NodeConfig  node.Config
-	RPCConfig   rpc.Config
+	NodeConfig node.Config
+	RPCConfig  rpc.Config
 }
 
 // ReadConfigFile reads in a Polaris config file from the fileystem.
