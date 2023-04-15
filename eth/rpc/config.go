@@ -21,34 +21,37 @@
 package rpc
 
 import (
+	"math/big"
 	"time"
 
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 )
 
-// DefaultConfig returns the default RPC configuration.
+// DefaultConfig returns the default JSON-RPC config.
 func DefaultConfig() *Config {
+	gpoConfig := ethconfig.FullNodeGPO
+	gpoConfig.Default = big.NewInt(1000000000)
 	return &Config{
-		GPO:           ethconfig.FullNodeGPO,
+		GPO:           gpoConfig,
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
 		RPCTxFeeCap:   ethconfig.Defaults.RPCTxFeeCap,
 		RPCEVMTimeout: ethconfig.Defaults.RPCEVMTimeout,
 	}
 }
 
-// Config represents the configurable JSON-RPC parameters.
+// Config defines the configuration for the JSON-RPC server.
 type Config struct {
-	// Gas Price Oracle options
+	// Gas Price Oracle config.
 	GPO gasprice.Config
 
 	// RPCGasCap is the global gas cap for eth-call variants.
-	RPCGasCap uint64 `toml:",omitempty"`
+	RPCGasCap uint64 `toml:""`
 
 	// RPCEVMTimeout is the global timeout for eth-call.
-	RPCEVMTimeout time.Duration `toml:",omitempty"`
+	RPCEVMTimeout time.Duration `toml:""`
 
 	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 	// send-transaction variants. The unit is ether.
-	RPCTxFeeCap float64 `toml:",omitempty"`
+	RPCTxFeeCap float64 `toml:""`
 }
