@@ -88,8 +88,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/ethereum/go-ethereum/node"
-
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
@@ -101,6 +99,7 @@ import (
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/provider"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
@@ -305,15 +304,9 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
-	// todo: build from file
-	cfg := node.DefaultConfig                        // todo: configure correctly.
-	cfg.P2P.MaxPeers = 0                             // todo: configure correctly.
-	cfg.HTTPModules = append(cfg.HTTPModules, "eth") // todo: configure correctly.
-	cfg.HTTPHost = "localhost"                       // todo: configure correctly.
-	cfg.WSHost = "localhost"                         // todo: configure correctly.
-	cfg.WSModules = append(cfg.WSModules, "eth")     // todo: configure correctly.
-	cfg.WSOrigins = []string{"*"}                    // todo: configure correctly.
-	cfg.DataDir = DefaultNodeHome + "/data"          // todo: configure correctly.
+	// Polaris Configuration
+	cfg := provider.DefaultConfig()
+	cfg.NodeConfig.DataDir = DefaultNodeHome + "/data"
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
@@ -328,7 +321,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			govprecompile.NewPrecompileContract(app.GovKeeper),
 		},
 		app.CreateQueryContext,
-		&cfg,
+		&cfg.NodeConfig,
 	)
 
 	opt := ante.HandlerOptions{

@@ -32,6 +32,22 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
+// DefaultConfig returns the default configuration for the provider.
+func DefaultConfig() *Config {
+	c := Config{}
+	c.ChainConfig = *params.DefaultChainConfig
+	nodeCfg := node.DefaultConfig
+	nodeCfg.P2P.MaxPeers = 0
+	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth")
+	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
+	nodeCfg.HTTPHost = "localhost"
+	nodeCfg.WSHost = "localhost"
+	nodeCfg.WSOrigins = []string{"*"}
+	c.NodeConfig = nodeCfg
+	c.RPCConfig = *rpc.DefaultConfig()
+	return &c
+}
+
 // Config represents the configurable parameters for Polaris.
 type Config struct {
 	ChainConfig params.ChainConfig
