@@ -30,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/rpc/api"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
@@ -54,33 +53,14 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-
-	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
-	am.keeper.ConfigureGethLogger(ctx)
-
-	// TODO: remove InitGenesis from the interfaces, do check and run instead
-	// Initialize all the plugins.
-	for _, plugin := range am.keeper.GetHost().GetAllPlugins() {
-		plugin.InitGenesis(ctx, &genesisState)
-	}
-
-	// TODO: Clean this up its really jank, we should move this, feels like a bad spot for it, but works.
-	// Currently since we are registering TransactionAPI using the native ethereum backend, it needs to be able to
-	// read the chainID from the ConfigurationPlugin (which is on disk). If we are enabling the APIs before
-	// InitGenesis is called, then we get a nil pointer error since the ConfigurationPlugin is not yet initialized.
-	if err := am.keeper.GetRPCProvider().RegisterAPIs(api.GetExtraFn); err != nil {
+	if err := am.keeper.InitGenesis(ctx, genesisState); err != nil {
 		panic(err)
 	}
-
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the evm
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	genesisState := new(types.GenesisState)
-	for _, plugin := range am.keeper.GetHost().GetAllPlugins() {
-		plugin.ExportGenesis(ctx, genesisState)
-	}
-	return cdc.MustMarshalJSON(genesisState)
+	return cdc.MustMarshalJSON(am.keeper.ExportGenesis(ctx))
 }

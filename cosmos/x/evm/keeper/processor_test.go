@@ -47,6 +47,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/provider"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -101,7 +102,9 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil)
+		cfg := provider.DefaultConfig()
+		cfg.NodeConfig.DataDir = GinkgoT().TempDir()
+		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil, cfg)
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {

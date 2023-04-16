@@ -50,6 +50,8 @@ type TestFixture struct {
 	Network     *network.Network
 	EthClient   *ethclient.Client
 	EthWsClient *ethclient.Client
+	HTTPAddr    string
+	WsAddr      string
 	keysMap     map[string]*ethsecp256k1.PrivKey
 }
 
@@ -70,11 +72,15 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 		t.Fatal(err)
 	}
 
+	// apiAddr := strings.TrimSuffix(net.Validators[0].APIAddress, "1317")
+	apiAddr := strings.Split(net.Validators[0].APIAddress, ":")[1]
+
 	// Dial the Ethereum HTTP Endpoint
-	client, _ := ethclient.DialContext(ctx, net.Validators[0].APIAddress+"/eth/rpc")
+	httpAddr := "http:" + apiAddr + ":8545"
+	client, _ := ethclient.DialContext(ctx, httpAddr)
 
 	// Dial the Ethereum WS Endpoint
-	wsaddr := "ws" + strings.TrimPrefix(net.Validators[0].APIAddress+"/eth/rpc/ws/", "http")
+	wsaddr := "ws:" + apiAddr + ":8546"
 	wsClient, _ := ethclient.DialContext(ctx, wsaddr)
 
 	// Build and return the Test Fixture.
@@ -83,6 +89,8 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 		Network:     net,
 		EthClient:   client,
 		EthWsClient: wsClient,
+		HTTPAddr:    httpAddr,
+		WsAddr:      wsaddr,
 		keysMap:     keysMap,
 	}
 }

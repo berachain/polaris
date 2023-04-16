@@ -101,7 +101,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 // DefaultConfig will initialize config for the network with custom application,
 // genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig.
 func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
-	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
+	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
 	cfg := network.Config{
 		Codec:             encoding.Codec,
 		TxConfig:          encoding.TxConfig,
@@ -135,7 +135,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 }
 
 func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json.RawMessage {
-	encoding := config.MakeEncodingConfig(runtime.ModuleBasics)
+	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
 	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
 
 	// Auth & Bank module

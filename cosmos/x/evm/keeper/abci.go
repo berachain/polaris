@@ -18,23 +18,26 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package api
+package keeper
 
-// CosmosBackend is the collection of methods required to satisfy the cosmos
-// RPC API.
-type CosmosBackend interface {
+import (
+	"context"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// BeginBlocker is called during the BeginBlock processing of the ABCI lifecycle.
+func (k *Keeper) BeginBlocker(ctx context.Context) {
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	// Prepare the Polaris Ethereum block.
+	k.polaris.Prepare(ctx, sCtx.BlockHeight())
 }
 
-// CosmosAPI is the collection of cosmos RPC API methods.
-type CosmosAPI interface {
-}
-
-// cosmosAPI offers network related RPC methods.
-type cosmosAPI struct {
-	b CosmosAPI
-}
-
-// NewNetAPI creates a new net API instance.
-func NewCosmosAPI(b CosmosBackend) CosmosAPI {
-	return &cosmosAPI{b}
+// Precommit is called during the Commit processing of the ABCI lifecycle, right before the state
+// is committed to the root multistore.
+func (k *Keeper) Precommit(ctx context.Context) {
+	// Finalize the Polaris Ethereum block.
+	if err := k.polaris.Finalize(ctx); err != nil {
+		panic(err)
+	}
 }
