@@ -37,6 +37,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -160,6 +162,12 @@ func BuildGenesisState() map[string]json.RawMessage {
 	})
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 
+	// Governance precompile.
+	var governanceState v1.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &governanceState)
+	// setGovernancePrecompileParams(&governanceState)
+	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&governanceState)
+
 	// Staking module
 	var stakingState stakingtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[stakingtypes.ModuleName], &stakingState)
@@ -167,4 +175,12 @@ func BuildGenesisState() map[string]json.RawMessage {
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
 	return genState
+}
+
+func setGovernancePrecompileParams(genesis *v1.GenesisState) {
+	twoSeconds, err := time.ParseDuration("2s")
+	if err != nil {
+		panic(err)
+	}
+	genesis.Params.VotingPeriod = &twoSeconds
 }
