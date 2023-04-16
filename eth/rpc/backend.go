@@ -34,6 +34,7 @@ import (
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -57,10 +58,11 @@ type PolarisBackend interface {
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	chain     api.Chain
-	rpcConfig *Config
-	gpo       *gasprice.Oracle
-	logger    log.Logger
+	chain      api.Chain
+	rpcConfig  *Config
+	nodeConfig *node.Config
+	gpo        *gasprice.Oracle
+	logger     log.Logger
 }
 
 // ==============================================================================
@@ -71,6 +73,7 @@ type backend struct {
 func NewPolarisBackend(
 	chain api.Chain,
 	rpcConfig *Config,
+	nodeConfig *node.Config,
 ) PolarisBackend {
 	b := &backend{
 		chain:     chain,
@@ -122,8 +125,7 @@ func (b *backend) AccountManager() *accounts.Manager {
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
-	return true
-	// return b.rpcConfig.Enabled
+	return b.nodeConfig.ExtRPCEnabled()
 }
 
 // RPCGasCap returns the global gas cap for eth_call over rpc: this is
@@ -503,7 +505,7 @@ func (b *backend) ServiceFilter(_ context.Context, session *bloombits.MatcherSes
 
 func (b *backend) Version() string {
 	// TODO: Implement your code here
-	return "1.0" // get from comet
+	return "1.0" // get from comet?
 }
 
 func (b *backend) Listening() bool {

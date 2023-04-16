@@ -55,7 +55,7 @@ func NewPolarisProvider(
 	sp.Chain = core.NewChain(host)
 
 	// Build and set the RPC Backend.
-	sp.backend = rpc.NewPolarisBackend(sp.Chain, &cfg.RPCConfig)
+	sp.backend = rpc.NewPolarisBackend(sp.Chain, &cfg.RPCConfig, &cfg.NodeConfig)
 
 	var err error
 	sp.Node, err = node.New(&cfg.NodeConfig)
