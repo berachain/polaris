@@ -18,9 +18,11 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package eth
+package provider
 
 import (
+	"github.com/ethereum/go-ethereum/node"
+
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -30,13 +32,14 @@ import (
 // PolarisProvider is the only object that an implementing chain should use.
 type PolarisProvider struct {
 	api.Chain
-	rps rpc.Service
+	backend rpc.PolarisBackend
+	Node    *node.Node
 }
 
 // NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
 func NewPolarisProvider(
+	cfg *Config,
 	host core.PolarisHostChain,
-	rps rpc.Service,
 	logHandler log.Handler,
 ) *PolarisProvider {
 	sp := &PolarisProvider{}
@@ -52,10 +55,19 @@ func NewPolarisProvider(
 	sp.Chain = core.NewChain(host)
 
 	// Build and set the RPC Backend.
-	if rps != nil {
-		sp.rps = rps
-		sp.rps.SetBackend(rpc.NewPolarisBackend(sp.Chain, rps.GetConfig()))
+	sp.backend = rpc.NewPolarisBackend(sp.Chain, &cfg.RPCConfig, &cfg.NodeConfig)
+
+	var err error
+	sp.Node, err = node.New(&cfg.NodeConfig)
+	if err != nil {
+		panic(err)
 	}
 
 	return sp
+}
+
+// StartServices starts the standard go-ethereum node-services (i.e json-rpc).
+func (sp *PolarisProvider) StartServices() error {
+	sp.Node.RegisterAPIs(rpc.GetAPIs(sp.backend))
+	return sp.Node.Start()
 }
