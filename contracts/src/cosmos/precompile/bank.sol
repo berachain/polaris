@@ -30,7 +30,7 @@ pragma solidity ^0.8.4;
  */
 interface IBankModule {
     ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
-    
+
     /**
      * @dev Emitted by the bank module when `amount` tokens are sent to `recipient`
      */
@@ -65,7 +65,7 @@ interface IBankModule {
      * Note: `burner` is a module address
      */
     event Burn(address indexed burner, uint256 amount);
-    
+
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**

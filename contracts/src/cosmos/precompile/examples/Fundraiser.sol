@@ -37,7 +37,7 @@ import {IBankModule} from "../bank.sol";
  */
 contract Fundraiser {
     address public owner;
-    
+
     // State
     IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
 
@@ -61,16 +61,16 @@ contract Fundraiser {
     function Donate(IBankModule.Coin[] calldata coins) external {
         bank.send(msg.sender, address(this), coins);
     }
-    
-    function GetRaisedAmounts() public view returns (IBankModule.Coin[] memory){
+
+    function GetRaisedAmounts() public view returns (IBankModule.Coin[] memory) {
         return bank.getAllBalances(address(this));
     }
 
     receive() external payable {
         // this built-in function doesn't require any calldata,
-        // it will get called if the data field is empty and 
+        // it will get called if the data field is empty and
         // the value field is not empty.
-        // this allows the smart contract to receive ether just like a 
+        // this allows the smart contract to receive ether just like a
         // regular user account controlled by a private key would.
     }
 }
