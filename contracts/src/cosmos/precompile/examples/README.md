@@ -13,7 +13,7 @@ Set this value in the `Deploy.s.sol` solidity forge script.
 Export the rpc url to your environment.
 
 ```sh
-export ETH_RPC_URL=http://localhost:1317/eth/rpc
+export ETH_RPC_URL=http://localhost:8545
 ```
 
 Run the script to deploy the contract, can change the private key to one of your choosing, underneath we use the private key in the `init.sh` file.
