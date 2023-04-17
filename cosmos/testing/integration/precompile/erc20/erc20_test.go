@@ -340,6 +340,19 @@ var _ = Describe("ERC20", func() {
 			balance, err := token.BalanceOf(nil, network.TestAddress)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(balance).To(Equal(big.NewInt(12345)))
+
+			tx, err = swapper.Swap0(
+				tf.GenerateTransactOpts(""),
+				tokenAddr,
+				big.NewInt(45),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectSuccessReceipt(tf.EthClient, tx)
+
+			// check that the new ERC20 is burned from TestAddress
+			balance, err = token.BalanceOf(nil, network.TestAddress)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(balance).To(Equal(big.NewInt(12300)))
 		})
 	})
 })

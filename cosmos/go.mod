@@ -43,7 +43,6 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/holiman/uint256 v1.2.1
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
 	github.com/spf13/cast v1.5.0
@@ -53,7 +52,7 @@ require (
 	google.golang.org/genproto v0.0.0-20230320184635-7606e756e683
 	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.30.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230314162058-3208a7e5461e
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230417142540-824b646c3a95
 	pkg.berachain.dev/polaris/eth v0.0.0-20230313214926-47d6f56b8f0d
 	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
 )
@@ -162,6 +161,7 @@ require (
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
+	github.com/holiman/uint256 v1.2.2 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/huin/goupnp v1.1.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
