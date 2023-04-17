@@ -29,6 +29,7 @@ import (
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
@@ -51,7 +52,7 @@ var (
 	erc20ModuleAddress = common.HexToAddress("0x696969")
 	// cosmlib.AccAddressToEthAddress(
 	// 	authtypes.NewModuleAddress(erc20types.ModuleName),
-	// ).
+	// )
 )
 
 var _ = SynchronizedBeforeSuite(func() []byte {
@@ -315,6 +316,30 @@ var _ = Describe("ERC20", func() {
 	})
 
 	Describe("calling the erc20 precompile via the another contract", func() {
+		It("should work", func() {
+			_, tx, swapper, err := tbindings.DeploySwapper(tf.GenerateTransactOpts(""), tf.EthClient)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectSuccessReceipt(tf.EthClient, tx)
 
+			err = tf.Network.WaitForNextBlock()
+			Expect(err).ToNot(HaveOccurred())
+
+			tx, err = swapper.Swap(
+				tf.GenerateTransactOpts(""),
+				"bATOM",
+				big.NewInt(12345),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectSuccessReceipt(tf.EthClient, tx)
+
+			// check that the new ERC20 is minted to TestAddress
+			tokenAddr, err := swapper.GetPolarisERC20(nil, "bATOM")
+			Expect(err).ToNot(HaveOccurred())
+			token, err := pbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
+			Expect(err).ToNot(HaveOccurred())
+			balance, err := token.BalanceOf(nil, network.TestAddress)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(balance).To(Equal(big.NewInt(12345)))
+		})
 	})
 })
