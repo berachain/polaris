@@ -61,7 +61,8 @@ var _ = Describe("Bank Precompile Test", func() {
 
 	BeforeEach(func() {
 		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
-		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bk))
+
+		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.

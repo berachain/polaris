@@ -25,7 +25,6 @@ import (
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
@@ -45,14 +44,14 @@ type Contract struct {
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract(bk bankkeeper.Keeper) ethprecompile.StatefulImpl {
+func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.BankModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
-		msgServer: bankkeeper.NewMsgServerImpl(bk),
-		querier:   bk,
+		msgServer: ms,
+		querier:   qs,
 	}
 }
 

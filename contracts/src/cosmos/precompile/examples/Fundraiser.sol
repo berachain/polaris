@@ -26,6 +26,7 @@
 pragma solidity ^0.8.17;
 
 import {IBankModule} from "../bank.sol";
+import {Owned} from "../../../../lib/Owned.sol";
 
 /**
  * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
@@ -35,25 +36,16 @@ import {IBankModule} from "../bank.sol";
  * Doing it this way is unsafe since the user can delegate more straight through precomile.
  * And withdraw via the precompile.
  */
-contract Fundraiser {
-    address public owner;
-
+contract Fundraiser is Owned {
     // State
     IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
 
     event Success(bool indexed success);
     event Data(bytes data);
 
-    // Errors
-    error ZeroAddress();
-    error ZeroAmount();
-    error InvalidValue();
+    constructor() Owned(msg.sender){}
 
-    constructor() {
-        owner = msg.sender;
-    }
-
-    function withdrawDonations() external {
+    function withdrawDonations() external onlyOwner {
         require(msg.sender == owner, "Funds will only be released to the owner");
         bank.send(address(this), owner, GetRaisedAmounts());
     }
