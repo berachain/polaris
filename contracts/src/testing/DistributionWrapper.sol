@@ -89,7 +89,7 @@ contract DistributionWrapper {
 
     /**
      * @dev Withdraw the rewrads accumilated by the caller(msg.sender).
-     * @param _validatorAddress The address of the validator.
+     * @param _validator The address of the validator.
      */
     function delegate(address _validator) external payable {
         staking.delegate(_validator, msg.value);
