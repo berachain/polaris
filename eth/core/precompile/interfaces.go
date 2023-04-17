@@ -21,9 +21,13 @@
 package precompile
 
 import (
+	"context"
+
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 type (
@@ -31,22 +35,36 @@ type (
 	// to support running their own stateful precompiled contracts. Implementing this plugin is
 	// optional.
 	Plugin interface {
-		// GetPrecompiles returns the native precompiles for the chain.
-		GetPrecompiles(rules *params.Rules) []vm.RegistrablePrecompile
-		// Register registers a new precompiled contract at the given address.
-		Register(vm.PrecompileContainer) error
 		// PrecompileManager is the manager for the native precompiles.
 		vm.PrecompileManager
+
+		// GetPrecompiles returns the native precompiles for the chain.
+		GetPrecompiles(rules *params.Rules) []Registrable
+		// Register registers a new precompiled contract at the given address.
+		Register(vm.PrecompileContainer) error
+
+		// EnableReentrancy enables the execution of a precompile contract to call back into the
+		// EVM.
+		EnableReentrancy(context.Context)
+		// DisableReentrancy disables the execution of a precompile contract to call back into the
+		// EVM.
+		DisableReentrancy(context.Context)
 	}
 )
 
 type (
+	// Registrable is a type for the base precompile implementation, which only needs to provide an
+	// Ethereum address of where its contract is deployed.
+	Registrable interface {
+		libtypes.Registrable[common.Address]
+	}
+
 	// StatelessImpl is the interface for all stateless precompiled contract
 	// implementations. A stateless contract must provide its own precompile container, as it is
 	// stateless in nature. This requires a deterministic gas count, `RequiredGas`, and an
 	// executable function `Run`.
 	StatelessImpl interface {
-		vm.RegistrablePrecompile
+		Registrable
 
 		vm.PrecompileContainer
 	}
@@ -54,7 +72,7 @@ type (
 	// StatefulImpl is the interface for all stateful precompiled contracts, which must
 	// expose their ABI methods and precompile methods for stateful execution.
 	StatefulImpl interface {
-		vm.RegistrablePrecompile
+		Registrable
 
 		// ABIMethods should return a map of Ethereum method names to Go-Ethereum abi `Method`
 		// structs. NOTE: this can be directly loaded from the `Methods` field of a Go-Ethereum ABI
@@ -74,6 +92,8 @@ type (
 		// functions. This is used to decode event attribute values that require custom decoding
 		// logic.
 		CustomValueDecoders() ValueDecoders
+
+		SetPlugin(Plugin)
 	}
 
 	// DynamicImpl is the interface for all dynamic stateful precompiled contracts.

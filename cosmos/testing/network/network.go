@@ -55,12 +55,14 @@ type (
 )
 
 const (
-	thousand    = 1000
-	fivehundred = 500
-	onehundred  = 100
-	megamoney   = 1000000
-	gigamoney   = 1000000000
-	examoney    = 1000000000000000000
+	thousand            = 1000
+	fivehundred         = 500
+	onehundred          = 100
+	initialERC20balance = 123456789
+	leftPad             = 32
+	megamoney           = 1000000
+	gigamoney           = 1000000000
+	examoney            = 1000000000000000000
 )
 
 var (

@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
+syntax = "proto3";
+package polaris.erc20.v1alpha1;
+
+import "cosmos_proto/cosmos.proto";
+import "google/api/annotations.proto";
+
+option go_package = "pkg.berachain.dev/polaris/cosmos/x/erc20/types";
+
+// QueryService defines the gRPC querier service.
+service QueryService {
+  // ERC20AddressForCoinDenom queries the ERC20 token address for a given SDK coin denomination.
+  rpc ERC20AddressForCoinDenom(ERC20AddressForCoinDenomRequest) returns (ERC20AddressForCoinDenomResponse) {
+    option (google.api.http).get = "/polaris/erc20/v1alpha1/erc20_address_for_denom";
+  }
+
+  // CoinDenomForERC20Address queries the SDK coin denomination for a given ERC20 token address.
+  rpc CoinDenomForERC20Address(CoinDenomForERC20AddressRequest) returns (CoinDenomForERC20AddressResponse) {
+    option (google.api.http).get = "/polaris/erc20/v1alpha1/denom_for_erc20_address";
+  }
+}
+
+// ERC20AddressForCoinDenomRequest is the request type for the Query/ERC20AddressForCoinDenom RPC method.
+message ERC20AddressForCoinDenomRequest {
+  // denom is the SDK coin denomination to query the address of the ERC20 token for.
+  string denom = 1;
+}
+
+// ERC20AddressForCoinDenomResponse is the response type for the Query/ERC20AddressForCoinDenom RPC method.
+message ERC20AddressForCoinDenomResponse {
+  // token is the bech32 of the ERC20 token for the given SDK coin denomination.
+  string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+}
+
+// CoinDenomForERC20AddressRequest is the request type for the Query/CoinDenomForERC20Address RPC method.
+message CoinDenomForERC20AddressRequest {
+  // token is the bech32 address of the ERC20 token to query the SDK coin denomination for.
+  string token = 1 [(cosmos_proto.scalar) = "cosmos.AccAddress"];
+}
+
+// CoinDenomForERC20AddressResponse is the response type for the Query/CoinDenomForERC20Address RPC method.
+message CoinDenomForERC20AddressResponse {
+  // denom is the SDK coin denomination for the given ERC20 token address.
+  string denom = 1;
+}

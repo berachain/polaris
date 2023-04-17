@@ -31,6 +31,9 @@ import (
 //			RegistryKeyFunc: func() common.Address {
 //				panic("mock out the RegistryKey method")
 //			},
+//			SetPluginFunc: func(plugin precompile.Plugin)  {
+//				panic("mock out the SetPlugin method")
+//			},
 //		}
 //
 //		// use mockedStatefulImpl in code that requires precompile.StatefulImpl
@@ -53,6 +56,9 @@ type StatefulImplMock struct {
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() common.Address
 
+	// SetPluginFunc mocks the SetPlugin method.
+	SetPluginFunc func(plugin precompile.Plugin)
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// ABIEvents holds details about calls to the ABIEvents method.
@@ -70,12 +76,18 @@ type StatefulImplMock struct {
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
+		// SetPlugin holds details about calls to the SetPlugin method.
+		SetPlugin []struct {
+			// Plugin is the plugin argument value.
+			Plugin precompile.Plugin
+		}
 	}
 	lockABIEvents           sync.RWMutex
 	lockABIMethods          sync.RWMutex
 	lockCustomValueDecoders sync.RWMutex
 	lockPrecompileMethods   sync.RWMutex
 	lockRegistryKey         sync.RWMutex
+	lockSetPlugin           sync.RWMutex
 }
 
 // ABIEvents calls ABIEventsFunc.
@@ -210,5 +222,37 @@ func (mock *StatefulImplMock) RegistryKeyCalls() []struct {
 	mock.lockRegistryKey.RLock()
 	calls = mock.calls.RegistryKey
 	mock.lockRegistryKey.RUnlock()
+	return calls
+}
+
+// SetPlugin calls SetPluginFunc.
+func (mock *StatefulImplMock) SetPlugin(plugin precompile.Plugin) {
+	if mock.SetPluginFunc == nil {
+		panic("StatefulImplMock.SetPluginFunc: method is nil but StatefulImpl.SetPlugin was just called")
+	}
+	callInfo := struct {
+		Plugin precompile.Plugin
+	}{
+		Plugin: plugin,
+	}
+	mock.lockSetPlugin.Lock()
+	mock.calls.SetPlugin = append(mock.calls.SetPlugin, callInfo)
+	mock.lockSetPlugin.Unlock()
+	mock.SetPluginFunc(plugin)
+}
+
+// SetPluginCalls gets all the calls that were made to SetPlugin.
+// Check the length with:
+//
+//	len(mockedStatefulImpl.SetPluginCalls())
+func (mock *StatefulImplMock) SetPluginCalls() []struct {
+	Plugin precompile.Plugin
+} {
+	var calls []struct {
+		Plugin precompile.Plugin
+	}
+	mock.lockSetPlugin.RLock()
+	calls = mock.calls.SetPlugin
+	mock.lockSetPlugin.RUnlock()
 	return calls
 }

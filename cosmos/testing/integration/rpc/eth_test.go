@@ -98,7 +98,7 @@ var _ = Describe("Network", func() {
 
 	It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 		// Deploy the contract
-		erc20Contract := DeployERC20(tf.GenerateTransactOpts("alice"), client)
+		erc20Contract, _ := DeployERC20(tf.GenerateTransactOpts("alice"), client)
 
 		// Mint tokens
 		tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("alice"),
