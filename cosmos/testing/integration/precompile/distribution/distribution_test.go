@@ -26,6 +26,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -76,7 +77,7 @@ var _ = SynchronizedAfterSuite(func() {
 var _ = Describe("Distribution Precompile", func() {
 	It("should be able to get if withdraw address is enabled", func() {
 		res, err := precompile.GetWithdrawEnabled(nil)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(res).To(BeTrue())
 	})
 	It("should be able to set withdraw address with cosmos address", func() {
@@ -92,7 +93,7 @@ var _ = Describe("Distribution Precompile", func() {
 		ethAddr := cosmlib.AccAddressToEthAddress(addr)
 		txr := tf.GenerateTransactOpts("")
 		tx, err := precompile.SetWithdrawAddress(txr, ethAddr)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
@@ -110,8 +111,10 @@ var _ = Describe("Distribution Precompile", func() {
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for the 2 block to be produced, to make sure there are rewards.
-		tf.Network.WaitForNextBlock()
-		tf.Network.WaitForNextBlock()
+		err = tf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
+		err = tf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("")
@@ -146,8 +149,10 @@ var _ = Describe("Distribution Precompile", func() {
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for the 2 block to be produced, to make sure there are rewards.
-		tf.Network.WaitForNextBlock()
-		tf.Network.WaitForNextBlock()
+		err = tf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
+		err = tf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("")
