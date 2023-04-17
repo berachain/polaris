@@ -49,7 +49,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(nil))
+		p = utils.MustGetAs[*plugin](NewPlugin(nil, nil))
 		e = &mockEVM{}
 	})
 

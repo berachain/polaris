@@ -33,7 +33,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/provider"
 )
@@ -86,7 +86,7 @@ func NewKeeper(
 func (k *Keeper) Setup(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	precompiles []vm.RegistrablePrecompile,
+	precompiles []precompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	cfg *provider.Config,
 ) {

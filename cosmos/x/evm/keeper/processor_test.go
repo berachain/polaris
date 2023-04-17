@@ -44,7 +44,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/eth/provider"
@@ -104,7 +103,7 @@ var _ = Describe("Processor", func() {
 		sc = staking.NewPrecompileContract(&sk)
 		cfg := provider.DefaultConfig()
 		cfg.NodeConfig.DataDir = GinkgoT().TempDir()
-		k.Setup(ak, bk, []vm.RegistrablePrecompile{sc}, nil, cfg)
+		k.Setup(ak, bk, []precompile.Registrable{sc}, nil, cfg)
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {

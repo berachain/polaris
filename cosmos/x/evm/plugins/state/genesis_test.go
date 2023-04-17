@@ -47,7 +47,7 @@ var _ = Describe("Genesis", func() {
 		var ak state.AccountKeeper
 		var bk state.BankKeeper
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPrecompilePlugin{})
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, nil)
 
 		// Create account for alice.
 		sp.Reset(ctx)
