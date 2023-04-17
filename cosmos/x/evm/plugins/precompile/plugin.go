@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"context"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -28,9 +29,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -50,24 +49,23 @@ type Plugin interface {
 	SetKVGasConfig(storetypes.GasConfig)
 	TransientKVGasConfig() storetypes.GasConfig
 	SetTransientKVGasConfig(storetypes.GasConfig)
-	GetLogFactory() events.PrecompileLogFactory
 }
 
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 	// precompiles is all supported precompile contracts.
-	precompiles []vm.RegistrablePrecompile
+	precompiles []precompile.Registrable
 	// kvGasConfig is the gas config for the KV store.
 	kvGasConfig storetypes.GasConfig
 	// transientKVGasConfig is the gas config for the transient KV store.
 	transientKVGasConfig storetypes.GasConfig
-	// plf builds Eth events from Cosmos events, emitted during precompile execution.
-	plf events.PrecompileLogFactory
+	// sp allows resetting the context for the reentrancy into the EVM.
+	sp StatePlugin
 }
 
 // NewPlugin creates and returns a `plugin` with the default kv gas configs.
-func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
+func NewPlugin(precompiles []precompile.Registrable, sp StatePlugin) Plugin {
 	return &plugin{
 		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
 		precompiles: precompiles,
@@ -75,17 +73,13 @@ func NewPlugin(precompiles []vm.RegistrablePrecompile) Plugin {
 		// https://github.com/berachain/polaris/issues/393
 		kvGasConfig:          storetypes.GasConfig{},
 		transientKVGasConfig: storetypes.GasConfig{},
-		plf:                  log.NewFactory(precompiles),
+		sp:                   sp,
 	}
 }
 
 // GetPrecompiles implements `core.PrecompilePlugin`.
-func (p *plugin) GetPrecompiles(_ *params.Rules) []vm.RegistrablePrecompile {
+func (p *plugin) GetPrecompiles(_ *params.Rules) []precompile.Registrable {
 	return p.precompiles
-}
-
-func (p *plugin) GetLogFactory() events.PrecompileLogFactory {
-	return p.plf
 }
 
 func (p *plugin) KVGasConfig() storetypes.GasConfig {
@@ -119,8 +113,8 @@ func (p *plugin) Run(
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// get native Cosmos SDK context from the Polaris StateDB
-	sdb := evm.GetStateDB()
-	ctx := sdk.UnwrapSDKContext(utils.MustGetAs[vm.PolarisStateDB](sdb).GetContext())
+	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
+	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
 
 	// begin precompile execution => begin emitting Cosmos event as Eth logs
 	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
@@ -148,4 +142,25 @@ func (p *plugin) Run(
 
 	// valid precompile gas consumption => return supplied gas
 	return ret, suppliedGas - gm.GasConsumed(), err
+}
+
+// EnableReentrancy sets the state so that execution can enter the EVM again.
+//
+// EnableReentrancy implements `core.PrecompilePlugin`.
+func (p *plugin) EnableReentrancy(_ context.Context) {
+	// We remove the KVStore gas metering from the context prior to entering the EVM state
+	// transition. This is because the EVM is not aware of the Cosmos SDK's gas metering and is
+	// designed to be used in a standalone manner, as each of the EVM's opcodes are priced
+	// individually. By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES
+	// in the EVM are not being charged additional gas unknowingly.
+	p.sp.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
+}
+
+// DisableReentrancy sets the state so that execution cannot enter the EVM again.
+//
+// DisableReentrancy implements `core.PrecompilePlugin`.
+func (p *plugin) DisableReentrancy(ctx context.Context) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	// restore ctx gas configs for continuing precompile execution
+	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
 }

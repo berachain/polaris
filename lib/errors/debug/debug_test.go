@@ -44,8 +44,8 @@ var _ = Describe("TestFnName", func() {
 
 	It("should return the name of the function for struct functions", func() {
 		gb := GoodBye{}
-		Expect(debug.GetFnName(gb.GoodBye)).Should(Equal("GoodBye-fm"))
-		Expect(debug.GetFnName(gb.GoodByePtr)).Should(Equal("GoodByePtr-fm"))
-		Expect(debug.GetFnName(GoodBye2{}.GoodBye2)).Should(Equal("GoodBye2-fm"))
+		Expect(debug.GetFnName(gb.GoodBye)).Should(Equal("GoodBye"))
+		Expect(debug.GetFnName(gb.GoodByePtr)).Should(Equal("GoodByePtr"))
+		Expect(debug.GetFnName(GoodBye2{}.GoodBye2)).Should(Equal("GoodBye2"))
 	})
 })

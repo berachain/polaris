@@ -44,7 +44,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -128,7 +128,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		))
 
 		// Register the events.
-		f = log.NewFactory([]vm.RegistrablePrecompile{contract})
+		f = log.NewFactory([]ethprecompile.Registrable{contract})
 	})
 
 	It("should register the withdraw event", func() {

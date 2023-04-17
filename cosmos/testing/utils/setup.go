@@ -43,6 +43,8 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
@@ -87,9 +89,10 @@ func SetupMinimalKeepers() (
 		map[string][]string{
 			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			stakingtypes.BondedPoolName:    {authtypes.Minter, authtypes.Burner, authtypes.Staking},
-			"evm":                          {authtypes.Minter, authtypes.Burner},
-			"staking":                      {authtypes.Minter, authtypes.Burner},
-			"gov":                          {authtypes.Minter, authtypes.Burner},
+			evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
+			erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+			stakingtypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
+			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 		},
 		config.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -97,6 +100,8 @@ func SetupMinimalKeepers() (
 
 	ak.SetModuleAccount(ctx,
 		authtypes.NewEmptyModuleAccount("evm", authtypes.Minter, authtypes.Burner))
+	ak.SetModuleAccount(ctx,
+		authtypes.NewEmptyModuleAccount("erc20", authtypes.Minter, authtypes.Burner))
 
 	bk := bankkeeper.NewBaseKeeper(
 		encodingConfig.Codec,

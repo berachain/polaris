@@ -3,6 +3,7 @@ module pkg.berachain.dev/polaris/lib
 go 1.20
 
 require (
+	github.com/holiman/uint256 v1.2.2
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
 )

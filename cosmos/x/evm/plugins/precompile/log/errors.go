@@ -36,4 +36,7 @@ var (
 	// ErrNoValueDecoderFunc is returned when a Cosmos event's attribute key is not mapped to any
 	// attribute value decoder function.
 	ErrNoValueDecoderFunc = errors.New("no value decoder function is found for event attribute key")
+	// ErrNumberOfCoinsNotSupported is returned when the number of coins in a Cosmos event for the
+	// "amount" attribute is not equal to 1.
+	ErrNumberOfCoinsNotSupported = errors.New("number of coins not supported")
 )
