@@ -190,12 +190,11 @@ func propAndMsgBz(proposer string, amount math.Int) ([]byte, []byte) {
 	// Prepare the Proposal.
 	proposal := v1.MsgSubmitProposal{
 		InitialDeposit: initDeposit,
-		// Proposer:       cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
-		Proposer:  proposer,
-		Metadata:  "metadata",
-		Title:     "title",
-		Summary:   "summary",
-		Expedited: true,
+		Proposer:       proposer,
+		Metadata:       "metadata",
+		Title:          "title",
+		Summary:        "summary",
+		Expedited:      true,
 	}
 	proposalBz, err := proposal.Marshal()
 	Expect(err).ToNot(HaveOccurred())

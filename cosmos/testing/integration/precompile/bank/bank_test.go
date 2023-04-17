@@ -63,6 +63,7 @@ var _ = SynchronizedAfterSuite(func() {
 var _ = Describe("Bank", func() {
 	denom := "abera"
 	denom2 := "atoken"
+	denom3 := "stake"
 
 	It("should call functions on the precompile directly", func() {
 		numberOfDenoms := 6
@@ -80,6 +81,10 @@ var _ = Describe("Bank", func() {
 			{
 				Denom:  denom2,
 				Amount: big.NewInt(100),
+			},
+			{
+				Denom:  denom3,
+				Amount: big.NewInt(1000000000000000000),
 			},
 		}
 		evmDenomMetadata := bindings.IBankModuleDenomMetadata{
