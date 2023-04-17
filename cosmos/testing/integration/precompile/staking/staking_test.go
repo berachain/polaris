@@ -70,25 +70,25 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
-		delegated, err := stakingPrecompile.GetDelegation(nil, tf.Address("MainAcc"), validator)
+		delegated, err := stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		txr := tf.GenerateTransactOpts("MainAcc")
+		txr := tf.GenerateTransactOpts("alice")
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("MainAcc"), validator)
+		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {
 		contractAddr, tx, contract, err := tbindings.DeployLiquidStaking(
-			tf.GenerateTransactOpts("MainAcc"),
+			tf.GenerateTransactOpts("alice"),
 			tf.EthClient,
 			"myToken",
 			"MTK",
@@ -107,7 +107,7 @@ var _ = Describe("Staking", func() {
 		Expect(addresses[0]).To(Equal(validator))
 
 		// Send tokens to the contract to delegate and mint LSD.
-		txr := tf.GenerateTransactOpts("MainAcc")
+		txr := tf.GenerateTransactOpts("alice")
 		txr.GasLimit = 0
 		txr.Value = delegateAmt
 		tx, err = contract.Delegate(txr, delegateAmt)
@@ -124,7 +124,7 @@ var _ = Describe("Staking", func() {
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
 		// Check the balance of LSD ERC20 is minted to sender.
-		balance, err := contract.BalanceOf(nil, tf.Address("MainAcc"))
+		balance, err := contract.BalanceOf(nil, tf.Address("alice"))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance.Cmp(delegateAmt)).To(Equal(0))
 	})

@@ -41,7 +41,7 @@ const defaultTimeout = 10 * time.Second
 
 const defaultNumberOfAccounts = 3
 
-var defaultAccountNames = []string{"MainAcc", "AccWith2Denoms", "AccWithLessAbera"}
+var defaultAccountNames = []string{"alice", "bob", "charlie"}
 
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
@@ -104,7 +104,7 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	if err != nil {
 		tf.t.Fatal(err)
 	}
-	// nonce, err := client.PendingNonceAt(context.Background(), tf.Address("MainAcc"))
+	// nonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
 	// hacky stuff to make sure the nonce is correct.
 	time.Sleep(2) //nolint:gomnd,staticcheck // temporary.
 	nonce, err := tf.EthClient.NonceAt(context.Background(), tf.Address(name), big.NewInt(int64(blockNumber)))

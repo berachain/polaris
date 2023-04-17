@@ -74,14 +74,14 @@ var _ = Describe("Network", func() {
 
 	It("should support eth_getBalance", func() {
 		// Get the balance of an account
-		balance, err := client.BalanceAt(ctx, tf.Address("MainAcc"), nil)
+		balance, err := client.BalanceAt(ctx, tf.Address("alice"), nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance.Uint64()).To(BeNumerically(">", 0))
 	})
 
 	It("should support eth_estimateGas", func() {
 		// Estimate the gas required for a transaction
-		from := tf.Address("MainAcc")
+		from := tf.Address("alice")
 		to := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
 		value := big.NewInt(1000000000000)
 
@@ -98,11 +98,11 @@ var _ = Describe("Network", func() {
 
 	It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 		// Deploy the contract
-		erc20Contract := DeployERC20(tf.GenerateTransactOpts("MainAcc"), client)
+		erc20Contract := DeployERC20(tf.GenerateTransactOpts("alice"), client)
 
 		// Mint tokens
-		tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("MainAcc"),
-			tf.Address("MainAcc"), big.NewInt(100000000))
+		tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("alice"),
+			tf.Address("alice"), big.NewInt(100000000))
 		Expect(err).ToNot(HaveOccurred())
 
 		// Get the transaction by its hash, it should be pending here.
@@ -119,7 +119,7 @@ var _ = Describe("Network", func() {
 		Expect(fetchedTx.Hash()).To(Equal(txHash))
 
 		// Check the erc20 balance
-		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, tf.Address("MainAcc"))
+		erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, tf.Address("alice"))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
 	})
