@@ -21,6 +21,7 @@
 package governance
 
 import (
+	"context"
 	"math/big"
 	"testing"
 	"time"
@@ -77,6 +78,44 @@ var _ = Describe("Governance Precompile", func() {
 
 	AfterEach(func() {
 		mockCtrl.Finish()
+	})
+
+	It("Should have precompile tests and custom value decoders", func() {
+		Expect(contract.PrecompileMethods()).To(HaveLen(6))
+		Expect(contract.CustomValueDecoders()).ToNot(BeNil())
+	})
+
+	When("Unmarshal message and return any", func() {
+		var msg banktypes.MsgSend
+		BeforeEach(func() {
+			msg = banktypes.MsgSend{
+				FromAddress: caller.String(),
+				ToAddress:   testutil.Bob.String(),
+				Amount:      sdk.NewCoins(sdk.NewInt64Coin("abera", 100)),
+			}
+		})
+
+		It("should fail if the message is wrong type", func() {
+			bz := []byte("invalid")
+			_, err := unmarshalMsgAndReturnAny(bz)
+			Expect(err).To(HaveOccurred())
+		})
+		It("should succeed if the message is correct types", func() {
+			bz, err := msg.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+			a, err := unmarshalMsgAndReturnAny(bz)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(a).ToNot(BeNil())
+		})
+	})
+
+	When("submitting proposal handler", func() {
+		It("should fail if the proposal cant be unmarshalled", func() {
+			_, err := contract.submitProposalHelper(
+				context.TODO(), []byte("invalid"), nil,
+			)
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 	When("Submitting a proposal", func() {
