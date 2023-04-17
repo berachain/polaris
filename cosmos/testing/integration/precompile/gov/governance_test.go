@@ -64,8 +64,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	ExpectSuccessReceipt(tf.EthClient, tx)
 	wrapper = contract
 
-	tf.Network.WaitForHeight(10)
-
 	return nil
 }, func(data []byte) {})
 
