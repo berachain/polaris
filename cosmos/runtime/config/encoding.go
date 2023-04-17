@@ -34,7 +34,7 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
-func MakeEncodingConfig(mb module.BasicManager) params.EncodingConfig {
+func BuildPolarisEncodingConfig(mb module.BasicManager) params.EncodingConfig {
 	cdc := codec.NewLegacyAmino()
 	interfaceRegistry := types.NewInterfaceRegistry()
 	codec := codec.NewProtoCodec(interfaceRegistry)

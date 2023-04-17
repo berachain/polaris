@@ -62,19 +62,6 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
-// encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-// initClientCtx := client.Context{}.
-// 	WithCodec(encodingConfig.Codec).
-// 	WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
-// 	WithTxConfig(encodingConfig.TxConfig).
-// 	WithLegacyAmino(encodingConfig.Amino).
-// 	WithInput(os.Stdin).
-// 	WithAccountRetriever(types.AccountRetriever{}).
-// 	WithBroadcastMode(flags.BroadcastBlock).
-// 	WithHomeDir(app.DefaultNodeHome).
-// 	WithKeyringOptions(hd.EthSecp256k1Option()).
-// 	WithViper(EnvPrefix)
-
 // NewRootCmd creates a new root command for polard. It is called once in the
 // main function.
 func NewRootCmd() *cobra.Command {

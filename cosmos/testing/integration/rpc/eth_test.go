@@ -46,7 +46,7 @@ var _ = Describe("Network", func() {
 
 	It("should connect -- multiple clients", func() {
 		// Dial an Ethereum RPC Endpoint
-		rpcClient, err := gethrpc.DialContext(ctx, tf.Network.Validators[0].APIAddress+"/eth/rpc")
+		rpcClient, err := gethrpc.DialContext(ctx, tf.HTTPAddr)
 		Expect(err).ToNot(HaveOccurred())
 		c := ethclient.NewClient(rpcClient)
 		Expect(err).ToNot(HaveOccurred())

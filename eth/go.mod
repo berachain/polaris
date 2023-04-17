@@ -6,6 +6,7 @@ go 1.20
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230404155410-eabc299e6c50
 
 require (
+	github.com/BurntSushi/toml v1.2.1
 	github.com/ethereum/go-ethereum v1.11.4
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3

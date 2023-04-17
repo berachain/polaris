@@ -29,12 +29,6 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// BeginBlocker is called during the BeginBlock processing of the ABCI lifecycle.
-func (k *Keeper) BeginBlocker(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	k.polaris.Prepare(ctx, sCtx.BlockHeight())
-}
-
 // ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
@@ -68,12 +62,4 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 
 	// Return the execution result.
 	return execResult, err
-}
-
-// `Precommit` is called during the Commit processing of the ABCI lifecycle, right before the state
-// is committed to the root multistore.
-func (k *Keeper) Precommit(ctx context.Context) {
-	if err := k.polaris.Finalize(ctx); err != nil {
-		panic(err)
-	}
 }
