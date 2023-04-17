@@ -79,8 +79,5 @@ interface IBankModule {
     /**
      * @dev Returns the `amount` of account balance by address for a given denomination.
      */
-    function getBalance(
-        address accountAddress,
-        string calldata denom
-    ) external view returns (uint256);
+    function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
 }
