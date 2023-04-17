@@ -20,8 +20,6 @@
 
 pragma solidity ^0.8.4;
 
-import {IBankModule} from "./bank.sol";
-
 /**
  * @dev Interface of the distribution module's precompiled contract
  */
@@ -48,7 +46,7 @@ interface IDistributionModule {
      */
     function withdrawDelegatorReward(address delegator, address validator)
         external
-        returns (IBankModule.Coin[] memory);
+        returns (Coin[] memory);
 
     /**
      * @dev Withdraw the rewrads accumilated by the delegator from the validagor. Returns the rewards claimed.
@@ -58,7 +56,7 @@ interface IDistributionModule {
      */
     function withdrawDelegatorReward(string calldata delegator, string calldata validator)
         external
-        returns (IBankModule.Coin[] memory);
+        returns (Coin[] memory);
 
     /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
@@ -74,4 +72,13 @@ interface IDistributionModule {
      * @param withdrawAddress The address to set as the withdraw address.
      */
     event SetWithdrawAddress(address indexed withdrawAddress);
+
+    /**
+     * @dev Represents a cosmos coin.
+     * Note: this struct is generated as go struct that is then used in the precompile.
+     */
+    struct Coin {
+        uint256 amount;
+        string denom;
+    }
 }

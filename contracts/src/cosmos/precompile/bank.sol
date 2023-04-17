@@ -66,18 +66,86 @@ interface IBankModule {
      */
     event Burn(address indexed burner, uint256 amount);
 
-    /**
-     * @dev Represents sdk.Coin,
-     */
-    struct Coin {
-        uint64 amount;
-        string denom;
-    }
-
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**
      * @dev Returns the `amount` of account balance by address for a given denomination.
      */
     function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
+
+    /**
+     * @dev Returns account balance by address for all denominations.
+     */
+    function getAllBalances(address accountAddress) external view returns (Coin[] memory);
+
+    /**
+     * @dev Returns the `amount` of account balance by address for a given denomination.
+     */
+    function getSpendableBalance(address accountAddress, string calldata denom) external view returns (uint256);
+
+    /**
+     * @dev Returns account balance by address for all denominations.
+     */
+    function getAllSpendableBalances(address accountAddress) external view returns (Coin[] memory);
+
+    /**
+     * @dev Returns the total supply of a single coin.
+     */
+    function getSupply(string calldata denom) external view returns (uint256);
+
+    /**
+     * @dev Returns the total supply of a all coins.
+     */
+    function getAllSupply() external view returns (Coin[] memory);
+
+    /**
+     * @dev Returns the denomination's metadata.
+     */
+    function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
+
+    /**
+     * @dev Returns if the denom is enabled to send
+     */
+    function getSendEnabled(string calldata denom) external view returns (bool);
+
+    ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
+
+    /**
+     * @dev Send coins from one address to another.
+     */
+    function send(address fromAddress, address toAddress, Coin[] calldata amount) external payable returns (bool);
+
+    //////////////////////////////////////////// UTILS ////////////////////////////////////////////
+
+    /**
+     * @dev Represents a cosmos coin.
+     * Note: this struct is generated as go struct that is then used in the precompile.
+     */
+    struct Coin {
+        uint256 amount;
+        string denom;
+    }
+
+    /**
+     * @dev Represents a denom unit.
+     * Note: this struct is generated in generated/i_bank_module.abigen.go
+     */
+    struct DenomUnit {
+        string denom;
+        string[] aliases;
+        uint32 exponent;
+    }
+
+    /**
+     * @dev Represents a denom metadata.
+     * Note: this struct is generated in generated/i_bank_module.abigen.go
+     */
+    struct DenomMetadata {
+        string description;
+        DenomUnit[] denomUnits;
+        string base;
+        string display;
+        string name;
+        string symbol;
+    }
 }

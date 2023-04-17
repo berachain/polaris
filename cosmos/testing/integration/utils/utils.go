@@ -44,7 +44,7 @@ const (
 // StartPolarisNetwork starts a new in-memory Polaris chain.
 func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Client) {
 	var err error
-	net := network.New(t, network.DefaultConfig())
+	net := network.New(t)
 	time.Sleep(1 * time.Second)
 	_, err = net.WaitForHeightWithTimeout(1, DefaultTimeout)
 	Expect(err).ToNot(HaveOccurred())

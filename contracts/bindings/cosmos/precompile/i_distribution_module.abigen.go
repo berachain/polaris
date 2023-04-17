@@ -29,15 +29,15 @@ var (
 	_ = abi.ConvertType
 )
 
-// IBankModuleCoin is an auto generated low-level Go binding around an user-defined struct.
-type IBankModuleCoin struct {
-	Amount uint64
+// IDistributionModuleCoin is an auto generated low-level Go binding around an user-defined struct.
+type IDistributionModuleCoin struct {
+	Amount *big.Int
 	Denom  string
 }
 
 // DistributionModuleMetaData contains all meta data concerning the DistributionModule contract.
 var DistributionModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"SetWithdrawAddress\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"WithdrawRewards\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getWithdrawEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"withdrawAddress\",\"type\":\"string\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validator\",\"type\":\"string\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"SetWithdrawAddress\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"WithdrawRewards\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getWithdrawEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"withdrawAddress\",\"type\":\"string\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIDistributionModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validator\",\"type\":\"string\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIDistributionModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // DistributionModuleABI is the input ABI used to generate the binding from.
@@ -261,42 +261,42 @@ func (_DistributionModule *DistributionModuleTransactorSession) SetWithdrawAddre
 
 // WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
 //
-// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint64,string)[])
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleTransactor) WithdrawDelegatorReward(opts *bind.TransactOpts, delegator common.Address, validator common.Address) (*types.Transaction, error) {
 	return _DistributionModule.contract.Transact(opts, "withdrawDelegatorReward", delegator, validator)
 }
 
 // WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
 //
-// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint64,string)[])
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleSession) WithdrawDelegatorReward(delegator common.Address, validator common.Address) (*types.Transaction, error) {
 	return _DistributionModule.Contract.WithdrawDelegatorReward(&_DistributionModule.TransactOpts, delegator, validator)
 }
 
 // WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
 //
-// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint64,string)[])
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleTransactorSession) WithdrawDelegatorReward(delegator common.Address, validator common.Address) (*types.Transaction, error) {
 	return _DistributionModule.Contract.WithdrawDelegatorReward(&_DistributionModule.TransactOpts, delegator, validator)
 }
 
 // WithdrawDelegatorReward0 is a paid mutator transaction binding the contract method 0x77ef4bd4.
 //
-// Solidity: function withdrawDelegatorReward(string delegator, string validator) returns((uint64,string)[])
+// Solidity: function withdrawDelegatorReward(string delegator, string validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleTransactor) WithdrawDelegatorReward0(opts *bind.TransactOpts, delegator string, validator string) (*types.Transaction, error) {
 	return _DistributionModule.contract.Transact(opts, "withdrawDelegatorReward0", delegator, validator)
 }
 
 // WithdrawDelegatorReward0 is a paid mutator transaction binding the contract method 0x77ef4bd4.
 //
-// Solidity: function withdrawDelegatorReward(string delegator, string validator) returns((uint64,string)[])
+// Solidity: function withdrawDelegatorReward(string delegator, string validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleSession) WithdrawDelegatorReward0(delegator string, validator string) (*types.Transaction, error) {
 	return _DistributionModule.Contract.WithdrawDelegatorReward0(&_DistributionModule.TransactOpts, delegator, validator)
 }
 
 // WithdrawDelegatorReward0 is a paid mutator transaction binding the contract method 0x77ef4bd4.
 //
-// Solidity: function withdrawDelegatorReward(string delegator, string validator) returns((uint64,string)[])
+// Solidity: function withdrawDelegatorReward(string delegator, string validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleTransactorSession) WithdrawDelegatorReward0(delegator string, validator string) (*types.Transaction, error) {
 	return _DistributionModule.Contract.WithdrawDelegatorReward0(&_DistributionModule.TransactOpts, delegator, validator)
 }

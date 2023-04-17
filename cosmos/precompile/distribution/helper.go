@@ -61,7 +61,7 @@ func (c *Contract) withdrawDelegatorRewardsHelper(
 	for _, coin := range res.Amount {
 		amount = append(amount, generated.IBankModuleCoin{
 			Denom:  coin.Denom,
-			Amount: coin.Amount.Uint64(),
+			Amount: coin.Amount.BigInt(),
 		})
 	}
 

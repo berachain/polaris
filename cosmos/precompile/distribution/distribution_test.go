@@ -317,7 +317,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				resTyped := utils.MustGetAs[[]generated.IBankModuleCoin](res[0])
 				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
-				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.Uint64()))
+				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 			})
 		})
 
@@ -406,7 +406,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				resTyped := utils.MustGetAs[[]generated.IBankModuleCoin](res[0])
 				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
-				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.Uint64()))
+				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 			})
 
 		})

@@ -55,7 +55,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	// Deploy the contract.
 	_, tx, contract, err := tbindings.DeployGovernanceWrapper(
-		tf.GenerateTransactOpts(""),
+		tf.GenerateTransactOpts("alice"),
 		tf.EthClient,
 		common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"),
 	)
@@ -99,14 +99,14 @@ var _ = Describe("Call the Precompile Directly", func() {
 	})
 	It("Should be able to vote on a proposal", func() {
 		// Call directly.
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.Vote(txr, 2, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Call via wrapper.
-		txr = tf.GenerateTransactOpts("")
+		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Vote(txr, 2, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
@@ -114,7 +114,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 	})
 	It("Should be able to cancel a proposal", func() {
 		// Call directly.
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.CancelProposal(txr, 2)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)

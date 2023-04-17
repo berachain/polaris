@@ -79,7 +79,7 @@ interface IGovernanceModule {
      * Note: this struct is generated as go struct that is then used in the precompile.
      */
     struct Coin {
-        uint64 amount;
+        uint256 amount;
         string denom;
     }
 

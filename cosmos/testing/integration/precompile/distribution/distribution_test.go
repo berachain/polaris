@@ -31,7 +31,6 @@ import (
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -82,7 +81,7 @@ var _ = Describe("Distribution Precompile", func() {
 	})
 	It("should be able to set withdraw address with cosmos address", func() {
 		addr := sdk.AccAddress("addr")
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress0(txr, addr.String())
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
@@ -91,7 +90,7 @@ var _ = Describe("Distribution Precompile", func() {
 	It("should be able to set withdraw address with ethereum address", func() {
 		addr := sdk.AccAddress("addr")
 		ethAddr := cosmlib.AccAddressToEthAddress(addr)
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
@@ -103,7 +102,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		val := validators[0]
 		delegateAmt := big.NewInt(123450000000)
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("alice")
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, val, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
@@ -117,8 +116,8 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// Withdraw the rewards.
-		txr = tf.GenerateTransactOpts("")
-		tx, err = precompile.WithdrawDelegatorReward(txr, network.TestAddress, val)
+		txr = tf.GenerateTransactOpts("alice")
+		tx, err = precompile.WithdrawDelegatorReward(txr, tf.Address("alice"), val)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
@@ -127,7 +126,7 @@ var _ = Describe("Distribution Precompile", func() {
 	It("Should be able to call the precompile via the contract", func() {
 		// Deploy the contract.
 		contractAddress, tx, contract, err := tbindings.DeployDistributionWrapper(
-			tf.GenerateTransactOpts(""),
+			tf.GenerateTransactOpts("alice"),
 			tf.EthClient,
 			common.HexToAddress("0x69"),
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
@@ -141,7 +140,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		val := validators[0]
 		amt := big.NewInt(123450000000)
-		txr := tf.GenerateTransactOpts("")
+		txr := tf.GenerateTransactOpts("alice")
 		txr.Value = amt
 		tx, err = contract.Delegate(txr, val)
 		Expect(err).ToNot(HaveOccurred())
@@ -155,7 +154,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// Withdraw the rewards.
-		txr = tf.GenerateTransactOpts("")
+		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.WithdrawRewards(txr, contractAddress, val)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
@@ -169,7 +168,7 @@ var _ = Describe("Distribution Precompile", func() {
 		// Set the withdraw address.
 		addr := sdk.AccAddress("addr")
 		ethAddr := cosmlib.AccAddressToEthAddress(addr)
-		txr = tf.GenerateTransactOpts("")
+		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)

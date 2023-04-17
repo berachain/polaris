@@ -30,6 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
 
+	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -37,6 +38,10 @@ import (
 
 // defaultTimeout is the default timeout for the test fixture.
 const defaultTimeout = 10 * time.Second
+
+const defaultNumberOfAccounts = 3
+
+var defaultAccountNames = []string{"alice", "bob", "charlie"}
 
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
@@ -47,6 +52,7 @@ type TestFixture struct {
 	EthWsClient *ethclient.Client
 	HTTPAddr    string
 	WsAddr      string
+	keysMap     map[string]*ethsecp256k1.PrivKey
 }
 
 // NewTestFixture creates a new TestFixture.
@@ -55,8 +61,12 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 	// add some timeout functionality in the future.
 	ctx := context.Background()
 
+	// Always setup numberOfAccounts accounts.
+	keysMap := make(map[string]*ethsecp256k1.PrivKey)
+	setupTestAccounts(keysMap)
+
 	// Build Testing Network.
-	net := network.New(t, network.DefaultConfig())
+	net := network.New(t, network.DefaultConfig(keysMap))
 	_, err := net.WaitForHeightWithTimeout(1, defaultTimeout)
 	if err != nil {
 		t.Fatal(err)
@@ -81,6 +91,7 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 		EthWsClient: wsClient,
 		HTTPAddr:    httpAddr,
 		WsAddr:      wsaddr,
+		keysMap:     keysMap,
 	}
 }
 
@@ -93,10 +104,10 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	if err != nil {
 		tf.t.Fatal(err)
 	}
-	// nonce, err := client.PendingNonceAt(context.Background(), network.TestAddress)
+	// nonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
 	// hacky stuff to make sure the nonce is correct.
 	time.Sleep(2) //nolint:gomnd,staticcheck // temporary.
-	nonce, err := tf.EthClient.NonceAt(context.Background(), network.TestAddress, big.NewInt(int64(blockNumber)))
+	nonce, err := tf.EthClient.NonceAt(context.Background(), tf.Address(name), big.NewInt(int64(blockNumber)))
 	if err != nil {
 		tf.t.Fatal(err)
 	}
@@ -118,9 +129,22 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 }
 
 func (tf *TestFixture) PrivKey(name string) *ecdsa.PrivateKey {
-	return network.ECDSATestKey
+	newECDSATestKey, _ := tf.keysMap[name].ToECDSA()
+	return newECDSATestKey
 }
 
 func (tf *TestFixture) Address(name string) common.Address {
 	return crypto.PubkeyToAddress(tf.PrivKey(name).PublicKey)
+}
+
+func (tf *TestFixture) CreateKeyWithName(name string) {
+	newKey, _ := ethsecp256k1.GenPrivKey()
+	tf.keysMap[name] = newKey
+}
+
+func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
+	for i := 0; i < defaultNumberOfAccounts; i++ {
+		newKey, _ := ethsecp256k1.GenPrivKey()
+		keysMap[defaultAccountNames[i]] = newKey
+	}
 }

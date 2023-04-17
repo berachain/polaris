@@ -22,7 +22,6 @@ package bank
 
 import (
 	"context"
-	"errors"
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -40,17 +39,19 @@ import (
 type Contract struct {
 	precompile.BaseContract
 
-	querier banktypes.QueryServer
+	msgServer banktypes.MsgServer
+	querier   banktypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract(q banktypes.QueryServer) ethprecompile.StatefulImpl {
+func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.BankModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
-		querier: q,
+		msgServer: ms,
+		querier:   qs,
 	}
 }
 
@@ -61,6 +62,38 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getBalance(address,string)",
 			Execute: c.GetBalance,
 		},
+		{
+			AbiSig:  "getAllBalances(address)",
+			Execute: c.GetAllBalances,
+		},
+		{
+			AbiSig:  "getSpendableBalance(address,string)",
+			Execute: c.GetSpendableBalanceByDenom,
+		},
+		{
+			AbiSig:  "getAllSpendableBalances(address)",
+			Execute: c.GetSpendableBalances,
+		},
+		{
+			AbiSig:  "getSupply(string)",
+			Execute: c.GetSupplyOf,
+		},
+		{
+			AbiSig:  "getAllSupply()",
+			Execute: c.GetTotalSupply,
+		},
+		{
+			AbiSig:  "getDenomMetadata(string)",
+			Execute: c.GetDenomMetadata,
+		},
+		{
+			AbiSig:  "getSendEnabled(string)",
+			Execute: c.GetSendEnabled,
+		},
+		{
+			AbiSig:  "send(address,address,(uint256,string)[])",
+			Execute: c.Send,
+		},
 	}
 }
 
@@ -70,7 +103,7 @@ func (c *Contract) GetBalance(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
+	readonly bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[common.Address](args[0])
@@ -89,9 +122,230 @@ func (c *Contract) GetBalance(
 	if err != nil {
 		return nil, err
 	}
-	if res.Balance == nil {
-		return nil, errors.New("no balance found")
+
+	balance := res.GetBalance().Amount
+	return []any{balance.BigInt()}, nil
+}
+
+// // GetAllBalances implements `getAllBalances(address)` method.
+func (c *Contract) GetAllBalances(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	addr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
 	}
 
-	return []any{res.Balance.Amount.BigInt()}, nil
+	// todo: add pagination here
+	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+		Address: cosmlib.AddressToAccAddress(addr).String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
+}
+
+// GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
+func (c *Contract) GetSpendableBalanceByDenom(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	addr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	denom, ok := utils.GetAs[string](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	res, err := c.querier.SpendableBalanceByDenom(ctx, &banktypes.QuerySpendableBalanceByDenomRequest{
+		Address: cosmlib.AddressToAccAddress(addr).String(),
+		Denom:   denom,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	balance := res.GetBalance().Amount
+	return []any{balance.BigInt()}, nil
+}
+
+// GetSpendableBalances implements `getSpendableBalances(address)` method.
+func (c *Contract) GetSpendableBalances(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	addr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+
+	res, err := c.querier.SpendableBalances(ctx, &banktypes.QuerySpendableBalancesRequest{
+		Address: cosmlib.AddressToAccAddress(addr).String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
+}
+
+// GetSupplyOf implements `GetSupplyOf(string)` method.
+func (c *Contract) GetSupplyOf(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	denom, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	res, err := c.querier.SupplyOf(ctx, &banktypes.QuerySupplyOfRequest{
+		Denom: denom,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	supply := res.GetAmount().Amount
+	return []any{supply.BigInt()}, nil
+}
+
+// GetTotalSupply implements `getTotalSupply()` method.
+func (c *Contract) GetTotalSupply(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	// todo: add pagination here
+	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{sdkCoinsToEvmCoins(res.Supply)}, nil
+}
+
+// GetDenomMetadata implements `getDenomMetadata(string)` method.
+func (c *Contract) GetDenomMetadata(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	denom, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	res, err := c.querier.DenomMetadata(ctx, &banktypes.QueryDenomMetadataRequest{
+		Denom: denom,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	r := res.Metadata
+
+	denomUnits := make([]generated.IBankModuleDenomUnit, len(r.DenomUnits))
+	for i, d := range r.DenomUnits {
+		denomUnits[i] = generated.IBankModuleDenomUnit{
+			Denom:    d.Denom,
+			Aliases:  d.Aliases,
+			Exponent: d.Exponent,
+		}
+	}
+
+	result := generated.IBankModuleDenomMetadata{
+		Description: r.Description,
+		DenomUnits:  denomUnits,
+		Base:        r.Base,
+		Display:     r.Display,
+		Name:        r.Name,
+		Symbol:      r.Symbol,
+	}
+	return []any{result}, nil
+}
+
+// GetSendEnabled implements `getSendEnabled(string[])` method.
+func (c *Contract) GetSendEnabled(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	denom, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
+		Denoms: []string{denom},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(res.SendEnabled) == 0 {
+		return nil, precompile.ErrInvalidString
+	}
+
+	return []any{res.SendEnabled[0].Enabled}, nil
+}
+
+// Send implements `send(address,address,(uint256,string))` method.
+func (c *Contract) Send(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	fromAddr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	toAddr, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	coins, err := extractCoinsFromInput(args[2])
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
+		FromAddress: cosmlib.AddressToAccAddress(fromAddr).String(),
+		ToAddress:   cosmlib.AddressToAccAddress(toAddr).String(),
+		Amount:      coins,
+	})
+	return []any{err == nil}, err
 }

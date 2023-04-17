@@ -29,9 +29,32 @@ var (
 	_ = abi.ConvertType
 )
 
+// IBankModuleCoin is an auto generated low-level Go binding around an user-defined struct.
+type IBankModuleCoin struct {
+	Amount *big.Int
+	Denom  string
+}
+
+// IBankModuleDenomMetadata is an auto generated low-level Go binding around an user-defined struct.
+type IBankModuleDenomMetadata struct {
+	Description string
+	DenomUnits  []IBankModuleDenomUnit
+	Base        string
+	Display     string
+	Name        string
+	Symbol      string
+}
+
+// IBankModuleDenomUnit is an auto generated low-level Go binding around an user-defined struct.
+type IBankModuleDenomUnit struct {
+	Denom    string
+	Aliases  []string
+	Exponent uint32
+}
+
 // BankModuleMetaData contains all meta data concerning the BankModule contract.
 var BankModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllSpendableBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllSupply\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getDenomMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSpendableBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"fromAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"toAddress\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"send\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
 }
 
 // BankModuleABI is the input ABI used to generate the binding from.
@@ -180,6 +203,99 @@ func (_BankModule *BankModuleTransactorRaw) Transact(opts *bind.TransactOpts, me
 	return _BankModule.Contract.contract.Transact(opts, method, params...)
 }
 
+// GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
+//
+// Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
+func (_BankModule *BankModuleCaller) GetAllBalances(opts *bind.CallOpts, accountAddress common.Address) ([]IBankModuleCoin, error) {
+	var out []interface{}
+	err := _BankModule.contract.Call(opts, &out, "getAllBalances", accountAddress)
+
+	if err != nil {
+		return *new([]IBankModuleCoin), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+
+	return out0, err
+
+}
+
+// GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
+//
+// Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
+func (_BankModule *BankModuleSession) GetAllBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+	return _BankModule.Contract.GetAllBalances(&_BankModule.CallOpts, accountAddress)
+}
+
+// GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
+//
+// Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
+func (_BankModule *BankModuleCallerSession) GetAllBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+	return _BankModule.Contract.GetAllBalances(&_BankModule.CallOpts, accountAddress)
+}
+
+// GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
+//
+// Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
+func (_BankModule *BankModuleCaller) GetAllSpendableBalances(opts *bind.CallOpts, accountAddress common.Address) ([]IBankModuleCoin, error) {
+	var out []interface{}
+	err := _BankModule.contract.Call(opts, &out, "getAllSpendableBalances", accountAddress)
+
+	if err != nil {
+		return *new([]IBankModuleCoin), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+
+	return out0, err
+
+}
+
+// GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
+//
+// Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
+func (_BankModule *BankModuleSession) GetAllSpendableBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+	return _BankModule.Contract.GetAllSpendableBalances(&_BankModule.CallOpts, accountAddress)
+}
+
+// GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
+//
+// Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
+func (_BankModule *BankModuleCallerSession) GetAllSpendableBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+	return _BankModule.Contract.GetAllSpendableBalances(&_BankModule.CallOpts, accountAddress)
+}
+
+// GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
+//
+// Solidity: function getAllSupply() view returns((uint256,string)[])
+func (_BankModule *BankModuleCaller) GetAllSupply(opts *bind.CallOpts) ([]IBankModuleCoin, error) {
+	var out []interface{}
+	err := _BankModule.contract.Call(opts, &out, "getAllSupply")
+
+	if err != nil {
+		return *new([]IBankModuleCoin), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+
+	return out0, err
+
+}
+
+// GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
+//
+// Solidity: function getAllSupply() view returns((uint256,string)[])
+func (_BankModule *BankModuleSession) GetAllSupply() ([]IBankModuleCoin, error) {
+	return _BankModule.Contract.GetAllSupply(&_BankModule.CallOpts)
+}
+
+// GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
+//
+// Solidity: function getAllSupply() view returns((uint256,string)[])
+func (_BankModule *BankModuleCallerSession) GetAllSupply() ([]IBankModuleCoin, error) {
+	return _BankModule.Contract.GetAllSupply(&_BankModule.CallOpts)
+}
+
 // GetBalance is a free data retrieval call binding the contract method 0x1dd7cecf.
 //
 // Solidity: function getBalance(address accountAddress, string denom) view returns(uint256)
@@ -209,6 +325,151 @@ func (_BankModule *BankModuleSession) GetBalance(accountAddress common.Address, 
 // Solidity: function getBalance(address accountAddress, string denom) view returns(uint256)
 func (_BankModule *BankModuleCallerSession) GetBalance(accountAddress common.Address, denom string) (*big.Int, error) {
 	return _BankModule.Contract.GetBalance(&_BankModule.CallOpts, accountAddress, denom)
+}
+
+// GetDenomMetadata is a free data retrieval call binding the contract method 0x52a6ea04.
+//
+// Solidity: function getDenomMetadata(string denom) view returns((string,(string,string[],uint32)[],string,string,string,string))
+func (_BankModule *BankModuleCaller) GetDenomMetadata(opts *bind.CallOpts, denom string) (IBankModuleDenomMetadata, error) {
+	var out []interface{}
+	err := _BankModule.contract.Call(opts, &out, "getDenomMetadata", denom)
+
+	if err != nil {
+		return *new(IBankModuleDenomMetadata), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(IBankModuleDenomMetadata)).(*IBankModuleDenomMetadata)
+
+	return out0, err
+
+}
+
+// GetDenomMetadata is a free data retrieval call binding the contract method 0x52a6ea04.
+//
+// Solidity: function getDenomMetadata(string denom) view returns((string,(string,string[],uint32)[],string,string,string,string))
+func (_BankModule *BankModuleSession) GetDenomMetadata(denom string) (IBankModuleDenomMetadata, error) {
+	return _BankModule.Contract.GetDenomMetadata(&_BankModule.CallOpts, denom)
+}
+
+// GetDenomMetadata is a free data retrieval call binding the contract method 0x52a6ea04.
+//
+// Solidity: function getDenomMetadata(string denom) view returns((string,(string,string[],uint32)[],string,string,string,string))
+func (_BankModule *BankModuleCallerSession) GetDenomMetadata(denom string) (IBankModuleDenomMetadata, error) {
+	return _BankModule.Contract.GetDenomMetadata(&_BankModule.CallOpts, denom)
+}
+
+// GetSendEnabled is a free data retrieval call binding the contract method 0x94047166.
+//
+// Solidity: function getSendEnabled(string denom) view returns(bool)
+func (_BankModule *BankModuleCaller) GetSendEnabled(opts *bind.CallOpts, denom string) (bool, error) {
+	var out []interface{}
+	err := _BankModule.contract.Call(opts, &out, "getSendEnabled", denom)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// GetSendEnabled is a free data retrieval call binding the contract method 0x94047166.
+//
+// Solidity: function getSendEnabled(string denom) view returns(bool)
+func (_BankModule *BankModuleSession) GetSendEnabled(denom string) (bool, error) {
+	return _BankModule.Contract.GetSendEnabled(&_BankModule.CallOpts, denom)
+}
+
+// GetSendEnabled is a free data retrieval call binding the contract method 0x94047166.
+//
+// Solidity: function getSendEnabled(string denom) view returns(bool)
+func (_BankModule *BankModuleCallerSession) GetSendEnabled(denom string) (bool, error) {
+	return _BankModule.Contract.GetSendEnabled(&_BankModule.CallOpts, denom)
+}
+
+// GetSpendableBalance is a free data retrieval call binding the contract method 0x34d1fdaf.
+//
+// Solidity: function getSpendableBalance(address accountAddress, string denom) view returns(uint256)
+func (_BankModule *BankModuleCaller) GetSpendableBalance(opts *bind.CallOpts, accountAddress common.Address, denom string) (*big.Int, error) {
+	var out []interface{}
+	err := _BankModule.contract.Call(opts, &out, "getSpendableBalance", accountAddress, denom)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetSpendableBalance is a free data retrieval call binding the contract method 0x34d1fdaf.
+//
+// Solidity: function getSpendableBalance(address accountAddress, string denom) view returns(uint256)
+func (_BankModule *BankModuleSession) GetSpendableBalance(accountAddress common.Address, denom string) (*big.Int, error) {
+	return _BankModule.Contract.GetSpendableBalance(&_BankModule.CallOpts, accountAddress, denom)
+}
+
+// GetSpendableBalance is a free data retrieval call binding the contract method 0x34d1fdaf.
+//
+// Solidity: function getSpendableBalance(address accountAddress, string denom) view returns(uint256)
+func (_BankModule *BankModuleCallerSession) GetSpendableBalance(accountAddress common.Address, denom string) (*big.Int, error) {
+	return _BankModule.Contract.GetSpendableBalance(&_BankModule.CallOpts, accountAddress, denom)
+}
+
+// GetSupply is a free data retrieval call binding the contract method 0xfe3b2b88.
+//
+// Solidity: function getSupply(string denom) view returns(uint256)
+func (_BankModule *BankModuleCaller) GetSupply(opts *bind.CallOpts, denom string) (*big.Int, error) {
+	var out []interface{}
+	err := _BankModule.contract.Call(opts, &out, "getSupply", denom)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetSupply is a free data retrieval call binding the contract method 0xfe3b2b88.
+//
+// Solidity: function getSupply(string denom) view returns(uint256)
+func (_BankModule *BankModuleSession) GetSupply(denom string) (*big.Int, error) {
+	return _BankModule.Contract.GetSupply(&_BankModule.CallOpts, denom)
+}
+
+// GetSupply is a free data retrieval call binding the contract method 0xfe3b2b88.
+//
+// Solidity: function getSupply(string denom) view returns(uint256)
+func (_BankModule *BankModuleCallerSession) GetSupply(denom string) (*big.Int, error) {
+	return _BankModule.Contract.GetSupply(&_BankModule.CallOpts, denom)
+}
+
+// Send is a paid mutator transaction binding the contract method 0x84404811.
+//
+// Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
+func (_BankModule *BankModuleTransactor) Send(opts *bind.TransactOpts, fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+	return _BankModule.contract.Transact(opts, "send", fromAddress, toAddress, amount)
+}
+
+// Send is a paid mutator transaction binding the contract method 0x84404811.
+//
+// Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
+func (_BankModule *BankModuleSession) Send(fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+	return _BankModule.Contract.Send(&_BankModule.TransactOpts, fromAddress, toAddress, amount)
+}
+
+// Send is a paid mutator transaction binding the contract method 0x84404811.
+//
+// Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
+func (_BankModule *BankModuleTransactorSession) Send(fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+	return _BankModule.Contract.Send(&_BankModule.TransactOpts, fromAddress, toAddress, amount)
 }
 
 // BankModuleBurnIterator is returned from FilterBurn and is used to iterate over the raw logs and unpacked data for Burn events raised by the BankModule contract.

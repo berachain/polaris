@@ -157,7 +157,7 @@ func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceM
 	for _, coin := range proposal.TotalDeposit {
 		totalDeposit = append(totalDeposit, generated.IGovernanceModuleCoin{
 			Denom:  coin.Denom,
-			Amount: coin.Amount.Uint64(),
+			Amount: coin.Amount.BigInt(),
 		})
 	}
 
