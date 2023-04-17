@@ -32,14 +32,19 @@ interface IGovernanceModule {
      * @param proposal The proposal to submit.
      * @param message The message to submit with the proposal.
      */
-    function submitProposal(bytes calldata proposal, bytes calldata message) external returns (uint64);
+    function submitProposal(
+        bytes calldata proposal,
+        bytes calldata message
+    ) external returns (uint64);
 
     /**
      * @dev Cancel a proposal. Returns the cancled time and height.
      *   burned.
      * @param proposalId The id of the proposal to cancel.
      */
-    function cancelProposal(uint64 proposalId) external returns (uint64, uint64);
+    function cancelProposal(
+        uint64 proposalId
+    ) external returns (uint64, uint64);
 
     /**
      * @dev Vote on a proposal.
@@ -47,7 +52,11 @@ interface IGovernanceModule {
      * @param option The option to vote on.
      * @param metadata The metadata to attach to the vote.
      */
-    function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool);
+    function vote(
+        uint64 proposalId,
+        int32 option,
+        string memory metadata
+    ) external returns (bool);
 
     /**
      * @dev Vote on a proposal with weights.
@@ -55,22 +64,28 @@ interface IGovernanceModule {
      * @param options The options to vote on.
      * @param metadata The metadata to attach to the vote.
      */
-    function voteWeighted(uint64 proposalId, WeightedVoteOption[] calldata options, string calldata metadata)
-        external
-        returns (bool);
+    function voteWeighted(
+        uint64 proposalId,
+        WeightedVoteOption[] calldata options,
+        string calldata metadata
+    ) external returns (bool);
 
     ////////////////////////////////////////// Read Methods /////////////////////////////////////////////
 
     /**
      * @dev Get the proposal with the given id.
      */
-    function getProposal(uint64 proposalId) external view returns (Proposal memory);
+    function getProposal(
+        uint64 proposalId
+    ) external view returns (Proposal memory);
 
     /**
      * @dev Get proposals with a given status.
      * @param proposalStatus The status of the proposals to get.
      */
-    function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
+    function getProposals(
+        int32 proposalStatus
+    ) external view returns (Proposal[] memory);
 
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
 
@@ -131,9 +146,10 @@ interface IGovernanceModule {
 
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
-     * @param votingPeriodStart is the time stamp of when voting started.
+     * @param proposalId The id of the proposal.
+     * @param amount The amount of the deposit.
      */
-    event ProposalDeposit(uint64 indexed votingPeriodStart);
+    event ProposalDeposit(uint64 indexed proposalId, uint256 amount);
 
     /**
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.
