@@ -166,13 +166,13 @@ var _ = Describe("StateProcessor", func() {
 				if addr != dummyContract {
 					return nil
 				}
-				return common.Hex2Bytes(bindings.NonRevertableTxMetaData.Bin)
+				return common.Hex2Bytes(bindings.PrecompileConstructorMetaData.Bin)
 			}
 			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
 				if addr != dummyContract {
 					return common.Hash{}
 				}
-				return crypto.Keccak256Hash(common.Hex2Bytes(bindings.NonRevertableTxMetaData.Bin))
+				return crypto.Keccak256Hash(common.Hex2Bytes(bindings.PrecompileConstructorMetaData.Bin))
 			}
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
