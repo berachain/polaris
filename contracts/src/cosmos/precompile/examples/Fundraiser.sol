@@ -29,19 +29,13 @@ import {IBankModule} from "../bank.sol";
 import {Owned} from "../../../../lib/Owned.sol";
 
 /**
- * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
- * and receive a liquid staking token in return. The liquid staking token can be redeemed for Base
- * Denom at any time.
- * Note: This is an example of how to delegate Base Denom to a validator.
- * Doing it this way is unsafe since the user can delegate more straight through precomile.
- * And withdraw via the precompile.
+ * @dev Fundraiser is a contract that allows users to donate tokens in any denom. 
+ * Only the owner can withdraw the funds.
+ * Note: This is an example of how to use the bank precompile.
  */
 contract Fundraiser is Owned {
     // State
     IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
-
-    event Success(bool indexed success);
-    event Data(bytes data);
 
     constructor() Owned(msg.sender){}
 
@@ -57,6 +51,4 @@ contract Fundraiser is Owned {
     function GetRaisedAmounts() public view returns (IBankModule.Coin[] memory) {
         return bank.getAllBalances(address(this));
     }
-
-    receive() external payable {}
 }

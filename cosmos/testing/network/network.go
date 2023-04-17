@@ -30,6 +30,7 @@ import (
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -37,6 +38,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -87,7 +91,10 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 
 	var cfg network.Config
 	if len(configs) == 0 {
-		cfg = DefaultConfig(map[string]*ethsecp256k1.PrivKey{})
+		newKey, _ := ethsecp256k1.GenPrivKey()
+		cfg = DefaultConfig(map[string]*ethsecp256k1.PrivKey{
+			"alice": newKey,
+		})
 	} else {
 		cfg = configs[0]
 	}
@@ -180,6 +187,25 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 	stakingState.Params.BondDenom = "abera"
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
+	// Governance module
+	// TODO: Remove this when this issue is resolved https://github.com/berachain/polaris/issues/550
+	newAccount, err := authtypes.NewBaseAccountWithPubKey(keysMap["alice"].PubKey())
+	if err != nil {
+		panic(err)
+	}
+	var govState v1.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &govState)
+	prop1, prop2 := createProposal(2, newAccount.Address), createProposal(3, newAccount.Address) //nolint: gomnd //.
+	govState.Proposals = append(govState.Proposals, prop1, prop2)
+	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&govState)
+	// Distribution Module
+	var distributionState distrtypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distributionState)
+	params := distrtypes.DefaultParams()
+	params.WithdrawAddrEnabled = true
+	distributionState.Params = params
+	genState[distrtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&distributionState)
+
 	return genState
 }
 
@@ -216,7 +242,11 @@ func getTestMetadata() []banktypes.Metadata {
 func getCoinsForAccount(name string) sdk.Coins {
 	switch name {
 	case "alice":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
+		return sdk.NewCoins(
+			sdk.NewCoin("abera", sdk.NewInt(examoney)),
+			sdk.NewCoin("bATOM", sdk.NewInt(examoney)),
+			sdk.NewCoin("bAKT", sdk.NewInt(examoney)),
+		)
 	case "bob":
 		return sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
@@ -227,4 +257,27 @@ func getCoinsForAccount(name string) sdk.Coins {
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
 	}
+
+}
+func createProposal(id uint64, proposer string) *v1.Proposal {
+	voteStart := time.Now().Add(-time.Hour)
+	//nolint:gomnd // 2 days.
+	voteEnd := voteStart.Add(time.Hour * 24 * 2)
+	proposal := &v1.Proposal{
+		Id:               id,
+		Proposer:         proposer,
+		Messages:         []*codectypes.Any{},
+		Status:           v1.StatusVotingPeriod,
+		FinalTallyResult: &v1.TallyResult{},
+		SubmitTime:       &time.Time{},
+		DepositEndTime:   &time.Time{},
+		TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(onehundred))),
+		VotingStartTime:  &voteStart,
+		VotingEndTime:    &voteEnd,
+		Metadata:         "metadata",
+		Title:            "title",
+		Summary:          "summary",
+		Expedited:        false,
+	}
+	return proposal
 }

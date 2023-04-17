@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package governance
+package test
 
 import (
 	"fmt"
@@ -42,6 +42,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 
+	//nolint:stylecheck,revive // Ginkgo is the testing framework.
 	. "github.com/onsi/ginkgo/v2"
 )
 
@@ -57,7 +58,7 @@ func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 }
 
 // Helper functions for setting up the tests.
-func setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkeeper.Keeper, *governancekeeper.Keeper) {
+func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkeeper.Keeper, *governancekeeper.Keeper) {
 	// Setup the keepers and context.
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 	dk := govtestutil.NewMockDistributionKeeper(ctrl)
@@ -105,6 +106,7 @@ func setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 
 	// Fund the caller with some coins.
 	err = lib.MintCoinsToAddress(
+		//nolint:gomnd // magic number is fine here.
 		ctx, bk, governancetypes.ModuleName, lib.AccAddressToEthAddress(caller), "abera", big.NewInt(100000000),
 	)
 	if err != nil {

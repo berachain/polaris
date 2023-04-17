@@ -29,29 +29,31 @@ interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
     /**
      * @dev Submit a proposal to the governance module. Returns the proposal id.
+     * @param proposal The proposal to submit.
+     * @param message The message to submit with the proposal.
      */
-    function submitProposal(
-        bytes calldata message,
-        Coin[] calldata initialDeposit,
-        string calldata metadata,
-        string calldata title,
-        string calldata summary,
-        bool expedited
-    ) external returns (uint64);
+    function submitProposal(bytes calldata proposal, bytes calldata message) external returns (uint64);
 
     /**
      * @dev Cancel a proposal. Returns the cancled time and height.
      *   burned.
+     * @param proposalId The id of the proposal to cancel.
      */
     function cancelProposal(uint64 proposalId) external returns (uint64, uint64);
 
     /**
      * @dev Vote on a proposal.
+     * @param proposalId The id of the proposal to vote on.
+     * @param option The option to vote on.
+     * @param metadata The metadata to attach to the vote.
      */
     function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool);
 
     /**
      * @dev Vote on a proposal with weights.
+     * @param proposalId The id of the proposal to vote on.
+     * @param options The options to vote on.
+     * @param metadata The metadata to attach to the vote.
      */
     function voteWeighted(uint64 proposalId, WeightedVoteOption[] calldata options, string calldata metadata)
         external
@@ -66,6 +68,7 @@ interface IGovernanceModule {
 
     /**
      * @dev Get proposals with a given status.
+     * @param proposalStatus The status of the proposals to get.
      */
     function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
 
@@ -76,7 +79,7 @@ interface IGovernanceModule {
      * Note: this struct is generated as go struct that is then used in the precompile.
      */
     struct Coin {
-        uint64 amount;
+        uint256 amount;
         string denom;
     }
 
@@ -119,4 +122,29 @@ interface IGovernanceModule {
         string noCount;
         string noWithVetoCount;
     }
+
+    /**
+     * @dev Emitted by the governance module when `submitProposal` is called.
+     * @param proposalId The id of the proposal.
+     */
+    event SubmitProposal(uint64 indexed proposalId);
+
+    /**
+     * @dev Emitted by the governance module when `submitProposal` is called.
+     * @param votingPeriodStart is the time stamp of when voting started.
+     */
+    event ProposalDeposit(uint64 votingPeriodStart);
+
+    /**
+     * @dev Emitted by the governance module when `AddVote` is called in the msg server.
+     * @param proposalId The id of the proposal.
+     */
+    event ProposalVote(string option, uint64 indexed proposalId);
+
+    /**
+     * @dev Emitted by the governance module when `cancelProposal` is called.
+     * @param sender The sender of the cancel proposal.
+     * @param proposalId The id of the proposal.
+     */
+    event CancelProposal(address indexed sender, uint64 indexed proposalId);
 }

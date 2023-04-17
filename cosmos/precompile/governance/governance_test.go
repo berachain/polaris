@@ -21,6 +21,7 @@
 package governance
 
 import (
+	"context"
 	"math/big"
 	"testing"
 	"time"
@@ -40,6 +41,7 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	precomtest "pkg.berachain.dev/polaris/cosmos/precompile/test"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -64,19 +66,60 @@ var _ = Describe("Governance Precompile", func() {
 	)
 
 	BeforeEach(func() {
-		t := GinkgoTestReporter{}
+		t := precomtest.GinkgoTestReporter{}
 		mockCtrl = gomock.NewController(t)
 		caller = cosmlib.AddressToAccAddress(testutil.Alice)
-		ctx, bk, gk = setup(mockCtrl, caller)
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(gk))
+		ctx, bk, gk = precomtest.Setup(mockCtrl, caller)
+		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
+			governancekeeper.NewMsgServerImpl(gk),
+			gk,
+		))
 	})
 
 	AfterEach(func() {
 		mockCtrl.Finish()
 	})
 
+	It("Should have precompile tests and custom value decoders", func() {
+		Expect(contract.PrecompileMethods()).To(HaveLen(6))
+		Expect(contract.CustomValueDecoders()).ToNot(BeNil())
+	})
+
+	When("Unmarshal message and return any", func() {
+		var msg banktypes.MsgSend
+		BeforeEach(func() {
+			msg = banktypes.MsgSend{
+				FromAddress: caller.String(),
+				ToAddress:   testutil.Bob.String(),
+				Amount:      sdk.NewCoins(sdk.NewInt64Coin("abera", 100)),
+			}
+		})
+
+		It("should fail if the message is wrong type", func() {
+			bz := []byte("invalid")
+			_, err := unmarshalMsgAndReturnAny(bz)
+			Expect(err).To(HaveOccurred())
+		})
+		It("should succeed if the message is correct types", func() {
+			bz, err := msg.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+			a, err := unmarshalMsgAndReturnAny(bz)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(a).ToNot(BeNil())
+		})
+	})
+
+	When("submitting proposal handler", func() {
+		It("should fail if the proposal cant be unmarshalled", func() {
+			_, err := contract.submitProposalHelper(
+				context.TODO(), []byte("invalid"), nil,
+			)
+			Expect(err).To(HaveOccurred())
+		})
+	})
+
 	When("Submitting a proposal", func() {
-		It("should fail if the message is not of type", func() {
+		It("Should fail if proposal is of wrong type", func() {
 			res, err := contract.SubmitProposal(
 				ctx,
 				nil,
@@ -85,82 +128,20 @@ var _ = Describe("Governance Precompile", func() {
 				false,
 				"invalid",
 			)
-			Expect(err).To(MatchError(precompile.ErrInvalidAny))
+			Expect(err).To(MatchError(precompile.ErrInvalidBytes))
 			Expect(res).To(BeNil())
 		})
-		It("should fail if the initial deposit is wrong type", func() {
+		It("Should fail if the message is of wrong type", func() {
 			res, err := contract.SubmitProposal(
 				ctx,
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{},
+				[]byte{},
 				"invalid",
 			)
-			Expect(err).To(MatchError(precompile.ErrInvalidCoin))
-			Expect(res).To(BeNil())
-		})
-		It("should fail if metadata is of wrong type", func() {
-			res, err := contract.SubmitProposal(
-				ctx,
-				nil,
-				cosmlib.AccAddressToEthAddress(caller),
-				big.NewInt(0),
-				false,
-				[]*codectypes.Any{},
-				[]generated.IGovernanceModuleCoin{},
-				123,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidString))
-			Expect(res).To(BeNil())
-		})
-		It("should fail if title is of wrong type", func() {
-			res, err := contract.SubmitProposal(
-				ctx,
-				nil,
-				cosmlib.AccAddressToEthAddress(caller),
-				big.NewInt(0),
-				false,
-				[]*codectypes.Any{},
-				[]generated.IGovernanceModuleCoin{},
-				"metadata",
-				123,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidString))
-			Expect(res).To(BeNil())
-		})
-		It("should fail if summary is of wrong type", func() {
-			res, err := contract.SubmitProposal(
-				ctx,
-				nil,
-				cosmlib.AccAddressToEthAddress(caller),
-				big.NewInt(0),
-				false,
-				[]*codectypes.Any{},
-				[]generated.IGovernanceModuleCoin{},
-				"metadata",
-				"title",
-				123,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidString))
-			Expect(res).To(BeNil())
-		})
-		It("should fail if expedited is of wrong type", func() {
-			res, err := contract.SubmitProposal(
-				ctx,
-				nil,
-				cosmlib.AccAddressToEthAddress(caller),
-				big.NewInt(0),
-				false,
-				[]*codectypes.Any{},
-				[]generated.IGovernanceModuleCoin{},
-				"metadata",
-				"title",
-				"summary",
-				123,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidBool))
+			Expect(err).To(MatchError(precompile.ErrInvalidBytes))
 			Expect(res).To(BeNil())
 		})
 		It("should succeed", func() {
@@ -176,31 +157,31 @@ var _ = Describe("Governance Precompile", func() {
 				ToAddress:   caller.String(),
 				Amount:      initDeposit,
 			}
-
 			metadata := "metadata"
 			title := "title"
 			summary := "summary"
-
-			msg, err := codectypes.NewAnyWithValue(message)
+			msgBz, err := message.Marshal()
 			Expect(err).ToNot(HaveOccurred())
-
+			// Create and marshal the proposal.
+			proposal := v1.MsgSubmitProposal{
+				InitialDeposit: initDeposit,
+				Proposer:       caller.String(),
+				Metadata:       metadata,
+				Title:          title,
+				Summary:        summary,
+				Expedited:      false,
+			}
+			proposalBz, err := proposal.Marshal()
+			Expect(err).ToNot(HaveOccurred())
+			// Submit the proposal.
 			res, err := contract.SubmitProposal(
 				ctx,
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
 				false,
-				[]*codectypes.Any{msg},
-				[]generated.IGovernanceModuleCoin{
-					{
-						Amount: 100,
-						Denom:  "abera",
-					},
-				},
-				metadata,
-				title,
-				summary,
-				false,
+				proposalBz,
+				msgBz,
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())

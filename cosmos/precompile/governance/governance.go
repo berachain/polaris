@@ -27,13 +27,14 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -48,14 +49,15 @@ type Contract struct {
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(gk *govkeeper.Keeper) ethprecompile.StatefulImpl {
+func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
+			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
-		msgServer: govkeeper.NewMsgServerImpl(gk),
-		querier:   gk,
+		msgServer: m,
+		querier:   q,
 	}
 }
 
@@ -63,7 +65,7 @@ func NewPrecompileContract(gk *govkeeper.Keeper) ethprecompile.StatefulImpl {
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
-			AbiSig:  "submitProposal(bytes,(uint64,string)[],string,string,string,bool)",
+			AbiSig:  "submitProposal(bytes,bytes)",
 			Execute: c.SubmitProposal,
 		},
 		{
@@ -89,6 +91,20 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	}
 }
 
+// CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
+func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
+	return ethprecompile.ValueDecoders{
+		govtypes.AttributeKeyProposalID: log.ConvertUint64,
+		govtypes.AttributeKeyProposalMessages: func(attributeValue string) (any, error) {
+			return attributeValue, nil
+		},
+		govtypes.AttributeKeyVotingPeriodStart: log.ConvertUint64,
+		govtypes.AttributeKeyOption: func(attributeValue string) (any, error) {
+			return attributeValue, nil
+		},
+	}
+}
+
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
@@ -98,35 +114,19 @@ func (c *Contract) SubmitProposal(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	message, ok := utils.GetAs[[]*codectypes.Any](args[0]) // TODO: check if this is the correct type.
+	proposalBz, ok := utils.GetAs[[]byte](args[0])
 	if !ok {
-		return nil, precompile.ErrInvalidAny
+		return nil, precompile.ErrInvalidBytes
 	}
-	initialDeposit, ok := utils.GetAs[[]generated.IGovernanceModuleCoin](args[1])
+	messageBz, ok := utils.GetAs[[]byte](args[1])
 	if !ok {
-		return nil, precompile.ErrInvalidCoin
+		return nil, precompile.ErrInvalidBytes
 	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
+	message, err := unmarshalMsgAndReturnAny(messageBz)
+	if err != nil {
+		return nil, err
 	}
-	title, ok := utils.GetAs[string](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	summary, ok := utils.GetAs[string](args[4])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	expedited, ok := utils.GetAs[bool](args[5])
-	if !ok {
-		return nil, precompile.ErrInvalidBool
-	}
-
-	// Caller is the proposer (msg.sender).
-	proposer := sdk.AccAddress(caller.Bytes())
-
-	return c.submitProposalHelper(ctx, message, initialDeposit, proposer, metadata, title, summary, expedited)
+	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
 }
 
 // CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
@@ -230,4 +230,18 @@ func (c *Contract) GetProposals(
 	}
 
 	return c.getProposalsHelper(ctx, proposalStatus)
+}
+
+// unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
+// TODO: This is a temporary solution until we have a better way to unmarshal messages.
+func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
+	var msg banktypes.MsgSend
+	if err := msg.Unmarshal(bz); err != nil {
+		return nil, err
+	}
+	anyValue, err := codectypes.NewAnyWithValue(&msg)
+	if err != nil {
+		return nil, err
+	}
+	return anyValue, nil
 }

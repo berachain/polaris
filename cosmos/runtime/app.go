@@ -320,10 +320,19 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		[]precompile.Registrable{
 			// TODO: register more precompiles here.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
-			bankprecompile.NewPrecompileContract(bankkeeper.NewMsgServerImpl(app.BankKeeper), app.BankKeeper),
+			bankprecompile.NewPrecompileContract(
+				bankkeeper.NewMsgServerImpl(app.BankKeeper),
+				app.BankKeeper,
+			),
 			authprecompile.NewPrecompileContract(),
-			distrprecompile.NewPrecompileContract(),
-			govprecompile.NewPrecompileContract(app.GovKeeper),
+			govprecompile.NewPrecompileContract(
+				govkeeper.NewMsgServerImpl(app.GovKeeper),
+				app.GovKeeper,
+			),
+			distrprecompile.NewPrecompileContract(
+				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
+				distrkeeper.NewQuerier(app.DistrKeeper),
+			),
 			erc20precompile.NewPrecompileContract(
 				app.BankKeeper, app.ERC20Keeper,
 			),
