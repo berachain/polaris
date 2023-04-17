@@ -109,6 +109,8 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	// Wait for next block.
 	err = tf.Network.WaitForNextBlock()
 	Expect(err).ToNot(HaveOccurred())
+	err = tf.Network.WaitForNextBlock()
+	Expect(err).ToNot(HaveOccurred())
 	return nil
 }, func(data []byte) {})
 
