@@ -161,6 +161,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 		Coins: sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(megamoney)),
 			sdk.NewCoin("bATOM", sdk.NewInt(megamoney)),
+			sdk.NewCoin("bAKT", sdk.NewInt(megamoney)),
 		),
 	})
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)

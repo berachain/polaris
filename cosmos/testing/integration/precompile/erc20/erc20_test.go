@@ -326,14 +326,14 @@ var _ = Describe("ERC20", func() {
 
 			tx, err = swapper.Swap(
 				tf.GenerateTransactOpts(""),
-				"bATOM",
+				"bAKT",
 				big.NewInt(12345),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient, tx)
 
 			// check that the new ERC20 is minted to TestAddress
-			tokenAddr, err := swapper.GetPolarisERC20(nil, "bATOM")
+			tokenAddr, err := swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
 			token, err := pbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
 			Expect(err).ToNot(HaveOccurred())

@@ -30,8 +30,6 @@ import {IERC20Module, IERC20} from "../erc20.sol";
 contract Swapper {
     IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
 
-    constructor() {}
-
     // converts ERC20 --> SDK coin 
     // owner must first grant this contract to spend owner's tokens
     function swap(IERC20 token, uint256 amount) external {
