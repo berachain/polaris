@@ -65,6 +65,7 @@ var _ = Describe("Bank", func() {
 	denom2 := "atoken"
 
 	It("should call functions on the precompile directly", func() {
+		numberOfDenoms := 6
 		coinsToBeSent := []bindings.IBankModuleCoin{
 			{
 				Denom:  denom,
@@ -136,7 +137,7 @@ var _ = Describe("Bank", func() {
 
 		totalSupply, err := bankPrecompile.GetAllSupply(nil)
 		Expect(err).ShouldNot(HaveOccurred())
-		Expect(totalSupply).To(HaveLen(4))
+		Expect(totalSupply).To(HaveLen(numberOfDenoms))
 
 		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, denom)
 		Expect(err).ShouldNot(HaveOccurred())
