@@ -36,6 +36,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -47,6 +48,7 @@ var (
 	precompile     *bindings.GovernanceModule
 	wrapper        *tbindings.GovernanceWrapper
 	bankPrecompile *bindings.BankModule
+	wrapperAddr    common.Address
 )
 
 func TestGovernancePrecompile(t *testing.T) {
@@ -57,6 +59,9 @@ func TestGovernancePrecompile(t *testing.T) {
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
+	_, err := tf.Network.WaitForHeight(3)
+	Expect(err).ToNot(HaveOccurred())
+
 	// Setup the governance precompile.
 	precompile, _ = bindings.NewGovernanceModule(
 		common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"), tf.EthClient,
@@ -66,7 +71,8 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient)
 
 	// Deploy the contract.
-	contractAddr, tx, contract, err := tbindings.DeployGovernanceWrapper(
+	var tx *types.Transaction
+	wrapperAddr, tx, wrapper, err = tbindings.DeployGovernanceWrapper(
 		tf.GenerateTransactOpts("alice"),
 		tf.EthClient,
 		common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"),
@@ -74,43 +80,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	Expect(err).ToNot(HaveOccurred())
 	ExpectMined(tf.EthClient, tx)
 	ExpectSuccessReceipt(tf.EthClient, tx)
-	wrapper = contract
 
-	// Alice Submits a proposal.
-	amt := sdk.NewInt(100000000)
-	prop, msg := propAndMsgBz(cosmlib.AddressToAccAddress(tf.Address("alice")).String(), amt)
-	txr := tf.GenerateTransactOpts("alice")
-	tx, err = precompile.SubmitProposal(txr, prop, msg)
-	Expect(err).ToNot(HaveOccurred())
-	ExpectMined(tf.EthClient, tx)
-	ExpectSuccessReceipt(tf.EthClient, tx)
-
-	// Send coins to the wrapper.
-	coins := []bindings.IBankModuleCoin{
-		{
-			Denom:  "stake",
-			Amount: big.NewInt(amt.Int64()),
-		},
-	}
-	txr = tf.GenerateTransactOpts("alice")
-	tx, err = bankPrecompile.Send(txr, tf.Address("alice"), contractAddr, coins)
-	Expect(err).ToNot(HaveOccurred())
-	ExpectMined(tf.EthClient, tx)
-	ExpectSuccessReceipt(tf.EthClient, tx)
-
-	// Wrapper submits a proposal.
-	prop, msg = propAndMsgBz(cosmlib.AddressToAccAddress(contractAddr).String(), amt)
-	txr = tf.GenerateTransactOpts("alice")
-	tx, err = wrapper.Submit(txr, prop, msg, "stake", big.NewInt(amt.Int64()))
-	Expect(err).ToNot(HaveOccurred())
-	ExpectMined(tf.EthClient, tx)
-	ExpectSuccessReceipt(tf.EthClient, tx)
-
-	// Wait for next block.
-	err = tf.Network.WaitForNextBlock()
-	Expect(err).ToNot(HaveOccurred())
-	err = tf.Network.WaitForNextBlock()
-	Expect(err).ToNot(HaveOccurred())
 	return nil
 }, func(data []byte) {})
 
@@ -122,6 +92,43 @@ var _ = SynchronizedAfterSuite(func() {
 })
 
 var _ = Describe("Call the Precompile Directly", func() {
+	BeforeEach(func() {
+		// Alice Submits a proposal.
+		amt := sdk.NewInt(100000000)
+		prop, msg := propAndMsgBz(cosmlib.AddressToAccAddress(tf.Address("alice")).String(), amt)
+		txr := tf.GenerateTransactOpts("alice")
+		tx, err := precompile.SubmitProposal(txr, prop, msg)
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		// Send coins to the wrapper.
+		coins := []bindings.IBankModuleCoin{
+			{
+				Denom:  "stake",
+				Amount: big.NewInt(amt.Int64()),
+			},
+		}
+		txr = tf.GenerateTransactOpts("alice")
+		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), wrapperAddr, coins)
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		// Wrapper submits a proposal.
+		prop, msg = propAndMsgBz(cosmlib.AddressToAccAddress(wrapperAddr).String(), amt)
+		txr = tf.GenerateTransactOpts("alice")
+		tx, err = wrapper.Submit(txr, prop, msg, "stake", big.NewInt(amt.Int64()))
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		// Wait for next block.
+		err = tf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
+		err = tf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
+	})
 
 	It("Should be able to get a proposal", func() {
 		// Call directly.
@@ -133,21 +140,17 @@ var _ = Describe("Call the Precompile Directly", func() {
 		res2, err := wrapper.GetProposal(nil, 1)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res2.Id).To(Equal(uint64(1)))
-	})
 
-	It("Should be able to get proposals", func() {
 		// Call directly.
-		res, err := precompile.GetProposals(nil, 0)
+		getProposalsRes, err := precompile.GetProposals(nil, 0)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(res).To(HaveLen(2))
+		Expect(getProposalsRes).To(HaveLen(2))
 
 		// Call via wrapper.
-		res2, err := wrapper.GetProposals(nil, 0)
+		wrapperRes, err := wrapper.GetProposals(nil, 0)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(res2).To(HaveLen(2))
-	})
+		Expect(wrapperRes).To(HaveLen(2))
 
-	It("Should be able to vote on a proposal", func() {
 		// Call directly.
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.Vote(txr, 1, 1, "metadata")
@@ -161,12 +164,10 @@ var _ = Describe("Call the Precompile Directly", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
-	})
 
-	It("Should be able to cancel a proposal", func() {
 		// Call directly.
-		txr := tf.GenerateTransactOpts("alice")
-		tx, err := precompile.CancelProposal(txr, 1)
+		txr = tf.GenerateTransactOpts("alice")
+		tx, err = precompile.CancelProposal(txr, 1)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
