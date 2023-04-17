@@ -94,10 +94,9 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		govtypes.AttributeKeyProposalID:        log.ConvertUint64,
-		govtypes.AttributeKeyProposalMessages:  log.ReturnStringAsIs,
-		govtypes.AttributeKeyVotingPeriodStart: log.ConvertUint64,
-		govtypes.AttributeKeyOption:            log.ReturnStringAsIs,
+		govtypes.AttributeKeyProposalID:       log.ConvertUint64,
+		govtypes.AttributeKeyProposalMessages: log.ReturnStringAsIs,
+		govtypes.AttributeKeyOption:           log.ReturnStringAsIs,
 	}
 }
 

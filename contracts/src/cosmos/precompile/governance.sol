@@ -125,26 +125,28 @@ interface IGovernanceModule {
 
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
-     * @param proposalId The id of the proposal.
+     * TODO: fix Cosmos event SubmitProposal.
      */
-    event SubmitProposal(uint64 indexed proposalId);
+    event SubmitProposal();
 
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
-     * @param votingPeriodStart is the time stamp of when voting started.
+     * @param proposalId The id of the proposal.
+     * @param amount The amount of the deposit.
      */
-    event ProposalDeposit(uint64 votingPeriodStart);
+    event ProposalDeposit(uint64 indexed proposalId, uint256 amount);
 
     /**
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.
      * @param proposalId The id of the proposal.
+     * @param option The option voted on.
      */
-    event ProposalVote(string option, uint64 indexed proposalId);
+    event ProposalVote(uint64 indexed proposalId, string option);
 
     /**
      * @dev Emitted by the governance module when `cancelProposal` is called.
-     * @param sender The sender of the cancel proposal.
      * @param proposalId The id of the proposal.
+     * @param sender The sender of the cancel proposal.
      */
-    event CancelProposal(address indexed sender, uint64 indexed proposalId);
+    event CancelProposal(uint64 indexed proposalId, address indexed sender);
 }

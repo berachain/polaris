@@ -26,10 +26,12 @@
 pragma solidity ^0.8.17;
 
 import {IGovernanceModule} from "../governance.sol";
+import {IBankModule} from "../bank.sol";
 
 contract GovernanceWrapper {
     // State
     IGovernanceModule public governanceModule;
+    IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
 
     // Errors
     error ZeroAddress();
@@ -50,10 +52,16 @@ contract GovernanceWrapper {
      * @param proposal The proposal.
      * @param message The message.
      */
-    function submitProposalWrapepr(bytes calldata proposal, bytes calldata message) external payable returns (uint64) {
-        // so that the proposal can be executed.
-        payable(address(this)).transfer(msg.value);
-
+    function submit(bytes calldata proposal, bytes calldata message, string calldata denom, uint256 amount)
+        external
+        payable
+        returns (uint64)
+    {
+        // Send the deposit amount to the contract.
+        IBankModule.Coin[] memory coins = new IBankModule.Coin[](1);
+        coins[0].denom = denom;
+        coins[0].amount = amount;
+        bank.send(msg.sender, address(this), coins);
         return governanceModule.submitProposal(proposal, message);
     }
 

@@ -40,7 +40,7 @@ import (
 
 func TestDistributionPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/distribution:integration")
+	RunSpecs(t, "cosmos/testing/integration/precompile/distribution")
 }
 
 var (

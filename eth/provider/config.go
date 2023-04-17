@@ -27,6 +27,7 @@ import (
 	"github.com/BurntSushi/toml"
 
 	"github.com/ethereum/go-ethereum/node"
+	"github.com/ethereum/go-ethereum/p2p"
 
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
@@ -35,6 +36,8 @@ import (
 func DefaultConfig() *Config {
 	c := Config{}
 	nodeCfg := node.DefaultConfig
+	nodeCfg.P2P.NoDiscovery = true
+	nodeCfg.P2P = p2p.Config{}
 	nodeCfg.P2P.MaxPeers = 0
 	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth")
 	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
