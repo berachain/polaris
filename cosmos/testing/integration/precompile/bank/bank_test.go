@@ -95,15 +95,15 @@ var _ = Describe("Bank", func() {
 		}
 
 		// TestAddress3 initially has 1000000000 abera
-		balance, err := bankPrecompile.GetBalance(nil, tf.Address("AccWithLessAbera"), denom)
+		balance, err := bankPrecompile.GetBalance(nil, tf.Address("charlie"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(1000000000)))
 
 		// Send 1000 bera from TestAddress to TestAddress3
 		_, err = bankPrecompile.Send(
-			tf.GenerateTransactOpts("MainAcc"),
-			tf.Address("MainAcc"),
-			tf.Address("AccWithLessAbera"),
+			tf.GenerateTransactOpts("alice"),
+			tf.Address("alice"),
+			tf.Address("charlie"),
 			coinsToBeSent,
 		)
 		Expect(err).ShouldNot(HaveOccurred())
@@ -113,20 +113,20 @@ var _ = Describe("Bank", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		// TestAddress3 now has 1000001000 abera
-		balance, err = bankPrecompile.GetBalance(nil, tf.Address("AccWithLessAbera"), denom)
+		balance, err = bankPrecompile.GetBalance(nil, tf.Address("charlie"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(1000001000)))
 
 		// TestAddress2 has 100 abera and 100 atoken
-		allBalance, err := bankPrecompile.GetAllBalances(nil, tf.Address("AccWith2Denoms"))
+		allBalance, err := bankPrecompile.GetAllBalances(nil, tf.Address("bob"))
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(allBalance).To(Equal(expectedAllBalance))
 
-		spendableBalanceByDenom, err := bankPrecompile.GetSpendableBalance(nil, tf.Address("AccWith2Denoms"), denom)
+		spendableBalanceByDenom, err := bankPrecompile.GetSpendableBalance(nil, tf.Address("bob"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalanceByDenom).To(Equal(big.NewInt(100)))
 
-		spendableBalances, err := bankPrecompile.GetAllSpendableBalances(nil, tf.Address("AccWith2Denoms"))
+		spendableBalances, err := bankPrecompile.GetAllSpendableBalances(nil, tf.Address("bob"))
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalances).To(Equal(expectedAllBalance))
 
@@ -150,7 +150,7 @@ var _ = Describe("Bank", func() {
 	It("should be able to call a precompile from a smart contract", func() {
 		// deploy fundraiser contract with account 0
 		contractAddr, tx, contract, err := tbindings.DeployFundraiser(
-			tf.GenerateTransactOpts("MainAcc"),
+			tf.GenerateTransactOpts("alice"),
 			tf.EthClient,
 		)
 		Expect(err).ToNot(HaveOccurred())
@@ -164,7 +164,7 @@ var _ = Describe("Bank", func() {
 		}
 
 		// donate 1000000 abera from account 0 to contractAddr
-		_, err = contract.Donate(tf.GenerateTransactOpts("MainAcc"), coinsToDonate)
+		_, err = contract.Donate(tf.GenerateTransactOpts("alice"), coinsToDonate)
 		Expect(err).ToNot(HaveOccurred())
 
 		// Wait one block.
@@ -177,7 +177,7 @@ var _ = Describe("Bank", func() {
 		Expect(balance).To(Equal(big.NewInt(1000000)))
 
 		// withdraw all 1000000 abera from contractAddr to account 0
-		_, err = contract.WithdrawDonations(tf.GenerateTransactOpts("MainAcc"))
+		_, err = contract.WithdrawDonations(tf.GenerateTransactOpts("alice"))
 		Expect(err).ToNot(HaveOccurred())
 
 		// Wait one block.
