@@ -25,11 +25,7 @@
 
 pragma solidity ^0.8.4;
 
-interface IERC20 {
-    function approve(address spender, uint256 amount) external returns (bool);
-    function transfer(address to, uint256 amount) external returns (bool);
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-}
+import {IERC20} from "../../../lib/IERC20.sol";
 
 /**
  * @dev Interface of the erc20 module's precompiled contract

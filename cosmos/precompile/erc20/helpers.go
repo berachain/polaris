@@ -56,7 +56,8 @@ func (c *Contract) deployPolarisERC20Contract(
 
 	// deploy new ERC20 token contract
 	code := common.FromHex(pbindings.PolarisERC20MetaData.Bin)
-	args, err := c.polarisERC20ABI.Pack("", name, name)
+	polarisName := "p" + name
+	args, err := c.polarisERC20ABI.Pack("", polarisName, polarisName)
 	if err != nil {
 		return common.Address{}, err
 	}
