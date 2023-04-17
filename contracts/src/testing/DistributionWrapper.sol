@@ -47,7 +47,10 @@ contract DistributionWrapper {
      * @param _stakingprecompile The address of the staking precompile contract.
      */
     constructor(address _distributionprecompile, address _stakingprecompile) {
-        if (_distributionprecompile == address(0) && _stakingprecompile == address(0)) {
+        if (
+            _distributionprecompile == address(0) &&
+            _stakingprecompile == address(0)
+        ) {
             revert ZeroAddress();
         }
 
@@ -63,7 +66,9 @@ contract DistributionWrapper {
      * @dev Withdraw the rewrads accumilated by the caller(msg.sender).
      * @param _withdrawAddress The address of the delegator.
      */
-    function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
+    function setWithdrawAddress(
+        address _withdrawAddress
+    ) external returns (bool) {
         distribution.setWithdrawAddress(_withdrawAddress);
     }
 
@@ -72,10 +77,21 @@ contract DistributionWrapper {
      * @param _delegatorAddress The address of the delegator.
      * @param _validatorAddress The address of the validator.
      */
-    function withdrawRewards(address _delegatorAddress, address _validatorAddress) external {
-        distribution.withdrawDelegatorReward(_delegatorAddress, _validatorAddress);
+    function withdrawRewards(
+        address _delegatorAddress,
+        address _validatorAddress
+    ) external {
+        distribution.withdrawDelegatorReward(
+            _delegatorAddress,
+            _validatorAddress
+        );
     }
 
+    /**
+     * @dev Withdraw the rewrads accumilated by the caller(msg.sender).
+     * @param _delegatorAddress The address of the delegator.
+     * @param _validatorAddress The address of the validator.
+     */
     function delegate(address _validator) external payable {
         staking.delegate(_validator, msg.value);
     }

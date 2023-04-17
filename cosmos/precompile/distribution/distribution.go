@@ -50,8 +50,7 @@ func NewPrecompileContract(
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
-			// 0x93354845030274cD4bf1686Abd60AB28EC52e1a7
-			common.BytesToAddress([]byte{0x69}), // TODO: choose a better address.
+			common.BytesToAddress([]byte{0x69}),
 		),
 		msgServer: m,
 		querier:   q,
