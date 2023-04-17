@@ -85,15 +85,15 @@ var (
 //
 // ConvertSdkCoins is a `precompile.ValueDecoder`.
 func ConvertSdkCoins(attributeValue string) (any, error) {
-	// handle empty string
-	if attributeValue == "" {
-		return big.NewInt(0), nil
-	}
-
 	// extract the sdk.Coins from string value
 	coins, err := sdk.ParseCoinsNormalized(attributeValue)
 	if err != nil {
 		return nil, err
+	}
+
+	// handle empty string input
+	if coins == nil {
+		return big.NewInt(0), nil
 	}
 
 	// TODO: remove when multiple coins are supported.
