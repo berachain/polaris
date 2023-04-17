@@ -28,12 +28,12 @@ pragma solidity ^0.8.17;
 import {IERC20} from "../../../../lib/IERC20.sol";
 import {IERC20Module} from "../erc20.sol";
 
-// Swapper is an example smart contract that uses the erc20 module precompile to swap/convert 
+// Swapper is an example smart contract that uses the erc20 module precompile to swap/convert
 // between SDK coins and ERC20 tokens.
 contract Swapper {
     IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
 
-    // converts ERC20 --> SDK coin 
+    // converts ERC20 --> SDK coin
     // owner must first grant this contract to spend owner's tokens
     function swap(IERC20 token, uint256 amount) external {
         bool converted = erc20Module.convertERC20ToCoin(token, msg.sender, amount);

@@ -52,7 +52,7 @@ var (
 	erc20ModuleAddress = common.HexToAddress("0x696969")
 	// cosmlib.AccAddressToEthAddress(
 	// 	authtypes.NewModuleAddress(erc20types.ModuleName),
-	// )
+	// ).
 )
 
 var _ = SynchronizedBeforeSuite(func() []byte {

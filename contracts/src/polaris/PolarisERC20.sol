@@ -30,11 +30,11 @@ import {Owned} from "../../lib/Owned.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
- * 
+ *
  * The PolarisERC20 token is used as the ERC20 token representation of IBC-originated SDK coins.
- * 
+ *
  * This implementation uses the Solmate ERC20 abstract contract. Only the deployer of the contract
- * is allowed to mint and burn tokens. The default value of {decimals} is 18. 
+ * is allowed to mint and burn tokens. The default value of {decimals} is 18.
  */
 contract PolarisERC20 is Owned, ERC20 {
     /**
@@ -44,7 +44,8 @@ contract PolarisERC20 is Owned, ERC20 {
      */
     constructor(string memory name, string memory symbol) Owned(msg.sender) ERC20(name, symbol, 18) {}
 
-    /** @dev Creates `amount` tokens and assigns them to `to`, increasing the total supply.
+    /**
+     * @dev Creates `amount` tokens and assigns them to `to`, increasing the total supply.
      *
      * Emits a {Transfer} event with `from` set to the zero address.
      */
