@@ -326,6 +326,10 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 				govkeeper.NewMsgServerImpl(app.GovKeeper),
 				app.GovKeeper,
 			),
+			distrprecompile.NewPrecompileContract(
+				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
+				distrkeeper.NewQuerier(app.DistrKeeper),
+			),
 			erc20precompile.NewPrecompileContract(
 				app.BankKeeper, app.ERC20Keeper,
 			),

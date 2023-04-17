@@ -40,6 +40,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -182,6 +183,13 @@ func BuildGenesisState() map[string]json.RawMessage {
 	prop1, prop2 := createProposal(2, newAccount.Address), createProposal(3, newAccount.Address) //nolint: gomnd //.
 	govState.Proposals = append(govState.Proposals, prop1, prop2)
 	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&govState)
+	// Distribution Module
+	var distributionState distrtypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distributionState)
+	params := distrtypes.DefaultParams()
+	params.WithdrawAddrEnabled = true
+	distributionState.Params = params
+	genState[distrtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&distributionState)
 
 	return genState
 }
