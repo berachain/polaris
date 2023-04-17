@@ -37,6 +37,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -165,6 +166,14 @@ func BuildGenesisState() map[string]json.RawMessage {
 	encoding.Codec.MustUnmarshalJSON(genState[stakingtypes.ModuleName], &stakingState)
 	stakingState.Params.BondDenom = "abera"
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
+
+	// Distribution Module
+	var distributionState distrtypes.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distributionState)
+	params := distrtypes.DefaultParams()
+	params.WithdrawAddrEnabled = true
+	distributionState.Params = params
+	genState[distrtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&distributionState)
 
 	return genState
 }
