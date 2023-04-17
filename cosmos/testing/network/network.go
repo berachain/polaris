@@ -30,7 +30,6 @@ import (
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -39,7 +38,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
@@ -251,27 +249,4 @@ func getCoinsForAccount(name string) sdk.Coins {
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
 	}
-}
-
-func createProposal(id uint64, proposer string) *v1.Proposal {
-	voteStart := time.Now().Add(-time.Hour)
-	//nolint:gomnd // 2 days.
-	voteEnd := voteStart.Add(time.Hour * 24 * 2)
-	proposal := &v1.Proposal{
-		Id:               id,
-		Proposer:         proposer,
-		Messages:         []*codectypes.Any{},
-		Status:           v1.StatusVotingPeriod,
-		FinalTallyResult: &v1.TallyResult{},
-		SubmitTime:       &time.Time{},
-		DepositEndTime:   &time.Time{},
-		TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(onehundred))),
-		VotingStartTime:  &voteStart,
-		VotingEndTime:    &voteEnd,
-		Metadata:         "metadata",
-		Title:            "title",
-		Summary:          "summary",
-		Expedited:        false,
-	}
-	return proposal
 }

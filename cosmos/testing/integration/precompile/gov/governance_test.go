@@ -21,21 +21,22 @@
 package governance
 
 import (
-	"fmt"
 	"math/big"
 	"os"
 	"testing"
 
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/eth/common"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
@@ -139,8 +140,6 @@ var _ = Describe("Call the Precompile Directly", func() {
 		res2, err := wrapper.GetProposals(nil, 0)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res2).To(HaveLen(2))
-
-		fmt.Println("Proposals: ", res2)
 	})
 
 	It("Should be able to vote on a proposal", func() {
@@ -176,7 +175,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 	})
 })
 
-func propAndMsgBz(proposer string, amount sdk.Int) ([]byte, []byte) {
+func propAndMsgBz(proposer string, amount math.Int) ([]byte, []byte) {
 	// Prepare the message.
 	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
 	initDeposit := sdk.NewCoins(sdk.NewCoin("stake", amount))
