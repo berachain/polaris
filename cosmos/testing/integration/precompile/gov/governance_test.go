@@ -64,6 +64,8 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	ExpectSuccessReceipt(tf.EthClient, tx)
 	wrapper = contract
 
+	tf.Network.WaitForHeight(10)
+
 	return nil
 }, func(data []byte) {})
 
@@ -86,6 +88,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res2.Id).To(Equal(uint64(3)))
 	})
+
 	It("Should be able to get proposals", func() {
 		// Call directly.
 		res, err := precompile.GetProposals(nil, 0)
@@ -97,6 +100,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res2).To(HaveLen(2))
 	})
+
 	It("Should be able to vote on a proposal", func() {
 		// Call directly.
 		txr := tf.GenerateTransactOpts("alice")
@@ -112,12 +116,14 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
+
 	It("Should be able to cancel a proposal", func() {
 		// Call directly.
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.CancelProposal(txr, 2)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
+
 		// Call via wrapper
 		//TODO: Need https://github.com/berachain/polaris/issues/550, bc msg.sender != proposer
 	})

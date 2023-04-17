@@ -198,6 +198,7 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 	prop1, prop2 := createProposal(2, newAccount.Address), createProposal(3, newAccount.Address) //nolint: gomnd //.
 	govState.Proposals = append(govState.Proposals, prop1, prop2)
 	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&govState)
+	
 	// Distribution Module
 	var distributionState distrtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distributionState)
@@ -258,6 +259,7 @@ func getCoinsForAccount(name string) sdk.Coins {
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
 	}
 }
+
 func createProposal(id uint64, proposer string) *v1.Proposal {
 	voteStart := time.Now().Add(-time.Hour)
 	//nolint:gomnd // 2 days.
