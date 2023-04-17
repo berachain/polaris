@@ -31,7 +31,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/precompile/mock"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -61,7 +60,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]precompile.Registrable{pc})
 		}).ToNot(Panic())
 		Expect(func() {
 			pc.RegistryKeyFunc = func() common.Address {
@@ -72,7 +71,7 @@ var _ = Describe("Factory", func() {
 					"CancelUnbondingDelegation": mockDefaultAbiEvent(),
 				}
 			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]precompile.Registrable{pc})
 		}).ToNot(Panic())
 	})
 
@@ -129,7 +128,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]precompile.Registrable{pc})
 
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
@@ -163,7 +162,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]precompile.Registrable{pc})
 
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
@@ -195,7 +194,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return badCvd
 			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]precompile.Registrable{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),
@@ -216,7 +215,7 @@ var _ = Describe("Factory", func() {
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
 			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]precompile.Registrable{pc})
 			log, err = f.Build(&event)
 			Expect(log).To(BeNil())
 			Expect(err.Error()).To(Equal("invalid amount"))
@@ -230,7 +229,7 @@ var _ = Describe("Factory", func() {
 			pc.CustomValueDecodersFunc = func() precompile.ValueDecoders {
 				return cvd
 			}
-			f = NewFactory([]vm.RegistrablePrecompile{pc})
+			f = NewFactory([]precompile.Registrable{pc})
 			event := sdk.NewEvent(
 				"custom_unbonding_delegation",
 				sdk.NewAttribute("custom_validator", valAddr.String()),

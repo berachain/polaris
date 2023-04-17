@@ -56,10 +56,12 @@ type (
 )
 
 const (
-	thousand    = 1000
-	fivehundred = 500
-	onehundred  = 100
-	megamoney   = 1000000000000000000
+	thousand            = 1000
+	fivehundred         = 500
+	onehundred          = 100
+	initialERC20balance = 123456789
+	leftPad             = 32
+	megamoney           = 1000000000000000000
 )
 
 var (
@@ -156,7 +158,11 @@ func BuildGenesisState() map[string]json.RawMessage {
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
 	bankState.Balances = append(bankState.Balances, banktypes.Balance{
 		Address: newAccount.Address,
-		Coins:   sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney))),
+		Coins: sdk.NewCoins(
+			sdk.NewCoin("abera", sdk.NewInt(megamoney)),
+			sdk.NewCoin("bATOM", sdk.NewInt(megamoney)),
+			sdk.NewCoin("bAKT", sdk.NewInt(megamoney)),
+		),
 	})
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
 

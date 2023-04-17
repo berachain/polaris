@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package staking
 
 import (
 	"math/big"
@@ -37,9 +37,9 @@ import (
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
-func TestCosmosPrecompiles(t *testing.T) {
+func TestStakingPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/precompile:integration")
+	RunSpecs(t, "cosmos/testing/integration/precompile/staking")
 }
 
 var (

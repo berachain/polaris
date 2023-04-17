@@ -21,26 +21,77 @@
 package bank
 
 import (
+	"context"
+	"errors"
+	"math/big"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Contract is the precompile contract for the bank module.
 type Contract struct {
 	precompile.BaseContract
+
+	querier banktypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract() ethprecompile.StatefulImpl {
+func NewPrecompileContract(q banktypes.QueryServer) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.BankModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
+		querier: q,
 	}
+}
+
+// PrecompileMethods implements StatefulImpl.
+func (c *Contract) PrecompileMethods() ethprecompile.Methods {
+	return ethprecompile.Methods{
+		{
+			AbiSig:  "getBalance(address,string)",
+			Execute: c.GetBalance,
+		},
+	}
+}
+
+// GetBalance implements `getBalance(address,string)` method.
+func (c *Contract) GetBalance(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	addr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	denom, ok := utils.GetAs[string](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
+		Address: cosmlib.AddressToAccAddress(addr).String(),
+		Denom:   denom,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if res.Balance == nil {
+		return nil, errors.New("no balance found")
+	}
+
+	return []any{res.Balance.Amount.BigInt()}, nil
 }

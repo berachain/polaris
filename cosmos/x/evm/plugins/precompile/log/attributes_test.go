@@ -43,7 +43,7 @@ var _ = Describe("Attributes", func() {
 	Describe("Test Default Attribute Value Decoder Functions", func() {
 		It("should correctly convert sdk coin strings to big.Int", func() {
 			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
-			gethValue, err = ConvertSdkCoin(denom10.String())
+			gethValue, err = ConvertSdkCoins(denom10.String())
 			Expect(err).ToNot(HaveOccurred())
 			bigVal := libutils.MustGetAs[*big.Int](gethValue)
 			Expect(bigVal).To(Equal(big.NewInt(10)))

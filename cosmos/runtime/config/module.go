@@ -65,7 +65,9 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	erc20modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/erc20/module/v1alpha1"
 	evmmodulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
@@ -79,6 +81,7 @@ var (
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: erc20types.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 
 	// blocked account addresses.
@@ -185,6 +188,10 @@ var (
 		{
 			Name:   evmtypes.ModuleName,
 			Config: appconfig.WrapAny(&evmmodulev1alpha1.Module{}),
+		},
+		{
+			Name:   erc20types.ModuleName,
+			Config: appconfig.WrapAny(&erc20modulev1alpha1.Module{}),
 		},
 	}
 )
