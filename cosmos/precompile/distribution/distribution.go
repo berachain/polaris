@@ -62,7 +62,7 @@ func NewPrecompileContract(
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertAccAddressFromBech32,
-		sdk.AttributeKeyAmount:                        log.ConvertSdkCoin,
+		sdk.AttributeKeyAmount:                        log.ConvertSdkCoins,
 		distributiontypes.AttributeKeyValidator:       log.ConvertValAddressFromBech32,
 	}
 }
