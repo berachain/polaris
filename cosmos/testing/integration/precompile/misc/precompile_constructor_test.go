@@ -38,6 +38,16 @@ var _ = Describe("Miscellaneous Precompile Tests", func() {
 			ExpectSuccessReceipt(tf.EthClient, tx)
 			Expect(contract).ToNot(BeNil())
 			Expect(addr).ToNot(BeEmpty())
+
+			err = tf.Network.WaitForNextBlock()
+			Expect(err).NotTo(HaveOccurred())
+
+			aberaAddr, err := contract.Abera(nil)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(aberaAddr).ToNot(BeEmpty())
+			aberaStr, err := contract.Denom(nil)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(aberaStr).To(Equal("abera"))
 		})
 	})
 })
