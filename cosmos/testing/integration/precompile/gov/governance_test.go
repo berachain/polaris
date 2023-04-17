@@ -21,18 +21,12 @@
 package governance
 
 import (
-	"math/big"
 	"os"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -43,6 +37,7 @@ import (
 var (
 	tf         *integration.TestFixture
 	precompile *bindings.GovernanceModule
+	wrapper    *tbindings.GovernanceWrapper
 )
 
 func TestGovernancePrecompile(t *testing.T) {
@@ -58,6 +53,17 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"), tf.EthClient,
 	)
 
+	// Deploy the contract.
+	_, tx, contract, err := tbindings.DeployGovernanceWrapper(
+		tf.GenerateTransactOpts(""),
+		tf.EthClient,
+		common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"),
+	)
+	Expect(err).ToNot(HaveOccurred())
+	ExpectMined(tf.EthClient, tx)
+	ExpectSuccessReceipt(tf.EthClient, tx)
+	wrapper = contract
+
 	return nil
 }, func(data []byte) {})
 
@@ -68,105 +74,51 @@ var _ = SynchronizedAfterSuite(func() {
 	os.RemoveAll("data")
 })
 
-var _ = Describe("Governance Precompile", func() {
-	It("Should be able to submit a proposal", func() {
-		govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
-		initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
-		message := &banktypes.MsgSend{
-			FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
-			ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
-			Amount:      initDeposit,
-		}
-		messageBz, err := message.Marshal()
-		Expect(err).ToNot(HaveOccurred())
-
-		// Prepare the Proposal.
-		proposal := v1.MsgSubmitProposal{
-			InitialDeposit: initDeposit,
-			Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
-			Metadata:       "metadata",
-			Title:          "title",
-			Summary:        "summary",
-			Expedited:      false,
-		}
-		proposalBz, err := proposal.Marshal()
-		Expect(err).ToNot(HaveOccurred())
-
-		// Call the precompile create proposal method.
-		txr := tf.GenerateTransactOpts("")
-		txr.Value = big.NewInt(100)
-		tx, err := precompile.SubmitProposal(txr, proposalBz, messageBz)
-		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
-	})
-
-	It("Should be able to get proposals", func() {
-		// Call the precompile get proposals method.
-		proposals, err := precompile.GetProposals(nil, 0)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(proposals).To(HaveLen(1))
-	})
-
+var _ = Describe("Call the Precompile Directly", func() {
 	It("Should be able to get a proposal", func() {
-		// Call the precompile get proposal method.
-		proposal, err := precompile.GetProposal(nil, 1)
+		// Call directly.
+		res, err := precompile.GetProposal(nil, 2)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(proposal.Id).To(Equal(uint64(1)))
+		Expect(res.Id).To(Equal(uint64(2)))
+
+		// Call via wrapper.
+		res2, err := wrapper.GetProposal(nil, 3)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(res2.Id).To(Equal(uint64(3)))
 	})
+	It("Should be able to get proposals", func() {
+		// Call directly.
+		res, err := precompile.GetProposals(nil, 0)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(res).To(HaveLen(2))
 
-	It("Should be able to call the vote precompile", func() {
-		propBz, msgBz := createProposalAndMsg()
+		// Call via wrapper.
+		res2, err := wrapper.GetProposals(nil, 0)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(res2).To(HaveLen(2))
+	})
+	It("Should be able to vote on a proposal", func() {
+		// Call directly.
 		txr := tf.GenerateTransactOpts("")
-		txr.Value = big.NewInt(100)
-		tx, err := precompile.SubmitProposal(txr, propBz, msgBz)
+		tx, err := precompile.Vote(txr, 2, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		// Call the precompile get proposal method.
-		proposal, err := precompile.GetProposal(nil, 2)
-		Expect(err).ToNot(HaveOccurred())
-
-		// Wait a 2 blocks to make sure that the vote period of 1 second is in effect.
-		err = tf.Network.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
-		err = tf.Network.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
-
-		// Call the precompile vote method.
+		// Call via wrapper.
 		txr = tf.GenerateTransactOpts("")
-		txr.Value = big.NewInt(100)
-		tx, err = precompile.Vote(txr, proposal.Id, 1, "metadata")
+		tx, err = wrapper.Vote(txr, 2, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
 		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+	})
+	It("Should be able to cancel a proposal", func() {
+		// Call directly.
+		txr := tf.GenerateTransactOpts("")
+		tx, err := precompile.CancelProposal(txr, 2)
+		Expect(err).ToNot(HaveOccurred())
+		ExpectMined(tf.EthClient, tx)
+		// Call via wrapper
+		//TODO: Need https://github.com/berachain/polaris/issues/550, bc msg.sender != proposer
 	})
 })
-
-func createProposalAndMsg() ([]byte, []byte) {
-	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
-	initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
-	message := &banktypes.MsgSend{
-		FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
-		ToAddress:   cosmlib.AddressToAccAddress(network.TestAddress).String(),
-		Amount:      initDeposit,
-	}
-	messageBz, err := message.Marshal()
-	if err != nil {
-		panic(err)
-	}
-
-	// Prepare the Proposal.
-	proposal := v1.MsgSubmitProposal{
-		InitialDeposit: initDeposit,
-		Proposer:       cosmlib.AddressToAccAddress(network.TestAddress).String(),
-		Metadata:       "metadata",
-		Title:          "title",
-		Summary:        "summary",
-		Expedited:      true, // So can be voted on.
-	}
-	proposalBz, err := proposal.Marshal()
-	if err != nil {
-		panic(err)
-	}
-
-	return proposalBz, messageBz
-}

@@ -37,3 +37,4 @@ package contracts
 //go:generate abigen --pkg testing --abi ./out/ConsumeGas.sol/ConsumeGas.abi.json --bin ./out/ConsumeGas.sol/ConsumeGas.bin --out ./bindings/testing/consume_gas.abigen.go --type ConsumeGas
 
 //go:generate abigen --pkg testing --abi ./out/LiquidStaking.sol/LiquidStaking.abi.json --bin ./out/LiquidStaking.sol/LiquidStaking.bin --out ./bindings/testing/liquid_staking.abigen.go --type LiquidStaking
+//go:generate abigen --pkg testing --abi ./out/GovernanceWrapper.sol/GovernanceWrapper.abi.json --bin ./out/GovernanceWrapper.sol/GovernanceWrapper.bin --out ./bindings/testing/governance_wrapper.abigen.go --type GovernanceWrapper

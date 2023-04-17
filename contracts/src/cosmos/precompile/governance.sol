@@ -138,39 +138,28 @@ interface IGovernanceModule {
         string noWithVetoCount;
     }
 
-    // /**
-    //  * @dev Emitted by the governance module when `submitProposal` is called.
-    //  * @param proposalId The id of the proposal.
-    //  * @param proposalMessages The messages of the proposal.
-    //  */
-    // event SubmitProposal(
-    //     uint64 indexed proposalId,
-    //     string indexed proposalMessages
-    // );
+    /**
+     * @dev Emitted by the governance module when `submitProposal` is called.
+     * @param proposalId The id of the proposal.
+     */
+    event SubmitProposal(uint64 indexed proposalId);
 
-    // /**
-    //  * @dev Emitted by the governance module when `submitProposal` is called.
-    //  * @param votingPeriodStart The start of the voting period.
-    //  */
-    // event SubmitProposal(uint64 indexed votingPeriodStart);
+    /**
+     * @dev Emitted by the governance module when `submitProposal` is called.
+     * @param votingPeriodStart is the time stamp of when voting started.
+     */
+    event ProposalDeposit(uint64 votingPeriodStart);
 
-    // /**
-    //  * @dev Emitted by the governance module when `submitProposal` is called.
-    //  * @param proposalId The id of the proposal.
-    //  * @param votingPeriodStart is the time stamp of when voting started.
-    //  */
-    // event ProposalDeposit(uint64 indexed proposalId, uint64 votingPeriodStart);
+    /**
+     * @dev Emitted by the governance module when `AddVote` is called in the msg server.
+     * @param proposalId The id of the proposal.
+     */
+    event ProposalVote(string option, uint64 indexed proposalId);
 
-    // /**
-    //  * @dev Emitted by the governance module when `AddVote` is called in the msg server.
-    //  * @param proposalId The id of the proposal.
-    //  */
-    // event ProposalVote(uint64 indexed proposalId);
-
-    // /**
-    //  * @dev Emitted by the governance module when `cancelProposal` is called.
-    //  * @param sender The sender of the cancel proposal.
-    //  * @param proposalId The id of the proposal.
-    //  */
-    // event CancelProposal(address indexed sender, uint64 indexed proposalId);
+    /**
+     * @dev Emitted by the governance module when `cancelProposal` is called.
+     * @param sender The sender of the cancel proposal.
+     * @param proposalId The id of the proposal.
+     */
+    event CancelProposal(address indexed sender, uint64 indexed proposalId);
 }

@@ -53,7 +53,7 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) ethprecompile.State
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
-			// 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
+			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
 		msgServer: m,
@@ -99,6 +99,9 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 			return attributeValue, nil
 		},
 		govtypes.AttributeKeyVotingPeriodStart: log.ConvertUint64,
+		govtypes.AttributeKeyOption: func(attributeValue string) (any, error) {
+			return attributeValue, nil
+		},
 	}
 }
 
