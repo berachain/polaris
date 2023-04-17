@@ -36,6 +36,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -93,6 +94,7 @@ func SetupMinimalKeepers() (
 			erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 			stakingtypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
+			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
 		config.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -102,6 +104,14 @@ func SetupMinimalKeepers() (
 		authtypes.NewEmptyModuleAccount("evm", authtypes.Minter, authtypes.Burner))
 	ak.SetModuleAccount(ctx,
 		authtypes.NewEmptyModuleAccount("erc20", authtypes.Minter, authtypes.Burner))
+	ak.SetModuleAccount(
+		ctx,
+		authtypes.NewEmptyModuleAccount(
+			distrtypes.ModuleName,
+			authtypes.Minter,
+			authtypes.Burner,
+		),
+	)
 
 	bk := bankkeeper.NewBaseKeeper(
 		encodingConfig.Codec,
