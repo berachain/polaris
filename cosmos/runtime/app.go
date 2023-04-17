@@ -321,11 +321,15 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 			bankprecompile.NewPrecompileContract(app.BankKeeper),
 			authprecompile.NewPrecompileContract(),
+			distrprecompile.NewPrecompileContract(),
+			govprecompile.NewPrecompileContract(
+				govkeeper.NewMsgServerImpl(app.GovKeeper),
+				app.GovKeeper,
+			),
 			distrprecompile.NewPrecompileContract(
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
 				distrkeeper.NewQuerier(app.DistrKeeper),
 			),
-			govprecompile.NewPrecompileContract(app.GovKeeper),
 			erc20precompile.NewPrecompileContract(
 				app.BankKeeper, app.ERC20Keeper,
 			),

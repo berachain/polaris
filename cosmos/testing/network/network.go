@@ -30,6 +30,7 @@ import (
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -37,6 +38,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -173,6 +176,13 @@ func BuildGenesisState() map[string]json.RawMessage {
 	stakingState.Params.BondDenom = "abera"
 	genState[stakingtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&stakingState)
 
+	// Governance module
+	// TODO: Remove this when this issue is resolved https://github.com/berachain/polaris/issues/550
+	var govState v1.GenesisState
+	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &govState)
+	prop1, prop2 := createProposal(2, newAccount.Address), createProposal(3, newAccount.Address) //nolint: gomnd //.
+	govState.Proposals = append(govState.Proposals, prop1, prop2)
+	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&govState)
 	// Distribution Module
 	var distributionState distrtypes.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[distrtypes.ModuleName], &distributionState)
@@ -182,4 +192,27 @@ func BuildGenesisState() map[string]json.RawMessage {
 	genState[distrtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&distributionState)
 
 	return genState
+}
+
+func createProposal(id uint64, proposer string) *v1.Proposal {
+	voteStart := time.Now().Add(-time.Hour)
+	//nolint:gomnd // 2 days.
+	voteEnd := voteStart.Add(time.Hour * 24 * 2)
+	proposal := &v1.Proposal{
+		Id:               id,
+		Proposer:         proposer,
+		Messages:         []*codectypes.Any{},
+		Status:           v1.StatusVotingPeriod,
+		FinalTallyResult: &v1.TallyResult{},
+		SubmitTime:       &time.Time{},
+		DepositEndTime:   &time.Time{},
+		TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(onehundred))),
+		VotingStartTime:  &voteStart,
+		VotingEndTime:    &voteEnd,
+		Metadata:         "metadata",
+		Title:            "title",
+		Summary:          "summary",
+		Expedited:        false,
+	}
+	return proposal
 }
