@@ -94,12 +94,12 @@ var _ = Describe("Bank", func() {
 			Display: "bera",
 		}
 
-		// TestAddress3 initially has 1000000000 abera
+		// charlie initially has 1000000000 abera
 		balance, err := bankPrecompile.GetBalance(nil, tf.Address("charlie"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(1000000000)))
 
-		// Send 1000 bera from TestAddress to TestAddress3
+		// Send 1000 bera from alice to charlie
 		_, err = bankPrecompile.Send(
 			tf.GenerateTransactOpts("alice"),
 			tf.Address("alice"),
@@ -112,12 +112,12 @@ var _ = Describe("Bank", func() {
 		err = tf.Network.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
 
-		// TestAddress3 now has 1000001000 abera
+		// charlie now has 1000001000 abera
 		balance, err = bankPrecompile.GetBalance(nil, tf.Address("charlie"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(balance).To(Equal(big.NewInt(1000001000)))
 
-		// TestAddress2 has 100 abera and 100 atoken
+		// bob has 100 abera and 100 atoken
 		allBalance, err := bankPrecompile.GetAllBalances(nil, tf.Address("bob"))
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(allBalance).To(Equal(expectedAllBalance))
