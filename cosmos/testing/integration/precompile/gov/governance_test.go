@@ -106,6 +106,9 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	ExpectMined(tf.EthClient, tx)
 	ExpectSuccessReceipt(tf.EthClient, tx)
 
+	// Wait for next block.
+	err = tf.Network.WaitForNextBlock()
+	Expect(err).ToNot(HaveOccurred())
 	return nil
 }, func(data []byte) {})
 
