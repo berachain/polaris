@@ -35,6 +35,11 @@ contract PrecompileConstructor {
     IERC20 public abera;
 
     constructor() {
+        bool success = erc20Module.convertCoinToERC20("abera", msg.sender, 123456789);
+        require(success, "failed to convert abera");
+
         abera = erc20Module.erc20AddressForCoinDenom("abera");
+        string memory denom = erc20Module.coinDenomForERC20Address(abera);
+        require(keccak256(abi.encodePacked(denom)) == keccak256(abi.encodePacked("abera")), "returned the wrong denom");
     }
 }
