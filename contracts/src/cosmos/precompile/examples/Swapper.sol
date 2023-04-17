@@ -34,7 +34,8 @@ contract Swapper {
     IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
 
     // converts ERC20 --> SDK coin
-    // owner must first grant this contract to spend owner's tokens
+    // owner must first grant this contract to spend owner's tokens if the token is originally
+    // an ERC20 token
     function swap(IERC20 token, uint256 amount) external {
         bool converted = erc20Module.convertERC20ToCoin(token, msg.sender, amount);
         require(converted, "Swapper: convertERC20ToCoin failed");
