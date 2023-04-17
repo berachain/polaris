@@ -30,6 +30,7 @@ import (
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -41,7 +42,6 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
@@ -173,7 +173,7 @@ func BuildGenesisState() map[string]json.RawMessage {
 	// TODO: Remove this when this issue is resolved https://github.com/berachain/polaris/issues/550
 	var govState v1.GenesisState
 	encoding.Codec.MustUnmarshalJSON(genState[govtypes.ModuleName], &govState)
-	prop1, prop2 := createProposal(2, newAccount.Address), createProposal(3, newAccount.Address)
+	prop1, prop2 := createProposal(2, newAccount.Address), createProposal(3, newAccount.Address) //nolint: gomnd //.
 	govState.Proposals = append(govState.Proposals, prop1, prop2)
 	genState[govtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&govState)
 
