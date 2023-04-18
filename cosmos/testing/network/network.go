@@ -257,7 +257,6 @@ func getCoinsForAccount(name string) sdk.Coins {
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
 	}
-
 }
 func createProposal(id uint64, proposer string) *v1.Proposal {
 	voteStart := time.Now().Add(-time.Hour)

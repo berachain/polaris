@@ -33,6 +33,7 @@ contract PrecompileConstructor {
     IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
     IERC20 public abera;
     string public denom;
+
     constructor() {
         bool success = erc20Module.convertCoinToERC20("abera", msg.sender, 123456789);
         require(success, "failed to convert abera");

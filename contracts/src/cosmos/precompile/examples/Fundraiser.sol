@@ -29,7 +29,7 @@ import {IBankModule} from "../bank.sol";
 import {Owned} from "../../../../lib/Owned.sol";
 
 /**
- * @dev Fundraiser is a contract that allows users to donate tokens in any denom. 
+ * @dev Fundraiser is a contract that allows users to donate tokens in any denom.
  * Only the owner can withdraw the funds.
  * Note: This is an example of how to use the bank precompile.
  */
@@ -37,7 +37,7 @@ contract Fundraiser is Owned {
     // State
     IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
 
-    constructor() Owned(msg.sender){}
+    constructor() Owned(msg.sender) {}
 
     function withdrawDonations() external onlyOwner {
         require(msg.sender == owner, "Funds will only be released to the owner");

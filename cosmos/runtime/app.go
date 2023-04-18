@@ -22,11 +22,9 @@
 package runtime
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 
 	dbm "github.com/cosmos/cosmos-db"
 
@@ -107,7 +105,6 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -211,7 +208,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
-	fmt.Println("HOME FLAG", appOpts.Get(flags.FlagHome))
 	var (
 		app        = &PolarisApp{}
 		appBuilder *runtime.AppBuilder
@@ -314,18 +310,15 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// Polaris Configuration
-	cfg  := provider.DefaultConfig()
+	cfg := provider.DefaultConfig()
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		panic("home path is not set")
 	}
 	tomlPath := filepath.Join(homePath, "/config/polaris.toml")
 	config, err := provider.ReadConfigFile(tomlPath)
-	fmt.Printf("\n\ncfg: %v\n\n", cfg)
-	fmt.Printf("\n\nconfig: %v\n\n", config)
-	fmt.Printf("\n\nerr: %v\n\n", err)
 	if err == nil {
-		mergeStructs(cfg, config)
+		cfg = config
 	}
 	cfg.NodeConfig.DataDir = homePath + "/data/polaris"
 
@@ -371,7 +364,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		ch,
 	)
 
-	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
 		os.Exit(1)
 	}
@@ -411,7 +404,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// 	return app.App.InitChainer(ctx, req)
 	// })
 
-	if err := app.Load(loadLatest); err != nil {
+	if err = app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
@@ -525,20 +518,4 @@ func BlockedAddresses() map[string]bool {
 	}
 
 	return result
-}
-
-func mergeStructs(dst, src interface{}) {
-	dstVal := reflect.ValueOf(dst).Elem()
-	srcVal := reflect.ValueOf(src).Elem()
-
-	for i := 0; i < srcVal.NumField(); i++ {
-		dstField := dstVal.Field(i)
-		srcField := srcVal.Field(i)
-
-		if dstField.Kind() == reflect.Struct {
-			mergeStructs(dstField.Addr().Interface(), srcField.Addr().Interface())
-		} else {
-			dstField.Set(srcField)
-		}
-	}
 }
