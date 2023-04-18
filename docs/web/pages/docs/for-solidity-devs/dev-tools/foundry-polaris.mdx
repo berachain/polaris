@@ -57,7 +57,8 @@ Let's create a new project called "polaris-lsd-example" with forge.
 
 <Callout emoji="💡">
   Ensure that you have a local instance of Polaris Ethereum Running. See [Local
-  Machine](../../running-a-node/running-locally) to run Polaris Ethereum locally.
+  Machine](../../running-a-node/running-locally) to run Polaris Ethereum
+  locally.
 </Callout>
 
 You can add a profile to your foundry project by appending the following lines to the end of your foundry.toml file:
@@ -396,7 +397,7 @@ Create a new file under the `src` directory called `LiquidStaking.sol` and add t
 
 pragma solidity ^0.8.4;
 
-import {IStakingModule} from "../staking.sol";
+import {IStakingModule} from "../Staking.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
 /**
@@ -527,7 +528,7 @@ pragma solidity ^0.8.4;
 
 import "forge-std/Script.sol";
 import "./LiquidStaking.sol";
-import "../staking.sol";
+import "../Staking.sol";
 
 contract Deploy is Script {
     LiquidStaking public staking;
@@ -558,7 +559,7 @@ a tokenized version of our stake. To do so, run the following script:
 FOUNDRY_PROFILE=polaris_local cast send --private-key=xxxxxxxxxxx <deployed_contract_address> ‘delegate()’ 1
 ```
 
-###  🎉 Congratulations! 🎉
+### 🎉 Congratulations! 🎉
 
 Congratulations! You have successfully created and deployed a Liquid Staking contract on Polaris Ethereum via Foundry!
 

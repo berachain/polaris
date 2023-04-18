@@ -44,9 +44,7 @@ interface IDistributionModule {
      * @param delegator The delegator to withdraw the rewards from.
      * @param validator The validator to withdraw the rewards from.
      */
-    function withdrawDelegatorReward(address delegator, address validator)
-        external
-        returns (Coin[] memory);
+    function withdrawDelegatorReward(address delegator, address validator) external returns (Coin[] memory);
 
     /**
      * @dev Withdraw the rewrads accumilated by the delegator from the validagor. Returns the rewards claimed.

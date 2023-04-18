@@ -7,4 +7,5 @@ use (
 	./lib
 	./magefiles
 	./playground
+	./testing
 )

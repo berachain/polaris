@@ -17,7 +17,7 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 // OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGH
 // HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
@@ -25,9 +25,9 @@
 
 pragma solidity ^0.8.17;
 
-import {IDistributionModule} from "../cosmos/precompile/distribution.sol";
-import {IStakingModule} from "../cosmos/precompile/staking.sol";
-import {ERC20} from "lib/ERC20.sol";
+import {IDistributionModule} from "../Distribution.sol";
+import {IStakingModule} from "../Staking.sol";
+import {ERC20} from "../../../../lib/ERC20.sol";
 
 /**
  * @dev This contract is an example helper for calling the distribution precompile from another contract.
@@ -64,7 +64,7 @@ contract DistributionWrapper {
      * @param _withdrawAddress The address of the delegator.
      */
     function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
-        distribution.setWithdrawAddress(_withdrawAddress);
+        return distribution.setWithdrawAddress(_withdrawAddress);
     }
 
     /**

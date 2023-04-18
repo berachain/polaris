@@ -37,10 +37,6 @@ var (
 	runnerImage = "golang:" + goVersion + "-alpine"
 )
 
-func init() {
-	os.Setenv("DOCKER_BUILDKIT", "1")
-}
-
 // `Container` is a container for the JSON-RPC server.
 type Container struct {
 	// `Container` is a container for the JSON-RPC server.
@@ -80,7 +76,6 @@ func NewContainer(ctx context.Context, config ContainerConfig) (*Container, erro
 	if err != nil {
 		log.Println(err)
 	}
-	os.Setenv("DOCKER_BUILDKIT", "1")
 	fmt.Println(path) // for example /tmp/go-build872132473/b001/exe/main
 	// Create a request to the container.
 	req := tc.GenericContainerRequest{

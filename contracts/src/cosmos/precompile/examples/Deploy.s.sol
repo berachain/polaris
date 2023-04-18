@@ -27,7 +27,7 @@ pragma solidity ^0.8.4;
 
 import "../../../../lib/forge-std/src/Script.sol";
 import "../../../../lib/forge-std/src/console2.sol";
-import "../staking.sol";
+import "../Staking.sol";
 import "./LiquidStaking.sol";
 
 contract Deploy is Script {
