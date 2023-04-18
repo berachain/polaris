@@ -325,7 +325,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	fmt.Printf("\n\nconfig: %v\n\n", config)
 	fmt.Printf("\n\nerr: %v\n\n", err)
 	if err == nil {
-		mergeStructs(provider.DefaultConfig(), config)
+		mergeStructs(cfg, config)
 	}
 	cfg.NodeConfig.DataDir = homePath + "/data/polaris"
 
