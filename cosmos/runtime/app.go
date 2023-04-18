@@ -22,9 +22,11 @@
 package runtime
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 
 	dbm "github.com/cosmos/cosmos-db"
 
@@ -43,6 +45,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -208,6 +211,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
+	fmt.Println("HOME FLAG", appOpts.Get(flags.FlagHome))
 	var (
 		app        = &PolarisApp{}
 		appBuilder *runtime.AppBuilder
@@ -310,8 +314,20 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// Polaris Configuration
-	cfg := provider.DefaultConfig()
-	cfg.NodeConfig.DataDir = DefaultNodeHome + "/data"
+	cfg  := provider.DefaultConfig()
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		panic("home path is not set")
+	}
+	tomlPath := filepath.Join(homePath, "/config/polaris.toml")
+	config, err := provider.ReadConfigFile(tomlPath)
+	fmt.Printf("\n\ncfg: %v\n\n", cfg)
+	fmt.Printf("\n\nconfig: %v\n\n", config)
+	fmt.Printf("\n\nerr: %v\n\n", err)
+	if err == nil {
+		mergeStructs(provider.DefaultConfig(), config)
+	}
+	cfg.NodeConfig.DataDir = homePath + "/data/polaris"
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
@@ -509,4 +525,20 @@ func BlockedAddresses() map[string]bool {
 	}
 
 	return result
+}
+
+func mergeStructs(dst, src interface{}) {
+	dstVal := reflect.ValueOf(dst).Elem()
+	srcVal := reflect.ValueOf(src).Elem()
+
+	for i := 0; i < srcVal.NumField(); i++ {
+		dstField := dstVal.Field(i)
+		srcField := srcVal.Field(i)
+
+		if dstField.Kind() == reflect.Struct {
+			mergeStructs(dstField.Addr().Interface(), srcField.Addr().Interface())
+		} else {
+			dstField.Set(srcField)
+		}
+	}
 }
