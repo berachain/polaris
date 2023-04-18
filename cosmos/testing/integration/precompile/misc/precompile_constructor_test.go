@@ -32,7 +32,7 @@ var _ = Describe("Miscellaneous Precompile Tests", func() {
 	Describe("calling a precompile from the constructor", func() {
 		It("should successfully deploy", func() {
 			addr, tx, contract, err := tbindings.DeployPrecompileConstructor(
-				tf.GenerateTransactOpts(""), tf.EthClient,
+				tf.GenerateTransactOpts("alice"), tf.EthClient,
 			)
 			Expect(err).NotTo(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient, tx)
