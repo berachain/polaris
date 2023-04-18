@@ -124,7 +124,6 @@ interface IGovernanceModule {
     }
 
     /**
-     * 
      * @dev Emitted by the governance module when `submitProposal` is called.
      * TODO: fix Cosmos event SubmitProposal.
      */
