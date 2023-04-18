@@ -38,7 +38,7 @@ HOMEDIR="./.tmp/polard"
 TRACE=""
 
 # Path variables
-CONFIG=$HOMEDIR/config/config.toml
+CONFIG_TOML=$HOMEDIR/config/config.toml
 APP_TOML=$HOMEDIR/config/app.toml
 POLARIS_TOML=$HOMEDIR/config/polaris.toml
 GENESIS=$HOMEDIR/config/genesis.json

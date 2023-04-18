@@ -23,6 +23,7 @@ package provider
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 
@@ -71,4 +72,14 @@ func ReadConfigFile(filename string) (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+// GetConfigFromPath returns a configuration for the provider.
+func GetConfigFromHomePath(homePath string) *Config {
+	tomlPath := filepath.Join(homePath, "/config/polaris.toml")
+	config, err := ReadConfigFile(tomlPath)
+	if err != nil {
+		return DefaultConfig()
+	}
+	return config
 }

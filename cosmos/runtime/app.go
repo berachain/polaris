@@ -310,17 +310,8 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// Polaris Configuration
-	cfg := provider.DefaultConfig()
-	homePath, ok := appOpts.Get(flags.FlagHome).(string)
-	if ok && homePath != "" {
-		tomlPath := filepath.Join(homePath, "/config/polaris.toml")
-		config, err := provider.ReadConfigFile(tomlPath)
-		if err == nil {
-			cfg = config
-		}
-	} else {
-		homePath = DefaultNodeHome
-	}
+	homePath := GetHomePath(appOpts)
+	cfg := provider.GetConfigFromHomePath(homePath)
 	cfg.NodeConfig.DataDir = homePath + "/data/polaris"
 
 	// setup evm keeper and all of its plugins.
@@ -519,4 +510,12 @@ func BlockedAddresses() map[string]bool {
 	}
 
 	return result
+}
+
+func GetHomePath(appOpts servertypes.AppOptions) string {
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		return DefaultNodeHome
+	}
+	return homePath
 }
