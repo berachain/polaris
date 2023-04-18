@@ -105,6 +105,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -312,13 +313,14 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// Polaris Configuration
 	cfg := provider.DefaultConfig()
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
-	if !ok || homePath == "" {
-		panic("home path is not set")
-	}
-	tomlPath := filepath.Join(homePath, "/config/polaris.toml")
-	config, err := provider.ReadConfigFile(tomlPath)
-	if err == nil {
-		cfg = config
+	if ok && homePath != "" {
+		tomlPath := filepath.Join(homePath, "/config/polaris.toml")
+		config, err := provider.ReadConfigFile(tomlPath)
+		if err == nil {
+			cfg = config
+		}
+	} else {
+		homePath = DefaultNodeHome
 	}
 	cfg.NodeConfig.DataDir = homePath + "/data/polaris"
 
@@ -364,7 +366,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		ch,
 	)
 
-	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
 		os.Exit(1)
 	}
@@ -404,7 +406,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// 	return app.App.InitChainer(ctx, req)
 	// })
 
-	if err = app.Load(loadLatest); err != nil {
+	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
