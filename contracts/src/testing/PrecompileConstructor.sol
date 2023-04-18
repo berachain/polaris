@@ -25,13 +25,13 @@
 
 pragma solidity >=0.8.4;
 
-import {IERC20} from "lib/IERC20.sol";
+import {IPolarisERC20} from "../polaris/precompile/IPolarisERC20.sol";
 import {IERC20Module} from "../cosmos/precompile/erc20.sol";
 
 // An example of calling a precompile from the contract's constructor.
 contract PrecompileConstructor {
     IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
-    IERC20 public abera;
+    IPolarisERC20 public abera;
     string public denom;
 
     constructor() {

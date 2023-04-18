@@ -28,7 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
+	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"

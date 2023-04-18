@@ -25,7 +25,7 @@
 
 pragma solidity ^0.8.4;
 
-import {IERC20} from "../../../lib/IERC20.sol";
+import {IPolarisERC20} from "../../polaris/precompile/IPolarisERC20.sol";
 
 /**
  * @dev Interface of the erc20 module's precompiled contract
@@ -50,7 +50,7 @@ interface IERC20Module {
     /**
      * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
      */
-    function coinDenomForERC20Address(IERC20 token) external view returns (string memory);
+    function coinDenomForERC20Address(IPolarisERC20 token) external view returns (string memory);
 
     /**
      * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address
@@ -61,7 +61,7 @@ interface IERC20Module {
     /**
      * @dev erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
      */
-    function erc20AddressForCoinDenom(string calldata denom) external view returns (IERC20);
+    function erc20AddressForCoinDenom(string calldata denom) external view returns (IPolarisERC20);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
@@ -87,7 +87,7 @@ interface IERC20Module {
      * @param owner the account to convert for
      * @param amount the amount of tokens to transfer
      */
-    function convertERC20ToCoin(IERC20 token, address owner, uint256 amount) external returns (bool);
+    function convertERC20ToCoin(IPolarisERC20 token, address owner, uint256 amount) external returns (bool);
 
     /**
      * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `owner`.
@@ -95,5 +95,5 @@ interface IERC20Module {
      * @param owner the account to convert for (bech32 address)
      * @param amount the amount of tokens to transfer
      */
-    function convertERC20ToCoin(IERC20 token, string calldata owner, uint256 amount) external returns (bool);
+    function convertERC20ToCoin(IPolarisERC20 token, string calldata owner, uint256 amount) external returns (bool);
 }

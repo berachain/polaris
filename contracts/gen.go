@@ -32,7 +32,7 @@ package contracts
 //go:generate abigen --pkg precompile --abi ./out/governance.sol/IGovernanceModule.abi.json --bin ./out/governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
 //go:generate abigen --pkg precompile --abi ./out/ERC20.sol/IERC20Module.abi.json --bin ./out/ERC20.sol/IERC20Module.bin --out ./bindings/cosmos/precompile/i_erc20_module.abigen.go --type ERC20Module
 
-//go:generate abigen --pkg polaris --abi ./out/PolarisERC20.sol/PolarisERC20.abi.json --bin ./out/PolarisERC20.sol/PolarisERC20.bin --out ./bindings/polaris/polaris_erc20.abigen.go --type PolarisERC20
+//go:generate abigen --pkg precompile --abi ./out/IPolarisERC20.sol/IPolarisERC20.abi.json --bin ./out/IPolarisERC20.sol/IPolarisERC20.bin --out ./bindings/polaris/precompile/i_polaris_erc20.abigen.go --type PolarisERC20
 
 //go:generate abigen --pkg testing --abi ./out/SolmateERC20.sol/SolmateERC20.abi.json --bin ./out/SolmateERC20.sol/SolmateERC20.bin --out ./bindings/testing/solmate_erc20.abigen.go --type SolmateERC20
 //go:generate abigen --pkg testing --abi ./out/MockPrecompileInterface.sol/MockPrecompileInterface.abi.json --out ./bindings/testing/mock_precompile_interface.abigen.go --type MockPrecompile

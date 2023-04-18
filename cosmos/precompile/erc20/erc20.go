@@ -27,7 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
+	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
