@@ -334,7 +334,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 				distrkeeper.NewQuerier(app.DistrKeeper),
 			),
 			erc20precompile.NewPrecompileContract(
-				app.BankKeeper, app.ERC20Keeper,
+				app.BankKeeper, app.ERC20Keeper, app.ERC20Keeper.StoreKey,
 			),
 		},
 		app.CreateQueryContext,

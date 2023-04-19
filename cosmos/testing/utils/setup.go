@@ -53,6 +53,7 @@ var (
 	AccKey     = storetypes.NewKVStoreKey("acc")
 	BankKey    = storetypes.NewKVStoreKey("bank")
 	EvmKey     = storetypes.NewKVStoreKey("evm")
+	ERC20Key   = storetypes.NewKVStoreKey("erc20")
 	StakingKey = storetypes.NewKVStoreKey("staking")
 	Alice      = common.BytesToAddress([]byte("alice"))
 	Bob        = common.BytesToAddress([]byte("bob"))

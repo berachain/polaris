@@ -35,7 +35,7 @@ import (
 
 // Keeper of this module maintains collections of erc20.
 type Keeper struct {
-	storeKey   storetypes.StoreKey
+	StoreKey   storetypes.StoreKey
 	bankKeeper BankKeeper
 	authority  sdk.AccAddress
 }
@@ -47,7 +47,7 @@ func NewKeeper(
 	authority sdk.AccAddress,
 ) *Keeper {
 	return &Keeper{
-		storeKey:   storeKey,
+		StoreKey:   storeKey,
 		bankKeeper: bk,
 		authority:  authority,
 	}
@@ -55,7 +55,7 @@ func NewKeeper(
 
 // DenomKVStore returns a KVStore for the given denom.
 func (k *Keeper) DenomKVStore(ctx sdk.Context) store.DenomKVStore {
-	return store.NewDenomKVStore(ctx.KVStore(k.storeKey))
+	return store.NewDenomKVStore(ctx.KVStore(k.StoreKey))
 }
 
 // RegisterERC20CoinPair registers a new ERC20 originated token <> Polaris Coin pair and returns
