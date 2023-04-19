@@ -104,6 +104,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -338,6 +339,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			),
 		},
 		app.CreateQueryContext,
+		// TODO: clean this up.
 		homePath+"/config/polaris.toml",
 		homePath+"/data/polaris",
 	)
