@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	rpcURL := "http://localhost:1317"
+	rpcURL := "http://localhost:1317/eth/rpc"
 	privateKeyStr := "90c77c6e96b76b75e9f641184f4b9f93887b347e2826639e2a312a946b7dc939"
 	value := big.NewInt(1000000000000000000) // in wei (1 eth)
 	toAddress := common.HexToAddress("0x4592d8f8d7b001e72cb26a73e4fa1806a51ac79d")
@@ -50,12 +50,8 @@ func main() {
 
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, make([]byte, 0))
 
-	chainID, err := client.NetworkID(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
+	chainId := big.NewInt(69420)
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainId), privateKey)
 	if err != nil {
 		log.Fatal(err)
 	}
