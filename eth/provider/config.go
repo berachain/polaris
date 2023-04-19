@@ -77,7 +77,7 @@ func ReadConfigFile(filename string) (*Config, error) {
 	return &config, nil
 }
 
-// GetConfigFromPath returns a configuration for the provider.
+// GetConfig returns a configuration for the provider.
 func GetConfig(appOpts servertypes.AppOptions, defaultNodeHome string) *Config {
 	// Get the home path
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
