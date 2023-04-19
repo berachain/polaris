@@ -104,6 +104,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -334,7 +335,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 				distrkeeper.NewQuerier(app.DistrKeeper),
 			),
 			erc20precompile.NewPrecompileContract(
-				app.BankKeeper, app.ERC20Keeper, app.ERC20Keeper.StoreKey,
+				app.BankKeeper, app.ERC20Keeper,
 			),
 		},
 		app.CreateQueryContext,

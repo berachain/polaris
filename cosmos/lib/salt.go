@@ -21,13 +21,13 @@
 package lib
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
 
 	"github.com/holiman/uint256"
 
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const globalNonce = `globalNonce`
@@ -42,14 +42,7 @@ func UniqueDeterminsticSalt(nonceStore storetypes.BasicKVStore, input []byte) *u
 	h.Write(input)
 
 	// get the global nonce from the nonce store
-	var globalNonce uint64
-	if nonceBz := nonceStore.Get(globalNonceKey); nonceBz != nil {
-		if err := binary.Read(
-			bytes.NewReader(nonceBz), binary.LittleEndian, &globalNonce,
-		); err != nil {
-			panic(err)
-		}
-	}
+	globalNonce := sdk.BigEndianToUint64(nonceStore.Get(globalNonceKey))
 
 	// write the nonce to the hash
 	if err := binary.Write(h, binary.BigEndian, globalNonce); err != nil {
@@ -58,11 +51,8 @@ func UniqueDeterminsticSalt(nonceStore storetypes.BasicKVStore, input []byte) *u
 
 	// increment the global nonce and update the nonce store
 	globalNonce++
-	nonceBuf := new(bytes.Buffer)
-	if err := binary.Write(nonceBuf, binary.LittleEndian, globalNonce); err != nil {
-		panic(err)
-	}
-	nonceStore.Set(globalNonceKey, nonceBuf.Bytes())
+	nonceStore.Set(globalNonceKey, sdk.Uint64ToBigEndian(globalNonce))
 
+	// return the salt as a *uint256.Int
 	return new(uint256.Int).SetBytes(h.Sum(nil))
 }

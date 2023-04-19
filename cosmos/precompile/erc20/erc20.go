@@ -24,8 +24,6 @@ import (
 	"context"
 	"math/big"
 
-	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
@@ -46,15 +44,12 @@ type Contract struct {
 
 	bk cosmlib.BankKeeper
 	em ERC20Module
-	sk storetypes.StoreKey
 
 	polarisERC20ABI abi.ABI
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract(
-	bk cosmlib.BankKeeper, em ERC20Module, sk storetypes.StoreKey,
-) ethprecompile.StatefulImpl {
+func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			cpbindings.ERC20ModuleMetaData.ABI,
@@ -65,7 +60,6 @@ func NewPrecompileContract(
 		),
 		bk:              bk,
 		em:              em,
-		sk:              sk,
 		polarisERC20ABI: abi.MustUnmarshalJSON(pbindings.PolarisERC20MetaData.ABI),
 	}
 }

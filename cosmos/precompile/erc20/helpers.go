@@ -24,10 +24,12 @@ import (
 	"errors"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -67,7 +69,10 @@ func (c *Contract) deployPolarisERC20Contract(
 		append(code, args...),
 		suppliedGas,
 		endowment,
-		cosmlib.UniqueDeterminsticSalt(ctx.KVStore(c.sk), []byte(polarisName)),
+		cosmlib.UniqueDeterminsticSalt(
+			ctx.KVStore(storetypes.NewKVStoreKey(erc20types.StoreKey)),
+			[]byte(polarisName),
+		),
 	)
 
 	// consume gas used by EVM during ERC20 deployment
