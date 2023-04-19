@@ -24,7 +24,7 @@ import (
 
 func TestContainer(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "container")
+	RunSpecs(t, "testing/container:integration")
 }
 
 var _ = Describe("Container", func() {
