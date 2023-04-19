@@ -32,11 +32,12 @@ interface IBuilderModule {
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**
-     * @dev msg.sender bids for top of block execution given a bundle of transactions and a bid amount.
+     * @dev msg.sender bids for top of block execution given a bundle of transactions, bid amount and timeout.
      */
     function auctionBid(
         Coin calldata bid,
-        bytes[] calldata transactions
+        bytes[] calldata transactions,
+        uint64 timeout
     ) external payable returns (bool);
 
     /**

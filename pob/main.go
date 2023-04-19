@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -50,6 +51,7 @@ func main() {
 	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(300000) // in units
 	auth.GasPrice = gasPrice
+	auth.Context, _ = context.WithTimeout(context.Background(), time.Second*10)
 
 	address := common.HexToAddress("0xDf6B07176A9B17cC4C9AFC257bD404732E7d09B7")
 	instance, err := bindings.NewBuilderModule(address, client)
@@ -57,7 +59,7 @@ func main() {
 		panic(err)
 	}
 
-	tx, err := instance.AuctionBid(auth, bindings.IBuilderModuleCoin{Denom: "abera", Amount: 100}, [][]byte{})
+	tx, err := instance.AuctionBid(auth, bindings.IBuilderModuleCoin{Denom: "abera", Amount: 100}, [][]byte{{0x01}}, 100)
 	if err != nil {
 		panic(err)
 	}

@@ -334,7 +334,8 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		app.CreateQueryContext,
 	)
 
-	config := simappconfig.NewMempoolConfig(auctionPrecompile, app.txConfig.TxDecoder())
+	host := app.EVMKeeper.GetHost()
+	config := simappconfig.NewMempoolConfig(auctionPrecompile, app.txConfig.TxDecoder(), host, "abera")
 	mempool := pobmempool.NewAuctionMempoolWithIndex(app.txConfig.TxDecoder(), app.txConfig.TxEncoder(), 0, config, ethTxMempool)
 	app.App.SetMempool(mempool)
 

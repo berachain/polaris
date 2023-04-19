@@ -42,6 +42,9 @@ var _ Plugin = (*plugin)(nil)
 type Plugin interface {
 	core.TxPoolPlugin
 	plugins.BaseCosmosPolaris
+
+	Serialize(tx *coretypes.Transaction) ([]byte, error)
+	SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error)
 }
 
 // plugin represents the transaction pool plugin.
@@ -113,4 +116,14 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
 	// TODO: implement this
 	return 0, nil
+}
+
+// Serialize serializes the given transaction into a byte slice.
+func (p *plugin) Serialize(tx *coretypes.Transaction) ([]byte, error) {
+	return NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).Serialize(tx)
+}
+
+// SerializeToSdkTx converts an ethereum transaction to a Cosmos transaction.
+func (p *plugin) SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error) {
+	return NewSerializer(p.cp, p.rpcProvider.GetClientCtx()).SerializeToSdkTx(tx)
 }

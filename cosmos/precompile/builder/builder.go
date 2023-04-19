@@ -61,14 +61,14 @@ func NewPrecompileContract(bk *builderkeeper.Keeper) ethprecompile.StatefulImpl 
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
-			AbiSig:      "auctionBid((uint64,string),bytes[])",
+			AbiSig:      "auctionBid((uint64,string),bytes[],uint64)",
 			Execute:     c.AuctionBid,
 			RequiredGas: params.IdentityBaseGas,
 		},
 	}
 }
 
-// AuctionBid implements the `auctionBid(uint256,bytes[])` method.
+// AuctionBid implements the `auctionBid((uint64,string),bytes[],uint64)` method.
 func (c *Contract) AuctionBid(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -77,7 +77,6 @@ func (c *Contract) AuctionBid(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	bidder := cosmlib.AddressToAccAddress(caller)
 	bid, ok := utils.GetAs[bindings.IBuilderModuleCoin](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidCoin
@@ -88,10 +87,13 @@ func (c *Contract) AuctionBid(
 	}
 
 	msgAuctionBid := &buildertypes.MsgAuctionBid{
-		Bidder:       bidder.String(),
+		Bidder:       cosmlib.AddressToAccAddress(caller).String(),
 		Bid:          sdk.NewCoin(bid.Denom, sdk.NewIntFromUint64(bid.Amount)),
 		Transactions: bundleTxs,
 	}
+
+	// Do we need to add timeout logic here as well?
+
 	_, err := c.msgServer.AuctionBid(ctx, msgAuctionBid)
 
 	return []any{err == nil}, nil
