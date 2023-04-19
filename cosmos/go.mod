@@ -51,9 +51,9 @@ require (
 	google.golang.org/genproto v0.0.0-20230320184635-7606e756e683
 	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.30.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230417142540-824b646c3a95
-	pkg.berachain.dev/polaris/eth v0.0.0-20230416001945-02ef3312bfe5
-	pkg.berachain.dev/polaris/lib v0.0.0-20230313214926-47d6f56b8f0d
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230419230253-478f28600d57
+	pkg.berachain.dev/polaris/eth v0.0.0-20230419230253-478f28600d57
+	pkg.berachain.dev/polaris/lib v0.0.0-20230419230253-478f28600d57
 )
 
 require (
