@@ -37,7 +37,7 @@ type IBuilderModuleCoin struct {
 
 // BuilderModuleMetaData contains all meta data concerning the BuilderModule contract.
 var BuilderModuleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBuilderModule.Coin\",\"name\":\"amount\",\"type\":\"tuple\"},{\"internalType\":\"bytes[]\",\"name\":\"txBytes\",\"type\":\"bytes[]\"}],\"name\":\"auctionBid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"amount\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBuilderModule.Coin\",\"name\":\"bid\",\"type\":\"tuple\"},{\"internalType\":\"bytes[]\",\"name\":\"transactions\",\"type\":\"bytes[]\"}],\"name\":\"auctionBid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
 }
 
 // BuilderModuleABI is the input ABI used to generate the binding from.
@@ -188,21 +188,21 @@ func (_BuilderModule *BuilderModuleTransactorRaw) Transact(opts *bind.TransactOp
 
 // AuctionBid is a paid mutator transaction binding the contract method 0x2636fe2e.
 //
-// Solidity: function auctionBid((uint64,string) amount, bytes[] txBytes) payable returns(bool)
-func (_BuilderModule *BuilderModuleTransactor) AuctionBid(opts *bind.TransactOpts, amount IBuilderModuleCoin, txBytes [][]byte) (*types.Transaction, error) {
-	return _BuilderModule.contract.Transact(opts, "auctionBid", amount, txBytes)
+// Solidity: function auctionBid((uint64,string) bid, bytes[] transactions) payable returns(bool)
+func (_BuilderModule *BuilderModuleTransactor) AuctionBid(opts *bind.TransactOpts, bid IBuilderModuleCoin, transactions [][]byte) (*types.Transaction, error) {
+	return _BuilderModule.contract.Transact(opts, "auctionBid", bid, transactions)
 }
 
 // AuctionBid is a paid mutator transaction binding the contract method 0x2636fe2e.
 //
-// Solidity: function auctionBid((uint64,string) amount, bytes[] txBytes) payable returns(bool)
-func (_BuilderModule *BuilderModuleSession) AuctionBid(amount IBuilderModuleCoin, txBytes [][]byte) (*types.Transaction, error) {
-	return _BuilderModule.Contract.AuctionBid(&_BuilderModule.TransactOpts, amount, txBytes)
+// Solidity: function auctionBid((uint64,string) bid, bytes[] transactions) payable returns(bool)
+func (_BuilderModule *BuilderModuleSession) AuctionBid(bid IBuilderModuleCoin, transactions [][]byte) (*types.Transaction, error) {
+	return _BuilderModule.Contract.AuctionBid(&_BuilderModule.TransactOpts, bid, transactions)
 }
 
 // AuctionBid is a paid mutator transaction binding the contract method 0x2636fe2e.
 //
-// Solidity: function auctionBid((uint64,string) amount, bytes[] txBytes) payable returns(bool)
-func (_BuilderModule *BuilderModuleTransactorSession) AuctionBid(amount IBuilderModuleCoin, txBytes [][]byte) (*types.Transaction, error) {
-	return _BuilderModule.Contract.AuctionBid(&_BuilderModule.TransactOpts, amount, txBytes)
+// Solidity: function auctionBid((uint64,string) bid, bytes[] transactions) payable returns(bool)
+func (_BuilderModule *BuilderModuleTransactorSession) AuctionBid(bid IBuilderModuleCoin, transactions [][]byte) (*types.Transaction, error) {
+	return _BuilderModule.Contract.AuctionBid(&_BuilderModule.TransactOpts, bid, transactions)
 }

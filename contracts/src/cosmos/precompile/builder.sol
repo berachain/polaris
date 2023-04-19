@@ -35,8 +35,8 @@ interface IBuilderModule {
      * @dev msg.sender bids for top of block execution given a bundle of transactions and a bid amount.
      */
     function auctionBid(
-        Coin calldata amount,
-        bytes[] calldata txBytes
+        Coin calldata bid,
+        bytes[] calldata transactions
     ) external payable returns (bool);
 
     /**

@@ -90,6 +90,7 @@ import (
 
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
+	builderprecompile "pkg.berachain.dev/polaris/cosmos/precompile/builder"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
@@ -312,20 +313,19 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
 	)
 
-	pobMempool := pobmempool.NewAuctionMempool(app.txConfig.TxDecoder(), app.txConfig.TxEncoder(), 0)
-	app.App.SetMempool(pobMempool)
-
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
 	// setup evm keeper and all of its plugins.
+	auctionPrecompile := builderprecompile.NewPrecompileContract(&app.BuilderKeeper)
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
 			// TODO: register more precompiles here.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+			auctionPrecompile,
 			bankprecompile.NewPrecompileContract(),
 			authprecompile.NewPrecompileContract(),
 			distrprecompile.NewPrecompileContract(),
@@ -333,6 +333,10 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		},
 		app.CreateQueryContext,
 	)
+
+	config := simappconfig.NewMempoolConfig(auctionPrecompile, app.txConfig.TxDecoder())
+	mempool := pobmempool.NewAuctionMempoolWithIndex(app.txConfig.TxDecoder(), app.txConfig.TxEncoder(), 0, config, ethTxMempool)
+	app.App.SetMempool(mempool)
 
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
@@ -346,13 +350,13 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		app.BuilderKeeper,
 		app.txConfig.TxDecoder(),
 		app.txConfig.TxEncoder(),
-		pobMempool,
+		mempool,
 	)
 	app.SetAnteHandler(
 		ch,
 	)
 
-	handler := pobabci.NewProposalHandler(pobMempool, nil, ch, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
+	handler := pobabci.NewProposalHandler(mempool, nil, ch, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
 	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
 	app.App.SetProcessProposal(handler.ProcessProposalHandler())
 
