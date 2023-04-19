@@ -30,7 +30,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	enclib "pkg.berachain.dev/polaris/lib/encoding"
 )
 
 var (
@@ -62,12 +61,11 @@ func (c *Contract) deployPolarisERC20Contract(
 		return common.Address{}, err
 	}
 	suppliedGas := ctx.GasMeter().GasRemaining()
-	_, contractAddr, gasRemaining, err := evm.Create2(
+	_, contractAddr, gasRemaining, err := evm.Create(
 		vm.AccountRef(deployer),
 		append(code, args...),
 		suppliedGas,
 		endowment,
-		enclib.UniqueDeterminsticSalt([]byte(name)),
 	)
 
 	// consume gas used by EVM during ERC20 deployment
