@@ -23,12 +23,8 @@ package provider
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/p2p"
@@ -59,8 +55,8 @@ type Config struct {
 	RPCConfig  rpc.Config
 }
 
-// ReadConfigFile reads in a Polaris config file from the fileystem.
-func ReadConfigFile(filename string) (*Config, error) {
+// LoadConfigFromFilePath reads in a Polaris config file from the fileystem.
+func LoadConfigFromFilePath(filename string) (*Config, error) {
 	var config Config
 
 	// Read the TOML file
@@ -75,21 +71,4 @@ func ReadConfigFile(filename string) (*Config, error) {
 	}
 
 	return &config, nil
-}
-
-// GetConfig returns a configuration for the provider.
-func GetConfig(appOpts servertypes.AppOptions, defaultNodeHome string) *Config {
-	// Get the home path
-	homePath, ok := appOpts.Get(flags.FlagHome).(string)
-	if !ok || homePath == "" {
-		homePath = defaultNodeHome
-	}
-	// read the config file
-	tomlPath := filepath.Join(homePath, "/config/polaris.toml")
-	cfg, err := ReadConfigFile(tomlPath)
-	if err != nil {
-		cfg = DefaultConfig()
-	}
-	cfg.NodeConfig.DataDir = homePath + "/data/polaris"
-	return cfg
 }

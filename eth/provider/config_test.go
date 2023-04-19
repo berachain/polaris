@@ -40,7 +40,7 @@ func TestProvider(t *testing.T) {
 
 var _ = Describe("TestConfig", func() {
 	It("should read in the config correctly", func() {
-		config, err := ReadConfigFile(tomlFilepath)
+		config, err := LoadConfigFromFilePath(tomlFilepath)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(config.NodeConfig.UserIdent).To(Equal("my-identity"))
 		Expect(config.NodeConfig.DataDir).To(Equal("/var/data/my-node"))

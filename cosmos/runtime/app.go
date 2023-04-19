@@ -101,10 +101,10 @@ import (
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/provider"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -308,10 +308,13 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
-
-	// Polaris Configuration
-	cfg := provider.GetConfig(appOpts, DefaultNodeHome)
-
+	
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		homePath =  DefaultNodeHome
+	}
+	
+	
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
@@ -337,7 +340,8 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			),
 		},
 		app.CreateQueryContext,
-		cfg,
+		homePath + "/config/polaris.toml",
+		homePath + "/data/polaris",
 	)
 
 	opt := ante.HandlerOptions{
