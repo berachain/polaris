@@ -28,6 +28,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
@@ -54,8 +55,6 @@ type Keeper struct {
 // NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
-	ak state.AccountKeeper,
-	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
@@ -72,10 +71,6 @@ func NewKeeper(
 	}
 	k.host = NewHost(
 		storeKey,
-		ak,
-		bk,
-		authority,
-		appOpts,
 		k.offChainKv,
 		ethTxMempool,
 	)
@@ -85,7 +80,7 @@ func NewKeeper(
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
 	ak state.AccountKeeper,
-	bk state.BankKeeper,
+	bk bankkeeper.Keeper,
 	precompiles []precompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	cfg *provider.Config,

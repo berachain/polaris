@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -31,7 +32,7 @@ import (
 // MintCoinsToAddress mints coins to a given address.
 func MintCoinsToAddress(
 	ctx sdk.Context,
-	bk BankKeeper,
+	bk bankkeeper.Keeper,
 	moduleAcc string,
 	recipient common.Address,
 	denom string,
@@ -54,7 +55,7 @@ func MintCoinsToAddress(
 // BurnCoinsFromAddress burns coins from a given address.
 func BurnCoinsFromAddress(
 	ctx sdk.Context,
-	bk BankKeeper,
+	bk bankkeeper.Keeper,
 	moduleAcc string,
 	sender common.Address,
 	denom string,

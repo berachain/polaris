@@ -22,6 +22,7 @@ package state_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
@@ -45,7 +46,7 @@ var _ = Describe("Genesis", func() {
 
 	BeforeEach(func() {
 		var ak state.AccountKeeper
-		var bk state.BankKeeper
+		var bk bankkeeper.Keeper
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, nil)
 

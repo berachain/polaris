@@ -25,31 +25,59 @@ import (
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris/precompile"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/lib/errors"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
+
+// bankDenomPrefix is the prefix for the bank denom of the Polaris ERC20 tokens.
+const bankDenomPrefix = `perc20/`
 
 // Contract is the PolarisERC20 precompiled contract implementation. Adheres to both the ERC-20 and
 // ERC-2612 standards.
 type Contract struct {
 	precompile.BaseContract
 
+	bk        bankkeeper.Keeper
+	bankDenom string
+
 	name   string
 	symbol string
 }
 
 // NewPrecompileContract returns a new instance of the PolarisERC20 precompiled contract with the
-// given name and symbol.
-func NewPrecompileContract(name, symbol string) ethprecompile.DynamicImpl {
+// given name, symbol, and endowment.
+func NewPrecompileContract(
+	ctx sdk.Context,
+	bk bankkeeper.Keeper,
+	name, symbol string,
+	endowment *big.Int,
+) (ethprecompile.DynamicImpl, common.Address, error) {
 	address := common.HexToAddress(name) // TODO: use hash with nonce.
-	return &Contract{
+	pc := &Contract{
 		BaseContract: precompile.NewBaseContract(pbindings.PolarisERC20MetaData.ABI, address),
+		bk:           bk,
+		bankDenom:    bankDenomPrefix + address.Hex(),
 		name:         name,
 		symbol:       symbol,
 	}
+
+	// mint endowment coins to the PolarisERC20 contract address.
+	if endowment.Cmp(big.NewInt(0)) > 0 {
+		if err := cosmlib.MintCoinsToAddress(ctx, bk, erc20types.ModuleName, address, pc.bankDenom, endowment); err != nil {
+			return nil, common.Address{}, errors.Wrap(err, "failed to deploy PolarisERC20")
+		}
+	}
+
+	return pc, address, nil
 }
 
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
@@ -65,6 +93,14 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:  "decimals()",
 			Execute: c.Decimals,
+		},
+		{
+			AbiSig:  "totalSupply()",
+			Execute: c.TotalSupply,
+		},
+		{
+			AbiSig:  "balanceOf(address)",
+			Execute: c.BalanceOf,
 		},
 	}
 }
@@ -108,4 +144,39 @@ func (c *Contract) Decimals(
 	_ ...any,
 ) ([]any, error) {
 	return []any{uint8(sdkmath.LegacyPrecision)}, nil
+}
+
+// TotalSupply returns the total supply of the PolarisERC20 token from the bank module.
+func (c *Contract) TotalSupply(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	_ ...any,
+) ([]any, error) {
+	return []any{c.bk.GetSupply(sdk.UnwrapSDKContext(ctx), c.bankDenom).Amount.BigInt()}, nil
+}
+
+// BalanceOf returns the balance of the PolarisERC20 token from the bank module.
+func (c *Contract) BalanceOf(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	addr, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+
+	return []any{
+		c.bk.GetBalance(
+			sdk.UnwrapSDKContext(ctx),
+			cosmlib.AddressToAccAddress(addr),
+			c.bankDenom,
+		).Amount.BigInt(),
+	}, nil
 }

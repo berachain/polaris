@@ -25,11 +25,12 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/params"
 
+	"pkg.berachain.dev/polaris/cosmos/precompile/perc20"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	enclib "pkg.berachain.dev/polaris/lib/encoding"
 )
 
 var (
@@ -41,7 +42,7 @@ var (
 // EVM Callback Functions
 // ==============================================================================
 
-// deployPolarisERC20Contract deploys a new ERC20 token contract by calling back into the EVM.
+// deployPolarisERC20Contract deploys a new Polaris ERC20 precompile contract.
 func (c *Contract) deployPolarisERC20Contract(
 	ctx sdk.Context,
 	evm ethprecompile.EVM,
@@ -49,29 +50,12 @@ func (c *Contract) deployPolarisERC20Contract(
 	name string,
 	endowment *big.Int,
 ) (common.Address, error) {
-	plugin := c.GetPlugin()
-	plugin.EnableReentrancy(ctx)
-	defer plugin.DisableReentrancy(ctx)
-
-	// deploy new ERC20 token contract
-	// code := common.FromHex(pbindings.PolarisERC20MetaData.Bin)
-	code := []byte{}
-	polarisName := "p" + name
-	args, err := c.polarisERC20ABI.Pack("", polarisName, polarisName)
-	if err != nil {
-		return common.Address{}, err
-	}
-	suppliedGas := ctx.GasMeter().GasRemaining()
-	_, contractAddr, gasRemaining, err := evm.Create2(
-		vm.AccountRef(deployer),
-		append(code, args...),
-		suppliedGas,
-		endowment,
-		enclib.UniqueDeterminsticSalt([]byte(name)),
-	)
+	// deploy PolarisERC20 precompile contract
+	pc, contractAddr, err := perc20.NewPrecompileContract(ctx, c.bk, name, name, endowment)
+	ethprecompile.BuildAndRegister(c.GetPlugin(), pc)
 
 	// consume gas used by EVM during ERC20 deployment
-	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "Polaris ERC20 deployment")
+	ctx.GasMeter().ConsumeGas(params.CreateGas/2, "Polaris ERC20 deployment") // TODO: determine gas cost.
 	return contractAddr, err
 }
 

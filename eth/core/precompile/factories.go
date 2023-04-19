@@ -21,6 +21,8 @@
 package precompile
 
 import (
+	"fmt"
+
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/errors"
@@ -184,4 +186,46 @@ func (dcf *DynamicFactory) Build(
 	}
 
 	return dcf.StatefulFactory.Build(dci, p)
+}
+
+// ===========================================================================
+// Build and Register
+// ===========================================================================
+
+// BuildAndRegister builds the given precompiles and registers them with the given precompile
+// plugin.
+func BuildAndRegister(pp Plugin, precompiles ...Registrable) {
+	for _, pc := range precompiles {
+		// skip registering precompiles that are already registered.
+		if pp.Has(pc.RegistryKey()) {
+			continue
+		}
+
+		// choose the appropriate precompile factory
+		var af AbstractFactory
+		switch {
+		case utils.Implements[DynamicImpl](pc):
+			af = NewDynamicFactory()
+		case utils.Implements[StatefulImpl](pc):
+			af = NewStatefulFactory()
+		case utils.Implements[StatelessImpl](pc):
+			af = NewStatelessFactory()
+		default:
+			panic(
+				fmt.Sprintf(
+					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
+				),
+			)
+		}
+
+		// build the precompile container and register with the plugin
+		container, err := af.Build(pc, pp)
+		if err != nil {
+			panic(err)
+		}
+		err = pp.Register(container)
+		if err != nil {
+			panic(err)
+		}
+	}
 }

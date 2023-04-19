@@ -23,9 +23,9 @@ package keeper
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -54,7 +54,7 @@ type Host interface {
 	Setup(
 		storetypes.StoreKey,
 		state.AccountKeeper,
-		state.BankKeeper,
+		bankkeeper.Keeper,
 		[]ethprecompile.Registrable,
 		func(height int64, prove bool) (sdk.Context, error),
 	)
@@ -74,10 +74,6 @@ type host struct {
 // Newhost creates new instances of the plugin host.
 func NewHost(
 	storeKey storetypes.StoreKey,
-	ak state.AccountKeeper,
-	bk state.BankKeeper,
-	authority string,
-	appOpts servertypes.AppOptions,
 	offChainKv *offchain.Store,
 	ethTxMempool sdkmempool.Mempool,
 ) Host {
@@ -99,7 +95,7 @@ func NewHost(
 func (h *host) Setup(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
-	bk state.BankKeeper,
+	bk bankkeeper.Keeper,
 	precompiles []ethprecompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {

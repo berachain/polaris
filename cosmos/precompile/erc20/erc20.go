@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris/precompile"
@@ -42,14 +43,14 @@ import (
 type Contract struct {
 	precompile.BaseContract
 
-	bk cosmlib.BankKeeper
+	bk bankkeeper.Keeper
 	em ERC20Module
 
 	polarisERC20ABI abi.ABI
 }
 
 // NewPrecompileContract returns a new instance of the erc20 module precompile contract.
-func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.StatefulImpl {
+func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			cpbindings.ERC20ModuleMetaData.ABI,

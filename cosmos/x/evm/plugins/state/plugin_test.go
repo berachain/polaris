@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
@@ -44,7 +45,7 @@ var (
 
 var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
-	var bk state.BankKeeper
+	var bk bankkeeper.Keeper
 	var ctx sdk.Context
 	var sp core.StatePlugin
 

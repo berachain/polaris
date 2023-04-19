@@ -30,6 +30,7 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -64,7 +65,7 @@ var _ = Describe("Processor", func() {
 	var (
 		k            *keeper.Keeper
 		ak           state.AccountKeeper
-		bk           state.BankKeeper
+		bk           bankkeeper.Keeper
 		sk           stakingkeeper.Keeper
 		ctx          sdk.Context
 		sc           precompile.StatefulImpl
@@ -89,7 +90,6 @@ var _ = Describe("Processor", func() {
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
-			ak, bk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(

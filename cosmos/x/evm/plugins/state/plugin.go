@@ -27,6 +27,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/lib"
@@ -104,7 +105,7 @@ type plugin struct {
 
 	// keepers used for balance and account information.
 	ak AccountKeeper
-	bk BankKeeper
+	bk bankkeeper.Keeper
 
 	// getQueryContext allows for querying state a historical height.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
@@ -117,7 +118,7 @@ type plugin struct {
 // NewPlugin returns a plugin with the given context and keepers.
 func NewPlugin(
 	ak AccountKeeper,
-	bk BankKeeper,
+	bk bankkeeper.Keeper,
 	storeKey storetypes.StoreKey,
 	cp ConfigurationPlugin,
 	plf events.PrecompileLogFactory,

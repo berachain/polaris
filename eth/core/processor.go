@@ -32,7 +32,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // initialTxsCapacity is the initial capacity of the transactions and receipts slice.
@@ -93,7 +92,7 @@ func NewStateProcessor(
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
 	} else {
-		sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
+		precompile.BuildAndRegister(sp.pp, sp.pp.GetPrecompiles(nil)...)
 	}
 
 	return sp
@@ -129,7 +128,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 	// We re-register the default geth precompiles every block, this isn't optimal, but since
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
-	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
+	precompile.BuildAndRegister(sp.pp, precompile.GetDefaultPrecompiles(&rules)...)
 	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = evm
 }
@@ -248,45 +247,4 @@ func (sp *StateProcessor) Finalize(
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, logs, nil
-}
-
-// ===========================================================================
-// Utilities
-// ===========================================================================
-
-// BuildPrecompiles builds the given precompiles and registers them with the precompile plugins.
-func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable) {
-	for _, pc := range precompiles {
-		// skip registering precompiles that are already registered.
-		if sp.pp.Has(pc.RegistryKey()) {
-			continue
-		}
-
-		// choose the appropriate precompile factory
-		var af precompile.AbstractFactory
-		switch {
-		case utils.Implements[precompile.DynamicImpl](pc):
-			af = precompile.NewDynamicFactory()
-		case utils.Implements[precompile.StatefulImpl](pc):
-			af = precompile.NewStatefulFactory()
-		case utils.Implements[precompile.StatelessImpl](pc):
-			af = precompile.NewStatelessFactory()
-		default:
-			panic(
-				fmt.Sprintf(
-					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
-				),
-			)
-		}
-
-		// build the precompile container and register with the plugin
-		container, err := af.Build(pc, sp.pp)
-		if err != nil {
-			panic(err)
-		}
-		err = sp.pp.Register(container)
-		if err != nil {
-			panic(err)
-		}
-	}
 }
