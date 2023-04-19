@@ -40,7 +40,7 @@ var (
 
 	// Variables.
 	baseDockerPath  = "./cosmos/"
-	beradDockerPath = baseDockerPath + "Dockerfile"
+	beradDockerPath = baseDockerPath + "runtime/Dockerfile"
 	imageName       = "polaris-cosmos"
 	// testImageVersion       = "e2e-test-dev".
 	goVersion              = "1.20.2"

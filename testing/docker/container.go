@@ -17,24 +17,23 @@ package jsonrpc
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/docker/go-connections/nat"
 	tc "github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const (
 	httpPort  = "8545/tcp"
 	wsPort    = "8546/tcp"
-	imageName = "polaris"
-	imageTag  = "dev"
+	imageName = "polaris-cosmos"
+	imageTag  = "0.0.0"
 )
 
-var (
-	goVersion   = "1.20.2"
-	runnerImage = "golang:" + goVersion + "-alpine"
-)
+// var (
+// 	goVersion   = "1.20.2"
+// 	runnerImage = "golang:" + goVersion + "-alpine"
+// )
 
 // `Container` is a container for the JSON-RPC server.
 type Container struct {
@@ -50,8 +49,6 @@ type ContainerConfig struct {
 	Name string
 	// `ImageTag` is the tag of the image.
 	ImageTag string
-	// `DockerFilePath` is the path to the Dockerfile.
-	DockerFilePath string
 	// `Host` is the host mapped to the container.
 	Host string
 	// `MappedHTTP` is the port on the host mapped to the JSON-RPC HTTP port in the container.
@@ -63,40 +60,28 @@ type ContainerConfig struct {
 // `DefaultContainerConfig` returns a default container configuration.
 func DefaultContainerConfig() ContainerConfig {
 	return ContainerConfig{
-		Name:           imageName,
-		ImageTag:       imageTag,
-		DockerFilePath: "cosmos/runtime/Dockerfile",
+		Name:     imageName,
+		ImageTag: imageTag,
 	}
 }
 
 // `NewContainer` creates a new container from the provided configuration.
 func NewContainer(ctx context.Context, config ContainerConfig) (*Container, error) {
-	path, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(path) // for example /tmp/go-build872132473/b001/exe/main
 	// Create a request to the container.
 	req := tc.GenericContainerRequest{
 		ContainerRequest: tc.ContainerRequest{
-			FromDockerfile: tc.FromDockerfile{
-				Context:    "../..",
-				Dockerfile: config.DockerFilePath,
-				BuildArgs: map[string]*string{
-					"GO_VERSION":   &goVersion,
-					"RUNNER_IMAGE": &runnerImage},
-				PrintBuildLog: true,
-			},
+			Image: config.Name + ":" + config.ImageTag,
 			ExposedPorts: []string{
 				httpPort, wsPort,
 			},
-			// // WaitingFor: wait.ForListeningPort(httpPort),
-			// WaitingFor: (&wait.MultiStrategy{
-			// 	Strategies: []wait.Strategy{
-			// 		wait.ForListeningPort(httpPort),
-			// 		wait.ForListeningPort(wsPort),
-			// 	},
-			// }),
+			Entrypoint: []string{"cosmos/runtime/init.sh"},
+			// WaitingFor: wait.ForListeningPort(httpPort),
+			WaitingFor: (&wait.MultiStrategy{
+				Strategies: []wait.Strategy{
+					wait.ForListeningPort(httpPort),
+					wait.ForListeningPort(wsPort),
+				},
+			}),
 		},
 		Started: true,
 	}

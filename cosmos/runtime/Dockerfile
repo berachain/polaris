@@ -106,6 +106,7 @@ RUN VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
 FROM ${RUNNER_IMAGE}
 
 COPY --from=builder /polaris/bin/polard /bin/polard
+COPY --from=builder /polaris/cosmos/runtime /polaris/cosmos/runtime
 
 ENV HOME /polaris
 WORKDIR $HOME
