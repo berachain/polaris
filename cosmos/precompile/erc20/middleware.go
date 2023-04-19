@@ -58,7 +58,7 @@ func (c *Contract) convertCoinToERC20(
 		// first occurrence of an IBC originated SDK coin, must be created as a Polaris ERC20 token
 
 		// deploy the new ERC20 token contract (deployer of this contract is the ERC20 module!)
-		if token, err = c.deployPolarisERC20Contract(sdkCtx, evm, c.RegistryKey(), denom, value); err != nil {
+		if token, err = c.deployPolarisERC20Contract(sdkCtx, denom, value); err != nil {
 			return err
 		}
 

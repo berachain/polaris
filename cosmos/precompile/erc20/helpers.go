@@ -25,12 +25,18 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/params"
 
 	"pkg.berachain.dev/polaris/cosmos/precompile/perc20"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+)
+
+const (
+	// deployPolarisERC20Gas is the gas cost of deploying a Polaris ERC20 contract.
+	deployPolarisERC20Gas = params.CreateGas / 2
 )
 
 var (
@@ -45,8 +51,6 @@ var (
 // deployPolarisERC20Contract deploys a new Polaris ERC20 precompile contract.
 func (c *Contract) deployPolarisERC20Contract(
 	ctx sdk.Context,
-	evm ethprecompile.EVM,
-	deployer common.Address,
 	name string,
 	endowment *big.Int,
 ) (common.Address, error) {
@@ -55,7 +59,7 @@ func (c *Contract) deployPolarisERC20Contract(
 	ethprecompile.BuildAndRegister(c.GetPlugin(), pc)
 
 	// consume gas used by EVM during ERC20 deployment
-	ctx.GasMeter().ConsumeGas(params.CreateGas/2, "Polaris ERC20 deployment") // TODO: determine gas cost.
+	ctx.GasMeter().ConsumeGas(deployPolarisERC20Gas, "Polaris ERC20 deployment") // TODO: determine gas cost.
 	return contractAddr, err
 }
 

@@ -27,8 +27,8 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/store/snapmulti"
