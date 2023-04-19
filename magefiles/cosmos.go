@@ -66,7 +66,7 @@ func (Cosmos) directory() string {
 
 // Starts a local development net and builds it if necessary.
 func Start() error {
-	return sh.RunV("./cosmos/runtime/init.sh")
+	return sh.RunV("./cosmos/runtime/localnode/init.sh")
 }
 
 // Builds the Cosmos SDK chain.
