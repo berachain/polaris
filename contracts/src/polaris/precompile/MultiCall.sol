@@ -23,22 +23,20 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.4;
 
-import {IERC20} from "../../../../lib/IERC20.sol";
-import {IERC20Module} from "../ERC20Module.sol";
-
-// An example of calling a precompile from the contract's constructor.
-contract PrecompileConstructor {
-    IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
-    IERC20 public abera;
-    string public denom;
-
-    constructor() {
-        bool success = erc20Module.convertCoinToERC20("abera", msg.sender, 123456789);
-        require(success, "failed to convert abera");
-        abera = erc20Module.erc20AddressForCoinDenom("abera");
-        denom = erc20Module.coinDenomForERC20Address(abera);
-        require(keccak256(abi.encodePacked(denom)) == keccak256(abi.encodePacked("abera")), "returned the wrong denom");
+contract Multicall {
+    struct Call {
+        address target;
+        bytes callData;
+    }
+    function aggregate(Call[] memory calls) public returns (uint256 blockNumber, bytes[] memory returnData) {
+        blockNumber = block.number;
+        returnData = new bytes[](calls.length);
+        for(uint256 i = 0; i < calls.length; i++) {
+            (bool success, bytes memory ret) = calls[i].target.call(calls[i].callData);
+            require(success, "Multicall: Call failed");
+            returnData[i] = ret;
+        }
     }
 }

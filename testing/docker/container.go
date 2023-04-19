@@ -20,7 +20,6 @@ import (
 
 	"github.com/docker/go-connections/nat"
 	tc "github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const (
@@ -74,14 +73,14 @@ func NewContainer(ctx context.Context, config ContainerConfig) (*Container, erro
 			ExposedPorts: []string{
 				httpPort, wsPort,
 			},
-			Entrypoint: []string{"cosmos/runtime/init.sh"},
+			// Entrypoint: []string{"cosmos/runtime/init.sh"},
 			// WaitingFor: wait.ForListeningPort(httpPort),
-			WaitingFor: (&wait.MultiStrategy{
-				Strategies: []wait.Strategy{
-					wait.ForListeningPort(httpPort),
-					wait.ForListeningPort(wsPort),
-				},
-			}),
+			// WaitingFor: (&wait.MultiStrategy{
+			// 	Strategies: []wait.Strategy{
+			// 		wait.ForListeningPort(httpPort),
+			// 		wait.ForListeningPort(wsPort),
+			// 	},
+			// }),
 		},
 		Started: true,
 	}

@@ -28,8 +28,9 @@ WORKDIR /polaris
 
 # Recursively update all submodules.
 COPY ./ ./
-RUN git submodule update --recursive --remote 
 RUN git submodule foreach --recursive git reset --hard HEAD
+RUN git submodule update --recursive --remote 
+
 
 # Set working directory. 
 WORKDIR /polaris/contracts
