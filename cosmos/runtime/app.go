@@ -43,6 +43,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -100,10 +101,10 @@ import (
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/provider"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -308,9 +309,10 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
-	// Polaris Configuration
-	cfg := provider.DefaultConfig()
-	cfg.NodeConfig.DataDir = DefaultNodeHome + "/data"
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		homePath = DefaultNodeHome
+	}
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
@@ -337,7 +339,9 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 			),
 		},
 		app.CreateQueryContext,
-		cfg,
+		// TODO: clean this up.
+		homePath+"/config/polaris.toml",
+		homePath+"/data/polaris",
 	)
 
 	opt := ante.HandlerOptions{
@@ -508,4 +512,12 @@ func BlockedAddresses() map[string]bool {
 	}
 
 	return result
+}
+
+func GetHomePath(appOpts servertypes.AppOptions) string {
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		return DefaultNodeHome
+	}
+	return homePath
 }

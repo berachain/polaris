@@ -38,6 +38,27 @@ type PolarisProvider struct {
 
 // NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
 func NewPolarisProvider(
+	configPath string,
+	dataDir string,
+	host core.PolarisHostChain,
+	logHandler log.Handler,
+) *PolarisProvider {
+	// Load the config file.
+	cfg, err := LoadConfigFromFilePath(configPath)
+	if err != nil {
+		// todo: this is hood.
+		cfg = DefaultConfig()
+	}
+
+	// set the data dir
+	cfg.NodeConfig.DataDir = dataDir
+
+	// Create the Polaris Provider.
+	return NewPolarisProviderWithConfig(cfg, host, logHandler)
+}
+
+// NewPolarisProvider creates a new `PolarisEVM` instance for use on an underlying blockchain.
+func NewPolarisProviderWithConfig(
 	cfg *Config,
 	host core.PolarisHostChain,
 	logHandler log.Handler,

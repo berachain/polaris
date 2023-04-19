@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	filepath = ".polaris.example.toml"
+	tomlFilepath = ".polaris.example.toml"
 )
 
 func TestProvider(t *testing.T) {
@@ -40,7 +40,7 @@ func TestProvider(t *testing.T) {
 
 var _ = Describe("TestConfig", func() {
 	It("should read in the config correctly", func() {
-		config, err := ReadConfigFile(filepath)
+		config, err := LoadConfigFromFilePath(tomlFilepath)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(config.NodeConfig.UserIdent).To(Equal("my-identity"))
 		Expect(config.NodeConfig.DataDir).To(Equal("/var/data/my-node"))

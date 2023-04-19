@@ -38,8 +38,9 @@ HOMEDIR="./.tmp/polard"
 TRACE=""
 
 # Path variables
-CONFIG=$HOMEDIR/config/config.toml
+CONFIG_TOML=$HOMEDIR/config/config.toml
 APP_TOML=$HOMEDIR/config/app.toml
+POLARIS_TOML=$HOMEDIR/config/polaris.toml
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
@@ -67,6 +68,10 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
     	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
 	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
+	cp ./cosmos/runtime/localnode/config/app.toml "$APP_TOML"
+	cp ./cosmos/runtime/localnode/config/config.toml "$CONFIG_TOML"
+	cp ./cosmos/runtime/localnode/config/polaris.toml "$POLARIS_TOML"
+
 	# Set client config
 	./bin/polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
 	./bin/polard config set client chain-id "$CHAINID" --home "$HOMEDIR"
@@ -84,25 +89,6 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.app_state["mint"]["params"]["mint_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' 's/timeout_propose = "3s"/timeout_propose = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_commit = "5s"/timeout_commit = "1s"/g' "$CONFIG"
-        sed -i '' 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "15s"/g' "$CONFIG"
-    else
-        sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_precommit = "1s"/timeout_precommit = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_commit = "5s"/timeout_commit = "1s"/g' "$CONFIG"
-        sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "15s"/g' "$CONFIG"
-    fi
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
 		./bin/polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
