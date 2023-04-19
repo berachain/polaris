@@ -38,7 +38,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// Contract is the precompile contract for the auth module.
+// Contract is the precompile contract for the erc20 module.
 type Contract struct {
 	precompile.BaseContract
 
@@ -48,7 +48,7 @@ type Contract struct {
 	polarisERC20ABI abi.ABI
 }
 
-// NewPrecompileContract returns a new instance of the auth module precompile contract.
+// NewPrecompileContract returns a new instance of the erc20 module precompile contract.
 func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(

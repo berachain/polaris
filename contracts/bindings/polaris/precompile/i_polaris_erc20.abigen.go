@@ -31,7 +31,7 @@ var (
 
 // PolarisERC20MetaData contains all meta data concerning the PolarisERC20 contract.
 var PolarisERC20MetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DOMAIN_SEPARATOR\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"nonces\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"permit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // PolarisERC20ABI is the input ABI used to generate the binding from.
@@ -180,6 +180,37 @@ func (_PolarisERC20 *PolarisERC20TransactorRaw) Transact(opts *bind.TransactOpts
 	return _PolarisERC20.Contract.contract.Transact(opts, method, params...)
 }
 
+// DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
+//
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+func (_PolarisERC20 *PolarisERC20Caller) DOMAINSEPARATOR(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _PolarisERC20.contract.Call(opts, &out, "DOMAIN_SEPARATOR")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
+//
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+func (_PolarisERC20 *PolarisERC20Session) DOMAINSEPARATOR() ([32]byte, error) {
+	return _PolarisERC20.Contract.DOMAINSEPARATOR(&_PolarisERC20.CallOpts)
+}
+
+// DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
+//
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+func (_PolarisERC20 *PolarisERC20CallerSession) DOMAINSEPARATOR() ([32]byte, error) {
+	return _PolarisERC20.Contract.DOMAINSEPARATOR(&_PolarisERC20.CallOpts)
+}
+
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
 // Solidity: function allowance(address owner, address spender) view returns(uint256)
@@ -242,6 +273,130 @@ func (_PolarisERC20 *PolarisERC20CallerSession) BalanceOf(account common.Address
 	return _PolarisERC20.Contract.BalanceOf(&_PolarisERC20.CallOpts, account)
 }
 
+// Decimals is a free data retrieval call binding the contract method 0x313ce567.
+//
+// Solidity: function decimals() view returns(uint8)
+func (_PolarisERC20 *PolarisERC20Caller) Decimals(opts *bind.CallOpts) (uint8, error) {
+	var out []interface{}
+	err := _PolarisERC20.contract.Call(opts, &out, "decimals")
+
+	if err != nil {
+		return *new(uint8), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
+
+	return out0, err
+
+}
+
+// Decimals is a free data retrieval call binding the contract method 0x313ce567.
+//
+// Solidity: function decimals() view returns(uint8)
+func (_PolarisERC20 *PolarisERC20Session) Decimals() (uint8, error) {
+	return _PolarisERC20.Contract.Decimals(&_PolarisERC20.CallOpts)
+}
+
+// Decimals is a free data retrieval call binding the contract method 0x313ce567.
+//
+// Solidity: function decimals() view returns(uint8)
+func (_PolarisERC20 *PolarisERC20CallerSession) Decimals() (uint8, error) {
+	return _PolarisERC20.Contract.Decimals(&_PolarisERC20.CallOpts)
+}
+
+// Name is a free data retrieval call binding the contract method 0x06fdde03.
+//
+// Solidity: function name() view returns(string)
+func (_PolarisERC20 *PolarisERC20Caller) Name(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _PolarisERC20.contract.Call(opts, &out, "name")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// Name is a free data retrieval call binding the contract method 0x06fdde03.
+//
+// Solidity: function name() view returns(string)
+func (_PolarisERC20 *PolarisERC20Session) Name() (string, error) {
+	return _PolarisERC20.Contract.Name(&_PolarisERC20.CallOpts)
+}
+
+// Name is a free data retrieval call binding the contract method 0x06fdde03.
+//
+// Solidity: function name() view returns(string)
+func (_PolarisERC20 *PolarisERC20CallerSession) Name() (string, error) {
+	return _PolarisERC20.Contract.Name(&_PolarisERC20.CallOpts)
+}
+
+// Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
+//
+// Solidity: function nonces(address owner) view returns(uint256)
+func (_PolarisERC20 *PolarisERC20Caller) Nonces(opts *bind.CallOpts, owner common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _PolarisERC20.contract.Call(opts, &out, "nonces", owner)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
+//
+// Solidity: function nonces(address owner) view returns(uint256)
+func (_PolarisERC20 *PolarisERC20Session) Nonces(owner common.Address) (*big.Int, error) {
+	return _PolarisERC20.Contract.Nonces(&_PolarisERC20.CallOpts, owner)
+}
+
+// Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
+//
+// Solidity: function nonces(address owner) view returns(uint256)
+func (_PolarisERC20 *PolarisERC20CallerSession) Nonces(owner common.Address) (*big.Int, error) {
+	return _PolarisERC20.Contract.Nonces(&_PolarisERC20.CallOpts, owner)
+}
+
+// Symbol is a free data retrieval call binding the contract method 0x95d89b41.
+//
+// Solidity: function symbol() view returns(string)
+func (_PolarisERC20 *PolarisERC20Caller) Symbol(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _PolarisERC20.contract.Call(opts, &out, "symbol")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// Symbol is a free data retrieval call binding the contract method 0x95d89b41.
+//
+// Solidity: function symbol() view returns(string)
+func (_PolarisERC20 *PolarisERC20Session) Symbol() (string, error) {
+	return _PolarisERC20.Contract.Symbol(&_PolarisERC20.CallOpts)
+}
+
+// Symbol is a free data retrieval call binding the contract method 0x95d89b41.
+//
+// Solidity: function symbol() view returns(string)
+func (_PolarisERC20 *PolarisERC20CallerSession) Symbol() (string, error) {
+	return _PolarisERC20.Contract.Symbol(&_PolarisERC20.CallOpts)
+}
+
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
 // Solidity: function totalSupply() view returns(uint256)
@@ -292,6 +447,27 @@ func (_PolarisERC20 *PolarisERC20Session) Approve(spender common.Address, amount
 // Solidity: function approve(address spender, uint256 amount) returns(bool)
 func (_PolarisERC20 *PolarisERC20TransactorSession) Approve(spender common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _PolarisERC20.Contract.Approve(&_PolarisERC20.TransactOpts, spender, amount)
+}
+
+// Permit is a paid mutator transaction binding the contract method 0xd505accf.
+//
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+func (_PolarisERC20 *PolarisERC20Transactor) Permit(opts *bind.TransactOpts, owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
+	return _PolarisERC20.contract.Transact(opts, "permit", owner, spender, value, deadline, v, r, s)
+}
+
+// Permit is a paid mutator transaction binding the contract method 0xd505accf.
+//
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+func (_PolarisERC20 *PolarisERC20Session) Permit(owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
+	return _PolarisERC20.Contract.Permit(&_PolarisERC20.TransactOpts, owner, spender, value, deadline, v, r, s)
+}
+
+// Permit is a paid mutator transaction binding the contract method 0xd505accf.
+//
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+func (_PolarisERC20 *PolarisERC20TransactorSession) Permit(owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
+	return _PolarisERC20.Contract.Permit(&_PolarisERC20.TransactOpts, owner, spender, value, deadline, v, r, s)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
