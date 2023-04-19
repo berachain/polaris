@@ -21,10 +21,6 @@
 package lib_test
 
 import (
-	"fmt"
-
-	"github.com/holiman/uint256"
-
 	storetypes "cosmossdk.io/store/types"
 
 	"pkg.berachain.dev/polaris/cosmos/lib"
@@ -42,23 +38,9 @@ var _ = Describe("Salt", func() {
 	})
 
 	It("should be unique and deterministic", func() {
-		salts := make(map[uint256.Int]struct{})
-		orderedSalts := make([]uint256.Int, 20000)
-
 		for i := 0; i < 10000; i++ {
-			salt := lib.UniqueDeterminsticSalt(nonceStore, []byte("test"))
-			_, found := salts[*salt]
-			Expect(found).To(BeFalse())
-			salts[*salt] = struct{}{}
-			orderedSalts[i] = *salt
-		}
-
-		for i := 0; i < 10000; i++ {
-			salt := lib.UniqueDeterminsticSalt(nonceStore, []byte(fmt.Sprintf("test%d", i)))
-			_, found := salts[*salt]
-			Expect(found).To(BeFalse())
-			salts[*salt] = struct{}{}
-			orderedSalts[i+10000] = *salt
+			salt := lib.UniqueDeterminsticSalt(nonceStore)
+			Expect(salt).To(Equal(uint64(i)))
 		}
 	})
 })
