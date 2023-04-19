@@ -310,9 +310,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// Polaris Configuration
-	homePath := GetHomePath(appOpts)
-	cfg := provider.GetConfigFromHomePath(homePath)
-	cfg.NodeConfig.DataDir = homePath + "/data/polaris"
+	cfg := provider.GetConfig(appOpts, DefaultNodeHome)
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
