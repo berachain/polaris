@@ -24,9 +24,11 @@ import (
 	"errors"
 	"math/big"
 
-	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/holiman/uint256"
+
+	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
