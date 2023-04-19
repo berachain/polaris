@@ -31,8 +31,7 @@ import {IBankModule} from "../Bank.sol";
 contract GovernanceWrapper {
     // State
     IGovernanceModule public governanceModule;
-    IBankModule public immutable bank =
-        IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
+    IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
 
     // Errors
     error ZeroAddress();
@@ -53,12 +52,11 @@ contract GovernanceWrapper {
      * @param proposal The proposal.
      * @param message The message.
      */
-    function submit(
-        bytes calldata proposal,
-        bytes calldata message,
-        string calldata denom,
-        uint256 amount
-    ) external payable returns (uint64) {
+    function submit(bytes calldata proposal, bytes calldata message, string calldata denom, uint256 amount)
+        external
+        payable
+        returns (uint64)
+    {
         // Send the deposit amount to the contract.
         IBankModule.Coin[] memory coins = new IBankModule.Coin[](1);
         coins[0].denom = denom;
@@ -71,9 +69,7 @@ contract GovernanceWrapper {
      * @dev get a proposal.
      * @param proposalId The proposal id.
      */
-    function getProposal(
-        uint64 proposalId
-    ) external view returns (IGovernanceModule.Proposal memory) {
+    function getProposal(uint64 proposalId) external view returns (IGovernanceModule.Proposal memory) {
         return governanceModule.getProposal(proposalId);
     }
 
@@ -81,9 +77,7 @@ contract GovernanceWrapper {
      * @dev get proposals.
      * @param proposalStatus The proposal status.
      */
-    function getProposals(
-        int32 proposalStatus
-    ) external view returns (IGovernanceModule.Proposal[] memory) {
+    function getProposals(int32 proposalStatus) external view returns (IGovernanceModule.Proposal[] memory) {
         return governanceModule.getProposals(proposalStatus);
     }
 
@@ -93,11 +87,7 @@ contract GovernanceWrapper {
      * @param option The option.
      * @param metadata The metadata.
      */
-    function vote(
-        uint64 proposalId,
-        int32 option,
-        string memory metadata
-    ) external returns (bool) {
+    function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool) {
         return governanceModule.vote(proposalId, option, metadata);
     }
 
@@ -106,9 +96,7 @@ contract GovernanceWrapper {
      *   burned.
      * @param proposalId The id of the proposal to cancel.
      */
-    function cancelProposal(
-        uint64 proposalId
-    ) external returns (uint64, uint64) {
+    function cancelProposal(uint64 proposalId) external returns (uint64, uint64) {
         return governanceModule.cancelProposal(proposalId);
     }
 
