@@ -83,13 +83,14 @@ func (k *Keeper) Setup(
 	bk bankkeeper.Keeper,
 	precompiles []precompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
-	cfg *provider.Config,
+	polarisConfigPath string,
+	polarisDataDir string,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)
 
 	// Build the Polaris EVM Provider
-	k.polaris = provider.NewPolarisProvider(cfg, k.host, nil)
+	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.

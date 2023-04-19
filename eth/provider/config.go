@@ -55,8 +55,8 @@ type Config struct {
 	RPCConfig  rpc.Config
 }
 
-// ReadConfigFile reads in a Polaris config file from the fileystem.
-func ReadConfigFile(filename string) (*Config, error) {
+// LoadConfigFromFilePath reads in a Polaris config file from the fileystem.
+func LoadConfigFromFilePath(filename string) (*Config, error) {
 	var config Config
 
 	// Read the TOML file
