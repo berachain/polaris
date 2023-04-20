@@ -95,7 +95,7 @@ var _ = Describe("Processor", func() {
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
 				sdkmempool.DefaultPriorityNonceMempoolConfig()),
 			),
-			func() *sdkprecompile.Precompiles {
+			func() *sdkprecompile.Injector {
 				return sdkprecompile.NewPrecompiles([]precompile.Registrable{sc}...)
 			},
 		)

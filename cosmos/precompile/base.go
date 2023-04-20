@@ -26,21 +26,29 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
-type Precompiles struct {
+// ==============================================================================
+// Precompile Injector
+// ==============================================================================
+
+type Injector struct {
 	// precompiles stores the precompiles.
 	precompiles []ethprecompile.Registrable
 }
 
-func NewPrecompiles(precompiles ...ethprecompile.Registrable) *Precompiles {
-	return &Precompiles{
+func NewPrecompiles(precompiles ...ethprecompile.Registrable) *Injector {
+	return &Injector{
 		precompiles: precompiles,
 	}
 }
 
 // GetPrecompiles implements Precompiles.
-func (pcs *Precompiles) GetPrecompiles() []ethprecompile.Registrable {
-	return pcs.precompiles
+func (pci *Injector) GetPrecompiles() []ethprecompile.Registrable {
+	return pci.precompiles
 }
+
+// ==============================================================================
+// Base Precompile
+// ==============================================================================
 
 type BaseContract interface {
 	ethprecompile.StatefulImpl

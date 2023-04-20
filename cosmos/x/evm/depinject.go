@@ -50,7 +50,7 @@ type DepInjectInput struct {
 	AppOpts   servertypes.AppOptions
 
 	Mempool           sdkmempool.Mempool
-	CustomPrecompiles func() *sdkprecompile.Precompiles
+	CustomPrecompiles func() *sdkprecompile.Injector
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper

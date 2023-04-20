@@ -105,7 +105,6 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -148,14 +147,14 @@ var (
 )
 
 var (
-	_ runtime.AppI            = (*PolarisApp)(nil)
-	_ servertypes.Application = (*PolarisApp)(nil)
+	_ runtime.AppI            = (*PolarisBaseApp)(nil)
+	_ servertypes.Application = (*PolarisBaseApp)(nil)
 )
 
-// PolarisApp extends an ABCI application, but with most of its parameters exported.
+// PolarisBaseApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type PolarisApp struct {
+type PolarisBaseApp struct {
 	*runtime.App
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -200,17 +199,17 @@ func init() {
 	simappconfig.SetupCosmosConfig()
 }
 
-// NewPolarisApp returns a reference to an initialized PolarisApp.
-func NewPolarisApp( //nolint: funlen // from sdk.
+// NewPolarisBaseApp returns a reference to an initialized PolarisBaseApp.
+func NewPolarisBaseApp( //nolint: funlen // from sdk.
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *PolarisApp {
+) *PolarisBaseApp {
 	var (
-		app        = &PolarisApp{}
+		app        = &PolarisBaseApp{}
 		appBuilder *runtime.AppBuilder
 		// Below we could construct and set an application specific mempool and ABCI 1.0 Prepare and Process Proposal
 		// handlers. These defaults are already set in the SDK's BaseApp, this shows an example of how to override
@@ -386,43 +385,43 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 }
 
 // Name returns the name of the App.
-func (app *PolarisApp) Name() string { return app.BaseApp.Name() }
+func (app *PolarisBaseApp) Name() string { return app.BaseApp.Name() }
 
-// LegacyAmino returns PolarisApp's amino codec.
+// LegacyAmino returns PolarisBaseApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
+func (app *PolarisBaseApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
-// AppCodec returns PolarisApp's app codec.
+// AppCodec returns PolarisBaseApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *PolarisApp) AppCodec() codec.Codec {
+func (app *PolarisBaseApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns PolarisApp's InterfaceRegistry.
-func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+// InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
+func (app *PolarisBaseApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns PolarisApp's TxConfig.
-func (app *PolarisApp) TxConfig() client.TxConfig {
+// TxConfig returns PolarisBaseApp's TxConfig.
+func (app *PolarisBaseApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // AutoCliOpts returns the autocli options for the app.
-func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
+func (app *PolarisBaseApp) AutoCliOpts() autocli.AppOptions {
 	return app.autoCliOpts
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *PolarisBaseApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
@@ -430,7 +429,7 @@ func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
-func (app *PolarisApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+func (app *PolarisBaseApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
 		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
@@ -444,19 +443,19 @@ func (app *PolarisApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *PolarisBaseApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface.
-func (app *PolarisApp) SimulationManager() *module.SimulationManager {
+func (app *PolarisBaseApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *PolarisBaseApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
@@ -502,18 +501,15 @@ func GetHomePath(appOpts servertypes.AppOptions) string {
 	return homePath
 }
 
-func StandardSdkPrecompiles(app *PolarisApp) func() *sdkprecompile.Precompiles {
-	return func() *sdkprecompile.Precompiles {
+// StandardSdkPrecompiles returns a function that provides the initialization of the standard
+// set of precompiles.
+func StandardSdkPrecompiles(app *PolarisBaseApp) func() *sdkprecompile.Injector {
+	return func() *sdkprecompile.Injector {
 		return sdkprecompile.NewPrecompiles([]precompile.Registrable{
-			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+			authprecompile.NewPrecompileContract(),
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,
-			),
-			authprecompile.NewPrecompileContract(),
-			govprecompile.NewPrecompileContract(
-				govkeeper.NewMsgServerImpl(app.GovKeeper),
-				app.GovKeeper,
 			),
 			distrprecompile.NewPrecompileContract(
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
@@ -522,6 +518,11 @@ func StandardSdkPrecompiles(app *PolarisApp) func() *sdkprecompile.Precompiles {
 			erc20precompile.NewPrecompileContract(
 				app.BankKeeper, app.ERC20Keeper,
 			),
+			govprecompile.NewPrecompileContract(
+				govkeeper.NewMsgServerImpl(app.GovKeeper),
+				app.GovKeeper,
+			),
+			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 		}...)
 	}
 }

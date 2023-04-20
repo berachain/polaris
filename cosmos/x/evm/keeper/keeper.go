@@ -63,7 +63,7 @@ func NewKeeper(
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
-	pcs func() *sdkprecompile.Precompiles,
+	pcs func() *sdkprecompile.Injector,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{

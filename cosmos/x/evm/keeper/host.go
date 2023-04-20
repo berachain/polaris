@@ -69,7 +69,7 @@ type host struct {
 	sp  state.Plugin
 	txp txpool.Plugin
 
-	pcs func() *sdkprecompile.Precompiles
+	pcs func() *sdkprecompile.Injector
 }
 
 // Newhost creates new instances of the plugin host.
@@ -81,7 +81,7 @@ func NewHost(
 	appOpts servertypes.AppOptions,
 	offChainKv *offchain.Store,
 	ethTxMempool sdkmempool.Mempool,
-	precompiles func() *sdkprecompile.Precompiles,
+	precompiles func() *sdkprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
