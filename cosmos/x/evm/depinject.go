@@ -50,7 +50,7 @@ type DepInjectInput struct {
 	AppOpts   servertypes.AppOptions
 
 	Mempool           sdkmempool.Mempool
-	CustomPrecompiles func() *sdkprecompile.Injector
+	CustomPrecompiles func() *sdkprecompile.Injector `optional:"true"`
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
@@ -71,6 +71,11 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
+
+	if in.CustomPrecompiles == nil {
+		in.CustomPrecompiles = func() *sdkprecompile.Injector { return &sdkprecompile.Injector{} }
+	}
+
 	k := keeper.NewKeeper(
 		in.Key,
 		in.AccountKeeper,
