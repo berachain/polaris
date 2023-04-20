@@ -105,6 +105,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -251,7 +252,7 @@ func NewPolarisBaseApp( //nolint: funlen // from sdk.
 				func() []signing.SignModeHandler {
 					return []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
 				},
-				StandardSdkPrecompiles(app),
+				PrecompilesToInject(app),
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
@@ -501,11 +502,11 @@ func GetHomePath(appOpts servertypes.AppOptions) string {
 	return homePath
 }
 
-// StandardSdkPrecompiles returns a function that provides the initialization of the standard
+// PrecompilesToInject returns a function that provides the initialization of the standard
 // set of precompiles.
-func StandardSdkPrecompiles(app *PolarisBaseApp) func() *sdkprecompile.Injector {
+func PrecompilesToInject(app *PolarisBaseApp, customPcs ...precompile.Registrable) func() *sdkprecompile.Injector {
 	return func() *sdkprecompile.Injector {
-		return sdkprecompile.NewPrecompiles([]precompile.Registrable{
+		pcs := sdkprecompile.NewPrecompiles([]precompile.Registrable{
 			authprecompile.NewPrecompileContract(),
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
@@ -524,5 +525,11 @@ func StandardSdkPrecompiles(app *PolarisBaseApp) func() *sdkprecompile.Injector 
 			),
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 		}...)
+
+		// Add the custom precompiles to the injector.
+		for _, pc := range customPcs {
+			pcs.AddPrecompile(pc)
+		}
+		return pcs
 	}
 }

@@ -53,6 +53,8 @@ type Keeper struct {
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
 	host Host
+
+	polarisConfigPath string
 }
 
 // NewKeeper creates new instances of the polaris Keeper.

@@ -46,6 +46,10 @@ func (pci *Injector) GetPrecompiles() []ethprecompile.Registrable {
 	return pci.precompiles
 }
 
+func (pci *Injector) AddPrecompile(precompile ethprecompile.Registrable) {
+	pci.precompiles = append(pci.precompiles, precompile)
+}
+
 // ==============================================================================
 // Base Precompile
 // ==============================================================================
