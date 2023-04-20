@@ -41,7 +41,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// UpgradeName defines the on-chain upgrade name for the sample PolarisApp upgrade
+// UpgradeName defines the on-chain upgrade name for the sample PolarisBaseApp upgrade
 // from v046 to v047.
 //
 // NOTE: This upgrade defines a reference implementation of what an upgrade
@@ -49,7 +49,7 @@ import (
 // v0.46.x to v0.47.x.
 const UpgradeName = "v046-to-v047"
 
-func (app PolarisApp) RegisterUpgradeHandlers() {
+func (app PolarisBaseApp) RegisterUpgradeHandlers() {
 	// Set param key table for params module migration
 	for _, subspace := range app.ParamsKeeper.GetSubspaces() {
 		subspace := subspace

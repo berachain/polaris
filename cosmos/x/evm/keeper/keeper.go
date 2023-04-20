@@ -29,16 +29,20 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
+	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/provider"
 )
 
 type Keeper struct {
+	// ak is the reference to the AccountKeeper.
+	ak state.AccountKeeper
+	// bk is the reference to the BankKeeper.
+	bk state.BankKeeper
 	// provider is the struct that houses the Polaris EVM.
 	polaris *provider.PolarisProvider
 	// The (unexposed) key used to access the store from the Context.
@@ -59,9 +63,12 @@ func NewKeeper(
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
+	pcs func() *sdkprecompile.Injector,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
+		ak:        ak,
+		bk:        bk,
 		authority: authority,
 		storeKey:  storeKey,
 	}
@@ -78,21 +85,19 @@ func NewKeeper(
 		appOpts,
 		k.offChainKv,
 		ethTxMempool,
+		pcs,
 	)
 	return k
 }
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
-	ak state.AccountKeeper,
-	bk state.BankKeeper,
-	precompiles []precompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
 	polarisDataDir string,
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, ak, bk, precompiles, qc)
+	k.host.Setup(k.storeKey, k.ak, k.bk, qc)
 
 	// Build the Polaris EVM Provider
 	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)

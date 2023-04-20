@@ -34,6 +34,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -94,13 +95,16 @@ var _ = Describe("Processor", func() {
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
 				sdkmempool.DefaultPriorityNonceMempoolConfig()),
 			),
+			func() *sdkprecompile.Injector {
+				return sdkprecompile.NewPrecompiles([]precompile.Registrable{sc}...)
+			},
 		)
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(ak, bk, []precompile.Registrable{sc}, nil, "", GinkgoT().TempDir())
+		k.Setup(nil, "", GinkgoT().TempDir())
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {
