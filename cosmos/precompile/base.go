@@ -30,6 +30,8 @@ import (
 // Precompile Injector
 // ==============================================================================
 
+// Injector is a precompile injector, that allows for precompiles to be injected with
+// the Cosmos depinject framework.
 type Injector struct {
 	// precompiles stores the precompiles.
 	precompiles []ethprecompile.Registrable
@@ -46,6 +48,7 @@ func (pci *Injector) GetPrecompiles() []ethprecompile.Registrable {
 	return pci.precompiles
 }
 
+// AddPrecompile adds a new precompile to the injector.
 func (pci *Injector) AddPrecompile(precompile ethprecompile.Registrable) {
 	pci.precompiles = append(pci.precompiles, precompile)
 }
