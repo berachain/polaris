@@ -87,13 +87,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
-	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
-	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
-	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
-	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
-	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/x/erc20"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
@@ -101,10 +94,10 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -499,36 +492,4 @@ func GetHomePath(appOpts servertypes.AppOptions) string {
 		return DefaultNodeHome
 	}
 	return homePath
-}
-
-// PrecompilesToInject returns a function that provides the initialization of the standard
-// set of precompiles.
-func PrecompilesToInject(app *PolarisBaseApp, customPcs ...precompile.Registrable) func() *sdkprecompile.Injector {
-	return func() *sdkprecompile.Injector {
-		pcs := sdkprecompile.NewPrecompiles([]precompile.Registrable{
-			authprecompile.NewPrecompileContract(),
-			bankprecompile.NewPrecompileContract(
-				bankkeeper.NewMsgServerImpl(app.BankKeeper),
-				app.BankKeeper,
-			),
-			distrprecompile.NewPrecompileContract(
-				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
-				distrkeeper.NewQuerier(app.DistrKeeper),
-			),
-			erc20precompile.NewPrecompileContract(
-				app.BankKeeper, app.ERC20Keeper,
-			),
-			govprecompile.NewPrecompileContract(
-				govkeeper.NewMsgServerImpl(app.GovKeeper),
-				app.GovKeeper,
-			),
-			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
-		}...)
-
-		// Add the custom precompiles to the injector.
-		for _, pc := range customPcs {
-			pcs.AddPrecompile(pc)
-		}
-		return pcs
-	}
 }
