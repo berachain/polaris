@@ -87,6 +87,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
@@ -104,6 +105,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -250,6 +252,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 				func() []signing.SignModeHandler {
 					return []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
 				},
+				StandardSdkPrecompiles(app),
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
@@ -315,28 +318,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		app.AccountKeeper,
-		app.BankKeeper,
-		[]precompile.Registrable{
-			// TODO: register more precompiles here.
-			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
-			bankprecompile.NewPrecompileContract(
-				bankkeeper.NewMsgServerImpl(app.BankKeeper),
-				app.BankKeeper,
-			),
-			authprecompile.NewPrecompileContract(),
-			govprecompile.NewPrecompileContract(
-				govkeeper.NewMsgServerImpl(app.GovKeeper),
-				app.GovKeeper,
-			),
-			distrprecompile.NewPrecompileContract(
-				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
-				distrkeeper.NewQuerier(app.DistrKeeper),
-			),
-			erc20precompile.NewPrecompileContract(
-				app.BankKeeper, app.ERC20Keeper,
-			),
-		},
 		app.CreateQueryContext,
 		// TODO: clean this up.
 		homePath+"/config/polaris.toml",
@@ -519,4 +500,28 @@ func GetHomePath(appOpts servertypes.AppOptions) string {
 		return DefaultNodeHome
 	}
 	return homePath
+}
+
+func StandardSdkPrecompiles(app *PolarisApp) func() *sdkprecompile.Precompiles {
+	return func() *sdkprecompile.Precompiles {
+		return sdkprecompile.NewPrecompiles([]precompile.Registrable{
+			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+			bankprecompile.NewPrecompileContract(
+				bankkeeper.NewMsgServerImpl(app.BankKeeper),
+				app.BankKeeper,
+			),
+			authprecompile.NewPrecompileContract(),
+			govprecompile.NewPrecompileContract(
+				govkeeper.NewMsgServerImpl(app.GovKeeper),
+				app.GovKeeper,
+			),
+			distrprecompile.NewPrecompileContract(
+				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
+				distrkeeper.NewQuerier(app.DistrKeeper),
+			),
+			erc20precompile.NewPrecompileContract(
+				app.BankKeeper, app.ERC20Keeper,
+			),
+		}...)
+	}
 }

@@ -27,6 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
+	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -39,7 +40,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -55,7 +55,6 @@ type Host interface {
 		storetypes.StoreKey,
 		state.AccountKeeper,
 		state.BankKeeper,
-		[]ethprecompile.Registrable,
 		func(height int64, prove bool) (sdk.Context, error),
 	)
 }
@@ -69,6 +68,8 @@ type host struct {
 	pp  precompile.Plugin
 	sp  state.Plugin
 	txp txpool.Plugin
+
+	pcs func() *sdkprecompile.Precompiles
 }
 
 // Newhost creates new instances of the plugin host.
@@ -80,6 +81,7 @@ func NewHost(
 	appOpts servertypes.AppOptions,
 	offChainKv *offchain.Store,
 	ethTxMempool sdkmempool.Mempool,
+	precompiles func() *sdkprecompile.Precompiles,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
@@ -91,6 +93,8 @@ func NewHost(
 	h.hp = historical.NewPlugin(h.bp, offChainKv, storeKey)
 	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 
+	h.pcs = precompiles
+
 	return h
 }
 
@@ -100,12 +104,11 @@ func (h *host) Setup(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	precompiles []ethprecompile.Registrable,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the precompile and state plugins
-	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(precompiles))
-	h.pp = precompile.NewPlugin(precompiles, h.sp)
+	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
+	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

@@ -31,6 +31,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
+	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 )
 
@@ -48,7 +49,8 @@ type DepInjectInput struct {
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
 
-	Mempool sdkmempool.Mempool
+	Mempool           sdkmempool.Mempool
+	CustomPrecompiles func() *sdkprecompile.Precompiles
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
@@ -76,6 +78,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		authority.String(),
 		in.AppOpts,
 		in.Mempool,
+		in.CustomPrecompiles,
 	)
 
 	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)
