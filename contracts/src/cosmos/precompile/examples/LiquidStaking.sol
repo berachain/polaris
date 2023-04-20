@@ -25,7 +25,7 @@
 
 pragma solidity ^0.8.17;
 
-import {IStakingModule} from "../staking.sol";
+import {IStakingModule} from "../Staking.sol";
 import {ERC20} from "../../../../lib/ERC20.sol";
 
 /**

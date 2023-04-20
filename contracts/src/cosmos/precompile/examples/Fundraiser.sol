@@ -25,7 +25,7 @@
 
 pragma solidity ^0.8.17;
 
-import {IBankModule} from "../bank.sol";
+import {IBankModule} from "../Bank.sol";
 import {Owned} from "../../../../lib/Owned.sol";
 
 /**

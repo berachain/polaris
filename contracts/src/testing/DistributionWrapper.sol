@@ -25,9 +25,9 @@
 
 pragma solidity ^0.8.17;
 
-import {IDistributionModule} from "../cosmos/precompile/distribution.sol";
-import {IStakingModule} from "../cosmos/precompile/staking.sol";
-import {ERC20} from "lib/ERC20.sol";
+import {IDistributionModule} from "../cosmos/precompile/Distribution.sol";
+import {IStakingModule} from "../cosmos/precompile/Staking.sol";
+import {ERC20} from "../../lib/ERC20.sol";
 
 /**
  * @dev This contract is an example helper for calling the distribution precompile from another contract.

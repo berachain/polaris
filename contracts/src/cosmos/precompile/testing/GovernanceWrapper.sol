@@ -25,8 +25,8 @@
 
 pragma solidity ^0.8.17;
 
-import {IGovernanceModule} from "../governance.sol";
-import {IBankModule} from "../bank.sol";
+import {IGovernanceModule} from "../Governance.sol";
+import {IBankModule} from "../Bank.sol";
 
 contract GovernanceWrapper {
     // State

@@ -26,7 +26,7 @@
 pragma solidity ^0.8.17;
 
 import {IERC20} from "../../../../lib/IERC20.sol";
-import {IERC20Module} from "../erc20.sol";
+import {IERC20Module} from "../ERC20Module.sol";
 
 // Swapper is an example smart contract that uses the erc20 module precompile to swap/convert
 // between SDK coins and ERC20 tokens.

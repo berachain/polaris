@@ -25,12 +25,12 @@
 
 package contracts
 
-//go:generate abigen --pkg precompile --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./bindings/cosmos/precompile/i_staking_module.abigen.go --type StakingModule
-//go:generate abigen --pkg precompile --abi ./out/bank.sol/IBankModule.abi.json --bin ./out/bank.sol/IbankModule.bin --out ./bindings/cosmos/precompile/i_bank_module.abigen.go --type BankModule
-//go:generate abigen --pkg precompile --abi ./out/auth.sol/IAuthModule.abi.json --bin ./out/auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/i_auth_module.abigen.go --type AuthModule
-//go:generate abigen --pkg precompile --abi ./out/distribution.sol/IDistributionModule.abi.json --bin ./out/distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/i_distribution_module.abigen.go --type DistributionModule --exc "IBankModuleCoin"
-//go:generate abigen --pkg precompile --abi ./out/governance.sol/IGovernanceModule.abi.json --bin ./out/governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
-//go:generate abigen --pkg precompile --abi ./out/ERC20.sol/IERC20Module.abi.json --bin ./out/ERC20.sol/IERC20Module.bin --out ./bindings/cosmos/precompile/i_erc20_module.abigen.go --type ERC20Module
+//go:generate abigen --pkg precompile --abi ./out/Staking.sol/IStakingModule.abi.json --bin ./out/Staking.sol/IStakingModule.bin --out ./bindings/cosmos/precompile/i_staking_module.abigen.go --type StakingModule
+//go:generate abigen --pkg precompile --abi ./out/Bank.sol/IBankModule.abi.json --bin ./out/Bank.sol/IbankModule.bin --out ./bindings/cosmos/precompile/i_bank_module.abigen.go --type BankModule
+//go:generate abigen --pkg precompile --abi ./out/Auth.sol/IAuthModule.abi.json --bin ./out/Auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/i_auth_module.abigen.go --type AuthModule
+//go:generate abigen --pkg precompile --abi ./out/Distribution.sol/IDistributionModule.abi.json --bin ./out/Distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/i_distribution_module.abigen.go --type DistributionModule --exc "IBankModuleCoin"
+//go:generate abigen --pkg precompile --abi ./out/Governance.sol/IGovernanceModule.abi.json --bin ./out/Governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
+//go:generate abigen --pkg precompile --abi ./out/ERC20Module.sol/IERC20Module.abi.json --bin ./out/ERC20Module.sol/IERC20Module.bin --out ./bindings/cosmos/precompile/i_erc20_module.abigen.go --type ERC20Module
 
 //go:generate abigen --pkg polaris --abi ./out/PolarisERC20.sol/PolarisERC20.abi.json --bin ./out/PolarisERC20.sol/PolarisERC20.bin --out ./bindings/polaris/polaris_erc20.abigen.go --type PolarisERC20
 

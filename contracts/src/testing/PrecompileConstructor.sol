@@ -25,8 +25,8 @@
 
 pragma solidity >=0.8.4;
 
-import {IERC20} from "lib/IERC20.sol";
-import {IERC20Module} from "../cosmos/precompile/erc20.sol";
+import {IERC20} from "../../lib/IERC20.sol";
+import {IERC20Module} from "../cosmos/precompile/ERC20Module.sol";
 
 // An example of calling a precompile from the contract's constructor.
 contract PrecompileConstructor {
