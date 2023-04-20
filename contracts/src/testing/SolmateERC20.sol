@@ -28,9 +28,12 @@ pragma solidity ^0.8.4;
 import {ERC20} from "../../lib/ERC20.sol";
 
 contract SolmateERC20 is ERC20 {
-    constructor() ERC20("Token", "TK", 18) {}
+    constructor() payable ERC20("Token", "TK", 18) {
+        emit Created(msg.sender, msg.value, "Token", "TK");    
+    }
 
     event Mint(address indexed to, uint256 amount);
+    event Created(address indexed deployer, uint256 endowment, string indexed name, string symbol);
 
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
