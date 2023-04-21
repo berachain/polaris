@@ -36,6 +36,7 @@ import (
 // EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
 // transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
+	// The underlying mempool implementation.
 	sdkmempool.Mempool
 
 	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
@@ -44,8 +45,13 @@ type EthTxPool struct {
 
 	// nonces is a cache of the pending nonces by sender address
 	nonces map[common.Address]uint64
-	nr     NonceRetriever
 
+	// NonceRetriever is used to retrieve the nonce for a given address.
+	// (this is typically a reference to the StateDB)
+	nr NonceRetriever
+
+	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed concurrently
+	// by multiple goroutines.
 	mu sync.RWMutex
 }
 
@@ -153,7 +159,7 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	return nil
 }
 
-// Stats returns the number of currently pending (locally created) transactions
+// Stats returns the number of currently pending (locally created) transactions.
 func (etp *EthTxPool) Stats() (int, int) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()

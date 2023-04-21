@@ -112,8 +112,11 @@ func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
 }
 
 func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
-	// TODO: implement this
-	return 0, nil
+	nonce, ok := p.mempool.GetNonce(addr)
+	if !ok {
+		return 0, nil
+	}
+	return nonce, nil
 }
 
 func (p *plugin) SetClientContext(ctx client.Context) {

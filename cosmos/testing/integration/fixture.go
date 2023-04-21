@@ -100,14 +100,14 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	// Get the nonce from the RPC.
 	// TODO: switch to pending once the txpool is finished. https://github.com/berachain/polaris/issues/385
 	// Get the nonce from the RPC.
-	blockNumber, err := tf.EthClient.BlockNumber(context.Background())
-	if err != nil {
-		tf.t.Fatal(err)
-	}
+	// blockNumber, err := tf.EthClient.BlockNumber(context.Background())
+	// if err != nil {
+	// 	tf.t.Fatal(err)
+	// }
 	// nonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
 	// hacky stuff to make sure the nonce is correct.
-	time.Sleep(2) //nolint:gomnd,staticcheck // temporary.
-	nonce, err := tf.EthClient.NonceAt(context.Background(), tf.Address(name), big.NewInt(int64(blockNumber)))
+	// time.Sleep(2) //nolint:gomnd,staticcheck // temporary.
+	nonce, err := tf.EthClient.PendingNonceAt(context.Background(), tf.Address(name))
 	if err != nil {
 		tf.t.Fatal(err)
 	}
