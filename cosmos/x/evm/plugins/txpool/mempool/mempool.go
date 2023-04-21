@@ -58,7 +58,7 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDec
 	// Create the tx config used to route transactions to the correct mempool
 	txConfig := NewMempoolConfig(builderAddress, txDecoder, serializer, evmDenom)
 	// Init the mempool with the tx config
-	builderMempool := mempool.NewAuctionMempool(nil, 0, 0, txDecoder, txEncoder, txConfig)
+	builderMempool := mempool.NewAuctionMempool(txDecoder, txEncoder, 0, txConfig)
 
 	return &EthTxPool{
 		AuctionMempool: builderMempool,
