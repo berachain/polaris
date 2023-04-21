@@ -35,17 +35,8 @@ interface IBuilderModule {
      * @dev msg.sender bids for top of block execution given a bundle of transactions, bid amount and timeout.
      */
     function auctionBid(
-        Coin calldata bid,
+        uint256 amount,
         bytes[] calldata transactions,
         uint64 timeout
     ) external payable returns (bool);
-
-    /**
-     * @dev Represents a cosmos coin.
-     * Note: this struct is generated as go struct that is then used in the precompile.
-     */
-    struct Coin {
-        uint64 amount;
-        string denom;
-    }
 }

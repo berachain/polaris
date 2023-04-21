@@ -318,7 +318,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// setup evm keeper and all of its plugins.
-	auctionPrecompile := builderprecompile.NewPrecompileContract(&app.BuilderKeeper)
+	auctionPrecompile := builderprecompile.NewPrecompileContract(&app.BuilderKeeper, "abera")
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -335,7 +335,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	)
 
 	host := app.EVMKeeper.GetHost()
-	config := simappconfig.NewMempoolConfig(auctionPrecompile, app.txConfig.TxDecoder(), host, "abera")
+	config := simappconfig.NewMempoolConfig(auctionPrecompile, app.txConfig.TxDecoder(), host, "abera", app.AccountKeeper)
 	mempool := pobmempool.NewAuctionMempoolWithIndex(app.txConfig.TxDecoder(), app.txConfig.TxEncoder(), 0, config, ethTxMempool)
 	app.App.SetMempool(mempool)
 

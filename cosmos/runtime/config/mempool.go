@@ -1,7 +1,9 @@
 package config
 
 import (
+	"context"
 	"fmt"
+	"math/big"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -25,6 +27,7 @@ type (
 		contractABI     abi.ABI
 		host            Serializer
 		evmDenom        string
+		ak              AccountKeeper
 	}
 
 	AuctionBidInfo struct {
@@ -37,10 +40,14 @@ type (
 		Serialize(tx *coretypes.Transaction) ([]byte, error)
 		SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error)
 	}
+
+	AccountKeeper interface {
+		GetSequence(context.Context, sdk.AccAddress) (uint64, error)
+	}
 )
 
 // NewMempoolConfig returns a new instance of the mempool config.
-func NewMempoolConfig(builderContract precompile.StatefulImpl, txDecoder sdk.TxDecoder, host Serializer, denom string) *MempoolConfig {
+func NewMempoolConfig(builderContract precompile.StatefulImpl, txDecoder sdk.TxDecoder, host Serializer, denom string, ak AccountKeeper) *MempoolConfig {
 	contractABI, err := abi.JSON(strings.NewReader(bindings.BuilderModuleMetaData.ABI))
 	if err != nil {
 		panic(err)
@@ -52,6 +59,7 @@ func NewMempoolConfig(builderContract precompile.StatefulImpl, txDecoder sdk.TxD
 		contractABI:     contractABI,
 		host:            host,
 		evmDenom:        denom,
+		ak:              ak,
 	}
 }
 
@@ -204,6 +212,10 @@ func (mempool *MempoolConfig) HasValidTimeout(ctx sdk.Context, tx sdk.Tx) error 
 // ----------------------- Helper Functions ---------------------------- //
 // --------------------------------------------------------------------- //
 
+// validateBundle returns true if the bundle is valid. A bundle is valid if it
+// contains at least one transaction and all transactions are respect the correct nonce ordering.
+func (mempool *MempoolConfig) validateBundle(bundle []byte) (bool, error) { return false, nil }
+
 // validateAuctionTx returns true if the ethereum transaction is an auction bid transaction. Since
 // we do not have access to valid basic in the mempool, we must valid it here.
 func (mempool *MempoolConfig) validateAuctionTx(ethTx *coretypes.Transaction) (bool, error) {
@@ -220,9 +232,9 @@ func (mempool *MempoolConfig) validateAuctionTx(ethTx *coretypes.Transaction) (b
 
 	// Since we do not have access to valid basic in the mempool, we must ensure that the
 	// bid is valid here
-	// if len(bidInfo.Transactions) == 0 {
-	// 	return false, fmt.Errorf("bundle of transactions must not be empty")
-	// }
+	if len(bidInfo.Transactions) == 0 {
+		return false, fmt.Errorf("bundle of transactions must not be empty")
+	}
 
 	for _, tx := range bidInfo.Transactions {
 		if len(tx) == 0 {
@@ -274,10 +286,7 @@ func (mempool *MempoolConfig) getBidInfoFromEthTx(ethTx *coretypes.Transaction) 
 		return nil, err
 	}
 
-	bidInfo, ok := inputsMap["bid"].(struct {
-		Amount uint64 "json:\"amount\""
-		Denom  string "json:\"denom\""
-	})
+	bid, ok := inputsMap["bid"].(*big.Int)
 	if !ok {
 		return nil, fmt.Errorf("invalid bid type: %T", inputsMap["bid"])
 	}
@@ -294,7 +303,7 @@ func (mempool *MempoolConfig) getBidInfoFromEthTx(ethTx *coretypes.Transaction) 
 
 	auctionBidInfo := &AuctionBidInfo{
 		Transactions: bundle,
-		Bid:          sdk.NewCoin(bidInfo.Denom, sdk.NewIntFromUint64(bidInfo.Amount)),
+		Bid:          sdk.NewCoin(mempool.evmDenom, sdk.NewIntFromBigInt(bid)),
 		Timeout:      timeout,
 	}
 

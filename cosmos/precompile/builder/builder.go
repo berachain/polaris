@@ -43,10 +43,11 @@ type Contract struct {
 
 	msgServer   buildertypes.MsgServer
 	queryServer buildertypes.QueryServer
+	evmDenom    string
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract(bk *builderkeeper.Keeper) ethprecompile.StatefulImpl {
+func NewPrecompileContract(bk *builderkeeper.Keeper, evmDenom string) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(
 			bindings.BuilderModuleMetaData.ABI,
@@ -54,6 +55,7 @@ func NewPrecompileContract(bk *builderkeeper.Keeper) ethprecompile.StatefulImpl 
 		),
 		msgServer:   builderkeeper.NewMsgServerImpl(*bk),
 		queryServer: builderkeeper.NewQueryServer(*bk),
+		evmDenom:    evmDenom,
 	}
 }
 
@@ -61,14 +63,14 @@ func NewPrecompileContract(bk *builderkeeper.Keeper) ethprecompile.StatefulImpl 
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
-			AbiSig:      "auctionBid((uint64,string),bytes[],uint64)",
+			AbiSig:      "auctionBid(uint256,bytes[],uint64)",
 			Execute:     c.AuctionBid,
 			RequiredGas: params.IdentityBaseGas,
 		},
 	}
 }
 
-// AuctionBid implements the `auctionBid((uint64,string),bytes[],uint64)` method.
+// AuctionBid implements the `auctionBid(uint256,bytes[],uint64)` method.
 func (c *Contract) AuctionBid(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -77,7 +79,7 @@ func (c *Contract) AuctionBid(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	bid, ok := utils.GetAs[bindings.IBuilderModuleCoin](args[0])
+	bid, ok := utils.GetAs[*big.Int](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidCoin
 	}
@@ -88,7 +90,7 @@ func (c *Contract) AuctionBid(
 
 	msgAuctionBid := &buildertypes.MsgAuctionBid{
 		Bidder:       cosmlib.AddressToAccAddress(caller).String(),
-		Bid:          sdk.NewCoin(bid.Denom, sdk.NewIntFromUint64(bid.Amount)),
+		Bid:          sdk.NewCoin(c.evmDenom, sdk.NewIntFromBigInt(bid)),
 		Transactions: bundleTxs,
 	}
 
