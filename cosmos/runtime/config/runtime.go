@@ -40,10 +40,9 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 // DefaultRuntime represents a standard default runtime configuration.

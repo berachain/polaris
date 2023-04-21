@@ -86,7 +86,12 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"github.com/skip-mev/pob/x/builder"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	pobabci "github.com/skip-mev/pob/abci"
+	"github.com/skip-mev/pob/mempool"
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	builderprecompile "pkg.berachain.dev/polaris/cosmos/precompile/builder"
@@ -105,13 +110,6 @@ import (
 	_ "embed"
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
-
-	// POB Imports
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	pobabci "github.com/skip-mev/pob/abci"
-	"github.com/skip-mev/pob/mempool"
-	"github.com/skip-mev/pob/x/builder"
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 )
 
 var (
@@ -184,15 +182,13 @@ type PolarisApp struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
+	BuilderKeeper         builderkeeper.Keeper
 
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
-
-	// pob keeper
-	BuilderKeeper builderkeeper.Keeper
 }
 
 //nolint:gochecknoinits // its okay.
@@ -226,9 +222,9 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
 		ethTxMempool sdkmempool.Mempool = evmmempool.NewEthTxPoolDefault(sdkmempool.DefaultPriorityMempool())
-		// mempoolOpt = baseapp.SetMempool(
-		// 	ethTxMempool,
-		// )
+		mempoolOpt                      = baseapp.SetMempool(
+			ethTxMempool,
+		)
 
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
@@ -308,7 +304,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 
 	// Build app
 	app.App = appBuilder.Build(logger, db, traceStore, PolarisAppOptions(
-		app.interfaceRegistry, append(baseAppOptions)...)...,
+		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
 	)
 
 	// ===============================================================
@@ -360,7 +356,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		ch,
 	)
 
-	handler := pobabci.NewProposalHandler(mempool, nil, ch, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
+	handler := pobabci.NewProposalHandler(mempool, app.Logger(), ch, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
 	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
 	app.App.SetProcessProposal(handler.ProcessProposalHandler())
 

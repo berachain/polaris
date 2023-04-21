@@ -48,6 +48,7 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	buildermodule "github.com/skip-mev/pob/api/pob/builder/module/v1"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -64,12 +65,10 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	evmmodulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-
-	buildermodule "github.com/skip-mev/pob/api/pob/builder/module/v1"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 var (

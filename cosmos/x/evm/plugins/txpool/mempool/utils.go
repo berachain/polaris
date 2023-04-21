@@ -16,7 +16,7 @@ import (
 // validateAuctionTx returns true iff the ethereum transaction is a valid auction bid transaction. Since
 // we do not have access to valid basic in the mempool, we must valid it here.
 func (txConfig *Config) validateAuctionTx(ethTx *coretypes.Transaction) (bool, error) {
-	// The user should not be sending any value to the builder contract
+	// The user should not be sending anything to the builder contract
 	if ethTx.Value().Cmp(sdk.ZeroInt().BigInt()) != 0 {
 		return false, fmt.Errorf("a bid transaction must not send any %s to the builder contract", txConfig.evmDenom)
 	}
@@ -27,7 +27,7 @@ func (txConfig *Config) validateAuctionTx(ethTx *coretypes.Transaction) (bool, e
 		return false, fmt.Errorf("transaction must be a valid bid transaction: %w", err)
 	}
 
-	// Since we do not have access to valid basic in the mempool, we must ensure that the bundle of
+	// Since we do not have access to valid basic in the mempool, we must ensure that the bundle of txs
 	// is valid here.
 	if len(bidInfo.Transactions) == 0 {
 		return false, fmt.Errorf("bundle of transactions must not be empty")

@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package auth
+package builder
 
 import (
 	"context"
@@ -37,7 +37,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// Contract is the precompile contract for the auth module.
+// Contract is the precompile contract for the builder module.
 type Contract struct {
 	precompile.BaseContract
 
@@ -46,7 +46,7 @@ type Contract struct {
 	evmDenom    string
 }
 
-// NewPrecompileContract returns a new instance of the auth module precompile contract.
+// NewPrecompileContract returns a new instance of the builder module precompile contract.
 func NewPrecompileContract(bk *builderkeeper.Keeper, evmDenom string) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: precompile.NewBaseContract(

@@ -18,9 +18,7 @@ import (
 var _ mempool.Config = (*Config)(nil)
 
 type (
-	// Config defines the necessary functionality and fields required to implement
-	// the mempool.Config interface. It is used to validate auction transactions, wrap bundle transactions
-	// and get the signers of bundle transactions.
+	// Config defines the necessary functionality and fields required to implement the mempool.Config interface.
 	Config struct {
 		// builderContract is the address of the builder precompile contract
 		builderContract common.Address
@@ -172,7 +170,7 @@ func (txConfig *Config) GetBundledTransactions(tx sdk.Tx) ([][]byte, error) {
 	return auctionBidInfo.Transactions, nil
 }
 
-// GetTimeoutHeight defines a function that returns the timeout height of an auction transaction.
+// GetTimeout defines a function that returns the timeout height of an auction transaction.
 func (txConfig *Config) GetTimeout(tx sdk.Tx) (uint64, error) {
 	isAuctionTx, err := txConfig.IsAuctionTx(tx)
 	if err != nil {
@@ -189,10 +187,6 @@ func (txConfig *Config) GetTimeout(tx sdk.Tx) (uint64, error) {
 	}
 
 	return auctionBidInfo.Timeout, nil
-}
-
-func (txConfig *Config) GetTimeoutHeight(tx sdk.Tx) (uint64, error) {
-	return txConfig.GetTimeout(tx)
 }
 
 // GetAuctionBidInfo defines a function that returns the auction bid info of an auction transaction.

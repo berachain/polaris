@@ -66,6 +66,7 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDec
 	}
 }
 
+// Used for testing only
 func NewEthTxPoolDefault(m sdkmempool.Mempool) *EthTxPool {
 	return NewEthTxPoolFrom(m, common.Address{}, nil, nil, nil, "")
 }
