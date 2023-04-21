@@ -35,7 +35,8 @@ contract PrecompileConstructor {
     string public denom;
 
     constructor() {
-        bool success = erc20Module.convertCoinToERC20("abera", msg.sender, 123456789);
+        // TODO: use convertFrom here
+        bool success = erc20Module.convertCoinToERC20("abera", 123456789);
         require(success, "failed to convert abera");
         abera = erc20Module.erc20AddressForCoinDenom("abera");
         denom = erc20Module.coinDenomForERC20Address(abera);

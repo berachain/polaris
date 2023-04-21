@@ -67,8 +67,10 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 // CustomValueDecoders implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		erc20types.AttributeKeyToken: ConvertCommonHexAddress,
-		erc20types.AttributeKeyDenom: log.ReturnStringAsIs,
+		erc20types.AttributeKeyToken:     ConvertCommonHexAddress,
+		erc20types.AttributeKeyDenom:     log.ReturnStringAsIs,
+		erc20types.AttributeKeyOwner:     ConvertCommonHexAddress,
+		erc20types.AttributeKeyRecipient: ConvertCommonHexAddress,
 	}
 }
 
@@ -88,20 +90,12 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.ERC20AddressForCoinDenom,
 		},
 		{
-			AbiSig:  "convertCoinToERC20(string,address,uint256)",
-			Execute: c.ConvertCoinToERC20StringAddr,
+			AbiSig:  "convertCoinToERC20(string,uint256)",
+			Execute: c.ConvertCoinToERC20,
 		},
 		{
-			AbiSig:  "convertCoinToERC20(string,string,uint256)",
-			Execute: c.ConvertCoinToERC20StringString,
-		},
-		{
-			AbiSig:  "convertERC20ToCoin(address,address,uint256)",
-			Execute: c.ConvertERC20ToCoinAddrAddr,
-		},
-		{
-			AbiSig:  "convertERC20ToCoin(address,string,uint256)",
-			Execute: c.ConvertERC20ToCoinAddrString,
+			AbiSig:  "convertERC20ToCoin(address,uint256)",
+			Execute: c.ConvertERC20ToCoin,
 		},
 	}
 }
@@ -196,11 +190,11 @@ func (c *Contract) ERC20AddressForCoinDenom(
 	return []any{tokenAddr}, nil
 }
 
-// ConvertCoinToERC20StringAddr converts SDK coins to ERC20 tokens for an owner.
-func (c *Contract) ConvertCoinToERC20StringAddr(
+// ConvertCoinToERC20 converts SDK coins to ERC20 tokens for msg.sender.
+func (c *Contract) ConvertCoinToERC20(
 	ctx context.Context,
 	evm ethprecompile.EVM,
-	_ common.Address,
+	caller common.Address,
 	value *big.Int,
 	_ bool,
 	args ...any,
@@ -209,54 +203,17 @@ func (c *Contract) ConvertCoinToERC20StringAddr(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	owner, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
 	amount, ok := utils.GetAs[*big.Int](args[2])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertCoinToERC20(ctx, evm, value, denom, owner, amount)
+	err := c.convertCoinToERC20(ctx, evm, value, denom, caller, caller, amount)
 	return []any{err == nil}, err
 }
 
-// ConvertCoinToERC20StringString converts SDK coins to ERC20 tokens for an owner.
-func (c *Contract) ConvertCoinToERC20StringString(
-	ctx context.Context,
-	evm ethprecompile.EVM,
-	_ common.Address,
-	value *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	denom, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	ownerBech32, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBech32Address
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	owner, err := sdk.AccAddressFromBech32(ownerBech32)
-	if err != nil {
-		return nil, err
-	}
-
-	err = c.convertCoinToERC20(
-		ctx, evm, value, denom, cosmlib.AccAddressToEthAddress(owner), amount,
-	)
-	return []any{err == nil}, err
-}
-
-// ConvertERC20ToCoinAddrAddr converts ERC20 tokens to SDK coins for an owner.
-func (c *Contract) ConvertERC20ToCoinAddrAddr(
+// ConvertERC20ToCoin converts ERC20 tokens to SDK coins for msg.sender.
+func (c *Contract) ConvertERC20ToCoin(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -268,48 +225,11 @@ func (c *Contract) ConvertERC20ToCoinAddrAddr(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	owner, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
 	amount, ok := utils.GetAs[*big.Int](args[2])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertERC20ToCoin(ctx, caller, evm, token, owner, amount)
-	return []any{err == nil}, err
-}
-
-// ConvertERC20ToCoinAddrString converts ERC20 tokens to SDK coins for an owner.
-func (c *Contract) ConvertERC20ToCoinAddrString(
-	ctx context.Context,
-	evm ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	token, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	ownerBech32, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBech32Address
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	owner, err := sdk.AccAddressFromBech32(ownerBech32)
-	if err != nil {
-		return nil, err
-	}
-
-	err = c.convertERC20ToCoin(
-		ctx, caller, evm, token, cosmlib.AccAddressToEthAddress(owner), amount,
-	)
+	err := c.convertERC20ToCoin(ctx, caller, evm, token, caller, caller, amount)
 	return []any{err == nil}, err
 }
