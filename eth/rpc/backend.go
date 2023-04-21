@@ -431,9 +431,8 @@ func (b *backend) TxPoolContentFrom(addr common.Address,
 	return nil, nil
 }
 
-func (b *backend) SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription {
-	// TODO: Implement your code here
-	return nil
+func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
+	return b.chain.SubscribeNewTxsEvent(ch)
 }
 
 // ChainConfig returns the chain configuration.

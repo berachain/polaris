@@ -22,6 +22,7 @@ package mempool
 
 import (
 	"context"
+	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
@@ -32,24 +33,20 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// EthTxPool is a mempool for Ethereum transactions. It wraps a
-// PriorityNonceMempool and caches transactions that are added to the mempool by
-// ethereum transaction hash.
+// EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
+// transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
 	sdkmempool.Mempool
 
-	// ethTxCache caches transactions that are added to the mempool
-	// so that they can be retrieved later
+	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
+	// later
 	ethTxCache map[common.Hash]*coretypes.Transaction
 
-	// // nonceCache caches the pending nonce by txhash
-	// nonceCache map[common.Address]*coretypes.Transaction
+	// nonces is a cache of the pending nonces by sender address
+	nonces map[common.Address]uint64
+	nr     NonceRetriever
 
-	// // minedBlockCache caches the mined transaction by block hash
-	// minedBlockCache map[common.Hash][]*coretypes.Transaction
-
-	// blockNumberCache
-
+	mu sync.RWMutex
 }
 
 // New is called when the mempool is created.
@@ -57,11 +54,20 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 	return &EthTxPool{
 		Mempool:    m,
 		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
+		nonces:     make(map[common.Address]uint64),
 	}
+}
+
+// SetNonceRetriever sets the nonce retriever db for the mempool.
+func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
+	etp.nr = nr
 }
 
 // Insert is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
+
 	// Call the base mempool's Insert method
 	if err := etp.Mempool.Insert(ctx, tx); err != nil {
 		return err
@@ -73,8 +79,15 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 		return nil
 	}
 
-	t := etr.AsTransaction()
-	etp.ethTxCache[t.Hash()] = t
+	ethTx := etr.AsTransaction()
+	etp.ethTxCache[ethTx.Hash()] = ethTx
+	sender, _ := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
+	etp.nonces[sender] = ethTx.Nonce() + 1
+
+	// TODO: send tx to subscription channel
+	// pass in the subscription feed into this app-side mempool?
+	// send to subscription channel from eth-built-in txpool (avoids passing the feed to here)
+
 	return nil
 }
 
@@ -83,8 +96,11 @@ func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
 	return etp.ethTxCache[hash]
 }
 
-// GetPoolTransactions is called when the mempool is retrieved.
-func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
+// GetTransactions is called when the mempool is retrieved.
+func (etp *EthTxPool) GetTransactions() coretypes.Transactions {
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+
 	txs := make(coretypes.Transactions, 0, len(etp.ethTxCache))
 	for _, tx := range etp.ethTxCache {
 		txs = append(txs, tx)
@@ -92,8 +108,29 @@ func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
 	return txs
 }
 
+// GetNonce returns the nonce for the given address from the mempool if the address has sent a tx
+// in the mempool.
+func (etp *EthTxPool) GetNonce(addr common.Address) (uint64, bool) {
+	nonce, found := etp.nonces[addr]
+	if !found {
+		// fallback to nonce retrieval from db
+		if dbNonce := etp.nr.GetNonce(addr); dbNonce > 0 {
+			etp.nonces[addr] = dbNonce
+			return dbNonce, true
+		}
+
+		// fallback to nonce retrieval failed
+		return 0, false
+	}
+
+	return nonce, found
+}
+
 // Remove is called when a transaction is removed from the mempool.
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
+
 	// Call the base mempool's Remove method
 	if err := etp.Mempool.Remove(tx); err != nil {
 		return err
@@ -105,6 +142,42 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 		return nil
 	}
 
-	delete(etp.ethTxCache, etr.AsTransaction().Hash())
+	ethTx := etr.AsTransaction()
+	sender, err := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
+	if err != nil {
+		return err
+	}
+
+	delete(etp.ethTxCache, ethTx.Hash())
+	delete(etp.nonces, sender)
 	return nil
+}
+
+// Stats returns the number of currently pending (locally created) transactions
+func (etp *EthTxPool) Stats() (int, int) {
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+
+	// TODO: implement me.
+	return 0, 0
+}
+
+// ContentFrom retrieves the data content of the transaction pool, returning the
+// pending as well as queued transactions of this address, grouped by nonce.
+func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+
+	// TODO: implement me.
+	return nil, nil
+}
+
+// Content retrieves the data content of the transaction pool, returning all the
+// pending as well as queued transactions, grouped by account and nonce.
+func (etp *EthTxPool) Content() (map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions) {
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+
+	// TODO: implement me.
+	return nil, nil
 }

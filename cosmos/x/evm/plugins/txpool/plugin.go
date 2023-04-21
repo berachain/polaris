@@ -43,6 +43,7 @@ type Plugin interface {
 	core.TxPoolPlugin
 	plugins.BaseCosmosPolaris
 	SetClientContext(client.Context)
+	SetNonceRetriever(mempool.NonceRetriever)
 }
 
 // plugin represents the transaction pool plugin.
@@ -102,7 +103,7 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 
 // GetAllTransactions returns all transactions in the transaction pool.
 func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
-	return p.mempool.GetPoolTransactions(), nil
+	return p.mempool.GetTransactions(), nil
 }
 
 // GetTransactions returns the transaction by hash in the transaction pool.
@@ -117,4 +118,8 @@ func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
 
 func (p *plugin) SetClientContext(ctx client.Context) {
 	p.clientContext = ctx
+}
+
+func (p *plugin) SetNonceRetriever(nr mempool.NonceRetriever) {
+	p.mempool.SetNonceRetriever(nr)
 }
