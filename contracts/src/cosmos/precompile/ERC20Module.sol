@@ -73,24 +73,51 @@ interface IERC20Module {
     function convertCoinToERC20(string calldata denom, uint256 amount) external returns (bool);
 
     /**
-     * @dev convertCoinToERC20From converts `amount` SDK coins to ERC20 tokens from `owner` to 
+     * @dev convertCoinToERC20From converts `amount` SDK coins to ERC20 tokens from `owner` to
      * `recipient`
      * @param denom the denomination of the SDK coin being converted from
      * @param owner the address of the owner of the coins
      * @param recipient the address of the recipient of the tokens
      * @param amount the amount of coins to convert
      */
-    function convertCoinToERC20From(string calldata denom, address owner, address recipient, uint256 amount) external returns (bool);
-    
+    function convertCoinToERC20From(string calldata denom, address owner, address recipient, uint256 amount)
+        external
+        returns (bool);
+
     /**
-     * @dev convertCoinToERC20From converts `amount` SDK coins to ERC20 tokens from `owner` to 
+     * @dev convertCoinToERC20From converts `amount` SDK coins to ERC20 tokens from `owner` to
      * `recipient`
      * @param denom the denomination of the SDK coin being converted from
      * @param owner the address of the owner of the coins (bech32 format)
      * @param recipient the address of the recipient of the tokens (bech32 format)
      * @param amount the amount of coins to convert
      */
-    function convertCoinToERC20From(string calldata denom, string calldata owner, string calldata recipient, uint256 amount) external returns (bool);
+    function convertCoinToERC20From(
+        string calldata denom,
+        string calldata owner,
+        string calldata recipient,
+        uint256 amount
+    ) external returns (bool);
+
+    /**
+     * @dev convertCoinToERC20To converts `amount` SDK coins to ERC20 tokens from `msg.sender` to
+     * `recipient`
+     * @param denom the denomination of the SDK coin being converted from
+     * @param recipient the address of the recipient of the tokens
+     * @param amount the amount of coins to convert
+     */
+    function convertCoinToERC20To(string calldata denom, address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev convertCoinToERC20To converts `amount` SDK coins to ERC20 tokens from `msg.sender` to
+     * `recipient`
+     * @param denom the denomination of the SDK coin being converted from
+     * @param recipient the address of the recipient of the tokens (bech32 format)
+     * @param amount the amount of coins to convert
+     */
+    function convertCoinToERC20To(string calldata denom, string calldata recipient, uint256 amount)
+        external
+        returns (bool);
 
     /**
      * @dev convertERC20ToCoin converts `amount` ERC20 tokens to SDK coins for `msg.sender`
@@ -100,22 +127,44 @@ interface IERC20Module {
     function convertERC20ToCoin(IERC20 token, uint256 amount) external returns (bool);
 
     /**
-     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `owner` to 
+     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `owner` to
      * `recipient`
      * @param token the ERC20 token being converted from
      * @param owner the address of the owner of the coins
      * @param recipient the address of the recipient of the tokens
      * @param amount the amount of tokens to transfer
      */
-    function convertERC20ToCoinFrom(IERC20 token, address owner, address recipient, uint256 amount) external returns (bool);
+    function convertERC20ToCoinFrom(IERC20 token, address owner, address recipient, uint256 amount)
+        external
+        returns (bool);
 
-     /**
-     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `owner` to 
+    /**
+     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `owner` to
      * `recipient`
      * @param token the ERC20 token being converted from
      * @param owner the address of the owner of the coins (bech32 format)
      * @param recipient the address of the recipient of the tokens (bech32 format)
      * @param amount the amount of tokens to transfer
      */
-    function convertERC20ToCoinFrom(IERC20 token, string calldata owner, string calldata recipient, uint256 amount) external returns (bool);
+    function convertERC20ToCoinFrom(IERC20 token, string calldata owner, string calldata recipient, uint256 amount)
+        external
+        returns (bool);
+
+    /**
+     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `msg.sender` to
+     * `recipient`
+     * @param token the ERC20 token being converted from
+     * @param recipient the address of the recipient of the tokens
+     * @param amount the amount of tokens to transfer
+     */
+    function convertERC20ToCoinTo(IERC20 token, address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `msg.sender` to
+     * `recipient`
+     * @param token the ERC20 token being converted from
+     * @param recipient the address of the recipient of the tokens (bech32 format)
+     * @param amount the amount of tokens to transfer
+     */
+    function convertERC20ToCoinTo(IERC20 token, string calldata recipient, uint256 amount) external returns (bool);
 }

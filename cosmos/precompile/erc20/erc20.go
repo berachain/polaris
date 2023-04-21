@@ -102,6 +102,14 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.ConvertCoinToERC20FromStringInput,
 		},
 		{
+			AbiSig:  "convertCoinToERC20To(string,address,uint256)",
+			Execute: c.ConvertCoinToERC20ToAddrInput,
+		},
+		{
+			AbiSig:  "convertCoinToERC20To(string,string,uint256)",
+			Execute: c.ConvertCoinToERC20ToStringInput,
+		},
+		{
 			AbiSig:  "convertERC20ToCoin(address,uint256)",
 			Execute: c.ConvertERC20ToCoin,
 		},
@@ -112,6 +120,14 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:  "convertERC20ToCoinFrom(address,string,string,uint256)",
 			Execute: c.ConvertERC20ToCoinFromStringInput,
+		},
+		{
+			AbiSig:  "convertERC20ToCoinTo(address,address,uint256)",
+			Execute: c.ConvertERC20ToCoinToAddrInput,
+		},
+		{
+			AbiSig:  "convertERC20ToCoinTo(address,string,uint256)",
+			Execute: c.ConvertERC20ToCoinToStringInput,
 		},
 	}
 }
@@ -301,6 +317,67 @@ func (c *Contract) ConvertCoinToERC20FromStringInput(
 	return []any{err == nil}, err
 }
 
+// ConvertCoinToERC20ToAddrInput converts SDK coins to ERC20 tokens from msg.sender to recipient.
+func (c *Contract) ConvertCoinToERC20ToAddrInput(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	denom, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	recipient, ok := utils.GetAs[common.Address](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	amount, ok := utils.GetAs[*big.Int](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidBigInt
+	}
+
+	err := c.convertCoinToERC20(ctx, evm, value, denom, caller, recipient, amount)
+	return []any{err == nil}, err
+}
+
+// ConvertCoinToERC20ToStringInput converts SDK coins to ERC20 tokens from msg.sender to recipient.
+func (c *Contract) ConvertCoinToERC20ToStringInput(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	denom, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	recipientBech32, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	amount, ok := utils.GetAs[*big.Int](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidBigInt
+	}
+
+	recipient, err := sdk.AccAddressFromBech32(recipientBech32)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.convertCoinToERC20(
+		ctx, evm, value, denom,
+		caller, cosmlib.AccAddressToEthAddress(recipient),
+		amount,
+	)
+	return []any{err == nil}, err
+}
+
 // ConvertERC20ToCoin converts ERC20 tokens to SDK coins for msg.sender.
 func (c *Contract) ConvertERC20ToCoin(
 	ctx context.Context,
@@ -391,6 +468,67 @@ func (c *Contract) ConvertERC20ToCoinFromStringInput(
 	err = c.convertERC20ToCoin(
 		ctx, caller, evm, token,
 		cosmlib.AccAddressToEthAddress(owner), cosmlib.AccAddressToEthAddress(recipient),
+		amount,
+	)
+	return []any{err == nil}, err
+}
+
+// ConvertERC20ToCoinToAddrInput converts ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) ConvertERC20ToCoinToAddrInput(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	token, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	recipient, ok := utils.GetAs[common.Address](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	amount, ok := utils.GetAs[*big.Int](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidBigInt
+	}
+
+	err := c.convertERC20ToCoin(ctx, caller, evm, token, caller, recipient, amount)
+	return []any{err == nil}, err
+}
+
+// ConvertERC20ToCoinToStringInput converts ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) ConvertERC20ToCoinToStringInput(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	token, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	recipientBech32, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	amount, ok := utils.GetAs[*big.Int](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidBigInt
+	}
+
+	recipient, err := sdk.AccAddressFromBech32(recipientBech32)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.convertERC20ToCoin(
+		ctx, caller, evm, token,
+		caller, cosmlib.AccAddressToEthAddress(recipient),
 		amount,
 	)
 	return []any{err == nil}, err
