@@ -35,6 +35,5 @@ package contracts
 //go:generate abigen --pkg testing --abi ./out/MockPrecompileInterface.sol/MockPrecompileInterface.abi.json --out ./bindings/testing/mock_precompile_interface.abigen.go --type MockPrecompile
 //go:generate abigen --pkg testing --abi ./out/NonRevertableTx.sol/NonRevertableTx.abi.json --bin ./out/NonRevertableTx.sol/NonRevertableTx.bin --out ./bindings/testing/non_revertable_tx.abigen.go --type NonRevertableTx
 //go:generate abigen --pkg testing --abi ./out/ConsumeGas.sol/ConsumeGas.abi.json --bin ./out/ConsumeGas.sol/ConsumeGas.bin --out ./bindings/testing/consume_gas.abigen.go --type ConsumeGas
-//go:generate echo Hello, Go Generate!
 
 //go:generate abigen --pkg testing --abi ./out/LiquidStaking.sol/LiquidStaking.abi.json --bin ./out/LiquidStaking.sol/LiquidStaking.bin --out ./bindings/testing/liquid_staking.abigen.go --type LiquidStaking
