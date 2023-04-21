@@ -25,7 +25,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	"github.com/skip-mev/pob/mempool"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/lib/errors"
 
 	builderdecorator "github.com/skip-mev/pob/x/builder/ante"
@@ -35,7 +35,7 @@ import (
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
-func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper, txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.AuctionMempool) (sdk.AnteHandler, error) {
+func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper, txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
 		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
 	}

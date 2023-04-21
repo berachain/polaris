@@ -51,7 +51,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -108,8 +107,9 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 
 	// POB Imports
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	pobabci "github.com/skip-mev/pob/abci"
-	pobmempool "github.com/skip-mev/pob/mempool"
+	"github.com/skip-mev/pob/mempool"
 	"github.com/skip-mev/pob/x/builder"
 	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 )
@@ -225,12 +225,10 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		//
 		// nonceMempool = mempool.NewSenderNonceMempool()
 		// ethTxMempool = mempool.NewEthTxPool()
-		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
-			mempool.NewPriorityMempool(mempool.DefaultPriorityNonceMempoolConfig()),
-		)
-		mempoolOpt = baseapp.SetMempool(
-			ethTxMempool,
-		)
+		ethTxMempool sdkmempool.Mempool = evmmempool.NewEthTxPoolDefault(sdkmempool.DefaultPriorityMempool())
+		// mempoolOpt = baseapp.SetMempool(
+		// 	ethTxMempool,
+		// )
 
 		// prepareOpt   = func(app *baseapp.BaseApp) {
 		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
@@ -310,7 +308,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 
 	// Build app
 	app.App = appBuilder.Build(logger, db, traceStore, PolarisAppOptions(
-		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
+		app.interfaceRegistry, append(baseAppOptions)...)...,
 	)
 
 	// ===============================================================
@@ -318,14 +316,14 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// ===============================================================
 
 	// setup evm keeper and all of its plugins.
-	auctionPrecompile := builderprecompile.NewPrecompileContract(&app.BuilderKeeper, "abera")
+	builderPrecompile := builderprecompile.NewPrecompileContract(&app.BuilderKeeper, "abera")
 	app.EVMKeeper.Setup(
 		app.AccountKeeper,
 		app.BankKeeper,
 		[]vm.RegistrablePrecompile{
 			// TODO: register more precompiles here.
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
-			auctionPrecompile,
+			builderPrecompile,
 			bankprecompile.NewPrecompileContract(),
 			authprecompile.NewPrecompileContract(),
 			distrprecompile.NewPrecompileContract(),
@@ -334,9 +332,14 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		app.CreateQueryContext,
 	)
 
-	host := app.EVMKeeper.GetHost()
-	config := simappconfig.NewMempoolConfig(auctionPrecompile, app.txConfig.TxDecoder(), host, "abera", app.AccountKeeper)
-	mempool := pobmempool.NewAuctionMempoolWithIndex(app.txConfig.TxDecoder(), app.txConfig.TxEncoder(), 0, config, ethTxMempool)
+	mempool := evmmempool.NewEthTxPoolFrom(
+		mempool.DefaultPriorityMempool(),
+		builderPrecompile.RegistryKey(), // there is probably a better way of getting the registry key
+		app.txConfig.TxDecoder(),
+		app.txConfig.TxEncoder(),
+		app.EVMKeeper.GetHost(), // there is probably a better way of getting necessary code for serialization
+		"abera",                 // there is probably a better way of getting the EVM denom
+	)
 	app.App.SetMempool(mempool)
 
 	opt := ante.HandlerOptions{

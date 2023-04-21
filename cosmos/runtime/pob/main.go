@@ -468,6 +468,16 @@ func main() {
 		displayExpectedOrder(secondBid, bundle, "Second bid")
 		displayExpectedOrder(thirdBid, bundle, "Third bid")
 		displayBlock(height)
+
+		fmt.Println("Waiting for a block to be mined")
+		waitForABlock()
+		height = getCurrentBlockHeight()
+		displayBlock(height)
+
+		fmt.Println("Waiting for a block to be mined")
+		waitForABlock()
+		height = getCurrentBlockHeight()
+		displayBlock(height)
 	})
 
 	// 14.
