@@ -39,13 +39,13 @@ const requiredGas = 1000
 
 // Contract is the precompile contract for the auth module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract() ethprecompile.StatefulImpl {
+func NewPrecompileContract() *Contract {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			generated.AuthModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(authtypes.ModuleName),

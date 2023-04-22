@@ -23,7 +23,6 @@ package precompile
 import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 // ==============================================================================
@@ -34,22 +33,22 @@ import (
 // the Cosmos depinject framework.
 type Injector struct {
 	// precompiles stores the precompiles.
-	precompiles []ethprecompile.Registrable
+	precompiles []Registrable
 }
 
-func NewPrecompiles(precompiles ...ethprecompile.Registrable) *Injector {
+func NewPrecompiles(precompiles ...Registrable) *Injector {
 	return &Injector{
 		precompiles: precompiles,
 	}
 }
 
 // GetPrecompiles implements Precompiles.
-func (pci *Injector) GetPrecompiles() []ethprecompile.Registrable {
+func (pci *Injector) GetPrecompiles() []Registrable {
 	return pci.precompiles
 }
 
 // AddPrecompile adds a new precompile to the injector.
-func (pci *Injector) AddPrecompile(precompile ethprecompile.Registrable) {
+func (pci *Injector) AddPrecompile(precompile Registrable) {
 	pci.precompiles = append(pci.precompiles, precompile)
 }
 
@@ -58,9 +57,8 @@ func (pci *Injector) AddPrecompile(precompile ethprecompile.Registrable) {
 // ==============================================================================
 
 type BaseContract interface {
-	ethprecompile.StatefulImpl
-
-	GetPlugin() ethprecompile.Plugin
+	StatefulImpl
+	GetPlugin() Plugin
 }
 
 // baseContract is a base implementation of `StatefulImpl`.
@@ -70,7 +68,7 @@ type baseContract struct {
 	// address stores the address of the precompile.
 	address common.Address
 	// plugin stores the core precompile plugin.
-	plugin ethprecompile.Plugin
+	plugin Plugin
 }
 
 // NewBaseContract creates a new `BasePrecompile`.
@@ -97,21 +95,21 @@ func (c *baseContract) ABIEvents() map[string]abi.Event {
 }
 
 // CustomValueDecoders implements StatefulImpl.
-func (c *baseContract) CustomValueDecoders() ethprecompile.ValueDecoders {
+func (c *baseContract) CustomValueDecoders() ValueDecoders {
 	return nil
 }
 
 // PrecompileMethods implements StatefulImpl.
-func (c *baseContract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{}
+func (c *baseContract) PrecompileMethods() Methods {
+	return Methods{}
 }
 
 // SetPlugin implements BaseContract.
-func (c *baseContract) SetPlugin(plugin ethprecompile.Plugin) {
+func (c *baseContract) SetPlugin(plugin Plugin) {
 	c.plugin = plugin
 }
 
 // GetPlugin implements BaseContract.
-func (c *baseContract) GetPlugin() ethprecompile.Plugin {
+func (c *baseContract) GetPlugin() Plugin {
 	return c.plugin
 }

@@ -40,7 +40,7 @@ import (
 
 // Contract is the precompile contract for the auth module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 
 	bk cosmlib.BankKeeper
 	em ERC20Module
@@ -51,7 +51,7 @@ type Contract struct {
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
 func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.StatefulImpl {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			cpbindings.ERC20ModuleMetaData.ABI,
 			// cosmlib.AccAddressToEthAddress(
 			// 	authtypes.NewModuleAddress(erc20types.ModuleName),

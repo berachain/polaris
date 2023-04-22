@@ -42,16 +42,16 @@ import (
 
 // Contract is the precompile contract for the governance module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 
 	msgServer v1.MsgServer
 	querier   v1.QueryServer
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) ethprecompile.StatefulImpl {
+func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
 			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),

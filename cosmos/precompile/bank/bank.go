@@ -37,16 +37,16 @@ import (
 
 // Contract is the precompile contract for the bank module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 
 	msgServer banktypes.MsgServer
 	querier   banktypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) ethprecompile.StatefulImpl {
+func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Contract {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			generated.BankModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),

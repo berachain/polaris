@@ -69,7 +69,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
    ```sh
    cd $HOME
-   sudo apt-get install golang -y
+   sudo apt-get install golang jq -y
    export PATH=$PATH:/usr/local/go/bin
    export PATH=$PATH:$(go env GOPATH)/bin
    ```
@@ -78,7 +78,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
    ```sh
    cd $HOME
-   brew install go
+   brew install go jq
    export PATH=$PATH:/opt/homebrew/bin/go
    export PATH=$PATH:$(go env GOPATH)/bin
    ```
