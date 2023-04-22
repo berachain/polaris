@@ -49,7 +49,7 @@ type TestFixture struct {
 	t           network.TestingT
 	Network     *network.Network
 	EthClient   *ethclient.Client
-	EthWsClient *ethclient.Clien
+	EthWsClient *ethclient.Client
 	HTTPAddr    string
 	WsAddr      string
 	keysMap     map[string]*ethsecp256k1.PrivKey
