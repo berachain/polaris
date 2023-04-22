@@ -32,19 +32,20 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
+const requiredGas = 1000
+
 // Contract is the precompile contract for the auth module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract() ethprecompile.StatefulImpl {
+func NewPrecompileContract() *Contract {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			generated.AuthModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(
 				authtypes.NewModuleAddress(authtypes.ModuleName),
@@ -59,12 +60,12 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:      "convertHexToBech32(address)",
 			Execute:     c.ConvertHexToBech32,
-			RequiredGas: params.IdentityBaseGas,
+			RequiredGas: requiredGas,
 		},
 		{
 			AbiSig:      "convertBech32ToHexAddress(string)",
 			Execute:     c.ConvertBech32ToHexAddress,
-			RequiredGas: params.IdentityBaseGas,
+			RequiredGas: requiredGas,
 		},
 	}
 }

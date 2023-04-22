@@ -29,7 +29,6 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-
 // Compile-time assertion that we implement the interface correctly.
 var _ MageModule = (*Playground)(nil)
 

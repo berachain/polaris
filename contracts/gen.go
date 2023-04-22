@@ -25,15 +25,22 @@
 
 package contracts
 
-//go:generate abigen --pkg precompile --abi ./out/staking.sol/IStakingModule.abi.json --bin ./out/staking.sol/IStakingModule.bin --out ./bindings/cosmos/precompile/i_staking_module.abigen.go --type StakingModule
-//go:generate abigen --pkg precompile --abi ./out/bank.sol/IBankModule.abi.json --bin ./out/bank.sol/IbankModule.bin --out ./bindings/cosmos/precompile/i_bank_module.abigen.go --type BankModule
-//go:generate abigen --pkg precompile --abi ./out/auth.sol/IAuthModule.abi.json --bin ./out/auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/i_auth.abigen.go --type AuthModule
-//go:generate abigen --pkg precompile --abi ./out/distribution.sol/IDistributionModule.abi.json --bin ./out/distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/i_distribution_module.abigen.go --type DistributionModule
-//go:generate abigen --pkg precompile --abi ./out/governance.sol/IGovernanceModule.abi.json --bin ./out/governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
-//go:generate abigen --pkg precompile --abi ./out/builder.sol/IBuilderModule.abi.json --bin ./out/builder.sol/IBuilderModule.bin --out ./bindings/cosmos/precompile/i_builder_module.abigen.go --type BuilderModule
+//go:generate abigen --pkg precompile --abi ./out/Staking.sol/IStakingModule.abi.json --bin ./out/Staking.sol/IStakingModule.bin --out ./bindings/cosmos/precompile/i_staking_module.abigen.go --type StakingModule
+//go:generate abigen --pkg precompile --abi ./out/Bank.sol/IBankModule.abi.json --bin ./out/Bank.sol/IBankModule.bin --out ./bindings/cosmos/precompile/i_bank_module.abigen.go --type BankModule
+//go:generate abigen --pkg precompile --abi ./out/Builder.sol/IBuilderModule.abi.json --bin ./out/Builder.sol/IBuilderModule.bin --out ./bindings/cosmos/precompile/i_builder_module.abigen.go --type BuilderModule
+//go:generate abigen --pkg precompile --abi ./out/Auth.sol/IAuthModule.abi.json --bin ./out/Auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/i_auth_module.abigen.go --type AuthModule
+//go:generate abigen --pkg precompile --abi ./out/Distribution.sol/IDistributionModule.abi.json --bin ./out/Distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/i_distribution_module.abigen.go --type DistributionModule --exc "IBankModuleCoin"
+//go:generate abigen --pkg precompile --abi ./out/Governance.sol/IGovernanceModule.abi.json --bin ./out/Governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
+//go:generate abigen --pkg precompile --abi ./out/ERC20Module.sol/IERC20Module.abi.json --bin ./out/ERC20Module.sol/IERC20Module.bin --out ./bindings/cosmos/precompile/i_erc20_module.abigen.go --type ERC20Module
+
+//go:generate abigen --pkg polaris --abi ./out/PolarisERC20.sol/PolarisERC20.abi.json --bin ./out/PolarisERC20.sol/PolarisERC20.bin --out ./bindings/polaris/polaris_erc20.abigen.go --type PolarisERC20
+
 //go:generate abigen --pkg testing --abi ./out/SolmateERC20.sol/SolmateERC20.abi.json --bin ./out/SolmateERC20.sol/SolmateERC20.bin --out ./bindings/testing/solmate_erc20.abigen.go --type SolmateERC20
 //go:generate abigen --pkg testing --abi ./out/MockPrecompileInterface.sol/MockPrecompileInterface.abi.json --out ./bindings/testing/mock_precompile_interface.abigen.go --type MockPrecompile
-//go:generate abigen --pkg testing --abi ./out/NonRevertableTx.sol/NonRevertableTx.abi.json --bin ./out/NonRevertableTx.sol/NonRevertableTx.bin --out ./bindings/testing/non_revertable_tx.abigen.go --type NonRevertableTx
+//go:generate abigen --pkg testing --abi ./out/PrecompileConstructor.sol/PrecompileConstructor.abi.json --bin ./out/PrecompileConstructor.sol/PrecompileConstructor.bin --out ./bindings/testing/precompile_constructor.abigen.go --type PrecompileConstructor
 //go:generate abigen --pkg testing --abi ./out/ConsumeGas.sol/ConsumeGas.abi.json --bin ./out/ConsumeGas.sol/ConsumeGas.bin --out ./bindings/testing/consume_gas.abigen.go --type ConsumeGas
-
 //go:generate abigen --pkg testing --abi ./out/LiquidStaking.sol/LiquidStaking.abi.json --bin ./out/LiquidStaking.sol/LiquidStaking.bin --out ./bindings/testing/liquid_staking.abigen.go --type LiquidStaking
+//go:generate abigen --pkg testing --abi ./out/Fundraiser.sol/Fundraiser.abi.json --bin ./out/Fundraiser.sol/Fundraiser.bin --out ./bindings/testing/fundraiser.abigen.go --type Fundraiser
+//go:generate abigen --pkg testing --abi ./out/GovernanceWrapper.sol/GovernanceWrapper.abi.json --bin ./out/GovernanceWrapper.sol/GovernanceWrapper.bin --out ./bindings/testing/governance_wrapper.abigen.go --type GovernanceWrapper
+//go:generate abigen --pkg testing --abi ./out/DistributionWrapper.sol/DistributionWrapper.abi.json --bin ./out/DistributionWrapper.sol/DistributionWrapper.bin --out ./bindings/testing/distribution_testing_helper.abigen.go --type DistributionWrapper
+//go:generate abigen --pkg testing --abi ./out/Swapper.sol/Swapper.abi.json --bin ./out/Swapper.sol/Swapper.bin --out ./bindings/testing/swapper.abigen.go --type Swapper

@@ -24,22 +24,23 @@ import (
 	"context"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Contract is the precompile contract for the builder module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 
 	msgServer   buildertypes.MsgServer
 	queryServer buildertypes.QueryServer
@@ -47,9 +48,9 @@ type Contract struct {
 }
 
 // NewPrecompileContract returns a new instance of the builder module precompile contract.
-func NewPrecompileContract(bk *builderkeeper.Keeper, evmDenom string) ethprecompile.StatefulImpl {
+func NewPrecompileContract(bk *builderkeeper.Keeper, evmDenom string) *Contract {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			bindings.BuilderModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)),
 		),
@@ -63,9 +64,8 @@ func NewPrecompileContract(bk *builderkeeper.Keeper, evmDenom string) ethprecomp
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
-			AbiSig:      "auctionBid(uint256,bytes[],uint64)",
-			Execute:     c.AuctionBid,
-			RequiredGas: params.IdentityBaseGas,
+			AbiSig:  "auctionBid(uint256,bytes[],uint64)",
+			Execute: c.AuctionBid,
 		},
 	}
 }

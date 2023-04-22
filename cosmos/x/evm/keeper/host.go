@@ -27,7 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	evmrpc "pkg.berachain.dev/polaris/cosmos/rpc"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -35,12 +34,13 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/gas"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -56,7 +56,6 @@ type Host interface {
 		storetypes.StoreKey,
 		state.AccountKeeper,
 		state.BankKeeper,
-		[]vm.RegistrablePrecompile,
 		func(height int64, prove bool) (sdk.Context, error),
 	)
 	Serialize(tx *types.Transaction) ([]byte, error)
@@ -64,7 +63,7 @@ type Host interface {
 }
 
 type host struct {
-	// The various plugins that are are used to implement `core.PolarishostChain`.
+	// The various plugins that are are used to implement core.PolarisHostChain.
 	bp  block.Plugin
 	cp  configuration.Plugin
 	gp  gas.Plugin
@@ -72,6 +71,8 @@ type host struct {
 	pp  precompile.Plugin
 	sp  state.Plugin
 	txp txpool.Plugin
+
+	pcs func() *ethprecompile.Injector
 }
 
 // Newhost creates new instances of the plugin host.
@@ -81,9 +82,9 @@ func NewHost(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool sdkmempool.Mempool,
 	offChainKv *offchain.Store,
-	rpcProvider evmrpc.Provider,
+	ethTxMempool sdkmempool.Mempool,
+	precompiles func() *ethprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
@@ -93,7 +94,10 @@ func NewHost(
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
 	h.hp = historical.NewPlugin(h.bp, offChainKv, storeKey)
-	h.txp = txpool.NewPlugin(h.cp, rpcProvider, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+
+	h.pcs = precompiles
+
 	return h
 }
 
@@ -103,12 +107,11 @@ func (h *host) Setup(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
-	precompiles []vm.RegistrablePrecompile,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the precompile and state plugins
-	h.pp = precompile.NewPlugin(precompiles)
-	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, h.pp)
+	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
+	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

@@ -74,8 +74,6 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 	// types.NewQueryClient(clientCtx)); err != nil {
 	// 	panic(err)
 	// }
-	// evmrpc.RegisterJSONRPCServer(clientCtx, mux, app.EVMKeeper.GetRPCProvider()) maybe here?
-
 }
 
 // GetTxCmd returns no root tx command for the evm module.

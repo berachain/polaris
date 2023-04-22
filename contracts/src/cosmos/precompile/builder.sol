@@ -34,9 +34,8 @@ interface IBuilderModule {
     /**
      * @dev msg.sender bids for top of block execution given a bundle of transactions, bid amount and timeout.
      */
-    function auctionBid(
-        uint256 amount,
-        bytes[] calldata transactions,
-        uint64 timeout
-    ) external payable returns (bool);
+    function auctionBid(uint256 amount, bytes[] calldata transactions, uint64 timeout)
+        external
+        payable
+        returns (bool);
 }

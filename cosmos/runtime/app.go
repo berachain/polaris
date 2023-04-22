@@ -18,7 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:revive // embed.
 package runtime
 
 import (
@@ -27,6 +26,11 @@ import (
 	"path/filepath"
 
 	dbm "github.com/cosmos/cosmos-db"
+	pobabci "github.com/skip-mev/pob/abci"
+	"github.com/skip-mev/pob/mempool"
+	"github.com/skip-mev/pob/x/builder"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	"cosmossdk.io/client/v2/autocli"
@@ -43,6 +47,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -51,12 +56,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -86,28 +91,16 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/skip-mev/pob/x/builder"
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	pobabci "github.com/skip-mev/pob/abci"
-	"github.com/skip-mev/pob/mempool"
-	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
-	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	builderprecompile "pkg.berachain.dev/polaris/cosmos/precompile/builder"
-	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
-	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
-	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
-	"pkg.berachain.dev/polaris/cosmos/rpc"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	"pkg.berachain.dev/polaris/cosmos/x/erc20"
+	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
-
-	_ "embed"
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
@@ -143,6 +136,7 @@ var (
 		consensus.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		builder.AppModuleBasic{},
+		erc20.AppModuleBasic{},
 	)
 	// application configuration (used by depinject).
 	AppConfig = appconfig.Compose(&appv1alpha1.Config{
@@ -151,14 +145,14 @@ var (
 )
 
 var (
-	_ runtime.AppI            = (*PolarisApp)(nil)
-	_ servertypes.Application = (*PolarisApp)(nil)
+	_ runtime.AppI            = (*PolarisBaseApp)(nil)
+	_ servertypes.Application = (*PolarisBaseApp)(nil)
 )
 
-// PolarisApp extends an ABCI application, but with most of its parameters exported.
+// PolarisBaseApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type PolarisApp struct {
+type PolarisBaseApp struct {
 	*runtime.App
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -185,7 +179,8 @@ type PolarisApp struct {
 	BuilderKeeper         builderkeeper.Keeper
 
 	// polaris keepers
-	EVMKeeper *evmkeeper.Keeper
+	EVMKeeper   *evmkeeper.Keeper
+	ERC20Keeper *erc20keeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -203,17 +198,17 @@ func init() {
 	simappconfig.SetupCosmosConfig()
 }
 
-// NewPolarisApp returns a reference to an initialized PolarisApp.
-func NewPolarisApp( //nolint: funlen // from sdk.
+// NewPolarisBaseApp returns a reference to an initialized PolarisBaseApp.
+func NewPolarisBaseApp( //nolint: funlen // from sdk.
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *PolarisApp {
+) *PolarisBaseApp {
 	var (
-		app        = &PolarisApp{}
+		app        = &PolarisBaseApp{}
 		appBuilder *runtime.AppBuilder
 		// Below we could construct and set an application specific mempool and ABCI 1.0 Prepare and Process Proposal
 		// handlers. These defaults are already set in the SDK's BaseApp, this shows an example of how to override
@@ -253,6 +248,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 				func() []signing.SignModeHandler {
 					return []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
 				},
+				PrecompilesToInject(app),
 				// AUTH
 				//
 				// For providing a custom function required in auth to generate custom account types
@@ -298,6 +294,7 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
 		&app.BuilderKeeper,
+		&app.ERC20Keeper,
 	); err != nil {
 		panic(err)
 	}
@@ -311,26 +308,23 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
 	// ===============================================================
 
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		homePath = DefaultNodeHome
+	}
+
 	// setup evm keeper and all of its plugins.
-	builderPrecompile := builderprecompile.NewPrecompileContract(&app.BuilderKeeper, "abera")
 	app.EVMKeeper.Setup(
-		app.AccountKeeper,
-		app.BankKeeper,
-		[]vm.RegistrablePrecompile{
-			// TODO: register more precompiles here.
-			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
-			builderPrecompile,
-			bankprecompile.NewPrecompileContract(),
-			authprecompile.NewPrecompileContract(),
-			distrprecompile.NewPrecompileContract(),
-			govprecompile.NewPrecompileContract(app.GovKeeper),
-		},
 		app.CreateQueryContext,
+		// TODO: clean this up.
+		homePath+"/config/polaris.toml",
+		homePath+"/data/polaris",
 	)
 
 	mempool := evmmempool.NewEthTxPoolFrom(
 		mempool.DefaultPriorityMempool(),
-		builderPrecompile.RegistryKey(), // there is probably a better way of getting the registry key
+		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)), // todo: unhacky this
+		// builderPrecompile.RegistryKey(), // there is probably a better way of getting the registry key
 		app.txConfig.TxDecoder(),
 		app.txConfig.TxEncoder(),
 		app.EVMKeeper.GetHost(), // there is probably a better way of getting necessary code for serialization
@@ -367,8 +361,6 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 
 	/****  Module Options ****/
 
-	// Set the query context function for the evm module.
-
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
@@ -379,13 +371,13 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
-	// NOTE: this is not required apps that don't use the simulator for fuzz testing
+	// NOTE: this is not required for apps that don't use the simulator for fuzz testing
 	// transactions
-	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper,
-			authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-	}
-	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
+	// overrideModules := map[string]module.AppModuleSimulation{
+	// 	authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper,
+	// 		authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
+	// }
+	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, nil)
 
 	app.sm.RegisterStoreDecoders()
 
@@ -410,43 +402,43 @@ func NewPolarisApp( //nolint: funlen // from sdk.
 }
 
 // Name returns the name of the App.
-func (app *PolarisApp) Name() string { return app.BaseApp.Name() }
+func (app *PolarisBaseApp) Name() string { return app.BaseApp.Name() }
 
-// LegacyAmino returns PolarisApp's amino codec.
+// LegacyAmino returns PolarisBaseApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
+func (app *PolarisBaseApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
-// AppCodec returns PolarisApp's app codec.
+// AppCodec returns PolarisBaseApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *PolarisApp) AppCodec() codec.Codec {
+func (app *PolarisBaseApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns PolarisApp's InterfaceRegistry.
-func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+// InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
+func (app *PolarisBaseApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns PolarisApp's TxConfig.
-func (app *PolarisApp) TxConfig() client.TxConfig {
+// TxConfig returns PolarisBaseApp's TxConfig.
+func (app *PolarisBaseApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // AutoCliOpts returns the autocli options for the app.
-func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
+func (app *PolarisBaseApp) AutoCliOpts() autocli.AppOptions {
 	return app.autoCliOpts
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *PolarisBaseApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
@@ -454,7 +446,7 @@ func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
-func (app *PolarisApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+func (app *PolarisBaseApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
 		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
@@ -468,26 +460,25 @@ func (app *PolarisApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *PolarisBaseApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface.
-func (app *PolarisApp) SimulationManager() *module.SimulationManager {
+func (app *PolarisBaseApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *PolarisBaseApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	// Register Ethereum JSON-RPC API as needed by polaris.
-	rpc.RegisterJSONRPCServer(apiSvr.ClientCtx, apiSvr.Router, app.EVMKeeper.GetRPCProvider())
+	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions
@@ -517,4 +508,12 @@ func BlockedAddresses() map[string]bool {
 	}
 
 	return result
+}
+
+func GetHomePath(appOpts servertypes.AppOptions) string {
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		return DefaultNodeHome
+	}
+	return homePath
 }

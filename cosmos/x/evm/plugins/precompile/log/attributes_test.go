@@ -43,7 +43,7 @@ var _ = Describe("Attributes", func() {
 	Describe("Test Default Attribute Value Decoder Functions", func() {
 		It("should correctly convert sdk coin strings to big.Int", func() {
 			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
-			gethValue, err = ConvertSdkCoin(denom10.String())
+			gethValue, err = ConvertSdkCoins(denom10.String())
 			Expect(err).ToNot(HaveOccurred())
 			bigVal := libutils.MustGetAs[*big.Int](gethValue)
 			Expect(bigVal).To(Equal(big.NewInt(10)))
@@ -71,6 +71,14 @@ var _ = Describe("Attributes", func() {
 			Expect(err).ToNot(HaveOccurred())
 			accAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))
+		})
+
+		It("should correctly convert string to uint64", func() {
+			numStr := strconv.FormatUint(1, 10)
+			gethValue, err = ConvertUint64(numStr)
+			Expect(err).ToNot(HaveOccurred())
+			uint64Val := libutils.MustGetAs[uint64](gethValue)
+			Expect(uint64Val).To(Equal(uint64(1)))
 		})
 	})
 

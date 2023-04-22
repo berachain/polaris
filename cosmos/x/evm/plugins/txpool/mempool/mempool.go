@@ -23,9 +23,10 @@ package mempool
 import (
 	"context"
 
+	"github.com/skip-mev/pob/mempool"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	"github.com/skip-mev/pob/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -54,7 +55,8 @@ type EthTxPool struct {
 }
 
 // New is called when the mempool is created.
-func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, serializer Serializer, evmDenom string) *EthTxPool {
+func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDecoder sdk.TxDecoder,
+	txEncoder sdk.TxEncoder, serializer Serializer, evmDenom string) *EthTxPool {
 	// Create the tx config used to route transactions to the correct mempool
 	txConfig := NewMempoolConfig(builderAddress, txDecoder, serializer, evmDenom)
 	// Init the mempool with the tx config
@@ -66,7 +68,7 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDec
 	}
 }
 
-// Used for testing only
+// Used for testing only.
 func NewEthTxPoolDefault(m sdkmempool.Mempool) *EthTxPool {
 	return NewEthTxPoolFrom(m, common.Address{}, nil, nil, nil, "")
 }

@@ -25,7 +25,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/registry"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -43,7 +42,7 @@ type Factory struct {
 
 // NewFactory returns a `Factory` with the events and custom value decoders of the given
 // precompiles registered.
-func NewFactory(precompiles []vm.RegistrablePrecompile) *Factory {
+func NewFactory(precompiles []precompile.Registrable) *Factory {
 	f := &Factory{
 		events:              registry.NewMap[string, *precompileLog](),
 		customValueDecoders: make(precompile.ValueDecoders),
@@ -84,7 +83,7 @@ func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
 }
 
 // registerAllEvents registers all Ethereum events from the provided precompiles with the factory.
-func (f *Factory) registerAllEvents(precompiles []vm.RegistrablePrecompile) {
+func (f *Factory) registerAllEvents(precompiles []precompile.Registrable) {
 	for _, pc := range precompiles {
 		if spc, ok := utils.GetAs[precompile.StatefulImpl](pc); ok {
 			// register the ABI Event as a precompile log

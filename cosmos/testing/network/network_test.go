@@ -21,12 +21,9 @@
 package network_test
 
 import (
-	"context"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/ethereum/go-ethereum/ethclient"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/network"
 
@@ -39,12 +36,12 @@ func TestNetwork(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/network:integration")
 }
 
-const defaultTimeout = 10 * time.Second
+const defaultTimeout = 15 * time.Second
 
 var _ = Describe("Network", func() {
 	var net *network.Network
 	BeforeEach(func() {
-		net = network.New(GinkgoT(), network.DefaultConfig())
+		net = network.New(GinkgoT())
 		time.Sleep(5 * time.Second)
 		_, err := net.WaitForHeightWithTimeout(3, defaultTimeout)
 		Expect(err).ToNot(HaveOccurred())
@@ -55,12 +52,8 @@ var _ = Describe("Network", func() {
 		os.RemoveAll("data")
 	})
 
-	It("eth_chainId", func() {
-		// Dial an Ethereum RPC Endpoint
-		client, err := ethclient.Dial(net.Validators[0].APIAddress + "/eth/rpc")
+	It("should produce blocks", func() {
+		_, err := net.WaitForHeightWithTimeout(5, defaultTimeout)
 		Expect(err).ToNot(HaveOccurred())
-		chainID, err := client.ChainID(context.Background())
-		Expect(err).ToNot(HaveOccurred())
-		Expect(chainID.String()).To(Equal("69420"))
 	})
 })

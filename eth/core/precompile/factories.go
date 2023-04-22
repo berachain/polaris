@@ -37,7 +37,7 @@ const (
 // AbstractFactory is an interface that all precompile container factories must adhere to.
 type AbstractFactory interface {
 	// Build builds and returns the precompile container for the type of container/factory.
-	Build(vm.RegistrablePrecompile) (vm.PrecompileContainer, error)
+	Build(Registrable, Plugin) (vm.PrecompileContainer, error)
 }
 
 // Compile-time assertions to ensure these container factories adhere to `AbstractFactory`.
@@ -64,7 +64,7 @@ func NewStatelessFactory() *StatelessFactory {
 //
 // Build implements `AbstractFactory`.
 func (sf *StatelessFactory) Build(
-	rp vm.RegistrablePrecompile,
+	rp Registrable, _ Plugin,
 ) (vm.PrecompileContainer, error) {
 	pc, ok := utils.GetAs[StatelessImpl](rp)
 	if !ok {
@@ -91,12 +91,15 @@ func NewStatefulFactory() *StatefulFactory {
 //
 // Build implements `AbstractFactory`.
 func (sf *StatefulFactory) Build(
-	rp vm.RegistrablePrecompile,
+	rp Registrable, p Plugin,
 ) (vm.PrecompileContainer, error) {
 	sci, ok := utils.GetAs[StatefulImpl](rp)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
+
+	// attach the precompile plugin to the stateful contract
+	sci.SetPlugin(p)
 
 	var err error
 
@@ -173,12 +176,12 @@ func NewDynamicFactory() *DynamicFactory {
 //
 // Build implements `AbstractFactory`.
 func (dcf *DynamicFactory) Build(
-	rp vm.RegistrablePrecompile,
+	rp Registrable, p Plugin,
 ) (vm.PrecompileContainer, error) {
 	dci, ok := utils.GetAs[DynamicImpl](rp)
 	if !ok {
 		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerName)
 	}
 
-	return dcf.StatefulFactory.Build(dci)
+	return dcf.StatefulFactory.Build(dci, p)
 }

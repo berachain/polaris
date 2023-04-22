@@ -32,6 +32,7 @@ import (
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
@@ -48,7 +49,8 @@ type DepInjectInput struct {
 	Key       *store.KVStoreKey
 	AppOpts   servertypes.AppOptions
 
-	Mempool sdkmempool.Mempool
+	Mempool           sdkmempool.Mempool
+	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
@@ -64,11 +66,17 @@ type DepInjectOutput struct {
 
 // ProvideModule is a function that provides the module to the application.
 func ProvideModule(in DepInjectInput) DepInjectOutput {
-	// default to governance authority if not provided
+	// Default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
+
+	// Default to empty precompile injector if not provided.
+	if in.CustomPrecompiles == nil {
+		in.CustomPrecompiles = func() *ethprecompile.Injector { return &ethprecompile.Injector{} }
+	}
+
 	k := keeper.NewKeeper(
 		in.Key,
 		in.AccountKeeper,
@@ -76,6 +84,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		authority.String(),
 		in.AppOpts,
 		in.Mempool,
+		in.CustomPrecompiles,
 	)
 
 	m := NewAppModule(k, in.AccountKeeper, in.BankKeeper)

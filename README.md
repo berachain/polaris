@@ -69,7 +69,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
    ```sh
    cd $HOME
-   sudo apt-get install golang -y
+   sudo apt-get install golang jq -y
    export PATH=$PATH:/usr/local/go/bin
    export PATH=$PATH:$(go env GOPATH)/bin
    ```
@@ -78,7 +78,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
    ```sh
    cd $HOME
-   brew install go
+   brew install go jq
    export PATH=$PATH:/opt/homebrew/bin/go
    export PATH=$PATH:$(go env GOPATH)/bin
    ```
@@ -111,4 +111,4 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 This project is work in progress and subject to frequent changes as we are still working on wiring up the final system.
 It has not been audited for security purposes and should not be used in production yet.
 
-The network will have an Ethereum JSON-RPC server running at `http://localhost:1317/eth/rpc` and a Tendermint RPC server running at `http://localhost:26657`.
+The network will have an Ethereum JSON-RPC server running at `http://localhost:8545` and a Tendermint RPC server running at `http://localhost:26657`.

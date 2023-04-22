@@ -33,6 +33,7 @@ func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
 	if len(digestBz) != crypto.DigestLength {
 		digestBz = crypto.Keccak256(digestBz)
 	}
+
 	key, err := privKey.ToECDSA()
 	if err != nil {
 		return nil, err

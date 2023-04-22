@@ -1,17 +1,43 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
 package mempool
 
 import (
 	"fmt"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/skip-mev/pob/mempool"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
+
+// lengthMethodID is the length of an evm method ID in bytes.
+const lengthMethodID = 4
 
 // validateAuctionTx returns true iff the ethereum transaction is a valid auction bid transaction. Since
 // we do not have access to valid basic in the mempool, we must valid it here.
@@ -59,7 +85,7 @@ func (txConfig *Config) getBidInfoFromSdkTx(tx sdk.Tx) (*mempool.AuctionBidInfo,
 // getBidInfoFromEthTx returns the bid information from an ethereum transaction.
 func (txConfig *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*mempool.AuctionBidInfo, error) {
 	data := ethTx.Data()
-	if len(data) <= 4 {
+	if len(data) <= lengthMethodID {
 		return nil, fmt.Errorf("transaction data is too short")
 	}
 
@@ -71,9 +97,9 @@ func (txConfig *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*memp
 	}
 
 	// Get the inputs from the transaction data (bid, bundle, timeout)
-	inputsSigData := data[4:]
+	inputsSigData := data[lengthMethodID:]
 	inputsMap := make(map[string]interface{})
-	if err := method.Inputs.UnpackIntoMap(inputsMap, inputsSigData); err != nil {
+	if err = method.Inputs.UnpackIntoMap(inputsMap, inputsSigData); err != nil {
 		return nil, err
 	}
 
@@ -126,7 +152,7 @@ func getEthTransactionRequest(tx sdk.Tx) (*coretypes.Transaction, error) {
 
 	switch {
 	case len(msgEthTx) == 0:
-		return nil, nil
+		return nil, nil //nolint:nilnil // fix later.
 	case len(msgEthTx) == 1 && len(tx.GetMsgs()) == 1:
 		return msgEthTx[0], nil
 	default:

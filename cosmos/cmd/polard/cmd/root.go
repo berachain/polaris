@@ -62,26 +62,13 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
-// encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-// initClientCtx := client.Context{}.
-// 	WithCodec(encodingConfig.Codec).
-// 	WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
-// 	WithTxConfig(encodingConfig.TxConfig).
-// 	WithLegacyAmino(encodingConfig.Amino).
-// 	WithInput(os.Stdin).
-// 	WithAccountRetriever(types.AccountRetriever{}).
-// 	WithBroadcastMode(flags.BroadcastBlock).
-// 	WithHomeDir(app.DefaultNodeHome).
-// 	WithKeyringOptions(hd.EthSecp256k1Option()).
-// 	WithViper(EnvPrefix)
-
 // NewRootCmd creates a new root command for polard. It is called once in the
 // main function.
 func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := runtime.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := runtime.NewPolarisBaseApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -285,7 +272,7 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return runtime.NewPolarisApp(
+	return runtime.NewPolarisBaseApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
@@ -303,7 +290,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var polarisApp *runtime.PolarisApp
+	var polarisApp *runtime.PolarisBaseApp
 
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
@@ -322,13 +309,13 @@ func appExport(
 	appOpts = viperAppOpts
 
 	if height != -1 {
-		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		polarisApp = runtime.NewPolarisBaseApp(logger, db, traceStore, false, appOpts)
 
 		if err := polarisApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		polarisApp = runtime.NewPolarisBaseApp(logger, db, traceStore, true, appOpts)
 	}
 
 	return polarisApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

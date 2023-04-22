@@ -21,6 +21,8 @@
 package config
 
 import (
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
+
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
@@ -40,14 +42,14 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 // DefaultRuntime represents a standard default runtime configuration.
 var DefaultRuntime = &runtimev1alpha1.Module{
-	AppName: "PolarisApp",
+	AppName: "PolarisBaseApp",
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
@@ -57,6 +59,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		upgradetypes.ModuleName,
 		minttypes.ModuleName,
 		evmtypes.ModuleName,
+		erc20types.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -69,6 +72,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
+		erc20types.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		group.ModuleName,
@@ -97,6 +101,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		evmtypes.ModuleName,
+		erc20types.ModuleName,
 		crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
