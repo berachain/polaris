@@ -25,22 +25,21 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
-	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 // PrecompilesToInject returns a function that provides the initialization of the standard
 // set of precompiles.
-func PrecompilesToInject(app *PolarisBaseApp, customPcs ...precompile.Registrable) func() *sdkprecompile.Injector {
-	return func() *sdkprecompile.Injector {
+func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
+	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
-		pcs := sdkprecompile.NewPrecompiles([]precompile.Registrable{
+		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
 			authprecompile.NewPrecompileContract(),
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),

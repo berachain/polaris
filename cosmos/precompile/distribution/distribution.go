@@ -37,7 +37,7 @@ import (
 
 // Contract is the precompile contract for the distribution module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 
 	msgServer distributiontypes.MsgServer
 	querier   distributiontypes.QueryServer
@@ -46,9 +46,9 @@ type Contract struct {
 // NewPrecompileContract returns a new instance of the distribution module precompile contract.
 func NewPrecompileContract(
 	m distributiontypes.MsgServer, q distributiontypes.QueryServer,
-) ethprecompile.StatefulImpl {
+) *Contract {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
 			common.BytesToAddress([]byte{0x69}),
 		),

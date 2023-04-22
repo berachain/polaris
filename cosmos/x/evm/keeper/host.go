@@ -27,7 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -40,6 +39,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -69,7 +69,7 @@ type host struct {
 	sp  state.Plugin
 	txp txpool.Plugin
 
-	pcs func() *sdkprecompile.Injector
+	pcs func() *ethprecompile.Injector
 }
 
 // Newhost creates new instances of the plugin host.
@@ -81,7 +81,7 @@ func NewHost(
 	appOpts servertypes.AppOptions,
 	offChainKv *offchain.Store,
 	ethTxMempool sdkmempool.Mempool,
-	precompiles func() *sdkprecompile.Injector,
+	precompiles func() *ethprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
