@@ -18,7 +18,7 @@ Go v1.20+ or higher is required for Polaris
 
    ```sh
    cd $HOME
-   sudo apt-get install golang -y
+   sudo apt-get install golang jq -y
    export PATH=$PATH:/usr/local/go/bin
    export PATH=$PATH:$(go env GOPATH)/bin
    ```
@@ -27,7 +27,7 @@ Go v1.20+ or higher is required for Polaris
 
    ```sh
    cd $HOME
-   brew install go
+   brew install go jq
    export PATH=$PATH:/opt/homebrew/bin/go
    export PATH=$PATH:$(go env GOPATH)/bin
    ```
