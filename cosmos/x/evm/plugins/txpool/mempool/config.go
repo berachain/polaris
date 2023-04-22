@@ -91,8 +91,10 @@ func (txConfig *Config) IsAuctionTx(tx sdk.Tx) (bool, error) {
 		return false, err
 	}
 
-	// Transaction must be sent to the builder contract address to be considered a bid
-	if *ethTx.To() != txConfig.builderContract {
+	// Case 1: The dest == nil, and thus is a contract creation transaction.
+	// Case 2: The dest != nil, but is not the builder contract address.
+	// Both cases mean that the transaction is not an auction bid transactions.
+	if to := ethTx.To(); to == nil || *to != txConfig.builderContract {
 		return false, nil
 	}
 

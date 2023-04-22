@@ -905,7 +905,7 @@ func DefaultConfig() ScriptConfig {
 	}
 
 	return ScriptConfig{
-		EthRPCURL:                   "http://localhost:1317/eth/rpc",
+		EthRPCURL:                   "http://localhost:8545",
 		CosmosRPCURL:                "localhost:9090",
 		Searcher:                    searcher,
 		ChainID:                     69420,

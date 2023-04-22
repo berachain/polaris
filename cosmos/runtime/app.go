@@ -339,6 +339,7 @@ func NewPolarisBaseApp( //nolint: funlen // from sdk.
 		FeegrantKeeper:  app.FeeGrantKeeper,
 		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
+
 	ch, _ := evmante.NewAnteHandler(
 		opt,
 		app.BuilderKeeper,
@@ -346,6 +347,7 @@ func NewPolarisBaseApp( //nolint: funlen // from sdk.
 		app.txConfig.TxEncoder(),
 		mempool,
 	)
+
 	app.SetAnteHandler(
 		ch,
 	)

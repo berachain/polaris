@@ -98,24 +98,24 @@ func (txConfig *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*memp
 
 	// Get the inputs from the transaction data (bid, bundle, timeout)
 	inputsSigData := data[lengthMethodID:]
-	inputsMap := make(map[string]interface{})
-	if err = method.Inputs.UnpackIntoMap(inputsMap, inputsSigData); err != nil {
+	var inputsMap []interface{}
+	if inputsMap, err = method.Inputs.UnpackValues(inputsSigData); err != nil {
 		return nil, err
 	}
 
-	bid, ok := inputsMap["bid"].(*big.Int)
+	bid, ok := inputsMap[0].(*big.Int)
 	if !ok {
-		return nil, fmt.Errorf("invalid bid type: %T", inputsMap["bid"])
+		return nil, fmt.Errorf("invalid bid type: %T", inputsMap[0])
 	}
 
-	bundle, ok := inputsMap["transactions"].([][]byte)
+	bundle, ok := inputsMap[1].([][]byte)
 	if !ok {
-		return nil, fmt.Errorf("invalid bundle type: %T", inputsMap["bundle"])
+		return nil, fmt.Errorf("invalid bundle type: %T", inputsMap[1])
 	}
 
-	timeout, ok := inputsMap["timeout"].(uint64)
+	timeout, ok := inputsMap[2].(uint64)
 	if !ok {
-		return nil, fmt.Errorf("invalid timeout type: %T", inputsMap["timeout"])
+		return nil, fmt.Errorf("invalid timeout type: %T", inputsMap[2])
 	}
 
 	from, err := getFromEthTx(ethTx)
