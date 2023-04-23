@@ -150,6 +150,7 @@ func (app *PolarisBaseApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
+// KVStoreKeys returns all the registered KVStoreKeys.
 func (app *PolarisBaseApp) KVStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {

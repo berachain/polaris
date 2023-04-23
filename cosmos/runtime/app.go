@@ -33,7 +33,6 @@ import (
 	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -56,7 +55,6 @@ import (
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "embed"
 
@@ -248,7 +246,7 @@ func NewPolarisApp(
 		ch,
 	)
 
-	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err := app.RegisterStreamingServices(appOpts, app.KVStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
 		os.Exit(1)
 	}
@@ -295,9 +293,6 @@ func NewPolarisApp(
 	return app
 }
 
-// Name returns the name of the App.
-func (app *PolarisApp) Name() string { return app.BaseApp.Name() }
-
 // LegacyAmino returns PolarisBaseApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
@@ -327,28 +322,6 @@ func (app *PolarisApp) TxConfig() client.TxConfig {
 // AutoCliOpts returns the autocli options for the app.
 func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
 	return app.autoCliOpts
-}
-
-// GetKey returns the KVStoreKey for the provided store key.
-//
-// NOTE: This is solely to be used for testing purposes.
-func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
-	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
-	if !ok {
-		return nil
-	}
-	return kvStoreKey
-}
-
-func (app *PolarisApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
-	keys := make(map[string]*storetypes.KVStoreKey)
-	for _, k := range app.GetStoreKeys() {
-		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
-			keys[kv.Name()] = kv
-		}
-	}
-
-	return keys
 }
 
 // GetSubspace returns a param subspace for a given module name.
