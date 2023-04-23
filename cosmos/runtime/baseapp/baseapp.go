@@ -68,6 +68,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 
 	"pkg.berachain.dev/polaris/cosmos/x/erc20"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
@@ -214,4 +215,9 @@ func (app *PolarisBaseApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig confi
 		panic(err)
 	}
 	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+}
+
+// RegisterEthSecp256k1SignatureType registers the eth_secp256k1 signature type.
+func (app *PolarisBaseApp) RegisterEthSecp256k1SignatureType() {
+	ethcryptocodec.RegisterInterfaces(app.CodecInterfaceRegistry)
 }

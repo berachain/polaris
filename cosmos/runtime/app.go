@@ -49,6 +49,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -196,10 +197,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		panic(err)
 	}
 
-	// Build app
-	app.App = appBuilder.Build(logger, db, traceStore, PolarisAppOptions(
-		app.InterfaceRegistry(), append(baseAppOptions, mempoolOpt)...)...,
-	)
+	// Build app with the provided options.
+	app.App = appBuilder.Build(logger, db, traceStore, append(baseAppOptions, mempoolOpt)...)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
@@ -231,6 +230,10 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	app.SetAnteHandler(
 		ch,
 	)
+
+	// We must register the EthSecp256k1 signature type because it is not registered by default.
+	// TODO: remove once upstreamed to the SDK.
+	app.RegisterEthSecp256k1SignatureType()
 
 	if err := app.RegisterStreamingServices(appOpts, app.KVStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
