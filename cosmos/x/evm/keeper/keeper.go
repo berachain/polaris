@@ -70,10 +70,6 @@ func NewKeeper(
 		storeKey:  storeKey,
 	}
 
-	// // TODO: parameterize kv store.
-	// if appOpts != nil {
-	// 	k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
-	// }
 	k.host = NewHost(
 		storeKey,
 		ak,
@@ -88,13 +84,14 @@ func NewKeeper(
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
+	offchainStoreKey *storetypes.KVStoreKey,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
 	polarisDataDir string,
-	offchainStoreKey *storetypes.KVStoreKey,
+
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, k.ak, k.bk, qc, offchainStoreKey)
+	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
 
 	// Build the Polaris EVM Provider
 	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)

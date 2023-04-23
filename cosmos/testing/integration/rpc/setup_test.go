@@ -21,7 +21,6 @@
 package jsonrpc
 
 import (
-	"os"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -50,10 +49,3 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	wsclient = tf.EthWsClient
 	return nil
 }, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})

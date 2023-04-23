@@ -226,8 +226,7 @@ func (app *PolarisBaseApp) RegisterEthSecp256k1SignatureType() {
 // TODO: GET UPSTREAMED
 func (app *PolarisBaseApp) MountCustomStores(keys ...storetypes.StoreKey) {
 	for _, key := range keys {
-		// StoreTypeDB doesn't do anything upon commit, and it doesn't
-		// retain history, but it's useful for faster simulation.
+		// StoreTypeDB doesn't do anything upon commit, so its blessed for the offchain stuff.
 		app.MountStore(key, storetypes.StoreTypeDB)
 	}
 }

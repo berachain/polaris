@@ -22,7 +22,6 @@ package distribution_test
 
 import (
 	"math/big"
-	"os"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -65,13 +64,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
 	return nil
 }, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})
 
 var _ = Describe("Distribution Precompile", func() {
 	It("should be able to get if withdraw address is enabled", func() {

@@ -50,6 +50,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -199,6 +200,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	// Build app with the provided options.
 	app.App = appBuilder.Build(logger, db, traceStore, append(baseAppOptions, mempoolOpt)...)
+	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
+	// we ask @tac0turtle how 2 fix
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
 	app.PolarisBaseApp.MountCustomStores(offchainKey)
 
@@ -213,11 +216,11 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
+		offchainKey,
 		app.CreateQueryContext,
 		// TODO: clean this up.
 		homePath+"/config/polaris.toml",
 		homePath+"/data/polaris",
-		offchainKey,
 	)
 
 	opt := ante.HandlerOptions{

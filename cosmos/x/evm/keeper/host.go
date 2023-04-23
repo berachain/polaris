@@ -52,10 +52,10 @@ type Host interface {
 	GetAllPlugins() []plugins.BaseCosmosPolaris
 	Setup(
 		storetypes.StoreKey,
+		storetypes.StoreKey,
 		state.AccountKeeper,
 		state.BankKeeper,
 		func(height int64, prove bool) (sdk.Context, error),
-		storetypes.StoreKey,
 	)
 }
 
@@ -89,8 +89,8 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.pcs = precompiles
 	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	h.pcs = precompiles
 
 	return h
 }
@@ -99,10 +99,10 @@ func NewHost(
 // sets the query context function for the block and state plugins (to support historical queries).
 func (h *host) Setup(
 	storeKey storetypes.StoreKey,
+	offchainStoreKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
-	offchainStoreKey storetypes.StoreKey,
 ) {
 	// Setup the precompile and state plugins
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
