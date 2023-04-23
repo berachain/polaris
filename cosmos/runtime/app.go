@@ -41,8 +41,11 @@ import (
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
@@ -50,6 +53,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -105,66 +109,23 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
 	var (
-		app        = &PolarisApp{}
-		appBuilder *runtime.AppBuilder
-		// Below we could construct and set an application specific mempool and ABCI 1.0 Prepare and Process Proposal
-		// handlers. These defaults are already set in the SDK's BaseApp, this shows an example of how to override
-		// them.
-		//
-		// nonceMempool = mempool.NewSenderNonceMempool()
-		// ethTxMempool = mempool.NewEthTxPool()
+		app          = &PolarisApp{}
+		appBuilder   *runtime.AppBuilder
 		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
 			mempool.NewPriorityMempool(mempool.DefaultPriorityNonceMempoolConfig()),
 		)
-		mempoolOpt = baseapp.SetMempool(
-			ethTxMempool,
-		)
-
-		// prepareOpt   = func(app *baseapp.BaseApp) {
-		// 	app.SetPrepareProposal(app.DefaultPrepareProposal())
-		// }
-		// processOpt = func(app *baseapp.BaseApp) {
-		// 	app.SetProcessProposal(app.DefaultProcessProposal())
-		// }
-		//
-
-		// Further down we'd set the options in the AppBuilder like below.
-
-		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
 				app.App,
-				// supply the application options
 				appOpts,
-				// ADVANCED CONFIGURATION
-				//
-				// ETH TX MEMPOOL
 				ethTxMempool,
+				// TODO: bring back.
 				// evmtx.CustomSignModeHandlers,
-				//
-				//
 				func() []signing.SignModeHandler {
 					return []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
 				},
 				polarisbaseapp.PrecompilesToInject(&app.PolarisBaseApp),
-				// AUTH
-				//
-				// For providing a custom function required in auth to generate custom account types
-				// add it below. By default the auth module uses simulation.RandomGenesisAccounts.
-				//
-				// authtypes.RandomGenesisAccountsFn(simulation.RandomGenesisAccounts),
-				//
-				// For providing a custom a base account type add it below.
-				// By default the auth module uses authtypes.ProtoBaseAccount().
-				//
-				// func() sdk.AccountI { return authtypes.ProtoBaseAccount() },
-				//
-				// MINT
-				//
-				// For providing a custom inflation function for x/evm add here your
-				// custom function that implements the minttypes.InflationCalculationFn
-				// interface.
 			),
 		)
 	)
@@ -198,7 +159,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	}
 
 	// Build app with the provided options.
-	app.App = appBuilder.Build(logger, db, traceStore, append(baseAppOptions, mempoolOpt)...)
+	app.App = appBuilder.Build(logger, db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
 	// we ask @tac0turtle how 2 fix
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
@@ -259,11 +220,11 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	//
 	// NOTE: this is not required for apps that don't use the simulator for fuzz testing
 	// transactions
-	// overrideModules := map[string]module.AppModuleSimulation{
-	// 	authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper,
-	// 		authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-	// }
-	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, nil)
+	overrideModules := map[string]module.AppModuleSimulation{
+		authtypes.ModuleName: auth.NewAppModule(app.ApplicationCodec, app.AccountKeeper,
+			authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
+	}
+	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 
 	app.sm.RegisterStoreDecoders()
 
