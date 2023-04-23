@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:nonamedreturns // for now.
-package runtime
+package baseapp
 
 import (
 	"encoding/json"
@@ -50,10 +50,10 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool,
 	height := app.LastBlockHeight() + 1
 	if forZeroHeight {
 		height = 0
-		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
+		app.PrepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
-	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
+	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.AppCodec(), modulesToExport)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
 	}
@@ -78,7 +78,7 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool,
 //	in favour of export at a block height
 //
 //nolint:funlen,gocognit // from sdk.
-func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+func (app *PolarisBaseApp) PrepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list

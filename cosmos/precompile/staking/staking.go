@@ -39,16 +39,16 @@ import (
 
 // Contract is the precompile contract for the staking module.
 type Contract struct {
-	precompile.BaseContract
+	ethprecompile.BaseContract
 
 	msgServer stakingtypes.MsgServer
 	querier   stakingtypes.QueryServer
 }
 
 // NewContract is the constructor of the staking contract.
-func NewPrecompileContract(sk *stakingkeeper.Keeper) ethprecompile.StatefulImpl {
+func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	return &Contract{
-		BaseContract: precompile.NewBaseContract(
+		BaseContract: ethprecompile.NewBaseContract(
 			generated.StakingModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
 		),

@@ -34,7 +34,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	sdkprecompile "pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -43,7 +42,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -67,7 +66,7 @@ var _ = Describe("Processor", func() {
 		bk           state.BankKeeper
 		sk           stakingkeeper.Keeper
 		ctx          sdk.Context
-		sc           precompile.StatefulImpl
+		sc           ethprecompile.StatefulImpl
 		key, _       = crypto.GenerateEthKey()
 		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 		legacyTxData *coretypes.LegacyTx
@@ -95,8 +94,8 @@ var _ = Describe("Processor", func() {
 			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
 				sdkmempool.DefaultPriorityNonceMempoolConfig()),
 			),
-			func() *sdkprecompile.Injector {
-				return sdkprecompile.NewPrecompiles([]precompile.Registrable{sc}...)
+			func() *ethprecompile.Injector {
+				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
