@@ -109,11 +109,11 @@ var (
 // capabilities aren't needed for testing.
 type PolarisBaseApp struct {
 	*runtime.App
-	LegacyAmino_       *codec.LegacyAmino
-	AppCodec_          codec.Codec
-	TxConfig_          client.TxConfig
-	InterfaceRegistry_ codectypes.InterfaceRegistry
-	AutoCliOpts_       autocli.AppOptions
+	LegacyAminoCodec       *codec.LegacyAmino
+	ApplicationCodec       codec.Codec
+	TxnConfig              client.TxConfig
+	CodecInterfaceRegistry codectypes.InterfaceRegistry
+	AutoCliOptions         autocli.AppOptions
 
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
@@ -145,7 +145,7 @@ func (app *PolarisBaseApp) Name() string { return app.BaseApp.Name() }
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *PolarisBaseApp) LegacyAmino() *codec.LegacyAmino {
-	return app.LegacyAmino_
+	return app.LegacyAminoCodec
 }
 
 // AppCodec returns PolarisBaseApp's app codec.
@@ -153,22 +153,22 @@ func (app *PolarisBaseApp) LegacyAmino() *codec.LegacyAmino {
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *PolarisBaseApp) AppCodec() codec.Codec {
-	return app.AppCodec_
+	return app.ApplicationCodec
 }
 
 // InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
 func (app *PolarisBaseApp) InterfaceRegistry() codectypes.InterfaceRegistry {
-	return app.InterfaceRegistry_
+	return app.CodecInterfaceRegistry
 }
 
 // TxConfig returns PolarisBaseApp's TxConfig.
 func (app *PolarisBaseApp) TxConfig() client.TxConfig {
-	return app.TxConfig_
+	return app.TxnConfig
 }
 
 // AutoCliOpts returns the autocli options for the app.
 func (app *PolarisBaseApp) AutoCliOpts() autocli.AppOptions {
-	return app.AutoCliOpts_
+	return app.AutoCliOptions
 }
 
 // GetSubspace returns a param subspace for a given module name.

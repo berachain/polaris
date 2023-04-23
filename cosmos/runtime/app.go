@@ -52,7 +52,6 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -99,7 +98,7 @@ func init() {
 }
 
 // NewPolarisApp returns a reference to an initialized PolarisApp.
-func NewPolarisApp(
+func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -174,11 +173,11 @@ func NewPolarisApp(
 
 	if err := depinject.Inject(appConfig,
 		&appBuilder,
-		&app.AppCodec_,
-		&app.LegacyAmino_,
-		&app.TxConfig_,
-		&app.InterfaceRegistry_,
-		&app.AutoCliOpts_,
+		&app.ApplicationCodec,
+		&app.LegacyAminoCodec,
+		&app.TxnConfig,
+		&app.CodecInterfaceRegistry,
+		&app.AutoCliOptions,
 		&app.AccountKeeper,
 		&app.BankKeeper,
 		&app.StakingKeeper,
