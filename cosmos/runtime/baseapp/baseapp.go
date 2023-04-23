@@ -60,6 +60,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -108,11 +109,11 @@ var (
 // capabilities aren't needed for testing.
 type PolarisBaseApp struct {
 	*runtime.App
-	legacyAmino       *codec.LegacyAmino
-	appCodec          codec.Codec
-	txConfig          client.TxConfig
-	interfaceRegistry codectypes.InterfaceRegistry
-	autoCliOpts       autocli.AppOptions
+	LegacyAmino_       *codec.LegacyAmino
+	AppCodec_          codec.Codec
+	TxConfig_          client.TxConfig
+	InterfaceRegistry_ codectypes.InterfaceRegistry
+	AutoCliOpts_       autocli.AppOptions
 
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
@@ -138,6 +139,45 @@ type PolarisBaseApp struct {
 
 // Name returns the name of the App.
 func (app *PolarisBaseApp) Name() string { return app.BaseApp.Name() }
+
+// LegacyAmino returns PolarisBaseApp's amino codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *PolarisBaseApp) LegacyAmino() *codec.LegacyAmino {
+	return app.LegacyAmino_
+}
+
+// AppCodec returns PolarisBaseApp's app codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *PolarisBaseApp) AppCodec() codec.Codec {
+	return app.AppCodec_
+}
+
+// InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
+func (app *PolarisBaseApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+	return app.InterfaceRegistry_
+}
+
+// TxConfig returns PolarisBaseApp's TxConfig.
+func (app *PolarisBaseApp) TxConfig() client.TxConfig {
+	return app.TxConfig_
+}
+
+// AutoCliOpts returns the autocli options for the app.
+func (app *PolarisBaseApp) AutoCliOpts() autocli.AppOptions {
+	return app.AutoCliOpts_
+}
+
+// GetSubspace returns a param subspace for a given module name.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *PolarisBaseApp) GetSubspace(moduleName string) paramstypes.Subspace {
+	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
+	return subspace
+}
 
 // GetKey returns the KVStoreKey for the provided store key.
 //

@@ -29,16 +29,12 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
@@ -49,7 +45,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
@@ -86,11 +81,6 @@ var (
 // capabilities aren't needed for testing.
 type PolarisApp struct {
 	polarisbaseapp.PolarisBaseApp
-	legacyAmino       *codec.LegacyAmino
-	appCodec          codec.Codec
-	txConfig          client.TxConfig
-	interfaceRegistry codectypes.InterfaceRegistry
-	autoCliOpts       autocli.AppOptions
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -184,11 +174,11 @@ func NewPolarisApp(
 
 	if err := depinject.Inject(appConfig,
 		&appBuilder,
-		&app.appCodec,
-		&app.legacyAmino,
-		&app.txConfig,
-		&app.interfaceRegistry,
-		&app.autoCliOpts,
+		&app.AppCodec_,
+		&app.LegacyAmino_,
+		&app.TxConfig_,
+		&app.InterfaceRegistry_,
+		&app.AutoCliOpts_,
 		&app.AccountKeeper,
 		&app.BankKeeper,
 		&app.StakingKeeper,
@@ -212,7 +202,7 @@ func NewPolarisApp(
 
 	// Build app
 	app.App = appBuilder.Build(logger, db, traceStore, PolarisAppOptions(
-		app.interfaceRegistry, append(baseAppOptions, mempoolOpt)...)...,
+		app.InterfaceRegistry(), append(baseAppOptions, mempoolOpt)...)...,
 	)
 
 	// ===============================================================
@@ -235,7 +225,7 @@ func NewPolarisApp(
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
-		SignModeHandler: app.txConfig.SignModeHandler(),
+		SignModeHandler: app.TxConfig().SignModeHandler(),
 		FeegrantKeeper:  app.FeeGrantKeeper,
 		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
@@ -291,45 +281,6 @@ func NewPolarisApp(
 	}
 
 	return app
-}
-
-// LegacyAmino returns PolarisBaseApp's amino codec.
-//
-// NOTE: This is solely to be used for testing purposes as it may be desirable
-// for modules to register their own custom testing types.
-func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
-	return app.legacyAmino
-}
-
-// AppCodec returns PolarisBaseApp's app codec.
-//
-// NOTE: This is solely to be used for testing purposes as it may be desirable
-// for modules to register their own custom testing types.
-func (app *PolarisApp) AppCodec() codec.Codec {
-	return app.appCodec
-}
-
-// InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
-func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
-	return app.interfaceRegistry
-}
-
-// TxConfig returns PolarisBaseApp's TxConfig.
-func (app *PolarisApp) TxConfig() client.TxConfig {
-	return app.txConfig
-}
-
-// AutoCliOpts returns the autocli options for the app.
-func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
-	return app.autoCliOpts
-}
-
-// GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: This is solely to be used for testing purposes.
-func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
-	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
-	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface.
