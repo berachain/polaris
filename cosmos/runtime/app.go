@@ -79,14 +79,14 @@ var (
 )
 
 var (
-	_ runtime.AppI            = (*PolarisBaseApp)(nil)
-	_ servertypes.Application = (*PolarisBaseApp)(nil)
+	_ runtime.AppI            = (*PolarisApp)(nil)
+	_ servertypes.Application = (*PolarisApp)(nil)
 )
 
 // PolarisBaseApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type PolarisBaseApp struct {
+type PolarisApp struct {
 	polarisbaseapp.PolarisBaseApp
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -110,17 +110,17 @@ func init() {
 	simappconfig.SetupCosmosConfig()
 }
 
-// NewPolarisBaseApp returns a reference to an initialized PolarisBaseApp.
-func NewPolarisBaseApp( //nolint: funlen // from sdk.
+// NewPolarisApp returns a reference to an initialized PolarisApp.
+func NewPolarisApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *PolarisBaseApp {
+) *PolarisApp {
 	var (
-		app        = &PolarisBaseApp{}
+		app        = &PolarisApp{}
 		appBuilder *runtime.AppBuilder
 		// Below we could construct and set an application specific mempool and ABCI 1.0 Prepare and Process Proposal
 		// handlers. These defaults are already set in the SDK's BaseApp, this shows an example of how to override
@@ -296,13 +296,13 @@ func NewPolarisBaseApp( //nolint: funlen // from sdk.
 }
 
 // Name returns the name of the App.
-func (app *PolarisBaseApp) Name() string { return app.BaseApp.Name() }
+func (app *PolarisApp) Name() string { return app.BaseApp.Name() }
 
 // LegacyAmino returns PolarisBaseApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *PolarisBaseApp) LegacyAmino() *codec.LegacyAmino {
+func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
@@ -310,29 +310,29 @@ func (app *PolarisBaseApp) LegacyAmino() *codec.LegacyAmino {
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *PolarisBaseApp) AppCodec() codec.Codec {
+func (app *PolarisApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
 // InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
-func (app *PolarisBaseApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
 // TxConfig returns PolarisBaseApp's TxConfig.
-func (app *PolarisBaseApp) TxConfig() client.TxConfig {
+func (app *PolarisApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // AutoCliOpts returns the autocli options for the app.
-func (app *PolarisBaseApp) AutoCliOpts() autocli.AppOptions {
+func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
 	return app.autoCliOpts
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *PolarisBaseApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
@@ -340,7 +340,7 @@ func (app *PolarisBaseApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
-func (app *PolarisBaseApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+func (app *PolarisApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
 		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
@@ -354,19 +354,19 @@ func (app *PolarisBaseApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *PolarisBaseApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface.
-func (app *PolarisBaseApp) SimulationManager() *module.SimulationManager {
+func (app *PolarisApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *PolarisBaseApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {

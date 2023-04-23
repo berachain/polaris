@@ -18,9 +18,8 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:staticcheck // for now.
 package runtime
 
-func (app PolarisBaseApp) RegisterUpgradeHandlers() {
+func (app PolarisApp) RegisterUpgradeHandlers() {
 	// no-op in the same app
 }
