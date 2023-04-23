@@ -221,3 +221,12 @@ func (app *PolarisBaseApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig confi
 func (app *PolarisBaseApp) RegisterEthSecp256k1SignatureType() {
 	ethcryptocodec.RegisterInterfaces(app.CodecInterfaceRegistry)
 }
+
+// MountCustomStore mounts a custom store to the baseapp.
+// TODO: GET UPSTREAMED
+func (app *PolarisBaseApp) MountCustomStores(keys ...storetypes.StoreKey) {
+	for _, key := range keys {
+		// StoreTypeDB doesn't do anything upon commit, so its blessed for the offchain stuff.
+		app.MountStore(key, storetypes.StoreTypeDB)
+	}
+}

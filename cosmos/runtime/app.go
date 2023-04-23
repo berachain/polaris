@@ -32,6 +32,7 @@ import (
 	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -198,6 +199,10 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	// Build app with the provided options.
 	app.App = appBuilder.Build(logger, db, traceStore, append(baseAppOptions, mempoolOpt)...)
+	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
+	// we ask @tac0turtle how 2 fix
+	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
+	app.PolarisBaseApp.MountCustomStores(offchainKey)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
@@ -210,6 +215,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
+		offchainKey,
 		app.CreateQueryContext,
 		// TODO: clean this up.
 		homePath+"/config/polaris.toml",

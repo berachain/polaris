@@ -35,22 +35,22 @@ import (
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
+// TODO: WHO WROTE THIS CODE THE FIRST TIME BLS FIX IT IS HORRIBLE.
+
 // StoreBlock implements `core.HistoricalPlugin`.
 func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	blockNum := block.NumberU64()
 
 	// store block hash to block number.
 	numBz := sdk.Uint64ToBigEndian(blockNum)
-	prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
+	store := p.ctx.KVStore(p.offchainStoreKey)
+	prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
 
 	// store the version offchain for consistency.
-	if sdk.BigEndianToUint64(p.offchainStore.Get([]byte{types.VersionKey})) != blockNum-1 {
+	if sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey})) != blockNum-1 {
 		panic("off-chain store's latest block number is not synced")
 	}
-	p.offchainStore.Set([]byte{types.VersionKey}, numBz)
-	// flush the underlying buffer to disk.
-	p.offchainStore.Write()
-
+	store.Set([]byte{types.VersionKey}, numBz)
 	return nil
 }
 
@@ -64,7 +64,8 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 		)
 		return err
 	}
-	prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Set(blockHash.Bytes(), receiptsBz)
+	prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+		[]byte{types.BlockHashKeyToReceiptsPrefix}).Set(blockHash.Bytes(), receiptsBz)
 
 	return nil
 }
@@ -74,7 +75,7 @@ func (p *plugin) StoreTransactions(
 	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
 	// store all txns in the block.
-	txStore := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
 	for txIndex, tx := range txs {
 		txLookupEntry := &coretypes.TxLookupEntry{
 			Tx:        tx,
@@ -107,7 +108,8 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 
 	// get receipts from off chain.
 	blockHash := header.Hash()
-	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
+	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
@@ -117,7 +119,7 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	}
 
 	// get txns from off chain.
-	txStore := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
 	txs := make(coretypes.Transactions, len(receipts))
 	for _, receipt := range receipts {
 		tleBz := txStore.Get(receipt.TxHash.Bytes())
@@ -139,7 +141,8 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 // GetBlockByHash returns the block at the given hash.
 func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
 	// get block number from off chain.
-	numBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
+	numBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+		[]byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
 		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
 	}
@@ -153,7 +156,8 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	}
 
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
+	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
@@ -163,7 +167,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	}
 
 	// get txns from off chain.
-	txStore := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
 	txs := make(coretypes.Transactions, len(receipts))
 	for _, receipt := range receipts {
 		tleBz := txStore.Get(receipt.TxHash.Bytes())
@@ -185,7 +189,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 // GetTransactionByHash returns the transaction lookup entry with the given hash.
 func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
-	tleBz := prefix.NewStore(p.offchainStore, []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
+	tleBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
 		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
 	}
@@ -200,7 +204,8 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 // GetReceiptsByHash returns the receipts with the given block hash.
 func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.offchainStore, []byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
+	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
 	}
