@@ -248,7 +248,7 @@ var _ = Describe("Governance Precompile", func() {
 				ctx,
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
-				big.NewInt(1),
+				big.NewInt(0),
 				false,
 				"invalid",
 				int32(1),

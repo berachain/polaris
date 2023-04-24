@@ -77,7 +77,6 @@ func (c *Contract) voteHelper(
 	option int32,
 	metadata string,
 ) ([]any, error) {
-	fmt.Println("VOTE OPTION", option)
 	_, err := c.msgServer.Vote(ctx, &v1.MsgVote{
 		ProposalId: proposalID,
 		Voter:      voter.String(),
