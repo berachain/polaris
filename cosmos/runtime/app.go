@@ -43,7 +43,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -121,10 +120,10 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 				appOpts,
 				ethTxMempool,
 				// TODO: bring back.
-				// evmtx.CustomSignModeHandlers,
-				func() []signing.SignModeHandler {
-					return []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
-				},
+				// // evmtx.CustomSignModeHandlers,
+				// func() []signing.SignModeHandler {
+				// 	return []txs.SignModeHandler{evmante.SignModeEthTxHandler{}}
+				// },
 				polarisbaseapp.PrecompilesToInject(&app.PolarisBaseApp),
 			),
 		)

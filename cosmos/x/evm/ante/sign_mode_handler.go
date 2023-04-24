@@ -22,55 +22,37 @@ package ante
 
 import (
 	"context"
-	"errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-
+	signingv1beta1 "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
+	txsigning "cosmossdk.io/x/tx/signing"
+	evmapi "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 // SignMode_SIGN_MODE_ETHEREUM defines the sign mode for Ethereum transactions.
 //
 //nolint:revive,stylecheck // underscores used for sign modes.
-const SignMode_SIGN_MODE_ETHEREUM signingtypes.SignMode = 42069
+const SignMode_SIGN_MODE_ETHEREUM signingv1beta1.SignMode = 42069
 
-// CustomSignModeHandlers returns the custom sign mode handlers for the EVM module.
-func CustomSignModeHandlers() []signing.SignModeHandler {
-	return []signing.SignModeHandler{
-		SignModeEthTxHandler{},
-	}
-}
-
-var _ signing.SignModeHandlerWithContext = (*SignModeEthTxHandler)(nil)
+var _ txsigning.SignModeHandler = (*SignModeEthTxHandler)(nil)
 
 // SignModeEthTx defines the sign mode for Ethereum transactions.
 type SignModeEthTxHandler struct{}
 
-// Modes returns the sign modes for the EVM module.
-func (s SignModeEthTxHandler) Modes() []signingtypes.SignMode {
-	return []signingtypes.SignMode{s.DefaultMode()}
-}
-
-// DefaultMode returns the default sign mode for the EVM module.
-func (s SignModeEthTxHandler) DefaultMode() signingtypes.SignMode {
+// Mode implements txsigning.SignModeHandler
+func (s SignModeEthTxHandler) Mode() signingv1beta1.SignMode {
 	return SignMode_SIGN_MODE_ETHEREUM
 }
 
-// GetSignBytes returns the sign bytes for the given sign mode and transaction.
-func (s SignModeEthTxHandler) GetSignBytes(
-	mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx,
-) ([]byte, error) {
-	ethTx, ok := tx.GetMsgs()[0].(*types.EthTransactionRequest)
-	if !ok {
-		return nil, errors.New("expected EthTransactionRequest")
+// TODO CONVERT ALL TXS to Pulsar (this is some hood cast shit rn)
+//
+// GetSignBytes implements txsigning.SignModeHandler
+func (s SignModeEthTxHandler) GetSignBytes(ctx context.Context, data txsigning.SignerData, txData txsigning.TxData) ([]byte, error) {
+	ethTx := &evmapi.EthTransactionRequest{}
+	if err := txData.Body.Messages[0].UnmarshalTo(ethTx); err != nil {
+		return nil, err
 	}
-	return ethTx.GetSignBytes()
-}
 
-// GetSignBytes returns the sign bytes for the given sign mode and transaction.
-func (s SignModeEthTxHandler) GetSignBytesWithContext(_ context.Context,
-	mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx) ([]byte, error) {
-	return s.GetSignBytes(mode, data, tx)
+	tx := &types.EthTransactionRequest{Data: ethTx.GetData()}
+	return tx.GetSignBytes()
 }

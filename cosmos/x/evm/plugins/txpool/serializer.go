@@ -28,7 +28,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -117,7 +116,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
-				SignMode: evmante.SignMode_SIGN_MODE_ETHEREUM,
+				SignMode: 42069, // TODO: move back to a variable
 				// We retrieve the hash of the signed transaction from the ethereum transaction
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed

@@ -50,7 +50,6 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -59,7 +58,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/runtime"
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
 // NewRootCmd creates a new root command for polard. It is called once in the
@@ -87,13 +85,14 @@ func NewRootCmd() *cobra.Command {
 		WithViper("") // In simapp, we don't use any prefix for env variables.
 
 	rootCmd := &cobra.Command{
-		Use:   "polard",
+		Use:   "simd",
 		Short: "simulation app",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
 			cmd.SetErr(cmd.ErrOrStderr())
 
+			initClientCtx = initClientCtx.WithCmdContext(cmd.Context())
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
 				return err
@@ -106,18 +105,13 @@ func NewRootCmd() *cobra.Command {
 
 			// This needs to go after ReadFromClientConfig, as that function
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			//
-			// TODO Currently, the TxConfig below doesn't include Textual, so
-			// an error will arise when using the --textual flag.
-			// ref: https://github.com/cosmos/cosmos-sdk/issues/11970
-
-			txSignModeHandler, _ := txmodule.NewTextualWithGRPCConn(initClientCtx)
-
-			txConfigWithTextual := tx.NewTxConfigWithTextual(
+			opts, err := txmodule.NewSignModeOptionsWithMetadataQueryFn(txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx))
+			if err != nil {
+				return err
+			}
+			txConfigWithTextual := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
-				tx.DefaultSignModes,
-				txSignModeHandler,
-				[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
+				opts,
 			)
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 
@@ -225,10 +219,10 @@ func queryCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		authcmd.GetAccountCmd(),
 		rpc.ValidatorCommand(),
-		// rpc.BlockCommand(), // todo: add back
+		server.QueryBlockCmd(),
 		authcmd.QueryTxsByEventsCmd(),
+		server.QueryBlocksCmd(),
 		authcmd.QueryTxCmd(),
 	)
 
@@ -236,7 +230,6 @@ func queryCommand() *cobra.Command {
 
 	return cmd
 }
-
 func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
