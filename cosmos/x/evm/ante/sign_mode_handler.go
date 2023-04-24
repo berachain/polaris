@@ -25,6 +25,7 @@ import (
 
 	signingv1beta1 "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
 	txsigning "cosmossdk.io/x/tx/signing"
+
 	evmapi "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
@@ -39,15 +40,16 @@ var _ txsigning.SignModeHandler = (*SignModeEthTxHandler)(nil)
 // SignModeEthTx defines the sign mode for Ethereum transactions.
 type SignModeEthTxHandler struct{}
 
-// Mode implements txsigning.SignModeHandler
+// Mode implements txsigning.SignModeHandler.
 func (s SignModeEthTxHandler) Mode() signingv1beta1.SignMode {
 	return SignMode_SIGN_MODE_ETHEREUM
 }
 
 // TODO CONVERT ALL TXS to Pulsar (this is some hood cast shit rn)
 //
-// GetSignBytes implements txsigning.SignModeHandler
-func (s SignModeEthTxHandler) GetSignBytes(ctx context.Context, data txsigning.SignerData, txData txsigning.TxData) ([]byte, error) {
+// GetSignBytes implements txsigning.SignModeHandler.
+func (s SignModeEthTxHandler) GetSignBytes(ctx context.Context,
+	data txsigning.SignerData, txData txsigning.TxData) ([]byte, error) {
 	ethTx := &evmapi.EthTransactionRequest{}
 	if err := txData.Body.Messages[0].UnmarshalTo(ethTx); err != nil {
 		return nil, err
