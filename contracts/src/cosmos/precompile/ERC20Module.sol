@@ -151,7 +151,7 @@ interface IERC20Module {
         returns (bool);
 
     /**
-     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `msg.sender` to
+     * @dev convertERC20ToCoinTo converts `amount` ERC20 tokens to SDK coins from `msg.sender` to
      * `recipient`
      * @param token the ERC20 token being converted from
      * @param recipient the address of the recipient of the tokens
@@ -160,7 +160,7 @@ interface IERC20Module {
     function convertERC20ToCoinTo(IERC20 token, address recipient, uint256 amount) external returns (bool);
 
     /**
-     * @dev convertERC20ToCoinFrom converts `amount` ERC20 tokens to SDK coins from `msg.sender` to
+     * @dev convertERC20ToCoinTo converts `amount` ERC20 tokens to SDK coins from `msg.sender` to
      * `recipient`
      * @param token the ERC20 token being converted from
      * @param recipient the address of the recipient of the tokens (bech32 format)
