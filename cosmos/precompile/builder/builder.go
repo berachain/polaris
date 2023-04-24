@@ -84,7 +84,7 @@ func (c *Contract) AuctionBid(
 	}
 	bundleTxs, ok := utils.GetAs[[][]byte](args[1])
 	if !ok {
-		return nil, precompile.ErrInvalidAny
+		return nil, precompile.ErrInvalidBytesSlice
 	}
 
 	msgAuctionBid := &buildertypes.MsgAuctionBid{
