@@ -30,6 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
 	cryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
 func BuildPolarisEncodingConfig(mb module.BasicManager) params.EncodingConfig {
@@ -42,9 +43,7 @@ func BuildPolarisEncodingConfig(mb module.BasicManager) params.EncodingConfig {
 	txConfig := tx.NewTxConfig(
 		codec,
 		tx.DefaultSignModes,
-		// TODO: RE-ADD LATER ONCE WE ARE VERIFYING SIGNATURES AT THE SDK LEVEL
-		// (WHICH WE DON'T CURRENTLY)
-		// []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
+		evmante.SignModeEthTxHandler{},
 	)
 	mb.RegisterLegacyAminoCodec(cdc)
 	mb.RegisterInterfaces(interfaceRegistry)

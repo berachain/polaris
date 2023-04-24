@@ -58,6 +58,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/runtime"
+	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
 // NewRootCmd creates a new root command for polard. It is called once in the
@@ -112,6 +113,7 @@ func NewRootCmd() *cobra.Command {
 			txConfigWithTextual := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
 				opts,
+				evmante.SignModeEthTxHandler{},
 			)
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 
