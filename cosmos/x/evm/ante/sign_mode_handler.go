@@ -55,6 +55,5 @@ func (s SignModeEthTxHandler) GetSignBytes(ctx context.Context,
 		return nil, err
 	}
 
-	tx := &types.EthTransactionRequest{Data: ethTx.GetData()}
-	return tx.GetSignBytes()
+	return (&types.EthTransactionRequest{Data: ethTx.GetData()}).GetSignBytes()
 }
