@@ -5,7 +5,6 @@ go 1.20
 replace (
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230423204932-f0018246f107
 	cosmossdk.io/x/feegrant => github.com/cosmos/cosmos-sdk/x/feegrant v0.0.0-20230423204932-f0018246f107
-	cosmossdk.io/x/upgrade => github.com/cosmos/cosmos-sdk/x/upgrade v0.0.0-20230423204932-f0018246f107
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230423204932-f0018246f107
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.

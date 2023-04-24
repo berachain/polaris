@@ -212,6 +212,8 @@ cosmossdk.io/tools/confix v0.0.0-20230227140543-7c9245dbdf19 h1:U9ZbxagKU/eZUhXt
 cosmossdk.io/tools/confix v0.0.0-20230227140543-7c9245dbdf19/go.mod h1:U+fQJ/tLGUCiCeYEYomvuj1pXmyt8noSYwG9hIo+6f0=
 cosmossdk.io/x/tx v0.5.5 h1:9XG3KOrqObt7Rw7KhT7fiqRd6EepUfmA9ERa8CHj1WM=
 cosmossdk.io/x/tx v0.5.5/go.mod h1:Oh3Kh+IPOfMEILNxVd2e8SLqRrIjYHpdGBfDg4ghU/k=
+cosmossdk.io/x/upgrade v0.0.0-20230404173142-d0d1f5c056a6 h1:IDaoskDlneOJoGWJRrB71+/zv5bFOUxU0DAaaGDEK9Q=
+cosmossdk.io/x/upgrade v0.0.0-20230404173142-d0d1f5c056a6/go.mod h1:mwQwJvHS+M5R043IrO5XvmoyHGW8y1ZhArYZuR8Eh/I=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 filippo.io/edwards25519 v1.0.0 h1:0wAIcmJUqRdI8IJ/3eGi5/HwXZWPujYXXlkrQogz0Ek=
 filippo.io/edwards25519 v1.0.0/go.mod h1:N1IkdkCkiLB6tki+MYJoSx2JTY9NUlxZE7eHn5EwJns=
@@ -396,8 +398,6 @@ github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230423204932-f0018246f107 h1:mA
 github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230423204932-f0018246f107/go.mod h1:LAmyQCN/EGliVmsrXKq1a2qcLI05WJdrmGoysjZRp3Q=
 github.com/cosmos/cosmos-sdk/x/feegrant v0.0.0-20230423204932-f0018246f107 h1:116PaXiRu2RCqnhRJ7Z+n3xepNGywvA2rpXKvuJw8eY=
 github.com/cosmos/cosmos-sdk/x/feegrant v0.0.0-20230423204932-f0018246f107/go.mod h1:nBDO1xfHfgaHj0ZmEu8h4+flvoXcUtiW32g/GDa4NhA=
-github.com/cosmos/cosmos-sdk/x/upgrade v0.0.0-20230423204932-f0018246f107 h1:qUG98Vw7cIwc52QILmQLLkiCQa/q9WRVsr4C0EZmsKI=
-github.com/cosmos/cosmos-sdk/x/upgrade v0.0.0-20230423204932-f0018246f107/go.mod h1:7f0z7phrOJRShf+LQtlc0wtzR/nuueKa+SM57N+aS7c=
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
 github.com/cosmos/go-bip39 v1.0.0/go.mod h1:RNJv0H/pOIVgxw6KS7QeX2a0Uo0aKUlfhZ4xuwvCdJw=

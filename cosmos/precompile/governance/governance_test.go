@@ -248,7 +248,7 @@ var _ = Describe("Governance Precompile", func() {
 				ctx,
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
-				big.NewInt(0),
+				big.NewInt(1),
 				false,
 				"invalid",
 				int32(1),
@@ -372,7 +372,7 @@ var _ = Describe("Governance Precompile", func() {
 				Expect(res).To(HaveLen(1))
 			})
 			It("should succeed", func() {
-				weight, err := math.LegacyNewDecFromStr("0.4")
+				weight, err := math.LegacyNewDecFromStr("1")
 				Expect(err).ToNot(HaveOccurred())
 				options := []generated.IGovernanceModuleWeightedVoteOption{
 					{
