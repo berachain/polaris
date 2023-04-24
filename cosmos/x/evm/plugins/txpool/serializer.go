@@ -117,7 +117,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
-				SignMode: evmante.SignMode_SIGN_MODE_ETHEREUM,
+				SignMode: signingtypes.SignMode(int32(evmante.SignMode_SIGN_MODE_ETHEREUM)), // TODO: this is ghetto af.
 				// We retrieve the hash of the signed transaction from the ethereum transaction
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed
