@@ -50,8 +50,8 @@ type EthTxPool struct {
 	// (this is typically a reference to the StateDB)
 	nr NonceRetriever
 
-	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed concurrently
-	// by multiple goroutines.
+	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
+	// concurrently by multiple goroutines.
 	mu sync.RWMutex
 }
 
@@ -91,7 +91,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	etp.nonces[sender] = ethTx.Nonce() + 1
 
 	// TODO: send tx to subscription channel
-	// pass in the subscription feed into this app-side mempool?
+	// pass in the subscription feed into this app-side mempool? OR
 	// send to subscription channel from eth-built-in txpool (avoids passing the feed to here)
 
 	return nil
@@ -116,20 +116,20 @@ func (etp *EthTxPool) GetTransactions() coretypes.Transactions {
 
 // GetNonce returns the nonce for the given address from the mempool if the address has sent a tx
 // in the mempool.
-func (etp *EthTxPool) GetNonce(addr common.Address) (uint64, bool) {
+func (etp *EthTxPool) GetNonce(addr common.Address) (uint64, error) {
 	nonce, found := etp.nonces[addr]
 	if !found {
 		// fallback to nonce retrieval from db
 		if dbNonce := etp.nr.GetNonce(addr); dbNonce > 0 {
 			etp.nonces[addr] = dbNonce
-			return dbNonce, true
+			return dbNonce, nil
 		}
 
 		// fallback to nonce retrieval failed
-		return 0, false
+		return 0, ErrAddressNotFound
 	}
 
-	return nonce, found
+	return nonce, nil
 }
 
 // Remove is called when a transaction is removed from the mempool.
