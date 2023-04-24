@@ -21,5 +21,5 @@
 package runtime
 
 func (app PolarisApp) RegisterUpgradeHandlers() {
-	// no-op in the same app
+	// no-op in the sample app
 }
