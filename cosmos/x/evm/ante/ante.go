@@ -90,9 +90,7 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 		EthSkipDecorator[ante.IncrementSequenceDecorator]{
 			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		},
-		EthSkipDecorator[builderdecorator.BuilderDecorator]{
-			builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
-		},
+		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
 	}
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
