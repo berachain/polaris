@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"github.com/skip-mev/pob/mempool"
+	"github.com/skip-mev/pob/x/builder/ante"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
@@ -34,9 +35,11 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// EthTxPool is a mempool for Ethereum transactions. It wraps a
-// PriorityNonceMempool and caches transactions that are added to the mempool by
-// ethereum transaction hash.
+// Compile-time interface assertion.
+var _ ante.Mempool = (*EthTxPool)(nil)
+
+// EthTxPool is a mempool for Ethereum transactions. It wraps a POB Auction mempool and caches
+// transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
 	*mempool.AuctionMempool
 
@@ -51,10 +54,9 @@ type EthTxPool struct {
 	// minedBlockCache map[common.Hash][]*coretypes.Transaction
 
 	// blockNumberCache
-
 }
 
-// New is called when the mempool is created.
+// NewEthTxPoolFrom is called when the mempool is created.
 func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDecoder sdk.TxDecoder,
 	txEncoder sdk.TxEncoder, serializer Serializer, evmDenom string) *EthTxPool {
 	// Create the tx config used to route transactions to the correct mempool
