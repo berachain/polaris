@@ -33,7 +33,7 @@ import {IERC20} from "../../../lib/IERC20.sol";
 interface IERC20Module {
     ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
 
-     /**
+    /**
      * @dev Emitted by the erc20 module when `amount` tokens are converted from SDK coin (of
      * denomination `denom`) to an ERC20 token from `owner` to `recipient`.
      */
