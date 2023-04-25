@@ -46,7 +46,7 @@ import (
 )
 
 func main() {
-    rpcEndpoint := "http://localhost:1317/eth/rpc" // default local node RPC Endpoint
+    rpcEndpoint := "http://localhost:8545" // default local node RPC Endpoint
     client, err := ethclient.Dial(rpcEndpoint)
     if err != nil {
         log.Fatal(err)
