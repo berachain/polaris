@@ -44,7 +44,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/onsi/ginkgo/v2 v2.9.2
 	github.com/onsi/gomega v1.27.4
-	github.com/skip-mev/pob v0.0.0-20230421210935-7693f7b1a437
+	github.com/skip-mev/pob v0.0.0-20230425225251-66e723566af4
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0

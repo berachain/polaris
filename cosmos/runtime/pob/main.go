@@ -102,447 +102,851 @@ func main() {
 	}
 	reserveFee := params.ReserveFee.Amount.Int64()
 	minBidIncrement := params.MinBidIncrement.Amount.Int64()
-
-	// 1.
-	wrapTestCase("Invalid auction bid with a low bid", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()-1), bundle, 10000, 300000, 0)
-
-		// We expect this to error out
-		height, err := sendEthTx(bidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		// No transactions should have been included in the block
-		waitForABlock()
-		displayExpectedOrder(bidTx, bundle, "Bid")
-		displayBlock(height)
-	})
-
-	// 2.
-	wrapTestCase("Invalid auction bid with too many auction transactions in bundle", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 2),
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 3),
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 4),
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 5),
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 6),
-		}
-		bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()-1), bundle, 10000, 300000, 0)
-
-		// We expect this to error out
-		height, err := sendEthTx(bidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		// No transactions should have been included in the block
-		waitForABlock()
-		displayExpectedOrder(bidTx, bundle, "Bid")
-		displayBlock(height)
-	})
-
-	// 3.
-	wrapTestCase("Valid auction transaction with a single bundle tx", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-
-		bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10000, 300000, 0)
-		height, err := sendEthTx(bidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bidTx, bundle, "Bid")
-		displayBlock(height)
-	})
-
-	// 4.
-	wrapTestCase("Invalid auction transaction that sends money to the auction smart contract", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-
-		// We expect this to error out
-		bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(1), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10000, 300000, 0)
-		height, err := sendEthTx(bidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bidTx, bundle, "Bid")
-		displayBlock(height)
-	})
-
-	// 5.
-	wrapTestCase("Invalid auction transaction that has an invalid timeout set", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-
-		// We expect this to error out
-		bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10, 300000, 0)
-		height, err := sendEthTx(bidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bidTx, bundle, "Bid")
-		displayBlock(height)
-	})
-
-	// 6.
-	wrapTestCase("Invalid auction transaction that has no bundles", func() {
-		// We expect this to error out
-		bundle := []*types.Transaction{}
-		bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10000, 300000, 0)
-		height, err := sendEthTx(bidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bidTx, bundle, "Bid")
-		displayBlock(height)
-	})
-
-	// 7.
-	wrapTestCase("Multiple transactions with second bid being smaller than min bid increment", func() {
-		// Create the first bid
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
-
-		// Second bid
-		nextBundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		losingBidTx := createBidEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, big.NewInt(0), big.NewInt(reserveFee), nextBundle, 10000, 300000, 0)
-
-		// Send the first bid this should not error out
-		height, err := sendEthTx(bidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		// Send the second bid this should error out
-		_, err = sendEthTx(losingBidTx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bidTx, bundle, "First bid")
-		displayExpectedOrder(losingBidTx, nextBundle, "Second bid")
-		displayBlock(height)
-	})
-
-	// 8.
-	wrapTestCase("Multiple transactions with increasing bids", func() {
-		// Create the first bid
-		firstBundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), firstBundle, 10000, 300000, 0)
-
-		// Second bid
-		secondBundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		secondBid := createBidEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), secondBundle, 10000, 300000, 0)
-
-		// Third bid
-		thirdBundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, CONFIG.TestAccounts[2].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		thirdBid := createBidEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement*2), thirdBundle, 10000, 300000, 0)
-
-		height, err := sendEthTx(firstBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		_, err = sendEthTx(secondBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		_, err = sendEthTx(thirdBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(firstBid, firstBundle, "First bid")
-		displayExpectedOrder(secondBid, secondBundle, "Second bid")
-		displayExpectedOrder(thirdBid, thirdBundle, "Third bid")
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		waitForABlock()
-		displayBlock(height)
-	})
-
-	// 9.
-	wrapTestCase("Searcher is attempting to include a transaction that was included in the previous blocks", func() {
-		tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 10000)
-		height, err := sendEthTx(tx)
-		if err != nil {
-			panic(err)
-		}
-
-		waitForABlock()
-		displayBlock(height)
-		waitForABlock()
-
-		// Create the first bid
-		bundle := []*types.Transaction{
-			tx,
-		}
-		bid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 1000)
-
-		height, err = sendEthTx(bid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bid, bundle, "First bid")
-		displayBlock(height)
-	})
-
-	// 10.
-	wrapTestCase("Searcher is creating a bundle with a transaction that is already in the mempool", func() {
-		tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 0)
-		height, err := sendEthTx(tx)
-		if err != nil {
-			panic(err)
-		}
-
-		bundle := []*types.Transaction{
-			tx,
-		}
-		bid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
-
-		height, err = sendEthTx(bid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bid, bundle, "First bid")
-		displayBlock(height)
-	})
-
-	// 11.
-	wrapTestCase("Multiple searchers bid with overlapping transactions", func() {
-		tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 0)
-		height, err := sendEthTx(tx)
-		if err != nil {
-			panic(err)
-		}
-
-		firstBundle := []*types.Transaction{
-			tx,
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), firstBundle, 10000, 300000, 0)
-
-		secondBundle := []*types.Transaction{
-			tx,
-			createBasicEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		secondBid := createBidEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), secondBundle, 10000, 300000, 0)
-
-		thirdBundle := []*types.Transaction{
-			tx,
-			createBasicEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		thirdBid := createBidEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement*2), thirdBundle, 10000, 300000, 0)
-
-		height, err = sendEthTx(firstBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		_, err = sendEthTx(secondBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		_, err = sendEthTx(thirdBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(firstBid, firstBundle, "First bid")
-		displayExpectedOrder(secondBid, secondBundle, "Second bid")
-		displayExpectedOrder(thirdBid, thirdBundle, "Third bid")
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		displayBlock(height)
-	})
-
-	// 12.
-	wrapTestCase("Multiple searchers bid with overlapping transactions that are already in the mempool", func() {
-		tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 0)
-		height, err := sendEthTx(tx)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		tx2 := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1)
-		height, err = sendEthTx(tx2)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		firstBundle := []*types.Transaction{
-			tx,
-			tx2,
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), firstBundle, 10000, 300000, 0)
-
-		secondBundle := []*types.Transaction{
-			tx,
-			createBasicEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		secondBid := createBidEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), secondBundle, 10000, 300000, 0)
-
-		height, err = sendEthTx(firstBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		_, err = sendEthTx(secondBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(firstBid, firstBundle, "First bid")
-		displayExpectedOrder(secondBid, secondBundle, "Second bid")
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		displayBlock(height)
-	})
-
-	// 13.
-	wrapTestCase("Searcher makes multiple bids with the same nonce", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
-		secondBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
-		thirdBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement*2), bundle, 10000, 300000, 0)
-
-		height, err := sendEthTx(firstBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		_, err = sendEthTx(secondBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		_, err = sendEthTx(thirdBid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(firstBid, bundle, "First bid")
-		displayExpectedOrder(secondBid, bundle, "Second bid")
-		displayExpectedOrder(thirdBid, bundle, "Third bid")
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		displayBlock(height)
-
-		fmt.Println("Waiting for a block to be mined")
-		waitForABlock()
-		height = getCurrentBlockHeight()
-		displayBlock(height)
-	})
-
-	// 14.
-	wrapTestCase("Searcher is attempting to front-run another user", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-			createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 0),
-		}
-		bid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
-
-		height, err := sendEthTx(bid)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bid, bundle, "Bid")
-		displayBlock(height)
-	})
-
-	// 15.
-	wrapTestCase("Searcher attempts to bid more than their balance", func() {
-		bundle := []*types.Transaction{
-			createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
-		}
-		balance, err := getBalanceOf(CONFIG.Searcher.Address)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		bidAmount := big.NewInt(0).Add(balance, big.NewInt(1))
-		bid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), bidAmount, bundle, 10000, 300000, 0)
-
-		height, err := sendEthTx(bid)
-		fmt.Println(err)
-		if err != nil {
-			fmt.Println("Error sending transaction:", err)
-		}
-
-		waitForABlock()
-		displayExpectedOrder(bid, bundle, "Bid")
-		displayBlock(height)
-	})
+	frontRunningProtection := params.FrontRunningProtection
+
+	testCases := []struct {
+		name string
+		test func()
+	}{
+		{
+			name: "Invalid auction bid with a low bid",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()-1), bundle, 10000, 300000, 0)
+
+				// We expect this to error out
+				height, err := sendEthTx(bidTx)
+				if err == nil {
+					panic("Expected error sending transaction")
+				}
+
+				// No transactions should have been included in the block
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bidTx:     false,
+					bundle[0]: false,
+				})
+			},
+		},
+		{
+			name: "Invalid auction bid with too many auction transactions in bundle",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 1),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 2),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 3),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 4),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 5),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 6),
+				}
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()-1), bundle, 10000, 300000, 0)
+
+				// We expect this to error out
+				height, err := sendEthTx(bidTx)
+				if err == nil {
+					panic("Expected error sending transaction")
+				}
+
+				// No transactions should have been included in the block
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bidTx:     false,
+					bundle[0]: false,
+					bundle[1]: false,
+					bundle[2]: false,
+					bundle[3]: false,
+					bundle[4]: false,
+					bundle[5]: false,
+				})
+			},
+		},
+		{
+			name: "Valid auction transaction with a single bundle tx",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(1000000000000000000), []byte{}, 300000, 1),
+				}
+
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10000, 300000, 0)
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bidTx:     true,
+					bundle[0]: true,
+				})
+			},
+		},
+		{
+			name: "Invalid auction transaction that sends money to the auction smart contract",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+
+				// We expect this to error out
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(1), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10000, 300000, 0)
+				height, err := sendEthTx(bidTx)
+				if err == nil {
+					panic("Expected error sending transaction")
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bidTx:     false,
+					bundle[0]: false,
+				})
+			},
+		},
+		{
+			name: "Invalid auction transaction that has an invalid timeout set",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+
+				// We expect this to error out
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10, 300000, 0)
+				height, err := sendEthTx(bidTx)
+				if err == nil {
+					panic("Expected error sending transaction")
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bidTx:     false,
+					bundle[0]: false,
+				})
+			},
+		},
+		{
+			name: "Invalid auction transaction that has no bundles",
+			test: func() {
+				bundle := []*types.Transaction{}
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(params.ReserveFee.Amount.Int64()), bundle, 10000, 300000, 0)
+
+				// We expect this to error out
+				height, err := sendEthTx(bidTx)
+				if err == nil {
+					panic("Expected error sending transaction")
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bidTx: false,
+				})
+			},
+		},
+		{
+			name: "Multiple transactions with second bid being smaller than min bid increment",
+			test: func() {
+				// Create the first bid
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
+
+				// Second bid
+				nextBundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				losingBidTx := createBidEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, big.NewInt(0), big.NewInt(reserveFee), nextBundle, 10000, 300000, 0)
+
+				// Send the first bid this should not error out
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				// Send the second bid this should error out
+				_, err = sendEthTx(losingBidTx)
+				if err == nil {
+					panic("Expected error sending transaction")
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "First bid")
+				displayExpectedOrder(losingBidTx, nextBundle, "Second bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bundle[0]:     true,
+					bidTx:         true,
+					losingBidTx:   false,
+					nextBundle[0]: false,
+				})
+			},
+		},
+		{
+			name: "Multiple transactions with increasing bids",
+			test: func() {
+				// Create the first bid
+				firstBundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[0].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), firstBundle, 10000, 300000, 0)
+
+				// Second bid
+				secondBundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				secondBid := createBidEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), secondBundle, 10000, 300000, 0)
+
+				// Third bid
+				thirdBundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, CONFIG.TestAccounts[2].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				thirdBid := createBidEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement*2), thirdBundle, 10000, 300000, 0)
+
+				height, err := sendEthTx(firstBid)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(secondBid)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(thirdBid)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(firstBid, firstBundle, "First bid")
+				displayExpectedOrder(secondBid, secondBundle, "Second bid")
+				displayExpectedOrder(thirdBid, thirdBundle, "Third bid")
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				waitForABlock()
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					firstBid:        true,
+					firstBundle[0]:  true,
+					secondBid:       true,
+					secondBundle[0]: true,
+					thirdBid:        true,
+					thirdBundle[0]:  true,
+				})
+			},
+		},
+		{
+			name: "Searcher is attempting to include a transaction that was included in the previous blocks",
+			test: func() {
+				tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 0)
+				height, err := sendEthTx(tx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayBlock(height)
+				waitForABlock()
+
+				bundle := []*types.Transaction{
+					tx,
+				}
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
+
+				height, err = sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "First bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					tx:    true,
+					bidTx: false,
+				})
+			},
+		},
+		{
+			name: "Searcher is creating a bundle with a transaction that is already in the mempool",
+			test: func() {
+				tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 0)
+				height, err := sendEthTx(tx)
+				if err != nil {
+					panic(err)
+				}
+
+				bundle := []*types.Transaction{
+					tx,
+				}
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
+
+				height, err = sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "First bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					tx:    true,
+					bidTx: true,
+				})
+			},
+		},
+		{
+			name: "Multiple searchers bid with overlapping transactions",
+			test: func() {
+				tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 0)
+				height, err := sendEthTx(tx)
+				if err != nil {
+					panic(err)
+				}
+
+				firstBundle := []*types.Transaction{
+					tx,
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), firstBundle, 10000, 300000, 0)
+
+				secondBundle := []*types.Transaction{
+					tx,
+					createBasicEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				secondBid := createBidEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), secondBundle, 10000, 300000, 0)
+
+				thirdBundle := []*types.Transaction{
+					tx,
+					createBasicEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				thirdBid := createBidEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement*2), thirdBundle, 10000, 300000, 0)
+
+				height, err = sendEthTx(firstBid)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(secondBid)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(thirdBid)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(firstBid, firstBundle, "First bid")
+				displayExpectedOrder(secondBid, secondBundle, "Second bid")
+				displayExpectedOrder(thirdBid, thirdBundle, "Third bid")
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					tx:              true,
+					firstBundle[1]:  false,
+					firstBid:        false,
+					secondBundle[1]: false,
+					secondBid:       false,
+					thirdBundle[1]:  true,
+					thirdBid:        true,
+				})
+			},
+		},
+		{
+			name: "Multiple searchers bid with overlapping transactions that are already in the mempool",
+			test: func() {
+				tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 0)
+				height, err := sendEthTx(tx)
+				if err != nil {
+					panic(err)
+				}
+
+				tx2 := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1)
+				height, err = sendEthTx(tx2)
+				if err != nil {
+					panic(err)
+				}
+
+				firstBundle := []*types.Transaction{
+					tx,
+					tx2,
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), firstBundle, 10000, 300000, 0)
+
+				secondBundle := []*types.Transaction{
+					tx,
+					createBasicEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+				secondBid := createBidEthTx(CONFIG.TestAccounts[2].PrivateKey, CONFIG.TestAccounts[2].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), secondBundle, 10000, 300000, 0)
+
+				height, err = sendEthTx(firstBid)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(secondBid)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(firstBid, firstBundle, "First bid")
+				displayExpectedOrder(secondBid, secondBundle, "Second bid")
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					secondBundle[0]: true,
+					secondBundle[1]: true,
+					tx2:             true,
+					secondBid:       true,
+					firstBid:        false,
+				})
+			},
+		},
+		{
+			name: "Searcher makes multiple bids with the same nonce",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+				}
+
+				firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
+				secondBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
+				thirdBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement*2), bundle, 10000, 300000, 0)
+
+				height, err := sendEthTx(firstBid)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(secondBid)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(thirdBid)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(firstBid, bundle, "First bid")
+				displayExpectedOrder(secondBid, bundle, "Second bid")
+				displayExpectedOrder(thirdBid, bundle, "Third bid")
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				displayBlock(height)
+
+				fmt.Println("Waiting for a block to be mined")
+				waitForABlock()
+				height = getCurrentBlockHeight()
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bundle[0]: true,
+					firstBid:  false,
+					secondBid: false,
+					thirdBid:  true,
+				})
+			},
+		},
+		{
+			name: "Searcher is attempting to front-run another user",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 1),
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(10000), []byte{}, 300000, 0),
+				}
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee), bundle, 10000, 300000, 0)
+
+				height, err := sendEthTx(bidTx)
+				if frontRunningProtection && err == nil {
+					panic("Expected error when front-running protection is enabled")
+				}
+				if err != nil {
+					fmt.Println("Error sending transaction:", err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bundle[0]: !frontRunningProtection,
+					bundle[1]: !frontRunningProtection,
+					bidTx:     !frontRunningProtection,
+				})
+			},
+		},
+		{
+			name: "Searcher attempts to bid more than their balance",
+			test: func() {
+				// Broadcast the bundled tx so that we can verify that this tx lands while the searcher one does not
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000), []byte{}, 300000, 0),
+				}
+
+				waitForABlock()
+				_, err := sendEthTx(bundle[0])
+				if err != nil {
+					panic(err)
+				}
+
+				balance, err := getBalanceOf(CONFIG.Searcher.Address)
+				if err != nil {
+					panic(err)
+				}
+
+				bidAmount := big.NewInt(0).Add(balance, big.NewInt(1))
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), bidAmount, bundle, 10000, 300000, 0)
+
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					fmt.Println("Error sending transaction:", err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bundle[0]: true,
+					bidTx:     false,
+				})
+			},
+		},
+		{
+			name: "Sending transactions out of order but block is built correctly",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000), []byte{}, 300000, 1),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000), []byte{}, 300000, 2),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000), []byte{}, 300000, 3),
+				}
+
+				waitForABlock()
+				height, err := sendEthTx(bundle[2])
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(bundle[1])
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(bundle[0])
+				if err != nil {
+					panic(err)
+				}
+
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
+				height, err = sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bundle[0]: true,
+					bundle[1]: true,
+					bundle[2]: true,
+					bidTx:     true,
+				})
+			},
+		},
+		{
+			name: "Sending is building bundle with multiple transactions from same account",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.Searcher.Address, big.NewInt(1000), []byte{}, 500000, 0),
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.Searcher.Address, big.NewInt(1000), []byte{}, 500000, 1),
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.Searcher.Address, big.NewInt(1000), []byte{}, 500000, 2),
+					createBasicEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, CONFIG.TestAccounts[1].Address, big.NewInt(1000), []byte{}, 500000, 1),
+				}
+
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 500000, 0)
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bundle[0]: true,
+					bundle[1]: true,
+					bundle[2]: true,
+					bundle[3]: true,
+					bidTx:     true,
+				})
+			},
+		},
+		{
+			name: "Full block with several transactions + a single auction bid",
+			test: func() {
+				numTxs := 20
+				bundleSize := 4
+				txs := make([]*types.Transaction, numTxs)
+				expectedExecution := make(map[*types.Transaction]bool)
+
+				waitForABlock()
+				for i := 0; i < numTxs; i++ {
+					tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[2].Address, big.NewInt(10000), []byte{}, 300000, uint64(i))
+					expectedExecution[tx] = true
+
+					_, err := sendEthTx(tx)
+					if err != nil {
+						panic(err)
+					}
+
+					txs[i] = tx
+				}
+
+				bundle := txs[0:bundleSize]
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				expectedExecution[bidTx] = true
+				checkTxsLandedAsExpected(expectedExecution)
+			},
+		},
+		{
+			name: "Full block with several transactions + a single auction bid with multiple accounts",
+			test: func() {
+				numTxs := 5
+				txs := make([]*types.Transaction, 0)
+				bundle := make([]*types.Transaction, 0)
+				expectedExecution := make(map[*types.Transaction]bool)
+
+				waitForABlock()
+				for _, acc := range CONFIG.TestAccounts {
+					for i := 0; i < numTxs; i++ {
+						tx := createBasicEthTx(acc.PrivateKey, acc.Address, CONFIG.Searcher.Address, big.NewInt(10000), []byte{}, 300000, uint64(i))
+						expectedExecution[tx] = true
+
+						// Append the first transaction from every test account to see if the searcher can grab them out of order
+						if i == 0 {
+							bundle = append(bundle, tx)
+						}
+
+						_, err := sendEthTx(tx)
+						if err != nil {
+							panic(err)
+						}
+
+						txs = append(txs, tx)
+					}
+				}
+
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				expectedExecution[bidTx] = !frontRunningProtection
+				checkTxsLandedAsExpected(expectedExecution)
+			},
+		},
+		{
+			name: "Full block with several transactions + searcher grabbing txs out of order",
+			test: func() {
+				numTxs := 20
+				txs := make([]*types.Transaction, numTxs)
+				expectedExecution := make(map[*types.Transaction]bool)
+
+				waitForABlock()
+				for i := 0; i < numTxs; i++ {
+					tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[2].Address, big.NewInt(10000), []byte{}, 300000, uint64(i))
+					expectedExecution[tx] = true
+
+					_, err := sendEthTx(tx)
+					if err != nil {
+						panic(err)
+					}
+
+					txs[i] = tx
+				}
+
+				bundle := append(txs[0:2], txs[4:6]...)
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				expectedExecution[bidTx] = false
+				checkTxsLandedAsExpected(expectedExecution)
+			},
+		},
+		{
+			name: "Full block with several transactions + multiple auction bids",
+			test: func() {
+				numTxs := 10
+				bundleSize := 4
+				txs := make([]*types.Transaction, numTxs)
+				expectedExecution := make(map[*types.Transaction]bool)
+
+				waitForABlock()
+				for i := 0; i < numTxs; i++ {
+					tx := createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[2].Address, big.NewInt(10000), []byte{}, 300000, uint64(i))
+					expectedExecution[tx] = true
+
+					_, err := sendEthTx(tx)
+					if err != nil {
+						panic(err)
+					}
+
+					txs[i] = tx
+				}
+
+				bundle := txs[0:bundleSize]
+				firstBid := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
+				height, err := sendEthTx(firstBid)
+				if err != nil {
+					panic(err)
+				}
+
+				secondBid := createBidEthTx(CONFIG.TestAccounts[1].PrivateKey, CONFIG.TestAccounts[1].Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement*2), bundle, 10000, 300000, 0)
+				height, err = sendEthTx(secondBid)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(firstBid, bundle, "First bid")
+				displayExpectedOrder(secondBid, bundle, "Second bid")
+				displayBlock(height)
+
+				expectedExecution[firstBid] = false
+				expectedExecution[secondBid] = true
+				checkTxsLandedAsExpected(expectedExecution)
+			},
+		},
+		{
+			name: "Transactions broadcasted out of order but included in a block in correct order",
+			test: func() {
+				bundle := []*types.Transaction{
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[2].Address, big.NewInt(10000), []byte{}, 300000, 0),
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[2].Address, big.NewInt(10000), []byte{}, 300000, 1),
+					createBasicEthTx(CONFIG.TestAccounts[0].PrivateKey, CONFIG.TestAccounts[0].Address, CONFIG.TestAccounts[2].Address, big.NewInt(10000), []byte{}, 300000, 2),
+				}
+
+				waitForABlock()
+				_, err := sendEthTx(bundle[2])
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(bundle[0])
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = sendEthTx(bundle[1])
+				if err != nil {
+					panic(err)
+				}
+
+				bidTx := createBidEthTx(CONFIG.Searcher.PrivateKey, CONFIG.Searcher.Address, big.NewInt(0), big.NewInt(reserveFee+minBidIncrement), bundle, 10000, 300000, 0)
+				height, err := sendEthTx(bidTx)
+				if err != nil {
+					panic(err)
+				}
+
+				waitForABlock()
+				displayExpectedOrder(bidTx, bundle, "Bid")
+				displayBlock(height)
+
+				checkTxsLandedAsExpected(map[*types.Transaction]bool{
+					bundle[0]: true,
+					bundle[1]: true,
+					bundle[2]: true,
+					bidTx:     true,
+				})
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		wrapTestCase(testCase.name, testCase.test)
+	}
 }
 
 // wrapTestCase wraps the test case in a function that will be executed
@@ -866,6 +1270,48 @@ func getEthTransactionRequest(tx sdk.Tx) (*coretypes.Transaction, error) {
 	}
 }
 
+// checkTxsLandedAsExpected checks that the transactions were executed as expected
+// on the EVM. Each tx in transactions should be mapped to a boolean indicating
+// whether it should have been successful or not.
+func checkTxsLandedAsExpected(transactions map[*types.Transaction]bool) {
+	for tx, expected := range transactions {
+		if isSuccessful := checkEthTxIsSuccessful(tx.Hash()); isSuccessful != expected {
+			panic(fmt.Errorf("transaction %s landed as %v, expected %v", tx.Hash().String(), isSuccessful, expected))
+		}
+	}
+
+	fmt.Println("\nAll transactions executed on EVM as expected")
+}
+
+// getEthTxReceipt returns the receipt for the given transaction hash
+func getEthTxReceipt(tx common.Hash) (*types.Receipt, error) {
+	client, err := getEthClient(CONFIG.EthRPCURL)
+	if err != nil {
+		return nil, err
+	}
+
+	receipt, err := client.TransactionReceipt(context.Background(), tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return receipt, nil
+}
+
+// checkEthTxIsSuccessful returns true if the given transaction hash is successful
+func checkEthTxIsSuccessful(tx common.Hash) bool {
+	receipt, err := getEthTxReceipt(tx)
+	if err != nil {
+		return false
+	}
+
+	if receipt == nil {
+		return false
+	}
+
+	return receipt.Status == 1
+}
+
 // createEncodingConfig creates a new EncodingConfig for testing purposes.
 func createEncodingConfig() EncodingConfig {
 	cdc := codec.NewLegacyAmino()
@@ -888,30 +1334,40 @@ func createEncodingConfig() EncodingConfig {
 
 // Creates a default configuration for testing the script
 func DefaultConfig() ScriptConfig {
-	privateKey, err := crypto.HexToECDSA("90c77c6e96b76b75e9f641184f4b9f93887b347e2826639e2a312a946b7dc939")
-	if err != nil {
-		panic(err)
+	privateKeys := []string{
+		"90c77c6e96b76b75e9f641184f4b9f93887b347e2826639e2a312a946b7dc939",
+		// "54f50f8d4e4d28697c7c5af19afd382c30ff76c3cee60034737d3bf0bda082ab",
+		// "b63637067ef28e12caeee46b65cf9bc5093fe839df4793fea1b6a889e7133e16",
+		// "3ca627833986c57dfa3325a2f39e3545a5010fd64663d87a8ca190e608d85037",
 	}
 
-	publicKey := privateKey.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		log.Fatal("error casting public key to ECDSA")
-	}
+	accounts := make([]Account, 0, len(privateKeys))
+	for _, key := range privateKeys {
+		privateKey, err := crypto.HexToECDSA(key)
+		if err != nil {
+			panic(err)
+		}
 
-	searcher := Account{
-		Address:    crypto.PubkeyToAddress(*publicKeyECDSA),
-		PrivateKey: privateKey,
+		publicKey := privateKey.Public()
+		publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			log.Fatal("error casting public key to ECDSA")
+		}
+
+		accounts = append(accounts, Account{
+			Address:    crypto.PubkeyToAddress(*publicKeyECDSA),
+			PrivateKey: privateKey,
+		})
 	}
 
 	return ScriptConfig{
 		EthRPCURL:                   "http://localhost:8545",
 		CosmosRPCURL:                "localhost:9090",
-		Searcher:                    searcher,
+		Searcher:                    accounts[0],
 		ChainID:                     69420,
 		AuctionSmartContractAddress: "0xDf6B07176A9B17cC4C9AFC257bD404732E7d09B7",
 		NumAccounts:                 3,
-		InitBalance:                 big.NewInt(10000000000),
+		InitBalance:                 big.NewInt(6900000000000000000),
 		TestAccounts:                []Account{},
 		EncodingConfig:              createEncodingConfig(),
 	}
