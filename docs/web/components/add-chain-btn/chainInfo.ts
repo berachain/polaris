@@ -16,7 +16,7 @@ const GAZER = {
 const LOCAL_CHAIN_INFO: ChainInfo = {
   coinType: coinType60,
   rpc: 'http://localhost:26657',
-  rest: 'http://localhost:8545',
+  rest: 'http://localhost:1317',
   chainId: 'polaris-2061',
   chainName: 'polaris',
   stakeCurrency: GAZER,
