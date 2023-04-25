@@ -128,7 +128,7 @@ func (etp *EthTxPool) GetNonce(addr common.Address) (uint64, error) {
 		if nonce > 0 {
 			etp.nonces[addr] = nonce
 		}
-		// check if the nonce retriever has a db error
+		// return err if nonce retriever has a db error
 		err = etp.nr.Error()
 	}
 	return nonce, err

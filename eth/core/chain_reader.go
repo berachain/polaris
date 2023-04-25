@@ -161,7 +161,7 @@ func (bc *blockchain) GetTransaction(
 		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 }
 
-// GetBlock retrieves a block from the database by hash and number, caching it if found.
+// GetPolarisBlockByNumber retrieves a block from the database by hash and number, caching it if found.
 func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error) {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
@@ -187,7 +187,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 	return nil, ErrBlockNotFound
 }
 
-// GetBlockByHash retrieves a block from the database by hash, caching it if found.
+// GetPolarisBlockByHash retrieves a block from the database by hash, caching it if found.
 func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, error) {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
