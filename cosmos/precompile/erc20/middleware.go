@@ -54,6 +54,11 @@ func (c *Contract) convertCoinToERC20(
 		return err
 	}
 
+	// burn amount SDK/Polaris coins from owner
+	if err = cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
+		return err
+	}
+
 	var token common.Address
 	if resp.Token == "" {
 		// first occurrence of an IBC originated SDK coin, must be created as a Polaris ERC20 token
@@ -98,11 +103,6 @@ func (c *Contract) convertCoinToERC20(
 		if err = c.callPolarisERC20Mint(sdkCtx, evm, c.RegistryKey(), token, recipient, amount); err != nil {
 			return err
 		}
-	}
-
-	// burn amount SDK/Polaris coins from owner
-	if err = cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
-		return err
 	}
 
 	sdkCtx.EventManager().EmitEvent(
