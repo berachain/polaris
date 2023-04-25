@@ -114,27 +114,15 @@ var _ = Describe("ERC20", func() {
 				_, err := erc20Precompile.ConvertCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					"bOSMO",
-					tf.Address("alice"),
-					big.NewInt(123456789),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
-
-				// user does not have balance of bOSMO
-				_, err = erc20Precompile.ConvertCoinToERC200(
-					tf.GenerateTransactOpts("alice"),
-					"bOSMO",
-					cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
 					big.NewInt(123456789),
 				)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 
 				// token doesn't exist, user does not have balance of token
-				_, err = erc20Precompile.ConvertERC20ToCoin0(
+				_, err = erc20Precompile.ConvertERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					common.HexToAddress("0x432423432489230"),
-					tf.Address("alice"),
 					big.NewInt(123456789),
 				)
 				Expect(err).To(HaveOccurred())
@@ -146,7 +134,6 @@ var _ = Describe("ERC20", func() {
 				tx, err := erc20Precompile.ConvertCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					"bATOM",
-					tf.Address("alice"),
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -162,10 +149,9 @@ var _ = Describe("ERC20", func() {
 				Expect(balance).To(Equal(big.NewInt(12345)))
 
 				// denom already exists, token already exists
-				tx, err = erc20Precompile.ConvertCoinToERC200(
+				tx, err = erc20Precompile.ConvertCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					"bATOM",
-					cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -177,10 +163,9 @@ var _ = Describe("ERC20", func() {
 				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
 
 				// convert back to SDK coin
-				tx, err = erc20Precompile.ConvertERC20ToCoin0(
+				tx, err = erc20Precompile.ConvertERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					tokenAddr,
-					tf.Address("alice"),
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -192,10 +177,9 @@ var _ = Describe("ERC20", func() {
 				Expect(balance).To(Equal(big.NewInt(12345)))
 
 				// convert illegal amount back to SDK coin
-				_, err = erc20Precompile.ConvertERC20ToCoin0(
+				_, err = erc20Precompile.ConvertERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					tokenAddr,
-					tf.Address("alice"),
 					big.NewInt(12346),
 				)
 				Expect(err).To(HaveOccurred())
@@ -218,10 +202,9 @@ var _ = Describe("ERC20", func() {
 				Expect(bal).To(Equal(big.NewInt(123456789)))
 
 				// token already exists, create new Polaris denom
-				_, err = erc20Precompile.ConvertERC20ToCoin0(
+				_, err = erc20Precompile.ConvertERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					token,
-					tf.Address("alice"),
 					big.NewInt(6789),
 				)
 				Expect(err).To(HaveOccurred())
@@ -251,10 +234,9 @@ var _ = Describe("ERC20", func() {
 				ExpectSuccessReceipt(tf.EthClient, tx)
 
 				// token already exists, create new Polaris denom
-				_, err = erc20Precompile.ConvertERC20ToCoin0(
+				_, err = erc20Precompile.ConvertERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					token,
-					tf.Address("alice"),
 					big.NewInt(6789),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -282,7 +264,6 @@ var _ = Describe("ERC20", func() {
 				_, err = erc20Precompile.ConvertCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					denom,
-					tf.Address("alice"),
 					big.NewInt(6790),
 				)
 				Expect(err).To(HaveOccurred()) // not enough funds
@@ -291,7 +272,6 @@ var _ = Describe("ERC20", func() {
 				tx, err = erc20Precompile.ConvertCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					denom,
-					tf.Address("alice"),
 					big.NewInt(6789),
 				)
 				Expect(err).ToNot(HaveOccurred())

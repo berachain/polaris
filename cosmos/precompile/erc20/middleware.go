@@ -176,7 +176,7 @@ func (c *Contract) convertERC20ToCoin(
 	sdkCtx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			erc20types.EventTypeConvertERC20ToCoin,
-			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
+			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
 			sdk.NewAttribute(erc20types.AttributeKeyOwner, owner.Hex()),
 			sdk.NewAttribute(erc20types.AttributeKeyRecipient, recipient.Hex()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+denom),

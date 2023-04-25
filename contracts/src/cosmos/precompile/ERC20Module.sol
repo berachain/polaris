@@ -33,17 +33,17 @@ import {IERC20} from "../../../lib/IERC20.sol";
 interface IERC20Module {
     ////////////////////////////////////////// EVENTS /////////////////////////////////////////////
 
+     /**
+     * @dev Emitted by the erc20 module when `amount` tokens are converted from SDK coin (of
+     * denomination `denom`) to an ERC20 token from `owner` to `recipient`.
+     */
+    event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, uint256 amount);
+
     /**
      * @dev Emitted by the erc20 module when `amount` tokens are converted from ERC20 (of address
      * `token`) to an SDK coin from `owner` to `recipient`.
      */
     event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, uint256 amount);
-
-    /**
-     * @dev Emitted by the erc20 module when `amount` tokens are converted from SDK coin (of
-     * denomination `denom`) to an ERC20 token from `owner` to `recipient`.
-     */
-    event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, uint256 amount);
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 

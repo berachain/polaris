@@ -235,7 +235,7 @@ func (c *Contract) ConvertCoinToERC20(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
@@ -265,7 +265,7 @@ func (c *Contract) ConvertCoinToERC20FromAddrInput(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[3])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
@@ -295,7 +295,7 @@ func (c *Contract) ConvertCoinToERC20FromStringInput(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[3])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
@@ -330,7 +330,7 @@ func (c *Contract) ConvertCoinToERC20ToAddrInput(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	recipient, ok := utils.GetAs[common.Address](args[2])
+	recipient, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
@@ -356,7 +356,7 @@ func (c *Contract) ConvertCoinToERC20ToStringInput(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	recipientBech32, ok := utils.GetAs[string](args[2])
+	recipientBech32, ok := utils.GetAs[string](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
@@ -391,7 +391,7 @@ func (c *Contract) ConvertERC20ToCoin(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
@@ -421,7 +421,7 @@ func (c *Contract) ConvertERC20ToCoinFromAddrInput(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[3])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
@@ -451,7 +451,7 @@ func (c *Contract) ConvertERC20ToCoinFromStringInput(
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
+	amount, ok := utils.GetAs[*big.Int](args[3])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
@@ -486,7 +486,7 @@ func (c *Contract) ConvertERC20ToCoinToAddrInput(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	recipient, ok := utils.GetAs[common.Address](args[2])
+	recipient, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
@@ -512,7 +512,7 @@ func (c *Contract) ConvertERC20ToCoinToStringInput(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	recipientBech32, ok := utils.GetAs[string](args[2])
+	recipientBech32, ok := utils.GetAs[string](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}

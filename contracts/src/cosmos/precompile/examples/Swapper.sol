@@ -33,19 +33,19 @@ import {IERC20Module} from "../ERC20Module.sol";
 contract Swapper {
     IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
 
-    // // converts ERC20 --> SDK coin
-    // // owner must first grant this contract to spend owner's tokens if the token is originally
-    // // an ERC20 token
-    // function swap(IERC20 token, uint256 amount) external {
-    //     bool converted = erc20Module.convertERC20ToCoin(token, amount);
-    //     require(converted, "Swapper: convertERC20ToCoin failed");
-    // }
+    // converts ERC20 --> SDK coin
+    // owner must first grant this contract to spend owner's tokens if the token is originally
+    // an ERC20 token
+    function swap(IERC20 token, uint256 amount) external {
+        bool converted = erc20Module.convertERC20ToCoinFrom(token, msg.sender, msg.sender, amount);
+        require(converted, "Swapper: convertERC20ToCoin failed");
+    }
 
-    // // converts SDK coin --> ERC20
-    // function swap(string calldata denom, uint256 amount) external {
-    //     bool converted = erc20Module.convertCoinToERC20(denom, amount);
-    //     require(converted, "Swapper: convertCoinToERC20 failed");
-    // }
+    // converts SDK coin --> ERC20
+    function swap(string calldata denom, uint256 amount) external {
+        bool converted = erc20Module.convertCoinToERC20From(denom, msg.sender, msg.sender, amount);
+        require(converted, "Swapper: convertCoinToERC20 failed");
+    }
 
     // gets the Polaris ERC20 token for a given SDK coin denomination
     function getPolarisERC20(string calldata denom) external view returns (IERC20) {
