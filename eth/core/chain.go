@@ -93,7 +93,6 @@ type blockchain struct {
 	pendingLogsFeed event.Feed
 	rmLogsFeed      event.Feed // currently never used
 	chainSideFeed   event.Feed // currently never used
-	newTxsFeed      event.Feed
 }
 
 // =========================================================================

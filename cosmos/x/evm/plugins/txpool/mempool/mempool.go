@@ -26,9 +26,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -53,6 +55,10 @@ type EthTxPool struct {
 	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
 	// concurrently by multiple goroutines.
 	mu sync.RWMutex
+
+	// newTxsFeed is used to send new batch transactions to new txs subscribers when the batch is
+	// added to the mempool.
+	newTxsFeed event.Feed
 }
 
 // New is called when the mempool is created.
@@ -67,6 +73,13 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 // SetNonceRetriever sets the nonce retriever db for the mempool.
 func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
 	etp.nr = nr
+}
+
+// GetNewTxsEventSubscription returns a new event subscription for the new txs feed.
+func (etp *EthTxPool) GetNewTxsEventSubscription(ch chan<- core.NewTxsEvent) event.Subscription {
+	// Currently sending an individual new txs event for every new tx added to the mempool.
+	// TODO: support sending batch new txs events when adding queued txs to the pending txs.
+	return etp.newTxsFeed.Subscribe(ch)
 }
 
 // Insert is called when a transaction is added to the mempool.
@@ -90,9 +103,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	sender, _ := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
 	etp.nonces[sender] = ethTx.Nonce() + 1
 
-	// TODO: send tx to subscription channel
-	// pass in the subscription feed into this app-side mempool? OR
-	// send to subscription channel from eth-built-in txpool (avoids passing the feed to here)
+	etp.newTxsFeed.Send(core.NewTxsEvent{Txs: coretypes.Transactions{ethTx}})
 
 	return nil
 }
@@ -103,7 +114,7 @@ func (etp *EthTxPool) GetTransaction(hash common.Hash) *coretypes.Transaction {
 }
 
 // GetTransactions is called when the mempool is retrieved.
-func (etp *EthTxPool) GetTransactions() coretypes.Transactions {
+func (etp *EthTxPool) GetAllTransactions() (coretypes.Transactions, error) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
@@ -111,7 +122,7 @@ func (etp *EthTxPool) GetTransactions() coretypes.Transactions {
 	for _, tx := range etp.ethTxCache {
 		txs = append(txs, tx)
 	}
-	return txs
+	return txs, nil
 }
 
 // GetNonce returns the nonce for the given address from the mempool if the address has sent a tx
