@@ -130,7 +130,7 @@ type (
 		// GetTransaction returns the transaction from the pool with the given hash.
 		GetTransaction(common.Hash) *types.Transaction
 		// GetNonce returns the nonce of the given address in the transaction pool.
-		GetNonce(common.Address) uint64
+		GetNonce(common.Address) (uint64, error)
 	}
 )
 

@@ -26,5 +26,6 @@ type (
 	// NonceRetriever is used to retrieve a nonce from the db.
 	NonceRetriever interface {
 		GetNonce(addr common.Address) uint64
+		Error() error
 	}
 )

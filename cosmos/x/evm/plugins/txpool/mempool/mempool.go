@@ -116,7 +116,11 @@ func (etp *EthTxPool) GetTransactions() coretypes.Transactions {
 
 // GetNonce returns the nonce for the given address from the mempool if the address has sent a tx
 // in the mempool.
-func (etp *EthTxPool) GetNonce(addr common.Address) uint64 {
+func (etp *EthTxPool) GetNonce(addr common.Address) (uint64, error) {
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+
+	var err error
 	nonce, found := etp.nonces[addr]
 	if !found {
 		// fallback to nonce retrieval from db
@@ -124,8 +128,10 @@ func (etp *EthTxPool) GetNonce(addr common.Address) uint64 {
 		if nonce > 0 {
 			etp.nonces[addr] = nonce
 		}
+		// check if the nonce retriever has a db error
+		err = etp.nr.Error()
 	}
-	return nonce
+	return nonce, err
 }
 
 // Remove is called when a transaction is removed from the mempool.
