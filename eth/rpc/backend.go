@@ -408,7 +408,6 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(_ context.Context, addr common.Address) (uint64, error) {
-	// TODO: get pool nonce, then fallback to statedb.
 	return b.chain.GetPoolNonce(addr)
 }
 

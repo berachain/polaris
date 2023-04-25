@@ -230,7 +230,7 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 
 // GetPoolNonce returns the nonce of an address in the mempool.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	nonce, err := bc.tp.GetNonce(addr)
+	nonce := bc.tp.GetNonce(addr)
 	defer bc.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
-	return nonce, err
+	return nonce, nil
 }

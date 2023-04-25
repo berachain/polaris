@@ -24,5 +24,4 @@ import "errors"
 
 var (
 	ErrIncorrectTxType = errors.New("tx is not of type EthTransactionRequest")
-	ErrAddressNotFound = errors.New("cannot return nonce for address not found")
 )
