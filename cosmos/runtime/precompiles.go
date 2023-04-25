@@ -24,6 +24,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
@@ -46,7 +47,11 @@ func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registr
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,
 			),
-			builderprecompile.NewPrecompileContract(&app.BuilderKeeper, "abera"),
+			builderprecompile.NewPrecompileContract(
+				builderkeeper.NewMsgServerImpl(app.BuilderKeeper),
+				builderkeeper.NewQueryServer(app.BuilderKeeper),
+				"abera",
+			),
 			distrprecompile.NewPrecompileContract(
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
 				distrkeeper.NewQuerier(app.DistrKeeper),

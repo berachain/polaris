@@ -146,5 +146,6 @@ func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.K
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
 	}
+
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }

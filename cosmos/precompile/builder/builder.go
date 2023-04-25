@@ -24,7 +24,6 @@ import (
 	"context"
 	"math/big"
 
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -48,14 +47,14 @@ type Contract struct {
 }
 
 // NewPrecompileContract returns a new instance of the builder module precompile contract.
-func NewPrecompileContract(bk *builderkeeper.Keeper, evmDenom string) *Contract {
+func NewPrecompileContract(m buildertypes.MsgServer, q buildertypes.QueryServer, evmDenom string) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			bindings.BuilderModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)),
 		),
-		msgServer:   builderkeeper.NewMsgServerImpl(*bk),
-		queryServer: builderkeeper.NewQueryServer(*bk),
+		msgServer:   m,
+		queryServer: q,
 		evmDenom:    evmDenom,
 	}
 }
@@ -85,7 +84,7 @@ func (c *Contract) AuctionBid(
 	}
 	bundleTxs, ok := utils.GetAs[[][]byte](args[1])
 	if !ok {
-		return nil, precompile.ErrInvalidAny
+		return nil, precompile.ErrInvalidBytesSlice
 	}
 
 	msgAuctionBid := &buildertypes.MsgAuctionBid{
