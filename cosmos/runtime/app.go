@@ -352,7 +352,16 @@ func NewPolarisBaseApp( //nolint: funlen // from sdk.
 		ch,
 	)
 
-	handler := pobabci.NewProposalHandler(mempool, app.Logger(), ch, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
+	// Set the ante handlers the proposal handlers will use to verify and build blocks
+	proposalAnteHandlers, _ := evmante.NewProposalAnteHandler(
+		opt,
+		app.BuilderKeeper,
+		app.txConfig.TxDecoder(),
+		app.txConfig.TxEncoder(),
+		mempool,
+	)
+
+	handler := pobabci.NewProposalHandler(mempool, app.Logger(), proposalAnteHandlers, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
 	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
 	app.App.SetProcessProposal(handler.ProcessProposalHandler())
 
