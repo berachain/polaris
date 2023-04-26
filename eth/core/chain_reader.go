@@ -131,7 +131,7 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 }
 
 // GetTransaction gets a transaction by hash. It also returns the block hash of the
-// block that the transaction was inluded in, the block number, and the index of the
+// block that the transaction was included in, the block number, and the index of the
 // transaction in the block. It only retrieves transactions that are included in the chain
 // and does not acquire transactions that are in the mempool.
 func (bc *blockchain) GetTransaction(

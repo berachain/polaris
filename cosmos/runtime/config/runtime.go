@@ -78,12 +78,6 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 	Precommiters: []string{
 		evmtypes.ModuleName,
 	},
-	OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
-		{
-			ModuleName: authtypes.ModuleName,
-			KvStoreKey: "acc",
-		},
-	},
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	// NOTE: The genutils module must also occur after auth so that it can access the params from auth.

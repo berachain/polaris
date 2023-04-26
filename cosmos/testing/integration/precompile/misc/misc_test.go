@@ -21,7 +21,6 @@
 package misc
 
 import (
-	"os"
 	"testing"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
@@ -42,10 +41,3 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	tf = integration.NewTestFixture(GinkgoT())
 	return nil
 }, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})

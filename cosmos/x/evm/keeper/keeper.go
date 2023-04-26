@@ -29,7 +29,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -47,8 +46,6 @@ type Keeper struct {
 	polaris *provider.PolarisProvider
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
-	// The offchain KV store.
-	offChainKv *offchain.Store
 	// authority is the bech32 address that is allowed to execute governance proposals.
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
@@ -73,17 +70,12 @@ func NewKeeper(
 		storeKey:  storeKey,
 	}
 
-	// TODO: parameterize kv store.
-	if appOpts != nil {
-		k.offChainKv = offchain.NewOffChainKVStore("eth_indexer", appOpts)
-	}
 	k.host = NewHost(
 		storeKey,
 		ak,
 		bk,
 		authority,
 		appOpts,
-		k.offChainKv,
 		ethTxMempool,
 		pcs,
 	)
@@ -92,12 +84,14 @@ func NewKeeper(
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
+	offchainStoreKey *storetypes.KVStoreKey,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
 	polarisDataDir string,
+
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, k.ak, k.bk, qc)
+	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
 
 	// Build the Polaris EVM Provider
 	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)

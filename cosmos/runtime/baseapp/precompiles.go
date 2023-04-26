@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package runtime
+package baseapp
 
 import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"

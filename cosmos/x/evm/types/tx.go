@@ -24,90 +24,79 @@ import (
 	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+
+	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/core/txpool"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// We must implement the `sdk.Msg` interface to be able to use the `sdk.Msg` type
-// in the `sdk.Msg` field of the `sdk.Tx` interface.
-var _ ante.GasTx = (*EthTransactionRequest)(nil)
-var _ sdk.Tx = (*EthTransactionRequest)(nil)
+// EthTransactionRequest defines a Cosmos SDK message for Ethereum transactions.
 var _ sdk.Msg = (*EthTransactionRequest)(nil)
-
-// var _ authsigning.Tx = (*EthTransactionRequest)(nil)
 
 // NewFromTransaction sets the transaction data from an `coretypes.Transaction`.
 func NewFromTransaction(tx *coretypes.Transaction) *EthTransactionRequest {
-	etr := new(EthTransactionRequest)
 	bz, err := tx.MarshalBinary()
 	if err != nil {
 		panic(err)
 	}
 
-	etr.Data = bz
-	return etr
-}
-
-// GetMsgs returns the message(s) contained in the transaction.
-func (etr *EthTransactionRequest) GetMsgs() []sdk.Msg {
-	return []sdk.Msg{etr}
+	return &EthTransactionRequest{
+		Data: bz,
+	}
 }
 
 // GetSigners returns the address(es) that must sign over the transaction.
 func (etr *EthTransactionRequest) GetSigners() []sdk.AccAddress {
 	sender, err := etr.GetSender()
 	if err != nil {
-		panic(err)
+		return nil
 	}
-
-	signer := sdk.AccAddress(sender.Bytes())
-	signers := []sdk.AccAddress{signer}
-	return signers
+	return []sdk.AccAddress{sdk.AccAddress(sender.Bytes())}
 }
 
 // AsTransaction extracts the transaction as an `coretypes.Transaction`.
 func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
-	t := new(coretypes.Transaction)
-	err := t.UnmarshalBinary(etr.Data)
-	if err != nil {
+	tx := new(coretypes.Transaction)
+	if err := tx.UnmarshalBinary(etr.Data); err != nil {
 		return nil
 	}
-	return t
+	return tx
 }
 
+// GetSignBytes returns the bytes to sign over for the transaction.
 func (etr *EthTransactionRequest) GetSignBytes() ([]byte, error) {
-	t := etr.AsTransaction()
-	return coretypes.LatestSignerForChainID(t.ChainId()).
-		Hash(t).Bytes(), nil
+	tx := etr.AsTransaction()
+	return coretypes.LatestSignerForChainID(tx.ChainId()).
+		Hash(tx).Bytes(), nil
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *EthTransactionRequest) GetSender() (common.Address, error) {
-	t := etr.AsTransaction()
-	signer := coretypes.LatestSignerForChainID(t.ChainId())
-	return signer.Sender(t)
+	tx := etr.AsTransaction()
+	signer := coretypes.LatestSignerForChainID(tx.ChainId())
+	return signer.Sender(tx)
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *EthTransactionRequest) GetPubKey() ([]byte, error) {
-	t := etr.AsTransaction()
-	signer := coretypes.LatestSignerForChainID(t.ChainId())
-	return signer.PubKey(t)
+	tx := etr.AsTransaction()
+	signer := coretypes.LatestSignerForChainID(tx.ChainId())
+	return signer.PubKey(tx)
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
-	t := etr.AsTransaction()
-	signer := coretypes.LatestSignerForChainID(t.ChainId())
-	return signer.Signature(t)
+	tx := etr.AsTransaction()
+	signer := coretypes.LatestSignerForChainID(tx.ChainId())
+	return signer.Signature(tx)
 }
 
 // GetGas returns the gas limit of the transaction.
 func (etr *EthTransactionRequest) GetGas() uint64 {
-	tx := etr.AsTransaction()
-	if tx == nil {
+	var tx *coretypes.Transaction
+	if tx = etr.AsTransaction(); tx == nil {
 		return 0
 	}
 	return tx.Gas()
@@ -115,16 +104,30 @@ func (etr *EthTransactionRequest) GetGas() uint64 {
 
 // GetGasPrice returns the gas price of the transaction.
 func (etr *EthTransactionRequest) ValidateBasic() error {
-	if len(etr.Data) == 0 {
-		return errors.New("transaction data cannot be empty")
-	}
-
-	if etr.AsTransaction() == nil {
+	// Ensure the transaction is signed properly
+	tx := etr.AsTransaction()
+	if tx == nil {
 		return errors.New("transaction data is invalid")
 	}
 
-	if etr.GetGas() == 0 {
-		return errors.New("gas limit cannot be zero")
+	// Ensure the transaction does not have a negative value.
+	if tx.Value().Sign() < 0 {
+		return txpool.ErrNegativeValue
+	}
+
+	// Sanity check for extremely large numbers.
+	if tx.GasFeeCap().BitLen() > 256 { //nolint:gomnd // 256 bits.
+		return core.ErrFeeCapVeryHigh
+	}
+
+	// Sanity check for extremely large numbers.
+	if tx.GasTipCap().BitLen() > 256 { //nolint:gomnd // 256 bits.
+		return core.ErrTipVeryHigh
+	}
+
+	// Ensure gasFeeCap is greater than or equal to gasTipCap.
+	if tx.GasFeeCapIntCmp(tx.GasTipCap()) < 0 {
+		return core.ErrTipAboveFeeCap
 	}
 
 	return nil

@@ -75,7 +75,7 @@ func SetupMinimalKeepers() (
 	stakingkeeper.Keeper,
 ) {
 	config.SetupCosmosConfig()
-	ctx := NewContext()
+	ctx := NewContext().WithBlockHeight(1)
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
 		auth.AppModuleBasic{},
