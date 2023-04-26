@@ -90,7 +90,7 @@ func NewPolarisBackend(
 
 // SyncProgress returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
-	// Consider implementing this in the future.
+	// TODO: Consider implementing this in the future.
 	b.logger.Warn("called eth.rpc.backend.SyncProgress", "sync_progress", "not implemented")
 	return ethereum.SyncProgress{
 		CurrentBlock: 0,
@@ -494,7 +494,7 @@ func (b *backend) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscr
 
 func (b *backend) BloomStatus() (uint64, uint64) {
 	// TODO: Implement your code here
-	return 0, 0
+	return params.BloomBitsBlocks, 0
 }
 
 func (b *backend) ServiceFilter(_ context.Context, session *bloombits.MatcherSession) {

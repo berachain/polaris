@@ -26,3 +26,7 @@ type (
 	ChainConfig = params.ChainConfig
 	Rules       = params.Rules
 )
+
+var (
+	BloomBitsBlocks = params.BloomBitsBlocks
+)
