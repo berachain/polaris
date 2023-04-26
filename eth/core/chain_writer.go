@@ -174,6 +174,10 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	return nil
 }
 
+// TODO: how to handle the case where AddLocal succeeds, but txpool plugin SendTx fails?
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
+	if err := bc.txPool.AddLocal(signedTx); err != nil {
+		return err
+	}
 	return bc.tp.SendTx(signedTx)
 }

@@ -68,5 +68,5 @@ func (bc *blockchain) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Su
 
 // SubscribeNewTxsEvent registers a subscription of NewTxsEvent.
 func (bc *blockchain) SubscribeNewTxsEvent(ch chan<- NewTxsEvent) event.Subscription {
-	return bc.scope.Track(bc.tp.GetNewTxsEventSubscription(ch))
+	return bc.txPool.SubscribeNewTxsEvent(ch)
 }

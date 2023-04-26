@@ -408,26 +408,25 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(_ context.Context, addr common.Address) (uint64, error) {
+	b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr)
 	return b.chain.GetPoolNonce(addr)
 }
 
 func (b *backend) Stats() (int, int) {
-	pending := 0
-	queued := 0
-	// TODO: Implement your code here
-	return pending, queued
+	b.logger.Info("called eth.rpc.backend.Stats")
+	return b.chain.Stats()
 }
 
 func (b *backend) TxPoolContent() (map[common.Address]types.Transactions,
 	map[common.Address]types.Transactions) {
-	// TODO: Implement your code here
-	return nil, nil
+	b.logger.Info("called eth.rpc.backend.TxPoolContent")
+	return b.chain.TxPoolContent()
 }
 
 func (b *backend) TxPoolContentFrom(addr common.Address,
 ) (types.Transactions, types.Transactions) {
-	// TODO: Implement your code here
-	return nil, nil
+	b.logger.Info("called eth.rpc.backend.TxPoolContentFrom", "addr", addr)
+	return b.chain.TxPoolContentFrom(addr)
 }
 
 func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {

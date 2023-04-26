@@ -23,6 +23,7 @@ package core
 import (
 	"context"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -65,4 +66,29 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
 		feeCollector = &header.Coinbase
 	}
 	return NewEVMBlockContext(header, &chainContext{bc}, feeCollector)
+}
+
+// txPoolBlockChain implements the txpool.BlockChain interface.
+type txPoolBlockChain struct {
+	*blockchain
+}
+
+// CurrentBlock implements txpool.BlockChain.
+func (tbc *txPoolBlockChain) CurrentBlock() *types.Header {
+	block, _ := tbc.blockchain.CurrentBlock()
+	return block.Header()
+}
+
+// GetBlock implements txpool.BlockChain.
+func (tbc *txPoolBlockChain) GetBlock(hash common.Hash, number uint64) *types.Block {
+	block, err := tbc.GetBlockByHash(hash)
+	if err != nil {
+		block, _ = tbc.GetBlockByNumber(int64(number))
+	}
+	return block
+}
+
+// StateAtBlock implements txpool.BlockChain.
+func (tbc *txPoolBlockChain) StateAtBlock(head *types.Header) (vm.GethStateDB, error) {
+	return tbc.GetStateByNumber(head.Number.Int64())
 }
