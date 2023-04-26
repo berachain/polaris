@@ -22,7 +22,6 @@ package erc20
 
 import (
 	"math/big"
-	"os"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -63,13 +62,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	erc20Precompile, _ = bindings.NewERC20Module(erc20ModuleAddress, tf.EthClient)
 	return nil
 }, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})
 
 var _ = Describe("ERC20", func() {
 	Describe("calling the erc20 precompile directly", func() {

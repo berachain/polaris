@@ -22,7 +22,6 @@ package bank
 
 import (
 	"math/big"
-	"os"
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
@@ -52,13 +51,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient)
 	return nil
 }, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})
 
 var _ = Describe("Bank", func() {
 	denom := "abera"
