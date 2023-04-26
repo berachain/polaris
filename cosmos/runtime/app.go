@@ -26,10 +26,9 @@ import (
 	"path/filepath"
 
 	dbm "github.com/cosmos/cosmos-db"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	pobabci "github.com/skip-mev/pob/abci"
 	"github.com/skip-mev/pob/mempool"
-	"github.com/skip-mev/pob/x/builder"
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
@@ -43,13 +42,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -112,8 +111,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	var (
 		app          = &PolarisApp{}
 		appBuilder   *runtime.AppBuilder
-		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
-			mempool.NewPriorityMempool(mempool.DefaultPriorityNonceMempoolConfig()),
+		ethTxMempool sdkmempool.Mempool = evmmempool.NewEthTxPoolDefault(
+			sdkmempool.DefaultPriorityMempool(),
 		)
 		appConfig = depinject.Configs(
 			AppConfig,
@@ -184,8 +183,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		mempool.DefaultPriorityMempool(),
 		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)), // todo: unhacky this
 		// builderPrecompile.RegistryKey(), // there is probably a better way of getting the registry key
-		app.txConfig.TxDecoder(),
-		app.txConfig.TxEncoder(),
+		app.TxnConfig.TxDecoder(),
+		app.TxnConfig.TxEncoder(),
 		app.EVMKeeper.GetHost(), // there is probably a better way of getting necessary code for serialization
 		"abera",                 // there is probably a better way of getting the EVM denom
 	)
@@ -202,8 +201,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	ch, _ := evmante.NewAnteHandler(
 		opt,
 		app.BuilderKeeper,
-		app.txConfig.TxDecoder(),
-		app.txConfig.TxEncoder(),
+		app.TxnConfig.TxDecoder(),
+		app.TxnConfig.TxEncoder(),
 		mempool,
 	)
 
@@ -215,12 +214,12 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	proposalAnteHandlers, _ := evmante.NewProposalAnteHandler(
 		opt,
 		app.BuilderKeeper,
-		app.txConfig.TxDecoder(),
-		app.txConfig.TxEncoder(),
+		app.TxnConfig.TxDecoder(),
+		app.TxnConfig.TxEncoder(),
 		mempool,
 	)
 
-	handler := pobabci.NewProposalHandler(mempool, app.Logger(), proposalAnteHandlers, app.txConfig.TxEncoder(), app.txConfig.TxDecoder())
+	handler := pobabci.NewProposalHandler(mempool, app.Logger(), proposalAnteHandlers, app.TxnConfig.TxEncoder(), app.TxnConfig.TxDecoder())
 	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
 	app.App.SetProcessProposal(handler.ProcessProposalHandler())
 

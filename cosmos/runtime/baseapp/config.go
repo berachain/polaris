@@ -28,6 +28,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -43,6 +44,7 @@ var (
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: buildertypes.ModuleName, Permissions: []string{}},
 		{Account: erc20types.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 
