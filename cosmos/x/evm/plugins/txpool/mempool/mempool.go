@@ -156,7 +156,7 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 		return err
 	}
 
-	// We want to cache this tx.
+	// We want to remove the caches of this tx.
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
 	if !ok {
 		return nil
