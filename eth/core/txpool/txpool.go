@@ -22,7 +22,7 @@ package txpool
 
 import "pkg.berachain.dev/polaris/eth/params"
 
-// PolarisTxPool wraps the 
+// PolarisTxPool wraps the. 
 type PolarisTxPool struct {
 	*TxPool
 }
