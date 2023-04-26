@@ -5,6 +5,8 @@ github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3v
 github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
 github.com/skip-mev/pob v0.0.0-20230421210935-7693f7b1a437 h1:4KsXh/AFg1WzA6xQDUq+SE85v5nskApbA/jHB4MZxEE=
 github.com/skip-mev/pob v0.0.0-20230421210935-7693f7b1a437/go.mod h1:zBm6Zbpq2sqOWBIaUZ0DqEwNTv/jGuTGCwoS01exm/4=
+github.com/skip-mev/pob v0.0.0-20230425225251-66e723566af4 h1:7Q7bF4ZdZUI5pt07QHeTINszjGYIh5kol5wcBYZD0+4=
+github.com/skip-mev/pob v0.0.0-20230425225251-66e723566af4/go.mod h1:zBm6Zbpq2sqOWBIaUZ0DqEwNTv/jGuTGCwoS01exm/4=
 github.com/urfave/cli v1.22.1 h1:+mkCCcOFKPnCmVYVcURKps1Xe+3zP90gSYGNfRkjoIY=
 gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=
 pkg.berachain.dev/polaris/eth v0.0.0-20230419230253-478f28600d57/go.mod h1:vesR/C4KexZoYGqnECxc9LwKMj+2zNaMeWTStEhsn9A=
