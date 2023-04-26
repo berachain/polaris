@@ -31,6 +31,11 @@ func AccAddressToEthAddress(accAddress sdk.AccAddress) common.Address {
 	return common.BytesToAddress(accAddress)
 }
 
+// ConsAddressToEthAddress converts a Cosmos SDK `ConsAddress` to an Ethereum `Address`.
+func ConsAddressToEthAddress(consAddress sdk.ConsAddress) common.Address {
+	return common.BytesToAddress(consAddress)
+}
+
 // ValAddressToEthAddress converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
 func ValAddressToEthAddress(valAddress sdk.ValAddress) common.Address {
 	return common.BytesToAddress(valAddress)
@@ -38,6 +43,11 @@ func ValAddressToEthAddress(valAddress sdk.ValAddress) common.Address {
 
 // AddressToAccAddress converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
 func AddressToAccAddress(ethAddress common.Address) sdk.AccAddress {
+	return ethAddress.Bytes()
+}
+
+// AddressToConsAddress converts an Ethereum `Address` to a Cosmos SDK `ConsAddress`.
+func AddressToConsAddress(ethAddress common.Address) sdk.ConsAddress {
 	return ethAddress.Bytes()
 }
 

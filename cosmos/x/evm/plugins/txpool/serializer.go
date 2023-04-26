@@ -25,11 +25,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // Serializer defines that interface that allows serializes an Ethereum transactions
@@ -84,13 +86,12 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 
 	// Second, we attach the required fees to the Cosmos Tx. This is simply done,
 	// by calling Cost() on the types.Transaction and setting the fee amount to that
-	fees := make(sdk.Coins, 0)
 	feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
-	if feeAmt.Sign() > 0 {
-		// TODO: properly get evm denomination.
-		fees = append(fees, sdk.NewCoin(s.cp.GetEvmDenom(), feeAmt))
+	if feeAmt.Sign() < 0 {
+		return nil, errorslib.Wrapf(sdkerrors.ErrInsufficientFee, "fee amount cannot be negative")
 	}
-	tx.SetFeeAmount(fees)
+	// Set the fee amount to the Cosmos transaction.
+	tx.SetFeeAmount(sdk.Coins{sdk.NewCoin(s.cp.GetEvmDenom(), feeAmt)})
 
 	// We can also retrieve the gaslimit for the transaction from the ethereum transaction.
 	tx.SetGasLimit(signedTx.Gas())
@@ -99,15 +100,14 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	// from the V,R,S values of the transaction. This allows us for a little trick to allow
 	// ethereum transactions to work in the standard cosmos app-side mempool with no modifications.
 	// Some gigabrain shit tbh.
-	signer := coretypes.LatestSignerForChainID(signedTx.ChainId())
-	pk, err := PubkeyFromTx(signedTx, signer)
+	pk, err := PubkeyFromTx(signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()))
 	if err != nil {
 		return nil, err
 	}
 
-	ethTx := types.NewFromTransaction(signedTx)
-
-	sig, err := ethTx.GetSignature()
+	// Create the EthTransactionRequest message.
+	ethTxReq := types.NewFromTransaction(signedTx)
+	sig, err := ethTxReq.GetSignature()
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
-				SignMode: evmante.SignMode_SIGN_MODE_ETHEREUM,
+				SignMode: signingtypes.SignMode(int32(evmante.SignMode_SIGN_MODE_ETHEREUM)), // TODO: this is ghetto af.
 				// We retrieve the hash of the signed transaction from the ethereum transaction
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed
@@ -131,7 +131,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	}
 
 	// Lastly, we inject the signed ethereum transaction as a message into the Cosmos Tx.
-	if err = tx.SetMsgs(ethTx); err != nil {
+	if err = tx.SetMsgs(ethTxReq); err != nil {
 		return nil, err
 	}
 

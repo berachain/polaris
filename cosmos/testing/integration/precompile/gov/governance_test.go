@@ -22,7 +22,6 @@ package governance
 
 import (
 	"math/big"
-	"os"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -83,13 +82,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	return nil
 }, func(data []byte) {})
-
-var _ = SynchronizedAfterSuite(func() {
-	// Local AfterSuite actions.
-}, func() {
-	// Global AfterSuite actions.
-	os.RemoveAll("data")
-})
 
 var _ = Describe("Call the Precompile Directly", func() {
 	BeforeEach(func() {

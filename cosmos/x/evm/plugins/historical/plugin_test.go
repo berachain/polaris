@@ -21,32 +21,10 @@
 package historical
 
 import (
-	dbm "github.com/cosmos/cosmos-db"
-
-	storetypes "cosmossdk.io/store/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	offchain "pkg.berachain.dev/polaris/cosmos/store/offchain"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
-	"pkg.berachain.dev/polaris/lib/utils"
-
 	. "github.com/onsi/ginkgo/v2"
 )
 
 var _ = Describe("Historical Plugin", func() {
-	var ctx sdk.Context
-	var p *plugin
-
-	BeforeEach(func() {
-		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
-		sk := testutil.EvmKey // testing key.
-		p = utils.MustGetAs[*plugin](
-			NewPlugin(block.NewPlugin(sk), offchain.NewFromDB(dbm.NewMemDB()), sk),
-		)
-		p.Prepare(ctx)
-	})
 
 	// It("should get the header at current height", func() {
 	// 	header, err := p.GetHeaderByNumber(ctx.BlockHeight())

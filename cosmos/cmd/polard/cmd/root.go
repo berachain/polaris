@@ -50,7 +50,6 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -68,7 +67,7 @@ func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := runtime.NewPolarisBaseApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := runtime.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -87,13 +86,14 @@ func NewRootCmd() *cobra.Command {
 		WithViper("") // In simapp, we don't use any prefix for env variables.
 
 	rootCmd := &cobra.Command{
-		Use:   "polard",
+		Use:   "simd",
 		Short: "simulation app",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
 			cmd.SetErr(cmd.ErrOrStderr())
 
+			initClientCtx = initClientCtx.WithCmdContext(cmd.Context())
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
 				return err
@@ -106,18 +106,14 @@ func NewRootCmd() *cobra.Command {
 
 			// This needs to go after ReadFromClientConfig, as that function
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			//
-			// TODO Currently, the TxConfig below doesn't include Textual, so
-			// an error will arise when using the --textual flag.
-			// ref: https://github.com/cosmos/cosmos-sdk/issues/11970
-
-			txSignModeHandler, _ := txmodule.NewTextualWithGRPCConn(initClientCtx)
-
-			txConfigWithTextual := tx.NewTxConfigWithTextual(
+			opts, err := txmodule.NewSignModeOptionsWithMetadataQueryFn(txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx))
+			if err != nil {
+				return err
+			}
+			txConfigWithTextual := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
-				tx.DefaultSignModes,
-				txSignModeHandler,
-				[]signing.SignModeHandler{evmante.SignModeEthTxHandler{}}...,
+				opts,
+				evmante.SignModeEthTxHandler{},
 			)
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 
@@ -225,10 +221,10 @@ func queryCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		authcmd.GetAccountCmd(),
 		rpc.ValidatorCommand(),
-		// rpc.BlockCommand(), // todo: add back
+		server.QueryBlockCmd(),
 		authcmd.QueryTxsByEventsCmd(),
+		server.QueryBlocksCmd(),
 		authcmd.QueryTxCmd(),
 	)
 
@@ -236,7 +232,6 @@ func queryCommand() *cobra.Command {
 
 	return cmd
 }
-
 func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
@@ -272,7 +267,7 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return runtime.NewPolarisBaseApp(
+	return runtime.NewPolarisApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
@@ -290,7 +285,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var polarisApp *runtime.PolarisBaseApp
+	var polarisApp *runtime.PolarisApp
 
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
@@ -309,13 +304,13 @@ func appExport(
 	appOpts = viperAppOpts
 
 	if height != -1 {
-		polarisApp = runtime.NewPolarisBaseApp(logger, db, traceStore, false, appOpts)
+		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
 		if err := polarisApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		polarisApp = runtime.NewPolarisBaseApp(logger, db, traceStore, true, appOpts)
+		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
 	return polarisApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

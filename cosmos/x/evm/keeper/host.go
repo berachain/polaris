@@ -27,7 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/polaris/cosmos/store/offchain"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
@@ -53,6 +52,7 @@ type Host interface {
 	core.PolarisHostChain
 	GetAllPlugins() []plugins.BaseCosmosPolaris
 	Setup(
+		storetypes.StoreKey,
 		storetypes.StoreKey,
 		state.AccountKeeper,
 		state.BankKeeper,
@@ -82,7 +82,6 @@ func NewHost(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-	offChainKv *offchain.Store,
 	ethTxMempool sdkmempool.Mempool,
 	precompiles func() *ethprecompile.Injector,
 ) Host {
@@ -93,9 +92,7 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.hp = historical.NewPlugin(h.bp, offChainKv, storeKey)
 	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
-
 	h.pcs = precompiles
 
 	return h
@@ -105,6 +102,7 @@ func NewHost(
 // sets the query context function for the block and state plugins (to support historical queries).
 func (h *host) Setup(
 	storeKey storetypes.StoreKey,
+	offchainStoreKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
@@ -112,6 +110,7 @@ func (h *host) Setup(
 	// Setup the precompile and state plugins
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
+	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

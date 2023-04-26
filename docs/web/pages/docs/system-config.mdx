@@ -30,7 +30,9 @@ Most validators will only need to open the following port:
 
 Additional ports:
 
-- `1317`: The default port for the Lite Client Daemon (LCD). The LCD provides an HTTP RESTful API layer to allow applications and services to interact with your polard instance through RPC. You don't need to open this port unless you have use for it. This port also hosts the Ethereum JSON-RPC Server which is default hosted at `0.0.0.0:1317/eth/rpc`
+- `1317`: The default port for the Lite Client Daemon (LCD). The LCD provides an HTTP RESTful API layer to allow applications and services to interact with your polard instance through RPC. You don't need to open this port unless you have use for it.
+
+- `8545`: This port hosts the Ethereum JSON-RPC Server.
 
 - `26660`: The default port for interacting with the [Prometheus](https://prometheus.io) database, which can be used to monitor the environment. In the default configuration, this port is not open.
 
