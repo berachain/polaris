@@ -21,6 +21,8 @@
 package core
 
 import (
+	"context"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -148,20 +150,20 @@ type (
 		// HistoricalPlugin implements `libtypes.Preparable`.
 		libtypes.Preparable
 		// GetBlockByNumber returns the block at the given block number.
-		GetBlockByNumber(int64) (*types.Block, error)
+		GetBlockByNumber(context.Context, int64) (*types.Block, error)
 		// GetBlockByHash returns the block at the given block hash.
-		GetBlockByHash(common.Hash) (*types.Block, error)
+		GetBlockByHash(context.Context, common.Hash) (*types.Block, error)
 		// GetTransactionByHash returns the transaction lookup entry at the given transaction
 		// hash.
-		GetTransactionByHash(common.Hash) (*types.TxLookupEntry, error)
+		GetTransactionByHash(context.Context, common.Hash) (*types.TxLookupEntry, error)
 		// GetReceiptByHash returns the receipts at the given block hash.
-		GetReceiptsByHash(common.Hash) (types.Receipts, error)
+		GetReceiptsByHash(context.Context, common.Hash) (types.Receipts, error)
 		// StoreBlock stores the given block.
-		StoreBlock(*types.Block) error
+		StoreBlock(context.Context, *types.Block) error
 		// StoreReceipts stores the receipts for the given block hash.
-		StoreReceipts(common.Hash, types.Receipts) error
+		StoreReceipts(context.Context, common.Hash, types.Receipts) error
 		// StoreTransactions stores the transactions for the given block hash.
-		StoreTransactions(int64, common.Hash, types.Transactions) error
+		StoreTransactions(context.Context, int64, common.Hash, types.Transactions) error
 	}
 
 	// PrecompilePlugin defines the methods that the chain running Polaris EVM should implement

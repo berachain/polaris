@@ -21,6 +21,7 @@
 package historical
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/store/prefix"
@@ -38,12 +39,13 @@ import (
 // TODO: WHO WROTE THIS CODE THE FIRST TIME BLS FIX IT IS HORRIBLE.
 
 // StoreBlock implements `core.HistoricalPlugin`.
-func (p *plugin) StoreBlock(block *coretypes.Block) error {
+func (p *plugin) StoreBlock(ctx context.Context, block *coretypes.Block) error {
 	blockNum := block.NumberU64()
 
 	// store block hash to block number.
 	numBz := sdk.Uint64ToBigEndian(blockNum)
-	store := p.ctx.KVStore(p.offchainStoreKey)
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	store := sCtx.KVStore(p.offchainStoreKey)
 	prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
 
 	// store the version offchain for consistency.
@@ -55,16 +57,17 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 }
 
 // StoreReceipts implements `core.HistoricalPlugin`.
-func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
+func (p *plugin) StoreReceipts(ctx context.Context, blockHash common.Hash, receipts coretypes.Receipts) error {
 	// store block hash to receipts.
 	receiptsBz, err := coretypes.MarshalReceipts(receipts)
+	sCtx := sdk.UnwrapSDKContext(ctx)
 	if err != nil {
-		p.ctx.Logger().Error(
+		sCtx.Logger().Error(
 			"UpdateOffChainStorage: failed to marshal receipts at block hash %s", blockHash.Hex(),
 		)
 		return err
 	}
-	prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+	prefix.NewStore(sCtx.KVStore(p.offchainStoreKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Set(blockHash.Bytes(), receiptsBz)
 
 	return nil
@@ -72,10 +75,11 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 
 // StoreTransactions implements `core.HistoricalPlugin`.
 func (p *plugin) StoreTransactions(
-	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
+	ctx context.Context, blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
 	// store all txns in the block.
-	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	txStore := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
 	for txIndex, tx := range txs {
 		txLookupEntry := &coretypes.TxLookupEntry{
 			Tx:        tx,
@@ -86,7 +90,7 @@ func (p *plugin) StoreTransactions(
 		var tleBz []byte
 		tleBz, err := txLookupEntry.MarshalBinary()
 		if err != nil {
-			p.ctx.Logger().Error(
+			sCtx.Logger().Error(
 				"UpdateOffChainStorage: failed to marshal tx %s at block number %d",
 				tx.Hash().Hex(), blockNum,
 			)
@@ -99,7 +103,7 @@ func (p *plugin) StoreTransactions(
 }
 
 // GetBlockByNumber returns the block at the given height.
-func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
+func (p *plugin) GetBlockByNumber(ctx context.Context, number int64) (*coretypes.Block, error) {
 	// get header from on chain.
 	header, err := p.bp.GetHeaderByNumber(number)
 	if err != nil {
@@ -108,7 +112,8 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 
 	// get receipts from off chain.
 	blockHash := header.Hash()
-	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	receiptsBz := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
@@ -119,7 +124,7 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 	}
 
 	// get txns from off chain.
-	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
 	txs := make(coretypes.Transactions, len(receipts))
 	for _, receipt := range receipts {
 		tleBz := txStore.Get(receipt.TxHash.Bytes())
@@ -139,9 +144,10 @@ func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
 }
 
 // GetBlockByHash returns the block at the given hash.
-func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
+func (p *plugin) GetBlockByHash(ctx context.Context, blockHash common.Hash) (*coretypes.Block, error) {
 	// get block number from off chain.
-	numBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	numBz := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey),
 		[]byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
 		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
@@ -156,7 +162,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	}
 
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+	receiptsBz := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
@@ -167,7 +173,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	}
 
 	// get txns from off chain.
-	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
 	txs := make(coretypes.Transactions, len(receipts))
 	for _, receipt := range receipts {
 		tleBz := txStore.Get(receipt.TxHash.Bytes())
@@ -187,9 +193,10 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 }
 
 // GetTransactionByHash returns the transaction lookup entry with the given hash.
-func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
+func (p *plugin) GetTransactionByHash(ctx context.Context, txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
-	tleBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	tleBz := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
 		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
 	}
@@ -202,9 +209,10 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 }
 
 // GetReceiptsByHash returns the receipts with the given block hash.
-func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
+func (p *plugin) GetReceiptsByHash(ctx context.Context, blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	receiptsBz := prefix.NewStore(sCtx.KVStore(p.offchainStoreKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())

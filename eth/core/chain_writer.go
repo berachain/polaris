@@ -122,13 +122,13 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
-		if err = bc.hp.StoreBlock(block); err != nil {
+		if err = bc.hp.StoreBlock(ctx, block); err != nil {
 			return err
 		}
-		if err = bc.hp.StoreReceipts(blockHash, receipts); err != nil {
+		if err = bc.hp.StoreReceipts(ctx, blockHash, receipts); err != nil {
 			return err
 		}
-		if err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions()); err != nil {
+		if err = bc.hp.StoreTransactions(ctx, blockNum, blockHash, block.Transactions()); err != nil {
 			return err
 		}
 	}
