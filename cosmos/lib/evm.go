@@ -37,8 +37,8 @@ func DeployEVMFromPrecompile(
 	plugin ethprecompile.Plugin,
 	evm ethprecompile.EVM,
 	deployer common.Address,
-	endowment *big.Int,
 	contract abi.ABI,
+	endowment *big.Int,
 	contractCode string, // hex-encoded string
 	constructorArgs ...any,
 ) (common.Address, []byte, error) {

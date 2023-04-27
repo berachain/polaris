@@ -79,9 +79,9 @@ func (c *Contract) convertCoinToERC20(
 		// deploy the new ERC20 token contract (deployer of this contract is the ERC20 module!)
 		polarisName := p + denom
 		if token, _, err = cosmlib.DeployEVMFromPrecompile(
-			sdkCtx, c.GetPlugin(), evm, c.RegistryKey(), value,
-			c.polarisERC20ABI, pbindings.PolarisERC20MetaData.Bin,
-			polarisName, polarisName,
+			sdkCtx, c.GetPlugin(), evm,
+			c.RegistryKey(), c.polarisERC20ABI, value,
+			pbindings.PolarisERC20MetaData.Bin, polarisName, polarisName,
 		); err != nil {
 			return err
 		}
