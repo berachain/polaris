@@ -49,7 +49,7 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
 	return &EthTxPool{Mempool: m}
 }
 
-// SetNonceRetriever sets the nonce retriever db for the mempool.
+// SetPolarisTxPool sets the polaris txpool for the mempool.
 func (etp *EthTxPool) SetPolarisTxPool(ptxp core.PolarisTxPool) {
 	etp.PolarisTxPool = ptxp
 }
@@ -69,9 +69,9 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 		return err
 	}
 
-	// Call the base mempool's Insert method
+	// Call the base mempool's Insert method if the Polaris TxPool added it
 	if err := etp.Mempool.Insert(ctx, tx); err != nil {
-		// if this tx cannot be inserted, remove from the Polaris TxPool
+		// if this tx cannot be inserted, remove from the Polaris TxPool to be consistent
 		etp.PolarisTxPool.RemoveTx(ethTx.Hash(), true)
 		return err
 	}
@@ -95,7 +95,7 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 		return err
 	}
 
-	// Remove from the Polaris TxPool
+	// Remove from the Polaris TxPool if the base mempool removed it
 	etp.PolarisTxPool.RemoveTx(etr.AsTransaction().Hash(), true)
 	return nil
 }

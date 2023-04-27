@@ -436,7 +436,7 @@ func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscri
 // ChainConfig returns the chain configuration.
 func (b *backend) ChainConfig() *params.ChainConfig {
 	b.logger.Info("called eth.rpc.backend.ChainConfig")
-	return b.chain.ChainConfig()
+	return b.chain.Config()
 }
 
 func (b *backend) Engine() consensus.Engine {
