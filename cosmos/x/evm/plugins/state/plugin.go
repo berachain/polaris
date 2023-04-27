@@ -149,6 +149,7 @@ func (p *plugin) Prepare(ctx context.Context) {
 //
 // Reset implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
+	p.dbErr = nil
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the

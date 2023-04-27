@@ -34,6 +34,8 @@ var (
 	EventTypeConvertERC20ToCoin = "convert_erc20_to_coin"
 	EventTypeConvertCoinToERC20 = "convert_coin_to_erc20"
 
-	AttributeKeyToken = "token"
-	AttributeKeyDenom = "denom"
+	AttributeKeyToken     = "token"
+	AttributeKeyDenom     = "denom"
+	AttributeKeyOwner     = "owner"
+	AttributeKeyRecipient = "recipient"
 )
