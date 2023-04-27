@@ -37,13 +37,13 @@ contract Swapper {
     // owner must first grant this contract to spend owner's tokens if the token is originally
     // an ERC20 token
     function swap(IERC20 token, uint256 amount) external {
-        bool converted = erc20Module.convertERC20ToCoin(token, msg.sender, amount);
+        bool converted = erc20Module.convertERC20ToCoinFrom(token, msg.sender, msg.sender, amount);
         require(converted, "Swapper: convertERC20ToCoin failed");
     }
 
     // converts SDK coin --> ERC20
     function swap(string calldata denom, uint256 amount) external {
-        bool converted = erc20Module.convertCoinToERC20(denom, msg.sender, amount);
+        bool converted = erc20Module.convertCoinToERC20From(denom, msg.sender, msg.sender, amount);
         require(converted, "Swapper: convertCoinToERC20 failed");
     }
 

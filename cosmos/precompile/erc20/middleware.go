@@ -39,6 +39,7 @@ func (c *Contract) convertCoinToERC20(
 	value *big.Int,
 	denom string,
 	owner common.Address,
+	recipient common.Address,
 	amount *big.Int,
 ) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -50,6 +51,11 @@ func (c *Contract) convertCoinToERC20(
 		},
 	)
 	if err != nil {
+		return err
+	}
+
+	// burn amount SDK/Polaris coins from owner
+	if err = cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
 		return err
 	}
 
@@ -86,29 +92,25 @@ func (c *Contract) convertCoinToERC20(
 		// NOTE: it is guaranteed that the ERC20 tokens were transferred to the ERC20 module
 		// precompile contract as escrow before this case is reached.
 
-		// transfer amount ERC20 tokens to the owner
-		if err = c.callERC20Transfer(sdkCtx, evm, c.RegistryKey(), token, owner, amount); err != nil {
+		// transfer amount ERC20 tokens to the recipient
+		if err = c.callERC20Transfer(sdkCtx, evm, c.RegistryKey(), token, recipient, amount); err != nil {
 			return err
 		}
 	} else {
 		// converting IBC-originated SDK coins to Polaris ERC20 tokens
 
-		// mint amount ERC20 tokens to the owner
-		if err = c.callPolarisERC20Mint(sdkCtx, evm, c.RegistryKey(), token, owner, amount); err != nil {
+		// mint amount ERC20 tokens to the recipient
+		if err = c.callPolarisERC20Mint(sdkCtx, evm, c.RegistryKey(), token, recipient, amount); err != nil {
 			return err
 		}
-	}
-
-	// burn amount SDK/Polaris coins from owner
-	if err = cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
-		return err
 	}
 
 	sdkCtx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			erc20types.EventTypeConvertCoinToERC20,
 			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
-			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
+			sdk.NewAttribute(erc20types.AttributeKeyOwner, owner.Hex()),
+			sdk.NewAttribute(erc20types.AttributeKeyRecipient, recipient.Hex()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+denom),
 		),
 	)
@@ -122,6 +124,7 @@ func (c *Contract) convertERC20ToCoin(
 	evm ethprecompile.EVM,
 	token common.Address,
 	owner common.Address,
+	recipient common.Address,
 	amount *big.Int,
 ) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -165,16 +168,17 @@ func (c *Contract) convertERC20ToCoin(
 		}
 	}
 
-	// mint amount SDK/Polaris Coins to owner
-	if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
+	// mint amount SDK/Polaris Coins to recipient
+	if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
 		return err
 	}
 
 	sdkCtx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			erc20types.EventTypeConvertERC20ToCoin,
-			sdk.NewAttribute(erc20types.AttributeKeyDenom, denom),
 			sdk.NewAttribute(erc20types.AttributeKeyToken, token.Hex()),
+			sdk.NewAttribute(erc20types.AttributeKeyOwner, owner.Hex()),
+			sdk.NewAttribute(erc20types.AttributeKeyRecipient, recipient.Hex()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+denom),
 		),
 	)
