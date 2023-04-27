@@ -21,8 +21,6 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/event"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
