@@ -18,15 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package params
+package mempool
 
-import "github.com/ethereum/go-ethereum/params"
+import "pkg.berachain.dev/polaris/eth/common"
 
 type (
-	ChainConfig = params.ChainConfig
-	Rules       = params.Rules
-)
-
-var (
-	BloomBitsBlocks = params.BloomBitsBlocks
+	// NonceRetriever is used to retrieve a nonce from the db.
+	NonceRetriever interface {
+		GetNonce(addr common.Address) uint64
+		Error() error
+	}
 )

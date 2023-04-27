@@ -36,10 +36,10 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-// defaultTimeout is the default timeout for the test fixture.
-const defaultTimeout = 10 * time.Second
-
-const defaultNumberOfAccounts = 3
+const (
+	defaultTimeout          = 10 * time.Second
+	defaultNumberOfAccounts = 3
+)
 
 var defaultAccountNames = []string{"alice", "bob", "charlie"}
 
@@ -97,17 +97,8 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 
 // GenerateTransactOpts generates a new transaction options object for a key by it's name.
 func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
-	// Get the nonce from the RPC.
-	// TODO: switch to pending once the txpool is finished. https://github.com/berachain/polaris/issues/385
-	// Get the nonce from the RPC.
-	blockNumber, err := tf.EthClient.BlockNumber(context.Background())
-	if err != nil {
-		tf.t.Fatal(err)
-	}
-	// nonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
-	// hacky stuff to make sure the nonce is correct.
-	time.Sleep(2) //nolint:gomnd,staticcheck // temporary.
-	nonce, err := tf.EthClient.NonceAt(context.Background(), tf.Address(name), big.NewInt(int64(blockNumber)))
+	// Get the pending nonce from the RPC.
+	nonce, err := tf.EthClient.PendingNonceAt(context.Background(), tf.Address(name))
 	if err != nil {
 		tf.t.Fatal(err)
 	}
@@ -128,20 +119,24 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	return auth
 }
 
+// PrivKey returns the private key for a given name.
 func (tf *TestFixture) PrivKey(name string) *ecdsa.PrivateKey {
 	newECDSATestKey, _ := tf.keysMap[name].ToECDSA()
 	return newECDSATestKey
 }
 
+// Address returns the address for a given name.
 func (tf *TestFixture) Address(name string) common.Address {
 	return crypto.PubkeyToAddress(tf.PrivKey(name).PublicKey)
 }
 
+// CreateKeyWithName creates a new key with a given name.
 func (tf *TestFixture) CreateKeyWithName(name string) {
 	newKey, _ := ethsecp256k1.GenPrivKey()
 	tf.keysMap[name] = newKey
 }
 
+// setupTestAccounts creates a map of test accounts.
 func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
 	for i := 0; i < defaultNumberOfAccounts; i++ {
 		newKey, _ := ethsecp256k1.GenPrivKey()
