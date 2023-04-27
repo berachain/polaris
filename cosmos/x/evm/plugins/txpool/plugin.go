@@ -42,7 +42,7 @@ type Plugin interface {
 	core.TxPoolPlugin
 	plugins.BaseCosmosPolaris
 	SetClientContext(client.Context)
-	SetNonceRetriever(mempool.NonceRetriever)
+	SetPolarisTxPool(core.PolarisTxPool)
 }
 
 // plugin represents the transaction pool plugin.

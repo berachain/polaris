@@ -1,3 +1,5 @@
+github.com/berachain/polaris-geth v0.0.0-20230427152225-86dbeed107fb h1:QPzNUih2LhmCW9REWfvySh/6ZLK/8xinHIqNUZBlWCE=
+github.com/berachain/polaris-geth v0.0.0-20230427152225-86dbeed107fb/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=

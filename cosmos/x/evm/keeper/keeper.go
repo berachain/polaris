@@ -88,13 +88,12 @@ func (k *Keeper) Setup(
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
 	polarisDataDir string,
-
 ) {
-	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
-
 	// Build the Polaris EVM Provider
 	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)
+
+	// Setup plugins in the Host
+	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc, k.polaris.Chain.GetTxPoolBlockChain())
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.

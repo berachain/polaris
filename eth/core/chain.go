@@ -28,7 +28,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -86,8 +85,6 @@ type blockchain struct {
 
 	logger log.Logger
 
-	txPool *txpool.TxPool
-
 	// subscription event feeds
 	scope           event.SubscriptionScope
 	chainFeed       event.Feed
@@ -126,7 +123,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	)
 	bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)
-	bc.txPool = txpool.NewTxPool(txpool.DefaultConfig, bc.cp.ChainConfig(), &txPoolBlockChain{bc})
 
 	return bc
 }

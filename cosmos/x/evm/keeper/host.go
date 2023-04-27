@@ -39,6 +39,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	ethtxpool "pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -56,6 +57,7 @@ type Host interface {
 		state.AccountKeeper,
 		state.BankKeeper,
 		func(height int64, prove bool) (sdk.Context, error),
+		ethtxpool.BlockChain,
 	)
 }
 
@@ -103,6 +105,7 @@ func (h *host) Setup(
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
+	txpBc ethtxpool.BlockChain,
 ) {
 	// Setup the precompile and state plugins
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
@@ -113,8 +116,8 @@ func (h *host) Setup(
 	h.sp.SetQueryContextFn(qc)
 	h.bp.SetQueryContextFn(qc)
 
-	// Set the nonce retriever db for the txpool plugin
-	h.txp.SetNonceRetriever(h.sp)
+	// Set the PolarisTxPool on the txpool plugin
+	h.txp.SetPolarisTxPool(core.NewPolarisTxPool(h.cp.ChainConfig(), txpBc))
 }
 
 // GetBlockPlugin returns the header plugin.

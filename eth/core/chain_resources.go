@@ -25,6 +25,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
@@ -34,6 +35,7 @@ import (
 type ChainResources interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetTxPoolBlockChain() txpool.BlockChain
 }
 
 // GetStateByNumber returns a statedb configured to read what the state of the blockchain is/was
@@ -66,6 +68,11 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
 		feeCollector = &header.Coinbase
 	}
 	return NewEVMBlockContext(header, &chainContext{bc}, feeCollector)
+}
+
+// GetTxPoolBlockChain returns a txpool.BlockChain that can be used by the txpool plugin.
+func (bc *blockchain) GetTxPoolBlockChain() txpool.BlockChain {
+	return &txPoolBlockChain{bc}
 }
 
 // txPoolBlockChain implements the txpool.BlockChain interface.

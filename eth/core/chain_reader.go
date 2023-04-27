@@ -223,78 +223,34 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) (*types.Block, error) {
 // GetPoolTransactions returns all of the transactions that are currently in
 // the mempool.
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
-	// get from the txpool
-	var pendingTxs types.Transactions
-	for _, batch := range bc.txPool.Pending(false) {
-		pendingTxs = append(pendingTxs, batch...)
+	pending := bc.tp.Pending(false)
+	var txs types.Transactions
+	for _, batch := range pending {
+		txs = append(txs, batch...)
 	}
-
-	// get from the TxPool Plugin
-	txPoolTxs, err := bc.tp.GetAllTransactions()
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: this is messy.
-	// ensure that both the txpool and plugin have the same set of transactions
-	if !hasSameTransactions(pendingTxs, txPoolTxs) {
-		return nil, errors.New("txpool and plugin have different transactions")
-	}
-
-	return pendingTxs, nil
+	return txs, nil
 }
 
 // GetPoolTransaction returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
-	// TODO: get from txpool?
-	return bc.tp.GetTransaction(hash)
+	return bc.tp.Get(hash)
 }
 
 // GetPoolNonce returns the nonce of an address in the mempool.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	nonce, err := bc.tp.GetNonce(addr)
-	return nonce, err
+	return bc.tp.Nonce(addr), nil
 }
 
 func (bc *blockchain) TxPoolContent() (
 	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
 ) {
-	return bc.txPool.Content()
+	return bc.tp.Content()
 }
 
 func (bc *blockchain) TxPoolContentFrom(addr common.Address) (types.Transactions, types.Transactions) {
-	return bc.txPool.ContentFrom(addr)
+	return bc.tp.ContentFrom(addr)
 }
 
 func (bc *blockchain) Stats() (int, int) {
-	return bc.txPool.Stats()
-}
-
-func hasSameTransactions(txsA, txsB types.Transactions) bool {
-	hashesA := make(map[common.Hash]struct{})
-	hashesB := make(map[common.Hash]struct{})
-
-	// Iterate over the first list and store the hashes in the map
-	for _, tx := range txsA {
-		hashesA[tx.Hash()] = struct{}{}
-	}
-
-	// Iterate over the second list and store the hashes in the map
-	for _, tx := range txsB {
-		hashesB[tx.Hash()] = struct{}{}
-	}
-
-	// Compare the lengths of both maps
-	if len(hashesA) != len(hashesB) {
-		return false
-	}
-
-	// Compare the maps for equality
-	for hash := range hashesA {
-		if _, exists := hashesB[hash]; !exists {
-			return false
-		}
-	}
-
-	return true
+	return bc.tp.Stats()
 }
