@@ -27,8 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"github.com/ethereum/go-ethereum/event"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -44,7 +42,11 @@ type EthTxPool struct {
 	core.PolarisTxPool
 
 	mu sync.Mutex
-	}
+}
+
+// NewEthTxPoolFrom is called when the mempool is created.
+func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
+	return &EthTxPool{Mempool: m}
 }
 
 // SetNonceRetriever sets the nonce retriever db for the mempool.

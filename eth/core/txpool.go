@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/event"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
