@@ -182,7 +182,6 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	mempool := evmmempool.NewEthTxPoolFrom(
 		mempool.DefaultPriorityMempool(),
 		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)), // todo: unhacky this
-		// builderPrecompile.RegistryKey(), // there is probably a better way of getting the registry key
 		app.TxnConfig.TxDecoder(),
 		app.TxnConfig.TxEncoder(),
 		app.EVMKeeper.GetHost(), // there is probably a better way of getting necessary code for serialization

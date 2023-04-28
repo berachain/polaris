@@ -193,10 +193,8 @@ var (
 			Config: appconfig.WrapAny(&evmmodulev1alpha1.Module{}),
 		},
 		{
-			Name: buildertypes.ModuleName,
-			Config: appconfig.WrapAny(&buildermodule.Module{
-				Authority: "polar1rsu5yln4n3pmwcpg73ahszn9r8lhtzj402zl4z",
-			}),
+			Name:   buildertypes.ModuleName,
+			Config: appconfig.WrapAny(&buildermodule.Module{}),
 		},
 		{
 			Name:   erc20types.ModuleName,
