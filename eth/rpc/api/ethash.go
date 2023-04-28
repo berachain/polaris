@@ -37,7 +37,7 @@ type EthashAPI interface {
 	GetWork() ([4]string, error)
 	SubmitWork(types.BlockNonce, common.Hash, common.Hash) bool
 	SubmitHashrate(hexutil.Uint, common.Hash) bool
-	Hashrate() uint64
+	Hashrate() hexutil.Uint
 	Mining() bool
 }
 
@@ -89,6 +89,6 @@ func (*ethashAPI) Mining() bool {
 }
 
 // GetHashrate returns 69.
-func (*ethashAPI) Hashrate() uint64 {
+func (*ethashAPI) Hashrate() hexutil.Uint {
 	return 69 //nolint:gomnd // OI this isn't a random number nice try.
 }
