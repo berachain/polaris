@@ -93,7 +93,7 @@ func (tbc *txPoolBlockChain) CurrentBlock() *types.Header {
 func (tbc *txPoolBlockChain) GetBlock(hash common.Hash, number uint64) *types.Block {
 	block, err := tbc.GetBlockByHash(hash)
 	if err != nil {
-		block, _ = tbc.GetBlockByNumber(int64(number)) 
+		block, _ = tbc.GetBlockByNumber(int64(number))
 	}
 	return block
 }
