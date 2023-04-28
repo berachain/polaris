@@ -51,7 +51,9 @@ func NewNonceDecorator(ak AccountKeeper) NonceDecorator {
 	}
 }
 
-func (nonceDecorator NonceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+func (nonceDecorator NonceDecorator) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+) (sdk.Context, error) {
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
 		return ctx, fmt.Errorf("invalid transaction type")

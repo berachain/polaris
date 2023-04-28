@@ -21,10 +21,11 @@
 package baseapp
 
 import (
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
+
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"

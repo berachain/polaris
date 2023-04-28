@@ -26,7 +26,6 @@ import (
 	"path/filepath"
 
 	dbm "github.com/cosmos/cosmos-db"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	pobabci "github.com/skip-mev/pob/abci"
 	"github.com/skip-mev/pob/mempool"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
@@ -42,6 +41,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -218,7 +218,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		mempool,
 	)
 
-	handler := pobabci.NewProposalHandler(mempool, app.Logger(), proposalAnteHandlers, app.TxnConfig.TxEncoder(), app.TxnConfig.TxDecoder())
+	handler := pobabci.NewProposalHandler(mempool, app.Logger(),
+		proposalAnteHandlers, app.TxnConfig.TxEncoder(), app.TxnConfig.TxDecoder())
 	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
 	app.App.SetProcessProposal(handler.ProcessProposalHandler())
 

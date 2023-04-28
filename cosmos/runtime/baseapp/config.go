@@ -21,6 +21,8 @@
 package baseapp
 
 import (
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
+
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -28,7 +30,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"

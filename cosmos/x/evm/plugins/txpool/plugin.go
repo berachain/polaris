@@ -104,3 +104,13 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	// use it anyways. We set the priority as the gas price of the tx.
 	return p.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
 }
+
+// Serialize serializes a transaction to bytes.
+func (p *plugin) Serialize(tx *coretypes.Transaction) ([]byte, error) {
+	return NewSerializer(p.cp, p.clientContext).Serialize(tx)
+}
+
+// SerializeToSdkTx serializes a transaction to a Cosmos transaction.
+func (p *plugin) SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error) {
+	return NewSerializer(p.cp, p.clientContext).SerializeToSdkTx(tx)
+}

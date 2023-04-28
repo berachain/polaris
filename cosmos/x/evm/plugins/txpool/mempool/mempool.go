@@ -85,10 +85,6 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDec
 // Used for testing only.
 func NewEthTxPoolDefault(m sdkmempool.Mempool) *EthTxPool {
 	return NewEthTxPoolFrom(m, common.Address{}, nil, nil, nil, "")
-		Mempool:    m,
-		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
-		nonces:     make(map[common.Address]uint64),
-	}
 }
 
 // SetNonceRetriever sets the nonce retriever db for the mempool.
