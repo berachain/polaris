@@ -45,6 +45,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
 	rpcapi "pkg.berachain.dev/polaris/eth/rpc/api"
+	"pkg.berachain.dev/polaris/eth/version"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -54,6 +55,7 @@ import (
 type PolarisBackend interface {
 	Backend
 	rpcapi.NetBackend
+	rpcapi.Web3Backend
 }
 
 // backend represents the backend for the JSON-RPC service.
@@ -521,6 +523,11 @@ func (b *backend) Listening() bool {
 func (b *backend) PeerCount() hexutil.Uint {
 	// TODO: Implement your code here
 	return 1
+}
+
+// ClientVersion returns the current client version.
+func (b *backend) ClientVersion() string {
+	return version.ClientName("polaris-geth")
 }
 
 // ==============================================================================
