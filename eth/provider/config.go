@@ -32,6 +32,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
+// clientIdentifier is the identifier string for the client.
+const clientIdentifier = "polaris-geth"
+
 // DefaultConfig returns the default configuration for the provider.
 func DefaultConfig() *Config {
 	c := Config{}
@@ -39,6 +42,7 @@ func DefaultConfig() *Config {
 	nodeCfg.P2P.NoDiscovery = true
 	nodeCfg.P2P = p2p.Config{}
 	nodeCfg.P2P.MaxPeers = 0
+	nodeCfg.Name = clientIdentifier
 	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth")
 	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
 	nodeCfg.HTTPHost = "0.0.0.0"

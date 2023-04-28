@@ -45,6 +45,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
 	rpcapi "pkg.berachain.dev/polaris/eth/rpc/api"
+	"pkg.berachain.dev/polaris/eth/version"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -521,7 +522,7 @@ func (b *backend) PeerCount() hexutil.Uint {
 
 // ClientVersion returns the current client version.
 func (b *backend) ClientVersion() string {
-	return b.nodeConfig.Name
+	return version.ClientName("polaris-geth")
 }
 
 // ==============================================================================
