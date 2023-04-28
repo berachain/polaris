@@ -72,8 +72,10 @@ func (p *plugin) GasRemaining() uint64 {
 
 // BlockGasLimit implements the core.GasPlugin interface.
 func (p *plugin) BlockGasLimit() uint64 {
-	if blockGasLimit := p.blockGasMeter.Limit(); blockGasLimit != 0 {
-		return blockGasLimit
+	if p.blockGasMeter != nil {
+		if blockGasLimit := p.blockGasMeter.Limit(); blockGasLimit != 0 {
+			return blockGasLimit
+		}
 	}
 	return p.consensusMaxGas
 }

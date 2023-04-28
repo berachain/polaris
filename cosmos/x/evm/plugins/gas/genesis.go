@@ -26,8 +26,10 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// InitGenesis is a no-op for the gas plugin.
-func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
+// InitGenesis sets the genesis context for the gas plugin.
+func (p *plugin) InitGenesis(ctx sdk.Context, _ *types.GenesisState) {
+	p.Prepare(ctx)
+}
 
 // ExportGenesis is a no-op for the gas plugin.
 func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}

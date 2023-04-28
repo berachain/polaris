@@ -86,14 +86,14 @@ func (tbc *txPoolBlockChain) CurrentBlock() *types.Header {
 	if block, _ := tbc.blockchain.CurrentBlock(); block != nil {
 		return block.Header()
 	}
-	return &types.Header{Number: big.NewInt(0)}
+	return &types.Header{Number: big.NewInt(0), GasLimit: tbc.gp.BlockGasLimit()}
 }
 
 // GetBlock implements txpool.BlockChain.
 func (tbc *txPoolBlockChain) GetBlock(hash common.Hash, number uint64) *types.Block {
 	block, err := tbc.GetBlockByHash(hash)
 	if err != nil {
-		block, _ = tbc.GetBlockByNumber(int64(number))
+		block, _ = tbc.GetBlockByNumber(int64(number)) 
 	}
 	return block
 }
