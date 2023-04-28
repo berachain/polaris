@@ -56,6 +56,7 @@ type PolarisBackend interface {
 	Backend
 	rpcapi.NetBackend
 	rpcapi.Web3Backend
+	rpcapi.EthashBackend
 }
 
 // backend represents the backend for the JSON-RPC service.
