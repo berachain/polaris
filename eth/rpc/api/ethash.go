@@ -37,7 +37,8 @@ type EthashAPI interface {
 	GetWork() ([4]string, error)
 	SubmitWork(types.BlockNonce, common.Hash, common.Hash) bool
 	SubmitHashrate(hexutil.Uint, common.Hash) bool
-	GetHashrate() uint64
+	Hashrate() uint64
+	Mining() bool
 }
 
 // ethashAPI offers ethashwork related RPC methods.
@@ -58,7 +59,7 @@ func (api *ethashAPI) GetWork() ([4]string, error) {
 		return [4]string{}, nil
 	}
 	ret[0] = header.Hash().Hex()
-	ret[1] = "8284b1fc134e598022acee0f8fe499540482efd2c11945aa7fd69d1d7a204d9b"
+	ret[1] = "0x8284b1fc134e598022acee0f8fe499540482efd2c11945aa7fd69d1d7a204d9b"
 	ret[2] = header.Difficulty.String()
 	ret[3] = header.Number.String()
 	return ret, nil
@@ -82,7 +83,12 @@ func (*ethashAPI) SubmitHashrate(_ hexutil.Uint, _ common.Hash) bool {
 	return false
 }
 
+// Mining returns true.
+func (*ethashAPI) Mining() bool {
+	return true
+}
+
 // GetHashrate returns 69.
-func (*ethashAPI) GetHashrate() uint64 {
+func (*ethashAPI) Hashrate() uint64 {
 	return 69 //nolint:gomnd // OI this isn't a random number nice try.
 }
