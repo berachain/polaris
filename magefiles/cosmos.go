@@ -131,7 +131,7 @@ func (Cosmos) Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./cmd/polard",
+		"./cosmos/cmd/polard",
 	}
 
 	return goInstall(args...)

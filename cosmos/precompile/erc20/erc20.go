@@ -533,3 +533,16 @@ func (c *Contract) ConvertERC20ToCoinToStringInput(
 	)
 	return []any{err == nil}, err
 }
+
+// ==============================================================================
+// Event Attribute Value Decoders
+// ==============================================================================
+
+// ConvertCommonHexAddress is a value decoder.
+var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
+
+// ConvertCommonHexAddress converts a common hex address attribute to a common.Address and returns
+// it as type any.
+func ConvertCommonHexAddress(attributeValue string) (any, error) {
+	return common.HexToAddress(attributeValue), nil
+}
