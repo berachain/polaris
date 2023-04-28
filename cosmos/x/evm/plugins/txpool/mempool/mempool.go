@@ -156,25 +156,25 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 		return err
 	}
 
-	// We want to remove the caches of this tx.
+	// Remove from the caches if its an eth tx
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
 	if !ok {
 		return nil
 	}
 
+	// Remove from tx cache
 	ethTx := etr.AsTransaction()
-	sender, err := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
-	if err != nil {
-		return err
-	}
-
 	delete(etp.ethTxCache, ethTx.Hash())
+
+	// Remove from nonces cache
+	sender, _ := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
 	delete(etp.nonces, sender)
+
 	return nil
 }
 
-// Stats returns the number of currently pending (locally created) transactions.
-func (etp *EthTxPool) Stats() (int, int) {
+// GetStats returns the number of currently pending and queued (locally created) transactions.
+func (etp *EthTxPool) GetStats() (int, int) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
@@ -182,9 +182,9 @@ func (etp *EthTxPool) Stats() (int, int) {
 	return 0, 0
 }
 
-// ContentFrom retrieves the data content of the transaction pool, returning the
-// pending as well as queued transactions of this address, grouped by nonce.
-func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
+// Content retrieves the data content of the transaction pool, returning all the pending as well as
+// queued transactions, grouped by account and nonce.
+func (etp *EthTxPool) GetContent() (map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
@@ -192,9 +192,9 @@ func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, 
 	return nil, nil
 }
 
-// Content retrieves the data content of the transaction pool, returning all the
-// pending as well as queued transactions, grouped by account and nonce.
-func (etp *EthTxPool) Content() (map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions) {
+// GetContentFrom retrieves the data content of the transaction pool, returning the pending as well
+// as queued transactions of this address, grouped by nonce.
+func (etp *EthTxPool) GetContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 

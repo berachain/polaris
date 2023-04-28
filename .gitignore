@@ -200,6 +200,8 @@ contracts/out/
 */**/*.bin
 */**/*.json
 
+# geth
+*.rlp
 
 # cosmos
 .testnets/

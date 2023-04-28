@@ -135,6 +135,14 @@ type (
 		GetNonce(common.Address) (uint64, error)
 		// GetNewTxsEventSubscription returns a subscription with the new txs event channel.
 		GetNewTxsEventSubscription(ch chan<- NewTxsEvent) event.Subscription
+		// GetStats returns the number of currently pending and queued (locally created) txs.
+		GetStats() (int, int)
+		// Content retrieves the data content of the transaction pool, returning all the pending as
+		// well as queued transactions, grouped by account and nonce.
+		GetContent() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
+		// GetContentFrom retrieves the data content of the transaction pool, returning the pending
+		// as well as queued transactions of this address, grouped by nonce.
+		GetContentFrom(addr common.Address) (types.Transactions, types.Transactions)
 	}
 )
 

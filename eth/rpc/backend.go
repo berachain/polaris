@@ -408,26 +408,31 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 }
 
 func (b *backend) GetPoolNonce(_ context.Context, addr common.Address) (uint64, error) {
-	return b.chain.GetPoolNonce(addr)
+	nonce, err := b.chain.GetPoolNonce(addr)
+	b.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
+	return nonce, err
 }
 
 func (b *backend) Stats() (int, int) {
-	pending := 0
-	queued := 0
-	// TODO: Implement your code here
+	pending, queued := b.chain.GetPoolStats()
+	b.logger.Info("called eth.rpc.backend.Stats", "pending", pending, "queued", queued)
 	return pending, queued
 }
 
-func (b *backend) TxPoolContent() (map[common.Address]types.Transactions,
-	map[common.Address]types.Transactions) {
-	// TODO: Implement your code here
-	return nil, nil
+func (b *backend) TxPoolContent() (
+	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
+) {
+	pending, queued := b.chain.GetPoolContent()
+	b.logger.Info("called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
+	return pending, queued
 }
 
-func (b *backend) TxPoolContentFrom(addr common.Address,
-) (types.Transactions, types.Transactions) {
-	// TODO: Implement your code here
-	return nil, nil
+func (b *backend) TxPoolContentFrom(addr common.Address) (
+	types.Transactions, types.Transactions,
+) {
+	pending, queued := b.chain.GetPoolContentFrom(addr)
+	b.logger.Info("called eth.rpc.backend.TxPoolContentFrom", "addr", addr, "pending", len(pending), "queued", len(queued))
+	return pending, queued
 }
 
 func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {

@@ -54,6 +54,9 @@ type ChainTxPoolReader interface {
 	GetPoolTransactions() (types.Transactions, error)
 	GetPoolTransaction(common.Hash) *types.Transaction
 	GetPoolNonce(common.Address) (uint64, error)
+	GetPoolStats() (int, int)
+	GetPoolContent() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
+	GetPoolContentFrom(addr common.Address) (types.Transactions, types.Transactions)
 }
 
 // =========================================================================
@@ -230,7 +233,24 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 
 // GetPoolNonce returns the nonce of an address in the mempool.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	nonce, err := bc.tp.GetNonce(addr)
-	bc.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
-	return nonce, err
+	return bc.tp.GetNonce(addr)
+}
+
+// GetPoolStats returns the number of pending and queued txs in the mempool.
+func (bc *blockchain) GetPoolStats() (int, int) {
+	return bc.tp.GetStats()
+}
+
+// GetPoolContent returns the pending and queued txs in the mempool.
+func (bc *blockchain) GetPoolContent() (
+	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
+) {
+	return bc.tp.GetContent()
+}
+
+// GetPoolContentFrom returns the pending and queued txs in the mempool for the given address.
+func (bc *blockchain) GetPoolContentFrom(addr common.Address) (
+	types.Transactions, types.Transactions,
+) {
+	return bc.tp.GetContentFrom(addr)
 }
