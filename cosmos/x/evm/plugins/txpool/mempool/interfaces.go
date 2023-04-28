@@ -18,24 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package mempool
 
-const (
-	StoreKey   = "erc20"
-	ModuleName = "erc20"
-)
+import "pkg.berachain.dev/polaris/eth/common"
 
-const (
-	DenomToAddressKeyPrefix byte = iota
-	AddressToDenomKeyPrefix
-)
-
-var (
-	EventTypeConvertERC20ToCoin = "convert_erc20_to_coin"
-	EventTypeConvertCoinToERC20 = "convert_coin_to_erc20"
-
-	AttributeKeyToken     = "token"
-	AttributeKeyDenom     = "denom"
-	AttributeKeyOwner     = "owner"
-	AttributeKeyRecipient = "recipient"
+type (
+	// NonceRetriever is used to retrieve a nonce from the db.
+	NonceRetriever interface {
+		GetNonce(addr common.Address) uint64
+		Error() error
+	}
 )

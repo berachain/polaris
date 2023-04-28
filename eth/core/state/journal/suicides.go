@@ -37,10 +37,8 @@ var emptyCodeHash = crypto.Keccak256Hash(nil)
 type suicideStatePlugin interface {
 	// GetCodeHash returns the code hash of the given account.
 	GetCodeHash(common.Address) common.Hash
-	// GetBalance returns the balance of the given account.
-	GetBalance(common.Address) *big.Int
-	// SubBalance subtracts amount from the given account.
-	SubBalance(common.Address, *big.Int)
+	// SetBalance sets the balance of the given account.
+	SetBalance(common.Address, *big.Int)
 }
 
 // Dirty tracking of suicided accounts, we have to keep track of these manually, in order for the
@@ -87,7 +85,7 @@ func (s *suicides) Suicide(addr common.Address) bool {
 	}
 
 	// Reduce it's balance to 0.
-	s.ssp.SubBalance(addr, s.ssp.GetBalance(addr))
+	s.ssp.SetBalance(addr, big.NewInt(0))
 
 	// add to journal.
 	s.journal.Push(&addr)

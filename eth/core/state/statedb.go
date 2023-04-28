@@ -217,10 +217,6 @@ func (sdb *stateDB) StorageTrie(_ common.Address) (Trie, error) {
 	return nil, nil
 }
 
-func (sdb *stateDB) Error() error {
-	return nil
-}
-
 func (sdb *stateDB) GetStorageProof(_ common.Address, _ common.Hash) ([][]byte, error) {
 	return nil, nil
 }
