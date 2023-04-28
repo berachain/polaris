@@ -32,6 +32,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/provider"
@@ -49,7 +50,7 @@ type Keeper struct {
 	// authority is the bech32 address that is allowed to execute governance proposals.
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
-	host Host
+	host *Host
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -89,11 +90,18 @@ func (k *Keeper) Setup(
 	polarisConfigPath string,
 	polarisDataDir string,
 ) {
+	// Setup plugins in the Host
+	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
+
 	// Build the Polaris EVM Provider
 	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)
+}
 
-	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc, k.polaris.Chain.GetTxPoolBlockChain())
+// InitTxPool sets the Polaris TxPool on the txpool plugin.
+func (k *Keeper) InitTxPool() {
+	k.host.txp.SetPolarisTxPool(
+		core.NewPolarisTxPool(k.host.cp.ChainConfig(), k.polaris.Chain.GetTxPoolBlockChain()),
+	)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
@@ -118,7 +126,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // GetHost returns the Host that contains all plugins.
-func (k *Keeper) GetHost() Host {
+func (k *Keeper) Host() *Host {
 	return k.host
 }
 

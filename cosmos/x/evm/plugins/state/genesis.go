@@ -46,6 +46,7 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	}
 
 	p.Finalize()
+	p.SetGenesis(ctx)
 }
 
 // Export genesis modifies a pointer to a genesis state object and populates it.

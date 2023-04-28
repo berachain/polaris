@@ -37,6 +37,9 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 		plugin.InitGenesis(ctx, &genState)
 	}
 
+	// Initialize the tx mempool.
+	k.InitTxPool()
+
 	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
 	if err := k.polaris.StartServices(); err != nil {
 		return err

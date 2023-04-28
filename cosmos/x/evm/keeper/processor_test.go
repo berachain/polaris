@@ -106,7 +106,7 @@ var _ = Describe("Processor", func() {
 		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir())
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
-		for _, plugin := range k.GetHost().GetAllPlugins() {
+		for _, plugin := range k.Host().GetAllPlugins() {
 			plugin.InitGenesis(ctx, types.DefaultGenesis())
 		}
 
@@ -145,9 +145,9 @@ var _ = Describe("Processor", func() {
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
-			k.GetHost().GetStatePlugin().CreateAccount(addr)
-			k.GetHost().GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
-			k.GetHost().GetStatePlugin().Finalize()
+			k.Host().GetStatePlugin().CreateAccount(addr)
+			k.Host().GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.Host().GetStatePlugin().Finalize()
 
 			// create the contract
 			result, err := k.ProcessTransaction(ctx, tx)

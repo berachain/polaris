@@ -40,6 +40,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 	"pkg.berachain.dev/polaris/lib/snapshot"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 const pluginRegistryKey = `statePlugin`
@@ -115,6 +116,9 @@ type plugin struct {
 
 	// dbErr holds any saved error from execution of SDK state changes.
 	dbErr error
+
+	// genesisCtx is the context of the genesis state.
+	genesisCtx sdk.Context
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -516,7 +520,14 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	}
 
 	var ctx sdk.Context
-	if p.ctx.BlockHeight() == iavlHeight {
+	if p.ctx.BlockHeight() < iavlHeight { //nolint:gocritic // cannot be switch-case.
+		// return the genesis state for reading nonces and balances
+		sp := utils.MustGetAs[*plugin](NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf))
+		sp.cms = snapmulti.NewStoreFrom(p.genesisCtx.MultiStore())
+		sp.ctx = p.genesisCtx.WithMultiStore(sp.cms)
+		sp.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
+		return sp, nil
+	} else if p.ctx.BlockHeight() == iavlHeight {
 		ctx, _ = p.ctx.CacheContext()
 	} else {
 		// Get the query context at the given height.
@@ -544,4 +555,8 @@ func (p *plugin) Error() error {
 
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
+}
+
+func (p *plugin) SetGenesis(ctx sdk.Context) {
+	p.genesisCtx = ctx
 }

@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -82,8 +83,10 @@ type txPoolBlockChain struct {
 
 // CurrentBlock implements txpool.BlockChain.
 func (tbc *txPoolBlockChain) CurrentBlock() *types.Header {
-	block, _ := tbc.blockchain.CurrentBlock()
-	return block.Header()
+	if block, _ := tbc.blockchain.CurrentBlock(); block != nil {
+		return block.Header()
+	}
+	return &types.Header{Number: big.NewInt(0)}
 }
 
 // GetBlock implements txpool.BlockChain.

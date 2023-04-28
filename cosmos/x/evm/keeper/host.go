@@ -39,29 +39,13 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	ethtxpool "pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time interface assertion.
-var _ core.PolarisHostChain = (*host)(nil)
+var _ core.PolarisHostChain = (*Host)(nil)
 
-// Host is the interface that must be implemented by the host.
-// It includes core.PolarisHostChain and functions that are called in other packages.
-type Host interface {
-	core.PolarisHostChain
-	GetAllPlugins() []plugins.BaseCosmosPolaris
-	Setup(
-		storetypes.StoreKey,
-		storetypes.StoreKey,
-		state.AccountKeeper,
-		state.BankKeeper,
-		func(height int64, prove bool) (sdk.Context, error),
-		ethtxpool.BlockChain,
-	)
-}
-
-type host struct {
+type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
 	bp  block.Plugin
 	cp  configuration.Plugin
@@ -83,29 +67,27 @@ func NewHost(
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
 	precompiles func() *ethprecompile.Injector,
-) Host {
+) *Host {
 	// We setup the host with some Cosmos standard sauce.
-	h := &host{}
-
-	// Build the Plugins
-	h.bp = block.NewPlugin(storeKey)
-	h.cp = configuration.NewPlugin(storeKey)
-	h.gp = gas.NewPlugin()
+	h := &Host{
+		bp:  block.NewPlugin(storeKey),
+		cp:  configuration.NewPlugin(storeKey),
+		gp:  gas.NewPlugin(),
+		pcs: precompiles,
+	}
 	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
-	h.pcs = precompiles
 
 	return h
 }
 
 // Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
 // sets the query context function for the block and state plugins (to support historical queries).
-func (h *host) Setup(
+func (h *Host) Setup(
 	storeKey storetypes.StoreKey,
 	offchainStoreKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
-	txpBc ethtxpool.BlockChain,
 ) {
 	// Setup the precompile and state plugins
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
@@ -115,46 +97,43 @@ func (h *host) Setup(
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
 	h.bp.SetQueryContextFn(qc)
-
-	// Set the PolarisTxPool on the txpool plugin
-	h.txp.SetPolarisTxPool(core.NewPolarisTxPool(h.cp.ChainConfig(), txpBc))
 }
 
 // GetBlockPlugin returns the header plugin.
-func (h *host) GetBlockPlugin() core.BlockPlugin {
+func (h *Host) GetBlockPlugin() core.BlockPlugin {
 	return h.bp
 }
 
 // GetConfigurationPlugin returns the configuration plugin.
-func (h *host) GetConfigurationPlugin() core.ConfigurationPlugin {
+func (h *Host) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return h.cp
 }
 
 // GetGasPlugin returns the gas plugin.
-func (h *host) GetGasPlugin() core.GasPlugin {
+func (h *Host) GetGasPlugin() core.GasPlugin {
 	return h.gp
 }
 
-func (h *host) GetHistoricalPlugin() core.HistoricalPlugin {
+func (h *Host) GetHistoricalPlugin() core.HistoricalPlugin {
 	return h.hp
 }
 
 // GetPrecompilePlugin returns the precompile plugin.
-func (h *host) GetPrecompilePlugin() core.PrecompilePlugin {
+func (h *Host) GetPrecompilePlugin() core.PrecompilePlugin {
 	return h.pp
 }
 
 // GetStatePlugin returns the state plugin.
-func (h *host) GetStatePlugin() core.StatePlugin {
+func (h *Host) GetStatePlugin() core.StatePlugin {
 	return h.sp
 }
 
 // GetTxPoolPlugin returns the txpool plugin.
-func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
+func (h *Host) GetTxPoolPlugin() core.TxPoolPlugin {
 	return h.txp
 }
 
 // GetAllPlugins returns all the plugins.
-func (h *host) GetAllPlugins() []plugins.BaseCosmosPolaris {
+func (h *Host) GetAllPlugins() []plugins.BaseCosmosPolaris {
 	return []plugins.BaseCosmosPolaris{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
 }
