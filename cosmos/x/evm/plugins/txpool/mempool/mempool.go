@@ -26,6 +26,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -59,21 +60,19 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	etp.mu.Lock()
 	defer etp.mu.Unlock()
 
-	// Add to the Polaris TxPool
+	// Add to the base mempool
+	if err := etp.Mempool.Insert(ctx, tx); err != nil {
+		return err
+	}
+
+	// Add to the Polaris TxPool if it is an eth tx
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
 	if !ok {
 		return nil
 	}
-	ethTx := etr.AsTransaction()
-	if err := etp.PolarisTxPool.AddLocal(ethTx); err != nil {
-		return err
-	}
-
-	// Call the base mempool's Insert method if the Polaris TxPool added it
-	if err := etp.Mempool.Insert(ctx, tx); err != nil {
-		// if this tx cannot be inserted, remove from the Polaris TxPool to be consistent
-		etp.PolarisTxPool.RemoveTx(ethTx.Hash(), true)
-		return err
+	if err := etp.PolarisTxPool.AddLocal(etr.AsTransaction()); err != nil {
+		// if the eth tx cannot be added to the polaris txpool, remove it from the base mempool
+		return errorslib.Wrapf(err, "removing from base mempool %v", etp.Mempool.Remove(tx))
 	}
 
 	return nil
@@ -84,18 +83,16 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	etp.mu.Lock()
 	defer etp.mu.Unlock()
 
-	// Verify that this tx is an EthTx
-	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
-	if !ok {
-		return nil
-	}
-
 	// Call the base mempool's Remove method
 	if err := etp.Mempool.Remove(tx); err != nil {
 		return err
 	}
 
-	// Remove from the Polaris TxPool if the base mempool removed it
-	etp.PolarisTxPool.RemoveTx(etr.AsTransaction().Hash(), true)
+	// Verify that this tx is an EthTx
+	if etr, ok := utils.GetAs[*types.EthTransactionRequest](tx); ok {
+		// Remove from the Polaris TxPool if the base mempool removed it
+		etp.PolarisTxPool.RemoveTx(etr.AsTransaction().Hash(), true)
+	}
+
 	return nil
 }
