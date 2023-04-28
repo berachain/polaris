@@ -39,7 +39,7 @@ var (
 	dockerBuild = RunCmdV("docker", "build", "--rm=false")
 
 	// Variables.
-	baseDockerPath  = "./cosmos/"
+	baseDockerPath  = "./cosmos/runtime/localnode/"
 	beradDockerPath = baseDockerPath + "Dockerfile"
 	imageName       = "polaris-cosmos"
 	// testImageVersion       = "e2e-test-dev".

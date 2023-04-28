@@ -500,9 +500,11 @@ func (b *backend) ServiceFilter(_ context.Context, session *bloombits.MatcherSes
 	// TODO: Implement your code here
 }
 
+// Version returns the current chain protocol version.
+// For education:
+// https://medium.com/@pedrouid/chainid-vs-networkid-how-do-they-differ-on-ethereum-eec2ed41635b
 func (b *backend) Version() string {
-	// TODO: Implement your code here
-	return "1.0" // get from comet?
+	return b.ChainConfig().ChainID.String()
 }
 
 func (b *backend) Listening() bool {
