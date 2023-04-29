@@ -50,9 +50,10 @@ import (
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
+	polarisante "pkg.berachain.dev/polaris/cosmos/runtime/baseapp/ante"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	evmtx "pkg.berachain.dev/polaris/cosmos/x/evm/tx"
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
@@ -194,12 +195,12 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		BankKeeper:      app.BankKeeper,
 		SignModeHandler: app.TxConfig().SignModeHandler(),
 		FeegrantKeeper:  app.FeeGrantKeeper,
-		SigGasConsumer:  evmante.SigVerificationGasConsumer,
+		SigGasConsumer:  evmtx.SigVerificationGasConsumer,
 	}
 
-	ch, _ := evmante.NewAnteHandler(
+	ch, _ := polarisante.NewAnteHandler(
 		opt,
-		app.BuilderKeeper,
+		*app.BuilderKeeper,
 		app.TxnConfig.TxDecoder(),
 		app.TxnConfig.TxEncoder(),
 		mempool,
@@ -210,9 +211,9 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	)
 
 	// Set the ante handlers the proposal handlers will use to verify and build blocks
-	proposalAnteHandlers, _ := evmante.NewProposalAnteHandler(
+	proposalAnteHandlers, _ := polarisante.NewProposalAnteHandler(
 		opt,
-		app.BuilderKeeper,
+		*app.BuilderKeeper,
 		app.TxnConfig.TxDecoder(),
 		app.TxnConfig.TxEncoder(),
 		mempool,

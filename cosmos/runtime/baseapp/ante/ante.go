@@ -36,21 +36,73 @@ import (
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
+	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.EthTxPool,
+) (sdk.AnteHandler, error) {
+	// Validate the supplied options
+	if err := ValidateOptions(options); err != nil {
+		return nil, err
+	}
+
+	// Build the AnteDecorator pipeline
+	anteDecorators := append(Decorators(options),
+		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
+	)
+
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
+
+// NewProposalAnteHandler returns the set of ante handlers that are run when building
+// and verifying block proposals. This is similar to the NewAnteHandler, however, it
+// enforces that nonces are correctly sequenced and updated during Prepare and Process
+// Proposal. This allows transactions to be broadcasted out of order but sequenced in
+// the expected order when blocks are built/verified.
+func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder,
 	mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
+	// Validate the supplied options
+	if err := ValidateOptions(options); err != nil {
+		return nil, err
+	}
+
+	// Build the AnteDecorator pipeline
+	anteDecorators := append(Decorators(options),
+		// Validate the nonces of all accounts that are signers in the transaction.
+		NewNonceDecorator(options.AccountKeeper),
+		// Update the nonces of all accounts that are signers in the transaction.
+		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
+	)
+
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
+
+// ValidateOptions performs a basic validation of the provided options.
+func ValidateOptions(options ante.HandlerOptions) error {
 	if options.AccountKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+		return errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
 	}
 
 	if options.BankKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+		return errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+	}
+
+	if options.FeegrantKeeper == nil {
+		return errors.Wrap(sdkerrors.ErrLogic, "feegrant keeper is required for ante builder")
+	}
+
+	if options.TxFeeChecker == nil {
+		return errors.Wrap(sdkerrors.ErrLogic, "tx fee checker is required for ante builder")
 	}
 
 	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+		return errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
+	return nil
+}
 
-	anteDecorators := []sdk.AnteDecorator{
+// Decorators returns the default AnteDecorators that Polaris Chains should use.
+func Decorators(options ante.HandlerOptions) []sdk.AnteDecorator {
+	return []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
@@ -90,62 +142,5 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 		EthSkipDecorator[ante.IncrementSequenceDecorator]{
 			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		},
-		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
 	}
-
-	return sdk.ChainAnteDecorators(anteDecorators...), nil
-}
-
-// NewProposalAnteHandler returns the set of ante handlers that are run when building
-// and verifying block proposals. This is similar to the NewAnteHandler, however, it
-// enforces that nonces are correctly sequenced and updated during Prepare and Process
-// Proposal. This allows transactions to be broadcasted out of order but sequenced in
-// the expected order when blocks are built/verified.
-func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
-	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder,
-	mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
-	if options.AccountKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
-	}
-
-	if options.BankKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
-	}
-
-	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
-	}
-
-	anteDecorators := []sdk.AnteDecorator{
-		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-		ante.NewValidateBasicDecorator(),
-		ante.NewTxTimeoutHeightDecorator(),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// EthTransactions can skip consuming transaction gas as it will be done
-		// in the StateTransition.
-		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{
-			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		},
-		// EthTransaction can skip deduct fee transactions as they are done in the
-		// StateTransition. // TODO: check to make sure this doesn't cause spam.
-		EthSkipDecorator[ante.DeductFeeDecorator]{
-			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-				options.FeegrantKeeper, options.TxFeeChecker),
-		},
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		// In order to match ethereum gas consumption, we do not consume any gas when
-		// verifying the signature.
-		EthSkipDecorator[ante.SigGasConsumeDecorator]{
-			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		},
-		// Validate the nonces of all accounts that are signers in the transaction.
-		NewNonceDecorator(options.AccountKeeper),
-		// Update the nonces of all accounts that are signers in the transaction.
-		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
-	}
-
-	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }

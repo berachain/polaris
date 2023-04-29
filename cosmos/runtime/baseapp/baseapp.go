@@ -139,11 +139,11 @@ type PolarisBaseApp struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
-	BuilderKeeper         builderkeeper.Keeper
 
 	// polaris keepers
-	EVMKeeper   *evmkeeper.Keeper
-	ERC20Keeper *erc20keeper.Keeper
+	EVMKeeper     *evmkeeper.Keeper
+	ERC20Keeper   *erc20keeper.Keeper
+	BuilderKeeper *builderkeeper.Keeper
 }
 
 // Name returns the name of the App.

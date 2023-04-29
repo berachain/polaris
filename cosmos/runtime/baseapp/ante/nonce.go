@@ -51,7 +51,7 @@ func NewNonceDecorator(ak AccountKeeper) NonceDecorator {
 	}
 }
 
-func (nonceDecorator NonceDecorator) AnteHandle(
+func (nd NonceDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
@@ -70,7 +70,7 @@ func (nonceDecorator NonceDecorator) AnteHandle(
 	}
 
 	for i, sig := range sigs {
-		acc := nonceDecorator.ak.GetAccount(ctx, signerAddrs[i])
+		acc := nd.ak.GetAccount(ctx, signerAddrs[i])
 		if acc == nil {
 			return ctx, fmt.Errorf("account %s does not exist", signerAddrs[i])
 		}
