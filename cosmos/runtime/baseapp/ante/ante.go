@@ -131,16 +131,5 @@ func Decorators(options ante.HandlerOptions) []sdk.AnteDecorator {
 		EthSkipDecorator[ante.SigVerificationDecorator]{
 			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		},
-		// EthTransactions are allowed to skip sequence verification as we do this in the
-		// state transition.
-		// NOTE: we may need to change this as it could cause issues if a client is intertwining
-		// Ethreum and Cosmos transactions within a close timeframe.
-		// By skipping this for Eth Transactions, the Account Seq of the sender does not get updated
-		// in checkState during checkTx, but only in DeliverTx, since we are upping in nonce during the
-		// actual execution of the block and not during the ante handler.
-		// TODO: // check with Marko to make sure this is okay.
-		EthSkipDecorator[ante.IncrementSequenceDecorator]{
-			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		},
 	}
 }
