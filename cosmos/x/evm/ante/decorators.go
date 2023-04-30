@@ -44,30 +44,7 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 	if err := ValidateOptions(options); err != nil {
 		return nil, err
 	}
-	anteDecorators := []sdk.AnteDecorator{
-		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-		ante.NewValidateBasicDecorator(),
-		ante.NewTxTimeoutHeightDecorator(),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// EthTransactions can skip consuming transaction gas as it will be done
-		// in the StateTransition.
-		antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *evmtypes.EthTransactionRequest](
-			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		),
-		// EthTransaction can skip deduct fee transactions as they are done in the
-		// StateTransition. // TODO: check to make sure this doesn't cause spam.
-		antelib.NewIgnoreDecorator[ante.DeductFeeDecorator, *evmtypes.EthTransactionRequest](
-			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-				options.FeegrantKeeper, options.TxFeeChecker),
-		),
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		// In order to match ethereum gas consumption, we do not consume any gas when
-		// verifying the signature.
-		antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *evmtypes.EthTransactionRequest](
-			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		),
+	anteDecorators := append(Decorators(options), []sdk.AnteDecorator{
 		// EthTransaction can skip Signature Verification as we do this in the mempool.
 		// TODO: // check with Marko to make sure this is okay (ties into the one below)
 		antelib.NewIgnoreDecorator[ante.SigVerificationDecorator, *evmtypes.EthTransactionRequest](
@@ -85,7 +62,7 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		),
 		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
-	}
+	}...)
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
@@ -103,36 +80,13 @@ func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.K
 		return nil, err
 	}
 
-	anteDecorators := []sdk.AnteDecorator{
-		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-		ante.NewValidateBasicDecorator(),
-		ante.NewTxTimeoutHeightDecorator(),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// EthTransactions can skip consuming transaction gas as it will be done
-		// in the StateTransition.
-		antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *evmtypes.EthTransactionRequest](
-			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		),
-		// EthTransaction can skip deduct fee transactions as they are done in the
-		// StateTransition. // TODO: check to make sure this doesn't cause spam.
-		antelib.NewIgnoreDecorator[ante.DeductFeeDecorator, *evmtypes.EthTransactionRequest](
-			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-				options.FeegrantKeeper, options.TxFeeChecker),
-		),
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		// In order to match ethereum gas consumption, we do not consume any gas when
-		// verifying the signature.
-		antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *evmtypes.EthTransactionRequest](
-			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		),
+	anteDecorators := append(Decorators(options), []sdk.AnteDecorator{
 		// Validate the nonces of all accounts that are signers in the transaction.
 		NewNonceDecorator(options.AccountKeeper),
 		// Update the nonces of all accounts that are signers in the transaction.
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
-	}
+	}...)
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
@@ -151,4 +105,33 @@ func ValidateOptions(options ante.HandlerOptions) error {
 		return errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
 	return nil
+}
+
+// Decorators returns the default AnteHandler decorators.
+func Decorators(options ante.HandlerOptions) []sdk.AnteDecorator {
+	return []sdk.AnteDecorator{
+		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		ante.NewValidateBasicDecorator(),
+		ante.NewTxTimeoutHeightDecorator(),
+		ante.NewValidateMemoDecorator(options.AccountKeeper),
+		// EthTransactions can skip consuming transaction gas as it will be done
+		// in the StateTransition.
+		antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *evmtypes.EthTransactionRequest](
+			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		),
+		// EthTransaction can skip deduct fee transactions as they are done in the
+		// StateTransition. // TODO: check to make sure this doesn't cause spam.
+		antelib.NewIgnoreDecorator[ante.DeductFeeDecorator, *evmtypes.EthTransactionRequest](
+			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
+				options.FeegrantKeeper, options.TxFeeChecker),
+		),
+		ante.NewSetPubKeyDecorator(options.AccountKeeper),
+		ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		// In order to match ethereum gas consumption, we do not consume any gas when
+		// verifying the signature.
+		antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *evmtypes.EthTransactionRequest](
+			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		),
+	}
 }
