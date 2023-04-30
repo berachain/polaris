@@ -67,7 +67,6 @@ var (
 	MustSignNewTx          = types.MustSignNewTx
 	NewBlock               = types.NewBlock
 	ErrInvalidSig          = types.ErrInvalidSig
-	Sender                 = types.Sender
 )
 
 var (

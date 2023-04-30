@@ -21,8 +21,6 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/event"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -133,8 +131,6 @@ type (
 		GetTransaction(common.Hash) *types.Transaction
 		// GetNonce returns the nonce of the given address in the transaction pool.
 		GetNonce(common.Address) (uint64, error)
-		// GetNewTxsEventSubscription returns a subscription with the new txs event channel.
-		GetNewTxsEventSubscription(ch chan<- NewTxsEvent) event.Subscription
 	}
 )
 

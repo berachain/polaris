@@ -113,8 +113,9 @@ var _ = Describe("State Plugin", func() {
 
 		Context("TestSubBalance", func() {
 			It("should not set balance to negative value", func() {
-				sp.SubBalance(alice, big.NewInt(100))
-				Expect(sp.Error()).To(HaveOccurred())
+				Expect(func() {
+					sp.SubBalance(alice, big.NewInt(100))
+				}).To(Panic())
 			})
 			It("should panic if using negative value", func() {
 				Expect(func() {
@@ -140,8 +141,9 @@ var _ = Describe("State Plugin", func() {
 			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(150)))
 
 			// Subtract some balance from alice
-			sp.SubBalance(alice, big.NewInt(200))
-			Expect(sp.Error()).To(HaveOccurred())
+			Expect(func() {
+				sp.SubBalance(alice, big.NewInt(200))
+			}).To(Panic())
 		})
 	})
 
