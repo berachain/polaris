@@ -27,17 +27,17 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// EthSkipDecorator is an AnteDecorator that wraps an existing AnteDecorator. It allows
+// EthIgnoreDecorator is an AnteDecorator that wraps an existing AnteDecorator. It allows
 // EthTransactions to skip said Decorator by checking the first message in the transaction
 // for an EthTransactionRequest. This is safe since EthTransactions are guaranteed to be
 // the first and only message in a transaction.
-type EthSkipDecorator[T sdk.AnteDecorator] struct {
+type EthIgnoreDecorator[T sdk.AnteDecorator] struct {
 	decorator T
 }
 
 // AnteHandle implements the sdk.AnteDecorator interface, it is handle the
 // type check for the message type.
-func (sd EthSkipDecorator[T]) AnteHandle(
+func (sd EthIgnoreDecorator[T]) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	if _, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0]); ok {
