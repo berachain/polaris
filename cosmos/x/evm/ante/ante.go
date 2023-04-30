@@ -36,20 +36,12 @@ import (
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
-	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder,
-	mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
-	if options.AccountKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.EthTxPool,
+) (sdk.AnteHandler, error) {
+	// Validate the options before creating the ante handler.
+	if err := ValidateOptions(options); err != nil {
+		return nil, err
 	}
-
-	if options.BankKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
-	}
-
-	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
-	}
-
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
@@ -102,18 +94,11 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 // Proposal. This allows transactions to be broadcasted out of order but sequenced in
 // the expected order when blocks are built/verified.
 func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
-	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder,
-	mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
-	if options.AccountKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
-	}
-
-	if options.BankKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
-	}
-
-	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.EthTxPool,
+) (sdk.AnteHandler, error) {
+	// Validate the options before creating the ante handler.
+	if err := ValidateOptions(options); err != nil {
+		return nil, err
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
@@ -148,4 +133,28 @@ func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.K
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
+
+// ValidateOptions performs a basic validation of the provided options.
+func ValidateOptions(options ante.HandlerOptions) error {
+	if options.AccountKeeper == nil {
+		return errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+	}
+
+	if options.BankKeeper == nil {
+		return errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+	}
+
+	if options.FeegrantKeeper == nil {
+		return errors.Wrap(sdkerrors.ErrLogic, "feegrant keeper is required for ante builder")
+	}
+
+	if options.TxFeeChecker == nil {
+		return errors.Wrap(sdkerrors.ErrLogic, "tx fee checker is required for ante builder")
+	}
+
+	if options.SignModeHandler == nil {
+		return errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	}
+	return nil
 }
