@@ -211,7 +211,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	// If we are using the PoB mempool we need to set the proposal handlers
 	var chainMempool sdkmempool.Mempool = ethTxMempool
-	if pobMempool, ok_ := chainMempool.(pobabci.Mempool); ok_ {
+	var pobMempool pobabci.Mempool
+	if pobMempool, ok = chainMempool.(pobabci.Mempool); ok {
 		handler := pobabci.NewProposalHandler(pobMempool, app.Logger(),
 			proposalAnteHandlers, app.TxnConfig.TxEncoder(), app.TxnConfig.TxDecoder())
 		app.App.SetPrepareProposal(handler.PrepareProposalHandler())
