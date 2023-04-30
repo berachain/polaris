@@ -25,7 +25,6 @@ import (
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -36,11 +35,9 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
-	ethmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/eth"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time interface assertion.
@@ -52,6 +49,7 @@ type Host interface {
 	core.PolarisHostChain
 	GetAllPlugins() []plugins.BaseCosmosPolaris
 	Setup(
+		txpool.Mempool,
 		storetypes.StoreKey,
 		storetypes.StoreKey,
 		state.AccountKeeper,
@@ -82,7 +80,6 @@ func NewHost(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool sdkmempool.Mempool,
 	precompiles func() *ethprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
@@ -92,7 +89,6 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*ethmempool.Mempool](ethTxMempool))
 	h.pcs = precompiles
 
 	return h
@@ -101,6 +97,7 @@ func NewHost(
 // Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
 // sets the query context function for the block and state plugins (to support historical queries).
 func (h *host) Setup(
+	ethTxMempool txpool.Mempool,
 	storeKey storetypes.StoreKey,
 	offchainStoreKey storetypes.StoreKey,
 	ak state.AccountKeeper,
@@ -111,6 +108,7 @@ func (h *host) Setup(
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
+	h.txp = txpool.NewPlugin(h.cp, ethTxMempool)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

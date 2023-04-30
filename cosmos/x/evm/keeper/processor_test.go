@@ -29,7 +29,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -38,7 +37,6 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	ethmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/eth"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -84,7 +82,6 @@ var _ = Describe("Processor", func() {
 			Data:     []byte("abcdef"),
 			GasPrice: big.NewInt(1),
 		}
-		ethPool := ethmempool.NewMempoolFrom(sdkmempool.DefaultPriorityMempool())
 
 		// before chain, init genesis state
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
@@ -93,7 +90,6 @@ var _ = Describe("Processor", func() {
 			ak, bk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
-			ethPool,
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
@@ -103,7 +99,7 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir())
+		k.Setup(nil, storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir())
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {

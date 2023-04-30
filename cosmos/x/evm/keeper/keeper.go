@@ -27,7 +27,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
@@ -59,7 +58,6 @@ func NewKeeper(
 	bk state.BankKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
-	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
@@ -76,7 +74,6 @@ func NewKeeper(
 		bk,
 		authority,
 		appOpts,
-		ethTxMempool,
 		pcs,
 	)
 	return k
@@ -84,6 +81,7 @@ func NewKeeper(
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
+	ethTxMempool txpool.Mempool,
 	offchainStoreKey *storetypes.KVStoreKey,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
@@ -91,7 +89,7 @@ func (k *Keeper) Setup(
 
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
+	k.host.Setup(ethTxMempool, k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
 
 	// Build the Polaris EVM Provider
 	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)

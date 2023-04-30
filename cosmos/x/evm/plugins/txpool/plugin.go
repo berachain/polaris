@@ -26,16 +26,34 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	ethmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/eth"
+	mempooltypes "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/types"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // Plugin represents the transaction pool plugin.
 var _ Plugin = (*plugin)(nil)
+
+type Mempool interface {
+	sdkmempool.Mempool
+	// GetAllTransactions returns all transactions in the transaction pool.
+	GetAllTransactions() (types.Transactions, error)
+	// GetTransaction returns the transaction from the pool with the given hash.
+	GetTransaction(common.Hash) *types.Transaction
+	// GetNonce returns the nonce of the given address in the transaction pool.
+	GetNonce(common.Address) (uint64, error)
+	// GetNewTxsEventSubscription returns a subscription with the new txs event channel.
+	GetNewTxsEventSubscription(ch chan<- core.NewTxsEvent) event.Subscription
+	//
+	SetNonceRetriever(mempooltypes.NonceRetriever)
+}
 
 // Plugin represents the transaction pool plugin.
 type Plugin interface {
@@ -44,18 +62,18 @@ type Plugin interface {
 	SetClientContext(client.Context)
 	Serialize(tx *coretypes.Transaction) ([]byte, error)
 	SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error)
-	SetNonceRetriever(ethmempool.NonceRetriever)
+	SetNonceRetriever(mempooltypes.NonceRetriever)
 }
 
 // plugin represents the transaction pool plugin.
 type plugin struct {
-	*ethmempool.Mempool
+	Mempool
 	clientContext client.Context
 	cp            ConfigurationPlugin
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(cp ConfigurationPlugin, ethTxMempool *ethmempool.Mempool) Plugin {
+func NewPlugin(cp ConfigurationPlugin, ethTxMempool Mempool) Plugin {
 	return &plugin{
 		Mempool: ethTxMempool,
 		cp:      cp,

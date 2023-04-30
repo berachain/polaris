@@ -29,6 +29,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/event"
 
+	mempooltypes "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/types"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -61,7 +62,7 @@ type Mempool struct {
 
 	// NonceRetriever is used to retrieve the nonce for a given address.
 	// (this is typically a reference to the StateDB)
-	nr NonceRetriever
+	nr mempooltypes.NonceRetriever
 
 	// blockNumberCache
 	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
@@ -74,7 +75,7 @@ type Mempool struct {
 }
 
 // SetNonceRetriever sets the nonce retriever db for the mempool.
-func (etp *Mempool) SetNonceRetriever(nr NonceRetriever) {
+func (etp *Mempool) SetNonceRetriever(nr mempooltypes.NonceRetriever) {
 	etp.nr = nr
 }
 
