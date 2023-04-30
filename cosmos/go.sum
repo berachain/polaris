@@ -282,8 +282,8 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris-geth v0.0.0-20230425211649-bf6ba6cc2df6 h1:RwXAVUBO1Q+ocDstB59UjlpWXrhcVuxMQsW5SBXe6ZI=
-github.com/berachain/polaris-geth v0.0.0-20230425211649-bf6ba6cc2df6/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
+github.com/berachain/polaris-geth v0.0.0-20230404155410-eabc299e6c50 h1:chtFJIjWKLkoTN4drJk1o5/1PAzUhgKiyk1fR+8dYwI=
+github.com/berachain/polaris-geth v0.0.0-20230404155410-eabc299e6c50/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
 github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d h1:xDfNPAt8lFiC1UJrqV3uuy861HCTo708pDMbjHHdCas=
 github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d/go.mod h1:6QX/PXZ00z/TKoufEY6K/a0k6AhaJrQKdFe6OfVXsa4=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
@@ -1090,8 +1090,6 @@ github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6Mwd
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
 github.com/sirupsen/logrus v1.7.0/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/sirupsen/logrus v1.9.0 h1:trlNQbNUG3OdDrDil03MCb1H2o9nJ1x4/5LYw7byDE0=
-github.com/skip-mev/pob v0.0.0-20230426185240-b1504bd33e8e h1:/AW06GiFcnZIcpRSlpK3PovCqsyW2anD204brtzu/A8=
-github.com/skip-mev/pob v0.0.0-20230426185240-b1504bd33e8e/go.mod h1:zBm6Zbpq2sqOWBIaUZ0DqEwNTv/jGuTGCwoS01exm/4=
 github.com/skip-mev/pob v0.0.0-20230428211924-53b60dcb10bc h1:g6mXyKtviyi+17ly5cT7P5QpMgQv4Hzlj4q1qElJjZw=
 github.com/skip-mev/pob v0.0.0-20230428211924-53b60dcb10bc/go.mod h1:zBm6Zbpq2sqOWBIaUZ0DqEwNTv/jGuTGCwoS01exm/4=
 github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d/go.mod h1:OnSkiWE9lh6wB0YB77sQom3nweQdgAjqCqsofrRNTgc=

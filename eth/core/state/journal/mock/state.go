@@ -107,16 +107,6 @@ func NewEmptyStatePlugin() *PluginMock {
 		RevertToSnapshotFunc: func(n int) {
 			// no-op
 		},
-		SetBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
-			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
-			}
-			Accounts[address] = &Account{
-				Balance:  intMoqParam,
-				Code:     Accounts[address].Code,
-				CodeHash: Accounts[address].CodeHash,
-			}
-		},
 		SetCodeFunc: func(address common.Address, bytes []byte) {
 			if _, ok := Accounts[address]; !ok {
 				panic("acct doesnt exist")

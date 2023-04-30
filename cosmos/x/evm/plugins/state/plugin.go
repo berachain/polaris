@@ -112,9 +112,6 @@ type plugin struct {
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
 	cp ConfigurationPlugin
-
-	// dbErr holds any saved error from execution of SDK state changes.
-	dbErr error
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -149,7 +146,6 @@ func (p *plugin) Prepare(ctx context.Context) {
 //
 // Reset implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
-	p.dbErr = nil
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
@@ -177,12 +173,12 @@ func (p *plugin) Reset(ctx context.Context) {
 
 	// We register the Controllable MultiStore with the snapshot controller.
 	if err := ctrl.Register(p.cms); err != nil {
-		p.dbErr = err
+		panic(err)
 	}
 
 	// We also register the Controllable EventManager with the snapshot controller.
 	if err := ctrl.Register(cem); err != nil {
-		p.dbErr = err
+		panic(err)
 	}
 	p.Controller = ctrl
 }
@@ -281,7 +277,7 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 	if err := lib.MintCoinsToAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
-		p.dbErr = err
+		panic(err)
 	}
 }
 
@@ -289,7 +285,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 	if err := lib.BurnCoinsFromAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
-		p.dbErr = err
+		panic(err)
 	}
 }
 
@@ -317,7 +313,7 @@ func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 	}
 
 	if err := acc.SetSequence(nonce); err != nil {
-		p.dbErr = err
+		panic(err)
 	}
 
 	p.ak.SetAccount(p.ctx, acc)
@@ -536,11 +532,6 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 // =============================================================================
 // Other
 // =============================================================================
-
-// Error implements core.StatePlugin.
-func (p *plugin) Error() error {
-	return p.dbErr
-}
 
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
