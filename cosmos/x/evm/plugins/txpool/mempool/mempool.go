@@ -79,6 +79,7 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDec
 	return &EthTxPool{
 		AuctionMempool: builderMempool,
 		ethTxCache:     make(map[common.Hash]*coretypes.Transaction),
+		nonces:         make(map[common.Address]uint64),
 	}
 }
 
