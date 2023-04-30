@@ -26,43 +26,21 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
+	mocktypes "pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces/mock"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-// FakeAnteDecorator is a mock implementation of sdk.AnteDecorator for testing purposes.
-type FakeAnteDecorator struct{}
+// TestAnteDecorator is a mock implementation of sdk.AnteDecorator for testing purposes.
+type TestAnteDecorator struct{}
 
 // AnteHandle returns a custom error if called.
-func (f FakeAnteDecorator) AnteHandle(
+func (f TestAnteDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	return ctx, errors.New("ante_handle_called")
-}
-
-// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
-type FakeMsg struct{}
-
-func (f FakeMsg) Route() string                { return "" }
-func (f FakeMsg) Type() string                 { return "fake_msg" }
-func (f FakeMsg) ValidateBasic() error         { return nil }
-func (f FakeMsg) GetSignBytes() []byte         { return []byte{} }
-func (f FakeMsg) GetSigners() []sdk.AccAddress { return nil }
-func (f FakeMsg) ProtoMessage()                {}
-func (f FakeMsg) Reset()                       {}
-func (f FakeMsg) String() string               { return "fake bing bong" }
-
-// FakeTx is a mock implementation of sdk.Tx for testing purposes.
-type FakeTx struct {
-	msgs []sdk.Msg
-}
-
-func (t FakeTx) GetMsgs() []sdk.Msg {
-	return t.msgs
-}
-
-func (t FakeTx) ValidateBasic() error {
-	return nil
 }
 
 func TestAnteLib(t *testing.T) {
@@ -72,19 +50,22 @@ func TestAnteLib(t *testing.T) {
 
 var _ = Describe("IgnoreDecorator", func() {
 	var (
-		ignoreDecorator   *IgnoreDecorator[FakeAnteDecorator, FakeMsg]
-		fakeAnteDecorator FakeAnteDecorator
+		ignoreDecorator   *IgnoreDecorator[TestAnteDecorator, *mocktypes.MsgMock]
+		fakeAnteDecorator TestAnteDecorator
 	)
 
 	BeforeEach(func() {
-		fakeAnteDecorator = FakeAnteDecorator{}
-		ignoreDecorator = NewIgnoreDecorator[FakeAnteDecorator, FakeMsg](fakeAnteDecorator)
+		fakeAnteDecorator = TestAnteDecorator{}
+		ignoreDecorator = NewIgnoreDecorator[TestAnteDecorator, *mocktypes.MsgMock](fakeAnteDecorator)
 	})
 
 	// Test case when the transaction contains the specified message type.
 	Context("when the transaction contains the specified message type", func() {
 		It("should bypass the wrapped decorator", func() {
-			tx := FakeTx{[]sdk.Msg{FakeMsg{}}}
+			tx := mock.NewTx()
+			tx.GetMsgsFunc = func() []sdk.Msg {
+				return []sdk.Msg{mock.NewMsg()}
+			}
 			ctx := sdk.Context{}
 			next := func(sdk.Context, sdk.Tx, bool) (sdk.Context, error) {
 				return ctx, nil
@@ -99,7 +80,10 @@ var _ = Describe("IgnoreDecorator", func() {
 	// Test case when the transaction does not contain the specified message type.
 	Context("when the transaction does not contain the specified message type", func() {
 		It("should call the wrapped decorator's AnteHandle", func() {
-			tx := FakeTx{[]sdk.Msg{}}
+			tx := mock.NewTx()
+			tx.GetMsgsFunc = func() []sdk.Msg {
+				return []sdk.Msg{}
+			}
 			ctx := sdk.Context{}
 			next := func(sdk.Context, sdk.Tx, bool) (sdk.Context, error) {
 				return ctx, nil

@@ -18,20 +18,43 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package interfaces
+package mock
 
 import (
-	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces/mock"
 )
 
-// Interface wrappers for mocking
-//
-//go:generate moq -out ./mock/store.mock.go -pkg mock . MultiStore CacheMultiStore KVStore
-type (
-	// MultiStore wrapper for github.com/cosmos/cosmos-sdk/types.MultiStore.
-	MultiStore storetypes.MultiStore
-	// CacheMultiStore wrapper for github.com/cosmos/cosmos-sdk/types.CacheMultiStore.
-	CacheMultiStore storetypes.CacheMultiStore
-	// KVStore wrapper for github.com/cosmos/cosmos-sdk/types.KVStore.
-	KVStore storetypes.KVStore
-)
+// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
+func NewMsg() *mock.MsgMock {
+	mockedMsg := &mock.MsgMock{
+		GetSignersFunc: func() []sdk.AccAddress {
+			panic("mock out the GetSigners method")
+		},
+		ProtoMessageFunc: func() {
+			panic("mock out the ProtoMessage method")
+		},
+		ResetFunc: func() {
+			panic("mock out the Reset method")
+		},
+		StringFunc: func() string {
+			panic("mock out the String method")
+		},
+	}
+	return mockedMsg
+}
+
+// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
+func NewTx() *mock.TxMock {
+	// make and configure a mocked interfaces.Tx
+	mockedTx := &mock.TxMock{
+		GetMsgsFunc: func() []sdk.Msg {
+			panic("mock out the GetMsgs method")
+		},
+		ValidateBasicFunc: func() error {
+			panic("mock out the ValidateBasic method")
+		},
+	}
+	return mockedTx
+}

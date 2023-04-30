@@ -21,17 +21,15 @@
 package interfaces
 
 import (
-	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Interface wrappers for mocking
 //
-//go:generate moq -out ./mock/store.mock.go -pkg mock . MultiStore CacheMultiStore KVStore
+//go:generate moq -out ./mock/sdk.mock.go -pkg mock . Msg Tx
 type (
-	// MultiStore wrapper for github.com/cosmos/cosmos-sdk/types.MultiStore.
-	MultiStore storetypes.MultiStore
-	// CacheMultiStore wrapper for github.com/cosmos/cosmos-sdk/types.CacheMultiStore.
-	CacheMultiStore storetypes.CacheMultiStore
-	// KVStore wrapper for github.com/cosmos/cosmos-sdk/types.KVStore.
-	KVStore storetypes.KVStore
+	// TxMsg wrapper for github.com/cosmos/cosmos-sdk/types.TxMsg.
+	Msg sdk.Msg
+	// Tx wrapper for github.com/cosmos/cosmos-sdk/types.Tx.
+	Tx sdk.Tx
 )
