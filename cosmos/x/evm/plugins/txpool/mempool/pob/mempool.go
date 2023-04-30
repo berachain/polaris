@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mempool
+package pob
 
 import (
 	"github.com/skip-mev/pob/mempool"
@@ -26,6 +26,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
 	eth "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/eth"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -47,7 +48,7 @@ type EthBundlePool struct {
 	BundleableMempool
 }
 
-// NewEthTxPoolFrom is called when the mempool is created.
+// NewEthBundlePool is called when the mempool is created.
 func NewEthBundlePool(
 	m sdkmempool.Mempool, builderAddress common.Address, txDecoder sdk.TxDecoder,
 	txEncoder sdk.TxEncoder, serializer Serializer, evmDenom string,

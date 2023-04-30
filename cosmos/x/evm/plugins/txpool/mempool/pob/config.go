@@ -18,13 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mempool
+package pob
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/skip-mev/pob/mempool"
+	mevpool "github.com/skip-mev/pob/mempool"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -38,7 +38,7 @@ import (
 
 // In order for the mempool to differentiate between normal and bid transactions, the application
 // must implement the mempool.Config interface.
-var _ mempool.Config = (*Config)(nil)
+var _ mevpool.Config = (*Config)(nil)
 
 type (
 	// Config defines the necessary functionality and fields required to implement the mempool.Config interface.
@@ -216,28 +216,28 @@ func (txConfig *Config) GetTimeout(tx sdk.Tx) (uint64, error) {
 }
 
 // GetAuctionBidInfo defines a function that returns the auction bid info of an auction transaction.
-func (txConfig *Config) GetAuctionBidInfo(tx sdk.Tx) (mempool.AuctionBidInfo, error) {
+func (txConfig *Config) GetAuctionBidInfo(tx sdk.Tx) (mevpool.AuctionBidInfo, error) {
 	bid, err := txConfig.GetBid(tx)
 	if err != nil {
-		return mempool.AuctionBidInfo{}, err
+		return mevpool.AuctionBidInfo{}, err
 	}
 
 	bidder, err := txConfig.GetBidder(tx)
 	if err != nil {
-		return mempool.AuctionBidInfo{}, err
+		return mevpool.AuctionBidInfo{}, err
 	}
 
 	bundle, err := txConfig.GetBundledTransactions(tx)
 	if err != nil {
-		return mempool.AuctionBidInfo{}, err
+		return mevpool.AuctionBidInfo{}, err
 	}
 
 	timeout, err := txConfig.GetTimeout(tx)
 	if err != nil {
-		return mempool.AuctionBidInfo{}, err
+		return mevpool.AuctionBidInfo{}, err
 	}
 
-	return mempool.AuctionBidInfo{
+	return mevpool.AuctionBidInfo{
 		Bid:          bid,
 		Bidder:       bidder,
 		Transactions: bundle,
