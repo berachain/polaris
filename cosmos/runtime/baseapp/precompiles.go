@@ -49,8 +49,8 @@ func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registr
 				app.BankKeeper,
 			),
 			builderprecompile.NewPrecompileContract(
-				builderkeeper.NewMsgServerImpl(*app.BuilderKeeper),
-				builderkeeper.NewQueryServer(*app.BuilderKeeper),
+				builderkeeper.NewMsgServerImpl(app.BuilderKeeper),
+				builderkeeper.NewQueryServer(app.BuilderKeeper),
 				"abera",
 			),
 			distrprecompile.NewPrecompileContract(

@@ -21,14 +21,14 @@
 package ante
 
 import (
-	builderdecorator "github.com/skip-mev/pob/x/builder/ante"
+	mevante "github.com/skip-mev/pob/x/builder/ante"
 	builder "github.com/skip-mev/pob/x/builder/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/lib/errors"
 )
 
@@ -36,17 +36,20 @@ import (
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
-	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.EthTxPool,
+	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool sdkmempool.Mempool,
 ) (sdk.AnteHandler, error) {
 	// Validate the supplied options
 	if err := ValidateOptions(options); err != nil {
 		return nil, err
 	}
 
-	// Build the AnteDecorator pipeline
-	anteDecorators := append(Decorators(options),
-		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
-	)
+	// If the mempool is a mevante.Mempool, then we need to add the builder decorator.
+	anteDecorators := Decorators(options)
+	if mevMempool, ok := mempool.(mevante.Mempool); ok {
+		anteDecorators = append(Decorators(options),
+			mevante.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mevMempool),
+		)
+	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
@@ -58,20 +61,23 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 // the expected order when blocks are built/verified.
 func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder,
-	mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
+	mempool sdkmempool.Mempool) (sdk.AnteHandler, error) {
 	// Validate the supplied options
 	if err := ValidateOptions(options); err != nil {
 		return nil, err
 	}
 
-	// Build the AnteDecorator pipeline
-	anteDecorators := append(Decorators(options),
-		// Validate the nonces of all accounts that are signers in the transaction.
-		NewNonceDecorator(options.AccountKeeper),
-		// Update the nonces of all accounts that are signers in the transaction.
-		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
-	)
+	// If the mempool is a mevante.Mempool, then we need to add the builder decorator.
+	anteDecorators := Decorators(options)
+	if mevMempool, ok := mempool.(mevante.Mempool); ok {
+		anteDecorators = append(Decorators(options),
+			// Validate the nonces of all accounts that are signers in the transaction.
+			NewNonceDecorator(options.AccountKeeper),
+			// Update the nonces of all accounts that are signers in the transaction.
+			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+			mevante.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mevMempool),
+		)
+	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }

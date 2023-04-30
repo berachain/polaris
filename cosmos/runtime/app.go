@@ -28,7 +28,6 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	pobabci "github.com/skip-mev/pob/abci"
 	"github.com/skip-mev/pob/mempool"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	"cosmossdk.io/core/appconfig"
@@ -48,11 +47,10 @@ import (
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
 	polarisante "pkg.berachain.dev/polaris/cosmos/runtime/baseapp/ante"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	ethmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/eth"
 	evmtx "pkg.berachain.dev/polaris/cosmos/x/evm/tx"
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
@@ -112,7 +110,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	var (
 		app          = &PolarisApp{}
 		appBuilder   *runtime.AppBuilder
-		ethTxMempool sdkmempool.Mempool = evmmempool.NewEthTxPoolDefault(
+		ethTxMempool = ethmempool.NewMempoolFrom(
 			sdkmempool.DefaultPriorityMempool(),
 		)
 		appConfig = depinject.Configs(
@@ -180,15 +178,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		homePath+"/data/polaris",
 	)
 
-	mempool := evmmempool.NewEthTxPoolFrom(
-		mempool.DefaultPriorityMempool(),
-		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)), // todo: unhacky this
-		app.TxnConfig.TxDecoder(),
-		app.TxnConfig.TxEncoder(),
-		app.EVMKeeper.GetHost(), // there is probably a better way of getting necessary code for serialization
-		"abera",                 // there is probably a better way of getting the EVM denom
-	)
-	app.App.SetMempool(mempool)
+	app.SetMempool(mempool.DefaultPriorityMempool())
 
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
@@ -200,10 +190,10 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	ch, _ := polarisante.NewAnteHandler(
 		opt,
-		*app.BuilderKeeper,
+		app.BuilderKeeper, // TODO: get skip to make this a ptr.
 		app.TxnConfig.TxDecoder(),
 		app.TxnConfig.TxEncoder(),
-		mempool,
+		ethTxMempool,
 	)
 
 	app.SetAnteHandler(
@@ -213,16 +203,20 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	// Set the ante handlers the proposal handlers will use to verify and build blocks
 	proposalAnteHandlers, _ := polarisante.NewProposalAnteHandler(
 		opt,
-		*app.BuilderKeeper,
+		app.BuilderKeeper, // TODO: get skip to make this a ptr.
 		app.TxnConfig.TxDecoder(),
 		app.TxnConfig.TxEncoder(),
-		mempool,
+		ethTxMempool,
 	)
 
-	handler := pobabci.NewProposalHandler(mempool, app.Logger(),
-		proposalAnteHandlers, app.TxnConfig.TxEncoder(), app.TxnConfig.TxDecoder())
-	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
-	app.App.SetProcessProposal(handler.ProcessProposalHandler())
+	// If we are using the PoB mempool we need to set the proposal handlers
+	var chainMempool sdkmempool.Mempool = ethTxMempool
+	if pobMempool, ok_ := chainMempool.(pobabci.Mempool); ok_ {
+		handler := pobabci.NewProposalHandler(pobMempool, app.Logger(),
+			proposalAnteHandlers, app.TxnConfig.TxEncoder(), app.TxnConfig.TxDecoder())
+		app.App.SetPrepareProposal(handler.PrepareProposalHandler())
+		app.App.SetProcessProposal(handler.ProcessProposalHandler())
+	}
 
 	// We must register the EthSecp256k1 signature type because it is not registered by default.
 	// TODO: remove once upstreamed to the SDK.

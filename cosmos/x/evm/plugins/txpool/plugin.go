@@ -28,7 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	ethmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/eth"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -44,21 +44,21 @@ type Plugin interface {
 	SetClientContext(client.Context)
 	Serialize(tx *coretypes.Transaction) ([]byte, error)
 	SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error)
-	SetNonceRetriever(mempool.NonceRetriever)
+	SetNonceRetriever(ethmempool.NonceRetriever)
 }
 
 // plugin represents the transaction pool plugin.
 type plugin struct {
-	*mempool.EthTxPool
+	*ethmempool.Mempool
 	clientContext client.Context
 	cp            ConfigurationPlugin
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(cp ConfigurationPlugin, ethTxMempool *ethmempool.Mempool) Plugin {
 	return &plugin{
-		EthTxPool: ethTxMempool,
-		cp:        cp,
+		Mempool: ethTxMempool,
+		cp:      cp,
 	}
 }
 
