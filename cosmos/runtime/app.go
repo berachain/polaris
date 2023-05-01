@@ -278,3 +278,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 func (app *PolarisApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
+
+func (app PolarisApp) RegisterUpgradeHandlers() {
+	// no-op in the sample app
+}
