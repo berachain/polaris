@@ -35,7 +35,7 @@ func TestEthPool(t *testing.T) {
 var _ = Describe(`EthTxPool`, func() {
 	Describe(`EthTxPool`, func() {
 		It(`Should return a valid EthTxPool`, func() {
-			ethTxPool := &EthTxPool{}
+			ethTxPool := EthTxPool{}
 			Expect(ethTxPool).ToNot(BeNil())
 		})
 	})

@@ -40,8 +40,6 @@ type Plugin interface {
 	libtypes.Resettable
 	// GetContext returns the current context of the state plugin.
 	GetContext() context.Context
-	// Error returns any saved db error.
-	Error() error
 
 	// CreateAccount creates an account with the given `address`.
 	CreateAccount(common.Address)

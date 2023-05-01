@@ -112,9 +112,6 @@ func (h *host) Setup(
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
 	h.bp.SetQueryContextFn(qc)
-
-	// Set the nonce retriever db for the txpool plugin
-	h.txp.SetNonceRetriever(h.sp)
 }
 
 // GetBlockPlugin returns the header plugin.

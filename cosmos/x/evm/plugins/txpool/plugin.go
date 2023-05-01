@@ -29,6 +29,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -42,12 +43,11 @@ type Plugin interface {
 	core.TxPoolPlugin
 	plugins.BaseCosmosPolaris
 	SetClientContext(client.Context)
-	SetNonceRetriever(mempool.NonceRetriever)
 }
 
 // plugin represents the transaction pool plugin.
 type plugin struct {
-	*mempool.EthTxPool
+	mempool       *mempool.EthTxPool
 	clientContext client.Context
 	cp            ConfigurationPlugin
 }
@@ -55,13 +55,9 @@ type plugin struct {
 // NewPlugin returns a new transaction pool plugin.
 func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.EthTxPool) Plugin {
 	return &plugin{
-		EthTxPool: ethTxMempool,
-		cp:        cp,
+		mempool: ethTxMempool,
+		cp:      cp,
 	}
-}
-
-func (p *plugin) SetClientContext(ctx client.Context) {
-	p.clientContext = ctx
 }
 
 // SendTx sends a transaction to the transaction pool. It takes in a signed
@@ -82,7 +78,8 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 		err = errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog)
 	}
 	if err != nil {
-		return errorslib.Wrapf(err, "failed to broadcast tx %s", signedEthTx.Hash().Hex())
+		// b.logger.Error("failed to broadcast tx", "error", err.Errsor())
+		return err
 	}
 	return nil
 }
@@ -100,5 +97,24 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	// We insert into the local mempool, without gossiping to peers.
 	// We use a blank sdk.Context{} as the context, as we don't need to
 	// use it anyways. We set the priority as the gas price of the tx.
-	return p.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
+	return p.mempool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
+}
+
+// GetAllTransactions returns all transactions in the transaction pool.
+func (p *plugin) GetAllTransactions() (coretypes.Transactions, error) {
+	return p.mempool.GetPoolTransactions(), nil
+}
+
+// GetTransactions returns the transaction by hash in the transaction pool.
+func (p *plugin) GetTransaction(hash common.Hash) *coretypes.Transaction {
+	return p.mempool.GetTransaction(hash)
+}
+
+func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
+	// TODO: implement this
+	return 0, nil
+}
+
+func (p *plugin) SetClientContext(ctx client.Context) {
+	p.clientContext = ctx
 }

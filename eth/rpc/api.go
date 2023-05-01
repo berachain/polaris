@@ -43,6 +43,10 @@ func GetAPIs(apiBackend PolarisBackend) []API {
 		},
 		{
 			Namespace: "eth",
+			Service:   api.NewEthashAPI(apiBackend),
+		},
+		{
+			Namespace: "eth",
 			// TODO: config must be setup properly.
 			Service: NewFilterAPI(filters.NewFilterSystem(apiBackend, filters.Config{}), false),
 		},
