@@ -52,6 +52,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -110,7 +111,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		app          = &PolarisApp{}
 		appBuilder   *runtime.AppBuilder
 		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
-			mempool.NewPriorityMempool(mempool.DefaultPriorityNonceMempoolConfig()),
+			evmmempool.NewPriorityMempool(evmmempool.DefaultPriorityNonceMempoolConfig()),
 		)
 		appConfig = depinject.Configs(
 			AppConfig,
