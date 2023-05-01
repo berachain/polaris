@@ -145,8 +145,7 @@ func (c *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*mempool.Auc
 
 // getSenderFromEthTx returns the sender of an Ethereum transaction.
 func getSenderFromEthTx(tx *coretypes.Transaction) (common.Address, error) {
-	from, err := gethtypes.Sender(gethtypes.LatestSignerForChainID(tx.ChainId()), tx)
-	return from, err
+	return gethtypes.Sender(gethtypes.LatestSignerForChainID(tx.ChainId()), tx)
 }
 
 // getEthTransactionRequest returns the EthTransactionRequest message from a
