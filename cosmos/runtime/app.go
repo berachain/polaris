@@ -27,7 +27,6 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	pobabci "github.com/skip-mev/pob/abci"
-	"github.com/skip-mev/pob/mempool"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
@@ -111,10 +110,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	var (
 		app          = &PolarisApp{}
 		appBuilder   *runtime.AppBuilder
-		ethTxMempool sdkmempool.Mempool = evmmempool.NewEthTxPoolDefault(
-			sdkmempool.DefaultPriorityMempool(),
-		)
-		appConfig = depinject.Configs(
+		ethTxMempool sdkmempool.Mempool = evmmempool.NewEthTxPoolDefault()
+		appConfig                       = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
 				app.App,
@@ -179,8 +176,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		homePath+"/data/polaris",
 	)
 
-	mempool := evmmempool.NewEthTxPoolFrom(
-		mempool.DefaultPriorityMempool(),
+	mempool := evmmempool.NewEthTxPool(
 		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)), // todo: unhacky this
 		app.TxnConfig.TxDecoder(),
 		app.TxnConfig.TxEncoder(),

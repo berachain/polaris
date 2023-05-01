@@ -27,7 +27,6 @@ import (
 	"github.com/skip-mev/pob/x/builder/ante"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -49,7 +48,7 @@ type EthTxPool struct {
 }
 
 // NewEthTxPoolFrom is called when the mempool is created.
-func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDecoder sdk.TxDecoder,
+func NewEthTxPool(builderAddress common.Address, txDecoder sdk.TxDecoder,
 	txEncoder sdk.TxEncoder, serializer Serializer, evmDenom string) *EthTxPool {
 	// Create the tx config used to route transactions to the correct mempool
 	// Init the mempool with the tx config
@@ -65,8 +64,8 @@ func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDec
 }
 
 // Used for testing only.
-func NewEthTxPoolDefault(m sdkmempool.Mempool) *EthTxPool {
-	return NewEthTxPoolFrom(m, common.Address{}, nil, nil, nil, "")
+func NewEthTxPoolDefault() *EthTxPool {
+	return NewEthTxPool(common.Address{}, nil, nil, nil, "")
 }
 
 // Insert is called when a transaction is added to the mempool.
