@@ -541,7 +541,7 @@ func (b *backend) polarisBlockByNumberOrHash(
 ) (*types.Block, error) {
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block, err := b.chain.GetPolarisBlockByHash(hash)
+		block, err := b.chain.GetBlockByHash(hash)
 		if err != nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound,
 				"polarisBlockByNumberOrHash: hash [%s]", hash.String())
@@ -572,7 +572,7 @@ func (b *backend) polarisBlockByNumberOrHash(
 
 // polarisBlockByHash returns the polaris block identified by `hash`.
 func (b *backend) polarisBlockByHash(hash common.Hash) (*types.Block, error) {
-	return b.chain.GetPolarisBlockByHash(hash)
+	return b.chain.GetBlockByHash(hash)
 }
 
 // polarisBlockByNumber returns the polaris block identified by `number.
@@ -584,6 +584,6 @@ func (b *backend) polarisBlockByNumber(number BlockNumber) (*types.Block, error)
 		return b.chain.CurrentBlock()
 	default:
 		// CONTRACT: GetPolarisBlockByNumber receives number >=0
-		return b.chain.GetPolarisBlockByNumber(number.Int64())
+		return b.chain.GetBlockByNumber(number.Int64())
 	}
 }
