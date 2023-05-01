@@ -111,7 +111,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		app          = &PolarisApp{}
 		appBuilder   *runtime.AppBuilder
 		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
-			evmmempool.NewPriorityMempool(evmmempool.DefaultPriorityNonceMempoolConfig()),
+			evmmempool.DefaultPriorityMempool(),
 		)
 		appConfig = depinject.Configs(
 			AppConfig,
