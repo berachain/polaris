@@ -1,3 +1,5 @@
+github.com/berachain/polaris-geth v0.0.0-20230501134245-d0efb7960cf5 h1:pg+/j89aZIHcg3azlKEepI+lW/c5vG9AbqMR/VKbxBk=
+github.com/berachain/polaris-geth v0.0.0-20230501134245-d0efb7960cf5/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/crate-crypto/go-ipa v0.0.0-20220523130400-f11357ae11c7 h1:6IrxszG5G+O7zhtkWxq6+unVvnrm1fqV2Pe+T95DUzw=
 github.com/dlclark/regexp2 v1.7.0 h1:7lJfhqlPssTb1WQx4yvTHN0uElPEv52sbaECrAQxjAo=

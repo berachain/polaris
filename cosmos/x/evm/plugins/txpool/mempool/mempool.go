@@ -184,7 +184,9 @@ func (etp *EthTxPool) GetStats() (int, int) {
 
 // Content retrieves the data content of the transaction pool, returning all the pending as well as
 // queued transactions, grouped by account and nonce.
-func (etp *EthTxPool) GetContent() (map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions) {
+func (etp *EthTxPool) GetContent() (
+	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
+) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
@@ -194,7 +196,9 @@ func (etp *EthTxPool) GetContent() (map[common.Address]coretypes.Transactions, m
 
 // GetContentFrom retrieves the data content of the transaction pool, returning the pending as well
 // as queued transactions of this address, grouped by nonce.
-func (etp *EthTxPool) GetContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
+func (etp *EthTxPool) GetContentFrom(addr common.Address) (
+	coretypes.Transactions, coretypes.Transactions,
+) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
