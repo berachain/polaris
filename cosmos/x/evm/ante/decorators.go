@@ -28,7 +28,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
+	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/lib/errors"
 )
 
@@ -36,49 +38,18 @@ import (
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
-	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder,
-	mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
-	if options.AccountKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.EthTxPool,
+) (sdk.AnteHandler, error) {
+	// Validate the options before creating the ante handler.
+	if err := ValidateOptions(options); err != nil {
+		return nil, err
 	}
-
-	if options.BankKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
-	}
-
-	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
-	}
-
-	anteDecorators := []sdk.AnteDecorator{
-		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-		ante.NewValidateBasicDecorator(),
-		ante.NewTxTimeoutHeightDecorator(),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// EthTransactions can skip consuming transaction gas as it will be done
-		// in the StateTransition.
-		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{
-			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		},
-		// EthTransaction can skip deduct fee transactions as they are done in the
-		// StateTransition. // TODO: check to make sure this doesn't cause spam.
-		EthSkipDecorator[ante.DeductFeeDecorator]{
-			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-				options.FeegrantKeeper, options.TxFeeChecker),
-		},
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		// In order to match ethereum gas consumption, we do not consume any gas when
-		// verifying the signature.
-		EthSkipDecorator[ante.SigGasConsumeDecorator]{
-			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		},
+	anteDecorators := append(Decorators(options), []sdk.AnteDecorator{
 		// EthTransaction can skip Signature Verification as we do this in the mempool.
 		// TODO: // check with Marko to make sure this is okay (ties into the one below)
-		EthSkipDecorator[ante.SigVerificationDecorator]{
+		antelib.NewIgnoreDecorator[ante.SigVerificationDecorator, *evmtypes.EthTransactionRequest](
 			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		},
+		),
 		// EthTransactions are allowed to skip sequence verification as we do this in the
 		// state transition.
 		// NOTE: we may need to change this as it could cause issues if a client is intertwining
@@ -87,11 +58,11 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 		// in checkState during checkTx, but only in DeliverTx, since we are upping in nonce during the
 		// actual execution of the block and not during the ante handler.
 		// TODO: // check with Marko to make sure this is okay.
-		EthSkipDecorator[ante.IncrementSequenceDecorator]{
+		antelib.NewIgnoreDecorator[ante.IncrementSequenceDecorator, *evmtypes.EthTransactionRequest](
 			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		},
+		),
 		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
-	}
+	}...)
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
@@ -102,21 +73,43 @@ func NewAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
 // Proposal. This allows transactions to be broadcasted out of order but sequenced in
 // the expected order when blocks are built/verified.
 func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.Keeper,
-	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder,
-	mempool *mempool.EthTxPool) (sdk.AnteHandler, error) {
+	txDecoder sdk.TxDecoder, txEncoder sdk.TxEncoder, mempool *mempool.EthTxPool,
+) (sdk.AnteHandler, error) {
+	// Validate the options before creating the ante handler.
+	if err := ValidateOptions(options); err != nil {
+		return nil, err
+	}
+
+	anteDecorators := append(Decorators(options), []sdk.AnteDecorator{
+		// Validate the nonces of all accounts that are signers in the transaction.
+		NewNonceDecorator(options.AccountKeeper),
+		// Update the nonces of all accounts that are signers in the transaction.
+		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
+	}...)
+
+	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
+
+// ValidateOptions performs a basic validation of the provided options.
+func ValidateOptions(options ante.HandlerOptions) error {
 	if options.AccountKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+		return errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
 	}
 
 	if options.BankKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+		return errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
 	}
 
 	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+		return errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
+	return nil
+}
 
-	anteDecorators := []sdk.AnteDecorator{
+// Decorators returns the default AnteHandler decorators.
+func Decorators(options ante.HandlerOptions) []sdk.AnteDecorator {
+	return []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
@@ -124,28 +117,21 @@ func NewProposalAnteHandler(options ante.HandlerOptions, builderKeeper builder.K
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		// EthTransactions can skip consuming transaction gas as it will be done
 		// in the StateTransition.
-		EthSkipDecorator[ante.ConsumeTxSizeGasDecorator]{
+		antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *evmtypes.EthTransactionRequest](
 			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		},
+		),
 		// EthTransaction can skip deduct fee transactions as they are done in the
 		// StateTransition. // TODO: check to make sure this doesn't cause spam.
-		EthSkipDecorator[ante.DeductFeeDecorator]{
+		antelib.NewIgnoreDecorator[ante.DeductFeeDecorator, *evmtypes.EthTransactionRequest](
 			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
 				options.FeegrantKeeper, options.TxFeeChecker),
-		},
+		),
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		// In order to match ethereum gas consumption, we do not consume any gas when
 		// verifying the signature.
-		EthSkipDecorator[ante.SigGasConsumeDecorator]{
+		antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *evmtypes.EthTransactionRequest](
 			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		},
-		// Validate the nonces of all accounts that are signers in the transaction.
-		NewNonceDecorator(options.AccountKeeper),
-		// Update the nonces of all accounts that are signers in the transaction.
-		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		builderdecorator.NewBuilderDecorator(builderKeeper, txDecoder, txEncoder, mempool),
+		),
 	}
-
-	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }

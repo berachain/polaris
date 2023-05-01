@@ -18,8 +18,43 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package runtime
+package mock
 
-func (app PolarisApp) RegisterUpgradeHandlers() {
-	// no-op in the sample app
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces/mock"
+)
+
+// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
+func NewMsg() *mock.MsgMock {
+	mockedMsg := &mock.MsgMock{
+		GetSignersFunc: func() []sdk.AccAddress {
+			panic("mock out the GetSigners method")
+		},
+		ProtoMessageFunc: func() {
+			panic("mock out the ProtoMessage method")
+		},
+		ResetFunc: func() {
+			panic("mock out the Reset method")
+		},
+		StringFunc: func() string {
+			panic("mock out the String method")
+		},
+	}
+	return mockedMsg
+}
+
+// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
+func NewTx() *mock.TxMock {
+	// make and configure a mocked interfaces.Tx
+	mockedTx := &mock.TxMock{
+		GetMsgsFunc: func() []sdk.Msg {
+			panic("mock out the GetMsgs method")
+		},
+		ValidateBasicFunc: func() error {
+			panic("mock out the ValidateBasic method")
+		},
+	}
+	return mockedTx
 }

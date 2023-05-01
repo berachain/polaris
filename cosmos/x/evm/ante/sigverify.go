@@ -35,7 +35,7 @@ import (
 const (
 	// secp256k1GasCostEIP155 is the cost of a secp256k1 signature verification
 	// with the `EIP155` replay protection.
-	secp256k1GasCostEIP155 = 21000
+	secp256k1GasCostEIP155 = 8293
 )
 
 // SigVerificationGasConsumer is a custom gas consumer for Cosmos-SDK chains that

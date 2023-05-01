@@ -83,7 +83,7 @@ var _ = Describe("Processor", func() {
 			Data:     []byte("abcdef"),
 			GasPrice: big.NewInt(1),
 		}
-		ethPool := evmmempool.NewEthTxPoolFrom(nil, common.Address{}, nil, nil, nil, "abera")
+		ethPool := evmmempool.NewEthTxPool(common.Address{}, nil, nil, nil, "abera")
 
 		// before chain, init genesis state
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
