@@ -109,7 +109,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	return nil
 }
 
-// GetTx is called when a transaction is retrieved from the mempool.
+// Get is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 	return etp.ethTxCache[hash]
 }
@@ -195,12 +195,10 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	}
 
 	// We want to remove the caches of this tx.
-	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx)
-	if !ok {
+	ethTx := GetAsEthTx(tx)
+	if ethTx == nil {
 		return nil
 	}
-
-	ethTx := etr.AsTransaction()
 	sender, _ := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
 	delete(etp.ethTxCache, ethTx.Hash())
 	delete(etp.nonces, sender)

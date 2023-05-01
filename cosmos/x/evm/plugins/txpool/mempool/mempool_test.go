@@ -25,6 +25,14 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func TestEthPool(t *testing.T) {
@@ -32,11 +40,53 @@ func TestEthPool(t *testing.T) {
 	RunSpecs(t, "cosmos/x/evm/plugins/txpool/mempool")
 }
 
-var _ = Describe(`EthTxPool`, func() {
-	Describe(`EthTxPool`, func() {
-		It(`Should return a valid EthTxPool`, func() {
-			ethTxPool := NewEthTxPoolFrom(nil)
-			Expect(ethTxPool).ToNot(BeNil())
+var _ = Describe("EthTxPool", func() {
+	var sp core.StatePlugin
+	var etp *EthTxPool
+	var addr1 = common.HexToAddress("0x1111")
+	var addr2 = common.HexToAddress("0x2222")
+
+	BeforeEach(func() {
+		ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPLF{})
+		sp.Reset(ctx)
+		sp.SetNonce(addr1, 1111)
+		sp.SetNonce(addr2, 2222)
+		sp.Finalize()
+		sp.Reset(ctx)
+		etp = NewEthTxPoolFrom(DefaultPriorityMempool())
+		etp.SetNonceRetriever(sp)
+	})
+
+	Describe("All Cases", func() {
+		It("should handle empty txs", func() {
+			Expect(etp.Get(common.Hash{})).To(BeNil())
+			emptyPending, emptyQueued := etp.Pending(false), etp.queued()
+			Expect(emptyPending).To(BeEmpty())
+			Expect(emptyQueued).To(BeEmpty())
+			Expect(etp.Nonce(addr1)).To(Equal(uint64(1111)))
+			Expect(etp.Nonce(addr2)).To(Equal(uint64(2222)))
+			Expect(etp.Nonce(common.HexToAddress("0x3333"))).To(Equal(uint64(0)))
+		})
+
+		It("should return pending/queued txs with correct nonces", func() {
+
 		})
 	})
 })
+
+// MOCKS BELOW.
+
+type mockConfigurationPlugin struct{}
+
+func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
+	return "abera"
+}
+
+type mockPLF struct{}
+
+func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
+	return &coretypes.Log{
+		Address: common.BytesToAddress([]byte(event.Type)),
+	}, nil
+}

@@ -26,11 +26,12 @@ import (
 	"math"
 
 	"github.com/huandu/skiplist"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // NOTE: This implementation of the Priority Nonce Mempool is forked from the Cosmos SDK directly
