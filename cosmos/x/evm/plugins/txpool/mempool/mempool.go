@@ -28,6 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/pob"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -40,7 +41,7 @@ var _ ante.Mempool = (*EthTxPool)(nil)
 // EthTxPool is a mempool for Ethereum transactions. It wraps a POB Auction mempool and caches
 // transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
-	*mempool.AuctionMempool
+	pob.Mempool
 
 	// ethTxCache caches transactions that are added to the mempool
 	// so that they can be retrieved later
@@ -49,17 +50,17 @@ type EthTxPool struct {
 
 // NewEthTxPoolFrom is called when the mempool is created.
 func NewEthTxPool(builderAddress common.Address, txDecoder sdk.TxDecoder,
-	txEncoder sdk.TxEncoder, serializer Serializer, evmDenom string) *EthTxPool {
+	txEncoder sdk.TxEncoder, serializer pob.Serializer, evmDenom string) *EthTxPool {
 	// Create the tx config used to route transactions to the correct mempool
 	// Init the mempool with the tx config
 	builderMempool := mempool.NewAuctionMempool(
 		txDecoder, txEncoder, 0,
-		NewMempoolConfig(builderAddress, txDecoder, serializer, evmDenom),
+		pob.NewMempoolConfig(builderAddress, txDecoder, serializer, evmDenom),
 	)
 
 	return &EthTxPool{
-		AuctionMempool: builderMempool,
-		ethTxCache:     make(map[common.Hash]*coretypes.Transaction),
+		Mempool:    builderMempool,
+		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
 	}
 }
 
@@ -71,7 +72,7 @@ func NewEthTxPoolDefault() *EthTxPool {
 // Insert is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	// Call the base mempool's Insert method
-	if err := etp.AuctionMempool.Insert(ctx, tx); err != nil {
+	if err := etp.Mempool.Insert(ctx, tx); err != nil {
 		return err
 	}
 
@@ -103,7 +104,7 @@ func (etp *EthTxPool) GetPoolTransactions() coretypes.Transactions {
 // Remove is called when a transaction is removed from the mempool.
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	// Call the base mempool's Remove method
-	if err := etp.AuctionMempool.Remove(tx); err != nil {
+	if err := etp.Mempool.Remove(tx); err != nil {
 		return err
 	}
 

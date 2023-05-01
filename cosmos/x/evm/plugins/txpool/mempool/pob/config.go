@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mempool
+package pob
 
 import (
 	"strings"
@@ -109,7 +109,7 @@ func (c *Config) GetTransactionSigners(tx []byte) (map[string]struct{}, error) {
 		return nil, err
 	}
 
-	from, err := getFromEthTx(ethTx)
+	from, err := getSenderFromEthTx(ethTx)
 	if err != nil {
 		return nil, err
 	}

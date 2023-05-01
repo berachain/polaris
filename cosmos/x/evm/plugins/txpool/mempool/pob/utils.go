@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mempool
+package pob
 
 import (
 	"fmt"
@@ -127,7 +127,7 @@ func (c *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*mempool.Auc
 		return nil, fmt.Errorf("invalid timeout type: %T", inputsMap[2])
 	}
 
-	from, err := getFromEthTx(ethTx)
+	from, err := getSenderFromEthTx(ethTx)
 	if err != nil {
 		return nil, err
 	}
@@ -143,8 +143,8 @@ func (c *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*mempool.Auc
 	return auctionBidInfo, nil
 }
 
-// getFromEthTx returns the sender of an Ethereum transaction.
-func getFromEthTx(tx *coretypes.Transaction) (common.Address, error) {
+// getSenderFromEthTx returns the sender of an Ethereum transaction.
+func getSenderFromEthTx(tx *coretypes.Transaction) (common.Address, error) {
 	from, err := gethtypes.Sender(gethtypes.LatestSignerForChainID(tx.ChainId()), tx)
 	return from, err
 }
