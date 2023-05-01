@@ -69,7 +69,16 @@ func (txConfig *Config) validateAuctionTx(ethTx *coretypes.Transaction) (bool, e
 }
 
 // getBidInfoFromSdkTx returns the bid information from an Cosmos SDK transaction.
-func (txConfig *Config) getBidInfoFromSdkTx(tx sdk.Tx) (*mempool.AuctionBidInfo, error) {
+func (c *Config) getBidInfoFromSdkTx(tx sdk.Tx) (*mempool.AuctionBidInfo, error) {
+	isAuctionTx, err := c.IsAuctionTx(tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isAuctionTx {
+		return nil, fmt.Errorf("transaction is not an auction transaction")
+	}
+
 	ethTx, err := getEthTransactionRequest(tx)
 	if err != nil {
 		return nil, err
@@ -79,7 +88,7 @@ func (txConfig *Config) getBidInfoFromSdkTx(tx sdk.Tx) (*mempool.AuctionBidInfo,
 		return nil, fmt.Errorf("transaction is not an ethereum transaction")
 	}
 
-	return txConfig.getBidInfoFromEthTx(ethTx)
+	return c.getBidInfoFromEthTx(ethTx)
 }
 
 // getBidInfoFromEthTx returns the bid information from an ethereum transaction.

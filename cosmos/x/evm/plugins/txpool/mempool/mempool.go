@@ -52,9 +52,11 @@ type EthTxPool struct {
 func NewEthTxPoolFrom(m sdkmempool.Mempool, builderAddress common.Address, txDecoder sdk.TxDecoder,
 	txEncoder sdk.TxEncoder, serializer Serializer, evmDenom string) *EthTxPool {
 	// Create the tx config used to route transactions to the correct mempool
-	txConfig := NewMempoolConfig(builderAddress, txDecoder, serializer, evmDenom)
 	// Init the mempool with the tx config
-	builderMempool := mempool.NewAuctionMempool(txDecoder, txEncoder, 0, txConfig)
+	builderMempool := mempool.NewAuctionMempool(
+		txDecoder, txEncoder, 0,
+		NewMempoolConfig(builderAddress, txDecoder, serializer, evmDenom),
+	)
 
 	return &EthTxPool{
 		AuctionMempool: builderMempool,
