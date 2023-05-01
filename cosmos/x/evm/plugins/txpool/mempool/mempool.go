@@ -25,7 +25,6 @@ import (
 	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/event"
 
@@ -40,7 +39,7 @@ import (
 // transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
 	// The underlying mempool implementation.
-	sdkmempool.Mempool
+	*PriorityNonceMempool[int64]
 
 	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
 	// later
@@ -64,11 +63,11 @@ type EthTxPool struct {
 }
 
 // New is called when the mempool is created.
-func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
+func NewEthTxPoolFrom(mp *PriorityNonceMempool[int64]) *EthTxPool {
 	return &EthTxPool{
-		Mempool:    m,
-		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
-		nonces:     make(map[common.Address]uint64),
+		PriorityNonceMempool: mp,
+		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
+		nonces:               make(map[common.Address]uint64),
 	}
 }
 
@@ -90,7 +89,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	defer etp.mu.Unlock()
 
 	// Call the base mempool's Insert method
-	if err := etp.Mempool.Insert(ctx, tx); err != nil {
+	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
 		return err
 	}
 
@@ -133,8 +132,7 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	nonce, found := etp.nonces[addr]
 	if !found {
 		// fallback to nonce retrieval from db
-		nonce = etp.nr.GetNonce(addr)
-		if nonce > 0 {
+		if nonce = etp.nr.GetNonce(addr); nonce > 0 {
 			etp.nonces[addr] = nonce
 		}
 	}
@@ -147,7 +145,7 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	defer etp.mu.Unlock()
 
 	// Call the base mempool's Remove method
-	if err := etp.Mempool.Remove(tx); err != nil {
+	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
 		return err
 	}
 
@@ -158,11 +156,7 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	}
 
 	ethTx := etr.AsTransaction()
-	sender, err := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
-	if err != nil {
-		return err
-	}
-
+	sender, _ := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
 	delete(etp.ethTxCache, ethTx.Hash())
 	delete(etp.nonces, sender)
 	return nil
@@ -173,8 +167,8 @@ func (etp *EthTxPool) Stats() (int, int) {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	// TODO: implement me.
-	return 0, 0
+	pending, queued := etp.Content()
+	return len(pending), len(queued)
 }
 
 // ContentFrom retrieves the data content of the transaction pool, returning the
@@ -183,8 +177,8 @@ func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, 
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	// TODO: implement me.
-	return nil, nil
+	pending, queued := etp.Content()
+	return pending[addr], queued[addr]
 }
 
 // Content retrieves the data content of the transaction pool, returning all the

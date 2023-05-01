@@ -57,6 +57,10 @@ type (
 		senderIndices  map[string]*skiplist.SkipList
 		scores         map[txMeta[C]]txMeta[C]
 		cfg            sdkmempool.PriorityNonceMempoolConfig[C]
+
+		// // custom Polaris fields
+		// pending map[common.Address]*skiplist.SkipList
+		// queue   map[common.Address]*skiplist.SkipList
 	}
 
 	// PriorityNonceIterator defines an iterator that is used for mempool iteration
@@ -148,6 +152,8 @@ func NewPriorityMempool[C comparable](cfg sdkmempool.PriorityNonceMempoolConfig[
 		senderIndices:  make(map[string]*skiplist.SkipList),
 		scores:         make(map[txMeta[C]]txMeta[C]),
 		cfg:            cfg,
+		// pending:        make(map[common.Address]*skiplist.SkipList),
+		// queue:          make(map[common.Address]*skiplist.SkipList),
 	}
 
 	return mp
@@ -252,6 +258,21 @@ func (mp *PriorityNonceMempool[C]) Insert(ctx context.Context, tx sdk.Tx) error 
 
 	return nil
 }
+
+// isFuture reports whether the given transaction is immediately executable. NOTE: taken from
+// Go-Ethereum's core/txpool/tx_pool.go.
+// func (mp *PriorityNonceMempool[C]) isFuture(from common.Address, tx *coretypes.Transaction) bool {
+// 	list := mp.pending[from]
+// 	if list == nil {
+// 		return mp.pendingNonces.get(from) != tx.Nonce()
+// 	}
+// 	// Sender has pending transactions.
+// 	if old := list.txs.Get(tx.Nonce()); old != nil {
+// 		return false // It replaces a pending transaction.
+// 	}
+// 	// Not replacing, check if parent nonce exists in pending.
+// 	return list.txs.Get(tx.Nonce()-1) == nil
+// }
 
 func (i *PriorityNonceIterator[C]) iteratePriority() sdkmempool.Iterator {
 	// beginning of priority iteration
