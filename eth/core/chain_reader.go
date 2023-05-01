@@ -223,34 +223,39 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 // GetPoolTransactions returns all of the transactions that are currently in
 // the mempool.
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
-	return bc.tp.GetAllTransactions()
+	pending := bc.tp.Pending(false)
+	txs := make(types.Transactions, len(pending))
+	for _, batch := range pending {
+		txs = append(txs, batch...)
+	}
+	return txs, nil
 }
 
 // GetPoolTransaction returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
-	return bc.tp.GetTransaction(hash)
+	return bc.tp.Get(hash)
 }
 
 // TODO: define behaviour for this function.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	return bc.tp.GetNonce(addr)
+	return bc.tp.Nonce(addr), bc.statedb.Error()
 }
 
 // GetPoolStats returns the number of pending and queued txs in the mempool.
 func (bc *blockchain) GetPoolStats() (int, int) {
-	return bc.tp.GetStats()
+	return bc.tp.Stats()
 }
 
 // GetPoolContent returns the pending and queued txs in the mempool.
 func (bc *blockchain) GetPoolContent() (
 	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
 ) {
-	return bc.tp.GetContent()
+	return bc.tp.Content()
 }
 
 // GetPoolContentFrom returns the pending and queued txs in the mempool for the given address.
 func (bc *blockchain) GetPoolContentFrom(addr common.Address) (
 	types.Transactions, types.Transactions,
 ) {
-	return bc.tp.GetContentFrom(addr)
+	return bc.tp.ContentFrom(addr)
 }
