@@ -28,6 +28,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/event"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -78,8 +79,6 @@ func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
 
 // GetNewTxsEventSubscription returns a new event subscription for the new txs feed.
 func (etp *EthTxPool) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
-	// Currently sending an individual new txs event for every new tx added to the mempool.
-	// TODO: support sending batch new txs events when adding queued txs to the pending txs.
 	return etp.scope.Track(etp.txFeed.Subscribe(ch))
 }
 
@@ -94,16 +93,17 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	}
 
 	// We want to cache
-	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
-	if !ok {
+	ethTx := GetAsEthTx(tx)
+	if ethTx == nil {
 		return nil
 	}
 
-	ethTx := etr.AsTransaction()
 	etp.ethTxCache[ethTx.Hash()] = ethTx
 	sender, _ := coretypes.Sender(coretypes.LatestSignerForChainID(ethTx.ChainId()), ethTx)
 	etp.nonces[sender] = ethTx.Nonce() + 1
 
+	// Currently sending an individual new txs event for every new tx added to the mempool.
+	// TODO: support sending batch new txs events when adding queued txs to the pending txs.
 	etp.txFeed.Send(core.NewTxsEvent{Txs: coretypes.Transactions{ethTx}})
 
 	return nil
@@ -114,20 +114,65 @@ func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 	return etp.ethTxCache[hash]
 }
 
-// GetTransactions is called when the mempool is retrieved.
+// Pending is called when txs in the mempool are retrieved.
 func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	// TODO: implement me.
-	return nil
+	allNonces := etp.PriorityNonceMempool.senderIndices
+	pending := make(map[common.Address]coretypes.Transactions, len(allNonces))
+	for sender, list := range allNonces {
+		// get Eth Address of sender
+		addrBech32, _ := sdk.AccAddressFromBech32(sender)
+		addr := cosmlib.AccAddressToEthAddress(addrBech32)
+
+		// add the first eth tx in the list, if it exists
+		var ethTx *coretypes.Transaction
+		for elem := list.Front(); elem != nil; elem = elem.Next() {
+			if ethTx = GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
+				pending[addr] = coretypes.Transactions{ethTx}
+				break
+			}
+		}
+	}
+
+	return pending
+}
+
+// queued is called when content of the mempool is retrieved.
+func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+
+	allNonces := etp.PriorityNonceMempool.senderIndices
+	queued := make(map[common.Address]coretypes.Transactions, len(allNonces))
+	for sender, list := range allNonces {
+		// get Eth Address of sender
+		addrBech32, _ := sdk.AccAddressFromBech32(sender)
+		addr := cosmlib.AccAddressToEthAddress(addrBech32)
+
+		// skip the first ethTx seen, add the rest to the queued list
+		var ethTxs coretypes.Transactions
+		seenOne := false
+		for elem := list.Front(); elem != nil; elem = elem.Next() {
+			if ethTx := GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
+				if seenOne {
+					ethTxs = append(ethTxs, ethTx)
+				}
+				seenOne = true
+			}
+		}
+		queued[addr] = ethTxs
+	}
+
+	return queued
 }
 
 // GetNonce returns the nonce for the given address from the mempool if the address has sent a tx
 // in the mempool.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
 
 	nonce, found := etp.nonces[addr]
 	if !found {
@@ -164,9 +209,6 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 
 // Stats returns the number of currently pending (locally created) transactions.
 func (etp *EthTxPool) Stats() (int, int) {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
 	pending, queued := etp.Content()
 	return len(pending), len(queued)
 }
@@ -174,9 +216,6 @@ func (etp *EthTxPool) Stats() (int, int) {
 // ContentFrom retrieves the data content of the transaction pool, returning the
 // pending as well as queued transactions of this address, grouped by nonce.
 func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
 	pending, queued := etp.Content()
 	return pending[addr], queued[addr]
 }
@@ -184,9 +223,13 @@ func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, 
 // Content retrieves the data content of the transaction pool, returning all the
 // pending as well as queued transactions, grouped by account and nonce.
 func (etp *EthTxPool) Content() (map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions) {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
+	return etp.Pending(false), etp.queued()
+}
 
-	// TODO: implement me.
-	return nil, nil
+func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
+	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
+	if !ok {
+		return nil
+	}
+	return etr.AsTransaction()
 }

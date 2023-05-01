@@ -57,10 +57,6 @@ type (
 		senderIndices  map[string]*skiplist.SkipList
 		scores         map[txMeta[C]]txMeta[C]
 		cfg            sdkmempool.PriorityNonceMempoolConfig[C]
-
-		// // custom Polaris fields
-		// pending map[common.Address]*skiplist.SkipList
-		// queue   map[common.Address]*skiplist.SkipList
 	}
 
 	// PriorityNonceIterator defines an iterator that is used for mempool iteration
@@ -152,8 +148,6 @@ func NewPriorityMempool[C comparable](cfg sdkmempool.PriorityNonceMempoolConfig[
 		senderIndices:  make(map[string]*skiplist.SkipList),
 		scores:         make(map[txMeta[C]]txMeta[C]),
 		cfg:            cfg,
-		// pending:        make(map[common.Address]*skiplist.SkipList),
-		// queue:          make(map[common.Address]*skiplist.SkipList),
 	}
 
 	return mp
