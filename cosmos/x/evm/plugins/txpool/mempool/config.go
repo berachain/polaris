@@ -180,32 +180,12 @@ func (c *Config) GetTimeout(tx sdk.Tx) (uint64, error) {
 
 // GetAuctionBidInfo defines a function that returns the auction bid info of an auction transaction.
 func (c *Config) GetAuctionBidInfo(tx sdk.Tx) (mempool.AuctionBidInfo, error) {
-	bid, err := c.GetBid(tx)
+	auctionBidInfo, err := c.getBidInfoFromSdkTx(tx)
 	if err != nil {
 		return mempool.AuctionBidInfo{}, err
 	}
 
-	bidder, err := c.GetBidder(tx)
-	if err != nil {
-		return mempool.AuctionBidInfo{}, err
-	}
-
-	bundle, err := c.GetBundledTransactions(tx)
-	if err != nil {
-		return mempool.AuctionBidInfo{}, err
-	}
-
-	timeout, err := c.GetTimeout(tx)
-	if err != nil {
-		return mempool.AuctionBidInfo{}, err
-	}
-
-	return mempool.AuctionBidInfo{
-		Bid:          bid,
-		Bidder:       bidder,
-		Transactions: bundle,
-		Timeout:      timeout,
-	}, nil
+	return *auctionBidInfo, nil
 }
 
 // GetBundleSigners defines a function that returns the signers of each transaction in a bundle.
