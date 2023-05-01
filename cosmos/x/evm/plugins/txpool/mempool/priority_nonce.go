@@ -26,6 +26,7 @@ import (
 	"math"
 
 	"github.com/huandu/skiplist"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
@@ -68,7 +69,7 @@ type (
 		nextPriority  C
 	}
 
-	// txMeta stores transaction metadata used in indices
+	// txMeta stores transaction metadata used in indices.
 	txMeta[C comparable] struct {
 		// nonce is the sender's sequence number
 		nonce uint64
@@ -110,8 +111,8 @@ func DefaultPriorityNonceMempoolConfig() sdkmempool.PriorityNonceMempoolConfig[i
 // Note, skiplistComparable is used as the comparator in the priority index.
 func skiplistComparable[C comparable](txPriority sdkmempool.TxPriority[C]) skiplist.Comparable {
 	return skiplist.LessThanFunc(func(a, b any) int {
-		keyA := a.(txMeta[C])
-		keyB := b.(txMeta[C])
+		keyA := utils.MustGetAs[txMeta[C]](a)
+		keyB := utils.MustGetAs[txMeta[C]](b)
 
 		res := txPriority.Compare(keyA.priority, keyB.priority)
 		if res != 0 {
@@ -219,7 +220,9 @@ func (mp *PriorityNonceMempool[C]) Insert(ctx context.Context, tx sdk.Tx) error 
 	// changes.
 	sk := txMeta[C]{nonce: nonce, sender: sender}
 	if oldScore, txExists := mp.scores[sk]; txExists {
-		if mp.cfg.TxReplacement != nil && !mp.cfg.TxReplacement(oldScore.priority, priority, senderIndex.Get(key).Value.(sdk.Tx), tx) {
+		if mp.cfg.TxReplacement != nil && !mp.cfg.TxReplacement(
+			oldScore.priority, priority, senderIndex.Get(key).Value.(sdk.Tx), tx,
+		) {
 			return fmt.Errorf(
 				"tx doesn't fit the replacement rule, oldPriority: %v, newPriority: %v, oldTx: %v, newTx: %v",
 				oldScore.priority,
@@ -294,7 +297,7 @@ func (i *PriorityNonceIterator[C]) Next() sdkmempool.Iterator {
 		return i.iteratePriority()
 	}
 
-	key := cursor.Key().(txMeta[C])
+	key := utils.MustGetAs[txMeta[C]](cursor.Key())
 
 	// We've reached a transaction with a priority lower than the next highest
 	// priority in the pool.
@@ -352,7 +355,7 @@ func (mp *PriorityNonceMempool[C]) reorderPriorityTies() {
 
 	var reordering []reorderKey[C]
 	for node != nil {
-		key := node.Key().(txMeta[C])
+		key := utils.MustGetAs[txMeta[C]](node.Key())
 		if mp.priorityCounts[key.priority] > 1 {
 			newKey := key
 			newKey.weight = senderWeight(mp.cfg.TxPriority, key.senderElement)
@@ -434,7 +437,7 @@ func (mp *PriorityNonceMempool[C]) Remove(tx sdk.Tx) error {
 }
 
 func IsEmpty[C comparable](mempool sdkmempool.Mempool) error {
-	mp := mempool.(*PriorityNonceMempool[C])
+	mp := utils.MustGetAs[*PriorityNonceMempool[C]](mempool)
 	if mp.priorityIndex.Len() != 0 {
 		return fmt.Errorf("priorityIndex not empty")
 	}
