@@ -41,14 +41,14 @@ const lengthMethodID = 4
 
 // validateAuctionTx returns true iff the ethereum transaction is a valid auction bid transaction. Since
 // we do not have access to valid basic in the mempool, we must valid it here.
-func (txConfig *Config) validateAuctionTx(ethTx *coretypes.Transaction) (bool, error) {
+func (c *Config) validateAuctionTx(ethTx *coretypes.Transaction) (bool, error) {
 	// The user should not be sending anything to the builder contract
 	if ethTx.Value().Cmp(sdk.ZeroInt().BigInt()) != 0 {
-		return false, fmt.Errorf("a bid transaction must not send any %s to the builder contract", txConfig.evmDenom)
+		return false, fmt.Errorf("a bid transaction must not send any %s to the builder contract", c.evmDenom)
 	}
 
 	// The user should be sending valid bid info to the builder contract's bid function
-	bidInfo, err := txConfig.getBidInfoFromEthTx(ethTx)
+	bidInfo, err := c.getBidInfoFromEthTx(ethTx)
 	if err != nil {
 		return false, fmt.Errorf("transaction must be a valid bid transaction: %w", err)
 	}
@@ -92,7 +92,7 @@ func (c *Config) getBidInfoFromSdkTx(tx sdk.Tx) (*mempool.AuctionBidInfo, error)
 }
 
 // getBidInfoFromEthTx returns the bid information from an ethereum transaction.
-func (txConfig *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*mempool.AuctionBidInfo, error) {
+func (c *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*mempool.AuctionBidInfo, error) {
 	data := ethTx.Data()
 	if len(data) <= lengthMethodID {
 		return nil, fmt.Errorf("transaction data is too short")
@@ -100,7 +100,7 @@ func (txConfig *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*memp
 
 	// Get the method name and the inputs from the transaction data
 	methodSigData := data[:4]
-	method, err := txConfig.contractABI.MethodById(methodSigData)
+	method, err := c.contractABI.MethodById(methodSigData)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (txConfig *Config) getBidInfoFromEthTx(ethTx *coretypes.Transaction) (*memp
 
 	auctionBidInfo := &mempool.AuctionBidInfo{
 		Transactions: bundle,
-		Bid:          sdk.NewCoin(txConfig.evmDenom, sdk.NewIntFromBigInt(bid)),
+		Bid:          sdk.NewCoin(c.evmDenom, sdk.NewIntFromBigInt(bid)),
 		Bidder:       bidder,
 		Timeout:      timeout,
 	}

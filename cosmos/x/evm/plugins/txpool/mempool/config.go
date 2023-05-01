@@ -83,7 +83,7 @@ func NewMempoolConfig(builderContract common.Address,
 // 1. is a Cosmos SDK transaction that contains a single Ethereum transaction request
 // 2. the Ethereum transaction request is sent to the builder contract address
 // 3. the Ethereum transaction request is a valid auction bid transaction.
-func (mc *Config) IsAuctionTx(tx sdk.Tx) (bool, error) {
+func (c *Config) IsAuctionTx(tx sdk.Tx) (bool, error) {
 	// Ensure the transcaction is an EthTransactionRequest
 	ethTx, err := getEthTransactionRequest(tx)
 	if err != nil || ethTx == nil {
@@ -93,17 +93,17 @@ func (mc *Config) IsAuctionTx(tx sdk.Tx) (bool, error) {
 	// Case 1: The dest == nil, and thus is a contract creation transaction.
 	// Case 2: The dest != nil, but is not the builder contract address.
 	// Both cases mean that the transaction is not an auction bid transactions.
-	if to := ethTx.To(); to == nil || *to != mc.builderContract {
+	if to := ethTx.To(); to == nil || *to != c.builderContract {
 		return false, nil
 	}
 
-	return mc.validateAuctionTx(ethTx)
+	return c.validateAuctionTx(ethTx)
 }
 
 // GetTransactionSigners defines a function that returns the signers of a transaction that
 // is included in a searchers bundle. In this case, each transaction in the bundle is a
 // core ethereum transaction type as bytes.
-func (mc *Config) GetTransactionSigners(tx []byte) (map[string]struct{}, error) {
+func (c *Config) GetTransactionSigners(tx []byte) (map[string]struct{}, error) {
 	ethTx := &coretypes.Transaction{}
 	if err := ethTx.UnmarshalBinary(tx); err != nil {
 		return nil, err
@@ -123,13 +123,13 @@ func (mc *Config) GetTransactionSigners(tx []byte) (map[string]struct{}, error) 
 }
 
 // WrapBundleTransaction defines a function that wraps a bundle transaction (eth core transaction type) into a sdk.Tx.
-func (mc *Config) WrapBundleTransaction(tx []byte) (sdk.Tx, error) {
+func (c *Config) WrapBundleTransaction(tx []byte) (sdk.Tx, error) {
 	ethTx := &coretypes.Transaction{}
 	if err := ethTx.UnmarshalBinary(tx); err != nil {
 		return nil, err
 	}
 
-	sdkTx, err := mc.serializer.SerializeToSdkTx(ethTx)
+	sdkTx, err := c.serializer.SerializeToSdkTx(ethTx)
 	if err != nil {
 		return nil, err
 	}
@@ -138,9 +138,8 @@ func (mc *Config) WrapBundleTransaction(tx []byte) (sdk.Tx, error) {
 }
 
 // GetBidder defines a function that returns the bidder of an auction bid transaction.
-func (mc *Config) GetBidder(tx sdk.Tx) (sdk.AccAddress, error) {
-
-	auctionBidInfo, err := mc.getBidInfoFromSdkTx(tx)
+func (c *Config) GetBidder(tx sdk.Tx) (sdk.AccAddress, error) {
+	auctionBidInfo, err := c.getBidInfoFromSdkTx(tx)
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +148,8 @@ func (mc *Config) GetBidder(tx sdk.Tx) (sdk.AccAddress, error) {
 }
 
 // GetBid defines a function that returns the bid of an auction transaction.
-func (mc *Config) GetBid(tx sdk.Tx) (sdk.Coin, error) {
-	auctionBidInfo, err := mc.getBidInfoFromSdkTx(tx)
+func (c *Config) GetBid(tx sdk.Tx) (sdk.Coin, error) {
+	auctionBidInfo, err := c.getBidInfoFromSdkTx(tx)
 	if err != nil {
 		return sdk.Coin{}, err
 	}
@@ -160,8 +159,8 @@ func (mc *Config) GetBid(tx sdk.Tx) (sdk.Coin, error) {
 
 // GetBundledTransactions defines a function that returns the bundled transactions
 // that the user wants to execute at the top of the block given an auction transaction.
-func (mc *Config) GetBundledTransactions(tx sdk.Tx) ([][]byte, error) {
-	auctionBidInfo, err := mc.getBidInfoFromSdkTx(tx)
+func (c *Config) GetBundledTransactions(tx sdk.Tx) ([][]byte, error) {
+	auctionBidInfo, err := c.getBidInfoFromSdkTx(tx)
 	if err != nil {
 		return nil, err
 	}
@@ -170,8 +169,8 @@ func (mc *Config) GetBundledTransactions(tx sdk.Tx) ([][]byte, error) {
 }
 
 // GetTimeout defines a function that returns the timeout height of an auction transaction.
-func (mc *Config) GetTimeout(tx sdk.Tx) (uint64, error) {
-	auctionBidInfo, err := mc.getBidInfoFromSdkTx(tx)
+func (c *Config) GetTimeout(tx sdk.Tx) (uint64, error) {
+	auctionBidInfo, err := c.getBidInfoFromSdkTx(tx)
 	if err != nil {
 		return 0, err
 	}
@@ -180,23 +179,23 @@ func (mc *Config) GetTimeout(tx sdk.Tx) (uint64, error) {
 }
 
 // GetAuctionBidInfo defines a function that returns the auction bid info of an auction transaction.
-func (mc *Config) GetAuctionBidInfo(tx sdk.Tx) (mempool.AuctionBidInfo, error) {
-	bid, err := mc.GetBid(tx)
+func (c *Config) GetAuctionBidInfo(tx sdk.Tx) (mempool.AuctionBidInfo, error) {
+	bid, err := c.GetBid(tx)
 	if err != nil {
 		return mempool.AuctionBidInfo{}, err
 	}
 
-	bidder, err := mc.GetBidder(tx)
+	bidder, err := c.GetBidder(tx)
 	if err != nil {
 		return mempool.AuctionBidInfo{}, err
 	}
 
-	bundle, err := mc.GetBundledTransactions(tx)
+	bundle, err := c.GetBundledTransactions(tx)
 	if err != nil {
 		return mempool.AuctionBidInfo{}, err
 	}
 
-	timeout, err := mc.GetTimeout(tx)
+	timeout, err := c.GetTimeout(tx)
 	if err != nil {
 		return mempool.AuctionBidInfo{}, err
 	}
@@ -210,11 +209,11 @@ func (mc *Config) GetAuctionBidInfo(tx sdk.Tx) (mempool.AuctionBidInfo, error) {
 }
 
 // GetBundleSigners defines a function that returns the signers of each transaction in a bundle.
-func (mc *Config) GetBundleSigners(txs [][]byte) ([]map[string]struct{}, error) {
+func (c *Config) GetBundleSigners(txs [][]byte) ([]map[string]struct{}, error) {
 	signers := make([]map[string]struct{}, len(txs))
 
 	for index, tx := range txs {
-		txSigners, err := mc.GetTransactionSigners(tx)
+		txSigners, err := c.GetTransactionSigners(tx)
 		if err != nil {
 			return nil, err
 		}
