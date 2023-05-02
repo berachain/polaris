@@ -67,7 +67,7 @@ func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.EthTxPool) Plugin {
 	}
 }
 
-// GetNewTxsEventSubscription returns a new event subscription for the new txs feed.
+// SubscribeNewTxsEvent returns a new event subscription for the new txs feed.
 func (p *plugin) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
 	return p.scope.Track(p.txFeed.Subscribe(ch))
 }

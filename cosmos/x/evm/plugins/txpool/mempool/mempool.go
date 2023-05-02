@@ -83,6 +83,24 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	return nil
 }
 
+// Remove is called when a transaction is removed from the mempool.
+func (etp *EthTxPool) Remove(tx sdk.Tx) error {
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
+
+	// Call the base mempool's Remove method
+	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
+		return err
+	}
+
+	// We want to remove the caches of this tx.
+	if ethTx := GetAsEthTx(tx); ethTx != nil {
+		delete(etp.ethTxCache, ethTx.Hash())
+	}
+
+	return nil
+}
+
 // Get is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 	return etp.ethTxCache[hash]
@@ -94,7 +112,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	defer etp.mu.RUnlock()
 
 	allNonces := etp.PriorityNonceMempool.senderIndices
-	pending := make(map[common.Address]coretypes.Transactions, len(allNonces))
+	pending := make(map[common.Address]coretypes.Transactions)
 	for sender, list := range allNonces {
 		// get Eth Address of sender
 		addrBech32, _ := sdk.AccAddressFromBech32(sender)
@@ -119,7 +137,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 	defer etp.mu.RUnlock()
 
 	allNonces := etp.PriorityNonceMempool.senderIndices
-	queued := make(map[common.Address]coretypes.Transactions, len(allNonces))
+	queued := make(map[common.Address]coretypes.Transactions)
 	for sender, list := range allNonces {
 		// get Eth Address of sender
 		addrBech32, _ := sdk.AccAddressFromBech32(sender)
@@ -162,43 +180,28 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	return etp.nr.GetNonce(addr)
 }
 
-// Remove is called when a transaction is removed from the mempool.
-func (etp *EthTxPool) Remove(tx sdk.Tx) error {
-	etp.mu.Lock()
-	defer etp.mu.Unlock()
-
-	// Call the base mempool's Remove method
-	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
-		return err
-	}
-
-	// We want to remove the caches of this tx.
-	if ethTx := GetAsEthTx(tx); ethTx != nil {
-		delete(etp.ethTxCache, ethTx.Hash())
-	}
-
-	return nil
-}
-
 // Stats returns the number of currently pending (locally created) transactions.
 func (etp *EthTxPool) Stats() (int, int) {
 	pending, queued := etp.Content()
 	return len(pending), len(queued)
 }
 
-// ContentFrom retrieves the data content of the transaction pool, returning the
-// pending as well as queued transactions of this address, grouped by nonce.
+// ContentFrom retrieves the data content of the transaction pool, returning the pending as well as
+// queued transactions of this address, grouped by nonce.
 func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
 	pending, queued := etp.Content()
 	return pending[addr], queued[addr]
 }
 
-// Content retrieves the data content of the transaction pool, returning all the
-// pending as well as queued transactions, grouped by account and nonce.
-func (etp *EthTxPool) Content() (map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions) {
+// Content retrieves the data content of the transaction pool, returning all the pending as well as
+// queued transactions, grouped by account and nonce.
+func (etp *EthTxPool) Content() (
+	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
+) {
 	return etp.Pending(false), etp.queued()
 }
 
+// GetAsEthTx is a helper function to get an EthTx from a sdk.Tx.
 func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
 	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
 	if !ok {

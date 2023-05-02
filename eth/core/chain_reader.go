@@ -236,7 +236,7 @@ func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
 	return bc.tp.Get(hash)
 }
 
-// TODO: define behaviour for this function.
+// GetPoolNonce returns the pending nonce of addr from the mempool.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
 	return bc.tp.Nonce(addr), bc.statedb.Error()
 }

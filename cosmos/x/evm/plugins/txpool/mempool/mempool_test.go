@@ -21,15 +21,24 @@
 package mempool
 
 import (
+	"bytes"
+	"crypto/ecdsa"
 	"testing"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 
+	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -41,17 +50,23 @@ func TestEthPool(t *testing.T) {
 }
 
 var _ = Describe("EthTxPool", func() {
-	var sp core.StatePlugin
-	var etp *EthTxPool
-	var addr1 = common.HexToAddress("0x1111")
-	var addr2 = common.HexToAddress("0x2222")
+	var (
+		ctx     sdk.Context
+		sp      core.StatePlugin
+		etp     *EthTxPool
+		key1, _ = crypto.GenerateEthKey()
+		addr1   = crypto.PubkeyToAddress(key1.PublicKey)
+		key2, _ = crypto.GenerateEthKey()
+		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
+	)
 
 	BeforeEach(func() {
-		ctx, ak, bk, _ := testutil.SetupMinimalKeepers()
+		sCtx, ak, bk, _ := testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPLF{})
+		ctx = sCtx
 		sp.Reset(ctx)
-		sp.SetNonce(addr1, 1111)
-		sp.SetNonce(addr2, 2222)
+		sp.SetNonce(addr1, 1)
+		sp.SetNonce(addr2, 2)
 		sp.Finalize()
 		sp.Reset(ctx)
 		etp = NewEthTxPoolFrom(DefaultPriorityMempool())
@@ -61,16 +76,32 @@ var _ = Describe("EthTxPool", func() {
 	Describe("All Cases", func() {
 		It("should handle empty txs", func() {
 			Expect(etp.Get(common.Hash{})).To(BeNil())
-			emptyPending, emptyQueued := etp.Pending(false), etp.queued()
+			emptyPending, emptyQueued := etp.Content()
 			Expect(emptyPending).To(BeEmpty())
 			Expect(emptyQueued).To(BeEmpty())
-			Expect(etp.Nonce(addr1)).To(Equal(uint64(1111)))
-			Expect(etp.Nonce(addr2)).To(Equal(uint64(2222)))
-			Expect(etp.Nonce(common.HexToAddress("0x3333"))).To(Equal(uint64(0)))
+			Expect(etp.Nonce(addr1)).To(Equal(uint64(1)))
+			Expect(etp.Nonce(addr2)).To(Equal(uint64(2)))
+			Expect(etp.Nonce(common.HexToAddress("0x3"))).To(Equal(uint64(0)))
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {
+			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+			ethTx2, tx2 := buildTx(key2, &coretypes.LegacyTx{Nonce: 2})
 
+			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+
+			Expect(etp.Get(ethTx1.Hash()).Hash()).To(Equal(ethTx1.Hash()))
+			Expect(etp.Get(ethTx2.Hash()).Hash()).To(Equal(ethTx2.Hash()))
+
+			pending, queued := etp.Content()
+			lenP, lenQ := etp.Stats()
+
+			Expect(len(pending)).To(Equal(lenP))
+			Expect(len(queued)).To(Equal(lenQ))
+
+			Expect(pending[addr1][0].Hash()).To(Equal(ethTx1.Hash()))
+			Expect(pending[addr2][0].Hash()).To(Equal(ethTx2.Hash()))
 		})
 	})
 })
@@ -90,3 +121,42 @@ func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
 		Address: common.BytesToAddress([]byte(event.Type)),
 	}, nil
 }
+
+func buildTx(from *ecdsa.PrivateKey, txData *coretypes.LegacyTx) (*coretypes.Transaction, sdk.Tx) {
+	signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+	signedEthTx := coretypes.MustSignNewTx(from, signer, txData)
+	addr, _ := signer.Sender(signedEthTx)
+	if !bytes.Equal(addr.Bytes(), crypto.PubkeyToAddress(from.PublicKey).Bytes()) {
+		panic("sender mismatch")
+	}
+	pubKey := &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(&from.PublicKey)}
+	return signedEthTx, &mockSdkTx{
+		signers: []sdk.AccAddress{cosmlib.AddressToAccAddress(addr)},
+		msgs:    []sdk.Msg{evmtypes.NewFromTransaction(signedEthTx)},
+		pubKeys: []cryptotypes.PubKey{pubKey},
+		signatures: []signing.SignatureV2{
+			{
+				PubKey: pubKey,
+				// NOTE: not including the signature data for the mock
+				Sequence: txData.Nonce,
+			},
+		},
+	}
+}
+
+type mockSdkTx struct {
+	signers    []sdk.AccAddress
+	msgs       []sdk.Msg
+	pubKeys    []cryptotypes.PubKey
+	signatures []signing.SignatureV2
+}
+
+func (m *mockSdkTx) ValidateBasic() error { return nil }
+
+func (m *mockSdkTx) GetMsgs() []sdk.Msg { return m.msgs }
+
+func (m *mockSdkTx) GetSigners() []sdk.AccAddress { return m.signers }
+
+func (m *mockSdkTx) GetPubKeys() ([]cryptotypes.PubKey, error) { return m.pubKeys, nil }
+
+func (m *mockSdkTx) GetSignaturesV2() ([]signing.SignatureV2, error) { return m.signatures, nil }
