@@ -18,13 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool
+package types
 
 import (
 	"math/big"
 
-	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/ethereum/go-ethereum/core/types"
+
 	ethcrypto "pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -81,11 +81,10 @@ var _ = Describe("signer.PubKey", func() {
 			Expect(signer.PubKey(signedTx)).To(Equal(ethcrypto.FromECDSAPub(&key.PublicKey)))
 			bz, err := signer.PubKey(signedTx)
 			Expect(err).ToNot(HaveOccurred())
-			pk := &ethsecp256k1.PubKey{Key: bz}
-			Expect(pk.Address()).To(Equal(ethcrypto.PubkeyToAddress(key.PublicKey)))
-			pk2, err := PubkeyFromTx(signedTx, signer)
+			Expect(bz).To(Equal(ethcrypto.PubkeyToAddress(key.PublicKey)))
+			bz2, err := PubkeyFromTx(signedTx, signer)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(*pk2).To(Equal(pk))
+			Expect(bz2).To(Equal(bz))
 		})
 	})
 })

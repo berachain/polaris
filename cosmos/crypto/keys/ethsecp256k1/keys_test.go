@@ -25,7 +25,7 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	"pkg.berachain.dev/polaris/eth/crypto"
+	ethcrypto "pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -59,7 +59,7 @@ var _ = Describe("PubPrivKey", func() {
 		addr := privKey.PubKey().Address()
 		key, err := privKey.ToECDSA()
 		Expect(err).ToNot(HaveOccurred())
-		expectedAddr := crypto.PubkeyToAddress(key.PublicKey)
+		expectedAddr := ethcrypto.PubkeyToAddress(key.PublicKey)
 		Expect(expectedAddr.Bytes()).To(Equal(addr.Bytes()))
 	})
 
