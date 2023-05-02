@@ -43,8 +43,8 @@ type EthTxPool struct {
 	// later
 	ethTxCache map[common.Hash]*coretypes.Transaction
 
-	// NonceRetriever is used to retrieve the nonce for a given address.
-	// (this is typically a reference to the StateDB)
+	// NonceRetriever is used to retrieve the nonce for a given address (this is typically a
+	// reference to the StateDB).
 	nr NonceRetriever
 
 	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
@@ -111,7 +111,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	allNonces := etp.PriorityNonceMempool.senderIndices
+	allNonces := etp.senderIndices
 	pending := make(map[common.Address]coretypes.Transactions)
 	for sender, list := range allNonces {
 		// get Eth Address of sender
@@ -136,7 +136,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	allNonces := etp.PriorityNonceMempool.senderIndices
+	allNonces := etp.senderIndices
 	queued := make(map[common.Address]coretypes.Transactions)
 	for sender, list := range allNonces {
 		// get Eth Address of sender

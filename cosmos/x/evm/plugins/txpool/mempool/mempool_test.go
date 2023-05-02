@@ -97,8 +97,8 @@ var _ = Describe("EthTxPool", func() {
 			pending, queued := etp.Content()
 			lenP, lenQ := etp.Stats()
 
-			Expect(len(pending)).To(Equal(lenP))
-			Expect(len(queued)).To(Equal(lenQ))
+			Expect(pending).To(HaveLen(lenP))
+			Expect(queued).To(HaveLen(lenQ))
 
 			Expect(pending[addr1][0].Hash()).To(Equal(ethTx1.Hash()))
 			Expect(pending[addr2][0].Hash()).To(Equal(ethTx2.Hash()))
