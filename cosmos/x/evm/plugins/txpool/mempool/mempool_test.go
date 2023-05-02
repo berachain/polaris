@@ -23,9 +23,6 @@ package mempool
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -33,6 +30,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestEthPool(t *testing.T) {
@@ -70,7 +70,7 @@ var _ = Describe("EthTxPool", func() {
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {
-			
+
 		})
 	})
 })
