@@ -18,31 +18,43 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package ante
+package mock
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces/mock"
 )
 
-// EthSkipDecorator is an AnteDecorator that wraps an existing AnteDecorator. It allows
-// EthTransactions to skip said Decorator by checking the first message in the transaction
-// for an EthTransactionRequest. This is safe since EthTransactions are guaranteed to be
-// the first and only message in a transaction.
-type EthSkipDecorator[T sdk.AnteDecorator] struct {
-	decorator T
+// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
+func NewMsg() *mock.MsgMock {
+	mockedMsg := &mock.MsgMock{
+		GetSignersFunc: func() []sdk.AccAddress {
+			panic("mock out the GetSigners method")
+		},
+		ProtoMessageFunc: func() {
+			panic("mock out the ProtoMessage method")
+		},
+		ResetFunc: func() {
+			panic("mock out the Reset method")
+		},
+		StringFunc: func() string {
+			panic("mock out the String method")
+		},
+	}
+	return mockedMsg
 }
 
-// AnteHandle implements the sdk.AnteDecorator interface, it is handle the
-// type check for the message type.
-func (sd EthSkipDecorator[T]) AnteHandle(
-	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
-) (sdk.Context, error) {
-	if _, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0]); ok {
-		return next(ctx, tx, simulate)
+// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
+func NewTx() *mock.TxMock {
+	// make and configure a mocked interfaces.Tx
+	mockedTx := &mock.TxMock{
+		GetMsgsFunc: func() []sdk.Msg {
+			panic("mock out the GetMsgs method")
+		},
+		ValidateBasicFunc: func() error {
+			panic("mock out the ValidateBasic method")
+		},
 	}
-
-	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
+	return mockedTx
 }
