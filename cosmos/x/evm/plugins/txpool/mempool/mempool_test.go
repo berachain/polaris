@@ -70,7 +70,7 @@ var _ = Describe("EthTxPool", func() {
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {
-
+			
 		})
 	})
 })

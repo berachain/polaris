@@ -26,6 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
@@ -47,8 +48,14 @@ type Plugin interface {
 // plugin represents the transaction pool plugin.
 type plugin struct {
 	*mempool.EthTxPool
+
 	clientContext client.Context
 	cp            ConfigurationPlugin
+
+	// txFeed and scope is used to send new batch transactions to new txs subscribers when the
+	// batch is added to the mempool.
+	txFeed event.Feed
+	scope  event.SubscriptionScope
 }
 
 // NewPlugin returns a new transaction pool plugin.
@@ -57,6 +64,11 @@ func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.EthTxPool) Plugin {
 		EthTxPool: ethTxMempool,
 		cp:        cp,
 	}
+}
+
+// GetNewTxsEventSubscription returns a new event subscription for the new txs feed.
+func (p *plugin) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
+	return p.scope.Track(p.txFeed.Subscribe(ch))
 }
 
 // SendTx sends a transaction to the transaction pool. It takes in a signed
@@ -80,6 +92,12 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 		// b.logger.Error("failed to broadcast tx", "error", err.Errsor())
 		return err
 	}
+
+	// Currently sending an individual new txs event for every new tx added to the mempool via
+	// broadcast.
+	// TODO: support sending batch new txs events when adding queued txs to the pending txs.
+	p.txFeed.Send(core.NewTxsEvent{Txs: coretypes.Transactions{signedEthTx}})
+
 	return nil
 }
 
