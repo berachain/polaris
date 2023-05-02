@@ -28,6 +28,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
+	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -100,7 +101,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	// from the V,R,S values of the transaction. This allows us for a little trick to allow
 	// ethereum transactions to work in the standard cosmos app-side mempool with no modifications.
 	// Some gigabrain shit tbh.
-	pk, err := PubkeyFromTx(signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()))
+	pkBz, err := coretypes.PubkeyFromTx(signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()))
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 				// over so that it can verify the signature in the ante handler.
 				Signature: sig,
 			},
-			PubKey: pk,
+			PubKey: &ethsecp256k1.PubKey{Key: pkBz},
 		},
 	); err != nil {
 		return nil, err
