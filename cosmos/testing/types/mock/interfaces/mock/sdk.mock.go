@@ -4,7 +4,9 @@
 package mock
 
 import (
+	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces"
 	"sync"
 )
@@ -192,6 +194,15 @@ var _ interfaces.Tx = &TxMock{}
 //			GetMsgsFunc: func() []sdk.Msg {
 //				panic("mock out the GetMsgs method")
 //			},
+//			GetPubKeysFunc: func() ([]types.PubKey, error) {
+//				panic("mock out the GetPubKeys method")
+//			},
+//			GetSignaturesV2Func: func() ([]signing.SignatureV2, error) {
+//				panic("mock out the GetSignaturesV2 method")
+//			},
+//			GetSignersFunc: func() []sdk.AccAddress {
+//				panic("mock out the GetSigners method")
+//			},
 //			ValidateBasicFunc: func() error {
 //				panic("mock out the ValidateBasic method")
 //			},
@@ -205,6 +216,15 @@ type TxMock struct {
 	// GetMsgsFunc mocks the GetMsgs method.
 	GetMsgsFunc func() []sdk.Msg
 
+	// GetPubKeysFunc mocks the GetPubKeys method.
+	GetPubKeysFunc func() ([]types.PubKey, error)
+
+	// GetSignaturesV2Func mocks the GetSignaturesV2 method.
+	GetSignaturesV2Func func() ([]signing.SignatureV2, error)
+
+	// GetSignersFunc mocks the GetSigners method.
+	GetSignersFunc func() []sdk.AccAddress
+
 	// ValidateBasicFunc mocks the ValidateBasic method.
 	ValidateBasicFunc func() error
 
@@ -213,12 +233,24 @@ type TxMock struct {
 		// GetMsgs holds details about calls to the GetMsgs method.
 		GetMsgs []struct {
 		}
+		// GetPubKeys holds details about calls to the GetPubKeys method.
+		GetPubKeys []struct {
+		}
+		// GetSignaturesV2 holds details about calls to the GetSignaturesV2 method.
+		GetSignaturesV2 []struct {
+		}
+		// GetSigners holds details about calls to the GetSigners method.
+		GetSigners []struct {
+		}
 		// ValidateBasic holds details about calls to the ValidateBasic method.
 		ValidateBasic []struct {
 		}
 	}
-	lockGetMsgs       sync.RWMutex
-	lockValidateBasic sync.RWMutex
+	lockGetMsgs         sync.RWMutex
+	lockGetPubKeys      sync.RWMutex
+	lockGetSignaturesV2 sync.RWMutex
+	lockGetSigners      sync.RWMutex
+	lockValidateBasic   sync.RWMutex
 }
 
 // GetMsgs calls GetMsgsFunc.
@@ -245,6 +277,87 @@ func (mock *TxMock) GetMsgsCalls() []struct {
 	mock.lockGetMsgs.RLock()
 	calls = mock.calls.GetMsgs
 	mock.lockGetMsgs.RUnlock()
+	return calls
+}
+
+// GetPubKeys calls GetPubKeysFunc.
+func (mock *TxMock) GetPubKeys() ([]types.PubKey, error) {
+	if mock.GetPubKeysFunc == nil {
+		panic("TxMock.GetPubKeysFunc: method is nil but Tx.GetPubKeys was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetPubKeys.Lock()
+	mock.calls.GetPubKeys = append(mock.calls.GetPubKeys, callInfo)
+	mock.lockGetPubKeys.Unlock()
+	return mock.GetPubKeysFunc()
+}
+
+// GetPubKeysCalls gets all the calls that were made to GetPubKeys.
+// Check the length with:
+//
+//	len(mockedTx.GetPubKeysCalls())
+func (mock *TxMock) GetPubKeysCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetPubKeys.RLock()
+	calls = mock.calls.GetPubKeys
+	mock.lockGetPubKeys.RUnlock()
+	return calls
+}
+
+// GetSignaturesV2 calls GetSignaturesV2Func.
+func (mock *TxMock) GetSignaturesV2() ([]signing.SignatureV2, error) {
+	if mock.GetSignaturesV2Func == nil {
+		panic("TxMock.GetSignaturesV2Func: method is nil but Tx.GetSignaturesV2 was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetSignaturesV2.Lock()
+	mock.calls.GetSignaturesV2 = append(mock.calls.GetSignaturesV2, callInfo)
+	mock.lockGetSignaturesV2.Unlock()
+	return mock.GetSignaturesV2Func()
+}
+
+// GetSignaturesV2Calls gets all the calls that were made to GetSignaturesV2.
+// Check the length with:
+//
+//	len(mockedTx.GetSignaturesV2Calls())
+func (mock *TxMock) GetSignaturesV2Calls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetSignaturesV2.RLock()
+	calls = mock.calls.GetSignaturesV2
+	mock.lockGetSignaturesV2.RUnlock()
+	return calls
+}
+
+// GetSigners calls GetSignersFunc.
+func (mock *TxMock) GetSigners() []sdk.AccAddress {
+	if mock.GetSignersFunc == nil {
+		panic("TxMock.GetSignersFunc: method is nil but Tx.GetSigners was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetSigners.Lock()
+	mock.calls.GetSigners = append(mock.calls.GetSigners, callInfo)
+	mock.lockGetSigners.Unlock()
+	return mock.GetSignersFunc()
+}
+
+// GetSignersCalls gets all the calls that were made to GetSigners.
+// Check the length with:
+//
+//	len(mockedTx.GetSignersCalls())
+func (mock *TxMock) GetSignersCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetSigners.RLock()
+	calls = mock.calls.GetSigners
+	mock.lockGetSigners.RUnlock()
 	return calls
 }
 

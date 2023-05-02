@@ -22,6 +22,7 @@ package interfaces
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 )
 
 // Interface wrappers for mocking
@@ -30,6 +31,6 @@ import (
 type (
 	// TxMsg wrapper for github.com/cosmos/cosmos-sdk/types.TxMsg.
 	Msg sdk.Msg
-	// Tx wrapper for github.com/cosmos/cosmos-sdk/types.Tx.
-	Tx sdk.Tx
+	// Tx wrapper for github.com/cosmos/cosmos-sdk/x/auth/signing.Tx.
+	Tx signing.SigVerifiableTx
 )
