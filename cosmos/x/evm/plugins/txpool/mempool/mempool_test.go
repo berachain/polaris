@@ -91,6 +91,9 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
 
+			Expect(etp.Nonce(addr1)).To(Equal(uint64(2)))
+			Expect(etp.Nonce(addr2)).To(Equal(uint64(3)))
+
 			Expect(etp.Get(ethTx1.Hash()).Hash()).To(Equal(ethTx1.Hash()))
 			Expect(etp.Get(ethTx2.Hash()).Hash()).To(Equal(ethTx2.Hash()))
 
@@ -102,6 +105,21 @@ var _ = Describe("EthTxPool", func() {
 
 			Expect(pending[addr1][0].Hash()).To(Equal(ethTx1.Hash()))
 			Expect(pending[addr2][0].Hash()).To(Equal(ethTx2.Hash()))
+
+			Expect(etp.Remove(tx2)).ToNot(HaveOccurred())
+			Expect(etp.Get(ethTx2.Hash())).To(BeNil())
+			p2, q2 := etp.ContentFrom(addr2)
+			Expect(p2).To(BeEmpty())
+			Expect(q2).To(BeEmpty())
+			Expect(etp.Nonce(addr2)).To(Equal(uint64(2)))
+
+			ethTx11, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
+			Expect(etp.Insert(ctx, tx11)).ToNot(HaveOccurred())
+			Expect(etp.Nonce(addr1)).To(Equal(uint64(3)))
+			p11, q11 := etp.ContentFrom(addr1)
+			Expect(p11).To(HaveLen(1))
+			Expect(q11).To(HaveLen(1))
+			Expect(q11[0].Hash()).To(Equal(ethTx11.Hash()))
 		})
 	})
 })

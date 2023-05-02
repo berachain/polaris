@@ -144,8 +144,10 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 		addr := cosmlib.AccAddressToEthAddress(addrBech32)
 
 		// skip the first ethTx seen, add the rest to the queued list
-		ethTxs := make(coretypes.Transactions, list.Len()-1)
-		seenOne := false
+		var (
+			ethTxs  coretypes.Transactions
+			seenOne bool
+		)
 		for elem := list.Front(); elem != nil; elem = elem.Next() {
 			if ethTx := GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
 				if seenOne {
@@ -166,9 +168,9 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	// search the addr's txs for the first eth tx nonce
+	// search the addr's txs for the first eth tx nonce, in descending order (latest nonce)
 	if txs := etp.senderIndices[cosmlib.AddressToAccAddress(addr).String()]; txs != nil {
-		for elem := txs.Front(); elem != nil; elem = elem.Next() {
+		for elem := txs.Back(); elem != nil; elem = elem.Prev() {
 			if ethTx := GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
 				// pending nonce is the account's incremented nonce
 				return ethTx.Nonce() + 1
