@@ -149,11 +149,12 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	defer etp.mu.RUnlock()
 
 	// search the addr's txs for the first eth tx nonce
-	txs := etp.senderIndices[cosmlib.AddressToAccAddress(addr).String()]
-	for elem := txs.Front(); elem != nil; elem = elem.Next() {
-		if ethTx := GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
-			// pending nonce is the account's incremented nonce
-			return ethTx.Nonce() + 1
+	if txs := etp.senderIndices[cosmlib.AddressToAccAddress(addr).String()]; txs != nil {
+		for elem := txs.Front(); elem != nil; elem = elem.Next() {
+			if ethTx := GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
+				// pending nonce is the account's incremented nonce
+				return ethTx.Nonce() + 1
+			}
 		}
 	}
 
