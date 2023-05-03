@@ -31,11 +31,7 @@ import (
 )
 
 var _ = Describe("Tx Pool", func() {
-	// BeforeEach(func() {
-
-	// })
-
-	It("should handle txpool requests", func() {
+	BeforeEach(func() {
 		// Run some transactions for bob
 		_, tx, contract, err := tbindings.DeployConsumeGas(
 			tf.GenerateTransactOpts("alice"), client,
@@ -44,7 +40,11 @@ var _ = Describe("Tx Pool", func() {
 		ExpectSuccessReceipt(client, tx)
 		tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 		Expect(err).NotTo(HaveOccurred())
+		ExpectSuccessReceipt(client, tx)
 		tf.Network.WaitForNextBlock()
+	})
+
+	It("should handle txpool requests", func() {
 		bobCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(bobCurrNonce).To(BeNumerically(">=", 2))

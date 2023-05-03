@@ -36,10 +36,10 @@ import (
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
-// Plugin represents the transaction pool plugin.
+// Compile-time type assertion.
 var _ Plugin = (*plugin)(nil)
 
-// Plugin represents the transaction pool plugin.
+// Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
 	core.TxPoolPlugin
 	plugins.BaseCosmosPolaris
@@ -68,23 +68,28 @@ func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.EthTxPool) Plugin {
 	}
 }
 
+// SetClientContext implements the Plugin interface.
+func (p *plugin) SetClientContext(ctx client.Context) {
+	p.clientContext = ctx
+}
+
 // SubscribeNewTxsEvent returns a new event subscription for the new txs feed.
 func (p *plugin) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
 	return p.scope.Track(p.txFeed.Subscribe(ch))
 }
 
-// SendTx sends a transaction to the transaction pool. It takes in a signed
-// ethereum transaction from the rpc backend and wraps it in a Cosmos
-// transaction. The Cosmos transaction is then broadcasted to the network.
+// SendTx sends a transaction to the transaction pool. It takes in a signed Ethereum transaction
+// from the rpc backend and wraps it in a Cosmos transaction. The Cosmos transaction is then
+// broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Serialize the transaction to Bytes
-	txBytes, err := NewSerializer(p.cp, p.clientContext).Serialize(signedEthTx)
+	txBytes, err := SerializeToBytes(p.cp.GetEvmDenom(), p.clientContext, signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
 
-	// Send the transaction to the CometBFT mempool, which will
-	// gossip it to peers via CometBFT's p2p layer.
+	// Send the transaction to the CometBFT mempool, which will gossip it to peers via CometBFT's
+	// p2p layer.
 	syncCtx := p.clientContext.WithBroadcastMode(flags.BroadcastSync)
 	rsp, err := syncCtx.BroadcastTx(txBytes)
 	if rsp != nil && rsp.Code != 0 {
@@ -103,22 +108,17 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	return nil
 }
 
-// SendPrivTx sends a private transaction to the transaction pool. It takes in
-// a signed ethereum transaction from the rpc backend and wraps it in a Cosmos
-// transaction. The Cosmos transaction is injected into the local mempool, but is
-// NOT gossiped to peers.
+// SendPrivTx sends a private transaction to the transaction pool. It takes in a signed ethereum
+// transaction from the rpc backend and wraps it in a Cosmos transaction. The Cosmos transaction is
+// injected into the local mempool, but is NOT gossiped to peers.
 func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
-	cosmosTx, err := NewSerializer(p.cp, p.clientContext).SerializeToSdkTx(signedTx)
+	cosmosTx, err := SerializeToSdkTx(p.cp.GetEvmDenom(), p.clientContext, signedTx)
 	if err != nil {
 		return err
 	}
 
-	// We insert into the local mempool, without gossiping to peers.
-	// We use a blank sdk.Context{} as the context, as we don't need to
-	// use it anyways. We set the priority as the gas price of the tx.
+	// We insert into the local mempool, without gossiping to peers. We use a blank sdk.Context{}
+	// as the context, as we don't need to use it anyways. We set the priority as the gas price of
+	// the tx.
 	return p.EthTxPool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
-}
-
-func (p *plugin) SetClientContext(ctx client.Context) {
-	p.clientContext = ctx
 }
