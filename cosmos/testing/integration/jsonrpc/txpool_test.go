@@ -36,8 +36,8 @@ var _ = Describe("Tx Pool", func() {
 	var contract *tbindings.ConsumeGas
 
 	BeforeEach(func() {
-		var tx *coretypes.Transaction
 		var err error
+		var tx *coretypes.Transaction
 		// Run some transactions for alice
 		_, tx, contract, err = tbindings.DeployConsumeGas(
 			tf.GenerateTransactOpts("alice"), client,
@@ -72,5 +72,25 @@ var _ = Describe("Tx Pool", func() {
 		aliceCurrNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(aliceCurrNonce).To(Equal(alicePendingNonce))
+	})
+
+	It("should handle multiple transactions as queued", func() {
+		beforeNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		Expect(err).NotTo(HaveOccurred())
+
+		// send 10 transactions, each one with updated nonce
+		for i := beforeNonce; i < beforeNonce+10; i++ {
+			txr := tf.GenerateTransactOpts("alice")
+			txr.Nonce = big.NewInt(int64(i))
+			_, err := contract.ConsumeGas(txr, big.NewInt(500))
+			Expect(err).NotTo(HaveOccurred())
+		}
+
+		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
+
+		// check that nonce is updated
+		afterNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(afterNonce).To(Equal(beforeNonce + 10))
 	})
 })
