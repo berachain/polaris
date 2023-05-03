@@ -22,6 +22,7 @@ package mempool
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,7 +50,7 @@ type EthTxPool struct {
 
 	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
 	// concurrently by multiple goroutines.
-	mu sync.RWMutex
+	mu *sync.RWMutex
 }
 
 // New is called when the mempool is created.
@@ -57,6 +58,7 @@ func NewEthTxPoolFrom(mp *PriorityNonceMempool[int64]) *EthTxPool {
 	return &EthTxPool{
 		PriorityNonceMempool: mp,
 		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
+		mu:                   &sync.RWMutex{},
 	}
 }
 
@@ -179,6 +181,7 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	}
 
 	// if the addr has no eth txs, fallback to the nonce retriever db
+	fmt.Print("GET FROM SDB")
 	return etp.nr.GetNonce(addr)
 }
 

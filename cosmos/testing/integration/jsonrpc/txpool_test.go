@@ -19,3 +19,34 @@
 // TITLE.
 
 package jsonrpc
+
+import (
+	"context"
+	"math/big"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+)
+
+var _ = Describe("Tx Pool", func() {
+	// BeforeEach(func() {
+
+	// })
+
+	It("should handle txpool requests", func() {
+		// Run some transactions for bob
+		_, tx, contract, err := tbindings.DeployConsumeGas(
+			tf.GenerateTransactOpts("alice"), client,
+		)
+		Expect(err).NotTo(HaveOccurred())
+		ExpectSuccessReceipt(client, tx)
+		tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
+		Expect(err).NotTo(HaveOccurred())
+		tf.Network.WaitForNextBlock()
+		bobCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(bobCurrNonce).To(BeNumerically(">=", 2))
+	})
+})

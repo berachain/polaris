@@ -43,6 +43,7 @@ var _ Plugin = (*plugin)(nil)
 type Plugin interface {
 	core.TxPoolPlugin
 	plugins.BaseCosmosPolaris
+	SetNonceRetriever(mempool.NonceRetriever)
 	SetClientContext(client.Context)
 }
 

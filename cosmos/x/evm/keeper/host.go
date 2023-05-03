@@ -108,6 +108,7 @@ func (h *host) Setup(
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
+	h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
