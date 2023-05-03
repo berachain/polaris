@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -32,9 +33,13 @@ import (
 )
 
 var _ = Describe("Tx Pool", func() {
+	var contract *tbindings.ConsumeGas
+
 	BeforeEach(func() {
+		var tx *coretypes.Transaction
+		var err error
 		// Run some transactions for alice
-		_, tx, contract, err := tbindings.DeployConsumeGas(
+		_, tx, contract, err = tbindings.DeployConsumeGas(
 			tf.GenerateTransactOpts("alice"), client,
 		)
 		Expect(err).NotTo(HaveOccurred())
@@ -45,11 +50,27 @@ var _ = Describe("Tx Pool", func() {
 		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 	})
 
-	It("should handle txpool requests", func() {
-		bobCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+	It("should handle txpool requests: pending nonce", func() {
+		aliceCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(bobCurrNonce).To(BeNumerically(">=", 2))
+		Expect(aliceCurrNonce).To(BeNumerically(">=", 2))
 
-		//
+		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
+
+		// send a transaction and make sure pending nonce is incremented
+		_, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
+		Expect(err).NotTo(HaveOccurred())
+		alicePendingNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(alicePendingNonce).To(Equal(aliceCurrNonce + 1))
+		acn, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(acn).To(Equal(aliceCurrNonce))
+
+		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
+
+		aliceCurrNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(aliceCurrNonce).To(Equal(alicePendingNonce))
 	})
 })

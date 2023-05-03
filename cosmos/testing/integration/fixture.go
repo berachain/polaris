@@ -72,7 +72,6 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 		t.Fatal(err)
 	}
 
-	// apiAddr := strings.TrimSuffix(net.Validators[0].APIAddress, "1317")
 	apiAddr := strings.Split(net.Validators[0].APIAddress, ":")[1]
 
 	// Dial the Ethereum HTTP Endpoint

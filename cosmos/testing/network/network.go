@@ -45,9 +45,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type (
@@ -56,19 +53,11 @@ type (
 )
 
 const (
-	thousand            = 1000
-	fivehundred         = 500
-	onehundred          = 100
-	initialERC20balance = 123456789
-	leftPad             = 32
-	megamoney           = 1000000
-	gigamoney           = 1000000000
-	examoney            = 1000000000000000000
-)
-
-var (
-	DummyContract = common.HexToAddress("0x9fd0aA3B78277a1E717de9D3de434D4b812e5499")
-	Signer        = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+	thousand    = 1000
+	fivehundred = 500
+	onehundred  = 100
+	megamoney   = 1000000
+	examoney    = 1000000000000000000
 )
 
 type TestingT interface {
@@ -89,9 +78,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 	var cfg network.Config
 	if len(configs) == 0 {
 		newKey, _ := ethsecp256k1.GenPrivKey()
-		cfg = DefaultConfig(map[string]*ethsecp256k1.PrivKey{
-			"alice": newKey,
-		})
+		cfg = DefaultConfig(map[string]*ethsecp256k1.PrivKey{"alice": newKey})
 	} else {
 		cfg = configs[0]
 	}
@@ -240,13 +227,11 @@ func getCoinsForAccount(name string) sdk.Coins {
 		)
 	case "bob":
 		return sdk.NewCoins(
-			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
+			sdk.NewCoin("abera", sdk.NewInt(examoney)),
 			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
 		)
-	case "charlie":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(gigamoney)))
 	default:
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(megamoney)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	}
 }
