@@ -18,7 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:revive // embed.
 package runtime
 
 import (
@@ -27,6 +26,8 @@ import (
 	"path/filepath"
 
 	dbm "github.com/cosmos/cosmos-db"
+	pobabci "github.com/skip-mev/pob/abci"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	"cosmossdk.io/core/appconfig"
@@ -39,19 +40,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
-	_ "embed"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -109,10 +110,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	var (
 		app          = &PolarisApp{}
 		appBuilder   *runtime.AppBuilder
-		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
-			mempool.NewPriorityMempool(mempool.DefaultPriorityNonceMempoolConfig()),
-		)
-		appConfig = depinject.Configs(
+		ethTxMempool sdkmempool.Mempool = evmmempool.NewEthTxPoolDefault()
+		appConfig                       = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
 				app.App,
@@ -146,6 +145,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
+		&app.BuilderKeeper,
 		&app.ERC20Keeper,
 	); err != nil {
 		panic(err)
@@ -176,6 +176,15 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		homePath+"/data/polaris",
 	)
 
+	mempool := evmmempool.NewEthTxPool(
+		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(buildertypes.ModuleName)), // todo: unhacky this
+		app.TxnConfig.TxDecoder(),
+		app.TxnConfig.TxEncoder(),
+		app.EVMKeeper.GetHost(), // there is probably a better way of getting necessary code for serialization
+		"abera",                 // there is probably a better way of getting the EVM denom
+	)
+	app.App.SetMempool(mempool)
+
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
@@ -183,12 +192,32 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		FeegrantKeeper:  app.FeeGrantKeeper,
 		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
+
 	ch, _ := evmante.NewAnteHandler(
 		opt,
+		app.BuilderKeeper,
+		app.TxnConfig.TxDecoder(),
+		app.TxnConfig.TxEncoder(),
+		mempool,
 	)
+
 	app.SetAnteHandler(
 		ch,
 	)
+
+	// Set the ante handlers the proposal handlers will use to verify and build blocks
+	proposalAnteHandlers, _ := evmante.NewProposalAnteHandler(
+		opt,
+		app.BuilderKeeper,
+		app.TxnConfig.TxDecoder(),
+		app.TxnConfig.TxEncoder(),
+		mempool,
+	)
+
+	handler := pobabci.NewProposalHandler(mempool, app.Logger(),
+		proposalAnteHandlers, app.TxnConfig.TxEncoder(), app.TxnConfig.TxDecoder())
+	app.App.SetPrepareProposal(handler.PrepareProposalHandler())
+	app.App.SetProcessProposal(handler.ProcessProposalHandler())
 
 	// We must register the EthSecp256k1 signature type because it is not registered by default.
 	// TODO: remove once upstreamed to the SDK.
@@ -244,4 +273,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 // SimulationManager implements the SimulationApp interface.
 func (app *PolarisApp) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+func (app PolarisApp) RegisterUpgradeHandlers() {
+	// no-op in the sample app
 }

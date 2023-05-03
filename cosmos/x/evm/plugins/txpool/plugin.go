@@ -43,6 +43,8 @@ type Plugin interface {
 	core.TxPoolPlugin
 	plugins.BaseCosmosPolaris
 	SetClientContext(client.Context)
+	Serialize(tx *coretypes.Transaction) ([]byte, error)
+	SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error)
 }
 
 // plugin represents the transaction pool plugin.
@@ -117,4 +119,14 @@ func (p *plugin) GetNonce(addr common.Address) (uint64, error) {
 
 func (p *plugin) SetClientContext(ctx client.Context) {
 	p.clientContext = ctx
+}
+
+// Serialize serializes a transaction to bytes.
+func (p *plugin) Serialize(tx *coretypes.Transaction) ([]byte, error) {
+	return NewSerializer(p.cp, p.clientContext).Serialize(tx)
+}
+
+// SerializeToSdkTx serializes a transaction to a Cosmos transaction.
+func (p *plugin) SerializeToSdkTx(tx *coretypes.Transaction) (sdk.Tx, error) {
+	return NewSerializer(p.cp, p.clientContext).SerializeToSdkTx(tx)
 }

@@ -39,6 +39,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -57,6 +58,8 @@ type Host interface {
 		state.BankKeeper,
 		func(height int64, prove bool) (sdk.Context, error),
 	)
+	Serialize(tx *types.Transaction) ([]byte, error)
+	SerializeToSdkTx(tx *types.Transaction) (sdk.Tx, error)
 }
 
 type host struct {
@@ -151,4 +154,14 @@ func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
 // GetAllPlugins returns all the plugins.
 func (h *host) GetAllPlugins() []plugins.BaseCosmosPolaris {
 	return []plugins.BaseCosmosPolaris{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
+}
+
+// Serialize serializes the given transaction into a byte slice.
+func (h *host) Serialize(tx *types.Transaction) ([]byte, error) {
+	return h.txp.Serialize(tx)
+}
+
+// SerializeToSdkTx converts an ethereum transaction to a Cosmos transaction.
+func (h *host) SerializeToSdkTx(tx *types.Transaction) (sdk.Tx, error) {
+	return h.txp.SerializeToSdkTx(tx)
 }

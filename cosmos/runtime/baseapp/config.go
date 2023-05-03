@@ -21,6 +21,8 @@
 package baseapp
 
 import (
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
+
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -43,6 +45,7 @@ var (
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: buildertypes.ModuleName, Permissions: []string{}},
 		{Account: erc20types.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 

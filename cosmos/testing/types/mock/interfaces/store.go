@@ -20,7 +20,9 @@
 
 package interfaces
 
-import storetypes "cosmossdk.io/store/types"
+import (
+	storetypes "cosmossdk.io/store/types"
+)
 
 // Interface wrappers for mocking
 //

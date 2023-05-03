@@ -23,41 +23,50 @@ package mempool
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	"github.com/skip-mev/pob/mempool"
+	"github.com/skip-mev/pob/x/builder/ante"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool/pob"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// EthTxPool is a mempool for Ethereum transactions. It wraps a
-// PriorityNonceMempool and caches transactions that are added to the mempool by
-// ethereum transaction hash.
+// Compile-time interface assertion.
+var _ ante.Mempool = (*EthTxPool)(nil)
+
+// EthTxPool is a mempool for Ethereum transactions. It wraps a POB Auction mempool and caches
+// transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
-	sdkmempool.Mempool
+	pob.Mempool
 
 	// ethTxCache caches transactions that are added to the mempool
 	// so that they can be retrieved later
 	ethTxCache map[common.Hash]*coretypes.Transaction
-
-	// // nonceCache caches the pending nonce by txhash
-	// nonceCache map[common.Address]*coretypes.Transaction
-
-	// // minedBlockCache caches the mined transaction by block hash
-	// minedBlockCache map[common.Hash][]*coretypes.Transaction
-
-	// blockNumberCache
-
 }
 
-// New is called when the mempool is created.
-func NewEthTxPoolFrom(m sdkmempool.Mempool) *EthTxPool {
+// NewEthTxPoolFrom is called when the mempool is created.
+func NewEthTxPool(builderAddress common.Address, txDecoder sdk.TxDecoder,
+	txEncoder sdk.TxEncoder, serializer pob.Serializer, evmDenom string) *EthTxPool {
+	// Create the tx config used to route transactions to the correct mempool
+	// Init the mempool with the tx config
+	builderMempool := mempool.NewAuctionMempool(
+		txDecoder, txEncoder, 0,
+		pob.NewMempoolConfig(builderAddress, txDecoder, serializer, evmDenom),
+	)
+
 	return &EthTxPool{
-		Mempool:    m,
+		Mempool:    builderMempool,
 		ethTxCache: make(map[common.Hash]*coretypes.Transaction),
 	}
+}
+
+// Used for testing only.
+func NewEthTxPoolDefault() *EthTxPool {
+	return NewEthTxPool(common.Address{}, nil, nil, nil, "")
 }
 
 // Insert is called when a transaction is added to the mempool.

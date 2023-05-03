@@ -21,6 +21,9 @@
 package baseapp
 
 import (
+	"github.com/skip-mev/pob/x/builder"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
+
 	"cosmossdk.io/client/v2/autocli"
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/evidence"
@@ -104,6 +107,7 @@ var (
 		vesting.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		evm.AppModuleBasic{},
+		builder.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 	}
 )
@@ -135,6 +139,7 @@ type PolarisBaseApp struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
+	BuilderKeeper         builderkeeper.Keeper
 
 	// polaris keepers
 	EVMKeeper   *evmkeeper.Keeper

@@ -21,6 +21,8 @@
 package config
 
 import (
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
+
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
@@ -104,6 +106,7 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensustypes.ModuleName,
+		buildertypes.ModuleName,
 	},
 	// When ExportGenesis is not specified, the export genesis module order
 	// is equal to the init genesis order

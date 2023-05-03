@@ -29,7 +29,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -71,6 +70,7 @@ var _ = Describe("Processor", func() {
 		signer       = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 		legacyTxData *coretypes.LegacyTx
 		valAddr      = common.Address{0x21}.Bytes()
+		// encodingConfig = config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
 	)
 
 	BeforeEach(func() {
@@ -83,6 +83,7 @@ var _ = Describe("Processor", func() {
 			Data:     []byte("abcdef"),
 			GasPrice: big.NewInt(1),
 		}
+		ethPool := evmmempool.NewEthTxPool(common.Address{}, nil, nil, nil, "abera")
 
 		// before chain, init genesis state
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
@@ -91,9 +92,7 @@ var _ = Describe("Processor", func() {
 			ak, bk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
-			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
-				sdkmempool.DefaultPriorityNonceMempoolConfig()),
-			),
+			ethPool,
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

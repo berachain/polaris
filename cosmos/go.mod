@@ -41,15 +41,16 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/onsi/ginkgo/v2 v2.9.2
 	github.com/onsi/gomega v1.27.4
+	github.com/skip-mev/pob v0.0.0-20230428211924-53b60dcb10bc
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/tidwall/btree v1.6.0
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
 	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.30.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230428210749-6cea1378d52d
-	pkg.berachain.dev/polaris/eth v0.0.0-20230428210749-6cea1378d52d
-	pkg.berachain.dev/polaris/lib v0.0.0-20230428210749-6cea1378d52d
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230419230253-478f28600d57
+	pkg.berachain.dev/polaris/eth v0.0.0-20230420221247-78c5ad1f6177
+	pkg.berachain.dev/polaris/lib v0.0.0-20230419230253-478f28600d57
 )
 
 require (
@@ -127,7 +128,7 @@ require (
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
-	github.com/golang/glog v1.0.0 // indirect
+	github.com/golang/glog v1.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect

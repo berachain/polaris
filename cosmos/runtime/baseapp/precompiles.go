@@ -21,12 +21,15 @@
 package baseapp
 
 import (
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
+
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
+	builderprecompile "pkg.berachain.dev/polaris/cosmos/precompile/builder"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
@@ -44,6 +47,11 @@ func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registr
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,
+			),
+			builderprecompile.NewPrecompileContract(
+				builderkeeper.NewMsgServerImpl(app.BuilderKeeper),
+				builderkeeper.NewQueryServer(app.BuilderKeeper),
+				"abera",
 			),
 			distrprecompile.NewPrecompileContract(
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
