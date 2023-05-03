@@ -24,15 +24,16 @@ import (
 	"context"
 	"math/big"
 
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 var _ = Describe("Tx Pool", func() {
 	BeforeEach(func() {
-		// Run some transactions for bob
+		// Run some transactions for alice
 		_, tx, contract, err := tbindings.DeployConsumeGas(
 			tf.GenerateTransactOpts("alice"), client,
 		)
@@ -41,12 +42,14 @@ var _ = Describe("Tx Pool", func() {
 		tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 		Expect(err).NotTo(HaveOccurred())
 		ExpectSuccessReceipt(client, tx)
-		tf.Network.WaitForNextBlock()
+		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 	})
 
 	It("should handle txpool requests", func() {
 		bobCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(bobCurrNonce).To(BeNumerically(">=", 2))
+
+		//
 	})
 })

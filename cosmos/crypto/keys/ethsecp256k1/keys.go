@@ -29,7 +29,6 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
@@ -51,24 +50,6 @@ const (
 
 // Compile-time type assertion.
 var _ cryptotypes.PrivKey = &PrivKey{}
-
-// PubkeyFromTx returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*PubKey, error) {
-	// signer.PubKey returns the uncompressed public key.
-	uncompressed, err := signer.PubKey(signedTx)
-	if err != nil {
-		return &PubKey{}, err
-	}
-
-	// We marshal it to a *ecdsa.PublicKey.
-	pubKey, err := crypto.UnmarshalPubkey(uncompressed)
-	if err != nil {
-		return &PubKey{}, err
-	}
-
-	// Then we can compress it to adhere to the required format.
-	return &PubKey{Key: crypto.CompressPubkey(pubKey)}, nil
-}
 
 // Bytes returns the byte representation of the ECDSA Private Key.
 func (privKey PrivKey) Bytes() []byte {

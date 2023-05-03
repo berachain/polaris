@@ -27,7 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -76,7 +76,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	}
 
 	// We want to cache
-	if ethTx := GetAsEthTx(tx); ethTx != nil {
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
 		etp.ethTxCache[ethTx.Hash()] = ethTx
 	}
 
@@ -94,7 +94,7 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	}
 
 	// We want to remove the caches of this tx.
-	if ethTx := GetAsEthTx(tx); ethTx != nil {
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
 		delete(etp.ethTxCache, ethTx.Hash())
 	}
 
@@ -121,7 +121,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 		// add the first eth tx in the list, if it exists
 		var ethTx *coretypes.Transaction
 		for elem := list.Front(); elem != nil; elem = elem.Next() {
-			if ethTx = GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
+			if ethTx = evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
 				pending[addr] = coretypes.Transactions{ethTx}
 				break
 			}
@@ -149,7 +149,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 			seenOne bool
 		)
 		for elem := list.Front(); elem != nil; elem = elem.Next() {
-			if ethTx := GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
+			if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
 				if seenOne {
 					ethTxs = append(ethTxs, ethTx)
 				}
@@ -168,10 +168,10 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	// search the addr's txs for the first eth tx nonce, in descending order (latest nonce)
+	// search the addr's txs for the first eth tx nonce (first pending nonce)
 	if txs := etp.senderIndices[cosmlib.AddressToAccAddress(addr).String()]; txs != nil {
-		for elem := txs.Back(); elem != nil; elem = elem.Prev() {
-			if ethTx := GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
+		for elem := txs.Front(); elem != nil; elem = elem.Next() {
+			if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
 				// pending nonce is the account's incremented nonce
 				return ethTx.Nonce() + 1
 			}
@@ -201,13 +201,4 @@ func (etp *EthTxPool) Content() (
 	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
 ) {
 	return etp.Pending(false), etp.queued()
-}
-
-// GetAsEthTx is a helper function to get an EthTx from a sdk.Tx.
-func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
-	etr, ok := utils.GetAs[*types.EthTransactionRequest](tx.GetMsgs()[0])
-	if !ok {
-		return nil
-	}
-	return etr.AsTransaction()
 }
