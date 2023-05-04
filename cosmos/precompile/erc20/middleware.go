@@ -23,6 +23,7 @@ package erc20
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -183,45 +184,56 @@ func (c *Contract) convertERC20ToCoin( //nolint:funlen // ok.
 		}
 
 		var (
-			ret           []any
+			ret1          []any
+			retTf         []any
+			ret2          []any
 			balanceBefore *big.Int
 			balanceAfter  *big.Int
+			plugin        = c.GetPlugin()
 		)
 
 		// check the ERC20 module's balance of the ERC20-originated token
-		ret, err = cosmlib.CallEVMFromPrecompileUnpackArgs(
-			sdkCtx, c.GetPlugin(), evm,
+		ret1, err = cosmlib.CallEVMFromPrecompileUnpackArgs(
+			sdkCtx, plugin, evm,
 			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
 			balanceOf, c.RegistryKey(),
 		)
 		if err != nil {
+			fmt.Println("error on balance Before", err)
 			return err
 		}
-		balanceBefore = utils.MustGetAs[*big.Int](ret[0])
+		balanceBefore = utils.MustGetAs[*big.Int](ret1[0])
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
-		if _, err = cosmlib.CallEVMFromPrecompile(
-			sdkCtx, c.GetPlugin(), evm,
+		if retTf, err = cosmlib.CallEVMFromPrecompileUnpackArgs(
+			sdkCtx, plugin, evm,
 			caller, token, c.polarisERC20ABI, big.NewInt(0),
 			transferFrom, owner, c.RegistryKey(), amount,
 		); err != nil {
+			fmt.Println("error on transferFrom", err)
 			return err
 		}
+		fmt.Println("transferFrom", retTf[0])
 
-		// check the ERC20 module's balance of the ERC20-originated token after the transfer
-		ret, err = cosmlib.CallEVMFromPrecompileUnpackArgs(
-			sdkCtx, c.GetPlugin(), evm,
+		// check the ERC20 module's balance of the ERC20-originated token after the transferFrom
+		ret2, err = cosmlib.CallEVMFromPrecompileUnpackArgs(
+			sdkCtx, plugin, evm,
 			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
 			balanceOf, c.RegistryKey(),
 		)
 		if err != nil {
+			fmt.Println("error on balance After", err)
 			return err
 		}
-		balanceAfter = utils.MustGetAs[*big.Int](ret[0])
+		balanceAfter = utils.MustGetAs[*big.Int](ret2[0])
+
+		fmt.Println("balanceBefore", balanceBefore, "balanceAfter", balanceAfter)
 
 		// set the amount of Polaris coins to mint as the delta of the ERC20 module's balance
 		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
+
+		fmt.Println("amount", amount)
 	} else {
 		// converting Polaris ERC20 tokens to IBC-originated SDK coins
 

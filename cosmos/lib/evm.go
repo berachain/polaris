@@ -21,6 +21,7 @@
 package lib
 
 import (
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -84,6 +85,8 @@ func CallEVMFromPrecompile(
 		vm.AccountRef(caller), address, input, suppliedGas, value,
 	)
 
+	fmt.Println("RET FROM CALL FROM PC", ret)
+
 	// consume gas used by EVM during contract call
 	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, methodName)
 	return ret, err
@@ -107,5 +110,8 @@ func CallEVMFromPrecompileUnpackArgs(
 		return nil, err
 	}
 
-	return contract.Unpack(methodName, ret)
+	var unpack []any
+	unpack, err = contract.Unpack(methodName, ret)
+	fmt.Println("UNPACKED FROM CALL FROM PC", unpack)
+	return unpack, err
 }
