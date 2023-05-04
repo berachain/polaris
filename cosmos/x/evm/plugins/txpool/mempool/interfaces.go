@@ -18,4 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package jsonrpc
+package mempool
+
+import "pkg.berachain.dev/polaris/eth/common"
+
+type (
+	// NonceRetriever is used to retrieve a nonce from the db.
+	NonceRetriever interface {
+		GetNonce(addr common.Address) uint64
+	}
+)

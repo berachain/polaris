@@ -43,8 +43,8 @@ type ChainBlockReader interface {
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
 	FinalizedBlock() (*types.Block, error)
 	GetReceipts(common.Hash) (types.Receipts, error)
-	GetPolarisBlockByHash(common.Hash) (*types.Block, error)
-	GetPolarisBlockByNumber(int64) (*types.Block, error)
+	GetBlockByHash(common.Hash) (*types.Block, error)
+	GetBlockByNumber(int64) (*types.Block, error)
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
@@ -54,13 +54,16 @@ type ChainTxPoolReader interface {
 	GetPoolTransactions() (types.Transactions, error)
 	GetPoolTransaction(common.Hash) *types.Transaction
 	GetPoolNonce(common.Address) (uint64, error)
+	GetPoolStats() (int, int)
+	GetPoolContent() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
+	GetPoolContentFrom(addr common.Address) (types.Transactions, types.Transactions)
 }
 
 // =========================================================================
 // Configuration
 // =========================================================================
 
-// ChainConfig returns the Ethereum chain config of the Polaris chain.
+// ChainConfig returns the Ethereum chain config of the  chain.
 func (bc *blockchain) ChainConfig() *params.ChainConfig {
 	return bc.cp.ChainConfig()
 }
@@ -162,7 +165,7 @@ func (bc *blockchain) GetTransaction(
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error) {
+func (bc *blockchain) GetBlockByNumber(number int64) (*types.Block, error) {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
@@ -188,7 +191,7 @@ func (bc *blockchain) GetPolarisBlockByNumber(number int64) (*types.Block, error
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, error) {
+func (bc *blockchain) GetBlockByHash(hash common.Hash) (*types.Block, error) {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
 		bc.blockNumCache.Add(block.Number().Int64(), block)
@@ -220,22 +223,39 @@ func (bc *blockchain) GetPolarisBlockByHash(hash common.Hash) (*types.Block, err
 // GetPoolTransactions returns all of the transactions that are currently in
 // the mempool.
 func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
-	return bc.tp.GetAllTransactions()
+	pending := bc.tp.Pending(false)
+	txs := make(types.Transactions, len(pending))
+	for _, batch := range pending {
+		txs = append(txs, batch...)
+	}
+	return txs, nil
 }
 
 // GetPoolTransaction returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
-	return bc.tp.GetTransaction(hash)
+	return bc.tp.Get(hash)
 }
 
-// TODO: define behaviour for this function.
+// GetPoolNonce returns the pending nonce of addr from the mempool.
 func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	// nonce, err := bc.tp.GetNonce(addr)
-	// defer bc.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
-	// return nonce, err
-	// nonce, err := bc.tp.GetNonce(addr)
-	// TODO: FIX THIS
-	nonce := bc.sp.GetNonce(addr)
-	defer bc.logger.Info("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
-	return nonce, nil
+	return bc.tp.Nonce(addr), bc.statedb.Error()
+}
+
+// GetPoolStats returns the number of pending and queued txs in the mempool.
+func (bc *blockchain) GetPoolStats() (int, int) {
+	return bc.tp.Stats()
+}
+
+// GetPoolContent returns the pending and queued txs in the mempool.
+func (bc *blockchain) GetPoolContent() (
+	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
+) {
+	return bc.tp.Content()
+}
+
+// GetPoolContentFrom returns the pending and queued txs in the mempool for the given address.
+func (bc *blockchain) GetPoolContentFrom(addr common.Address) (
+	types.Transactions, types.Transactions,
+) {
+	return bc.tp.ContentFrom(addr)
 }

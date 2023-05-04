@@ -30,6 +30,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // EthTransactionRequest defines a Cosmos SDK message for Ethereum transactions.
@@ -131,4 +132,13 @@ func (etr *EthTransactionRequest) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// GetAsEthTx is a helper function to get an EthTx from a sdk.Tx.
+func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
+	etr, ok := utils.GetAs[*EthTransactionRequest](tx.GetMsgs()[0])
+	if !ok {
+		return nil
+	}
+	return etr.AsTransaction()
 }

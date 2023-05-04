@@ -60,6 +60,7 @@ var (
 	EmptyRootHash          = types.EmptyRootHash
 	EmptyUncleHash         = types.EmptyUncleHash
 	SignTx                 = types.SignTx
+	Sender                 = types.Sender
 	NewTx                  = types.NewTx
 	NewEIP2930Signer       = types.NewEIP2930Signer
 	LatestSignerForChainID = types.LatestSignerForChainID

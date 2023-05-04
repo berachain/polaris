@@ -104,10 +104,11 @@ func (h *host) Setup(
 	bk state.BankKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
-	// Setup the precompile and state plugins
+	// Setup the state, precompile, historical, and txpool plugins
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
+	h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
