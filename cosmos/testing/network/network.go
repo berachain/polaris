@@ -57,6 +57,7 @@ const (
 	fivehundred = 500
 	onehundred  = 100
 	megamoney   = 1000000
+	gigamoney   = 1000000000
 	examoney    = 1000000000000000000
 )
 
@@ -227,10 +228,12 @@ func getCoinsForAccount(name string) sdk.Coins {
 		)
 	case "bob":
 		return sdk.NewCoins(
-			sdk.NewCoin("abera", sdk.NewInt(examoney)),
+			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
 			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
 		)
+	case "charlie":
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(gigamoney)))
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	}

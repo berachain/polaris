@@ -95,7 +95,7 @@ var _ = Describe("Bank", func() {
 		// charlie initially has 1000000000 abera
 		balance, err := bankPrecompile.GetBalance(nil, tf.Address("charlie"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
-		Expect(balance).To(Equal(big.NewInt(1000000000)))
+		Expect(balance.Cmp(big.NewInt(1000000000))).To(Equal(0))
 
 		// Send 1000 bera from alice to charlie
 		_, err = bankPrecompile.Send(

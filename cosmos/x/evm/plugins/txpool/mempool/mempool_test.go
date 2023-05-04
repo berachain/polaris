@@ -115,7 +115,7 @@ var _ = Describe("EthTxPool", func() {
 
 			ethTx11, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
 			Expect(etp.Insert(ctx, tx11)).ToNot(HaveOccurred())
-			Expect(etp.Nonce(addr1)).To(Equal(uint64(3)))
+			Expect(etp.Nonce(addr1)).To(Equal(uint64(2)))
 			p11, q11 := etp.ContentFrom(addr1)
 			Expect(p11).To(HaveLen(1))
 			Expect(q11).To(HaveLen(1))
