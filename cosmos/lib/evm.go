@@ -88,3 +88,24 @@ func CallEVMFromPrecompile(
 	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, methodName)
 	return ret, err
 }
+
+// CallEVMFromPrecompileUnpackArgs calls into the EVM from a precompile contract and returns the
+// unpacked result.
+func CallEVMFromPrecompileUnpackArgs(
+	ctx sdk.Context,
+	plugin ethprecompile.Plugin,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	address common.Address,
+	contract abi.ABI,
+	value *big.Int,
+	methodName string,
+	args ...any,
+) ([]any, error) {
+	ret, err := CallEVMFromPrecompile(ctx, plugin, evm, caller, address, contract, value, methodName, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return contract.Unpack(methodName, ret)
+}

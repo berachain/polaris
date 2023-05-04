@@ -32,10 +32,12 @@ import (
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 const (
 	p            = `p`
+	balanceOf    = `balanceOf`
 	transfer     = `transfer`
 	transferFrom = `transferFrom`
 	mint         = `mint`
@@ -180,6 +182,17 @@ func (c *Contract) convertERC20ToCoin(
 			return ErrTokenDoesNotExist
 		}
 
+		// check the ERC20 module's balance of the ERC20-originated token
+		ret, err := cosmlib.CallEVMFromPrecompileUnpackArgs(
+			sdkCtx, c.GetPlugin(), evm,
+			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
+			balanceOf, c.RegistryKey(),
+		)
+		if err != nil {
+			return err
+		}
+		balanceBefore := utils.MustGetAs[*big.Int](ret[0])
+
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
 		if _, err = cosmlib.CallEVMFromPrecompile(
@@ -189,6 +202,20 @@ func (c *Contract) convertERC20ToCoin(
 		); err != nil {
 			return err
 		}
+
+		// check the ERC20 module's balance of the ERC20-originated token after the transfer
+		ret, err = cosmlib.CallEVMFromPrecompileUnpackArgs(
+			sdkCtx, c.GetPlugin(), evm,
+			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
+			balanceOf, c.RegistryKey(),
+		)
+		if err != nil {
+			return err
+		}
+		balanceAfter := utils.MustGetAs[*big.Int](ret[0])
+
+		// set the amount of Polaris coins to mint as the delta of the ERC20 module's balance
+		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
 	} else {
 		// converting Polaris ERC20 tokens to IBC-originated SDK coins
 
