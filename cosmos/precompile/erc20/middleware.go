@@ -146,7 +146,7 @@ func (c *Contract) convertCoinToERC20(
 }
 
 // convertERC20ToCoin converts ERC20 tokens to SDK/Polaris coins for an owner.
-func (c *Contract) convertERC20ToCoin(
+func (c *Contract) convertERC20ToCoin( //nolint:funlen // ok.
 	ctx context.Context,
 	caller common.Address,
 	evm ethprecompile.EVM,
@@ -173,7 +173,7 @@ func (c *Contract) convertERC20ToCoin(
 		denom = c.em.RegisterERC20CoinPair(sdkCtx, token)
 	}
 
-	if erc20types.IsPolarisDenom(denom) {
+	if erc20types.IsPolarisDenom(denom) { //nolint:nestif // necessary cases.
 		// converting ERC20 originated tokens to Polaris coins
 		// NOTE: owner must approve caller to spend amount ERC20 tokens
 
@@ -182,8 +182,14 @@ func (c *Contract) convertERC20ToCoin(
 			return ErrTokenDoesNotExist
 		}
 
+		var (
+			ret           []any
+			balanceBefore *big.Int
+			balanceAfter  *big.Int
+		)
+
 		// check the ERC20 module's balance of the ERC20-originated token
-		ret, err := cosmlib.CallEVMFromPrecompileUnpackArgs(
+		ret, err = cosmlib.CallEVMFromPrecompileUnpackArgs(
 			sdkCtx, c.GetPlugin(), evm,
 			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
 			balanceOf, c.RegistryKey(),
@@ -191,7 +197,7 @@ func (c *Contract) convertERC20ToCoin(
 		if err != nil {
 			return err
 		}
-		balanceBefore := utils.MustGetAs[*big.Int](ret[0])
+		balanceBefore = utils.MustGetAs[*big.Int](ret[0])
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
@@ -212,7 +218,7 @@ func (c *Contract) convertERC20ToCoin(
 		if err != nil {
 			return err
 		}
-		balanceAfter := utils.MustGetAs[*big.Int](ret[0])
+		balanceAfter = utils.MustGetAs[*big.Int](ret[0])
 
 		// set the amount of Polaris coins to mint as the delta of the ERC20 module's balance
 		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
