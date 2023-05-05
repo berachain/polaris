@@ -109,16 +109,3 @@ func addUint64Overflow(a, b uint64) (uint64, bool) {
 
 	return a + b, false
 }
-
-// // if either of the gas meters on the sdk context are nil, this function will panic.
-// func (p *plugin) resetMeters(ctx sdk.Context) {
-// 	if p.gasMeter = ctx.GasMeter(); p.gasMeter == nil {
-// 		panic("gas meter is nil")
-// 	}
-// 	if p.blockGasMeter = ctx.BlockGasMeter(); p.blockGasMeter == nil {
-// 		panic("block gas meter is nil")
-// 	}
-// 	if block := ctx.ConsensusParams().Block; block != nil {
-// 		p.consensusMaxGas = uint64(block.MaxGas)
-// 	}
-// }
