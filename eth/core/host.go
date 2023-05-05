@@ -23,6 +23,8 @@ package core
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/event"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -127,12 +129,22 @@ type (
 	TxPoolPlugin interface {
 		// SendTx submits the tx to the transaction pool.
 		SendTx(tx *types.Transaction) error
-		// GetAllTransactions returns all transactions in the transaction pool.
-		GetAllTransactions() (types.Transactions, error)
-		// GetTransaction returns the transaction from the pool with the given hash.
-		GetTransaction(common.Hash) *types.Transaction
-		// GetNonce returns the nonce of the given address in the transaction pool.
-		GetNonce(common.Address) (uint64, error)
+		// Pending returns all pending transactions in the transaction pool.
+		Pending(bool) map[common.Address]types.Transactions
+		// Get returns the transaction from the pool with the given hash.
+		Get(common.Hash) *types.Transaction
+		// Nonce returns the nonce of the given address in the transaction pool.
+		Nonce(common.Address) uint64
+		// SubscribeNewTxsEvent returns a subscription with the new txs event channel.
+		SubscribeNewTxsEvent(ch chan<- NewTxsEvent) event.Subscription
+		// Stats returns the number of currently pending and queued (locally created) txs.
+		Stats() (int, int)
+		// Content retrieves the data content of the transaction pool, returning all the pending as
+		// well as queued transactions, grouped by account and nonce.
+		Content() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
+		// ContentFrom retrieves the data content of the transaction pool, returning the pending
+		// as well as queued transactions of this address, grouped by nonce.
+		ContentFrom(addr common.Address) (types.Transactions, types.Transactions)
 	}
 )
 

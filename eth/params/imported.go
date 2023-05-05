@@ -23,6 +23,17 @@ package params
 import "github.com/ethereum/go-ethereum/params"
 
 type (
+	// ChainConfig is the chain parameters config.
 	ChainConfig = params.ChainConfig
-	Rules       = params.Rules
+	// Rules is the chain rules.
+	Rules = params.Rules
+)
+
+var (
+	// BloomBitsBlocks is the number of blocks a single bloom bit section vector contains on the server side.
+	BloomBitsBlocks = params.BloomBitsBlocks
+	// VersionWithMeta holds the textual version string including the metadata.
+	VersionWithMeta = params.VersionWithMeta
+	// VersionWithCommit holds the textual version string including the commit hash.
+	VersionWithCommit = params.VersionWithCommit
 )

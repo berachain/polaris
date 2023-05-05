@@ -29,7 +29,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -91,9 +90,7 @@ var _ = Describe("Processor", func() {
 			ak, bk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
-			evmmempool.NewEthTxPoolFrom(sdkmempool.NewPriorityMempool(
-				sdkmempool.DefaultPriorityNonceMempoolConfig()),
-			),
+			evmmempool.NewEthTxPoolFrom(evmmempool.DefaultPriorityMempool()),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

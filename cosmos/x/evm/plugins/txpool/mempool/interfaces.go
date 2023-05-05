@@ -18,28 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool
+package mempool
 
-import (
-	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/crypto"
+import "pkg.berachain.dev/polaris/eth/common"
+
+type (
+	// NonceRetriever is used to retrieve a nonce from the db.
+	NonceRetriever interface {
+		GetNonce(addr common.Address) uint64
+	}
 )
-
-// PubkeyFromTx returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *coretypes.Transaction, signer coretypes.Signer) (*ethsecp256k1.PubKey, error) {
-	// signer.PubKey returns the uncompressed public key.
-	uncompressed, err := signer.PubKey(signedTx)
-	if err != nil {
-		return &ethsecp256k1.PubKey{}, err
-	}
-
-	// We marshal it to a *ecdsa.PublicKey.
-	pubKey, err := crypto.UnmarshalPubkey(uncompressed)
-	if err != nil {
-		return &ethsecp256k1.PubKey{}, err
-	}
-
-	// Then we can compress it to adhere to the required format.
-	return &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(pubKey)}, nil
-}

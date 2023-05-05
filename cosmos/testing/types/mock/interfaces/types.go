@@ -18,24 +18,19 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package interfaces
 
-const (
-	StoreKey   = "erc20"
-	ModuleName = "erc20"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 )
 
-const (
-	DenomToAddressKeyPrefix byte = iota
-	AddressToDenomKeyPrefix
-)
-
-var (
-	EventTypeConvertERC20ToCoin = "convert_erc20_to_coin"
-	EventTypeConvertCoinToERC20 = "convert_coin_to_erc20"
-
-	AttributeKeyToken     = "token"
-	AttributeKeyDenom     = "denom"
-	AttributeKeyOwner     = "owner"
-	AttributeKeyRecipient = "recipient"
+// Interface wrappers for mocking
+//
+//go:generate moq -out ./mock/sdk.mock.go -pkg mock . Msg Tx
+type (
+	// TxMsg wrapper for github.com/cosmos/cosmos-sdk/types.TxMsg.
+	Msg sdk.Msg
+	// Tx wrapper for github.com/cosmos/cosmos-sdk/x/auth/signing.Tx.
+	Tx signing.SigVerifiableTx
 )

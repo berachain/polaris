@@ -30,6 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/storage"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -50,7 +51,7 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, nil)
+		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPLF{})
 		sp.Reset(ctx)
 	})
 
@@ -486,4 +487,12 @@ type mockConfigurationPlugin struct{}
 
 func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
 	return "abera"
+}
+
+type mockPLF struct{}
+
+func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
+	return &coretypes.Log{
+		Address: common.BytesToAddress([]byte(event.Type)),
+	}, nil
 }

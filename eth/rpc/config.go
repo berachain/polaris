@@ -28,8 +28,10 @@ import (
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 )
 
-// gpoDefault is the default gpo starting point.
-const gpoDefault = 1000000000
+const (
+	// gpoDefault is the default gpo starting point.
+	gpoDefault = 1000000000
+)
 
 // DefaultConfig returns the default JSON-RPC config.
 func DefaultConfig() *Config {
