@@ -22,10 +22,17 @@ package auth_test
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"testing"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"pkg.berachain.dev/polaris/cosmos/runtime/config"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -48,7 +55,48 @@ var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
 
 	BeforeEach(func() {
+		config.SetupCosmosConfig()
 		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract())
+	})
+
+	It("print module addrs", func() {
+		authAddr := authtypes.NewModuleAddress(authtypes.ModuleName)
+		fmt.Println(authtypes.ModuleName)
+		fmt.Println("bech32", authAddr.String())
+		fmt.Println("hex   ", cosmlib.AccAddressToEthAddress(authAddr).Hex())
+		fmt.Println()
+
+		stakingAddr := authtypes.NewModuleAddress(stakingtypes.ModuleName)
+		fmt.Println(stakingtypes.ModuleName)
+		fmt.Println("bech32", stakingAddr.String())
+		fmt.Println("hex   ", cosmlib.AccAddressToEthAddress(stakingAddr).Hex())
+		fmt.Println()
+
+		bankAddr := authtypes.NewModuleAddress(banktypes.ModuleName)
+		fmt.Println(banktypes.ModuleName)
+		fmt.Println("bech32", bankAddr.String())
+		fmt.Println("hex   ", cosmlib.AccAddressToEthAddress(bankAddr).Hex())
+		fmt.Println()
+
+		govAddr := authtypes.NewModuleAddress(govtypes.ModuleName)
+		fmt.Println(govtypes.ModuleName)
+		fmt.Println("bech32", govAddr.String())
+		fmt.Println("hex   ", cosmlib.AccAddressToEthAddress(govAddr).Hex())
+		fmt.Println()
+
+		distrAddr := authtypes.NewModuleAddress(distrtypes.ModuleName)
+		fmt.Println(distrtypes.ModuleName)
+		fmt.Println("bech32", distrAddr.String())
+		fmt.Println("hex   ", cosmlib.AccAddressToEthAddress(distrAddr).Hex())
+		fmt.Println()
+
+		erc20Addr := authtypes.NewModuleAddress(erc20types.ModuleName)
+		fmt.Println(erc20types.ModuleName)
+		fmt.Println("bech32", erc20Addr.String())
+		fmt.Println("hex   ", cosmlib.AccAddressToEthAddress(erc20Addr).Hex())
+		fmt.Println()
+
+		panic("see logs")
 	})
 
 	It("should have static registry key", func() {

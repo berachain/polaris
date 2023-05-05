@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
@@ -53,10 +54,9 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			cpbindings.ERC20ModuleMetaData.ABI,
-			// cosmlib.AccAddressToEthAddress(
-			// 	authtypes.NewModuleAddress(erc20types.ModuleName),
-			// ),
-			common.HexToAddress("0x696969"), // TODO: module addresses are broken
+			cosmlib.AccAddressToEthAddress(
+				authtypes.NewModuleAddress(erc20types.ModuleName),
+			),
 		),
 		bk:              bk,
 		em:              em,

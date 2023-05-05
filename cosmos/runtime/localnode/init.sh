@@ -20,6 +20,13 @@
 # TITLE.
 
 
+PRECOMPILES[0]="polar1mx5e3jkxvzf8frl7cl8m69264ctn0shlz6zxjx" # staking
+PRECOMPILES[1]="polar1gwqac243g2z3vryqsev6acq965f9ttwhjgk226" # bank
+PRECOMPILES[2]="polar10d07y265gmmuvt4z0w9aw880jnsr700j33u8zp" # governance
+PRECOMPILES[3]="polar1hh6fc0pcsggzlsqhl7mxzyyvvw5rd5r9vff2ea" # auth
+PRECOMPILES[4]="polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad" # distribution
+PRECOMPILES[5]="polar1glht96kr2rseywuvhhay894qw7ekuc4qphuca5" # erc20
+
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
@@ -98,6 +105,11 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
 	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
 	./bin/polard genesis add-genesis-account polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+
+	## Fund all precompile addresses with 1abera (https://ethereum.stackexchange.com/questions/68056/puppeth-precompile-addresses)
+	for PRECOMPILE in "${PRECOMPILES[@]}"; do
+		./bin/polard genesis add-genesis-account $PRECOMPILE 1abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	done
 
 	# Sign genesis transaction
 	./bin/polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
