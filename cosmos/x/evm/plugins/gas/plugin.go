@@ -24,8 +24,6 @@ import (
 	"context"
 	"math"
 
-	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -45,8 +43,6 @@ type Plugin interface {
 // plugin wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
 // to implement the core.GasPlugin interface.
 type plugin struct {
-	gasMeter        storetypes.GasMeter
-	blockGasMeter   storetypes.GasMeter
 	consensusMaxGas uint64
 }
 
@@ -55,59 +51,53 @@ func NewPlugin() Plugin {
 	return &plugin{}
 }
 
-// Prepare implements the core.GasPlugin interface.
-func (p *plugin) Prepare(ctx context.Context) {
-	p.resetMeters(sdk.UnwrapSDKContext(ctx))
-}
-
-// Reset implements the core.GasPlugin interface.
-func (p *plugin) Reset(ctx context.Context) {
-	p.resetMeters(sdk.UnwrapSDKContext(ctx))
-}
-
 // GasRemaining implements the core.GasPlugin interface.
-func (p *plugin) GasRemaining() uint64 {
-	return p.gasMeter.GasRemaining()
+func (p *plugin) GasRemaining(ctx context.Context) uint64 {
+	return sdk.UnwrapSDKContext(ctx).BlockGasMeter().GasRemaining()
 }
 
 // BlockGasLimit implements the core.GasPlugin interface.
-func (p *plugin) BlockGasLimit() uint64 {
-	if blockGasLimit := p.blockGasMeter.Limit(); blockGasLimit != 0 {
+func (p *plugin) BlockGasLimit(ctx context.Context) uint64 {
+	if blockGasLimit := sdk.UnwrapSDKContext(ctx).BlockGasMeter().Limit(); blockGasLimit != 0 {
 		return blockGasLimit
+	}
+	if block := sdk.UnwrapSDKContext(ctx).ConsensusParams().Block; block != nil {
+		p.consensusMaxGas = uint64(block.MaxGas)
 	}
 	return p.consensusMaxGas
 }
 
 // TxConsumeGas implements the core.GasPlugin interface.
-func (p *plugin) ConsumeGas(amount uint64) error {
+func (p *plugin) ConsumeGas(ctx context.Context, amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	// TODO: probably faster / cleaner to just wrap .ConsumeGas in a panic handler, or write our
+	sCtx := sdk.UnwrapSDKContext(ctx)
 	// own custom gas meter that doesn't panic on overflow.
-	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
+	if newConsumed, overflow := addUint64Overflow(sCtx.GasMeter().GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
-	} else if newConsumed > p.gasMeter.Limit() {
+	} else if newConsumed > sCtx.GasMeter().Limit() {
 		return vm.ErrOutOfGas
-	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
+	} else if sCtx.BlockGasMeter().GasConsumed()+newConsumed > sCtx.BlockGasMeter().Limit() {
 		return core.ErrBlockOutOfGas
 	}
 
-	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
+	sCtx.GasMeter().ConsumeGas(amount, gasMeterDescriptor)
 	return nil
 }
 
 // GasConsumed returns the gas used during the current transaction.
 //
 // GasConsumed implements the core.GasPlugin interface.
-func (p *plugin) GasConsumed() uint64 {
-	return p.gasMeter.GasConsumed()
+func (p *plugin) GasConsumed(ctx context.Context) uint64 {
+	return sdk.UnwrapSDKContext(ctx).GasMeter().GasConsumed()
 }
 
 // BlockGasConsumed returns the cumulative gas used during the current block. If the cumulative
 // gas used is greater than the block gas limit, we expect for Polaris to handle it.
 //
 // BlockGasConsumed implements the core.GasPlugin interface.
-func (p *plugin) BlockGasConsumed() uint64 {
-	return p.blockGasMeter.GasConsumed()
+func (p *plugin) BlockGasConsumed(ctx context.Context) uint64 {
+	return sdk.UnwrapSDKContext(ctx).BlockGasMeter().GasConsumed()
 }
 
 // addUint64Overflow performs the addition operation on two uint64 integers and returns a boolean
@@ -120,15 +110,15 @@ func addUint64Overflow(a, b uint64) (uint64, bool) {
 	return a + b, false
 }
 
-// if either of the gas meters on the sdk context are nil, this function will panic.
-func (p *plugin) resetMeters(ctx sdk.Context) {
-	if p.gasMeter = ctx.GasMeter(); p.gasMeter == nil {
-		panic("gas meter is nil")
-	}
-	if p.blockGasMeter = ctx.BlockGasMeter(); p.blockGasMeter == nil {
-		panic("block gas meter is nil")
-	}
-	if block := ctx.ConsensusParams().Block; block != nil {
-		p.consensusMaxGas = uint64(block.MaxGas)
-	}
-}
+// // if either of the gas meters on the sdk context are nil, this function will panic.
+// func (p *plugin) resetMeters(ctx sdk.Context) {
+// 	if p.gasMeter = ctx.GasMeter(); p.gasMeter == nil {
+// 		panic("gas meter is nil")
+// 	}
+// 	if p.blockGasMeter = ctx.BlockGasMeter(); p.blockGasMeter == nil {
+// 		panic("block gas meter is nil")
+// 	}
+// 	if block := ctx.ConsensusParams().Block; block != nil {
+// 		p.consensusMaxGas = uint64(block.MaxGas)
+// 	}
+// }

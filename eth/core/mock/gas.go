@@ -38,15 +38,7 @@ func NewGasPluginMock() *GasPluginMock {
 	return &GasPluginMock{}
 }
 
-func (w *GasPluginMock) Prepare(context.Context) {
-	w.blockGasUsed = 0
-}
-
-func (w *GasPluginMock) Reset(context.Context) {
-	w.txGasUsed = 0
-}
-
-func (w *GasPluginMock) ConsumeGas(amount uint64) error {
+func (w *GasPluginMock) ConsumeGas(_ context.Context, amount uint64) error {
 	if w.txGasUsed+amount > w.txGasLimit {
 		return errors.New("gas limit exceeded")
 	}
@@ -58,15 +50,15 @@ func (w *GasPluginMock) ConsumeGas(amount uint64) error {
 	return nil
 }
 
-func (w *GasPluginMock) GasConsumed() uint64 {
+func (w *GasPluginMock) GasConsumed(_ context.Context) uint64 {
 	return w.txGasUsed
 }
 
-func (w *GasPluginMock) BlockGasConsumed() uint64 {
+func (w *GasPluginMock) BlockGasConsumed(_ context.Context) uint64 {
 	return w.blockGasUsed
 }
 
-func (w *GasPluginMock) GasRemaining() uint64 {
+func (w *GasPluginMock) GasRemaining(_ context.Context) uint64 {
 	return w.txGasLimit - w.txGasUsed
 }
 
@@ -94,7 +86,7 @@ func (w *GasPluginMock) SetBlockGasLimit(amount uint64) {
 	w.blockGasLimit = amount
 }
 
-func (w *GasPluginMock) BlockGasLimit() uint64 {
+func (w *GasPluginMock) BlockGasLimit(_ context.Context) uint64 {
 	return w.blockGasLimit
 }
 

@@ -115,8 +115,8 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
 	// Ensure that the gas plugin and header are in sync.
-	if sp.header.GasLimit != sp.gp.BlockGasLimit() {
-		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit()))
+	if sp.header.GasLimit != sp.gp.BlockGasLimit(ctx) {
+		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit(ctx)))
 	}
 
 	// We must re-create the signer since we are processing a new block and the block number has
@@ -153,7 +153,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// By setting the gas pool to the delta between the block gas limit and the cumulative gas
 	// used, we intrinsic handle the case where the transaction on our host chain might have
 	// fully reverted, when it fact it should've been a vm error saying out of gas.
-	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
+	gasPool := GasPool(sp.gp.BlockGasLimit(ctx) - sp.gp.BlockGasConsumed(ctx))
 
 	// Apply the state transition.
 	result, err := ApplyMessage(sp.evm, msg, &gasPool)
@@ -163,21 +163,21 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
 	// while still ensuring that we consume all the gas.
-	if result.UsedGas > sp.gp.GasRemaining() {
-		result.UsedGas = sp.gp.GasRemaining()
+	if result.UsedGas > sp.gp.GasRemaining(ctx) {
+		result.UsedGas = sp.gp.GasRemaining(ctx)
 		result.Err = vm.ErrOutOfGas
 	}
 
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
 	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.
-	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
+	if err = sp.gp.ConsumeGas(ctx, result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
 	// Create a new receipt for the transaction.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
-		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
+		CumulativeGasUsed: sp.gp.BlockGasConsumed(ctx) + sp.gp.GasConsumed(ctx),
 		TxHash:            txHash,
 		GasUsed:           result.UsedGas,
 		Logs:              sp.statedb.Logs(),
@@ -212,13 +212,13 @@ func (sp *StateProcessor) ProcessTransaction(
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(
-	_ context.Context,
+	ctx context.Context,
 ) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
 	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = sp.gp.BlockGasConsumed()
+	sp.header.GasUsed = sp.gp.BlockGasConsumed(ctx)
 
 	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom) and
 	// reset the header for the next block.

@@ -54,7 +54,6 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
-	bc.gp.Prepare(ctx)
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
@@ -78,7 +77,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
 		Difficulty: big.NewInt(0),
 		Number:     big.NewInt(height),
-		GasLimit:   bc.gp.BlockGasLimit(),
+		GasLimit:   bc.gp.BlockGasLimit(ctx),
 		Time:       timestamp,
 		Extra:      []byte{}, // Polaris does not set the Extra field.
 		MixDigest:  common.Hash{},
@@ -98,7 +97,6 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
 	// Reset the Gas and State plugins for the tx.
-	bc.gp.Reset(ctx) // TODO: may not need this.
 	bc.sp.Reset(ctx)
 
 	return bc.processor.ProcessTransaction(ctx, tx)

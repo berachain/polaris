@@ -21,6 +21,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -92,27 +94,21 @@ type (
 
 	// GasPlugin is an interface that allows the Polaris EVM to consume gas on the host chain.
 	GasPlugin interface {
-		// GasPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
-		// GasPlugin to a default state.
-		libtypes.Preparable
-		// GasPlugin implements `libtypes.Resettable`. Calling `Reset` should reset the
-		// GasPlugin to a default state
-		libtypes.Resettable
 		// ConsumeGas consumes the supplied amount of gas. It should not panic due to a
 		// GasOverflow and should return `core.ErrOutOfGas` if the amount of gas remaining is
 		// less than the amount requested. If the requested amount is greater than the amount of
 		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
-		ConsumeGas(uint64) error
+		ConsumeGas(context.Context, uint64) error
 		// GasRemaining returns the amount of gas remaining for the current transaction.
-		GasRemaining() uint64
+		GasRemaining(context.Context) uint64
 		// GasConsumed returns the amount of gas used by the current transaction.
-		GasConsumed() uint64
+		GasConsumed(context.Context) uint64
 		// BlockGasConsumed returns the amount of gas used during the current block. The value
 		// returned should NOT include any gas consumed during this transaction.
 		// It should not panic.
-		BlockGasConsumed() uint64
+		BlockGasConsumed(context.Context) uint64
 		// BlockGasLimit returns the gas limit of the current block. It should not panic.
-		BlockGasLimit() uint64
+		BlockGasLimit(context.Context) uint64
 	}
 
 	// StatePlugin defines the methods that the chain running Polaris EVM should implement.
