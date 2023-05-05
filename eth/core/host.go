@@ -147,8 +147,6 @@ type (
 	// be used by the RPC backend to support certain methods on the Ethereum JSON RPC spec.
 	// Implementing this plugin is optional.
 	HistoricalPlugin interface {
-		// HistoricalPlugin implements `libtypes.Preparable`.
-		libtypes.Preparable
 		// GetBlockByNumber returns the block at the given block number.
 		GetBlockByNumber(context.Context, int64) (*types.Block, error)
 		// GetBlockByHash returns the block at the given block hash.
