@@ -36,8 +36,6 @@ import (
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
-// TODO: WHO WROTE THIS CODE THE FIRST TIME BLS FIX IT IS HORRIBLE.
-
 // StoreBlock implements `core.HistoricalPlugin`.
 func (p *plugin) StoreBlock(ctx context.Context, block *coretypes.Block) error {
 	blockNum := block.NumberU64()
