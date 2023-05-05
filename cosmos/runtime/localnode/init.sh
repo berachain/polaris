@@ -20,12 +20,12 @@
 # TITLE.
 
 
-PRECOMPILES[0]="polar1mx5e3jkxvzf8frl7cl8m69264ctn0shlz6zxjx" # staking
-PRECOMPILES[1]="polar1gwqac243g2z3vryqsev6acq965f9ttwhjgk226" # bank
-PRECOMPILES[2]="polar10d07y265gmmuvt4z0w9aw880jnsr700j33u8zp" # governance
-PRECOMPILES[3]="polar1hh6fc0pcsggzlsqhl7mxzyyvvw5rd5r9vff2ea" # auth
-PRECOMPILES[4]="polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad" # distribution
-PRECOMPILES[5]="polar1glht96kr2rseywuvhhay894qw7ekuc4qphuca5" # erc20
+PRECOMPILES[0]="staking" # "polar1mx5e3jkxvzf8frl7cl8m69264ctn0shlz6zxjx" # staking
+PRECOMPILES[1]="bank" # "polar1gwqac243g2z3vryqsev6acq965f9ttwhjgk226" # bank
+PRECOMPILES[2]="gov" # "polar10d07y265gmmuvt4z0w9aw880jnsr700j33u8zp" # governance
+PRECOMPILES[3]="auth" # "polar1hh6fc0pcsggzlsqhl7mxzyyvvw5rd5r9vff2ea" # auth
+PRECOMPILES[4]="distribution" # "polar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8vvt7ad" # distribution
+PRECOMPILES[5]="erc20" # "polar1glht96kr2rseywuvhhay894qw7ekuc4qphuca5" # erc20
 
 KEYS[0]="dev0"
 KEYS[1]="dev1"
@@ -108,7 +108,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 
 	## Fund all precompile addresses with 1abera (https://ethereum.stackexchange.com/questions/68056/puppeth-precompile-addresses)
 	for PRECOMPILE in "${PRECOMPILES[@]}"; do
-		./bin/polard genesis add-genesis-account $PRECOMPILE 1abera --keyring-backend $KEYRING --home "$HOMEDIR"
+		./bin/polard genesis add-genesis-account $PRECOMPILE 1abera --keyring-backend $KEYRING --home "$HOMEDIR" --module-name $PRECOMPILE
 	done
 
 	# Sign genesis transaction
