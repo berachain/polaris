@@ -84,12 +84,13 @@ func (p *plugin) GetPrecompiles(_ *params.Rules) []ethprecompile.Registrable {
 
 // GetActive implements core.PrecompilePlugin.
 func (p *plugin) GetActive(rules *params.Rules) []common.Address {
-	var active []common.Address
-	for _, pc := range p.precompiles {
-		active = append(active, pc.RegistryKey())
+	defaults := ethprecompile.GetDefaultPrecompiles(rules)
+	active := make([]common.Address, 0, len(p.precompiles)+len(defaults))
+	for i, pc := range p.precompiles {
+		active[i] = pc.RegistryKey()
 	}
-	for _, pc := range ethprecompile.GetDefaultPrecompiles(rules) {
-		active = append(active, pc.RegistryKey())
+	for i, pc := range defaults {
+		active[i+len(p.precompiles)] = pc.RegistryKey()
 	}
 	return active
 }
