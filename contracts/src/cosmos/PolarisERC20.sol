@@ -11,10 +11,18 @@ abstract contract ERC20 is IERC20 {
                               Precompiles
     //////////////////////////////////////////////////////////////*/
 
+    /**
+     * @dev bank is a pure function for getting the address of the bank module precompile.
+     * @return IBankModule the address of the bank module precompile.
+     */
     function bank() internal pure returns (IBankModule) {
         return IBankModule(address(0x1));
     }
 
+    /**
+     * @dev erc20Module is a pure function for getting the address of the erc20 module precompile.
+     * @return IERC20Module the address of the erc20 module precompile.
+     */
     function erc20Module() internal pure returns (IERC20Module) {
         return IERC20Module(address(0x0));
     }
@@ -61,6 +69,8 @@ abstract contract ERC20 is IERC20 {
                               ERC20 STORAGE
     //////////////////////////////////////////////////////////////*/
 
+    mapping(address => mapping(address => uint256)) public allowance;
+
     /**
      * @dev totalSupply is a public view method for reading the `sdk.Coin` total supply for this erc20.
      * @return uint256 the sdk.Coin total supply for this erc20.
@@ -78,9 +88,6 @@ abstract contract ERC20 is IERC20 {
         return bank().getSpendableBalance(user, denom);
     }
 
-    //TODO:
-    mapping(address => mapping(address => uint256)) public allowance;
-
     /*//////////////////////////////////////////////////////////////
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -93,7 +100,12 @@ abstract contract ERC20 is IERC20 {
                                ERC20 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    //TODO:
+    /**
+     * @dev approve is a public method for approving a given address to spend a given amount of tokens.
+     * @param spender the address to approve to spend tokens.
+     * @param amount the amount of tokens to approve the given address to spend.
+     * @return bool true if the approval was successful.
+     */
     function approve(address spender, uint256 amount) public virtual returns (bool) {
         allowance[msg.sender][spender] = amount;
 
@@ -102,6 +114,12 @@ abstract contract ERC20 is IERC20 {
         return true;
     }
 
+    /**
+     * @dev transfer is a public method for transferring tokens to a given address.
+     * @param to the address to transfer tokens to.
+     * @param amount the amount of tokens to transfer.
+     * @return bool true if the transfer was successful.
+     */
     function transfer(address to, uint256 amount) public virtual returns (bool) {
         IBankModule.Coin[] memory coins = amountToCoins(amount);
         bank().send(msg.sender, to, coins);
@@ -110,6 +128,13 @@ abstract contract ERC20 is IERC20 {
         return true;
     }
 
+    /**
+     * @dev transferFrom is a public method for transferring tokens from one address to another.
+     * @param from the address to transfer tokens from.
+     * @param to the address to transfer tokens to.
+     * @param amount the amount of tokens to transfer.
+     * @return bool true if the transfer was successful.
+     */
     function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
         // TODO: Use allowance once authz precompile is available.
         uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
@@ -126,6 +151,11 @@ abstract contract ERC20 is IERC20 {
                                sdk.Coin helpers.
     //////////////////////////////////////////////////////////////*/
 
+    /**
+     * @dev amountToCoins is a helper function to convert an amount to sdk.Coin.
+     * @param amount the amount to convert to sdk.Coin.
+     * @return sdk.Coin[] the sdk.Coin representation of the given amount.
+     */
     function amountToCoins(uint256 amount) internal view returns (IBankModule.Coin[] memory) {
         IBankModule.Coin[] memory coins = new IBankModule.Coin[](1);
         coins[0] = IBankModule.Coin({denom: denom, amount: amount});
