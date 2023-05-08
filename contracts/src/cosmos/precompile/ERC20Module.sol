@@ -37,13 +37,13 @@ interface IERC20Module {
      * @dev Emitted by the erc20 module when `amount` tokens are converted from SDK coin (of
      * denomination `denom`) to an ERC20 token from `owner` to `recipient`.
      */
-    event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, uint256 amount);
+    event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, Coin[] amount);
 
     /**
      * @dev Emitted by the erc20 module when `amount` tokens are converted from ERC20 (of address
      * `token`) to an SDK coin from `owner` to `recipient`.
      */
-    event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, uint256 amount);
+    event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, Coin[] amount);
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
@@ -167,4 +167,14 @@ interface IERC20Module {
      * @param amount the amount of tokens to transfer
      */
     function convertERC20ToCoinTo(IERC20 token, string calldata recipient, uint256 amount) external returns (bool);
+}
+
+//////////////////////////////////////////// UTILS ////////////////////////////////////////////
+/**
+ * @dev Represents a cosmos coin.
+ * Note: this struct is generated as go struct that is then used in the precompile.
+ */
+struct Coin {
+    uint256 amount;
+    string denom;
 }

@@ -255,7 +255,7 @@ var _ = Describe("Factory", func() {
 
 func mockCustomAbiEvent() map[string]abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
-	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
+	uint256Type, _ := abi.NewType("[uint256]", "[uint256]", nil)
 	return map[string]abi.Event{
 		"CustomUnbondingDelegation": abi.NewEvent(
 			"CustomUnbondingDelegation",

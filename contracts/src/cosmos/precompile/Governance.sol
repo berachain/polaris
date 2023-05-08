@@ -134,7 +134,7 @@ interface IGovernanceModule {
      * @param proposalId The id of the proposal.
      * @param amount The amount of the deposit.
      */
-    event ProposalDeposit(uint64 indexed proposalId, uint256 amount);
+    event ProposalDeposit(uint64 indexed proposalId, Coin[] amount);
 
     /**
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.
