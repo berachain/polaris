@@ -27,6 +27,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -108,13 +109,13 @@ var _ = Describe("Factory", func() {
 			Expect(log.Topics).To(HaveLen(3))
 			Expect(log.Topics[0]).To(Equal(
 				crypto.Keccak256Hash(
-					[]byte("CancelUnbondingDelegation(address,address,uint256,int64)"),
+					[]byte("CancelUnbondingDelegation(address,address,(uint256,string)[],int64)"),
 				),
 			))
 			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 			Expect(log.Topics[2]).To(Equal(common.BytesToHash(delAddr.Bytes())))
 			packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().Pack(
-				amt.Amount.BigInt(), creationHeight,
+				bank.SdkCoinsToEvmCoins(sdk.NewCoins(amt)), creationHeight,
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(log.Data).To(Equal(packedData))
@@ -142,12 +143,12 @@ var _ = Describe("Factory", func() {
 			Expect(log.Topics).To(HaveLen(2))
 			Expect(log.Topics[0]).To(Equal(
 				crypto.Keccak256Hash(
-					[]byte("CustomUnbondingDelegation(address,uint256)"),
+					[]byte("CustomUnbondingDelegation(address,(uint256,string)[])"),
 				),
 			))
 			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 			packedData, err := mockCustomAbiEvent()["CustomUnbondingDelegation"].
-				Inputs.NonIndexed().Pack(amt.Amount.BigInt())
+				Inputs.NonIndexed().Pack(bank.SdkCoinsToEvmCoins(sdk.NewCoins(amt)))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(log.Data).To(Equal(packedData))
 		})
@@ -255,7 +256,22 @@ var _ = Describe("Factory", func() {
 
 func mockCustomAbiEvent() map[string]abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
-	uint256Type, _ := abi.NewType("[uint256]", "[uint256]", nil)
+	coinType, _ := abi.NewType("tuple[]", "structIStakingModule.Coin[]", []abi.ArgumentMarshaling{
+		{
+			Name:         "amount",
+			Type:         "uint256",
+			InternalType: "uint256",
+			Components:   nil,
+			Indexed:      false,
+		},
+		{
+			Name:         "denom",
+			Type:         "string",
+			InternalType: "string",
+			Components:   nil,
+			Indexed:      false,
+		},
+	})
 	return map[string]abi.Event{
 		"CustomUnbondingDelegation": abi.NewEvent(
 			"CustomUnbondingDelegation",
@@ -269,7 +285,7 @@ func mockCustomAbiEvent() map[string]abi.Event {
 				},
 				{
 					Name:    "customAmount",
-					Type:    uint256Type,
+					Type:    coinType,
 					Indexed: false,
 				},
 			},
@@ -290,13 +306,29 @@ var cvd = precompile.ValueDecoders{
 		if err != nil {
 			return nil, err
 		}
-		return coin.Amount.BigInt(), nil
+		evmCoins := bank.SdkCoinsToEvmCoins(sdk.Coins{coin})
+		return evmCoins, nil
 	},
 }
 
 func mockBadAbiEvent() map[string]abi.Event {
 	addrType, _ := abi.NewType("address", "address", nil)
-	uint256Type, _ := abi.NewType("uint256", "uint256", nil)
+	coinType, _ := abi.NewType("tuple[]", "structIStakingModule.Coin[]", []abi.ArgumentMarshaling{
+		{
+			Name:         "amount",
+			Type:         "uint256",
+			InternalType: "uint256",
+			Components:   nil,
+			Indexed:      false,
+		},
+		{
+			Name:         "denom",
+			Type:         "string",
+			InternalType: "string",
+			Components:   nil,
+			Indexed:      false,
+		},
+	})
 	return map[string]abi.Event{
 		"CustomUnbondingDelegation": abi.NewEvent(
 			"CustomUnbondingDelegation",
@@ -310,12 +342,12 @@ func mockBadAbiEvent() map[string]abi.Event {
 				},
 				{
 					Name:    "customAmount",
-					Type:    uint256Type,
+					Type:    coinType,
 					Indexed: false,
 				},
 				{
 					Name:    "invalidArg",
-					Type:    uint256Type,
+					Type:    coinType,
 					Indexed: false,
 				},
 			},

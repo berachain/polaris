@@ -30,8 +30,8 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// sdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
+// SdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
+func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 	evmCoins := make([]generated.IBankModuleCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
 		evmCoins[i] = generated.IBankModuleCoin{
@@ -42,8 +42,8 @@ func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 	return evmCoins
 }
 
-// extractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
-func extractCoinsFromInput(coins any) (sdk.Coins, error) {
+// ExtractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
+func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
 	// the any type input into IBankModuleCoin.
 	amounts, ok := utils.GetAs[[]struct {
