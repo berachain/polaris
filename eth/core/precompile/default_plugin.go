@@ -45,14 +45,24 @@ func NewDefaultPlugin() Plugin {
 	}
 }
 
-// GetPrecompiles implements `core.PrecompilePlugin`.
+// GetPrecompiles implements core.PrecompilePlugin.
 func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []Registrable {
 	return GetDefaultPrecompiles(rules)
 }
 
+// GetActive implements core.PrecompilePlugin.
+func (dp *defaultPlugin) GetActive(rules *params.Rules) []common.Address {
+	pc := dp.GetPrecompiles(rules)
+	active := make([]common.Address, 0, len(pc))
+	for i, p := range pc {
+		active[i] = p.RegistryKey()
+	}
+	return active
+}
+
 // Run supports executing stateless precompiles with the background context.
 //
-// Run implements `core.PrecompilePlugin`.
+// Run implements core.PrecompilePlugin.
 func (dp *defaultPlugin) Run(
 	evm EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
@@ -68,12 +78,13 @@ func (dp *defaultPlugin) Run(
 	return output, suppliedGas, err
 }
 
-// EnableReentrancy implements `core.PrecompilePlugin`.
+// EnableReentrancy implements core.PrecompilePlugin.
 func (dp *defaultPlugin) EnableReentrancy(context.Context) {}
 
-// DisableReentrancy implements `core.PrecompilePlugin`.
+// DisableReentrancy implements core.PrecompilePlugin.
 func (dp *defaultPlugin) DisableReentrancy(context.Context) {}
 
+// GetDefaultPrecompiles returns the default set of precompiles for the given rules.
 func GetDefaultPrecompiles(rules *params.Rules) []Registrable {
 	// Depending on the hard fork rules, we need to register a different set of precompiles.
 	var addrToPrecompiles map[common.Address]vm.PrecompileContainer

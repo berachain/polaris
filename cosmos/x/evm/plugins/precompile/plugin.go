@@ -32,7 +32,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/registry"
@@ -55,7 +55,7 @@ type Plugin interface {
 type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 	// precompiles is all supported precompile contracts.
-	precompiles []precompile.Registrable
+	precompiles []ethprecompile.Registrable
 	// kvGasConfig is the gas config for the KV store.
 	kvGasConfig storetypes.GasConfig
 	// transientKVGasConfig is the gas config for the transient KV store.
@@ -64,8 +64,8 @@ type plugin struct {
 	sp StatePlugin
 }
 
-// NewPlugin creates and returns a `plugin` with the default kv gas configs.
-func NewPlugin(precompiles []precompile.Registrable, sp StatePlugin) Plugin {
+// NewPlugin creates and returns a plugin with the default KV store gas configs.
+func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
 	return &plugin{
 		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
 		precompiles: precompiles,
@@ -77,23 +77,40 @@ func NewPlugin(precompiles []precompile.Registrable, sp StatePlugin) Plugin {
 	}
 }
 
-// GetPrecompiles implements `core.PrecompilePlugin`.
-func (p *plugin) GetPrecompiles(_ *params.Rules) []precompile.Registrable {
+// GetPrecompiles implements core.PrecompilePlugin.
+func (p *plugin) GetPrecompiles(_ *params.Rules) []ethprecompile.Registrable {
 	return p.precompiles
 }
 
+// GetActive implements core.PrecompilePlugin.
+func (p *plugin) GetActive(rules *params.Rules) []common.Address {
+	defaults := ethprecompile.GetDefaultPrecompiles(rules)
+	active := make([]common.Address, len(p.precompiles)+len(defaults))
+	for i, pc := range p.precompiles {
+		active[i] = pc.RegistryKey()
+	}
+	for i, pc := range defaults {
+		active[i+len(p.precompiles)] = pc.RegistryKey()
+	}
+	return active
+}
+
+// KVGasConfig implements Plugin.
 func (p *plugin) KVGasConfig() storetypes.GasConfig {
 	return p.kvGasConfig
 }
 
+// SetKVGasConfig implements Plugin.
 func (p *plugin) SetKVGasConfig(kvGasConfig storetypes.GasConfig) {
 	p.kvGasConfig = kvGasConfig
 }
 
+// TransientKVGasConfig implements Plugin.
 func (p *plugin) TransientKVGasConfig() storetypes.GasConfig {
 	return p.transientKVGasConfig
 }
 
+// SetTransientKVGasConfig implements Plugin.
 func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConfig) {
 	p.transientKVGasConfig = transientKVGasConfig
 }
@@ -102,9 +119,9 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 // a Cosmos SDK `GasMeter`. This function returns an error if the precompile execution returns an
 // error or insufficient gas is provided.
 //
-// Run implements `core.PrecompilePlugin`.
+// Run implements core.PrecompilePlugin.
 func (p *plugin) Run(
-	evm precompile.EVM, pc vm.PrecompileContainer, input []byte,
+	evm ethprecompile.EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
@@ -146,7 +163,7 @@ func (p *plugin) Run(
 
 // EnableReentrancy sets the state so that execution can enter the EVM again.
 //
-// EnableReentrancy implements `core.PrecompilePlugin`.
+// EnableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) EnableReentrancy(_ context.Context) {
 	// We remove the KVStore gas metering from the context prior to entering the EVM state
 	// transition. This is because the EVM is not aware of the Cosmos SDK's gas metering and is
@@ -158,7 +175,7 @@ func (p *plugin) EnableReentrancy(_ context.Context) {
 
 // DisableReentrancy sets the state so that execution cannot enter the EVM again.
 //
-// DisableReentrancy implements `core.PrecompilePlugin`.
+// DisableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) DisableReentrancy(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// restore ctx gas configs for continuing precompile execution
