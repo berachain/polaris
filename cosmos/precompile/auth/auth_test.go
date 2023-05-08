@@ -25,12 +25,17 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/auth"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -48,7 +53,12 @@ var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
 
 	BeforeEach(func() {
-		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract())
+		encodingConfig := sdktestutil.MakeTestEncodingConfig(
+			authz.AppModuleBasic{},
+		)
+		_, ak, _, _ := testutil.SetupMinimalKeepers()
+		k := authzkeeper.NewKeeper(testutil.EvmKey, encodingConfig.Codec, baseapp.NewMsgServiceRouter(), ak)
+		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract(k))
 	})
 
 	It("should have static registry key", func() {

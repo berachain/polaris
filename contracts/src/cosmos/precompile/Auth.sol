@@ -38,4 +38,20 @@ interface IAuthModule {
      * @dev Returns the hex representation of the given bech32 address.
      */
     function convertBech32ToHexAddress(string calldata account) external view returns (address);
+
+    /**
+     * @dev Grants the given grant to the grantee.
+     */
+    function sendGrant(address granter, address grantee, Coin[] calldata limit, uint256 expiration)
+        external
+        returns (bool);
+
+    /**
+     * @dev Represents a cosmos coin.
+     * Note: this struct is generated as go struct that is then used in the precompile.
+     */
+    struct Coin {
+        uint256 amount;
+        string denom;
+    }
 }

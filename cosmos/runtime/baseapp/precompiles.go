@@ -40,7 +40,7 @@ func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registr
 	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
-			authprecompile.NewPrecompileContract(),
+			authprecompile.NewPrecompileContract(app.AuthzKeeper),
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,

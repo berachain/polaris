@@ -35,4 +35,5 @@ var (
 	ErrInvalidInt32         = errors.New("invalid int32")
 	ErrInvalidOptions       = errors.New("invalid options")
 	ErrInvalidBytes         = errors.New("invalid bytes")
+	ErrInvalidGEVM          = errors.New("invalid GEVM")
 )

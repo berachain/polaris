@@ -29,9 +29,15 @@ var (
 	_ = abi.ConvertType
 )
 
+// IAuthModuleCoin is an auto generated low-level Go binding around an user-defined struct.
+type IAuthModuleCoin struct {
+	Amount *big.Int
+	Denom  string
+}
+
 // AuthModuleMetaData contains all meta data concerning the AuthModule contract.
 var AuthModuleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"granter\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"grantee\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIAuthModule.Coin[]\",\"name\":\"limit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"sendGrant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // AuthModuleABI is the input ABI used to generate the binding from.
@@ -240,4 +246,25 @@ func (_AuthModule *AuthModuleSession) ConvertHexToBech32(account common.Address)
 // Solidity: function convertHexToBech32(address account) view returns(string)
 func (_AuthModule *AuthModuleCallerSession) ConvertHexToBech32(account common.Address) (string, error) {
 	return _AuthModule.Contract.ConvertHexToBech32(&_AuthModule.CallOpts, account)
+}
+
+// SendGrant is a paid mutator transaction binding the contract method 0x9d66e40e.
+//
+// Solidity: function sendGrant(address granter, address grantee, (uint256,string)[] limit, uint256 expiration) returns(bool)
+func (_AuthModule *AuthModuleTransactor) SendGrant(opts *bind.TransactOpts, granter common.Address, grantee common.Address, limit []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
+	return _AuthModule.contract.Transact(opts, "sendGrant", granter, grantee, limit, expiration)
+}
+
+// SendGrant is a paid mutator transaction binding the contract method 0x9d66e40e.
+//
+// Solidity: function sendGrant(address granter, address grantee, (uint256,string)[] limit, uint256 expiration) returns(bool)
+func (_AuthModule *AuthModuleSession) SendGrant(granter common.Address, grantee common.Address, limit []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
+	return _AuthModule.Contract.SendGrant(&_AuthModule.TransactOpts, granter, grantee, limit, expiration)
+}
+
+// SendGrant is a paid mutator transaction binding the contract method 0x9d66e40e.
+//
+// Solidity: function sendGrant(address granter, address grantee, (uint256,string)[] limit, uint256 expiration) returns(bool)
+func (_AuthModule *AuthModuleTransactorSession) SendGrant(granter common.Address, grantee common.Address, limit []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
+	return _AuthModule.Contract.SendGrant(&_AuthModule.TransactOpts, granter, grantee, limit, expiration)
 }
