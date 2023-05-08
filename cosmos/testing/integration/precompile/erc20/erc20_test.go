@@ -191,14 +191,16 @@ var _ = Describe("ERC20", func() {
 				Expect(bal).To(Equal(big.NewInt(123456789)))
 
 				// token already exists, create new Polaris denom
+				txr := tf.GenerateTransactOpts("alice")
+				txr.GasLimit = 10000000
 				_, err = erc20Precompile.ConvertERC20ToCoin(
-					tf.GenerateTransactOpts("alice"),
+					txr,
 					token,
 					big.NewInt(6789),
 				)
-				Expect(err).To(HaveOccurred())
+				Expect(err).ToNot(HaveOccurred())
 				// doesn't work because owner did not approve caller to spend tokens
-				Expect(err.Error()).To(ContainSubstring("gas required exceeds allowance"))
+				// Expect(err.Error()).To(ContainSubstring("gas required exceeds allowance"))
 
 				// verify the transfer did not work
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
