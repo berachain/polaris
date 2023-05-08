@@ -78,9 +78,9 @@ var _ = Describe("Processor", func() {
 
 		legacyTxData = &coretypes.LegacyTx{
 			Nonce:    0,
-			Gas:      10000000,
+			Gas:      10000000000,
 			Data:     []byte("abcdef"),
-			GasPrice: big.NewInt(1),
+			GasPrice: big.NewInt(2 ^ 63), // overpaying so test doesn't fail due to EIP-1559 math.
 		}
 
 		// before chain, init genesis state
@@ -139,11 +139,12 @@ var _ = Describe("Processor", func() {
 
 		It("should successfully deploy a valid contract and call it", func() {
 			legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
+			legacyTxData.GasPrice = big.NewInt(10000000000)
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
 			k.GetHost().GetStatePlugin().CreateAccount(addr)
-			k.GetHost().GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetHost().GetStatePlugin().AddBalance(addr, (&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
 			k.GetHost().GetStatePlugin().Finalize()
 
 			// create the contract

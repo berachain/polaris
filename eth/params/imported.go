@@ -36,4 +36,6 @@ var (
 	VersionWithMeta = params.VersionWithMeta
 	// VersionWithCommit holds the textual version string including the commit hash.
 	VersionWithCommit = params.VersionWithCommit
+	// InitialBaseFee is the initial base fee for the first block of the chain.
+	InitialBaseFee = params.InitialBaseFee
 )

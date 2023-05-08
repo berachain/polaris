@@ -22,10 +22,14 @@ package core
 
 import (
 	"context"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/consensus/misc"
 
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // ChainResources is the interface that defines functions for code paths within the chain to acquire
@@ -65,4 +69,22 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
 		feeCollector = &header.Coinbase
 	}
 	return NewEVMBlockContext(header, &chainContext{bc}, feeCollector)
+}
+
+// CalculateBaseFee calculates the base fee for the next block based on the finalized block or the plugin's
+// base fee.
+func (bc *blockchain) CalculateNextBaseFee() *big.Int {
+	baseFeeFromPlugin := bc.bp.BaseFee()
+	// If the base fee supplied by the plugins is negative, then we assume that the host chain wants to use the built-in
+	// EIP-1559 math.
+	if parent := bc.finalizedBlock.Load(); parent != nil && baseFeeFromPlugin.Cmp(big.NewInt(0)) == -1 /* negative */ {
+		return misc.CalcBaseFee(bc.ChainConfig(), parent.Header())
+		// If the base fee supplied by the plugins is non-negative, then we assume that the host chain wants to use the
+		// base fee supplied by the plugin.
+	} else if baseFeeFromPlugin.Cmp(big.NewInt(0)) >= 0 /* non-negative */ {
+		return baseFeeFromPlugin
+	}
+
+	// This case only triggers for the first block in the chain, when finalizedBlock.Load() returns a nil ptr.
+	return big.NewInt(int64(params.InitialBaseFee))
 }

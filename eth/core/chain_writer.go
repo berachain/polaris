@@ -71,6 +71,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		}
 		parentHash = parent.Hash()
 	}
+
 	header := &types.Header{
 		ParentHash: parentHash,
 		UncleHash:  types.EmptyUncleHash,
@@ -83,9 +84,10 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		Extra:      []byte{}, // Polaris does not set the Extra field.
 		MixDigest:  common.Hash{},
 		Nonce:      types.BlockNonce{},
-		BaseFee:    big.NewInt(int64(bc.bp.BaseFee())), // TODO: change for EIP-1559.
+		BaseFee:    bc.CalculateNextBaseFee(),
 	}
 
+	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
 		ctx,
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),

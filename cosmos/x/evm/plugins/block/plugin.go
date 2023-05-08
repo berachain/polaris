@@ -22,6 +22,7 @@ package block
 
 import (
 	"context"
+	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -31,9 +32,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 )
-
-// TODO: change this.
-const bf = uint64(1)
 
 type Plugin interface {
 	plugins.BaseCosmosPolaris
@@ -63,12 +61,9 @@ func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
 
-// BaseFee returns the base fee for the current block.
-// TODO: implement properly with DynamicFee Module of some kind.
-//
 // BaseFee implements core.BlockPlugin.
-func (p *plugin) BaseFee() uint64 {
-	return bf
+func (p *plugin) BaseFee() *big.Int {
+	return big.NewInt(-1) // we defer to polaris' built in eip-1559 for the base fee.
 }
 
 // GetNewBlockMetadata returns the host chain block metadata for the given block height. It returns
