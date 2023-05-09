@@ -4,9 +4,8 @@ pragma solidity >=0.8.0;
 
 import {IERC20} from "../../lib/IERC20.sol";
 import {IBankModule} from "./precompile/Bank.sol";
-import {IERC20Module} from "./precompile/ERC20Module.sol";
 
-abstract contract ERC20 is IERC20 {
+contract PolarisERC20 is IERC20 {
     /*//////////////////////////////////////////////////////////////
                               Precompiles
     //////////////////////////////////////////////////////////////*/
@@ -16,15 +15,7 @@ abstract contract ERC20 is IERC20 {
      * @return IBankModule the address of the bank module precompile.
      */
     function bank() internal pure returns (IBankModule) {
-        return IBankModule(address(0x1));
-    }
-
-    /**
-     * @dev erc20Module is a pure function for getting the address of the erc20 module precompile.
-     * @return IERC20Module the address of the erc20 module precompile.
-     */
-    function erc20Module() internal pure returns (IERC20Module) {
-        return IERC20Module(address(0x0));
+        return IBankModule(address(0x4381dC2aB14285160c808659aEe005D51255adD7));
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -66,6 +57,14 @@ abstract contract ERC20 is IERC20 {
     string public denom;
 
     /*//////////////////////////////////////////////////////////////
+                               CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
+
+    constructor(string memory _denom) {
+        denom = _denom;
+    }
+
+    /*//////////////////////////////////////////////////////////////
                               ERC20 STORAGE
     //////////////////////////////////////////////////////////////*/
 
@@ -86,14 +85,6 @@ abstract contract ERC20 is IERC20 {
      */
     function balanceOf(address user) public view returns (uint256) {
         return bank().getSpendableBalance(user, denom);
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                               CONSTRUCTOR
-    //////////////////////////////////////////////////////////////*/
-
-    constructor(string memory _denom) {
-        denom = _denom;
     }
 
     /*//////////////////////////////////////////////////////////////

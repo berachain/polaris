@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
@@ -42,14 +43,14 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
-	bk cosmlib.BankKeeper
+	bk bankkeeper.Keeper
 	em ERC20Module
 
 	polarisERC20ABI abi.ABI
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.StatefulImpl {
+func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			cpbindings.ERC20ModuleMetaData.ABI,
@@ -67,10 +68,10 @@ func NewPrecompileContract(bk cosmlib.BankKeeper, em ERC20Module) ethprecompile.
 // CustomValueDecoders implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		erc20types.AttributeKeyToken:     ConvertCommonHexAddress,
+		erc20types.AttributeKeyToken:     TransferCommonHexAddress,
 		erc20types.AttributeKeyDenom:     log.ReturnStringAsIs,
-		erc20types.AttributeKeyOwner:     ConvertCommonHexAddress,
-		erc20types.AttributeKeyRecipient: ConvertCommonHexAddress,
+		erc20types.AttributeKeyOwner:     TransferCommonHexAddress,
+		erc20types.AttributeKeyRecipient: TransferCommonHexAddress,
 	}
 }
 
@@ -90,44 +91,44 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.ERC20AddressForCoinDenom,
 		},
 		{
-			AbiSig:  "convertCoinToERC20(string,uint256)",
-			Execute: c.ConvertCoinToERC20,
+			AbiSig:  "transferCoinToERC20(string,uint256)",
+			Execute: c.TransferCoinToERC20,
 		},
 		{
-			AbiSig:  "convertCoinToERC20From(string,address,address,uint256)",
-			Execute: c.ConvertCoinToERC20FromAddrInput,
+			AbiSig:  "transferCoinToERC20From(string,address,address,uint256)",
+			Execute: c.TransferCoinToERC20FromAddrInput,
 		},
 		{
-			AbiSig:  "convertCoinToERC20From(string,string,string,uint256)",
-			Execute: c.ConvertCoinToERC20FromStringInput,
+			AbiSig:  "transferCoinToERC20From(string,string,string,uint256)",
+			Execute: c.TransferCoinToERC20FromStringInput,
 		},
 		{
-			AbiSig:  "convertCoinToERC20To(string,address,uint256)",
-			Execute: c.ConvertCoinToERC20ToAddrInput,
+			AbiSig:  "transferCoinToERC20To(string,address,uint256)",
+			Execute: c.TransferCoinToERC20ToAddrInput,
 		},
 		{
-			AbiSig:  "convertCoinToERC20To(string,string,uint256)",
-			Execute: c.ConvertCoinToERC20ToStringInput,
+			AbiSig:  "transferCoinToERC20To(string,string,uint256)",
+			Execute: c.TransferCoinToERC20ToStringInput,
 		},
 		{
-			AbiSig:  "convertERC20ToCoin(address,uint256)",
-			Execute: c.ConvertERC20ToCoin,
+			AbiSig:  "transferERC20ToCoin(address,uint256)",
+			Execute: c.TransferERC20ToCoin,
 		},
 		{
-			AbiSig:  "convertERC20ToCoinFrom(address,address,address,uint256)",
-			Execute: c.ConvertERC20ToCoinFromAddrInput,
+			AbiSig:  "transferERC20ToCoinFrom(address,address,address,uint256)",
+			Execute: c.TransferERC20ToCoinFromAddrInput,
 		},
 		{
-			AbiSig:  "convertERC20ToCoinFrom(address,string,string,uint256)",
-			Execute: c.ConvertERC20ToCoinFromStringInput,
+			AbiSig:  "transferERC20ToCoinFrom(address,string,string,uint256)",
+			Execute: c.TransferERC20ToCoinFromStringInput,
 		},
 		{
-			AbiSig:  "convertERC20ToCoinTo(address,address,uint256)",
-			Execute: c.ConvertERC20ToCoinToAddrInput,
+			AbiSig:  "transferERC20ToCoinTo(address,address,uint256)",
+			Execute: c.TransferERC20ToCoinToAddrInput,
 		},
 		{
-			AbiSig:  "convertERC20ToCoinTo(address,string,uint256)",
-			Execute: c.ConvertERC20ToCoinToStringInput,
+			AbiSig:  "transferERC20ToCoinTo(address,string,uint256)",
+			Execute: c.TransferERC20ToCoinToStringInput,
 		},
 	}
 }
@@ -222,8 +223,8 @@ func (c *Contract) ERC20AddressForCoinDenom(
 	return []any{tokenAddr}, nil
 }
 
-// ConvertCoinToERC20 converts SDK coins to ERC20 tokens for msg.sender.
-func (c *Contract) ConvertCoinToERC20(
+// TransferCoinToERC20 transfers SDK coins to ERC20 tokens for msg.sender.
+func (c *Contract) TransferCoinToERC20(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -240,12 +241,12 @@ func (c *Contract) ConvertCoinToERC20(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertCoinToERC20(ctx, evm, value, denom, caller, caller, amount)
+	err := c.transferCoinToERC20(ctx, evm, value, denom, caller, caller, amount)
 	return []any{err == nil}, err
 }
 
-// ConvertCoinToERC20FromAddrInput converts SDK coins to ERC20 tokens from owner to recipient.
-func (c *Contract) ConvertCoinToERC20FromAddrInput(
+// TransferCoinToERC20FromAddrInput transfers SDK coins to ERC20 tokens from owner to recipient.
+func (c *Contract) TransferCoinToERC20FromAddrInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	_ common.Address,
@@ -270,12 +271,12 @@ func (c *Contract) ConvertCoinToERC20FromAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertCoinToERC20(ctx, evm, value, denom, owner, recipient, amount)
+	err := c.transferCoinToERC20(ctx, evm, value, denom, owner, recipient, amount)
 	return []any{err == nil}, err
 }
 
-// ConvertCoinToERC20FromStringInput converts SDK coins to ERC20 tokens from owner to recipient.
-func (c *Contract) ConvertCoinToERC20FromStringInput(
+// TransferCoinToERC20FromStringInput transfers SDK coins to ERC20 tokens from owner to recipient.
+func (c *Contract) TransferCoinToERC20FromStringInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	_ common.Address,
@@ -309,7 +310,7 @@ func (c *Contract) ConvertCoinToERC20FromStringInput(
 		return nil, err
 	}
 
-	err = c.convertCoinToERC20(
+	err = c.transferCoinToERC20(
 		ctx, evm, value, denom,
 		cosmlib.AccAddressToEthAddress(owner), cosmlib.AccAddressToEthAddress(recipient),
 		amount,
@@ -317,8 +318,8 @@ func (c *Contract) ConvertCoinToERC20FromStringInput(
 	return []any{err == nil}, err
 }
 
-// ConvertCoinToERC20ToAddrInput converts SDK coins to ERC20 tokens from msg.sender to recipient.
-func (c *Contract) ConvertCoinToERC20ToAddrInput(
+// TransferCoinToERC20ToAddrInput transfers SDK coins to ERC20 tokens from msg.sender to recipient.
+func (c *Contract) TransferCoinToERC20ToAddrInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -339,12 +340,12 @@ func (c *Contract) ConvertCoinToERC20ToAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertCoinToERC20(ctx, evm, value, denom, caller, recipient, amount)
+	err := c.transferCoinToERC20(ctx, evm, value, denom, caller, recipient, amount)
 	return []any{err == nil}, err
 }
 
-// ConvertCoinToERC20ToStringInput converts SDK coins to ERC20 tokens from msg.sender to recipient.
-func (c *Contract) ConvertCoinToERC20ToStringInput(
+// TransferCoinToERC20ToStringInput transfers SDK coins to ERC20 tokens from msg.sender to recipient.
+func (c *Contract) TransferCoinToERC20ToStringInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -370,7 +371,7 @@ func (c *Contract) ConvertCoinToERC20ToStringInput(
 		return nil, err
 	}
 
-	err = c.convertCoinToERC20(
+	err = c.transferCoinToERC20(
 		ctx, evm, value, denom,
 		caller, cosmlib.AccAddressToEthAddress(recipient),
 		amount,
@@ -378,8 +379,8 @@ func (c *Contract) ConvertCoinToERC20ToStringInput(
 	return []any{err == nil}, err
 }
 
-// ConvertERC20ToCoin converts ERC20 tokens to SDK coins for msg.sender.
-func (c *Contract) ConvertERC20ToCoin(
+// TransferERC20ToCoin transfers ERC20 tokens to SDK coins for msg.sender.
+func (c *Contract) TransferERC20ToCoin(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -396,12 +397,12 @@ func (c *Contract) ConvertERC20ToCoin(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertERC20ToCoin(ctx, caller, evm, token, caller, caller, amount)
+	err := c.transferERC20ToCoin(ctx, caller, evm, token, caller, caller, amount)
 	return []any{err == nil}, err
 }
 
-// ConvertERC20ToCoinFromAddrInput converts ERC20 tokens to SDK coins from owner to recipient.
-func (c *Contract) ConvertERC20ToCoinFromAddrInput(
+// TransferERC20ToCoinFromAddrInput transfers ERC20 tokens to SDK coins from owner to recipient.
+func (c *Contract) TransferERC20ToCoinFromAddrInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -426,12 +427,12 @@ func (c *Contract) ConvertERC20ToCoinFromAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertERC20ToCoin(ctx, caller, evm, token, owner, recipient, amount)
+	err := c.transferERC20ToCoin(ctx, caller, evm, token, owner, recipient, amount)
 	return []any{err == nil}, err
 }
 
-// ConvertERC20ToCoinFromStringInput converts ERC20 tokens to SDK coins from owner to recipient.
-func (c *Contract) ConvertERC20ToCoinFromStringInput(
+// TransferERC20ToCoinFromStringInput transfers ERC20 tokens to SDK coins from owner to recipient.
+func (c *Contract) TransferERC20ToCoinFromStringInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -465,7 +466,7 @@ func (c *Contract) ConvertERC20ToCoinFromStringInput(
 		return nil, err
 	}
 
-	err = c.convertERC20ToCoin(
+	err = c.transferERC20ToCoin(
 		ctx, caller, evm, token,
 		cosmlib.AccAddressToEthAddress(owner), cosmlib.AccAddressToEthAddress(recipient),
 		amount,
@@ -473,8 +474,8 @@ func (c *Contract) ConvertERC20ToCoinFromStringInput(
 	return []any{err == nil}, err
 }
 
-// ConvertERC20ToCoinToAddrInput converts ERC20 tokens to SDK coins from msg.sender to recipient.
-func (c *Contract) ConvertERC20ToCoinToAddrInput(
+// TransferERC20ToCoinToAddrInput transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) TransferERC20ToCoinToAddrInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -495,12 +496,12 @@ func (c *Contract) ConvertERC20ToCoinToAddrInput(
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	err := c.convertERC20ToCoin(ctx, caller, evm, token, caller, recipient, amount)
+	err := c.transferERC20ToCoin(ctx, caller, evm, token, caller, recipient, amount)
 	return []any{err == nil}, err
 }
 
-// ConvertERC20ToCoinToStringInput converts ERC20 tokens to SDK coins from msg.sender to recipient.
-func (c *Contract) ConvertERC20ToCoinToStringInput(
+// TransferERC20ToCoinToStringInput transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) TransferERC20ToCoinToStringInput(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -526,7 +527,7 @@ func (c *Contract) ConvertERC20ToCoinToStringInput(
 		return nil, err
 	}
 
-	err = c.convertERC20ToCoin(
+	err = c.transferERC20ToCoin(
 		ctx, caller, evm, token,
 		caller, cosmlib.AccAddressToEthAddress(recipient),
 		amount,
@@ -538,11 +539,11 @@ func (c *Contract) ConvertERC20ToCoinToStringInput(
 // Event Attribute Value Decoders
 // ==============================================================================
 
-// ConvertCommonHexAddress is a value decoder.
-var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
+// TransferCommonHexAddress is a value decoder.
+var _ ethprecompile.ValueDecoder = TransferCommonHexAddress
 
-// ConvertCommonHexAddress converts a common hex address attribute to a common.Address and returns
+// TransferCommonHexAddress transfers a common hex address attribute to a common.Address and returns
 // it as type any.
-func ConvertCommonHexAddress(attributeValue string) (any, error) {
+func TransferCommonHexAddress(attributeValue string) (any, error) {
 	return common.HexToAddress(attributeValue), nil
 }
