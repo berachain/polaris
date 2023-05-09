@@ -90,7 +90,10 @@ func GetGrantAsSendAuth(
 
 		// Check that the expiration is still valid.
 		if grant.Expiration == nil || grant.Expiration.After(blocktime) {
-			sendAuth := grant.Authorization.GetCachedValue().(banktypes.SendAuthorization)
+			sendAuth, ok := utils.GetAs[banktypes.SendAuthorization](grant.Authorization.GetCachedValue())
+			if !ok {
+				return nil, precompile.ErrInvalidGrantType
+			}
 			sendAuths = append(sendAuths, sendAuth)
 		}
 	}

@@ -53,12 +53,14 @@ type (
 )
 
 const (
+	two         = 2
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
 	megamoney   = 1000000
 	gigamoney   = 1000000000
 	examoney    = 1000000000000000000
+	one2345     = 12345
 )
 
 type TestingT interface {
@@ -223,9 +225,9 @@ func getCoinsForAccount(name string) sdk.Coins {
 		return sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(examoney)),
 			sdk.NewCoin("bATOM", sdk.NewInt(examoney)),
-			sdk.NewCoin("bAKT", sdk.NewInt(12345)),
+			sdk.NewCoin("bAKT", sdk.NewInt(one2345)),
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
-			sdk.NewCoin("bOSMO", sdk.NewInt(12345*2)),
+			sdk.NewCoin("bOSMO", sdk.NewInt(one2345*two)),
 		)
 	case "bob":
 		return sdk.NewCoins(

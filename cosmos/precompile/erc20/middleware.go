@@ -27,7 +27,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -72,7 +71,7 @@ func (c *Contract) transferCoinToERC20(
 		if token, _, err = cosmlib.DeployOnEVMFromPrecompile(
 			sdkCtx, c.GetPlugin(), evm,
 			c.RegistryKey(), c.polarisERC20ABI, value,
-			pbindings.PolarisERC20MetaData.Bin, denom,
+			c.polarisERC20Bin, denom,
 		); err != nil {
 			return err
 		}
@@ -96,7 +95,7 @@ func (c *Contract) transferCoinToERC20(
 		}
 	}
 
-	if erc20types.IsPolarisDenom(denom) { // transfering Polaris coins to ERC20 originated tokens
+	if erc20types.IsPolarisDenom(denom) { // transferring Polaris coins to ERC20 originated tokens
 		// NOTE: it is guaranteed that the ERC20 tokens were transferred to the ERC20 module
 		// precompile contract as escrow before this case is reached.
 
@@ -113,7 +112,7 @@ func (c *Contract) transferCoinToERC20(
 		); err != nil {
 			return err
 		}
-	} else { // transfering IBC-originated SDK coins to Polaris ERC20 tokens
+	} else { // transferring IBC-originated SDK coins to Polaris ERC20 tokens
 		// send bank-module backed tokens from owner to recipient
 		if err = c.bk.SendCoins(
 			sdkCtx,
@@ -165,7 +164,8 @@ func (c *Contract) transferERC20ToCoin(
 		denom = c.em.RegisterERC20CoinPair(sdkCtx, token)
 	}
 
-	if erc20types.IsPolarisDenom(denom) { // transfering ERC20 originated tokens to Polaris coins
+	//nolint:nestif // handling separate cases of ERC20s/SDK coins.
+	if erc20types.IsPolarisDenom(denom) { // transferring ERC20 originated tokens to Polaris coins
 		// NOTE: owner must approve caller to spend amount ERC20 tokens
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
@@ -187,7 +187,7 @@ func (c *Contract) transferERC20ToCoin(
 		if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
 			return err
 		}
-	} else { // transfering Polaris ERC20 tokens to IBC-originated SDK coins
+	} else { // transferring Polaris ERC20 tokens to IBC-originated SDK coins
 		// send bank module-backed tokens from owner to recipient
 		if err = c.bk.SendCoins(
 			sdkCtx,
