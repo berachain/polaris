@@ -29,9 +29,15 @@ var (
 	_ = abi.ConvertType
 )
 
+// IERC20ModuleCoin is an auto generated low-level Go binding around an user-defined struct.
+type IERC20ModuleCoin struct {
+	Amount *big.Int
+	Denom  string
+}
+
 // ERC20ModuleMetaData contains all meta data concerning the ERC20Module contract.
 var ERC20ModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"ConvertCoinToErc20\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"ConvertErc20ToCoin\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"token\",\"type\":\"string\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"erc20AddressForCoinDenom\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIERC20Module.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"ConvertCoinToErc20\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIERC20Module.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"ConvertErc20ToCoin\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"token\",\"type\":\"string\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"erc20AddressForCoinDenom\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // ERC20ModuleABI is the input ABI used to generate the binding from.
@@ -555,13 +561,13 @@ type ERC20ModuleConvertCoinToErc20 struct {
 	Denom     common.Hash
 	Owner     common.Address
 	Recipient common.Address
-	Amount    *big.Int
+	Amount    []IERC20ModuleCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterConvertCoinToErc20 is a free log retrieval operation binding the contract event 0x3a00ab7fff01242ba69e1daf360453438b5d6385a46a2c3ed02459e7fa16a0df.
+// FilterConvertCoinToErc20 is a free log retrieval operation binding the contract event 0xf4df46dd20cc8c41d752241beb83f671035c02359c85f28648aec90fea873c2b.
 //
-// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, uint256 amount)
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
 func (_ERC20Module *ERC20ModuleFilterer) FilterConvertCoinToErc20(opts *bind.FilterOpts, denom []string, owner []common.Address, recipient []common.Address) (*ERC20ModuleConvertCoinToErc20Iterator, error) {
 
 	var denomRule []interface{}
@@ -584,9 +590,9 @@ func (_ERC20Module *ERC20ModuleFilterer) FilterConvertCoinToErc20(opts *bind.Fil
 	return &ERC20ModuleConvertCoinToErc20Iterator{contract: _ERC20Module.contract, event: "ConvertCoinToErc20", logs: logs, sub: sub}, nil
 }
 
-// WatchConvertCoinToErc20 is a free log subscription operation binding the contract event 0x3a00ab7fff01242ba69e1daf360453438b5d6385a46a2c3ed02459e7fa16a0df.
+// WatchConvertCoinToErc20 is a free log subscription operation binding the contract event 0xf4df46dd20cc8c41d752241beb83f671035c02359c85f28648aec90fea873c2b.
 //
-// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, uint256 amount)
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
 func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToErc20(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertCoinToErc20, denom []string, owner []common.Address, recipient []common.Address) (event.Subscription, error) {
 
 	var denomRule []interface{}
@@ -634,9 +640,9 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToErc20(opts *bind.Watc
 	}), nil
 }
 
-// ParseConvertCoinToErc20 is a log parse operation binding the contract event 0x3a00ab7fff01242ba69e1daf360453438b5d6385a46a2c3ed02459e7fa16a0df.
+// ParseConvertCoinToErc20 is a log parse operation binding the contract event 0xf4df46dd20cc8c41d752241beb83f671035c02359c85f28648aec90fea873c2b.
 //
-// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, uint256 amount)
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
 func (_ERC20Module *ERC20ModuleFilterer) ParseConvertCoinToErc20(log types.Log) (*ERC20ModuleConvertCoinToErc20, error) {
 	event := new(ERC20ModuleConvertCoinToErc20)
 	if err := _ERC20Module.contract.UnpackLog(event, "ConvertCoinToErc20", log); err != nil {
@@ -718,13 +724,13 @@ type ERC20ModuleConvertErc20ToCoin struct {
 	Token     common.Address
 	Owner     common.Address
 	Recipient common.Address
-	Amount    *big.Int
+	Amount    []IERC20ModuleCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterConvertErc20ToCoin is a free log retrieval operation binding the contract event 0x4b96d8788f43d8bbc2746b4fb75612dec5e30369d10791f5b843b18a61965183.
+// FilterConvertErc20ToCoin is a free log retrieval operation binding the contract event 0xd6886038dca20553bec918c9dfc0e3e876b5b7e996ee6599100d49356c61903a.
 //
-// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, uint256 amount)
+// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
 func (_ERC20Module *ERC20ModuleFilterer) FilterConvertErc20ToCoin(opts *bind.FilterOpts, token []common.Address, owner []common.Address, recipient []common.Address) (*ERC20ModuleConvertErc20ToCoinIterator, error) {
 
 	var tokenRule []interface{}
@@ -747,9 +753,9 @@ func (_ERC20Module *ERC20ModuleFilterer) FilterConvertErc20ToCoin(opts *bind.Fil
 	return &ERC20ModuleConvertErc20ToCoinIterator{contract: _ERC20Module.contract, event: "ConvertErc20ToCoin", logs: logs, sub: sub}, nil
 }
 
-// WatchConvertErc20ToCoin is a free log subscription operation binding the contract event 0x4b96d8788f43d8bbc2746b4fb75612dec5e30369d10791f5b843b18a61965183.
+// WatchConvertErc20ToCoin is a free log subscription operation binding the contract event 0xd6886038dca20553bec918c9dfc0e3e876b5b7e996ee6599100d49356c61903a.
 //
-// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, uint256 amount)
+// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
 func (_ERC20Module *ERC20ModuleFilterer) WatchConvertErc20ToCoin(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertErc20ToCoin, token []common.Address, owner []common.Address, recipient []common.Address) (event.Subscription, error) {
 
 	var tokenRule []interface{}
@@ -797,9 +803,9 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchConvertErc20ToCoin(opts *bind.Watc
 	}), nil
 }
 
-// ParseConvertErc20ToCoin is a log parse operation binding the contract event 0x4b96d8788f43d8bbc2746b4fb75612dec5e30369d10791f5b843b18a61965183.
+// ParseConvertErc20ToCoin is a log parse operation binding the contract event 0xd6886038dca20553bec918c9dfc0e3e876b5b7e996ee6599100d49356c61903a.
 //
-// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, uint256 amount)
+// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
 func (_ERC20Module *ERC20ModuleFilterer) ParseConvertErc20ToCoin(log types.Log) (*ERC20ModuleConvertErc20ToCoin, error) {
 	event := new(ERC20ModuleConvertErc20ToCoin)
 	if err := _ERC20Module.contract.UnpackLog(event, "ConvertErc20ToCoin", log); err != nil {
