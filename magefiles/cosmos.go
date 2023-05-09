@@ -107,18 +107,18 @@ func (c Cosmos) BuildDocker() error {
 
 func (c Cosmos) BuildDockerX() error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	return c.dockerBuildBeradWithX(goVersion, golangAlpine, version)
+	return c.dockerBuildBeradWithX(goVersion, version)
 }
 
-func (c Cosmos) dockerBuildBeradWithX(goVersion, runnerImage, imageVersion string) error {
+func (c Cosmos) dockerBuildBeradWithX(goVersion, imageVersion string) error {
 	return dockerBuildFn(true)(
 		"--build-arg", "GO_VERSION="+goVersion,
-		"--platform", "linux/amd64",
+		"--platform", "linux/amd64", // TODO: do not hard code, have ability to pass as arg
 		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
 		"--build-arg", "GOOS=linux",
 		"--build-arg", "GOARCH=amd64",
 		"-f", beradDockerPath,
-		"-t", "polaris:devnet-0.1",
+		"-t", "polaris:devnet-0.1", //TODO: do not hardcode, have ability to pass as arg
 		".",
 	)
 }
