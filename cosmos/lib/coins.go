@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank
+package lib
 
 import (
 	"math/big"
@@ -31,6 +31,9 @@ import (
 )
 
 // SdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
+// The []generated.IBankModuleCoin is just a representation of []Coin from the generated solidity bindings
+// and is equivalent to any of the other []Coin types generated from their respective solidity bindings.
+// i.e. []generated.IERC20Coin
 func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 	evmCoins := make([]generated.IBankModuleCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {

@@ -27,7 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -115,7 +114,7 @@ var _ = Describe("Factory", func() {
 			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 			Expect(log.Topics[2]).To(Equal(common.BytesToHash(delAddr.Bytes())))
 			packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().Pack(
-				bank.SdkCoinsToEvmCoins(sdk.NewCoins(amt)), creationHeight,
+				cosmlib.SdkCoinsToEvmCoins(sdk.NewCoins(amt)), creationHeight,
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(log.Data).To(Equal(packedData))
@@ -148,7 +147,7 @@ var _ = Describe("Factory", func() {
 			))
 			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
 			packedData, err := mockCustomAbiEvent()["CustomUnbondingDelegation"].
-				Inputs.NonIndexed().Pack(bank.SdkCoinsToEvmCoins(sdk.NewCoins(amt)))
+				Inputs.NonIndexed().Pack(cosmlib.SdkCoinsToEvmCoins(sdk.NewCoins(amt)))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(log.Data).To(Equal(packedData))
 		})
@@ -306,7 +305,7 @@ var cvd = precompile.ValueDecoders{
 		if err != nil {
 			return nil, err
 		}
-		evmCoins := bank.SdkCoinsToEvmCoins(sdk.Coins{coin})
+		evmCoins := cosmlib.SdkCoinsToEvmCoins(sdk.Coins{coin})
 		return evmCoins, nil
 	},
 }

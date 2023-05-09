@@ -31,7 +31,6 @@ import (
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -96,7 +95,7 @@ func ConvertSdkCoins(attributeValue string) (any, error) {
 		return []generated.IBankModuleCoin{}, nil
 	}
 
-	evmCoins := bank.SdkCoinsToEvmCoins(coins)
+	evmCoins := cosmlib.SdkCoinsToEvmCoins(coins)
 	return evmCoins, nil
 }
 
