@@ -123,7 +123,7 @@ enable = false
 swagger = false
 
 # Address defines the API server to listen on.
-address = "tcp://localhost:1317"
+address = "tcp://0.0.0.0:1317"
 
 # MaxOpenConnections defines the number of maximum open connections.
 max-open-connections = 1000
@@ -150,7 +150,7 @@ enabled-unsafe-cors = false
 enable = true
 
 # Address defines the gRPC server address to bind to.
-address = "localhost:9090"
+address = "0.0.0.0:9090"
 
 # MaxRecvMsgSize defines the max message size in bytes the server can receive.
 # The default value is 10MB.
