@@ -58,7 +58,7 @@ var _ = Describe("Address Precompile", func() {
 		)
 		_, ak, _, _ := testutil.SetupMinimalKeepers()
 		k := authzkeeper.NewKeeper(testutil.EvmKey, encodingConfig.Codec, baseapp.NewMsgServiceRouter(), ak)
-		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract(k))
+		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract(k, k))
 	})
 
 	It("should have static registry key", func() {
