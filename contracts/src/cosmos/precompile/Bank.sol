@@ -34,7 +34,7 @@ interface IBankModule {
     /**
      * @dev Emitted by the bank module when `amount` tokens are sent to `recipient`
      */
-    event Transfer(address indexed recipient, uint256 amount);
+    event Transfer(address indexed recipient, Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `sender` sends some amount of tokens
@@ -44,12 +44,12 @@ interface IBankModule {
     /**
      * @dev Emitted by the bank module when `amount` tokens are spent by `spender`
      */
-    event CoinSpent(address indexed spender, uint256 amount);
+    event CoinSpent(address indexed spender, Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are received by `receiver`
      */
-    event CoinReceived(address indexed receiver, uint256 amount);
+    event CoinReceived(address indexed receiver, Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are minted by `minter`
@@ -57,14 +57,14 @@ interface IBankModule {
      * Note: "Coinbase" refers to the Cosmos event: EventTypeCoinMint. `minter` is a module
      * address.
      */
-    event Coinbase(address indexed minter, uint256 amount);
+    event Coinbase(address indexed minter, Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are burned by `burner`
      *
      * Note: `burner` is a module address
      */
-    event Burn(address indexed burner, uint256 amount);
+    event Burn(address indexed burner, Coin[] amount);
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 

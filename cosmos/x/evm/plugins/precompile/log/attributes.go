@@ -21,7 +21,6 @@
 package log
 
 import (
-	"math/big"
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -30,6 +29,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -80,8 +80,7 @@ var (
 	_ precompile.ValueDecoder = ReturnStringAsIs
 )
 
-// ConvertSdkCoins converts the string representation of an `sdk.Coin` to a `*big.Int`. NOTE: only
-// 1 coin is supported. TODO: support multiple coins, will probably need to return a `[]*Coin`.
+// ConvertSdkCoins converts the string representation of an `sdk.Coin` to a `[]*generated.IbankmoduleCoin`.
 //
 // ConvertSdkCoins is a `precompile.ValueDecoder`.
 func ConvertSdkCoins(attributeValue string) (any, error) {
@@ -93,16 +92,11 @@ func ConvertSdkCoins(attributeValue string) (any, error) {
 
 	// handle empty string input
 	if coins == nil {
-		return big.NewInt(0), nil
+		return []generated.IBankModuleCoin{}, nil
 	}
 
-	// TODO: remove when multiple coins are supported.
-	if len(coins) != 1 {
-		return nil, ErrNumberOfCoinsNotSupported
-	}
-
-	// convert the sdk.Coin to *big.Int
-	return coins[0].Amount.BigInt(), nil
+	evmCoins := cosmlib.SdkCoinsToEvmCoins(coins)
+	return evmCoins, nil
 }
 
 // ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
