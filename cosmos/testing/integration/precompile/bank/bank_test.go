@@ -58,7 +58,7 @@ var _ = Describe("Bank", func() {
 	denom3 := "stake"
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 6
+		numberOfDenoms := 7
 		coinsToBeSent := []bindings.IBankModuleCoin{
 			{
 				Denom:  denom,
