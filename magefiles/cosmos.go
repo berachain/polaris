@@ -107,10 +107,10 @@ func (c Cosmos) BuildDocker() error {
 
 func (c Cosmos) BuildDockerX() error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	return c.dockerBuildBeradWithX(goVersion, version)
+	return c.dockerBuildBeradWithX(goVersion)
 }
 
-func (c Cosmos) dockerBuildBeradWithX(goVersion, imageVersion string) error {
+func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
 	return dockerBuildFn(true)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--platform", "linux/amd64", // TODO: do not hard code, have ability to pass as arg
