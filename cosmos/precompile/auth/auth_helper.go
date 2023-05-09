@@ -8,12 +8,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 )
 
-// sendGrantHelper is the helper method to call the grant method on the msgServer, with a send authorization.
-func (c *Contract) sendGrantHelper(
+// setSendAllowanceHelper is the helper method to call the grant method on the msgServer, with a
+// send authorization.
+func (c *Contract) setSendAllowanceHelper(
 	ctx context.Context,
 	blocktime time.Time,
 	granter, grantee sdk.AccAddress,
@@ -25,7 +25,7 @@ func (c *Contract) sendGrantHelper(
 		err   error
 	)
 
-	// Create the send authorization.
+	// Create the send authorization via bank module.
 	sendAuth := banktypes.NewSendAuthorization(limit, []sdk.AccAddress{grantee})
 
 	// If the expiration is 0, then the grant is valid forever, and can be nil.
@@ -41,6 +41,7 @@ func (c *Contract) sendGrantHelper(
 		return nil, err
 	}
 
+	// Send the grant via the authz module.
 	_, err = c.msgServer.Grant(ctx, &authz.MsgGrant{
 		Granter: granter.String(),
 		Grantee: grantee.String(),
@@ -57,7 +58,7 @@ func (c *Contract) getSendAllownaceHelper(
 	granter, grantee sdk.AccAddress,
 	coinDenom string,
 ) ([]any, error) {
-	// Get the grants from the query server.
+	// Get the grants from the authz query server.
 	res, err := c.queryServer.Grants(ctx, &authz.QueryGrantsRequest{
 		Granter:    granter.String(),
 		Grantee:    grantee.String(),
@@ -75,8 +76,9 @@ func (c *Contract) getSendAllownaceHelper(
 		return []any{big.NewInt(0)}, nil
 	}
 
-	// Map the grants to send authorizations, should have the same type since we filtered by msg type url.
-	sendAuths, err := mapGrantToSendAuth(res.Grants, blocktime)
+	// Map the grants to send authorizations, should have the same type since we filtered by msg
+	// type url.
+	sendAuths, err := cosmlib.GetGrantAsSendAuth(res.Grants, blocktime)
 	if err != nil {
 		return nil, err // Hard error here since this is a faliure in the precompiled contract.
 	}
@@ -87,45 +89,18 @@ func (c *Contract) getSendAllownaceHelper(
 	return []any{allowance}, nil
 }
 
-// extractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
-func extractCoinsFromInput(coins any) (sdk.Coins, error) {
-	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
-	// the any type input into IBankModuleCoin.
-	amounts, ok := utils.GetAs[[]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}](coins)
-	if !ok {
-		return nil, precompile.ErrInvalidCoin
-	}
-
-	sdkCoins := sdk.NewCoins()
-	for _, evmCoin := range amounts {
-		sdkCoins = sdkCoins.Add(
-			sdk.Coin{
-				Amount: sdk.NewIntFromBigInt(evmCoin.Amount),
-				Denom:  evmCoin.Denom,
-			},
-		)
-	}
-	return sdkCoins, nil
-}
-
-// mapGrantToSendAuth maps a list of grants to a list of send authorizations.
-func mapGrantToSendAuth(grants []*authz.Grant, blocktime time.Time) ([]banktypes.SendAuthorization, error) {
-	var sendAuths []banktypes.SendAuthorization
-	for _, grant := range grants {
-		// Check if the grant is of type send autorization.
-		expectedURL := banktypes.SendAuthorization{}.MsgTypeURL()
-		if grant.Authorization.TypeUrl != expectedURL {
-			return nil, precompile.ErrInvalidGrantType
-		}
-
-		// Check that the expiration is still valid.
-		if grant.Expiration == nil || grant.Expiration.After(blocktime) {
-			sendAuth := grant.Authorization.GetCachedValue().(banktypes.SendAuthorization)
-			sendAuths = append(sendAuths, sendAuth)
+// getHighestAllowance returns the highest allowance for a given coin denom.
+func getHighestAllowance(sendAuths []banktypes.SendAuthorization, coinDenom string) *big.Int {
+	// Init the max to 0.
+	var max = big.NewInt(0)
+	// Loop through the send authorizations and find the highest allowance.
+	for _, sendAuth := range sendAuths {
+		// Get the spendable limit for the coin denom that was specified.
+		amount := sendAuth.SpendLimit.AmountOf(coinDenom)
+		// If not set, the current is the max, if set, compare the current with the max.
+		if max == nil || amount.BigInt().Cmp(max) > 0 {
+			max = amount.BigInt()
 		}
 	}
-	return sendAuths, nil
+	return max
 }

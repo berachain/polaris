@@ -3,6 +3,7 @@
 pragma solidity >=0.8.0;
 
 import {IERC20} from "../../lib/IERC20.sol";
+import {IAuthModule} from "./precompile/Auth.sol";
 import {IBankModule} from "./precompile/Bank.sol";
 
 contract PolarisERC20 is IERC20 {
@@ -18,13 +19,13 @@ contract PolarisERC20 is IERC20 {
         return IBankModule(address(0x4381dC2aB14285160c808659aEe005D51255adD7));
     }
 
-    /*//////////////////////////////////////////////////////////////
-                                 EVENTS
-    //////////////////////////////////////////////////////////////*/
-
-    event Transfer(address indexed from, address indexed to, uint256 amount);
-
-    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    /**
+     * @dev authz is a pure function for getting the address of the auth(z) module precompile.
+     * @return IAuthModule the address of the auth(z) module precompile.
+     */
+    function authz() internal pure returns (IAuthModule) {
+        return IAuthModule(address(0xBDF49C3C3882102fc017FFb661108c63a836D065));
+    }
 
     /*//////////////////////////////////////////////////////////////
                             METADATA STORAGE
@@ -98,6 +99,10 @@ contract PolarisERC20 is IERC20 {
      * @return bool true if the approval was successful.
      */
     function approve(address spender, uint256 amount) public virtual returns (bool) {
+        require(
+            authz().setSendAllowance(msg.sender, spender, amountToAuthCoins(amount), 0),
+            "PolarisERC20: failed to approve spend"
+        );
         allowance[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);
@@ -112,8 +117,7 @@ contract PolarisERC20 is IERC20 {
      * @return bool true if the transfer was successful.
      */
     function transfer(address to, uint256 amount) public virtual returns (bool) {
-        IBankModule.Coin[] memory coins = amountToCoins(amount);
-        require(bank().send(msg.sender, to, coins), "PolarisERC20: failed to send tokens");
+        require(bank().send(msg.sender, to, amountToBankCoins(amount)), "PolarisERC20: failed to send tokens");
 
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -127,12 +131,8 @@ contract PolarisERC20 is IERC20 {
      * @return bool true if the transfer was successful.
      */
     function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
-        // TODO: Use allowance once authz precompile is available.
-        uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
-
-        if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
-
-        require(bank().send(from, to, amountToCoins(amount)), "PolarisERC20: failed to send bank tokens");
+        require(amount <= authz().getSendAllowance(from, msg.sender, denom), "PolarisERC20: insufficient approval");
+        require(bank().send(from, to, amountToBankCoins(amount)), "PolarisERC20: failed to send bank tokens");
 
         emit Transfer(from, to, amount);
         return true;
@@ -147,9 +147,20 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount to convert to sdk.Coin.
      * @return sdk.Coin[] the sdk.Coin representation of the given amount.
      */
-    function amountToCoins(uint256 amount) internal view returns (IBankModule.Coin[] memory) {
+    function amountToBankCoins(uint256 amount) internal view returns (IBankModule.Coin[] memory) {
         IBankModule.Coin[] memory coins = new IBankModule.Coin[](1);
         coins[0] = IBankModule.Coin({denom: denom, amount: amount});
+        return coins;
+    }
+
+    /**
+     * @dev amountToCoins is a helper function to convert an amount to sdk.Coin.
+     * @param amount the amount to convert to sdk.Coin.
+     * @return sdk.Coin[] the sdk.Coin representation of the given amount.
+     */
+    function amountToAuthCoins(uint256 amount) internal view returns (IAuthModule.Coin[] memory) {
+        IAuthModule.Coin[] memory coins = new IAuthModule.Coin[](1);
+        coins[0] = IAuthModule.Coin({denom: denom, amount: amount});
         return coins;
     }
 }

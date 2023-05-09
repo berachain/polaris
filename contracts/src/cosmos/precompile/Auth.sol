@@ -40,19 +40,27 @@ interface IAuthModule {
     function convertBech32ToHexAddress(string calldata account) external view returns (address);
 
     /**
-     * @dev Grants the given grant to the grantee.
+     * @dev setSendAllowance sets the send authorization (allowance) between owner and spender.
+     * @param owner the account approving the allowance
+     * @param spender the account being granted the allowance
+     * @param amount the Coins of the allowance
+     * @param expiration the expiration time of the grant (0 means no expiration)
      */
-    function sendGrant(address granter, address grantee, Coin[] calldata limit, uint256 expiration)
+    function setSendAllowance(address owner, address spender, Coin[] calldata amount, uint256 expiration)
         external
         returns (bool);
 
     /**
-     * @dev Grants the given grant to the grantee.
+     * @dev getSendAllowance returns the send authorization (allowance) amount between owner and
+     * spender.
+     * @param owner the account that approved the allowance
+     * @param spender the account that was granted the allowance
+     * @param denom the denomination of the Coin that was allowed
      */
     function getSendAllowance(address owner, address spender, string calldata denom) external view returns (uint256);
 
     /**
-     * @dev Represents a cosmos coin.
+     * @dev Represents a Cosmos coin.
      * Note: this struct is generated as go struct that is then used in the precompile.
      */
     struct Coin {

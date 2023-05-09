@@ -37,7 +37,7 @@ type IAuthModuleCoin struct {
 
 // AuthModuleMetaData contains all meta data concerning the AuthModule contract.
 var AuthModuleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendAllowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"granter\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"grantee\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIAuthModule.Coin[]\",\"name\":\"limit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"sendGrant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendAllowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIAuthModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"setSendAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // AuthModuleABI is the input ABI used to generate the binding from.
@@ -279,23 +279,23 @@ func (_AuthModule *AuthModuleCallerSession) GetSendAllowance(owner common.Addres
 	return _AuthModule.Contract.GetSendAllowance(&_AuthModule.CallOpts, owner, spender, denom)
 }
 
-// SendGrant is a paid mutator transaction binding the contract method 0x9d66e40e.
+// SetSendAllowance is a paid mutator transaction binding the contract method 0x2b6b7ab5.
 //
-// Solidity: function sendGrant(address granter, address grantee, (uint256,string)[] limit, uint256 expiration) returns(bool)
-func (_AuthModule *AuthModuleTransactor) SendGrant(opts *bind.TransactOpts, granter common.Address, grantee common.Address, limit []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
-	return _AuthModule.contract.Transact(opts, "sendGrant", granter, grantee, limit, expiration)
+// Solidity: function setSendAllowance(address owner, address spender, (uint256,string)[] amount, uint256 expiration) returns(bool)
+func (_AuthModule *AuthModuleTransactor) SetSendAllowance(opts *bind.TransactOpts, owner common.Address, spender common.Address, amount []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
+	return _AuthModule.contract.Transact(opts, "setSendAllowance", owner, spender, amount, expiration)
 }
 
-// SendGrant is a paid mutator transaction binding the contract method 0x9d66e40e.
+// SetSendAllowance is a paid mutator transaction binding the contract method 0x2b6b7ab5.
 //
-// Solidity: function sendGrant(address granter, address grantee, (uint256,string)[] limit, uint256 expiration) returns(bool)
-func (_AuthModule *AuthModuleSession) SendGrant(granter common.Address, grantee common.Address, limit []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
-	return _AuthModule.Contract.SendGrant(&_AuthModule.TransactOpts, granter, grantee, limit, expiration)
+// Solidity: function setSendAllowance(address owner, address spender, (uint256,string)[] amount, uint256 expiration) returns(bool)
+func (_AuthModule *AuthModuleSession) SetSendAllowance(owner common.Address, spender common.Address, amount []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
+	return _AuthModule.Contract.SetSendAllowance(&_AuthModule.TransactOpts, owner, spender, amount, expiration)
 }
 
-// SendGrant is a paid mutator transaction binding the contract method 0x9d66e40e.
+// SetSendAllowance is a paid mutator transaction binding the contract method 0x2b6b7ab5.
 //
-// Solidity: function sendGrant(address granter, address grantee, (uint256,string)[] limit, uint256 expiration) returns(bool)
-func (_AuthModule *AuthModuleTransactorSession) SendGrant(granter common.Address, grantee common.Address, limit []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
-	return _AuthModule.Contract.SendGrant(&_AuthModule.TransactOpts, granter, grantee, limit, expiration)
+// Solidity: function setSendAllowance(address owner, address spender, (uint256,string)[] amount, uint256 expiration) returns(bool)
+func (_AuthModule *AuthModuleTransactorSession) SetSendAllowance(owner common.Address, spender common.Address, amount []IAuthModuleCoin, expiration *big.Int) (*types.Transaction, error) {
+	return _AuthModule.Contract.SetSendAllowance(&_AuthModule.TransactOpts, owner, spender, amount, expiration)
 }

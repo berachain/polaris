@@ -22,13 +22,20 @@ package lib
 
 import (
 	"math/big"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
+
+/**
+ * This file contains conversions between native Cosmos SDK types and go-ethereum ABI types.
+ */
 
 // SdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
 // The []generated.IBankModuleCoin is just a representation of []Coin from the generated solidity bindings
@@ -67,4 +74,25 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 		)
 	}
 	return sdkCoins, nil
+}
+
+// GetGrantAsSendAuth maps a list of grants to a list of send authorizations.
+func GetGrantAsSendAuth(
+	grants []*authz.Grant, blocktime time.Time,
+) ([]banktypes.SendAuthorization, error) {
+	var sendAuths []banktypes.SendAuthorization
+	for _, grant := range grants {
+		// Check if the grant is of type send autorization.
+		expectedURL := banktypes.SendAuthorization{}.MsgTypeURL()
+		if grant.Authorization.TypeUrl != expectedURL {
+			return nil, precompile.ErrInvalidGrantType
+		}
+
+		// Check that the expiration is still valid.
+		if grant.Expiration == nil || grant.Expiration.After(blocktime) {
+			sendAuth := grant.Authorization.GetCachedValue().(banktypes.SendAuthorization)
+			sendAuths = append(sendAuths, sendAuth)
+		}
+	}
+	return sendAuths, nil
 }
