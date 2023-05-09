@@ -26,6 +26,9 @@
 package main
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
@@ -38,13 +41,14 @@ var (
 	// Commands.
 	dockerBuild = RunCmdV("docker", "build", "--rm=false")
 
+	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
+
 	// Variables.
 	baseDockerPath  = "./cosmos/runtime/localnode/"
 	beradDockerPath = baseDockerPath + "Dockerfile"
 	imageName       = "polaris-cosmos"
 	// testImageVersion       = "e2e-test-dev".
 	goVersion              = "1.20.2"
-	debianStaticImage      = "gcr.io/distroless/static-debian11"
 	golangAlpine           = "golang:1.20-alpine3.17"
 	precompileContractsDir = "./cosmos/precompile/contracts/solidity"
 )
@@ -79,6 +83,7 @@ func (Cosmos) Build() error {
 		"-o", generateOutDirectory(cmd),
 		"./cosmos/cmd/" + cmd,
 	}
+	fmt.Println(strings.Join(args, " "))
 	return goBuild(args...)
 }
 
@@ -97,7 +102,25 @@ func (c Cosmos) BuildRelease() error {
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) BuildDocker() error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	return c.dockerBuildBeradWith(goVersion, debianStaticImage, version)
+	return c.dockerBuildBeradWith(goVersion, golangAlpine, version)
+}
+
+func (c Cosmos) BuildDockerX() error {
+	LogGreen("Build a release docker image for the Cosmos SDK chain...")
+	return c.dockerBuildBeradWithX(goVersion)
+}
+
+func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
+	return dockerBuildFn(true)(
+		"--build-arg", "GO_VERSION="+goVersion,
+		"--platform", "linux/amd64", // TODO: do not hard code, have ability to pass as arg
+		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
+		"--build-arg", "GOOS=linux",
+		"--build-arg", "GOARCH=amd64",
+		"-f", beradDockerPath,
+		"-t", "polaris:devnet-0.1", //TODO: do not hardcode, have ability to pass as arg
+		".",
+	)
 }
 
 // Builds a release version of the Cosmos SDK chain.
@@ -108,7 +131,7 @@ func (c Cosmos) BuildDockerDebug() error {
 
 // Build a docker image for berad with the supplied arguments.
 func (c Cosmos) dockerBuildBeradWith(goVersion, runnerImage, imageVersion string) error {
-	return dockerBuild(
+	return dockerBuildFn(false)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "RUNNER_IMAGE="+runnerImage,
 		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
@@ -163,4 +186,11 @@ func (c Cosmos) TestUnit() error {
 func (c Cosmos) TestIntegration() error {
 	LogGreen("Running integration tests for the Cosmos SDK chain.")
 	return testIntegration(c.directory() + "/testing/integration")
+}
+
+func dockerBuildFn(useX bool) func(args ...string) error {
+	if useX {
+		return dockerBuildX
+	}
+	return dockerBuild
 }
