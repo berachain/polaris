@@ -44,11 +44,12 @@ const requiredGas = 1000
 type Contract struct {
 	ethprecompile.BaseContract
 
-	msgServer authz.MsgServer
+	msgServer   authz.MsgServer
+	queryServer authz.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract(m authz.MsgServer) *Contract {
+func NewPrecompileContract(m authz.MsgServer, q authz.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.AuthModuleMetaData.ABI,
@@ -56,7 +57,8 @@ func NewPrecompileContract(m authz.MsgServer) *Contract {
 				authtypes.NewModuleAddress(authtypes.ModuleName),
 			),
 		),
-		msgServer: m,
+		msgServer:   m,
+		queryServer: q,
 	}
 }
 
@@ -76,6 +78,10 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:  "sendGrant(address,address,(uint256,string)[],uint256)",
 			Execute: c.SendGrant,
+		},
+		{
+			AbiSig:  "getSendAllowance(address,address,string)",
+			Execute: c.GetSendAllowance,
 		},
 	}
 }
@@ -170,68 +176,65 @@ func (c *Contract) SendGrant(
 	// Get the block time from the EVM.
 	blockTime := time.Unix(int64(evm.GetContext().Time), 0)
 
-	return c.sendGrant(
-		ctx, blockTime, cosmlib.AddressToAccAddress(granter), cosmlib.AddressToAccAddress(grantee), limit, expiration)
-}
-
-// extractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
-func extractCoinsFromInput(coins any) (sdk.Coins, error) {
-	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
-	// the any type input into IBankModuleCoin.
-	amounts, ok := utils.GetAs[[]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}](coins)
-	if !ok {
-		return nil, precompile.ErrInvalidCoin
-	}
-
-	sdkCoins := sdk.NewCoins()
-	for _, evmCoin := range amounts {
-		sdkCoins = sdkCoins.Add(
-			sdk.Coin{
-				Amount: sdk.NewIntFromBigInt(evmCoin.Amount),
-				Denom:  evmCoin.Denom,
-			},
-		)
-	}
-	return sdkCoins, nil
-}
-
-// sendGrant is the helper method to call the grant method on the msgServer, with a send authorization.
-func (c *Contract) sendGrant(
-	ctx context.Context,
-	blocktime time.Time,
-	granter, grantee sdk.AccAddress,
-	limit sdk.Coins,
-	expiration *big.Int,
-) ([]any, error) {
-	var (
-		grant authz.Grant
-		err   error
+	return c.sendGrantHelper(
+		ctx,
+		blockTime,
+		cosmlib.AddressToAccAddress(granter),
+		cosmlib.AddressToAccAddress(grantee),
+		limit,
+		expiration,
 	)
+}
 
-	// Create the send authorization.
-	sendAuth := banktypes.NewSendAuthorization(limit, []sdk.AccAddress{grantee})
-
-	// If the expiration is 0, then the grant is valid forever, and can be nil.
-	if expiration == big.NewInt(0) {
-		grant, err = authz.NewGrant(blocktime, sendAuth, nil)
-	} else {
-		expirationTime := time.Unix(expiration.Int64(), 0)
-		grant, err = authz.NewGrant(blocktime, sendAuth, &expirationTime)
+// GetSendAllowance returns the amount of tokens that the grantee is allowd to spend.
+func (c *Contract) GetSendAllowance(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	owner, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
 	}
 
-	// Assert that the grant is valid.
-	if err != nil {
-		return nil, err
+	spender, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
 	}
 
-	_, err = c.msgServer.Grant(ctx, &authz.MsgGrant{
-		Granter: granter.String(),
-		Grantee: grantee.String(),
-		Grant:   grant,
-	})
+	// Get the denom of the coin.
+	denom, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
 
-	return []any{err == nil}, err
+	// Get the current block-time.
+	blockTime := time.Unix(int64(evm.GetContext().Time), 0)
+
+	return c.getSendAllownaceHelper(
+		ctx,
+		blockTime,
+		cosmlib.AddressToAccAddress(owner),
+		cosmlib.AddressToAccAddress(spender),
+		denom,
+	)
+}
+
+// getHighestAllowance returns the highest allowance for a given coin denom.
+func getHighestAllowance(sendAuths []banktypes.SendAuthorization, coinDenom string) *big.Int {
+	// Init the max to 0.
+	var max = big.NewInt(0)
+	// Loop through the send authorizations and find the highest allowance.
+	for _, sendAuth := range sendAuths {
+		// Get the spendable limit for the coin denom that was specified.
+		amount := sendAuth.SpendLimit.AmountOf(coinDenom)
+		// If not set, the current is the max, if set, compare the current with the max.
+		if max == nil || amount.BigInt().Cmp(max) > 0 {
+			max = amount.BigInt()
+		}
+	}
+	return max
 }

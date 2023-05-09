@@ -36,4 +36,5 @@ var (
 	ErrInvalidOptions       = errors.New("invalid options")
 	ErrInvalidBytes         = errors.New("invalid bytes")
 	ErrInvalidGEVM          = errors.New("invalid GEVM")
+	ErrInvalidGrantType     = errors.New("invalid grant type")
 )

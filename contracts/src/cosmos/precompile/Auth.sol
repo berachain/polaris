@@ -46,6 +46,11 @@ interface IAuthModule {
         external
         returns (bool);
 
+     /**
+     * @dev Grants the given grant to the grantee.
+     */
+    function getSendAllowance(address owner, address spender, string calldata denom) external view returns (uint256);
+
     /**
      * @dev Represents a cosmos coin.
      * Note: this struct is generated as go struct that is then used in the precompile.

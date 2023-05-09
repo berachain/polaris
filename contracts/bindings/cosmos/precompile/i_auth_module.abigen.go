@@ -37,7 +37,7 @@ type IAuthModuleCoin struct {
 
 // AuthModuleMetaData contains all meta data concerning the AuthModule contract.
 var AuthModuleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"granter\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"grantee\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIAuthModule.Coin[]\",\"name\":\"limit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"sendGrant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendAllowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"granter\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"grantee\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIAuthModule.Coin[]\",\"name\":\"limit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"sendGrant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // AuthModuleABI is the input ABI used to generate the binding from.
@@ -246,6 +246,37 @@ func (_AuthModule *AuthModuleSession) ConvertHexToBech32(account common.Address)
 // Solidity: function convertHexToBech32(address account) view returns(string)
 func (_AuthModule *AuthModuleCallerSession) ConvertHexToBech32(account common.Address) (string, error) {
 	return _AuthModule.Contract.ConvertHexToBech32(&_AuthModule.CallOpts, account)
+}
+
+// GetSendAllowance is a free data retrieval call binding the contract method 0xfbdb0e87.
+//
+// Solidity: function getSendAllowance(address owner, address spender, string denom) view returns(uint256)
+func (_AuthModule *AuthModuleCaller) GetSendAllowance(opts *bind.CallOpts, owner common.Address, spender common.Address, denom string) (*big.Int, error) {
+	var out []interface{}
+	err := _AuthModule.contract.Call(opts, &out, "getSendAllowance", owner, spender, denom)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetSendAllowance is a free data retrieval call binding the contract method 0xfbdb0e87.
+//
+// Solidity: function getSendAllowance(address owner, address spender, string denom) view returns(uint256)
+func (_AuthModule *AuthModuleSession) GetSendAllowance(owner common.Address, spender common.Address, denom string) (*big.Int, error) {
+	return _AuthModule.Contract.GetSendAllowance(&_AuthModule.CallOpts, owner, spender, denom)
+}
+
+// GetSendAllowance is a free data retrieval call binding the contract method 0xfbdb0e87.
+//
+// Solidity: function getSendAllowance(address owner, address spender, string denom) view returns(uint256)
+func (_AuthModule *AuthModuleCallerSession) GetSendAllowance(owner common.Address, spender common.Address, denom string) (*big.Int, error) {
+	return _AuthModule.Contract.GetSendAllowance(&_AuthModule.CallOpts, owner, spender, denom)
 }
 
 // SendGrant is a paid mutator transaction binding the contract method 0x9d66e40e.
