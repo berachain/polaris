@@ -167,4 +167,14 @@ interface IERC20Module {
      * @param amount the amount of tokens to transfer
      */
     function transferERC20ToCoinTo(IERC20 token, string calldata recipient, uint256 amount) external returns (bool);
+
+    //////////////////////////////////////////// UTILS ////////////////////////////////////////////
+    /**
+     * @dev Represents a cosmos coin.
+     * Note: this struct is generated as go struct that is then used in the precompile.
+     */
+    struct Coin {
+        uint256 amount;
+        string denom;
+    }
 }

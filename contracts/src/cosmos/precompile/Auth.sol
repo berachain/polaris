@@ -46,7 +46,7 @@ interface IAuthModule {
         external
         returns (bool);
 
-     /**
+    /**
      * @dev Grants the given grant to the grantee.
      */
     function getSendAllowance(address owner, address spender, string calldata denom) external view returns (uint256);
