@@ -223,8 +223,9 @@ func getCoinsForAccount(name string) sdk.Coins {
 		return sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(examoney)),
 			sdk.NewCoin("bATOM", sdk.NewInt(examoney)),
-			sdk.NewCoin("bAKT", sdk.NewInt(examoney)),
+			sdk.NewCoin("bAKT", sdk.NewInt(12345)),
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
+			sdk.NewCoin("bOSMO", sdk.NewInt(12345*2)),
 		)
 	case "bob":
 		return sdk.NewCoins(

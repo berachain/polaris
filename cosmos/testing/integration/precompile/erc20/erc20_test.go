@@ -103,7 +103,7 @@ var _ = Describe("ERC20", func() {
 		When("calling write methods", func() {
 			It("should error on non-existent denoms/tokens", func() {
 				// user does not have balance of bOSMO
-				_, err := erc20Precompile.ConvertCoinToERC20(
+				_, err := erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					"bOSMO",
 					big.NewInt(123456789),
@@ -112,7 +112,7 @@ var _ = Describe("ERC20", func() {
 				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 
 				// token doesn't exist, user does not have balance of token
-				_, err = erc20Precompile.ConvertERC20ToCoin(
+				_, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					common.HexToAddress("0x432423432489230"),
 					big.NewInt(123456789),
@@ -122,28 +122,30 @@ var _ = Describe("ERC20", func() {
 			})
 
 			It("should handle a IBC-originated SDK coin", func() {
+				// initial balance of bOSMO = 12345 * 2
+
 				// denom already exists, create new token
-				tx, err := erc20Precompile.ConvertCoinToERC20(
+				tx, err := erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
-					"bATOM",
+					"bOSMO",
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				ExpectSuccessReceipt(tf.EthClient, tx)
 
 				// check that the new ERC20 is minted to TestAddress
-				tokenAddr, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "bATOM")
+				tokenAddr, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "bOSMO")
 				Expect(err).ToNot(HaveOccurred())
 				token, err := pbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
 				Expect(err).ToNot(HaveOccurred())
 				balance, err := token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(balance).To(Equal(big.NewInt(12345)))
+				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
 
 				// denom already exists, token already exists
-				tx, err = erc20Precompile.ConvertCoinToERC20(
+				tx, err = erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
-					"bATOM",
+					"bOSMO",
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -155,7 +157,7 @@ var _ = Describe("ERC20", func() {
 				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
 
 				// convert back to SDK coin
-				tx, err = erc20Precompile.ConvertERC20ToCoin(
+				tx, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					tokenAddr,
 					big.NewInt(12345),
@@ -166,16 +168,16 @@ var _ = Describe("ERC20", func() {
 				// check that the new ERC20 is burned from TestAddress
 				balance, err = token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(balance).To(Equal(big.NewInt(12345)))
+				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
 
 				// convert illegal amount back to SDK coin
-				_, err = erc20Precompile.ConvertERC20ToCoin(
+				_, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					tokenAddr,
-					big.NewInt(12346),
+					big.NewInt(12345*2+1),
 				)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("gas required exceeds allowance")) // means evm call reverted.
+				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 			})
 
 			It("should handle a ERC20 originated token", func() {
@@ -194,7 +196,7 @@ var _ = Describe("ERC20", func() {
 				Expect(bal).To(Equal(big.NewInt(123456789)))
 
 				// token already exists, create new Polaris denom
-				_, err = erc20Precompile.ConvertERC20ToCoin(
+				_, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					token,
 					big.NewInt(6789),
@@ -226,7 +228,7 @@ var _ = Describe("ERC20", func() {
 				ExpectSuccessReceipt(tf.EthClient, tx)
 
 				// token already exists, create new Polaris denom
-				_, err = erc20Precompile.ConvertERC20ToCoin(
+				_, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					token,
 					big.NewInt(6789),
@@ -253,7 +255,7 @@ var _ = Describe("ERC20", func() {
 				Expect(bankBal.Cmp(big.NewInt(6789))).To(Equal(0))
 
 				// convert back to ERC20 token
-				_, err = erc20Precompile.ConvertCoinToERC20(
+				_, err = erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					denom,
 					big.NewInt(6790),
@@ -261,7 +263,7 @@ var _ = Describe("ERC20", func() {
 				Expect(err).To(HaveOccurred()) // not enough funds
 
 				// convert back to ERC20 token
-				tx, err = erc20Precompile.ConvertCoinToERC20(
+				tx, err = erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					denom,
 					big.NewInt(6789),
@@ -292,6 +294,11 @@ var _ = Describe("ERC20", func() {
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient, tx)
 
+			// check that the new ERC20 is minted to TestAddress
+			tokenAddr, err := swapper.GetPolarisERC20(nil, "bAKT")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(tokenAddr.Bytes()).To(Equal(common.Address{}.Bytes()))
+
 			err = tf.Network.WaitForNextBlock()
 			Expect(err).ToNot(HaveOccurred())
 
@@ -304,7 +311,7 @@ var _ = Describe("ERC20", func() {
 			ExpectSuccessReceipt(tf.EthClient, tx)
 
 			// check that the new ERC20 is minted to TestAddress
-			tokenAddr, err := swapper.GetPolarisERC20(nil, "bAKT")
+			tokenAddr, err = swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
 			token, err := pbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
 			Expect(err).ToNot(HaveOccurred())
@@ -315,7 +322,7 @@ var _ = Describe("ERC20", func() {
 			tx, err = swapper.Swap0(
 				tf.GenerateTransactOpts("alice"),
 				tokenAddr,
-				big.NewInt(45),
+				big.NewInt(345),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient, tx)
@@ -323,7 +330,7 @@ var _ = Describe("ERC20", func() {
 			// check that the new ERC20 is burned from TestAddress
 			balance, err = token.BalanceOf(nil, tf.Address("alice"))
 			Expect(err).ToNot(HaveOccurred())
-			Expect(balance).To(Equal(big.NewInt(12300)))
+			Expect(balance).To(Equal(big.NewInt(12345)))
 		})
 	})
 })
