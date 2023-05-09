@@ -122,7 +122,7 @@ abstract contract ERC20 is IERC20 {
      */
     function transfer(address to, uint256 amount) public virtual returns (bool) {
         IBankModule.Coin[] memory coins = amountToCoins(amount);
-        bank().send(msg.sender, to, coins);
+        require(bank().send(msg.sender, to, coins), "PolarisERC20: failed to send tokens");
 
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -141,7 +141,7 @@ abstract contract ERC20 is IERC20 {
 
         if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
 
-        bank().send(from, to, amountToCoins(amount));
+        require(bank().send(from, to, amountToCoins(amount)), "PolarisERC20: failed to send bank tokens");
 
         emit Transfer(from, to, amount);
         return true;
