@@ -26,9 +26,6 @@
 package main
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
@@ -83,7 +80,6 @@ func (Cosmos) Build() error {
 		"-o", generateOutDirectory(cmd),
 		"./cosmos/cmd/" + cmd,
 	}
-	fmt.Println(strings.Join(args, " "))
 	return goBuild(args...)
 }
 
