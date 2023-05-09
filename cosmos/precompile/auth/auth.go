@@ -39,7 +39,7 @@ import (
 
 const requiredGas = 1000
 
-// Contract is the precompile contract for the auth module.
+// Contract is the precompile contract for the auth(z) module.
 type Contract struct {
 	ethprecompile.BaseContract
 
@@ -47,7 +47,8 @@ type Contract struct {
 	queryServer authz.QueryServer
 }
 
-// NewPrecompileContract returns a new instance of the auth module precompile contract.
+// NewPrecompileContract returns a new instance of the auth(z) module precompile contract. Uses the
+// auth module's account address as the contract address.
 func NewPrecompileContract(m authz.MsgServer, q authz.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
