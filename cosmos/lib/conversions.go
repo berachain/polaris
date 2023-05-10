@@ -79,18 +79,12 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 // GetGrantAsSendAuth maps a list of grants to a list of send authorizations.
 func GetGrantAsSendAuth(
 	grants []*authz.Grant, blocktime time.Time,
-) ([]banktypes.SendAuthorization, error) {
-	var sendAuths []banktypes.SendAuthorization
+) ([]*banktypes.SendAuthorization, error) {
+	var sendAuths []*banktypes.SendAuthorization
 	for _, grant := range grants {
-		// Check if the grant is of type send autorization.
-		expectedURL := banktypes.SendAuthorization{}.MsgTypeURL()
-		if grant.Authorization.TypeUrl != expectedURL {
-			return nil, precompile.ErrInvalidGrantType
-		}
-
 		// Check that the expiration is still valid.
 		if grant.Expiration == nil || grant.Expiration.After(blocktime) {
-			sendAuth, ok := utils.GetAs[banktypes.SendAuthorization](grant.Authorization.GetCachedValue())
+			sendAuth, ok := utils.GetAs[*banktypes.SendAuthorization](grant.Authorization.GetCachedValue())
 			if !ok {
 				return nil, precompile.ErrInvalidGrantType
 			}

@@ -28,6 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -209,4 +210,20 @@ func (c *Contract) GetSendAllowance(
 		cosmlib.AddressToAccAddress(spender),
 		denom,
 	)
+}
+
+// getHighestAllowance returns the highest allowance for a given coin denom.
+func getHighestAllowance(sendAuths []*banktypes.SendAuthorization, coinDenom string) *big.Int {
+	// Init the max to 0.
+	var max = big.NewInt(0)
+	// Loop through the send authorizations and find the highest allowance.
+	for _, sendAuth := range sendAuths {
+		// Get the spendable limit for the coin denom that was specified.
+		amount := sendAuth.SpendLimit.AmountOf(coinDenom)
+		// If not set, the current is the max, if set, compare the current with the max.
+		if max == nil || amount.BigInt().Cmp(max) > 0 {
+			max = amount.BigInt()
+		}
+	}
+	return max
 }
