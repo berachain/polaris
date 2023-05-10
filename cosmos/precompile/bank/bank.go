@@ -149,7 +149,7 @@ func (c *Contract) GetAllBalances(
 		return nil, err
 	}
 
-	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
+	return []any{cosmlib.SdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
@@ -203,7 +203,7 @@ func (c *Contract) GetSpendableBalances(
 		return nil, err
 	}
 
-	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
+	return []any{cosmlib.SdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSupplyOf implements `GetSupplyOf(string)` method.
@@ -246,7 +246,7 @@ func (c *Contract) GetTotalSupply(
 		return nil, err
 	}
 
-	return []any{sdkCoinsToEvmCoins(res.Supply)}, nil
+	return []any{cosmlib.SdkCoinsToEvmCoins(res.Supply)}, nil
 }
 
 // GetDenomMetadata implements `getDenomMetadata(string)` method.
@@ -336,7 +336,7 @@ func (c *Contract) Send(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	coins, err := extractCoinsFromInput(args[2])
+	coins, err := cosmlib.ExtractCoinsFromInput(args[2])
 
 	if err != nil {
 		return nil, err

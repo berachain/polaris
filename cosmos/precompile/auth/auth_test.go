@@ -156,12 +156,10 @@ var _ = Describe("Address Precompile", func() {
 	})
 	When("SendGrant", func() {
 		var (
-			evm *mock.PrecompileEVMMock
-			// granterAcc, granteeAcc      sdk.AccAddress
+			evm              *mock.PrecompileEVMMock
 			granter, grantee common.Address
 			limit            sdk.Coins
-			// nonExpiredTime, expiredTime *big.Int
-			nonExpiredTime *big.Int
+			nonExpiredTime   *big.Int
 		)
 
 		BeforeEach(func() {
@@ -188,7 +186,7 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should error if invalid granter", func() {
-			_, err := contract.SendGrant(
+			_, err := contract.SetSendAllowance(
 				context.Background(),
 				evm,
 				common.Address{},
@@ -203,7 +201,7 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should error if invalid grantee", func() {
-			_, err := contract.SendGrant(
+			_, err := contract.SetSendAllowance(
 				context.Background(),
 				evm,
 				common.Address{},
@@ -218,7 +216,7 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should error if the limit is invalid", func() {
-			_, err := contract.SendGrant(
+			_, err := contract.SetSendAllowance(
 				context.Background(),
 				evm,
 				common.Address{},
@@ -233,7 +231,7 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should error if the expiration is invalid", func() {
-			_, err := contract.SendGrant(
+			_, err := contract.SetSendAllowance(
 				context.Background(),
 				evm,
 				common.Address{},
@@ -248,7 +246,7 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should error if the expiration is before the current block time", func() {
-			_, err := contract.SendGrant(
+			_, err := contract.SetSendAllowance(
 				context.Background(),
 				evm,
 				common.Address{},
@@ -263,7 +261,7 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should succeed with expiration", func() {
-			_, err := contract.SendGrant(
+			_, err := contract.SetSendAllowance(
 				ctx,
 				evm,
 				common.Address{},
@@ -278,7 +276,7 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should succeed without expiration", func() {
-			_, err := contract.SendGrant(
+			_, err := contract.SetSendAllowance(
 				ctx,
 				evm,
 				common.Address{},
@@ -295,7 +293,7 @@ var _ = Describe("Address Precompile", func() {
 		When("Get Send Allowance: ", func() {
 			BeforeEach(func() {
 				// Set up a spend limit grant.
-				_, err := contract.SendGrant(
+				_, err := contract.SetSendAllowance(
 					ctx,
 					evm,
 					common.Address{},

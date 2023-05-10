@@ -37,14 +37,14 @@ contract Swapper {
     // owner must first grant this contract to spend owner's tokens if the token is originally
     // an ERC20 token
     function swap(IERC20 token, uint256 amount) external {
-        bool transfered = erc20Module.transferERC20ToCoinFrom(token, msg.sender, msg.sender, amount);
-        require(transfered, "Swapper: transferERC20ToCoin failed");
+        bool transferred = erc20Module.transferERC20ToCoinFrom(token, msg.sender, msg.sender, amount);
+        require(transferred, "Swapper: transferERC20ToCoin failed");
     }
 
     // transfers SDK coin --> ERC20
     function swap(string calldata denom, uint256 amount) external {
-        bool transfered = erc20Module.transferCoinToERC20From(denom, msg.sender, msg.sender, amount);
-        require(transfered, "Swapper: transferCoinToERC20 failed");
+        bool transferred = erc20Module.transferCoinToERC20From(denom, msg.sender, msg.sender, amount);
+        require(transferred, "Swapper: transferCoinToERC20 failed");
     }
 
     // gets the Polaris ERC20 token for a given SDK coin denomination

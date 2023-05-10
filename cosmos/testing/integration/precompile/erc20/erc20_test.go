@@ -26,8 +26,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
@@ -136,7 +136,7 @@ var _ = Describe("ERC20", func() {
 				// check that the new ERC20 is minted to TestAddress
 				tokenAddr, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "bOSMO")
 				Expect(err).ToNot(HaveOccurred())
-				token, err := pbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
+				token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
 				Expect(err).ToNot(HaveOccurred())
 				balance, err := token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
@@ -313,7 +313,7 @@ var _ = Describe("ERC20", func() {
 			// check that the new ERC20 is minted to TestAddress
 			tokenAddr, err = swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
-			token, err := pbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
+			token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
 			Expect(err).ToNot(HaveOccurred())
 			balance, err := token.BalanceOf(nil, tf.Address("alice"))
 			Expect(err).ToNot(HaveOccurred())

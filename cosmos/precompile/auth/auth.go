@@ -40,7 +40,7 @@ import (
 
 const requiredGas = 1000
 
-// Contract is the precompile contract for the auth module.
+// Contract is the precompile contract for the auth(z) module.
 type Contract struct {
 	ethprecompile.BaseContract
 
@@ -48,7 +48,8 @@ type Contract struct {
 	queryServer authz.QueryServer
 }
 
-// NewPrecompileContract returns a new instance of the auth module precompile contract.
+// NewPrecompileContract returns a new instance of the auth(z) module precompile contract. Uses the
+// auth module's account address as the contract address.
 func NewPrecompileContract(m authz.MsgServer, q authz.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
@@ -76,8 +77,8 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			RequiredGas: requiredGas,
 		},
 		{
-			AbiSig:  "sendGrant(address,address,(uint256,string)[],uint256)",
-			Execute: c.SendGrant,
+			AbiSig:  "setSendAllowance(address,address,(uint256,string)[],uint256)",
+			Execute: c.SetSendAllowance,
 		},
 		{
 			AbiSig:  "getSendAllowance(address,address,string)",
@@ -144,8 +145,8 @@ func (c *Contract) ConvertBech32ToHexAddress(
 	return nil, precompile.ErrInvalidBech32Address
 }
 
-// SendGrant sends a send grant message to the authz module.
-func (c *Contract) SendGrant(
+// SetSendAllowance sends a send authorization message to the authz module.
+func (c *Contract) SetSendAllowance(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -153,40 +154,34 @@ func (c *Contract) SendGrant(
 	readonly bool,
 	args ...any,
 ) ([]any, error) {
-	granter, ok := utils.GetAs[common.Address](args[0])
+	owner, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-
-	grantee, ok := utils.GetAs[common.Address](args[1])
+	spender, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-
-	limit, err := extractCoinsFromInput(args[2])
+	amount, err := cosmlib.ExtractCoinsFromInput(args[2])
 	if err != nil {
 		return nil, err
 	}
-
 	expiration, ok := utils.GetAs[*big.Int](args[3])
 	if !ok {
 		return nil, precompile.ErrInvalidBigInt
 	}
 
-	// Get the block time from the EVM.
-	blockTime := time.Unix(int64(evm.GetContext().Time), 0)
-
-	return c.sendGrantHelper(
+	return c.setSendAllowanceHelper(
 		ctx,
-		blockTime,
-		cosmlib.AddressToAccAddress(granter),
-		cosmlib.AddressToAccAddress(grantee),
-		limit,
+		time.Unix(int64(evm.GetContext().Time), 0),
+		cosmlib.AddressToAccAddress(owner),
+		cosmlib.AddressToAccAddress(spender),
+		amount,
 		expiration,
 	)
 }
 
-// GetSendAllowance returns the amount of tokens that the grantee is allowd to spend.
+// GetSendAllowance returns the amount of tokens that the spender is allowd to spend.
 func (c *Contract) GetSendAllowance(
 	ctx context.Context,
 	evm ethprecompile.EVM,
@@ -199,24 +194,18 @@ func (c *Contract) GetSendAllowance(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-
 	spender, ok := utils.GetAs[common.Address](args[1])
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-
-	// Get the denom of the coin.
 	denom, ok := utils.GetAs[string](args[2])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
 
-	// Get the current block-time.
-	blockTime := time.Unix(int64(evm.GetContext().Time), 0)
-
 	return c.getSendAllownaceHelper(
 		ctx,
-		blockTime,
+		time.Unix(int64(evm.GetContext().Time), 0),
 		cosmlib.AddressToAccAddress(owner),
 		cosmlib.AddressToAccAddress(spender),
 		denom,

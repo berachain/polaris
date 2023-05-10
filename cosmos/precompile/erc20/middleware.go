@@ -27,7 +27,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -52,70 +51,20 @@ func (c *Contract) transferCoinToERC20(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
-	// get ERC20 token address pairing with SDK/Polaris coin denomination
-	resp, err := c.em.ERC20AddressForCoinDenom(
-		ctx, &erc20types.ERC20AddressForCoinDenomRequest{
-			Denom: denom,
-		},
+	var (
+		sdkCtx         = sdk.UnwrapSDKContext(ctx)
+		isPolarisDenom = erc20types.IsPolarisDenom(denom)
 	)
-	if err != nil {
-		return err
-	}
 
-	var token common.Address
-	if resp.Token == "" {
-		// first occurrence of an IBC originated SDK coin, must be created as a Polaris ERC20 token
-
-		// deploy the new ERC20 token contract (deployer of this contract is the ERC20 module)
-		if token, _, err = cosmlib.DeployOnEVMFromPrecompile(
-			sdkCtx, c.GetPlugin(), evm,
-			c.RegistryKey(), c.polarisERC20ABI, value,
-			pbindings.PolarisERC20MetaData.Bin, denom,
-		); err != nil {
-			return err
-		}
-
-		// create the new ERC20 token contract pairing with SDK coin denomination
-		c.em.RegisterCoinERC20Pair(sdkCtx, denom, token)
-	} else {
-		// subsequent occurrence of an IBC-originated SDK coin OR an ERC20 originated token's
-		// Polaris coin counterpart
-
-		// transfer ERC20 token bech32 address to common.Address
-		var tokenAcc sdk.AccAddress
-		if tokenAcc, err = sdk.AccAddressFromBech32(resp.Token); err != nil {
-			return err
-		}
-		token = cosmlib.AccAddressToEthAddress(tokenAcc)
-
-		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !evm.GetStateDB().Exist(token) {
-			return ErrTokenDoesNotExist
-		}
-	}
-
-	if erc20types.IsPolarisDenom(denom) { // transferring Polaris coins to ERC20 originated tokens
-		// NOTE: it is guaranteed that the ERC20 tokens were transferred to the ERC20 module
-		// precompile contract as escrow before this case is reached.
-
+	// 1) Handle the incoming SDK/Polaris coins
+	if isPolarisDenom { // transferring Polaris coins to ERC20 originated tokens
 		// burn amount Polaris coins from owner
-		if err = cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
-			return err
-		}
-
-		// transfer escrowed amount ERC20 tokens to the recipient
-		if _, err = cosmlib.CallEVMFromPrecompile(
-			sdkCtx, c.GetPlugin(), evm,
-			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
-			transfer, recipient, amount,
-		); err != nil {
+		if err := cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
 			return err
 		}
 	} else { // transferring IBC-originated SDK coins to Polaris ERC20 tokens
 		// send bank-module backed tokens from owner to recipient
-		if err = c.bk.SendCoins(
+		if err := c.bk.SendCoins(
 			sdkCtx,
 			cosmlib.AddressToAccAddress(owner),
 			cosmlib.AddressToAccAddress(recipient),
@@ -125,6 +74,58 @@ func (c *Contract) transferCoinToERC20(
 		}
 	}
 
+	// 2) Handle the outgoing (Polaris)ERC20 tokens
+	resp, err := c.em.ERC20AddressForCoinDenom(
+		ctx, &erc20types.ERC20AddressForCoinDenomRequest{
+			Denom: denom,
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if resp.Token == "" {
+		// first occurrence of an IBC originated SDK coin
+
+		// deploy the new PolarisERC20 token contract
+		// NOTE: deployer of this contract is the ERC20 precompile account, NOT the msg.sender
+		var token common.Address
+		if token, _, err = cosmlib.DeployOnEVMFromPrecompile(
+			sdkCtx, c.GetPlugin(), evm,
+			c.RegistryKey(), c.polarisERC20ABI, value,
+			c.polarisERC20Bin, denom,
+		); err != nil {
+			return err
+		}
+
+		// create the new ERC20 token contract pairing with SDK coin denomination
+		c.em.RegisterCoinERC20Pair(sdkCtx, denom, token)
+	} else if isPolarisDenom {
+		// subesequent occurrence of Polaris coins
+
+		// convert ERC20 token bech32 address to common.Address
+		var tokenAcc sdk.AccAddress
+		if tokenAcc, err = sdk.AccAddressFromBech32(resp.Token); err != nil {
+			return err
+		}
+		token := cosmlib.AccAddressToEthAddress(tokenAcc)
+
+		// return an error if the ERC20 token contract does not exist to revert the tx
+		if !evm.GetStateDB().Exist(token) {
+			return ErrTokenDoesNotExist
+		}
+
+		// transfer escrowed amount ERC20-originated tokens to the recipient
+		// NOTE: it is guaranteed that the ERC20 tokens were transferred to the ERC20 module
+		if _, err = cosmlib.CallEVMFromPrecompile(
+			sdkCtx, c.GetPlugin(), evm,
+			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
+			transfer, recipient, amount,
+		); err != nil {
+			return err
+		}
+	}
+
+	// emit an event at the end of this successful transfer
 	sdkCtx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			erc20types.EventTypeTransferCoinToERC20,
@@ -165,9 +166,8 @@ func (c *Contract) transferERC20ToCoin(
 		denom = c.em.RegisterERC20CoinPair(sdkCtx, token)
 	}
 
+	//nolint:nestif // handling separate cases of ERC20s/SDK coins.
 	if erc20types.IsPolarisDenom(denom) { // transferring ERC20 originated tokens to Polaris coins
-		// NOTE: owner must approve caller to spend amount ERC20 tokens
-
 		// return an error if the ERC20 token contract does not exist to revert the tx
 		if !evm.GetStateDB().Exist(token) {
 			return ErrTokenDoesNotExist
@@ -175,6 +175,7 @@ func (c *Contract) transferERC20ToCoin(
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
+		// NOTE: owner must have previouslt approved msg.sender to spend amount ERC20 tokens
 		if _, err = cosmlib.CallEVMFromPrecompile(
 			sdkCtx, c.GetPlugin(), evm,
 			caller, token, c.polarisERC20ABI, big.NewInt(0),
@@ -199,6 +200,7 @@ func (c *Contract) transferERC20ToCoin(
 		}
 	}
 
+	// emit an event at the end of this successful transfer
 	sdkCtx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			erc20types.EventTypeTransferERC20ToCoin,

@@ -29,6 +29,12 @@ var (
 	_ = abi.ConvertType
 )
 
+// IStakingModuleCoin is an auto generated low-level Go binding around an user-defined struct.
+type IStakingModuleCoin struct {
+	Amount *big.Int
+	Denom  string
+}
+
 // IStakingModuleRedelegationEntry is an auto generated low-level Go binding around an user-defined struct.
 type IStakingModuleRedelegationEntry struct {
 	CreationHeight int64
@@ -49,7 +55,7 @@ type IStakingModuleUnbondingDelegationEntry struct {
 
 // StakingModuleMetaData contains all meta data concerning the StakingModule contract.
 var StakingModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"CancelUnbondingDelegation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CreateValidator\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Delegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sourceValidator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"destinationValidator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Redelegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Unbond\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getActiveValidators\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIStakingModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"},{\"indexed\":false,\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"CancelUnbondingDelegation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIStakingModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"CreateValidator\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIStakingModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Delegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sourceValidator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"destinationValidator\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIStakingModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Redelegate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIStakingModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Unbond\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"beginRedelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"}],\"name\":\"cancelUnbondingDelegation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"delegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getActiveValidators\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getDelegation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"srcValidator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dstValidator\",\"type\":\"address\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"srcValidator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"dstValidator\",\"type\":\"string\"}],\"name\":\"getRedelegations\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sharesDst\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.RedelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatorAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegatorAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"}],\"name\":\"getUnbondingDelegation\",\"outputs\":[{\"components\":[{\"internalType\":\"int64\",\"name\":\"creationHeight\",\"type\":\"int64\"},{\"internalType\":\"string\",\"name\":\"completionTime\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"initialBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"unbondingId\",\"type\":\"uint64\"}],\"internalType\":\"structIStakingModule.UnbondingDelegationEntry[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"validatorAddress\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"undelegate\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
 }
 
 // StakingModuleABI is the input ABI used to generate the binding from.
@@ -654,14 +660,14 @@ func (it *StakingModuleCancelUnbondingDelegationIterator) Close() error {
 type StakingModuleCancelUnbondingDelegation struct {
 	Validator      common.Address
 	Delegator      common.Address
-	Amount         *big.Int
+	Amount         []IStakingModuleCoin
 	CreationHeight int64
 	Raw            types.Log // Blockchain specific contextual infos
 }
 
-// FilterCancelUnbondingDelegation is a free log retrieval operation binding the contract event 0x4022879e779e0c889f536ac78c7e10619fc795d7af0efabf4500309a187588d9.
+// FilterCancelUnbondingDelegation is a free log retrieval operation binding the contract event 0x30c2800a487f4891694e92c2748f62229fc352c93ae350a7ff63e3ab605a4aa5.
 //
-// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, uint256 amount, int64 creationHeight)
+// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight)
 func (_StakingModule *StakingModuleFilterer) FilterCancelUnbondingDelegation(opts *bind.FilterOpts, validator []common.Address, delegator []common.Address) (*StakingModuleCancelUnbondingDelegationIterator, error) {
 
 	var validatorRule []interface{}
@@ -680,9 +686,9 @@ func (_StakingModule *StakingModuleFilterer) FilterCancelUnbondingDelegation(opt
 	return &StakingModuleCancelUnbondingDelegationIterator{contract: _StakingModule.contract, event: "CancelUnbondingDelegation", logs: logs, sub: sub}, nil
 }
 
-// WatchCancelUnbondingDelegation is a free log subscription operation binding the contract event 0x4022879e779e0c889f536ac78c7e10619fc795d7af0efabf4500309a187588d9.
+// WatchCancelUnbondingDelegation is a free log subscription operation binding the contract event 0x30c2800a487f4891694e92c2748f62229fc352c93ae350a7ff63e3ab605a4aa5.
 //
-// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, uint256 amount, int64 creationHeight)
+// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight)
 func (_StakingModule *StakingModuleFilterer) WatchCancelUnbondingDelegation(opts *bind.WatchOpts, sink chan<- *StakingModuleCancelUnbondingDelegation, validator []common.Address, delegator []common.Address) (event.Subscription, error) {
 
 	var validatorRule []interface{}
@@ -726,9 +732,9 @@ func (_StakingModule *StakingModuleFilterer) WatchCancelUnbondingDelegation(opts
 	}), nil
 }
 
-// ParseCancelUnbondingDelegation is a log parse operation binding the contract event 0x4022879e779e0c889f536ac78c7e10619fc795d7af0efabf4500309a187588d9.
+// ParseCancelUnbondingDelegation is a log parse operation binding the contract event 0x30c2800a487f4891694e92c2748f62229fc352c93ae350a7ff63e3ab605a4aa5.
 //
-// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, uint256 amount, int64 creationHeight)
+// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight)
 func (_StakingModule *StakingModuleFilterer) ParseCancelUnbondingDelegation(log types.Log) (*StakingModuleCancelUnbondingDelegation, error) {
 	event := new(StakingModuleCancelUnbondingDelegation)
 	if err := _StakingModule.contract.UnpackLog(event, "CancelUnbondingDelegation", log); err != nil {
@@ -808,13 +814,13 @@ func (it *StakingModuleCreateValidatorIterator) Close() error {
 // StakingModuleCreateValidator represents a CreateValidator event raised by the StakingModule contract.
 type StakingModuleCreateValidator struct {
 	Validator common.Address
-	Amount    *big.Int
+	Amount    []IStakingModuleCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterCreateValidator is a free log retrieval operation binding the contract event 0x9bdb560f8135cb46033a55410c14e14b1a7bc2d3f3e9973f4b49533e176468b0.
+// FilterCreateValidator is a free log retrieval operation binding the contract event 0x2bc39078c6a3394560520acda6eedb30ee0e6a2cf247ebf0857d3f3e11bd69e8.
 //
-// Solidity: event CreateValidator(address indexed validator, uint256 amount)
+// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterCreateValidator(opts *bind.FilterOpts, validator []common.Address) (*StakingModuleCreateValidatorIterator, error) {
 
 	var validatorRule []interface{}
@@ -829,9 +835,9 @@ func (_StakingModule *StakingModuleFilterer) FilterCreateValidator(opts *bind.Fi
 	return &StakingModuleCreateValidatorIterator{contract: _StakingModule.contract, event: "CreateValidator", logs: logs, sub: sub}, nil
 }
 
-// WatchCreateValidator is a free log subscription operation binding the contract event 0x9bdb560f8135cb46033a55410c14e14b1a7bc2d3f3e9973f4b49533e176468b0.
+// WatchCreateValidator is a free log subscription operation binding the contract event 0x2bc39078c6a3394560520acda6eedb30ee0e6a2cf247ebf0857d3f3e11bd69e8.
 //
-// Solidity: event CreateValidator(address indexed validator, uint256 amount)
+// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchCreateValidator(opts *bind.WatchOpts, sink chan<- *StakingModuleCreateValidator, validator []common.Address) (event.Subscription, error) {
 
 	var validatorRule []interface{}
@@ -871,9 +877,9 @@ func (_StakingModule *StakingModuleFilterer) WatchCreateValidator(opts *bind.Wat
 	}), nil
 }
 
-// ParseCreateValidator is a log parse operation binding the contract event 0x9bdb560f8135cb46033a55410c14e14b1a7bc2d3f3e9973f4b49533e176468b0.
+// ParseCreateValidator is a log parse operation binding the contract event 0x2bc39078c6a3394560520acda6eedb30ee0e6a2cf247ebf0857d3f3e11bd69e8.
 //
-// Solidity: event CreateValidator(address indexed validator, uint256 amount)
+// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseCreateValidator(log types.Log) (*StakingModuleCreateValidator, error) {
 	event := new(StakingModuleCreateValidator)
 	if err := _StakingModule.contract.UnpackLog(event, "CreateValidator", log); err != nil {
@@ -953,13 +959,13 @@ func (it *StakingModuleDelegateIterator) Close() error {
 // StakingModuleDelegate represents a Delegate event raised by the StakingModule contract.
 type StakingModuleDelegate struct {
 	Validator common.Address
-	Amount    *big.Int
+	Amount    []IStakingModuleCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterDelegate is a free log retrieval operation binding the contract event 0xb0d234274aef7a61aa5a2eb44c23881ebf46a068cccbd413c978bcbd555fe17f.
+// FilterDelegate is a free log retrieval operation binding the contract event 0x86d06596b16cc784c8990ddf4c3e195fd968c238f5999435057d48c77ba49f2f.
 //
-// Solidity: event Delegate(address indexed validator, uint256 amount)
+// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterDelegate(opts *bind.FilterOpts, validator []common.Address) (*StakingModuleDelegateIterator, error) {
 
 	var validatorRule []interface{}
@@ -974,9 +980,9 @@ func (_StakingModule *StakingModuleFilterer) FilterDelegate(opts *bind.FilterOpt
 	return &StakingModuleDelegateIterator{contract: _StakingModule.contract, event: "Delegate", logs: logs, sub: sub}, nil
 }
 
-// WatchDelegate is a free log subscription operation binding the contract event 0xb0d234274aef7a61aa5a2eb44c23881ebf46a068cccbd413c978bcbd555fe17f.
+// WatchDelegate is a free log subscription operation binding the contract event 0x86d06596b16cc784c8990ddf4c3e195fd968c238f5999435057d48c77ba49f2f.
 //
-// Solidity: event Delegate(address indexed validator, uint256 amount)
+// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchDelegate(opts *bind.WatchOpts, sink chan<- *StakingModuleDelegate, validator []common.Address) (event.Subscription, error) {
 
 	var validatorRule []interface{}
@@ -1016,9 +1022,9 @@ func (_StakingModule *StakingModuleFilterer) WatchDelegate(opts *bind.WatchOpts,
 	}), nil
 }
 
-// ParseDelegate is a log parse operation binding the contract event 0xb0d234274aef7a61aa5a2eb44c23881ebf46a068cccbd413c978bcbd555fe17f.
+// ParseDelegate is a log parse operation binding the contract event 0x86d06596b16cc784c8990ddf4c3e195fd968c238f5999435057d48c77ba49f2f.
 //
-// Solidity: event Delegate(address indexed validator, uint256 amount)
+// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseDelegate(log types.Log) (*StakingModuleDelegate, error) {
 	event := new(StakingModuleDelegate)
 	if err := _StakingModule.contract.UnpackLog(event, "Delegate", log); err != nil {
@@ -1099,13 +1105,13 @@ func (it *StakingModuleRedelegateIterator) Close() error {
 type StakingModuleRedelegate struct {
 	SourceValidator      common.Address
 	DestinationValidator common.Address
-	Amount               *big.Int
+	Amount               []IStakingModuleCoin
 	Raw                  types.Log // Blockchain specific contextual infos
 }
 
-// FilterRedelegate is a free log retrieval operation binding the contract event 0x7eb58ff7a8b2b30f490a329e171138f209b8ccd6c3c8d1d8b7bdf309252e2603.
+// FilterRedelegate is a free log retrieval operation binding the contract event 0xe723c90c78f428142cef6e47c9395b54bab8137eaaa44f34a1edbf930114c1eb.
 //
-// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, uint256 amount)
+// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterRedelegate(opts *bind.FilterOpts, sourceValidator []common.Address, destinationValidator []common.Address) (*StakingModuleRedelegateIterator, error) {
 
 	var sourceValidatorRule []interface{}
@@ -1124,9 +1130,9 @@ func (_StakingModule *StakingModuleFilterer) FilterRedelegate(opts *bind.FilterO
 	return &StakingModuleRedelegateIterator{contract: _StakingModule.contract, event: "Redelegate", logs: logs, sub: sub}, nil
 }
 
-// WatchRedelegate is a free log subscription operation binding the contract event 0x7eb58ff7a8b2b30f490a329e171138f209b8ccd6c3c8d1d8b7bdf309252e2603.
+// WatchRedelegate is a free log subscription operation binding the contract event 0xe723c90c78f428142cef6e47c9395b54bab8137eaaa44f34a1edbf930114c1eb.
 //
-// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, uint256 amount)
+// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchRedelegate(opts *bind.WatchOpts, sink chan<- *StakingModuleRedelegate, sourceValidator []common.Address, destinationValidator []common.Address) (event.Subscription, error) {
 
 	var sourceValidatorRule []interface{}
@@ -1170,9 +1176,9 @@ func (_StakingModule *StakingModuleFilterer) WatchRedelegate(opts *bind.WatchOpt
 	}), nil
 }
 
-// ParseRedelegate is a log parse operation binding the contract event 0x7eb58ff7a8b2b30f490a329e171138f209b8ccd6c3c8d1d8b7bdf309252e2603.
+// ParseRedelegate is a log parse operation binding the contract event 0xe723c90c78f428142cef6e47c9395b54bab8137eaaa44f34a1edbf930114c1eb.
 //
-// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, uint256 amount)
+// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseRedelegate(log types.Log) (*StakingModuleRedelegate, error) {
 	event := new(StakingModuleRedelegate)
 	if err := _StakingModule.contract.UnpackLog(event, "Redelegate", log); err != nil {
@@ -1252,13 +1258,13 @@ func (it *StakingModuleUnbondIterator) Close() error {
 // StakingModuleUnbond represents a Unbond event raised by the StakingModule contract.
 type StakingModuleUnbond struct {
 	Validator common.Address
-	Amount    *big.Int
+	Amount    []IStakingModuleCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterUnbond is a free log retrieval operation binding the contract event 0xb735793e7250527232d5f7e07e8691c383c85e0c77673ac750944e8bd40e71c8.
+// FilterUnbond is a free log retrieval operation binding the contract event 0x9b3dc86ff4188cb66e4fbacecb81f0fa1648e8fde176887bdfedafb075f5bb3e.
 //
-// Solidity: event Unbond(address indexed validator, uint256 amount)
+// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterUnbond(opts *bind.FilterOpts, validator []common.Address) (*StakingModuleUnbondIterator, error) {
 
 	var validatorRule []interface{}
@@ -1273,9 +1279,9 @@ func (_StakingModule *StakingModuleFilterer) FilterUnbond(opts *bind.FilterOpts,
 	return &StakingModuleUnbondIterator{contract: _StakingModule.contract, event: "Unbond", logs: logs, sub: sub}, nil
 }
 
-// WatchUnbond is a free log subscription operation binding the contract event 0xb735793e7250527232d5f7e07e8691c383c85e0c77673ac750944e8bd40e71c8.
+// WatchUnbond is a free log subscription operation binding the contract event 0x9b3dc86ff4188cb66e4fbacecb81f0fa1648e8fde176887bdfedafb075f5bb3e.
 //
-// Solidity: event Unbond(address indexed validator, uint256 amount)
+// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchUnbond(opts *bind.WatchOpts, sink chan<- *StakingModuleUnbond, validator []common.Address) (event.Subscription, error) {
 
 	var validatorRule []interface{}
@@ -1315,9 +1321,9 @@ func (_StakingModule *StakingModuleFilterer) WatchUnbond(opts *bind.WatchOpts, s
 	}), nil
 }
 
-// ParseUnbond is a log parse operation binding the contract event 0xb735793e7250527232d5f7e07e8691c383c85e0c77673ac750944e8bd40e71c8.
+// ParseUnbond is a log parse operation binding the contract event 0x9b3dc86ff4188cb66e4fbacecb81f0fa1648e8fde176887bdfedafb075f5bb3e.
 //
-// Solidity: event Unbond(address indexed validator, uint256 amount)
+// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseUnbond(log types.Log) (*StakingModuleUnbond, error) {
 	event := new(StakingModuleUnbond)
 	if err := _StakingModule.contract.UnpackLog(event, "Unbond", log); err != nil {

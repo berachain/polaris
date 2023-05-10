@@ -53,12 +53,14 @@ type (
 )
 
 const (
+	two         = 2
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
 	megamoney   = 1000000
 	gigamoney   = 1000000000
 	examoney    = 1000000000000000000
+	one2345     = 12345
 )
 
 type TestingT interface {
