@@ -21,6 +21,8 @@ contract PolarisERC20 is IERC20 {
                               ERC20 STORAGE
     //////////////////////////////////////////////////////////////*/
 
+    string public denom;
+
     /**
      * @dev name is a public view method for reading the `sdk.Coin` name for this erc20.
      * @return string the sdk.Coin name for this erc20.
@@ -42,10 +44,9 @@ contract PolarisERC20 is IERC20 {
      * @return uint8 the sdk.Coin decimals for this erc20.
      */
     function decimals() public view returns (uint8) {
+        // TODO: Get the max decimals from the denom units? denomUnits[0] is not necessarily correct.
         return uint8(bank().getDenomMetadata(denom).denomUnits[0].exponent);
     }
-
-    string public denom;
 
     /*//////////////////////////////////////////////////////////////
                             EIP-2612 STORAGE

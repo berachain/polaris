@@ -216,6 +216,28 @@ func getTestMetadata() []banktypes.Metadata {
 			Base:    "utoken",
 			Display: "token",
 		},
+		{
+			Name:   "Osmosis",
+			Symbol: "OSMO",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "osmo", Exponent: uint32(0), Aliases: []string{"osmo"}},
+				{Denom: "nosmo", Exponent: uint32(9), Aliases: []string{"nanoosmo"}},
+				{Denom: "aosmo", Exponent: uint32(18), Aliases: []string{"attoosmo"}},
+			},
+			Base:    "bOSMO",
+			Display: "osmosis",
+		},
+		{
+			Name:   "Akash",
+			Symbol: "AKT",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "akt", Exponent: uint32(0), Aliases: []string{"akt"}},
+				{Denom: "nakt", Exponent: uint32(9), Aliases: []string{"nanoakt"}},
+				{Denom: "aakt", Exponent: uint32(18), Aliases: []string{"attoakt"}},
+			},
+			Base:    "bAKT",
+			Display: "akash",
+		},
 	}
 }
 

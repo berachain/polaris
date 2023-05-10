@@ -37,13 +37,13 @@ interface IERC20Module {
      * @dev Emitted by the erc20 module when `amount` tokens are transferred from SDK coin (of
      * denomination `denom`) to an ERC20 token from `owner` to `recipient`.
      */
-    event TransferCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, uint256 amount);
+    event TransferCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, Coin[] amount);
 
     /**
      * @dev Emitted by the erc20 module when `amount` tokens are transferred from ERC20 (of address
      * `token`) to an SDK coin from `owner` to `recipient`.
      */
-    event TransferErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, uint256 amount);
+    event TransferErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, Coin[] amount);
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
