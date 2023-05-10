@@ -88,3 +88,38 @@ func CallEVMFromPrecompile(
 	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, methodName)
 	return ret, err
 }
+
+// StaticCallEVMFromPrecompileUnpackArgs calls into the EVM from a precompile contract for readonly
+// calls.
+func StaticCallEVMFromPrecompileUnpackArgs(
+	ctx sdk.Context,
+	plugin ethprecompile.Plugin,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	address common.Address,
+	contract abi.ABI,
+	methodName string,
+	args ...any,
+) ([]any, error) {
+	plugin.EnableReentrancy(ctx)
+	defer plugin.DisableReentrancy(ctx)
+
+	input, err := contract.Pack(methodName, args...)
+	if err != nil {
+		return nil, err
+	}
+	suppliedGas := ctx.GasMeter().GasRemaining()
+	ret, gasRemaining, err := evm.StaticCall(
+		vm.AccountRef(caller), address, input, suppliedGas,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// consume gas used by EVM during contract call
+	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, methodName)
+
+	var unpack []any
+	unpack, err = contract.Unpack(methodName, ret)
+	return unpack, err
+}

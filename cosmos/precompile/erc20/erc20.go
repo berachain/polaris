@@ -29,6 +29,7 @@ import (
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	pbindings "pkg.berachain.dev/polaris/contracts/bindings/polaris"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
@@ -46,6 +47,7 @@ type Contract struct {
 	bk bankkeeper.Keeper
 	em ERC20Module
 
+	iERC20ABI       abi.ABI
 	polarisERC20ABI abi.ABI
 	polarisERC20Bin string
 }
@@ -62,6 +64,7 @@ func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.S
 		),
 		bk:              bk,
 		em:              em,
+		iERC20ABI:       abi.MustUnmarshalJSON(pbindings.IERC20MetaData.ABI),
 		polarisERC20ABI: abi.MustUnmarshalJSON(cbindings.PolarisERC20MetaData.ABI),
 		polarisERC20Bin: cbindings.PolarisERC20MetaData.Bin,
 	}

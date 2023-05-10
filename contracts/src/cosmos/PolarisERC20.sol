@@ -109,6 +109,16 @@ contract PolarisERC20 is IERC20 {
     }
 
     /**
+     * @dev allowance is a public method to view a given allowance.
+     * @param owner the address of owner.
+     * @param spender the address of spender.
+     * @return uint256 the amount approved by owner to spend.
+     */
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return authz().getSendAllowance(owner, spender, denom);
+    }
+
+    /**
      * @dev transfer is a public method for transferring tokens to a given address.
      * @param to the address to transfer tokens to.
      * @param amount the amount of tokens to transfer.

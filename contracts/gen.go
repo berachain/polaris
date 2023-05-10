@@ -31,7 +31,9 @@ package contracts
 //go:generate abigen --pkg precompile --abi ./out/Distribution.sol/IDistributionModule.abi.json --bin ./out/Distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/i_distribution_module.abigen.go --type DistributionModule --exc "IBankModuleCoin"
 //go:generate abigen --pkg precompile --abi ./out/Governance.sol/IGovernanceModule.abi.json --bin ./out/Governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/i_governance_module.abigen.go --type GovernanceModule
 //go:generate abigen --pkg precompile --abi ./out/ERC20Module.sol/IERC20Module.abi.json --bin ./out/ERC20Module.sol/IERC20Module.bin --out ./bindings/cosmos/precompile/i_erc20_module.abigen.go --type ERC20Module
+
 //go:generate abigen --pkg cosmos --abi ./out/PolarisERC20.sol/PolarisERC20.abi.json --bin ./out/PolarisERC20.sol/PolarisERC20.bin --out ./bindings/cosmos/polaris_erc20.abigen.go --type PolarisERC20
+//go:generate abigen --pkg polaris --abi ./out/IERC20.sol/IERC20.abi.json --bin ./out/IERC20.sol/IERC20.bin --out ./bindings/polaris/i_erc20.abigen.go --type IERC20
 
 //go:generate abigen --pkg testing --abi ./out/SolmateERC20.sol/SolmateERC20.abi.json --bin ./out/SolmateERC20.sol/SolmateERC20.bin --out ./bindings/testing/solmate_erc20.abigen.go --type SolmateERC20
 //go:generate abigen --pkg testing --abi ./out/MockPrecompileInterface.sol/MockPrecompileInterface.abi.json --out ./bindings/testing/mock_precompile_interface.abigen.go --type MockPrecompile
