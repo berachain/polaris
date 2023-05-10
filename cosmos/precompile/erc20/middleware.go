@@ -83,7 +83,7 @@ func (c *Contract) transferCoinToERC20(
 	if err != nil {
 		return err
 	}
-	if resp.Token == "" {
+	if resp.Token == "" { //nolint:nestif // readability.
 		// first occurrence of an IBC originated SDK coin
 
 		// deploy the new PolarisERC20 token contract
@@ -168,7 +168,7 @@ func (c *Contract) transferERC20ToCoin(
 		denom = c.em.RegisterERC20CoinPair(sdkCtx, token)
 	}
 
-	//nolint:nestif // handling separate cases of ERC20s/SDK coins.
+	//nolint:nestif // readability.
 	if erc20types.IsPolarisDenom(denom) { // transferring ERC20 originated tokens to Polaris coins
 		// return an error if the ERC20 token contract does not exist to revert the tx
 		if !evm.GetStateDB().Exist(token) {
