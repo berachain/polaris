@@ -224,7 +224,7 @@ func (c *Contract) GetSendAllowance(
 }
 
 // getHighestAllowance returns the highest allowance for a given coin denom.
-func getHighestAllowance(sendAuths []banktypes.SendAuthorization, coinDenom string) *big.Int {
+func getHighestAllowance(sendAuths []*banktypes.SendAuthorization, coinDenom string) *big.Int {
 	// Init the max to 0.
 	var max = big.NewInt(0)
 	// Loop through the send authorizations and find the highest allowance.

@@ -37,7 +37,6 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -55,12 +54,12 @@ var _ = Describe("Address Precompile", func() {
 	var ctx sdk.Context
 
 	BeforeEach(func() {
-		sdkctx, ak, bk, _ := testutil.SetupMinimalKeepers()
+		sdkctx, ak, _, _ := testutil.SetupMinimalKeepers()
 		ctx = sdkctx
 		k := authzkeeper.NewKeeper(
 			testutil.EvmKey,
 			testutil.GetEncodingConfig().Codec,
-			MockMsgServiceRouter(&bk),
+			MsgRouterMockWithSend(),
 			ak,
 		)
 		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract(k, k))
@@ -263,7 +262,7 @@ var _ = Describe("Address Precompile", func() {
 			Expect(err).To(HaveOccurred())
 		})
 
-		It("should succeed", func() {
+		It("should succeed with expiration", func() {
 			_, err := contract.SendGrant(
 				ctx,
 				evm,
@@ -277,7 +276,98 @@ var _ = Describe("Address Precompile", func() {
 			)
 			Expect(err).ToNot(HaveOccurred())
 		})
+
+		It("should succeed without expiration", func() {
+			_, err := contract.SendGrant(
+				ctx,
+				evm,
+				common.Address{},
+				big.NewInt(0),
+				false,
+				granter,
+				grantee,
+				sdkCoinsToEvmCoins(limit),
+				big.NewInt(0),
+			)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		When("Get Send Allowance: ", func() {
+			BeforeEach(func() {
+				// Set up a spend limit grant.
+				_, err := contract.SendGrant(
+					ctx,
+					evm,
+					common.Address{},
+					big.NewInt(0),
+					false,
+					granter,
+					grantee,
+					sdkCoinsToEvmCoins(limit),
+					big.NewInt(0),
+				)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("should error if invalid owner", func() {
+				_, err := contract.GetSendAllowance(
+					ctx,
+					evm,
+					common.Address{},
+					big.NewInt(0),
+					true,
+					"invalid address",
+					grantee,
+					"test",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+			})
+
+			It("should error if invalid spender", func() {
+				_, err := contract.GetSendAllowance(
+					ctx,
+					evm,
+					common.Address{},
+					big.NewInt(0),
+					true,
+					granter,
+					"invalid address",
+					"test",
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+			})
+
+			It("should error if invalid denom string", func() {
+				_, err := contract.GetSendAllowance(
+					ctx,
+					evm,
+					common.Address{},
+					big.NewInt(0),
+					true,
+					granter,
+					grantee,
+					1,
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidString))
+			})
+
+			It("should get the spend allowance", func() {
+				res, err := contract.GetSendAllowance(
+					ctx,
+					evm,
+					common.Address{},
+					big.NewInt(0),
+					true,
+					granter,
+					grantee,
+					"test",
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(Equal([]any{big.NewInt(100)}))
+			})
+		})
 	})
+
 })
 
 // TODO: move to utils since also used by bank.
@@ -303,27 +393,11 @@ func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
 
 func MsgRouterMockWithSend() *mock.MessageRouterMock {
 	router := mock.NewMsgRouterMock()
+	router.HandlerByTypeURLFunc = func(typeURL string) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+		return func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+			return &sdk.Result{}, nil
+		}
+	}
+
+	return router
 }
-
-// type MsgServiceHandler = func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error)
-
-// func BankSendMsgHandler(bk *bankkeeper.BaseKeeper) MsgServiceHandler {
-// 	return func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
-// 		msg := req.(*banktypes.MsgSend)
-
-// 		if err := bk.SendCoins(
-// 			ctx, sdk.AccAddress(msg.FromAddress), sdk.AccAddress(msg.ToAddress), msg.Amount); err != nil {
-// 			return nil, err
-// 		}
-
-// 		return &sdk.Result{}, nil
-// 	}
-// }
-
-// func MockMsgServiceRouter(bk *bankkeeper.BaseKeeper) *baseapp.MsgServiceRouter {
-// 	router := baseapp.NewMsgServiceRouter()
-// 	banktypes.RegisterInterfaces(router.RegisterService())
-// 	banktypes.RegisterMsgServer(router, bankkeeper.NewMsgServerImpl(bk))
-// 	banktypes.RegisterQueryServer(router, bk)
-// 	return router
-// }
