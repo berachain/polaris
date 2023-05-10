@@ -35,6 +35,7 @@ interface IERC20 {
      *
      * Returns a boolean value indicating whether the operation succeeded.
      *
+     * Emits a {Approval} event.
      */
     function approve(address spender, uint256 amount) external returns (bool);
 

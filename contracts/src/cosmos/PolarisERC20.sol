@@ -18,26 +18,6 @@ import {IBankModule} from "./precompile/Bank.sol";
  */
 contract PolarisERC20 is IERC20 {
     /*//////////////////////////////////////////////////////////////
-                              Precompiles
-    //////////////////////////////////////////////////////////////*/
-
-    /**
-     * @dev bank is a pure function for getting the address of the bank module precompile.
-     * @return IBankModule the address of the bank module precompile.
-     */
-    function bank() internal pure returns (IBankModule) {
-        return IBankModule(address(0x4381dC2aB14285160c808659aEe005D51255adD7));
-    }
-
-    /**
-     * @dev authz is a pure function for getting the address of the auth(z) module precompile.
-     * @return IAuthModule the address of the auth(z) module precompile.
-     */
-    function authz() internal pure returns (IAuthModule) {
-        return IAuthModule(address(0xBDF49C3C3882102fc017FFb661108c63a836D065));
-    }
-
-    /*//////////////////////////////////////////////////////////////
                               ERC20 STORAGE
     //////////////////////////////////////////////////////////////*/
 
@@ -81,6 +61,7 @@ contract PolarisERC20 is IERC20 {
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
+    /// @param _denom is the corresponding SDK Coin's denom.
     constructor(string memory _denom) {
         denom = _denom;
 
@@ -162,7 +143,7 @@ contract PolarisERC20 is IERC20 {
         public
         virtual
     {
-        require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
+        require(deadline >= block.timestamp, "PolarisERC20: PERMIT_DEADLINE_EXPIRED");
 
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
@@ -219,8 +200,24 @@ contract PolarisERC20 is IERC20 {
     }
 
     /*//////////////////////////////////////////////////////////////
-                               sdk.Coin helpers.
+                              SDK HELPERS
     //////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev bank is a pure function for getting the address of the bank module precompile.
+     * @return IBankModule the address of the bank module precompile.
+     */
+    function bank() internal pure returns (IBankModule) {
+        return IBankModule(address(0x4381dC2aB14285160c808659aEe005D51255adD7));
+    }
+
+    /**
+     * @dev authz is a pure function for getting the address of the auth(z) module precompile.
+     * @return IAuthModule the address of the auth(z) module precompile.
+     */
+    function authz() internal pure returns (IAuthModule) {
+        return IAuthModule(address(0xBDF49C3C3882102fc017FFb661108c63a836D065));
+    }
 
     /**
      * @dev amountToBankCoins is a helper function to convert an amount to sdk.Coin.
