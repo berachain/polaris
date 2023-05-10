@@ -21,10 +21,12 @@
 package provider
 
 import (
+	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/graphql"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
@@ -83,6 +85,9 @@ func NewPolarisProviderWithConfig(
 	if err != nil {
 		panic(err)
 	}
+
+	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, nil)
+	graphql.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
 
 	return sp
 }
