@@ -225,9 +225,9 @@ func getCoinsForAccount(name string) sdk.Coins {
 		return sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(examoney)),
 			sdk.NewCoin("bATOM", sdk.NewInt(examoney)),
-			sdk.NewCoin("bAKT", sdk.NewInt(one2345)),
+			sdk.NewCoin("bAKT", sdk.NewInt(12345)), //nolint:gomnd // its okay.
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
-			sdk.NewCoin("bOSMO", sdk.NewInt(one2345*two)),
+			sdk.NewCoin("bOSMO", sdk.NewInt(12345*2)), //nolint:gomnd // its okay.
 		)
 	case "bob":
 		return sdk.NewCoins(
