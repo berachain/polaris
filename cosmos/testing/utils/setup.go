@@ -42,6 +42,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
@@ -81,6 +82,7 @@ func SetupMinimalKeepers() (
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
+		authz.AppModuleBasic{},
 	)
 
 	ak := authkeeper.NewAccountKeeper(
@@ -130,4 +132,13 @@ func SetupMinimalKeepers() (
 	)
 
 	return ctx, ak, bk, *sk
+}
+
+func GetEncodingConfig() testutil.TestEncodingConfig {
+	return testutil.MakeTestEncodingConfig(
+		auth.AppModuleBasic{},
+		bank.AppModuleBasic{},
+		staking.AppModuleBasic{},
+		authz.AppModuleBasic{},
+	)
 }

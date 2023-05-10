@@ -25,19 +25,20 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/auth"
+	"pkg.berachain.dev/polaris/cosmos/precompile/auth/mock"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
+
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -51,14 +52,19 @@ func TestAddressPrecompile(t *testing.T) {
 
 var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
+	var ctx sdk.Context
 
 	BeforeEach(func() {
-		encodingConfig := sdktestutil.MakeTestEncodingConfig(
-			authz.AppModuleBasic{},
+		sdkctx, ak, bk, _ := testutil.SetupMinimalKeepers()
+		ctx = sdkctx
+		k := authzkeeper.NewKeeper(
+			testutil.EvmKey,
+			testutil.GetEncodingConfig().Codec,
+			MockMsgServiceRouter(&bk),
+			ak,
 		)
-		_, ak, _, _ := testutil.SetupMinimalKeepers()
-		k := authzkeeper.NewKeeper(testutil.EvmKey, encodingConfig.Codec, baseapp.NewMsgServiceRouter(), ak)
 		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract(k, k))
+
 	})
 
 	It("should have static registry key", func() {
@@ -149,4 +155,175 @@ var _ = Describe("Address Precompile", func() {
 			Expect(res[0]).To(Equal(common.BytesToAddress([]byte("test"))))
 		})
 	})
+	When("SendGrant", func() {
+		var (
+			evm *mock.PrecompileEVMMock
+			// granterAcc, granteeAcc      sdk.AccAddress
+			granter, grantee common.Address
+			limit            sdk.Coins
+			// nonExpiredTime, expiredTime *big.Int
+			nonExpiredTime *big.Int
+		)
+
+		BeforeEach(func() {
+			// Genereate an evm where the block time is 100.
+			evm = mock.NewPrecompileEVMMock()
+			evm.GetContextFunc = func() *vm.BlockContext {
+				blockCtx := vm.BlockContext{}
+				blockCtx.Time = 100
+				return &blockCtx
+			}
+
+			// Generate a granter and grantee address.
+			granterAcc := sdk.AccAddress([]byte("granter"))
+			granteeAcc := sdk.AccAddress([]byte("grantee"))
+			granter = cosmlib.AccAddressToEthAddress(granterAcc)
+			grantee = cosmlib.AccAddressToEthAddress(granteeAcc)
+
+			// Generate a limit.
+			limit = sdk.NewCoins(sdk.NewInt64Coin("test", 100))
+
+			// Set the expired/non-expired time.
+			nonExpiredTime = big.NewInt(50)
+			// expiredTime = big.NewInt(200)
+		})
+
+		It("should error if invalid granter", func() {
+			_, err := contract.SendGrant(
+				context.Background(),
+				evm,
+				common.Address{},
+				big.NewInt(0),
+				false,
+				"invalid address",
+				grantee,
+				sdkCoinsToEvmCoins(limit),
+				nonExpiredTime,
+			)
+			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+		})
+
+		It("should error if invalid grantee", func() {
+			_, err := contract.SendGrant(
+				context.Background(),
+				evm,
+				common.Address{},
+				big.NewInt(0),
+				false,
+				granter,
+				"invalid address",
+				sdkCoinsToEvmCoins(limit),
+				nonExpiredTime,
+			)
+			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
+		})
+
+		It("should error if the limit is invalid", func() {
+			_, err := contract.SendGrant(
+				context.Background(),
+				evm,
+				common.Address{},
+				big.NewInt(0),
+				false,
+				granter,
+				grantee,
+				"invalid limit",
+				nonExpiredTime,
+			)
+			Expect(err).To(MatchError(precompile.ErrInvalidCoin))
+		})
+
+		It("should error if the expiration is invalid", func() {
+			_, err := contract.SendGrant(
+				context.Background(),
+				evm,
+				common.Address{},
+				big.NewInt(0),
+				false,
+				granter,
+				grantee,
+				sdkCoinsToEvmCoins(limit),
+				"invalid expiration",
+			)
+			Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
+		})
+
+		It("should error if the expiration is before the current block time", func() {
+			_, err := contract.SendGrant(
+				context.Background(),
+				evm,
+				common.Address{},
+				big.NewInt(0),
+				false,
+				granter,
+				grantee,
+				sdkCoinsToEvmCoins(limit),
+				big.NewInt(1),
+			)
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("should succeed", func() {
+			_, err := contract.SendGrant(
+				ctx,
+				evm,
+				common.Address{},
+				big.NewInt(0),
+				false,
+				granter,
+				grantee,
+				sdkCoinsToEvmCoins(limit),
+				big.NewInt(110),
+			)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
 })
+
+// TODO: move to utils since also used by bank.
+func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
+	Amount *big.Int `json:"amount"`
+	Denom  string   `json:"denom"`
+} {
+	evmCoins := make([]struct {
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
+	}, len(sdkCoins))
+	for i, coin := range sdkCoins {
+		evmCoins[i] = struct {
+			Amount *big.Int `json:"amount"`
+			Denom  string   `json:"denom"`
+		}{
+			Amount: coin.Amount.BigInt(),
+			Denom:  coin.Denom,
+		}
+	}
+	return evmCoins
+}
+
+func MsgRouterMockWithSend() *mock.MessageRouterMock {
+	router := mock.NewMsgRouterMock()
+}
+
+// type MsgServiceHandler = func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error)
+
+// func BankSendMsgHandler(bk *bankkeeper.BaseKeeper) MsgServiceHandler {
+// 	return func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+// 		msg := req.(*banktypes.MsgSend)
+
+// 		if err := bk.SendCoins(
+// 			ctx, sdk.AccAddress(msg.FromAddress), sdk.AccAddress(msg.ToAddress), msg.Amount); err != nil {
+// 			return nil, err
+// 		}
+
+// 		return &sdk.Result{}, nil
+// 	}
+// }
+
+// func MockMsgServiceRouter(bk *bankkeeper.BaseKeeper) *baseapp.MsgServiceRouter {
+// 	router := baseapp.NewMsgServiceRouter()
+// 	banktypes.RegisterInterfaces(router.RegisterService())
+// 	banktypes.RegisterMsgServer(router, bankkeeper.NewMsgServerImpl(bk))
+// 	banktypes.RegisterQueryServer(router, bk)
+// 	return router
+// }
