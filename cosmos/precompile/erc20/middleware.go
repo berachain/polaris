@@ -177,7 +177,7 @@ func (c *Contract) transferERC20ToCoin(
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
-		// NOTE: owner must have previouslt approved msg.sender to spend amount ERC20 tokens
+		// NOTE: owner must have previously approved msg.sender to spend amount ERC20 tokens
 		if _, err = cosmlib.CallEVMFromPrecompile(
 			sdkCtx, c.GetPlugin(), evm,
 			caller, token, c.polarisERC20ABI, big.NewInt(0),
