@@ -115,6 +115,7 @@ func (c *Contract) transferCoinToERC20(
 		}
 
 		// transfer escrowed amount ERC20-originated tokens to the recipient
+		// NOTE: it is guaranteed that the ERC20 tokens were transferred to the ERC20 module
 		if _, err = cosmlib.CallEVMFromPrecompile(
 			sdkCtx, c.GetPlugin(), evm,
 			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
@@ -167,8 +168,6 @@ func (c *Contract) transferERC20ToCoin(
 
 	//nolint:nestif // handling separate cases of ERC20s/SDK coins.
 	if erc20types.IsPolarisDenom(denom) { // transferring ERC20 originated tokens to Polaris coins
-		// NOTE: owner must approve caller to spend amount ERC20 tokens
-
 		// return an error if the ERC20 token contract does not exist to revert the tx
 		if !evm.GetStateDB().Exist(token) {
 			return ErrTokenDoesNotExist
@@ -176,6 +175,7 @@ func (c *Contract) transferERC20ToCoin(
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
+		// NOTE: owner must have previouslt approved msg.sender to spend amount ERC20 tokens
 		if _, err = cosmlib.CallEVMFromPrecompile(
 			sdkCtx, c.GetPlugin(), evm,
 			caller, token, c.polarisERC20ABI, big.NewInt(0),
