@@ -51,4 +51,10 @@ contract Swapper {
     function getPolarisERC20(string calldata denom) external view returns (IERC20) {
         return erc20Module.erc20AddressForCoinDenom(denom);
     }
+
+    // deposists the ERC20 token into the yield vault
+    function deposit(address token, uint256 amount) external {
+        bool deposited = IERC20(token).transferFrom(msg.sender, address(this), amount);
+        require(deposited, "Swapper: transferFrom failed");
+    }
 }

@@ -108,6 +108,10 @@ contract PolarisERC20 is IERC20 {
         return true;
     }
 
+    function allowance(address owner, address spender) public view virtual returns (uint256) {
+        return authz().getSendAllowance(owner, spender, denom);
+    }
+
     /**
      * @dev transfer is a public method for transferring tokens to a given address.
      * @param to the address to transfer tokens to.
