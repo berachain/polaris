@@ -26,6 +26,7 @@
 pragma solidity ^0.8.4;
 
 import {IERC20} from "../../../lib/IERC20.sol";
+import {Cosmos} from "../CosmosTypes.sol";
 
 /**
  * @dev Interface of the erc20 module's precompiled contract
@@ -37,13 +38,17 @@ interface IERC20Module {
      * @dev Emitted by the erc20 module when `amount` tokens are transferred from SDK coin (of
      * denomination `denom`) to an ERC20 token from `owner` to `recipient`.
      */
-    event TransferCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, Coin[] amount);
+    event TransferCoinToErc20(
+        string indexed denom, address indexed owner, address indexed recipient, Cosmos.Coin[] amount
+    );
 
     /**
      * @dev Emitted by the erc20 module when `amount` tokens are transferred from ERC20 (of address
      * `token`) to an SDK coin from `owner` to `recipient`.
      */
-    event TransferErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, Coin[] amount);
+    event TransferErc20ToCoin(
+        address indexed token, address indexed owner, address indexed recipient, Cosmos.Coin[] amount
+    );
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
@@ -167,14 +172,4 @@ interface IERC20Module {
      * @param amount the amount of tokens to transfer
      */
     function transferERC20ToCoinTo(IERC20 token, string calldata recipient, uint256 amount) external returns (bool);
-
-    //////////////////////////////////////////// UTILS ////////////////////////////////////////////
-    /**
-     * @dev Represents a cosmos coin.
-     * Note: this struct is generated as go struct that is then used in the precompile.
-     */
-    struct Coin {
-        uint256 amount;
-        string denom;
-    }
 }

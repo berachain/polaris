@@ -39,7 +39,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -314,7 +314,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 					cosmlib.ValAddressToEthAddress(valAddr),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				resTyped := utils.MustGetAs[[]generated.IBankModuleCoin](res[0])
+				resTyped := utils.MustGetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
 				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
@@ -403,7 +403,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 					valAddr.String(),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				resTyped := utils.MustGetAs[[]generated.IBankModuleCoin](res[0])
+				resTyped := utils.MustGetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
 				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))

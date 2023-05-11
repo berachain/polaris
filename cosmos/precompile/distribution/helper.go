@@ -26,7 +26,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 )
 
 // setWithdrawAddressHelper is a helper function for the `SetWithdrawAddress` method.
@@ -57,9 +57,9 @@ func (c *Contract) withdrawDelegatorRewardsHelper(
 		return nil, err
 	}
 
-	amount := make([]generated.IBankModuleCoin, 0)
+	amount := make([]libgenerated.CosmosCoin, 0)
 	for _, coin := range res.Amount {
-		amount = append(amount, generated.IBankModuleCoin{
+		amount = append(amount, libgenerated.CosmosCoin{
 			Denom:  coin.Denom,
 			Amount: coin.Amount.BigInt(),
 		})
