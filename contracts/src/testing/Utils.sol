@@ -23,22 +23,36 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.17;
 
-import {IERC20} from "../../lib/IERC20.sol";
-import {IERC20Module} from "../cosmos/precompile/ERC20Module.sol";
+import {Test} from "../../lib/forge-std/src/Test.sol";
 
-// An example of calling a precompile from the contract's constructor.
-contract PrecompileConstructor {
-    IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
-    IERC20 public abera;
-    string public denom;
+// Tests taken from SolidityLabs (https://github.com/soliditylabs/forge-erc20-template).
 
-    constructor() {
-        bool success = erc20Module.transferCoinToERC20From("abera", msg.sender, msg.sender, 123456789);
-        require(success, "failed to transfer abera");
-        abera = erc20Module.erc20AddressForCoinDenom("abera");
-        denom = erc20Module.coinDenomForERC20Address(abera);
-        require(keccak256(abi.encodePacked(denom)) == keccak256(abi.encodePacked("abera")), "returned the wrong denom");
+contract Utils is Test {
+    bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
+
+    function getNextUserAddress() external returns (address payable) {
+        address payable user = payable(address(uint160(uint256(nextUser))));
+        nextUser = keccak256(abi.encodePacked(nextUser));
+        return user;
+    }
+
+    // create users with 100 ETH balance each
+    function createUsers(uint256 userNum) external returns (address payable[] memory) {
+        address payable[] memory users = new address payable[](userNum);
+        for (uint256 i = 0; i < userNum; i++) {
+            address payable user = this.getNextUserAddress();
+            vm.deal(user, 100 ether);
+            users[i] = user;
+        }
+
+        return users;
+    }
+
+    // move block.number forward by a given number of blocks
+    function mineBlocks(uint256 numBlocks) external {
+        uint256 targetBlock = block.number + numBlocks;
+        vm.roll(targetBlock);
     }
 }
