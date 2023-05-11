@@ -32,10 +32,7 @@ import (
 
 // this dual interface is a choice (ask Cal whether or not this is necessary/ideal for future possibilities of plugins which have xor Init/Export)
 
-type BaseCosmosPluginsHasInitGenesis interface {
+type HasGenesis interface {
 	InitGenesis(sdk.Context, *types.GenesisState)
-}
-
-type BaseCosmosPluginsHasExportGenesis interface {
 	ExportGenesis(sdk.Context, *types.GenesisState)
 }

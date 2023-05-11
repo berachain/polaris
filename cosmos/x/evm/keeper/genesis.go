@@ -36,9 +36,8 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 	// TODO: remove InitGenesis from the interfaces, do check and run instead
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
-		// checks whether plugin implements methods of BaseCosmosPluginsHasInitGenesis and executes them if it does
-		plugin, hasInitGenesis := utils.GetAs[plugins.BaseCosmosPluginsHasInitGenesis](plugin)
-		if hasInitGenesis {
+		// checks whether plugin implements methods of HasGenesis and executes them if it does
+		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
 			plugin.InitGenesis(ctx, &genState)
 		}
 	}
@@ -54,8 +53,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	genesisState := new(types.GenesisState)
 	for _, plugin := range k.host.GetAllPlugins() {
-		plugin, hasExportGenesis := utils.GetAs[plugins.BaseCosmosPluginsHasExportGenesis](plugin)
-		if hasExportGenesis {
+		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
 			plugin.ExportGenesis(ctx, genesisState)
 		}
 	}

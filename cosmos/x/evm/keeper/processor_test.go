@@ -106,7 +106,7 @@ var _ = Describe("Processor", func() {
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {
-			plugin, hasInitGenesis := utils.GetAs[plugins.BaseCosmosPluginsHasInitGenesis](plugin)
+			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
 				plugin.InitGenesis(ctx, types.DefaultGenesis())
 			}

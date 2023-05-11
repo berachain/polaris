@@ -53,8 +53,7 @@ var (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosPluginsHasInitGenesis
-	plugins.BaseCosmosPluginsHasExportGenesis
+	plugins.HasGenesis
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
