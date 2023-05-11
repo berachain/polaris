@@ -33,7 +33,7 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosPolaris
+	plugins.Base
 	core.HistoricalPlugin
 }
 
@@ -64,3 +64,5 @@ func NewPlugin(
 func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
+
+func (p *plugin) IsPlugin() {}

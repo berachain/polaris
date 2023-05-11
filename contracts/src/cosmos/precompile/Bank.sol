@@ -25,6 +25,8 @@
 
 pragma solidity ^0.8.4;
 
+import {Cosmos} from "../CosmosTypes.sol";
+
 /**
  * @dev Interface of all supported Cosmos events emitted by the bank module
  */
@@ -34,7 +36,7 @@ interface IBankModule {
     /**
      * @dev Emitted by the bank module when `amount` tokens are sent to `recipient`
      */
-    event Transfer(address indexed recipient, Coin[] amount);
+    event Transfer(address indexed recipient, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `sender` sends some amount of tokens
@@ -44,12 +46,12 @@ interface IBankModule {
     /**
      * @dev Emitted by the bank module when `amount` tokens are spent by `spender`
      */
-    event CoinSpent(address indexed spender, Coin[] amount);
+    event CoinSpent(address indexed spender, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are received by `receiver`
      */
-    event CoinReceived(address indexed receiver, Coin[] amount);
+    event CoinReceived(address indexed receiver, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are minted by `minter`
@@ -57,14 +59,14 @@ interface IBankModule {
      * Note: "Coinbase" refers to the Cosmos event: EventTypeCoinMint. `minter` is a module
      * address.
      */
-    event Coinbase(address indexed minter, Coin[] amount);
+    event Coinbase(address indexed minter, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are burned by `burner`
      *
      * Note: `burner` is a module address
      */
-    event Burn(address indexed burner, Coin[] amount);
+    event Burn(address indexed burner, Cosmos.Coin[] amount);
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
@@ -76,7 +78,7 @@ interface IBankModule {
     /**
      * @dev Returns account balance by address for all denominations.
      */
-    function getAllBalances(address accountAddress) external view returns (Coin[] memory);
+    function getAllBalances(address accountAddress) external view returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Returns the `amount` of account balance by address for a given denomination.
@@ -86,7 +88,7 @@ interface IBankModule {
     /**
      * @dev Returns account balance by address for all denominations.
      */
-    function getAllSpendableBalances(address accountAddress) external view returns (Coin[] memory);
+    function getAllSpendableBalances(address accountAddress) external view returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Returns the total supply of a single coin.
@@ -96,7 +98,7 @@ interface IBankModule {
     /**
      * @dev Returns the total supply of a all coins.
      */
-    function getAllSupply() external view returns (Coin[] memory);
+    function getAllSupply() external view returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Returns the denomination's metadata.
@@ -113,18 +115,12 @@ interface IBankModule {
     /**
      * @dev Send coins from one address to another.
      */
-    function send(address fromAddress, address toAddress, Coin[] calldata amount) external payable returns (bool);
+    function send(address fromAddress, address toAddress, Cosmos.Coin[] calldata amount)
+        external
+        payable
+        returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
-
-    /**
-     * @dev Represents a cosmos coin.
-     * Note: this struct is generated as go struct that is then used in the precompile.
-     */
-    struct Coin {
-        uint256 amount;
-        string denom;
-    }
 
     /**
      * @dev Represents a denom unit.

@@ -42,7 +42,7 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosPolaris
+	plugins.Base
 	core.PrecompilePlugin
 
 	KVGasConfig() storetypes.GasConfig
@@ -181,3 +181,5 @@ func (p *plugin) DisableReentrancy(ctx context.Context) {
 	// restore ctx gas configs for continuing precompile execution
 	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
 }
+
+func (p *plugin) IsPlugin() {}

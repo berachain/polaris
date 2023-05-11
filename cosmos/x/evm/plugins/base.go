@@ -26,10 +26,16 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// BaseCosmosPolaris represents the base class that all x/evm implements of
-// the Polaris plugins must implement. This is mainly to ensure that the plugins
-// are able to own their own state and genesis.
-type BaseCosmosPolaris interface {
+// Base is the base interface which all x/evm Polaris plugins must implement
+
+type Base interface {
+	IsPlugin()
+}
+
+// HasGenesis represents the base class that all x/evm Polaris plugins which have
+// InitGenesis or ExportGenesis methods must implement
+
+type HasGenesis interface {
 	InitGenesis(sdk.Context, *types.GenesisState)
 	ExportGenesis(sdk.Context, *types.GenesisState)
 }
