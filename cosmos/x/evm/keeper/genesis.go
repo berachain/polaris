@@ -23,7 +23,9 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // InitGenesis is called during the InitGenesis.
@@ -34,7 +36,11 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 	// TODO: remove InitGenesis from the interfaces, do check and run instead
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
-		plugin.InitGenesis(ctx, &genState)
+		// checks whether plugin implements methods of BaseCosmosPluginsHasInitGenesis and executes them if it does
+		plugin, hasInitGenesis := utils.GetAs[plugins.BaseCosmosPluginsHasInitGenesis](plugin)
+		if hasInitGenesis {
+			plugin.InitGenesis(ctx, &genState)
+		}
 	}
 
 	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
@@ -48,7 +54,10 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	genesisState := new(types.GenesisState)
 	for _, plugin := range k.host.GetAllPlugins() {
-		plugin.ExportGenesis(ctx, genesisState)
+		plugin, hasExportGenesis := utils.GetAs[plugins.BaseCosmosPluginsHasExportGenesis](plugin)
+		if hasExportGenesis {
+			plugin.ExportGenesis(ctx, genesisState)
+		}
 	}
 	return genesisState
 }

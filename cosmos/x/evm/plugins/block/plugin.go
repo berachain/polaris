@@ -28,13 +28,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
 type Plugin interface {
-	plugins.BaseCosmosPolaris
 	core.BlockPlugin
 
 	// SetQueryContextFn sets the function used for querying historical block headers.

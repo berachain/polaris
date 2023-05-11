@@ -29,7 +29,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/event"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -42,7 +41,6 @@ var _ Plugin = (*plugin)(nil)
 // Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
 	core.TxPoolPlugin
-	plugins.BaseCosmosPolaris
 	SetNonceRetriever(mempool.NonceRetriever)
 	SetClientContext(client.Context)
 }

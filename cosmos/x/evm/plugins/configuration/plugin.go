@@ -37,7 +37,8 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosPolaris
+	plugins.BaseCosmosPluginsHasInitGenesis
+	plugins.BaseCosmosPluginsHasExportGenesis
 	core.ConfigurationPlugin
 	SetParams(params *types.Params)
 	GetParams() *types.Params
