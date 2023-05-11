@@ -28,7 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	libutils "pkg.berachain.dev/polaris/lib/utils"
@@ -43,7 +43,7 @@ var _ = Describe("Attributes", func() {
 			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
 			coins, err := ConvertSdkCoins(denom10.String())
 			Expect(err).ToNot(HaveOccurred())
-			expectedEvmCoins := []generated.IBankModuleCoin{
+			expectedEvmCoins := []libgenerated.CosmosCoin{
 				{
 					Amount: big.NewInt(10),
 					Denom:  "denom",
