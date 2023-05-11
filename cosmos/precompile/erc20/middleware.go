@@ -89,6 +89,11 @@ func (c *Contract) transferCoinToERC20(
 	if resp.Token == "" { //nolint:nestif // readability.
 		// first occurrence of an IBC originated SDK coin
 
+		// TODO: require that the SDK coin has denom metadata registered.
+		// if !c.bk.HasDenomMetaData(sdkCtx, denom) {
+		// 	return fmt.Errorf("coin %s does not have metadata registered", denom)
+		// }
+
 		// deploy the new PolarisERC20 token contract
 		// NOTE: deployer of this contract is the ERC20 precompile account, NOT the msg.sender
 		// NOTE: the incoming coin's denom must have a denomMetadata set in the bank keeper

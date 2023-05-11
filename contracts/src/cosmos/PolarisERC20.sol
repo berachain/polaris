@@ -28,7 +28,11 @@ contract PolarisERC20 is IERC20 {
      * @return string the sdk.Coin name for this erc20.
      */
     function name() public view returns (string memory) {
-        return bank().getDenomMetadata(denom).display;
+        IBankModule.DenomMetadata memory denomMetadata = bank().getDenomMetadata(denom);
+        if (bytes(denomMetadata.display).length > 0) {
+            return denomMetadata.display;
+        }
+        return denom;
     }
 
     /**
@@ -36,7 +40,11 @@ contract PolarisERC20 is IERC20 {
      * @return string the sdk.Coin symbol for this erc20.
      */
     function symbol() public view returns (string memory) {
-        return bank().getDenomMetadata(denom).symbol;
+        IBankModule.DenomMetadata memory denomMetadata = bank().getDenomMetadata(denom);
+        if (bytes(denomMetadata.symbol).length > 0) {
+            return denomMetadata.symbol;
+        }
+        return denom;
     }
 
     /**
@@ -45,7 +53,11 @@ contract PolarisERC20 is IERC20 {
      */
     function decimals() public view returns (uint8) {
         // TODO: Get the max decimals from the denom units? denomUnits[0] is not necessarily correct.
-        return uint8(bank().getDenomMetadata(denom).denomUnits[0].exponent);
+        IBankModule.DenomMetadata memory denomMetadata = bank().getDenomMetadata(denom);
+        if (denomMetadata.denomUnits.length > 0) {
+            return uint8(denomMetadata.denomUnits[0].exponent);
+        }
+        return 18; // TODO: better fallback?
     }
 
     /*//////////////////////////////////////////////////////////////
