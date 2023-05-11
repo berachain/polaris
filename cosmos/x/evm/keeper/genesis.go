@@ -33,7 +33,6 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
 	k.ConfigureGethLogger(ctx)
 
-	// TODO: remove InitGenesis from the interfaces, do check and run instead
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
 		// checks whether plugin implements methods of HasGenesis and executes them if it does
