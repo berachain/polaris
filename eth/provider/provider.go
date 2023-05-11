@@ -27,7 +27,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/graphql"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
@@ -88,14 +87,15 @@ func NewPolarisProviderWithConfig(
 	}
 
 	// we don't have filter system yet
+	// be careful about this, could break in the future
 	ethConfig := ethconfig.Config{
 		SyncMode:           0,
 		FilterLogCacheSize: 0,
 	}
 	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, &ethConfig)
 
-	// ugly af, this should be a flag rather than make every node default to using it
-	graphql.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
+	// this should be a flag rather than make every node default to using it
+	utils.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
 
 	return sp
 }
