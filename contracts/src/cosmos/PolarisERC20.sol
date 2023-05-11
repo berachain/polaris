@@ -28,7 +28,8 @@ contract PolarisERC20 is IERC20 {
      * @return string the sdk.Coin name for this erc20.
      */
     function name() public view returns (string memory) {
-        return bank().getDenomMetadata(denom).display;
+        // TODO: Get the name/display from the denom metadata.
+        return denom;
     }
 
     /**
@@ -36,16 +37,17 @@ contract PolarisERC20 is IERC20 {
      * @return string the sdk.Coin symbol for this erc20.
      */
     function symbol() public view returns (string memory) {
-        return bank().getDenomMetadata(denom).symbol;
+        // TODO: Get the symbol from the denom metadata.
+        return denom;
     }
 
     /**
      * @dev decimals is a public view method for reading the `sdk.Coin` decimals for this erc20.
      * @return uint8 the sdk.Coin decimals for this erc20.
      */
-    function decimals() public view returns (uint8) {
-        // TODO: Get the max decimals from the denom units? denomUnits[0] is not necessarily correct.
-        return uint8(bank().getDenomMetadata(denom).denomUnits[0].exponent);
+    function decimals() public pure returns (uint8) {
+        // TODO: Get the max decimals from the denom units.
+        return 18;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -196,7 +198,7 @@ contract PolarisERC20 is IERC20 {
         return keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(name())),
+                keccak256(bytes(denom)),
                 keccak256("1"),
                 block.chainid,
                 address(this)
