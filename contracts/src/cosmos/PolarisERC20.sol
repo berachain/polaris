@@ -2,9 +2,10 @@
 
 pragma solidity >=0.8.0;
 
-import {IERC20} from "../../lib/IERC20.sol";
 import {IAuthModule} from "./precompile/Auth.sol";
 import {IBankModule} from "./precompile/Bank.sol";
+import {OFTCore} from "../../lib/layerzero-contracts/contracts/token/oft/OFTCore.sol";
+import {IOFT} from "../../lib/layerzero-contracts/contracts/token/oft/IOFT.sol";
 
 /**
  * @notice Polaris implementation of ERC20 + EIP-2612.
@@ -16,7 +17,7 @@ import {IBankModule} from "./precompile/Bank.sol";
  * @author Berachain Team
  * @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
  */
-contract PolarisERC20 is IERC20 {
+contract PolarisERC20 is OFTCore, IOFT {
     /*//////////////////////////////////////////////////////////////
                               ERC20 STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -63,7 +64,8 @@ contract PolarisERC20 is IERC20 {
     //////////////////////////////////////////////////////////////*/
 
     /// @param _denom is the corresponding SDK Coin's denom.
-    constructor(string memory _denom) {
+    // TODO: lzEndpointAddress should not be 0.
+    constructor(string memory _denom) OFTCore(address(0x0)) {
         denom = _denom;
 
         INITIAL_CHAIN_ID = block.chainid;
@@ -202,6 +204,68 @@ contract PolarisERC20 is IERC20 {
                 address(this)
             )
         );
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                            LAYER ZERO LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev returns the circulating amount of tokens on current chain
+     */
+    function circulatingSupply() external view override returns (uint256) {
+        return totalSupply();
+    }
+
+    /**
+     * @dev returns the address of the ERC20 token
+     */
+    function token() external view override returns (address) {
+        return address(this);
+    }
+
+    /**
+     * @dev Debits an amount from a specific address and sends it to another chain
+     * @notice This function should only be called internally
+     * @param _from The address to debit from
+     * @param _dstChainId The ID of the destination chain where the amount will be sent
+     * @param _toAddress The address (in bytes) that will receive the debited amount on the destination chain
+     * @param _amount The amount to debit from the address
+     * @return Returns the transaction status as a uint (e.g., 0 for failure, 1 for success)
+     */
+    function _debitFrom(address _from, uint16 _dstChainId, bytes memory _toAddress, uint256 _amount)
+        internal
+        virtual
+        override
+        returns (uint256)
+    {
+        // TODO: Implement
+        _from;
+        _dstChainId;
+        _toAddress;
+        _amount;
+        return 0;
+    }
+
+    /**
+     * @dev Credits an amount to a specific address from a source chain
+     * @notice This function should only be called internally
+     * @param _srcChainId The ID of the source chain from where the amount is sent
+     * @param _toAddress The address that will receive the credited amount
+     * @param _amount The amount to credit to the address
+     * @return Returns the transaction status as a uint (e.g., 0 for failure, 1 for success)
+     */
+    function _creditTo(uint16 _srcChainId, address _toAddress, uint256 _amount)
+        internal
+        virtual
+        override
+        returns (uint256)
+    {
+        // TODO: Implement
+        _srcChainId;
+        _toAddress;
+        _amount;
+        return 0;
     }
 
     /*//////////////////////////////////////////////////////////////

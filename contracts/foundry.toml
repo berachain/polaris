@@ -11,6 +11,7 @@ remappings = [
     '@forge-std/=lib/forge-std/src/',
     '@interfaces/=interfaces/',
     '@src/=src/',
+    '@openzeppelin/=lib/openzeppelin-contracts/',
 ]
 
 [profile.ci]
