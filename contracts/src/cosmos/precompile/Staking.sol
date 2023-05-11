@@ -35,30 +35,30 @@ interface IStakingModule {
      * @dev Emitted by the staking module when `amount` tokens are delegated to
      * `validator`
      */
-    event Delegate(address indexed validator, uint256 amount);
+    event Delegate(address indexed validator, Coin[] amount);
 
     /**
      * @dev Emitted by the staking module when `amount` tokens are redelegated from
      * `sourceValidator` to `destinationValidator`
      */
-    event Redelegate(address indexed sourceValidator, address indexed destinationValidator, uint256 amount);
+    event Redelegate(address indexed sourceValidator, address indexed destinationValidator, Coin[] amount);
 
     /**
      * @dev Emitted by the staking module when `amount` tokens are used to create `validator`
      */
-    event CreateValidator(address indexed validator, uint256 amount);
+    event CreateValidator(address indexed validator, Coin[] amount);
 
     /**
      * @dev Emitted by the staking module when `amount` tokens are unbonded from `validator`
      */
-    event Unbond(address indexed validator, uint256 amount);
+    event Unbond(address indexed validator, Coin[] amount);
 
     /**
      * @dev Emitted by the staking module when `amount` tokens are canceled from `delegator`'s
      * unbonding delegation with `validator`
      */
     event CancelUnbondingDelegation(
-        address indexed validator, address indexed delegator, uint256 amount, int64 creationHeight
+        address indexed validator, address indexed delegator, Coin[] amount, int64 creationHeight
     );
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
@@ -184,6 +184,14 @@ interface IStakingModule {
         returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
+    /**
+     * @dev Represents a cosmos coin.
+     * Note: this struct is generated as go struct that is then used in the precompile.
+     */
+    struct Coin {
+        uint256 amount;
+        string denom;
+    }
 
     /**
      * @dev Represents one entry of an unbonding delegation

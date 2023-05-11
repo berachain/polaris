@@ -33,6 +33,9 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //			GetFunc: func(addr common.Address) vm.PrecompiledContract {
 //				panic("mock out the Get method")
 //			},
+//			GetActiveFunc: func(rules *params.Rules) []common.Address {
+//				panic("mock out the GetActive method")
+//			},
 //			GetPrecompilesFunc: func(rules *params.Rules) []precompile.Registrable {
 //				panic("mock out the GetPrecompiles method")
 //			},
@@ -60,6 +63,9 @@ type PrecompilePluginMock struct {
 
 	// GetFunc mocks the Get method.
 	GetFunc func(addr common.Address) vm.PrecompiledContract
+
+	// GetActiveFunc mocks the GetActive method.
+	GetActiveFunc func(rules *params.Rules) []common.Address
 
 	// GetPrecompilesFunc mocks the GetPrecompiles method.
 	GetPrecompilesFunc func(rules *params.Rules) []precompile.Registrable
@@ -89,6 +95,11 @@ type PrecompilePluginMock struct {
 		Get []struct {
 			// Addr is the addr argument value.
 			Addr common.Address
+		}
+		// GetActive holds details about calls to the GetActive method.
+		GetActive []struct {
+			// Rules is the rules argument value.
+			Rules *params.Rules
 		}
 		// GetPrecompiles holds details about calls to the GetPrecompiles method.
 		GetPrecompiles []struct {
@@ -126,6 +137,7 @@ type PrecompilePluginMock struct {
 	lockDisableReentrancy sync.RWMutex
 	lockEnableReentrancy  sync.RWMutex
 	lockGet               sync.RWMutex
+	lockGetActive         sync.RWMutex
 	lockGetPrecompiles    sync.RWMutex
 	lockHas               sync.RWMutex
 	lockRegister          sync.RWMutex
@@ -225,6 +237,38 @@ func (mock *PrecompilePluginMock) GetCalls() []struct {
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
 	mock.lockGet.RUnlock()
+	return calls
+}
+
+// GetActive calls GetActiveFunc.
+func (mock *PrecompilePluginMock) GetActive(rules *params.Rules) []common.Address {
+	if mock.GetActiveFunc == nil {
+		panic("PrecompilePluginMock.GetActiveFunc: method is nil but PrecompilePlugin.GetActive was just called")
+	}
+	callInfo := struct {
+		Rules *params.Rules
+	}{
+		Rules: rules,
+	}
+	mock.lockGetActive.Lock()
+	mock.calls.GetActive = append(mock.calls.GetActive, callInfo)
+	mock.lockGetActive.Unlock()
+	return mock.GetActiveFunc(rules)
+}
+
+// GetActiveCalls gets all the calls that were made to GetActive.
+// Check the length with:
+//
+//	len(mockedPrecompilePlugin.GetActiveCalls())
+func (mock *PrecompilePluginMock) GetActiveCalls() []struct {
+	Rules *params.Rules
+} {
+	var calls []struct {
+		Rules *params.Rules
+	}
+	mock.lockGetActive.RLock()
+	calls = mock.calls.GetActive
+	mock.lockGetActive.RUnlock()
 	return calls
 }
 

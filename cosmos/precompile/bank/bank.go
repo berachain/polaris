@@ -149,7 +149,7 @@ func (c *Contract) GetAllBalances(
 		return nil, err
 	}
 
-	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
+	return []any{cosmlib.SdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
@@ -203,7 +203,7 @@ func (c *Contract) GetSpendableBalances(
 		return nil, err
 	}
 
-	return []any{sdkCoinsToEvmCoins(res.Balances)}, nil
+	return []any{cosmlib.SdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
 // GetSupplyOf implements `GetSupplyOf(string)` method.
@@ -246,7 +246,7 @@ func (c *Contract) GetTotalSupply(
 		return nil, err
 	}
 
-	return []any{sdkCoinsToEvmCoins(res.Supply)}, nil
+	return []any{cosmlib.SdkCoinsToEvmCoins(res.Supply)}, nil
 }
 
 // GetDenomMetadata implements `getDenomMetadata(string)` method.
@@ -270,10 +270,8 @@ func (c *Contract) GetDenomMetadata(
 		return nil, err
 	}
 
-	r := res.Metadata
-
-	denomUnits := make([]generated.IBankModuleDenomUnit, len(r.DenomUnits))
-	for i, d := range r.DenomUnits {
+	denomUnits := make([]generated.IBankModuleDenomUnit, len(res.Metadata.DenomUnits))
+	for i, d := range res.Metadata.DenomUnits {
 		denomUnits[i] = generated.IBankModuleDenomUnit{
 			Denom:    d.Denom,
 			Aliases:  d.Aliases,
@@ -282,12 +280,12 @@ func (c *Contract) GetDenomMetadata(
 	}
 
 	result := generated.IBankModuleDenomMetadata{
-		Description: r.Description,
+		Description: res.Metadata.Description,
 		DenomUnits:  denomUnits,
-		Base:        r.Base,
-		Display:     r.Display,
-		Name:        r.Name,
-		Symbol:      r.Symbol,
+		Base:        res.Metadata.Base,
+		Display:     res.Metadata.Display,
+		Name:        res.Metadata.Name,
+		Symbol:      res.Metadata.Symbol,
 	}
 	return []any{result}, nil
 }
@@ -336,7 +334,7 @@ func (c *Contract) Send(
 	if !ok {
 		return nil, precompile.ErrInvalidHexAddress
 	}
-	coins, err := extractCoinsFromInput(args[2])
+	coins, err := cosmlib.ExtractCoinsFromInput(args[2])
 
 	if err != nil {
 		return nil, err

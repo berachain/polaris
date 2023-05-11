@@ -18,24 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package mock
 
-const (
-	StoreKey   = "erc20"
-	ModuleName = "erc20"
-)
+//go:generate moq -out ./geth.mock.go -pkg mock ./ PrecompileEVM MessageRouter
 
-const (
-	DenomToAddressKeyPrefix byte = iota
-	AddressToDenomKeyPrefix
-)
+func NewPrecompileEVMMock() *PrecompileEVMMock {
+	return &PrecompileEVMMock{}
+}
 
-var (
-	EventTypeTransferERC20ToCoin = "transfer_erc20_to_coin"
-	EventTypeTransferCoinToERC20 = "transfer_coin_to_erc20"
-
-	AttributeKeyToken     = "token"
-	AttributeKeyDenom     = "denom"
-	AttributeKeyOwner     = "owner"
-	AttributeKeyRecipient = "recipient"
-)
+func NewMsgRouterMock() *MessageRouterMock {
+	return &MessageRouterMock{}
+}

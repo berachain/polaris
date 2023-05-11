@@ -18,20 +18,30 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank
+package lib
 
 import (
 	"math/big"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// sdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
+/**
+ * This file contains conversions between native Cosmos SDK types and go-ethereum ABI types.
+ */
+
+// SdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
+// The []generated.IBankModuleCoin is just a representation of []Coin from the generated solidity bindings
+// and is equivalent to any of the other []Coin types generated from their respective solidity bindings.
+// i.e. []generated.IERC20Coin.
+func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 	evmCoins := make([]generated.IBankModuleCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
 		evmCoins[i] = generated.IBankModuleCoin{
@@ -42,8 +52,8 @@ func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
 	return evmCoins
 }
 
-// extractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
-func extractCoinsFromInput(coins any) (sdk.Coins, error) {
+// ExtractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
+func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
 	// the any type input into IBankModuleCoin.
 	amounts, ok := utils.GetAs[[]struct {
@@ -64,4 +74,22 @@ func extractCoinsFromInput(coins any) (sdk.Coins, error) {
 		)
 	}
 	return sdkCoins, nil
+}
+
+// GetGrantAsSendAuth maps a list of grants to a list of send authorizations.
+func GetGrantAsSendAuth(
+	grants []*authz.Grant, blocktime time.Time,
+) ([]*banktypes.SendAuthorization, error) {
+	var sendAuths []*banktypes.SendAuthorization
+	for _, grant := range grants {
+		// Check that the expiration is still valid.
+		if grant.Expiration == nil || grant.Expiration.After(blocktime) {
+			sendAuth, ok := utils.GetAs[*banktypes.SendAuthorization](grant.Authorization.GetCachedValue())
+			if !ok {
+				return nil, precompile.ErrInvalidGrantType
+			}
+			sendAuths = append(sendAuths, sendAuth)
+		}
+	}
+	return sendAuths, nil
 }
