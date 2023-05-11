@@ -47,7 +47,7 @@ var _ = Describe("TestConfig", func() {
 		Expect(config.NodeConfig.HTTPHost).To(Equal("0.0.0.0"))
 		Expect(config.NodeConfig.HTTPPort).To(BeNumerically("==", 8545))
 		Expect(config.NodeConfig.HTTPCors).To(ContainElement("*"))
-		Expect(config.NodeConfig.HTTPVirtualHosts).To(ContainElement("0.0.0.0"))
+		Expect(config.NodeConfig.HTTPVirtualHosts).To(ContainElement("*"))
 		Expect(config.NodeConfig.HTTPModules).To(ConsistOf("eth", "net"))
 		Expect(config.NodeConfig.AuthAddr).To(Equal("0.0.0.0"))
 		Expect(config.NodeConfig.AuthPort).To(BeNumerically("==", 8546))
