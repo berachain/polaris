@@ -25,7 +25,7 @@ import (
 	"testing"
 	"time"
 
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/eth/common"

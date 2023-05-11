@@ -5,6 +5,7 @@ pragma solidity >=0.8.0;
 import {IERC20} from "../../lib/IERC20.sol";
 import {IAuthModule} from "./precompile/Auth.sol";
 import {IBankModule} from "./precompile/Bank.sol";
+import {Cosmos} from "./CosmosTypes.sol";
 
 /**
  * @notice Polaris implementation of ERC20 + EIP-2612.
@@ -229,9 +230,9 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount to convert to sdk.Coin.
      * @return sdk.Coin[] the sdk.Coin representation of the given amount.
      */
-    function amountToBankCoins(uint256 amount) internal view returns (IBankModule.Coin[] memory) {
-        IBankModule.Coin[] memory coins = new IBankModule.Coin[](1);
-        coins[0] = IBankModule.Coin({denom: denom, amount: amount});
+    function amountToBankCoins(uint256 amount) internal view returns (Cosmos.Coin[] memory) {
+        Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
+        coins[0] = Cosmos.Coin({denom: denom, amount: amount});
         return coins;
     }
 
@@ -240,9 +241,9 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount to convert to sdk.Coin.
      * @return sdk.Coin[] the sdk.Coin representation of the given amount.
      */
-    function amountToAuthCoins(uint256 amount) internal view returns (IAuthModule.Coin[] memory) {
-        IAuthModule.Coin[] memory coins = new IAuthModule.Coin[](1);
-        coins[0] = IAuthModule.Coin({denom: denom, amount: amount});
+    function amountToAuthCoins(uint256 amount) internal view returns (Cosmos.Coin[] memory) {
+        Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
+        coins[0] = Cosmos.Coin({denom: denom, amount: amount});
         return coins;
     }
 }

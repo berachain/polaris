@@ -38,7 +38,7 @@ import (
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	precomtest "pkg.berachain.dev/polaris/cosmos/precompile/test"

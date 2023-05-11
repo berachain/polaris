@@ -24,8 +24,8 @@ import (
 	"math/big"
 	"testing"
 
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/fundraiser"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/eth/common"
 
@@ -59,13 +59,13 @@ var _ = Describe("Bank", func() {
 
 	It("should call functions on the precompile directly", func() {
 		numberOfDenoms := 7
-		coinsToBeSent := []bindings.IBankModuleCoin{
+		coinsToBeSent := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
 				Amount: big.NewInt(1000),
 			},
 		}
-		expectedAllBalance := []bindings.IBankModuleCoin{
+		expectedAllBalance := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
 				Amount: big.NewInt(100),
@@ -154,7 +154,7 @@ var _ = Describe("Bank", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		coinsToDonate := []tbindings.IBankModuleCoin{
+		coinsToDonate := []tbindings.CosmosCoin{
 			{
 				Denom:  denom,
 				Amount: big.NewInt(1000000),

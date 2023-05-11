@@ -30,7 +30,8 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
@@ -255,7 +256,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
+				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
@@ -393,7 +394,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
+				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
@@ -505,7 +506,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
+				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i := 0; i < 3; i++ {
