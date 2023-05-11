@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package precompile
+package bank
 
 import (
 	"errors"
@@ -29,8 +29,8 @@ var (
 	_ = abi.ConvertType
 )
 
-// IBankModuleCoin is an auto generated low-level Go binding around an user-defined struct.
-type IBankModuleCoin struct {
+// CosmosCoin is an auto generated low-level Go binding around an user-defined struct.
+type CosmosCoin struct {
 	Amount *big.Int
 	Denom  string
 }
@@ -54,7 +54,7 @@ type IBankModuleDenomUnit struct {
 
 // BankModuleMetaData contains all meta data concerning the BankModule contract.
 var BankModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllSpendableBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllSupply\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getDenomMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSpendableBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"fromAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"toAddress\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"send\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllSpendableBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllSupply\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getDenomMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSpendableBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"fromAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"toAddress\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"send\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
 }
 
 // BankModuleABI is the input ABI used to generate the binding from.
@@ -206,15 +206,15 @@ func (_BankModule *BankModuleTransactorRaw) Transact(opts *bind.TransactOpts, me
 // GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
 //
 // Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCaller) GetAllBalances(opts *bind.CallOpts, accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCaller) GetAllBalances(opts *bind.CallOpts, accountAddress common.Address) ([]CosmosCoin, error) {
 	var out []interface{}
 	err := _BankModule.contract.Call(opts, &out, "getAllBalances", accountAddress)
 
 	if err != nil {
-		return *new([]IBankModuleCoin), err
+		return *new([]CosmosCoin), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+	out0 := *abi.ConvertType(out[0], new([]CosmosCoin)).(*[]CosmosCoin)
 
 	return out0, err
 
@@ -223,29 +223,29 @@ func (_BankModule *BankModuleCaller) GetAllBalances(opts *bind.CallOpts, account
 // GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
 //
 // Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleSession) GetAllBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleSession) GetAllBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
 //
 // Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCallerSession) GetAllBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCallerSession) GetAllBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
 //
 // Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCaller) GetAllSpendableBalances(opts *bind.CallOpts, accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCaller) GetAllSpendableBalances(opts *bind.CallOpts, accountAddress common.Address) ([]CosmosCoin, error) {
 	var out []interface{}
 	err := _BankModule.contract.Call(opts, &out, "getAllSpendableBalances", accountAddress)
 
 	if err != nil {
-		return *new([]IBankModuleCoin), err
+		return *new([]CosmosCoin), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+	out0 := *abi.ConvertType(out[0], new([]CosmosCoin)).(*[]CosmosCoin)
 
 	return out0, err
 
@@ -254,29 +254,29 @@ func (_BankModule *BankModuleCaller) GetAllSpendableBalances(opts *bind.CallOpts
 // GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
 //
 // Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleSession) GetAllSpendableBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleSession) GetAllSpendableBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSpendableBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
 //
 // Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCallerSession) GetAllSpendableBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCallerSession) GetAllSpendableBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSpendableBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
 //
 // Solidity: function getAllSupply() view returns((uint256,string)[])
-func (_BankModule *BankModuleCaller) GetAllSupply(opts *bind.CallOpts) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCaller) GetAllSupply(opts *bind.CallOpts) ([]CosmosCoin, error) {
 	var out []interface{}
 	err := _BankModule.contract.Call(opts, &out, "getAllSupply")
 
 	if err != nil {
-		return *new([]IBankModuleCoin), err
+		return *new([]CosmosCoin), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+	out0 := *abi.ConvertType(out[0], new([]CosmosCoin)).(*[]CosmosCoin)
 
 	return out0, err
 
@@ -285,14 +285,14 @@ func (_BankModule *BankModuleCaller) GetAllSupply(opts *bind.CallOpts) ([]IBankM
 // GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
 //
 // Solidity: function getAllSupply() view returns((uint256,string)[])
-func (_BankModule *BankModuleSession) GetAllSupply() ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleSession) GetAllSupply() ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSupply(&_BankModule.CallOpts)
 }
 
 // GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
 //
 // Solidity: function getAllSupply() view returns((uint256,string)[])
-func (_BankModule *BankModuleCallerSession) GetAllSupply() ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCallerSession) GetAllSupply() ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSupply(&_BankModule.CallOpts)
 }
 
@@ -454,21 +454,21 @@ func (_BankModule *BankModuleCallerSession) GetSupply(denom string) (*big.Int, e
 // Send is a paid mutator transaction binding the contract method 0x84404811.
 //
 // Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
-func (_BankModule *BankModuleTransactor) Send(opts *bind.TransactOpts, fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+func (_BankModule *BankModuleTransactor) Send(opts *bind.TransactOpts, fromAddress common.Address, toAddress common.Address, amount []CosmosCoin) (*types.Transaction, error) {
 	return _BankModule.contract.Transact(opts, "send", fromAddress, toAddress, amount)
 }
 
 // Send is a paid mutator transaction binding the contract method 0x84404811.
 //
 // Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
-func (_BankModule *BankModuleSession) Send(fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+func (_BankModule *BankModuleSession) Send(fromAddress common.Address, toAddress common.Address, amount []CosmosCoin) (*types.Transaction, error) {
 	return _BankModule.Contract.Send(&_BankModule.TransactOpts, fromAddress, toAddress, amount)
 }
 
 // Send is a paid mutator transaction binding the contract method 0x84404811.
 //
 // Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
-func (_BankModule *BankModuleTransactorSession) Send(fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+func (_BankModule *BankModuleTransactorSession) Send(fromAddress common.Address, toAddress common.Address, amount []CosmosCoin) (*types.Transaction, error) {
 	return _BankModule.Contract.Send(&_BankModule.TransactOpts, fromAddress, toAddress, amount)
 }
 
@@ -542,7 +542,7 @@ func (it *BankModuleBurnIterator) Close() error {
 // BankModuleBurn represents a Burn event raised by the BankModule contract.
 type BankModuleBurn struct {
 	Burner common.Address
-	Amount []IBankModuleCoin
+	Amount []CosmosCoin
 	Raw    types.Log // Blockchain specific contextual infos
 }
 
@@ -687,7 +687,7 @@ func (it *BankModuleCoinReceivedIterator) Close() error {
 // BankModuleCoinReceived represents a CoinReceived event raised by the BankModule contract.
 type BankModuleCoinReceived struct {
 	Receiver common.Address
-	Amount   []IBankModuleCoin
+	Amount   []CosmosCoin
 	Raw      types.Log // Blockchain specific contextual infos
 }
 
@@ -832,7 +832,7 @@ func (it *BankModuleCoinSpentIterator) Close() error {
 // BankModuleCoinSpent represents a CoinSpent event raised by the BankModule contract.
 type BankModuleCoinSpent struct {
 	Spender common.Address
-	Amount  []IBankModuleCoin
+	Amount  []CosmosCoin
 	Raw     types.Log // Blockchain specific contextual infos
 }
 
@@ -977,7 +977,7 @@ func (it *BankModuleCoinbaseIterator) Close() error {
 // BankModuleCoinbase represents a Coinbase event raised by the BankModule contract.
 type BankModuleCoinbase struct {
 	Minter common.Address
-	Amount []IBankModuleCoin
+	Amount []CosmosCoin
 	Raw    types.Log // Blockchain specific contextual infos
 }
 
@@ -1266,7 +1266,7 @@ func (it *BankModuleTransferIterator) Close() error {
 // BankModuleTransfer represents a Transfer event raised by the BankModule contract.
 type BankModuleTransfer struct {
 	Recipient common.Address
-	Amount    []IBankModuleCoin
+	Amount    []CosmosCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 

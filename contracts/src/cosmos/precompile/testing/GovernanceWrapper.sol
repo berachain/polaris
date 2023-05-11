@@ -27,6 +27,7 @@ pragma solidity ^0.8.17;
 
 import {IGovernanceModule} from "../Governance.sol";
 import {IBankModule} from "../Bank.sol";
+import {Cosmos} from "../../CosmosTypes.sol";
 
 contract GovernanceWrapper {
     // State
@@ -58,7 +59,7 @@ contract GovernanceWrapper {
         returns (uint64)
     {
         // Send the deposit amount to the contract.
-        IBankModule.Coin[] memory coins = new IBankModule.Coin[](1);
+        Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
         coins[0].denom = denom;
         coins[0].amount = amount;
         bank.send(msg.sender, address(this), coins);

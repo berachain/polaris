@@ -27,11 +27,13 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/runtime/config"
-	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // PrecompileModuleNames is a set of all module names that have a corresponding precompile.
@@ -49,10 +51,12 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
 	k.ConfigureGethLogger(ctx)
 
-	// TODO: remove InitGenesis from the interfaces, do check and run instead
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
-		plugin.InitGenesis(ctx, &genState)
+		// checks whether plugin implements methods of HasGenesis and executes them if it does
+		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
+			plugin.InitGenesis(ctx, &genState)
+		}
 	}
 
 	// For each of the precompile addresses, ensure the corresponding module account is set.
@@ -75,7 +79,9 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	genesisState := new(types.GenesisState)
 	for _, plugin := range k.host.GetAllPlugins() {
-		plugin.ExportGenesis(ctx, genesisState)
+		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
+			plugin.ExportGenesis(ctx, genesisState)
+		}
 	}
 	return genesisState
 }

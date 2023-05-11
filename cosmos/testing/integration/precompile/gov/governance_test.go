@@ -30,8 +30,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -46,7 +47,7 @@ var (
 	tf             *integration.TestFixture
 	precompile     *bindings.GovernanceModule
 	wrapper        *tbindings.GovernanceWrapper
-	bankPrecompile *bindings.BankModule
+	bankPrecompile *bbindings.BankModule
 	wrapperAddr    common.Address
 )
 
@@ -66,7 +67,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"), tf.EthClient,
 	)
 	// Setup the bank precompile.
-	bankPrecompile, _ = bindings.NewBankModule(
+	bankPrecompile, _ = bbindings.NewBankModule(
 		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient)
 
 	// Deploy the contract.
@@ -95,7 +96,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Send coins to the wrapper.
-		coins := []bindings.IBankModuleCoin{
+		coins := []bbindings.CosmosCoin{
 			{
 				Denom:  "stake",
 				Amount: big.NewInt(amt.Int64()),

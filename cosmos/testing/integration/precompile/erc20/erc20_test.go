@@ -29,7 +29,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	bankbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
+	erc20bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
@@ -47,8 +48,8 @@ func TestERC20Precompile(t *testing.T) {
 
 var (
 	tf                 *integration.TestFixture
-	erc20Precompile    *bindings.ERC20Module
-	bankPrecompile     *bindings.BankModule
+	erc20Precompile    *erc20bindings.ERC20Module
+	bankPrecompile     *bankbindings.BankModule
 	erc20ModuleAddress = cosmlib.AccAddressToEthAddress(
 		authtypes.NewModuleAddress(erc20types.ModuleName),
 	)
@@ -57,10 +58,10 @@ var (
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
-	bankPrecompile, _ = bindings.NewBankModule(
+	bankPrecompile, _ = bankbindings.NewBankModule(
 		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient,
 	)
-	erc20Precompile, _ = bindings.NewERC20Module(erc20ModuleAddress, tf.EthClient)
+	erc20Precompile, _ = erc20bindings.NewERC20Module(erc20ModuleAddress, tf.EthClient)
 	return nil
 }, func(data []byte) {})
 

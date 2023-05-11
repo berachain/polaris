@@ -28,7 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -37,14 +37,11 @@ import (
  * This file contains conversions between native Cosmos SDK types and go-ethereum ABI types.
  */
 
-// SdkCoinsToEvmCoins converts sdk.Coins into []generated.IBankModuleCoin.
-// The []generated.IBankModuleCoin is just a representation of []Coin from the generated solidity bindings
-// and is equivalent to any of the other []Coin types generated from their respective solidity bindings.
-// i.e. []generated.IERC20Coin.
-func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.IBankModuleCoin {
-	evmCoins := make([]generated.IBankModuleCoin, len(sdkCoins))
+// SdkCoinsToEvmCoins converts sdk.Coins into []generated.CosmosCoin.
+func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.CosmosCoin {
+	evmCoins := make([]generated.CosmosCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
-		evmCoins[i] = generated.IBankModuleCoin{
+		evmCoins[i] = generated.CosmosCoin{
 			Amount: coin.Amount.BigInt(),
 			Denom:  coin.Denom,
 		}

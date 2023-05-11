@@ -28,7 +28,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
+	sbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
@@ -47,7 +48,7 @@ func TestDistributionPrecompile(t *testing.T) {
 var (
 	tf                *integration.TestFixture
 	precompile        *bindings.DistributionModule
-	stakingPrecompile *bindings.StakingModule
+	stakingPrecompile *sbindings.StakingModule
 	validator         common.Address
 )
 
@@ -60,7 +61,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		tf.EthClient,
 	)
 	// Setup the staking precompile.
-	stakingPrecompile, _ = bindings.NewStakingModule(
+	stakingPrecompile, _ = sbindings.NewStakingModule(
 		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
 	// Set the validator address.
 	validator = common.Address(tf.Network.Validators[0].Address.Bytes())

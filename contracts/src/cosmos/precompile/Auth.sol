@@ -25,6 +25,8 @@
 
 pragma solidity ^0.8.4;
 
+import {Cosmos} from "../CosmosTypes.sol";
+
 /**
  * @dev Interface of the auth module precompiled contract
  */
@@ -46,7 +48,7 @@ interface IAuthModule {
      * @param amount the Coins of the allowance
      * @param expiration the expiration time of the grant (0 means no expiration)
      */
-    function setSendAllowance(address owner, address spender, Coin[] calldata amount, uint256 expiration)
+    function setSendAllowance(address owner, address spender, Cosmos.Coin[] calldata amount, uint256 expiration)
         external
         returns (bool);
 
@@ -58,13 +60,4 @@ interface IAuthModule {
      * @param denom the denomination of the Coin that was allowed
      */
     function getSendAllowance(address owner, address spender, string calldata denom) external view returns (uint256);
-
-    /**
-     * @dev Represents a Cosmos coin.
-     * Note: this struct is generated as go struct that is then used in the precompile.
-     */
-    struct Coin {
-        uint256 amount;
-        string denom;
-    }
 }
