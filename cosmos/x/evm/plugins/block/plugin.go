@@ -28,11 +28,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
 type Plugin interface {
+	plugins.Base
 	core.BlockPlugin
 
 	// SetQueryContextFn sets the function used for querying historical block headers.
@@ -74,3 +76,5 @@ func (p *plugin) GetNewBlockMetadata(number int64) (common.Address, uint64) {
 
 	return common.BytesToAddress(cometHeader.ProposerAddress), uint64(cometHeader.Time.UTC().Unix())
 }
+
+func (p *plugin) IsPlugin() {}

@@ -37,6 +37,7 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
+	plugins.Base
 	plugins.HasGenesis
 	core.ConfigurationPlugin
 	SetParams(params *types.Params)
@@ -91,3 +92,5 @@ func (p *plugin) FeeCollector() *common.Address {
 	addr := common.BytesToAddress([]byte(authtypes.FeeCollectorName))
 	return &addr
 }
+
+func (p *plugin) IsPlugin() {}

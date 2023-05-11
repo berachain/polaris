@@ -53,6 +53,7 @@ var (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
+	plugins.Base
 	plugins.HasGenesis
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
@@ -536,3 +537,5 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
 }
+
+func (p *plugin) IsPlugin() {}

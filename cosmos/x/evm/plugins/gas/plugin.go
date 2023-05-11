@@ -28,6 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
@@ -37,6 +38,7 @@ const gasMeterDescriptor = `polaris-gas-plugin`
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
+	plugins.Base
 	core.GasPlugin
 }
 
@@ -130,3 +132,5 @@ func (p *plugin) resetMeters(ctx sdk.Context) {
 		p.consensusMaxGas = uint64(block.MaxGas)
 	}
 }
+
+func (p *plugin) IsPlugin() {}

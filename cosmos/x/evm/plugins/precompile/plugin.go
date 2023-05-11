@@ -28,6 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -41,6 +42,7 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
+	plugins.Base
 	core.PrecompilePlugin
 
 	KVGasConfig() storetypes.GasConfig
@@ -162,3 +164,5 @@ func (p *plugin) DisableReentrancy(ctx context.Context) {
 	// restore ctx gas configs for continuing precompile execution
 	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
 }
+
+func (p *plugin) IsPlugin() {}
