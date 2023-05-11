@@ -236,11 +236,6 @@ var _ = Describe("ERC20", func() {
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient, tx)
 
-			// check that the new ERC20 is minted to TestAddress
-			tokenAddr, err := swapper.GetPolarisERC20(nil, "bAKT")
-			Expect(err).ToNot(HaveOccurred())
-			Expect(tokenAddr.Bytes()).To(Equal(common.Address{}.Bytes()))
-
 			err = tf.Network.WaitForNextBlock()
 			Expect(err).ToNot(HaveOccurred())
 

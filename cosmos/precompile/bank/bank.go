@@ -24,6 +24,9 @@ import (
 	"context"
 	"math/big"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -267,6 +270,10 @@ func (c *Contract) GetDenomMetadata(
 		Denom: denom,
 	})
 	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			// return an empty struct if denom metadata is not found
+			return []any{generated.IBankModuleDenomMetadata{}}, nil
+		}
 		return nil, err
 	}
 
@@ -279,15 +286,16 @@ func (c *Contract) GetDenomMetadata(
 		}
 	}
 
-	result := generated.IBankModuleDenomMetadata{
-		Description: res.Metadata.Description,
-		DenomUnits:  denomUnits,
-		Base:        res.Metadata.Base,
-		Display:     res.Metadata.Display,
-		Name:        res.Metadata.Name,
-		Symbol:      res.Metadata.Symbol,
-	}
-	return []any{result}, nil
+	return []any{
+		generated.IBankModuleDenomMetadata{
+			Description: res.Metadata.Description,
+			DenomUnits:  denomUnits,
+			Base:        res.Metadata.Base,
+			Display:     res.Metadata.Display,
+			Name:        res.Metadata.Name,
+			Symbol:      res.Metadata.Symbol,
+		},
+	}, nil
 }
 
 // GetSendEnabled implements `getSendEnabled(string[])` method.
