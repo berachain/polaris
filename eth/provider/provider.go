@@ -22,6 +22,7 @@ package provider
 
 import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/api"
@@ -86,7 +87,14 @@ func NewPolarisProviderWithConfig(
 		panic(err)
 	}
 
-	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, nil)
+	// we don't have filter system yet
+	ethConfig := ethconfig.Config{
+		SyncMode:           0,
+		FilterLogCacheSize: 0,
+	}
+	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, &ethConfig)
+
+	// ugly af, this should be a flag rather than make every node default to using it
 	graphql.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
 
 	return sp
