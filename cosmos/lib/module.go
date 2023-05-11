@@ -33,6 +33,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -80,7 +81,7 @@ func CanCreateModuleAccountAtAddr(ctx sdk.Context, ak AccountKeeper, addr sdk.Ac
 
 // CreateModuleAccount creates a module account at the provided address.
 // It overrides an account if it exists at that address, with a non-zero sequence number & pubkey
-// Contract: addr is derived from `address.Module(ModuleName, key)`
+// Contract: addr is derived from `address.Module(ModuleName, key)`.
 func CreateModuleAccount(
 	ctx sdk.Context, ak AccountKeeper, name string, permissions ...string,
 ) error {

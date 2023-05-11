@@ -24,9 +24,10 @@ import (
 	"math/big"
 	"testing"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"github.com/ethereum/go-ethereum/common"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
