@@ -5,6 +5,7 @@ pragma solidity >=0.8.0;
 import {IERC20} from "../../lib/IERC20.sol";
 import {IAuthModule} from "./precompile/Auth.sol";
 import {IBankModule} from "./precompile/Bank.sol";
+import {Cosmos} from "./CosmosTypes.sol";
 
 /**
  * @notice Polaris implementation of ERC20 + EIP-2612.
@@ -101,7 +102,7 @@ contract PolarisERC20 is IERC20 {
      */
     function approve(address spender, uint256 amount) public virtual returns (bool) {
         require(
-            authz().setSendAllowance(msg.sender, spender, amountToAuthCoins(amount), 0),
+            authz().setSendAllowance(msg.sender, spender, amountToCoins(amount), 0),
             "PolarisERC20: failed to approve spend"
         );
 
@@ -121,7 +122,7 @@ contract PolarisERC20 is IERC20 {
      * @return bool true if the transfer was successful.
      */
     function transfer(address to, uint256 amount) public virtual returns (bool) {
-        require(bank().send(msg.sender, to, amountToBankCoins(amount)), "PolarisERC20: failed to send tokens");
+        require(bank().send(msg.sender, to, amountToCoins(amount)), "PolarisERC20: failed to send tokens");
 
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -136,7 +137,7 @@ contract PolarisERC20 is IERC20 {
      */
     function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
         require(amount <= authz().getSendAllowance(from, msg.sender, denom), "PolarisERC20: insufficient approval");
-        require(bank().send(from, to, amountToBankCoins(amount)), "PolarisERC20: failed to send bank tokens");
+        require(bank().send(from, to, amountToCoins(amount)), "PolarisERC20: failed to send bank tokens");
 
         emit Transfer(from, to, amount);
         return true;
@@ -182,7 +183,7 @@ contract PolarisERC20 is IERC20 {
             require(recoveredAddress != address(0) && recoveredAddress == owner, "PolarisERC20: INVALID_SIGNER");
 
             require(
-                authz().setSendAllowance(recoveredAddress, spender, amountToAuthCoins(value), 0),
+                authz().setSendAllowance(recoveredAddress, spender, amountToCoins(value), 0),
                 "PolarisERC20: failed to approve spend"
             );
         }
@@ -227,24 +228,13 @@ contract PolarisERC20 is IERC20 {
     }
 
     /**
-     * @dev amountToBankCoins is a helper function to convert an amount to sdk.Coin.
+     * @dev amountToCoins is a helper function to convert an amount to sdk.Coin.
      * @param amount the amount to convert to sdk.Coin.
      * @return sdk.Coin[] the sdk.Coin representation of the given amount.
      */
-    function amountToBankCoins(uint256 amount) internal view returns (IBankModule.Coin[] memory) {
-        IBankModule.Coin[] memory coins = new IBankModule.Coin[](1);
-        coins[0] = IBankModule.Coin({denom: denom, amount: amount});
-        return coins;
-    }
-
-    /**
-     * @dev amountToAuthCoins is a helper function to convert an amount to sdk.Coin.
-     * @param amount the amount to convert to sdk.Coin.
-     * @return sdk.Coin[] the sdk.Coin representation of the given amount.
-     */
-    function amountToAuthCoins(uint256 amount) internal view returns (IAuthModule.Coin[] memory) {
-        IAuthModule.Coin[] memory coins = new IAuthModule.Coin[](1);
-        coins[0] = IAuthModule.Coin({denom: denom, amount: amount});
+    function amountToCoins(uint256 amount) internal view returns (Cosmos.Coin[] memory) {
+        Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
+        coins[0] = Cosmos.Coin({denom: denom, amount: amount});
         return coins;
     }
 }

@@ -28,7 +28,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
-	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
