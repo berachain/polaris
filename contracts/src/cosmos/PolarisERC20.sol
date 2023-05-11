@@ -29,7 +29,8 @@ contract PolarisERC20 is IERC20 {
      * @return string the sdk.Coin name for this erc20.
      */
     function name() public view returns (string memory) {
-        return bank().getDenomMetadata(denom).display;
+        // TODO: Get the name/display from the denom metadata.
+        return denom;
     }
 
     /**
@@ -37,16 +38,17 @@ contract PolarisERC20 is IERC20 {
      * @return string the sdk.Coin symbol for this erc20.
      */
     function symbol() public view returns (string memory) {
-        return bank().getDenomMetadata(denom).symbol;
+        // TODO: Get the symbol from the denom metadata.
+        return denom;
     }
 
     /**
      * @dev decimals is a public view method for reading the `sdk.Coin` decimals for this erc20.
      * @return uint8 the sdk.Coin decimals for this erc20.
      */
-    function decimals() public view returns (uint8) {
-        // TODO: Get the max decimals from the denom units? denomUnits[0] is not necessarily correct.
-        return uint8(bank().getDenomMetadata(denom).denomUnits[0].exponent);
+    function decimals() public pure returns (uint8) {
+        // TODO: Get the max decimals from the denom units.
+        return 18;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -100,7 +102,7 @@ contract PolarisERC20 is IERC20 {
      */
     function approve(address spender, uint256 amount) public virtual returns (bool) {
         require(
-            authz().setSendAllowance(msg.sender, spender, amountToAuthCoins(amount), 0),
+            authz().setSendAllowance(msg.sender, spender, amountToCoins(amount), 0),
             "PolarisERC20: failed to approve spend"
         );
 
@@ -120,7 +122,7 @@ contract PolarisERC20 is IERC20 {
      * @return bool true if the transfer was successful.
      */
     function transfer(address to, uint256 amount) public virtual returns (bool) {
-        require(bank().send(msg.sender, to, amountToBankCoins(amount)), "PolarisERC20: failed to send tokens");
+        require(bank().send(msg.sender, to, amountToCoins(amount)), "PolarisERC20: failed to send tokens");
 
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -135,7 +137,7 @@ contract PolarisERC20 is IERC20 {
      */
     function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
         require(amount <= authz().getSendAllowance(from, msg.sender, denom), "PolarisERC20: insufficient approval");
-        require(bank().send(from, to, amountToBankCoins(amount)), "PolarisERC20: failed to send bank tokens");
+        require(bank().send(from, to, amountToCoins(amount)), "PolarisERC20: failed to send bank tokens");
 
         emit Transfer(from, to, amount);
         return true;
@@ -181,7 +183,7 @@ contract PolarisERC20 is IERC20 {
             require(recoveredAddress != address(0) && recoveredAddress == owner, "PolarisERC20: INVALID_SIGNER");
 
             require(
-                authz().setSendAllowance(recoveredAddress, spender, amountToAuthCoins(value), 0),
+                authz().setSendAllowance(recoveredAddress, spender, amountToCoins(value), 0),
                 "PolarisERC20: failed to approve spend"
             );
         }
@@ -197,7 +199,7 @@ contract PolarisERC20 is IERC20 {
         return keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(name())),
+                keccak256(bytes(denom)),
                 keccak256("1"),
                 block.chainid,
                 address(this)
@@ -226,22 +228,11 @@ contract PolarisERC20 is IERC20 {
     }
 
     /**
-     * @dev amountToBankCoins is a helper function to convert an amount to sdk.Coin.
+     * @dev amountToCoins is a helper function to convert an amount to sdk.Coin.
      * @param amount the amount to convert to sdk.Coin.
      * @return sdk.Coin[] the sdk.Coin representation of the given amount.
      */
-    function amountToBankCoins(uint256 amount) internal view returns (Cosmos.Coin[] memory) {
-        Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
-        coins[0] = Cosmos.Coin({denom: denom, amount: amount});
-        return coins;
-    }
-
-    /**
-     * @dev amountToAuthCoins is a helper function to convert an amount to sdk.Coin.
-     * @param amount the amount to convert to sdk.Coin.
-     * @return sdk.Coin[] the sdk.Coin representation of the given amount.
-     */
-    function amountToAuthCoins(uint256 amount) internal view returns (Cosmos.Coin[] memory) {
+    function amountToCoins(uint256 amount) internal view returns (Cosmos.Coin[] memory) {
         Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
         coins[0] = Cosmos.Coin({denom: denom, amount: amount});
         return coins;
