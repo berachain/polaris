@@ -114,7 +114,7 @@ contract PolarisERC20 is IERC20 {
      * @param spender the address of spender.
      * @return uint256 the amount approved by owner to spend.
      */
-    function allowance(address owner, address spender) public view returns (uint256) {
+    function allowance(address owner, address spender) public view virtual returns (uint256) {
         return authz().getSendAllowance(owner, spender, denom);
     }
 
