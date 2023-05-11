@@ -25,9 +25,11 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -50,7 +52,7 @@ func NewPrecompileContract(
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
-			common.BytesToAddress([]byte{0x69}),
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName)),
 		),
 		msgServer: m,
 		querier:   q,

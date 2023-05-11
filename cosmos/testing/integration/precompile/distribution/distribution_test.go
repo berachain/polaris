@@ -25,6 +25,8 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -54,7 +56,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	tf = integration.NewTestFixture(GinkgoT())
 	// Setup the governance precompile.
 	precompile, _ = bindings.NewDistributionModule(
-		common.HexToAddress("0x69"),
+		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(distributiontypes.ModuleName)),
 		tf.EthClient,
 	)
 	// Setup the staking precompile.

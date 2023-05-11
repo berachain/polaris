@@ -26,6 +26,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -47,10 +48,9 @@ var (
 	tf                 *integration.TestFixture
 	erc20Precompile    *bindings.ERC20Module
 	bankPrecompile     *bindings.BankModule
-	erc20ModuleAddress = common.HexToAddress("0x696969")
-	// cosmlib.AccAddressToEthAddress(
-	// 	authtypes.NewModuleAddress(erc20types.ModuleName),
-	// ).
+	erc20ModuleAddress = cosmlib.AccAddressToEthAddress(
+		authtypes.NewModuleAddress(erc20types.ModuleName),
+	)
 )
 
 var _ = SynchronizedBeforeSuite(func() []byte {

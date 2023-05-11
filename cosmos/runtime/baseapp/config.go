@@ -24,6 +24,7 @@ import (
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -37,6 +38,9 @@ var (
 	// module account permissions.
 	ModuleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
+		{Account: authtypes.ModuleName},
+		{Account: banktypes.ModuleName},
+		{Account: stakingtypes.ModuleName},
 		{Account: distrtypes.ModuleName},
 		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},

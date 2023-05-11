@@ -22,9 +22,27 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
+
+// PrecompileModuleNames is a set of all module names that have a corresponding precompile.
+var PrecompileModuleNames = map[string]struct{}{
+	authtypes.ModuleName:    {},
+	banktypes.ModuleName:    {},
+	distrtypes.ModuleName:   {},
+	erc20types.ModuleName:   {},
+	govtypes.ModuleName:     {},
+	stakingtypes.ModuleName: {},
+}
 
 // InitGenesis is called during the InitGenesis.
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error {
@@ -35,6 +53,15 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
 		plugin.InitGenesis(ctx, &genState)
+	}
+
+	// For each of the precompile addresses, ensure the corresponding module account is set.
+	for _, acc := range config.ModuleAccPerms {
+		if _, ok := PrecompileModuleNames[acc.Account]; ok {
+			if err := cosmlib.CreateModuleAccount(ctx, k.ak, acc.Account, acc.Permissions...); err != nil {
+				return err
+			}
+		}
 	}
 
 	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.

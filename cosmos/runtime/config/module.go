@@ -75,6 +75,9 @@ var (
 	// module account permissions.
 	ModuleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
+		{Account: authtypes.ModuleName},
+		{Account: banktypes.ModuleName},
+		{Account: stakingtypes.ModuleName},
 		{Account: distrtypes.ModuleName},
 		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
