@@ -34,7 +34,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -82,7 +81,6 @@ func SetupMinimalKeepers() (
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		authz.AppModuleBasic{},
 	)
 
 	ak := authkeeper.NewAccountKeeper(
@@ -132,13 +130,4 @@ func SetupMinimalKeepers() (
 	)
 
 	return ctx, ak, bk, *sk
-}
-
-func GetEncodingConfig() testutil.TestEncodingConfig {
-	return testutil.MakeTestEncodingConfig(
-		auth.AppModuleBasic{},
-		bank.AppModuleBasic{},
-		staking.AppModuleBasic{},
-		authz.AppModuleBasic{},
-	)
 }

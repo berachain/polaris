@@ -31,8 +31,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-// DeployOnEVMFromPrecompile deploys an EVM contract from a precompile contract.
-func DeployOnEVMFromPrecompile(
+// DeployEVMFromPrecompile deploys an EVM contract from a precompile contract.
+func DeployEVMFromPrecompile(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
 	evm ethprecompile.EVM,

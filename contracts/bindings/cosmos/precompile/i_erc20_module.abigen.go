@@ -37,7 +37,7 @@ type IERC20ModuleCoin struct {
 
 // ERC20ModuleMetaData contains all meta data concerning the ERC20Module contract.
 var ERC20ModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIERC20Module.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"TransferCoinToErc20\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIERC20Module.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"TransferErc20ToCoin\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"token\",\"type\":\"string\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"erc20AddressForCoinDenom\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIERC20Module.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"ConvertCoinToErc20\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structIERC20Module.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"ConvertErc20ToCoin\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"token\",\"type\":\"string\"}],\"name\":\"coinDenomForERC20Address\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20From\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertCoinToERC20To\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"recipient\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertERC20ToCoinTo\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"erc20AddressForCoinDenom\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // ERC20ModuleABI is the input ABI used to generate the binding from.
@@ -279,219 +279,219 @@ func (_ERC20Module *ERC20ModuleCallerSession) Erc20AddressForCoinDenom(denom str
 	return _ERC20Module.Contract.Erc20AddressForCoinDenom(&_ERC20Module.CallOpts, denom)
 }
 
-// TransferCoinToERC20 is a paid mutator transaction binding the contract method 0x416daf89.
+// ConvertCoinToERC20 is a paid mutator transaction binding the contract method 0xdbeeeb5c.
 //
-// Solidity: function transferCoinToERC20(string denom, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferCoinToERC20(opts *bind.TransactOpts, denom string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferCoinToERC20", denom, amount)
+// Solidity: function convertCoinToERC20(string denom, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertCoinToERC20(opts *bind.TransactOpts, denom string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertCoinToERC20", denom, amount)
 }
 
-// TransferCoinToERC20 is a paid mutator transaction binding the contract method 0x416daf89.
+// ConvertCoinToERC20 is a paid mutator transaction binding the contract method 0xdbeeeb5c.
 //
-// Solidity: function transferCoinToERC20(string denom, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferCoinToERC20(denom string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20(&_ERC20Module.TransactOpts, denom, amount)
+// Solidity: function convertCoinToERC20(string denom, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertCoinToERC20(denom string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20(&_ERC20Module.TransactOpts, denom, amount)
 }
 
-// TransferCoinToERC20 is a paid mutator transaction binding the contract method 0x416daf89.
+// ConvertCoinToERC20 is a paid mutator transaction binding the contract method 0xdbeeeb5c.
 //
-// Solidity: function transferCoinToERC20(string denom, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferCoinToERC20(denom string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20(&_ERC20Module.TransactOpts, denom, amount)
+// Solidity: function convertCoinToERC20(string denom, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertCoinToERC20(denom string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20(&_ERC20Module.TransactOpts, denom, amount)
 }
 
-// TransferCoinToERC20From is a paid mutator transaction binding the contract method 0x096b4069.
+// ConvertCoinToERC20From is a paid mutator transaction binding the contract method 0x10e0f725.
 //
-// Solidity: function transferCoinToERC20From(string denom, address owner, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferCoinToERC20From(opts *bind.TransactOpts, denom string, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferCoinToERC20From", denom, owner, recipient, amount)
+// Solidity: function convertCoinToERC20From(string denom, address owner, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertCoinToERC20From(opts *bind.TransactOpts, denom string, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertCoinToERC20From", denom, owner, recipient, amount)
 }
 
-// TransferCoinToERC20From is a paid mutator transaction binding the contract method 0x096b4069.
+// ConvertCoinToERC20From is a paid mutator transaction binding the contract method 0x10e0f725.
 //
-// Solidity: function transferCoinToERC20From(string denom, address owner, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferCoinToERC20From(denom string, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20From(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
+// Solidity: function convertCoinToERC20From(string denom, address owner, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertCoinToERC20From(denom string, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20From(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
 }
 
-// TransferCoinToERC20From is a paid mutator transaction binding the contract method 0x096b4069.
+// ConvertCoinToERC20From is a paid mutator transaction binding the contract method 0x10e0f725.
 //
-// Solidity: function transferCoinToERC20From(string denom, address owner, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferCoinToERC20From(denom string, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20From(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
+// Solidity: function convertCoinToERC20From(string denom, address owner, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertCoinToERC20From(denom string, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20From(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
 }
 
-// TransferCoinToERC20From0 is a paid mutator transaction binding the contract method 0x83228263.
+// ConvertCoinToERC20From0 is a paid mutator transaction binding the contract method 0x7e943c78.
 //
-// Solidity: function transferCoinToERC20From(string denom, string owner, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferCoinToERC20From0(opts *bind.TransactOpts, denom string, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferCoinToERC20From0", denom, owner, recipient, amount)
+// Solidity: function convertCoinToERC20From(string denom, string owner, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertCoinToERC20From0(opts *bind.TransactOpts, denom string, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertCoinToERC20From0", denom, owner, recipient, amount)
 }
 
-// TransferCoinToERC20From0 is a paid mutator transaction binding the contract method 0x83228263.
+// ConvertCoinToERC20From0 is a paid mutator transaction binding the contract method 0x7e943c78.
 //
-// Solidity: function transferCoinToERC20From(string denom, string owner, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferCoinToERC20From0(denom string, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20From0(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
+// Solidity: function convertCoinToERC20From(string denom, string owner, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertCoinToERC20From0(denom string, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20From0(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
 }
 
-// TransferCoinToERC20From0 is a paid mutator transaction binding the contract method 0x83228263.
+// ConvertCoinToERC20From0 is a paid mutator transaction binding the contract method 0x7e943c78.
 //
-// Solidity: function transferCoinToERC20From(string denom, string owner, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferCoinToERC20From0(denom string, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20From0(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
+// Solidity: function convertCoinToERC20From(string denom, string owner, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertCoinToERC20From0(denom string, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20From0(&_ERC20Module.TransactOpts, denom, owner, recipient, amount)
 }
 
-// TransferCoinToERC20To is a paid mutator transaction binding the contract method 0x404ffd2f.
+// ConvertCoinToERC20To is a paid mutator transaction binding the contract method 0x501c3515.
 //
-// Solidity: function transferCoinToERC20To(string denom, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferCoinToERC20To(opts *bind.TransactOpts, denom string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferCoinToERC20To", denom, recipient, amount)
+// Solidity: function convertCoinToERC20To(string denom, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertCoinToERC20To(opts *bind.TransactOpts, denom string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertCoinToERC20To", denom, recipient, amount)
 }
 
-// TransferCoinToERC20To is a paid mutator transaction binding the contract method 0x404ffd2f.
+// ConvertCoinToERC20To is a paid mutator transaction binding the contract method 0x501c3515.
 //
-// Solidity: function transferCoinToERC20To(string denom, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferCoinToERC20To(denom string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20To(&_ERC20Module.TransactOpts, denom, recipient, amount)
+// Solidity: function convertCoinToERC20To(string denom, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertCoinToERC20To(denom string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20To(&_ERC20Module.TransactOpts, denom, recipient, amount)
 }
 
-// TransferCoinToERC20To is a paid mutator transaction binding the contract method 0x404ffd2f.
+// ConvertCoinToERC20To is a paid mutator transaction binding the contract method 0x501c3515.
 //
-// Solidity: function transferCoinToERC20To(string denom, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferCoinToERC20To(denom string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20To(&_ERC20Module.TransactOpts, denom, recipient, amount)
+// Solidity: function convertCoinToERC20To(string denom, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertCoinToERC20To(denom string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20To(&_ERC20Module.TransactOpts, denom, recipient, amount)
 }
 
-// TransferCoinToERC20To0 is a paid mutator transaction binding the contract method 0xe33b064d.
+// ConvertCoinToERC20To0 is a paid mutator transaction binding the contract method 0xacf58886.
 //
-// Solidity: function transferCoinToERC20To(string denom, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferCoinToERC20To0(opts *bind.TransactOpts, denom string, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferCoinToERC20To0", denom, recipient, amount)
+// Solidity: function convertCoinToERC20To(string denom, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertCoinToERC20To0(opts *bind.TransactOpts, denom string, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertCoinToERC20To0", denom, recipient, amount)
 }
 
-// TransferCoinToERC20To0 is a paid mutator transaction binding the contract method 0xe33b064d.
+// ConvertCoinToERC20To0 is a paid mutator transaction binding the contract method 0xacf58886.
 //
-// Solidity: function transferCoinToERC20To(string denom, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferCoinToERC20To0(denom string, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20To0(&_ERC20Module.TransactOpts, denom, recipient, amount)
+// Solidity: function convertCoinToERC20To(string denom, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertCoinToERC20To0(denom string, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20To0(&_ERC20Module.TransactOpts, denom, recipient, amount)
 }
 
-// TransferCoinToERC20To0 is a paid mutator transaction binding the contract method 0xe33b064d.
+// ConvertCoinToERC20To0 is a paid mutator transaction binding the contract method 0xacf58886.
 //
-// Solidity: function transferCoinToERC20To(string denom, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferCoinToERC20To0(denom string, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferCoinToERC20To0(&_ERC20Module.TransactOpts, denom, recipient, amount)
+// Solidity: function convertCoinToERC20To(string denom, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertCoinToERC20To0(denom string, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertCoinToERC20To0(&_ERC20Module.TransactOpts, denom, recipient, amount)
 }
 
-// TransferERC20ToCoin is a paid mutator transaction binding the contract method 0x4c2b7543.
+// ConvertERC20ToCoin is a paid mutator transaction binding the contract method 0x3acdb33b.
 //
-// Solidity: function transferERC20ToCoin(address token, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferERC20ToCoin(opts *bind.TransactOpts, token common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferERC20ToCoin", token, amount)
+// Solidity: function convertERC20ToCoin(address token, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertERC20ToCoin(opts *bind.TransactOpts, token common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertERC20ToCoin", token, amount)
 }
 
-// TransferERC20ToCoin is a paid mutator transaction binding the contract method 0x4c2b7543.
+// ConvertERC20ToCoin is a paid mutator transaction binding the contract method 0x3acdb33b.
 //
-// Solidity: function transferERC20ToCoin(address token, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferERC20ToCoin(token common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoin(&_ERC20Module.TransactOpts, token, amount)
+// Solidity: function convertERC20ToCoin(address token, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertERC20ToCoin(token common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoin(&_ERC20Module.TransactOpts, token, amount)
 }
 
-// TransferERC20ToCoin is a paid mutator transaction binding the contract method 0x4c2b7543.
+// ConvertERC20ToCoin is a paid mutator transaction binding the contract method 0x3acdb33b.
 //
-// Solidity: function transferERC20ToCoin(address token, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferERC20ToCoin(token common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoin(&_ERC20Module.TransactOpts, token, amount)
+// Solidity: function convertERC20ToCoin(address token, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertERC20ToCoin(token common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoin(&_ERC20Module.TransactOpts, token, amount)
 }
 
-// TransferERC20ToCoinFrom is a paid mutator transaction binding the contract method 0x02ecf60f.
+// ConvertERC20ToCoinFrom is a paid mutator transaction binding the contract method 0x24b8f0fe.
 //
-// Solidity: function transferERC20ToCoinFrom(address token, string owner, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferERC20ToCoinFrom(opts *bind.TransactOpts, token common.Address, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferERC20ToCoinFrom", token, owner, recipient, amount)
+// Solidity: function convertERC20ToCoinFrom(address token, address owner, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertERC20ToCoinFrom(opts *bind.TransactOpts, token common.Address, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertERC20ToCoinFrom", token, owner, recipient, amount)
 }
 
-// TransferERC20ToCoinFrom is a paid mutator transaction binding the contract method 0x02ecf60f.
+// ConvertERC20ToCoinFrom is a paid mutator transaction binding the contract method 0x24b8f0fe.
 //
-// Solidity: function transferERC20ToCoinFrom(address token, string owner, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferERC20ToCoinFrom(token common.Address, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinFrom(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
+// Solidity: function convertERC20ToCoinFrom(address token, address owner, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertERC20ToCoinFrom(token common.Address, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinFrom(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
 }
 
-// TransferERC20ToCoinFrom is a paid mutator transaction binding the contract method 0x02ecf60f.
+// ConvertERC20ToCoinFrom is a paid mutator transaction binding the contract method 0x24b8f0fe.
 //
-// Solidity: function transferERC20ToCoinFrom(address token, string owner, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferERC20ToCoinFrom(token common.Address, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinFrom(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
+// Solidity: function convertERC20ToCoinFrom(address token, address owner, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertERC20ToCoinFrom(token common.Address, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinFrom(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
 }
 
-// TransferERC20ToCoinFrom0 is a paid mutator transaction binding the contract method 0xb96d8bec.
+// ConvertERC20ToCoinFrom0 is a paid mutator transaction binding the contract method 0xcab01e7a.
 //
-// Solidity: function transferERC20ToCoinFrom(address token, address owner, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferERC20ToCoinFrom0(opts *bind.TransactOpts, token common.Address, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferERC20ToCoinFrom0", token, owner, recipient, amount)
+// Solidity: function convertERC20ToCoinFrom(address token, string owner, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertERC20ToCoinFrom0(opts *bind.TransactOpts, token common.Address, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertERC20ToCoinFrom0", token, owner, recipient, amount)
 }
 
-// TransferERC20ToCoinFrom0 is a paid mutator transaction binding the contract method 0xb96d8bec.
+// ConvertERC20ToCoinFrom0 is a paid mutator transaction binding the contract method 0xcab01e7a.
 //
-// Solidity: function transferERC20ToCoinFrom(address token, address owner, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferERC20ToCoinFrom0(token common.Address, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinFrom0(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
+// Solidity: function convertERC20ToCoinFrom(address token, string owner, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertERC20ToCoinFrom0(token common.Address, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinFrom0(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
 }
 
-// TransferERC20ToCoinFrom0 is a paid mutator transaction binding the contract method 0xb96d8bec.
+// ConvertERC20ToCoinFrom0 is a paid mutator transaction binding the contract method 0xcab01e7a.
 //
-// Solidity: function transferERC20ToCoinFrom(address token, address owner, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferERC20ToCoinFrom0(token common.Address, owner common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinFrom0(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
+// Solidity: function convertERC20ToCoinFrom(address token, string owner, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertERC20ToCoinFrom0(token common.Address, owner string, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinFrom0(&_ERC20Module.TransactOpts, token, owner, recipient, amount)
 }
 
-// TransferERC20ToCoinTo is a paid mutator transaction binding the contract method 0x226eb41b.
+// ConvertERC20ToCoinTo is a paid mutator transaction binding the contract method 0xd20551d6.
 //
-// Solidity: function transferERC20ToCoinTo(address token, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferERC20ToCoinTo(opts *bind.TransactOpts, token common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferERC20ToCoinTo", token, recipient, amount)
+// Solidity: function convertERC20ToCoinTo(address token, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertERC20ToCoinTo(opts *bind.TransactOpts, token common.Address, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertERC20ToCoinTo", token, recipient, amount)
 }
 
-// TransferERC20ToCoinTo is a paid mutator transaction binding the contract method 0x226eb41b.
+// ConvertERC20ToCoinTo is a paid mutator transaction binding the contract method 0xd20551d6.
 //
-// Solidity: function transferERC20ToCoinTo(address token, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferERC20ToCoinTo(token common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinTo(&_ERC20Module.TransactOpts, token, recipient, amount)
+// Solidity: function convertERC20ToCoinTo(address token, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertERC20ToCoinTo(token common.Address, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinTo(&_ERC20Module.TransactOpts, token, recipient, amount)
 }
 
-// TransferERC20ToCoinTo is a paid mutator transaction binding the contract method 0x226eb41b.
+// ConvertERC20ToCoinTo is a paid mutator transaction binding the contract method 0xd20551d6.
 //
-// Solidity: function transferERC20ToCoinTo(address token, address recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferERC20ToCoinTo(token common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinTo(&_ERC20Module.TransactOpts, token, recipient, amount)
+// Solidity: function convertERC20ToCoinTo(address token, string recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertERC20ToCoinTo(token common.Address, recipient string, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinTo(&_ERC20Module.TransactOpts, token, recipient, amount)
 }
 
-// TransferERC20ToCoinTo0 is a paid mutator transaction binding the contract method 0x6ba2a25a.
+// ConvertERC20ToCoinTo0 is a paid mutator transaction binding the contract method 0xf7ea84bc.
 //
-// Solidity: function transferERC20ToCoinTo(address token, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactor) TransferERC20ToCoinTo0(opts *bind.TransactOpts, token common.Address, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.contract.Transact(opts, "transferERC20ToCoinTo0", token, recipient, amount)
+// Solidity: function convertERC20ToCoinTo(address token, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactor) ConvertERC20ToCoinTo0(opts *bind.TransactOpts, token common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.contract.Transact(opts, "convertERC20ToCoinTo0", token, recipient, amount)
 }
 
-// TransferERC20ToCoinTo0 is a paid mutator transaction binding the contract method 0x6ba2a25a.
+// ConvertERC20ToCoinTo0 is a paid mutator transaction binding the contract method 0xf7ea84bc.
 //
-// Solidity: function transferERC20ToCoinTo(address token, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleSession) TransferERC20ToCoinTo0(token common.Address, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinTo0(&_ERC20Module.TransactOpts, token, recipient, amount)
+// Solidity: function convertERC20ToCoinTo(address token, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleSession) ConvertERC20ToCoinTo0(token common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinTo0(&_ERC20Module.TransactOpts, token, recipient, amount)
 }
 
-// TransferERC20ToCoinTo0 is a paid mutator transaction binding the contract method 0x6ba2a25a.
+// ConvertERC20ToCoinTo0 is a paid mutator transaction binding the contract method 0xf7ea84bc.
 //
-// Solidity: function transferERC20ToCoinTo(address token, string recipient, uint256 amount) returns(bool)
-func (_ERC20Module *ERC20ModuleTransactorSession) TransferERC20ToCoinTo0(token common.Address, recipient string, amount *big.Int) (*types.Transaction, error) {
-	return _ERC20Module.Contract.TransferERC20ToCoinTo0(&_ERC20Module.TransactOpts, token, recipient, amount)
+// Solidity: function convertERC20ToCoinTo(address token, address recipient, uint256 amount) returns(bool)
+func (_ERC20Module *ERC20ModuleTransactorSession) ConvertERC20ToCoinTo0(token common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _ERC20Module.Contract.ConvertERC20ToCoinTo0(&_ERC20Module.TransactOpts, token, recipient, amount)
 }
 
-// ERC20ModuleTransferCoinToErc20Iterator is returned from FilterTransferCoinToErc20 and is used to iterate over the raw logs and unpacked data for TransferCoinToErc20 events raised by the ERC20Module contract.
-type ERC20ModuleTransferCoinToErc20Iterator struct {
-	Event *ERC20ModuleTransferCoinToErc20 // Event containing the contract specifics and raw log
+// ERC20ModuleConvertCoinToErc20Iterator is returned from FilterConvertCoinToErc20 and is used to iterate over the raw logs and unpacked data for ConvertCoinToErc20 events raised by the ERC20Module contract.
+type ERC20ModuleConvertCoinToErc20Iterator struct {
+	Event *ERC20ModuleConvertCoinToErc20 // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -505,7 +505,7 @@ type ERC20ModuleTransferCoinToErc20Iterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *ERC20ModuleTransferCoinToErc20Iterator) Next() bool {
+func (it *ERC20ModuleConvertCoinToErc20Iterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -514,7 +514,7 @@ func (it *ERC20ModuleTransferCoinToErc20Iterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(ERC20ModuleTransferCoinToErc20)
+			it.Event = new(ERC20ModuleConvertCoinToErc20)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -529,7 +529,7 @@ func (it *ERC20ModuleTransferCoinToErc20Iterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(ERC20ModuleTransferCoinToErc20)
+		it.Event = new(ERC20ModuleConvertCoinToErc20)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -545,19 +545,19 @@ func (it *ERC20ModuleTransferCoinToErc20Iterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *ERC20ModuleTransferCoinToErc20Iterator) Error() error {
+func (it *ERC20ModuleConvertCoinToErc20Iterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *ERC20ModuleTransferCoinToErc20Iterator) Close() error {
+func (it *ERC20ModuleConvertCoinToErc20Iterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// ERC20ModuleTransferCoinToErc20 represents a TransferCoinToErc20 event raised by the ERC20Module contract.
-type ERC20ModuleTransferCoinToErc20 struct {
+// ERC20ModuleConvertCoinToErc20 represents a ConvertCoinToErc20 event raised by the ERC20Module contract.
+type ERC20ModuleConvertCoinToErc20 struct {
 	Denom     common.Hash
 	Owner     common.Address
 	Recipient common.Address
@@ -565,10 +565,10 @@ type ERC20ModuleTransferCoinToErc20 struct {
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterTransferCoinToErc20 is a free log retrieval operation binding the contract event 0xaa6b0040cf4e38b34df3fd01e51cc906a049cfcf3d5a6b81a9ac19dedcf533f7.
+// FilterConvertCoinToErc20 is a free log retrieval operation binding the contract event 0xf4df46dd20cc8c41d752241beb83f671035c02359c85f28648aec90fea873c2b.
 //
-// Solidity: event TransferCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
-func (_ERC20Module *ERC20ModuleFilterer) FilterTransferCoinToErc20(opts *bind.FilterOpts, denom []string, owner []common.Address, recipient []common.Address) (*ERC20ModuleTransferCoinToErc20Iterator, error) {
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
+func (_ERC20Module *ERC20ModuleFilterer) FilterConvertCoinToErc20(opts *bind.FilterOpts, denom []string, owner []common.Address, recipient []common.Address) (*ERC20ModuleConvertCoinToErc20Iterator, error) {
 
 	var denomRule []interface{}
 	for _, denomItem := range denom {
@@ -583,17 +583,17 @@ func (_ERC20Module *ERC20ModuleFilterer) FilterTransferCoinToErc20(opts *bind.Fi
 		recipientRule = append(recipientRule, recipientItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "TransferCoinToErc20", denomRule, ownerRule, recipientRule)
+	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "ConvertCoinToErc20", denomRule, ownerRule, recipientRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ERC20ModuleTransferCoinToErc20Iterator{contract: _ERC20Module.contract, event: "TransferCoinToErc20", logs: logs, sub: sub}, nil
+	return &ERC20ModuleConvertCoinToErc20Iterator{contract: _ERC20Module.contract, event: "ConvertCoinToErc20", logs: logs, sub: sub}, nil
 }
 
-// WatchTransferCoinToErc20 is a free log subscription operation binding the contract event 0xaa6b0040cf4e38b34df3fd01e51cc906a049cfcf3d5a6b81a9ac19dedcf533f7.
+// WatchConvertCoinToErc20 is a free log subscription operation binding the contract event 0xf4df46dd20cc8c41d752241beb83f671035c02359c85f28648aec90fea873c2b.
 //
-// Solidity: event TransferCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
-func (_ERC20Module *ERC20ModuleFilterer) WatchTransferCoinToErc20(opts *bind.WatchOpts, sink chan<- *ERC20ModuleTransferCoinToErc20, denom []string, owner []common.Address, recipient []common.Address) (event.Subscription, error) {
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
+func (_ERC20Module *ERC20ModuleFilterer) WatchConvertCoinToErc20(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertCoinToErc20, denom []string, owner []common.Address, recipient []common.Address) (event.Subscription, error) {
 
 	var denomRule []interface{}
 	for _, denomItem := range denom {
@@ -608,7 +608,7 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchTransferCoinToErc20(opts *bind.Wat
 		recipientRule = append(recipientRule, recipientItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "TransferCoinToErc20", denomRule, ownerRule, recipientRule)
+	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "ConvertCoinToErc20", denomRule, ownerRule, recipientRule)
 	if err != nil {
 		return nil, err
 	}
@@ -618,8 +618,8 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchTransferCoinToErc20(opts *bind.Wat
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(ERC20ModuleTransferCoinToErc20)
-				if err := _ERC20Module.contract.UnpackLog(event, "TransferCoinToErc20", log); err != nil {
+				event := new(ERC20ModuleConvertCoinToErc20)
+				if err := _ERC20Module.contract.UnpackLog(event, "ConvertCoinToErc20", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -640,21 +640,21 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchTransferCoinToErc20(opts *bind.Wat
 	}), nil
 }
 
-// ParseTransferCoinToErc20 is a log parse operation binding the contract event 0xaa6b0040cf4e38b34df3fd01e51cc906a049cfcf3d5a6b81a9ac19dedcf533f7.
+// ParseConvertCoinToErc20 is a log parse operation binding the contract event 0xf4df46dd20cc8c41d752241beb83f671035c02359c85f28648aec90fea873c2b.
 //
-// Solidity: event TransferCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
-func (_ERC20Module *ERC20ModuleFilterer) ParseTransferCoinToErc20(log types.Log) (*ERC20ModuleTransferCoinToErc20, error) {
-	event := new(ERC20ModuleTransferCoinToErc20)
-	if err := _ERC20Module.contract.UnpackLog(event, "TransferCoinToErc20", log); err != nil {
+// Solidity: event ConvertCoinToErc20(string indexed denom, address indexed owner, address indexed recipient, (uint256,string)[] amount)
+func (_ERC20Module *ERC20ModuleFilterer) ParseConvertCoinToErc20(log types.Log) (*ERC20ModuleConvertCoinToErc20, error) {
+	event := new(ERC20ModuleConvertCoinToErc20)
+	if err := _ERC20Module.contract.UnpackLog(event, "ConvertCoinToErc20", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
 	return event, nil
 }
 
-// ERC20ModuleTransferErc20ToCoinIterator is returned from FilterTransferErc20ToCoin and is used to iterate over the raw logs and unpacked data for TransferErc20ToCoin events raised by the ERC20Module contract.
-type ERC20ModuleTransferErc20ToCoinIterator struct {
-	Event *ERC20ModuleTransferErc20ToCoin // Event containing the contract specifics and raw log
+// ERC20ModuleConvertErc20ToCoinIterator is returned from FilterConvertErc20ToCoin and is used to iterate over the raw logs and unpacked data for ConvertErc20ToCoin events raised by the ERC20Module contract.
+type ERC20ModuleConvertErc20ToCoinIterator struct {
+	Event *ERC20ModuleConvertErc20ToCoin // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -668,7 +668,7 @@ type ERC20ModuleTransferErc20ToCoinIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *ERC20ModuleTransferErc20ToCoinIterator) Next() bool {
+func (it *ERC20ModuleConvertErc20ToCoinIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -677,7 +677,7 @@ func (it *ERC20ModuleTransferErc20ToCoinIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(ERC20ModuleTransferErc20ToCoin)
+			it.Event = new(ERC20ModuleConvertErc20ToCoin)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -692,7 +692,7 @@ func (it *ERC20ModuleTransferErc20ToCoinIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(ERC20ModuleTransferErc20ToCoin)
+		it.Event = new(ERC20ModuleConvertErc20ToCoin)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -708,19 +708,19 @@ func (it *ERC20ModuleTransferErc20ToCoinIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *ERC20ModuleTransferErc20ToCoinIterator) Error() error {
+func (it *ERC20ModuleConvertErc20ToCoinIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *ERC20ModuleTransferErc20ToCoinIterator) Close() error {
+func (it *ERC20ModuleConvertErc20ToCoinIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// ERC20ModuleTransferErc20ToCoin represents a TransferErc20ToCoin event raised by the ERC20Module contract.
-type ERC20ModuleTransferErc20ToCoin struct {
+// ERC20ModuleConvertErc20ToCoin represents a ConvertErc20ToCoin event raised by the ERC20Module contract.
+type ERC20ModuleConvertErc20ToCoin struct {
 	Token     common.Address
 	Owner     common.Address
 	Recipient common.Address
@@ -728,10 +728,10 @@ type ERC20ModuleTransferErc20ToCoin struct {
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterTransferErc20ToCoin is a free log retrieval operation binding the contract event 0x32c4702a0530d1dd750fcee1239d68494583ac2b6084a1d42ad10060f3f53eb0.
+// FilterConvertErc20ToCoin is a free log retrieval operation binding the contract event 0xd6886038dca20553bec918c9dfc0e3e876b5b7e996ee6599100d49356c61903a.
 //
-// Solidity: event TransferErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
-func (_ERC20Module *ERC20ModuleFilterer) FilterTransferErc20ToCoin(opts *bind.FilterOpts, token []common.Address, owner []common.Address, recipient []common.Address) (*ERC20ModuleTransferErc20ToCoinIterator, error) {
+// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
+func (_ERC20Module *ERC20ModuleFilterer) FilterConvertErc20ToCoin(opts *bind.FilterOpts, token []common.Address, owner []common.Address, recipient []common.Address) (*ERC20ModuleConvertErc20ToCoinIterator, error) {
 
 	var tokenRule []interface{}
 	for _, tokenItem := range token {
@@ -746,17 +746,17 @@ func (_ERC20Module *ERC20ModuleFilterer) FilterTransferErc20ToCoin(opts *bind.Fi
 		recipientRule = append(recipientRule, recipientItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "TransferErc20ToCoin", tokenRule, ownerRule, recipientRule)
+	logs, sub, err := _ERC20Module.contract.FilterLogs(opts, "ConvertErc20ToCoin", tokenRule, ownerRule, recipientRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ERC20ModuleTransferErc20ToCoinIterator{contract: _ERC20Module.contract, event: "TransferErc20ToCoin", logs: logs, sub: sub}, nil
+	return &ERC20ModuleConvertErc20ToCoinIterator{contract: _ERC20Module.contract, event: "ConvertErc20ToCoin", logs: logs, sub: sub}, nil
 }
 
-// WatchTransferErc20ToCoin is a free log subscription operation binding the contract event 0x32c4702a0530d1dd750fcee1239d68494583ac2b6084a1d42ad10060f3f53eb0.
+// WatchConvertErc20ToCoin is a free log subscription operation binding the contract event 0xd6886038dca20553bec918c9dfc0e3e876b5b7e996ee6599100d49356c61903a.
 //
-// Solidity: event TransferErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
-func (_ERC20Module *ERC20ModuleFilterer) WatchTransferErc20ToCoin(opts *bind.WatchOpts, sink chan<- *ERC20ModuleTransferErc20ToCoin, token []common.Address, owner []common.Address, recipient []common.Address) (event.Subscription, error) {
+// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
+func (_ERC20Module *ERC20ModuleFilterer) WatchConvertErc20ToCoin(opts *bind.WatchOpts, sink chan<- *ERC20ModuleConvertErc20ToCoin, token []common.Address, owner []common.Address, recipient []common.Address) (event.Subscription, error) {
 
 	var tokenRule []interface{}
 	for _, tokenItem := range token {
@@ -771,7 +771,7 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchTransferErc20ToCoin(opts *bind.Wat
 		recipientRule = append(recipientRule, recipientItem)
 	}
 
-	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "TransferErc20ToCoin", tokenRule, ownerRule, recipientRule)
+	logs, sub, err := _ERC20Module.contract.WatchLogs(opts, "ConvertErc20ToCoin", tokenRule, ownerRule, recipientRule)
 	if err != nil {
 		return nil, err
 	}
@@ -781,8 +781,8 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchTransferErc20ToCoin(opts *bind.Wat
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(ERC20ModuleTransferErc20ToCoin)
-				if err := _ERC20Module.contract.UnpackLog(event, "TransferErc20ToCoin", log); err != nil {
+				event := new(ERC20ModuleConvertErc20ToCoin)
+				if err := _ERC20Module.contract.UnpackLog(event, "ConvertErc20ToCoin", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -803,12 +803,12 @@ func (_ERC20Module *ERC20ModuleFilterer) WatchTransferErc20ToCoin(opts *bind.Wat
 	}), nil
 }
 
-// ParseTransferErc20ToCoin is a log parse operation binding the contract event 0x32c4702a0530d1dd750fcee1239d68494583ac2b6084a1d42ad10060f3f53eb0.
+// ParseConvertErc20ToCoin is a log parse operation binding the contract event 0xd6886038dca20553bec918c9dfc0e3e876b5b7e996ee6599100d49356c61903a.
 //
-// Solidity: event TransferErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
-func (_ERC20Module *ERC20ModuleFilterer) ParseTransferErc20ToCoin(log types.Log) (*ERC20ModuleTransferErc20ToCoin, error) {
-	event := new(ERC20ModuleTransferErc20ToCoin)
-	if err := _ERC20Module.contract.UnpackLog(event, "TransferErc20ToCoin", log); err != nil {
+// Solidity: event ConvertErc20ToCoin(address indexed token, address indexed owner, address indexed recipient, (uint256,string)[] amount)
+func (_ERC20Module *ERC20ModuleFilterer) ParseConvertErc20ToCoin(log types.Log) (*ERC20ModuleConvertErc20ToCoin, error) {
+	event := new(ERC20ModuleConvertErc20ToCoin)
+	if err := _ERC20Module.contract.UnpackLog(event, "ConvertErc20ToCoin", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

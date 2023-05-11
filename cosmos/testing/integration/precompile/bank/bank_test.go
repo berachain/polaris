@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package bank_test
+package bank
 
 import (
 	"math/big"
@@ -58,7 +58,7 @@ var _ = Describe("Bank", func() {
 	denom3 := "stake"
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 7
+		numberOfDenoms := 6
 		coinsToBeSent := []bindings.IBankModuleCoin{
 			{
 				Denom:  denom,

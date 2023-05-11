@@ -270,8 +270,10 @@ func (c *Contract) GetDenomMetadata(
 		return nil, err
 	}
 
-	denomUnits := make([]generated.IBankModuleDenomUnit, len(res.Metadata.DenomUnits))
-	for i, d := range res.Metadata.DenomUnits {
+	r := res.Metadata
+
+	denomUnits := make([]generated.IBankModuleDenomUnit, len(r.DenomUnits))
+	for i, d := range r.DenomUnits {
 		denomUnits[i] = generated.IBankModuleDenomUnit{
 			Denom:    d.Denom,
 			Aliases:  d.Aliases,
@@ -280,12 +282,12 @@ func (c *Contract) GetDenomMetadata(
 	}
 
 	result := generated.IBankModuleDenomMetadata{
-		Description: res.Metadata.Description,
+		Description: r.Description,
 		DenomUnits:  denomUnits,
-		Base:        res.Metadata.Base,
-		Display:     res.Metadata.Display,
-		Name:        res.Metadata.Name,
-		Symbol:      res.Metadata.Symbol,
+		Base:        r.Base,
+		Display:     r.Display,
+		Name:        r.Name,
+		Symbol:      r.Symbol,
 	}
 	return []any{result}, nil
 }

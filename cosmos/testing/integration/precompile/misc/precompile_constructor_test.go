@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package misc_test
+package misc
 
 import (
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
