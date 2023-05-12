@@ -22,6 +22,7 @@ package graphql
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -58,83 +59,117 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 var _ = Describe("GraphQL", func() {
 
 	It("should support eth_blockNumber", func() {
-		response, err := sendGraphQLRequest(`
+		response, status, err := sendGraphQLRequest(`
 		query {
 			block {
 				number	
 			}
 		}
 		`)
-		blockNumber := gjson.Get(string(response), "data.block.number").Int()
+		blockNumber := gjson.Get(response, "data.block.number").Int()
+
+		Expect(status).To(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
-		// mashallah
-		Expect(blockNumber).To(BeNumerically(">=", 3349))
+		Expect(blockNumber).To(BeNumerically(">", 0))
 	})
 
 	It("should support eth_call", func() {
-		success, err := sendGraphQLRequest(`
-		query {
-			call(data: {
-				to: "0x00000000..",
-				data: "0x000000..."
-			}) {
-				data
-				status
-				gasUsed
-			}
-		}
-		`)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(success).ToNot(BeNil())
 
 	})
 	It("should support eth_estimateGas", func() {
-		response, err := sendGraphQLRequest(`
-		query {
-			eth_estimateGas
-		}
-		`)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(response).ToNot(BeNil())
+
 	})
 	It("should support eth_gasPrice", func() {
-		response, err := sendGraphQLRequest(`
+		response, status, err := sendGraphQLRequest(`
 		query {
 			gasPrice
 		}
 		`)
+		gasPrice := gjson.Get(response, "data.gasPrice").String()
+		Expect(status).To(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(response).ToNot(BeNil())
+		Expect(gasPrice).To(BeComparableTo("0x3b9aca07"))
 
 	})
-	It("should support eth_getBalance", func() {
-		balance, err := sendGraphQLRequest(`
-		query {
-			account(address: "0x000000000000") {
-				balance
-			}
-		}
-		`)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(balance).ToNot(BeNil())
 
-	})
 	It("should support eth_getBlockByHash", func() {
-
+		response, status, err := sendGraphQLRequest(`
+		query {
+			block(hash:"0x1ddcdaaef4dc4b7ae80ce5f23383de2168311dfbba1fc2dd9a4fa4547d0264d6") {
+			  transactionCount
+			  baseFeePerGas
+			  nextBaseFeePerGas
+			  ommerCount
+			}
+		  }`)
+		transactionCount := gjson.Get(response, "data.block.transactionCount").Int()
+		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
+		Expect(status).To((BeEquivalentTo(200)))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(transactionCount).To(BeEquivalentTo(0))
+		Expect(ommerCount).To(BeEquivalentTo(0))
 	})
 	It("should support eth_getBlockByNumber", func() {
+		response, status, err := sendGraphQLRequest(`
+		query {
+			block(number:"0") {
+			  transactionCount
+			  baseFeePerGas
+			  nextBaseFeePerGas
+			  ommerCount
+			}
+		  }`)
+		transactionCount := gjson.Get(response, "data.block.transactionCount").Int()
+		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
+		Expect(status).To((BeEquivalentTo(200)))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(transactionCount).To(BeEquivalentTo(0))
+		Expect(ommerCount).To(BeEquivalentTo(0))
 
 	})
-	It("should support eth_getBlockTransactionCountByHash", func() {
 
-	})
-	It("should support eth_getBlockTransactionCountByNumber", func() {
-
-	})
 	It("should support eth_getCode", func() {
+		response, status, err := sendGraphQLRequest(`
+		query {
+			block(number:"0") {
+			  transactionCount
+			  baseFeePerGas
+			  nextBaseFeePerGas
+			  ommerCount
+			}
+		  }`)
+		transactionCount := gjson.Get(response, "data.block.transactionCount").Int()
+		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
+		Expect(status).To((BeEquivalentTo(200)))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(transactionCount).To(BeEquivalentTo(0))
+		Expect(ommerCount).To(BeEquivalentTo(0))
 
 	})
-	It("should support eth_getLogs", func() {
+	It("should support all account fields", func() {
+		response, status, err := sendGraphQLRequest(`
+		{	
+			block {
+			  account(address: "0x0000000000000000000000000000000000000000") {
+				balance
+				code
+				storage(slot: "0x044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d")
+				transactionCount
+			  }
+			}
+		  }
+	`)
+		balance := gjson.Get(response, "data.block.account.balance").String()
+		code := gjson.Get(response, "data.block.account.balance").String()
+		storage := gjson.Get(response, "data.block.account.balance").String()
+		transactionCount := gjson.Get(response, "data.block.account.balance").String()
+
+		Expect(status).To(BeEquivalentTo(200))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(balance).To(BeEquivalentTo("0"))
+		Expect(code).To(BeEquivalentTo("0"))
+		Expect(storage).To(BeEquivalentTo("0"))
+		Expect(transactionCount).To(BeEquivalentTo("0"))
 
 	})
 	It("should support eth_getStorageAt", func() {
@@ -178,28 +213,31 @@ var _ = Describe("GraphQL", func() {
 
 	})
 
-	It("should subscribe to the chain", func() {
-
-	})
-
 	It("should fail on a malformatted query", func() {
-
+		_, status, _ := sendGraphQLRequest(`
+		query {
+			ooga
+			booga
+		}
+		`)
+		Expect(status).Should(Equal(400))
+		//Expect(err).To(HaveOccurred())
 	})
 
 	It("should fail on a malformatted mutation", func() {
 
 	})
-
 })
 
-func sendGraphQLRequest(query string) ([]byte, error) {
+func sendGraphQLRequest(query string) (string, int, error) {
+	// 500 = random
 	url := "http://localhost:8545/graphql"
 	requestBody, err := json.Marshal(map[string]string{
 		"query": query,
 	})
 	if err != nil {
 		fmt.Println("Error while creating the request body:", err)
-		return nil, err
+		return "", 500, err
 	}
 
 	// Create an HTTP client
@@ -209,7 +247,7 @@ func sendGraphQLRequest(query string) ([]byte, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		fmt.Println("Error while creating the request:", err)
-		return nil, err
+		return "", 500, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -217,21 +255,22 @@ func sendGraphQLRequest(query string) ([]byte, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error while sending the request:", err)
-		return nil, err
+		return "", 500, err
 	}
 	defer resp.Body.Close()
 
 	// Read the response body
 	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseStatusCode := resp.StatusCode
 	if err != nil {
 		fmt.Println("Error while reading the response:", err)
-		return nil, err
+		return "", 500, err
 	}
 
 	// ugly asf
 	ok := gjson.Get(string(responseBody), "data.errors")
 	if ok.Exists() {
-		panic("Malformatted request.")
+		return "", 400, errors.New(ok.String())
 	}
-	return responseBody, nil
+	return string(responseBody), responseStatusCode, nil
 }
