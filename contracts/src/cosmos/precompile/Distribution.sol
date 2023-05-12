@@ -20,6 +20,8 @@
 
 pragma solidity ^0.8.4;
 
+import {Cosmos} from "../CosmosTypes.sol";
+
 /**
  * @dev Interface of the distribution module's precompiled contract
  */
@@ -44,7 +46,7 @@ interface IDistributionModule {
      * @param delegator The delegator to withdraw the rewards from.
      * @param validator The validator to withdraw the rewards from.
      */
-    function withdrawDelegatorReward(address delegator, address validator) external returns (Coin[] memory);
+    function withdrawDelegatorReward(address delegator, address validator) external returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Withdraw the rewrads accumilated by the delegator from the validagor. Returns the rewards claimed.
@@ -54,7 +56,7 @@ interface IDistributionModule {
      */
     function withdrawDelegatorReward(string calldata delegator, string calldata validator)
         external
-        returns (Coin[] memory);
+        returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
@@ -62,7 +64,7 @@ interface IDistributionModule {
      * @param validator The validator address to withdraw the rewards from.
      * @param amount The amount of rewards withdrawn.
      */
-    event WithdrawRewards(address indexed validator, Coin[] amount);
+    event WithdrawRewards(address indexed validator, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the distribution module when `withdrawAddress` is set to receive rewards
@@ -70,13 +72,4 @@ interface IDistributionModule {
      * @param withdrawAddress The address to set as the withdraw address.
      */
     event SetWithdrawAddress(address indexed withdrawAddress);
-
-    /**
-     * @dev Represents a cosmos coin.
-     * Note: this struct is generated as go struct that is then used in the precompile.
-     */
-    struct Coin {
-        uint256 amount;
-        string denom;
-    }
 }

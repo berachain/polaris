@@ -28,7 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 )
 
 // submitProposalHelper is a helper function for the `SubmitProposal` method of the governance precompile contract.
@@ -153,9 +153,9 @@ func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceM
 		message = append(message, msg.Value...)
 	}
 
-	totalDeposit := make([]generated.IGovernanceModuleCoin, 0)
+	totalDeposit := make([]generated.CosmosCoin, 0)
 	for _, coin := range proposal.TotalDeposit {
-		totalDeposit = append(totalDeposit, generated.IGovernanceModuleCoin{
+		totalDeposit = append(totalDeposit, generated.CosmosCoin{
 			Denom:  coin.Denom,
 			Amount: coin.Amount.BigInt(),
 		})

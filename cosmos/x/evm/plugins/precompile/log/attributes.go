@@ -29,7 +29,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -92,7 +92,7 @@ func ConvertSdkCoins(attributeValue string) (any, error) {
 
 	// handle empty string input
 	if coins == nil {
-		return []generated.IBankModuleCoin{}, nil
+		return []libgenerated.CosmosCoin{}, nil
 	}
 
 	evmCoins := cosmlib.SdkCoinsToEvmCoins(coins)

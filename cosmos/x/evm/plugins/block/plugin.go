@@ -34,7 +34,7 @@ import (
 )
 
 type Plugin interface {
-	plugins.BaseCosmosPolaris
+	plugins.Base
 	core.BlockPlugin
 
 	// SetQueryContextFn sets the function used for querying historical block headers.
@@ -76,3 +76,5 @@ func (p *plugin) GetNewBlockMetadata(number int64) (common.Address, uint64) {
 
 	return common.BytesToAddress(cometHeader.ProposerAddress), uint64(cometHeader.Time.UTC().Unix())
 }
+
+func (p *plugin) IsPlugin() {}

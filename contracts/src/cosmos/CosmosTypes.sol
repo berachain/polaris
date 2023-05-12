@@ -23,33 +23,24 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-pragma solidity ^0.8.17;
-
-import {IBankModule} from "../Bank.sol";
-import {Owned} from "../../../../lib/Owned.sol";
-import {Cosmos} from "../../CosmosTypes.sol";
+pragma solidity ^0.8.4;
 
 /**
- * @dev Fundraiser is a contract that allows users to donate tokens in any denom.
- * Only the owner can withdraw the funds.
- * Note: This is an example of how to use the bank precompile.
+ * @dev This library contains types used by the Cosmos module.
  */
-contract Fundraiser is Owned {
-    // State
-    IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
-
-    constructor() Owned(msg.sender) {}
-
-    function withdrawDonations() external onlyOwner {
-        require(msg.sender == owner, "Funds will only be released to the owner");
-        bank.send(address(this), owner, GetRaisedAmounts());
+library Cosmos {
+    /**
+     * @dev Represents a cosmos coin.
+     */
+    struct Coin {
+        uint256 amount;
+        string denom;
     }
+}
 
-    function Donate(Cosmos.Coin[] calldata coins) external {
-        bank.send(msg.sender, address(this), coins);
-    }
-
-    function GetRaisedAmounts() public view returns (Cosmos.Coin[] memory) {
-        return bank.getAllBalances(address(this));
-    }
+/**
+ * @dev This contract uses types in the Cosmos library.
+ */
+contract CosmosTypes {
+    function coin(Cosmos.Coin calldata) public pure {}
 }
