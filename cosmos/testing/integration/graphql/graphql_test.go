@@ -22,13 +22,17 @@ package graphql
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"testing"
 
 	"github.com/tidwall/gjson"
 
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rlp"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 
@@ -314,15 +318,25 @@ var _ = Describe("GraphQL", func() {
 		// https://eips.ethereum.org/EIPS/eip-1767
 	})
 	It("should support eth_sendRawTransaction", func() {
+		tf.CreateKeyWithName("ooga")
+		privKey := tf.PrivKey("ooga")
+		tx := types.NewTransaction(
+			0, // Nonce
+			tf.Address("ooga"),
+			big.NewInt(0), // Value
+			uint64(0),     // Gas limit
+			big.NewInt(0), // Gas price
+			nil,
+		)
+		signed, _ := types.SignTx(tx, types.NewEIP155Signer(nil), privKey)
+		rlpEncoded, _ := rlp.EncodeToBytes(signed)
 
-		// transaction clearly fails
-		// but network still sees it
-		// since we get error 404
-		response, _, err := sendGraphQLRequest(`
-		mutation {
-			sendRawTransaction(data:"0x02ea8080843b9aca00843b9aca008252089400000000000000000000000000000000000000008080c0018080")
-		}
-		`)
+		data := fmt.Sprintf(`mutation {
+			sendRawTransaction(data: "%s")
+		}`, rlpEncoded)
+		response, _, err := sendGraphQLRequest(
+			data)
+
 		errorMessage := gjson.Get(response, "data.errors.message")
 		Expect(errorMessage).ToNot(BeNil())
 		// Expect(status).Should(Equal(200))
