@@ -128,25 +128,7 @@ var _ = Describe("GraphQL", func() {
 
 	})
 
-	It("should support eth_getCode", func() {
-		response, status, err := sendGraphQLRequest(`
-		query {
-			block(number:"0") {
-			  transactionCount
-			  baseFeePerGas
-			  nextBaseFeePerGas
-			  ommerCount
-			}
-		  }`)
-		transactionCount := gjson.Get(response, "data.block.transactionCount").Int()
-		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
-		Expect(status).To((BeEquivalentTo(200)))
-		Expect(err).ToNot(HaveOccurred())
-		Expect(transactionCount).To(BeEquivalentTo(0))
-		Expect(ommerCount).To(BeEquivalentTo(0))
-
-	})
-	It("should support all account fields", func() {
+	It("should support eth_getBalance, eth_getCode, eth_getStorageAt, eth_getTransactionCount", func() {
 		response, status, err := sendGraphQLRequest(`
 		{	
 			block {
@@ -172,21 +154,83 @@ var _ = Describe("GraphQL", func() {
 		Expect(transactionCount).To(BeEquivalentTo("0"))
 
 	})
-	It("should support eth_getStorageAt", func() {
-
-	})
 	It("should support eth_getTransactionByBlockHashAndIndex", func() {
+		response, status, err := sendGraphQLRequest(`
+		{
+			block(hash: "0x1ddcdaaef4dc4b7ae80ce5f23383de2168311dfbba1fc2dd9a4fa4547d0264d6") {
+			  transactionAt(index: 0) {
+				hash
+				nonce
+				index
+				value
+				gasPrice
+				maxFeePerGas
+				maxPriorityFeePerGas
+				effectiveTip
+				effectiveGasPrice
+				gas
+				inputData
+			  }
+			}
+		  }
+		  
+	`)
+		transactionAt := gjson.Get(response, "data.block.transactionAt").Exists()
 
+		Expect(status).To(BeEquivalentTo(200))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(transactionAt).To(BeNil())
 	})
 	It("should support eth_getTransactionByBlockNumberAndIndex", func() {
+		response, status, err := sendGraphQLRequest(`
+		{
+			block(number: 0) {
+			  transactionAt(index: 0) {
+				hash
+				nonce
+				index
+				value
+				gasPrice
+				maxFeePerGas
+				maxPriorityFeePerGas
+				effectiveTip
+				effectiveGasPrice
+				gas
+				inputData
+			  }
+			}
+		  }
+		  
+	`)
+		transactionAt := gjson.Get(response, "data.block.transactionAt").Exists()
 
+		Expect(status).To(BeEquivalentTo(200))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(transactionAt).To(BeNil())
 	})
 	It("should support eth_getTransactionByHash", func() {
+		response, status, err := sendGraphQLRequest(`
+		{
+			transaction(hash:"0x0000000000000000000000000000000000000000000000000000000000000000") {
+			  index
+			  maxFeePerGas
+			  maxPriorityFeePerGas
+			  effectiveTip
+			  status
+			  gasUsed
+			  cumulativeGasUsed
+			  effectiveGasPrice
+			  type
+			}
+		  }`)
 
-	})
-	It("should support eth_getTransactionCount", func() {
+		transactionAt := gjson.Get(response, "data.block.transactionAt").Exists()
 
+		Expect(status).To(BeEquivalentTo(200))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(transactionAt).To(BeNil())
 	})
+
 	It("should support eth_getTransactionReceipt", func() {
 
 	})
