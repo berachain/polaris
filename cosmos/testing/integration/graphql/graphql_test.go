@@ -318,25 +318,24 @@ var _ = Describe("GraphQL", func() {
 		// https://eips.ethereum.org/EIPS/eip-1767
 	})
 	It("should support eth_sendRawTransaction", func() {
-		tf.CreateKeyWithName("ooga")
-		privKey := tf.PrivKey("ooga")
+		tf.CreateKeyWithName("alice")
+		privKey := tf.PrivKey("alice")
 		tx := types.NewTransaction(
 			0, // Nonce
-			tf.Address("ooga"),
-			big.NewInt(0), // Value
-			uint64(0),     // Gas limit
-			big.NewInt(0), // Gas price
+			tf.Address("alice"),
+			big.NewInt(0),  // Value
+			uint64(22000),  // Gas limit
+			big.NewInt(10), // Gas price
 			nil,
 		)
-		signed, _ := types.SignTx(tx, types.NewEIP155Signer(nil), privKey)
+		signed, _ := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), privKey)
 		rlpEncoded, _ := rlp.EncodeToBytes(signed)
-
+		fmt.Print(string(rlpEncoded))
 		data := fmt.Sprintf(`mutation {
 			sendRawTransaction(data: "%s")
-		}`, rlpEncoded)
+		}`, string(rlpEncoded))
 		response, _, err := sendGraphQLRequest(
 			data)
-
 		errorMessage := gjson.Get(response, "data.errors.message")
 		Expect(errorMessage).ToNot(BeNil())
 		// Expect(status).Should(Equal(200))
