@@ -318,28 +318,27 @@ var _ = Describe("GraphQL", func() {
 		// https://eips.ethereum.org/EIPS/eip-1767
 	})
 	It("should support eth_sendRawTransaction", func() {
-		tf.CreateKeyWithName("alice")
 		privKey := tf.PrivKey("alice")
 		tx := types.NewTransaction(
 			0, // Nonce
-			tf.Address("alice"),
+			tf.Address("bob"),
 			big.NewInt(0),  // Value
 			uint64(22000),  // Gas limit
 			big.NewInt(10), // Gas price
 			nil,
 		)
-		signed, _ := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), privKey)
+		signed, status := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), privKey)
 		rlpEncoded, _ := rlp.EncodeToBytes(signed)
-		fmt.Print(string(rlpEncoded))
-		data := fmt.Sprintf(`mutation {
-			sendRawTransaction(data: "%s")
-		}`, string(rlpEncoded))
-		response, _, err := sendGraphQLRequest(
-			data)
-		errorMessage := gjson.Get(response, "data.errors.message")
-		Expect(errorMessage).ToNot(BeNil())
-		// Expect(status).Should(Equal(200))
+
+		data := fmt.Sprintf("mutation { sendRawTransaction(data: \"%#x\") }", rlpEncoded)
+		fmt.Print(data)
+		response, _, err := sendGraphQLRequest(data)
+
+		ret := gjson.Get(response, "data").Value()
+		Expect(ret).ToNot(BeNil())
+		Expect(status).Should(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
+		panic("fak")
 	})
 
 	It("should support eth_syncing", func() {
