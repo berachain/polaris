@@ -68,6 +68,7 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	return sdkCoins, nil
 }
 
+// SdkCoinsToUnnamedCoins converts sdk.Coins into an unnamed struct.
 func SdkCoinsToUnnamedCoins(coins sdk.Coins) any {
 	unnamedCoins := []struct {
 		Amount *big.Int `json:"amount"`
