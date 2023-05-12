@@ -28,3 +28,7 @@ type (
 	Bytes = hexutil.Bytes
 	Uint  = hexutil.Uint
 )
+
+func Decode(input string) ([]byte, error) {
+	return hexutil.Decode(input)
+}

@@ -21,13 +21,72 @@
 package misc_test
 
 import (
+	"math/big"
+	"reflect"
 	"testing"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common/hexutil"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+type MsgSendEnergy struct {
+	To     *big.Int `json:"to"`
+	From   *big.Int `json:"from"`
+	Amount *big.Int `json:"amount"`
+}
+
+func TestDecoding(t *testing.T) {
+	RegisterTestingT(t)
+	// bytes from abi.encoding the following solidity struct:
+	//    struct MsgSendEnergy {
+	//        uint to;
+	//        uint from;
+	//        uint amount;
+	//    }
+	// with values: 3293, 2385, 23509
+	expectedMsg := MsgSendEnergy{
+		To:     big.NewInt(3293),
+		From:   big.NewInt(2385),
+		Amount: big.NewInt(23509),
+	}
+	bzStr := "0x0000000000000000000000000000000000000000000000000000000000000cdd00000000000000000000000000000000000000000000000000000000000009510000000000000000000000000000000000000000000000000000000000005bd5"
+	bz, err := hexutil.Decode(bzStr)
+	Expect(err).To(BeNil())
+
+	// make MsgSendEnergy abi type.
+	msgSendEnergyType, err := abi.NewType("tuple", "", []abi.ArgumentMarshaling{
+		{Name: "to", Type: "uint256"},
+		{Name: "from", Type: "uint256"},
+		{Name: "amount", Type: "uint256"},
+	})
+	Expect(err).To(BeNil())
+	msgSendEnergyType.TupleType = reflect.TypeOf(MsgSendEnergy{})
+
+	args := abi.Arguments{{Type: msgSendEnergyType}}
+	unpacked, err := args.Unpack(bz)
+	Expect(err).To(BeNil())
+
+	unpackedMsg, ok := unpacked[0].(MsgSendEnergy)
+	Expect(ok).To(Equal(true))
+	Expect(unpackedMsg).To(Equal(expectedMsg))
+
+	// check if we can pack a go struct and unpack it back
+	packedBz, err := args.Pack(unpackedMsg)
+	Expect(err).To(BeNil())
+	// bytes should be the same
+	Expect(packedBz).To(Equal(bz))
+
+	unpacked, err = args.Unpack(packedBz)
+	Expect(err).To(BeNil())
+
+	unpackedMsg, ok = unpacked[0].(MsgSendEnergy)
+	Expect(err).To(BeNil())
+	Expect(unpackedMsg).To(Equal(expectedMsg))
+}
 
 func TestMiscellaneousPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
