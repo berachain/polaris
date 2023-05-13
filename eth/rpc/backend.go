@@ -169,8 +169,8 @@ func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.
 	block, err := b.polarisBlockByNumber(number)
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
-	if err == core.ErrBlockNotFound {
-		return nil, nil
+	if errors.Is(err, core.ErrBlockNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
 	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByNumber", "number", number, "err", err)
@@ -185,8 +185,8 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Head
 	block, err := b.polarisBlockByHash(hash)
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
-	if err == core.ErrBlockNotFound {
-		return nil, nil
+	if errors.Is(err, core.ErrBlockNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
 	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "err", err)
@@ -203,8 +203,8 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 	block, err := b.polarisBlockByNumberOrHash(blockNrOrHash)
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
-	if err == core.ErrBlockNotFound {
-		return nil, nil
+	if errors.Is(err, core.ErrBlockNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
 	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
@@ -341,12 +341,12 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	block, receipts, err := b.chain.CurrentBlockAndReceipts()
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
-	if err == core.ErrReceiptsNotFound {
-		return nil, nil
+	if errors.Is(err, core.ErrReceiptsNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
 	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.PendingBlockAndReceipts", "err", err)
-		return nil, nil
+		return nil, nil //nolint:nilnil // we love go-ethereum.
 	}
 	b.logger.Info("called eth.rpc.backend.PendingBlockAndReceipts", "block", block,
 		"num_receipts", len(receipts))
@@ -358,8 +358,8 @@ func (b *backend) GetReceipts(_ context.Context, bhash common.Hash) (types.Recei
 	receipts, err := b.chain.GetReceipts(bhash)
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
-	if err == core.ErrReceiptsNotFound {
-		return nil, nil
+	if errors.Is(err, core.ErrReceiptsNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
 	}
 	// If we get another more serious error, return it.
 	if err != nil {
@@ -590,8 +590,8 @@ func (b *backend) polarisBlockByNumberOrHash(
 		block, err := b.polarisBlockByNumber(blockNr)
 		// If the block is non-existent, return nil.
 		// This is to maintain parity with the behavior of the geth backend.
-		if err == core.ErrBlockNotFound {
-			return nil, nil
+		if errors.Is(err, core.ErrBlockNotFound) {
+			return nil, nil //nolint:nilnil // we love go-ethereum.
 		}
 		if err != nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound,
