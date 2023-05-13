@@ -6,7 +6,7 @@ L1_CHAINID=69420
 L2_CHAINID=69421
 
 # Step 0: Copy the examples to the contracts-bedrock
-cp example.deployer.json ~/op-stack-deployment/optimism/packages/contracts-bedrock/deploy-config/deployer.json
+cp example.deployer ~/op-stack-deployment/optimism/packages/contracts-bedrock/deploy-config/deployer.json
 cp example.deployer.ts ~/op-stack-deployment/optimism/packages/contracts-bedrock/deploy-config/deployer.ts
 cd ~/op-stack-deployment/optimism/packages/contracts-bedrock
 

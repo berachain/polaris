@@ -335,6 +335,18 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 	return state, block.Header(), nil
 }
 
+// GeTransaction returns the transaction identified by `txHash`.
+func (b *backend) GetTransaction(
+	_ context.Context, txHash common.Hash,
+) (*types.Transaction, common.Hash, uint64, uint64, error) {
+	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
+	tx, blockHash, a, x, err := b.chain.GetTransaction(txHash)
+	if err != nil {
+		return nil, common.Hash{}, 0, 0, nil
+	}
+	return tx, blockHash, a, x, nil
+}
+
 // PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
@@ -418,13 +430,6 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 
 func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
 	return b.chain.SendTx(ctx, signedTx)
-}
-
-func (b *backend) GetTransaction(
-	_ context.Context, txHash common.Hash,
-) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
-	return b.chain.GetTransaction(txHash)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
