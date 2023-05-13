@@ -48,7 +48,7 @@ var (
 	beradDockerPath = baseDockerPath + "Dockerfile"
 	imageName       = "polaris-cosmos"
 	// testImageVersion       = "e2e-test-dev".
-	goVersion              = "1.20.2"
+	goVersion              = "1.20.4"
 	golangAlpine           = "golang:1.20-alpine3.17"
 	precompileContractsDir = "./cosmos/precompile/contracts/solidity"
 )

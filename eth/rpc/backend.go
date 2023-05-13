@@ -122,7 +122,7 @@ func (b *backend) ChainDb() ethdb.Database { //nolint:stylecheck // conforms to 
 
 // AccountManager is unused in Polaris.
 func (b *backend) AccountManager() *accounts.Manager {
-	return nil
+	return &accounts.Manager{}
 }
 
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external
@@ -167,6 +167,11 @@ func (b *backend) SetHead(number uint64) {
 // HeaderByNumber returns the block header at the given block number.
 func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.Header, error) {
 	block, err := b.polarisBlockByNumber(number)
+	// If the block is non-existent, return nil.
+	// This is to maintain parity with the behavior of the geth backend.
+	if errors.Is(err, core.ErrBlockNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
+	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByNumber", "number", number, "err", err)
 		return nil, err
@@ -178,6 +183,11 @@ func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.
 // HeaderByHash returns the block header with the given hash.
 func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
 	block, err := b.polarisBlockByHash(hash)
+	// If the block is non-existent, return nil.
+	// This is to maintain parity with the behavior of the geth backend.
+	if errors.Is(err, core.ErrBlockNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
+	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "err", err)
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
@@ -191,6 +201,11 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Header, error) {
 	block, err := b.polarisBlockByNumberOrHash(blockNrOrHash)
+	// If the block is non-existent, return nil.
+	// This is to maintain parity with the behavior of the geth backend.
+	if errors.Is(err, core.ErrBlockNotFound) {
+		return nil, nil //nolint:nilnil // we love go-ethereum.
+	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
 		return nil, err
@@ -320,10 +335,27 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 	return state, block.Header(), nil
 }
 
+// GeTransaction returns the transaction identified by `txHash`.
+func (b *backend) GetTransaction(
+	_ context.Context, txHash common.Hash,
+) (*types.Transaction, common.Hash, uint64, uint64, error) {
+	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
+	tx, blockHash, a, x, err := b.chain.GetTransaction(txHash)
+	if err != nil {
+		return nil, common.Hash{}, 0, 0, nil //nolint:nilerr // required to match geth.
+	}
+	return tx, blockHash, a, x, nil
+}
+
 // PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	block, receipts, err := b.chain.CurrentBlockAndReceipts()
+	// If the block is non-existent, return nil.
+	// This is to maintain parity with the behavior of the geth backend.
+	if errors.Is(err, core.ErrReceiptsNotFound) {
+		return nil, nil
+	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.PendingBlockAndReceipts", "err", err)
 		return nil, nil
@@ -336,10 +368,17 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 // GetReceipts returns the receipts for the given block hash.
 func (b *backend) GetReceipts(_ context.Context, bhash common.Hash) (types.Receipts, error) {
 	receipts, err := b.chain.GetReceipts(bhash)
+	// If the block is non-existent, return nil.
+	// This is to maintain parity with the behavior of the geth backend.
+	if errors.Is(err, core.ErrReceiptsNotFound) {
+		return nil, nil
+	}
+	// If we get another more serious error, return it.
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.GetReceipts", "block_hash", bhash, "err", err)
 		return nil, err
 	}
+	// Else return the receipts.
 	b.logger.Info("called eth.rpc.backend.GetReceipts", "block_hash", bhash,
 		"num_receipts", len(receipts))
 	return receipts, nil
@@ -391,13 +430,6 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 
 func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
 	return b.chain.SendTx(ctx, signedTx)
-}
-
-func (b *backend) GetTransaction(
-	_ context.Context, txHash common.Hash,
-) (*types.Transaction, common.Hash, uint64, uint64, error) {
-	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
-	return b.chain.GetTransaction(txHash)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
@@ -547,7 +579,7 @@ func (b *backend) polarisBlockByNumberOrHash(
 				"polarisBlockByNumberOrHash: hash [%s]", hash.String())
 		}
 
-		// If the has is found, we have the canonical chain.
+		// If the hash is found, we have the canonical chain.
 		if block.Hash() == hash {
 			return block, nil
 		}
@@ -561,6 +593,11 @@ func (b *backend) polarisBlockByNumberOrHash(
 	// Then we try to get the block by number
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		block, err := b.polarisBlockByNumber(blockNr)
+		// If the block is non-existent, return nil.
+		// This is to maintain parity with the behavior of the geth backend.
+		if errors.Is(err, core.ErrBlockNotFound) {
+			return nil, nil //nolint:nilnil // we love go-ethereum.
+		}
 		if err != nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound,
 				"polarisBlockByNumberOrHash: number [%d]", blockNr)
