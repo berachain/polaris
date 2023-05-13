@@ -342,11 +342,11 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
 	if errors.Is(err, core.ErrReceiptsNotFound) {
-		return nil, nil //nolint:nilnil // we love go-ethereum.
+		return nil, nil
 	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.PendingBlockAndReceipts", "err", err)
-		return nil, nil //nolint:nilnil // we love go-ethereum.
+		return nil, nil
 	}
 	b.logger.Info("called eth.rpc.backend.PendingBlockAndReceipts", "block", block,
 		"num_receipts", len(receipts))
@@ -359,7 +359,7 @@ func (b *backend) GetReceipts(_ context.Context, bhash common.Hash) (types.Recei
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
 	if errors.Is(err, core.ErrReceiptsNotFound) {
-		return nil, nil //nolint:nilnil // we love go-ethereum.
+		return nil, nil
 	}
 	// If we get another more serious error, return it.
 	if err != nil {
