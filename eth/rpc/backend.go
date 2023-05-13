@@ -122,7 +122,7 @@ func (b *backend) ChainDb() ethdb.Database { //nolint:stylecheck // conforms to 
 
 // AccountManager is unused in Polaris.
 func (b *backend) AccountManager() *accounts.Manager {
-	return nil
+	return &accounts.Manager{}
 }
 
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external

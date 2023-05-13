@@ -28,43 +28,23 @@ import (
 
 // GetAPIs returns a list of all available APIs.
 func GetAPIs(apiBackend PolarisBackend) []API {
-	nonceLock := new(AddrLocker)
-	return []API{
-		{
-			Namespace: "eth",
-			Service:   NewEthereumAPI(apiBackend),
-		}, {
-			Namespace: "eth",
-			Service:   NewBlockChainAPI(apiBackend),
-		},
-		{
-			Namespace: "eth",
-			Service:   NewTransactionAPI(apiBackend, nonceLock),
-		},
-		{
+	return append(GetGethAPIs(apiBackend),
+		API{
 			Namespace: "eth",
 			Service:   api.NewEthashAPI(apiBackend),
 		},
-		{
+		API{
 			Namespace: "eth",
 			// TODO: config must be setup properly.
 			Service: NewFilterAPI(filters.NewFilterSystem(apiBackend, filters.Config{}), false),
 		},
-		{
-			Namespace: "txpool",
-			Service:   NewTxPoolAPI(apiBackend),
-		},
-		{
-			Namespace: "debug",
-			Service:   NewDebugAPI(apiBackend),
-		},
-		{
+		API{
 			Namespace: "net",
 			Service:   api.NewNetAPI(apiBackend),
 		},
-		{
+		API{
 			Namespace: "web3",
 			Service:   api.NewWeb3API(apiBackend),
 		},
-	}
+	)
 }
