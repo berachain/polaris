@@ -342,7 +342,7 @@ func (b *backend) GetTransaction(
 	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	tx, blockHash, a, x, err := b.chain.GetTransaction(txHash)
 	if err != nil {
-		return nil, common.Hash{}, 0, 0, nil
+		return nil, common.Hash{}, 0, 0, nil //nolint:nilerr // required to match geth.
 	}
 	return tx, blockHash, a, x, nil
 }
