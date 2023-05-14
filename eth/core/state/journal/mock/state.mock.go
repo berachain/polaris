@@ -55,8 +55,14 @@ import (
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
 //			},
+//			GetProofFunc: func(address common.Address) ([][]byte, error) {
+//				panic("mock out the GetProof method")
+//			},
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
+//			},
+//			GetStorageProofFunc: func(address common.Address, hash common.Hash) ([][]byte, error) {
+//				panic("mock out the GetStorageProof method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
@@ -137,8 +143,14 @@ type PluginMock struct {
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
 
+	// GetProofFunc mocks the GetProof method.
+	GetProofFunc func(address common.Address) ([][]byte, error)
+
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
+
+	// GetStorageProofFunc mocks the GetStorageProof method.
+	GetStorageProofFunc func(address common.Address, hash common.Hash) ([][]byte, error)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -242,8 +254,20 @@ type PluginMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
+		// GetProof holds details about calls to the GetProof method.
+		GetProof []struct {
+			// Address is the address argument value.
+			Address common.Address
+		}
 		// GetState holds details about calls to the GetState method.
 		GetState []struct {
+			// Address is the address argument value.
+			Address common.Address
+			// Hash is the hash argument value.
+			Hash common.Hash
+		}
+		// GetStorageProof holds details about calls to the GetStorageProof method.
+		GetStorageProof []struct {
 			// Address is the address argument value.
 			Address common.Address
 			// Hash is the hash argument value.
@@ -328,7 +352,9 @@ type PluginMock struct {
 	lockGetCommittedState sync.RWMutex
 	lockGetContext        sync.RWMutex
 	lockGetNonce          sync.RWMutex
+	lockGetProof          sync.RWMutex
 	lockGetState          sync.RWMutex
+	lockGetStorageProof   sync.RWMutex
 	lockPrepare           sync.RWMutex
 	lockRegistryKey       sync.RWMutex
 	lockReset             sync.RWMutex
@@ -760,6 +786,38 @@ func (mock *PluginMock) GetNonceCalls() []struct {
 	return calls
 }
 
+// GetProof calls GetProofFunc.
+func (mock *PluginMock) GetProof(address common.Address) ([][]byte, error) {
+	if mock.GetProofFunc == nil {
+		panic("PluginMock.GetProofFunc: method is nil but Plugin.GetProof was just called")
+	}
+	callInfo := struct {
+		Address common.Address
+	}{
+		Address: address,
+	}
+	mock.lockGetProof.Lock()
+	mock.calls.GetProof = append(mock.calls.GetProof, callInfo)
+	mock.lockGetProof.Unlock()
+	return mock.GetProofFunc(address)
+}
+
+// GetProofCalls gets all the calls that were made to GetProof.
+// Check the length with:
+//
+//	len(mockedPlugin.GetProofCalls())
+func (mock *PluginMock) GetProofCalls() []struct {
+	Address common.Address
+} {
+	var calls []struct {
+		Address common.Address
+	}
+	mock.lockGetProof.RLock()
+	calls = mock.calls.GetProof
+	mock.lockGetProof.RUnlock()
+	return calls
+}
+
 // GetState calls GetStateFunc.
 func (mock *PluginMock) GetState(address common.Address, hash common.Hash) common.Hash {
 	if mock.GetStateFunc == nil {
@@ -793,6 +851,42 @@ func (mock *PluginMock) GetStateCalls() []struct {
 	mock.lockGetState.RLock()
 	calls = mock.calls.GetState
 	mock.lockGetState.RUnlock()
+	return calls
+}
+
+// GetStorageProof calls GetStorageProofFunc.
+func (mock *PluginMock) GetStorageProof(address common.Address, hash common.Hash) ([][]byte, error) {
+	if mock.GetStorageProofFunc == nil {
+		panic("PluginMock.GetStorageProofFunc: method is nil but Plugin.GetStorageProof was just called")
+	}
+	callInfo := struct {
+		Address common.Address
+		Hash    common.Hash
+	}{
+		Address: address,
+		Hash:    hash,
+	}
+	mock.lockGetStorageProof.Lock()
+	mock.calls.GetStorageProof = append(mock.calls.GetStorageProof, callInfo)
+	mock.lockGetStorageProof.Unlock()
+	return mock.GetStorageProofFunc(address, hash)
+}
+
+// GetStorageProofCalls gets all the calls that were made to GetStorageProof.
+// Check the length with:
+//
+//	len(mockedPlugin.GetStorageProofCalls())
+func (mock *PluginMock) GetStorageProofCalls() []struct {
+	Address common.Address
+	Hash    common.Hash
+} {
+	var calls []struct {
+		Address common.Address
+		Hash    common.Hash
+	}
+	mock.lockGetStorageProof.RLock()
+	calls = mock.calls.GetStorageProof
+	mock.lockGetStorageProof.RUnlock()
 	return calls
 }
 

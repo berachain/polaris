@@ -84,6 +84,10 @@ type Plugin interface {
 	// ForEachStorage iterates over the storage of an account and calls the given callback
 	// function.
 	ForEachStorage(common.Address, func(common.Hash, common.Hash) bool) error
+	// GetStorageProof returns the storage proof for a given account and key.
+	GetStorageProof(common.Address, common.Hash) ([][]byte, error)
+	// GetProof returns the proof for a given account.
+	GetProof(common.Address) ([][]byte, error)
 }
 
 type (

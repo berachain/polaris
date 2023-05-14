@@ -530,6 +530,18 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	return sp, nil
 }
 
+// GetStateByRange implements `core.StatePlugin`.
+func (p *plugin) GetStorageProof(addr common.Address, key common.Hash) ([][]byte, error) {
+	p.ctx.Logger().Error("GetStorageProof not implemented")
+	return [][]byte{}, nil
+}
+
+// GetProof implements `core.StatePlugin`.
+func (p *plugin) GetProof(addr common.Address) ([][]byte, error) {
+	p.ctx.Logger().Error("GetProof not implemented")
+	return [][]byte{}, nil
+}
+
 // =============================================================================
 // Other
 // =============================================================================
