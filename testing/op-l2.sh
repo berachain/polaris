@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SEQ_PRIVATE_KEY="65eeadfde237124aa929afe60076f7c612583d254b925e9ddaeee566acf1223a"
+SEQ_PRIVATE_KEY="f533a590e17bec876ba042096c5e789a2040824e6a1597aa8e50e7c45f1e188e"
 
 cd ~/op-stack-deployment/optimism/op-node
 L1_RPC="http://localhost:8545"
@@ -14,7 +14,7 @@ go run cmd/main.go genesis l2 \
 
 openssl rand -hex 32 > jwt.txt
 
-# cp genesis.json ~/op-stack-deployment/op-geth
+cp genesis.json ~/op-stack-deployment/op-geth
 cp jwt.txt ~/op-stack-deployment/op-geth
 
 

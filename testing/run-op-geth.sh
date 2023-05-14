@@ -2,7 +2,7 @@
 
 cd ~/op-stack-deployment/op-geth
 
-SEQ_ADDR="0x5c5a3e8f75beb66cd77d18ff4d433407d6119d36"
+SEQ_ADDR="0x6ccbe65895459635bc4fec22a53f8f935d6e31f8"
 
 ./build/bin/geth \
 	--datadir ./datadir \
