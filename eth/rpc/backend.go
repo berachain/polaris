@@ -335,16 +335,17 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 	return state, block.Header(), nil
 }
 
-// GeTransaction returns the transaction identified by `txHash`.
+// GetTransaction returns the transaction identified by `txHash`, along with
+// information about the transaction.
 func (b *backend) GetTransaction(
 	_ context.Context, txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
-	tx, blockHash, a, x, err := b.chain.GetTransaction(txHash)
+	tx, blockHash, blockNumber, index, err := b.chain.GetTransaction(txHash)
 	if err != nil {
 		return nil, common.Hash{}, 0, 0, nil //nolint:nilerr // required to match geth.
 	}
-	return tx, blockHash, a, x, nil
+	return tx, blockHash, blockNumber, index, nil
 }
 
 // PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
