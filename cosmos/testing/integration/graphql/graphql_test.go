@@ -32,10 +32,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/common"
 
-	"pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -43,8 +40,7 @@ import (
 )
 
 var (
-	tf             *integration.TestFixture
-	bankPrecompile *bindings.BankModule
+	tf *integration.TestFixture
 )
 
 func TestRpc(t *testing.T) {
@@ -55,8 +51,6 @@ func TestRpc(t *testing.T) {
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
-	bankPrecompile, _ = bindings.NewBankModule(
-		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient)
 	return nil
 }, func(data []byte) {})
 
@@ -121,13 +115,9 @@ var _ = Describe("GraphQL", func() {
 	})
 
 	It("should support eth_getBlockByHash, eth_getBlockTransactionCountByHash, eth_getUncleByBlockHashAndIndex, eth_getUncleCountByBlockHash", func() {
-		blockHashQueryResponse, _, _ := sendGraphQLRequest(`
-		query {
-			block {
-			  hash
-			}
-		  }`)
-		mostRecentBlockHash := gjson.Get(blockHashQueryResponse, "data.block.hash").String()
+
+		mostRecentBlockHash, err := getMostRecentBlockHash()
+		Expect(err).ToNot(HaveOccurred())
 		query := fmt.Sprintf(`
 		query {
 			block(hash: "%s") {
@@ -229,14 +219,8 @@ var _ = Describe("GraphQL", func() {
 
 	})
 	It("should support eth_getTransactionByBlockHashAndIndex", func() {
-		blockHashQueryResponse, _, _ := sendGraphQLRequest(`
-		query {
-			block {
-			  hash
-			}
-		  }`)
-		mostRecentBlockHash := gjson.Get(blockHashQueryResponse, "data.block.hash").String()
-		fmt.Print(mostRecentBlockHash)
+		mostRecentBlockHash, err := getMostRecentBlockHash()
+		Expect(err).ToNot(HaveOccurred())
 		query := fmt.Sprintf(`
 		query {
 			block(hash: "%s") {
@@ -345,7 +329,6 @@ var _ = Describe("GraphQL", func() {
 		alicePrivKey := tf.PrivKey("alice")
 		bob := tf.Address("bob")
 		fmt.Println("alice: ", alice, "\nbob: ", bob)
-		fmt.Println("alice: ", lib.AddressToAccAddress(alice), "\nbob: ", lib.AddressToAccAddress(bob))
 		tx := types.NewTransaction(
 			0, // Nonce
 			bob,
@@ -401,6 +384,22 @@ var _ = Describe("GraphQL", func() {
 		Expect(status).Should(Equal(400))
 	})
 })
+
+func getMostRecentBlockHash() (string, error) {
+	mostRecentBlockHashQueryResponse, _, err := sendGraphQLRequest(`
+	query {
+		block {
+		  hash
+		}
+	  }`)
+	mostRecentBlockHash := gjson.Get(mostRecentBlockHashQueryResponse, "data.block.hash").String()
+
+	if err != nil {
+		return "", err
+	}
+
+	return mostRecentBlockHash, err
+}
 
 func sendGraphQLRequest(query string) (string, int, error) {
 	url := "http://localhost:8545/graphql"
