@@ -31,9 +31,11 @@ import (
 	"github.com/tidwall/gjson"
 
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rlp"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	"pkg.berachain.dev/polaris/eth/common"
 
+	"pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -41,9 +43,8 @@ import (
 )
 
 var (
-	tf       *integration.TestFixture
-	client   *ethclient.Client
-	wsclient *ethclient.Client
+	tf             *integration.TestFixture
+	bankPrecompile *bindings.BankModule
 )
 
 func TestRpc(t *testing.T) {
@@ -54,8 +55,8 @@ func TestRpc(t *testing.T) {
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
-	client = tf.EthClient
-	wsclient = tf.EthWsClient
+	bankPrecompile, _ = bindings.NewBankModule(
+		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient)
 	return nil
 }, func(data []byte) {})
 
@@ -120,9 +121,16 @@ var _ = Describe("GraphQL", func() {
 	})
 
 	It("should support eth_getBlockByHash, eth_getBlockTransactionCountByHash, eth_getUncleByBlockHashAndIndex, eth_getUncleCountByBlockHash", func() {
-		response, status, err := sendGraphQLRequest(`
+		blockHashQueryResponse, _, _ := sendGraphQLRequest(`
 		query {
-			block(hash:"0xde65e084e530573a2c0184669dfda962933fc847bbb822cd8296444f136e9ba5") {
+			block {
+			  hash
+			}
+		  }`)
+		mostRecentBlockHash := gjson.Get(blockHashQueryResponse, "data.block.hash").String()
+		query := fmt.Sprintf(`
+		query {
+			block(hash: "%s") {
 				transactionCount
 				transactionAt(index: 0) {
 				  hash
@@ -142,9 +150,10 @@ var _ = Describe("GraphQL", func() {
 				  number
 				  hash
 				  rawHeader
-				}
+				}	
 			}
-		  }`)
+		}`, mostRecentBlockHash)
+		response, status, err := sendGraphQLRequest(query)
 		transactionCount := gjson.Get(response, "data.block.transactionCount").Int()
 		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
 		Expect(status).To((BeEquivalentTo(200)))
@@ -220,26 +229,40 @@ var _ = Describe("GraphQL", func() {
 
 	})
 	It("should support eth_getTransactionByBlockHashAndIndex", func() {
-		response, status, err := sendGraphQLRequest(`
-		{
-			block(hash: "0xde65e084e530573a2c0184669dfda962933fc847bbb822cd8296444f136e9ba5") {
-			  transactionAt(index: 0) {
-				hash
-				nonce
-				index
-				value
-				gasPrice
-				maxFeePerGas
-				maxPriorityFeePerGas
-				effectiveTip
-				effectiveGasPrice
-				gas
-				inputData
-			  }
+		blockHashQueryResponse, _, _ := sendGraphQLRequest(`
+		query {
+			block {
+			  hash
 			}
-		  }
-		  
-	`)
+		  }`)
+		mostRecentBlockHash := gjson.Get(blockHashQueryResponse, "data.block.hash").String()
+		fmt.Print(mostRecentBlockHash)
+		query := fmt.Sprintf(`
+		query {
+			block(hash: "%s") {
+				transactionCount
+				transactionAt(index: 0) {
+				  hash
+				  nonce
+				  index
+				  value
+				  gasPrice
+				  maxFeePerGas
+				  maxPriorityFeePerGas
+				  effectiveTip
+				  effectiveGasPrice
+				  gas
+				  inputData
+				}
+				ommerCount
+				ommerAt(index: 0) {
+				  number
+				  hash
+				  rawHeader
+				}	
+			}
+		}`, mostRecentBlockHash)
+		response, status, err := sendGraphQLRequest(query)
 		transactionAt := gjson.Get(response, "data.block.transactionAt").Exists()
 
 		Expect(status).To(BeEquivalentTo(200))
@@ -318,27 +341,27 @@ var _ = Describe("GraphQL", func() {
 		// https://eips.ethereum.org/EIPS/eip-1767
 	})
 	It("should support eth_sendRawTransaction", func() {
-		privKey := tf.PrivKey("alice")
+		alice := tf.Address("alice")
+		alicePrivKey := tf.PrivKey("alice")
+		bob := tf.Address("bob")
+		fmt.Println("alice: ", alice, "\nbob: ", bob)
+		fmt.Println("alice: ", lib.AddressToAccAddress(alice), "\nbob: ", lib.AddressToAccAddress(bob))
 		tx := types.NewTransaction(
 			0, // Nonce
-			tf.Address("bob"),
-			big.NewInt(0),  // Value
+			bob,
+			big.NewInt(5),  // Value
 			uint64(22000),  // Gas limit
 			big.NewInt(10), // Gas price
 			nil,
 		)
-		signed, status := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), privKey)
+		signed, _ := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), alicePrivKey)
 		rlpEncoded, _ := rlp.EncodeToBytes(signed)
-
-		data := fmt.Sprintf("mutation { sendRawTransaction(data: \"%#x\") }", rlpEncoded)
-		fmt.Print(data)
-		response, _, err := sendGraphQLRequest(data)
-
-		ret := gjson.Get(response, "data").Value()
-		Expect(ret).ToNot(BeNil())
+		data := fmt.Sprintf("mutation { sendRawTransaction(data: \"0x%x\") }", rlpEncoded)
+		fmt.Println("data: ", data)
+		response, status, err := sendGraphQLRequest(data)
+		fmt.Println(response, status, err)
 		Expect(status).Should(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
-		panic("fak")
 	})
 
 	It("should support eth_syncing", func() {
@@ -364,7 +387,6 @@ var _ = Describe("GraphQL", func() {
 		errorMessage := gjson.Get(response, "data.errors.message")
 		Expect(errorMessage).ToNot(BeNil())
 		Expect(status).Should(Equal(400))
-		// Expect(err).To(HaveOccurred())
 	})
 
 	It("should fail on a malformatted mutation", func() {
@@ -377,7 +399,6 @@ var _ = Describe("GraphQL", func() {
 		errorMessage := gjson.Get(response, "data.errors.message")
 		Expect(errorMessage).ToNot(BeNil())
 		Expect(status).Should(Equal(400))
-		// Expect(err).To(HaveOccurred())
 	})
 })
 

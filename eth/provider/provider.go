@@ -86,8 +86,6 @@ func NewPolarisProviderWithConfig(
 		panic(err)
 	}
 
-	// we don't have filter system yet
-	// be careful about this, could break in the future
 	ethConfig := ethconfig.Config{
 		SyncMode:           0,
 		FilterLogCacheSize: 0,
