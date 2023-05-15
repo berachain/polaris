@@ -77,6 +77,7 @@ func NewHost(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
+	sk block.StakingKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
@@ -86,7 +87,7 @@ func NewHost(
 	h := &host{}
 
 	// Build the Plugins
-	h.bp = block.NewPlugin(storeKey)
+	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
 	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))

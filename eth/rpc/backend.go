@@ -546,7 +546,12 @@ func (b *backend) ServiceFilter(_ context.Context, session *bloombits.MatcherSes
 // For education:
 // https://medium.com/@pedrouid/chainid-vs-networkid-how-do-they-differ-on-ethereum-eec2ed41635b
 func (b *backend) Version() string {
-	return b.ChainConfig().ChainID.String()
+	chainID := b.ChainConfig().ChainID
+	if chainID == nil {
+		b.logger.Error("eth.rpc.backend.Version", "ChainID is nil")
+		return "-1"
+	}
+	return chainID.String()
 }
 
 func (b *backend) Listening() bool {
@@ -579,7 +584,6 @@ func (b *backend) polarisBlockByNumberOrHash(
 			return nil, errorslib.Wrapf(ErrBlockNotFound,
 				"polarisBlockByNumberOrHash: hash [%s]", hash.String())
 		}
-
 		// If the hash is found, we have the canonical chain.
 		if block.Hash() == hash {
 			return block, nil
@@ -594,11 +598,6 @@ func (b *backend) polarisBlockByNumberOrHash(
 	// Then we try to get the block by number
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		block, err := b.polarisBlockByNumber(blockNr)
-		// If the block is non-existent, return nil.
-		// This is to maintain parity with the behavior of the geth backend.
-		if errors.Is(err, core.ErrBlockNotFound) {
-			return nil, nil //nolint:nilnil // we love go-ethereum.
-		}
 		if err != nil {
 			return nil, errorslib.Wrapf(ErrBlockNotFound,
 				"polarisBlockByNumberOrHash: number [%d]", blockNr)
