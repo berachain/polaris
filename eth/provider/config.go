@@ -46,11 +46,12 @@ func DefaultConfig() *Config {
 	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth", "web3", "net")
 	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
 	nodeCfg.HTTPHost = "0.0.0.0"
-
 	nodeCfg.WSHost = "0.0.0.0"
 	nodeCfg.WSOrigins = []string{"*"}
 	nodeCfg.HTTPCors = []string{"*"}
 	nodeCfg.HTTPVirtualHosts = []string{"*"}
+	nodeCfg.GraphQLCors = []string{"*"}
+	nodeCfg.GraphQLVirtualHosts = []string{"*"}
 	c.NodeConfig = nodeCfg
 	c.RPCConfig = *rpc.DefaultConfig()
 	return &c
