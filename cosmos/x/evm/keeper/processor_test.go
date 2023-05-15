@@ -89,7 +89,7 @@ var _ = Describe("Processor", func() {
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
-			ak, bk,
+			ak, bk, sk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(evmmempool.DefaultPriorityMempool()),

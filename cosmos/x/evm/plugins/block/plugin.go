@@ -48,11 +48,14 @@ type plugin struct {
 	storekey storetypes.StoreKey
 	// getQueryContext allows for querying block headers.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
+	// sk represents the cosmos staking keeper
+	sk StakingKeeper
 }
 
-func NewPlugin(storekey storetypes.StoreKey) Plugin {
+func NewPlugin(storekey storetypes.StoreKey, sk StakingKeeper) Plugin {
 	return &plugin{
 		storekey: storekey,
+		sk:       sk,
 	}
 }
 
@@ -74,7 +77,11 @@ func (p *plugin) GetNewBlockMetadata(number int64) (common.Address, uint64) {
 		panic("block height mismatch")
 	}
 
-	return common.BytesToAddress(cometHeader.ProposerAddress), uint64(cometHeader.Time.UTC().Unix())
+	val, found := p.sk.GetValidatorByConsAddr(p.ctx, cometHeader.ProposerAddress)
+	if !found {
+		panic("validator not found")
+	}
+	return common.BytesToAddress(val.GetOperator()), uint64(cometHeader.Time.UTC().Unix())
 }
 
 func (p *plugin) IsPlugin() {}
