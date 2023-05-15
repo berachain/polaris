@@ -164,6 +164,10 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 			Enabled: true,
 		},
 		{
+			Denom:   "atoken",
+			Enabled: true,
+		},
+		{
 			Denom:   "stake",
 			Enabled: true,
 		},
@@ -250,6 +254,7 @@ func getCoinsForAccount(name string) sdk.Coins {
 			sdk.NewCoin("bAKT", sdk.NewInt(12345)), //nolint:gomnd // its okay.
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
 			sdk.NewCoin("bOSMO", sdk.NewInt(12345*2)), //nolint:gomnd // its okay.
+			sdk.NewCoin("atoken", sdk.NewInt(examoney)),
 		)
 	case "bob":
 		return sdk.NewCoins(
