@@ -21,9 +21,13 @@
 package integration
 
 import (
+	"bytes"
 	"context"
 	"crypto/ecdsa"
+	"encoding/json"
+	"io"
 	"math/big"
+	"net/http"
 	"strings"
 	"time"
 
@@ -46,13 +50,14 @@ var defaultAccountNames = []string{"alice", "bob", "charlie"}
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
 type TestFixture struct {
-	t           network.TestingT
-	Network     *network.Network
-	EthClient   *ethclient.Client
-	EthWsClient *ethclient.Client
-	HTTPAddr    string
-	WsAddr      string
-	keysMap     map[string]*ethsecp256k1.PrivKey
+	t                network.TestingT
+	Network          *network.Network
+	EthClient        *ethclient.Client
+	EthWsClient      *ethclient.Client
+	EthGraphQLClient *http.Client
+	HTTPAddr         string
+	WsAddr           string
+	keysMap          map[string]*ethsecp256k1.PrivKey
 }
 
 // NewTestFixture creates a new TestFixture.
@@ -82,15 +87,18 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 	wsaddr := "ws:" + apiAddr + ":8546"
 	wsClient, _ := ethclient.DialContext(ctx, wsaddr)
 
+	graphQLClient := &http.Client{}
+
 	// Build and return the Test Fixture.
 	return &TestFixture{
-		t:           t,
-		Network:     net,
-		EthClient:   client,
-		EthWsClient: wsClient,
-		HTTPAddr:    httpAddr,
-		WsAddr:      wsaddr,
-		keysMap:     keysMap,
+		t:                t,
+		Network:          net,
+		EthClient:        client,
+		EthWsClient:      wsClient,
+		EthGraphQLClient: graphQLClient,
+		HTTPAddr:         httpAddr,
+		WsAddr:           wsaddr,
+		keysMap:          keysMap,
 	}
 }
 
@@ -130,6 +138,38 @@ func (tf *TestFixture) Address(name string) common.Address {
 func (tf *TestFixture) CreateKeyWithName(name string) {
 	newKey, _ := ethsecp256k1.GenPrivKey()
 	tf.keysMap[name] = newKey
+}
+
+func (tf *TestFixture) SendGraphQLRequest(query string) (string, int, error) {
+	url := tf.HTTPAddr + "/graphql"
+	requestBody, err := json.Marshal(map[string]string{
+		"query": query,
+	})
+	if err != nil {
+		return "", 500, err
+	}
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(requestBody))
+	if err != nil {
+		return "", 500, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", 500, err
+	}
+	defer resp.Body.Close()
+
+	responseBody, err := io.ReadAll(resp.Body)
+	responseStatusCode := resp.StatusCode
+	if err != nil {
+		return "", 500, err
+	}
+
+	return string(responseBody), responseStatusCode, nil
 }
 
 func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
