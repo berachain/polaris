@@ -21,8 +21,6 @@
 package rpc
 
 import (
-	"github.com/ethereum/go-ethereum/eth/filters"
-
 	"pkg.berachain.dev/polaris/eth/rpc/api"
 )
 
@@ -32,11 +30,6 @@ func GetAPIs(apiBackend PolarisBackend) []API {
 		API{
 			Namespace: "eth",
 			Service:   api.NewEthashAPI(apiBackend),
-		},
-		API{
-			Namespace: "eth",
-			// TODO: config must be setup properly.
-			Service: NewFilterAPI(filters.NewFilterSystem(apiBackend, filters.Config{}), false),
 		},
 		API{
 			Namespace: "net",
