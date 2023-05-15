@@ -187,7 +187,7 @@ func (bc *blockchain) GetBlockByNumber(number int64) (*types.Block, error) {
 	// Cache the found block for next time and return
 	bc.blockNumCache.Add(number, block)
 	bc.blockHashCache.Add(block.Hash(), block)
-	return nil, ErrBlockNotFound
+	return block, nil
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.

@@ -49,7 +49,7 @@ var (
 
 func TestRpc(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/jsonrpc:integration")
+	RunSpecs(t, "cosmos/testing/graphql:integration")
 }
 
 var _ = SynchronizedBeforeSuite(func() []byte {
@@ -60,11 +60,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 }, func(data []byte) {})
 
 var _ = Describe("GraphQL", func() {
-
-	BeforeEach(func() {
-		tf.Network.WaitForNextBlock()
-	})
-
 	It("should support eth_blockNumber", func() {
 		response, status, err := sendGraphQLRequest(`
 		query {
@@ -126,7 +121,8 @@ var _ = Describe("GraphQL", func() {
 
 	})
 
-	It("should support eth_getBlockByHash, eth_getBlockTransactionCountByHash, eth_getUncleByBlockHashAndIndex, eth_getUncleCountByBlockHash", func() {
+	It(`should support eth_getBlockByHash, eth_getBlockTransactionCountByHash, 
+	eth_getUncleByBlockHashAndIndex, eth_getUncleCountByBlockHash`, func() {
 
 		mostRecentBlockHash, err := getMostRecentBlockHash()
 		Expect(err).ToNot(HaveOccurred())
@@ -163,7 +159,8 @@ var _ = Describe("GraphQL", func() {
 		Expect(transactionCount).To(BeNumerically(">=", 0))
 		Expect(ommerCount).To(BeNumerically(">=", 0))
 	})
-	It("should support eth_getBlockByNumber, eth_getBlockTransactionCountByNumber, eth_getUncleCountByBlockNumber, eth_getUncleByBlockNumberAndIndex", func() {
+	It(`should support eth_getBlockByNumber, eth_getBlockTransactionCountByNumber, 
+	eth_getUncleCountByBlockNumber, eth_getUncleByBlockNumberAndIndex`, func() {
 
 		response, status, err := sendGraphQLRequest(`
 		query {
@@ -191,18 +188,17 @@ var _ = Describe("GraphQL", func() {
 			}
 		  }`)
 		transactionCount := gjson.Get(response, "data.block.transactionCount").Int()
-		transactionAt := gjson.Get(response, "data.block.transactionAt").Value()
+		transactionAt := gjson.Get(response, "data.block.transactionAt").String()
 		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
-		ommerAt := gjson.Get(response, "data.block.ommerAt").Value()
-		fmt.Println("RESPONSE: ", response)
-		Expect(status).To((BeEquivalentTo(200)))
+		ommerAt := gjson.Get(response, "data.block.ommerAt").String()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(status).To((BeEquivalentTo(200)))
 
 		Expect(transactionCount).To(BeEquivalentTo(0))
 		Expect(ommerCount).To(BeEquivalentTo(0))
 
-		Expect(transactionAt).To(BeNil())
-		Expect(ommerAt).To(BeNil())
+		Expect(transactionAt).ToNot(BeNil())
+		Expect(ommerAt).ToNot(BeNil())
 	})
 
 	It("should support eth_getBalance, eth_getCode, eth_getStorageAt, eth_getTransactionCount", func() {
@@ -348,12 +344,14 @@ var _ = Describe("GraphQL", func() {
 			big.NewInt(10), // Gas price
 			nil,
 		)
-		signed, _ := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), alicePrivKey)
-		rlpEncoded, _ := rlp.EncodeToBytes(signed)
+		signed, err := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), alicePrivKey)
+		Expect(err).ToNot(HaveOccurred())
+		rlpEncoded, err := rlp.EncodeToBytes(signed)
+		Expect(err).ToNot(HaveOccurred())
 		data := fmt.Sprintf("mutation { sendRawTransaction(data: \"0x%x\") }", rlpEncoded)
 		_, status, err := sendGraphQLRequest(data)
-		Expect(status).Should(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
+		Expect(status).Should(Equal(200))
 	})
 
 	It("should support eth_syncing", func() {
@@ -395,7 +393,8 @@ var _ = Describe("GraphQL", func() {
 })
 
 func getMostRecentBlockHash() (string, error) {
-	tf.Network.WaitForNextBlock()
+	err := tf.Network.WaitForNextBlock()
+	Expect(err).ToNot(HaveOccurred())
 	mostRecentBlockHashQueryResponse, _, err := sendGraphQLRequest(`
 	query {
 		block {
