@@ -70,6 +70,7 @@ type StateProcessor struct {
 	header   *types.Header
 	txs      types.Transactions
 	receipts types.Receipts
+	logIndex uint
 }
 
 // NewStateProcessor creates a new state processor with the given host, statedb, vmConfig, and
@@ -111,6 +112,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 
 	// Build a header object so we can track that status of the block as we process it.
 	sp.header = header
+	sp.logIndex = 0
 	sp.txs = make(types.Transactions, 0, initialTxsCapacity)
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
@@ -177,23 +179,36 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Create a new receipt for the transaction.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
+		PostState:         nil, // in Polaris we assume we are past EIP-658.
 		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
-		TxHash:            txHash,
-		GasUsed:           result.UsedGas,
-		Logs:              sp.statedb.Logs(),
 	}
+	if result.Failed() {
+		receipt.Status = types.ReceiptStatusFailed
+	} else {
+		receipt.Status = types.ReceiptStatusSuccessful
+	}
+	receipt.TxHash = tx.Hash()
+	receipt.GasUsed = result.UsedGas
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To == nil {
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
-	// Set the receipt status based on the execution result status.
-	if result.Failed() {
-		receipt.Status = types.ReceiptStatusFailed
-	} else {
-		receipt.Status = types.ReceiptStatusSuccessful
+	// Edit the receipts to include the block hash and bloom filter.
+	receipt.Logs = sp.statedb.Logs()
+	txIndex := uint(len(sp.txs))
+	// TODO: this is ugly, probably want to fix.
+	for _, log := range receipt.Logs {
+		log.TxHash = txHash
+		log.TxIndex = txIndex
+		log.BlockNumber = sp.header.Number.Uint64()
+		log.Index = sp.logIndex
+		sp.logIndex++
 	}
+	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
+	receipt.BlockNumber = sp.header.Number
+	receipt.TransactionIndex = txIndex
 
 	// Finalize the statedb to ensure that any state changes that are required are propogated.
 	// We have to do this irrespective of whether the transaction failed or not, in order to
@@ -220,34 +235,19 @@ func (sp *StateProcessor) Finalize(
 	// Now that we are done processing the block, we update the header with the consumed gas.
 	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
-	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom) and
-	// reset the header for the next block.
-	var logIndex uint
-	var logs []*types.Log
-	for txIndex, receipt := range sp.receipts {
-		// Edit the receipts to include the block hash and bloom filter.
-		for _, log := range receipt.Logs {
-			log.BlockNumber = sp.header.Number.Uint64()
-			log.Index = logIndex
-			logIndex++
-			logs = append(logs, log)
-		}
-		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
-		receipt.TransactionIndex = uint(txIndex)
-	}
-
+	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
 	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+	blockHash := block.Hash()
 
-	// Set non-consensus fields.
+	// Set hashes on the receipts and logs.
+	var logs []*types.Log
 	for _, receipt := range sp.receipts {
-		receipt.BlockHash = block.Hash()
-		receipt.BlockNumber = block.Number()
-		for _, log := range logs {
-			log.BlockHash = block.Hash()
+		receipt.BlockHash = blockHash
+		for _, log := range receipt.Logs {
+			log.BlockHash = blockHash
 		}
+		logs = append(logs, receipt.Logs...)
 	}
-
-	sp.header = nil
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, logs, nil

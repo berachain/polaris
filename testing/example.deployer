@@ -20,7 +20,7 @@
   "batchSenderAddress": "BATCHER",
 
   "l2OutputOracleSubmissionInterval": 120,
-  "l2OutputOracleStartingBlockNumber": 0,
+  "l2OutputOracleStartingBlockNumber": 50,
   "l2OutputOracleStartingTimestamp": TIMESTAMP,
 
   "l2OutputOracleProposer": "PROPOSER",

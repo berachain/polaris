@@ -2,17 +2,17 @@
 
 cd ~/op-stack-deployment/optimism/op-batcher
 
-SEQ_KEY="e2d186bc65327b8840f0032434bdd585a7cdf915d28eba7b9699725cf0bda197"
+SEQ_KEY="3b6b715c09a45bd370e89d3f03e99b739463b81a65aebd6e24c4b3c037b21f89"
 L1_RPC="http://localhost:8545"
 RPC_KIND="any"
 
-export SEQ_ADDR="0xedd88fff6ed74050f93685ea9ef3a79d92fa850e"
-export SEQ_KEY="e2d186bc65327b8840f0032434bdd585a7cdf915d28eba7b9699725cf0bda197"
-export BATCHER_KEY="26b1aa5dc21c47ddca7f2144c324971428f00add9d371fa0671e073975fd00ce"
-export PROPOSER_KEY="db25fa341cd14ba2f2e96c7b62ec6813068abec70f2b6ffaa1bbfeb89efabaf2"
+export SEQ_ADDR="0xcd1c0aaca7fb0c528cf8744bfd4efe1c55694754"
+export SEQ_KEY="3b6b715c09a45bd370e89d3f03e99b739463b81a65aebd6e24c4b3c037b21f89"
+export BATCHER_KEY="cb985d350b1300767a3a596bfd061de22bbb0fa7e86f2495916315a5d31723a5"
+export PROPOSER_KEY="044f9ab10c335a0e537debe3dd5543b17d09528f61ac483a2e584229d582e0f0"
 export RPC_KIND="any"
 export L1_RPC="http://localhost:8545"
-export L2OO_ADDR="0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0"
+export L2OO_ADDR="0x8b495AAbAaD833c7433270a79594029912C7e480"
 
 ./bin/op-batcher \
     --l2-eth-rpc=http://localhost:8545 \
