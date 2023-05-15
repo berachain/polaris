@@ -222,16 +222,12 @@ func (sp *StateProcessor) Finalize(
 
 	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom) and
 	// reset the header for the next block.
-
-	headerHash := sp.header.Hash()
-
 	var logIndex uint
 	var logs []*types.Log
 	for txIndex, receipt := range sp.receipts {
 		// Edit the receipts to include the block hash and bloom filter.
 		for _, log := range receipt.Logs {
 			log.BlockNumber = sp.header.Number.Uint64()
-			log.BlockHash = headerHash
 			log.Index = logIndex
 			logIndex++
 			logs = append(logs, log)
