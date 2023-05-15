@@ -71,7 +71,6 @@ type StateProcessor struct {
 	header   *types.Header
 	txs      types.Transactions
 	receipts types.Receipts
-	logIndex uint
 }
 
 // NewStateProcessor creates a new state processor with the given host, statedb, vmConfig, and
@@ -113,7 +112,6 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 	// Build a header object so we can track that status of the block as we process it.
 	sp.header = header
-	sp.logIndex = 0
 	sp.txs = make(types.Transactions, 0, initialTxsCapacity)
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
@@ -212,11 +210,7 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Add the logs, with block metadata, to the receipt; the block hash has not been computed
 	// since the block is not complete at this point.
-	receipt.Logs = sp.statedb.GetLogs(receipt.TxHash, sp.header.Number.Uint64(), common.Hash{})
-	for _, log := range receipt.Logs {
-		log.Index = sp.logIndex
-		sp.logIndex++
-	}
+	receipt.Logs = sp.statedb.GetLogs(txHash, sp.header.Number.Uint64(), common.Hash{})
 	// Add the bloom filter to the receipt.
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.TransactionIndex = uint(len(sp.txs))
