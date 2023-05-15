@@ -1,7 +1,9 @@
 #!/bin/bash
 
-SEQ_PRIVATE_KEY="f533a590e17bec876ba042096c5e789a2040824e6a1597aa8e50e7c45f1e188e"
+SEQ_KEY="e2d186bc65327b8840f0032434bdd585a7cdf915d28eba7b9699725cf0bda197"
 
+L1_RPC="http://localhost:8545"
+RPC_KIND="any"
 cd ~/op-stack-deployment/optimism/op-node
 L1_RPC="http://localhost:8545"
 
@@ -22,7 +24,7 @@ cd ~/op-stack-deployment/op-geth
 mkdir datadir
 echo "pwd" > datadir/password
 
-echo $SEQ_PRIVATE_KEY > datadir/block-signer-key
+echo $SEQ_KEY > datadir/block-signer-key
 
 ./build/bin/geth account import --datadir=datadir --password=datadir/password datadir/block-signer-key
 

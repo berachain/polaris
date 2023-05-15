@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/op-stack-deployment/optimism/op-node
+cd ~/op-stack-deployment/optimism/op-proposer
 
 export SEQ_ADDR="0xedd88fff6ed74050f93685ea9ef3a79d92fa850e"
 export SEQ_KEY="e2d186bc65327b8840f0032434bdd585a7cdf915d28eba7b9699725cf0bda197"
@@ -10,18 +10,10 @@ export RPC_KIND="any"
 export L1_RPC="http://localhost:8545"
 export L2OO_ADDR="0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0"
 
-./bin/op-node \
-	--l2=http://localhost:8551 \
-	--l2.jwt-secret=./jwt.txt \
-	--sequencer.enabled \
-	--sequencer.l1-confs=1 \
-	--verifier.l1-confs=1 \
-	--rollup.config=./rollup.json \
-	--rpc.addr=0.0.0.0 \
-	--rpc.port=8547 \
-	--p2p.disable \
-	--rpc.enable-admin \
-	--p2p.sequencer.key=$SEQ_KEY \
-	--l1=$L1_RPC \
-	--l1.rpckind=$RPC_KIND \
-	--l1.trustrpc true
+./bin/op-proposer \
+    --poll-interval 5s \
+    --rpc.port 8560 \
+    --rollup-rpc http://localhost:8547 \
+    --l2oo-address $L2OO_ADDR \
+    --private-key $PROPOSER_KEY \
+    --l1-eth-rpc $L1_RPC

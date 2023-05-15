@@ -222,29 +222,36 @@ func (sp *StateProcessor) Finalize(
 
 	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom) and
 	// reset the header for the next block.
-	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
-	sp.header = nil
 
-	// We iterate over all of the receipts/transactions in the block and update the receipt to
-	// have the correct values. We must do this AFTER all the transactions have been processed
-	// to ensure that the block hash, logs and bloom filter have the correct information.
-	blockHash, blockNumber, blockBloom := block.Hash(), block.NumberU64(), block.Bloom()
+	headerHash := sp.header.Hash()
+
 	var logIndex uint
 	var logs []*types.Log
 	for txIndex, receipt := range sp.receipts {
 		// Edit the receipts to include the block hash and bloom filter.
 		for _, log := range receipt.Logs {
-			log.BlockNumber = blockNumber
-			log.BlockHash = blockHash
+			log.BlockNumber = sp.header.Number.Uint64()
+			log.BlockHash = headerHash
 			log.Index = logIndex
 			logIndex++
 			logs = append(logs, log)
 		}
-		receipt.Bloom = blockBloom
-		receipt.BlockHash = blockHash
-		receipt.BlockNumber = block.Number()
+		receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 		receipt.TransactionIndex = uint(txIndex)
 	}
+
+	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+
+	// Set non-consensus fields.
+	for _, receipt := range sp.receipts {
+		receipt.BlockHash = block.Hash()
+		receipt.BlockNumber = block.Number()
+		for _, log := range logs {
+			log.BlockHash = block.Hash()
+		}
+	}
+
+	sp.header = nil
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, logs, nil
