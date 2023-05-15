@@ -181,6 +181,8 @@ func (sp *StateProcessor) ProcessTransaction(
 		Type:              tx.Type(),
 		PostState:         nil, // in Polaris we assume we are past EIP-658.
 		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
+		BlockNumber:       sp.header.Number,
+		TransactionIndex:  uint(len(sp.txs)),
 	}
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
@@ -195,20 +197,15 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
-	// Edit the receipts to include the block hash and bloom filter.
 	receipt.Logs = sp.statedb.Logs()
-	txIndex := uint(len(sp.txs))
-	// TODO: this is ugly, probably want to fix.
 	for _, log := range receipt.Logs {
-		log.TxHash = txHash
-		log.TxIndex = txIndex
 		log.BlockNumber = sp.header.Number.Uint64()
 		log.Index = sp.logIndex
 		sp.logIndex++
 	}
+
+	// Add the bloom filter to the receipt.
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
-	receipt.BlockNumber = sp.header.Number
-	receipt.TransactionIndex = txIndex
 
 	// Finalize the statedb to ensure that any state changes that are required are propogated.
 	// We have to do this irrespective of whether the transaction failed or not, in order to
