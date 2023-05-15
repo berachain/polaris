@@ -22,6 +22,7 @@ package block
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -48,7 +49,7 @@ type plugin struct {
 	storekey storetypes.StoreKey
 	// getQueryContext allows for querying block headers.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
-	// sk represents the cosmos staking keeper
+	// sk represents the cosmos staking keeper.
 	sk StakingKeeper
 }
 
@@ -74,12 +75,12 @@ func (p *plugin) BaseFee() *big.Int {
 func (p *plugin) GetNewBlockMetadata(number int64) (common.Address, uint64) {
 	cometHeader := p.ctx.BlockHeader()
 	if cometHeader.Height != number {
-		panic("block height mismatch")
+		panic(fmt.Errorf("block height mismatch. got: %d, expected %d", cometHeader.Height, number))
 	}
 
 	val, found := p.sk.GetValidatorByConsAddr(p.ctx, cometHeader.ProposerAddress)
 	if !found {
-		panic("validator not found")
+		panic(fmt.Errorf("validator not found: %s", cometHeader.ProposerAddress))
 	}
 	return common.BytesToAddress(val.GetOperator()), uint64(cometHeader.Time.UTC().Unix())
 }
