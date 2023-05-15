@@ -127,6 +127,20 @@ func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 	return cosmlib.AccAddressToEthAddress(accAddress), nil
 }
 
+// ConvertConsAddressFromBech32 converts a bech32 string representing a consensus account address to a
+// common.Address.
+//
+// ConvertConsAddressFromBech32 is a `precompile.ValueDecoder`.
+func ConvertConsAddressFromBech32(attributeValue string) (any, error) {
+	// extract the sdk.ConsAddress from string value
+	consAddress, err := sdk.ConsAddressFromBech32(attributeValue)
+	if err != nil {
+		return nil, err
+	}
+	// convert the sdk.ConsAddress to common.Address
+	return cosmlib.ConsAddressToEthAddress(consAddress), nil
+}
+
 // ConvertInt64 converts a creation height (from the Cosmos SDK staking module) `string`
 // to an `int64`.
 //
