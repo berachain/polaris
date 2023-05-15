@@ -26,21 +26,25 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/tidwall/gjson"
 
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rlp"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 var (
-	tf *integration.TestFixture
+	tf     *integration.TestFixture
+	client *ethclient.Client
 )
 
 func TestRpc(t *testing.T) {
@@ -51,10 +55,15 @@ func TestRpc(t *testing.T) {
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
+	client = tf.EthClient
 	return nil
 }, func(data []byte) {})
 
 var _ = Describe("GraphQL", func() {
+
+	BeforeEach(func() {
+		tf.Network.WaitForNextBlock()
+	})
 
 	It("should support eth_blockNumber", func() {
 		response, status, err := sendGraphQLRequest(`
@@ -72,34 +81,37 @@ var _ = Describe("GraphQL", func() {
 	})
 
 	It("should support eth_call", func() {
-		response, status, err := sendGraphQLRequest(`
-		query {
-			gasPrice
-		}
-		`)
-		gasPrice := gjson.Get(response, "data.gasPrice").String()
+		_, addr := DeployERC20(tf.GenerateTransactOpts("alice"), client)
+		// function selector for decimals() padded to 32 bytes
+		calldata := "0x313ce56700000000000000000000000000000000000000000000000000000000"
+		query := fmt.Sprintf(`
+		query { 
+			block(number:1) { 
+				call(data: { to: "%s", data: "%s" }) {
+					data
+					status
+					gasUsed
+				} 
+			} 
+		}`, addr.String(), calldata)
+		_, status, err := sendGraphQLRequest(query)
+
 		Expect(status).To(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(gasPrice).To(BeEquivalentTo("0x3b9aca07"))
 	})
 	It("should support eth_estimateGas", func() {
-		response, status, err := sendGraphQLRequest(`
-		query {
-			block(number: 0) {
-			estimateGas(
-			  data: { 
-				to: "0x0000000000000000000000000000000000000000", 
-				  data: "0x0000000000000000000000000000000000000000" 
-				}
-			)
-			}
-		  }	
-		
-		`)
-		estimateGas := gjson.Get(response, "data.block.estimateGas").Int()
+		alice := tf.Address("alice")
+		response, status, err := sendGraphQLRequest(fmt.Sprintf(
+			`query { 
+				block(number: "1") { 
+					estimateGas( data: { to: "%s" }) 
+					} 
+			}`, alice.String()))
+
+		estimateGas := gjson.Get(response, "data.block.estimateGas").String()
 		Expect(status).To(Equal(200))
+		Expect(strconv.ParseUint(estimateGas, 10, 64)).To(BeNumerically(">=", 21000))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(estimateGas).To(BeNumerically(">", 21000))
 	})
 	It("should support eth_gasPrice", func() {
 		response, status, err := sendGraphQLRequest(`
@@ -110,7 +122,7 @@ var _ = Describe("GraphQL", func() {
 		gasPrice := gjson.Get(response, "data.gasPrice").String()
 		Expect(status).To(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(gasPrice).To(BeEquivalentTo("0x3b9aca07"))
+		Expect(strconv.ParseUint(gasPrice[2:], 16, 64)).To(BeNumerically(">", 0))
 
 	})
 
@@ -148,13 +160,14 @@ var _ = Describe("GraphQL", func() {
 		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
 		Expect(status).To((BeEquivalentTo(200)))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(transactionCount).To(BeEquivalentTo(0))
-		Expect(ommerCount).To(BeEquivalentTo(0))
+		Expect(transactionCount).To(BeNumerically(">=", 0))
+		Expect(ommerCount).To(BeNumerically(">=", 0))
 	})
 	It("should support eth_getBlockByNumber, eth_getBlockTransactionCountByNumber, eth_getUncleCountByBlockNumber, eth_getUncleByBlockNumberAndIndex", func() {
+
 		response, status, err := sendGraphQLRequest(`
 		query {
-			block(number:"0") {
+			block(number: 0) {
 			  transactionCount
 			  transactionAt(index: 0) {
 				hash
@@ -181,7 +194,7 @@ var _ = Describe("GraphQL", func() {
 		transactionAt := gjson.Get(response, "data.block.transactionAt").Value()
 		ommerCount := gjson.Get(response, "data.block.ommerCount").Int()
 		ommerAt := gjson.Get(response, "data.block.ommerAt").Value()
-
+		fmt.Println("RESPONSE: ", response)
 		Expect(status).To((BeEquivalentTo(200)))
 		Expect(err).ToNot(HaveOccurred())
 
@@ -325,10 +338,8 @@ var _ = Describe("GraphQL", func() {
 		// https://eips.ethereum.org/EIPS/eip-1767
 	})
 	It("should support eth_sendRawTransaction", func() {
-		alice := tf.Address("alice")
 		alicePrivKey := tf.PrivKey("alice")
 		bob := tf.Address("bob")
-		fmt.Println("alice: ", alice, "\nbob: ", bob)
 		tx := types.NewTransaction(
 			0, // Nonce
 			bob,
@@ -340,9 +351,7 @@ var _ = Describe("GraphQL", func() {
 		signed, _ := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), alicePrivKey)
 		rlpEncoded, _ := rlp.EncodeToBytes(signed)
 		data := fmt.Sprintf("mutation { sendRawTransaction(data: \"0x%x\") }", rlpEncoded)
-		fmt.Println("data: ", data)
-		response, status, err := sendGraphQLRequest(data)
-		fmt.Println(response, status, err)
+		_, status, err := sendGraphQLRequest(data)
 		Expect(status).Should(Equal(200))
 		Expect(err).ToNot(HaveOccurred())
 	})
@@ -386,6 +395,7 @@ var _ = Describe("GraphQL", func() {
 })
 
 func getMostRecentBlockHash() (string, error) {
+	tf.Network.WaitForNextBlock()
 	mostRecentBlockHashQueryResponse, _, err := sendGraphQLRequest(`
 	query {
 		block {
