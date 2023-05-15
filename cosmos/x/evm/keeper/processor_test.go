@@ -112,7 +112,17 @@ var _ = Describe("Processor", func() {
 			}
 		}
 
-		// before every block
+		// Set validator with consensus address.
+		consAddr, err := validator.GetConsAddr()
+		Expect(err).ToNot(HaveOccurred())
+		err = sk.SetValidatorByConsAddr(ctx, validator)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Set header's consensus address to match the validator's.
+		header := ctx.BlockHeader()
+		header.ProposerAddress = consAddr.Bytes()
+		ctx = ctx.WithBlockHeader(header)
+
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
