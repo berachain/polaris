@@ -18,9 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package jsonrpc
+package jsonrpc_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -45,6 +46,7 @@ func TestRpc(t *testing.T) {
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
+	fmt.Println("ADDRESS ALICE", tf.Address("alice"))
 	client = tf.EthClient
 	wsclient = tf.EthWsClient
 	return nil

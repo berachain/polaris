@@ -27,6 +27,7 @@ pragma solidity ^0.8.17;
 
 import {IBankModule} from "../Bank.sol";
 import {Owned} from "../../../../lib/Owned.sol";
+import {Cosmos} from "../../CosmosTypes.sol";
 
 /**
  * @dev Fundraiser is a contract that allows users to donate tokens in any denom.
@@ -44,11 +45,11 @@ contract Fundraiser is Owned {
         bank.send(address(this), owner, GetRaisedAmounts());
     }
 
-    function Donate(IBankModule.Coin[] calldata coins) external {
+    function Donate(Cosmos.Coin[] calldata coins) external {
         bank.send(msg.sender, address(this), coins);
     }
 
-    function GetRaisedAmounts() public view returns (IBankModule.Coin[] memory) {
+    function GetRaisedAmounts() public view returns (Cosmos.Coin[] memory) {
         return bank.getAllBalances(address(this));
     }
 }

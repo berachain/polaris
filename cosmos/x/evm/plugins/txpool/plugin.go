@@ -41,8 +41,8 @@ var _ Plugin = (*plugin)(nil)
 
 // Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
+	plugins.Base
 	core.TxPoolPlugin
-	plugins.BaseCosmosPolaris
 	SetNonceRetriever(mempool.NonceRetriever)
 	SetClientContext(client.Context)
 }
@@ -122,3 +122,5 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	// the tx.
 	return p.EthTxPool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
 }
+
+func (p *plugin) IsPlugin() {}

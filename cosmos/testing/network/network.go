@@ -53,12 +53,14 @@ type (
 )
 
 const (
+	two         = 2
 	thousand    = 1000
 	fivehundred = 500
 	onehundred  = 100
 	megamoney   = 1000000
 	gigamoney   = 1000000000
 	examoney    = 1000000000000000000
+	one2345     = 12345
 )
 
 type TestingT interface {
@@ -214,6 +216,28 @@ func getTestMetadata() []banktypes.Metadata {
 			Base:    "utoken",
 			Display: "token",
 		},
+		{
+			Name:   "Osmosis",
+			Symbol: "OSMO",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "osmo", Exponent: uint32(0), Aliases: []string{"osmo"}},
+				{Denom: "nosmo", Exponent: uint32(9), Aliases: []string{"nanoosmo"}},
+				{Denom: "aosmo", Exponent: uint32(18), Aliases: []string{"attoosmo"}},
+			},
+			Base:    "bOSMO",
+			Display: "osmosis",
+		},
+		{
+			Name:   "Akash",
+			Symbol: "AKT",
+			DenomUnits: []*banktypes.DenomUnit{
+				{Denom: "akt", Exponent: uint32(0), Aliases: []string{"akt"}},
+				{Denom: "nakt", Exponent: uint32(9), Aliases: []string{"nanoakt"}},
+				{Denom: "aakt", Exponent: uint32(18), Aliases: []string{"attoakt"}},
+			},
+			Base:    "bAKT",
+			Display: "akash",
+		},
 	}
 }
 
@@ -223,8 +247,9 @@ func getCoinsForAccount(name string) sdk.Coins {
 		return sdk.NewCoins(
 			sdk.NewCoin("abera", sdk.NewInt(examoney)),
 			sdk.NewCoin("bATOM", sdk.NewInt(examoney)),
-			sdk.NewCoin("bAKT", sdk.NewInt(examoney)),
+			sdk.NewCoin("bAKT", sdk.NewInt(12345)), //nolint:gomnd // its okay.
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
+			sdk.NewCoin("bOSMO", sdk.NewInt(12345*2)), //nolint:gomnd // its okay.
 		)
 	case "bob":
 		return sdk.NewCoins(

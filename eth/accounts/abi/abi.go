@@ -30,11 +30,12 @@ import (
 const maxIndexedArgs = 3
 
 type (
-	ABI       = abi.ABI
-	Argument  = abi.Argument
-	Arguments = abi.Arguments
-	Event     = abi.Event
-	Method    = abi.Method
+	ABI                = abi.ABI
+	Argument           = abi.Argument
+	ArgumentMarshaling = abi.ArgumentMarshaling
+	Arguments          = abi.Arguments
+	Event              = abi.Event
+	Method             = abi.Method
 )
 
 var (

@@ -49,9 +49,9 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 	return state.NewStateDB(sp), nil
 }
 
-// GetEVM returns an EVM ready to be used for executing transactions. It is used by both the StateProcessor
-// to acquire a new EVM at the start of every block. As well as by the backend to acquire an EVM for running
-// gas estimations, eth_call etc.
+// GetEVM returns an EVM ready to be used for executing transactions. It is used by both the
+// StateProcessor to acquire a new EVM at the start of every block. As well as by the backend to
+// acquire an EVM for running gas estimations, eth_call etc.
 func (bc *blockchain) GetEVM(
 	_ context.Context, txContext vm.TxContext, state vm.PolarisStateDB,
 	header *types.Header, vmConfig *vm.Config,
@@ -71,20 +71,21 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
 	return NewEVMBlockContext(header, &chainContext{bc}, feeCollector)
 }
 
-// CalculateBaseFee calculates the base fee for the next block based on the finalized block or the plugin's
-// base fee.
+// CalculateBaseFee calculates the base fee for the next block based on the finalized block or the
+// plugin's base fee.
 func (bc *blockchain) CalculateNextBaseFee() *big.Int {
-	baseFeeFromPlugin := bc.bp.BaseFee()
-	// If the base fee supplied by the plugins is negative, then we assume that the host chain wants to use the built-in
-	// EIP-1559 math.
-	if parent := bc.finalizedBlock.Load(); parent != nil && baseFeeFromPlugin.Cmp(big.NewInt(0)) == -1 /* negative */ {
-		return misc.CalcBaseFee(bc.ChainConfig(), parent.Header())
-		// If the base fee supplied by the plugins is non-negative, then we assume that the host chain wants to use the
-		// base fee supplied by the plugin.
-	} else if baseFeeFromPlugin.Cmp(big.NewInt(0)) >= 0 /* non-negative */ {
-		return baseFeeFromPlugin
+	if pluginBaseFee := bc.bp.BaseFee(); pluginBaseFee.Cmp(big.NewInt(0)) >= 0 /* non-negative */ {
+		return pluginBaseFee
 	}
 
-	// This case only triggers for the first block in the chain, when finalizedBlock.Load() returns a nil ptr.
+	// If the base fee supplied by the plugins is negative, then we assume that the host chain
+	// wants to use the built-in EIP-1559 math.
+	if parent := bc.finalizedBlock.Load(); parent != nil {
+		// If the base fee supplied by the plugins is non-negative, then we assume that the host
+		// chain wants to use the base fee supplied by the plugin.
+		return misc.CalcBaseFee(bc.ChainConfig(), parent.Header())
+	}
+
+	// This case only triggers for the first block in the chain, when finalizedBlock is empty.
 	return big.NewInt(int64(params.InitialBaseFee))
 }

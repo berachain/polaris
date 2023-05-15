@@ -25,6 +25,8 @@
 
 pragma solidity ^0.8.4;
 
+import {Cosmos} from "../CosmosTypes.sol";
+
 /**
  * @dev Interface of the auth module precompiled contract
  */
@@ -38,4 +40,24 @@ interface IAuthModule {
      * @dev Returns the hex representation of the given bech32 address.
      */
     function convertBech32ToHexAddress(string calldata account) external view returns (address);
+
+    /**
+     * @dev setSendAllowance sets the send authorization (allowance) between owner and spender.
+     * @param owner the account approving the allowance
+     * @param spender the account being granted the allowance
+     * @param amount the Coins of the allowance
+     * @param expiration the expiration time of the grant (0 means no expiration)
+     */
+    function setSendAllowance(address owner, address spender, Cosmos.Coin[] calldata amount, uint256 expiration)
+        external
+        returns (bool);
+
+    /**
+     * @dev getSendAllowance returns the send authorization (allowance) amount between owner and
+     * spender.
+     * @param owner the account that approved the allowance
+     * @param spender the account that was granted the allowance
+     * @param denom the denomination of the Coin that was allowed
+     */
+    function getSendAllowance(address owner, address spender, string calldata denom) external view returns (uint256);
 }

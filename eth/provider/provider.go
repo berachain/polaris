@@ -31,6 +31,11 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
+var defaultEthConfig = ethconfig.Config{
+	SyncMode:           0,
+	FilterLogCacheSize: 0,
+}
+
 // PolarisProvider is the only object that an implementing chain should use.
 type PolarisProvider struct {
 	api.Chain
@@ -86,20 +91,16 @@ func NewPolarisProviderWithConfig(
 		panic(err)
 	}
 
-	ethConfig := ethconfig.Config{
-		SyncMode:           0,
-		FilterLogCacheSize: 0,
-	}
-	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, &ethConfig)
-
-	// this should be a flag rather than make every node default to using it
-	utils.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
-
 	return sp
 }
 
 // StartServices starts the standard go-ethereum node-services (i.e json-rpc).
 func (sp *PolarisProvider) StartServices() error {
 	sp.Node.RegisterAPIs(rpc.GetAPIs(sp.backend))
+	// Register the filter API seperately in order to get access to the filterSystem
+	// TODO: this should be made cleaner.
+	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, &defaultEthConfig)
+	// this should be a flag rather than make every node default to using it
+	utils.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
 	return sp.Node.Start()
 }

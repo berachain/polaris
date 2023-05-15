@@ -28,6 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	libutils "pkg.berachain.dev/polaris/lib/utils"
@@ -37,21 +38,23 @@ import (
 )
 
 var _ = Describe("Attributes", func() {
-	var gethValue any
-	var err error
-
 	Describe("Test Default Attribute Value Decoder Functions", func() {
-		It("should correctly convert sdk coin strings to big.Int", func() {
+		It("should correctly convert sdk coin strings to evm coins", func() {
 			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
-			gethValue, err = ConvertSdkCoins(denom10.String())
+			coins, err := ConvertSdkCoins(denom10.String())
 			Expect(err).ToNot(HaveOccurred())
-			bigVal := libutils.MustGetAs[*big.Int](gethValue)
-			Expect(bigVal).To(Equal(big.NewInt(10)))
+			expectedEvmCoins := []libgenerated.CosmosCoin{
+				{
+					Amount: big.NewInt(10),
+					Denom:  "denom",
+				},
+			}
+			Expect(coins).To(Equal(expectedEvmCoins))
 		})
 
 		It("should correctly convert creation height to int64", func() {
 			creationHeightStr := strconv.FormatInt(55, 10)
-			gethValue, err = ConvertInt64(creationHeightStr)
+			gethValue, err := ConvertInt64(creationHeightStr)
 			Expect(err).ToNot(HaveOccurred())
 			int64Val := libutils.MustGetAs[int64](gethValue)
 			Expect(int64Val).To(Equal(int64(55)))
@@ -59,7 +62,7 @@ var _ = Describe("Attributes", func() {
 
 		It("should correctly convert ValAddress to common.Address", func() {
 			valAddr := sdk.ValAddress([]byte("alice"))
-			gethValue, err = ConvertValAddressFromBech32(valAddr.String())
+			gethValue, err := ConvertValAddressFromBech32(valAddr.String())
 			Expect(err).ToNot(HaveOccurred())
 			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(valAddrVal).To(Equal(cosmlib.ValAddressToEthAddress(valAddr)))
@@ -67,7 +70,7 @@ var _ = Describe("Attributes", func() {
 
 		It("should correctly convert AccAddress to common.Address", func() {
 			accAddr := sdk.AccAddress([]byte("alice"))
-			gethValue, err = ConvertAccAddressFromBech32(accAddr.String())
+			gethValue, err := ConvertAccAddressFromBech32(accAddr.String())
 			Expect(err).ToNot(HaveOccurred())
 			accAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))
@@ -75,7 +78,7 @@ var _ = Describe("Attributes", func() {
 
 		It("should correctly convert string to uint64", func() {
 			numStr := strconv.FormatUint(1, 10)
-			gethValue, err = ConvertUint64(numStr)
+			gethValue, err := ConvertUint64(numStr)
 			Expect(err).ToNot(HaveOccurred())
 			uint64Val := libutils.MustGetAs[uint64](gethValue)
 			Expect(uint64Val).To(Equal(uint64(1)))
