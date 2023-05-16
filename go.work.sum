@@ -295,4 +295,6 @@ github.com/urfave/cli v1.22.1 h1:+mkCCcOFKPnCmVYVcURKps1Xe+3zP90gSYGNfRkjoIY=
 github.com/xlab/treeprint v0.0.0-20180616005107-d6fb6747feb6 h1:YdYsPAZ2pC6Tow/nPZOPQ96O3hm/ToAkGsPLzedXERk=
 gonum.org/v1/gonum v0.11.0 h1:f1IJhK4Km5tBJmaiJXtk/PkL4cdVX6J+tGiM187uT5E=
 gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230428201622-5b0bcf386ae9/go.mod h1:pM2moF7smjXhv6Zt3H0yYXlkvld8rKy7pd49LoEMQy0=
+pkg.berachain.dev/polaris/lib v0.0.0-20230428201622-5b0bcf386ae9/go.mod h1:FkkRflGw8X1Cr06uXHZH0zzP29N5rXCrR2VYsrJO2ao=
 rsc.io/binaryregexp v0.2.0 h1:HfqmD5MEmC0zvwBuF187nq9mdnXjXsSivRiXN7SmRkE=
