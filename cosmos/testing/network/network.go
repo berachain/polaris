@@ -86,6 +86,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 		cfg = configs[0]
 	}
 
+	config.SetupCosmosConfig()
 	net, err := network.New(t, t.TempDir(), cfg)
 	if err != nil {
 		t.Fatal(err)
