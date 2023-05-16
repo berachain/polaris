@@ -27,6 +27,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/trie"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -105,7 +106,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // Prepare prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -163,20 +164,34 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
-	// while still ensuring that we consume all the gas.
+	// Update the state with pending changes.
+	if sp.cp.ChainConfig().IsByzantium(sp.header.Number) {
+		// Finalize the statedb to ensure that any state changes that are required are propogated.
+		// We have to do this irrespective of whether the transaction failed or not, in order to
+		// ensure that the sender's nonce increases as well as the transaction fees are paid.
+		// The snapshotting within the EVM ensures that any reverted state changes are not reflected
+		// in the finalized state.
+		sp.statedb.Finalize() // TODO: mirror the correct sig from geth.
+	} else {
+		panic("in Polaris we assume we are past EIP-658")
+	}
+
+	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas
+	// error, while still ensuring that we consume all the gas.
 	if result.UsedGas > sp.gp.GasRemaining() {
 		result.UsedGas = sp.gp.GasRemaining()
 		result.Err = vm.ErrOutOfGas
 	}
 
-	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
-	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.
+	// Consume the gas used by the state transition. In both the out of block gas as well as out of
+	// gas on the plugin cases, the line below will consume the remaining gas for the block and
+	// transaction respectively.
 	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	// Create a new receipt for the transaction.
+	// Create a new receipt for the transaction, storing the intermediate root and gas used
+	// by the tx.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
 		PostState:         nil, // in Polaris we assume we are past EIP-658.
@@ -187,7 +202,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	} else {
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
-	receipt.TxHash = tx.Hash()
+	receipt.TxHash = txHash
 	receipt.GasUsed = result.UsedGas
 
 	// If the transaction created a contract, store the creation address in the receipt.
@@ -195,34 +210,24 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
-	// Edit the receipts to include the block hash and bloom filter.
-	receipt.Logs = sp.statedb.Logs()
-	txIndex := uint(len(sp.txs))
-	// TODO: this is ugly, probably want to fix.
+	// Add the logs, with block metadata, to the receipt; the block hash has not been computed
+	// since the block is not complete at this point.
+	receipt.Logs = sp.statedb.GetLogs(receipt.TxHash, sp.header.Number.Uint64(), common.Hash{})
 	for _, log := range receipt.Logs {
-		log.TxHash = txHash
-		log.TxIndex = txIndex
-		log.BlockNumber = sp.header.Number.Uint64()
 		log.Index = sp.logIndex
 		sp.logIndex++
 	}
+	// Add the bloom filter to the receipt.
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
+	receipt.TransactionIndex = uint(len(sp.txs))
 	receipt.BlockNumber = sp.header.Number
-	receipt.TransactionIndex = txIndex
-
-	// Finalize the statedb to ensure that any state changes that are required are propogated.
-	// We have to do this irrespective of whether the transaction failed or not, in order to
-	// ensure that the sender's nonce increases as well as the transaction fees are paid.
-	// The snapshotting within the EVM ensures that any reverted state changes are not reflected
-	// in the finalized state.
-	sp.statedb.Finalize()
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.
-	return result, nil
+	return result, err
 }
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
