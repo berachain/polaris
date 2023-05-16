@@ -164,6 +164,18 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
+	// Update the state with pending changes.
+	if sp.cp.ChainConfig().IsByzantium(sp.evm.Context.BlockNumber) {
+		// Finalize the statedb to ensure that any state changes that are required are propogated.
+		// We have to do this irrespective of whether the transaction failed or not, in order to
+		// ensure that the sender's nonce increases as well as the transaction fees are paid.
+		// The snapshotting within the EVM ensures that any reverted state changes are not reflected
+		// in the finalized state.
+		sp.statedb.Finalize() // TODO: mirror the correct sig from geth.
+	} else {
+		panic("in Polaris we assume we are past EIP-658")
+	}
+
 	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas
 	// error, while still ensuring that we consume all the gas.
 	if result.UsedGas > sp.gp.GasRemaining() {
@@ -178,21 +190,20 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	// Create a new receipt for the transaction.
+	// Create a new receipt for the transaction, storing the intermediate root and gas used
+	// by the tx.
 	receipt := &types.Receipt{
 		Type:              tx.Type(),
 		PostState:         nil, // in Polaris we assume we are past EIP-658.
 		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
-		TxHash:            txHash,
-		GasUsed:           result.UsedGas,
-		BlockNumber:       sp.header.Number,
-		TransactionIndex:  uint(len(sp.txs)),
 	}
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
 	} else {
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
+	receipt.TxHash = tx.Hash()
+	receipt.GasUsed = result.UsedGas
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To == nil {
@@ -206,23 +217,16 @@ func (sp *StateProcessor) ProcessTransaction(
 		log.Index = sp.logIndex
 		sp.logIndex++
 	}
-
 	// Add the bloom filter to the receipt.
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
-
-	// Finalize the statedb to ensure that any state changes that are required are propogated.
-	// We have to do this irrespective of whether the transaction failed or not, in order to
-	// ensure that the sender's nonce increases as well as the transaction fees are paid.
-	// The snapshotting within the EVM ensures that any reverted state changes are not reflected
-	// in the finalized state.
-	sp.statedb.Finalize()
+	receipt.TransactionIndex = uint(len(sp.txs))
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.
-	return result, nil
+	return result, err
 }
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
