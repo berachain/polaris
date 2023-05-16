@@ -164,15 +164,17 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
 	}
 
-	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
-	// while still ensuring that we consume all the gas.
+	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas
+	// error, while still ensuring that we consume all the gas.
 	if result.UsedGas > sp.gp.GasRemaining() {
+		fmt.Println("result.UsedGas", result.UsedGas, "sp.gp.GasRemaining", sp.gp.GasRemaining())
 		result.UsedGas = sp.gp.GasRemaining()
 		result.Err = vm.ErrOutOfGas
 	}
 
-	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
-	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.
+	// Consume the gas used by the state transition. In both the out of block gas as well as out of
+	// gas on the plugin cases, the line below will consume the remaining gas for the block and
+	// transaction respectively.
 	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
 	}
