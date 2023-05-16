@@ -58,7 +58,7 @@ var _ = Describe("Bank", func() {
 	denom3 := "stake"
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 7
+		numberOfDenoms := 8
 		coinsToBeSent := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
@@ -128,9 +128,9 @@ var _ = Describe("Bank", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalances).To(Equal(expectedAllBalance))
 
-		atokenSupply, err := bankPrecompile.GetSupply(nil, denom2)
+		atokenSupply, err := bankPrecompile.GetSupply(nil, "asupply")
 		Expect(err).ShouldNot(HaveOccurred())
-		Expect(atokenSupply).To(Equal(big.NewInt(100)))
+		Expect(atokenSupply).To(Equal(big.NewInt(1000000000000000000)))
 
 		totalSupply, err := bankPrecompile.GetAllSupply(nil)
 		Expect(err).ShouldNot(HaveOccurred())
