@@ -52,6 +52,10 @@ type (
 	Config  = network.Config
 )
 
+func init() {
+	config.SetupCosmosConfig()
+}
+
 const (
 	two         = 2
 	thousand    = 1000
