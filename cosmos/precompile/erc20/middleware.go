@@ -23,6 +23,7 @@ package erc20
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,6 +32,7 @@ import (
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 const (
@@ -182,22 +184,23 @@ func (c *Contract) transferERC20ToCoin(
 		}
 
 		var (
-			// ret           []any
-			// balanceBefore *big.Int
-			// balanceAfter  *big.Int
-			plugin = c.GetPlugin()
+			ret           []any
+			balanceBefore *big.Int
+			balanceAfter  *big.Int
+			plugin        = c.GetPlugin()
 		)
 
-		// // check the ERC20 module's balance of the ERC20-originated token
-		// ret, err = cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
-		// 	sdkCtx, plugin, evm,
-		// 	c.RegistryKey(), token, c.polarisERC20ABI,
-		// 	balanceOf, c.RegistryKey(),
-		// )
-		// if err != nil {
-		// 	return err
-		// }
-		// balanceBefore = utils.MustGetAs[*big.Int](ret[0])
+		// check the ERC20 module's balance of the ERC20-originated token
+		ret, err = cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
+			sdkCtx, plugin, evm,
+			c.RegistryKey(), token, c.polarisERC20ABI,
+			balanceOf, c.RegistryKey(),
+		)
+		if err != nil {
+			return err
+		}
+		balanceBefore = utils.MustGetAs[*big.Int](ret[0])
+		fmt.Println("balanceBefore", balanceBefore)
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
@@ -210,19 +213,20 @@ func (c *Contract) transferERC20ToCoin(
 			return err
 		}
 
-		// // check the ERC20 module's balance of the ERC20-originated token
-		// ret, err = cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
-		// 	sdkCtx, plugin, evm,
-		// 	c.RegistryKey(), token, c.polarisERC20ABI,
-		// 	balanceOf, c.RegistryKey(),
-		// )
-		// if err != nil {
-		// 	return err
-		// }
-		// balanceAfter = utils.MustGetAs[*big.Int](ret[0])
+		// check the ERC20 module's balance of the ERC20-originated token
+		ret, err = cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
+			sdkCtx, plugin, evm,
+			c.RegistryKey(), token, c.polarisERC20ABI,
+			balanceOf, c.RegistryKey(),
+		)
+		if err != nil {
+			return err
+		}
+		balanceAfter = utils.MustGetAs[*big.Int](ret[0])
+		fmt.Println("balanceAfter", balanceAfter)
 
 		// mint amount Polaris Coins to recipient
-		// amount := new(big.Int).Sub(balanceAfter, balanceBefore)
+		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
 		if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
 			return err
 		}
