@@ -202,7 +202,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	} else {
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
-	receipt.TxHash = tx.Hash()
+	receipt.TxHash = txHash
 	receipt.GasUsed = result.UsedGas
 
 	// If the transaction created a contract, store the creation address in the receipt.
