@@ -33,7 +33,7 @@ import (
 
 var (
 	sdkRepo        = "github.com/cosmos/cosmos-sdk"
-	version        = "0.0.0"
+	version        = "v0.0.0"
 	commit, _      = sh.Output("git", "log", "-1", "--format='%H'")
 	defaultDB      = "pebbledb"
 	ledgerEnabled  = true

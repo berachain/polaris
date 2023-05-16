@@ -81,7 +81,7 @@ func (l *logs) Logs() []*coretypes.Log {
 func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
-	for i := size - 1; i >= 0; i-- {
+	for i := 0; i < size; i++ {
 		buf[i] = l.PeekAt(i)
 		buf[i].BlockHash = blockHash
 		buf[i].BlockNumber = blockNumber

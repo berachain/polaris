@@ -24,26 +24,39 @@ import "pkg.berachain.dev/polaris/eth/core"
 
 //go:generate moq -out ./host.mock.go -pkg mock ../ PolarisHostChain
 
-func NewMockHost() *PolarisHostChainMock {
+func NewMockHostAndPlugins() (
+	*PolarisHostChainMock, *BlockPluginMock, *ConfigurationPluginMock, *GasPluginMock,
+	*HistoricalPluginMock, *PrecompilePluginMock, *StatePluginMock, *TxPoolPluginMock,
+) {
+	bp := NewBlockPluginMock()
+	cp := NewConfigurationPluginMock()
+	gp := NewGasPluginMock()
+	hp := NewHistoricalPluginMock()
+	pp := NewPrecompilePluginMock()
+	sp := NewStatePluginMock()
+	tp := &TxPoolPluginMock{}
 	mockedPolarisHostChain := &PolarisHostChainMock{
 		GetBlockPluginFunc: func() core.BlockPlugin {
-			return NewBlockPluginMock()
+			return bp
 		},
 		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
-			return NewConfigurationPluginMock()
+			return cp
 		},
 		GetGasPluginFunc: func() core.GasPlugin {
-			return NewGasPluginMock()
+			return gp
 		},
 		GetHistoricalPluginFunc: func() core.HistoricalPlugin {
-			return NewHistoricalPluginMock()
+			return hp
 		},
 		GetPrecompilePluginFunc: func() core.PrecompilePlugin {
-			return NewPrecompilePluginMock()
+			return pp
 		},
 		GetStatePluginFunc: func() core.StatePlugin {
-			return &StatePluginMock{}
+			return sp
+		},
+		GetTxPoolPluginFunc: func() core.TxPoolPlugin {
+			return tp
 		},
 	}
-	return mockedPolarisHostChain
+	return mockedPolarisHostChain, bp, cp, gp, hp, pp, sp, tp
 }

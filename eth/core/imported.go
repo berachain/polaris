@@ -56,6 +56,9 @@ var (
 	GetHashFn = core.GetHashFn
 	// TransactionToMessage converts a transaction to a message.
 	TransactionToMessage = core.TransactionToMessage
+
+	Transfer    = core.Transfer
+	CanTransfer = core.CanTransfer
 )
 
 var (

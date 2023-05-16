@@ -44,73 +44,52 @@ var (
 	signer        = types.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	_             = key
 	_             = signer
+	blockGasLimit = 10000000
 	dummyHeader   = &types.Header{
 		Number:   big.NewInt(1),
-		GasLimit: 1000000,
+		BaseFee:  big.NewInt(1),
+		GasLimit: uint64(blockGasLimit),
 	}
 	legacyTxData = &types.LegacyTx{
 		Nonce:    0,
 		To:       &dummyContract,
-		Gas:      100000,
-		GasPrice: big.NewInt(2),
+		Gas:      1000000,
+		GasPrice: big.NewInt(1),
 		Data:     []byte("abcdef"),
 	}
 )
 
 var _ = Describe("StateProcessor", func() {
 	var (
-		sdb           *vmmock.PolarisStateDBMock
-		host          *mock.PolarisHostChainMock
-		bp            *mock.BlockPluginMock
-		gp            *mock.GasPluginMock
-		cp            *mock.ConfigurationPluginMock
-		pp            *mock.PrecompilePluginMock
-		sp            *core.StateProcessor
-		blockGasLimit uint64
+		sdb *vmmock.PolarisStateDBMock
+		bp  *mock.BlockPluginMock
+		gp  *mock.GasPluginMock
+		cp  *mock.ConfigurationPluginMock
+		pp  *mock.PrecompilePluginMock
+		sp  *core.StateProcessor
+		evm *vm.GethEVM
 	)
 
 	BeforeEach(func() {
 		sdb = vmmock.NewEmptyStateDB()
-		host = mock.NewMockHost()
-		bp = mock.NewBlockPluginMock()
-		gp = mock.NewGasPluginMock()
-		cp = mock.NewConfigurationPluginMock()
-		pp = mock.NewPrecompilePluginMock()
-		host.GetBlockPluginFunc = func() core.BlockPlugin {
-			return bp
-		}
-		host.GetGasPluginFunc = func() core.GasPlugin {
-			return gp
-		}
-		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
-			return cp
-		}
-		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
-			return pp
-		}
-		pp.RegisterFunc = func(pc vm.PrecompileContainer) error {
-			return nil
-		}
-		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
-		Expect(sp).ToNot(BeNil())
-		blockGasLimit = 1000000
-
+		_, bp, cp, gp, _, pp, _, _ = mock.NewMockHostAndPlugins()
 		bp.GetNewBlockMetadataFunc = func(n int64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
 		}
+		gp.SetBlockGasLimit(uint64(blockGasLimit))
 
-		sdb.PrepareFunc = func(rules params.Rules, sender common.Address,
-			coinbase common.Address, dest *common.Address,
-			precompiles []common.Address, txAccesses types.AccessList,
-		) {
-			// no-op
-		}
-
-		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), nil, dummyHeader)
+		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
+		Expect(sp).ToNot(BeNil())
+		evm = vm.NewGethEVMWithPrecompiles(
+			vm.BlockContext{
+				Transfer:    core.Transfer,
+				CanTransfer: core.CanTransfer,
+			}, vm.TxContext{}, sdb, cp.ChainConfig(), vm.Config{}, pp,
+		)
+		sp.Prepare(evm, dummyHeader)
 	})
 
 	Context("Empty block", func() {
@@ -128,10 +107,11 @@ var _ = Describe("StateProcessor", func() {
 			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 
-			sp.Prepare(context.Background(), nil, dummyHeader)
+			sp.Prepare(evm, dummyHeader)
 		})
 
 		It("should error on an unsigned transaction", func() {
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
@@ -143,24 +123,26 @@ var _ = Describe("StateProcessor", func() {
 		})
 
 		It("should not error on a signed transaction", func() {
-			// signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-			// sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
-			// 	return big.NewInt(200000)
-			// }
-			// result, err := sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).ToNot(HaveOccurred())
-			// Expect(result).ToNot(BeNil())
-			// Expect(result.Err).ToNot(HaveOccurred())
-			// Expect(result.UsedGas).ToNot(BeZero())
-			// block, receipts, err := sp.Finalize(context.Background())
-			// Expect(err).ToNot(HaveOccurred())
-			// Expect(block).ToNot(BeNil())
-			// Expect(len(receipts)).To(Equal(1))
+			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
+			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
+				return big.NewInt(1000001)
+			}
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
+			result, err := sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).ToNot(BeNil())
+			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.UsedGas).ToNot(BeZero())
+			block, receipts, logs, err := sp.Finalize(context.Background())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(block).ToNot(BeNil())
+			Expect(receipts).To(HaveLen(1))
+			Expect(logs).To(BeEmpty())
 		})
 
 		It("should handle", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
-				return big.NewInt(200000)
+				return big.NewInt(1000001)
 			}
 			sdb.GetCodeFunc = func(addr common.Address) []byte {
 				if addr != dummyContract {
@@ -177,55 +159,43 @@ var _ = Describe("StateProcessor", func() {
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
 			}
-			// legacyTxData.To = nil
-			// legacyTxData.Value = big.NewInt(0)
-			// signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-			// result, err := sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).ToNot(HaveOccurred())
-			// Expect(result).ToNot(BeNil())
-			// Expect(result.Err).ToNot(HaveOccurred())
-			// block, receipts, err := sp.Finalize(context.Background())
-			// Expect(err).ToNot(HaveOccurred())
-			// Expect(block).ToNot(BeNil())
-			// Expect(len(receipts)).To(Equal(1))
+			legacyTxData.To = nil
+			legacyTxData.Value = big.NewInt(0)
+			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
+			result, err := sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).ToNot(BeNil())
+			Expect(result.Err).ToNot(HaveOccurred())
 
-			// // Now try calling the contract
-			// legacyTxData.To = &dummyContract
-			// signedTx = types.MustSignNewTx(key, signer, legacyTxData)
-			// result, err = sp.ProcessTransaction(context.Background(), signedTx)
-			// Expect(err).ToNot(HaveOccurred())
-			// Expect(result).ToNot(BeNil())
-			// Expect(result.Err).ToNot(HaveOccurred())
+			// Now try calling the contract
+			legacyTxData.To = &dummyContract
+			signedTx = types.MustSignNewTx(key, signer, legacyTxData)
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
+			result, err = sp.ProcessTransaction(context.Background(), signedTx)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).ToNot(BeNil())
+			Expect(result.Err).ToNot(HaveOccurred())
+			block, receipts, logs, err := sp.Finalize(context.Background())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(block).ToNot(BeNil())
+			Expect(receipts).To(HaveLen(2))
+			Expect(logs).To(BeEmpty())
 		})
 	})
 })
 
 var _ = Describe("No precompile plugin provided", func() {
 	It("should use the default plugin if none is provided", func() {
-		host := mock.NewMockHost()
-		cp := mock.NewConfigurationPluginMock()
-		bp := mock.NewBlockPluginMock()
-		gp := mock.NewGasPluginMock()
-		gp.SetBlockGasLimit(1000000)
+		_, bp, cp, gp, _, _, _, _ := mock.NewMockHostAndPlugins()
+		gp.SetBlockGasLimit(uint64(blockGasLimit))
 		bp.GetNewBlockMetadataFunc = func(n int64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
-		host.GetBlockPluginFunc = func() core.BlockPlugin {
-			return bp
-		}
-		host.GetGasPluginFunc = func() core.GasPlugin {
-			return gp
-		}
-		host.GetConfigurationPluginFunc = func() core.ConfigurationPlugin {
-			return cp
-		}
-		host.GetPrecompilePluginFunc = func() core.PrecompilePlugin {
-			return nil
-		}
 		sp := core.NewStateProcessor(cp, gp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
-			sp.Prepare(context.Background(), nil, &types.Header{
-				GasLimit: 1000000,
+			sp.Prepare(nil, &types.Header{
+				GasLimit: uint64(blockGasLimit),
 			})
 		}).ToNot(Panic())
 	})
