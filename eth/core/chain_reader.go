@@ -85,16 +85,28 @@ func (bc *blockchain) CurrentBlock() (*types.Block, error) {
 
 // CurrentReceipts returns the current receipts of the blockchain.
 func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts, error) {
-	cb, err := bc.CurrentBlock()
+	// Get current block.
+	block, err := bc.CurrentBlock()
 	if err != nil {
 		return nil, nil, err
 	}
-	cr, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load())
-	if cb == nil || !ok {
+
+	// Get receipts from cache.
+	receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load())
+	if receipts == nil || !ok {
 		return nil, nil, ErrReceiptsNotFound
 	}
-	bc.receiptsCache.Add(cb.Hash(), cr)
-	return cb, cr, nil
+
+	// Derive receipts from block.
+	if err = receipts.DeriveFields(
+		bc.ChainConfig(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
+	); err != nil {
+		return nil, nil, err
+	}
+
+	// Add to cache.
+	bc.receiptsCache.Add(block.Hash(), receipts)
+	return block, receipts, nil
 }
 
 // FinalizedBlock returns the last finalized block of the blockchain.
@@ -126,6 +138,19 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if err != nil {
 		return nil, ErrReceiptsNotFound
+	}
+
+	// get the block to derive the receipts
+	block, err := bc.GetBlockByHash(blockHash)
+	if err != nil {
+		return nil, ErrBlockNotFound
+	}
+
+	// Derive receipts from block.
+	if err = receipts.DeriveFields(
+		bc.ChainConfig(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
+	); err != nil {
+		return nil, err
 	}
 
 	// cache the found receipts for next time and return
