@@ -31,8 +31,8 @@ RUN apk add --no-cache bash jq
 WORKDIR /
 
 # Copy over the local information
-COPY docker-init.sh /docker-init.sh
-COPY config /config
+COPY ./cosmos/docker/local/docker-init.sh /docker-init.sh
+COPY ./cosmos/docker/local/config /config
 
 # Set the hom directory
 ENV HOME /

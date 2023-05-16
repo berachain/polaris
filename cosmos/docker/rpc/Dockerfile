@@ -20,4 +20,4 @@ ARG GOOS=darwin
 ARG POLARD_VERSION=e2e-test-dev
 
 # Use the latest foundry image
-FROM polard:${POLARD_VERSION} as localpolard
+FROM polard:${POLARD_VERSION} as rpcpolard

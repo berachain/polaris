@@ -42,6 +42,7 @@ var (
 	dockerBuild = RunCmdV("docker", "build", "--rm=false")
 
 	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
+	dockerRun    = RunCmdV("docker", "run")
 
 	// Variables.
 	baseDockerPath         = "./cosmos/docker/"
@@ -98,9 +99,19 @@ func (c Cosmos) BuildRelease() error {
 // ===========================================================================
 
 // Builds a release version of the Cosmos SDK chain.
-func (c Cosmos) Docker() error {
+func (c Cosmos) Docker(node string) error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	return c.dockerBuildBeradWith(goVersion, version)
+	var path string
+	if node == "base" {
+		path = execDockerPath
+	} else {
+		path = baseDockerPath + node + "/Dockerfile"
+	}
+	return c.dockerBuildNode("polard-"+node, path, goVersion, version)
+}
+
+func (c Cosmos) RunDockerLocal() error {
+	return dockerRun("-p", "8545:8545", "polard-local:e2e-test-dev")
 }
 
 func (c Cosmos) DockerX() error {
@@ -124,18 +135,18 @@ func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) DockerDebug() error {
 	LogGreen("Build a debug docker image for the Cosmos SDK chain...")
-	return c.dockerBuildBeradWith(goVersion, version)
+	return c.dockerBuildNode("debug", execDockerPath, goVersion, version)
 }
 
 // Build a docker image for berad with the supplied arguments.
-func (c Cosmos) dockerBuildBeradWith(goVersion, imageVersion string) error {
+func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion string) error {
 	return dockerBuildFn(false)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
 		"--build-arg", "GOOS=darwin",
 		"--build-arg", "GOARCH=arm64",
-		"-f", execDockerPath,
-		"-t", "polard:"+testImageVersion, //TODO: do not hardcode, have ability to pass as arg
+		"-f", dockerFilePath,
+		"-t", name+":"+testImageVersion, //TODO: do not hardcode, have ability to pass as arg
 		".",
 	)
 }
