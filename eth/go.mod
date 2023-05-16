@@ -3,7 +3,7 @@ module pkg.berachain.dev/polaris/eth
 go 1.20
 
 // Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230508170330-367aa064bf2e
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230508205427-d337874a7c1b
 
 require (
 	github.com/BurntSushi/toml v1.2.1
