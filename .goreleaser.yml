@@ -1,0 +1,35 @@
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - id: "polard-darwin"
+    main: ./cosmos/cmd/polard
+    binary: bin/polard
+    env:
+      - CGO_ENABLED=1
+      - CC=o64-clang
+      - CXX=o64-clang++
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=polaris -X github.com/cosmos/cosmos-sdk/version.AppName=polard -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "polard-darwin-arm64"
+    main: ./cosmos/cmd/polard
+    binary: bin/polard
+    env:
+      - CGO_ENABLED=1
+      - CC=oa64-clang
+      - CXX=oa64-clang++
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=polaris -X github.com/cosmos/cosmos-sdk/version.AppName=polard -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
