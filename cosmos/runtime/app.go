@@ -93,8 +93,6 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
-
-	simappconfig.SetupCosmosConfig()
 }
 
 // NewPolarisApp returns a reference to an initialized PolarisApp.

@@ -68,9 +68,9 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
     	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
 	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
-	cp ./cosmos/runtime/localnode/config/app.toml "$APP_TOML"
-	cp ./cosmos/runtime/localnode/config/config.toml "$CONFIG_TOML"
-	cp ./cosmos/runtime/localnode/config/polaris.toml "$POLARIS_TOML"
+	cp ./cosmos/docker/local/config/app.toml "$APP_TOML"
+	cp ./cosmos/docker/local/config/config.toml "$CONFIG_TOML"
+	cp ./cosmos/docker/local/config/polaris.toml "$POLARIS_TOML"
 
 	# Set client config
 	./bin/polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
