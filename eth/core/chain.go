@@ -34,7 +34,7 @@ import (
 )
 
 // By default we are storing up to 64mb of historical data for each cache.
-const defaultCacheSizeBytes = 1024 * 1024 * 64
+const defaultCacheSizeBytes = 0 // 1024 * 1024 * 64
 
 // Compile-time check to ensure that `blockchain` implements the `Chain` api.
 var (
@@ -65,13 +65,14 @@ type blockchain struct {
 	currentBlock atomic.Pointer[types.Block]
 	// finalizedBlock is the finalized/latest block.
 	finalizedBlock atomic.Pointer[types.Block]
-	// currentReceipts is the current/pending receipts.
+	// currentReceipts is the current/pending receipts. Always contains the derived fields from the
+	// block.
 	currentReceipts atomic.Value
 	// currentLogs is the current/pending logs.
 	currentLogs atomic.Value
 
 	// receiptsCache is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
-	// blocks. blockHash -> receipts
+	// blocks. blockHash -> receipts. Always contains the derived fields from the block.
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
 	// blockNumCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockNum -> block

@@ -242,15 +242,17 @@ func (sp *StateProcessor) Finalize(
 
 	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
 	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
-	blockHash := block.Hash()
 
-	// Set hashes on the receipts and logs.
+	// Set the missing fields on receipts and logs: effective gas price and block hash.
+	if err := sp.receipts.DeriveFields(
+		sp.cp.ChainConfig(), block.Hash(), sp.header.Number.Uint64(), sp.header.BaseFee, sp.txs,
+	); err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Build the block logs list. // TODO: just store on the sp struct.
 	var logs []*types.Log
 	for _, receipt := range sp.receipts {
-		receipt.BlockHash = blockHash
-		for _, log := range receipt.Logs {
-			log.BlockHash = blockHash
-		}
 		logs = append(logs, receipt.Logs...)
 	}
 
