@@ -52,6 +52,10 @@ type (
 	Config  = network.Config
 )
 
+func init() {
+	config.SetupCosmosConfig()
+}
+
 const (
 	two         = 2
 	thousand    = 1000
@@ -86,7 +90,6 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 		cfg = configs[0]
 	}
 
-	config.SetupCosmosConfig()
 	net, err := network.New(t, t.TempDir(), cfg)
 	if err != nil {
 		t.Fatal(err)
