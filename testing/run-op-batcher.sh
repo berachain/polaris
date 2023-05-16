@@ -15,7 +15,7 @@ export L1_RPC="http://localhost:8545"
 export L2OO_ADDR="0x8b495AAbAaD833c7433270a79594029912C7e480"
 
 ./bin/op-batcher \
-    --l2-eth-rpc=http://localhost:8545 \
+    --l2-eth-rpc=http://localhost:7545 \
     --rollup-rpc=http://localhost:8547 \
     --poll-interval=1s \
     --sub-safety-margin=6 \

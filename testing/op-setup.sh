@@ -23,6 +23,7 @@ nvm use 16
 
 # Stage 3: Install op-node op-batcher op-proposer
 cd optimism
+git checkout v1.0.6
 yarn install
 make op-node op-batcher op-proposer
 yarn build
@@ -30,5 +31,6 @@ cd ..
 
 # Stage 4: Install op-geth
 cd op-geth
+git checkout v1.101105.1
 make geth
 cd ..
