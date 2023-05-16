@@ -15,6 +15,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ARG GO_VERSION=1.20.4
+ARG GOARCH=arm64
+ARG GOOS=darwin
 
 #######################################################
 ###       Stage 1 - Build Solidity Bindings         ###
@@ -30,8 +32,6 @@ ARG FOUNDRY_DIR
 COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
 WORKDIR /workdir/${FOUNDRY_DIR}
 
-# Build the solidity bindings, we use the extra-output-files to copy the
-# generated files into the next stage.
 RUN forge build --extra-output-files bin --extra-output-files abi
 
 # #############################dock##########################
@@ -53,33 +53,25 @@ COPY . .
 ARG FOUNDRY_DIR
 COPY --from=foundry /workdir/${FOUNDRY_DIR}/out /workdir/${FOUNDRY_DIR}/out
 
-# Build Arguments
-ARG COSMOS_CMD_PATH=./cosmos/cmd/polard
-ARG GOARCH=arm64
-ARG GOOS=darwin
-ARG NAME=polaris-cosmos
-ARG APP_NAME=polard
-ARG DB_BACKEND=pebbledb
-
-# Build Executable
+# Build berad binary
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/go/pkg/mod \
     VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
     COMMIT=$(git log -1 --format='%H') && \
-    env GOOS=${GOOS} GOARCH=${GOARCH} NAME=${NAME} APP_NAME=${APP_NAME} DB_BACKEND=${DB_BACKEND} && \
+    env GOOS=${GOOS} GOARCH=${GOARCH} && \
     go build \
     -mod=readonly \
     -tags "netgo,ledger,muslc" \
-    -ldflags "-X github.com/cosmos/cosmos-sdk/version.Name=$NAME \
-    -X github.com/cosmos/cosmos-sdk/version.AppName=$APPNAME \
+    -ldflags "-X github.com/cosmos/cosmos-sdk/version.Name="polaris-cosmos" \
+    -X github.com/cosmos/cosmos-sdk/version.AppName="polard" \
     -X github.com/cosmos/cosmos-sdk/version.Version=$VERSION \
     -X github.com/cosmos/cosmos-sdk/version.Commit=$COMMIT \
     -X github.com/cosmos/cosmos-sdk/version.BuildTags='netgo,ledger,muslc' \
-    -X github.com/cosmos/cosmos-sdk/types.DBBackend=$DB_BACKEND \
+    -X github.com/cosmos/cosmos-sdk/types.DBBackend="pebbledb" \
     -w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
     -trimpath \
     -o /workdir/bin/ \
-    ${COSMOS_CMD_PATH}
+    ./cosmos/cmd/polard
 
 #######################################################
 ###        Stage 3 - Prepare the Final Image        ###
@@ -88,4 +80,4 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM golang:${GO_VERSION}-alpine
 
 # Copy over built executable into a fresh container.
-COPY --from=builder /workdir/bin/${APP_NAME} /bin/
+COPY --from=builder /workdir/bin/polard /bin/
