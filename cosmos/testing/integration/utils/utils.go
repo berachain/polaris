@@ -37,7 +37,7 @@ import (
 )
 
 const (
-	DefaultTimeout = 10 * time.Second
+	DefaultTimeout = 15 * time.Second
 	TxTimeout      = 30 * time.Second
 )
 
