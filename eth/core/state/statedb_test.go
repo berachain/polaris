@@ -101,6 +101,7 @@ var _ = Describe("StateDB", func() {
 
 	It("should delete suicides on finalize", func() {
 		sdb.Snapshot()
+		sdb.Reset(common.Hash{}, 0)
 
 		sdb.CreateAccount(bob)
 		sdb.SetCode(bob, []byte{1, 2, 3})
