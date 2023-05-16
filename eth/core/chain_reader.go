@@ -98,9 +98,8 @@ func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts, e
 	}
 
 	// Derive receipts from block.
-	if err = receipts.DeriveFields(
-		bc.ChainConfig(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
-	); err != nil {
+	receipts, err = bc.deriveReceipts(receipts, block.Hash())
+	if err != nil {
 		return nil, nil, err
 	}
 
@@ -123,9 +122,13 @@ func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
 // GetReceipts gathers the receipts that were created in the block defined by
 // the given hash.
 func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
+
+	var receipts types.Receipts
+	var ok bool
+
 	// check the cache
-	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
-		return receipts, nil
+	if receipts, ok = bc.receiptsCache.Get(blockHash); ok {
+		return bc.deriveReceipts(receipts, blockHash)
 	}
 
 	// check if historical plugin is supported by host chain
@@ -140,22 +143,9 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 		return nil, ErrReceiptsNotFound
 	}
 
-	// get the block to derive the receipts
-	block, err := bc.GetBlockByHash(blockHash)
-	if err != nil {
-		return nil, ErrBlockNotFound
-	}
-
-	// Derive receipts from block.
-	if err = receipts.DeriveFields(
-		bc.ChainConfig(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
-	); err != nil {
-		return nil, err
-	}
-
 	// cache the found receipts for next time and return
 	bc.receiptsCache.Add(blockHash, receipts)
-	return receipts, nil
+	return bc.deriveReceipts(receipts, blockHash)
 }
 
 // GetTransaction gets a transaction by hash. It also returns the block hash of the
