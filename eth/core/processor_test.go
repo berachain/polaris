@@ -111,7 +111,7 @@ var _ = Describe("StateProcessor", func() {
 		})
 
 		It("should error on an unsigned transaction", func() {
-			gp.SetTxGasLimit(1000002)
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
@@ -127,7 +127,7 @@ var _ = Describe("StateProcessor", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(1000001)
 			}
-			gp.SetTxGasLimit(1000002)
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
@@ -162,7 +162,7 @@ var _ = Describe("StateProcessor", func() {
 			legacyTxData.To = nil
 			legacyTxData.Value = big.NewInt(0)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-			gp.SetTxGasLimit(1000002)
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
@@ -171,7 +171,7 @@ var _ = Describe("StateProcessor", func() {
 			// Now try calling the contract
 			legacyTxData.To = &dummyContract
 			signedTx = types.MustSignNewTx(key, signer, legacyTxData)
-			gp.SetTxGasLimit(1000002)
+			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			result, err = sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())

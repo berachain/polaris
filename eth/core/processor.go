@@ -167,7 +167,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas
 	// error, while still ensuring that we consume all the gas.
 	if result.UsedGas > sp.gp.GasRemaining() {
-		fmt.Println("result.UsedGas", result.UsedGas, "sp.gp.GasRemaining", sp.gp.GasRemaining())
 		result.UsedGas = sp.gp.GasRemaining()
 		result.Err = vm.ErrOutOfGas
 	}
