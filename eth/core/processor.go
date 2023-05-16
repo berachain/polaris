@@ -165,7 +165,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	}
 
 	// Update the state with pending changes.
-	if sp.cp.ChainConfig().IsByzantium(sp.evm.Context.BlockNumber) {
+	if sp.cp.ChainConfig().IsByzantium(sp.header.Number) {
 		// Finalize the statedb to ensure that any state changes that are required are propogated.
 		// We have to do this irrespective of whether the transaction failed or not, in order to
 		// ensure that the sender's nonce increases as well as the transaction fees are paid.
