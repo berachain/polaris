@@ -73,6 +73,9 @@ var _ = Describe("StateProcessor", func() {
 	BeforeEach(func() {
 		sdb = vmmock.NewEmptyStateDB()
 		_, bp, cp, gp, _, pp, _, _ = mock.NewMockHostAndPlugins()
+		cp.ChainConfigFunc = func() *params.ChainConfig {
+			return params.DefaultChainConfig
+		}
 		bp.GetNewBlockMetadataFunc = func(n int64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
