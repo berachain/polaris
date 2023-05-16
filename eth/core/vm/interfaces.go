@@ -32,6 +32,8 @@ type (
 	// additional state transition functionalities.
 	PolarisStateDB interface {
 		GethStateDB
+		// Prepare prepares the statedb for a new block.
+		libtypes.Preparable
 		// Finalize finalizes the state transition.
 		libtypes.Finalizeable
 		// GetContext returns the current context of the state plugin.

@@ -91,6 +91,8 @@ type (
 	LogsJournal interface {
 		// LogsJournal implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
+		// LogsJournal implements `libtypes.Preparable`.
+		libtypes.Preparable
 		// SetTxContext sets the transaction hash and index for the current transaction.
 		SetTxContext(thash common.Hash, ti int)
 		// TxIndex returns the current transaction index.
