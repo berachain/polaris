@@ -17,7 +17,7 @@
 ARG GO_VERSION
 ARG GOARCH=arm64
 ARG GOOS=darwin
-ARG POLARD_VERSION=e2e-test-dev
+ARG POLARD_VERSION=v0.0.0
 
 # Use the latest foundry image
 FROM polard:${POLARD_VERSION} as valpolard

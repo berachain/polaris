@@ -47,7 +47,6 @@ var (
 	// Variables.
 	baseDockerPath         = "./cosmos/docker/"
 	execDockerPath         = baseDockerPath + "base.Dockerfile"
-	testImageVersion       = "e2e-test-dev"
 	goVersion              = "1.20.4"
 	precompileContractsDir = "./contracts"
 )
@@ -111,7 +110,7 @@ func (c Cosmos) Docker(node string) error {
 }
 
 func (c Cosmos) RunDockerLocal() error {
-	return dockerRun("-p", "8545:8545", "polard-local:e2e-test-dev")
+	return dockerRun("-p", "8545:8545", "polard-local:v0.0.0")
 }
 
 func (c Cosmos) DockerX() error {
@@ -146,7 +145,7 @@ func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion st
 		"--build-arg", "GOOS=darwin",
 		"--build-arg", "GOARCH=arm64",
 		"-f", dockerFilePath,
-		"-t", name+":"+testImageVersion, //TODO: do not hardcode, have ability to pass as arg
+		"-t", name+":"+imageVersion, //TODO: do not hardcode, have ability to pass as arg
 		".",
 	)
 }
