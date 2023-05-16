@@ -110,7 +110,7 @@ var _ = Describe("StateProcessor", func() {
 		}
 
 		gp.SetBlockGasLimit(blockGasLimit)
-		sp.Prepare(context.Background(), nil, dummyHeader)
+		sp.Prepare(nil, dummyHeader)
 	})
 
 	Context("Empty block", func() {
@@ -128,7 +128,7 @@ var _ = Describe("StateProcessor", func() {
 			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 
-			sp.Prepare(context.Background(), nil, dummyHeader)
+			sp.Prepare(nil, dummyHeader)
 		})
 
 		It("should error on an unsigned transaction", func() {
@@ -224,7 +224,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		}
 		sp := core.NewStateProcessor(cp, gp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
-			sp.Prepare(context.Background(), nil, &types.Header{
+			sp.Prepare(nil, &types.Header{
 				GasLimit: 1000000,
 			})
 		}).ToNot(Panic())
