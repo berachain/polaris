@@ -47,12 +47,12 @@ type stateDB struct {
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
-	// mtx is used to make sure we don't try to reset for a new tx before finalizing the current
-	// tx.
+	// mtx is used to make sure we don't try to reset the statedb for a new transaction before
+	// finalizing the current transaction.
 	mtx sync.Mutex
 }
 
-// NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
+// NewStateDB returns a vm.PolarisStateDB with the given StatePlugin.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	lj := journal.NewLogs()
@@ -85,12 +85,12 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 // Snapshot
 // =============================================================================
 
-// Snapshot implements `stateDB`.
+// Snapshot implements vm.PolarisStateDB.
 func (sdb *stateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
 }
 
-// RevertToSnapshot implements `stateDB`.
+// RevertToSnapshot implements vm.PolarisStateDB.
 func (sdb *stateDB) RevertToSnapshot(id int) {
 	sdb.ctrl.RevertToSnapshot(id)
 }
@@ -107,7 +107,8 @@ func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
 	sdb.LogsJournal.SetTxContext(txHash, txIndex)
 }
 
-// Finalize deletes the suicided accounts and finalizes all plugins.
+// Finalize deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
+// next transaction.
 func (sdb *stateDB) Finalize() {
 	defer sdb.mtx.Unlock()
 
@@ -119,9 +120,9 @@ func (sdb *stateDB) Finalize() {
 // Prepare
 // =============================================================================
 
-// Implementation taken directly from the `stateDB` in Go-Ethereum.
+// Implementation taken directly from the vm.PolarisStateDB in Go-Ethereum.
 //
-// Prepare implements `stateDB`.
+// Prepare implements vm.PolarisStateDB.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {
@@ -152,7 +153,7 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 // PreImage
 // =============================================================================
 
-// AddPreimage implements the the `StateDB`interface, but currently
+// AddPreimage implements the the vm.PolarisStateDB interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 
@@ -166,7 +167,7 @@ func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 // Code Size
 // =============================================================================
 
-// GetCodeSize implements the `StateDB` interface by returning the size of the
+// GetCodeSize implements the vm.PolarisStateDB interface by returning the size of the
 // code associated with the given account.
 func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 	return len(sdb.GetCode(addr))

@@ -27,6 +27,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/trie"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -181,6 +182,8 @@ func (sp *StateProcessor) ProcessTransaction(
 		Type:              tx.Type(),
 		PostState:         nil, // in Polaris we assume we are past EIP-658.
 		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
+		TxHash:            txHash,
+		GasUsed:           result.UsedGas,
 		BlockNumber:       sp.header.Number,
 		TransactionIndex:  uint(len(sp.txs)),
 	}
@@ -189,17 +192,16 @@ func (sp *StateProcessor) ProcessTransaction(
 	} else {
 		receipt.Status = types.ReceiptStatusSuccessful
 	}
-	receipt.TxHash = tx.Hash()
-	receipt.GasUsed = result.UsedGas
 
 	// If the transaction created a contract, store the creation address in the receipt.
 	if msg.To == nil {
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
-	receipt.Logs = sp.statedb.Logs()
+	// Add the logs, with block metadata, to the receipt; the block hash has not been computed
+	// since the block is not complete at this point.
+	receipt.Logs = sp.statedb.GetLogs(receipt.TxHash, sp.header.Number.Uint64(), common.Hash{})
 	for _, log := range receipt.Logs {
-		log.BlockNumber = sp.header.Number.Uint64()
 		log.Index = sp.logIndex
 		sp.logIndex++
 	}
