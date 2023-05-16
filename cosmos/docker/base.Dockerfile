@@ -1,5 +1,5 @@
-
 # syntax=docker/dockerfile:1
+#
 # Copyright (C) 2022, Berachain Foundation. All rights reserved.
 # See the file LICENSE for licensing terms.
 #
@@ -14,26 +14,25 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-ARG GO_VERSION
+ARG GO_VERSION=1.20.4
 ARG GOARCH=arm64
 ARG GOOS=darwin
 
 #######################################################
-###         Stage 1 - Build Smart Contracts         ###
+###       Stage 1 - Build Solidity Bindings         ###
 #######################################################
 
 # Use the latest foundry image
 FROM ghcr.io/foundry-rs/foundry as foundry
 
-WORKDIR /polaris
+WORKDIR /workdir
 
-# Build and test the source code
-ARG PRECOMPILE_CONTRACTS_DIR
-COPY ${PRECOMPILE_CONTRACTS_DIR} ${PRECOMPILE_CONTRACTS_DIR}
-WORKDIR /polaris/${PRECOMPILE_CONTRACTS_DIR}
+# Copy over all the solidity code.
+ARG FOUNDRY_DIR
+COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
+WORKDIR /workdir/${FOUNDRY_DIR}
 
-RUN forge build
-
+RUN forge build --extra-output-files bin --extra-output-files abi
 
 # #############################dock##########################
 # ###         Stage 2 - Build the Application         ###
@@ -41,29 +40,18 @@ RUN forge build
 
 FROM golang:${GO_VERSION}-alpine as builder
 
+# Setup some alpine stuff that nobody really knows how or why it works.
+# Like if ur reading this and u dunno just ask the devops guy or something.
+RUN set -eux; \
+    apk add git linux-headers ca-certificates build-base
+
 # Copy our source code into the container
-WORKDIR /polaris
+WORKDIR /workdir
 COPY . .
 
-# Setup some alpine stuff that nobody really knows why we need other
-# than docker geeks cause let's be real, everyone else just googles this stuff
-# or asks that one really smart guy on their devops team to fio.
-RUN set -eux; apk add --no-cache ca-certificates build-base;
-RUN apk add git
-
-
-
-# Needed by github.com/zondax/hid
-RUN apk add linux-headers
-
 # Copy the forge output
-ARG PRECOMPILE_CONTRACTS_DIR
-COPY --from=foundry /polaris/${PRECOMPILE_CONTRACTS_DIR}/out /polaris/${PRECOMPILE_CONTRACTS_DIR}/out
-
-# # Copy the go mod and sum files
-# COPY go.mod ./
-# COPY go.sum ./
-
+ARG FOUNDRY_DIR
+COPY --from=foundry /workdir/${FOUNDRY_DIR}/out /workdir/${FOUNDRY_DIR}/out
 
 # Build berad binary
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -74,15 +62,15 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     go build \
     -mod=readonly \
     -tags "netgo,ledger,muslc" \
-    -ldflags "-X github.com/cosmos/cosmos-sdk/version.Name="berachain" \
-    -X github.com/cosmos/cosmos-sdk/version.AppName="berad" \
+    -ldflags "-X github.com/cosmos/cosmos-sdk/version.Name="polaris-cosmos" \
+    -X github.com/cosmos/cosmos-sdk/version.AppName="polard" \
     -X github.com/cosmos/cosmos-sdk/version.Version=$VERSION \
     -X github.com/cosmos/cosmos-sdk/version.Commit=$COMMIT \
     -X github.com/cosmos/cosmos-sdk/version.BuildTags='netgo,ledger,muslc' \
     -X github.com/cosmos/cosmos-sdk/types.DBBackend="pebbledb" \
     -w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
     -trimpath \
-    -o /polaris/bin/ \
+    -o /workdir/bin/ \
     ./cosmos/cmd/polard
 
 #######################################################
@@ -91,23 +79,5 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM golang:${GO_VERSION}-alpine
 
-RUN apk add --no-cache bash
-RUN apk add --no-cache jq
-
-WORKDIR /polaris
-
-COPY --from=builder /polaris/bin/polard /bin/
-COPY --from=builder /polaris/cosmos/runtime/localnode/docker-init.sh /polaris/docker-init.sh
-COPY --from=builder /polaris/cosmos/runtime/localnode/config /polaris/config
-
-ENV HOME /polaris
-WORKDIR $HOME
-
-# Expose the berad port
-EXPOSE 8545
-EXPOSE 8546
-EXPOSE 26656
-EXPOSE 26657
-EXPOSE 1317
-
-CMD ["bash", "docker-init.sh"]
+# Copy over built executable into a fresh container.
+COPY --from=builder /workdir/bin/polard /bin/
