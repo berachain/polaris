@@ -194,8 +194,6 @@ func (sp *StateProcessor) ProcessTransaction(
 		Type:              tx.Type(),
 		PostState:         nil, // in Polaris we assume we are past EIP-658.
 		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
-		BlockNumber:       sp.header.Number,
-		TransactionIndex:  uint(len(sp.txs)),
 	}
 	if result.Failed() {
 		receipt.Status = types.ReceiptStatusFailed
