@@ -220,6 +220,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Add the bloom filter to the receipt.
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.TransactionIndex = uint(len(sp.txs))
+	receipt.BlockNumber = sp.header.Number
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
