@@ -138,8 +138,11 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			PreimagesFunc: func() map[common.Hash][]byte {
 //				panic("mock out the Preimages method")
 //			},
-//			PrepareFunc: func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
+//			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
+//			},
+//			PrepareForTxFunc: func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
+//				panic("mock out the PrepareForTx method")
 //			},
 //			RawDumpFunc: func(opts *state.DumpConfig) state.Dump {
 //				panic("mock out the RawDump method")
@@ -320,7 +323,10 @@ type PolarisStateDBMock struct {
 	PreimagesFunc func() map[common.Hash][]byte
 
 	// PrepareFunc mocks the Prepare method.
-	PrepareFunc func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
+	PrepareFunc func(contextMoqParam context.Context)
+
+	// PrepareForTxFunc mocks the PrepareForTx method.
+	PrepareForTxFunc func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
 
 	// RawDumpFunc mocks the RawDump method.
 	RawDumpFunc func(opts *state.DumpConfig) state.Dump
@@ -579,6 +585,11 @@ type PolarisStateDBMock struct {
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+		}
+		// PrepareForTx holds details about calls to the PrepareForTx method.
+		PrepareForTx []struct {
 			// Rules is the rules argument value.
 			Rules params.Rules
 			// Sender is the sender argument value.
@@ -745,6 +756,7 @@ type PolarisStateDBMock struct {
 	lockLogs                   sync.RWMutex
 	lockPreimages              sync.RWMutex
 	lockPrepare                sync.RWMutex
+	lockPrepareForTx           sync.RWMutex
 	lockRawDump                sync.RWMutex
 	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
@@ -1987,9 +1999,41 @@ func (mock *PolarisStateDBMock) PreimagesCalls() []struct {
 }
 
 // Prepare calls PrepareFunc.
-func (mock *PolarisStateDBMock) Prepare(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
+func (mock *PolarisStateDBMock) Prepare(contextMoqParam context.Context) {
 	if mock.PrepareFunc == nil {
 		panic("PolarisStateDBMock.PrepareFunc: method is nil but PolarisStateDB.Prepare was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+	}{
+		ContextMoqParam: contextMoqParam,
+	}
+	mock.lockPrepare.Lock()
+	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
+	mock.lockPrepare.Unlock()
+	mock.PrepareFunc(contextMoqParam)
+}
+
+// PrepareCalls gets all the calls that were made to Prepare.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.PrepareCalls())
+func (mock *PolarisStateDBMock) PrepareCalls() []struct {
+	ContextMoqParam context.Context
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+	}
+	mock.lockPrepare.RLock()
+	calls = mock.calls.Prepare
+	mock.lockPrepare.RUnlock()
+	return calls
+}
+
+// PrepareForTx calls PrepareForTxFunc.
+func (mock *PolarisStateDBMock) PrepareForTx(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
+	if mock.PrepareForTxFunc == nil {
+		panic("PolarisStateDBMock.PrepareForTxFunc: method is nil but PolarisStateDB.PrepareForTx was just called")
 	}
 	callInfo := struct {
 		Rules       params.Rules
@@ -2006,17 +2050,17 @@ func (mock *PolarisStateDBMock) Prepare(rules params.Rules, sender common.Addres
 		Precompiles: precompiles,
 		TxAccesses:  txAccesses,
 	}
-	mock.lockPrepare.Lock()
-	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
-	mock.lockPrepare.Unlock()
-	mock.PrepareFunc(rules, sender, coinbase, dest, precompiles, txAccesses)
+	mock.lockPrepareForTx.Lock()
+	mock.calls.PrepareForTx = append(mock.calls.PrepareForTx, callInfo)
+	mock.lockPrepareForTx.Unlock()
+	mock.PrepareForTxFunc(rules, sender, coinbase, dest, precompiles, txAccesses)
 }
 
-// PrepareCalls gets all the calls that were made to Prepare.
+// PrepareForTxCalls gets all the calls that were made to PrepareForTx.
 // Check the length with:
 //
-//	len(mockedPolarisStateDB.PrepareCalls())
-func (mock *PolarisStateDBMock) PrepareCalls() []struct {
+//	len(mockedPolarisStateDB.PrepareForTxCalls())
+func (mock *PolarisStateDBMock) PrepareForTxCalls() []struct {
 	Rules       params.Rules
 	Sender      common.Address
 	Coinbase    common.Address
@@ -2032,9 +2076,9 @@ func (mock *PolarisStateDBMock) PrepareCalls() []struct {
 		Precompiles []common.Address
 		TxAccesses  types.AccessList
 	}
-	mock.lockPrepare.RLock()
-	calls = mock.calls.Prepare
-	mock.lockPrepare.RUnlock()
+	mock.lockPrepareForTx.RLock()
+	calls = mock.calls.PrepareForTx
+	mock.lockPrepareForTx.RUnlock()
 	return calls
 }
 

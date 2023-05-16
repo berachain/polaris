@@ -21,6 +21,7 @@
 package state
 
 import (
+	"context"
 	"sync"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -99,6 +100,12 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Clean state
 // =============================================================================
 
+// Prepare prepares the relevant plugin and journals for the new block.
+func (sdb *stateDB) Prepare(ctx context.Context) {
+	sdb.Plugin.Prepare(ctx)
+	sdb.LogsJournal.Prepare(ctx)
+}
+
 // Reset sets the TxContext for the current transaction, blocking until finalize is called for the
 // previous transaction.
 func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
@@ -122,8 +129,8 @@ func (sdb *stateDB) Finalize() {
 
 // Implementation taken directly from the vm.PolarisStateDB in Go-Ethereum.
 //
-// Prepare implements vm.PolarisStateDB.
-func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
+// PrepareForTx implements vm.PolarisStateDB.
+func (sdb *stateDB) PrepareForTx(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {
 		// Clear out any leftover from previous executions

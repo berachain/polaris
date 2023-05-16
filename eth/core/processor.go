@@ -208,10 +208,9 @@ func (sp *StateProcessor) ProcessTransaction(
 		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
 	}
 
-	// Add the logs, with block metadata, to the receipt; the block hash has not been computed
-	// since the block is not complete at this point.
+	// Add the logs and bloom filter to the receipt; the block hash has not been computed since
+	// the block is not complete at this point.
 	receipt.Logs = sp.statedb.GetLogs(txHash, sp.header.Number.Uint64(), common.Hash{})
-	// Add the bloom filter to the receipt.
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.TransactionIndex = uint(len(sp.txs))
 	receipt.BlockNumber = sp.header.Number
