@@ -149,15 +149,13 @@ func (tf *TestFixture) SendGraphQLRequest(query string) (string, int, error) {
 		return "", 500, err
 	}
 
-	client := &http.Client{}
-
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return "", 500, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := client.Do(req)
+	resp, err := tf.EthGraphQLClient.Do(req)
 	if err != nil {
 		return "", 500, err
 	}
