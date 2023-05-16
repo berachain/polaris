@@ -209,7 +209,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockNumber = sp.header.Number
 	receipt.TransactionIndex = txIndex
-	receipt.EffectiveGasPrice = tx.EffectiveGasTipValue(sp.header.BaseFee)
 
 	// Finalize the statedb to ensure that any state changes that are required are propogated.
 	// We have to do this irrespective of whether the transaction failed or not, in order to
