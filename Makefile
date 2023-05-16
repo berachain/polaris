@@ -16,8 +16,6 @@ help:
 setup:
 	@go run magefiles/setup/setup.go
 
-
-
 PACKAGE_NAME:=pkg.berachain.dev/polaris/cosmos
 GOLANG_CROSS_VERSION = v1.20.4
 GOPATH ?= '$(HOME)/go'
@@ -31,6 +29,6 @@ release-dry-run:
 		-v ${GOPATH}/pkg:/go/pkg \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		--rm-dist --skip-validate --skip-publish --snapshot
+		--clean --skip-validate --skip-publish --snapshot
 
 .PHONY: release-dry-run release
