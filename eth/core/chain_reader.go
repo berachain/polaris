@@ -122,12 +122,8 @@ func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
 // GetReceipts gathers the receipts that were created in the block defined by
 // the given hash.
 func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
-
-	var receipts types.Receipts
-	var ok bool
-
 	// check the cache
-	if receipts, ok = bc.receiptsCache.Get(blockHash); ok {
+	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
 		return bc.deriveReceipts(receipts, blockHash)
 	}
 
