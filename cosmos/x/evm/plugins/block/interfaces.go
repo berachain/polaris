@@ -18,26 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package block
 
 import (
-	"pkg.berachain.dev/polaris/eth/rpc/api"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// GetAPIs returns a list of all available APIs.
-func GetAPIs(apiBackend PolarisBackend) []API {
-	return append(GetGethAPIs(apiBackend),
-		API{
-			Namespace: "eth",
-			Service:   api.NewEthashAPI(apiBackend),
-		},
-		API{
-			Namespace: "net",
-			Service:   api.NewNetAPI(apiBackend),
-		},
-		API{
-			Namespace: "web3",
-			Service:   api.NewWeb3API(apiBackend),
-		},
-	)
+type StakingKeeper interface {
+	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool)
+}
+
+type Validator interface {
+	GetOperator() sdk.ValAddress // operator address to receive/return validators coins
 }

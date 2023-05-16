@@ -21,6 +21,8 @@
 package provider
 
 import (
+	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/api"
@@ -28,6 +30,11 @@ import (
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
+
+var defaultEthConfig = ethconfig.Config{
+	SyncMode:           0,
+	FilterLogCacheSize: 0,
+}
 
 // PolarisProvider is the only object that an implementing chain should use.
 type PolarisProvider struct {
@@ -90,5 +97,10 @@ func NewPolarisProviderWithConfig(
 // StartServices starts the standard go-ethereum node-services (i.e json-rpc).
 func (sp *PolarisProvider) StartServices() error {
 	sp.Node.RegisterAPIs(rpc.GetAPIs(sp.backend))
+	// Register the filter API separately in order to get access to the filterSystem
+	// TODO: this should be made cleaner.
+	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, &defaultEthConfig)
+	// this should be a flag rather than make every node default to using it
+	utils.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
 	return sp.Node.Start()
 }
