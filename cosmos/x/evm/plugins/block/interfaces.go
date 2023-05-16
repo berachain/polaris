@@ -18,14 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package block
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
+type StakingKeeper interface {
+	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool)
+}
 
-func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
+type Validator interface {
+	GetOperator() sdk.ValAddress // operator address to receive/return validators coins
+}

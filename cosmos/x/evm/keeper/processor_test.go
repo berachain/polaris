@@ -36,6 +36,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -45,6 +46,7 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -78,16 +80,16 @@ var _ = Describe("Processor", func() {
 
 		legacyTxData = &coretypes.LegacyTx{
 			Nonce:    0,
-			Gas:      10000000,
+			Gas:      10000000000,
 			Data:     []byte("abcdef"),
-			GasPrice: big.NewInt(1),
+			GasPrice: big.NewInt(2 ^ 63), // overpaying so test doesn't fail due to EIP-1559 math.
 		}
 
 		// before chain, init genesis state
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
-			ak, bk,
+			ak, bk, sk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewEthTxPoolFrom(evmmempool.DefaultPriorityMempool()),
@@ -104,10 +106,23 @@ var _ = Describe("Processor", func() {
 		k.ConfigureGethLogger(ctx)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {
-			plugin.InitGenesis(ctx, types.DefaultGenesis())
+			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
+			if hasInitGenesis {
+				plugin.InitGenesis(ctx, types.DefaultGenesis())
+			}
 		}
 
-		// before every block
+		// Set validator with consensus address.
+		consAddr, err := validator.GetConsAddr()
+		Expect(err).ToNot(HaveOccurred())
+		err = sk.SetValidatorByConsAddr(ctx, validator)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Set header's consensus address to match the validator's.
+		header := ctx.BlockHeader()
+		header.ProposerAddress = consAddr.Bytes()
+		ctx = ctx.WithBlockHeader(header)
+
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
@@ -139,11 +154,12 @@ var _ = Describe("Processor", func() {
 
 		It("should successfully deploy a valid contract and call it", func() {
 			legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
+			legacyTxData.GasPrice = big.NewInt(10000000000)
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
 			k.GetHost().GetStatePlugin().CreateAccount(addr)
-			k.GetHost().GetStatePlugin().AddBalance(addr, big.NewInt(1000000000))
+			k.GetHost().GetStatePlugin().AddBalance(addr, (&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
 			k.GetHost().GetStatePlugin().Finalize()
 
 			// create the contract

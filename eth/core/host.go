@@ -21,6 +21,8 @@
 package core
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -70,7 +72,7 @@ type (
 		// SetHeaderByNumber sets the block header at the given block number.
 		SetHeaderByNumber(int64, *types.Header) error
 		// BaseFee returns the base fee of the current block.
-		BaseFee() uint64
+		BaseFee() *big.Int
 	}
 
 	// ConfigurationPlugin defines the methods that the chain running Polaris EVM should

@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package precompile
+package distribution
 
 import (
 	"errors"
@@ -29,15 +29,15 @@ var (
 	_ = abi.ConvertType
 )
 
-// IDistributionModuleCoin is an auto generated low-level Go binding around an user-defined struct.
-type IDistributionModuleCoin struct {
+// CosmosCoin is an auto generated low-level Go binding around an user-defined struct.
+type CosmosCoin struct {
 	Amount *big.Int
 	Denom  string
 }
 
 // DistributionModuleMetaData contains all meta data concerning the DistributionModule contract.
 var DistributionModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"SetWithdrawAddress\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"WithdrawRewards\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getWithdrawEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"withdrawAddress\",\"type\":\"string\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIDistributionModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validator\",\"type\":\"string\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIDistributionModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"SetWithdrawAddress\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"WithdrawRewards\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getWithdrawEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"withdrawAddress\",\"type\":\"address\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"withdrawAddress\",\"type\":\"string\"}],\"name\":\"setWithdrawAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"validator\",\"type\":\"address\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"delegator\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"validator\",\"type\":\"string\"}],\"name\":\"withdrawDelegatorReward\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // DistributionModuleABI is the input ABI used to generate the binding from.
@@ -515,13 +515,13 @@ func (it *DistributionModuleWithdrawRewardsIterator) Close() error {
 // DistributionModuleWithdrawRewards represents a WithdrawRewards event raised by the DistributionModule contract.
 type DistributionModuleWithdrawRewards struct {
 	Validator common.Address
-	Amount    *big.Int
+	Amount    []CosmosCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterWithdrawRewards is a free log retrieval operation binding the contract event 0xaa1377f7ec93c239e959efa811f7b8554c036fd7a706c23e58024626a8f3db96.
+// FilterWithdrawRewards is a free log retrieval operation binding the contract event 0x68e5a74be48fc61c2ca4536b8819962850d1d39d7aa32ca670914f8b10aa6e5b.
 //
-// Solidity: event WithdrawRewards(address indexed validator, uint256 amount)
+// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount)
 func (_DistributionModule *DistributionModuleFilterer) FilterWithdrawRewards(opts *bind.FilterOpts, validator []common.Address) (*DistributionModuleWithdrawRewardsIterator, error) {
 
 	var validatorRule []interface{}
@@ -536,9 +536,9 @@ func (_DistributionModule *DistributionModuleFilterer) FilterWithdrawRewards(opt
 	return &DistributionModuleWithdrawRewardsIterator{contract: _DistributionModule.contract, event: "WithdrawRewards", logs: logs, sub: sub}, nil
 }
 
-// WatchWithdrawRewards is a free log subscription operation binding the contract event 0xaa1377f7ec93c239e959efa811f7b8554c036fd7a706c23e58024626a8f3db96.
+// WatchWithdrawRewards is a free log subscription operation binding the contract event 0x68e5a74be48fc61c2ca4536b8819962850d1d39d7aa32ca670914f8b10aa6e5b.
 //
-// Solidity: event WithdrawRewards(address indexed validator, uint256 amount)
+// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount)
 func (_DistributionModule *DistributionModuleFilterer) WatchWithdrawRewards(opts *bind.WatchOpts, sink chan<- *DistributionModuleWithdrawRewards, validator []common.Address) (event.Subscription, error) {
 
 	var validatorRule []interface{}
@@ -578,9 +578,9 @@ func (_DistributionModule *DistributionModuleFilterer) WatchWithdrawRewards(opts
 	}), nil
 }
 
-// ParseWithdrawRewards is a log parse operation binding the contract event 0xaa1377f7ec93c239e959efa811f7b8554c036fd7a706c23e58024626a8f3db96.
+// ParseWithdrawRewards is a log parse operation binding the contract event 0x68e5a74be48fc61c2ca4536b8819962850d1d39d7aa32ca670914f8b10aa6e5b.
 //
-// Solidity: event WithdrawRewards(address indexed validator, uint256 amount)
+// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount)
 func (_DistributionModule *DistributionModuleFilterer) ParseWithdrawRewards(log types.Log) (*DistributionModuleWithdrawRewards, error) {
 	event := new(DistributionModuleWithdrawRewards)
 	if err := _DistributionModule.contract.UnpackLog(event, "WithdrawRewards", log); err != nil {

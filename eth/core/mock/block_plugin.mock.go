@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"math/big"
 	"pkg.berachain.dev/polaris/eth/core"
 	"sync"
 )
@@ -21,7 +22,7 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //
 //		// make and configure a mocked core.BlockPlugin
 //		mockedBlockPlugin := &BlockPluginMock{
-//			BaseFeeFunc: func() uint64 {
+//			BaseFeeFunc: func() *big.Int {
 //				panic("mock out the BaseFee method")
 //			},
 //			GetHeaderByNumberFunc: func(n int64) (*types.Header, error) {
@@ -44,7 +45,7 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //	}
 type BlockPluginMock struct {
 	// BaseFeeFunc mocks the BaseFee method.
-	BaseFeeFunc func() uint64
+	BaseFeeFunc func() *big.Int
 
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
 	GetHeaderByNumberFunc func(n int64) (*types.Header, error)
@@ -94,7 +95,7 @@ type BlockPluginMock struct {
 }
 
 // BaseFee calls BaseFeeFunc.
-func (mock *BlockPluginMock) BaseFee() uint64 {
+func (mock *BlockPluginMock) BaseFee() *big.Int {
 	if mock.BaseFeeFunc == nil {
 		panic("BlockPluginMock.BaseFeeFunc: method is nil but BlockPlugin.BaseFee was just called")
 	}

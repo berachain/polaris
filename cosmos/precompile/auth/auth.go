@@ -23,11 +23,14 @@ package auth
 import (
 	"context"
 	"math/big"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -37,13 +40,17 @@ import (
 
 const requiredGas = 1000
 
-// Contract is the precompile contract for the auth module.
+// Contract is the precompile contract for the auth(z) module.
 type Contract struct {
 	ethprecompile.BaseContract
+
+	msgServer   authz.MsgServer
+	queryServer authz.QueryServer
 }
 
-// NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract() *Contract {
+// NewPrecompileContract returns a new instance of the auth(z) module precompile contract. Uses the
+// auth module's account address as the contract address.
+func NewPrecompileContract(m authz.MsgServer, q authz.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.AuthModuleMetaData.ABI,
@@ -51,6 +58,8 @@ func NewPrecompileContract() *Contract {
 				authtypes.NewModuleAddress(authtypes.ModuleName),
 			),
 		),
+		msgServer:   m,
+		queryServer: q,
 	}
 }
 
@@ -66,6 +75,14 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:      "convertBech32ToHexAddress(string)",
 			Execute:     c.ConvertBech32ToHexAddress,
 			RequiredGas: requiredGas,
+		},
+		{
+			AbiSig:  "setSendAllowance(address,address,(uint256,string)[],uint256)",
+			Execute: c.SetSendAllowance,
+		},
+		{
+			AbiSig:  "getSendAllowance(address,address,string)",
+			Execute: c.GetSendAllowance,
 		},
 	}
 }
@@ -126,4 +143,87 @@ func (c *Contract) ConvertBech32ToHexAddress(
 	}
 
 	return nil, precompile.ErrInvalidBech32Address
+}
+
+// SetSendAllowance sends a send authorization message to the authz module.
+func (c *Contract) SetSendAllowance(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	owner, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	spender, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	amount, err := cosmlib.ExtractCoinsFromInput(args[2])
+	if err != nil {
+		return nil, err
+	}
+	expiration, ok := utils.GetAs[*big.Int](args[3])
+	if !ok {
+		return nil, precompile.ErrInvalidBigInt
+	}
+
+	return c.setSendAllowanceHelper(
+		ctx,
+		time.Unix(int64(evm.GetContext().Time), 0),
+		cosmlib.AddressToAccAddress(owner),
+		cosmlib.AddressToAccAddress(spender),
+		amount,
+		expiration,
+	)
+}
+
+// GetSendAllowance returns the amount of tokens that the spender is allowd to spend.
+func (c *Contract) GetSendAllowance(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
+	readonly bool,
+	args ...any,
+) ([]any, error) {
+	owner, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	spender, ok := utils.GetAs[common.Address](args[1])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+	denom, ok := utils.GetAs[string](args[2])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	return c.getSendAllownaceHelper(
+		ctx,
+		time.Unix(int64(evm.GetContext().Time), 0),
+		cosmlib.AddressToAccAddress(owner),
+		cosmlib.AddressToAccAddress(spender),
+		denom,
+	)
+}
+
+// getHighestAllowance returns the highest allowance for a given coin denom.
+func getHighestAllowance(sendAuths []*banktypes.SendAuthorization, coinDenom string) *big.Int {
+	// Init the max to 0.
+	var max = big.NewInt(0)
+	// Loop through the send authorizations and find the highest allowance.
+	for _, sendAuth := range sendAuths {
+		// Get the spendable limit for the coin denom that was specified.
+		amount := sendAuth.SpendLimit.AmountOf(coinDenom)
+		// If not set, the current is the max, if set, compare the current with the max.
+		if max == nil || amount.BigInt().Cmp(max) > 0 {
+			max = amount.BigInt()
+		}
+	}
+	return max
 }

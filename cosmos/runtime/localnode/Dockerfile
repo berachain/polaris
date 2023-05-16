@@ -15,6 +15,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ARG GO_VERSION
+ARG GOARCH=arm64
+ARG GOOS=darwin
 
 #######################################################
 ###         Stage 1 - Build Smart Contracts         ###
@@ -56,11 +58,11 @@ RUN apk add linux-headers
 
 # Copy the forge output
 ARG PRECOMPILE_CONTRACTS_DIR
-# COPY --from=foundry /polaris/${PRECOMPILE_CONTRACTS_DIR}/out /polaris//${PRECOMPILE_CONTRACTS_DIR}/out
+COPY --from=foundry /polaris/${PRECOMPILE_CONTRACTS_DIR}/out /polaris/${PRECOMPILE_CONTRACTS_DIR}/out
 
-# Copy the go mod and sum files
-COPY go.mod ./
-COPY go.sum ./
+# # Copy the go mod and sum files
+# COPY go.mod ./
+# COPY go.sum ./
 
 
 # Build berad binary
@@ -68,8 +70,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/go/pkg/mod \
     VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
     COMMIT=$(git log -1 --format='%H') && \
-    # GOARCH=amd64 \
-    # GOOS=linux \
+    env GOOS=${GOOS} GOARCH=${GOARCH} && \
     go build \
     -mod=readonly \
     -tags "netgo,ledger,muslc" \
@@ -82,7 +83,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     -w -s -linkmode=external -extldflags '-Wl,-z,muldefs -static'" \
     -trimpath \
     -o /polaris/bin/ \
-    ./...
+    ./cosmos/cmd/polard
 
 #######################################################
 ###        Stage 3 - Prepare the Final Image        ###
@@ -96,14 +97,17 @@ RUN apk add --no-cache jq
 WORKDIR /polaris
 
 COPY --from=builder /polaris/bin/polard /bin/
-COPY --from=builder /polaris/init.sh /polaris/
+COPY --from=builder /polaris/cosmos/runtime/localnode/docker-init.sh /polaris/docker-init.sh
+COPY --from=builder /polaris/cosmos/runtime/localnode/config /polaris/config
 
 ENV HOME /polaris
 WORKDIR $HOME
 
 # Expose the berad port
+EXPOSE 8545
+EXPOSE 8546
 EXPOSE 26656
 EXPOSE 26657
 EXPOSE 1317
 
-CMD ["bash", "init.sh"]
+CMD ["bash", "docker-init.sh"]

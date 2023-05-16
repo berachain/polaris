@@ -18,16 +18,14 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool
+package mock
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+//go:generate moq -out ./geth.mock.go -pkg mock ./ PrecompileEVM MessageRouter
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-)
+func NewPrecompileEVMMock() *PrecompileEVMMock {
+	return &PrecompileEVMMock{}
+}
 
-// InitGenesis is a no-op for the gas plugin.
-func (p *plugin) InitGenesis(_ sdk.Context, _ *types.GenesisState) {}
-
-// ExportGenesis is a no-op for the gas plugin.
-func (p *plugin) ExportGenesis(_ sdk.Context, _ *types.GenesisState) {}
+func NewMsgRouterMock() *MessageRouterMock {
+	return &MessageRouterMock{}
+}

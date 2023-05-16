@@ -22,6 +22,8 @@ package block
 
 import (
 	"context"
+	"fmt"
+	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -32,11 +34,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
-// TODO: change this.
-const bf = uint64(1)
-
 type Plugin interface {
-	plugins.BaseCosmosPolaris
+	plugins.Base
 	core.BlockPlugin
 
 	// SetQueryContextFn sets the function used for querying historical block headers.
@@ -50,11 +49,14 @@ type plugin struct {
 	storekey storetypes.StoreKey
 	// getQueryContext allows for querying block headers.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
+	// sk represents the cosmos staking keeper.
+	sk StakingKeeper
 }
 
-func NewPlugin(storekey storetypes.StoreKey) Plugin {
+func NewPlugin(storekey storetypes.StoreKey, sk StakingKeeper) Plugin {
 	return &plugin{
 		storekey: storekey,
+		sk:       sk,
 	}
 }
 
@@ -63,12 +65,9 @@ func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
 
-// BaseFee returns the base fee for the current block.
-// TODO: implement properly with DynamicFee Module of some kind.
-//
 // BaseFee implements core.BlockPlugin.
-func (p *plugin) BaseFee() uint64 {
-	return bf
+func (p *plugin) BaseFee() *big.Int {
+	return big.NewInt(-1) // we defer to polaris' built in eip-1559 for the base fee.
 }
 
 // GetNewBlockMetadata returns the host chain block metadata for the given block height. It returns
@@ -76,8 +75,14 @@ func (p *plugin) BaseFee() uint64 {
 func (p *plugin) GetNewBlockMetadata(number int64) (common.Address, uint64) {
 	cometHeader := p.ctx.BlockHeader()
 	if cometHeader.Height != number {
-		panic("block height mismatch")
+		panic(fmt.Errorf("block height mismatch. got: %d, expected %d", cometHeader.Height, number))
 	}
 
-	return common.BytesToAddress(cometHeader.ProposerAddress), uint64(cometHeader.Time.UTC().Unix())
+	val, found := p.sk.GetValidatorByConsAddr(p.ctx, cometHeader.ProposerAddress)
+	if !found {
+		panic(fmt.Errorf("validator not found: %s", cometHeader.ProposerAddress))
+	}
+	return common.BytesToAddress(val.GetOperator()), uint64(cometHeader.Time.UTC().Unix())
 }
+
+func (p *plugin) IsPlugin() {}

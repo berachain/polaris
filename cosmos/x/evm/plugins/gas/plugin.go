@@ -38,7 +38,7 @@ const gasMeterDescriptor = `polaris-gas-plugin`
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.BaseCosmosPolaris
+	plugins.Base
 	core.GasPlugin
 }
 
@@ -132,3 +132,5 @@ func (p *plugin) resetMeters(ctx sdk.Context) {
 		p.consensusMaxGas = uint64(block.MaxGas)
 	}
 }
+
+func (p *plugin) IsPlugin() {}

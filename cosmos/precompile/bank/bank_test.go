@@ -30,7 +30,8 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
@@ -131,6 +132,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		)
 
 		denom := "abera"
+		denom2 := "atoken"
 
 		When("GetBalance", func() {
 			It("should fail if input address is not a common.Address", func() {
@@ -255,7 +257,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
+				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
@@ -393,7 +395,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
+				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
@@ -505,7 +507,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				coins, ok := utils.GetAs[[]generated.IBankModuleCoin](res[0])
+				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
 				Expect(ok).To(BeTrue())
 
 				for i := 0; i < 3; i++ {
@@ -665,28 +667,37 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 
 			It("should succeed", func() {
-				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				balanceAmount, ok := new(big.Int).SetString("220000000000000000", 10)
 				Expect(ok).To(BeTrue())
 
 				accs := simtestutil.CreateRandomAccounts(2)
 				fromAcc, toAcc := accs[0], accs[1]
 
-				coins := sdk.NewCoins(
+				sortedSdkCoins := sdk.NewCoins(
 					sdk.NewCoin(
 						denom,
 						sdk.NewIntFromBigInt(balanceAmount),
 					),
+					sdk.NewCoin(
+						denom2,
+						sdk.NewIntFromBigInt(balanceAmount),
+					),
 				)
+
+				unsortedSdkCoins := sdk.NewCoins()
+				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom2, sdk.NewIntFromBigInt(balanceAmount)))
+				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom, sdk.NewIntFromBigInt(balanceAmount)))
 
 				err := FundAccount(
 					ctx,
 					bk,
 					fromAcc,
-					coins,
+					sortedSdkCoins,
 				)
 				Expect(err).ToNot(HaveOccurred())
 
 				bk.SetSendEnabled(ctx, denom, true)
+				bk.SetSendEnabled(ctx, denom2, true)
 
 				_, err = contract.Send(
 					ctx,
@@ -696,14 +707,14 @@ var _ = Describe("Bank Precompile Test", func() {
 					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(coins),
+					sdkCoinsToEvmCoins(unsortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				balance, err := bk.Balance(ctx, banktypes.NewQueryBalanceRequest(toAcc, denom))
+				balances, err := bk.AllBalances(ctx, banktypes.NewQueryAllBalancesRequest(toAcc, nil, false))
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(*balance.Balance).To(Equal(coins[0]))
+				Expect(balances.Balances).To(Equal(sortedSdkCoins))
 			})
 		})
 	})

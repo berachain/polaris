@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package precompile
+package bank
 
 import (
 	"errors"
@@ -29,8 +29,8 @@ var (
 	_ = abi.ConvertType
 )
 
-// IBankModuleCoin is an auto generated low-level Go binding around an user-defined struct.
-type IBankModuleCoin struct {
+// CosmosCoin is an auto generated low-level Go binding around an user-defined struct.
+type CosmosCoin struct {
 	Amount *big.Int
 	Denom  string
 }
@@ -54,7 +54,7 @@ type IBankModuleDenomUnit struct {
 
 // BankModuleMetaData contains all meta data concerning the BankModule contract.
 var BankModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllSpendableBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllSupply\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getDenomMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSpendableBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"fromAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"toAddress\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"send\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"burner\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Burn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"CoinReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"CoinSpent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"minter\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Coinbase\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"Message\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getAllSpendableBalances\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllSupply\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getDenomMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"},{\"internalType\":\"string[]\",\"name\":\"aliases\",\"type\":\"string[]\"},{\"internalType\":\"uint32\",\"name\":\"exponent\",\"type\":\"uint32\"}],\"internalType\":\"structIBankModule.DenomUnit[]\",\"name\":\"denomUnits\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"base\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"display\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"internalType\":\"structIBankModule.DenomMetadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSpendableBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"fromAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"toAddress\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"send\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}]",
 }
 
 // BankModuleABI is the input ABI used to generate the binding from.
@@ -206,15 +206,15 @@ func (_BankModule *BankModuleTransactorRaw) Transact(opts *bind.TransactOpts, me
 // GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
 //
 // Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCaller) GetAllBalances(opts *bind.CallOpts, accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCaller) GetAllBalances(opts *bind.CallOpts, accountAddress common.Address) ([]CosmosCoin, error) {
 	var out []interface{}
 	err := _BankModule.contract.Call(opts, &out, "getAllBalances", accountAddress)
 
 	if err != nil {
-		return *new([]IBankModuleCoin), err
+		return *new([]CosmosCoin), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+	out0 := *abi.ConvertType(out[0], new([]CosmosCoin)).(*[]CosmosCoin)
 
 	return out0, err
 
@@ -223,29 +223,29 @@ func (_BankModule *BankModuleCaller) GetAllBalances(opts *bind.CallOpts, account
 // GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
 //
 // Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleSession) GetAllBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleSession) GetAllBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllBalances is a free data retrieval call binding the contract method 0xc53d6ce1.
 //
 // Solidity: function getAllBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCallerSession) GetAllBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCallerSession) GetAllBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
 //
 // Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCaller) GetAllSpendableBalances(opts *bind.CallOpts, accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCaller) GetAllSpendableBalances(opts *bind.CallOpts, accountAddress common.Address) ([]CosmosCoin, error) {
 	var out []interface{}
 	err := _BankModule.contract.Call(opts, &out, "getAllSpendableBalances", accountAddress)
 
 	if err != nil {
-		return *new([]IBankModuleCoin), err
+		return *new([]CosmosCoin), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+	out0 := *abi.ConvertType(out[0], new([]CosmosCoin)).(*[]CosmosCoin)
 
 	return out0, err
 
@@ -254,29 +254,29 @@ func (_BankModule *BankModuleCaller) GetAllSpendableBalances(opts *bind.CallOpts
 // GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
 //
 // Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleSession) GetAllSpendableBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleSession) GetAllSpendableBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSpendableBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllSpendableBalances is a free data retrieval call binding the contract method 0x5c70e594.
 //
 // Solidity: function getAllSpendableBalances(address accountAddress) view returns((uint256,string)[])
-func (_BankModule *BankModuleCallerSession) GetAllSpendableBalances(accountAddress common.Address) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCallerSession) GetAllSpendableBalances(accountAddress common.Address) ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSpendableBalances(&_BankModule.CallOpts, accountAddress)
 }
 
 // GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
 //
 // Solidity: function getAllSupply() view returns((uint256,string)[])
-func (_BankModule *BankModuleCaller) GetAllSupply(opts *bind.CallOpts) ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCaller) GetAllSupply(opts *bind.CallOpts) ([]CosmosCoin, error) {
 	var out []interface{}
 	err := _BankModule.contract.Call(opts, &out, "getAllSupply")
 
 	if err != nil {
-		return *new([]IBankModuleCoin), err
+		return *new([]CosmosCoin), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([]IBankModuleCoin)).(*[]IBankModuleCoin)
+	out0 := *abi.ConvertType(out[0], new([]CosmosCoin)).(*[]CosmosCoin)
 
 	return out0, err
 
@@ -285,14 +285,14 @@ func (_BankModule *BankModuleCaller) GetAllSupply(opts *bind.CallOpts) ([]IBankM
 // GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
 //
 // Solidity: function getAllSupply() view returns((uint256,string)[])
-func (_BankModule *BankModuleSession) GetAllSupply() ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleSession) GetAllSupply() ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSupply(&_BankModule.CallOpts)
 }
 
 // GetAllSupply is a free data retrieval call binding the contract method 0xf01c9474.
 //
 // Solidity: function getAllSupply() view returns((uint256,string)[])
-func (_BankModule *BankModuleCallerSession) GetAllSupply() ([]IBankModuleCoin, error) {
+func (_BankModule *BankModuleCallerSession) GetAllSupply() ([]CosmosCoin, error) {
 	return _BankModule.Contract.GetAllSupply(&_BankModule.CallOpts)
 }
 
@@ -454,21 +454,21 @@ func (_BankModule *BankModuleCallerSession) GetSupply(denom string) (*big.Int, e
 // Send is a paid mutator transaction binding the contract method 0x84404811.
 //
 // Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
-func (_BankModule *BankModuleTransactor) Send(opts *bind.TransactOpts, fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+func (_BankModule *BankModuleTransactor) Send(opts *bind.TransactOpts, fromAddress common.Address, toAddress common.Address, amount []CosmosCoin) (*types.Transaction, error) {
 	return _BankModule.contract.Transact(opts, "send", fromAddress, toAddress, amount)
 }
 
 // Send is a paid mutator transaction binding the contract method 0x84404811.
 //
 // Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
-func (_BankModule *BankModuleSession) Send(fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+func (_BankModule *BankModuleSession) Send(fromAddress common.Address, toAddress common.Address, amount []CosmosCoin) (*types.Transaction, error) {
 	return _BankModule.Contract.Send(&_BankModule.TransactOpts, fromAddress, toAddress, amount)
 }
 
 // Send is a paid mutator transaction binding the contract method 0x84404811.
 //
 // Solidity: function send(address fromAddress, address toAddress, (uint256,string)[] amount) payable returns(bool)
-func (_BankModule *BankModuleTransactorSession) Send(fromAddress common.Address, toAddress common.Address, amount []IBankModuleCoin) (*types.Transaction, error) {
+func (_BankModule *BankModuleTransactorSession) Send(fromAddress common.Address, toAddress common.Address, amount []CosmosCoin) (*types.Transaction, error) {
 	return _BankModule.Contract.Send(&_BankModule.TransactOpts, fromAddress, toAddress, amount)
 }
 
@@ -542,13 +542,13 @@ func (it *BankModuleBurnIterator) Close() error {
 // BankModuleBurn represents a Burn event raised by the BankModule contract.
 type BankModuleBurn struct {
 	Burner common.Address
-	Amount *big.Int
+	Amount []CosmosCoin
 	Raw    types.Log // Blockchain specific contextual infos
 }
 
-// FilterBurn is a free log retrieval operation binding the contract event 0xcc16f5dbb4873280815c1ee09dbd06736cffcc184412cf7a71a0fdb75d397ca5.
+// FilterBurn is a free log retrieval operation binding the contract event 0x9fa0c2fb43a81906efbb089cd76002325d71b437612a2a987c707446629d6ab0.
 //
-// Solidity: event Burn(address indexed burner, uint256 amount)
+// Solidity: event Burn(address indexed burner, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) FilterBurn(opts *bind.FilterOpts, burner []common.Address) (*BankModuleBurnIterator, error) {
 
 	var burnerRule []interface{}
@@ -563,9 +563,9 @@ func (_BankModule *BankModuleFilterer) FilterBurn(opts *bind.FilterOpts, burner 
 	return &BankModuleBurnIterator{contract: _BankModule.contract, event: "Burn", logs: logs, sub: sub}, nil
 }
 
-// WatchBurn is a free log subscription operation binding the contract event 0xcc16f5dbb4873280815c1ee09dbd06736cffcc184412cf7a71a0fdb75d397ca5.
+// WatchBurn is a free log subscription operation binding the contract event 0x9fa0c2fb43a81906efbb089cd76002325d71b437612a2a987c707446629d6ab0.
 //
-// Solidity: event Burn(address indexed burner, uint256 amount)
+// Solidity: event Burn(address indexed burner, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) WatchBurn(opts *bind.WatchOpts, sink chan<- *BankModuleBurn, burner []common.Address) (event.Subscription, error) {
 
 	var burnerRule []interface{}
@@ -605,9 +605,9 @@ func (_BankModule *BankModuleFilterer) WatchBurn(opts *bind.WatchOpts, sink chan
 	}), nil
 }
 
-// ParseBurn is a log parse operation binding the contract event 0xcc16f5dbb4873280815c1ee09dbd06736cffcc184412cf7a71a0fdb75d397ca5.
+// ParseBurn is a log parse operation binding the contract event 0x9fa0c2fb43a81906efbb089cd76002325d71b437612a2a987c707446629d6ab0.
 //
-// Solidity: event Burn(address indexed burner, uint256 amount)
+// Solidity: event Burn(address indexed burner, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) ParseBurn(log types.Log) (*BankModuleBurn, error) {
 	event := new(BankModuleBurn)
 	if err := _BankModule.contract.UnpackLog(event, "Burn", log); err != nil {
@@ -687,13 +687,13 @@ func (it *BankModuleCoinReceivedIterator) Close() error {
 // BankModuleCoinReceived represents a CoinReceived event raised by the BankModule contract.
 type BankModuleCoinReceived struct {
 	Receiver common.Address
-	Amount   *big.Int
+	Amount   []CosmosCoin
 	Raw      types.Log // Blockchain specific contextual infos
 }
 
-// FilterCoinReceived is a free log retrieval operation binding the contract event 0xb2217585c246e507e3fcadd4d32d0177479d19c83452fabed3d7650cac3b0420.
+// FilterCoinReceived is a free log retrieval operation binding the contract event 0x13f9c352919df1623a08e6d6d9eac5f774573896f09916d8fbc5d083095fc3b4.
 //
-// Solidity: event CoinReceived(address indexed receiver, uint256 amount)
+// Solidity: event CoinReceived(address indexed receiver, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) FilterCoinReceived(opts *bind.FilterOpts, receiver []common.Address) (*BankModuleCoinReceivedIterator, error) {
 
 	var receiverRule []interface{}
@@ -708,9 +708,9 @@ func (_BankModule *BankModuleFilterer) FilterCoinReceived(opts *bind.FilterOpts,
 	return &BankModuleCoinReceivedIterator{contract: _BankModule.contract, event: "CoinReceived", logs: logs, sub: sub}, nil
 }
 
-// WatchCoinReceived is a free log subscription operation binding the contract event 0xb2217585c246e507e3fcadd4d32d0177479d19c83452fabed3d7650cac3b0420.
+// WatchCoinReceived is a free log subscription operation binding the contract event 0x13f9c352919df1623a08e6d6d9eac5f774573896f09916d8fbc5d083095fc3b4.
 //
-// Solidity: event CoinReceived(address indexed receiver, uint256 amount)
+// Solidity: event CoinReceived(address indexed receiver, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) WatchCoinReceived(opts *bind.WatchOpts, sink chan<- *BankModuleCoinReceived, receiver []common.Address) (event.Subscription, error) {
 
 	var receiverRule []interface{}
@@ -750,9 +750,9 @@ func (_BankModule *BankModuleFilterer) WatchCoinReceived(opts *bind.WatchOpts, s
 	}), nil
 }
 
-// ParseCoinReceived is a log parse operation binding the contract event 0xb2217585c246e507e3fcadd4d32d0177479d19c83452fabed3d7650cac3b0420.
+// ParseCoinReceived is a log parse operation binding the contract event 0x13f9c352919df1623a08e6d6d9eac5f774573896f09916d8fbc5d083095fc3b4.
 //
-// Solidity: event CoinReceived(address indexed receiver, uint256 amount)
+// Solidity: event CoinReceived(address indexed receiver, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) ParseCoinReceived(log types.Log) (*BankModuleCoinReceived, error) {
 	event := new(BankModuleCoinReceived)
 	if err := _BankModule.contract.UnpackLog(event, "CoinReceived", log); err != nil {
@@ -832,13 +832,13 @@ func (it *BankModuleCoinSpentIterator) Close() error {
 // BankModuleCoinSpent represents a CoinSpent event raised by the BankModule contract.
 type BankModuleCoinSpent struct {
 	Spender common.Address
-	Amount  *big.Int
+	Amount  []CosmosCoin
 	Raw     types.Log // Blockchain specific contextual infos
 }
 
-// FilterCoinSpent is a free log retrieval operation binding the contract event 0xcd91156b4607a66e03194df5423537108085ebd28cca92794de7e9c53bd4c1c7.
+// FilterCoinSpent is a free log retrieval operation binding the contract event 0x8b8b22fea5b121b174e6cfea34ddaf187b66b43dab67679fa291a0fae2427a99.
 //
-// Solidity: event CoinSpent(address indexed spender, uint256 amount)
+// Solidity: event CoinSpent(address indexed spender, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) FilterCoinSpent(opts *bind.FilterOpts, spender []common.Address) (*BankModuleCoinSpentIterator, error) {
 
 	var spenderRule []interface{}
@@ -853,9 +853,9 @@ func (_BankModule *BankModuleFilterer) FilterCoinSpent(opts *bind.FilterOpts, sp
 	return &BankModuleCoinSpentIterator{contract: _BankModule.contract, event: "CoinSpent", logs: logs, sub: sub}, nil
 }
 
-// WatchCoinSpent is a free log subscription operation binding the contract event 0xcd91156b4607a66e03194df5423537108085ebd28cca92794de7e9c53bd4c1c7.
+// WatchCoinSpent is a free log subscription operation binding the contract event 0x8b8b22fea5b121b174e6cfea34ddaf187b66b43dab67679fa291a0fae2427a99.
 //
-// Solidity: event CoinSpent(address indexed spender, uint256 amount)
+// Solidity: event CoinSpent(address indexed spender, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) WatchCoinSpent(opts *bind.WatchOpts, sink chan<- *BankModuleCoinSpent, spender []common.Address) (event.Subscription, error) {
 
 	var spenderRule []interface{}
@@ -895,9 +895,9 @@ func (_BankModule *BankModuleFilterer) WatchCoinSpent(opts *bind.WatchOpts, sink
 	}), nil
 }
 
-// ParseCoinSpent is a log parse operation binding the contract event 0xcd91156b4607a66e03194df5423537108085ebd28cca92794de7e9c53bd4c1c7.
+// ParseCoinSpent is a log parse operation binding the contract event 0x8b8b22fea5b121b174e6cfea34ddaf187b66b43dab67679fa291a0fae2427a99.
 //
-// Solidity: event CoinSpent(address indexed spender, uint256 amount)
+// Solidity: event CoinSpent(address indexed spender, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) ParseCoinSpent(log types.Log) (*BankModuleCoinSpent, error) {
 	event := new(BankModuleCoinSpent)
 	if err := _BankModule.contract.UnpackLog(event, "CoinSpent", log); err != nil {
@@ -977,13 +977,13 @@ func (it *BankModuleCoinbaseIterator) Close() error {
 // BankModuleCoinbase represents a Coinbase event raised by the BankModule contract.
 type BankModuleCoinbase struct {
 	Minter common.Address
-	Amount *big.Int
+	Amount []CosmosCoin
 	Raw    types.Log // Blockchain specific contextual infos
 }
 
-// FilterCoinbase is a free log retrieval operation binding the contract event 0x0bebe1d83c6be8a77c1af17badeea8b39108f5d721cfa73933bda78266af64e2.
+// FilterCoinbase is a free log retrieval operation binding the contract event 0xefb3f1f2a9af64b5fcc2da3c5a088d780585c674b8075fe2a1ba6b0d906cbe9f.
 //
-// Solidity: event Coinbase(address indexed minter, uint256 amount)
+// Solidity: event Coinbase(address indexed minter, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) FilterCoinbase(opts *bind.FilterOpts, minter []common.Address) (*BankModuleCoinbaseIterator, error) {
 
 	var minterRule []interface{}
@@ -998,9 +998,9 @@ func (_BankModule *BankModuleFilterer) FilterCoinbase(opts *bind.FilterOpts, min
 	return &BankModuleCoinbaseIterator{contract: _BankModule.contract, event: "Coinbase", logs: logs, sub: sub}, nil
 }
 
-// WatchCoinbase is a free log subscription operation binding the contract event 0x0bebe1d83c6be8a77c1af17badeea8b39108f5d721cfa73933bda78266af64e2.
+// WatchCoinbase is a free log subscription operation binding the contract event 0xefb3f1f2a9af64b5fcc2da3c5a088d780585c674b8075fe2a1ba6b0d906cbe9f.
 //
-// Solidity: event Coinbase(address indexed minter, uint256 amount)
+// Solidity: event Coinbase(address indexed minter, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) WatchCoinbase(opts *bind.WatchOpts, sink chan<- *BankModuleCoinbase, minter []common.Address) (event.Subscription, error) {
 
 	var minterRule []interface{}
@@ -1040,9 +1040,9 @@ func (_BankModule *BankModuleFilterer) WatchCoinbase(opts *bind.WatchOpts, sink 
 	}), nil
 }
 
-// ParseCoinbase is a log parse operation binding the contract event 0x0bebe1d83c6be8a77c1af17badeea8b39108f5d721cfa73933bda78266af64e2.
+// ParseCoinbase is a log parse operation binding the contract event 0xefb3f1f2a9af64b5fcc2da3c5a088d780585c674b8075fe2a1ba6b0d906cbe9f.
 //
-// Solidity: event Coinbase(address indexed minter, uint256 amount)
+// Solidity: event Coinbase(address indexed minter, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) ParseCoinbase(log types.Log) (*BankModuleCoinbase, error) {
 	event := new(BankModuleCoinbase)
 	if err := _BankModule.contract.UnpackLog(event, "Coinbase", log); err != nil {
@@ -1266,13 +1266,13 @@ func (it *BankModuleTransferIterator) Close() error {
 // BankModuleTransfer represents a Transfer event raised by the BankModule contract.
 type BankModuleTransfer struct {
 	Recipient common.Address
-	Amount    *big.Int
+	Amount    []CosmosCoin
 	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterTransfer is a free log retrieval operation binding the contract event 0x69ca02dd4edd7bf0a4abb9ed3b7af3f14778db5d61921c7dc7cd545266326de2.
+// FilterTransfer is a free log retrieval operation binding the contract event 0x65ff5b103f0567c3e1783dc0b40e725544567fb6f584d9b084abea2e26d20328.
 //
-// Solidity: event Transfer(address indexed recipient, uint256 amount)
+// Solidity: event Transfer(address indexed recipient, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) FilterTransfer(opts *bind.FilterOpts, recipient []common.Address) (*BankModuleTransferIterator, error) {
 
 	var recipientRule []interface{}
@@ -1287,9 +1287,9 @@ func (_BankModule *BankModuleFilterer) FilterTransfer(opts *bind.FilterOpts, rec
 	return &BankModuleTransferIterator{contract: _BankModule.contract, event: "Transfer", logs: logs, sub: sub}, nil
 }
 
-// WatchTransfer is a free log subscription operation binding the contract event 0x69ca02dd4edd7bf0a4abb9ed3b7af3f14778db5d61921c7dc7cd545266326de2.
+// WatchTransfer is a free log subscription operation binding the contract event 0x65ff5b103f0567c3e1783dc0b40e725544567fb6f584d9b084abea2e26d20328.
 //
-// Solidity: event Transfer(address indexed recipient, uint256 amount)
+// Solidity: event Transfer(address indexed recipient, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *BankModuleTransfer, recipient []common.Address) (event.Subscription, error) {
 
 	var recipientRule []interface{}
@@ -1329,9 +1329,9 @@ func (_BankModule *BankModuleFilterer) WatchTransfer(opts *bind.WatchOpts, sink 
 	}), nil
 }
 
-// ParseTransfer is a log parse operation binding the contract event 0x69ca02dd4edd7bf0a4abb9ed3b7af3f14778db5d61921c7dc7cd545266326de2.
+// ParseTransfer is a log parse operation binding the contract event 0x65ff5b103f0567c3e1783dc0b40e725544567fb6f584d9b084abea2e26d20328.
 //
-// Solidity: event Transfer(address indexed recipient, uint256 amount)
+// Solidity: event Transfer(address indexed recipient, (uint256,string)[] amount)
 func (_BankModule *BankModuleFilterer) ParseTransfer(log types.Log) (*BankModuleTransfer, error) {
 	event := new(BankModuleTransfer)
 	if err := _BankModule.contract.UnpackLog(event, "Transfer", log); err != nil {

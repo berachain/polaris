@@ -25,6 +25,8 @@
 
 pragma solidity ^0.8.4;
 
+import {Cosmos} from "../CosmosTypes.sol";
+
 interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
     /**
@@ -73,16 +75,6 @@ interface IGovernanceModule {
     function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
 
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
-
-    /**
-     * @dev Represents a cosmos coin.
-     * Note: this struct is generated as go struct that is then used in the precompile.
-     */
-    struct Coin {
-        uint256 amount;
-        string denom;
-    }
-
     /**
      * @dev Represents a governance module `WeightedVoteOption`.
      * Note: this struct is generated in generated/i_staking_module.abigen.go
@@ -103,7 +95,7 @@ interface IGovernanceModule {
         TallyResult finalTallyResult;
         uint64 submitTime;
         uint64 depositEndTime;
-        Coin[] totalDeposit;
+        Cosmos.Coin[] totalDeposit;
         uint64 votingStartTime;
         uint64 votingEndTime;
         string metadata;
@@ -134,7 +126,7 @@ interface IGovernanceModule {
      * @param proposalId The id of the proposal.
      * @param amount The amount of the deposit.
      */
-    event ProposalDeposit(uint64 indexed proposalId, uint256 amount);
+    event ProposalDeposit(uint64 indexed proposalId, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.

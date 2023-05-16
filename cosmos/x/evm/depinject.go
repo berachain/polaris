@@ -54,6 +54,7 @@ type DepInjectInput struct {
 
 	AccountKeeper AccountKeeper
 	BankKeeper    BankKeeper
+	StakingKeeper StakingKeeper
 }
 
 // DepInjectOutput is the output for the dep inject framework.
@@ -81,6 +82,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.Key,
 		in.AccountKeeper,
 		in.BankKeeper,
+		in.StakingKeeper,
 		authority.String(),
 		in.AppOpts,
 		in.Mempool,

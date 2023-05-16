@@ -49,7 +49,7 @@ var _ core.PolarisHostChain = (*host)(nil)
 // It includes core.PolarisHostChain and functions that are called in other packages.
 type Host interface {
 	core.PolarisHostChain
-	GetAllPlugins() []plugins.BaseCosmosPolaris
+	GetAllPlugins() []plugins.Base
 	Setup(
 		storetypes.StoreKey,
 		storetypes.StoreKey,
@@ -77,6 +77,7 @@ func NewHost(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
+	sk block.StakingKeeper,
 	authority string,
 	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
@@ -86,7 +87,7 @@ func NewHost(
 	h := &host{}
 
 	// Build the Plugins
-	h.bp = block.NewPlugin(storeKey)
+	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
 	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
@@ -150,6 +151,6 @@ func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
 }
 
 // GetAllPlugins returns all the plugins.
-func (h *host) GetAllPlugins() []plugins.BaseCosmosPolaris {
-	return []plugins.BaseCosmosPolaris{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
+func (h *host) GetAllPlugins() []plugins.Base {
+	return []plugins.Base{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
 }
