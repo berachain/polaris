@@ -37,7 +37,7 @@ type ChainWriter interface {
 	Prepare(context.Context, int64)
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
+	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
 	// SendTx sends the given transaction to the tx pool.
@@ -95,7 +95,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.
-func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
+func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
 	// Reset the Gas and State plugins for the tx.

@@ -25,12 +25,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
-func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
+func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
 	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
@@ -39,18 +38,18 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 		"reset gas meter prior to ethereum state transition")
 
 	// Process the transaction and return the EVM's execution result.
-	execResult, err := k.polaris.ProcessTransaction(ctx, tx)
+	receipt, err := k.polaris.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
 
 	// We don't want the cosmos transaction to be marked as failed if the EVM reverts. But
 	// its not the worst idea to log the error.
-	if execResult.Err != nil {
+	if receipt.Status != 1 {
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(
 			"evm execution",
 			"tx_hash", tx.Hash(),
-			"error", execResult.Err,
+			"error", "evm execution reverted",
 			"gas_consumed", sCtx.GasMeter().GasConsumed())
 	} else {
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Debug(
@@ -61,5 +60,5 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	}
 
 	// Return the execution result.
-	return execResult, err
+	return receipt, err
 }

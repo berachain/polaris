@@ -165,7 +165,7 @@ var _ = Describe("Processor", func() {
 			// create the contract
 			result, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.Status).To(Equal(uint64(1)))
 			// call the contract non-view function
 			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
 			legacyTxData.To = &deployAddress
@@ -179,7 +179,7 @@ var _ = Describe("Processor", func() {
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
 			result, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.Status).To(Equal(uint64(1)))
 
 			// call the contract view function
 			legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
@@ -187,7 +187,7 @@ var _ = Describe("Processor", func() {
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
 			result, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.Status).To(Equal(uint64(1)))
 		})
 	})
 })

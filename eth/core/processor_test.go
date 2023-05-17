@@ -80,7 +80,7 @@ var _ = Describe("StateProcessor", func() {
 			return false
 		}
 		gp.SetBlockGasLimit(uint64(blockGasLimit))
-
+		sdb.SetTxContextFunc = func(thash common.Hash, ti int) {}
 		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
 		evm = vm.NewGethEVMWithPrecompiles(
@@ -129,8 +129,8 @@ var _ = Describe("StateProcessor", func() {
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).ToNot(HaveOccurred())
-			Expect(result.UsedGas).ToNot(BeZero())
+			Expect(result.Status).To(Equal(uint64(1)))
+			Expect(result.GasUsed).ToNot(BeZero())
 			block, receipts, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
@@ -163,7 +163,7 @@ var _ = Describe("StateProcessor", func() {
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.Status).To(Equal(uint64(1)))
 
 			// Now try calling the contract
 			legacyTxData.To = &dummyContract
@@ -172,7 +172,7 @@ var _ = Describe("StateProcessor", func() {
 			result, err = sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.Status).To(Equal(uint64(1)))
 			block, receipts, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
