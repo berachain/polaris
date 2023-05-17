@@ -52,6 +52,7 @@ type (
 	Config  = network.Config
 )
 
+//nolint:gochecknoinits // i hate cosmos.
 func init() {
 	config.SetupCosmosConfig()
 }

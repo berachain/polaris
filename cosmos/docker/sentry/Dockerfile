@@ -20,4 +20,4 @@ ARG GOOS=darwin
 ARG POLARD_VERSION=v0.0.0
 
 # Use the latest foundry image
-FROM polard:${POLARD_VERSION} as sentrypolard
+FROM polard-base:${POLARD_VERSION} as sentrypolard
