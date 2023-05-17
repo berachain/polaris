@@ -47,6 +47,8 @@ func NewLogs() *logs {
 	}
 }
 
+// Prepare clears the journals for a new block.
+//
 // Prepare implements libtypes.Preparable.
 func (l *logs) Prepare(context.Context) {
 	*l = *NewLogs()
@@ -61,38 +63,59 @@ func (l *logs) RegistryKey() string {
 func (l *logs) SetTxContext(thash common.Hash, ti int) {
 	l.txHash = thash
 	l.txIndex = ti
-	l.journal[l.txHash] = stack.New[*coretypes.Log](initCapacity)
+	if l.journal[thash] == nil {
+		l.journal[thash] = stack.New[*coretypes.Log](initCapacity)
+	}
 }
 
+// TxIndex returns the index of the current tx in the block.
 func (l *logs) TxIndex() int {
 	return l.txIndex
 }
 
 // AddLog adds a log to the `Logs` store.
 func (l *logs) AddLog(log *coretypes.Log) {
+	// add relevant metadata
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
 	log.Index = l.logIndex
+
+	// append to journal
+	if l.journal[l.txHash] == nil {
+		l.journal[l.txHash] = stack.New[*coretypes.Log](initCapacity)
+	}
 	l.journal[l.txHash].Push(log)
+
+	// increment block log index
 	l.logIndex++
 }
 
 // Logs returns the logs for the current tx with the existing metadata.
 func (l *logs) Logs() []*coretypes.Log {
-	size := l.journal[l.txHash].Size()
+	logs := l.journal[l.txHash]
+	if logs == nil {
+		return nil
+	}
+
+	size := logs.Size()
 	buf := make([]*coretypes.Log, size)
 	for i := 0; i < size; i++ {
-		buf[i] = l.journal[l.txHash].PeekAt(i)
+		buf[i] = logs.PeekAt(i)
 	}
 	return buf
 }
 
 // GetLogs returns the logs for the tx with the given metadata.
 func (l *logs) GetLogs(txHash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
-	size := l.journal[txHash].Size()
+	logs := l.journal[txHash]
+	if logs == nil {
+		return nil
+	}
+
+	size := logs.Size()
 	buf := make([]*coretypes.Log, size)
 	for i := 0; i < size; i++ {
-		buf[i] = l.journal[txHash].PeekAt(i)
+		buf[i] = logs.PeekAt(i)
 		buf[i].BlockHash = blockHash
 		buf[i].BlockNumber = blockNumber
 	}
@@ -103,6 +126,9 @@ func (l *logs) GetLogs(txHash common.Hash, blockNumber uint64, blockHash common.
 //
 // Snapshot implements `libtypes.Snapshottable`.
 func (l *logs) Snapshot() int {
+	if l.journal[l.txHash] == nil {
+		l.journal[l.txHash] = stack.New[*coretypes.Log](initCapacity)
+	}
 	return l.journal[l.txHash].Size()
 }
 
@@ -110,10 +136,9 @@ func (l *logs) Snapshot() int {
 //
 // RevertToSnapshot implements `libtypes.Snapshottable`.
 func (l *logs) RevertToSnapshot(id int) {
+	// guaranteed that snapshot is called before revert, so the stack for the current txHash exists
 	l.journal[l.txHash].PopToSize(id)
 }
 
-// Finalize clears the journal of the tx logs.
-//
 // Finalize implements `libtypes.Controllable`.
 func (l *logs) Finalize() {}
