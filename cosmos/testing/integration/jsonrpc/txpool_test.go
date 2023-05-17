@@ -22,7 +22,6 @@ package jsonrpc_test
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -76,19 +75,19 @@ var _ = Describe("Tx Pool", func() {
 	})
 
 	It("should handle multiple transactions as queued", func() {
+		// Get the starting nonce.
 		beforeNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
 		Expect(err).NotTo(HaveOccurred())
-		fmt.Println("BEGGINING TEST")
+
 		// send 10 transactions, each one with updated nonce
 		var txs []*coretypes.Transaction
 		var tx *coretypes.Transaction
 		for i := beforeNonce; i < beforeNonce+10; i++ {
 			txr := tf.GenerateTransactOpts("alice")
-			Expect(err).ToNot(HaveOccurred())
 			txr.Nonce = big.NewInt(int64(i))
 			tx, err = contract.ConsumeGas(txr, big.NewInt(500))
 			txs = append(txs, tx)
-			Expect(err).NotTo(HaveOccurred())
+			Expect(err).ToNot(HaveOccurred())
 		}
 
 		// check that nonce is updated in memory.
