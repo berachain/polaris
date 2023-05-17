@@ -31,7 +31,7 @@ type (
 	// additional state transition functionalities.
 	PolarisStateDB interface {
 		GethStateDB
-		// ClearLogs clears the logs journal for a new block.
+		// ClearLogs clears the journal for a new block.
 		ClearLogs()
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context

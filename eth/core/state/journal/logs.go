@@ -31,7 +31,7 @@ import (
 type logs struct {
 	journal map[common.Hash]ds.Stack[*coretypes.Log] // txHash -> journal of logs in the tx
 
-	logIndex uint // index of the log in the block
+	logIndex uint // index the log in the block
 	txHash   common.Hash
 	txIndex  int
 }
@@ -82,7 +82,7 @@ func (l *logs) AddLog(log *coretypes.Log) {
 	}
 	l.journal[l.txHash].Push(log)
 
-	// increment block log index
+	// append to block logs
 	l.logIndex++
 }
 

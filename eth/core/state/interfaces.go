@@ -91,7 +91,7 @@ type (
 	LogsJournal interface {
 		// LogsJournal implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
-		// ClearLogs clears the logs journal for a new block.
+		// ClearLogs clears the journal for a new block.
 		ClearLogs()
 		// SetTxContext sets the transaction hash and index for the current transaction.
 		SetTxContext(thash common.Hash, ti int)
