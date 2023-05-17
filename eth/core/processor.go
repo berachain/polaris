@@ -143,15 +143,15 @@ func (sp *StateProcessor) ProcessTransaction(
 		// By setting the gas pool to the delta between the block gas limit and the cumulative gas
 		// used, we intrinsic handle the case where the transaction on our host chain might have
 		// fully reverted, when it fact it should've been a vm error saying out of gas.
+		gasUsed = sp.gp.BlockGasConsumed()
 		gasPool = GasPool(
 			// We load the GasPool with the smaller of the gas remaining in the block and the gas on the
 			// transaction.
 			common.MinUint64(
-				sp.gp.BlockGasLimit()-sp.gp.BlockGasConsumed(),
+				sp.gp.BlockGasLimit()-gasUsed,
 				tx.Gas(),
 			),
 		)
-		gasUsed = uint64(0)
 	)
 
 	// Set the statedb context and let the tx rock thru the state machine.
