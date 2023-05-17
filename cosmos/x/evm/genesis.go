@@ -56,6 +56,10 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	if err := am.keeper.InitGenesis(ctx, genesisState); err != nil {
 		panic(err)
 	}
+
+	// TODO: VERIFY THAT THE ETH_GENESIS DOES NOT CONTRADICT THE COSMOS GENESIS
+	// i.e GenesisAlloc, GasLimit, ChainID, etc.
+	// PANIC IF ERROR
 	return []abci.ValidatorUpdate{}
 }
 

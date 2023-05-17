@@ -41,6 +41,6 @@ var (
 	HexToAddress   = common.HexToAddress
 	Hex2Bytes      = common.Hex2Bytes
 	HexToHash      = common.HexToHash
-
-	LeftPadBytes = common.LeftPadBytes
+	BigToAddress   = common.BigToAddress
+	LeftPadBytes   = common.LeftPadBytes
 )

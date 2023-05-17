@@ -27,7 +27,7 @@ import (
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/core"
 	enclib "pkg.berachain.dev/polaris/lib/encoding"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -60,9 +60,9 @@ var _ = Describe("Plugin", func() {
 		Context("when the params store contains valid params", func() {
 			It("should return the stored params", func() {
 				storedParams := types.Params{
-					EvmDenom:    "eth",
-					ExtraEIPs:   []int64{123},
-					ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+					EvmDenom:   "eth",
+					ExtraEIPs:  []int64{123},
+					EthGenesis: string(enclib.MustMarshalJSON(core.DefaultGenesis)),
 				}
 				bz, err := storedParams.Marshal()
 				Expect(err).ToNot(HaveOccurred())
@@ -84,9 +84,9 @@ var _ = Describe("Plugin", func() {
 	Describe("SetParams", func() {
 		It("should store the params in the params store", func() {
 			params := types.Params{
-				EvmDenom:    "eth",
-				ExtraEIPs:   []int64{123},
-				ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+				EvmDenom:   "eth",
+				ExtraEIPs:  []int64{123},
+				EthGenesis: string(enclib.MustMarshalJSON(core.DefaultGenesis)),
 			}
 			p.SetParams(&params)
 

@@ -14,100 +14,10 @@ import (
 	sync "sync"
 )
 
-var _ protoreflect.Map = (*_GenesisState_2_map)(nil)
-
-type _GenesisState_2_map struct {
-	m *map[string]*Contract
-}
-
-func (x *_GenesisState_2_map) Len() int {
-	if x.m == nil {
-		return 0
-	}
-	return len(*x.m)
-}
-
-func (x *_GenesisState_2_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
-	if x.m == nil {
-		return
-	}
-	for k, v := range *x.m {
-		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
-		mapValue := protoreflect.ValueOfMessage(v.ProtoReflect())
-		if !f(mapKey, mapValue) {
-			break
-		}
-	}
-}
-
-func (x *_GenesisState_2_map) Has(key protoreflect.MapKey) bool {
-	if x.m == nil {
-		return false
-	}
-	keyUnwrapped := key.String()
-	concreteValue := keyUnwrapped
-	_, ok := (*x.m)[concreteValue]
-	return ok
-}
-
-func (x *_GenesisState_2_map) Clear(key protoreflect.MapKey) {
-	if x.m == nil {
-		return
-	}
-	keyUnwrapped := key.String()
-	concreteKey := keyUnwrapped
-	delete(*x.m, concreteKey)
-}
-
-func (x *_GenesisState_2_map) Get(key protoreflect.MapKey) protoreflect.Value {
-	if x.m == nil {
-		return protoreflect.Value{}
-	}
-	keyUnwrapped := key.String()
-	concreteKey := keyUnwrapped
-	v, ok := (*x.m)[concreteKey]
-	if !ok {
-		return protoreflect.Value{}
-	}
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_2_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
-	if !key.IsValid() || !value.IsValid() {
-		panic("invalid key or value provided")
-	}
-	keyUnwrapped := key.String()
-	concreteKey := keyUnwrapped
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*Contract)
-	(*x.m)[concreteKey] = concreteValue
-}
-
-func (x *_GenesisState_2_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
-	keyUnwrapped := key.String()
-	concreteKey := keyUnwrapped
-	v, ok := (*x.m)[concreteKey]
-	if ok {
-		return protoreflect.ValueOfMessage(v.ProtoReflect())
-	}
-	newValue := new(Contract)
-	(*x.m)[concreteKey] = newValue
-	return protoreflect.ValueOfMessage(newValue.ProtoReflect())
-}
-
-func (x *_GenesisState_2_map) NewValue() protoreflect.Value {
-	v := new(Contract)
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_2_map) IsValid() bool {
-	return x.m != nil
-}
-
 var _ protoreflect.Map = (*_GenesisState_3_map)(nil)
 
 type _GenesisState_3_map struct {
-	m *map[string]string
+	m *map[string]*Contract
 }
 
 func (x *_GenesisState_3_map) Len() int {
@@ -123,7 +33,7 @@ func (x *_GenesisState_3_map) Range(f func(protoreflect.MapKey, protoreflect.Val
 	}
 	for k, v := range *x.m {
 		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
-		mapValue := protoreflect.ValueOfString(v)
+		mapValue := protoreflect.ValueOfMessage(v.ProtoReflect())
 		if !f(mapKey, mapValue) {
 			break
 		}
@@ -159,10 +69,100 @@ func (x *_GenesisState_3_map) Get(key protoreflect.MapKey) protoreflect.Value {
 	if !ok {
 		return protoreflect.Value{}
 	}
-	return protoreflect.ValueOfString(v)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
 func (x *_GenesisState_3_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
+	if !key.IsValid() || !value.IsValid() {
+		panic("invalid key or value provided")
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*Contract)
+	(*x.m)[concreteKey] = concreteValue
+}
+
+func (x *_GenesisState_3_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if ok {
+		return protoreflect.ValueOfMessage(v.ProtoReflect())
+	}
+	newValue := new(Contract)
+	(*x.m)[concreteKey] = newValue
+	return protoreflect.ValueOfMessage(newValue.ProtoReflect())
+}
+
+func (x *_GenesisState_3_map) NewValue() protoreflect.Value {
+	v := new(Contract)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_GenesisState_3_map) IsValid() bool {
+	return x.m != nil
+}
+
+var _ protoreflect.Map = (*_GenesisState_4_map)(nil)
+
+type _GenesisState_4_map struct {
+	m *map[string]string
+}
+
+func (x *_GenesisState_4_map) Len() int {
+	if x.m == nil {
+		return 0
+	}
+	return len(*x.m)
+}
+
+func (x *_GenesisState_4_map) Range(f func(protoreflect.MapKey, protoreflect.Value) bool) {
+	if x.m == nil {
+		return
+	}
+	for k, v := range *x.m {
+		mapKey := (protoreflect.MapKey)(protoreflect.ValueOfString(k))
+		mapValue := protoreflect.ValueOfString(v)
+		if !f(mapKey, mapValue) {
+			break
+		}
+	}
+}
+
+func (x *_GenesisState_4_map) Has(key protoreflect.MapKey) bool {
+	if x.m == nil {
+		return false
+	}
+	keyUnwrapped := key.String()
+	concreteValue := keyUnwrapped
+	_, ok := (*x.m)[concreteValue]
+	return ok
+}
+
+func (x *_GenesisState_4_map) Clear(key protoreflect.MapKey) {
+	if x.m == nil {
+		return
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	delete(*x.m, concreteKey)
+}
+
+func (x *_GenesisState_4_map) Get(key protoreflect.MapKey) protoreflect.Value {
+	if x.m == nil {
+		return protoreflect.Value{}
+	}
+	keyUnwrapped := key.String()
+	concreteKey := keyUnwrapped
+	v, ok := (*x.m)[concreteKey]
+	if !ok {
+		return protoreflect.Value{}
+	}
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_GenesisState_4_map) Set(key protoreflect.MapKey, value protoreflect.Value) {
 	if !key.IsValid() || !value.IsValid() {
 		panic("invalid key or value provided")
 	}
@@ -173,16 +173,16 @@ func (x *_GenesisState_3_map) Set(key protoreflect.MapKey, value protoreflect.Va
 	(*x.m)[concreteKey] = concreteValue
 }
 
-func (x *_GenesisState_3_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
+func (x *_GenesisState_4_map) Mutable(key protoreflect.MapKey) protoreflect.Value {
 	panic("should not call Mutable on protoreflect.Map whose value is not of type protoreflect.Message")
 }
 
-func (x *_GenesisState_3_map) NewValue() protoreflect.Value {
+func (x *_GenesisState_4_map) NewValue() protoreflect.Value {
 	v := ""
 	return protoreflect.ValueOfString(v)
 }
 
-func (x *_GenesisState_3_map) IsValid() bool {
+func (x *_GenesisState_4_map) IsValid() bool {
 	return x.m != nil
 }
 
@@ -273,13 +273,13 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 		}
 	}
 	if len(x.AddressToContract) != 0 {
-		value := protoreflect.ValueOfMap(&_GenesisState_2_map{m: &x.AddressToContract})
+		value := protoreflect.ValueOfMap(&_GenesisState_3_map{m: &x.AddressToContract})
 		if !f(fd_GenesisState_address_to_contract, value) {
 			return
 		}
 	}
 	if len(x.HashToCode) != 0 {
-		value := protoreflect.ValueOfMap(&_GenesisState_3_map{m: &x.HashToCode})
+		value := protoreflect.ValueOfMap(&_GenesisState_4_map{m: &x.HashToCode})
 		if !f(fd_GenesisState_hash_to_code, value) {
 			return
 		}
@@ -348,15 +348,15 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	case "polaris.evm.v1alpha1.GenesisState.address_to_contract":
 		if len(x.AddressToContract) == 0 {
-			return protoreflect.ValueOfMap(&_GenesisState_2_map{})
+			return protoreflect.ValueOfMap(&_GenesisState_3_map{})
 		}
-		mapValue := &_GenesisState_2_map{m: &x.AddressToContract}
+		mapValue := &_GenesisState_3_map{m: &x.AddressToContract}
 		return protoreflect.ValueOfMap(mapValue)
 	case "polaris.evm.v1alpha1.GenesisState.hash_to_code":
 		if len(x.HashToCode) == 0 {
-			return protoreflect.ValueOfMap(&_GenesisState_3_map{})
+			return protoreflect.ValueOfMap(&_GenesisState_4_map{})
 		}
-		mapValue := &_GenesisState_3_map{m: &x.HashToCode}
+		mapValue := &_GenesisState_4_map{m: &x.HashToCode}
 		return protoreflect.ValueOfMap(mapValue)
 	default:
 		if descriptor.IsExtension() {
@@ -382,11 +382,11 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 		x.Params = value.Message().Interface().(*Params)
 	case "polaris.evm.v1alpha1.GenesisState.address_to_contract":
 		mv := value.Map()
-		cmv := mv.(*_GenesisState_2_map)
+		cmv := mv.(*_GenesisState_3_map)
 		x.AddressToContract = *cmv.m
 	case "polaris.evm.v1alpha1.GenesisState.hash_to_code":
 		mv := value.Map()
-		cmv := mv.(*_GenesisState_3_map)
+		cmv := mv.(*_GenesisState_4_map)
 		x.HashToCode = *cmv.m
 	default:
 		if fd.IsExtension() {
@@ -417,13 +417,13 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 		if x.AddressToContract == nil {
 			x.AddressToContract = make(map[string]*Contract)
 		}
-		value := &_GenesisState_2_map{m: &x.AddressToContract}
+		value := &_GenesisState_3_map{m: &x.AddressToContract}
 		return protoreflect.ValueOfMap(value)
 	case "polaris.evm.v1alpha1.GenesisState.hash_to_code":
 		if x.HashToCode == nil {
 			x.HashToCode = make(map[string]string)
 		}
-		value := &_GenesisState_3_map{m: &x.HashToCode}
+		value := &_GenesisState_4_map{m: &x.HashToCode}
 		return protoreflect.ValueOfMap(value)
 	default:
 		if fd.IsExtension() {
@@ -443,10 +443,10 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	case "polaris.evm.v1alpha1.GenesisState.address_to_contract":
 		m := make(map[string]*Contract)
-		return protoreflect.ValueOfMap(&_GenesisState_2_map{m: &m})
+		return protoreflect.ValueOfMap(&_GenesisState_3_map{m: &m})
 	case "polaris.evm.v1alpha1.GenesisState.hash_to_code":
 		m := make(map[string]string)
-		return protoreflect.ValueOfMap(&_GenesisState_3_map{m: &m})
+		return protoreflect.ValueOfMap(&_GenesisState_4_map{m: &m})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.GenesisState"))
@@ -611,7 +611,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				dAtA[i] = 0xa
 				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
 				i--
-				dAtA[i] = 0x1a
+				dAtA[i] = 0x22
 				return protoiface.MarshalOutput{}, nil
 			}
 			if options.Deterministic {
@@ -661,7 +661,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				dAtA[i] = 0xa
 				i = runtime.EncodeVarint(dAtA, i, uint64(baseI-i))
 				i--
-				dAtA[i] = 0x12
+				dAtA[i] = 0x1a
 				return protoiface.MarshalOutput{}, nil
 			}
 			if options.Deterministic {
@@ -788,7 +788,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
-			case 2:
+			case 3:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AddressToContract", wireType)
 				}
@@ -917,7 +917,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				}
 				x.AddressToContract[mapkey] = mapvalue
 				iNdEx = postIndex
-			case 3:
+			case 4:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field HashToCode", wireType)
 				}
@@ -1844,10 +1844,10 @@ type GenesisState struct {
 
 	// params defines all the parameters of the module.
 	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
-	// `address_to_contract` is a map of address to contract.
-	AddressToContract map[string]*Contract `protobuf:"bytes,2,rep,name=address_to_contract,json=addressToContract,proto3" json:"address_to_contract,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// `hash_to_code` is a map of code hash to code.
-	HashToCode map[string]string `protobuf:"bytes,3,rep,name=hash_to_code,json=hashToCode,proto3" json:"hash_to_code,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// address_to_contract is a map of address to contract.
+	AddressToContract map[string]*Contract `protobuf:"bytes,3,rep,name=address_to_contract,json=addressToContract,proto3" json:"address_to_contract,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// hash_to_code is a map of code hash to code.
+	HashToCode map[string]string `protobuf:"bytes,4,rep,name=hash_to_code,json=hashToCode,proto3" json:"hash_to_code,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *GenesisState) Reset() {
@@ -1891,15 +1891,15 @@ func (x *GenesisState) GetHashToCode() map[string]string {
 	return nil
 }
 
-// `Contract` defines the contract state.
+// Contract defines the contract state.
 type Contract struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// `code_hash` is the hash of the contract code.
+	// code_hash is the hash of the contract code.
 	CodeHash string `protobuf:"bytes,1,opt,name=code_hash,json=codeHash,proto3" json:"code_hash,omitempty"`
-	// `slot_to_value` is a map of slot to value.
+	// slot_to_value is a map of slot to value.
 	SlotToValue map[string]string `protobuf:"bytes,2,rep,name=slot_to_value,json=slotToValue,proto3" json:"slot_to_value,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
@@ -1953,13 +1953,13 @@ var file_polaris_evm_v1alpha1_genesis_proto_rawDesc = []byte{
 	0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61,
 	0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
 	0x12, 0x69, 0x0a, 0x13, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f, 0x5f, 0x63,
-	0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x39, 0x2e,
+	0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x39, 0x2e,
 	0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c,
 	0x70, 0x68, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x53, 0x74, 0x61, 0x74,
 	0x65, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x43, 0x6f, 0x6e, 0x74, 0x72,
 	0x61, 0x63, 0x74, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x11, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73,
 	0x73, 0x54, 0x6f, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x12, 0x54, 0x0a, 0x0c, 0x68,
-	0x61, 0x73, 0x68, 0x5f, 0x74, 0x6f, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x03, 0x20, 0x03, 0x28,
+	0x61, 0x73, 0x68, 0x5f, 0x74, 0x6f, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x04, 0x20, 0x03, 0x28,
 	0x0b, 0x32, 0x32, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e,
 	0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73,
 	0x53, 0x74, 0x61, 0x74, 0x65, 0x2e, 0x48, 0x61, 0x73, 0x68, 0x54, 0x6f, 0x43, 0x6f, 0x64, 0x65,

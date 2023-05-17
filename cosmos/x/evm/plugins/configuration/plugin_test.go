@@ -27,6 +27,7 @@ import (
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
 	enclib "pkg.berachain.dev/polaris/lib/encoding"
 
@@ -70,9 +71,9 @@ var _ = Describe("Plugin", func() {
 		Context("when the params store contains valid params", func() {
 			It("should return the chain config", func() {
 				storedParams := types.Params{
-					EvmDenom:    "eth",
-					ExtraEIPs:   []int64{123},
-					ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+					EvmDenom:   "eth",
+					ExtraEIPs:  []int64{123},
+					EthGenesis: string(enclib.MustMarshalJSON(core.DefaultGenesis)),
 				}
 				bz, err := storedParams.Marshal()
 				Expect(err).ToNot(HaveOccurred())

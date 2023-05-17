@@ -37,7 +37,7 @@ message Params {
     (gogoproto.moretags) = "yaml:\"extra_eips\""
   ];
 
-  // `chain_config` represents the ethereum chain config for the polaris
+  // `eth_genesis` represents the ethereum chain config for the polaris
   // EVM
-  string chain_config = 3 [(gogoproto.moretags) = "yaml:\"chain_config\""];
+  string eth_genesis = 3 [(gogoproto.moretags) = "yaml:\"eth_genesis\""];
 }

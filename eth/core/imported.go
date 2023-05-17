@@ -37,6 +37,12 @@ type (
 	ExecutionResult = core.ExecutionResult
 	// GasPool is a pool of gas that can be consumed by transactions.
 	GasPool = core.GasPool
+	// Genesis is an ethereum genesis struct
+	Genesis = core.Genesis
+	// GenesisAccount is an ethereum genesis account struct
+	GenesisAccount = core.GenesisAccount
+	// GenesisAlloc is an ethereum genesis alloc struct
+	GenesisAlloc = core.GenesisAlloc
 	// NewTxsEvent is posted when a batch of transactions enter the transaction pool.
 	NewTxsEvent = core.NewTxsEvent
 	// Message contains data used ype used to execute transactions.

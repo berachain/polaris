@@ -23,6 +23,7 @@ package types
 import (
 	"encoding/json"
 
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
 	enclib "pkg.berachain.dev/polaris/lib/encoding"
 )
@@ -40,18 +41,18 @@ var (
 // DefaultParams contains the default values for all parameters.
 func DefaultParams() *Params {
 	return &Params{
-		EvmDenom:    DefaultEvmDenom,
-		ExtraEIPs:   DefaultExtraEIPs,
-		ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+		EvmDenom:   DefaultEvmDenom,
+		ExtraEIPs:  DefaultExtraEIPs,
+		EthGenesis: string(enclib.MustMarshalJSON(core.DefaultGenesis)),
 	}
 }
 
 // EthereumChainConfig returns the chain config as a struct.
 func (p Params) EthereumChainConfig() *params.ChainConfig {
-	if p.ChainConfig == "" {
+	if p.EthGenesis == "" {
 		return nil
 	}
-	return enclib.MustUnmarshalJSON[params.ChainConfig]([]byte(p.ChainConfig))
+	return enclib.MustUnmarshalJSON[core.Genesis]([]byte(p.EthGenesis)).Config
 }
 
 // ValidateBasic is used to validate the parameters.
@@ -62,6 +63,6 @@ func (p *Params) ValidateBasic() error {
 	if p.ExtraEIPs == nil {
 		return ErrNoExtraEIPs
 	}
-	_, err := json.Marshal(p.ChainConfig)
+	_, err := json.Marshal(p.EthGenesis)
 	return err
 }
