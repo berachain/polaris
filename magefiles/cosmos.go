@@ -142,8 +142,6 @@ func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion st
 	return dockerBuildFn(false)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
-		"--build-arg", "GOOS=darwin",
-		"--build-arg", "GOARCH=arm64",
 		"-f", dockerFilePath,
 		"-t", name+":"+imageVersion, //TODO: do not hardcode, have ability to pass as arg
 		".",
