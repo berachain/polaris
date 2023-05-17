@@ -149,7 +149,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	number := int64(sdk.BigEndianToUint64(numBz))
 	header, err := p.bp.GetHeaderByNumber(number)
 	if err != nil {
-	return nil, err
+		return nil, err
 	}
 	if int64(header.Number.Uint64()) != number || header.Hash() != blockHash {
 		panic("header number or hash is not equal to the given number or hash")
