@@ -27,7 +27,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/trie"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -139,21 +138,11 @@ func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
 ) (*types.Receipt, error) {
 	var (
-		// Set the gasPool to have the remaining gas in the block.
-		// By setting the gas pool to the delta between the block gas limit and the cumulative gas
-		// used, we intrinsic handle the case where the transaction on our host chain might have
-		// fully reverted, when it fact it should've been a vm error saying out of gas.
+		// We set the gasUsed to the amount of gas so far used in the block.
 		gasUsed = sp.gp.BlockGasConsumed()
-		gasPool = GasPool(
-			// We load the GasPool with the smaller of the gas remaining in the block and the gas on the
-			// transaction.
-			common.MinUint64(
-				sp.gp.BlockGasLimit()-gasUsed,
-				tx.Gas(),
-			),
-		)
+		// We set the gasPool = gasLimit - gasUsed.
+		gasPool = GasPool(sp.header.GasLimit - gasUsed)
 	)
-
 	// Set the statedb context and let the tx rock thru the state machine.
 	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
 	receipt, err := ApplyTransactionWithEVM(
@@ -162,11 +151,10 @@ func (sp *StateProcessor) ProcessTransaction(
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
-
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of
 	// gas on the plugin cases, the line below will consume the remaining gas for the block and
 	// transaction respectively.
-	if err = sp.gp.ConsumeGas(gasUsed); err != nil {
+	if err = sp.gp.ConsumeGas(receipt.GasUsed); err != nil {
 		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), tx.Hash().Hex())
 	}
 
