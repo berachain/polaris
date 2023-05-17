@@ -70,7 +70,7 @@ var _ = Describe("StateDB", func() {
 	})
 
 	It("should handle access lists", func() {
-		sdb.Prepare(
+		sdb.PrepareForTx(
 			params.Rules{IsBerlin: true, IsShanghai: true},
 			alice, bob, &common.Address{3},
 			[]common.Address{{4}},

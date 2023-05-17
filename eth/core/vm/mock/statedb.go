@@ -21,6 +21,7 @@
 package mock
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/params"
@@ -103,7 +104,10 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		HasSuicidedFunc: func(address common.Address) bool {
 			return false
 		},
-		PrepareFunc: func(rules params.Rules, sender common.Address,
+		PrepareFunc: func(context.Context) {
+			// no-op
+		},
+		PrepareForTxFunc: func(rules params.Rules, sender common.Address,
 			coinbase common.Address, dest *common.Address,
 			precompiles []common.Address, txAccesses types.AccessList,
 		) {
