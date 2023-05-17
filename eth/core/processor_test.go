@@ -81,6 +81,7 @@ var _ = Describe("StateProcessor", func() {
 		}
 		gp.SetBlockGasLimit(uint64(blockGasLimit))
 		sdb.SetTxContextFunc = func(thash common.Hash, ti int) {}
+		sdb.TxIndexFunc = func() int { return 0 }
 		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
 		evm = vm.NewGethEVMWithPrecompiles(
