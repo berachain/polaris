@@ -24,7 +24,6 @@ import (
 	"context"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 type (
@@ -32,10 +31,8 @@ type (
 	// additional state transition functionalities.
 	PolarisStateDB interface {
 		GethStateDB
-		// Prepare prepares the statedb for a new block.
-		libtypes.Preparable
-		// Finalize finalizes the state transition.
-		libtypes.Finalizeable
+		// ClearLogs clears the logs journal for a new block.
+		ClearLogs()
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
 		// Reset resets the state for the next transaction.

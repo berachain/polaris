@@ -21,7 +21,6 @@
 package mock
 
 import (
-	"context"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/params"
@@ -56,6 +55,9 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		AddressInAccessListFunc: func(addr common.Address) bool {
 			return false
 		},
+		ClearLogsFunc: func() {
+			// no-op
+		},
 		CreateAccountFunc: func(address common.Address) {
 
 		},
@@ -68,7 +70,7 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		ExistFunc: func(address common.Address) bool {
 			return false
 		},
-		FinalizeFunc: func() {
+		FinaliseFunc: func(bool) {
 			// no-op
 		},
 		ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
@@ -104,10 +106,7 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		HasSuicidedFunc: func(address common.Address) bool {
 			return false
 		},
-		PrepareFunc: func(context.Context) {
-			// no-op
-		},
-		PrepareForTxFunc: func(rules params.Rules, sender common.Address,
+		PrepareFunc: func(rules params.Rules, sender common.Address,
 			coinbase common.Address, dest *common.Address,
 			precompiles []common.Address, txAccesses types.AccessList,
 		) {
