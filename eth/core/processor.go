@@ -226,7 +226,7 @@ func (sp *StateProcessor) ProcessTransaction(
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(
 	_ context.Context,
-) (*types.Block, types.Receipts, []*types.Log, error) {
+) (*types.Block, types.Receipts, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
@@ -240,17 +240,11 @@ func (sp *StateProcessor) Finalize(
 	if err := sp.receipts.DeriveFields(
 		sp.cp.ChainConfig(), block.Hash(), sp.header.Number.Uint64(), sp.header.BaseFee, sp.txs,
 	); err != nil {
-		return nil, nil, nil, err
-	}
-
-	// Build the block logs list. // TODO: just store on the sp struct.
-	var logs []*types.Log
-	for _, receipt := range sp.receipts {
-		logs = append(logs, receipt.Logs...)
+		return nil, nil, err
 	}
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
-	return block, sp.receipts, logs, nil
+	return block, sp.receipts, nil
 }
 
 // ===========================================================================

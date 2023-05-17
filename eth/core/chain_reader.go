@@ -133,14 +133,10 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 		return nil, ErrReceiptsNotFound
 	}
 
-	bc.logger.Info("receipts from historical plugin", "receipts", receipts)
-
 	// derive the fields on the receipts
 	if receipts, err = bc.deriveReceipts(receipts, blockHash); err != nil {
 		return nil, err
 	}
-
-	bc.logger.Info("receipts after derived fields", "receipts", receipts)
 
 	// cache the found receipts for next time and return
 	bc.receiptsCache.Add(blockHash, receipts)
