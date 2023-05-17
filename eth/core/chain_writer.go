@@ -107,7 +107,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 
 // Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, err := bc.processor.Finalize(ctx)
+	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
 	}
@@ -138,33 +138,9 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	if block != nil {
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
-
-		// Add to block caches.
-		bc.blockNumCache.Add(blockNum, block)
-		bc.blockHashCache.Add(blockHash, block)
-
-		// Cache transaction data.
-		for txIndex, tx := range block.Transactions() {
-			bc.txLookupCache.Add(
-				tx.Hash(),
-				&types.TxLookupEntry{
-					Tx:        tx,
-					TxIndex:   uint64(txIndex),
-					BlockNum:  uint64(blockNum),
-					BlockHash: blockHash,
-				},
-			)
-		}
 	}
-	var logs []*types.Log
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
-		bc.receiptsCache.Add(blockHash, receipts)
-
-		// build the list of logs on the block
-		for _, receipt := range receipts {
-			logs = append(logs, receipt.Logs...)
-		}
 	}
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)

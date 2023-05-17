@@ -91,8 +91,6 @@ type (
 	LogsJournal interface {
 		// LogsJournal implements `libtypes.Controllable`.
 		libtypes.Controllable[string]
-		// ClearLogs clears the journal for a new block.
-		ClearLogs()
 		// SetTxContext sets the transaction hash and index for the current transaction.
 		SetTxContext(thash common.Hash, ti int)
 		// TxIndex returns the current transaction index.
@@ -103,6 +101,8 @@ type (
 		Logs() []*coretypes.Log
 		// GetLogs returns the logs of the tx with the given metadata.
 		GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log
+		// GetBlockLogsAndClear returns the logs of the block and clears the journal.
+		GetBlockLogsAndClear(blockHash common.Hash) []*coretypes.Log
 	}
 
 	// RefundJournal is a `Store` that tracks the refund counter.

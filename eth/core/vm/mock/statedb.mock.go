@@ -45,9 +45,6 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			AddressInAccessListFunc: func(addr common.Address) bool {
 //				panic("mock out the AddressInAccessList method")
 //			},
-//			ClearLogsFunc: func()  {
-//				panic("mock out the ClearLogs method")
-//			},
 //			CommitFunc: func(deleteEmptyObjects bool) (common.Hash, error) {
 //				panic("mock out the Commit method")
 //			},
@@ -83,6 +80,9 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			},
 //			GetBalanceFunc: func(address common.Address) *big.Int {
 //				panic("mock out the GetBalance method")
+//			},
+//			GetBlockLogsAndClearFunc: func(blockHash common.Hash) []*types.Log {
+//				panic("mock out the GetBlockLogsAndClear method")
 //			},
 //			GetCodeFunc: func(address common.Address) []byte {
 //				panic("mock out the GetCode method")
@@ -226,9 +226,6 @@ type PolarisStateDBMock struct {
 	// AddressInAccessListFunc mocks the AddressInAccessList method.
 	AddressInAccessListFunc func(addr common.Address) bool
 
-	// ClearLogsFunc mocks the ClearLogs method.
-	ClearLogsFunc func()
-
 	// CommitFunc mocks the Commit method.
 	CommitFunc func(deleteEmptyObjects bool) (common.Hash, error)
 
@@ -264,6 +261,9 @@ type PolarisStateDBMock struct {
 
 	// GetBalanceFunc mocks the GetBalance method.
 	GetBalanceFunc func(address common.Address) *big.Int
+
+	// GetBlockLogsAndClearFunc mocks the GetBlockLogsAndClear method.
+	GetBlockLogsAndClearFunc func(blockHash common.Hash) []*types.Log
 
 	// GetCodeFunc mocks the GetCode method.
 	GetCodeFunc func(address common.Address) []byte
@@ -422,9 +422,6 @@ type PolarisStateDBMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
-		// ClearLogs holds details about calls to the ClearLogs method.
-		ClearLogs []struct {
-		}
 		// Commit holds details about calls to the Commit method.
 		Commit []struct {
 			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
@@ -482,6 +479,11 @@ type PolarisStateDBMock struct {
 		GetBalance []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// GetBlockLogsAndClear holds details about calls to the GetBlockLogsAndClear method.
+		GetBlockLogsAndClear []struct {
+			// BlockHash is the blockHash argument value.
+			BlockHash common.Hash
 		}
 		// GetCode holds details about calls to the GetCode method.
 		GetCode []struct {
@@ -713,7 +715,6 @@ type PolarisStateDBMock struct {
 	lockAddRefund              sync.RWMutex
 	lockAddSlotToAccessList    sync.RWMutex
 	lockAddressInAccessList    sync.RWMutex
-	lockClearLogs              sync.RWMutex
 	lockCommit                 sync.RWMutex
 	lockCopy                   sync.RWMutex
 	lockCreateAccount          sync.RWMutex
@@ -726,6 +727,7 @@ type PolarisStateDBMock struct {
 	lockFinalise               sync.RWMutex
 	lockForEachStorage         sync.RWMutex
 	lockGetBalance             sync.RWMutex
+	lockGetBlockLogsAndClear   sync.RWMutex
 	lockGetCode                sync.RWMutex
 	lockGetCodeHash            sync.RWMutex
 	lockGetCodeSize            sync.RWMutex
@@ -999,33 +1001,6 @@ func (mock *PolarisStateDBMock) AddressInAccessListCalls() []struct {
 	mock.lockAddressInAccessList.RLock()
 	calls = mock.calls.AddressInAccessList
 	mock.lockAddressInAccessList.RUnlock()
-	return calls
-}
-
-// ClearLogs calls ClearLogsFunc.
-func (mock *PolarisStateDBMock) ClearLogs() {
-	if mock.ClearLogsFunc == nil {
-		panic("PolarisStateDBMock.ClearLogsFunc: method is nil but PolarisStateDB.ClearLogs was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockClearLogs.Lock()
-	mock.calls.ClearLogs = append(mock.calls.ClearLogs, callInfo)
-	mock.lockClearLogs.Unlock()
-	mock.ClearLogsFunc()
-}
-
-// ClearLogsCalls gets all the calls that were made to ClearLogs.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.ClearLogsCalls())
-func (mock *PolarisStateDBMock) ClearLogsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockClearLogs.RLock()
-	calls = mock.calls.ClearLogs
-	mock.lockClearLogs.RUnlock()
 	return calls
 }
 
@@ -1403,6 +1378,38 @@ func (mock *PolarisStateDBMock) GetBalanceCalls() []struct {
 	mock.lockGetBalance.RLock()
 	calls = mock.calls.GetBalance
 	mock.lockGetBalance.RUnlock()
+	return calls
+}
+
+// GetBlockLogsAndClear calls GetBlockLogsAndClearFunc.
+func (mock *PolarisStateDBMock) GetBlockLogsAndClear(blockHash common.Hash) []*types.Log {
+	if mock.GetBlockLogsAndClearFunc == nil {
+		panic("PolarisStateDBMock.GetBlockLogsAndClearFunc: method is nil but PolarisStateDB.GetBlockLogsAndClear was just called")
+	}
+	callInfo := struct {
+		BlockHash common.Hash
+	}{
+		BlockHash: blockHash,
+	}
+	mock.lockGetBlockLogsAndClear.Lock()
+	mock.calls.GetBlockLogsAndClear = append(mock.calls.GetBlockLogsAndClear, callInfo)
+	mock.lockGetBlockLogsAndClear.Unlock()
+	return mock.GetBlockLogsAndClearFunc(blockHash)
+}
+
+// GetBlockLogsAndClearCalls gets all the calls that were made to GetBlockLogsAndClear.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.GetBlockLogsAndClearCalls())
+func (mock *PolarisStateDBMock) GetBlockLogsAndClearCalls() []struct {
+	BlockHash common.Hash
+} {
+	var calls []struct {
+		BlockHash common.Hash
+	}
+	mock.lockGetBlockLogsAndClear.RLock()
+	calls = mock.calls.GetBlockLogsAndClear
+	mock.lockGetBlockLogsAndClear.RUnlock()
 	return calls
 }
 

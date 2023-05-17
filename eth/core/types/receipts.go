@@ -21,31 +21,31 @@
 package types
 
 import (
-	"unsafe"
-
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // MarshalReceipts marshals `Receipts`, as type `[]*ReceiptForStorage`, to bytes using rlp
-// encoding.
+// encoding. Taken from geth.
 func MarshalReceipts(receipts Receipts) ([]byte, error) {
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	receiptsForStorage := *(*[]*ReceiptForStorage)(unsafe.Pointer(&receipts))
-
-	bz, err := rlp.EncodeToBytes(receiptsForStorage)
-	if err != nil {
-		return nil, err
+	// Convert the receipts into their storage form and serialize them
+	storageReceipts := make([]*ReceiptForStorage, len(receipts))
+	for i, receipt := range receipts {
+		storageReceipts[i] = (*ReceiptForStorage)(receipt)
 	}
-	return bz, nil
+	return rlp.EncodeToBytes(storageReceipts)
 }
 
 // UnmarshalReceipts unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using
-// rlp decoding.
+// rlp decoding. Taken from geth.
 func UnmarshalReceipts(bz []byte) (Receipts, error) {
-	var receiptsForStorage []*ReceiptForStorage
-	if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
+	// Convert the receipts from their storage form to their internal representation
+	storageReceipts := []*ReceiptForStorage{}
+	if err := rlp.DecodeBytes(bz, &storageReceipts); err != nil {
 		return nil, err
 	}
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	return *(*Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
+	receipts := make(Receipts, len(storageReceipts))
+	for i, storageReceipt := range storageReceipts {
+		receipts[i] = (*Receipt)(storageReceipt)
+	}
+	return receipts, nil
 }
