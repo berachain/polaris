@@ -138,27 +138,9 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	if block != nil {
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
-
-		// Add to block caches.
-		bc.blockNumCache.Add(blockNum, block)
-		bc.blockHashCache.Add(blockHash, block)
-
-		// Cache transaction data.
-		for txIndex, tx := range block.Transactions() {
-			bc.txLookupCache.Add(
-				tx.Hash(),
-				&types.TxLookupEntry{
-					Tx:        tx,
-					TxIndex:   uint64(txIndex),
-					BlockNum:  uint64(blockNum),
-					BlockHash: blockHash,
-				},
-			)
-		}
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
-		bc.receiptsCache.Add(blockHash, receipts)
 	}
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)

@@ -65,8 +65,7 @@ type blockchain struct {
 	currentBlock atomic.Pointer[types.Block]
 	// finalizedBlock is the finalized/latest block.
 	finalizedBlock atomic.Pointer[types.Block]
-	// currentReceipts is the current/pending receipts. Always contains the derived fields from the
-	// block.
+	// currentReceipts is the current/pending receipts. Does NOT contain derived fields.
 	currentReceipts atomic.Value
 	// currentLogs is the current/pending logs.
 	currentLogs atomic.Value

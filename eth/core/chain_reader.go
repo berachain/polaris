@@ -97,7 +97,13 @@ func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts, e
 		return nil, nil, ErrReceiptsNotFound
 	}
 
-	// Add to cache.
+	// Derive receipts from block.
+	receipts, err = bc.deriveReceipts(receipts, block.Hash())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Add to cache with the derived fields.
 	bc.receiptsCache.Add(block.Hash(), receipts)
 	return block, receipts, nil
 }
