@@ -116,7 +116,7 @@ func DeployERC20(
 	Expect(err).ToNot(HaveOccurred())
 
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), TxTimeout)
 	defer cancel()
 	_, err = bind.WaitDeployed(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())
