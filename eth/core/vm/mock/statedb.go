@@ -55,8 +55,8 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		AddressInAccessListFunc: func(addr common.Address) bool {
 			return false
 		},
-		ClearLogsFunc: func() {
-			// no-op
+		GetBlockLogsAndClearFunc: func(common.Hash) []*types.Log {
+			return nil
 		},
 		CreateAccountFunc: func(address common.Address) {
 

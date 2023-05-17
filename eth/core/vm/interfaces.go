@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 type (
@@ -31,11 +32,11 @@ type (
 	// additional state transition functionalities.
 	PolarisStateDB interface {
 		GethStateDB
-		// ClearLogs clears the journal for a new block.
-		ClearLogs()
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
 		// Reset resets the state for the next transaction.
 		Reset(txHash common.Hash, txIndex int)
+		// GetBlockLogsAndClear returns the logs of the block and clears the journal.
+		GetBlockLogsAndClear(blockHash common.Hash) []*coretypes.Log
 	}
 )

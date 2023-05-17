@@ -29,11 +29,11 @@ import (
 
 // logs is a state plugin that tracks Ethereum logs.
 type logs struct {
-	journal map[common.Hash]ds.Stack[*coretypes.Log] // txHash -> journal of logs in the tx
+	journal   map[common.Hash]ds.Stack[*coretypes.Log] // txHash -> journal of logs in the tx
+	flattened []*coretypes.Log                         // flattened logs for the block tx
 
-	logIndex uint // index the log in the block
-	txHash   common.Hash
-	txIndex  int
+	txHash  common.Hash
+	txIndex int
 }
 
 // NewLogs returns a new `logs` journal.
@@ -41,13 +41,9 @@ type logs struct {
 //nolint:revive // only used as a `state.LogsJournal`.
 func NewLogs() *logs {
 	return &logs{
-		journal: make(map[common.Hash]ds.Stack[*coretypes.Log]),
+		journal:   make(map[common.Hash]ds.Stack[*coretypes.Log]),
+		flattened: make([]*coretypes.Log, 0, initCapacity*initCapacity),
 	}
-}
-
-// ClearLogs clears the journals for a new block.
-func (l *logs) ClearLogs() {
-	*l = *NewLogs()
 }
 
 // RegistryKey implements `libtypes.Registrable`.
@@ -74,7 +70,7 @@ func (l *logs) AddLog(log *coretypes.Log) {
 	// add relevant metadata
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
-	log.Index = l.logIndex
+	log.Index = uint(len(l.flattened))
 
 	// append to journal
 	if l.journal[l.txHash] == nil {
@@ -83,7 +79,7 @@ func (l *logs) AddLog(log *coretypes.Log) {
 	l.journal[l.txHash].Push(log)
 
 	// append to block logs
-	l.logIndex++
+	l.flattened = append(l.flattened, log)
 }
 
 // Logs returns the logs for the current tx with the existing metadata.
@@ -116,6 +112,14 @@ func (l *logs) GetLogs(txHash common.Hash, blockNumber uint64, blockHash common.
 		buf[i].BlockNumber = blockNumber
 	}
 	return buf
+}
+
+// GetBlockLogsAndClear returns the logs for the entire block with the given blockhash and prepares
+// the journal for the next block.
+func (l *logs) GetBlockLogsAndClear(blockHash common.Hash) []*coretypes.Log {
+	blockLogs := l.flattened
+	*l = *NewLogs()
+	return blockLogs
 }
 
 // Snapshot takes a snapshot of the `Logs` store.
