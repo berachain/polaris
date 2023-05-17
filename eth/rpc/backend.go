@@ -190,7 +190,7 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Head
 	}
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "err", err)
-		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
+		return nil, errorslib.Wrapf(err, "HeaderByHash [%s]", hash.String())
 	}
 	b.logger.Info("eth.rpc.backend.HeaderByHash", "header", block.Header())
 	return block.Header(), nil
