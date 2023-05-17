@@ -41,9 +41,11 @@ import (
 )
 
 // defaultTimeout is the default timeout for the test fixture.
-const defaultTimeout = 10 * time.Second
-
-const defaultNumberOfAccounts = 3
+const (
+	fiveHundredError        = 500
+	defaultTimeout          = 10 * time.Second
+	defaultNumberOfAccounts = 3
+)
 
 var defaultAccountNames = []string{"alice", "bob", "charlie"}
 
@@ -146,25 +148,25 @@ func (tf *TestFixture) SendGraphQLRequest(query string) (string, int, error) {
 		"query": query,
 	})
 	if err != nil {
-		return "", 500, err
+		return "", fiveHundredError, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewBuffer(requestBody))
 	if err != nil {
-		return "", 500, err
+		return "", fiveHundredError, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := tf.EthGraphQLClient.Do(req)
 	if err != nil {
-		return "", 500, err
+		return "", fiveHundredError, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec:G307 // only used in testing.
 
 	responseBody, err := io.ReadAll(resp.Body)
 	responseStatusCode := resp.StatusCode
 	if err != nil {
-		return "", 500, err
+		return "", fiveHundredError, err
 	}
 
 	return string(responseBody), responseStatusCode, nil

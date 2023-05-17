@@ -24,7 +24,7 @@ ARG POLARD_VERSION=v0.0.0
 #######################################################
 
 # Use the latest foundry image
-FROM polard:${POLARD_VERSION} as localpolard
+FROM polard-base:${POLARD_VERSION} as localpolard
 
 RUN apk add --no-cache bash jq
 
