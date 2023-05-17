@@ -60,6 +60,9 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	// TODO: VERIFY THAT THE ETH_GENESIS DOES NOT CONTRADICT THE COSMOS GENESIS
 	// i.e GenesisAlloc, GasLimit, ChainID, etc.
 	// PANIC IF ERROR
+
+	// check accountBalances through the bank keeper
+
 	return []abci.ValidatorUpdate{}
 }
 
