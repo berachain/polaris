@@ -2,7 +2,12 @@ name: release
 
 on:
   push:
+  workflow_dispatch:
     
+permissions:
+    contents: write
+    packages: write
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -17,3 +22,28 @@ jobs:
           check-latest: true
       - name: release dry run
         run: make release-dry-run
+
+
+
+# .github/workflows/nightly.yml
+name: goreleaser-nightly
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+      - uses: goreleaser/goreleaser-action@v3
+        with:
+          distribution: goreleaser-pro
+          version: latest
+          args: release --clean --nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Your GoReleaser Pro key:
+          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}

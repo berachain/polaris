@@ -18,28 +18,26 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package core
 
 import (
-	"github.com/ethereum/go-ethereum/params"
-
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-//go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
-
-func NewPrecompilePluginMock() *PrecompilePluginMock {
-	return &PrecompilePluginMock{
-		GetPrecompilesFunc: func(_ *params.Rules) []precompile.Registrable {
-			return nil
-		},
-		GetActiveFunc: func(_ *params.Rules) []common.Address {
-			return nil
-		},
-		RegisterFunc: func(pc vm.PrecompileContainer) error {
-			return nil
-		},
+// deriveReceipts derives the receipts from the block.
+func (bc *blockchain) deriveReceipts(receipts types.Receipts, blockHash common.Hash) (types.Receipts, error) {
+	// get the block to derive the receipts
+	block, err := bc.GetBlockByHash(blockHash)
+	if err != nil {
+		return nil, ErrBlockNotFound
 	}
+
+	// Derive receipts from block.
+	if err = receipts.DeriveFields(
+		bc.ChainConfig(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
+	); err != nil {
+		return nil, err
+	}
+	return receipts, nil
 }

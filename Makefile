@@ -24,11 +24,12 @@ release-dry-run:
 		--rm \
 		--privileged \
 		-e CGO_ENABLED=1 \
+		-e GORELEASER_KEY=$(GORELEASER_KEY) \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v `pwd`:/go/src/$(PACKAGE_NAME) \
 		-v ${GOPATH}/pkg:/go/pkg \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		--clean --skip-validate --skip-publish --snapshot
+		--clean --snapshot -f ./cosmos/.goreleaser.yaml
 
 .PHONY: release-dry-run release

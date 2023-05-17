@@ -47,8 +47,8 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris-geth v0.0.0-20230508205427-d337874a7c1b h1:jGti3GQATWhZBb8REtC03+bYeIIk3RZpLofWpScABFc=
-github.com/berachain/polaris-geth v0.0.0-20230508205427-d337874a7c1b/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
+github.com/berachain/polaris-geth v0.0.0-20230516070302-88564f8af320 h1:s7dRDDkpxtfc8FFXUI5ccAoZfjHzRDXwtYAEz4W+BM4=
+github.com/berachain/polaris-geth v0.0.0-20230516070302-88564f8af320/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/btcsuite/btcd/btcec/v2 v2.3.2 h1:5n0X6hX0Zk+6omWcihdYvdAlGf2DfasC0GMf7DClJ3U=
@@ -808,9 +808,9 @@ honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190418001031-e561f6794a2a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
-pkg.berachain.dev/polaris/contracts v0.0.0-20230428201622-5b0bcf386ae9 h1:ccsHyXcpu8hOa+4Aqmpvq2vPJKTkF6bL6b0oMp6jH3A=
-pkg.berachain.dev/polaris/contracts v0.0.0-20230428201622-5b0bcf386ae9/go.mod h1:pM2moF7smjXhv6Zt3H0yYXlkvld8rKy7pd49LoEMQy0=
-pkg.berachain.dev/polaris/lib v0.0.0-20230428201622-5b0bcf386ae9 h1:eD51GfcJIhRigyp/LbVq7UFWNtL0mhq8LlgvouLeTws=
-pkg.berachain.dev/polaris/lib v0.0.0-20230428201622-5b0bcf386ae9/go.mod h1:FkkRflGw8X1Cr06uXHZH0zzP29N5rXCrR2VYsrJO2ao=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230516224826-185dd722aa87 h1:dRU/M2ObKFtix3pPUOzvXZZ/pF5N0xTFQmqTu7M8NjA=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230516224826-185dd722aa87/go.mod h1:pM2moF7smjXhv6Zt3H0yYXlkvld8rKy7pd49LoEMQy0=
+pkg.berachain.dev/polaris/lib v0.0.0-20230516224826-185dd722aa87 h1:Op1jLJJsX1s5oPMtOlXbxI/VPU0Y8kpad7cEE1TZ6SU=
+pkg.berachain.dev/polaris/lib v0.0.0-20230516224826-185dd722aa87/go.mod h1:cc/0mOK7KM8AQsRuui39VYKUd77/fiFQ/xqIa3sdMZQ=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
