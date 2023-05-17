@@ -21,8 +21,6 @@
 package journal
 
 import (
-	"context"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/ds"
@@ -47,10 +45,8 @@ func NewLogs() *logs {
 	}
 }
 
-// Prepare clears the journals for a new block.
-//
-// Prepare implements libtypes.Preparable.
-func (l *logs) Prepare(context.Context) {
+// ClearLogs clears the journals for a new block.
+func (l *logs) ClearLogs() {
 	*l = *NewLogs()
 }
 
@@ -140,5 +136,7 @@ func (l *logs) RevertToSnapshot(id int) {
 	l.journal[l.txHash].PopToSize(id)
 }
 
+// Finalize is called at the end of every state transition.
+//
 // Finalize implements `libtypes.Controllable`.
 func (l *logs) Finalize() {}

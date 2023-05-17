@@ -58,7 +58,6 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
-	bc.statedb.Prepare(ctx)
 
 	coinbase, timestamp := bc.bp.GetNewBlockMetadata(height)
 	bc.logger.Info("Preparing block", "height", height, "coinbase", coinbase.Hex(), "timestamp", timestamp)

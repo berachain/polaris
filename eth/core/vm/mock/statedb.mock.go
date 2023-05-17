@@ -45,6 +45,9 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			AddressInAccessListFunc: func(addr common.Address) bool {
 //				panic("mock out the AddressInAccessList method")
 //			},
+//			ClearLogsFunc: func()  {
+//				panic("mock out the ClearLogs method")
+//			},
 //			CommitFunc: func(deleteEmptyObjects bool) (common.Hash, error) {
 //				panic("mock out the Commit method")
 //			},
@@ -74,9 +77,6 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			},
 //			FinaliseFunc: func(deleteEmptyObjects bool)  {
 //				panic("mock out the Finalise method")
-//			},
-//			FinalizeFunc: func()  {
-//				panic("mock out the Finalize method")
 //			},
 //			ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
 //				panic("mock out the ForEachStorage method")
@@ -138,11 +138,8 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			PreimagesFunc: func() map[common.Hash][]byte {
 //				panic("mock out the Preimages method")
 //			},
-//			PrepareFunc: func(contextMoqParam context.Context)  {
+//			PrepareFunc: func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
 //				panic("mock out the Prepare method")
-//			},
-//			PrepareForTxFunc: func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
-//				panic("mock out the PrepareForTx method")
 //			},
 //			RawDumpFunc: func(opts *state.DumpConfig) state.Dump {
 //				panic("mock out the RawDump method")
@@ -229,6 +226,9 @@ type PolarisStateDBMock struct {
 	// AddressInAccessListFunc mocks the AddressInAccessList method.
 	AddressInAccessListFunc func(addr common.Address) bool
 
+	// ClearLogsFunc mocks the ClearLogs method.
+	ClearLogsFunc func()
+
 	// CommitFunc mocks the Commit method.
 	CommitFunc func(deleteEmptyObjects bool) (common.Hash, error)
 
@@ -258,9 +258,6 @@ type PolarisStateDBMock struct {
 
 	// FinaliseFunc mocks the Finalise method.
 	FinaliseFunc func(deleteEmptyObjects bool)
-
-	// FinalizeFunc mocks the Finalize method.
-	FinalizeFunc func()
 
 	// ForEachStorageFunc mocks the ForEachStorage method.
 	ForEachStorageFunc func(address common.Address, fn func(common.Hash, common.Hash) bool) error
@@ -323,10 +320,7 @@ type PolarisStateDBMock struct {
 	PreimagesFunc func() map[common.Hash][]byte
 
 	// PrepareFunc mocks the Prepare method.
-	PrepareFunc func(contextMoqParam context.Context)
-
-	// PrepareForTxFunc mocks the PrepareForTx method.
-	PrepareForTxFunc func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
+	PrepareFunc func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
 
 	// RawDumpFunc mocks the RawDump method.
 	RawDumpFunc func(opts *state.DumpConfig) state.Dump
@@ -428,6 +422,9 @@ type PolarisStateDBMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
+		// ClearLogs holds details about calls to the ClearLogs method.
+		ClearLogs []struct {
+		}
 		// Commit holds details about calls to the Commit method.
 		Commit []struct {
 			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
@@ -473,9 +470,6 @@ type PolarisStateDBMock struct {
 		Finalise []struct {
 			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
 			DeleteEmptyObjects bool
-		}
-		// Finalize holds details about calls to the Finalize method.
-		Finalize []struct {
 		}
 		// ForEachStorage holds details about calls to the ForEachStorage method.
 		ForEachStorage []struct {
@@ -585,11 +579,6 @@ type PolarisStateDBMock struct {
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
-		}
-		// PrepareForTx holds details about calls to the PrepareForTx method.
-		PrepareForTx []struct {
 			// Rules is the rules argument value.
 			Rules params.Rules
 			// Sender is the sender argument value.
@@ -724,6 +713,7 @@ type PolarisStateDBMock struct {
 	lockAddRefund              sync.RWMutex
 	lockAddSlotToAccessList    sync.RWMutex
 	lockAddressInAccessList    sync.RWMutex
+	lockClearLogs              sync.RWMutex
 	lockCommit                 sync.RWMutex
 	lockCopy                   sync.RWMutex
 	lockCreateAccount          sync.RWMutex
@@ -734,7 +724,6 @@ type PolarisStateDBMock struct {
 	lockError                  sync.RWMutex
 	lockExist                  sync.RWMutex
 	lockFinalise               sync.RWMutex
-	lockFinalize               sync.RWMutex
 	lockForEachStorage         sync.RWMutex
 	lockGetBalance             sync.RWMutex
 	lockGetCode                sync.RWMutex
@@ -756,7 +745,6 @@ type PolarisStateDBMock struct {
 	lockLogs                   sync.RWMutex
 	lockPreimages              sync.RWMutex
 	lockPrepare                sync.RWMutex
-	lockPrepareForTx           sync.RWMutex
 	lockRawDump                sync.RWMutex
 	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
@@ -1011,6 +999,33 @@ func (mock *PolarisStateDBMock) AddressInAccessListCalls() []struct {
 	mock.lockAddressInAccessList.RLock()
 	calls = mock.calls.AddressInAccessList
 	mock.lockAddressInAccessList.RUnlock()
+	return calls
+}
+
+// ClearLogs calls ClearLogsFunc.
+func (mock *PolarisStateDBMock) ClearLogs() {
+	if mock.ClearLogsFunc == nil {
+		panic("PolarisStateDBMock.ClearLogsFunc: method is nil but PolarisStateDB.ClearLogs was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockClearLogs.Lock()
+	mock.calls.ClearLogs = append(mock.calls.ClearLogs, callInfo)
+	mock.lockClearLogs.Unlock()
+	mock.ClearLogsFunc()
+}
+
+// ClearLogsCalls gets all the calls that were made to ClearLogs.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.ClearLogsCalls())
+func (mock *PolarisStateDBMock) ClearLogsCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockClearLogs.RLock()
+	calls = mock.calls.ClearLogs
+	mock.lockClearLogs.RUnlock()
 	return calls
 }
 
@@ -1320,33 +1335,6 @@ func (mock *PolarisStateDBMock) FinaliseCalls() []struct {
 	mock.lockFinalise.RLock()
 	calls = mock.calls.Finalise
 	mock.lockFinalise.RUnlock()
-	return calls
-}
-
-// Finalize calls FinalizeFunc.
-func (mock *PolarisStateDBMock) Finalize() {
-	if mock.FinalizeFunc == nil {
-		panic("PolarisStateDBMock.FinalizeFunc: method is nil but PolarisStateDB.Finalize was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockFinalize.Lock()
-	mock.calls.Finalize = append(mock.calls.Finalize, callInfo)
-	mock.lockFinalize.Unlock()
-	mock.FinalizeFunc()
-}
-
-// FinalizeCalls gets all the calls that were made to Finalize.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.FinalizeCalls())
-func (mock *PolarisStateDBMock) FinalizeCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockFinalize.RLock()
-	calls = mock.calls.Finalize
-	mock.lockFinalize.RUnlock()
 	return calls
 }
 
@@ -1999,41 +1987,9 @@ func (mock *PolarisStateDBMock) PreimagesCalls() []struct {
 }
 
 // Prepare calls PrepareFunc.
-func (mock *PolarisStateDBMock) Prepare(contextMoqParam context.Context) {
+func (mock *PolarisStateDBMock) Prepare(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
 	if mock.PrepareFunc == nil {
 		panic("PolarisStateDBMock.PrepareFunc: method is nil but PolarisStateDB.Prepare was just called")
-	}
-	callInfo := struct {
-		ContextMoqParam context.Context
-	}{
-		ContextMoqParam: contextMoqParam,
-	}
-	mock.lockPrepare.Lock()
-	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
-	mock.lockPrepare.Unlock()
-	mock.PrepareFunc(contextMoqParam)
-}
-
-// PrepareCalls gets all the calls that were made to Prepare.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.PrepareCalls())
-func (mock *PolarisStateDBMock) PrepareCalls() []struct {
-	ContextMoqParam context.Context
-} {
-	var calls []struct {
-		ContextMoqParam context.Context
-	}
-	mock.lockPrepare.RLock()
-	calls = mock.calls.Prepare
-	mock.lockPrepare.RUnlock()
-	return calls
-}
-
-// PrepareForTx calls PrepareForTxFunc.
-func (mock *PolarisStateDBMock) PrepareForTx(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
-	if mock.PrepareForTxFunc == nil {
-		panic("PolarisStateDBMock.PrepareForTxFunc: method is nil but PolarisStateDB.PrepareForTx was just called")
 	}
 	callInfo := struct {
 		Rules       params.Rules
@@ -2050,17 +2006,17 @@ func (mock *PolarisStateDBMock) PrepareForTx(rules params.Rules, sender common.A
 		Precompiles: precompiles,
 		TxAccesses:  txAccesses,
 	}
-	mock.lockPrepareForTx.Lock()
-	mock.calls.PrepareForTx = append(mock.calls.PrepareForTx, callInfo)
-	mock.lockPrepareForTx.Unlock()
-	mock.PrepareForTxFunc(rules, sender, coinbase, dest, precompiles, txAccesses)
+	mock.lockPrepare.Lock()
+	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
+	mock.lockPrepare.Unlock()
+	mock.PrepareFunc(rules, sender, coinbase, dest, precompiles, txAccesses)
 }
 
-// PrepareForTxCalls gets all the calls that were made to PrepareForTx.
+// PrepareCalls gets all the calls that were made to Prepare.
 // Check the length with:
 //
-//	len(mockedPolarisStateDB.PrepareForTxCalls())
-func (mock *PolarisStateDBMock) PrepareForTxCalls() []struct {
+//	len(mockedPolarisStateDB.PrepareCalls())
+func (mock *PolarisStateDBMock) PrepareCalls() []struct {
 	Rules       params.Rules
 	Sender      common.Address
 	Coinbase    common.Address
@@ -2076,9 +2032,9 @@ func (mock *PolarisStateDBMock) PrepareForTxCalls() []struct {
 		Precompiles []common.Address
 		TxAccesses  types.AccessList
 	}
-	mock.lockPrepareForTx.RLock()
-	calls = mock.calls.PrepareForTx
-	mock.lockPrepareForTx.RUnlock()
+	mock.lockPrepare.RLock()
+	calls = mock.calls.Prepare
+	mock.lockPrepare.RUnlock()
 	return calls
 }
 

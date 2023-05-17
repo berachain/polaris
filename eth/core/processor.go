@@ -169,7 +169,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		// ensure that the sender's nonce increases as well as the transaction fees are paid.
 		// The snapshotting within the EVM ensures that any reverted state changes are not reflected
 		// in the finalized state.
-		sp.statedb.Finalize() // TODO: mirror the correct sig from geth.
+		sp.statedb.Finalise(true) // TODO: mirror the correct sig from geth.
 	} else {
 		panic("in Polaris we assume we are past EIP-658")
 	}
@@ -242,6 +242,9 @@ func (sp *StateProcessor) Finalize(
 	); err != nil {
 		return nil, nil, err
 	}
+
+	// clear the logs journal for a new block
+	sp.statedb.ClearLogs()
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, nil

@@ -42,9 +42,9 @@ WORKDIR /workdir/${FOUNDRY_DIR}
 
 RUN forge build --extra-output-files bin --extra-output-files abi
 
-# #############################dock##########################
-# ###         Stage 2 - Build the Application         ###
-# #######################################################
+#######################################################
+###         Stage 2 - Build the Application         ###
+#######################################################
 
 FROM golang:${GO_VERSION}-alpine as builder
 

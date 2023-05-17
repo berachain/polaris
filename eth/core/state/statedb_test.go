@@ -70,7 +70,7 @@ var _ = Describe("StateDB", func() {
 	})
 
 	It("should handle access lists", func() {
-		sdb.PrepareForTx(
+		sdb.Prepare(
 			params.Rules{IsBerlin: true, IsShanghai: true},
 			alice, bob, &common.Address{3},
 			[]common.Address{{4}},
@@ -110,7 +110,7 @@ var _ = Describe("StateDB", func() {
 		Expect(sdb.GetBalance(bob).Uint64()).To(Equal(uint64(0)))
 		Expect(sdb.HasSuicided(bob)).To(BeTrue())
 
-		sdb.Finalize()
+		sdb.Finalise(true)
 		Expect(sdb.HasSuicided(bob)).To(BeFalse())
 	})
 })

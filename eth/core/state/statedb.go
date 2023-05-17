@@ -21,7 +21,6 @@
 package state
 
 import (
-	"context"
 	"sync"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -100,12 +99,6 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Clean state
 // =============================================================================
 
-// Prepare prepares the relevant plugin and journals for the new block.
-func (sdb *stateDB) Prepare(ctx context.Context) {
-	sdb.Plugin.Prepare(ctx)
-	sdb.LogsJournal.Prepare(ctx)
-}
-
 // Reset sets the TxContext for the current transaction, blocking until finalize is called for the
 // previous transaction.
 func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
@@ -114,9 +107,9 @@ func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
 	sdb.LogsJournal.SetTxContext(txHash, txIndex)
 }
 
-// Finalize deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
+// Finalise deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
 // next transaction.
-func (sdb *stateDB) Finalize() {
+func (sdb *stateDB) Finalise(bool) {
 	defer sdb.mtx.Unlock()
 
 	sdb.DeleteAccounts(sdb.GetSuicides())
@@ -124,13 +117,13 @@ func (sdb *stateDB) Finalize() {
 }
 
 // =============================================================================
-// PrepareForTx
+// Prepare
 // =============================================================================
 
 // Implementation taken directly from the vm.PolarisStateDB in Go-Ethereum.
 //
-// PrepareForTx implements vm.PolarisStateDB.
-func (sdb *stateDB) PrepareForTx(rules params.Rules, sender, coinbase common.Address,
+// Prepare implements vm.PolarisStateDB.
+func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {
 		// Clear out any leftover from previous executions
@@ -184,12 +177,8 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 // Other
 // =============================================================================
 
-func (sdb *stateDB) Finalise(_ bool) {
-	sdb.Finalize()
-}
-
-func (sdb *stateDB) Commit(_ bool) (common.Hash, error) {
-	sdb.Finalize()
+func (sdb *stateDB) Commit(deleteEmptyObjects bool) (common.Hash, error) {
+	sdb.Finalise(deleteEmptyObjects)
 	return common.Hash{}, nil
 }
 
