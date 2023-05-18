@@ -10,7 +10,7 @@ jobs:
       matrix:
         include:
           - dockerfile: ./polard/cosmos/docker/base.Dockerfile
-            dest: .
+            dest: ./
           - dockerfile: ./polard/cosmos/docker/local/Dockerfile
             dest: ./artifacts/polard_image.tar
     steps:
