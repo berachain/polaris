@@ -21,8 +21,6 @@
 package keeper
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -43,13 +41,10 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 		}
 	}
 
-	go func() {
-		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
-		// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
-		if err := k.polaris.StartServices(); err != nil {
-			return
-		}
-	}()
+	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
+	if err := k.polaris.StartServices(); err != nil {
+		return err
+	}
 
 	return nil
 }
