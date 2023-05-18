@@ -25,6 +25,7 @@ ARG NAME=polaris-cosmos
 ARG APP_NAME=polard
 ARG DB_BACKEND=pebbledb
 ARG CMD_PATH=./cosmos/cmd/polard
+ARG FOUNDRY_DIR=./cosmos/contracts
 
 #######################################################
 ###       Stage 1 - Build Solidity Bindings         ###
