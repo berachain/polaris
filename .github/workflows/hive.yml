@@ -56,7 +56,7 @@ jobs:
     strategy:
       matrix:
         experimental: [true]
-        sim: [ethereum/rpc]
+        sim: [ethereum/rpc, ethereum/rpc-compat]
         # include:
         #     # eth_ rpc methods
         #   - sim: ethereum/rpc-compat
