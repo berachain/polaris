@@ -19,7 +19,7 @@ jobs:
         with:
           context: ./polaris
           file: ./polaris/cosmos/docker/base.Dockerfile
-          outputs: type=docker,dest=./artifacts/polard_image.tar
+          outputs: type=docker,dest=../artifacts/polard_image.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: polard-base:test-hive
