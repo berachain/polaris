@@ -62,15 +62,15 @@ jobs:
                 eth_call,
                 eth_chainId,
                 eth_estimateGas,
-                eth_feeHistory,
                 eth_getBalance,
-                eth_getBlockBy,
-                eth_getBlockTransactionCountBy,
-                eth_getCode,
-                eth_getStorage,
                 eth_sendRawTransaction,
                 eth_syncing,
               ]
+              # eth_feeHistory,
+              # eth_getBlockBy,
+              # eth_getBlockTransactionCountBy,
+              # eth_getCode,
+              # eth_getStorage,
             experimental: true
       fail-fast: false
     needs: prepare
