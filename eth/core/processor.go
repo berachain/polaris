@@ -125,6 +125,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 	// Setup the EVM for this block.
 	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
+
 	// We re-register the default geth precompiles every block, this isn't optimal, but since
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
