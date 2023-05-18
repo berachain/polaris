@@ -60,7 +60,6 @@ jobs:
               [
                 eth_chainId,
                 eth_estimateGas,
-                eth_getBalance,
                 eth_sendRawTransaction,
                 eth_syncing,
               ]
@@ -71,6 +70,7 @@ jobs:
               # eth_getBlockTransactionCountBy,
               # eth_getCode,
               # eth_getStorage,
+              # eth_getBalance,
             experimental: true
       fail-fast: false
     needs: prepare

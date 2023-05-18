@@ -41,7 +41,7 @@ func Lint() error {
 	}
 	return nil
 }
-
+	
 // Run all formatters.
 func Format() error {
 	cmds := []func() error{Golines, License, GolangCiLintFix, Proto{}.Format, Contracts{}.Fmt}
