@@ -27,6 +27,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/trie"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -162,6 +163,8 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
+	// We set the blockhash to be nil to be safe, since the blockhash isn't fully correct yet.
+	receipt.BlockHash = common.Hash{}
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.
