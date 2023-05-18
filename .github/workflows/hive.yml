@@ -5,14 +5,6 @@ name: hive
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - dockerfile: ./polard/cosmos/docker/base.Dockerfile
-            dest: ./
-          - dockerfile: ./polard/cosmos/docker/local/Dockerfile
-            dest: ./artifacts/polard_image.tar
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -24,11 +16,17 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
-          outputs: type=docker,dest=${{matrix.dest}}
+          file: ./cosmos/docker/base.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+      - name: Build and export polard image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./cosmos/docker/local/Dockerfile
+          outputs: type=docker,dest=./artifacts/polard_image.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Checkout hive tests
         uses: actions/checkout@v3
         with:
