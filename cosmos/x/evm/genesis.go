@@ -63,7 +63,11 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 
 	// check accountBalances through the bank keeper
 	am.accKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
+		// balances := am.bankKeeper.GetAllBalances(ctx, account.GetAddress())
+		// if  {
 		return true
+		// }
+		// return false
 	})
 
 	return []abci.ValidatorUpdate{}
