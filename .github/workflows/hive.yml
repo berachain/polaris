@@ -30,12 +30,12 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: '^1.20.4'
+          go-version: "^1.20.4"
       - run: go version
       - name: Build hive tool
         run: |
           cd hivetests
-          go work use .
+          go mod tidy
           go build .
           mv ./hive ../artifacts/
 
@@ -44,7 +44,6 @@ jobs:
         with:
           name: artifacts
           path: ./artifacts
-
 
   test:
     continue-on-error: ${{ matrix.experimental }}
