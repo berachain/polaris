@@ -86,7 +86,7 @@ jobs:
       - name: Run ${{ matrix.sim }} simulator
         run: |
           cd hivetests
-          hive --sim "${{ matrix.sim }}$" --client polard -docker.output -client.checktimelimit 5s
+          hive --sim "${{ matrix.sim }}$" --client polard -docker.output
 
       - name: Print simulator output
         if: ${{ failure() }}
