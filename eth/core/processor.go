@@ -171,7 +171,7 @@ func (sp *StateProcessor) ProcessTransaction(
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
 func (sp *StateProcessor) Finalize(
 	_ context.Context,
-) (*types.Block, types.Receipts, error) {
+) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
@@ -181,8 +181,21 @@ func (sp *StateProcessor) Finalize(
 	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
 	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
 
+	// Update hashes on the receipts and logs, we have to do this in Finalize since when
+	// the transaction is actually being processed, we don't have the real blockhash. This is a
+	// fundamental design difference in the way polaris / 
+	logs := make([]*types.Log, 0)
+	blockHash := block.Hash()
+	for _, receipt := range sp.receipts {
+		receipt.BlockHash = blockHash
+		for _, log := range receipt.Logs {
+			log.BlockHash = blockHash
+		}
+		logs = append(logs, receipt.Logs...)
+	}
+
 	// We return a new block with the updated header and the receipts to the `blockchain`.
-	return block, sp.receipts, nil
+	return block, sp.receipts, logs, nil
 }
 
 // ===========================================================================

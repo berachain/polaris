@@ -107,7 +107,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 
 // Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, err := bc.processor.Finalize(ctx)
+	block, receipts, logs, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
 	}
@@ -136,14 +136,17 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// mark the current block, receipts, and logs
 	if block != nil {
+		// Todo: nuke these caches anyways.
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
 		// Add to block caches.
+		// Todo: nuke these caches anyways.
 		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
 		// Cache transaction data.
+		// Todo: nuke these caches anyways.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -156,21 +159,16 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 			)
 		}
 	}
-	var logs []*types.Log
+	// Todo: nuke these caches anyways.
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
 		bc.receiptsCache.Add(blockHash, receipts)
-
-		// build the list of logs on the block
-		for _, receipt := range receipts {
-			logs = append(logs, receipt.Logs...)
-		}
-	}
-	if logs != nil {
-		bc.pendingLogsFeed.Send(logs)
-		bc.currentLogs.Store(logs)
-		if len(logs) > 0 {
-			bc.logsFeed.Send(logs)
+		if logs != nil {
+			bc.pendingLogsFeed.Send(logs)
+			bc.currentLogs.Store(logs)
+			if len(logs) > 0 {
+				bc.logsFeed.Send(logs)
+			}
 		}
 	}
 
