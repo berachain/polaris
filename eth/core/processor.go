@@ -179,13 +179,6 @@ func (sp *StateProcessor) Finalize(
 	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
 	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
 
-	// Set the missing fields on receipts effective gas price and block hash.
-	if err := sp.receipts.DeriveFields(
-		sp.cp.ChainConfig(), block.Hash(), sp.header.Number.Uint64(), sp.header.BaseFee, sp.txs,
-	); err != nil {
-		return nil, nil, err
-	}
-
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, nil
 }
