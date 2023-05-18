@@ -193,7 +193,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 	if tleBz == nil {
 		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
 	}
-	var tle *coretypes.TxLookupEntry
+	tle := &coretypes.TxLookupEntry{}
 	err := tle.UnmarshalBinary(tleBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", txHash.Hex())

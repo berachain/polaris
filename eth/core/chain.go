@@ -71,7 +71,7 @@ type blockchain struct {
 	currentLogs atomic.Value
 
 	// receiptsCache is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
-	// blocks. blockHash -> receipts. Always contains the derived fields from the block.
+	// blocks. blockHash -> receipts. May or may not contain the derived fields from the block.
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
 	// blockNumCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockNum -> block

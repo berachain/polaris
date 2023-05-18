@@ -33,6 +33,11 @@ func MarshalReceipts(receipts Receipts) ([]byte, error) {
 		storageReceipts[i] = (*ReceiptForStorage)(receipt)
 	}
 	return rlp.EncodeToBytes(storageReceipts)
+
+	// OLD WAY, REMOVE
+	// //#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	// receiptsForStorage := *(*[]*ReceiptForStorage)(unsafe.Pointer(&receipts))
+	// return rlp.EncodeToBytes(receiptsForStorage)
 }
 
 // UnmarshalReceipts unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using
@@ -48,4 +53,12 @@ func UnmarshalReceipts(bz []byte) (Receipts, error) {
 		receipts[i] = (*Receipt)(storageReceipt)
 	}
 	return receipts, nil
+
+	// OLD WAY, REMOVE
+	// var receiptsForStorage []*ReceiptForStorage
+	// if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
+	// 	return nil, err
+	// }
+	// //#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
+	// return *(*Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
 }

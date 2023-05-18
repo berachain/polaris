@@ -42,13 +42,9 @@ func (tle *TxLookupEntry) UnmarshalBinary(data []byte) error {
 	return rlp.DecodeBytes(data, tle)
 }
 
-// MarshalBinary encodes the tx lookup enßtry into the Ethereum RLP format.
+// MarshalBinary encodes the tx lookup entry into the Ethereum RLP format.
 func (tle *TxLookupEntry) MarshalBinary() ([]byte, error) {
-	bz, err := rlp.EncodeToBytes(tle)
-	if err != nil {
-		return nil, err
-	}
-	return bz, nil
+	return rlp.EncodeToBytes(tle)
 }
 
 // PubkeyFromTx returns the public key of the signer of the transaction.

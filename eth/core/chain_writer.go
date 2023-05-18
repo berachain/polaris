@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -132,15 +133,34 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		if err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions()); err != nil {
 			return err
 		}
+		fmt.Println("FINALIZE: finished writing block/receipts/txs to DB")
 	}
 
 	// mark the current block, receipts, and logs
 	if block != nil {
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
+
+		// // Add to block caches.
+		// bc.blockNumCache.Add(blockNum, block)
+		// bc.blockHashCache.Add(blockHash, block)
+
+		// // Cache transaction data.
+		// for txIndex, tx := range block.Transactions() {
+		// 	bc.txLookupCache.Add(
+		// 		tx.Hash(),
+		// 		&types.TxLookupEntry{
+		// 			Tx:        tx,
+		// 			TxIndex:   uint64(txIndex),
+		// 			BlockNum:  uint64(blockNum),
+		// 			BlockHash: blockHash,
+		// 		},
+		// 	)
+		// }
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
+		// bc.receiptsCache.Add(blockHash, receipts)
 	}
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)

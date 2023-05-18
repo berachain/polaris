@@ -22,6 +22,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -124,6 +125,7 @@ func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
 func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
 	// check the cache
 	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
+		fmt.Println("GET RECEIPTS: from cache", receipts)
 		return receipts, nil
 	}
 
@@ -136,6 +138,7 @@ func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error)
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if err != nil {
+
 		return nil, ErrReceiptsNotFound
 	}
 
@@ -158,6 +161,7 @@ func (bc *blockchain) GetTransaction(
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	// check the cache
 	if txLookupEntry, ok := bc.txLookupCache.Get(txHash); ok {
+		fmt.Println("GET TX: found in cache", txLookupEntry.Tx.Hash())
 		return txLookupEntry.Tx, txLookupEntry.BlockHash,
 			txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 	}
@@ -171,9 +175,11 @@ func (bc *blockchain) GetTransaction(
 	// check the historical plugin
 	txLookupEntry, err := bc.hp.GetTransactionByHash(txHash)
 	if err != nil {
+		fmt.Println("GET TX: error in hp", err)
 		return nil, common.Hash{}, 0, 0, err
 	}
 
+	fmt.Println("GET TX: adding to cache from hp", txLookupEntry.Tx.Hash())
 	// cache the found transaction for next time and return
 	bc.txLookupCache.Add(txHash, txLookupEntry)
 	return txLookupEntry.Tx, txLookupEntry.BlockHash,
@@ -249,7 +255,9 @@ func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
 
 // GetPoolTransaction returns a transaction from the mempool by hash.
 func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
-	return bc.tp.Get(hash)
+	tx := bc.tp.Get(hash)
+	fmt.Println("GETTING POOL TX", tx)
+	return tx
 }
 
 // GetPoolNonce returns the pending nonce of addr from the mempool.
