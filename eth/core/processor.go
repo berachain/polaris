@@ -183,7 +183,7 @@ func (sp *StateProcessor) Finalize(
 
 	// Update hashes on the receipts and logs, we have to do this in Finalize since when
 	// the transaction is actually being processed, we don't have the real blockhash. This is a
-	// fundamental design difference in the way polaris / 
+	// fundamental design difference in the way polaris vs geth processes transactions.
 	logs := make([]*types.Log, 0)
 	blockHash := block.Hash()
 	for _, receipt := range sp.receipts {
