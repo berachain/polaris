@@ -24,7 +24,7 @@ ARG GOOS=linux
 ARG NAME=polaris-cosmos
 ARG APP_NAME=polard
 ARG DB_BACKEND=pebbledb
-ARG CMD_PATH=cosmos/cmd/polard
+ARG CMD_PATH=./cosmos/cmd/polard
 ARG FOUNDRY_DIR=contracts
 
 #######################################################
@@ -48,7 +48,6 @@ COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
 WORKDIR /workdir/${FOUNDRY_DIR}
 
 # Install dependecies for solidity contracts.
-
 RUN forge install --no-commit
 
 # Build the contracts using special flags required for abigen.
