@@ -143,14 +143,15 @@ func (sp *StateProcessor) ProcessTransaction(
 		// We set the gasPool = gasLimit - gasUsed.
 		gasPool = GasPool(sp.header.GasLimit - gasUsed)
 	)
-	// Set the statedb context and let the tx rock thru the state machine.
-	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
+
+	// Inshallah we will be able to apply the transaction.
 	receipt, err := ApplyTransactionWithEVM(
 		sp.evm, sp.cp.ChainConfig(), &gasPool, sp.statedb, sp.header, tx, &gasUsed,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
+
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of
 	// gas on the plugin cases, the line below will consume the remaining gas for the block and
 	// transaction respectively.
