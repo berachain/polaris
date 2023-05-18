@@ -15,15 +15,15 @@ jobs:
       - name: Build and export polard image
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./cosmos/docker/base.Dockerfile
+          context: ./cosmos/docker/
+          file: base.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build and export polard image
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./cosmos/docker/local/Dockerfile
+          context: ./cosmos/docker/local
+          file: Dockerfile
           outputs: type=docker,dest=./artifacts/polard_image.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
