@@ -27,7 +27,7 @@ jobs:
           context: ./
           file: ./cosmos/docker/local/Dockerfile
           build-args: |
-            POLARD_VERSION=polard-base:ci
+            POLARD_VERSION=ci
           outputs: type=docker,dest=./artifacts/polard_image.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max

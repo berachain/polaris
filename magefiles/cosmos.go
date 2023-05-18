@@ -100,7 +100,6 @@ func (c Cosmos) BuildRelease() error {
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) Docker(node string) error {
-	LogGreen("Build a release docker image for the Cosmos SDK chain...")
 	var path string
 	if node == "base" {
 		path = execDockerPath
@@ -110,27 +109,17 @@ func (c Cosmos) Docker(node string) error {
 	return c.dockerBuildNode("polard-"+node, path, goVersion, version, false)
 }
 
+// RunDockerLocal runs a local docker image for the Cosmos SDK chain with the basic setup script.
 func (c Cosmos) RunDockerLocal() error {
 	return dockerRun("-p", "8545:8545", "polard-local:v0.0.0")
 }
 
-func (c Cosmos) DockerX() error {
-	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	return c.dockerBuildNode("polard", execDockerPath, goVersion, version, true)
-}
-
-// Builds a release version of the Cosmos SDK chain.
-func (c Cosmos) DockerDebug() error {
-	LogGreen("Build a debug docker image for the Cosmos SDK chain...")
-	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, false)
-}
-
-// Build a docker image for berad with the supplied arguments.
+// dockerBuildNode builds a docker image for the Cosmos SDK chain based on the given parameters.
 func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion string, withX bool) error {
+	LogGreen("Building docker image for the Cosmos SDK chain...", "GOARCH", runtime.GOARCH)
 	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
-		"--build-arg", "GOOS="+runtime.GOOS,
 		"--build-arg", "GOARCH="+runtime.GOARCH,
 		"-f", dockerFilePath,
 		"-t", name+":"+imageVersion,
