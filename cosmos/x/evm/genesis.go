@@ -62,6 +62,10 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	// PANIC IF ERROR
 
 	// check accountBalances through the bank keeper
+	am.accKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
+		fmt.Println("im an account iteratoooor: ", am.bankKeeper.GetAllBalances(ctx, account.GetAddress()))
+		return true
+	})
 
 	return []abci.ValidatorUpdate{}
 }

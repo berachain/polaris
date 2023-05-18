@@ -48,14 +48,11 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 
 		// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
 		if err := k.polaris.StartServices(); err != nil {
+			// TODO: figure out how to propogate errors out of goroutine if that is a problem
 			return
 		}
 	}()
 
-	// // Start the polaris "Node" in order to spin up things like the JSON-RPC server.
-	// if err := k.polaris.StartServices(); err != nil {
-	// 	return err
-	// }
 	return nil
 }
 
