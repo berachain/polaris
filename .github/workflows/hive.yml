@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
+        with:
+          path: polaris
       - run: mkdir artifacts
 
       - name: Set up Docker Buildx
@@ -15,7 +17,7 @@ jobs:
       - name: Build polard-base
         uses: docker/build-push-action@v4
         with:
-          context: ./
+          context: ./polaris
           file: ./cosmos/docker/base.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -35,8 +37,6 @@ jobs:
       - name: Build hive tool
         run: |
           cd hivetests
-          go work init .
-          go work use .
           go mod download
           go build .
           mv ./hive ../artifacts/
