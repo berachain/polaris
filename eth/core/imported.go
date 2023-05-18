@@ -25,6 +25,7 @@ import (
 )
 
 type (
+	BlockValidator = core.BlockValidator
 	// ChainContext provides information about the current blockchain to the EVM.
 	ChainContext = core.ChainContext
 	// ChainEvent contains information about the chain.
@@ -48,6 +49,8 @@ type (
 var (
 	// ApplyTransactionWithEVM applies a transaction to the current state of the blockchain.
 	ApplyTransactionWithEVM = core.ApplyTransactionWithEVM
+	// NewBlockValidator creates a new block validator.
+	NewBlockValidator = core.NewBlockValidator
 	// NewEVMTxContext creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
 	// NewEVMBlockContext creates a new block context for a given header.
