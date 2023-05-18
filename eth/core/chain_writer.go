@@ -163,12 +163,13 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
 		bc.receiptsCache.Add(blockHash, receipts)
-		if logs != nil {
-			bc.pendingLogsFeed.Send(logs)
-			bc.currentLogs.Store(logs)
-			if len(logs) > 0 {
-				bc.logsFeed.Send(logs)
-			}
+	}
+	// Todo: nuke these caches anyways.
+	if logs != nil {
+		bc.pendingLogsFeed.Send(logs)
+		bc.currentLogs.Store(logs)
+		if len(logs) > 0 {
+			bc.logsFeed.Send(logs)
 		}
 	}
 
