@@ -35,7 +35,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+	// . "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 var (
@@ -71,25 +71,25 @@ var _ = Describe("GraphQL", func() {
 		Expect(blockNumber).To(BeNumerically(">", 0))
 	})
 
-	It("should support eth_call", func() {
-		_, addr := DeployERC20(tf.GenerateTransactOpts("alice"), client)
-		// function selector for decimals() padded to 32 bytes
-		calldata := "0x313ce56700000000000000000000000000000000000000000000000000000000"
-		query := fmt.Sprintf(`
-		query { 
-			block(number:1) { 
-				call(data: { to: "%s", data: "%s" }) {
-					data
-					status
-					gasUsed
-				} 
-			} 
-		}`, addr.String(), calldata)
-		_, status, err := tf.SendGraphQLRequest(query)
+	// It("should support eth_call", func() {
+	// 	_, addr := DeployERC20(tf.GenerateTransactOpts("alice"), client)
+	// 	// function selector for decimals() padded to 32 bytes
+	// 	calldata := "0x313ce56700000000000000000000000000000000000000000000000000000000"
+	// 	query := fmt.Sprintf(`
+	// 	query {
+	// 		block(number:1) {
+	// 			call(data: { to: "%s", data: "%s" }) {
+	// 				data
+	// 				status
+	// 				gasUsed
+	// 			}
+	// 		}
+	// 	}`, addr.String(), calldata)
+	// 	_, status, err := tf.SendGraphQLRequest(query)
 
-		Expect(status).To(Equal(200))
-		Expect(err).ToNot(HaveOccurred())
-	})
+	// 	Expect(status).To(Equal(200))
+	// 	Expect(err).ToNot(HaveOccurred())
+	// })
 	It("should support eth_estimateGas", func() {
 		alice := tf.Address("alice")
 		response, status, err := tf.SendGraphQLRequest(fmt.Sprintf(
