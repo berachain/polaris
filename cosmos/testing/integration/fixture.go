@@ -107,7 +107,7 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 // GenerateTransactOpts generates a new transaction options object for a key by it's name.
 func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	// Get the nonce from the RPC.
-	nonce, err := tf.EthClient.PendingNonceAt(context.Background(), tf.Address("alice"))
+	nonce, err := tf.EthClient.PendingNonceAt(context.Background(), tf.Address(name))
 	if err != nil {
 		tf.t.Fatal(err)
 	}
