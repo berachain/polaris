@@ -34,14 +34,24 @@ ARG FOUNDRY_DIR=contracts
 # Use the latest foundry image
 FROM ghcr.io/foundry-rs/foundry as foundry
 
+# Set working directory
 WORKDIR /workdir
+
+# Required for forge install.
+COPY .git/ .git/
 
 # Copy over all the solidity code.
 ARG FOUNDRY_DIR
 COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
+
+# Move into the forge repo for building.
 WORKDIR /workdir/${FOUNDRY_DIR}
 
+# Install dependecies for solidity contracts.
+
 RUN forge install --no-commit
+
+# Build the contracts using special flags required for abigen.
 RUN forge build --extra-output-files bin --extra-output-files abi
 
 #######################################################

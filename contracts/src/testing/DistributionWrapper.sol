@@ -27,7 +27,7 @@ pragma solidity ^0.8.17;
 
 import {IDistributionModule} from "../cosmos/precompile/Distribution.sol";
 import {IStakingModule} from "../cosmos/precompile/Staking.sol";
-import {ERC20} from "../../lib/ERC20.sol";
+import {ERC20} from "../../lib/solmate/src/tokens/ERC20.sol";
 
 /**
  * @dev This contract is an example helper for calling the distribution precompile from another contract.
@@ -64,7 +64,7 @@ contract DistributionWrapper {
      * @param _withdrawAddress The address of the delegator.
      */
     function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
-        distribution.setWithdrawAddress(_withdrawAddress);
+        return distribution.setWithdrawAddress(_withdrawAddress);
     }
 
     /**

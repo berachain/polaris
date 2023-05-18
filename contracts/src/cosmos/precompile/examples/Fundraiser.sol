@@ -26,7 +26,7 @@
 pragma solidity ^0.8.17;
 
 import {IBankModule} from "../Bank.sol";
-import {Owned} from "../../../../lib/Owned.sol";
+import {Owned} from "../../../../lib/solmate/src/auth/Owned.sol";
 import {Cosmos} from "../../CosmosTypes.sol";
 
 /**
