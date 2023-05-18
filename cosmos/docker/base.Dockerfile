@@ -19,7 +19,7 @@
 #######################################################
 
 ARG GO_VERSION=1.20.4
-ARG GOARCH=arm64
+ARG GOARCH=amd64
 ARG GOOS=linux
 ARG NAME=polaris-cosmos
 ARG APP_NAME=polard
