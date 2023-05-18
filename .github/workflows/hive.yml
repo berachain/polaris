@@ -35,6 +35,7 @@ jobs:
       - name: Build hive tool
         run: |
           cd hivetests
+          go work use .
           go build .
           mv ./hive ../artifacts/
 
