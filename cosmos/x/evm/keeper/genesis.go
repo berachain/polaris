@@ -44,11 +44,9 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 	}
 
 	go func() {
-		time.Sleep(4 * time.Second) //nolint:gomnd // we will fix this eventually.
-
+		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
 		// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
 		if err := k.polaris.StartServices(); err != nil {
-			// TODO: figure out how to propagate errors out of goroutine if that is a problem
 			return
 		}
 	}()

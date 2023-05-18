@@ -118,7 +118,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 			)
 		},
 		GenesisState:    BuildGenesisState(keysMap),
-		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
+		TimeoutCommit:   1 * time.Second, //nolint:gomnd // 1 seconds is the default.
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       "abera",
