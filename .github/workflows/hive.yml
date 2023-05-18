@@ -54,6 +54,24 @@ jobs:
       matrix:
         experimental: [true]
         sim: [ethereum/rpc-compat]
+        include:
+          - sim: ethereum/rpc-compat
+            include:
+              [
+                eth_blockNumber,
+                eth_call,
+                eth_chainId,
+                eth_estimateGas,
+                eth_feeHistory,
+                eth_getBalance,
+                eth_getBlockBy,
+                eth_getBlockTransactionCountBy,
+                eth_getCode,
+                eth_getStorage,
+                eth_sendRawTransaction,
+                eth_syncing,
+              ]
+            experimental: true
       fail-fast: false
     needs: prepare
     name: run
@@ -86,7 +104,7 @@ jobs:
       - name: Run ${{ matrix.sim }} simulator
         run: |
           cd hivetests
-          hive --sim "${{ matrix.sim }}$" --client polard -docker.output
+          hive --sim "${{ matrix.sim }}$" --sim.limit "${{matrix.limit}}/${{join(matrix.include, '|')}}" --client polard
 
       - name: Print simulator output
         if: ${{ failure() }}
