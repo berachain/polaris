@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
@@ -50,6 +51,9 @@ func NewEmptyStatePlugin() *PluginMock {
 				Code:     Accounts[address].Code,
 				CodeHash: Accounts[address].CodeHash,
 			}
+		},
+		CloneFunc: func() state.Plugin {
+			return nil
 		},
 		CreateAccountFunc: func(address common.Address) {
 			Accounts[address] = &Account{

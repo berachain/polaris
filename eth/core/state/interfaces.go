@@ -25,7 +25,6 @@ import (
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -38,6 +37,7 @@ type Plugin interface {
 	libtypes.Preparable
 	// Reset resets the state with the given `context`.
 	libtypes.Resettable
+	libtypes.Cloneable[Plugin]
 	// GetContext returns the current context of the state plugin.
 	GetContext() context.Context
 
@@ -87,22 +87,6 @@ type Plugin interface {
 }
 
 type (
-	// LogsJournal defines the interface for tracking logs created during a state transition.
-	LogsJournal interface {
-		// LogsJournal implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// SetTxContext sets the transaction hash and index for the current transaction.
-		SetTxContext(thash common.Hash, ti int)
-		// TxIndex returns the current transaction index.
-		TxIndex() int
-		// AddLog adds a log to the logs journal.
-		AddLog(*coretypes.Log)
-		// Logs returns the logs of the tx with the exisiting metadata.
-		Logs() []*coretypes.Log
-		// GetLogs returns the logs of the tx with the given metadata.
-		GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log
-	}
-
 	// RefundJournal is a `Store` that tracks the refund counter.
 	RefundJournal interface {
 		// RefundJournal implements `libtypes.Controllable`.

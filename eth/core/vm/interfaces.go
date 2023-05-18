@@ -22,9 +22,6 @@ package vm
 
 import (
 	"context"
-
-	"pkg.berachain.dev/polaris/eth/common"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 type (
@@ -32,11 +29,7 @@ type (
 	// additional state transition functionalities.
 	PolarisStateDB interface {
 		GethStateDB
-		// Finalize finalizes the state transition.
-		libtypes.Finalizeable
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
-		// Reset resets the state for the next transaction.
-		Reset(txHash common.Hash, txIndex int)
 	}
 )

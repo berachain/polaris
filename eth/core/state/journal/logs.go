@@ -25,21 +25,38 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
+
+// Logs defines the interface for tracking logs created during a state transition.
+type LogsI interface {
+	// LogsJournal implements `libtypes.Controllable`.
+	libtypes.Controllable[string]
+	// LogsJournal implements `libtypes.Cloneable`.
+	libtypes.Cloneable[LogsI]
+	// SetTxContext sets the transaction hash and index for the current transaction.
+	SetTxContext(thash common.Hash, ti int)
+	// TxIndex returns the current transaction index.
+	TxIndex() int
+	// AddLog adds a log to the logs journal.
+	AddLog(*coretypes.Log)
+	// Logs returns the logs of the tx with the exisiting metadata.
+	Logs() []*coretypes.Log
+	// GetLogs returns the logs of the tx with the given metadata.
+	GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log
+}
 
 // logs is a state plugin that tracks Ethereum logs.
 type logs struct {
-	// Reset every tx.
-	ds.Stack[*coretypes.Log] // journal of tx logs
+	ds.Stack[*coretypes.Log] // journal of logs that resets on every tx
 
 	txHash  common.Hash
 	txIndex int
 }
 
 // NewLogs returns a new `logs` journal.
-//
-//nolint:revive // only used as a `state.LogsJournal`.
-func NewLogs() *logs {
+func NewLogs() LogsI {
 	return &logs{
 		Stack: stack.New[*coretypes.Log](initCapacity),
 	}
@@ -107,5 +124,9 @@ func (l *logs) RevertToSnapshot(id int) {
 //
 // Finalize implements `libtypes.Controllable`.
 func (l *logs) Finalize() {
-	*l = *NewLogs()
+	*l = *utils.MustGetAs[*logs](NewLogs())
+}
+
+func (l *logs) Clone() LogsI {
+	return nil
 }

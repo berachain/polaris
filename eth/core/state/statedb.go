@@ -21,8 +21,6 @@
 package state
 
 import (
-	"sync"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -38,7 +36,7 @@ type stateDB struct {
 	Plugin
 
 	// Journals built internally and required for the stateDB.
-	LogsJournal
+	journal.LogsI
 	RefundJournal
 	AccessListJournal
 	SuicidesJournal
@@ -46,16 +44,15 @@ type stateDB struct {
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
-
-	// mtx is used to make sure we don't try to reset the statedb for a new transaction before
-	// finalizing the current transaction.
-	mtx sync.Mutex
 }
 
 // NewStateDB returns a vm.PolarisStateDB with the given StatePlugin.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
+	return newStateDBWithJournals(sp, journal.NewLogs())
+}
+
+func newStateDBWithJournals(sp Plugin, lj journal.LogsI) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
-	lj := journal.NewLogs()
 	rj := journal.NewRefund()
 	aj := journal.NewAccesslist()
 	sj := journal.NewSuicides(sp)
@@ -72,7 +69,7 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 
 	return &stateDB{
 		Plugin:                  sp,
-		LogsJournal:             lj,
+		LogsI:                   lj,
 		RefundJournal:           rj,
 		AccessListJournal:       aj,
 		TransientStorageJournal: tj,
@@ -96,24 +93,19 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 }
 
 // =============================================================================
-// Clean state
+// Commit state
 // =============================================================================
 
-// Reset sets the TxContext for the current transaction, blocking until finalize is called for the
-// previous transaction.
-func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
-	sdb.mtx.Lock()
-
-	sdb.LogsJournal.SetTxContext(txHash, txIndex)
-}
-
-// Finalize deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
+// Finalise deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
 // next transaction.
-func (sdb *stateDB) Finalize() {
-	defer sdb.mtx.Unlock()
-
+func (sdb *stateDB) Finalise(bool) {
 	sdb.DeleteAccounts(sdb.GetSuicides())
 	sdb.ctrl.Finalize()
+}
+
+func (sdb *stateDB) Commit(deleteEmptyObjects bool) (common.Hash, error) {
+	sdb.Finalise(deleteEmptyObjects)
+	return common.Hash{}, nil
 }
 
 // =============================================================================
@@ -177,17 +169,8 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 // Other
 // =============================================================================
 
-func (sdb *stateDB) Finalise(_ bool) {
-	sdb.Finalize()
-}
-
-func (sdb *stateDB) Commit(_ bool) (common.Hash, error) {
-	sdb.Finalize()
-	return common.Hash{}, nil
-}
-
 func (sdb *stateDB) Copy() StateDBI {
-	return NewStateDB(sdb.Plugin)
+	return newStateDBWithJournals(sdb.Plugin.Clone(), sdb.LogsI.Clone())
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {

@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"context"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -164,7 +163,14 @@ func (p *plugin) Run(
 // EnableReentrancy sets the state so that execution can enter the EVM again.
 //
 // EnableReentrancy implements core.PrecompilePlugin.
-func (p *plugin) EnableReentrancy(_ context.Context) {
+func (p *plugin) EnableReentrancy(evm ethprecompile.EVM) {
+	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
+	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
+
+	// pause precompile execution => stop emitting Cosmos event as Eth logs
+	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
+	cem.EndPrecompileExecution()
+
 	// We remove the KVStore gas metering from the context prior to entering the EVM state
 	// transition. This is because the EVM is not aware of the Cosmos SDK's gas metering and is
 	// designed to be used in a standalone manner, as each of the EVM's opcodes are priced
@@ -176,8 +182,14 @@ func (p *plugin) EnableReentrancy(_ context.Context) {
 // DisableReentrancy sets the state so that execution cannot enter the EVM again.
 //
 // DisableReentrancy implements core.PrecompilePlugin.
-func (p *plugin) DisableReentrancy(ctx context.Context) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
+func (p *plugin) DisableReentrancy(evm ethprecompile.EVM) {
+	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
+	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
+
+	// resume precompile execution => begin emitting Cosmos event as Eth logs
+	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
+	cem.BeginPrecompileExecution(sdb)
+
 	// restore ctx gas configs for continuing precompile execution
 	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
 }

@@ -21,8 +21,6 @@
 package precompile
 
 import (
-	"context"
-
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -45,10 +43,10 @@ type (
 
 		// EnableReentrancy enables the execution of a precompile contract to call back into the
 		// EVM.
-		EnableReentrancy(context.Context)
+		EnableReentrancy(EVM)
 		// DisableReentrancy disables the execution of a precompile contract to call back into the
 		// EVM.
-		DisableReentrancy(context.Context)
+		DisableReentrancy(EVM)
 	}
 )
 

@@ -150,7 +150,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Create a new context to be used in the EVM environment and tx context for the StateDB.
 	txContext := NewEVMTxContext(msg)
 	sp.evm.Reset(txContext, sp.statedb)
-	sp.statedb.Reset(txHash, len(sp.txs))
+	sp.statedb.SetTxContext(txHash, len(sp.txs))
 
 	// Set the gasPool to have the remaining gas in the block.
 	// By setting the gas pool to the delta between the block gas limit and the cumulative gas
@@ -171,7 +171,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		// ensure that the sender's nonce increases as well as the transaction fees are paid.
 		// The snapshotting within the EVM ensures that any reverted state changes are not reflected
 		// in the finalized state.
-		sp.statedb.Finalize() // TODO: mirror the correct sig from geth.
+		sp.statedb.Finalise(sp.cp.ChainConfig().IsEIP158(sp.header.Number))
 	} else {
 		panic("in Polaris we assume we are past EIP-658")
 	}
