@@ -70,6 +70,7 @@ var _ = Describe("GraphQL", func() {
 		Expect(blockNumber).To(BeNumerically(">", 0))
 	})
 
+	// TODO: this test is super unstable for some reason.
 	// It("should support eth_call", func() {
 	// 	_, addr := DeployERC20(tf.GenerateTransactOpts("alice"), client)
 	// 	// function selector for decimals() padded to 32 bytes
@@ -89,6 +90,7 @@ var _ = Describe("GraphQL", func() {
 	// 	Expect(status).To(Equal(200))
 	// 	Expect(err).ToNot(HaveOccurred())
 	// })
+
 	It("should support eth_estimateGas", func() {
 		alice := tf.Address("alice")
 		response, status, err := tf.SendGraphQLRequest(fmt.Sprintf(
