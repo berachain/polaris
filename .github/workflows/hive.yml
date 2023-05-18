@@ -18,7 +18,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./polaris
-          file: ./cosmos/docker/base.Dockerfile
+          file: ./polaris/cosmos/docker/base.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: polard-base:test-hive
