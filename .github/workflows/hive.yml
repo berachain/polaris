@@ -19,8 +19,8 @@ jobs:
           file: ./cosmos/docker/base.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: polard-base:ci
-          
+          tags: polard-base:test-hive
+
       - name: Checkout hive tests
         uses: actions/checkout@v3
         with:
