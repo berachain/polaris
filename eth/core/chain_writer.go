@@ -37,7 +37,7 @@ type ChainWriter interface {
 	Prepare(context.Context, int64)
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
+	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
 	// SendTx sends the given transaction to the tx pool.
@@ -95,7 +95,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.
-func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
+func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
 	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
 
 	// Reset the Gas and State plugins for the tx.
@@ -107,7 +107,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 
 // Finalize finalizes the current block.
 func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, logs, err := bc.processor.Finalize(ctx)
+	block, receipts, err := bc.processor.Finalize(ctx)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		}
 	}
 
-	// mark the current block and receipts and logs
+	// mark the current block, receipts, and logs
 	if block != nil {
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
@@ -156,9 +156,15 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 			)
 		}
 	}
+	var logs []*types.Log
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
 		bc.receiptsCache.Add(blockHash, receipts)
+
+		// build the list of logs on the block
+		for _, receipt := range receipts {
+			logs = append(logs, receipt.Logs...)
+		}
 	}
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)

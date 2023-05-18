@@ -41,21 +41,13 @@ func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.EthTransactionRequest,
 ) (*types.EthTransactionResponse, error) {
 	// Process the transaction and return the result.
-	result, err := k.ProcessTransaction(ctx, msg.AsTransaction())
+	receipt, err := k.ProcessTransaction(ctx, msg.AsTransaction())
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to process transaction")
 	}
 
-	// Build the response.
-	vmErr := ""
-	if result.Err != nil {
-		vmErr = result.Err.Error()
-	}
-
 	return &types.EthTransactionResponse{
-		GasUsed:    result.UsedGas,
-		VmError:    vmErr,
-		ReturnData: result.ReturnData,
+		GasUsed: receipt.GasUsed,
 	}, nil
 }
 

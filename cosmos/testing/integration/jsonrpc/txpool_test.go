@@ -75,21 +75,33 @@ var _ = Describe("Tx Pool", func() {
 	})
 
 	It("should handle multiple transactions as queued", func() {
-		beforeNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		// Get the starting nonce.
+		beforeNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
 		Expect(err).NotTo(HaveOccurred())
 
 		// send 10 transactions, each one with updated nonce
+		var txs []*coretypes.Transaction
+		var tx *coretypes.Transaction
 		for i := beforeNonce; i < beforeNonce+10; i++ {
 			txr := tf.GenerateTransactOpts("alice")
 			txr.Nonce = big.NewInt(int64(i))
-			_, err = contract.ConsumeGas(txr, big.NewInt(500))
-			Expect(err).NotTo(HaveOccurred())
+			tx, err = contract.ConsumeGas(txr, big.NewInt(500))
+			txs = append(txs, tx)
+			Expect(err).ToNot(HaveOccurred())
 		}
 
-		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
+		// check that nonce is updated in memory.
+		afterNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(afterNonce).To(Equal(beforeNonce + 1))
 
-		// check that nonce is updated
-		afterNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		// check to make sure all the txs went thru.
+		for _, tx := range txs {
+			ExpectSuccessReceipt(client, tx)
+		}
+
+		// verifier that nonce has increased on disk.
+		afterNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(afterNonce).To(Equal(beforeNonce + 10))
 	})
