@@ -1,0 +1,118 @@
+on:
+  pull_request:
+
+name: hive
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./polard/cosmos/docker/base.Dockerfile
+            dest: .
+          - dockerfile: ./polard/cosmos/docker/local/Dockerfile
+            dest: ./artifacts/polard_image.tar
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - run: mkdir artifacts
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and export polard image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          outputs: type=docker,dest=${{matrix.dest}}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Checkout hive tests
+        uses: actions/checkout@v3
+        with:
+          repository: berachain/hive
+          ref: master
+          path: hivetests
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '^1.20.4'
+      - run: go version
+      - name: Build hive tool
+        run: |
+          cd hivetests
+          go build .
+          mv ./hive ../artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts
+          path: ./artifacts
+
+
+  test:
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        experimental: [true]
+        sim: [ethereum/rpc]
+        # include:
+        #     # eth_ rpc methods
+        #   - sim: ethereum/rpc-compat
+        #     # include: [eth_blockNumber, eth_call, eth_chainId, eth_createAccessList, eth_estimateGas, eth_feeHistory, eth_getBalance, eth_getBlockBy, eth_getBlockTransactionCountBy, eth_getCode, eth_getStorage, eth_getTransactionBy, eth_getTransactionCount, eth_sendRawTransaction, eth_syncing]
+        #     experimental: true
+        #     # not running eth_getProof tests because we do not support
+        #     # eth_getProof yet
+        #     # - sim: ethereum/rpc-compat
+        #     #   include: [eth_getProof/get-account-proof-with-storage, eth_getProof/get-account-proof]
+        #     #   experimental: true
+        #     # debug_ rpc methods
+        #   - sim: ethereum/rpc-compat
+        #     # include: [debug_]
+        #     experimental: true
+      fail-fast: false
+    needs: prepare
+    name: run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/polard_image.tar
+          docker image ls -a
+      - name: Move hive binary
+        run: |
+          mv /tmp/hive /usr/local/bin
+          chmod +x /usr/local/bin/hive
+
+      # TODO: replace when we are not using a fork
+      - name: Checkout hive tests
+        uses: actions/checkout@v3
+        with:
+          repository: berachain/hive
+          ref: master
+          path: hivetests
+
+      - name: Run ${{ matrix.sim }} simulator
+        run: |
+          cd hivetests
+          hive --sim "${{ matrix.sim }}$" --client polard
+
+      - name: Print simulator output
+        if: ${{ failure() }}
+        run: |
+          cat hivetests/workspace/logs/*simulator*.log
+
+      - name: Print polard client logs
+        if: ${{ failure() }}
+        run: |
+          cat hivetests/workspace/logs/polard/client-*.log
