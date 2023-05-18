@@ -19,11 +19,15 @@ jobs:
           file: ./cosmos/docker/base.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          tags: polard-base:ci
+
       - name: Build and export polard image
         uses: docker/build-push-action@v4
         with:
           context: ./
           file: ./cosmos/docker/local/Dockerfile
+          build-args: |
+            POLARD_VERSION=polard-base:ci
           outputs: type=docker,dest=./artifacts/polard_image.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max

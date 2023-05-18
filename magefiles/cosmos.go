@@ -27,6 +27,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/magefile/mage/mg"
@@ -106,7 +107,7 @@ func (c Cosmos) Docker(node string) error {
 	} else {
 		path = baseDockerPath + node + "/Dockerfile"
 	}
-	return c.dockerBuildNode("polard-"+node, path, goVersion, version)
+	return c.dockerBuildNode("polard-"+node, path, goVersion, version, false)
 }
 
 func (c Cosmos) RunDockerLocal() error {
@@ -115,35 +116,24 @@ func (c Cosmos) RunDockerLocal() error {
 
 func (c Cosmos) DockerX() error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	return c.dockerBuildBeradWithX(goVersion)
-}
-
-func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
-	return dockerBuildFn(true)(
-		"--build-arg", "GO_VERSION="+goVersion,
-		"--platform", "linux/amd64", // TODO: do not hard code, have ability to pass as arg
-		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
-		"--build-arg", "GOOS=linux",
-		"--build-arg", "GOARCH=amd64",
-		"-f", execDockerPath,
-		"-t", "polaris:devnet-0.1", //TODO: do not hardcode, have ability to pass as arg
-		".",
-	)
+	return c.dockerBuildNode("polard", execDockerPath, goVersion, version, true)
 }
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) DockerDebug() error {
 	LogGreen("Build a debug docker image for the Cosmos SDK chain...")
-	return c.dockerBuildNode("debug", execDockerPath, goVersion, version)
+	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, false)
 }
 
 // Build a docker image for berad with the supplied arguments.
-func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion string) error {
-	return dockerBuildFn(false)(
+func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion string, withX bool) error {
+	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
+		"--build-arg", "GOOS="+runtime.GOOS,
+		"--build-arg", "GOARCH="+runtime.GOARCH,
 		"-f", dockerFilePath,
-		"-t", name+":"+imageVersion, //TODO: do not hardcode, have ability to pass as arg
+		"-t", name+":"+imageVersion,
 		".",
 	)
 }
