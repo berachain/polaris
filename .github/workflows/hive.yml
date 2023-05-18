@@ -53,21 +53,7 @@ jobs:
     strategy:
       matrix:
         experimental: [true]
-        sim: [ethereum/rpc, ethereum/rpc-compat]
-        # include:
-        #     # eth_ rpc methods
-        #   - sim: ethereum/rpc-compat
-        #     # include: [eth_blockNumber, eth_call, eth_chainId, eth_createAccessList, eth_estimateGas, eth_feeHistory, eth_getBalance, eth_getBlockBy, eth_getBlockTransactionCountBy, eth_getCode, eth_getStorage, eth_getTransactionBy, eth_getTransactionCount, eth_sendRawTransaction, eth_syncing]
-        #     experimental: true
-        #     # not running eth_getProof tests because we do not support
-        #     # eth_getProof yet
-        #     # - sim: ethereum/rpc-compat
-        #     #   include: [eth_getProof/get-account-proof-with-storage, eth_getProof/get-account-proof]
-        #     #   experimental: true
-        #     # debug_ rpc methods
-        #   - sim: ethereum/rpc-compat
-        #     # include: [debug_]
-        #     experimental: true
+        sim: [ethereum/rpc-compat]
       fail-fast: false
     needs: prepare
     name: run
