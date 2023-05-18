@@ -23,7 +23,6 @@ package staking_test
 import (
 	"math/big"
 	"testing"
-	"time"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -107,8 +106,8 @@ var _ = Describe("Staking", func() {
 		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		// Wait for a couple blocks to query.
-		time.Sleep(4 * time.Second)
+		err = tf.Network.WaitForNextBlock()
+		Expect(err).ToNot(HaveOccurred())
 
 		// Verify the delegation actually succeeded.
 		delegated, err = stakingPrecompile.GetDelegation(nil, contractAddr, validator)
