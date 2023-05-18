@@ -126,6 +126,7 @@ var _ = Describe("StateProcessor", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(1000001)
 			}
+			sdb.FinaliseFunc = func(bool) {}
 			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
@@ -157,6 +158,7 @@ var _ = Describe("StateProcessor", func() {
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
 			}
+			sdb.FinaliseFunc = func(bool) {}
 			legacyTxData.To = nil
 			legacyTxData.Value = big.NewInt(0)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
