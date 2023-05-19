@@ -535,14 +535,18 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 // Other
 // =============================================================================
 
+// Clone implements libtypes.Cloneable.
 func (p *plugin) Clone() ethstate.Plugin {
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
-	sp.Reset(p.ctx) // TODO: ensure this is "copied"
+	copy, _ := p.ctx.CacheContext()
+	sp.Reset(copy)
 	return sp
 }
 
+// SetGasConfig implements Plugin.
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
 }
 
+// IsPlugin implements plugins.Base.
 func (p *plugin) IsPlugin() {}
