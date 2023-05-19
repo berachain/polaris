@@ -36,11 +36,11 @@ type stateDB struct {
 	Plugin
 
 	// Journals built internally and required for the stateDB.
-	journal.LogsI
-	journal.RefundI
-	journal.AccessListI
-	journal.SuicidesI
-	journal.TransientStorageI
+	journal.Log
+	journal.Refund
+	journal.Accesslist
+	journal.Suicides
+	journal.TransientStorage
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
@@ -56,8 +56,8 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 
 // newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
 func newStateDBWithJournals(
-	sp Plugin, lj journal.LogsI, rj journal.RefundI, aj journal.AccessListI,
-	sj journal.SuicidesI, tj journal.TransientStorageI,
+	sp Plugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
+	sj journal.Suicides, tj journal.TransientStorage,
 ) vm.PolarisStateDB {
 	// Build the controller and register the plugins and journals
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
@@ -69,13 +69,13 @@ func newStateDBWithJournals(
 	_ = ctrl.Register(tj)
 
 	return &stateDB{
-		Plugin:            sp,
-		LogsI:             lj,
-		RefundI:           rj,
-		AccessListI:       aj,
-		SuicidesI:         sj,
-		TransientStorageI: tj,
-		ctrl:              ctrl,
+		Plugin:           sp,
+		Log:              lj,
+		Refund:           rj,
+		Accesslist:       aj,
+		Suicides:         sj,
+		TransientStorage: tj,
+		ctrl:             ctrl,
 	}
 }
 
@@ -120,7 +120,7 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {
 		// Clear out any leftover from previous executions
-		sdb.AccessListI = journal.NewAccesslist()
+		sdb.Accesslist = journal.NewAccesslist()
 
 		sdb.AddAddressToAccessList(sender)
 		if dest != nil {
@@ -173,8 +173,8 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 // Copy returns a new statedb with cloned plugin and journals.
 func (sdb *stateDB) Copy() StateDBI {
 	return newStateDBWithJournals(
-		sdb.Plugin.Clone(), sdb.LogsI.Clone(), sdb.RefundI.Clone(),
-		sdb.AccessListI.Clone(), sdb.SuicidesI.Clone(), sdb.TransientStorageI.Clone(),
+		sdb.Plugin.Clone(), sdb.Log.Clone(), sdb.Refund.Clone(),
+		sdb.Accesslist.Clone(), sdb.Suicides.Clone(), sdb.TransientStorage.Clone(),
 	)
 }
 

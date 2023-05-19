@@ -29,12 +29,12 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// LogsI defines the interface for tracking logs created during a state transition.
-type LogsI interface {
-	// LogsI implements `libtypes.Controllable`.
+// Log defines the interface for tracking logs created during a state transition.
+type Log interface {
+	// Log implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// LogsI implements `libtypes.Cloneable`.
-	libtypes.Cloneable[LogsI]
+	// Log implements `libtypes.Cloneable`.
+	libtypes.Cloneable[Log]
 	// SetTxContext sets the transaction hash and index for the current transaction.
 	SetTxContext(thash common.Hash, ti int)
 	// TxIndex returns the current transaction index.
@@ -56,7 +56,7 @@ type logs struct {
 }
 
 // NewLogs returns a new `logs` journal.
-func NewLogs() LogsI {
+func NewLogs() Log {
 	return &logs{
 		Stack: stack.New[*coretypes.Log](initCapacity),
 	}
@@ -130,7 +130,7 @@ func (l *logs) RevertToSnapshot(id int) {
 func (l *logs) Finalize() {}
 
 // Clone implements `libtypes.Cloneable`.
-func (l *logs) Clone() LogsI {
+func (l *logs) Clone() Log {
 	size := l.Size()
 	clone := &logs{
 		Stack:   stack.New[*coretypes.Log](size),

@@ -28,11 +28,11 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-type AccessListI interface {
-	// AccessListI implements `libtypes.Controllable`.
+type Accesslist interface {
+	// Accesslist implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// AccessListI implements `libtypes.Cloneable`.
-	libtypes.Cloneable[AccessListI]
+	// Accesslist implements `libtypes.Cloneable`.
+	libtypes.Cloneable[Accesslist]
 	// `AddAddressToAccessList` adds the given address to the access list.
 	AddAddressToAccessList(common.Address)
 	// `AddSlotToAccessList` adds the given slot to the access list for the given address.
@@ -49,7 +49,7 @@ type accessList struct {
 }
 
 // NewAccesslist returns a new `accessList` journal.
-func NewAccesslist() AccessListI {
+func NewAccesslist() Accesslist {
 	journal := stack.New[*AccessList](initCapacity)
 	journal.Push(NewAccessList())
 	return &accessList{
@@ -102,7 +102,7 @@ func (al *accessList) Finalize() {
 }
 
 // Clone implements `libtypes.Cloneable`.
-func (al *accessList) Clone() AccessListI {
+func (al *accessList) Clone() Accesslist {
 	size := al.journal.Size()
 	cpy := &accessList{
 		AccessList: al.AccessList.Copy(),

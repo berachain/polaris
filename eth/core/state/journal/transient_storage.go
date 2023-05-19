@@ -61,11 +61,11 @@ func (t transientState) Copy() transientState {
 	return storage
 }
 
-type TransientStorageI interface {
-	// TransientStorageI implements `libtypes.Controllable`.
+type TransientStorage interface {
+	// TransientStorage implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// TransientStorageI implements `libtypes.Cloneable`.
-	libtypes.Cloneable[TransientStorageI]
+	// TransientStorage implements `libtypes.Cloneable`.
+	libtypes.Cloneable[TransientStorage]
 	// GetTransientState returns a transient storage for a given account.
 	GetTransientState(addr common.Address, key common.Hash) common.Hash
 	// SetTransientState sets a given transient storage change to the transient journal.
@@ -78,7 +78,7 @@ type transientStorage struct {
 }
 
 // `NewTransientStorage` returns a new `transient` journal.
-func NewTransientStorage() TransientStorageI {
+func NewTransientStorage() TransientStorage {
 	return &transientStorage{
 		stack.New[transientState](initCapacity),
 	}
@@ -121,7 +121,7 @@ func (t *transientStorage) Finalize() {
 }
 
 // Clone implements `libtypes.Cloneable`.
-func (t *transientStorage) Clone() TransientStorageI {
+func (t *transientStorage) Clone() TransientStorage {
 	size := t.Size()
 	clone := &transientStorage{
 		stack.New[transientState](size),

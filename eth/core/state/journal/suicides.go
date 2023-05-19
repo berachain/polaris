@@ -45,12 +45,12 @@ type suicideStatePlugin interface {
 	SubBalance(common.Address, *big.Int)
 }
 
-type SuicidesI interface {
-	// SuicidesI implements `libtypes.Controllable`.
+type Suicides interface {
+	// Suicides implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// SuicidesI implements `libtypes.Cloneable`.
-	libtypes.Cloneable[SuicidesI]
-	// SuicidesI marks the given address as suicided.
+	// Suicides implements `libtypes.Cloneable`.
+	libtypes.Cloneable[Suicides]
+	// Suicides marks the given address as suicided.
 	Suicide(common.Address) bool
 	// HasSuicided returns whether the address is suicided.
 	HasSuicided(common.Address) bool
@@ -70,7 +70,7 @@ type suicides struct {
 }
 
 // NewSuicides returns a new suicides journal.
-func NewSuicides(ssp suicideStatePlugin) SuicidesI {
+func NewSuicides(ssp suicideStatePlugin) Suicides {
 	return &suicides{
 		journal:      stack.New[*common.Address](initCapacity),
 		ssp:          ssp,
@@ -144,7 +144,7 @@ func (s *suicides) Finalize() {
 }
 
 // Clone implements libtypes.Cloneable.
-func (s *suicides) Clone() SuicidesI {
+func (s *suicides) Clone() Suicides {
 	size := s.journal.Size()
 	clone := &suicides{
 		journal:      stack.New[*common.Address](size),
