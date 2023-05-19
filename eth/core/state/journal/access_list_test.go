@@ -84,5 +84,11 @@ var _ = Describe("AccessList", func() {
 		al2 := utils.MustGetAs[*accessList](al.Clone())
 		Expect(al2.ContainsAddress(a1)).To(BeTrue())
 		Expect(al2.ContainsAddress(a2)).To(BeFalse())
+
+		ac, sc = al2.AddSlot(a2, s1)
+		Expect(ac).To(BeTrue())
+		Expect(sc).To(BeTrue())
+		Expect(al2.ContainsAddress(a2)).To(BeTrue())
+		Expect(al.ContainsAddress(a2)).To(BeFalse())
 	})
 })
