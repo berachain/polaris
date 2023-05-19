@@ -162,7 +162,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	// Todo: nuke these caches anyways.
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
-		// bc.receiptsCache.Add(blockHash, receipts)
+		bc.receiptsCache.Add(blockHash, receipts)
 	}
 	// Todo: nuke these caches anyways.
 	if logs != nil {
