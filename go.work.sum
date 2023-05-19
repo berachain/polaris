@@ -272,6 +272,8 @@ github.com/aws/aws-sdk-go-v2 v1.9.1 h1:ZbovGV/qo40nrOJ4q8G33AGICzaPI45FHQWJ9650p
 github.com/aws/aws-sdk-go-v2/credentials v1.1.1 h1:NbvWIM1Mx6sNPTxowHgS2ewXCRp+NGTzUYb/96FZJbY=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.0.2 h1:4AH9fFjUlVktQMznF+YN33aWNXaR4VgDXyP28qokJC0=
 github.com/aws/smithy-go v1.8.0 h1:AEwwwXQZtUwP5Mz506FeXXrKBe0jA8gVM+1gEcSRooc=
+github.com/berachain/polaris-geth v0.0.0-20230518194428-8e46b8657a62 h1:tv7d5K53UT0s2fPWoniCeKXbRQNuy1wMsNT3KSxK0r0=
+github.com/berachain/polaris-geth v0.0.0-20230518194428-8e46b8657a62/go.mod h1:it7x0DWnTDMfVFdXcU6Ti4KEFQynLHVRarcSlPr0HBo=
 github.com/c-bata/go-prompt v0.2.2 h1:uyKRz6Z6DUyj49QVijyM339UJV9yhbr70gESwbNU3e0=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/crate-crypto/go-ipa v0.0.0-20220523130400-f11357ae11c7 h1:6IrxszG5G+O7zhtkWxq6+unVvnrm1fqV2Pe+T95DUzw=

@@ -80,7 +80,8 @@ var _ = Describe("StateProcessor", func() {
 			return false
 		}
 		gp.SetBlockGasLimit(uint64(blockGasLimit))
-
+		sdb.SetTxContextFunc = func(thash common.Hash, ti int) {}
+		sdb.TxIndexFunc = func() int { return 0 }
 		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
 		evm = vm.NewGethEVMWithPrecompiles(
@@ -106,7 +107,6 @@ var _ = Describe("StateProcessor", func() {
 		BeforeEach(func() {
 			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
-
 			sp.Prepare(evm, dummyHeader)
 		})
 
@@ -127,6 +127,7 @@ var _ = Describe("StateProcessor", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(1000001)
 			}
+			sdb.FinaliseFunc = func(bool) {}
 			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
@@ -159,6 +160,7 @@ var _ = Describe("StateProcessor", func() {
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
 			}
+			sdb.FinaliseFunc = func(bool) {}
 			legacyTxData.To = nil
 			legacyTxData.Value = big.NewInt(0)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
