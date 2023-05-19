@@ -100,7 +100,7 @@ var _ = Describe("Tx Pool", func() {
 			ExpectSuccessReceipt(client, tx)
 		}
 
-		// verifier that nonce has increased on disk.
+		// verify the nonce has increased on disk.
 		afterNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(afterNonce).To(Equal(beforeNonce + 10))
