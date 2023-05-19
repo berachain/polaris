@@ -31,7 +31,7 @@ import (
 func NewSuicidesStatePluginMock() *suicideStatePluginMock {
 	return &suicideStatePluginMock{
 		GetCodeHashFunc: func(address common.Address) common.Hash {
-			if address == common.HexToAddress("0x1") || address == common.HexToAddress("0x3") {
+			if address == common.HexToAddress("0x1") || address == common.HexToAddress("0x3") || address == common.HexToAddress("0x4") {
 				return common.Hash{0x1}
 			}
 			return common.Hash{}
