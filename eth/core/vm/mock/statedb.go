@@ -23,6 +23,8 @@ package mock
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/params"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -58,6 +60,9 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		},
 		EmptyFunc: func(address common.Address) bool {
 			return true
+		},
+		ErrorFunc: func() error {
+			return nil
 		},
 		ExistFunc: func(address common.Address) bool {
 			return false
@@ -97,6 +102,15 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		},
 		HasSuicidedFunc: func(address common.Address) bool {
 			return false
+		},
+		PrepareFunc: func(rules params.Rules, sender common.Address,
+			coinbase common.Address, dest *common.Address,
+			precompiles []common.Address, txAccesses types.AccessList,
+		) {
+			// no-op
+		},
+		ResetFunc: func(common.Hash, int) {
+			// no-op
 		},
 		RevertToSnapshotFunc: func(n int) {
 

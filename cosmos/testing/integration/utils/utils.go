@@ -116,20 +116,13 @@ func DeployERC20(
 	Expect(err).ToNot(HaveOccurred())
 
 	// Wait for the transaction to be mined.
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), TxTimeout)
 	defer cancel()
-	_, err = bind.WaitDeployed(ctx, client, tx)
-	Expect(err).ToNot(HaveOccurred())
 
-	// Just to be safe we also check the receipt.
-	receipt, err := bind.WaitMined(ctx, client, tx)
+	var addr common.Address
+	addr, err = bind.WaitDeployed(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())
-
-	// Ensure that the receipt was successful.
-	Expect(err).ToNot(HaveOccurred())
-	Expect(receipt.Status).To(Equal(uint64(0x1))) //nolint:gomnd // success.
-	// Ensure that the contract address is correct.
-	Expect(expectedAddr).To(Equal(receipt.ContractAddress))
+	Expect(addr).To(Equal(expectedAddr))
 
 	return contract, expectedAddr
 }

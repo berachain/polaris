@@ -27,10 +27,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/trie"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -104,7 +104,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // Prepare prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -126,6 +126,7 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 
 	// Setup the EVM for this block.
 	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
+
 	// We re-register the default geth precompiles every block, this isn't optimal, but since
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
@@ -138,76 +139,40 @@ func (sp *StateProcessor) Prepare(ctx context.Context, evm *vm.GethEVM, header *
 func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
-	txHash := tx.Hash()
-	msg, err := TransactionToMessage(tx, sp.signer, sp.header.BaseFee)
+	var (
+		// We set the gasUsed to the amount of gas so far used in the block.
+		gasUsed = sp.gp.BlockGasConsumed()
+		// We set the gasPool = gasLimit - gasUsed.
+		gasPool = GasPool(sp.header.GasLimit - gasUsed)
+	)
+
+	// Set the transaction context in the state database.
+	// This clears the logs and sets the transaction info.
+	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
+
+	// Inshallah we will be able to apply the transaction.
+	receipt, result, err := ApplyTransactionWithEVMWithResult(
+		sp.evm, sp.cp.ChainConfig(), nil, &gasPool, sp.statedb, sp.header, tx, &gasUsed,
+	)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not apply tx %d [%s]", len(sp.txs), txHash.Hex())
+		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
 
-	// Create a new context to be used in the EVM environment and tx context for the StateDB.
-	txContext := NewEVMTxContext(msg)
-	sp.evm.Reset(txContext, sp.statedb)
-	sp.statedb.Reset(txHash, len(sp.txs))
-
-	// Set the gasPool to have the remaining gas in the block.
-	// By setting the gas pool to the delta between the block gas limit and the cumulative gas
-	// used, we intrinsic handle the case where the transaction on our host chain might have
-	// fully reverted, when it fact it should've been a vm error saying out of gas.
-	gasPool := GasPool(sp.gp.BlockGasLimit() - sp.gp.BlockGasConsumed())
-
-	// Apply the state transition.
-	result, err := ApplyMessage(sp.evm, msg, &gasPool)
-	if err != nil {
-		return nil, errors.Wrapf(err, "could not apply message %d [%s]", len(sp.txs), txHash.Hex())
+	// Consume the gas used by the state transition. In both the out of block gas as well as out of
+	// gas on the plugin cases, the line below will consume the remaining gas for the block and
+	// transaction respectively.
+	if err = sp.gp.ConsumeGas(receipt.GasUsed); err != nil {
+		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), tx.Hash().Hex())
 	}
-
-	// If we used more gas than we had remaining on the gas plugin, we treat it as an out of gas error,
-	// while still ensuring that we consume all the gas.
-	if result.UsedGas > sp.gp.GasRemaining() {
-		result.UsedGas = sp.gp.GasRemaining()
-		result.Err = vm.ErrOutOfGas
-	}
-
-	// Consume the gas used by the state transition. In both the out of block gas as well as out of gas on
-	// the plugin cases, the line below will consume the remaining gas for the block and transaction respectively.
-	if err = sp.gp.ConsumeGas(result.UsedGas); err != nil {
-		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), txHash.Hex())
-	}
-
-	// Create a new receipt for the transaction.
-	receipt := &types.Receipt{
-		Type:              tx.Type(),
-		CumulativeGasUsed: sp.gp.BlockGasConsumed() + sp.gp.GasConsumed(),
-		TxHash:            txHash,
-		GasUsed:           result.UsedGas,
-		Logs:              sp.statedb.Logs(),
-	}
-
-	// If the transaction created a contract, store the creation address in the receipt.
-	if msg.To == nil {
-		receipt.ContractAddress = crypto.CreateAddress(txContext.Origin, tx.Nonce())
-	}
-
-	// Set the receipt status based on the execution result status.
-	if result.Failed() {
-		receipt.Status = types.ReceiptStatusFailed
-	} else {
-		receipt.Status = types.ReceiptStatusSuccessful
-	}
-
-	// Finalize the statedb to ensure that any state changes that are required are propogated.
-	// We have to do this irrespective of whether the transaction failed or not, in order to
-	// ensure that the sender's nonce increases as well as the transaction fees are paid.
-	// The snapshotting within the EVM ensures that any reverted state changes are not reflected
-	// in the finalized state.
-	sp.statedb.Finalize()
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
+	// We set the blockhash to be nil to be safe, since the blockhash isn't fully correct yet.
+	receipt.BlockHash = common.Hash{}
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.
-	return result, nil
+	return result, err
 }
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
@@ -220,30 +185,20 @@ func (sp *StateProcessor) Finalize(
 	// Now that we are done processing the block, we update the header with the consumed gas.
 	sp.header.GasUsed = sp.gp.BlockGasConsumed()
 
-	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom) and
-	// reset the header for the next block.
+	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
 	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
-	sp.header = nil
 
-	// We iterate over all of the receipts/transactions in the block and update the receipt to
-	// have the correct values. We must do this AFTER all the transactions have been processed
-	// to ensure that the block hash, logs and bloom filter have the correct information.
-	blockHash, blockNumber, blockBloom := block.Hash(), block.NumberU64(), block.Bloom()
-	var logIndex uint
+	// Update hashes on the receipts and logs, we have to do this in Finalize since when
+	// the transaction is actually being processed, we don't have the real blockhash. This is a
+	// fundamental design difference in the way polaris vs geth processes transactions.
 	var logs []*types.Log
-	for txIndex, receipt := range sp.receipts {
-		// Edit the receipts to include the block hash and bloom filter.
-		for _, log := range receipt.Logs {
-			log.BlockNumber = blockNumber
-			log.BlockHash = blockHash
-			log.Index = logIndex
-			logIndex++
-			logs = append(logs, log)
-		}
-		receipt.Bloom = blockBloom
+	blockHash := block.Hash()
+	for _, receipt := range sp.receipts {
 		receipt.BlockHash = blockHash
-		receipt.BlockNumber = block.Number()
-		receipt.TransactionIndex = uint(txIndex)
+		for _, log := range receipt.Logs {
+			log.BlockHash = blockHash
+		}
+		logs = append(logs, receipt.Logs...)
 	}
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.

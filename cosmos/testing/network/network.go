@@ -52,6 +52,11 @@ type (
 	Config  = network.Config
 )
 
+//nolint:gochecknoinits // i hate cosmos.
+func init() {
+	config.SetupCosmosConfig()
+}
+
 const (
 	two         = 2
 	thousand    = 1000
@@ -113,7 +118,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 			)
 		},
 		GenesisState:    BuildGenesisState(keysMap),
-		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
+		TimeoutCommit:   time.Second,
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       "abera",
