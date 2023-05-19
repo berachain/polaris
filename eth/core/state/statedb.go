@@ -103,7 +103,6 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // previous transaction.
 func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
 	sdb.mtx.Lock()
-
 	sdb.LogsJournal.SetTxContext(txHash, txIndex)
 }
 
