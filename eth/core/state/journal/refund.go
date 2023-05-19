@@ -96,11 +96,11 @@ func (r *refund) Finalize() {
 // Clone implements `libtypes.Cloneable`.
 func (r *refund) Clone() RefundI {
 	size := r.Size()
-	copy := &refund{
+	clone := &refund{
 		Stack: stack.New[uint64](size),
 	}
 	for i := 0; i < size; i++ {
-		copy.Push(r.PeekAt(i))
+		clone.Push(r.PeekAt(i))
 	}
-	return copy
+	return clone
 }

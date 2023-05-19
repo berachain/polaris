@@ -538,8 +538,8 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 // Clone implements libtypes.Cloneable.
 func (p *plugin) Clone() ethstate.Plugin {
 	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
-	copy, _ := p.ctx.CacheContext()
-	sp.Reset(copy)
+	cacheCtx, _ := p.ctx.CacheContext()
+	sp.Reset(cacheCtx)
 	return sp
 }
 

@@ -146,7 +146,7 @@ func (s *suicides) Finalize() {
 // Clone implements libtypes.Cloneable.
 func (s *suicides) Clone() SuicidesI {
 	size := s.journal.Size()
-	copy := &suicides{
+	clone := &suicides{
 		journal:      stack.New[*common.Address](size),
 		ssp:          s.ssp,
 		lastSnapshot: s.lastSnapshot,
@@ -156,8 +156,8 @@ func (s *suicides) Clone() SuicidesI {
 	for i := 0; i < size; i++ {
 		cpy := new(common.Address)
 		*cpy = *s.journal.PeekAt(i)
-		copy.journal.Push(cpy)
+		clone.journal.Push(cpy)
 	}
 
-	return copy
+	return clone
 }

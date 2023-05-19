@@ -132,7 +132,7 @@ func (l *logs) Finalize() {}
 // Clone implements `libtypes.Cloneable`.
 func (l *logs) Clone() LogsI {
 	size := l.Size()
-	copy := &logs{
+	clone := &logs{
 		Stack:   stack.New[*coretypes.Log](size),
 		txHash:  l.txHash,
 		txIndex: l.txIndex,
@@ -142,8 +142,8 @@ func (l *logs) Clone() LogsI {
 	for i := 0; i < size; i++ {
 		cpy := new(coretypes.Log)
 		*cpy = *l.PeekAt(i)
-		copy.Push(cpy)
+		clone.Push(cpy)
 	}
 
-	return copy
+	return clone
 }
