@@ -217,6 +217,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		log.Index = sp.logIndex
 		sp.logIndex++
 	}
+
 	// Add the bloom filter to the receipt.
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.TransactionIndex = uint(len(sp.txs))

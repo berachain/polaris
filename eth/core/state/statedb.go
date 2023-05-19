@@ -46,11 +46,12 @@ type stateDB struct {
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 }
 
-// NewStateDB returns a vm.PolarisStateDB with the given StatePlugin.
+// NewStateDB returns a vm.PolarisStateDB with the given StatePlugin and new journals.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	return newStateDBWithJournals(sp, journal.NewLogs())
 }
 
+// newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
 func newStateDBWithJournals(sp Plugin, lj journal.LogsI) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
 	rj := journal.NewRefund()
@@ -169,6 +170,7 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 // Other
 // =============================================================================
 
+// Copy returns a new statedb with cloned plugin and journals.
 func (sdb *stateDB) Copy() StateDBI {
 	return newStateDBWithJournals(sdb.Plugin.Clone(), sdb.LogsI.Clone())
 }
