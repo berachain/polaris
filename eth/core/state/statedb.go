@@ -96,7 +96,6 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Reset sets the TxContext for the current transaction, blocking until finalize is called for the
 // previous transaction.
 func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
-	sdb.mtx.Lock()
 	sdb.LogsJournal.SetTxContext(txHash, txIndex)
 }
 
