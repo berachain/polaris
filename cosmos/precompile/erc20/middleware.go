@@ -27,6 +27,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	abi "github.com/ethereum/go-ethereum/accounts/abi"
+
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -183,22 +185,17 @@ func (c *Contract) transferERC20ToCoin(
 		}
 
 		var (
-			ret           []any
 			balanceBefore *big.Int
 			balanceAfter  *big.Int
 			plugin        = c.GetPlugin()
 		)
 
 		// check the ERC20 module's balance of the ERC20-originated token
-		ret, err = cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
-			sdkCtx, plugin, evm,
-			c.RegistryKey(), token, c.polarisERC20ABI,
-			balanceOf, c.RegistryKey(),
-		)
-		if err != nil {
+		if balanceBefore, err = getBalanceOf(
+			sdkCtx, plugin, evm, c.RegistryKey(), token, c.polarisERC20ABI, c.RegistryKey(),
+		); err != nil {
 			return err
 		}
-		balanceBefore = utils.MustGetAs[*big.Int](ret[0])
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
@@ -212,15 +209,11 @@ func (c *Contract) transferERC20ToCoin(
 		}
 
 		// check the ERC20 module's balance of the ERC20-originated token
-		ret, err = cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
-			sdkCtx, plugin, evm,
-			c.RegistryKey(), token, c.polarisERC20ABI,
-			balanceOf, c.RegistryKey(),
-		)
-		if err != nil {
+		if balanceAfter, err = getBalanceOf(
+			sdkCtx, plugin, evm, c.RegistryKey(), token, c.polarisERC20ABI, c.RegistryKey(),
+		); err != nil {
 			return err
 		}
-		balanceAfter = utils.MustGetAs[*big.Int](ret[0])
 
 		// mint amount Polaris Coins to recipient
 		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
@@ -250,4 +243,25 @@ func (c *Contract) transferERC20ToCoin(
 		),
 	)
 	return nil
+}
+
+// getBalanceOf returns the balanceOf `address` for a ERC20 token at `contractAddr`.
+func getBalanceOf(
+	ctx sdk.Context,
+	plugin ethprecompile.Plugin,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	contractAddr common.Address,
+	contract abi.ABI,
+	address common.Address,
+) (*big.Int, error) {
+	ret, err := cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
+		ctx, plugin, evm,
+		caller, contractAddr, contract,
+		balanceOf, address,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return utils.MustGetAs[*big.Int](ret[0]), nil
 }
