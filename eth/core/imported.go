@@ -47,7 +47,7 @@ type (
 
 var (
 	// ApplyTransactionWithEVM applies a transaction to the current state of the blockchain.
-	ApplyTransactionWithEVM = core.ApplyTransactionWithEVM
+	ApplyTransactionWithEVMWithResult = core.ApplyTransactionWithEVMWithResult
 	// NewEVMTxContext creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
 	// NewEVMBlockContext creates a new block context for a given header.

@@ -132,8 +132,8 @@ var _ = Describe("StateProcessor", func() {
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Status).To(Equal(uint64(1)))
-			Expect(result.GasUsed).ToNot(BeZero())
+			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.UsedGas).ToNot(BeZero())
 			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
@@ -168,7 +168,7 @@ var _ = Describe("StateProcessor", func() {
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Status).To(Equal(uint64(1)))
+			Expect(result.Err).ToNot(HaveOccurred())
 
 			// Now try calling the contract
 			legacyTxData.To = &dummyContract
@@ -177,7 +177,7 @@ var _ = Describe("StateProcessor", func() {
 			result, err = sp.ProcessTransaction(context.Background(), signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Status).To(Equal(uint64(1)))
+			Expect(result.Err).ToNot(HaveOccurred())
 			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())

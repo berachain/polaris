@@ -138,7 +138,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 // ProcessTransaction applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
-) (*types.Receipt, error) {
+) (*ExecutionResult, error) {
 	var (
 		// We set the gasUsed to the amount of gas so far used in the block.
 		gasUsed = sp.gp.BlockGasConsumed()
@@ -151,8 +151,8 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
 
 	// Inshallah we will be able to apply the transaction.
-	receipt, err := ApplyTransactionWithEVM(
-		sp.evm, sp.cp.ChainConfig(), &gasPool, sp.statedb, sp.header, tx, &gasUsed,
+	receipt, result, err := ApplyTransactionWithEVMWithResult(
+		sp.evm, sp.cp.ChainConfig(), sp.cp.FeeCollector(), &gasPool, sp.statedb, sp.header, tx, &gasUsed,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
@@ -172,7 +172,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.
-	return receipt, err
+	return result, err
 }
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter.

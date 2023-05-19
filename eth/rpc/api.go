@@ -26,7 +26,7 @@ import (
 
 // GetAPIs returns a list of all available APIs.
 func GetAPIs(apiBackend PolarisBackend) []API {
-	return append(GetGethAPIs(apiBackend),
+	return append(GetGethAPIs(apiBackend, nil), // todo: required chain for flashbots.
 		API{
 			Namespace: "eth",
 			Service:   api.NewEthashAPI(apiBackend),

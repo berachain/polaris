@@ -54,6 +54,12 @@ message EthTransactionResponse {
   option (gogoproto.goproto_getters) = false;
   // `gas_used` represents the gas used by the virtual machine execution.
   uint64 gas_used = 1;
+
+  // `vm_error` contains an error message if the virtual machine execution failed.
+  string vm_error = 2;
+
+  // `return_data` contains the return data of the virtual machine execution.
+  bytes return_data = 3;
 }
 
 // `UpdateParamsRequest` is the Msg/UpdateParams request type.
