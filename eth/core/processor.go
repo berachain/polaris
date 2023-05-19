@@ -146,6 +146,10 @@ func (sp *StateProcessor) ProcessTransaction(
 		gasPool = GasPool(sp.header.GasLimit - gasUsed)
 	)
 
+	// Set the transaction context in the state database.
+	// This clears the logs and sets the transaction info.
+	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
+
 	// Inshallah we will be able to apply the transaction.
 	receipt, err := ApplyTransactionWithEVM(
 		sp.evm, sp.cp.ChainConfig(), &gasPool, sp.statedb, sp.header, tx, &gasUsed,
