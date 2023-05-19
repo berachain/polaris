@@ -87,18 +87,6 @@ type Plugin interface {
 }
 
 type (
-	// RefundJournal is a `Store` that tracks the refund counter.
-	RefundJournal interface {
-		// RefundJournal implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// GetRefund returns the current value of the refund counter.
-		GetRefund() uint64
-		// AddRefund sets the refund counter to the given `gas`.
-		AddRefund(gas uint64)
-		// SubRefund subtracts the given `gas` from the refund counter.
-		SubRefund(gas uint64)
-	}
-
 	AccessListJournal interface {
 		// AccessListJournal implements `libtypes.Controllable`.
 		libtypes.Controllable[string]

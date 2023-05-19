@@ -167,7 +167,7 @@ func (p *plugin) EnableReentrancy(evm ethprecompile.EVM) {
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
-	// pause precompile execution => stop emitting Cosmos event as Eth logs
+	// pause precompile execution => stop emitting Cosmos event as Eth logs for now
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
 	cem.EndPrecompileExecution()
 
@@ -186,7 +186,7 @@ func (p *plugin) DisableReentrancy(evm ethprecompile.EVM) {
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
-	// resume precompile execution => begin emitting Cosmos event as Eth logs
+	// resume precompile execution => begin emitting Cosmos event as Eth logs again
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
 	cem.BeginPrecompileExecution(sdb)
 

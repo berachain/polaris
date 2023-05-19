@@ -37,7 +37,7 @@ type stateDB struct {
 
 	// Journals built internally and required for the stateDB.
 	journal.LogsI
-	RefundJournal
+	journal.RefundI
 	AccessListJournal
 	SuicidesJournal
 	TransientStorageJournal
@@ -48,13 +48,12 @@ type stateDB struct {
 
 // NewStateDB returns a vm.PolarisStateDB with the given StatePlugin and new journals.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
-	return newStateDBWithJournals(sp, journal.NewLogs())
+	return newStateDBWithJournals(sp, journal.NewLogs(), journal.NewRefund())
 }
 
 // newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
-func newStateDBWithJournals(sp Plugin, lj journal.LogsI) vm.PolarisStateDB {
+func newStateDBWithJournals(sp Plugin, lj journal.LogsI, rj journal.RefundI) vm.PolarisStateDB {
 	// Build the journals required for the stateDB
-	rj := journal.NewRefund()
 	aj := journal.NewAccesslist()
 	sj := journal.NewSuicides(sp)
 	tj := journal.NewTransientStorage()
@@ -71,7 +70,7 @@ func newStateDBWithJournals(sp Plugin, lj journal.LogsI) vm.PolarisStateDB {
 	return &stateDB{
 		Plugin:                  sp,
 		LogsI:                   lj,
-		RefundJournal:           rj,
+		RefundI:                 rj,
 		AccessListJournal:       aj,
 		TransientStorageJournal: tj,
 		SuicidesJournal:         sj,
@@ -172,7 +171,9 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 
 // Copy returns a new statedb with cloned plugin and journals.
 func (sdb *stateDB) Copy() StateDBI {
-	return newStateDBWithJournals(sdb.Plugin.Clone(), sdb.LogsI.Clone())
+	return newStateDBWithJournals(
+		sdb.Plugin.Clone(), sdb.LogsI.Clone(), sdb.RefundI.Clone(),
+	)
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {
