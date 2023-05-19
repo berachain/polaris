@@ -109,9 +109,6 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		) {
 			// no-op
 		},
-		ResetFunc: func(common.Hash, int) {
-			// no-op
-		},
 		RevertToSnapshotFunc: func(n int) {
 
 		},

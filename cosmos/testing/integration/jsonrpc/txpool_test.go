@@ -84,7 +84,8 @@ var _ = Describe("Tx Pool", func() {
 		for i := beforeNonce; i < beforeNonce+10; i++ {
 			txr := tf.GenerateTransactOpts("charlie")
 			txr.Nonce = big.NewInt(int64(i))
-			tx, err := contract.ConsumeGas(txr, big.NewInt(50))
+			var tx *coretypes.Transaction
+			tx, err = contract.ConsumeGas(txr, big.NewInt(50))
 			txs = append(txs, tx)
 			Expect(err).ToNot(HaveOccurred())
 		}

@@ -75,9 +75,6 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			FinaliseFunc: func(deleteEmptyObjects bool)  {
 //				panic("mock out the Finalise method")
 //			},
-//			FinalizeFunc: func()  {
-//				panic("mock out the Finalize method")
-//			},
 //			ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
 //				panic("mock out the ForEachStorage method")
 //			},
@@ -143,9 +140,6 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			},
 //			RawDumpFunc: func(opts *state.DumpConfig) state.Dump {
 //				panic("mock out the RawDump method")
-//			},
-//			ResetFunc: func(txHash common.Hash, txIndex int)  {
-//				panic("mock out the Reset method")
 //			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
@@ -256,9 +250,6 @@ type PolarisStateDBMock struct {
 	// FinaliseFunc mocks the Finalise method.
 	FinaliseFunc func(deleteEmptyObjects bool)
 
-	// FinalizeFunc mocks the Finalize method.
-	FinalizeFunc func()
-
 	// ForEachStorageFunc mocks the ForEachStorage method.
 	ForEachStorageFunc func(address common.Address, fn func(common.Hash, common.Hash) bool) error
 
@@ -324,9 +315,6 @@ type PolarisStateDBMock struct {
 
 	// RawDumpFunc mocks the RawDump method.
 	RawDumpFunc func(opts *state.DumpConfig) state.Dump
-
-	// ResetFunc mocks the Reset method.
-	ResetFunc func(txHash common.Hash, txIndex int)
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -468,9 +456,6 @@ type PolarisStateDBMock struct {
 			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
 			DeleteEmptyObjects bool
 		}
-		// Finalize holds details about calls to the Finalize method.
-		Finalize []struct {
-		}
 		// ForEachStorage holds details about calls to the ForEachStorage method.
 		ForEachStorage []struct {
 			// Address is the address argument value.
@@ -597,13 +582,6 @@ type PolarisStateDBMock struct {
 			// Opts is the opts argument value.
 			Opts *state.DumpConfig
 		}
-		// Reset holds details about calls to the Reset method.
-		Reset []struct {
-			// TxHash is the txHash argument value.
-			TxHash common.Hash
-			// TxIndex is the txIndex argument value.
-			TxIndex int
-		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
 			// N is the n argument value.
@@ -723,7 +701,6 @@ type PolarisStateDBMock struct {
 	lockError                  sync.RWMutex
 	lockExist                  sync.RWMutex
 	lockFinalise               sync.RWMutex
-	lockFinalize               sync.RWMutex
 	lockForEachStorage         sync.RWMutex
 	lockGetBalance             sync.RWMutex
 	lockGetCode                sync.RWMutex
@@ -746,7 +723,6 @@ type PolarisStateDBMock struct {
 	lockPreimages              sync.RWMutex
 	lockPrepare                sync.RWMutex
 	lockRawDump                sync.RWMutex
-	lockReset                  sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSetBalance             sync.RWMutex
 	lockSetCode                sync.RWMutex
@@ -1308,33 +1284,6 @@ func (mock *PolarisStateDBMock) FinaliseCalls() []struct {
 	mock.lockFinalise.RLock()
 	calls = mock.calls.Finalise
 	mock.lockFinalise.RUnlock()
-	return calls
-}
-
-// Finalize calls FinalizeFunc.
-func (mock *PolarisStateDBMock) Finalize() {
-	if mock.FinalizeFunc == nil {
-		panic("PolarisStateDBMock.FinalizeFunc: method is nil but PolarisStateDB.Finalize was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockFinalize.Lock()
-	mock.calls.Finalize = append(mock.calls.Finalize, callInfo)
-	mock.lockFinalize.Unlock()
-	mock.FinalizeFunc()
-}
-
-// FinalizeCalls gets all the calls that were made to Finalize.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.FinalizeCalls())
-func (mock *PolarisStateDBMock) FinalizeCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockFinalize.RLock()
-	calls = mock.calls.Finalize
-	mock.lockFinalize.RUnlock()
 	return calls
 }
 
@@ -2067,42 +2016,6 @@ func (mock *PolarisStateDBMock) RawDumpCalls() []struct {
 	mock.lockRawDump.RLock()
 	calls = mock.calls.RawDump
 	mock.lockRawDump.RUnlock()
-	return calls
-}
-
-// Reset calls ResetFunc.
-func (mock *PolarisStateDBMock) Reset(txHash common.Hash, txIndex int) {
-	if mock.ResetFunc == nil {
-		panic("PolarisStateDBMock.ResetFunc: method is nil but PolarisStateDB.Reset was just called")
-	}
-	callInfo := struct {
-		TxHash  common.Hash
-		TxIndex int
-	}{
-		TxHash:  txHash,
-		TxIndex: txIndex,
-	}
-	mock.lockReset.Lock()
-	mock.calls.Reset = append(mock.calls.Reset, callInfo)
-	mock.lockReset.Unlock()
-	mock.ResetFunc(txHash, txIndex)
-}
-
-// ResetCalls gets all the calls that were made to Reset.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.ResetCalls())
-func (mock *PolarisStateDBMock) ResetCalls() []struct {
-	TxHash  common.Hash
-	TxIndex int
-} {
-	var calls []struct {
-		TxHash  common.Hash
-		TxIndex int
-	}
-	mock.lockReset.RLock()
-	calls = mock.calls.Reset
-	mock.lockReset.RUnlock()
 	return calls
 }
 
