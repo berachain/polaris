@@ -53,6 +53,10 @@ func (l *logs) RegistryKey() string {
 
 // SetTxContext sets the transaction hash and index for the current transaction.
 func (l *logs) SetTxContext(thash common.Hash, ti int) {
+	// Reset the journal for a new transaction.
+	*l = *NewLogs()
+
+	// Set the transaction hash and index.
 	l.txHash = thash
 	l.txIndex = ti
 	if l.journal[thash] == nil {
