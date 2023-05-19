@@ -22,7 +22,7 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/state/mock"
+	"pkg.berachain.dev/polaris/eth/core/state/journal/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -33,16 +33,7 @@ var _ = Describe("Suicides", func() {
 	var s *suicides
 
 	BeforeEach(func() {
-		sp := mock.NewEmptyStatePlugin()
-		sp.CreateAccount(common.HexToAddress("0x1"))
-		sp.CreateAccount(common.HexToAddress("0x3"))
-		sp.GetCodeHashFunc = func(address common.Address) common.Hash {
-			if address == common.HexToAddress("0x1") || address == common.HexToAddress("0x3") {
-				return common.Hash{0x1}
-			}
-			return common.Hash{}
-		}
-		s = utils.MustGetAs[*suicides](NewSuicides(sp))
+		s = utils.MustGetAs[*suicides](NewSuicides(mock.NewSuicidesStatePluginMock()))
 	})
 
 	It("should have the correct registry key", func() {
