@@ -23,7 +23,6 @@ package erc20
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -200,7 +199,6 @@ func (c *Contract) transferERC20ToCoin(
 			return err
 		}
 		balanceBefore = utils.MustGetAs[*big.Int](ret[0])
-		fmt.Println("balanceBefore", balanceBefore)
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
@@ -223,7 +221,6 @@ func (c *Contract) transferERC20ToCoin(
 			return err
 		}
 		balanceAfter = utils.MustGetAs[*big.Int](ret[0])
-		fmt.Println("balanceAfter", balanceAfter)
 
 		// mint amount Polaris Coins to recipient
 		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
