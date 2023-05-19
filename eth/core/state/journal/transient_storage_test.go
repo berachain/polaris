@@ -22,6 +22,7 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -36,12 +37,10 @@ var (
 )
 
 var _ = Describe("TransientStorage", func() {
-	var (
-		ts *transientStorage
-	)
+	var ts *transientStorage
 
 	BeforeEach(func() {
-		ts = NewTransientStorage()
+		ts = utils.MustGetAs[*transientStorage](NewTransientStorage())
 	})
 
 	It("should add without impacting previous state", func() {

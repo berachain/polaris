@@ -22,6 +22,7 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -37,7 +38,7 @@ var _ = Describe("AccessList", func() {
 	)
 
 	BeforeEach(func() {
-		al = NewAccesslist()
+		al = utils.MustGetAs[*accessList](NewAccesslist())
 	})
 
 	It("should have the correct registry key", func() {

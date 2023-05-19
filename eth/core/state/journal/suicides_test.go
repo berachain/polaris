@@ -23,6 +23,7 @@ package journal
 import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state/mock"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -41,7 +42,7 @@ var _ = Describe("Suicides", func() {
 			}
 			return common.Hash{}
 		}
-		s = NewSuicides(sp)
+		s = utils.MustGetAs[*suicides](NewSuicides(sp))
 	})
 
 	It("should have the correct registry key", func() {
