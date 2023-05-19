@@ -21,8 +21,6 @@
 package state
 
 import (
-	"sync"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -46,10 +44,6 @@ type stateDB struct {
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
-
-	// mtx is used to make sure we don't try to reset the statedb for a new transaction before
-	// finalizing the current transaction.
-	mtx sync.Mutex
 }
 
 // NewStateDB returns a vm.PolarisStateDB with the given StatePlugin.
