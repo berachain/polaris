@@ -27,6 +27,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // emptyCodeHash is the Keccak256 Hash of empty code
@@ -43,6 +45,19 @@ type suicideStatePlugin interface {
 	SubBalance(common.Address, *big.Int)
 }
 
+type SuicidesI interface {
+	// SuicidesI implements `libtypes.Controllable`.
+	libtypes.Controllable[string]
+	// SuicidesI implements `libtypes.Cloneable`.
+	libtypes.Cloneable[SuicidesI]
+	// SuicidesI marks the given address as suicided.
+	Suicide(common.Address) bool
+	// HasSuicided returns whether the address is suicided.
+	HasSuicided(common.Address) bool
+	// GetSuicides returns all suicided addresses from the tx.
+	GetSuicides() []common.Address
+}
+
 // Dirty tracking of suicided accounts, we have to keep track of these manually, in order for the
 // code and state to still be accessible even after the account has been deleted.
 // NOTE: we are only supporting one suicided address per EVM call (and consequently per snapshot).
@@ -55,9 +70,7 @@ type suicides struct {
 }
 
 // NewSuicides returns a new suicides journal.
-//
-//nolint:revive // only used as a state.SuicidesJournal.
-func NewSuicides(ssp suicideStatePlugin) *suicides {
+func NewSuicides(ssp suicideStatePlugin) SuicidesI {
 	return &suicides{
 		journal:      stack.New[*common.Address](initCapacity),
 		ssp:          ssp,
@@ -127,9 +140,24 @@ func (s *suicides) RevertToSnapshot(id int) {
 
 // Finalize implements libtypes.Controllable.
 func (s *suicides) Finalize() {
-	*s = suicides{
-		journal:      stack.New[*common.Address](initCapacity),
+	*s = *utils.MustGetAs[*suicides](NewSuicides(s.ssp))
+}
+
+// Clone implements libtypes.Cloneable.
+func (s *suicides) Clone() SuicidesI {
+	size := s.journal.Size()
+	copy := &suicides{
+		journal:      stack.New[*common.Address](size),
 		ssp:          s.ssp,
-		lastSnapshot: -1,
+		lastSnapshot: s.lastSnapshot,
 	}
+
+	// copy every address from the journal
+	for i := 0; i < size; i++ {
+		cpy := new(common.Address)
+		*cpy = *s.journal.PeekAt(i)
+		copy.journal.Push(cpy)
+	}
+
+	return copy
 }

@@ -138,7 +138,7 @@ func (l *logs) Clone() LogsI {
 		txIndex: l.txIndex,
 	}
 
-	// copy every individual log
+	// copy every individual log from the journal
 	for i := 0; i < size; i++ {
 		cpy := new(coretypes.Log)
 		*cpy = *l.PeekAt(i)

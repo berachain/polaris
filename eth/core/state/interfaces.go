@@ -88,17 +88,6 @@ type Plugin interface {
 }
 
 type (
-	SuicidesJournal interface {
-		// `SuicidesJournal` implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// `Suicide` marks the given address as suicided.
-		Suicide(common.Address) bool
-		// `HasSuicided` returns whether the address is suicided.
-		HasSuicided(common.Address) bool
-		// `GetSuicides` returns all suicided addresses from the tx.
-		GetSuicides() []common.Address
-	}
-
 	TransientStorageJournal interface {
 		// `TransientJournal` implements `libtypes.Controllable`.
 		libtypes.Controllable[string]

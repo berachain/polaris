@@ -39,7 +39,7 @@ type stateDB struct {
 	journal.LogsI
 	journal.RefundI
 	journal.AccessListI
-	SuicidesJournal
+	journal.SuicidesI
 	TransientStorageJournal
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
@@ -50,14 +50,15 @@ type stateDB struct {
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	return newStateDBWithJournals(
 		sp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
+		journal.NewSuicides(sp),
 	)
 }
 
 // newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
 func newStateDBWithJournals(
 	sp Plugin, lj journal.LogsI, rj journal.RefundI, aj journal.AccessListI,
+	sj journal.SuicidesI,
 ) vm.PolarisStateDB {
-	sj := journal.NewSuicides(sp)
 	tj := journal.NewTransientStorage()
 
 	// Build the controller and register the plugins and journals
@@ -74,8 +75,8 @@ func newStateDBWithJournals(
 		LogsI:                   lj,
 		RefundI:                 rj,
 		AccessListI:             aj,
+		SuicidesI:               sj,
 		TransientStorageJournal: tj,
-		SuicidesJournal:         sj,
 		ctrl:                    ctrl,
 	}
 }
@@ -175,7 +176,7 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 func (sdb *stateDB) Copy() StateDBI {
 	return newStateDBWithJournals(
 		sdb.Plugin.Clone(), sdb.LogsI.Clone(), sdb.RefundI.Clone(),
-		sdb.AccessListI.Clone(),
+		sdb.AccessListI.Clone(), sdb.SuicidesI.Clone(),
 	)
 }
 
