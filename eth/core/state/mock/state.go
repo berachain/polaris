@@ -28,7 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-//go:generate moq -out ./state.mock.go -skip-ensure -pkg mock ../../ Plugin
+//go:generate moq -out ./state.mock.go -skip-ensure -pkg mock ../ Plugin
 
 var Accounts map[common.Address]*Account
 

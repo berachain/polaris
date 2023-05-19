@@ -22,7 +22,7 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/state/journal/mock"
+	"pkg.berachain.dev/polaris/eth/core/state/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

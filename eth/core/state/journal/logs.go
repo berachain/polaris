@@ -127,6 +127,21 @@ func (l *logs) Finalize() {
 	*l = *utils.MustGetAs[*logs](NewLogs())
 }
 
+// Clone implements `libtypes.Cloneable`.
 func (l *logs) Clone() LogsI {
-	return nil
+	size := l.Size()
+	copy := &logs{
+		Stack:   stack.New[*coretypes.Log](size),
+		txHash:  l.txHash,
+		txIndex: l.txIndex,
+	}
+
+	// copy every individual log
+	for i := 0; i < size; i++ {
+		cpy := new(coretypes.Log)
+		*cpy = *l.PeekAt(i)
+		copy.Push(cpy)
+	}
+
+	return copy
 }

@@ -536,7 +536,9 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 // =============================================================================
 
 func (p *plugin) Clone() ethstate.Plugin {
-	return nil
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
+	sp.Reset(p.ctx) // TODO: ensure this is "copied"
+	return sp
 }
 
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
