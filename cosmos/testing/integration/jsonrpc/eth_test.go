@@ -114,7 +114,7 @@ var _ = Describe("Network", func() {
 		Expect(receipt.Logs[0].Address).To(Equal(deployedAddress))
 		Expect(receipt.Logs[0].BlockHash).To(Equal(receipt.BlockHash))
 		Expect(receipt.Logs[0].TxHash).To(Equal(txHash))
-		Expect(receipt.Logs[0].TxIndex).To(Equal(0))
+		Expect(receipt.Logs[0].TxIndex).To(Equal(uint(0)))
 
 		// Get the transaction by its hash, it should be mined here.
 		fetchedTx, isPending, err := client.TransactionByHash(ctx, txHash)
