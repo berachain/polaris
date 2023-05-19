@@ -67,7 +67,7 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		ExistFunc: func(address common.Address) bool {
 			return false
 		},
-		FinalizeFunc: func() {
+		FinaliseFunc: func(bool) {
 			// no-op
 		},
 		ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
