@@ -270,7 +270,7 @@ func getCoinsForAccount(name string) sdk.Coins {
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
 		)
 	case "charlie":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(gigamoney)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	}
