@@ -23,6 +23,7 @@ package journal
 import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state/journal/mock"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -30,18 +31,13 @@ import (
 
 var _ = Describe("Suicides", func() {
 	var s *suicides
+	var a1 = common.HexToAddress("0x1")
+	var a2 = common.HexToAddress("0x2")
+	var a3 = common.HexToAddress("0x3")
+	var a4 = common.HexToAddress("0x4")
 
 	BeforeEach(func() {
-		sp := mock.NewEmptyStatePlugin()
-		sp.CreateAccount(common.HexToAddress("0x1"))
-		sp.CreateAccount(common.HexToAddress("0x3"))
-		sp.GetCodeHashFunc = func(address common.Address) common.Hash {
-			if address == common.HexToAddress("0x1") || address == common.HexToAddress("0x3") {
-				return common.Hash{0x1}
-			}
-			return common.Hash{}
-		}
-		s = NewSuicides(sp)
+		s = utils.MustGetAs[*suicides](NewSuicides(mock.NewSuicidesStatePluginMock()))
 	})
 
 	It("should have the correct registry key", func() {
@@ -52,20 +48,20 @@ var _ = Describe("Suicides", func() {
 		Expect(s.GetSuicides()).To(BeEmpty())
 
 		s.Snapshot()
-		Expect(s.Suicide(common.HexToAddress("0x2"))).To(BeFalse())
-		Expect(s.Suicide(common.HexToAddress("0x1"))).To(BeTrue())
-		Expect(s.HasSuicided(common.HexToAddress("0x2"))).To(BeFalse())
-		Expect(s.HasSuicided(common.HexToAddress("0x1"))).To(BeTrue())
+		Expect(s.Suicide(a2)).To(BeFalse()) // 0x2 doesn't have a valid code hash
+		Expect(s.Suicide(a1)).To(BeTrue())
+		Expect(s.HasSuicided(a2)).To(BeFalse())
+		Expect(s.HasSuicided(a1)).To(BeTrue())
 
 		snap2 := s.Snapshot()
-		Expect(s.Suicide(common.HexToAddress("0x3"))).To(BeTrue())
-		Expect(s.HasSuicided(common.HexToAddress("0x3"))).To(BeTrue())
-		Expect(s.HasSuicided(common.HexToAddress("0x1"))).To(BeTrue())
+		Expect(s.Suicide(a3)).To(BeTrue())
+		Expect(s.HasSuicided(a3)).To(BeTrue())
+		Expect(s.HasSuicided(a1)).To(BeTrue())
 		Expect(s.GetSuicides()).To(HaveLen(2))
 
 		s.RevertToSnapshot(snap2)
-		Expect(s.HasSuicided(common.HexToAddress("0x1"))).To(BeTrue())
-		Expect(s.HasSuicided(common.HexToAddress("0x3"))).To(BeFalse())
+		Expect(s.HasSuicided(a1)).To(BeTrue())
+		Expect(s.HasSuicided(a3)).To(BeFalse())
 		Expect(s.GetSuicides()).To(HaveLen(1))
 
 		s.Finalize()
@@ -74,7 +70,30 @@ var _ = Describe("Suicides", func() {
 	})
 
 	It("should not suicide when snapshot is not called", func() {
-		Expect(s.Suicide(common.HexToAddress("0x1"))).To(BeFalse())
-		Expect(s.HasSuicided(common.HexToAddress("0x1"))).To(BeFalse())
+		Expect(s.Suicide(a1)).To(BeFalse())
+		Expect(s.HasSuicided(a1)).To(BeFalse())
+	})
+
+	It("should clone correctly", func() {
+		s.Snapshot()
+		Expect(s.Suicide(a1)).To(BeTrue())
+		Expect(s.HasSuicided(a1)).To(BeTrue())
+
+		s.Snapshot()
+		Expect(s.Suicide(a3)).To(BeTrue())
+		Expect(s.HasSuicided(a3)).To(BeTrue())
+		Expect(s.HasSuicided(a1)).To(BeTrue())
+		Expect(s.GetSuicides()).To(HaveLen(2))
+
+		s2 := utils.MustGetAs[*suicides](s.Clone())
+		Expect(s.HasSuicided(a3)).To(BeTrue())
+		Expect(s.HasSuicided(a1)).To(BeTrue())
+		Expect(s2.GetSuicides()).To(HaveLen(2))
+
+		s.Snapshot()
+		s2.Snapshot()
+
+		Expect(s2.Suicide(a4)).To(BeTrue())
+		Expect(s.HasSuicided(a4)).To(BeFalse())
 	})
 })

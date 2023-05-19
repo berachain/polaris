@@ -192,12 +192,17 @@ func (sp *StateProcessor) Finalize(
 	// the transaction is actually being processed, we don't have the real blockhash. This is a
 	// fundamental design difference in the way polaris vs geth processes transactions.
 	blockHash := block.Hash()
+	var logs []*types.Log
 	for _, receipt := range sp.receipts {
 		receipt.BlockHash = blockHash
+		for _, log := range receipt.Logs {
+			log.BlockHash = blockHash
+		}
+		logs = append(logs, receipt.Logs...)
 	}
 
 	// We return a new block with the updated header, receipts, and logs to the `blockchain`.
-	return block, sp.receipts, sp.statedb.GetBlockLogsAndClear(blockHash), nil
+	return block, sp.receipts, logs, nil
 }
 
 // ===========================================================================
@@ -234,6 +239,7 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.R
 		if err != nil {
 			panic(err)
 		}
+		// TODO: set code on the statedb for every precompiled contract.
 		err = sp.pp.Register(container)
 		if err != nil {
 			panic(err)

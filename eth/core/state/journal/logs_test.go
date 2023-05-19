@@ -37,11 +37,12 @@ var _ = Describe("Logs", func() {
 	var bhash = common.BytesToHash([]byte{2})
 	var a1 = common.BytesToAddress([]byte{3})
 	var a2 = common.BytesToAddress([]byte{4})
+	var a3 = common.BytesToAddress([]byte{5})
 
 	BeforeEach(func() {
 		l = utils.MustGetAs[*logs](NewLogs())
 		l.SetTxContext(thash, int(ti))
-		Expect(l.journal[thash].Capacity()).To(Equal(32))
+		Expect(l.Capacity()).To(Equal(32))
 	})
 
 	It("should have the correct registry key", func() {
@@ -51,21 +52,21 @@ var _ = Describe("Logs", func() {
 	When("adding logs", func() {
 		BeforeEach(func() {
 			l.AddLog(&coretypes.Log{Address: a1})
-			Expect(l.journal[thash].Size()).To(Equal(1))
-			Expect(l.journal[thash].PeekAt(0).Address).To(Equal(a1))
-			Expect(l.journal[thash].PeekAt(0).TxHash).To(Equal(thash))
-			Expect(l.journal[thash].PeekAt(0).TxIndex).To(Equal(ti))
+			Expect(l.Size()).To(Equal(1))
+			Expect(l.PeekAt(0).Address).To(Equal(a1))
+			Expect(l.PeekAt(0).TxHash).To(Equal(thash))
+			Expect(l.PeekAt(0).TxIndex).To(Equal(ti))
 		})
 
 		It("should correctly snapshot and revert", func() {
 			id := l.Snapshot()
 
 			l.AddLog(&coretypes.Log{Address: a2})
-			Expect(l.journal[thash].Size()).To(Equal(2))
-			Expect(l.journal[thash].PeekAt(1).Address).To(Equal(a2))
+			Expect(l.Size()).To(Equal(2))
+			Expect(l.PeekAt(1).Address).To(Equal(a2))
 
 			l.RevertToSnapshot(id)
-			Expect(l.journal[thash].Size()).To(Equal(1))
+			Expect(l.Size()).To(Equal(1))
 		})
 
 		It("should correctly get logs", func() {
@@ -83,6 +84,22 @@ var _ = Describe("Logs", func() {
 
 		It("should corrctly finalize", func() {
 			Expect(func() { l.Finalize() }).ToNot(Panic())
+		})
+
+		It("should correctly clone", func() {
+			l.AddLog(&coretypes.Log{Address: a2})
+			Expect(l.Size()).To(Equal(2))
+			Expect(l.PeekAt(1).Address).To(Equal(a2))
+
+			l2 := utils.MustGetAs[*logs](l.Clone())
+			Expect(l2.Size()).To(Equal(2))
+			Expect(l2.PeekAt(0).Address).To(Equal(a1))
+			Expect(l2.PeekAt(1).Address).To(Equal(a2))
+
+			l2.AddLog(&coretypes.Log{Address: a3})
+			Expect(l2.Size()).To(Equal(3))
+			Expect(l2.PeekAt(2).Address).To(Equal(a3))
+			Expect(l.Size()).To(Equal(2))
 		})
 	})
 })

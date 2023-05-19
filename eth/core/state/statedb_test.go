@@ -25,7 +25,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/state/journal/mock"
+	"pkg.berachain.dev/polaris/eth/core/state/mock"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -101,7 +101,7 @@ var _ = Describe("StateDB", func() {
 
 	It("should delete suicides on finalize", func() {
 		sdb.Snapshot()
-		sdb.Reset(common.Hash{}, 0)
+		sdb.SetTxContext(common.Hash{}, 0)
 
 		sdb.CreateAccount(bob)
 		sdb.SetCode(bob, []byte{1, 2, 3})
