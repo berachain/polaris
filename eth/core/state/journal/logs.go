@@ -29,11 +29,11 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// Logs defines the interface for tracking logs created during a state transition.
+// LogsI defines the interface for tracking logs created during a state transition.
 type LogsI interface {
-	// LogsJournal implements `libtypes.Controllable`.
+	// LogsI implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// LogsJournal implements `libtypes.Cloneable`.
+	// LogsI implements `libtypes.Cloneable`.
 	libtypes.Cloneable[LogsI]
 	// SetTxContext sets the transaction hash and index for the current transaction.
 	SetTxContext(thash common.Hash, ti int)

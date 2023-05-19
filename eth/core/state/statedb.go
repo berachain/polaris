@@ -38,7 +38,7 @@ type stateDB struct {
 	// Journals built internally and required for the stateDB.
 	journal.LogsI
 	journal.RefundI
-	AccessListJournal
+	journal.AccessListI
 	SuicidesJournal
 	TransientStorageJournal
 
@@ -48,13 +48,15 @@ type stateDB struct {
 
 // NewStateDB returns a vm.PolarisStateDB with the given StatePlugin and new journals.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
-	return newStateDBWithJournals(sp, journal.NewLogs(), journal.NewRefund())
+	return newStateDBWithJournals(
+		sp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
+	)
 }
 
 // newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
-func newStateDBWithJournals(sp Plugin, lj journal.LogsI, rj journal.RefundI) vm.PolarisStateDB {
-	// Build the journals required for the stateDB
-	aj := journal.NewAccesslist()
+func newStateDBWithJournals(
+	sp Plugin, lj journal.LogsI, rj journal.RefundI, aj journal.AccessListI,
+) vm.PolarisStateDB {
 	sj := journal.NewSuicides(sp)
 	tj := journal.NewTransientStorage()
 
@@ -71,7 +73,7 @@ func newStateDBWithJournals(sp Plugin, lj journal.LogsI, rj journal.RefundI) vm.
 		Plugin:                  sp,
 		LogsI:                   lj,
 		RefundI:                 rj,
-		AccessListJournal:       aj,
+		AccessListI:             aj,
 		TransientStorageJournal: tj,
 		SuicidesJournal:         sj,
 		ctrl:                    ctrl,
@@ -119,7 +121,7 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {
 		// Clear out any leftover from previous executions
-		sdb.AccessListJournal = journal.NewAccesslist()
+		sdb.AccessListI = journal.NewAccesslist()
 
 		sdb.AddAddressToAccessList(sender)
 		if dest != nil {
@@ -173,6 +175,7 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 func (sdb *stateDB) Copy() StateDBI {
 	return newStateDBWithJournals(
 		sdb.Plugin.Clone(), sdb.LogsI.Clone(), sdb.RefundI.Clone(),
+		sdb.AccessListI.Clone(),
 	)
 }
 

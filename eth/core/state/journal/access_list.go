@@ -24,7 +24,24 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
+
+type AccessListI interface {
+	// AccessListI implements `libtypes.Controllable`.
+	libtypes.Controllable[string]
+	// AccessListI implements `libtypes.Cloneable`.
+	libtypes.Cloneable[AccessListI]
+	// `AddAddressToAccessList` adds the given address to the access list.
+	AddAddressToAccessList(common.Address)
+	// `AddSlotToAccessList` adds the given slot to the access list for the given address.
+	AddSlotToAccessList(common.Address, common.Hash)
+	// `SlotInAccessList` returns whether the given address and slot are in the access list.
+	SlotInAccessList(common.Address, common.Hash) (addressPresent bool, slotPresent bool)
+	// `AddressInAccessList` returns whether the given address is in the access list.
+	AddressInAccessList(common.Address) bool
+}
 
 type accessList struct {
 	*AccessList                       // current access list, always the head of journal stack.
@@ -32,9 +49,7 @@ type accessList struct {
 }
 
 // NewAccesslist returns a new `accessList` journal.
-//
-//nolint:revive // only used as a `state.AccessListJournal`.
-func NewAccesslist() *accessList {
+func NewAccesslist() AccessListI {
 	journal := stack.New[*AccessList](initCapacity)
 	journal.Push(NewAccessList())
 	return &accessList{
@@ -83,7 +98,21 @@ func (al *accessList) RevertToSnapshot(id int) {
 
 // Finalize implements `libtypes.Controllable`.
 func (al *accessList) Finalize() {
-	al.journal = stack.New[*AccessList](initCapacity)
-	al.journal.Push(NewAccessList())
-	al.AccessList = al.journal.Peek()
+	*al = *utils.MustGetAs[*accessList](NewAccesslist())
+}
+
+// Clone implements `libtypes.Cloneable`.
+func (al *accessList) Clone() AccessListI {
+	size := al.journal.Size()
+	cpy := &accessList{
+		AccessList: al.AccessList.Copy(),
+		journal:    stack.New[*AccessList](size),
+	}
+
+	cpy.journal.Push(cpy.AccessList)
+	for i := 1; i < size; i++ { // skip the root, already pushed above
+		cpy.journal.Push(al.journal.PeekAt(i).Copy())
+	}
+
+	return cpy
 }

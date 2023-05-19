@@ -37,6 +37,7 @@ type Plugin interface {
 	libtypes.Preparable
 	// Reset resets the state with the given `context`.
 	libtypes.Resettable
+	// Plugin implements `libtypes.Cloneable`.
 	libtypes.Cloneable[Plugin]
 	// GetContext returns the current context of the state plugin.
 	GetContext() context.Context
@@ -87,19 +88,6 @@ type Plugin interface {
 }
 
 type (
-	AccessListJournal interface {
-		// AccessListJournal implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// `AddAddressToAccessList` adds the given address to the access list.
-		AddAddressToAccessList(common.Address)
-		// `AddSlotToAccessList` adds the given slot to the access list for the given address.
-		AddSlotToAccessList(common.Address, common.Hash)
-		// `SlotInAccessList` returns whether the given address and slot are in the access list.
-		SlotInAccessList(common.Address, common.Hash) (addressPresent bool, slotPresent bool)
-		// `AddressInAccessList` returns whether the given address is in the access list.
-		AddressInAccessList(common.Address) bool
-	}
-
 	SuicidesJournal interface {
 		// `SuicidesJournal` implements `libtypes.Controllable`.
 		libtypes.Controllable[string]

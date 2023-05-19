@@ -28,9 +28,9 @@ import (
 
 // RefundI is a `Store` that tracks the refund counter.
 type RefundI interface {
-	// RefundJournal implements `libtypes.Controllable`.
+	// RefundI implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// RefundJournal implements `libtypes.Cloneable`.
+	// RefundI implements `libtypes.Cloneable`.
 	libtypes.Cloneable[RefundI]
 	// GetRefund returns the current value of the refund counter.
 	GetRefund() uint64
