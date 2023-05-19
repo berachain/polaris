@@ -25,6 +25,7 @@ import (
 
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
 // transientState is a representation of EIP-1153 "Transient Storage".
@@ -60,15 +61,24 @@ func (t transientState) Copy() transientState {
 	return storage
 }
 
+type TransientStorageI interface {
+	// TransientStorageI implements `libtypes.Controllable`.
+	libtypes.Controllable[string]
+	// TransientStorageI implements `libtypes.Cloneable`.
+	libtypes.Cloneable[TransientStorageI]
+	// GetTransientState returns a transient storage for a given account.
+	GetTransientState(addr common.Address, key common.Hash) common.Hash
+	// SetTransientState sets a given transient storage change to the transient journal.
+	SetTransientState(addr common.Address, key, value common.Hash)
+}
+
 // `transientStorage` is a journal that tracks the transient state.
 type transientStorage struct {
 	ds.Stack[transientState]
 }
 
 // `NewTransientStorage` returns a new `transient` journal.
-//
-//nolint:revive // only used as a `state.TransientStorageJournal`.
-func NewTransientStorage() *transientStorage {
+func NewTransientStorage() TransientStorageI {
 	return &transientStorage{
 		stack.New[transientState](initCapacity),
 	}
@@ -108,4 +118,19 @@ func (t *transientStorage) RevertToSnapshot(id int) {
 // `Finalize` implements `libtypes.Controllable`.
 func (t *transientStorage) Finalize() {
 	t.Stack = stack.New[transientState](initCapacity)
+}
+
+// Clone implements `libtypes.Cloneable`.
+func (t *transientStorage) Clone() TransientStorageI {
+	size := t.Size()
+	copy := &transientStorage{
+		stack.New[transientState](size),
+	}
+
+	// copy every individual transient state
+	for i := 0; i < size; i++ {
+		copy.Push(t.PeekAt(i).Copy())
+	}
+
+	return copy
 }
