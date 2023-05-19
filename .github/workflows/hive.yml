@@ -1,5 +1,5 @@
 on:
-  pull_request:
+  pull_request: 
 
 name: hive
 jobs:
@@ -104,7 +104,7 @@ jobs:
       - name: Run ${{ matrix.sim }} simulator
         run: |
           cd hivetests
-          hive --sim "${{ matrix.sim }}$" --sim.limit "${{matrix.limit}}/${{join(matrix.include, '|')}}" --client polard
+          hive --sim "${{ matrix.sim }}$" --client polard -docker.output
 
       - name: Print simulator output
         if: ${{ failure() }}

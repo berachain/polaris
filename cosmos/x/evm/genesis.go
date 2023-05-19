@@ -57,19 +57,6 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 		panic(err)
 	}
 
-	// TODO: VERIFY THAT THE ETH_GENESIS DOES NOT CONTRADICT THE COSMOS GENESIS
-	// i.e GenesisAlloc, GasLimit, ChainID, etc.
-	// PANIC IF ERROR
-
-	// check accountBalances through the bank keeper
-	am.accKeeper.IterateAccounts(ctx, func(account sdk.AccountI) bool {
-		// balances := am.bankKeeper.GetAllBalances(ctx, account.GetAddress())
-		// if  {
-		return true
-		// }
-		// return false
-	})
-
 	return []abci.ValidatorUpdate{}
 }
 
