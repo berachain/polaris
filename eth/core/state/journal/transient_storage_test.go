@@ -69,4 +69,18 @@ var _ = Describe("TransientStorage", func() {
 		Expect(ts.Size(), 0)
 		Expect(func() { ts.Finalize() }).ToNot(Panic())
 	})
+
+	It("should correctly clone", func() {
+		ts.SetTransientState(bob, key, value)
+		Expect(ts.PeekAt(0).Get(bob, key), common.Hash{})
+		Expect(ts.GetTransientState(bob, key), value)
+
+		ts2 := utils.MustGetAs[*transientStorage](ts.Clone())
+		Expect(ts2.PeekAt(0).Get(bob, key), common.Hash{})
+		Expect(ts2.GetTransientState(bob, key), value)
+
+		ts2.SetTransientState(alice, key, value2)
+		Expect(ts2.GetTransientState(alice, key), value2)
+		Expect(ts.GetTransientState(alice, key), common.Hash{})
+	})
 })
