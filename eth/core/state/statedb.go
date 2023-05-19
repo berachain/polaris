@@ -21,6 +21,8 @@
 package state
 
 import (
+	"sync"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -44,6 +46,10 @@ type stateDB struct {
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
+
+	// mtx is used to make sure we don't try to reset the statedb for a new transaction before
+	// finalizing the current transaction.
+	mtx sync.Mutex
 }
 
 // NewStateDB returns a vm.PolarisStateDB with the given StatePlugin.
@@ -96,12 +102,15 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Reset sets the TxContext for the current transaction, blocking until finalize is called for the
 // previous transaction.
 func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
+	sdb.mtx.Lock()
 	sdb.LogsJournal.SetTxContext(txHash, txIndex)
 }
 
 // Finalize deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
 // next transaction.
 func (sdb *stateDB) Finalize() {
+	defer sdb.mtx.Unlock()
+
 	sdb.DeleteAccounts(sdb.GetSuicides())
 	sdb.ctrl.Finalize()
 }
