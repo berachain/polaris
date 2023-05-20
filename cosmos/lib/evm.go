@@ -122,8 +122,8 @@ func StaticCallEVMFromPrecompileUnpackArgs(
 	methodName string,
 	args ...any,
 ) ([]any, error) {
-	plugin.EnableReentrancy(ctx)
-	defer plugin.DisableReentrancy(ctx)
+	plugin.EnableReentrancy(evm)
+	defer plugin.DisableReentrancy(evm)
 
 	input, err := contract.Pack(methodName, args...)
 	if err != nil {
