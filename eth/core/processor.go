@@ -239,6 +239,7 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.R
 		if err != nil {
 			panic(err)
 		}
+		// TODO: set code on the statedb for every precompiled contract.
 		err = sp.pp.Register(container)
 		if err != nil {
 			panic(err)

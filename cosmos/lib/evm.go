@@ -42,8 +42,8 @@ func DeployOnEVMFromPrecompile(
 	contractCode string, // hex-encoded string
 	constructorArgs ...any,
 ) (common.Address, []byte, error) {
-	plugin.EnableReentrancy(ctx)
-	defer plugin.DisableReentrancy(ctx)
+	plugin.EnableReentrancy(evm)
+	defer plugin.DisableReentrancy(evm)
 
 	code := common.FromHex(contractCode)
 	args, err := contract.Pack("", constructorArgs...)
@@ -72,8 +72,8 @@ func CallEVMFromPrecompile(
 	methodName string,
 	args ...any,
 ) ([]byte, error) {
-	plugin.EnableReentrancy(ctx)
-	defer plugin.DisableReentrancy(ctx)
+	plugin.EnableReentrancy(evm)
+	defer plugin.DisableReentrancy(evm)
 
 	input, err := contract.Pack(methodName, args...)
 	if err != nil {

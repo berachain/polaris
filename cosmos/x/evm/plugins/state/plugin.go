@@ -36,6 +36,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/rpc"
 	"pkg.berachain.dev/polaris/lib/snapshot"
@@ -534,8 +535,18 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 // Other
 // =============================================================================
 
+// Clone implements libtypes.Cloneable.
+func (p *plugin) Clone() ethstate.Plugin {
+	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
+	cacheCtx, _ := p.ctx.CacheContext()
+	sp.Reset(cacheCtx)
+	return sp
+}
+
+// SetGasConfig implements Plugin.
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
 }
 
+// IsPlugin implements plugins.Base.
 func (p *plugin) IsPlugin() {}

@@ -104,18 +104,19 @@ func (m *manager) Snapshot() int {
 
 // RevertToSnapshot implements `libtypes.Snapshottable`.
 func (m *manager) RevertToSnapshot(id int) {
-	// only get the events up to the snapshot id
-	revertTo := m.Events()[:id]
+	// only the events up to the snapshot id are remaining
+	remaining := m.Events()[:id]
 
 	// modify the EventManager on the underlying Cosmos SDK context
 	*m.EventManager = *sdk.NewEventManager()
 
-	// don't add to the logs journal again as the Eth logs plugin will do that, so use the
-	// underlying EventManager to reset the events.
-	m.EventManager.EmitEvents(revertTo)
+	// don't add to the logs db again as the Eth logs db will handle reverts, so just add the
+	// remaining events on the underlying Cosmos EventManager.
+	m.EventManager.EmitEvents(remaining)
 }
 
 // Finalize implements `libtypes.Finalizable`.
+// TODO: clear the events once not needed?
 func (m *manager) Finalize() {}
 
 // convertToLog builds an Eth log from the given Cosmos event and adds it to the logs journal.

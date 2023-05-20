@@ -71,6 +71,22 @@ var _ = Describe("Refund", func() {
 			Expect(r.GetRefund()).To(Equal(uint64(1)))
 		})
 
+		It("should clone correctly", func() {
+			r.AddRefund(1)
+			Expect(r.GetRefund()).To(Equal(uint64(2)))
+			Expect(r.Size()).To(Equal(2))
+
+			r2 := utils.MustGetAs[*refund](r.Clone())
+			Expect(r2.GetRefund()).To(Equal(uint64(2)))
+			Expect(r2.Size()).To(Equal(2))
+
+			r2.AddRefund(1)
+			Expect(r2.GetRefund()).To(Equal(uint64(3)))
+			Expect(r2.Size()).To(Equal(3))
+			Expect(r.GetRefund()).To(Equal(uint64(2)))
+			Expect(r.Size()).To(Equal(2))
+		})
+
 		When("subbing refund", func() {
 			BeforeEach(func() {
 				r.SubRefund(1)
