@@ -22,6 +22,7 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -37,7 +38,7 @@ var _ = Describe("AccessList", func() {
 	)
 
 	BeforeEach(func() {
-		al = NewAccesslist()
+		al = utils.MustGetAs[*accessList](NewAccesslist())
 	})
 
 	It("should have the correct registry key", func() {
@@ -70,5 +71,24 @@ var _ = Describe("AccessList", func() {
 
 		Expect(func() { al.Finalize() }).ToNot(Panic())
 		Expect(al.journal.Size()).To(Equal(1))
+	})
+
+	It("should clone correctly", func() {
+		ac, sc := al.AddSlot(a1, s1)
+		Expect(ac).To(BeTrue())
+		Expect(sc).To(BeTrue())
+		ac, sc = al.AddSlot(a1, s2)
+		Expect(ac).To(BeFalse())
+		Expect(sc).To(BeTrue())
+
+		al2 := utils.MustGetAs[*accessList](al.Clone())
+		Expect(al2.ContainsAddress(a1)).To(BeTrue())
+		Expect(al2.ContainsAddress(a2)).To(BeFalse())
+
+		ac, sc = al2.AddSlot(a2, s1)
+		Expect(ac).To(BeTrue())
+		Expect(sc).To(BeTrue())
+		Expect(al2.ContainsAddress(a2)).To(BeTrue())
+		Expect(al.ContainsAddress(a2)).To(BeFalse())
 	})
 })

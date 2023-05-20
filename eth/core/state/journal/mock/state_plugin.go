@@ -18,18 +18,35 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package vm
+package mock
 
 import (
-	"context"
+	"math/big"
+
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
-type (
-	// PolarisStateDB defines an extension to the interface provided by Go-Ethereum to support
-	// additional state transition functionalities.
-	PolarisStateDB interface {
-		GethStateDB
-		// GetContext returns the current context of the state plugin.
-		GetContext() context.Context
-	}
+//go:generate moq -out ./state_plugin.mock.go -skip-ensure -pkg mock ../ suicideStatePlugin
+
+var (
+	a1 = common.HexToAddress("0x1")
+	a3 = common.HexToAddress("0x3")
+	a4 = common.HexToAddress("0x4")
 )
+
+func NewSuicidesStatePluginMock() *suicideStatePluginMock {
+	return &suicideStatePluginMock{
+		GetCodeHashFunc: func(address common.Address) common.Hash {
+			if address == a1 || address == a3 || address == a4 {
+				return common.Hash{0x1}
+			}
+			return common.Hash{}
+		},
+		GetBalanceFunc: func(address common.Address) *big.Int {
+			return new(big.Int)
+		},
+		SubBalanceFunc: func(address common.Address, amount *big.Int) {
+			// no-op
+		},
+	}
+}
