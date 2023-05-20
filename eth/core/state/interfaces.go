@@ -25,7 +25,6 @@ import (
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -38,6 +37,8 @@ type Plugin interface {
 	libtypes.Preparable
 	// Reset resets the state with the given `context`.
 	libtypes.Resettable
+	// Plugin implements `libtypes.Cloneable`.
+	libtypes.Cloneable[Plugin]
 	// GetContext returns the current context of the state plugin.
 	GetContext() context.Context
 
@@ -89,66 +90,3 @@ type Plugin interface {
 	// GetProof returns the proof for a given account.
 	GetProof(common.Address) ([][]byte, error)
 }
-
-type (
-	// LogsJournal defines the interface for tracking logs created during a state transition.
-	LogsJournal interface {
-		// LogsJournal implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// SetTxContext sets the transaction hash and index for the current transaction.
-		SetTxContext(thash common.Hash, ti int)
-		// TxIndex returns the current transaction index.
-		TxIndex() int
-		// AddLog adds a log to the logs journal.
-		AddLog(*coretypes.Log)
-		// Logs returns the logs of the tx with the exisiting metadata.
-		Logs() []*coretypes.Log
-		// GetLogs returns the logs of the tx with the given metadata.
-		GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log
-	}
-
-	// RefundJournal is a `Store` that tracks the refund counter.
-	RefundJournal interface {
-		// RefundJournal implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// GetRefund returns the current value of the refund counter.
-		GetRefund() uint64
-		// AddRefund sets the refund counter to the given `gas`.
-		AddRefund(gas uint64)
-		// SubRefund subtracts the given `gas` from the refund counter.
-		SubRefund(gas uint64)
-	}
-
-	AccessListJournal interface {
-		// AccessListJournal implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// `AddAddressToAccessList` adds the given address to the access list.
-		AddAddressToAccessList(common.Address)
-		// `AddSlotToAccessList` adds the given slot to the access list for the given address.
-		AddSlotToAccessList(common.Address, common.Hash)
-		// `SlotInAccessList` returns whether the given address and slot are in the access list.
-		SlotInAccessList(common.Address, common.Hash) (addressPresent bool, slotPresent bool)
-		// `AddressInAccessList` returns whether the given address is in the access list.
-		AddressInAccessList(common.Address) bool
-	}
-
-	SuicidesJournal interface {
-		// `SuicidesJournal` implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// `Suicide` marks the given address as suicided.
-		Suicide(common.Address) bool
-		// `HasSuicided` returns whether the address is suicided.
-		HasSuicided(common.Address) bool
-		// `GetSuicides` returns all suicided addresses from the tx.
-		GetSuicides() []common.Address
-	}
-
-	TransientStorageJournal interface {
-		// `TransientJournal` implements `libtypes.Controllable`.
-		libtypes.Controllable[string]
-		// `GetTransientState` returns a transient storage for a given account.
-		GetTransientState(addr common.Address, key common.Hash) common.Hash
-		// `SetTransientState` sets a given transient storage change to the transient journal.
-		SetTransientState(addr common.Address, key, value common.Hash)
-	}
-)

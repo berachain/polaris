@@ -15,8 +15,8 @@ type Stack[Item any] interface {
 	// PeekAt returns the Item at the given index.
 	PeekAt(index int) Item
 
-	// Push adds a new Item to the top of the stack. The Size method returns the current
-	// number of entries in the items.
+	// Push adds a new Item to the top of the stack and returns the size of the stack after the
+	// push.
 	Push(i Item) int
 
 	// Pop returns the Item at the top of the stack and removes it from the stack.

@@ -118,7 +118,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 			)
 		},
 		GenesisState:    BuildGenesisState(keysMap),
-		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
+		TimeoutCommit:   time.Second,
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       "abera",
@@ -270,7 +270,7 @@ func getCoinsForAccount(name string) sdk.Coins {
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
 		)
 	case "charlie":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(gigamoney)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	}

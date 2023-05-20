@@ -98,7 +98,7 @@ var _ = Describe("Network", func() {
 
 	It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 		// Deploy the contract
-		erc20Contract, _ := DeployERC20(tf.GenerateTransactOpts("alice"), client)
+		erc20Contract, deployedAddress := DeployERC20(tf.GenerateTransactOpts("alice"), client)
 
 		// Mint tokens
 		tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("alice"),
@@ -108,9 +108,17 @@ var _ = Describe("Network", func() {
 		// Get the transaction by its hash, it should be pending here.
 		txHash := tx.Hash()
 
-		// Wait for it to be mined.
-		ExpectMined(client, tx)
-		ExpectSuccessReceipt(client, tx)
+		// Wait for the receipt.
+		receipt := ExpectSuccessReceipt(client, tx)
+		Expect(receipt.Logs).To(HaveLen(2))
+		for i, log := range receipt.Logs {
+			Expect(log.Address).To(Equal(deployedAddress))
+			Expect(log.BlockHash).To(Equal(receipt.BlockHash))
+			Expect(log.TxHash).To(Equal(txHash))
+			Expect(log.TxIndex).To(Equal(uint(0)))
+			Expect(log.BlockNumber).To(Equal(receipt.BlockNumber.Uint64()))
+			Expect(log.Index).To(Equal(uint(i)))
+		}
 
 		// Get the transaction by its hash, it should be mined here.
 		fetchedTx, isPending, err := client.TransactionByHash(ctx, txHash)

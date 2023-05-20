@@ -24,10 +24,11 @@ import (
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-//go:generate moq -out ./state.mock.go -skip-ensure -pkg mock ../../ Plugin
+//go:generate moq -out ./state.mock.go -skip-ensure -pkg mock ../ Plugin
 
 var Accounts map[common.Address]*Account
 
@@ -50,6 +51,9 @@ func NewEmptyStatePlugin() *PluginMock {
 				Code:     Accounts[address].Code,
 				CodeHash: Accounts[address].CodeHash,
 			}
+		},
+		CloneFunc: func() state.Plugin {
+			return nil
 		},
 		CreateAccountFunc: func(address common.Address) {
 			Accounts[address] = &Account{

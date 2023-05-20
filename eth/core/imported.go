@@ -46,8 +46,8 @@ type (
 )
 
 var (
-	// ApplyMessage puts a message through the EVM.
-	ApplyMessage = core.ApplyMessage
+	// ApplyTransactionWithEVM applies a transaction to the current state of the blockchain.
+	ApplyTransactionWithEVMWithResult = core.ApplyTransactionWithEVMWithResult
 	// NewEVMTxContext creates a new context for use in the EVM.
 	NewEVMTxContext = core.NewEVMTxContext
 	// NewEVMBlockContext creates a new block context for a given header.

@@ -18,26 +18,35 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package mock
 
 import (
-	"pkg.berachain.dev/polaris/eth/rpc/api"
+	"math/big"
+
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
-// GetAPIs returns a list of all available APIs.
-func GetAPIs(apiBackend PolarisBackend) []API {
-	return append(GetGethAPIs(apiBackend, nil), // todo: required chain for flashbots.
-		API{
-			Namespace: "eth",
-			Service:   api.NewEthashAPI(apiBackend),
+//go:generate moq -out ./state_plugin.mock.go -skip-ensure -pkg mock ../ suicideStatePlugin
+
+var (
+	a1 = common.HexToAddress("0x1")
+	a3 = common.HexToAddress("0x3")
+	a4 = common.HexToAddress("0x4")
+)
+
+func NewSuicidesStatePluginMock() *suicideStatePluginMock {
+	return &suicideStatePluginMock{
+		GetCodeHashFunc: func(address common.Address) common.Hash {
+			if address == a1 || address == a3 || address == a4 {
+				return common.Hash{0x1}
+			}
+			return common.Hash{}
 		},
-		API{
-			Namespace: "net",
-			Service:   api.NewNetAPI(apiBackend),
+		GetBalanceFunc: func(address common.Address) *big.Int {
+			return new(big.Int)
 		},
-		API{
-			Namespace: "web3",
-			Service:   api.NewWeb3API(apiBackend),
+		SubBalanceFunc: func(address common.Address, amount *big.Int) {
+			// no-op
 		},
-	)
+	}
 }
