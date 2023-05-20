@@ -21,21 +21,40 @@
 package keeper_test
 
 import (
-	. "github.com/onsi/ginkgo/v2"
+	"fmt"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Keeper", func() {
 	var (
-		keeper keeper.Keeper
+		keeper       *keeper.Keeper
+		ctx          sdk.Context
+		genesisState types.GenesisState
 	)
 
-	BeforeEach(func() {
-		keeper = keeper.Keeper{}
+	JustBeforeEach(func() {
+		ctx = sdk.Context{} // will have to update actual values here
+		genesisState = types.GenesisState{}
 	})
 
-	Context("Genesis", func() {
-		It("should return the genesis state", func() {
-		})
-	})
+	DescribeTable("InitGenesis",
+		func(ctx sdk.Context, genesisState types.GenesisState, expectedErr error) {
+			err := keeper.InitGenesis(ctx, genesisState)
+			Expect(err).To(Equal(expectedErr))
+		},
+
+		Entry("the genesis is valid", ctx, *types.DefaultGenesis(), nil),
+		Entry("the GasLimit is invalid", ctx, genesisState, fmt.Errorf("gas limit mismatch: expected %d, got %d", ethGenesis.GasLimit, ctx.GasMeter().Limit())),
+		Entry("the ChainID is invalid", ctx, genesisState, fmt.Errorf("invalid ChainID: 0")),
+		Entry("the coinbase is invalid", ctx, genesisState, fmt.Errorf("invalid coinbase: ")),
+		Entry("the timestamp is invalid", ctx, genesisState, fmt.Errorf("invalid timestamp: 0")),
+		Entry("the balance is invalid", ctx, genesisState, fmt.Errorf("invalid balance: []")),
+	)
 })
