@@ -27,13 +27,17 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	abi "github.com/ethereum/go-ethereum/accounts/abi"
+
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 const (
+	balanceOf    = `balanceOf`
 	transfer     = `transfer`
 	transferFrom = `transferFrom`
 )
@@ -180,18 +184,39 @@ func (c *Contract) transferERC20ToCoin(
 			return ErrTokenDoesNotExist
 		}
 
+		var (
+			balanceBefore *big.Int
+			balanceAfter  *big.Int
+			plugin        = c.GetPlugin()
+		)
+
+		// check the ERC20 module's balance of the ERC20-originated token
+		if balanceBefore, err = getBalanceOf(
+			sdkCtx, plugin, evm, c.RegistryKey(), token, c.polarisERC20ABI, c.RegistryKey(),
+		); err != nil {
+			return err
+		}
+
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
 		// NOTE: owner must have previously approved msg.sender to spend amount ERC20 tokens
 		if _, err = cosmlib.CallEVMFromPrecompile(
-			sdkCtx, c.GetPlugin(), evm,
+			sdkCtx, plugin, evm,
 			caller, token, c.polarisERC20ABI, big.NewInt(0),
 			transferFrom, owner, c.RegistryKey(), amount,
 		); err != nil {
 			return err
 		}
 
+		// check the ERC20 module's balance of the ERC20-originated token
+		if balanceAfter, err = getBalanceOf(
+			sdkCtx, plugin, evm, c.RegistryKey(), token, c.polarisERC20ABI, c.RegistryKey(),
+		); err != nil {
+			return err
+		}
+
 		// mint amount Polaris Coins to recipient
+		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
 		if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
 			return err
 		}
@@ -218,4 +243,25 @@ func (c *Contract) transferERC20ToCoin(
 		),
 	)
 	return nil
+}
+
+// getBalanceOf returns the balanceOf `address` for a ERC20 token at `contractAddr`.
+func getBalanceOf(
+	ctx sdk.Context,
+	plugin ethprecompile.Plugin,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	contractAddr common.Address,
+	contract abi.ABI,
+	address common.Address,
+) (*big.Int, error) {
+	ret, err := cosmlib.StaticCallEVMFromPrecompileUnpackArgs(
+		ctx, plugin, evm,
+		caller, contractAddr, contract,
+		balanceOf, address,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return utils.MustGetAs[*big.Int](ret[0]), nil
 }
