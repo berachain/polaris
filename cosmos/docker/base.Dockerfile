@@ -32,7 +32,7 @@ ARG FOUNDRY_DIR=contracts
 #######################################################
 
 # Use the latest foundry image
-FROM ghcr.io/foundry-rs/foundry as foundry
+FROM ghcr.io/foundry-rs/foundry:nightly as foundry
 
 # Set working directory
 WORKDIR /workdir
