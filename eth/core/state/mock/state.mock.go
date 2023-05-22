@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"sync"
 )
 
@@ -18,6 +19,9 @@ import (
 //		mockedPlugin := &PluginMock{
 //			AddBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the AddBalance method")
+//			},
+//			CloneFunc: func() state.Plugin {
+//				panic("mock out the Clone method")
 //			},
 //			CreateAccountFunc: func(address common.Address)  {
 //				panic("mock out the CreateAccount method")
@@ -101,6 +105,9 @@ type PluginMock struct {
 	// AddBalanceFunc mocks the AddBalance method.
 	AddBalanceFunc func(address common.Address, intMoqParam *big.Int)
 
+	// CloneFunc mocks the Clone method.
+	CloneFunc func() state.Plugin
+
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
 
@@ -181,6 +188,9 @@ type PluginMock struct {
 			Address common.Address
 			// IntMoqParam is the intMoqParam argument value.
 			IntMoqParam *big.Int
+		}
+		// Clone holds details about calls to the Clone method.
+		Clone []struct {
 		}
 		// CreateAccount holds details about calls to the CreateAccount method.
 		CreateAccount []struct {
@@ -316,6 +326,7 @@ type PluginMock struct {
 		}
 	}
 	lockAddBalance        sync.RWMutex
+	lockClone             sync.RWMutex
 	lockCreateAccount     sync.RWMutex
 	lockDeleteAccounts    sync.RWMutex
 	lockEmpty             sync.RWMutex
@@ -375,6 +386,33 @@ func (mock *PluginMock) AddBalanceCalls() []struct {
 	mock.lockAddBalance.RLock()
 	calls = mock.calls.AddBalance
 	mock.lockAddBalance.RUnlock()
+	return calls
+}
+
+// Clone calls CloneFunc.
+func (mock *PluginMock) Clone() state.Plugin {
+	if mock.CloneFunc == nil {
+		panic("PluginMock.CloneFunc: method is nil but Plugin.Clone was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockClone.Lock()
+	mock.calls.Clone = append(mock.calls.Clone, callInfo)
+	mock.lockClone.Unlock()
+	return mock.CloneFunc()
+}
+
+// CloneCalls gets all the calls that were made to Clone.
+// Check the length with:
+//
+//	len(mockedPlugin.CloneCalls())
+func (mock *PluginMock) CloneCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockClone.RLock()
+	calls = mock.calls.Clone
+	mock.lockClone.RUnlock()
 	return calls
 }
 

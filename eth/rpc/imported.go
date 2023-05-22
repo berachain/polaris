@@ -27,7 +27,6 @@ import (
 )
 
 type (
-	AddrLocker        = ethapi.AddrLocker
 	API               = rpc.API
 	Backend           = ethapi.Backend
 	BlockNumber       = rpc.BlockNumber
@@ -36,6 +35,7 @@ type (
 )
 
 var (
+	GetGethAPIs          = ethapi.GetAPIs
 	NewEthereumAPI       = ethapi.NewEthereumAPI
 	NewBlockChainAPI     = ethapi.NewBlockChainAPI
 	NewTransactionAPI    = ethapi.NewTransactionAPI

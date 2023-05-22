@@ -58,7 +58,7 @@ var _ = Describe("Bank", func() {
 	denom3 := "stake"
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 7
+		numberOfDenoms := 8
 		coinsToBeSent := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
@@ -92,10 +92,10 @@ var _ = Describe("Bank", func() {
 			Display: "bera",
 		}
 
-		// charlie initially has 1000000000 abera
+		// charlie initially has 1000000000000000000 abera
 		balance, err := bankPrecompile.GetBalance(nil, tf.Address("charlie"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
-		Expect(balance.Cmp(big.NewInt(1000000000))).To(Equal(0))
+		Expect(balance.Cmp(big.NewInt(1000000000000000000))).To(Equal(0))
 
 		// Send 1000 bera from alice to charlie
 		_, err = bankPrecompile.Send(
@@ -110,10 +110,10 @@ var _ = Describe("Bank", func() {
 		err = tf.Network.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
 
-		// charlie now has 1000001000 abera
+		// charlie now has 1000000000000001000 abera
 		balance, err = bankPrecompile.GetBalance(nil, tf.Address("charlie"), denom)
 		Expect(err).ShouldNot(HaveOccurred())
-		Expect(balance).To(Equal(big.NewInt(1000001000)))
+		Expect(balance).To(Equal(big.NewInt(1000000000000001000)))
 
 		// bob has 100 abera and 100 atoken
 		allBalance, err := bankPrecompile.GetAllBalances(nil, tf.Address("bob"))
@@ -128,9 +128,9 @@ var _ = Describe("Bank", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(spendableBalances).To(Equal(expectedAllBalance))
 
-		atokenSupply, err := bankPrecompile.GetSupply(nil, denom2)
+		atokenSupply, err := bankPrecompile.GetSupply(nil, "asupply")
 		Expect(err).ShouldNot(HaveOccurred())
-		Expect(atokenSupply).To(Equal(big.NewInt(100)))
+		Expect(atokenSupply).To(Equal(big.NewInt(1000000000000000000)))
 
 		totalSupply, err := bankPrecompile.GetAllSupply(nil)
 		Expect(err).ShouldNot(HaveOccurred())

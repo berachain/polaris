@@ -79,10 +79,10 @@ func (dp *defaultPlugin) Run(
 }
 
 // EnableReentrancy implements core.PrecompilePlugin.
-func (dp *defaultPlugin) EnableReentrancy(context.Context) {}
+func (dp *defaultPlugin) EnableReentrancy(EVM) {}
 
 // DisableReentrancy implements core.PrecompilePlugin.
-func (dp *defaultPlugin) DisableReentrancy(context.Context) {}
+func (dp *defaultPlugin) DisableReentrancy(EVM) {}
 
 // GetDefaultPrecompiles returns the default set of precompiles for the given rules.
 func GetDefaultPrecompiles(rules *params.Rules) []Registrable {

@@ -23,7 +23,9 @@ package mock
 import (
 	"github.com/ethereum/go-ethereum/params"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 //go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
@@ -31,6 +33,12 @@ import (
 func NewPrecompilePluginMock() *PrecompilePluginMock {
 	return &PrecompilePluginMock{
 		GetPrecompilesFunc: func(_ *params.Rules) []precompile.Registrable {
+			return nil
+		},
+		GetActiveFunc: func(_ *params.Rules) []common.Address {
+			return nil
+		},
+		RegisterFunc: func(pc vm.PrecompileContainer) error {
 			return nil
 		},
 	}

@@ -4,7 +4,6 @@
 package mock
 
 import (
-	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
@@ -24,10 +23,10 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //
 //		// make and configure a mocked core.PrecompilePlugin
 //		mockedPrecompilePlugin := &PrecompilePluginMock{
-//			DisableReentrancyFunc: func(contextMoqParam context.Context)  {
+//			DisableReentrancyFunc: func(precompileEVM vm.PrecompileEVM)  {
 //				panic("mock out the DisableReentrancy method")
 //			},
-//			EnableReentrancyFunc: func(contextMoqParam context.Context)  {
+//			EnableReentrancyFunc: func(precompileEVM vm.PrecompileEVM)  {
 //				panic("mock out the EnableReentrancy method")
 //			},
 //			GetFunc: func(addr common.Address) vm.PrecompiledContract {
@@ -56,10 +55,10 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //	}
 type PrecompilePluginMock struct {
 	// DisableReentrancyFunc mocks the DisableReentrancy method.
-	DisableReentrancyFunc func(contextMoqParam context.Context)
+	DisableReentrancyFunc func(precompileEVM vm.PrecompileEVM)
 
 	// EnableReentrancyFunc mocks the EnableReentrancy method.
-	EnableReentrancyFunc func(contextMoqParam context.Context)
+	EnableReentrancyFunc func(precompileEVM vm.PrecompileEVM)
 
 	// GetFunc mocks the Get method.
 	GetFunc func(addr common.Address) vm.PrecompiledContract
@@ -83,13 +82,13 @@ type PrecompilePluginMock struct {
 	calls struct {
 		// DisableReentrancy holds details about calls to the DisableReentrancy method.
 		DisableReentrancy []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
+			// PrecompileEVM is the precompileEVM argument value.
+			PrecompileEVM vm.PrecompileEVM
 		}
 		// EnableReentrancy holds details about calls to the EnableReentrancy method.
 		EnableReentrancy []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
+			// PrecompileEVM is the precompileEVM argument value.
+			PrecompileEVM vm.PrecompileEVM
 		}
 		// Get holds details about calls to the Get method.
 		Get []struct {
@@ -145,19 +144,19 @@ type PrecompilePluginMock struct {
 }
 
 // DisableReentrancy calls DisableReentrancyFunc.
-func (mock *PrecompilePluginMock) DisableReentrancy(contextMoqParam context.Context) {
+func (mock *PrecompilePluginMock) DisableReentrancy(precompileEVM vm.PrecompileEVM) {
 	if mock.DisableReentrancyFunc == nil {
 		panic("PrecompilePluginMock.DisableReentrancyFunc: method is nil but PrecompilePlugin.DisableReentrancy was just called")
 	}
 	callInfo := struct {
-		ContextMoqParam context.Context
+		PrecompileEVM vm.PrecompileEVM
 	}{
-		ContextMoqParam: contextMoqParam,
+		PrecompileEVM: precompileEVM,
 	}
 	mock.lockDisableReentrancy.Lock()
 	mock.calls.DisableReentrancy = append(mock.calls.DisableReentrancy, callInfo)
 	mock.lockDisableReentrancy.Unlock()
-	mock.DisableReentrancyFunc(contextMoqParam)
+	mock.DisableReentrancyFunc(precompileEVM)
 }
 
 // DisableReentrancyCalls gets all the calls that were made to DisableReentrancy.
@@ -165,10 +164,10 @@ func (mock *PrecompilePluginMock) DisableReentrancy(contextMoqParam context.Cont
 //
 //	len(mockedPrecompilePlugin.DisableReentrancyCalls())
 func (mock *PrecompilePluginMock) DisableReentrancyCalls() []struct {
-	ContextMoqParam context.Context
+	PrecompileEVM vm.PrecompileEVM
 } {
 	var calls []struct {
-		ContextMoqParam context.Context
+		PrecompileEVM vm.PrecompileEVM
 	}
 	mock.lockDisableReentrancy.RLock()
 	calls = mock.calls.DisableReentrancy
@@ -177,19 +176,19 @@ func (mock *PrecompilePluginMock) DisableReentrancyCalls() []struct {
 }
 
 // EnableReentrancy calls EnableReentrancyFunc.
-func (mock *PrecompilePluginMock) EnableReentrancy(contextMoqParam context.Context) {
+func (mock *PrecompilePluginMock) EnableReentrancy(precompileEVM vm.PrecompileEVM) {
 	if mock.EnableReentrancyFunc == nil {
 		panic("PrecompilePluginMock.EnableReentrancyFunc: method is nil but PrecompilePlugin.EnableReentrancy was just called")
 	}
 	callInfo := struct {
-		ContextMoqParam context.Context
+		PrecompileEVM vm.PrecompileEVM
 	}{
-		ContextMoqParam: contextMoqParam,
+		PrecompileEVM: precompileEVM,
 	}
 	mock.lockEnableReentrancy.Lock()
 	mock.calls.EnableReentrancy = append(mock.calls.EnableReentrancy, callInfo)
 	mock.lockEnableReentrancy.Unlock()
-	mock.EnableReentrancyFunc(contextMoqParam)
+	mock.EnableReentrancyFunc(precompileEVM)
 }
 
 // EnableReentrancyCalls gets all the calls that were made to EnableReentrancy.
@@ -197,10 +196,10 @@ func (mock *PrecompilePluginMock) EnableReentrancy(contextMoqParam context.Conte
 //
 //	len(mockedPrecompilePlugin.EnableReentrancyCalls())
 func (mock *PrecompilePluginMock) EnableReentrancyCalls() []struct {
-	ContextMoqParam context.Context
+	PrecompileEVM vm.PrecompileEVM
 } {
 	var calls []struct {
-		ContextMoqParam context.Context
+		PrecompileEVM vm.PrecompileEVM
 	}
 	mock.lockEnableReentrancy.RLock()
 	calls = mock.calls.EnableReentrancy

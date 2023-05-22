@@ -37,6 +37,7 @@ var _ = Describe("Logs", func() {
 	var bhash = common.BytesToHash([]byte{2})
 	var a1 = common.BytesToAddress([]byte{3})
 	var a2 = common.BytesToAddress([]byte{4})
+	var a3 = common.BytesToAddress([]byte{5})
 
 	BeforeEach(func() {
 		l = utils.MustGetAs[*logs](NewLogs())
@@ -83,6 +84,22 @@ var _ = Describe("Logs", func() {
 
 		It("should corrctly finalize", func() {
 			Expect(func() { l.Finalize() }).ToNot(Panic())
+		})
+
+		It("should correctly clone", func() {
+			l.AddLog(&coretypes.Log{Address: a2})
+			Expect(l.Size()).To(Equal(2))
+			Expect(l.PeekAt(1).Address).To(Equal(a2))
+
+			l2 := utils.MustGetAs[*logs](l.Clone())
+			Expect(l2.Size()).To(Equal(2))
+			Expect(l2.PeekAt(0).Address).To(Equal(a1))
+			Expect(l2.PeekAt(1).Address).To(Equal(a2))
+
+			l2.AddLog(&coretypes.Log{Address: a3})
+			Expect(l2.Size()).To(Equal(3))
+			Expect(l2.PeekAt(2).Address).To(Equal(a3))
+			Expect(l.Size()).To(Equal(2))
 		})
 	})
 })

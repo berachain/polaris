@@ -52,6 +52,11 @@ type (
 	Config  = network.Config
 )
 
+//nolint:gochecknoinits // i hate cosmos.
+func init() {
+	config.SetupCosmosConfig()
+}
+
 const (
 	two         = 2
 	thousand    = 1000
@@ -113,7 +118,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 			)
 		},
 		GenesisState:    BuildGenesisState(keysMap),
-		TimeoutCommit:   2 * time.Second, //nolint:gomnd // 2 seconds is the default.
+		TimeoutCommit:   time.Second,
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       "abera",
@@ -161,6 +166,10 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 	bankState.SendEnabled = []banktypes.SendEnabled{
 		{
 			Denom:   "abera",
+			Enabled: true,
+		},
+		{
+			Denom:   "atoken",
 			Enabled: true,
 		},
 		{
@@ -250,6 +259,9 @@ func getCoinsForAccount(name string) sdk.Coins {
 			sdk.NewCoin("bAKT", sdk.NewInt(12345)), //nolint:gomnd // its okay.
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
 			sdk.NewCoin("bOSMO", sdk.NewInt(12345*2)), //nolint:gomnd // its okay.
+			sdk.NewCoin("atoken", sdk.NewInt(examoney)),
+			// do not change the supply of this coin
+			sdk.NewCoin("asupply", sdk.NewInt(examoney)),
 		)
 	case "bob":
 		return sdk.NewCoins(
@@ -258,7 +270,7 @@ func getCoinsForAccount(name string) sdk.Coins {
 			sdk.NewCoin("stake", sdk.NewInt(examoney)),
 		)
 	case "charlie":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(gigamoney)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	default:
 		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
 	}

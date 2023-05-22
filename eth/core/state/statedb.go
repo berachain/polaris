@@ -36,25 +36,29 @@ type stateDB struct {
 	Plugin
 
 	// Journals built internally and required for the stateDB.
-	LogsJournal
-	RefundJournal
-	AccessListJournal
-	SuicidesJournal
-	TransientStorageJournal
+	journal.Log
+	journal.Refund
+	journal.Accesslist
+	journal.Suicides
+	journal.TransientStorage
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 }
 
-// NewStateDB returns a `vm.PolarisStateDB` with the given `StatePlugin`.
+// NewStateDB returns a vm.PolarisStateDB with the given StatePlugin and new journals.
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
-	// Build the journals required for the stateDB
-	lj := journal.NewLogs()
-	rj := journal.NewRefund()
-	aj := journal.NewAccesslist()
-	sj := journal.NewSuicides(sp)
-	tj := journal.NewTransientStorage()
+	return newStateDBWithJournals(
+		sp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
+		journal.NewSuicides(sp), journal.NewTransientStorage(),
+	)
+}
 
+// newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
+func newStateDBWithJournals(
+	sp Plugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
+	sj journal.Suicides, tj journal.TransientStorage,
+) vm.PolarisStateDB {
 	// Build the controller and register the plugins and journals
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(sp)
@@ -65,13 +69,13 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	_ = ctrl.Register(tj)
 
 	return &stateDB{
-		Plugin:                  sp,
-		LogsJournal:             lj,
-		RefundJournal:           rj,
-		AccessListJournal:       aj,
-		TransientStorageJournal: tj,
-		SuicidesJournal:         sj,
-		ctrl:                    ctrl,
+		Plugin:           sp,
+		Log:              lj,
+		Refund:           rj,
+		Accesslist:       aj,
+		Suicides:         sj,
+		TransientStorage: tj,
+		ctrl:             ctrl,
 	}
 }
 
@@ -79,50 +83,44 @@ func NewStateDB(sp Plugin) vm.PolarisStateDB {
 // Snapshot
 // =============================================================================
 
-// Snapshot implements `stateDB`.
+// Snapshot implements vm.PolarisStateDB.
 func (sdb *stateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
 }
 
-// RevertToSnapshot implements `stateDB`.
+// RevertToSnapshot implements vm.PolarisStateDB.
 func (sdb *stateDB) RevertToSnapshot(id int) {
 	sdb.ctrl.RevertToSnapshot(id)
 }
 
 // =============================================================================
-// Clean state
+// Commit state
 // =============================================================================
 
-// Reset sets the TxContext for the current transaction and also manually clears any state from the
-// previous tx in the journals, in case the previous tx reverted (Finalize was not called).
-func (sdb *stateDB) Reset(txHash common.Hash, txIndex int) {
-	sdb.LogsJournal.Finalize()
-	sdb.RefundJournal.Finalize()
-	sdb.AccessListJournal.Finalize()
-	sdb.TransientStorageJournal.Finalize()
-	sdb.SuicidesJournal.Finalize()
-
-	sdb.LogsJournal.SetTxContext(txHash, txIndex)
-}
-
-// Finalize deletes the suicided accounts and finalizes all plugins.
-func (sdb *stateDB) Finalize() {
+// Finalise deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
+// next transaction.
+func (sdb *stateDB) Finalise(bool) {
 	sdb.DeleteAccounts(sdb.GetSuicides())
 	sdb.ctrl.Finalize()
+}
+
+func (sdb *stateDB) Commit(deleteEmptyObjects bool) (common.Hash, error) {
+	sdb.Finalise(deleteEmptyObjects)
+	return common.Hash{}, nil
 }
 
 // =============================================================================
 // Prepare
 // =============================================================================
 
-// Implementation taken directly from the `stateDB` in Go-Ethereum.
+// Implementation taken directly from the vm.PolarisStateDB in Go-Ethereum.
 //
-// Prepare implements `stateDB`.
+// Prepare implements vm.PolarisStateDB.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
 	if rules.IsBerlin {
 		// Clear out any leftover from previous executions
-		sdb.AccessListJournal = journal.NewAccesslist()
+		sdb.Accesslist = journal.NewAccesslist()
 
 		sdb.AddAddressToAccessList(sender)
 		if dest != nil {
@@ -148,7 +146,7 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 // PreImage
 // =============================================================================
 
-// AddPreimage implements the the `StateDB`interface, but currently
+// AddPreimage implements the the vm.PolarisStateDB interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 
@@ -162,7 +160,7 @@ func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 // Code Size
 // =============================================================================
 
-// GetCodeSize implements the `StateDB` interface by returning the size of the
+// GetCodeSize implements the vm.PolarisStateDB interface by returning the size of the
 // code associated with the given account.
 func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 	return len(sdb.GetCode(addr))
@@ -172,17 +170,12 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 // Other
 // =============================================================================
 
-func (sdb *stateDB) Finalise(_ bool) {
-	sdb.Finalize()
-}
-
-func (sdb *stateDB) Commit(_ bool) (common.Hash, error) {
-	sdb.Finalize()
-	return common.Hash{}, nil
-}
-
+// Copy returns a new statedb with cloned plugin and journals.
 func (sdb *stateDB) Copy() StateDBI {
-	return NewStateDB(sdb.Plugin)
+	return newStateDBWithJournals(
+		sdb.Plugin.Clone(), sdb.Log.Clone(), sdb.Refund.Clone(),
+		sdb.Accesslist.Clone(), sdb.Suicides.Clone(), sdb.TransientStorage.Clone(),
+	)
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {

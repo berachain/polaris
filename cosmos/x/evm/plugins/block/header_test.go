@@ -36,8 +36,9 @@ var _ = Describe("Header", func() {
 	var p *plugin
 
 	BeforeEach(func() {
+		_, _, _, sk := testutil.SetupMinimalKeepers()
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
-		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey))
+		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey, sk))
 		p.Prepare(ctx)
 	})
 

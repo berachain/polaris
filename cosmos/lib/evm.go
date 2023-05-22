@@ -42,8 +42,8 @@ func DeployOnEVMFromPrecompile(
 	contractCode string, // hex-encoded string
 	constructorArgs ...any,
 ) (common.Address, []byte, error) {
-	plugin.EnableReentrancy(ctx)
-	defer plugin.DisableReentrancy(ctx)
+	plugin.EnableReentrancy(evm)
+	defer plugin.DisableReentrancy(evm)
 
 	code := common.FromHex(contractCode)
 	args, err := contract.Pack("", constructorArgs...)
@@ -72,8 +72,8 @@ func CallEVMFromPrecompile(
 	methodName string,
 	args ...any,
 ) ([]byte, error) {
-	plugin.EnableReentrancy(ctx)
-	defer plugin.DisableReentrancy(ctx)
+	plugin.EnableReentrancy(evm)
+	defer plugin.DisableReentrancy(evm)
 
 	input, err := contract.Pack(methodName, args...)
 	if err != nil {
@@ -87,4 +87,57 @@ func CallEVMFromPrecompile(
 	// consume gas used by EVM during contract call
 	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, methodName)
 	return ret, err
+}
+
+// CallEVMFromPrecompileUnpackArgs calls into the EVM from a precompile contract and returns the
+// unpacked result.
+func CallEVMFromPrecompileUnpackArgs(
+	ctx sdk.Context,
+	plugin ethprecompile.Plugin,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	address common.Address,
+	contract abi.ABI,
+	value *big.Int,
+	methodName string,
+	args ...any,
+) ([]any, error) {
+	ret, err := CallEVMFromPrecompile(ctx, plugin, evm, caller, address, contract, value, methodName, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return contract.Unpack(methodName, ret)
+}
+
+// StaticCallEVMFromPrecompileUnpackArgs calls into the EVM from a precompile contract for readonly
+// calls.
+func StaticCallEVMFromPrecompileUnpackArgs(
+	ctx sdk.Context,
+	plugin ethprecompile.Plugin,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	address common.Address,
+	contract abi.ABI,
+	methodName string,
+	args ...any,
+) ([]any, error) {
+	plugin.EnableReentrancy(evm)
+	defer plugin.DisableReentrancy(evm)
+
+	input, err := contract.Pack(methodName, args...)
+	if err != nil {
+		return nil, err
+	}
+	suppliedGas := ctx.GasMeter().GasRemaining()
+	ret, gasRemaining, err := evm.StaticCall(
+		vm.AccountRef(caller), address, input, suppliedGas,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// consume gas used by EVM during contract call
+	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, methodName)
+	return contract.Unpack(methodName, ret)
 }

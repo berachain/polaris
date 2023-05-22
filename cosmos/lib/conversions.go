@@ -63,14 +63,30 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 
 	sdkCoins := sdk.NewCoins()
 	for _, evmCoin := range amounts {
-		sdkCoins = sdkCoins.Add(
-			sdk.Coin{
-				Amount: sdk.NewIntFromBigInt(evmCoin.Amount),
-				Denom:  evmCoin.Denom,
-			},
-		)
+		sdkCoins = append(sdkCoins, sdk.NewCoin(evmCoin.Denom, sdk.NewIntFromBigInt(evmCoin.Amount)))
 	}
+	// sort the coins by denom, as Cosmos expects.
+	sdkCoins = sdkCoins.Sort()
+
 	return sdkCoins, nil
+}
+
+// SdkCoinsToUnnamedCoins converts sdk.Coins into an unnamed struct.
+func SdkCoinsToUnnamedCoins(coins sdk.Coins) any {
+	unnamedCoins := []struct {
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
+	}{}
+	for _, coin := range coins {
+		unnamedCoins = append(unnamedCoins, struct {
+			Amount *big.Int `json:"amount"`
+			Denom  string   `json:"denom"`
+		}{
+			Amount: coin.Amount.BigInt(),
+			Denom:  coin.Denom,
+		})
+	}
+	return unnamedCoins
 }
 
 // GetGrantAsSendAuth maps a list of grants to a list of send authorizations.
