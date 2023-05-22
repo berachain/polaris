@@ -76,22 +76,22 @@ var _ = Describe("Tx Pool", func() {
 
 	It("should handle multiple transactions as queued", func() {
 		// Get the starting nonce.
-		beforeNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
+		beforeNonce, err := client.PendingNonceAt(context.Background(), tf.Address("charlie"))
 		Expect(err).NotTo(HaveOccurred())
 
 		// send 10 transactions, each one with updated nonce
 		var txs []*coretypes.Transaction
-		var tx *coretypes.Transaction
 		for i := beforeNonce; i < beforeNonce+10; i++ {
-			txr := tf.GenerateTransactOpts("alice")
+			txr := tf.GenerateTransactOpts("charlie")
 			txr.Nonce = big.NewInt(int64(i))
-			tx, err = contract.ConsumeGas(txr, big.NewInt(500))
+			var tx *coretypes.Transaction
+			tx, err = contract.ConsumeGas(txr, big.NewInt(50))
 			txs = append(txs, tx)
 			Expect(err).ToNot(HaveOccurred())
 		}
 
 		// check that nonce is updated in memory.
-		afterNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
+		afterNonce, err := client.PendingNonceAt(context.Background(), tf.Address("charlie"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(afterNonce).To(Equal(beforeNonce + 1))
 
@@ -101,7 +101,7 @@ var _ = Describe("Tx Pool", func() {
 		}
 
 		// verify the nonce has increased on disk.
-		afterNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
+		afterNonce, err = client.NonceAt(context.Background(), tf.Address("charlie"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(afterNonce).To(Equal(beforeNonce + 10))
 	})

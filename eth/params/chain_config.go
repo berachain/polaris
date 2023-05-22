@@ -28,6 +28,8 @@ import (
 
 const DefaultEIP155ChainID = 69420
 
+var zero = uint64(0)
+
 var DefaultChainConfig = &ChainConfig{
 	ChainID:                       big.NewInt(DefaultEIP155ChainID),
 	HomesteadBlock:                big.NewInt(0),
@@ -37,7 +39,7 @@ var DefaultChainConfig = &ChainConfig{
 	EIP150Hash:                    common.Hash{},
 	EIP155Block:                   big.NewInt(0),
 	EIP158Block:                   big.NewInt(0),
-	ShanghaiTime:                  nil,
+	ShanghaiTime:                  &zero,
 	CancunTime:                    nil,
 	PragueTime:                    nil,
 	ByzantiumBlock:                big.NewInt(0),

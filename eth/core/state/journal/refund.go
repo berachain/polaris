@@ -23,7 +23,22 @@ package journal
 import (
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
+	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
+
+// Refund is a `Store` that tracks the refund counter.
+type Refund interface {
+	// Refund implements `libtypes.Controllable`.
+	libtypes.Controllable[string]
+	// Refund implements `libtypes.Cloneable`.
+	libtypes.Cloneable[Refund]
+	// GetRefund returns the current value of the refund counter.
+	GetRefund() uint64
+	// AddRefund sets the refund counter to the given `gas`.
+	AddRefund(gas uint64)
+	// SubRefund subtracts the given `gas` from the refund counter.
+	SubRefund(gas uint64)
+}
 
 // refund is a `Store` that tracks the refund counter.
 type refund struct {
@@ -31,9 +46,7 @@ type refund struct {
 }
 
 // NewRefund creates and returns a `refund` journal.
-//
-//nolint:revive // only used as a `state.RefundJournal`.
-func NewRefund() *refund {
+func NewRefund() Refund {
 	return &refund{
 		Stack: stack.New[uint64](initCapacity),
 	}
@@ -78,4 +91,16 @@ func (r *refund) RevertToSnapshot(id int) {
 // Finalize implements `libtypes.Controllable`.
 func (r *refund) Finalize() {
 	r.Stack = stack.New[uint64](initCapacity)
+}
+
+// Clone implements `libtypes.Cloneable`.
+func (r *refund) Clone() Refund {
+	size := r.Size()
+	clone := &refund{
+		Stack: stack.New[uint64](size),
+	}
+	for i := 0; i < size; i++ {
+		clone.Push(r.PeekAt(i))
+	}
+	return clone
 }

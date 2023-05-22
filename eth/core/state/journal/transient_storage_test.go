@@ -22,6 +22,7 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -36,12 +37,10 @@ var (
 )
 
 var _ = Describe("TransientStorage", func() {
-	var (
-		ts *transientStorage
-	)
+	var ts *transientStorage
 
 	BeforeEach(func() {
-		ts = NewTransientStorage()
+		ts = utils.MustGetAs[*transientStorage](NewTransientStorage())
 	})
 
 	It("should add without impacting previous state", func() {
@@ -69,5 +68,19 @@ var _ = Describe("TransientStorage", func() {
 		ts.Finalize()
 		Expect(ts.Size(), 0)
 		Expect(func() { ts.Finalize() }).ToNot(Panic())
+	})
+
+	It("should correctly clone", func() {
+		ts.SetTransientState(bob, key, value)
+		Expect(ts.PeekAt(0).Get(bob, key), common.Hash{})
+		Expect(ts.GetTransientState(bob, key), value)
+
+		ts2 := utils.MustGetAs[*transientStorage](ts.Clone())
+		Expect(ts2.PeekAt(0).Get(bob, key), common.Hash{})
+		Expect(ts2.GetTransientState(bob, key), value)
+
+		ts2.SetTransientState(alice, key, value2)
+		Expect(ts2.GetTransientState(alice, key), value2)
+		Expect(ts.GetTransientState(alice, key), common.Hash{})
 	})
 })
