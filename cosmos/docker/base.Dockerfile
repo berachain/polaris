@@ -19,12 +19,13 @@
 #######################################################
 
 ARG GO_VERSION=1.20.4
-ARG GOARCH=arm64
+ARG GOARCH=amd64
 ARG GOOS=linux
 ARG NAME=polaris-cosmos
 ARG APP_NAME=polard
 ARG DB_BACKEND=pebbledb
 ARG CMD_PATH=./cosmos/cmd/polard
+ARG FOUNDRY_DIR=contracts
 
 #######################################################
 ###       Stage 1 - Build Solidity Bindings         ###
@@ -33,13 +34,23 @@ ARG CMD_PATH=./cosmos/cmd/polard
 # Use the latest foundry image
 FROM ghcr.io/foundry-rs/foundry as foundry
 
+# Set working directory
 WORKDIR /workdir
+
+# Required for forge install.
+COPY .git/ .git/
 
 # Copy over all the solidity code.
 ARG FOUNDRY_DIR
 COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
+
+# Move into the forge repo for building.
 WORKDIR /workdir/${FOUNDRY_DIR}
 
+# Install dependecies for solidity contracts.
+RUN forge install --no-commit
+
+# Build the contracts using special flags required for abigen.
 RUN forge build --extra-output-files bin --extra-output-files abi
 
 #######################################################
