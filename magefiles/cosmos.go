@@ -31,19 +31,14 @@ import (
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+
+	"pkg.berachain.dev/polaris/magefiles/lib"
 )
 
 var (
 	// Variables and Helpers.
 	production = false
 	statically = false
-
-	// Commands.
-	dockerBuild = RunCmdV("docker", "build", "--rm=false")
-
-	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
-	dockerRun    = RunCmdV("docker", "run")
-
 	// Variables.
 	baseDockerPath         = "./cosmos/docker/"
 	execDockerPath         = baseDockerPath + "base.Dockerfile"
@@ -109,17 +104,19 @@ func (c Cosmos) Docker(node string) error {
 	return c.dockerBuildNode("polard-"+node, path, goVersion, version)
 }
 
+// Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) RunDockerLocal() error {
-	return dockerRun("-p", "8545:8545", "polard-local:v0.0.0")
+	return lib.DockerRun("-p", "8545:8545", "polard-local:v0.0.0")
 }
 
+// Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) DockerX() error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
 	return c.dockerBuildBeradWithX(goVersion)
 }
 
 func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
-	return dockerBuildFn(true)(
+	return lib.DockerBuildFn(true)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--platform", "linux/amd64", // TODO: do not hard code, have ability to pass as arg
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
@@ -139,7 +136,7 @@ func (c Cosmos) DockerDebug() error {
 
 // Build a docker image for berad with the supplied arguments.
 func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion string) error {
-	return dockerBuildFn(false)(
+	return lib.DockerBuildFn(false)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
 		"-f", dockerFilePath,
@@ -193,11 +190,4 @@ func (c Cosmos) TestUnit() error {
 func (c Cosmos) TestIntegration() error {
 	LogGreen("Running integration tests for the Cosmos SDK chain.")
 	return testIntegration(c.directory() + "/testing/integration")
-}
-
-func dockerBuildFn(useX bool) func(args ...string) error {
-	if useX {
-		return dockerBuildX
-	}
-	return dockerBuild
 }
