@@ -93,7 +93,7 @@ var _ = Describe("Tx Pool", func() {
 		// check that nonce is updated in memory.
 		afterNonce, err := client.PendingNonceAt(context.Background(), tf.Address("charlie"))
 		Expect(err).NotTo(HaveOccurred())
-		Expect(afterNonce).To(Equal(beforeNonce + 1))
+		Expect(afterNonce).To(Equal(beforeNonce + uint64(len(txs))))
 
 		// check to make sure all the txs went thru.
 		for _, tx := range txs {
