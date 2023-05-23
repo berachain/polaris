@@ -30,6 +30,7 @@ import (
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
+	mintprecompile "pkg.berachain.dev/polaris/cosmos/precompile/mint"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -56,6 +57,7 @@ func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registr
 				govkeeper.NewMsgServerImpl(app.GovKeeper),
 				app.GovKeeper,
 			),
+			mintprecompile.NewPrecompileContract(app.MintKeeper),
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 		}...)
 
