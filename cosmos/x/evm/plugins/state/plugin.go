@@ -278,6 +278,10 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
+	// Short circuit if amount is zero.
+	if amount.Cmp(big.NewInt(0)) == 0 {
+		return
+	}
 	if err := lib.MintCoinsToAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
 		panic(err)
 	}
@@ -286,6 +290,10 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
+	// Short circuit if amount is zero.
+	if amount.Cmp(big.NewInt(0)) == 0 {
+		return
+	}
 	if err := lib.BurnCoinsFromAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
 		panic(err)
 	}

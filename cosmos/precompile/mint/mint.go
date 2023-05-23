@@ -46,6 +46,7 @@ func NewPrecompileContract(
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.MintModuleMetaData.ABI,
+			// 0xDc6F17BBEc824FFf8F86587966B2047Db6aB7367
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(minttypes.ModuleName)),
 		),
 		querier: q,
