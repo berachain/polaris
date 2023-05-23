@@ -25,7 +25,7 @@ import (
 
 func TestContainer(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "jsonrpc:integration")
+	RunSpecs(t, "testing:integration")
 }
 
 var _ = Describe("Container", func() {

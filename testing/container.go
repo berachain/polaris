@@ -89,16 +89,16 @@ func NewContainer(ctx context.Context, fromDockerfileArgs tc.FromDockerfile) (*C
 func (c *Container) Start(ctx context.Context) error {
 	// Retrieve the port on the host mapped to the JSON-RPC HTTP port in the container.
 	// We map them to a random port on the host.
-	mappedHTTPPort, err := c.Container.MappedPort(ctx, nat.Port(httpPort))
+	mappedHTTPPort, err := c.Container.MappedPort(ctx, nat.Port(defaultHttpPort))
 	if err != nil {
-		return fmt.Errorf("getting mapped port for (%s): %w", httpPort, err)
+		return fmt.Errorf("getting mapped port for (%s): %w", defaultHttpPort, err)
 	}
 
 	// Retrieve the port on the host mapped to the JSON-RPC WS port in the container.
 	// We map them to a random port on the host.
-	mappedWSPort, err := c.Container.MappedPort(ctx, nat.Port(wsPort+"/tcp"))
+	mappedWSPort, err := c.Container.MappedPort(ctx, nat.Port(defaultWsPort+"/tcp"))
 	if err != nil {
-		return fmt.Errorf("getting mapped port for (%s): %w", wsPort, err)
+		return fmt.Errorf("getting mapped port for (%s): %w", defaultWsPort, err)
 	}
 
 	c.config.MappedHTTP = mappedHTTPPort.Port()
