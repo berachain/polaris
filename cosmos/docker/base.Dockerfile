@@ -81,9 +81,7 @@ ARG DB_BACKEND
 ARG CMD_PATH
 
 # Build Executable
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/root/go/pkg/mod \
-    VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
+RUN VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
     COMMIT=$(git log -1 --format='%H') && \
     env GOOS=${GOOS} GOARCH=${GOARCH} && \
     env NAME=${NAME} DB_BACKEND=${DB_BACKEND} && \
