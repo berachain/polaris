@@ -53,7 +53,7 @@ func NewPolarisChainFromDockerfile(dockerContext, dockerfilePath string, buildAr
 		PrintBuildLog: true,
 	}
 
-	container, err := testing.NewContainer(context.Background(), dockerReq)
+	container, err := testing.NewContainerBindingFromDockerfile(context.Background(), dockerReq)
 	if err != nil {
 		return nil, err
 	}

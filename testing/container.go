@@ -46,8 +46,41 @@ type ContainerConfig struct {
 	MappedWS string
 }
 
+func NewContainerBinding(ctx context.Context, imageName string) (*Container, error) {
+	// Create a request to the container.
+	req := tc.GenericContainerRequest{
+		ContainerRequest: tc.ContainerRequest{
+			Image: imageName,
+			// We want to expose the standard ethereum json-rpc ports.
+			ExposedPorts: []string{
+				defaultHttpPort, defaultWsPort,
+			},
+		},
+	}
+
+	// Create a container from the request.
+	container, err := tc.GenericContainer(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("getting request provider: %w", err)
+	}
+
+	// Retrieve the host mapped to the container.
+	host, err := container.Host(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting host for: %w", err)
+	}
+
+	// Return the container.
+	return &Container{
+		Container: container,
+		config: ContainerConfig{
+			Host: host,
+		},
+	}, nil
+}
+
 // `NewContainer` creates a new container from the provided configuration.
-func NewContainer(ctx context.Context, fromDockerfileArgs tc.FromDockerfile) (*Container, error) {
+func NewContainerBindingFromDockerfile(ctx context.Context, fromDockerfileArgs tc.FromDockerfile) (*Container, error) {
 	// Update the architecture to match the machine that it is running on.
 	arch := runtime.GOARCH
 	fromDockerfileArgs.BuildArgs["GOARCH"] = &arch

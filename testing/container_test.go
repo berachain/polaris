@@ -52,7 +52,7 @@ var _ = Describe("Container", func() {
 			BuildArgs:     map[string]*string{},
 			PrintBuildLog: true,
 		}
-		c, err := NewContainer(ctx, dockerReq)
+		c, err := NewContainerBindingFromDockerfile(ctx, dockerReq)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
 

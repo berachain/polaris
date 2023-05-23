@@ -27,6 +27,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/magefile/mage/mg"
@@ -139,6 +140,7 @@ func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion st
 	return lib.DockerBuildFn(false)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
+		"--build-arg", "GOARCH="+runtime.GOARCH,
 		"-f", dockerFilePath,
 		"-t", name+":"+imageVersion, //TODO: do not hardcode, have ability to pass as arg
 		".",
