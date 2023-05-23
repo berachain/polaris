@@ -18,9 +18,10 @@ import (
 	"context"
 	gotesting "testing"
 
+	"pkg.berachain.dev/polaris/testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"pkg.berachain.dev/polaris/testing"
 )
 
 func TestPolarisChain(t *gotesting.T) {
@@ -40,7 +41,7 @@ var _ = Describe("Fixture", func() {
 
 	AfterEach(func() {
 		if c != nil {
-			Expect(c.Terminate(ctx)).To(BeNil())
+			Expect(c.Terminate(ctx)).To(Succeed())
 		}
 	})
 
