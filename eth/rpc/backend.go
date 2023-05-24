@@ -35,6 +35,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/node"
+	"github.com/ethereum/go-ethereum/rpc"
 
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -164,15 +165,37 @@ func (b *backend) SetHead(number uint64) {
 	panic("not implemented")
 }
 
-// HeaderByNumber returns the block header at the given block number.
-func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.Header, error) {
-	block := b.polarisBlockByNumber(number)
-	if block == nil {
-		b.logger.Error("eth.rpc.backend.HeaderByNumber", "number", number, "nil", true)
+func (b *backend) HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error) {
+	// Pending block is only known by the miner
+	if number == rpc.PendingBlockNumber {
+		// TODO: handle "miner" stuff
+		// block := b.eth.miner.PendingBlock()
+		block := b.chain.CurrentBlock()
+		return block.Header(), nil
+	}
+	// Otherwise resolve and return the block
+	if number == rpc.LatestBlockNumber {
+		block := b.chain.CurrentBlock()
+		if block != nil {
+			return block.Header(), nil
+		}
 		return nil, nil //nolint:nilnil // to match geth.
 	}
-	b.logger.Info("called eth.rpc.backend.HeaderByNumber", "header", block.Header())
-	return block.Header(), nil
+	if number == rpc.FinalizedBlockNumber {
+		block := b.chain.CurrentFinalBlock()
+		if block != nil {
+			return block.Header(), nil
+		}
+		return nil, errors.New("finalized block not found")
+	}
+	if number == rpc.SafeBlockNumber {
+		block := b.chain.CurrentSafeBlock()
+		if block != nil {
+			return block.Header(), nil
+		}
+		return nil, errors.New("safe block not found")
+	}
+	return b.chain.GetHeaderByNumber(int64(number)), nil
 }
 
 // HeaderByHash returns the block header with the given hash.
@@ -193,7 +216,7 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		block := b.polarisBlockByNumber(blockNr)
 		if block == nil {
-			return nil, errors.New("header for hash not found")
+			return nil, errors.New("header for number not found")
 		}
 		return block.Header(), nil
 	}
@@ -595,7 +618,7 @@ func (b *backend) polarisBlockByNumberOrHash(
 func (b *backend) polarisBlockByNumber(number BlockNumber) *types.Block {
 	switch number { //nolint:nolintlint,exhaustive // golangci-lint bug?
 	case SafeBlockNumber, FinalizedBlockNumber:
-		return b.chain.FinalizedBlock()
+		return b.chain.CurrentFinalBlock()
 	case PendingBlockNumber, LatestBlockNumber:
 		return b.chain.CurrentBlock()
 	default:

@@ -40,9 +40,11 @@ type ChainBlockReader interface {
 	CurrentHeader() *types.Header
 	CurrentBlock() *types.Block
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts)
-	FinalizedBlock() *types.Block
+	CurrentFinalBlock() *types.Block
+	CurrentSafeBlock() *types.Block
 	GetReceiptsByHash(common.Hash) types.Receipts
 	GetBlockByHash(common.Hash) *types.Block
+	GetHeaderByNumber(int64) *types.Header
 	GetBlockByNumber(int64) *types.Block
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
@@ -121,8 +123,8 @@ func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts) {
 	return block, receipts
 }
 
-// FinalizedBlock returns the last finalized block of the blockchain.
-func (bc *blockchain) FinalizedBlock() *types.Block {
+// CurrentFinalBlock returns the last finalized block of the blockchain.
+func (bc *blockchain) CurrentFinalBlock() *types.Block {
 	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
 	if fb == nil || !ok {
 		return nil
@@ -130,6 +132,12 @@ func (bc *blockchain) FinalizedBlock() *types.Block {
 	bc.blockNumCache.Add(fb.Number().Int64(), fb)
 	bc.blockHashCache.Add(fb.Hash(), fb)
 	return fb
+}
+
+// CurrentFinalBlock returns the last finalized block of the blockchain.
+func (bc *blockchain) CurrentSafeBlock() *types.Block {
+	// TODO: determine the difference between safe and final in polaris.
+	return bc.CurrentFinalBlock()
 }
 
 // GetReceipts gathers the receipts that were created in the block defined by
@@ -197,6 +205,15 @@ func (bc *blockchain) GetTransaction(
 	bc.txLookupCache.Add(txHash, txLookupEntry)
 	return txLookupEntry.Tx, txLookupEntry.BlockHash,
 		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
+}
+
+// GetHeaderByNumber retrieves a header from the blockchain.
+func (bc *blockchain) GetHeaderByNumber(number int64) *types.Header {
+	block := bc.GetBlockByNumber(number)
+	if block == nil {
+		return nil
+	}
+	return block.Header()
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
