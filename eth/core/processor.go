@@ -67,9 +67,10 @@ type StateProcessor struct {
 	// We store information about the current block being processed so that we can access it
 	// during the processing of transactions. This allows us to utilize this information to
 	// build the `block` and return the canonical receipts in `Finalize`.
-	header   *types.Header
-	txs      types.Transactions
-	receipts types.Receipts
+	header    *types.Header
+	blockHash common.Hash
+	txs       types.Transactions
+	receipts  types.Receipts
 }
 
 // NewStateProcessor creates a new state processor with the given host, statedb, vmConfig, and
@@ -111,6 +112,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 	// Build a header object so we can track that status of the block as we process it.
 	sp.header = header
+	sp.blockHash = header.Hash()
 	sp.txs = make(types.Transactions, 0, initialTxsCapacity)
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
@@ -139,12 +141,8 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 func (sp *StateProcessor) ProcessTransaction(
 	ctx context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
-	var (
-		// We set the gasUsed to the amount of gas so far used in the block.
-		gasUsed = sp.gp.BlockGasConsumed()
-		// We set the gasPool = gasLimit - gasUsed.
-		gasPool = GasPool(sp.header.GasLimit - gasUsed)
-	)
+	// We set the gasPool = gasLimit - gasUsed.
+	gasPool := new(GasPool).AddGas(sp.header.GasLimit - sp.gp.BlockGasConsumed())
 
 	// Set the transaction context in the state database.
 	// This clears the logs and sets the transaction info.
@@ -152,7 +150,8 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Inshallah we will be able to apply the transaction.
 	receipt, result, err := ApplyTransactionWithEVMWithResult(
-		sp.evm, sp.cp.ChainConfig(), nil, &gasPool, sp.statedb, sp.header, tx, &gasUsed,
+		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb, sp.header.BaseFee,
+		sp.header.Number, sp.blockHash, tx, &sp.header.GasUsed,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
@@ -167,8 +166,6 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
-	// We set the blockhash to be nil to be safe, since the blockhash isn't fully correct yet.
-	receipt.BlockHash = common.Hash{}
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.
@@ -182,22 +179,11 @@ func (sp *StateProcessor) Finalize(
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
-	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = sp.gp.BlockGasConsumed()
-
 	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
 	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
 
-	// Update hashes on the receipts and logs, we have to do this in Finalize since when
-	// the transaction is actually being processed, we don't have the real blockhash. This is a
-	// fundamental design difference in the way polaris vs geth processes transactions.
 	var logs []*types.Log
-	blockHash := block.Hash()
 	for _, receipt := range sp.receipts {
-		receipt.BlockHash = blockHash
-		for _, log := range receipt.Logs {
-			log.BlockHash = blockHash
-		}
 		logs = append(logs, receipt.Logs...)
 	}
 
