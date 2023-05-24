@@ -34,7 +34,7 @@ type ChainReader interface {
 	ChainBlockReader
 	ChainTxPoolReader
 	ChainSubscriber
-	ChainConfig() *params.ChainConfig
+	Config() *params.ChainConfig
 }
 
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
@@ -64,7 +64,7 @@ type ChainTxPoolReader interface {
 // =========================================================================
 
 // ChainConfig returns the Ethereum chain config of the  chain.
-func (bc *blockchain) ChainConfig() *params.ChainConfig {
+func (bc *blockchain) Config() *params.ChainConfig {
 	return bc.cp.ChainConfig()
 }
 

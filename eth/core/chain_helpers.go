@@ -35,7 +35,7 @@ func (bc *blockchain) deriveReceipts(receipts types.Receipts, blockHash common.H
 
 	// Derive receipts from block.
 	if err = receipts.DeriveFields(
-		bc.ChainConfig(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
+		bc.Config(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
 	); err != nil {
 		return nil, err
 	}
