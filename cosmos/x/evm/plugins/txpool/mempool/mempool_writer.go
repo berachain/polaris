@@ -52,15 +52,19 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 		return err
 	}
 
-	// We want to cache
+	// We want to cache the transaction for lookup.
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		signer := common.BytesToAddress(tx.GetMsgs()[0].GetSigners()[0])
 		// Delete old hash.
-		hash := etp.nonceToHash[ethTx.Nonce()]
+		hash := etp.nonceToHash[signer][ethTx.Nonce()]
 		delete(etp.ethTxCache, hash)
 
 		// Add new hash.
 		newHash := ethTx.Hash()
-		etp.nonceToHash[ethTx.Nonce()] = newHash
+		if etp.nonceToHash[signer] == nil {
+			etp.nonceToHash[signer] = make(map[uint64]common.Hash)
+		}
+		etp.nonceToHash[signer][ethTx.Nonce()] = newHash
 		etp.ethTxCache[newHash] = ethTx
 	}
 
@@ -77,10 +81,12 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 		return err
 	}
 
-	// We want to remove the caches of this tx.
+	// We want to remove any references to the tx from the cache.
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		ethTx := evmtypes.GetAsEthTx(tx)
+		signer := common.BytesToAddress(tx.GetMsgs()[0].GetSigners()[0])
 		delete(etp.ethTxCache, ethTx.Hash())
-		delete(etp.nonceToHash, ethTx.Nonce())
+		delete(etp.nonceToHash[signer], ethTx.Nonce())
 	}
 
 	return nil
