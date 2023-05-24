@@ -29,9 +29,6 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// replaceTxPriceBump is the minimum price bump required for replacing transactions (match geth).
-const replaceTxPriceBump = 10
-
 // EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
 // transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
@@ -59,7 +56,9 @@ type EthTxPool struct {
 // NewPolarisEthereumTxPool creates a new Ethereum transaction pool.
 func NewPolarisEthereumTxPool() *EthTxPool {
 	config := mempool.DefaultPriorityNonceMempoolConfig()
-	config.TxReplacement = NewEthTxReplacement[int64](replaceTxPriceBump)
+	config.TxReplacement = EthereumTxReplacePolicy[int64]{
+		PriceBump: 10, //nolint:gomnd // 10% to match geth.
+	}.Func
 	return &EthTxPool{
 		PriorityNonceMempool: NewPriorityMempool(config),
 		nonceToHash:          make(map[common.Address]map[uint64]common.Hash),

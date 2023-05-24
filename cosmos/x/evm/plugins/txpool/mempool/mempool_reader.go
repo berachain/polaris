@@ -40,8 +40,9 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
+	allNonces := etp.senderIndices
 	pending := make(map[common.Address]coretypes.Transactions)
-	for sender, list := range etp.senderIndices {
+	for sender, list := range allNonces {
 		// get Eth Address of sender
 		addr := getEthAddressFromBech32(sender)
 
