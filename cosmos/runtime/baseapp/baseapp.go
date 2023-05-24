@@ -21,6 +21,8 @@
 package baseapp
 
 import (
+	"fmt"
+
 	"cosmossdk.io/client/v2/autocli"
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/evidence"
@@ -29,6 +31,7 @@ import (
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -37,6 +40,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -139,6 +143,18 @@ type PolarisBaseApp struct {
 	// polaris keepers
 	EVMKeeper   *evmkeeper.Keeper
 	ERC20Keeper *erc20keeper.Keeper
+}
+
+// InitChainer initializes the chain.
+func (a *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) (abci.ResponseInitChain, error) {
+	// Validate that ethereum genesis and cosmos genesis timestamp are the same.
+	// TODO: investigate how we can make this work in evm/keeper/genesis.go
+	// currently doesn't work in there since the scope of gen is restricted to the evm component
+	if req.Time != ctx.BlockHeader().Time {
+		panic(fmt.Errorf("timestamp mismatch: expected %d, got %d", req.Time, ctx.BlockHeader().Time))
+	}
+	// Then call the default App InitChainer.
+	return a.App.InitChainer(ctx, req)
 }
 
 // Name returns the name of the App.

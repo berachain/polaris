@@ -51,21 +51,22 @@ import (
 )
 
 var (
-	AccKey     = storetypes.NewKVStoreKey("acc")
-	BankKey    = storetypes.NewKVStoreKey("bank")
-	EvmKey     = storetypes.NewKVStoreKey("evm")
-	StakingKey = storetypes.NewKVStoreKey("staking")
-	Alice      = common.BytesToAddress([]byte("alice"))
-	Bob        = common.BytesToAddress([]byte("bob"))
+	AccKey        = storetypes.NewKVStoreKey("acc")
+	BankKey       = storetypes.NewKVStoreKey("bank")
+	EvmKey        = storetypes.NewKVStoreKey("evm")
+	StakingKey    = storetypes.NewKVStoreKey("staking")
+	Alice         = common.BytesToAddress([]byte("alice"))
+	Bob           = common.BytesToAddress([]byte("bob"))
+	DefaultHeader = cometproto.Header{ChainID: "69420", Height: 0}
 )
 
 // NewContext creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
-	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+	return sdk.NewContext(mock.NewMultiStore(), DefaultHeader, false, log.NewTestLogger(&testing.T{}))
 }
 
 func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
-	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+	return sdk.NewContext(ms, DefaultHeader, false, log.NewTestLogger(&testing.T{}))
 }
 
 // SetupMinimalKeepers creates and returns keepers for the base SDK modules.

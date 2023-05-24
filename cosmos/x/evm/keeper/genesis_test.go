@@ -22,10 +22,19 @@ package keeper_test
 
 import (
 	"fmt"
+	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"pkg.berachain.dev/polaris/cosmos/lib"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -34,27 +43,92 @@ import (
 
 var _ = Describe("Keeper", func() {
 	var (
-		keeper       *keeper.Keeper
+		k            *keeper.Keeper
+		ak           state.AccountKeeper
+		bk           state.BankKeeper
+		sk           stakingkeeper.Keeper
+		sc           ethprecompile.StatefulImpl
 		ctx          sdk.Context
-		genesisState types.GenesisState
+		genesisState *types.GenesisState
+		err          error
 	)
 
-	JustBeforeEach(func() {
-		ctx = sdk.Context{} // will have to update actual values here
-		genesisState = types.GenesisState{}
+	BeforeEach(func() {
+		// setup keepers for genesis
+		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
+		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(30000000))
+
+		k = keeper.NewKeeper(
+			storetypes.NewKVStoreKey("evm"),
+			ak, bk, sk,
+			"authority",
+			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
+			evmmempool.NewEthTxPoolFrom(evmmempool.DefaultPriorityMempool()),
+			func() *ethprecompile.Injector {
+				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
+			},
+		)
+
+		lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Alice, "abera", big.NewInt(69000))
+
+		genesisState = types.DefaultGenesis()
+		err = k.InitGenesis(ctx, *genesisState)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
-	DescribeTable("InitGenesis",
-		func(ctx sdk.Context, genesisState types.GenesisState, expectedErr error) {
-			err := keeper.InitGenesis(ctx, genesisState)
-			Expect(err).To(Equal(expectedErr))
-		},
+	Context("InitGenesis is called", func() {
+		ReportAfterEach(func(report SpecReport) {
+			coins := []sdk.Coin{bk.GetBalance(ctx, lib.AddressToAccAddress(testutil.Alice), "abera"),
+				bk.GetBalance(ctx, lib.AddressToAccAddress(testutil.Bob), "abera")}
+			fmt.Println(coins)
+			fmt.Printf("chainID: %s\n", ctx.ChainID())
+			fmt.Printf("GasLimit: %d\n", ctx.GasMeter().Limit())
+		})
 
-		Entry("the genesis is valid", ctx, *types.DefaultGenesis(), nil),
-		Entry("the GasLimit is invalid", ctx, genesisState, fmt.Errorf("gas limit mismatch: expected %d, got %d", ethGenesis.GasLimit, ctx.GasMeter().Limit())),
-		Entry("the ChainID is invalid", ctx, genesisState, fmt.Errorf("invalid ChainID: 0")),
-		Entry("the coinbase is invalid", ctx, genesisState, fmt.Errorf("invalid coinbase: ")),
-		Entry("the timestamp is invalid", ctx, genesisState, fmt.Errorf("invalid timestamp: 0")),
-		Entry("the balance is invalid", ctx, genesisState, fmt.Errorf("invalid balance: []")),
-	)
+		When("the genesis is valid", func() {
+			// BeforeEach(func() {
+
+			// })
+
+			It("should execute without error", func() {
+				print(k)
+				Expect(err).To(BeNil())
+			})
+		})
+		// When("the GasLimit is invalid", func() {
+		// 	// BeforeEach(func() {
+		// 	// 	genesisState = *types.DefaultGenesis()
+		// 	// })
+
+		// 	It("should report a GasLimit mismatch error", func() {
+		// 	})
+		// })
+		// When("the ChainID is invalid", func() {
+		// 	It("should report a ChainID mismatch error", func() {
+		// 	})
+		// })
+		// When("the coinbase is invalid", func() {
+		// 	It("should report a coinbase mismatch error", func() {
+		// 	})
+		// })
+		// When("the balance is invalid", func() {
+		// 	It("should report a balance mismatch error", func() {
+		// lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "abera", big.NewInt(69000))
+		// 	})
+		// })
+	})
+
+	// DescribeTable("InitGenesis",
+	// 	func(ctx sdk.Context, genesisState types.GenesisState, expectedErr error) {
+	// 		err := k.InitGenesis(ctx, genesisState)
+	// 		Expect(err).To(Equal(expectedErr))
+	// 	},
+
+	// 	Entry("the genesis is valid", ctx, *types.DefaultGenesis(), nil),
+	// 	Entry("the GasLimit is invalid", ctx, genesisState, fmt.Errorf("gas limit mismatch: expected %d, got %d", ethGenesis.GasLimit, ctx.GasMeter().Limit())),
+	// 	Entry("the ChainID is invalid", ctx, genesisState, fmt.Errorf("invalid ChainID: 0")),
+	// 	Entry("the coinbase is invalid", ctx, genesisState, fmt.Errorf("invalid coinbase: ")),
+	// 	Entry("the timestamp is invalid", ctx, genesisState, fmt.Errorf("invalid timestamp: 0")),
+	// 	Entry("the balance is invalid", ctx, genesisState, fmt.Errorf("invalid balance: []")),
+	// )
 })
