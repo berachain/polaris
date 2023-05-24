@@ -134,7 +134,7 @@ func (bc *blockchain) CurrentFinalBlock() *types.Block {
 	return fb
 }
 
-// CurrentFinalBlock returns the last finalized block of the blockchain.
+// CurrentSafeBlock returns the last safe block of the blockchain.
 func (bc *blockchain) CurrentSafeBlock() *types.Block {
 	// TODO: determine the difference between safe and final in polaris.
 	return bc.CurrentFinalBlock()
