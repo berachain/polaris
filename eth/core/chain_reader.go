@@ -29,10 +29,10 @@ import (
 
 // ChainReader defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
+	Config() *params.ChainConfig
 	ChainBlockReader
 	ChainTxPoolReader
 	ChainSubscriber
-	Config() *params.ChainConfig
 }
 
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
