@@ -52,7 +52,7 @@ func NewEthTxReplacement[C comparable](priceBump uint64) func(op, np C, oTx, nTx
 		thresholdFeeCap := aFeeCap.Div(aFeeCap, b)
 
 		// thresholdTip = oldTip * (100 + priceBump) / 100 = (oldTip * a) / b
-		aTip := a.Mul(a, oldEthTx.GasTipCap())
+		aTip := new(big.Int).Mul(a, oldEthTx.GasTipCap())
 		thresholdTip := aTip.Div(aTip, b)
 
 		// We have to ensure that both the new fee cap and tip are higher than the old ones as well
