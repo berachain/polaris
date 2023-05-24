@@ -83,7 +83,6 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 
 	// We want to remove any references to the tx from the cache.
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		ethTx := evmtypes.GetAsEthTx(tx)
 		signer := common.BytesToAddress(tx.GetMsgs()[0].GetSigners()[0])
 		delete(etp.ethTxCache, ethTx.Hash())
 		delete(etp.nonceToHash[signer], ethTx.Nonce())
