@@ -21,6 +21,7 @@
 package baseapp
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"cosmossdk.io/client/v2/autocli"
@@ -79,6 +80,7 @@ import (
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
@@ -151,17 +153,22 @@ func (app *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChai
 	// Validate that ethereum genesis and cosmos genesis timestamp are the same.
 	// TODO: investigate how we can make this work in evm/keeper/genesis.go
 	// currently doesn't work in there since the scope of gen is restricted to the evm component
-	if req.Time != ctx.BlockHeader().Time {
-		panic(fmt.Errorf("timestamp mismatch: expected %v, got %v", req.Time, ctx.BlockHeader().Time))
+	var genesisState map[string]json.RawMessage
+	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
+		panic(err)
 	}
 
-	if req.ChainId != ctx.ChainID() {
-		panic(fmt.Errorf("chain ID mismatch: expected %s, got %s", req.ChainId, ctx.ChainID()))
+	var ethGenesis *core.Genesis
+	if err := json.Unmarshal(genesisState["evm"], ethGenesis); err != nil {
+		return abci.ResponseInitChain{}, err
 	}
 
-	// safety check for consensus params
-	if !req.ConsensusParams.Equal(ctx.ConsensusParams()) {
-		panic(fmt.Errorf("consensus params mismatch: expected %v, got %v", req.ConsensusParams, ctx.ConsensusParams()))
+	if ethGenesis.Timestamp != uint64(ctx.BlockHeader().Time.Unix()) {
+		panic(fmt.Errorf("timestamp mismatch: expected %v, got %v", uint64(ctx.BlockHeader().Time.Unix()), ethGenesis.Timestamp))
+	}
+
+	if ethGenesis.GasLimit != uint64(ctx.ConsensusParams().Block.GetMaxGas()) {
+		panic(fmt.Errorf("gas limit mismatch: expected %v, got %v", ctx.ConsensusParams().Block.GetMaxGas(), ethGenesis.GasLimit))
 	}
 
 	// Then call the default App InitChainer.
