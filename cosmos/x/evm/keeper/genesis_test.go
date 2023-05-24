@@ -21,6 +21,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -80,21 +81,26 @@ var _ = Describe("Keeper", func() {
 
 		When("the genesis is valid", func() {
 			It("should execute without error", func() {
-				err = k.InitGenesis(ctx, *genesisState)
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
 		When("the coinbase is invalid", func() {
+			var invalidCoinbase string
 			BeforeEach(func() {
 				// TODO: find a way to change the coinbase programmatically
 				// this is so bad but it works so....
-				genesisState.Params.EthGenesis = "{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"0x0000000000000000000000000000000000000001\",\"alloc\":{},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}" // not sure if this is going to work as intended
+				invalidCoinbase = "0x0000000000000000000000000000000000000001"
+				genesisState.Params.EthGenesis = fmt.Sprintf("{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"%s\",\"alloc\":{},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}", invalidCoinbase)
 			})
 			It("should report a coinbase mismatch error", func() {
-				Expect(err).To(HaveOccurred())
+				Expect(err).To(Equal(fmt.Errorf("coinbase of the genesis block must be the null address, not: %s", invalidCoinbase)))
 			})
 		})
 		When("the balance is invalid", func() {
+			var (
+				invalidAddress string
+				invalidBalance string
+			)
 			BeforeEach(func() {
 				// TODO: find a way to change the balance programmatically
 				// ethGenesis := enclib.MustUnmarshalJSON[core.Genesis]([]byte(genesisState.Params.EthGenesis))
@@ -102,10 +108,13 @@ var _ = Describe("Keeper", func() {
 				// 	Balance: big.NewInt(100),
 				// }
 				// genesisState.Params.EthGenesis =
-				genesisState.Params.EthGenesis = "{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"0x0000000000000000000000000000000000000000\",\"alloc\":{\"0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4\": {\"balance\":\"0x09184e72a000\"}},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}"
+				invalidAddress = "0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"
+				invalidBalance = "0x09184e72a000"
+				genesisState.Params.EthGenesis = fmt.Sprintf("{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"0x0000000000000000000000000000000000000000\",\"alloc\":{\"%s\": {\"balance\":\"%s\"}},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}", invalidAddress, invalidBalance)
 			})
 			It("should report a balance mismatch error", func() {
-				Expect(err).To(HaveOccurred())
+				balance, _ := new(big.Int).SetString(invalidBalance, 0) // convert invalidBalance to big.Int
+				Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected 0, got %v", invalidAddress, balance)))
 			})
 		})
 	})
