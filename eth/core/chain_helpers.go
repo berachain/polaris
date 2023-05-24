@@ -28,13 +28,13 @@ import (
 // deriveReceipts derives the receipts from the block.
 func (bc *blockchain) deriveReceipts(receipts types.Receipts, blockHash common.Hash) (types.Receipts, error) {
 	// get the block to derive the receipts
-	block, err := bc.GetBlockByHash(blockHash)
-	if err != nil {
+	block := bc.GetBlockByHash(blockHash)
+	if block == nil {
 		return nil, ErrBlockNotFound
 	}
 
 	// Derive receipts from block.
-	if err = receipts.DeriveFields(
+	if err := receipts.DeriveFields(
 		bc.Config(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
 	); err != nil {
 		return nil, err
