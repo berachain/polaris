@@ -28,16 +28,19 @@ import (
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// EthereumTxPoolConfig is the configuration for the Ethereum transaction pool.
-type EthereumTxPoolConfig[C comparable] struct {
+// EthereumTxReplacePolicy implements the Ethereum protocol's transaction replacement policy for a Cosmos-SDK mempool.
+type EthereumTxReplacePolicy[C comparable] struct {
 	PriceBump uint64 // Minimum price bump percentage to replace an already existing transaction (nonce)
 }
 
-// EthereumTxReplacement is called when a new transaction is added to the mempool and a transaction
+// EthereumTxReplacePolicy.Func is called when a new transaction is added to the mempool and a transaction
 // with the same nonce already exists. It returns true if the new transaction should replace the
 // existing transaction.
+//
 // Source: https://github.com/ethereum/go-ethereum/blob/9231770811cda0473a7fa4e2bccc95bf62aae634/core/txpool/list.go#L284
-func (etpc EthereumTxPoolConfig[C]) EthereumTxReplacementPolicy(op, np C, oldTx, newTx sdk.Tx) bool {
+//
+//nolint:lll // url.
+func (etpc EthereumTxReplacePolicy[C]) Func(op, np C, oldTx, newTx sdk.Tx) bool {
 	// Convert the transactions to Ethereum transactions.
 	oldEthTx := evmtypes.GetAsEthTx(oldTx)
 	newEthTx := evmtypes.GetAsEthTx(newTx)
@@ -63,5 +66,7 @@ func (etpc EthereumTxPoolConfig[C]) EthereumTxReplacementPolicy(op, np C, oldTx,
 		return false
 	}
 
+	// If we get here, the new transaction has a higher fee cap and tip than the
+	// old one, and the percentage threshold has been met, so we can replace it.
 	return true
 }

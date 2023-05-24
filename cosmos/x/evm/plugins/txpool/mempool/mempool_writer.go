@@ -56,9 +56,9 @@ type EthTxPool struct {
 // NewEthereumTxPool creates a new Ethereum transaction pool.
 func NewEthereumTxPool() *EthTxPool {
 	config := mempool.DefaultPriorityNonceMempoolConfig()
-	config.TxReplacement = EthereumTxPoolConfig[int64]{
+	config.TxReplacement = EthereumTxReplacePolicy[int64]{
 		PriceBump: 10, //nolint:gomnd // 10% to match geth.
-	}.EthereumTxReplacementPolicy
+	}.Func
 	return NewEthTxPoolFrom(NewPriorityMempool(config))
 }
 
