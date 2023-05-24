@@ -25,17 +25,17 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() *big.Int {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetHeaderByNumberFunc: func(n int64) (*types.Header, error) {
+//			GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
 //			},
-//			GetNewBlockMetadataFunc: func(n int64) (common.Address, uint64) {
+//			GetNewBlockMetadataFunc: func(v uint64) (common.Address, uint64) {
 //				panic("mock out the GetNewBlockMetadata method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
-//			SetHeaderByNumberFunc: func(n int64, header *types.Header) error {
-//				panic("mock out the SetHeaderByNumber method")
+//			SetHeaderFunc: func(header *types.Header) error {
+//				panic("mock out the SetHeader method")
 //			},
 //		}
 //
@@ -48,16 +48,16 @@ type BlockPluginMock struct {
 	BaseFeeFunc func() *big.Int
 
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
-	GetHeaderByNumberFunc func(n int64) (*types.Header, error)
+	GetHeaderByNumberFunc func(v uint64) (*types.Header, error)
 
 	// GetNewBlockMetadataFunc mocks the GetNewBlockMetadata method.
-	GetNewBlockMetadataFunc func(n int64) (common.Address, uint64)
+	GetNewBlockMetadataFunc func(v uint64) (common.Address, uint64)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
-	// SetHeaderByNumberFunc mocks the SetHeaderByNumber method.
-	SetHeaderByNumberFunc func(n int64, header *types.Header) error
+	// SetHeaderFunc mocks the SetHeader method.
+	SetHeaderFunc func(header *types.Header) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -66,23 +66,21 @@ type BlockPluginMock struct {
 		}
 		// GetHeaderByNumber holds details about calls to the GetHeaderByNumber method.
 		GetHeaderByNumber []struct {
-			// N is the n argument value.
-			N int64
+			// V is the v argument value.
+			V uint64
 		}
 		// GetNewBlockMetadata holds details about calls to the GetNewBlockMetadata method.
 		GetNewBlockMetadata []struct {
-			// N is the n argument value.
-			N int64
+			// V is the v argument value.
+			V uint64
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
 			ContextMoqParam context.Context
 		}
-		// SetHeaderByNumber holds details about calls to the SetHeaderByNumber method.
-		SetHeaderByNumber []struct {
-			// N is the n argument value.
-			N int64
+		// SetHeader holds details about calls to the SetHeader method.
+		SetHeader []struct {
 			// Header is the header argument value.
 			Header *types.Header
 		}
@@ -91,7 +89,7 @@ type BlockPluginMock struct {
 	lockGetHeaderByNumber   sync.RWMutex
 	lockGetNewBlockMetadata sync.RWMutex
 	lockPrepare             sync.RWMutex
-	lockSetHeaderByNumber   sync.RWMutex
+	lockSetHeader           sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
@@ -122,19 +120,19 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 }
 
 // GetHeaderByNumber calls GetHeaderByNumberFunc.
-func (mock *BlockPluginMock) GetHeaderByNumber(n int64) (*types.Header, error) {
+func (mock *BlockPluginMock) GetHeaderByNumber(v uint64) (*types.Header, error) {
 	if mock.GetHeaderByNumberFunc == nil {
 		panic("BlockPluginMock.GetHeaderByNumberFunc: method is nil but BlockPlugin.GetHeaderByNumber was just called")
 	}
 	callInfo := struct {
-		N int64
+		V uint64
 	}{
-		N: n,
+		V: v,
 	}
 	mock.lockGetHeaderByNumber.Lock()
 	mock.calls.GetHeaderByNumber = append(mock.calls.GetHeaderByNumber, callInfo)
 	mock.lockGetHeaderByNumber.Unlock()
-	return mock.GetHeaderByNumberFunc(n)
+	return mock.GetHeaderByNumberFunc(v)
 }
 
 // GetHeaderByNumberCalls gets all the calls that were made to GetHeaderByNumber.
@@ -142,10 +140,10 @@ func (mock *BlockPluginMock) GetHeaderByNumber(n int64) (*types.Header, error) {
 //
 //	len(mockedBlockPlugin.GetHeaderByNumberCalls())
 func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
-	N int64
+	V uint64
 } {
 	var calls []struct {
-		N int64
+		V uint64
 	}
 	mock.lockGetHeaderByNumber.RLock()
 	calls = mock.calls.GetHeaderByNumber
@@ -154,19 +152,19 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 }
 
 // GetNewBlockMetadata calls GetNewBlockMetadataFunc.
-func (mock *BlockPluginMock) GetNewBlockMetadata(n int64) (common.Address, uint64) {
+func (mock *BlockPluginMock) GetNewBlockMetadata(v uint64) (common.Address, uint64) {
 	if mock.GetNewBlockMetadataFunc == nil {
 		panic("BlockPluginMock.GetNewBlockMetadataFunc: method is nil but BlockPlugin.GetNewBlockMetadata was just called")
 	}
 	callInfo := struct {
-		N int64
+		V uint64
 	}{
-		N: n,
+		V: v,
 	}
 	mock.lockGetNewBlockMetadata.Lock()
 	mock.calls.GetNewBlockMetadata = append(mock.calls.GetNewBlockMetadata, callInfo)
 	mock.lockGetNewBlockMetadata.Unlock()
-	return mock.GetNewBlockMetadataFunc(n)
+	return mock.GetNewBlockMetadataFunc(v)
 }
 
 // GetNewBlockMetadataCalls gets all the calls that were made to GetNewBlockMetadata.
@@ -174,10 +172,10 @@ func (mock *BlockPluginMock) GetNewBlockMetadata(n int64) (common.Address, uint6
 //
 //	len(mockedBlockPlugin.GetNewBlockMetadataCalls())
 func (mock *BlockPluginMock) GetNewBlockMetadataCalls() []struct {
-	N int64
+	V uint64
 } {
 	var calls []struct {
-		N int64
+		V uint64
 	}
 	mock.lockGetNewBlockMetadata.RLock()
 	calls = mock.calls.GetNewBlockMetadata
@@ -217,38 +215,34 @@ func (mock *BlockPluginMock) PrepareCalls() []struct {
 	return calls
 }
 
-// SetHeaderByNumber calls SetHeaderByNumberFunc.
-func (mock *BlockPluginMock) SetHeaderByNumber(n int64, header *types.Header) error {
-	if mock.SetHeaderByNumberFunc == nil {
-		panic("BlockPluginMock.SetHeaderByNumberFunc: method is nil but BlockPlugin.SetHeaderByNumber was just called")
+// SetHeader calls SetHeaderFunc.
+func (mock *BlockPluginMock) SetHeader(header *types.Header) error {
+	if mock.SetHeaderFunc == nil {
+		panic("BlockPluginMock.SetHeaderFunc: method is nil but BlockPlugin.SetHeader was just called")
 	}
 	callInfo := struct {
-		N      int64
 		Header *types.Header
 	}{
-		N:      n,
 		Header: header,
 	}
-	mock.lockSetHeaderByNumber.Lock()
-	mock.calls.SetHeaderByNumber = append(mock.calls.SetHeaderByNumber, callInfo)
-	mock.lockSetHeaderByNumber.Unlock()
-	return mock.SetHeaderByNumberFunc(n, header)
+	mock.lockSetHeader.Lock()
+	mock.calls.SetHeader = append(mock.calls.SetHeader, callInfo)
+	mock.lockSetHeader.Unlock()
+	return mock.SetHeaderFunc(header)
 }
 
-// SetHeaderByNumberCalls gets all the calls that were made to SetHeaderByNumber.
+// SetHeaderCalls gets all the calls that were made to SetHeader.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.SetHeaderByNumberCalls())
-func (mock *BlockPluginMock) SetHeaderByNumberCalls() []struct {
-	N      int64
+//	len(mockedBlockPlugin.SetHeaderCalls())
+func (mock *BlockPluginMock) SetHeaderCalls() []struct {
 	Header *types.Header
 } {
 	var calls []struct {
-		N      int64
 		Header *types.Header
 	}
-	mock.lockSetHeaderByNumber.RLock()
-	calls = mock.calls.SetHeaderByNumber
-	mock.lockSetHeaderByNumber.RUnlock()
+	mock.lockSetHeader.RLock()
+	calls = mock.calls.SetHeader
+	mock.lockSetHeader.RUnlock()
 	return calls
 }

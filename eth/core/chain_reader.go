@@ -44,8 +44,8 @@ type ChainBlockReader interface {
 	CurrentSafeBlock() *types.Block
 	GetReceiptsByHash(common.Hash) types.Receipts
 	GetBlockByHash(common.Hash) *types.Block
-	GetHeaderByNumber(int64) *types.Header
-	GetBlockByNumber(int64) *types.Block
+	GetHeaderByNumber(uint64) *types.Header
+	GetBlockByNumber(uint64) *types.Block
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
@@ -88,7 +88,7 @@ func (bc *blockchain) CurrentBlock() *types.Block {
 	if block == nil || !ok {
 		return nil
 	}
-	bc.blockNumCache.Add(block.Number().Int64(), block)
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
 	bc.blockHashCache.Add(block.Hash(), block)
 	return block
 }
@@ -129,7 +129,7 @@ func (bc *blockchain) CurrentFinalBlock() *types.Block {
 	if fb == nil || !ok {
 		return nil
 	}
-	bc.blockNumCache.Add(fb.Number().Int64(), fb)
+	bc.blockNumCache.Add(fb.Number().Uint64(), fb)
 	bc.blockHashCache.Add(fb.Hash(), fb)
 	return fb
 }
@@ -208,7 +208,7 @@ func (bc *blockchain) GetTransaction(
 }
 
 // GetHeaderByNumber retrieves a header from the blockchain.
-func (bc *blockchain) GetHeaderByNumber(number int64) *types.Header {
+func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
 	block := bc.GetBlockByNumber(number)
 	if block == nil {
 		return nil
@@ -217,7 +217,7 @@ func (bc *blockchain) GetHeaderByNumber(number int64) *types.Header {
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetBlockByNumber(number int64) *types.Block {
+func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
@@ -246,7 +246,7 @@ func (bc *blockchain) GetBlockByNumber(number int64) *types.Block {
 func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
-		bc.blockNumCache.Add(block.Number().Int64(), block)
+		bc.blockNumCache.Add(block.Number().Uint64(), block)
 		return block
 	}
 
@@ -264,7 +264,7 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	}
 
 	// Cache the found block for next time and return
-	bc.blockNumCache.Add(block.Number().Int64(), block)
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
 	bc.blockHashCache.Add(hash, block)
 	return block
 }

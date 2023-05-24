@@ -195,7 +195,7 @@ func (b *backend) HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*
 		}
 		return nil, errors.New("safe block not found")
 	}
-	return b.chain.GetHeaderByNumber(int64(number)), nil
+	return b.chain.GetHeaderByNumber(uint64(number)), nil
 }
 
 // HeaderByHash returns the block header with the given hash.
@@ -274,7 +274,8 @@ func (b *backend) BlockByNumber(ctx context.Context, number rpc.BlockNumber) (*t
 	if number == rpc.SafeBlockNumber {
 		return b.chain.CurrentSafeBlock(), nil
 	}
-	return b.chain.GetBlockByNumber(int64(number)), nil
+	// safe to assume number >= 0
+	return b.chain.GetBlockByNumber(uint64(number)), nil
 }
 
 // BlockByHash returns the block with the given `hash`.
