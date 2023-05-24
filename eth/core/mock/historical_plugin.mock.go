@@ -25,7 +25,7 @@ var _ core.HistoricalPlugin = &HistoricalPluginMock{}
 //			GetBlockByHashFunc: func(hash common.Hash) (*ethereumcoretypes.Block, error) {
 //				panic("mock out the GetBlockByHash method")
 //			},
-//			GetBlockByNumberFunc: func(n int64) (*ethereumcoretypes.Block, error) {
+//			GetBlockByNumberFunc: func(v uint64) (*ethereumcoretypes.Block, error) {
 //				panic("mock out the GetBlockByNumber method")
 //			},
 //			GetReceiptsByHashFunc: func(hash common.Hash) (ethereumcoretypes.Receipts, error) {
@@ -43,7 +43,7 @@ var _ core.HistoricalPlugin = &HistoricalPluginMock{}
 //			StoreReceiptsFunc: func(hash common.Hash, receipts ethereumcoretypes.Receipts) error {
 //				panic("mock out the StoreReceipts method")
 //			},
-//			StoreTransactionsFunc: func(n int64, hash common.Hash, transactions ethereumcoretypes.Transactions) error {
+//			StoreTransactionsFunc: func(v uint64, hash common.Hash, transactions ethereumcoretypes.Transactions) error {
 //				panic("mock out the StoreTransactions method")
 //			},
 //		}
@@ -57,7 +57,7 @@ type HistoricalPluginMock struct {
 	GetBlockByHashFunc func(hash common.Hash) (*ethereumcoretypes.Block, error)
 
 	// GetBlockByNumberFunc mocks the GetBlockByNumber method.
-	GetBlockByNumberFunc func(n int64) (*ethereumcoretypes.Block, error)
+	GetBlockByNumberFunc func(v uint64) (*ethereumcoretypes.Block, error)
 
 	// GetReceiptsByHashFunc mocks the GetReceiptsByHash method.
 	GetReceiptsByHashFunc func(hash common.Hash) (ethereumcoretypes.Receipts, error)
@@ -75,7 +75,7 @@ type HistoricalPluginMock struct {
 	StoreReceiptsFunc func(hash common.Hash, receipts ethereumcoretypes.Receipts) error
 
 	// StoreTransactionsFunc mocks the StoreTransactions method.
-	StoreTransactionsFunc func(n int64, hash common.Hash, transactions ethereumcoretypes.Transactions) error
+	StoreTransactionsFunc func(v uint64, hash common.Hash, transactions ethereumcoretypes.Transactions) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -86,8 +86,8 @@ type HistoricalPluginMock struct {
 		}
 		// GetBlockByNumber holds details about calls to the GetBlockByNumber method.
 		GetBlockByNumber []struct {
-			// N is the n argument value.
-			N int64
+			// V is the v argument value.
+			V uint64
 		}
 		// GetReceiptsByHash holds details about calls to the GetReceiptsByHash method.
 		GetReceiptsByHash []struct {
@@ -118,8 +118,8 @@ type HistoricalPluginMock struct {
 		}
 		// StoreTransactions holds details about calls to the StoreTransactions method.
 		StoreTransactions []struct {
-			// N is the n argument value.
-			N int64
+			// V is the v argument value.
+			V uint64
 			// Hash is the hash argument value.
 			Hash common.Hash
 			// Transactions is the transactions argument value.
@@ -169,19 +169,19 @@ func (mock *HistoricalPluginMock) GetBlockByHashCalls() []struct {
 }
 
 // GetBlockByNumber calls GetBlockByNumberFunc.
-func (mock *HistoricalPluginMock) GetBlockByNumber(n int64) (*ethereumcoretypes.Block, error) {
+func (mock *HistoricalPluginMock) GetBlockByNumber(v uint64) (*ethereumcoretypes.Block, error) {
 	if mock.GetBlockByNumberFunc == nil {
 		panic("HistoricalPluginMock.GetBlockByNumberFunc: method is nil but HistoricalPlugin.GetBlockByNumber was just called")
 	}
 	callInfo := struct {
-		N int64
+		V uint64
 	}{
-		N: n,
+		V: v,
 	}
 	mock.lockGetBlockByNumber.Lock()
 	mock.calls.GetBlockByNumber = append(mock.calls.GetBlockByNumber, callInfo)
 	mock.lockGetBlockByNumber.Unlock()
-	return mock.GetBlockByNumberFunc(n)
+	return mock.GetBlockByNumberFunc(v)
 }
 
 // GetBlockByNumberCalls gets all the calls that were made to GetBlockByNumber.
@@ -189,10 +189,10 @@ func (mock *HistoricalPluginMock) GetBlockByNumber(n int64) (*ethereumcoretypes.
 //
 //	len(mockedHistoricalPlugin.GetBlockByNumberCalls())
 func (mock *HistoricalPluginMock) GetBlockByNumberCalls() []struct {
-	N int64
+	V uint64
 } {
 	var calls []struct {
-		N int64
+		V uint64
 	}
 	mock.lockGetBlockByNumber.RLock()
 	calls = mock.calls.GetBlockByNumber
@@ -365,23 +365,23 @@ func (mock *HistoricalPluginMock) StoreReceiptsCalls() []struct {
 }
 
 // StoreTransactions calls StoreTransactionsFunc.
-func (mock *HistoricalPluginMock) StoreTransactions(n int64, hash common.Hash, transactions ethereumcoretypes.Transactions) error {
+func (mock *HistoricalPluginMock) StoreTransactions(v uint64, hash common.Hash, transactions ethereumcoretypes.Transactions) error {
 	if mock.StoreTransactionsFunc == nil {
 		panic("HistoricalPluginMock.StoreTransactionsFunc: method is nil but HistoricalPlugin.StoreTransactions was just called")
 	}
 	callInfo := struct {
-		N            int64
+		V            uint64
 		Hash         common.Hash
 		Transactions ethereumcoretypes.Transactions
 	}{
-		N:            n,
+		V:            v,
 		Hash:         hash,
 		Transactions: transactions,
 	}
 	mock.lockStoreTransactions.Lock()
 	mock.calls.StoreTransactions = append(mock.calls.StoreTransactions, callInfo)
 	mock.lockStoreTransactions.Unlock()
-	return mock.StoreTransactionsFunc(n, hash, transactions)
+	return mock.StoreTransactionsFunc(v, hash, transactions)
 }
 
 // StoreTransactionsCalls gets all the calls that were made to StoreTransactions.
@@ -389,12 +389,12 @@ func (mock *HistoricalPluginMock) StoreTransactions(n int64, hash common.Hash, t
 //
 //	len(mockedHistoricalPlugin.StoreTransactionsCalls())
 func (mock *HistoricalPluginMock) StoreTransactionsCalls() []struct {
-	N            int64
+	V            uint64
 	Hash         common.Hash
 	Transactions ethereumcoretypes.Transactions
 } {
 	var calls []struct {
-		N            int64
+		V            uint64
 		Hash         common.Hash
 		Transactions ethereumcoretypes.Transactions
 	}
