@@ -37,6 +37,7 @@ type ChainReader interface {
 
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
+	CurrentHeader() *types.Header
 	CurrentBlock() *types.Block
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts)
 	FinalizedBlock() *types.Block
@@ -69,6 +70,15 @@ func (bc *blockchain) Config() *params.ChainConfig {
 // =========================================================================
 // BlockReader
 // =========================================================================
+
+// CurrentHeader returns the current header of the blockchain.
+func (bc *blockchain) CurrentHeader() *types.Header {
+	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
+	if block == nil || !ok {
+		return nil
+	}
+	return block.Header()
+}
 
 // CurrentHeader returns the current header of the blockchain.
 func (bc *blockchain) CurrentBlock() *types.Block {

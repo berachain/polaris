@@ -216,14 +216,7 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 
 // CurrentHeader returns the current header from the local chains.
 func (b *backend) CurrentHeader() *types.Header {
-	block := b.chain.CurrentBlock()
-	if block == nil {
-		b.logger.Error("eth.rpc.backend.CurrentHeader block is nil")
-		return nil
-	}
-	header := block.Header()
-	b.logger.Info("called eth.rpc.backend.CurrentHeader", "header", header)
-	return header
+	return b.chain.CurrentHeader()
 }
 
 // CurrentBlock returns the current block from the local chain.
@@ -564,7 +557,6 @@ func (b *backend) ClientVersion() string {
 func (b *backend) polarisBlockByNumberOrHash(
 	ctx context.Context, blockNrOrHash BlockNumberOrHash,
 ) (*types.Block, error) {
-
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.BlockByNumber(ctx, blockNr)
 	}
