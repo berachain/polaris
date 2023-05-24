@@ -104,8 +104,18 @@ var _ = Describe("Keeper", func() {
 				}
 				genesisState.Params.EthGenesis = string(enclib.MustMarshalJSON(*ethGenesis))
 			})
-			It("should report a balance mismatch error", func() {
-				Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected 0, got %v", testutil.Bob, 100)))
+			Context("the account does not exist", func() {
+				It("should report a balance mismatch error", func() {
+					Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected 0, got %v", testutil.Bob, 100)))
+				})
+			})
+			Context("the account exists but the balance is mismatched", func() {
+				BeforeEach(func() {
+					lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "abera", big.NewInt(50))
+				})
+				It("should report a balance mismatch error", func() {
+					Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected %v, got %v", testutil.Bob, 50, 100)))
+				})
 			})
 		})
 	})
