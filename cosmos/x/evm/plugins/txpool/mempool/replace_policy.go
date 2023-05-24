@@ -28,45 +28,42 @@ import (
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// EthereumTxReplacePolicy implements the Ethereum protocol's transaction replacement policy for a Cosmos-SDK mempool.
-type EthereumTxReplacePolicy[C comparable] struct {
-	PriceBump uint64 // Minimum price bump percentage to replace an already existing transaction (nonce)
-}
-
-// EthereumTxReplacePolicy.Func is called when a new transaction is added to the mempool and a transaction
-// with the same nonce already exists. It returns true if the new transaction should replace the
-// existing transaction.
+// NewEthTxReplacement serves as a tx replacement policy. It is called when a new transaction is
+// added to the mempool and a transaction with the same nonce already exists. It returns true if
+// the new transaction should replace the existing transaction.
 //
 // Source: https://github.com/ethereum/go-ethereum/blob/9231770811cda0473a7fa4e2bccc95bf62aae634/core/txpool/list.go#L284
 //
 //nolint:lll // url.
-func (etpc EthereumTxReplacePolicy[C]) Func(op, np C, oldTx, newTx sdk.Tx) bool {
-	// Convert the transactions to Ethereum transactions.
-	oldEthTx := evmtypes.GetAsEthTx(oldTx)
-	newEthTx := evmtypes.GetAsEthTx(newTx)
-	if oldEthTx == nil || newEthTx == nil ||
-		oldEthTx.GasFeeCapCmp(newEthTx) >= 0 || oldEthTx.GasTipCapCmp(newEthTx) >= 0 {
-		return false
+func NewEthTxReplacement[C comparable](priceBump uint64) func(op, np C, oTx, nTx sdk.Tx) bool {
+	a := big.NewInt(100 + int64(priceBump)) //nolint:gomnd // a = 100 + priceBump
+	b := big.NewInt(100)                    //nolint:gomnd // b = 100
+
+	return func(op, np C, oTx, nTx sdk.Tx) bool {
+		// Convert the transactions to Ethereum transactions.
+		oldEthTx := evmtypes.GetAsEthTx(oTx)
+		newEthTx := evmtypes.GetAsEthTx(nTx)
+		if oldEthTx == nil || newEthTx == nil {
+			return false
+		}
+
+		// thresholdFeeCap = oldFC * (100 + priceBump) / 100 = (oldFC * a) / b
+		aFeeCap := new(big.Int).Mul(a, oldEthTx.GasFeeCap())
+		thresholdFeeCap := aFeeCap.Div(aFeeCap, b)
+
+		// thresholdTip = oldTip * (100 + priceBump) / 100 = (oldTip * a) / b
+		aTip := a.Mul(a, oldEthTx.GasTipCap())
+		thresholdTip := aTip.Div(aTip, b)
+
+		// We have to ensure that both the new fee cap and tip are higher than the old ones as well
+		// as checking the percentage threshold to ensure that this is accurate for low (Wei-level)
+		// gas price replacements.
+		if newEthTx.GasFeeCapIntCmp(thresholdFeeCap) < 0 || newEthTx.GasTipCapIntCmp(thresholdTip) < 0 {
+			return false
+		}
+
+		// If we get here, the new transaction has a higher fee cap and tip than the old one, and
+		// the percentage threshold has been met, so we can replace it.
+		return true
 	}
-
-	// thresholdFeeCap = oldFC  * (100 + priceBump) / 100
-	a := big.NewInt(100 + int64(etpc.PriceBump)) //nolint:gomnd // 100% + priceBump.
-	aFeeCap := new(big.Int).Mul(a, oldEthTx.GasFeeCap())
-	aTip := a.Mul(a, oldEthTx.GasTipCap())
-
-	// thresholdTip    = oldTip * (100 + priceBump) / 100
-	b := big.NewInt(100) //nolint:gomnd // 100% + priceBump.
-	thresholdFeeCap := aFeeCap.Div(aFeeCap, b)
-	thresholdTip := aTip.Div(aTip, b)
-
-	// We have to ensure that both the new fee cap and tip are higher than the
-	// old ones as well as checking the percentage threshold to ensure that
-	// this is accurate for low (Wei-level) gas price replacements.
-	if newEthTx.GasFeeCapIntCmp(thresholdFeeCap) < 0 || newEthTx.GasTipCapIntCmp(thresholdTip) < 0 {
-		return false
-	}
-
-	// If we get here, the new transaction has a higher fee cap and tip than the
-	// old one, and the percentage threshold has been met, so we can replace it.
-	return true
 }
