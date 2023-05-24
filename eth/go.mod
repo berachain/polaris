@@ -9,7 +9,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/ethereum/go-ethereum v1.11.4
 	github.com/onsi/ginkgo/v2 v2.9.5
-	github.com/onsi/gomega v1.27.6
+	github.com/onsi/gomega v1.27.7
 	golang.org/x/text v0.9.0
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230516224826-185dd722aa87
 	pkg.berachain.dev/polaris/lib v0.0.0-20230516224826-185dd722aa87
