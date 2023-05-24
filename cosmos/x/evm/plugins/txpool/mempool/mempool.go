@@ -37,7 +37,11 @@ type EthTxPool struct {
 
 	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
 	// later
-	ethTxCache  map[common.Hash]*coretypes.Transaction
+	ethTxCache map[common.Hash]*coretypes.Transaction
+
+	// nonceToHash maps a nonce to the hash of the transaction that was added to the mempool with
+	// that nonce. This is used to retrieve the hash of a transaction that was added to the mempool
+	// by nonce.
 	nonceToHash map[uint64]common.Hash
 
 	// NonceRetriever is used to retrieve the nonce for a given address (this is typically a
@@ -56,7 +60,7 @@ func NewPolarisEthereumTxPool() *EthTxPool {
 		PriceBump: 10, //nolint:gomnd // 10% to match geth.
 	}.Func
 	return &EthTxPool{
-		PriorityNonceMempool: NewPriorityMempool[int64](config),
+		PriorityNonceMempool: NewPriorityMempool(config),
 		nonceToHash:          make(map[uint64]common.Hash),
 		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
 	}
