@@ -177,7 +177,7 @@ func (b *backend) HeaderByNumber(_ context.Context, number BlockNumber) (*types.
 
 // HeaderByHash returns the block header with the given hash.
 func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
-	block := b.polarisBlockByHash(hash)
+	block := b.chain.GetBlockByHash(hash)
 	if block == nil {
 		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "nil", true)
 		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
@@ -251,7 +251,7 @@ func (b *backend) BlockByNumber(_ context.Context, number BlockNumber) (*types.B
 
 // BlockByHash returns the block with the given `hash`.
 func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block, error) {
-	block := b.polarisBlockByHash(hash)
+	block := b.chain.GetBlockByHash(hash)
 	b.logger.Info("BlockByHash", "hash", hash, "block", block)
 	if block == nil {
 		b.logger.Error("eth.rpc.backend.BlockByHash", "hash", hash, "nil", true)
@@ -312,7 +312,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 		}
 	} else if hash, ok = blockNrOrHash.Hash(); ok {
 		// Try to resolve by hash next.
-		block = b.polarisBlockByHash(hash)
+		block = b.chain.GetBlockByHash(hash)
 		if block == nil {
 			b.logger.Error("eth.rpc.backend.StateAndHeaderByNumberOrHash", "hash", hash,
 				"nil", true)
@@ -585,11 +585,6 @@ func (b *backend) polarisBlockByNumberOrHash(
 		return block, nil
 	}
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
-}
-
-// polarisBlockByHash returns the polaris block identified by `hash`.
-func (b *backend) polarisBlockByHash(hash common.Hash) *types.Block {
-	return b.chain.GetBlockByHash(hash)
 }
 
 // polarisBlockByNumber returns the polaris block identified by `number.
