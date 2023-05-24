@@ -262,18 +262,25 @@ func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block
 	return block, nil
 }
 
-// BlockByNumberOrHash returns the block identified by `number` or `hash`.
-func (b *backend) BlockByNumberOrHash(_ context.Context,
-	blockNrOrHash BlockNumberOrHash,
-) (*types.Block, error) {
-	block, err := b.polarisBlockByNumberOrHash(blockNrOrHash)
-	if err != nil {
-		b.logger.Error("eth.rpc.backend.BlockByNumberOrHash", "blockNrOrHash", blockNrOrHash, "err", err)
-		return nil, err
+func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash BlockNumberOrHash) (*types.Block, error) {
+	if blockNr, ok := blockNrOrHash.Number(); ok {
+		return b.BlockByNumber(ctx, blockNr)
 	}
-	b.logger.Info("called eth.rpc.backend.BlockByNumberOrHash", "header", block.Header(),
-		"num_txs", len(block.Transactions()))
-	return block, nil
+	if hash, ok := blockNrOrHash.Hash(); ok {
+		block := b.chain.GetBlockByHash(hash)
+		if block == nil {
+			return nil, errors.New("header for hash not found")
+		}
+		// if blockNrOrHash.RequireCanonical && b.chain.GetCanonicalHash(header.Number.Uint64()) != hash {
+		// 	return nil, errors.New("hash is not currently canonical")
+		// }
+		// block := b.chain.GetBlock(hash, header.Number.Uint64())
+		// if block == nil {
+		// 	return nil, errors.New("header found, but block body is missing")
+		// }
+		return block, nil
+	}
+	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
 
 func (b *backend) StateAndHeaderByNumber(
@@ -483,14 +490,14 @@ func (b *backend) Engine() consensus.Engine {
 }
 
 // GetBody retrieves the block body corresponding to block by has or number..
-func (b *backend) GetBody(_ context.Context, hash common.Hash,
+func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 	number BlockNumber,
 ) (*types.Body, error) {
 	if number < 0 || hash == (common.Hash{}) {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
-	block, err := b.polarisBlockByNumberOrHash(BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
+	block, err := b.polarisBlockByNumberOrHash(ctx, BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, err
@@ -555,8 +562,12 @@ func (b *backend) ClientVersion() string {
 
 // polarisBlockByNumberOrHash returns the block identified by `number` or `hash`.
 func (b *backend) polarisBlockByNumberOrHash(
-	blockNrOrHash BlockNumberOrHash,
+	ctx context.Context, blockNrOrHash BlockNumberOrHash,
 ) (*types.Block, error) {
+
+	if blockNr, ok := blockNrOrHash.Number(); ok {
+		return b.BlockByNumber(ctx, blockNr)
+	}
 	// First we try to get by hash.
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block := b.chain.GetBlockByHash(hash)
