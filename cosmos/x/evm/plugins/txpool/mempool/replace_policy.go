@@ -31,19 +31,19 @@ import (
 // NewEthTxReplacement serves as a tx replacement policy. It is called when a new transaction is
 // added to the mempool and a transaction with the same nonce already exists. It returns true if
 // the new transaction should replace the existing transaction.
-//
-// Source: https://github.com/ethereum/go-ethereum/blob/9231770811cda0473a7fa4e2bccc95bf62aae634/core/txpool/list.go#L284
-//
-//nolint:lll // url.
 func NewEthTxReplacement[C comparable](priceBump uint64) func(op, np C, oTx, nTx sdk.Tx) bool {
 	a := big.NewInt(100 + int64(priceBump)) //nolint:gomnd // a = 100 + priceBump
 	b := big.NewInt(100)                    //nolint:gomnd // b = 100
 
+	// Source: https://github.com/ethereum/go-ethereum/blob/9231770811cda0473a7fa4e2bccc95bf62aae634/core/txpool/list.go#L284
+	//
+	//nolint:lll // url.
 	return func(op, np C, oTx, nTx sdk.Tx) bool {
 		// Convert the transactions to Ethereum transactions.
 		oldEthTx := evmtypes.GetAsEthTx(oTx)
 		newEthTx := evmtypes.GetAsEthTx(nTx)
-		if oldEthTx == nil || newEthTx == nil {
+		if oldEthTx == nil || newEthTx == nil ||
+			oldEthTx.GasFeeCapCmp(newEthTx) >= 0 || oldEthTx.GasTipCapCmp(newEthTx) >= 0 {
 			return false
 		}
 
