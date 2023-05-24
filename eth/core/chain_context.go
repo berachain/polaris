@@ -32,13 +32,18 @@ var _ ChainContext = (*chainContext)(nil)
 
 // chainContext is a wrapper around `StateProcessor` that implements the `ChainContext` interface.
 type chainContext struct {
-	*blockchain
+	ChainReader
 }
 
-// GetHeader returns the header for the given hash and height. This is used by the `GetHashFn`.
-func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
-	header, _ := cc.blockchain.bp.GetHeaderByNumber(int64(height))
-	return header
+// NewChainContext returns a new `ChainContext` instance.
+func NewChainContext(bc ChainReader) ChainContext {
+	return &chainContext{bc}
+}
+
+// GetHeader returns the header for the given hash and number. This is used by the `GetHashFn`.
+func (cc *chainContext) GetHeader(_ common.Hash, number uint64) *types.Header {
+	block, _ := cc.ChainReader.GetBlockByNumber(int64(number))
+	return block.Header()
 }
 
 // Engine returns the consensus engine. For our use case, this never gets called.

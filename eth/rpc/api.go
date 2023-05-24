@@ -21,15 +21,20 @@
 package rpc
 
 import (
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/rpc/api"
 )
 
 // GetAPIs returns a list of all available APIs.
-func GetAPIs(apiBackend PolarisBackend) []API {
-	return append(GetGethAPIs(apiBackend, nil), // todo: required chain for flashbots.
+func GetAPIs(apiBackend PolarisBackend, cc core.ChainContext) []API {
+	return append(GetGethAPIs(apiBackend, cc), // todo: required chain for flashbots.
 		API{
 			Namespace: "eth",
 			Service:   api.NewEthashAPI(apiBackend),
+		},
+		API{
+			Namespace: "eth",
+			Service:   api.NewBundleAPI(apiBackend, cc),
 		},
 		API{
 			Namespace: "eth",

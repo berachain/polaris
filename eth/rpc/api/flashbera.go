@@ -1,3 +1,23 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
 package api
 
 import (
@@ -10,14 +30,16 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/gofrs/uuid"
+	"golang.org/x/crypto/sha3"
+
 	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/gofrs/uuid"
-	"golang.org/x/crypto/sha3"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -27,16 +49,19 @@ import (
 
 // FlashBeraBackend is the backend implementation for the FlashBera API.
 type FlashBeraBackend interface {
-	SendBundle(ctx context.Context, txs types.Transactions, blockNumber rpc.BlockNumber, uuid uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error
+	SendBundle(ctx context.Context, txs types.Transactions,
+		blockNumber rpc.BlockNumber, uuid uuid.UUID, signingAddress common.Address,
+		minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error
 	ChainConfig() *params.ChainConfig
 	HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error)
-	StateAndHeaderByNumberOrHash(ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash) (state.StateDBI, *types.Header, error)
+	StateAndHeaderByNumberOrHash(ctx context.Context,
+		blockNrOrHash rpc.BlockNumberOrHash) (state.StateDBI, *types.Header, error)
 	GetEVM(context.Context, *core.Message, vm.GethStateDB,
 		*types.Header, *vm.Config) (*vm.GethEVM, func() error, error)
 	RPCGasCap() uint64
 }
 
-// --------------------------------------- FlashBots ------------------------------------------- //
+// --------------------------------------- FlashBots ------------------------------------------- //.
 type PrivateTxBundleAPI struct {
 	b FlashBeraBackend
 }
@@ -50,7 +75,7 @@ func NewPrivateTxBundleAPI(b FlashBeraBackend) *PrivateTxBundleAPI {
 type SendBundleArgs struct {
 	Txs               []hexutil.Bytes `json:"txs"`
 	BlockNumber       rpc.BlockNumber `json:"blockNumber"`
-	ReplacementUuid   *uuid.UUID      `json:"replacementUuid"`
+	ReplacementUuid   *uuid.UUID      `json:"replacementUuid"` //nolint:stylecheck,revive // from flashbots.
 	SigningAddress    *common.Address `json:"signingAddress"`
 	MinTimestamp      *uint64         `json:"minTimestamp"`
 	MaxTimestamp      *uint64         `json:"maxTimestamp"`
@@ -58,7 +83,7 @@ type SendBundleArgs struct {
 }
 
 // SendBundle will add the signed transaction to the transaction pool.
-// The sender is responsible for signing the transaction and using the correct nonce and ensuring validity
+// The sender is responsible for signing the transaction and using the correct nonce and ensuring validity.
 func (s *PrivateTxBundleAPI) SendBundle(ctx context.Context, args SendBundleArgs) error {
 	var txs types.Transactions
 	if len(args.Txs) == 0 {
@@ -76,7 +101,7 @@ func (s *PrivateTxBundleAPI) SendBundle(ctx context.Context, args SendBundleArgs
 		txs = append(txs, tx)
 	}
 
-	var replacementUuid uuid.UUID
+	var replacementUuid uuid.UUID //nolint:stylecheck,revive // from flashbots.
 	if args.ReplacementUuid != nil {
 		replacementUuid = *args.ReplacementUuid
 	}
@@ -94,7 +119,9 @@ func (s *PrivateTxBundleAPI) SendBundle(ctx context.Context, args SendBundleArgs
 		maxTimestamp = *args.MaxTimestamp
 	}
 
-	go s.b.SendBundle(ctx, txs, args.BlockNumber, replacementUuid, signingAddress, minTimestamp, maxTimestamp, args.RevertingTxHashes)
+	//nolint:errcheck // from flashbots.
+	go s.b.SendBundle(ctx, txs, args.BlockNumber, replacementUuid,
+		signingAddress, minTimestamp, maxTimestamp, args.RevertingTxHashes)
 
 	return nil
 }
@@ -132,7 +159,9 @@ type CallBundleArgs struct {
 // simulate future blocks with the current state, or it can be used to simulate
 // a past block.
 // The sender is responsible for signing the transactions and using the correct
-// nonce and ensuring validity
+// nonce and ensuring validity.
+//
+//nolint:funlen,gocognit // from flashbots.
 func (s *BundleAPI) CallBundle(ctx context.Context, args CallBundleArgs) (map[string]interface{}, error) {
 	if len(args.Txs) == 0 {
 		return nil, errors.New("bundle missing txs")
@@ -151,7 +180,7 @@ func (s *BundleAPI) CallBundle(ctx context.Context, args CallBundleArgs) (map[st
 	}
 	defer func(start time.Time) { log.Debug("Executing EVM call finished", "runtime", time.Since(start)) }(time.Now())
 
-	timeoutMilliSeconds := int64(5000)
+	timeoutMilliSeconds := int64(5000) //nolint:gomnd // from flashbots.
 	if args.Timeout != nil {
 		timeoutMilliSeconds = *args.Timeout
 	}
@@ -231,17 +260,22 @@ func (s *BundleAPI) CallBundle(ctx context.Context, args CallBundleArgs) (map[st
 	for i, tx := range txs {
 		coinbaseBalanceBeforeTx := state.GetBalance(coinbase)
 		state.SetTxContext(tx.Hash(), i)
-
-		receipt, result, err := core.ApplyTransactionWithEVMWithResult(vmenv, s.b.ChainConfig(), &coinbase, gp, state, header, tx, &header.GasUsed)
+		var (
+			receipt *types.Receipt
+			result  *core.ExecutionResult
+		)
+		receipt, result, err = core.ApplyTransactionWithEVMWithResult(
+			vmenv, s.b.ChainConfig(), &coinbase, gp, state, header, tx, &header.GasUsed)
 		if err != nil {
 			return nil, fmt.Errorf("err: %w; txhash %s", err, tx.Hash())
 		}
-		if err := vmError(); err != nil {
-			return nil, fmt.Errorf("execution error: %v", err)
+		if err = vmError(); err != nil {
+			return nil, fmt.Errorf("execution error: %v", err) //nolint:errorlint // from flashbots.
 		}
 
 		txHash := tx.Hash().String()
-		from, err := types.Sender(signer, tx)
+		var from common.Address
+		from, err = types.Sender(signer, tx)
 		if err != nil {
 			return nil, fmt.Errorf("err: %w; txhash %s", err, tx.Hash())
 		}
@@ -256,7 +290,9 @@ func (s *BundleAPI) CallBundle(ctx context.Context, args CallBundleArgs) (map[st
 			"toAddress":   to,
 		}
 		totalGasUsed += receipt.GasUsed
-		gasPrice, err := tx.EffectiveGasTip(header.BaseFee)
+
+		var gasPrice *big.Int
+		gasPrice, err = tx.EffectiveGasTip(header.BaseFee)
 		if err != nil {
 			return nil, fmt.Errorf("err: %w; txhash %s", err, tx.Hash())
 		}
@@ -297,7 +333,7 @@ func (s *BundleAPI) CallBundle(ctx context.Context, args CallBundleArgs) (map[st
 	return ret, nil
 }
 
-// EstimateGasBundleArgs represents the arguments for a call
+// EstimateGasBundleArgs represents the arguments for a call.
 type EstimateGasBundleArgs struct {
 	Txs                    []ethapi.TransactionArgs `json:"txs"`
 	BlockNumber            rpc.BlockNumber          `json:"blockNumber"`
@@ -307,6 +343,7 @@ type EstimateGasBundleArgs struct {
 	Timeout                *int64                   `json:"timeout"`
 }
 
+//nolint:funlen // from flashbots.
 func (s *BundleAPI) EstimateGasBundle(ctx context.Context, args EstimateGasBundleArgs) (map[string]interface{}, error) {
 	if len(args.Txs) == 0 {
 		return nil, errors.New("bundle missing txs")
@@ -315,7 +352,7 @@ func (s *BundleAPI) EstimateGasBundle(ctx context.Context, args EstimateGasBundl
 		return nil, errors.New("bundle missing blockNumber")
 	}
 
-	timeoutMS := int64(5000)
+	timeoutMS := int64(5000) //nolint:gomnd // from flashbots.
 	if args.Timeout != nil {
 		timeoutMS = *args.Timeout
 	}
@@ -374,32 +411,36 @@ func (s *BundleAPI) EstimateGasBundle(ctx context.Context, args EstimateGasBundl
 		// Since its a txCall we'll just prepare the
 		// state with a random hash
 		var randomHash common.Hash
-		rand.Read(randomHash[:])
+		rand.Read(randomHash[:]) //nolint:errcheck // from flashbots.
 
 		// New random hash since its a call
 		state.SetTxContext(randomHash, i)
 
 		// Convert tx args to msg to apply state transition
-		msg, err := txArgs.ToMessage(globalGasCap, header.BaseFee)
+		var msg *core.Message
+		msg, err = txArgs.ToMessage(globalGasCap, header.BaseFee)
 		if err != nil {
 			return nil, err
 		}
 
 		// Get EVM Environment
-		vmenv, vmError, err := s.b.GetEVM(ctx, msg, state, header, &vm.Config{NoBaseFee: true})
+		var vmenv *vm.GethEVM
+		var vmError func() error
+		vmenv, vmError, err = s.b.GetEVM(ctx, msg, state, header, &vm.Config{NoBaseFee: true})
 		if err != nil {
 			return nil, err
 		}
 
 		// Apply state transition
-		result, err := core.ApplyMessage(vmenv, msg, gp)
+		var result *core.ExecutionResult
+		result, err = core.ApplyMessage(vmenv, msg, gp)
 		if err != nil {
 			return nil, err
 		}
 
 		// Check for the vm error
-		if err := vmError(); err != nil {
-			return nil, fmt.Errorf("execution error: %v", err)
+		if err = vmError(); err != nil {
+			return nil, fmt.Errorf("execution error: %v", err) //nolint:errorlint // from flashbots.
 		}
 
 		// Modifications are committed to the state
