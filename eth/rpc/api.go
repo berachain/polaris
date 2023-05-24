@@ -32,6 +32,10 @@ func GetAPIs(apiBackend PolarisBackend) []API {
 			Service:   api.NewEthashAPI(apiBackend),
 		},
 		API{
+			Namespace: "eth",
+			Service:   api.NewPrivateTxBundleAPI(apiBackend),
+		},
+		API{
 			Namespace: "net",
 			Service:   api.NewNetAPI(apiBackend),
 		},
