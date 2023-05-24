@@ -216,9 +216,9 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 
 // CurrentHeader returns the current header from the local chains.
 func (b *backend) CurrentHeader() *types.Header {
-	block, err := b.chain.CurrentBlock()
-	if err != nil {
-		b.logger.Error("eth.rpc.backend.CurrentHeader", "block", block, "err", err)
+	block := b.chain.CurrentBlock()
+	if block == nil {
+		b.logger.Error("eth.rpc.backend.CurrentHeader block is nil")
 		return nil
 	}
 	header := block.Header()
@@ -228,9 +228,9 @@ func (b *backend) CurrentHeader() *types.Header {
 
 // CurrentBlock returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Header {
-	block, err := b.chain.CurrentBlock()
-	if err != nil {
-		b.logger.Error("eth.rpc.backend.CurrentBlock", "block", block, "err", err)
+	block := b.chain.CurrentBlock()
+	if block == nil {
+		b.logger.Error("eth.rpc.backend.CurrentBlock is nil")
 		return nil
 	}
 	b.logger.Info("called eth.rpc.backend.CurrentBlock", "block", block)
@@ -351,14 +351,11 @@ func (b *backend) GetTransaction(
 // PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
-	block, receipts, err := b.chain.CurrentBlockAndReceipts()
+	block, receipts := b.chain.CurrentBlockAndReceipts()
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
-	if errors.Is(err, core.ErrReceiptsNotFound) {
-		return nil, nil
-	}
-	if err != nil {
-		b.logger.Error("eth.rpc.backend.PendingBlockAndReceipts", "err", err)
+	if block == nil {
+		b.logger.Info("called eth.rpc.backend.PendingBlockAndReceipts is nil", "block", block)
 		return nil, nil
 	}
 	b.logger.Info("called eth.rpc.backend.PendingBlockAndReceipts", "block", block,
@@ -616,9 +613,9 @@ func (b *backend) polarisBlockByHash(hash common.Hash) (*types.Block, error) {
 func (b *backend) polarisBlockByNumber(number BlockNumber) (*types.Block, error) {
 	switch number { //nolint:nolintlint,exhaustive // golangci-lint bug?
 	case SafeBlockNumber, FinalizedBlockNumber:
-		return b.chain.FinalizedBlock()
+		return b.chain.FinalizedBlock(), nil
 	case PendingBlockNumber, LatestBlockNumber:
-		return b.chain.CurrentBlock()
+		return b.chain.CurrentBlock(), nil
 	default:
 		// CONTRACT: GetPolarisBlockByNumber receives number >=0
 		return b.chain.GetBlockByNumber(number.Int64())
