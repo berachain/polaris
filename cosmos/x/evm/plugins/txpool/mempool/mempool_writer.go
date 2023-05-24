@@ -23,53 +23,12 @@ package mempool
 import (
 	"context"
 	"errors"
-	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
-
-// EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
-// transactions that are added to the mempool by ethereum transaction hash.
-type EthTxPool struct {
-	// The underlying mempool implementation.
-	*PriorityNonceMempool[int64]
-
-	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
-	// later
-	ethTxCache  map[common.Hash]*coretypes.Transaction
-	nonceToHash map[uint64]common.Hash
-
-	// NonceRetriever is used to retrieve the nonce for a given address (this is typically a
-	// reference to the StateDB).
-	nr NonceRetriever
-
-	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
-	// concurrently by multiple goroutines.
-	mu sync.RWMutex
-}
-
-// NewEthereumTxPool creates a new Ethereum transaction pool.
-func NewEthereumTxPool() *EthTxPool {
-	config := mempool.DefaultPriorityNonceMempoolConfig()
-	config.TxReplacement = EthereumTxReplacePolicy[int64]{
-		PriceBump: 10, //nolint:gomnd // 10% to match geth.
-	}.Func
-	return NewEthTxPoolFrom(NewPriorityMempool(config))
-}
-
-// New is called when the mempool is created.
-func NewEthTxPoolFrom(mp *PriorityNonceMempool[int64]) *EthTxPool {
-	return &EthTxPool{
-		PriorityNonceMempool: mp,
-		nonceToHash:          make(map[uint64]common.Hash),
-		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
-	}
-}
 
 // SetNonceRetriever sets the nonce retriever db for the mempool.
 func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {

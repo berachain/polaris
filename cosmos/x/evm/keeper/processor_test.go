@@ -92,7 +92,7 @@ var _ = Describe("Processor", func() {
 			ak, bk, sk,
 			"authority",
 			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
-			evmmempool.NewEthTxPoolFrom(evmmempool.DefaultPriorityMempool()),
+			evmmempool.NewPolarisEthereumTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

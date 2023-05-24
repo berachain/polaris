@@ -70,7 +70,7 @@ var _ = Describe("EthTxPool", func() {
 		sp.SetNonce(addr2, 2)
 		sp.Finalize()
 		sp.Reset(ctx)
-		etp = NewEthereumTxPool()
+		etp = NewPolarisEthereumTxPool()
 		etp.SetNonceRetriever(sp)
 	})
 
