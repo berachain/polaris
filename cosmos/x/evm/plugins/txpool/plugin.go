@@ -126,7 +126,14 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 }
 
 func (p *plugin) SendBundle(txs coretypes.Transactions, blockNumber int64, uuid uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error {
-	// TODO
+	/*
+		Serialize the transactions to SdkTx
+
+		send the bundle to the skip auction mempool (ok what goes here?)
+
+		gg ez?
+
+	*/
 	return nil
 }
 
