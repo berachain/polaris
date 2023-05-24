@@ -116,7 +116,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
 	// store the block header on the host chain
-	err = bc.bp.SetHeader(block.Header())
+	err = bc.bp.StoreHeader(block.Header())
 	if err != nil {
 		return err
 	}

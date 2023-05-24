@@ -34,8 +34,8 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
-//			SetHeaderFunc: func(header *types.Header) error {
-//				panic("mock out the SetHeader method")
+//			StoreHeaderFunc: func(header *types.Header) error {
+//				panic("mock out the StoreHeader method")
 //			},
 //		}
 //
@@ -56,8 +56,8 @@ type BlockPluginMock struct {
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
-	// SetHeaderFunc mocks the SetHeader method.
-	SetHeaderFunc func(header *types.Header) error
+	// StoreHeaderFunc mocks the StoreHeader method.
+	StoreHeaderFunc func(header *types.Header) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -79,8 +79,8 @@ type BlockPluginMock struct {
 			// ContextMoqParam is the contextMoqParam argument value.
 			ContextMoqParam context.Context
 		}
-		// SetHeader holds details about calls to the SetHeader method.
-		SetHeader []struct {
+		// StoreHeader holds details about calls to the StoreHeader method.
+		StoreHeader []struct {
 			// Header is the header argument value.
 			Header *types.Header
 		}
@@ -89,7 +89,7 @@ type BlockPluginMock struct {
 	lockGetHeaderByNumber   sync.RWMutex
 	lockGetNewBlockMetadata sync.RWMutex
 	lockPrepare             sync.RWMutex
-	lockSetHeader           sync.RWMutex
+	lockStoreHeader         sync.RWMutex
 }
 
 // BaseFee calls BaseFeeFunc.
@@ -215,34 +215,34 @@ func (mock *BlockPluginMock) PrepareCalls() []struct {
 	return calls
 }
 
-// SetHeader calls SetHeaderFunc.
-func (mock *BlockPluginMock) SetHeader(header *types.Header) error {
-	if mock.SetHeaderFunc == nil {
-		panic("BlockPluginMock.SetHeaderFunc: method is nil but BlockPlugin.SetHeader was just called")
+// StoreHeader calls StoreHeaderFunc.
+func (mock *BlockPluginMock) StoreHeader(header *types.Header) error {
+	if mock.StoreHeaderFunc == nil {
+		panic("BlockPluginMock.StoreHeaderFunc: method is nil but BlockPlugin.StoreHeader was just called")
 	}
 	callInfo := struct {
 		Header *types.Header
 	}{
 		Header: header,
 	}
-	mock.lockSetHeader.Lock()
-	mock.calls.SetHeader = append(mock.calls.SetHeader, callInfo)
-	mock.lockSetHeader.Unlock()
-	return mock.SetHeaderFunc(header)
+	mock.lockStoreHeader.Lock()
+	mock.calls.StoreHeader = append(mock.calls.StoreHeader, callInfo)
+	mock.lockStoreHeader.Unlock()
+	return mock.StoreHeaderFunc(header)
 }
 
-// SetHeaderCalls gets all the calls that were made to SetHeader.
+// StoreHeaderCalls gets all the calls that were made to StoreHeader.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.SetHeaderCalls())
-func (mock *BlockPluginMock) SetHeaderCalls() []struct {
+//	len(mockedBlockPlugin.StoreHeaderCalls())
+func (mock *BlockPluginMock) StoreHeaderCalls() []struct {
 	Header *types.Header
 } {
 	var calls []struct {
 		Header *types.Header
 	}
-	mock.lockSetHeader.RLock()
-	calls = mock.calls.SetHeader
-	mock.lockSetHeader.RUnlock()
+	mock.lockStoreHeader.RLock()
+	calls = mock.calls.StoreHeader
+	mock.lockStoreHeader.RUnlock()
 	return calls
 }

@@ -69,8 +69,8 @@ type (
 		GetNewBlockMetadata(uint64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(uint64) (*types.Header, error)
-		// SetHeaderByNumber sets the block header at the given block number.
-		SetHeader(*types.Header) error
+		// StoreHeader stores the block header at the given block number.
+		StoreHeader(*types.Header) error
 		// BaseFee returns the base fee of the current block.
 		BaseFee() *big.Int
 	}
