@@ -153,6 +153,16 @@ func (a *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain)
 	if req.Time != ctx.BlockHeader().Time {
 		panic(fmt.Errorf("timestamp mismatch: expected %d, got %d", req.Time, ctx.BlockHeader().Time))
 	}
+
+	if req.ChainId != ctx.ChainID() {
+		panic(fmt.Errorf("chain ID mismatch: expected %s, got %s", req.ChainId, ctx.ChainID()))
+	}
+
+	// safety check for consensus params
+	if !req.ConsensusParams.Equal(ctx.ConsensusParams()) {
+		panic(fmt.Errorf("consensus params mismatch: expected %v, got %v", req.ConsensusParams, ctx.ConsensusParams()))
+	}
+
 	// Then call the default App InitChainer.
 	return a.App.InitChainer(ctx, req)
 }

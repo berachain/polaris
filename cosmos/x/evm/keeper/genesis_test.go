@@ -21,7 +21,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -72,63 +71,42 @@ var _ = Describe("Keeper", func() {
 		lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Alice, "abera", big.NewInt(69000))
 
 		genesisState = types.DefaultGenesis()
-		err = k.InitGenesis(ctx, *genesisState)
-		Expect(err).ToNot(HaveOccurred())
 	})
 
 	Context("InitGenesis is called", func() {
-		ReportAfterEach(func(report SpecReport) {
-			coins := []sdk.Coin{bk.GetBalance(ctx, lib.AddressToAccAddress(testutil.Alice), "abera"),
-				bk.GetBalance(ctx, lib.AddressToAccAddress(testutil.Bob), "abera")}
-			fmt.Println(coins)
-			fmt.Printf("chainID: %s\n", ctx.ChainID())
-			fmt.Printf("GasLimit: %d\n", ctx.GasMeter().Limit())
+		JustBeforeEach(func() {
+			err = k.InitGenesis(ctx, *genesisState)
 		})
 
 		When("the genesis is valid", func() {
-			// BeforeEach(func() {
-
-			// })
-
 			It("should execute without error", func() {
-				print(k)
-				Expect(err).To(BeNil())
+				err = k.InitGenesis(ctx, *genesisState)
+				Expect(err).ToNot(HaveOccurred())
 			})
 		})
-		// When("the GasLimit is invalid", func() {
-		// 	// BeforeEach(func() {
-		// 	// 	genesisState = *types.DefaultGenesis()
-		// 	// })
-
-		// 	It("should report a GasLimit mismatch error", func() {
-		// 	})
-		// })
-		// When("the ChainID is invalid", func() {
-		// 	It("should report a ChainID mismatch error", func() {
-		// 	})
-		// })
-		// When("the coinbase is invalid", func() {
-		// 	It("should report a coinbase mismatch error", func() {
-		// 	})
-		// })
-		// When("the balance is invalid", func() {
-		// 	It("should report a balance mismatch error", func() {
-		// lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "abera", big.NewInt(69000))
-		// 	})
-		// })
+		When("the coinbase is invalid", func() {
+			BeforeEach(func() {
+				// TODO: find a way to change the coinbase programmatically
+				// this is so bad but it works so....
+				genesisState.Params.EthGenesis = "{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"0x0000000000000000000000000000000000000001\",\"alloc\":{},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}" // not sure if this is going to work as intended
+			})
+			It("should report a coinbase mismatch error", func() {
+				Expect(err).To(HaveOccurred())
+			})
+		})
+		When("the balance is invalid", func() {
+			BeforeEach(func() {
+				// TODO: find a way to change the balance programmatically
+				// ethGenesis := enclib.MustUnmarshalJSON[core.Genesis]([]byte(genesisState.Params.EthGenesis))
+				// ethGenesis.Alloc[testutil.Bob] = core.GenesisAccount{
+				// 	Balance: big.NewInt(100),
+				// }
+				// genesisState.Params.EthGenesis =
+				genesisState.Params.EthGenesis = "{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"0x0000000000000000000000000000000000000000\",\"alloc\":{\"0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4\": {\"balance\":\"0x09184e72a000\"}},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}"
+			})
+			It("should report a balance mismatch error", func() {
+				Expect(err).To(HaveOccurred())
+			})
+		})
 	})
-
-	// DescribeTable("InitGenesis",
-	// 	func(ctx sdk.Context, genesisState types.GenesisState, expectedErr error) {
-	// 		err := k.InitGenesis(ctx, genesisState)
-	// 		Expect(err).To(Equal(expectedErr))
-	// 	},
-
-	// 	Entry("the genesis is valid", ctx, *types.DefaultGenesis(), nil),
-	// 	Entry("the GasLimit is invalid", ctx, genesisState, fmt.Errorf("gas limit mismatch: expected %d, got %d", ethGenesis.GasLimit, ctx.GasMeter().Limit())),
-	// 	Entry("the ChainID is invalid", ctx, genesisState, fmt.Errorf("invalid ChainID: 0")),
-	// 	Entry("the coinbase is invalid", ctx, genesisState, fmt.Errorf("invalid coinbase: ")),
-	// 	Entry("the timestamp is invalid", ctx, genesisState, fmt.Errorf("invalid timestamp: 0")),
-	// 	Entry("the balance is invalid", ctx, genesisState, fmt.Errorf("invalid balance: []")),
-	// )
 })

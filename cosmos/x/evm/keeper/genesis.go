@@ -82,11 +82,11 @@ func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 func (k *Keeper) validateEthGenesis(ctx sdk.Context, genesisState types.GenesisState) error {
 	ethGenesis := enclib.MustUnmarshalJSON[core.Genesis]([]byte(genesisState.Params.EthGenesis))
 
-	// // verify gas limit matches
+	// verify gas limit matches
 
 	// panic: gas limit mismatch: expected 30000000, got 18446744073709551615
 	// if ethGenesis.GasLimit != ctx.BlockGasMeter().Limit() {
-	// 	return fmt.Errorf("gas limit mismatch: expected %d, got %d", ethGenesis.GasLimit, ctx.GasMeter().Limit())
+	// 	return fmt.Errorf("gas limit mismatch: expected %d, got %d", ethGenesis.GasLimit, ctx.BlockGasMeter().Limit())
 	// }
 
 	if (ethGenesis.Coinbase != common.Address{0}) {
@@ -94,10 +94,9 @@ func (k *Keeper) validateEthGenesis(ctx sdk.Context, genesisState types.GenesisS
 	}
 
 	// verify balances match
-	denom := genesisState.Params.EvmDenom
 	for addr, account := range ethGenesis.Alloc {
 		// no need to check for missing denom, since a missing denom will return 0 balance
-		coin := k.bk.GetBalance(ctx, lib.AddressToAccAddress(addr), denom)
+		coin := k.bk.GetBalance(ctx, lib.AddressToAccAddress(addr), genesisState.Params.EvmDenom)
 		if coin.Amount != math.NewIntFromBigInt(account.Balance) {
 			return fmt.Errorf("account %s balance mismatch: expected %s, got %s", addr.Hex(), account.Balance, coin.Amount)
 		}
