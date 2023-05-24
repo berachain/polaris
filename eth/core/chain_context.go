@@ -40,10 +40,10 @@ func NewChainContext(bc ChainReader) ChainContext {
 	return &chainContext{bc}
 }
 
-// GetHeader returns the header for the given hash and number. This is used by the `GetHashFn`.
-func (cc *chainContext) GetHeader(_ common.Hash, number uint64) *types.Header {
-	block, _ := cc.ChainReader.GetBlockByNumber(int64(number))
-	return block.Header()
+// GetHeader returns the header for the given hash and height. This is used by the `GetHashFn`.
+func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
+	header, _ := cc.blockchain.bp.GetHeaderByNumber(height)
+	return header
 }
 
 // Engine returns the consensus engine. For our use case, this never gets called.
