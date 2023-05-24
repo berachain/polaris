@@ -24,8 +24,9 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/gofrs/uuid"
+
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"

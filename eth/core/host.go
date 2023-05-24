@@ -23,8 +23,9 @@ package core
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/event"
 	"github.com/gofrs/uuid"
+
+	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
