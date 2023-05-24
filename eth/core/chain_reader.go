@@ -40,9 +40,9 @@ type ChainBlockReader interface {
 	CurrentBlock() *types.Block
 	CurrentBlockAndReceipts() (*types.Block, types.Receipts)
 	FinalizedBlock() *types.Block
-	GetReceipts(common.Hash) (types.Receipts, error)
-	GetBlockByHash(common.Hash) (*types.Block, error)
-	GetBlockByNumber(int64) (*types.Block, error)
+	GetReceiptsByHash(common.Hash) types.Receipts
+	GetBlockByHash(common.Hash) *types.Block
+	GetBlockByNumber(int64) *types.Block
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
@@ -124,27 +124,38 @@ func (bc *blockchain) FinalizedBlock() *types.Block {
 
 // GetReceipts gathers the receipts that were created in the block defined by
 // the given hash.
-func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
+func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 	// check the cache
 	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
-		return bc.deriveReceipts(receipts, blockHash)
+		derived, err := bc.deriveReceipts(receipts, blockHash)
+		if err != nil {
+			bc.logger.Error("failed to derive receipts", "err", err)
+			return nil
+		}
+		return derived
 	}
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
 		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil, ErrReceiptsNotFound
+		return nil
 	}
 
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if err != nil {
-		return nil, ErrReceiptsNotFound
+		bc.logger.Error("failed to get receipts from historical plugin", "err", err)
+		return nil
 	}
 
 	// cache the found receipts for next time and return
 	bc.receiptsCache.Add(blockHash, receipts)
-	return bc.deriveReceipts(receipts, blockHash)
+	derived, err := bc.deriveReceipts(receipts, blockHash)
+	if err != nil {
+		bc.logger.Error("failed to derive receipts", "err", err)
+		return nil
+	}
+	return derived
 }
 
 // GetTransaction gets a transaction by hash. It also returns the block hash of the
@@ -179,55 +190,56 @@ func (bc *blockchain) GetTransaction(
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetBlockByNumber(number int64) (*types.Block, error) {
+func (bc *blockchain) GetBlockByNumber(number int64) *types.Block {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
-		return block, nil
+		return block
 	}
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
 		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil, ErrBlockNotFound
+		return nil
 	}
 
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByNumber(number)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	// Cache the found block for next time and return
 	bc.blockNumCache.Add(number, block)
 	bc.blockHashCache.Add(block.Hash(), block)
-	return block, nil
+	return block
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetBlockByHash(hash common.Hash) (*types.Block, error) {
+func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
 		bc.blockNumCache.Add(block.Number().Int64(), block)
-		return block, nil
+		return block
 	}
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
 		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil, ErrBlockNotFound
+		return nil
 	}
 
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByHash(hash)
 	if err != nil {
-		return nil, err
+		bc.logger.Error("failed to get block by hash", "err", err)
+		return nil
 	}
 
 	// Cache the found block for next time and return
 	bc.blockNumCache.Add(block.Number().Int64(), block)
 	bc.blockHashCache.Add(hash, block)
-	return block, nil
+	return block
 }
 
 // =========================================================================
