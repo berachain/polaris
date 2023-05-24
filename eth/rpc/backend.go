@@ -35,6 +35,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/node"
+	"github.com/gofrs/uuid"
 
 	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -433,8 +434,12 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 	return b.chain.SendTx(ctx, signedTx)
 }
 
-func (b *backend) SendPrivTx(ctx context.Context, signedTx *types.Transaction) error {
-	return b.chain.SendTx(ctx, signedTx)
+func (b *backend) SendPrivTx(ctx context.Context, signedPrivTx *types.Transaction) error {
+	return b.chain.SendPrivTx(ctx, signedPrivTx)
+}
+
+func (b *backend) SendBundle(ctx context.Context, txs types.Transactions, blockNumber int64, uuid uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error {
+	return b.chain.SendBundle(ctx, txs, blockNumber, uuid, signingAddress, minTimestamp, maxTimestamp, revertingTxHashes)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {

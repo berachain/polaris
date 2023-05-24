@@ -43,6 +43,10 @@ type ChainWriter interface {
 	Finalize(context.Context) error
 	// SendTx sends the given transaction to the tx pool.
 	SendTx(ctx context.Context, signedTx *types.Transaction) error
+	// SendPrivTx privately sends the given transaction to the tx pool.
+	SendPrivTx(ctx context.Context, signedPrivTx *types.Transaction) error
+	// SendBundle sends the given bundle to the tx pool.
+	SendBundle(ctx context.Context, txs types.Transactions, blockNumber int64, uuid uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error
 }
 
 // =========================================================================
