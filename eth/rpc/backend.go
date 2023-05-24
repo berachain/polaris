@@ -195,6 +195,7 @@ func (b *backend) HeaderByNumberOrHash(_ context.Context,
 		if block == nil {
 			return nil, errors.New("header for hash not found")
 		}
+		return block.Header(), nil
 	}
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block := b.chain.GetBlockByHash(hash)
