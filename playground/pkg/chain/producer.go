@@ -30,7 +30,7 @@ import (
 // blockProducer is the block producer.
 type blockProducer struct {
 	polaris         api.Chain
-	currentBlockNum int64
+	currentBlockNum uint64
 }
 
 // ProduceBlock produces a block from the mempool and returns it.

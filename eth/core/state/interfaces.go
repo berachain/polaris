@@ -41,6 +41,8 @@ type Plugin interface {
 	libtypes.Cloneable[Plugin]
 	// GetContext returns the current context of the state plugin.
 	GetContext() context.Context
+	// Error returns the current saved error of the state plugin.
+	Error() error
 
 	// CreateAccount creates an account with the given `address`.
 	CreateAccount(common.Address)
