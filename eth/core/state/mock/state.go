@@ -72,6 +72,9 @@ func NewEmptyStatePlugin() *PluginMock {
 		EmptyFunc: func(address common.Address) bool {
 			panic("mock out the Empty method")
 		},
+		ErrorFunc: func() error {
+			return nil
+		},
 		FinalizeFunc: func() {
 			// no-op
 		},
