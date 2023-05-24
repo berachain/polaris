@@ -75,15 +75,13 @@ type blockchain struct {
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
 	// blockNumCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockNum -> block
-	blockNumCache *lru.Cache[int64, *types.Block]
+	blockNumCache *lru.Cache[uint64, *types.Block]
 	// blockHashCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockHash -> block
 	blockHashCache *lru.Cache[common.Hash, *types.Block]
 	// txLookupCache is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
-
-	logger log.Logger
 
 	// subscription event feeds
 	scope           event.SubscriptionScope
@@ -93,6 +91,7 @@ type blockchain struct {
 	pendingLogsFeed event.Feed
 	rmLogsFeed      event.Feed // currently never used
 	chainSideFeed   event.Feed // currently never used
+	logger          log.Logger
 }
 
 // =========================================================================
@@ -110,7 +109,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		tp:             host.GetTxPoolPlugin(),
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
-		blockNumCache:  lru.NewCache[int64, *types.Block](defaultCacheSizeBytes),
+		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSizeBytes),
 		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
 		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
 		chainHeadFeed:  event.Feed{},
