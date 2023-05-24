@@ -25,19 +25,20 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
+
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	"pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/eth/core"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	enclib "pkg.berachain.dev/polaris/lib/encoding"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	enclib "pkg.berachain.dev/polaris/lib/encoding"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -72,7 +73,7 @@ var _ = Describe("Keeper", func() {
 			},
 		)
 
-		lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Alice, "abera", big.NewInt(69000))
+		lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Alice, "abera", big.NewInt(69000)) //nolint:errcheck,lll // test mint must succeed
 
 		genesisState = types.DefaultGenesis()
 		ethGenesis = enclib.MustUnmarshalJSON[core.Genesis]([]byte(genesisState.Params.EthGenesis))
@@ -111,7 +112,7 @@ var _ = Describe("Keeper", func() {
 			})
 			Context("the account exists but the balance is mismatched", func() {
 				BeforeEach(func() {
-					lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "abera", big.NewInt(50))
+					lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "abera", big.NewInt(50)) //nolint:errcheck,lll // test mint must succeed
 				})
 				It("should report a balance mismatch error", func() {
 					Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected %v, got %v", testutil.Bob, 50, 100)))

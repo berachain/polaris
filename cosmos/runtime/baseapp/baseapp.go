@@ -31,6 +31,7 @@ import (
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -146,12 +147,12 @@ type PolarisBaseApp struct {
 }
 
 // InitChainer initializes the chain.
-func (a *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) (abci.ResponseInitChain, error) {
+func (app *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) (abci.ResponseInitChain, error) {
 	// Validate that ethereum genesis and cosmos genesis timestamp are the same.
 	// TODO: investigate how we can make this work in evm/keeper/genesis.go
 	// currently doesn't work in there since the scope of gen is restricted to the evm component
 	if req.Time != ctx.BlockHeader().Time {
-		panic(fmt.Errorf("timestamp mismatch: expected %d, got %d", req.Time, ctx.BlockHeader().Time))
+		panic(fmt.Errorf("timestamp mismatch: expected %v, got %v", req.Time, ctx.BlockHeader().Time))
 	}
 
 	if req.ChainId != ctx.ChainID() {
@@ -164,7 +165,7 @@ func (a *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain)
 	}
 
 	// Then call the default App InitChainer.
-	return a.App.InitChainer(ctx, req)
+	return app.App.InitChainer(ctx, req)
 }
 
 // Name returns the name of the App.
