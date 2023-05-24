@@ -52,6 +52,7 @@ var _ = Describe("Keeper", func() {
 		sc           ethprecompile.StatefulImpl
 		ctx          sdk.Context
 		genesisState *types.GenesisState
+		ethGenesis   *core.Genesis
 		err          error
 	)
 
@@ -74,6 +75,7 @@ var _ = Describe("Keeper", func() {
 		lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Alice, "abera", big.NewInt(69000))
 
 		genesisState = types.DefaultGenesis()
+		ethGenesis = enclib.MustUnmarshalJSON[core.Genesis]([]byte(genesisState.Params.EthGenesis))
 	})
 
 	Context("InitGenesis is called", func() {
@@ -87,35 +89,22 @@ var _ = Describe("Keeper", func() {
 			})
 		})
 		When("the coinbase is invalid", func() {
-			var invalidCoinbase string
 			BeforeEach(func() {
-				// TODO: find a way to change the coinbase programmatically
-				// this is so bad but it works so....
-				invalidCoinbase = "0x0000000000000000000000000000000000000001"
-				genesisState.Params.EthGenesis = fmt.Sprintf("{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"%s\",\"alloc\":{},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}", invalidCoinbase)
+				ethGenesis.Coinbase = testutil.Bob
+				genesisState.Params.EthGenesis = string(enclib.MustMarshalJSON(*ethGenesis))
 			})
 			It("should report a coinbase mismatch error", func() {
-				Expect(err).To(Equal(fmt.Errorf("coinbase of the genesis block must be the null address, not: %s", invalidCoinbase)))
+				Expect(err).To(Equal(fmt.Errorf("coinbase of the genesis block must be the null address, not: %s", testutil.Bob)))
 			})
 		})
 		When("the balance is invalid", func() {
-			// var (
-			// 	invalidAddress string
-			// 	invalidBalance string
-			// )
 			BeforeEach(func() {
-				// TODO: find a way to change the balance programmatically
-				ethGenesis := enclib.MustUnmarshalJSON[core.Genesis]([]byte(genesisState.Params.EthGenesis))
 				ethGenesis.Alloc[testutil.Bob] = core.GenesisAccount{
 					Balance: big.NewInt(100),
 				}
 				genesisState.Params.EthGenesis = string(enclib.MustMarshalJSON(*ethGenesis))
-				// invalidAddress = test
-				// invalidBalance = "0x09184e72a000"
-				// genesisState.Params.EthGenesis = fmt.Sprintf("{\"config\":{\"chainId\":69420,\"homesteadBlock\":0,\"daoForkBlock\":0,\"daoForkSupport\":true,\"eip150Block\":0,\"eip150Hash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"eip155Block\":0,\"eip158Block\":0,\"byzantiumBlock\":0,\"constantinopleBlock\":0,\"petersburgBlock\":0,\"istanbulBlock\":0,\"berlinBlock\":0,\"londonBlock\":0,\"arrowGlacierBlock\":0,\"grayGlacierBlock\":0,\"mergeNetsplitBlock\":0,\"shanghaiTime\":0,\"terminalTotalDifficulty\":0,\"terminalTotalDifficultyPassed\":true},\"nonce\":\"0x45\",\"timestamp\":\"0x0\",\"extraData\":\"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa\",\"gasLimit\":\"0x1c9c380\",\"difficulty\":\"0x45\",\"mixHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"coinbase\":\"0x0000000000000000000000000000000000000000\",\"alloc\":{\"%s\": {\"balance\":\"%s\"}},\"number\":\"0x0\",\"gasUsed\":\"0x0\",\"parentHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"baseFeePerGas\":null}", invalidAddress, invalidBalance)
 			})
 			It("should report a balance mismatch error", func() {
-				// balance, _ := new(big.Int).SetString(invalidBalance, 0) // convert invalidBalance to big.Int
 				Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected 0, got %v", testutil.Bob, 100)))
 			})
 		})
