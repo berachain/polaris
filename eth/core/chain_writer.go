@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/gofrs/uuid"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -182,4 +183,12 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
 	return bc.tp.SendTx(signedTx)
+}
+
+func (bc *blockchain) SendPrivTx(_ context.Context, signedPrivTx *types.Transaction) error {
+	return bc.tp.SendPrivTx(signedPrivTx)
+}
+
+func (bc *blockchain) SendBundle(_ context.Context, txs types.Transactions, blockNumber int64, uuid uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error {
+	return bc.tp.SendBundle(txs, blockNumber, uuid, signingAddress, minTimestamp, maxTimestamp, revertingTxHashes)
 }

@@ -433,6 +433,10 @@ func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error
 	return b.chain.SendTx(ctx, signedTx)
 }
 
+func (b *backend) SendPrivTx(ctx context.Context, signedTx *types.Transaction) error {
+	return b.chain.SendTx(ctx, signedTx)
+}
+
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
 	b.logger.Info("called eth.rpc.backend.GetPoolTransactions")
 	return b.chain.GetPoolTransactions()

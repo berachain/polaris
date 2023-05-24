@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/gofrs/uuid"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -129,6 +130,10 @@ type (
 	TxPoolPlugin interface {
 		// SendTx submits the tx to the transaction pool.
 		SendTx(tx *types.Transaction) error
+		// SendPrivTx sends a private transaction to the transaction pool.
+		SendPrivTx(tx *types.Transaction) error
+		// SendBundle sends a bundle of transactions to the transaction pool.
+		SendBundle(txs types.Transactions, blockNumber int64, uuid uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error
 		// Pending returns all pending transactions in the transaction pool.
 		Pending(bool) map[common.Address]types.Transactions
 		// Get returns the transaction from the pool with the given hash.

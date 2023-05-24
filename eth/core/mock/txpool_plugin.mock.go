@@ -8,6 +8,7 @@ import (
 	ethereumcore "github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/gofrs/uuid"
 	ethcore "pkg.berachain.dev/polaris/eth/core"
 	"sync"
 )
@@ -36,6 +37,12 @@ var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
 //			},
 //			PendingFunc: func(b bool) map[common.Address]types.Transactions {
 //				panic("mock out the Pending method")
+//			},
+//			SendBundleFunc: func(txs types.Transactions, blockNumber int64, uuidMoqParam uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error {
+//				panic("mock out the SendBundle method")
+//			},
+//			SendPrivTxFunc: func(tx *types.Transaction) error {
+//				panic("mock out the SendPrivTx method")
 //			},
 //			SendTxFunc: func(tx *types.Transaction) error {
 //				panic("mock out the SendTx method")
@@ -67,6 +74,12 @@ type TxPoolPluginMock struct {
 
 	// PendingFunc mocks the Pending method.
 	PendingFunc func(b bool) map[common.Address]types.Transactions
+
+	// SendBundleFunc mocks the SendBundle method.
+	SendBundleFunc func(txs types.Transactions, blockNumber int64, uuidMoqParam uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error
+
+	// SendPrivTxFunc mocks the SendPrivTx method.
+	SendPrivTxFunc func(tx *types.Transaction) error
 
 	// SendTxFunc mocks the SendTx method.
 	SendTxFunc func(tx *types.Transaction) error
@@ -102,6 +115,28 @@ type TxPoolPluginMock struct {
 			// B is the b argument value.
 			B bool
 		}
+		// SendBundle holds details about calls to the SendBundle method.
+		SendBundle []struct {
+			// Txs is the txs argument value.
+			Txs types.Transactions
+			// BlockNumber is the blockNumber argument value.
+			BlockNumber int64
+			// UuidMoqParam is the uuidMoqParam argument value.
+			UuidMoqParam uuid.UUID
+			// SigningAddress is the signingAddress argument value.
+			SigningAddress common.Address
+			// MinTimestamp is the minTimestamp argument value.
+			MinTimestamp uint64
+			// MaxTimestamp is the maxTimestamp argument value.
+			MaxTimestamp uint64
+			// RevertingTxHashes is the revertingTxHashes argument value.
+			RevertingTxHashes []common.Hash
+		}
+		// SendPrivTx holds details about calls to the SendPrivTx method.
+		SendPrivTx []struct {
+			// Tx is the tx argument value.
+			Tx *types.Transaction
+		}
 		// SendTx holds details about calls to the SendTx method.
 		SendTx []struct {
 			// Tx is the tx argument value.
@@ -121,6 +156,8 @@ type TxPoolPluginMock struct {
 	lockGet                  sync.RWMutex
 	lockNonce                sync.RWMutex
 	lockPending              sync.RWMutex
+	lockSendBundle           sync.RWMutex
+	lockSendPrivTx           sync.RWMutex
 	lockSendTx               sync.RWMutex
 	lockStats                sync.RWMutex
 	lockSubscribeNewTxsEvent sync.RWMutex
@@ -278,6 +315,94 @@ func (mock *TxPoolPluginMock) PendingCalls() []struct {
 	mock.lockPending.RLock()
 	calls = mock.calls.Pending
 	mock.lockPending.RUnlock()
+	return calls
+}
+
+// SendBundle calls SendBundleFunc.
+func (mock *TxPoolPluginMock) SendBundle(txs types.Transactions, blockNumber int64, uuidMoqParam uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error {
+	if mock.SendBundleFunc == nil {
+		panic("TxPoolPluginMock.SendBundleFunc: method is nil but TxPoolPlugin.SendBundle was just called")
+	}
+	callInfo := struct {
+		Txs               types.Transactions
+		BlockNumber       int64
+		UuidMoqParam      uuid.UUID
+		SigningAddress    common.Address
+		MinTimestamp      uint64
+		MaxTimestamp      uint64
+		RevertingTxHashes []common.Hash
+	}{
+		Txs:               txs,
+		BlockNumber:       blockNumber,
+		UuidMoqParam:      uuidMoqParam,
+		SigningAddress:    signingAddress,
+		MinTimestamp:      minTimestamp,
+		MaxTimestamp:      maxTimestamp,
+		RevertingTxHashes: revertingTxHashes,
+	}
+	mock.lockSendBundle.Lock()
+	mock.calls.SendBundle = append(mock.calls.SendBundle, callInfo)
+	mock.lockSendBundle.Unlock()
+	return mock.SendBundleFunc(txs, blockNumber, uuidMoqParam, signingAddress, minTimestamp, maxTimestamp, revertingTxHashes)
+}
+
+// SendBundleCalls gets all the calls that were made to SendBundle.
+// Check the length with:
+//
+//	len(mockedTxPoolPlugin.SendBundleCalls())
+func (mock *TxPoolPluginMock) SendBundleCalls() []struct {
+	Txs               types.Transactions
+	BlockNumber       int64
+	UuidMoqParam      uuid.UUID
+	SigningAddress    common.Address
+	MinTimestamp      uint64
+	MaxTimestamp      uint64
+	RevertingTxHashes []common.Hash
+} {
+	var calls []struct {
+		Txs               types.Transactions
+		BlockNumber       int64
+		UuidMoqParam      uuid.UUID
+		SigningAddress    common.Address
+		MinTimestamp      uint64
+		MaxTimestamp      uint64
+		RevertingTxHashes []common.Hash
+	}
+	mock.lockSendBundle.RLock()
+	calls = mock.calls.SendBundle
+	mock.lockSendBundle.RUnlock()
+	return calls
+}
+
+// SendPrivTx calls SendPrivTxFunc.
+func (mock *TxPoolPluginMock) SendPrivTx(tx *types.Transaction) error {
+	if mock.SendPrivTxFunc == nil {
+		panic("TxPoolPluginMock.SendPrivTxFunc: method is nil but TxPoolPlugin.SendPrivTx was just called")
+	}
+	callInfo := struct {
+		Tx *types.Transaction
+	}{
+		Tx: tx,
+	}
+	mock.lockSendPrivTx.Lock()
+	mock.calls.SendPrivTx = append(mock.calls.SendPrivTx, callInfo)
+	mock.lockSendPrivTx.Unlock()
+	return mock.SendPrivTxFunc(tx)
+}
+
+// SendPrivTxCalls gets all the calls that were made to SendPrivTx.
+// Check the length with:
+//
+//	len(mockedTxPoolPlugin.SendPrivTxCalls())
+func (mock *TxPoolPluginMock) SendPrivTxCalls() []struct {
+	Tx *types.Transaction
+} {
+	var calls []struct {
+		Tx *types.Transaction
+	}
+	mock.lockSendPrivTx.RLock()
+	calls = mock.calls.SendPrivTx
+	mock.lockSendPrivTx.RUnlock()
 	return calls
 }
 

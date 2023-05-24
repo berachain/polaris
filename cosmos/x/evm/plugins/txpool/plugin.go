@@ -26,12 +26,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gofrs/uuid"
 
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
@@ -121,6 +124,11 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	// as the context, as we don't need to use it anyways. We set the priority as the gas price of
 	// the tx.
 	return p.EthTxPool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
+}
+
+func (p *plugin) SendBundle(txs types.Transactions, blockNumber int64, uuid uuid.UUID, signingAddress common.Address, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error {
+	// TODO
+	return nil
 }
 
 func (p *plugin) IsPlugin() {}
