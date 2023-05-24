@@ -21,10 +21,6 @@
 package mempool
 
 import (
-	"context"
-	"errors"
-	"sync"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -33,81 +29,6 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
-
-// EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
-// transactions that are added to the mempool by ethereum transaction hash.
-type EthTxPool struct {
-	// The underlying mempool implementation.
-	*PriorityNonceMempool[int64]
-
-	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
-	// later
-	ethTxCache map[common.Hash]*coretypes.Transaction
-
-	// NonceRetriever is used to retrieve the nonce for a given address (this is typically a
-	// reference to the StateDB).
-	nr NonceRetriever
-
-	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
-	// concurrently by multiple goroutines.
-	mu sync.RWMutex
-}
-
-// New is called when the mempool is created.
-func NewEthTxPoolFrom(mp *PriorityNonceMempool[int64]) *EthTxPool {
-	return &EthTxPool{
-		PriorityNonceMempool: mp,
-		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
-	}
-}
-
-// SetNonceRetriever sets the nonce retriever db for the mempool.
-func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
-	etp.nr = nr
-}
-
-// Insert is called when a transaction is added to the mempool.
-func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
-	etp.mu.Lock()
-	defer etp.mu.Unlock()
-
-	// Reject txs with a nonce lower than the nonce reported by the statedb.
-	if sdbNonce := etp.nr.GetNonce(
-		common.BytesToAddress(tx.GetMsgs()[0].GetSigners()[0]),
-	); sdbNonce > evmtypes.GetAsEthTx(tx).Nonce() {
-		return errors.New("nonce too low")
-	}
-
-	// Call the base mempool's Insert method
-	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
-		return err
-	}
-
-	// We want to cache
-	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		etp.ethTxCache[ethTx.Hash()] = ethTx
-	}
-
-	return nil
-}
-
-// Remove is called when a transaction is removed from the mempool.
-func (etp *EthTxPool) Remove(tx sdk.Tx) error {
-	etp.mu.Lock()
-	defer etp.mu.Unlock()
-
-	// Call the base mempool's Remove method
-	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
-		return err
-	}
-
-	// We want to remove the caches of this tx.
-	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		delete(etp.ethTxCache, ethTx.Hash())
-	}
-
-	return nil
-}
 
 // Get is called when a transaction is retrieved from the mempool.
 func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
@@ -136,6 +57,11 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 					// If its the first tx, set the pending nonce to the nonce of the tx.
 					pending[addr] = append(pending[addr], ethTx)
 					pendingNonce = int64(ethTx.Nonce())
+					// If on the first lookup the nonce delta is more than 0, then there is a gap and thus no pending transactions,
+					// but there are queued transactions. We continue
+					if sdbNonce := etp.nr.GetNonce(addr); uint64(pendingNonce)-sdbNonce >= 1 {
+						continue
+					}
 				case int64(ethTx.Nonce()) == pendingNonce+1:
 					// If its not the first tx, but the nonce is the same as the pending nonce, add it to the list.
 					pending[addr] = append(pending[addr], ethTx)

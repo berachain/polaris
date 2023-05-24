@@ -23,6 +23,7 @@ package mempool
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"math/big"
 	"testing"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -69,7 +70,7 @@ var _ = Describe("EthTxPool", func() {
 		sp.SetNonce(addr2, 2)
 		sp.Finalize()
 		sp.Reset(ctx)
-		etp = NewEthTxPoolFrom(DefaultPriorityMempool())
+		etp = NewEthereumTxPool()
 		etp.SetNonceRetriever(sp)
 	})
 
@@ -120,6 +121,20 @@ var _ = Describe("EthTxPool", func() {
 			Expect(p11).To(HaveLen(2))
 			Expect(p11[1].Hash()).To(Equal(ethTx11.Hash()))
 			Expect(q11).To(HaveLen(0))
+		})
+
+		It("should handle replacement txs", func() {
+			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			ethTx2, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(2)})
+
+			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+
+			Expect(etp.Nonce(addr1)).To(Equal(uint64(2)))
+
+			Expect(etp.Get(ethTx1.Hash())).To(BeNil())
+			Expect(etp.Get(ethTx2.Hash()).Hash()).To(Equal(ethTx2.Hash()))
+
 		})
 	})
 })
