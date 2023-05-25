@@ -178,6 +178,8 @@ var _ = Describe("EthTxPool", func() {
 		It("should handle transaction eviction based on time", func() {})
 		It("should handle transaction eviction based on fee density", func() {})
 		It("should handle concurrent additions", func() {
+
+			// apologies in advance for this test, it's not great.
 			go func(etp *EthTxPool) {
 				defer GinkgoRecover()
 				for i := 1; i <= 10; i++ {
@@ -185,6 +187,7 @@ var _ = Describe("EthTxPool", func() {
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)
+
 			go func(etp *EthTxPool) {
 				defer GinkgoRecover()
 				for i := 2; i <= 11; i++ {
@@ -192,14 +195,15 @@ var _ = Describe("EthTxPool", func() {
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)
+
 			time.Sleep(1 * time.Second) // not good.
 			lenPending, _ := etp.Stats()
 			Expect(lenPending).To(BeEquivalentTo(20))
 		})
 		It("should handle concurrent reads", func() {
 
-			readsFromA := make(chan int)
-			readsFromB := make(chan int)
+			readsFromA := 0
+			readsFromB := 0
 
 			for i := 1; i < 10; i++ {
 				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
@@ -207,25 +211,21 @@ var _ = Describe("EthTxPool", func() {
 			}
 
 			go func(etp *EthTxPool) {
-				reads := 0
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
-						reads++
+						readsFromA++
 					}
 				}
-				readsFromA <- reads
 			}(etp)
 
 			go func(etp *EthTxPool) {
-				reads := 0
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
-						reads++
+						readsFromB++
 					}
 				}
-				readsFromB <- reads
 			}(etp)
-			Expect(<-readsFromA).To(BeEquivalentTo(<-readsFromB))
+			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 	})
 })
