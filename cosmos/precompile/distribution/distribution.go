@@ -95,8 +95,8 @@ func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	withdrawAddr, ok := utils.GetAs[common.Address](args[0])
@@ -112,8 +112,8 @@ func (c *Contract) SetWithdrawAddressBech32(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	withdrawAddr, ok := utils.GetAs[string](args[0])
@@ -133,9 +133,9 @@ func (c *Contract) SetWithdrawAddressBech32(
 func (c *Contract) WithdrawDelegatorReward(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	delegator, ok := utils.GetAs[common.Address](args[0])
@@ -154,9 +154,9 @@ func (c *Contract) WithdrawDelegatorReward(
 func (c *Contract) WithdrawDelegatorRewardBech32(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	delegator, ok := utils.GetAs[string](args[0])
@@ -186,7 +186,7 @@ func (c *Contract) GetWithdrawAddrEnabled(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	_ ...any,
 ) ([]any, error) {
 	return c.getWithdrawAddrEnabled(ctx)
 }

@@ -127,9 +127,9 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 func (c *Contract) GetDelegationAddrInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -150,9 +150,9 @@ func (c *Contract) GetDelegationAddrInput(
 func (c *Contract) GetDelegationStringInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
@@ -179,9 +179,9 @@ func (c *Contract) GetDelegationStringInput(
 func (c *Contract) GetUnbondingDelegationAddrInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -202,9 +202,9 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 func (c *Contract) GetUnbondingDelegationStringInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
@@ -231,9 +231,9 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 func (c *Contract) GetRedelegationsAddrInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -261,9 +261,9 @@ func (c *Contract) GetRedelegationsAddrInput(
 func (c *Contract) GetRedelegationsStringInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
@@ -299,8 +299,8 @@ func (c *Contract) DelegateAddrInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -320,8 +320,8 @@ func (c *Contract) DelegateStringInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -346,8 +346,8 @@ func (c *Contract) UndelegateAddrInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -367,8 +367,8 @@ func (c *Contract) UndelegateStringInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -393,8 +393,8 @@ func (c *Contract) BeginRedelegateAddrInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	srcVal, ok := utils.GetAs[common.Address](args[0])
@@ -424,8 +424,8 @@ func (c *Contract) BeginRedelegateStringInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	srcVal, ok := utils.GetAs[string](args[0])
@@ -458,8 +458,8 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -483,8 +483,8 @@ func (c *Contract) CancelUnbondingDelegationStringInput(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -512,10 +512,10 @@ func (c *Contract) CancelUnbondingDelegationStringInput(
 func (c *Contract) GetActiveValidators(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
-	args ...any,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	_ ...any,
 ) ([]any, error) {
 	return c.activeValidatorsHelper(ctx)
 }

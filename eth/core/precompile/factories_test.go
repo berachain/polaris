@@ -122,13 +122,13 @@ type mockStateless struct {
 	*mockBase
 }
 
-func (ms *mockStateless) RequiredGas(input []byte) uint64 {
+func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 	return 10
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, evm precompile.EVM, input []byte,
-	caller common.Address, value *big.Int, readonly bool,
+	_ context.Context, _ precompile.EVM, _ []byte,
+	_ common.Address, _ *big.Int, _ bool,
 ) ([]byte, error) {
 	return nil, nil
 }
