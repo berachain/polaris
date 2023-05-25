@@ -72,9 +72,9 @@ func (p *plugin) BaseFee() *big.Int {
 
 // GetNewBlockMetadata returns the host chain block metadata for the given block height. It returns
 // the coinbase address, the timestamp of the block.
-func (p *plugin) GetNewBlockMetadata(number int64) (common.Address, uint64) {
+func (p *plugin) GetNewBlockMetadata(number uint64) (common.Address, uint64) {
 	cometHeader := p.ctx.BlockHeader()
-	if cometHeader.Height != number {
+	if uint64(cometHeader.Height) != number {
 		panic(fmt.Errorf("block height mismatch. got: %d, expected %d", cometHeader.Height, number))
 	}
 

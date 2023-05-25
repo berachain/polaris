@@ -25,7 +25,7 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -118,7 +118,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	BeforeEach(func() {
 		valAddr = sdk.ValAddress([]byte("val"))
-		amt = sdk.NewCoin("abera", sdk.NewInt(100))
+		amt = sdk.NewCoin("abera", sdkmath.NewInt(100))
 
 		// Set up the contracts and keepers.
 		ctx, dk, sk, bk = setup()
@@ -234,7 +234,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
 			valAddr = sdk.ValAddress(valConsAddr0)
 			addr = sdk.AccAddress(valAddr)
-			val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
+			val, err := distrtestutil.CreateValidator(valConsPk0, sdkmath.NewInt(100))
 			Expect(err).ToNot(HaveOccurred())
 
 			// Set the validator.
