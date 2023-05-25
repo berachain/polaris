@@ -155,7 +155,11 @@ func (app *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChai
 	// currently doesn't work in there since the scope of gen is restricted to the evm component
 	var genesisState map[string]json.RawMessage
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
-		panic(err)
+		return abci.ResponseInitChain{}, err
+	}
+
+	if genesisState == nil || genesisState["evm"] == nil {
+		return abci.ResponseInitChain{}, fmt.Errorf("genesis state is nil")
 	}
 
 	var ethGenesis *core.Genesis
@@ -163,12 +167,16 @@ func (app *PolarisBaseApp) InitChainer(ctx sdk.Context, req abci.RequestInitChai
 		return abci.ResponseInitChain{}, err
 	}
 
+	if ethGenesis == nil {
+		return abci.ResponseInitChain{}, fmt.Errorf("evm genesis state is nil")
+	}
+
 	if ethGenesis.Timestamp != uint64(ctx.BlockHeader().Time.Unix()) {
-		panic(fmt.Errorf("timestamp mismatch: expected %v, got %v", uint64(ctx.BlockHeader().Time.Unix()), ethGenesis.Timestamp))
+		return abci.ResponseInitChain{}, fmt.Errorf("timestamp mismatch: expected %v, got %v", uint64(ctx.BlockHeader().Time.Unix()), ethGenesis.Timestamp)
 	}
 
 	if ethGenesis.GasLimit != uint64(ctx.ConsensusParams().Block.GetMaxGas()) {
-		panic(fmt.Errorf("gas limit mismatch: expected %v, got %v", ctx.ConsensusParams().Block.GetMaxGas(), ethGenesis.GasLimit))
+		return abci.ResponseInitChain{}, fmt.Errorf("gas limit mismatch: expected %v, got %v", ctx.ConsensusParams().Block.GetMaxGas(), ethGenesis.GasLimit)
 	}
 
 	// Then call the default App InitChainer.
