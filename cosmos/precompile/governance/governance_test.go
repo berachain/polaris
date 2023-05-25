@@ -72,7 +72,7 @@ var _ = Describe("Governance Precompile", func() {
 		ctx, bk, gk = precomtest.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
 			governancekeeper.NewMsgServerImpl(gk),
-			gk,
+			governancekeeper.NewQueryServer(gk),
 		))
 	})
 
@@ -214,12 +214,13 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(res).To(BeNil())
 		})
 		It("should succeed", func() {
-			gk.SetProposal(ctx, v1.Proposal{
+			err := gk.SetProposal(ctx, v1.Proposal{
 				Id:       1,
 				Proposer: caller.String(),
 				Messages: []*codectypes.Any{},
 				Status:   v1.StatusVotingPeriod,
 			})
+			Expect(err).ToNot(HaveOccurred())
 			res, err := contract.CancelProposal(
 				ctx,
 				nil,
@@ -236,12 +237,13 @@ var _ = Describe("Governance Precompile", func() {
 
 	When("Voting on a proposal", func() {
 		BeforeEach(func() {
-			gk.SetProposal(ctx, v1.Proposal{
+			err := gk.SetProposal(ctx, v1.Proposal{
 				Id:       1,
 				Proposer: caller.String(),
 				Messages: []*codectypes.Any{},
 				Status:   v1.StatusVotingPeriod,
 			})
+			Expect(err).ToNot(HaveOccurred())
 		})
 		It("should fail if the proposal ID is of invalid type", func() {
 			res, err := contract.Vote(
@@ -397,7 +399,7 @@ var _ = Describe("Governance Precompile", func() {
 
 		When("Reading Methods", func() {
 			BeforeEach(func() {
-				gk.SetProposal(ctx, v1.Proposal{
+				err := gk.SetProposal(ctx, v1.Proposal{
 					Id:               2,
 					Proposer:         caller.String(),
 					Messages:         []*codectypes.Any{},
@@ -413,7 +415,8 @@ var _ = Describe("Governance Precompile", func() {
 					Summary:          "summary",
 					Expedited:        false,
 				})
-				gk.SetProposal(ctx, v1.Proposal{
+				Expect(err).ToNot(HaveOccurred())
+				err = gk.SetProposal(ctx, v1.Proposal{
 					Id:               3,
 					Proposer:         caller.String(),
 					Messages:         []*codectypes.Any{},
@@ -429,6 +432,7 @@ var _ = Describe("Governance Precompile", func() {
 					Summary:          "summary",
 					Expedited:        false,
 				})
+				Expect(err).ToNot(HaveOccurred())
 			})
 
 			When("GetProposal", func() {

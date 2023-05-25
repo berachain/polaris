@@ -137,7 +137,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
-	ctx context.Context, tx *types.Transaction,
+	_ context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
 	var (
 		// We set the gasUsed to the amount of gas so far used in the block.

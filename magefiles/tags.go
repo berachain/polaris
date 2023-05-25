@@ -37,8 +37,8 @@ var (
 	commit, _      = sh.Output("git", "log", "-1", "--format='%H'")
 	defaultDB      = "pebbledb"
 	ledgerEnabled  = true
-	appName        = "berachain"
-	executableName = "berad"
+	appName        = "polaris-cosmos"
+	executableName = "polard"
 )
 
 // generateOutDirectory returns the output directory for a given command.

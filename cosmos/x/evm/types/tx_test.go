@@ -34,14 +34,14 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("EthTransactionRequest", func() {
+var _ = Describe("WrappedEthereumTransaction", func() {
 	var (
 		key, _  = crypto.GenerateEthKey()
 		address = crypto.PubkeyToAddress(key.PublicKey)
 		signer  = coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	)
 	When("it is a legacy tx", func() {
-		var etr *types.EthTransactionRequest
+		var etr *types.WrappedEthereumTransaction
 		BeforeEach(func() {
 
 			ltxData := &coretypes.LegacyTx{
@@ -65,7 +65,7 @@ var _ = Describe("EthTransactionRequest", func() {
 	})
 
 	When("it is a dynamic fee tx", func() {
-		var etr *types.EthTransactionRequest
+		var etr *types.WrappedEthereumTransaction
 		BeforeEach(func() {
 			dtxData := &coretypes.DynamicFeeTx{
 				ChainID:   params.DefaultChainConfig.ChainID,

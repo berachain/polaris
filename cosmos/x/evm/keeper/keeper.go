@@ -25,7 +25,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
@@ -60,7 +59,6 @@ func NewKeeper(
 	bk state.BankKeeper,
 	sk block.StakingKeeper,
 	authority string,
-	appOpts servertypes.AppOptions,
 	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,
 ) *Keeper {
@@ -74,11 +72,7 @@ func NewKeeper(
 
 	k.host = NewHost(
 		storeKey,
-		ak,
-		bk,
 		sk,
-		authority,
-		appOpts,
 		ethTxMempool,
 		pcs,
 	)
