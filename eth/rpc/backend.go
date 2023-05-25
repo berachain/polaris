@@ -516,9 +516,9 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
 	block, err := b.BlockByNumberOrHash(ctx, BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
-	if err != nil {
-		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
-		return nil, err
+	if block == nil || err != nil {
+		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash, "err": err)
+		return nil, nil
 	}
 	b.logger.Info("called eth.rpc.backend.GetBody", "hash", hash, "number", number)
 	return block.Body(), nil
