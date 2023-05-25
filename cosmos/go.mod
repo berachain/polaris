@@ -8,7 +8,6 @@ replace (
 	cosmossdk.io/x/circuit => github.com/cosmos/cosmos-sdk/x/circuit v0.0.0-20230525153548-b6613f9163f8
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230525153548-b6613f9163f8
 	cosmossdk.io/x/feegrant => github.com/cosmos/cosmos-sdk/x/feegrant v0.0.0-20230525153548-b6613f9163f8
-	github.com/cometbft/cometbft => github.com/cometbft/cometbft v0.38.0-alpha.2
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230525153548-b6613f9163f8
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
