@@ -65,14 +65,13 @@ var _ = Describe("Manager", func() {
 	It("should not build eth logs when not in precompile", func() {
 		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
 		Expect(ctx.EventManager().Events()).To(HaveLen(2))
-		Expect(ldb.AddLogCalls()).To(HaveLen(0))
-
+		Expect(ldb.AddLogCalls()).To(BeEmpty())
 		ctx.EventManager().EmitEvents(sdk.Events{
 			sdk.NewEvent("3"),
 			sdk.NewEvent("4"),
 		})
 		Expect(ctx.EventManager().Events()).To(HaveLen(4))
-		Expect(ldb.AddLogCalls()).To(HaveLen(0))
+		Expect(ldb.AddLogCalls()).To(BeEmpty())
 	})
 
 	It("should panic when building eth logs fails", func() {

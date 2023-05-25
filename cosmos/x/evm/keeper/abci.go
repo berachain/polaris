@@ -26,18 +26,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// BeginBlocker is called during the BeginBlock processing of the ABCI lifecycle.
-func (k *Keeper) BeginBlocker(ctx context.Context) {
+func (k *Keeper) BeginBlocker(ctx context.Context) error {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	// Prepare the Polaris Ethereum block.
 	k.polaris.Prepare(ctx, uint64(sCtx.BlockHeight()))
+	return nil
 }
 
-// Precommit is called during the Commit processing of the ABCI lifecycle, right before the state
-// is committed to the root multistore.
-func (k *Keeper) Precommit(ctx context.Context) {
+func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Finalize the Polaris Ethereum block.
-	if err := k.polaris.Finalize(ctx); err != nil {
-		panic(err)
-	}
+	return k.polaris.Finalize(ctx)
 }

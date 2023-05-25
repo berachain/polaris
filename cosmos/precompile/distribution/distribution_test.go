@@ -26,7 +26,9 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -85,7 +87,7 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 
 	dk := distrkeeper.NewKeeper(
 		encCfg.Codec,
-		testutil.EvmKey,
+		runtime.NewKVStoreService(storetypes.NewKVStoreKey(distributiontypes.StoreKey)),
 		ak,
 		bk,
 		sk,
@@ -95,11 +97,11 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 
 	params := distributiontypes.DefaultParams()
 	params.WithdrawAddrEnabled = true
-	err := dk.SetParams(ctx, params)
+	err := dk.Params.Set(ctx, params)
 	Expect(err).ToNot(HaveOccurred())
 
-	dk.SetFeePool(ctx, distributiontypes.InitialFeePool())
-
+	err = dk.SetFeePool(ctx, distributiontypes.InitialFeePool())
+	Expect(err).ToNot(HaveOccurred())
 	return ctx, &dk, &sk, &bk
 }
 
@@ -263,8 +265,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 			tokens = sdk.DecCoins{sdk.NewDecCoin(sdk.DefaultBondDenom, initial)}
 
 			// Allocate the rewards.
-			dk.AllocateTokensToValidator(ctx, val, tokens)
-
+			err = dk.AllocateTokensToValidator(ctx, val, tokens)
+			Expect(err).ToNot(HaveOccurred())
 			// Historical Count should be 2.
 			Expect(dk.GetValidatorHistoricalReferenceCount(ctx)).To(Equal(uint64(2)))
 

@@ -25,6 +25,9 @@ import (
 	"math/big"
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -57,7 +60,7 @@ var _ = Describe("Address Precompile", func() {
 		sdkctx, ak, _, _ := testutil.SetupMinimalKeepers()
 		ctx = sdkctx
 		k := authzkeeper.NewKeeper(
-			testutil.EvmKey,
+			runtime.NewKVStoreService(storetypes.NewKVStoreKey(authtypes.StoreKey)),
 			testutil.GetEncodingConfig().Codec,
 			MsgRouterMockWithSend(),
 			ak,

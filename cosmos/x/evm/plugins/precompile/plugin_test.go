@@ -103,14 +103,14 @@ func (ms *mockStateless) RegistryKey() common.Address {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, evm precompile.EVM, input []byte,
-	caller common.Address, value *big.Int, readonly bool,
+	ctx context.Context, _ precompile.EVM, _ []byte,
+	_ common.Address, _ *big.Int, _ bool,
 ) ([]byte, error) {
 	sdk.UnwrapSDKContext(ctx).GasMeter().ConsumeGas(10, "")
 	return nil, nil
 }
 
-func (ms *mockStateless) RequiredGas(input []byte) uint64 {
+func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 	return 10
 }
 

@@ -139,7 +139,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
-	ctx context.Context, tx *types.Transaction,
+	_ context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
 	// We set the gasPool = gasLimit - gasUsed.
 	gasPool := new(GasPool).AddGas(sp.header.GasLimit - sp.gp.BlockGasConsumed())
