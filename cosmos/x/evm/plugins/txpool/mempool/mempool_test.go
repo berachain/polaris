@@ -104,8 +104,8 @@ var _ = Describe("EthTxPool", func() {
 			Expect(pending).To(HaveLen(lenP))
 			Expect(queued).To(HaveLen(lenQ))
 
-			Expect(pending[addr1][0].Hash()).To(Equal(ethTx1.Hash()))
-			Expect(pending[addr2][0].Hash()).To(Equal(ethTx2.Hash()))
+			Expect(isPendingTx(etp, ethTx1)).To(BeTrue())
+			Expect(isPendingTx(etp, ethTx2)).To(BeTrue())
 
 			Expect(etp.Remove(tx2)).ToNot(HaveOccurred())
 			Expect(etp.Get(ethTx2.Hash())).To(BeNil())
@@ -119,7 +119,8 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Nonce(addr1)).To(Equal(uint64(3)))
 			p11, q11 := etp.ContentFrom(addr1)
 			Expect(p11).To(HaveLen(2))
-			Expect(p11[1].Hash()).To(Equal(ethTx11.Hash()))
+
+			Expect(isPendingTx(etp, ethTx11)).To(BeTrue())
 			Expect(q11).To(HaveLen(0))
 		})
 
@@ -136,6 +137,30 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Get(ethTx2.Hash()).Hash()).To(Equal(ethTx2.Hash()))
 
 		})
+		It("should queue transactions whose nonces are out of order then poll from queue when inorder nonce tx is received", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+			ethtx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
+
+			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+
+			Expect(isQueuedTx(etp, ethtx3)).To(BeTrue())
+
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+
+			_, queuedTransactions := etp.ContentFrom(addr1)
+			Expect(queuedTransactions).To(HaveLen(0))
+			Expect(etp.Nonce(addr1)).To(Equal(uint64(4)))
+		})
+		It("should not allow duplicate nonces (replay attack)", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+
+			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx11)).To(HaveOccurred())
+		})
+
 	})
 })
 
@@ -153,6 +178,32 @@ func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
 	return &coretypes.Log{
 		Address: common.BytesToAddress([]byte(event.Type)),
 	}, nil
+}
+
+func isQueuedTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
+	_, queued := mempool.Content()
+
+	for _, list := range queued {
+		for _, ethTx := range list {
+			if tx.Hash() == ethTx.Hash() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func isPendingTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
+	pending, _ := mempool.Content()
+
+	for _, list := range pending {
+		for _, ethTx := range list {
+			if tx.Hash() == ethTx.Hash() {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func buildTx(from *ecdsa.PrivateKey, txData *coretypes.LegacyTx) (*coretypes.Transaction, sdk.Tx) {
