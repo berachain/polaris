@@ -50,10 +50,10 @@ func (s SignModeEthTxHandler) Mode() signingv1beta1.SignMode {
 // GetSignBytes implements txsigning.SignModeHandler.
 func (s SignModeEthTxHandler) GetSignBytes(_ context.Context,
 	_ txsigning.SignerData, txData txsigning.TxData) ([]byte, error) {
-	ethTx := &evmapi.EthTransactionRequest{}
+	ethTx := &evmapi.WrappedEthereumTransaction{}
 	if err := txData.Body.Messages[0].UnmarshalTo(ethTx); err != nil {
 		return nil, err
 	}
 
-	return (&types.EthTransactionRequest{Data: ethTx.GetData()}).GetSignBytes()
+	return (&types.WrappedEthereumTransaction{Data: ethTx.GetData()}).GetSignBytes()
 }
