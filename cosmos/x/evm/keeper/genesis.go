@@ -83,7 +83,7 @@ func (k *Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 func (k *Keeper) validateEthGenesis(ctx sdk.Context, genesisState types.GenesisState) error {
 	ethGenesis := enclib.MustUnmarshalJSON[core.Genesis]([]byte(genesisState.Params.EthGenesis))
 
-	if (ethGenesis.Coinbase != common.Address{0}) {
+	if (ethGenesis.Coinbase != common.Address{}) {
 		return fmt.Errorf("coinbase of the genesis block must be the null address, not: %s", ethGenesis.Coinbase.Hex())
 	}
 
