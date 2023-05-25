@@ -205,11 +205,13 @@ var _ = Describe("EthTxPool", func() {
 			readsFromA := 0
 			readsFromB := 0
 
+			// fill mempoopl with transactions
 			for i := 1; i < 10; i++ {
 				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
 				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 			}
 
+			// concurrently read mempool from Peer A ...
 			go func(etp *EthTxPool) {
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
@@ -218,6 +220,7 @@ var _ = Describe("EthTxPool", func() {
 				}
 			}(etp)
 
+			// ... and peer B
 			go func(etp *EthTxPool) {
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
@@ -225,6 +228,7 @@ var _ = Describe("EthTxPool", func() {
 					}
 				}
 			}(etp)
+
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 	})
