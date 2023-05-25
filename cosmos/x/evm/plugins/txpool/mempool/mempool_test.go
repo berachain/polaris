@@ -106,8 +106,8 @@ var _ = Describe("EthTxPool", func() {
 			Expect(pending).To(HaveLen(lenP))
 			Expect(queued).To(HaveLen(lenQ))
 
-			Expect(isPendingTx(etp, ethTx1)).To(BeTrue())
-			Expect(isPendingTx(etp, ethTx2)).To(BeTrue())
+			Expect(etp.isPendingTx(etp, ethTx1)).To(BeTrue())
+			Expect(etp.isPendingTx(etp, ethTx2)).To(BeTrue())
 
 			Expect(etp.Remove(tx2)).ToNot(HaveOccurred())
 			Expect(etp.Get(ethTx2.Hash())).To(BeNil())
@@ -122,7 +122,7 @@ var _ = Describe("EthTxPool", func() {
 			p11, q11 := etp.ContentFrom(addr1)
 			Expect(p11).To(HaveLen(2))
 
-			Expect(isPendingTx(etp, ethTx11)).To(BeTrue())
+			Expect(etp.isPendingTx(etp, ethTx11)).To(BeTrue())
 			Expect(q11).To(HaveLen(0))
 		})
 
@@ -146,7 +146,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
 
-			Expect(isQueuedTx(etp, ethtx3)).To(BeTrue())
+			Expect(etp.isQueuedTx(etp, ethtx3)).To(BeTrue())
 
 			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
 			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
@@ -248,7 +248,7 @@ func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
 	}, nil
 }
 
-func isQueuedTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
+func (etp *EthTxPool) isQueuedTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
 	_, queued := mempool.Content()
 
 	for _, list := range queued {
@@ -261,7 +261,7 @@ func isQueuedTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
 	return false
 }
 
-func isPendingTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
+func (etp *EthTxPool) isPendingTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
 	pending, _ := mempool.Content()
 
 	for _, list := range pending {
