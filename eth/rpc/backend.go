@@ -82,9 +82,10 @@ func NewPolarisBackend(
 	nodeConfig *node.Config,
 ) PolarisBackend {
 	b := &backend{
-		chain:     chain,
-		rpcConfig: rpcConfig,
-		logger:    log.Root(),
+		chain:      chain,
+		rpcConfig:  rpcConfig,
+		logger:     log.Root(),
+		nodeConfig: nodeConfig,
 	}
 	b.gpo = gasprice.NewOracle(b, rpcConfig.GPO)
 	return b
@@ -163,11 +164,11 @@ func (b *backend) UnprotectedAllowed() bool {
 
 // SetHead is used for state sync on ethereum, we leave state sync up to the host
 // chain and thus it is not implemented in Polaris.
-func (b *backend) SetHead(number uint64) {
+func (b *backend) SetHead(_ uint64) {
 	panic("not implemented")
 }
 
-func (b *backend) HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error) {
+func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*types.Header, error) {
 	// Pending block is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		// TODO: handle "miner" stuff
@@ -258,7 +259,7 @@ func (b *backend) CurrentBlock() *types.Header {
 }
 
 // BlockByNumber returns the block with the given `number`.
-func (b *backend) BlockByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Block, error) {
+func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*types.Block, error) {
 	// Pending block is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		// 	block := b.eth.miner.PendingBlock()
@@ -524,10 +525,10 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
-	block, err := b.polarisBlockByNumberOrHash(ctx, BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
-	if err != nil {
-		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
-		return nil, err
+	block, err := b.BlockByNumberOrHash(ctx, BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
+	if block == nil || err != nil {
+		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash, "err", err)
+		return nil, nil //nolint:nilnil // to match geth.
 	}
 	b.logger.Info("called eth.rpc.backend.GetBody", "hash", hash, "number", number)
 	return block.Body(), nil
@@ -552,7 +553,7 @@ func (b *backend) BloomStatus() (uint64, uint64) {
 	return 0, 0
 }
 
-func (b *backend) ServiceFilter(_ context.Context, session *bloombits.MatcherSession) {
+func (b *backend) ServiceFilter(_ context.Context, _ *bloombits.MatcherSession) {
 	// TODO: Implement your code here
 }
 
@@ -581,45 +582,4 @@ func (b *backend) PeerCount() hexutil.Uint {
 // ClientVersion returns the current client version.
 func (b *backend) ClientVersion() string {
 	return version.ClientName("polaris-geth")
-}
-
-// ==============================================================================
-// Polaris Helpers
-// ==============================================================================
-
-// polarisBlockByNumberOrHash returns the block identified by `number` or `hash`.
-func (b *backend) polarisBlockByNumberOrHash(
-	ctx context.Context, blockNrOrHash BlockNumberOrHash,
-) (*types.Block, error) {
-	if blockNr, ok := blockNrOrHash.Number(); ok {
-		return b.BlockByNumber(ctx, blockNr)
-	}
-	// First we try to get by hash.
-	if hash, ok := blockNrOrHash.Hash(); ok {
-		block := b.chain.GetBlockByHash(hash)
-		if block == nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound,
-				"polarisBlockByNumberOrHash: hash [%s]", hash.String())
-		}
-		// If the hash is found, we have the canonical chain.
-		if block.Hash() == hash {
-			return block, nil
-		}
-		if blockNrOrHash.RequireCanonical {
-			return nil, errorslib.Wrapf(ErrHashNotCanonical,
-				"polarisBlockByNumberOrHash: hash [%s]", hash.String())
-		}
-		// If not we try to query by number as a backup.
-	}
-
-	// Then we try to get the block by number
-	if blockNr, ok := blockNrOrHash.Number(); ok {
-		block, err := b.BlockByNumber(ctx, blockNr)
-		if block == nil || err != nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound,
-				"polarisBlockByNumberOrHash: number [%d]", blockNr)
-		}
-		return block, nil
-	}
-	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }

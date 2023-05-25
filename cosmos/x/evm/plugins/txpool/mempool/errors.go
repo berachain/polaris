@@ -23,5 +23,5 @@ package mempool
 import "errors"
 
 var (
-	ErrIncorrectTxType = errors.New("tx is not of type EthTransactionRequest")
+	ErrIncorrectTxType = errors.New("tx is not of type WrappedEthereumTransaction")
 )

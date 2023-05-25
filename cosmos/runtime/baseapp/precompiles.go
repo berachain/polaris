@@ -54,7 +54,7 @@ func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registr
 			),
 			govprecompile.NewPrecompileContract(
 				govkeeper.NewMsgServerImpl(app.GovKeeper),
-				app.GovKeeper,
+				govkeeper.NewQueryServer(app.GovKeeper),
 			),
 			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
 		}...)

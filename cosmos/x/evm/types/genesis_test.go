@@ -54,9 +54,8 @@ var _ = Describe("Genesis", func() {
 
 	It("should return a new contract code", func() {
 		codeHash := common.HexToHash("0x123")
-		code := []byte("0x123")
 		slotToValue := make(map[string]string)
-		contract := NewContract(codeHash, code, slotToValue)
+		contract := NewContract(codeHash, slotToValue)
 		Expect(contract).ToNot(BeNil())
 		Expect(contract.CodeHash).To(Equal(codeHash.Hex()))
 	})
@@ -64,7 +63,7 @@ var _ = Describe("Genesis", func() {
 	It("should write to slot", func() {
 		slot := common.HexToHash("0x123")
 		value := common.HexToHash("0x123")
-		contract := NewContract(common.HexToHash("0x123"), []byte("0x123"), make(map[string]string))
+		contract := NewContract(common.HexToHash("0x123"), make(map[string]string))
 		WriteToSlot(slot, value, contract)
 		Expect(contract).ToNot(BeNil())
 		Expect(contract.SlotToValue[slot.Hex()]).To(Equal(value.Hex()))
