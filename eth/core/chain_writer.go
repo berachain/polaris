@@ -76,12 +76,10 @@ func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
 		ParentHash: parentHash,
-		Coinbase:   coinbase,
-		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
-		Difficulty: big.NewInt(0),
 		Number:     big.NewInt(0).SetUint64(height),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
+		Coinbase:   coinbase,
 		BaseFee:    bc.CalculateNextBaseFee(),
 	}
 
@@ -134,7 +132,6 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// mark the current block, receipts, and logs
 	if block != nil {
-		// Todo: nuke these caches anyways.
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
@@ -157,12 +154,11 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 			)
 		}
 	}
-	// Todo: nuke these caches anyways.
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
+		// Todo: nuke these caches anyways.
 		bc.receiptsCache.Add(blockHash, receipts)
 	}
-	// Todo: nuke these caches anyways.
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)
 		bc.currentLogs.Store(logs)

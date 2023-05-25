@@ -67,10 +67,10 @@ type StateProcessor struct {
 	// We store information about the current block being processed so that we can access it
 	// during the processing of transactions. This allows us to utilize this information to
 	// build the `block` and return the canonical receipts in `Finalize`.
-	header    *types.Header
-	blockHash common.Hash
-	txs       types.Transactions
-	receipts  types.Receipts
+	header   *types.Header
+	sealhash common.Hash // hash of the block prior to being sealed (Finalized)
+	txs      types.Transactions
+	receipts types.Receipts
 }
 
 // NewStateProcessor creates a new state processor with the given host, statedb, vmConfig, and
@@ -112,7 +112,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 	// Build a header object so we can track that status of the block as we process it.
 	sp.header = header
-	sp.blockHash = header.Hash()
+	sp.sealhash = header.Hash()
 	sp.txs = make(types.Transactions, 0, initialTxsCapacity)
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
@@ -151,7 +151,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Inshallah we will be able to apply the transaction.
 	receipt, result, err := ApplyTransactionWithEVMWithResult(
 		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb, sp.header.BaseFee,
-		sp.header.Number, sp.blockHash, tx, &sp.header.GasUsed,
+		sp.header.Number, sp.sealhash, tx, &sp.header.GasUsed,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
@@ -172,18 +172,29 @@ func (sp *StateProcessor) ProcessTransaction(
 	return result, err
 }
 
-// Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
+// Finalize finalizes the block in the state processor and returns the receipts and bloom filter to
+// be "sealed".
 func (sp *StateProcessor) Finalize(
 	_ context.Context,
 ) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
-	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
-	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+	var (
+		// "FinalizeAndAssemble" the block with the txs and receipts (sets the TxHash, ReceiptHash,
+		// and Bloom).
+		block = types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+		hash  = block.Hash()
+		logs  []*types.Log
+	)
 
-	var logs []*types.Log
+	// Update the block hash in all logs since it is now available and not when the receipt/log of
+	// individual transactions were created.
 	for _, receipt := range sp.receipts {
+		receipt.BlockHash = hash
+		for _, log := range receipt.Logs {
+			log.BlockHash = hash
+		}
 		logs = append(logs, receipt.Logs...)
 	}
 
