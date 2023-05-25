@@ -23,8 +23,10 @@ package mempool
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"fmt"
 	"math/big"
 	"testing"
+	"time"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -160,7 +162,73 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx11)).To(HaveOccurred())
 		})
+		It("should handle spam txs and prevent DOS attacks", func() {
+			for i := 1; i < 1000; i++ {
+				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			}
+			// probably more stuff down here...
+		})
+		It("should be able to fetch transactions from the cache", func() {})
+		It("should disallow replacement txs for a tx that isn't from the sender", func() {})
+		It("should disallow malformatted txs", func() {})
+		It("should remove low priority transactions when the mempool is full", func() {}) // there is no MaxTx set in the mempool, so uhhh
+		It("should prioritize transactions with higher fees", func() {})
+		It("should enforce transaction size limits", func() {})
+		It("should handle transaction eviction based on time", func() {})
+		It("should handle transaction eviction based on fee density", func() {})
+		It("should handle concurrent additions", func() {
+			go func(etp *EthTxPool) {
+				defer GinkgoRecover()
+				for i := 1; i <= 10; i++ {
+					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+					fmt.Println("inserting tx #", i)
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+			go func(etp *EthTxPool) {
+				defer GinkgoRecover()
+				for i := 2; i <= 11; i++ {
+					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
+					fmt.Println("inserting tx", i)
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+			time.Sleep(1 * time.Second) // not good.
+			lenPending, _ := etp.Stats()
+			Expect(lenPending).To(BeEquivalentTo(20))
+		})
+		It("should handle concurrent reads", func() {
 
+			readsFromA := make(chan int)
+			readsFromB := make(chan int)
+
+			for i := 1; i < 10; i++ {
+				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			}
+
+			go func(etp *EthTxPool) {
+				reads := 0
+				for _, list := range etp.senderIndices {
+					for elem := list.Front(); elem != nil; elem = elem.Next() {
+						reads += 1
+					}
+				}
+				readsFromA <- reads
+			}(etp)
+
+			go func(etp *EthTxPool) {
+				reads := 0
+				for _, list := range etp.senderIndices {
+					for elem := list.Front(); elem != nil; elem = elem.Next() {
+						reads += 1
+					}
+				}
+				readsFromB <- reads
+			}(etp)
+			Expect(<-readsFromA).To(BeEquivalentTo(<-readsFromB))
+		})
 	})
 })
 

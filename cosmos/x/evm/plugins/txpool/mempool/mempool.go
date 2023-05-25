@@ -29,6 +29,8 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
+var _ mempool.Mempool = (*EthTxPool)(nil)
+
 // EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
 // transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {

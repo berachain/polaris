@@ -162,8 +162,16 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 
 // Stats returns the number of currently pending (locally created) transactions.
 func (etp *EthTxPool) Stats() (int, int) {
+	pendingTxsLen := 0
+	queuedTxsLen := 0
 	pending, queued := etp.Content()
-	return len(pending), len(queued)
+	for _, txs := range pending {
+		pendingTxsLen += len(txs)
+	}
+	for _, txs := range queued {
+		queuedTxsLen += len(txs)
+	}
+	return pendingTxsLen, queuedTxsLen
 }
 
 // ContentFrom retrieves the data content of the transaction pool, returning the pending as well as
