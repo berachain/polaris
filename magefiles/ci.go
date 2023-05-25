@@ -41,9 +41,6 @@ func Build() error {
 		return err
 	}
 
-	if err := (Playground{}).Build(); err != nil {
-		return err
-	}
 	return nil
 }
 

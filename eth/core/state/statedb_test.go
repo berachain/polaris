@@ -21,6 +21,7 @@
 package state_test
 
 import (
+	"errors"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -42,9 +43,11 @@ var (
 
 var _ = Describe("StateDB", func() {
 	var sdb vm.PolarisStateDB
+	var sp *mock.PluginMock
 
 	BeforeEach(func() {
-		sdb = state.NewStateDB(mock.NewEmptyStatePlugin())
+		sp = mock.NewEmptyStatePlugin()
+		sdb = state.NewStateDB(sp)
 	})
 
 	It("Should suicide correctly", func() {
@@ -112,5 +115,16 @@ var _ = Describe("StateDB", func() {
 
 		sdb.Finalise(true)
 		Expect(sdb.HasSuicided(bob)).To(BeFalse())
+	})
+
+	It("should handle saved errors", func() {
+		sp.ErrorFunc = func() error {
+			return errors.New("mocked saved error")
+		}
+
+		// check that sdb correctly uses the saved error from state plugin
+		err := sdb.Error()
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(Equal("mocked saved error"))
 	})
 })

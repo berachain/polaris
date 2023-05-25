@@ -83,7 +83,7 @@ func (bc *blockchain) CalculateNextBaseFee() *big.Int {
 	if parent := bc.finalizedBlock.Load(); parent != nil {
 		// If the base fee supplied by the plugins is non-negative, then we assume that the host
 		// chain wants to use the base fee supplied by the plugin.
-		return misc.CalcBaseFee(bc.ChainConfig(), parent.Header())
+		return misc.CalcBaseFee(bc.Config(), parent.Header())
 	}
 
 	// This case only triggers for the first block in the chain, when finalizedBlock is empty.

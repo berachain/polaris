@@ -21,8 +21,6 @@
 package core
 
 import (
-	"errors"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -31,20 +29,23 @@ import (
 
 // ChainReader defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
+	Config() *params.ChainConfig
 	ChainBlockReader
 	ChainTxPoolReader
 	ChainSubscriber
-	ChainConfig() *params.ChainConfig
 }
 
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
-	CurrentBlock() (*types.Block, error)
-	CurrentBlockAndReceipts() (*types.Block, types.Receipts, error)
-	FinalizedBlock() (*types.Block, error)
-	GetReceipts(common.Hash) (types.Receipts, error)
-	GetBlockByHash(common.Hash) (*types.Block, error)
-	GetBlockByNumber(int64) (*types.Block, error)
+	CurrentHeader() *types.Header
+	CurrentBlock() *types.Block
+	CurrentBlockAndReceipts() (*types.Block, types.Receipts)
+	CurrentFinalBlock() *types.Block
+	CurrentSafeBlock() *types.Block
+	GetReceiptsByHash(common.Hash) types.Receipts
+	GetBlockByHash(common.Hash) *types.Block
+	GetHeaderByNumber(uint64) *types.Header
+	GetBlockByNumber(uint64) *types.Block
 	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
 }
 
@@ -64,7 +65,7 @@ type ChainTxPoolReader interface {
 // =========================================================================
 
 // ChainConfig returns the Ethereum chain config of the  chain.
-func (bc *blockchain) ChainConfig() *params.ChainConfig {
+func (bc *blockchain) Config() *params.ChainConfig {
 	return bc.cp.ChainConfig()
 }
 
@@ -73,75 +74,106 @@ func (bc *blockchain) ChainConfig() *params.ChainConfig {
 // =========================================================================
 
 // CurrentHeader returns the current header of the blockchain.
-func (bc *blockchain) CurrentBlock() (*types.Block, error) {
-	cb, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
-	if cb == nil || !ok {
-		return nil, ErrBlockNotFound
+func (bc *blockchain) CurrentHeader() *types.Header {
+	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
+	if block == nil || !ok {
+		return nil
 	}
-	bc.blockNumCache.Add(cb.Number().Int64(), cb)
-	bc.blockHashCache.Add(cb.Hash(), cb)
-	return cb, nil
+	return block.Header()
+}
+
+// CurrentHeader returns the current header of the blockchain.
+func (bc *blockchain) CurrentBlock() *types.Block {
+	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
+	if block == nil || !ok {
+		return nil
+	}
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	bc.blockHashCache.Add(block.Hash(), block)
+	return block
 }
 
 // CurrentReceipts returns the current receipts of the blockchain.
-func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts, error) {
+func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts) {
+	var err error
+
 	// Get current block.
-	block, err := bc.CurrentBlock()
-	if err != nil {
-		return nil, nil, err
+	block := bc.CurrentBlock()
+	if block == nil {
+		bc.logger.Error("current block is nil")
+		return nil, nil
 	}
 
 	// Get receipts from cache.
 	receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load())
 	if receipts == nil || !ok {
-		return nil, nil, ErrReceiptsNotFound
+		bc.logger.Error("current receipts are nil")
+		return nil, nil
 	}
 
 	// Derive receipts from block.
 	receipts, err = bc.deriveReceipts(receipts, block.Hash())
 	if err != nil {
-		return nil, nil, err
+		bc.logger.Error("failed to derive receipts", "err", err)
+		return nil, nil
 	}
 
 	// Add to cache.
 	bc.receiptsCache.Add(block.Hash(), receipts)
-	return block, receipts, nil
+	return block, receipts
 }
 
-// FinalizedBlock returns the last finalized block of the blockchain.
-func (bc *blockchain) FinalizedBlock() (*types.Block, error) {
+// CurrentFinalBlock returns the last finalized block of the blockchain.
+func (bc *blockchain) CurrentFinalBlock() *types.Block {
 	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
 	if fb == nil || !ok {
-		return nil, errors.New("finalized block cannot be loaded from cache")
+		return nil
 	}
-	bc.blockNumCache.Add(fb.Number().Int64(), fb)
+	bc.blockNumCache.Add(fb.Number().Uint64(), fb)
 	bc.blockHashCache.Add(fb.Hash(), fb)
-	return fb, nil
+	return fb
+}
+
+// CurrentSafeBlock returns the last safe block of the blockchain.
+func (bc *blockchain) CurrentSafeBlock() *types.Block {
+	// TODO: determine the difference between safe and final in polaris.
+	return bc.CurrentFinalBlock()
 }
 
 // GetReceipts gathers the receipts that were created in the block defined by
 // the given hash.
-func (bc *blockchain) GetReceipts(blockHash common.Hash) (types.Receipts, error) {
+func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 	// check the cache
 	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
-		return bc.deriveReceipts(receipts, blockHash)
+		derived, err := bc.deriveReceipts(receipts, blockHash)
+		if err != nil {
+			bc.logger.Error("failed to derive receipts", "err", err)
+			return nil
+		}
+		return derived
 	}
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
 		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil, ErrReceiptsNotFound
+		return nil
 	}
 
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if err != nil {
-		return nil, ErrReceiptsNotFound
+		bc.logger.Error("failed to get receipts from historical plugin", "err", err)
+		return nil
 	}
 
 	// cache the found receipts for next time and return
 	bc.receiptsCache.Add(blockHash, receipts)
-	return bc.deriveReceipts(receipts, blockHash)
+	derived, err := bc.deriveReceipts(receipts, blockHash)
+	if err != nil {
+		bc.logger.Error("failed to derive receipts", "err", err)
+		return nil
+	}
+	return derived
 }
 
 // GetTransaction gets a transaction by hash. It also returns the block hash of the
@@ -175,56 +207,66 @@ func (bc *blockchain) GetTransaction(
 		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
 }
 
+// GetHeaderByNumber retrieves a header from the blockchain.
+func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
+	block := bc.GetBlockByNumber(number)
+	if block == nil {
+		return nil
+	}
+	return block.Header()
+}
+
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetBlockByNumber(number int64) (*types.Block, error) {
+func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
-		return block, nil
+		return block
 	}
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
 		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil, ErrBlockNotFound
+		return nil
 	}
 
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByNumber(number)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	// Cache the found block for next time and return
 	bc.blockNumCache.Add(number, block)
 	bc.blockHashCache.Add(block.Hash(), block)
-	return block, nil
+	return block
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetBlockByHash(hash common.Hash) (*types.Block, error) {
+func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
-		bc.blockNumCache.Add(block.Number().Int64(), block)
-		return block, nil
+		bc.blockNumCache.Add(block.Number().Uint64(), block)
+		return block
 	}
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
 		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil, ErrBlockNotFound
+		return nil
 	}
 
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByHash(hash)
 	if err != nil {
-		return nil, err
+		bc.logger.Error("failed to get block by hash", "err", err)
+		return nil
 	}
 
 	// Cache the found block for next time and return
-	bc.blockNumCache.Add(block.Number().Int64(), block)
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
 	bc.blockHashCache.Add(hash, block)
-	return block, nil
+	return block
 }
 
 // =========================================================================

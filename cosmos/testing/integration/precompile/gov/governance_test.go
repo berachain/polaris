@@ -24,7 +24,7 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -87,7 +87,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 var _ = Describe("Call the Precompile Directly", func() {
 	BeforeEach(func() {
 		// Alice Submits a proposal.
-		amt := sdk.NewInt(100000000)
+		amt := sdkmath.NewInt(100000000)
 		prop, msg := propAndMsgBz(cosmlib.AddressToAccAddress(tf.Address("alice")).String(), amt)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SubmitProposal(txr, prop, msg)
@@ -174,7 +174,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 	})
 })
 
-func propAndMsgBz(proposer string, amount math.Int) ([]byte, []byte) {
+func propAndMsgBz(proposer string, amount sdkmath.Int) ([]byte, []byte) {
 	// Prepare the message.
 	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
 	initDeposit := sdk.NewCoins(sdk.NewCoin("stake", amount))
