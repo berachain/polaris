@@ -206,8 +206,8 @@ cosmossdk.io/errors v1.0.0-beta.7 h1:gypHW76pTQGVnHKo6QBkb4yFOJjC+sUGRc5Al3Odj1w
 cosmossdk.io/errors v1.0.0-beta.7/go.mod h1:mz6FQMJRku4bY7aqS/Gwfcmr/ue91roMEKAmDUDpBfE=
 cosmossdk.io/log v1.0.0 h1:NGKZ/A5rd4PduDfoscgABklX557PWjQINbosZy/m3Jk=
 cosmossdk.io/log v1.0.0/go.mod h1:CwX9BLiBruZb7lzLlRr3R231d/fVPUXk8gAdV4LQap0=
-cosmossdk.io/math v1.0.0 h1:ro9w7eKx23om2tZz/VM2Pf+z2WAbGX1yDQQOJ6iGeJw=
-cosmossdk.io/math v1.0.0/go.mod h1:Ygz4wBHrgc7g0N+8+MrnTfS9LLn9aaTGa9hKopuym5k=
+cosmossdk.io/math v1.0.1 h1:Qx3ifyOPaMLNH/89WeZFH268yCvU4xEcnPLu3sJqPPg=
+cosmossdk.io/math v1.0.1/go.mod h1:Ygz4wBHrgc7g0N+8+MrnTfS9LLn9aaTGa9hKopuym5k=
 cosmossdk.io/simapp v0.0.0-20230404173142-d0d1f5c056a6 h1:ROSg5HjY0QRIxFSDfpixi1Vgk5XhGSZ5Z6EGcK1cUJU=
 cosmossdk.io/simapp v0.0.0-20230404173142-d0d1f5c056a6/go.mod h1:wIHTV1cqR+9z8Ex21h8F3YVvfAKFIuPn1VKk+WWwhCc=
 cosmossdk.io/store v0.1.0-alpha.1.0.20230328185921-37ba88872dbc h1:9piuA+NYmhe+SyMPtMoboLw/djgDbrI3dD5TG020Tnk=

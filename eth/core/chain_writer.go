@@ -36,7 +36,7 @@ import (
 type ChainWriter interface {
 	// Prepare prepares the chain for a new block. This method is called before the first tx in
 	// the block.
-	Prepare(context.Context, int64)
+	Prepare(context.Context, uint64)
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
@@ -55,7 +55,7 @@ type ChainWriter interface {
 // =========================================================================
 
 // Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, height int64) {
+func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
@@ -84,7 +84,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		Coinbase:   coinbase,
 		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
 		Difficulty: big.NewInt(0),
-		Number:     big.NewInt(height),
+		Number:     big.NewInt(0).SetUint64(height),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
 		Extra:      []byte{}, // Polaris does not set the Extra field.
@@ -118,11 +118,11 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		return err
 	}
 
-	blockHash, blockNum := block.Hash(), block.Number().Int64()
+	blockHash, blockNum := block.Hash(), block.Number().Uint64()
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
 	// store the block header on the host chain
-	err = bc.bp.SetHeaderByNumber(blockNum, block.Header())
+	err = bc.bp.StoreHeader(block.Header())
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 				&types.TxLookupEntry{
 					Tx:        tx,
 					TxIndex:   uint64(txIndex),
-					BlockNum:  uint64(blockNum),
+					BlockNum:  blockNum,
 					BlockHash: blockHash,
 				},
 			)

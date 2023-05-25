@@ -68,11 +68,11 @@ type (
 		libtypes.Preparable
 		// GetNewBlockMetadata returns a new block metadata (coinbase, timestamp) for the given
 		// block number.
-		GetNewBlockMetadata(int64) (common.Address, uint64)
+		GetNewBlockMetadata(uint64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
-		GetHeaderByNumber(int64) (*types.Header, error)
-		// SetHeaderByNumber sets the block header at the given block number.
-		SetHeaderByNumber(int64, *types.Header) error
+		GetHeaderByNumber(uint64) (*types.Header, error)
+		// StoreHeader stores the block header at the given block number.
+		StoreHeader(*types.Header) error
 		// BaseFee returns the base fee of the current block.
 		BaseFee() *big.Int
 	}
@@ -168,7 +168,7 @@ type (
 		// HistoricalPlugin implements `libtypes.Preparable`.
 		libtypes.Preparable
 		// GetBlockByNumber returns the block at the given block number.
-		GetBlockByNumber(int64) (*types.Block, error)
+		GetBlockByNumber(uint64) (*types.Block, error)
 		// GetBlockByHash returns the block at the given block hash.
 		GetBlockByHash(common.Hash) (*types.Block, error)
 		// GetTransactionByHash returns the transaction lookup entry at the given transaction
@@ -181,7 +181,7 @@ type (
 		// StoreReceipts stores the receipts for the given block hash.
 		StoreReceipts(common.Hash, types.Receipts) error
 		// StoreTransactions stores the transactions for the given block hash.
-		StoreTransactions(int64, common.Hash, types.Transactions) error
+		StoreTransactions(uint64, common.Hash, types.Transactions) error
 	}
 
 	// PrecompilePlugin defines the methods that the chain running Polaris EVM should implement

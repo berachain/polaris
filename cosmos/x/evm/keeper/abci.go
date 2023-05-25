@@ -30,7 +30,7 @@ import (
 func (k *Keeper) BeginBlocker(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	// Prepare the Polaris Ethereum block.
-	k.polaris.Prepare(ctx, sCtx.BlockHeight())
+	k.polaris.Prepare(ctx, uint64(sCtx.BlockHeight()))
 }
 
 // Precommit is called during the Commit processing of the ABCI lifecycle, right before the state

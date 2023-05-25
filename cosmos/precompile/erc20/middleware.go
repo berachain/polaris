@@ -25,6 +25,8 @@ import (
 	"errors"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abi "github.com/ethereum/go-ethereum/accounts/abi"
@@ -72,7 +74,7 @@ func (c *Contract) transferCoinToERC20(
 			sdkCtx,
 			cosmlib.AddressToAccAddress(owner),
 			cosmlib.AddressToAccAddress(recipient),
-			sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount))),
+			sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount))),
 		); err != nil {
 			return err
 		}
@@ -226,7 +228,7 @@ func (c *Contract) transferERC20ToCoin(
 			sdkCtx,
 			cosmlib.AddressToAccAddress(owner),
 			cosmlib.AddressToAccAddress(recipient),
-			sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount))),
+			sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount))),
 		); err != nil {
 			return err
 		}
