@@ -23,7 +23,6 @@ package mempool
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -45,7 +44,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	pending := make(map[common.Address]coretypes.Transactions)
 	for sender, list := range allNonces {
 		// get Eth Address of sender
-		addr := lib.EthAddressFromBech32(sender)
+		addr := cosmlib.EthAddressFromBech32(sender)
 
 		var pendingNonce int64 = -1
 
@@ -88,7 +87,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 
 	for sender, list := range allNonces {
 		// get Eth Address of sender
-		addr := lib.EthAddressFromBech32(sender)
+		addr := cosmlib.EthAddressFromBech32(sender)
 
 		pendingNonce := int64(-1)
 		contiguous := true
