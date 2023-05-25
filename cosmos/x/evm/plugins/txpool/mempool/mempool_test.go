@@ -23,7 +23,6 @@ package mempool
 import (
 	"bytes"
 	"crypto/ecdsa"
-	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -139,22 +138,23 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Get(ethTx2.Hash()).Hash()).To(Equal(ethTx2.Hash()))
 
 		})
-		It("should queue transactions whose nonces are out of order then poll from queue when inorder nonce tx is received", func() {
-			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
-			ethtx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
+		It("should queue transactions with out of order nonces then poll from queue when inorder nonce tx is received",
+			func() {
+				_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+				ethtx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
 
-			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
-			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+				Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+				Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
 
-			Expect(etp.isQueuedTx(etp, ethtx3)).To(BeTrue())
+				Expect(etp.isQueuedTx(etp, ethtx3)).To(BeTrue())
 
-			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
-			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+				_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
+				Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
 
-			_, queuedTransactions := etp.ContentFrom(addr1)
-			Expect(queuedTransactions).To(HaveLen(0))
-			Expect(etp.Nonce(addr1)).To(Equal(uint64(4)))
-		})
+				_, queuedTransactions := etp.ContentFrom(addr1)
+				Expect(queuedTransactions).To(HaveLen(0))
+				Expect(etp.Nonce(addr1)).To(Equal(uint64(4)))
+			})
 		It("should not allow duplicate nonces (replay attack)", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
 			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
@@ -172,7 +172,7 @@ var _ = Describe("EthTxPool", func() {
 		It("should be able to fetch transactions from the cache", func() {})
 		It("should disallow replacement txs for a tx that isn't from the sender", func() {})
 		It("should disallow malformatted txs", func() {})
-		It("should remove low priority transactions when the mempool is full", func() {}) // there is no MaxTx set in the mempool, so uhhh
+		It("should remove low priority transactions when the mempool is full", func() {})
 		It("should prioritize transactions with higher fees", func() {})
 		It("should enforce transaction size limits", func() {})
 		It("should handle transaction eviction based on time", func() {})
@@ -182,7 +182,6 @@ var _ = Describe("EthTxPool", func() {
 				defer GinkgoRecover()
 				for i := 1; i <= 10; i++ {
 					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
-					fmt.Println("inserting tx #", i)
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)
@@ -190,7 +189,6 @@ var _ = Describe("EthTxPool", func() {
 				defer GinkgoRecover()
 				for i := 2; i <= 11; i++ {
 					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
-					fmt.Println("inserting tx", i)
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)
@@ -212,7 +210,7 @@ var _ = Describe("EthTxPool", func() {
 				reads := 0
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
-						reads += 1
+						reads++
 					}
 				}
 				readsFromA <- reads
@@ -222,7 +220,7 @@ var _ = Describe("EthTxPool", func() {
 				reads := 0
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
-						reads += 1
+						reads++
 					}
 				}
 				readsFromB <- reads
