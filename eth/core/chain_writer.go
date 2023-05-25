@@ -76,11 +76,12 @@ func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
 		ParentHash: parentHash,
-		Number:     big.NewInt(0).SetUint64(height),
+		Number:     new(big.Int).SetUint64(height),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
 		Coinbase:   coinbase,
 		BaseFee:    bc.CalculateNextBaseFee(),
+		Difficulty: big.NewInt(0),
 	}
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
