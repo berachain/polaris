@@ -91,7 +91,7 @@ func (k *Keeper) validateEthGenesis(ctx sdk.Context, genesisState types.GenesisS
 	for addr, account := range ethGenesis.Alloc {
 		// no need to check for missing denom, since a missing denom will return 0 balance
 		coin := k.bk.GetBalance(ctx, lib.AddressToAccAddress(addr), genesisState.Params.EvmDenom)
-		if coin.Amount != math.NewIntFromBigInt(account.Balance) {
+		if !coin.Amount.Equal(math.NewIntFromBigInt(account.Balance)) {
 			return fmt.Errorf("account %s balance mismatch: expected %s, got %s", addr.Hex(), coin.Amount, account.Balance)
 		}
 	}
