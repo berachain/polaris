@@ -3,8 +3,8 @@ module pkg.berachain.dev/polaris/cosmos
 go 1.20
 
 replace (
-	cosmossdk.io/errors => cosmossdk.io/errors b6613f9163f8b379d558ab90fa0b5916d3758a75
 	cosmossdk.io/collections => cosmossdk.io/collections v0.0.0-20230525153548-b6613f9163f8
+	cosmossdk.io/errors => cosmossdk.io/errors v1.0.0-beta.7.0.20230525153548-b6613f9163f8
 	cosmossdk.io/x/circuit => github.com/cosmos/cosmos-sdk/x/circuit v0.0.0-20230525153548-b6613f9163f8
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230525153548-b6613f9163f8
 	cosmossdk.io/x/feegrant => github.com/cosmos/cosmos-sdk/x/feegrant v0.0.0-20230525153548-b6613f9163f8
@@ -28,7 +28,7 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230120150717-4f6f6c00021f
 	cosmossdk.io/x/evidence v0.1.0
 	cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff
-	cosmossdk.io/x/upgrade v0.0.0-20230127052425-54c8e1568335
+	cosmossdk.io/x/upgrade v0.0.0-20230525153548-b6613f9163f8
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cometbft/cometbft v0.38.0-alpha.2
@@ -224,7 +224,6 @@ require (
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tendermint/tendermint v0.37.0-rc2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect

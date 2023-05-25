@@ -93,10 +93,7 @@ func ExecuteInDirectory(dir string, f func(args ...string) error, withArgs bool)
 	}
 
 	// Go back to the starting directory.
-	if err := os.Chdir(rootCwd); err != nil {
-		return err
-	}
-	return nil
+	return os.Chdir(rootCwd)
 }
 
 func ExecuteForAllModules(dirs []string, f func(args ...string) error, withArgs bool) error {

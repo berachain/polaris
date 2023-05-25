@@ -66,8 +66,11 @@ func SerializeToSdkTx(
 		return nil, err
 	}
 
+	pk := ethsecp256k1.PubKey{Key: pkBz}
+
 	// Create the EthTransactionRequest message.
 	ethTxReq := types.NewFromTransaction(signedTx)
+	ethTxReq.From = sdk.MustBech32ifyAddressBytes("polar", pk.Address().Bytes())
 	sig, err := ethTxReq.GetSignature()
 	if err != nil {
 		return nil, err
@@ -86,7 +89,7 @@ func SerializeToSdkTx(
 				// over so that it can verify the signature in the ante handler.
 				Signature: sig,
 			},
-			PubKey: &ethsecp256k1.PubKey{Key: pkBz},
+			PubKey: &pk,
 		},
 	); err != nil {
 		return nil, err

@@ -44,9 +44,13 @@ service MsgService {
 
 // EthTransactionRequest encapsulates an Ethereum transaction as an SDK message.
 message EthTransactionRequest {
+  option (cosmos.msg.v1.signer) = "from";
   option (gogoproto.goproto_getters) = false;
   // data is inner transaction data of the Ethereum transaction
   bytes data = 1;
+
+  // from is the sender of the transaction
+  string from = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // EthTransactionResponse defines the Msg/EthereumTx response type.

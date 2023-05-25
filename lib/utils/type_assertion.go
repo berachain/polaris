@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
-//
-
 package utils
 
 // GetAs returns `obj` as type `T`. Uses Golang built-in type assertion.

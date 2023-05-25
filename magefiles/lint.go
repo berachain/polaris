@@ -96,31 +96,19 @@ func Gosec() error {
 // Run `addlicense`.
 func License() error {
 	LogGreen("Running addlicense...")
-	if err := ExecuteForAllModules(moduleDirs, func(args ...string) error {
-		if err := goRun(addlicense,
+	return ExecuteForAllModules(moduleDirs, func(args ...string) error {
+		return goRun(addlicense,
 			"-v", "-f", "./LICENSE.header", "./.",
-		); err != nil {
-			return err
-		}
-		return nil
-	}, true); err != nil {
-		return err
-	}
-	return nil
+		)
+	}, true)
 }
 
 // Run `addlicense`.
 func LicenseCheck() error {
 	LogGreen("Running addlicense -check...")
-	if err := ExecuteForAllModules(moduleDirs, func(args ...string) error {
-		if err := goRun(addlicense,
+	return ExecuteForAllModules(moduleDirs, func(args ...string) error {
+		return goRun(addlicense,
 			"-check", "-v", "-f", "./LICENSE.header", "./.",
-		); err != nil {
-			return err
-		}
-		return nil
-	}, true); err != nil {
-		return err
-	}
-	return nil
+		)
+	}, true)
 }

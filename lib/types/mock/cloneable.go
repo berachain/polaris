@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
-//
-
 package mock
 
 import libtypes "pkg.berachain.dev/polaris/lib/types"

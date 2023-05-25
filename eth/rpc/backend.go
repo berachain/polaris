@@ -80,9 +80,10 @@ func NewPolarisBackend(
 	nodeConfig *node.Config,
 ) PolarisBackend {
 	b := &backend{
-		chain:     chain,
-		rpcConfig: rpcConfig,
-		logger:    log.Root(),
+		chain:      chain,
+		rpcConfig:  rpcConfig,
+		logger:     log.Root(),
+		nodeConfig: nodeConfig,
 	}
 	b.gpo = gasprice.NewOracle(b, rpcConfig.GPO)
 	return b
@@ -161,11 +162,11 @@ func (b *backend) UnprotectedAllowed() bool {
 
 // SetHead is used for state sync on ethereum, we leave state sync up to the host
 // chain and thus it is not implemented in Polaris.
-func (b *backend) SetHead(number uint64) {
+func (b *backend) SetHead(_ uint64) {
 	panic("not implemented")
 }
 
-func (b *backend) HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error) {
+func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*types.Header, error) {
 	// Pending block is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		// TODO: handle "miner" stuff
@@ -256,7 +257,7 @@ func (b *backend) CurrentBlock() *types.Header {
 }
 
 // BlockByNumber returns the block with the given `number`.
-func (b *backend) BlockByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Block, error) {
+func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*types.Block, error) {
 	// Pending block is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		// 	block := b.eth.miner.PendingBlock()
@@ -542,7 +543,7 @@ func (b *backend) BloomStatus() (uint64, uint64) {
 	return 0, 0
 }
 
-func (b *backend) ServiceFilter(_ context.Context, session *bloombits.MatcherSession) {
+func (b *backend) ServiceFilter(_ context.Context, _ *bloombits.MatcherSession) {
 	// TODO: Implement your code here
 }
 

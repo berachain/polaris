@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
-//
-
 package encoding
 
 import "encoding/json"

@@ -48,8 +48,8 @@ func (s SignModeEthTxHandler) Mode() signingv1beta1.SignMode {
 // TODO CONVERT ALL TXS to Pulsar (this is some hood cast shit rn)
 //
 // GetSignBytes implements txsigning.SignModeHandler.
-func (s SignModeEthTxHandler) GetSignBytes(ctx context.Context,
-	data txsigning.SignerData, txData txsigning.TxData) ([]byte, error) {
+func (s SignModeEthTxHandler) GetSignBytes(_ context.Context,
+	_ txsigning.SignerData, txData txsigning.TxData) ([]byte, error) {
 	ethTx := &evmapi.EthTransactionRequest{}
 	if err := txData.Body.Messages[0].UnmarshalTo(ethTx); err != nil {
 		return nil, err

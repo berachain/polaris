@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
-//
-
 package snapshot
 
 import (
@@ -86,7 +83,7 @@ var _ = Describe("Controller", func() {
 					})
 					It("should have the correct number of snapshot calls still", func() {
 						Expect(object1.SnapshotCalls()).To(HaveLen(2))
-						Expect(object2.SnapshotCalls()).To(HaveLen(0))
+						Expect(object2.SnapshotCalls()).To(BeEmpty())
 					})
 					When("we snapshot again", func() {
 						BeforeEach(func() {

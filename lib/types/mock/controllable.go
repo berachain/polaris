@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
-//
-
 package mock
 
 //go:generate moq -out ./controllable.mock.go -skip-ensure -pkg mock ../ Controllable
