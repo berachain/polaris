@@ -517,8 +517,8 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 	}
 	block, err := b.BlockByNumberOrHash(ctx, BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if block == nil || err != nil {
-		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash, "err": err)
-		return nil, nil
+		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash, "err", err)
+		return nil, nil //nolint:nilnil // to match geth.
 	}
 	b.logger.Info("called eth.rpc.backend.GetBody", "hash", hash, "number", number)
 	return block.Body(), nil
