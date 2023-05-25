@@ -29,13 +29,6 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-// var moduleNamespaces = []MageModule{
-// 	&Contracts{},
-// 	&Cosmos{},
-// 	&Eth{},
-// 	&Playground{},
-// }
-
 type MageModule interface {
 	directory() string
 	Test() error
@@ -52,9 +45,7 @@ func All() {
 		Format,
 		Lint,
 		Cosmos{}.Build,
-		Playground{}.Build,
 		Contracts{}.Test,
 		Cosmos{}.Test,
-		Playground{}.Test,
 	)
 }
