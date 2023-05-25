@@ -24,6 +24,8 @@ import (
 	"math/big"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -63,7 +65,7 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 
 	sdkCoins := sdk.NewCoins()
 	for _, evmCoin := range amounts {
-		sdkCoins = append(sdkCoins, sdk.NewCoin(evmCoin.Denom, sdk.NewIntFromBigInt(evmCoin.Amount)))
+		sdkCoins = append(sdkCoins, sdk.NewCoin(evmCoin.Denom, sdkmath.NewIntFromBigInt(evmCoin.Amount)))
 	}
 	// sort the coins by denom, as Cosmos expects.
 	sdkCoins = sdkCoins.Sort()

@@ -24,7 +24,7 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -134,12 +134,12 @@ var _ = Describe("Staking", func() {
 			Expect(err).ToNot(HaveOccurred())
 			otherValidator, err := NewValidator(otherVal, PKs[1])
 			Expect(err).ToNot(HaveOccurred())
-			validator, _ = validator.AddTokensFromDel(sdk.NewIntFromBigInt(amount))
-			otherValidator, _ = otherValidator.AddTokensFromDel(sdk.NewIntFromBigInt(amount))
+			validator, _ = validator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
+			otherValidator, _ = otherValidator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
 			validator = stakingkeeper.TestingUpdateValidator(&sk, ctx, validator, true)
 			stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
 
-			delegation := stakingtypes.NewDelegation(del, val, math.LegacyNewDec(9))
+			delegation := stakingtypes.NewDelegation(del, val, sdkmath.LegacyNewDec(9))
 			sk.SetDelegation(ctx, delegation)
 
 			// Check that the delegation was created.
@@ -193,7 +193,7 @@ var _ = Describe("Staking", func() {
 					sdk.NewCoins(
 						sdk.NewCoin(
 							"stake",
-							sdk.NewIntFromBigInt(amountToDelegate),
+							sdkmath.NewIntFromBigInt(amountToDelegate),
 						),
 					),
 				)
@@ -256,7 +256,7 @@ var _ = Describe("Staking", func() {
 					sdk.NewCoins(
 						sdk.NewCoin(
 							"stake",
-							sdk.NewIntFromBigInt(amountToDelegate),
+							sdkmath.NewIntFromBigInt(amountToDelegate),
 						),
 					),
 				)

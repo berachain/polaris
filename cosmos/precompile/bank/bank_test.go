@@ -25,6 +25,8 @@ import (
 	"math/big"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
+
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -74,7 +76,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		event := sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeySender, addr.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdkmath.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
 		Expect(err).ToNot(HaveOccurred())
@@ -85,7 +87,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		event := sdk.NewEvent(
 			banktypes.EventTypeTransfer,
 			sdk.NewAttribute(banktypes.AttributeKeyRecipient, addr.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdkmath.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
 		Expect(err).ToNot(HaveOccurred())
@@ -96,7 +98,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		event := sdk.NewEvent(
 			banktypes.EventTypeCoinSpent,
 			sdk.NewAttribute(banktypes.AttributeKeySpender, addr.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdkmath.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
 		Expect(err).ToNot(HaveOccurred())
@@ -107,7 +109,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		event := sdk.NewEvent(
 			banktypes.EventTypeCoinReceived,
 			sdk.NewAttribute(banktypes.AttributeKeyReceiver, addr.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdkmath.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
 		Expect(err).ToNot(HaveOccurred())
@@ -118,7 +120,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		event := sdk.NewEvent(
 			banktypes.EventTypeCoinBurn,
 			sdk.NewAttribute(banktypes.AttributeKeyBurner, addr.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdk.NewInt(100)).String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("stg", sdkmath.NewInt(100)).String()),
 		)
 		log, err := factory.Build(&event)
 		Expect(err).ToNot(HaveOccurred())
@@ -191,7 +193,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					sdk.NewCoins(
 						sdk.NewCoin(
 							denom,
-							sdk.NewIntFromBigInt(balanceAmount),
+							sdkmath.NewIntFromBigInt(balanceAmount),
 						),
 					),
 				)
@@ -240,7 +242,7 @@ var _ = Describe("Bank Precompile Test", func() {
 						sdk.NewCoins(
 							sdk.NewCoin(
 								fmt.Sprintf("denom_%d", i+1),
-								sdk.NewIntFromBigInt(balanceAmount),
+								sdkmath.NewIntFromBigInt(balanceAmount),
 							),
 						),
 					)
@@ -328,7 +330,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					sdk.NewCoins(
 						sdk.NewCoin(
 							denom,
-							sdk.NewIntFromBigInt(balanceAmount),
+							sdkmath.NewIntFromBigInt(balanceAmount),
 						),
 					),
 				)
@@ -378,7 +380,7 @@ var _ = Describe("Bank Precompile Test", func() {
 						sdk.NewCoins(
 							sdk.NewCoin(
 								fmt.Sprintf("denom_%d", i+1),
-								sdk.NewIntFromBigInt(balanceAmount),
+								sdkmath.NewIntFromBigInt(balanceAmount),
 							),
 						),
 					)
@@ -453,7 +455,7 @@ var _ = Describe("Bank Precompile Test", func() {
 						sdk.NewCoins(
 							sdk.NewCoin(
 								denom,
-								sdk.NewIntFromBigInt(balanceAmount),
+								sdkmath.NewIntFromBigInt(balanceAmount),
 							),
 						),
 					)
@@ -490,7 +492,7 @@ var _ = Describe("Bank Precompile Test", func() {
 							sdk.NewCoins(
 								sdk.NewCoin(
 									fmt.Sprintf("%s%d", denom, j),
-									sdk.NewIntFromBigInt(balanceAmount),
+									sdkmath.NewIntFromBigInt(balanceAmount),
 								),
 							),
 						)
@@ -615,7 +617,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					sdk.NewCoins(
 						sdk.NewCoin(
 							denom,
-							sdk.NewIntFromBigInt(balanceAmount),
+							sdkmath.NewIntFromBigInt(balanceAmount),
 						),
 					),
 				)
@@ -640,7 +642,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					sdk.NewCoins(
 						sdk.NewCoin(
 							denom,
-							sdk.NewIntFromBigInt(balanceAmount),
+							sdkmath.NewIntFromBigInt(balanceAmount),
 						),
 					),
 				)
@@ -676,17 +678,17 @@ var _ = Describe("Bank Precompile Test", func() {
 				sortedSdkCoins := sdk.NewCoins(
 					sdk.NewCoin(
 						denom,
-						sdk.NewIntFromBigInt(balanceAmount),
+						sdkmath.NewIntFromBigInt(balanceAmount),
 					),
 					sdk.NewCoin(
 						denom2,
-						sdk.NewIntFromBigInt(balanceAmount),
+						sdkmath.NewIntFromBigInt(balanceAmount),
 					),
 				)
 
 				unsortedSdkCoins := sdk.NewCoins()
-				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom2, sdk.NewIntFromBigInt(balanceAmount)))
-				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom, sdk.NewIntFromBigInt(balanceAmount)))
+				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom2, sdkmath.NewIntFromBigInt(balanceAmount)))
+				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(balanceAmount)))
 
 				err := FundAccount(
 					ctx,

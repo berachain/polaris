@@ -19,7 +19,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/log v1.0.0
-	cosmossdk.io/math v1.0.0
+	cosmossdk.io/math v1.0.1
 	cosmossdk.io/simapp v0.0.0-20230404173142-d0d1f5c056a6
 	cosmossdk.io/store v0.1.0-alpha.1.0.20230328185921-37ba88872dbc
 	cosmossdk.io/tools/confix v0.0.0-20230227140543-7c9245dbdf19

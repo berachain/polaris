@@ -23,6 +23,8 @@ package lib
 import (
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -38,7 +40,7 @@ func MintCoinsToAddress(
 	amount *big.Int,
 ) error {
 	// Mint the corresponding bank denom.
-	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount)))
 	if err := bk.MintCoins(ctx, moduleAcc, coins); err != nil {
 		return err
 	}
@@ -61,7 +63,7 @@ func BurnCoinsFromAddress(
 	amount *big.Int,
 ) error {
 	// Burn the corresponding bank denom.
-	coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))
+	coins := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount)))
 	if err := bk.SendCoinsFromAccountToModule(ctx, sender.Bytes(), moduleAcc, coins); err != nil {
 		return err
 	}

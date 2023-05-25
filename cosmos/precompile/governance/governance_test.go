@@ -28,7 +28,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -372,7 +372,7 @@ var _ = Describe("Governance Precompile", func() {
 				Expect(res).To(HaveLen(1))
 			})
 			It("should succeed", func() {
-				weight, err := math.LegacyNewDecFromStr("1")
+				weight, err := sdkmath.LegacyNewDecFromStr("1")
 				Expect(err).ToNot(HaveOccurred())
 				options := []generated.IGovernanceModuleWeightedVoteOption{
 					{
@@ -405,7 +405,7 @@ var _ = Describe("Governance Precompile", func() {
 					FinalTallyResult: &v1.TallyResult{},
 					SubmitTime:       &time.Time{},
 					DepositEndTime:   &time.Time{},
-					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
+					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100))),
 					VotingStartTime:  &time.Time{},
 					VotingEndTime:    &time.Time{},
 					Metadata:         "metadata",
@@ -421,7 +421,7 @@ var _ = Describe("Governance Precompile", func() {
 					FinalTallyResult: &v1.TallyResult{},
 					SubmitTime:       &time.Time{},
 					DepositEndTime:   &time.Time{},
-					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
+					TotalDeposit:     sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100))),
 					VotingStartTime:  &time.Time{},
 					VotingEndTime:    &time.Time{},
 					Metadata:         "metadata",
