@@ -47,7 +47,8 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            /home/runner/go
+            ~/go/pkg/mod
+            ~/go/bin
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
