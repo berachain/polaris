@@ -73,10 +73,9 @@ jobs:
             ~/.cache/go-build
             ~/go/pkg/mod
             ~/go/bin
-
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           # We use a different restore key for the codeql version just in case the autobuilder decides
-          # to compile / use a different go version
+          # to compile with a different go version or do anything funky.
+          key: ${{ runner.os }}-golang-codeql-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-codeql-
       - name: Install Go Tools
