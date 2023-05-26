@@ -58,6 +58,9 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
+      - name: CGO_ENABLED=1
+        run: |
+          export CGO_ENABLED=1
       - name: Install Go Tools
         run: |
           go run magefiles/setup/setup.go
