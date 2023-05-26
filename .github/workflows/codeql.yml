@@ -65,18 +65,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.versions }}
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-            ~/go/bin
-          # We use a different restore key for the codeql version just in case the autobuilder decides
-          # to compile with a different go version or do anything funky.
-          key: ${{ runner.os }}-golang-codeql-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-codeql-
+          
       - name: Install Go Tools
         run: |
           go run magefiles/setup/setup.go
