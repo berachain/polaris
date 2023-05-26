@@ -157,9 +157,9 @@ var _ = Describe("EthTxPool", func() {
 				Expect(queuedTransactions).To(HaveLen(0))
 				Expect(etp.Nonce(addr1)).To(Equal(uint64(4)))
 			})
-		It("should not allow duplicate nonces (replay attack)", func() {
-			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
-			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+		It("should not allow duplicate nonces with gas increase < 10%", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(99)})
+			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1.0, GasPrice: big.NewInt(100)})
 
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx11)).To(HaveOccurred())
