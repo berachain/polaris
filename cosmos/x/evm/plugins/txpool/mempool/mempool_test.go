@@ -86,6 +86,13 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Nonce(common.HexToAddress("0x3"))).To(Equal(uint64(0)))
 		})
 
+		It("should error with low nonces", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 0})
+			err := etp.Insert(ctx, tx1)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("nonce too low"))
+		})
+
 		It("should return pending/queued txs with correct nonces", func() {
 			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
 			ethTx2, tx2 := buildTx(key2, &coretypes.LegacyTx{Nonce: 2})
@@ -157,10 +164,12 @@ var _ = Describe("EthTxPool", func() {
 			})
 		It("should not allow replacement txs with gas increase < 10%", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(99)})
-			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100)})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100)})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(99)})
 
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
-			Expect(etp.Insert(ctx, tx11)).To(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).To(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).To(HaveOccurred()) // should skip the math for replacement
 		})
 		It("should handle spam txs and prevent DOS attacks", func() {
 			for i := 1; i < 1000; i++ {
