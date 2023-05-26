@@ -70,13 +70,12 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            /home/runner/go
+            ~/go/pkg/mod
+            ~/go/bin
+
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
-      - name: Install Go Tools
-        run: |
-          go run magefiles/setup/setup.go
       - name: Run `mage build
         uses: magefile/mage-action@v2
         with:
