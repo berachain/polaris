@@ -25,8 +25,8 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 	"math/big"
+	"sync"
 	"testing"
-	"time"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -230,23 +230,28 @@ var _ = Describe("EthTxPool", func() {
 		It("should handle concurrent additions", func() {
 
 			// apologies in advance for this test, it's not great.
+
+			var wg sync.WaitGroup
+
+			wg.Add(1)
 			go func(etp *EthTxPool) {
-				defer GinkgoRecover()
+				defer wg.Done()
 				for i := 1; i <= 10; i++ {
 					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)
 
+			wg.Add(1)
 			go func(etp *EthTxPool) {
-				defer GinkgoRecover()
+				defer wg.Done()
 				for i := 2; i <= 11; i++ {
 					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)
 
-			time.Sleep(1 * time.Second) // not good.
+			wg.Wait()
 			lenPending, _ := etp.Stats()
 			Expect(lenPending).To(BeEquivalentTo(20))
 		})
@@ -256,13 +261,17 @@ var _ = Describe("EthTxPool", func() {
 			readsFromB := 0
 
 			// fill mempoopl with transactions
+			var wg sync.WaitGroup
+
 			for i := 1; i < 10; i++ {
 				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
 				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 			}
 
 			// concurrently read mempool from Peer A ...
+			wg.Add(1)
 			go func(etp *EthTxPool) {
+				defer wg.Done()
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
 						readsFromA++
@@ -271,7 +280,9 @@ var _ = Describe("EthTxPool", func() {
 			}(etp)
 
 			// ... and peer B
+			wg.Add(1)
 			go func(etp *EthTxPool) {
+				defer wg.Done()
 				for _, list := range etp.senderIndices {
 					for elem := list.Front(); elem != nil; elem = elem.Next() {
 						readsFromB++
@@ -279,6 +290,7 @@ var _ = Describe("EthTxPool", func() {
 				}
 			}(etp)
 
+			wg.Wait()
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 	})
