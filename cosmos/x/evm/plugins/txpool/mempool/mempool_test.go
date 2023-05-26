@@ -23,7 +23,6 @@ package mempool
 import (
 	"bytes"
 	"crypto/ecdsa"
-	"fmt"
 	"math/big"
 	"sync"
 	"testing"
@@ -130,7 +129,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(p11).To(HaveLen(2))
 
 			Expect(etp.isPendingTx(etp, ethTx11)).To(BeTrue())
-			Expect(q11).To(HaveLen(0))
+			Expect(q11).To(BeEmpty())
 		})
 
 		It("should handle replacement txs", func() {
@@ -160,7 +159,7 @@ var _ = Describe("EthTxPool", func() {
 				Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
 
 				_, queuedTransactions := etp.ContentFrom(addr1)
-				Expect(queuedTransactions).To(HaveLen(0))
+				Expect(queuedTransactions).To(BeEmpty())
 				Expect(etp.Nonce(addr1)).To(Equal(uint64(4)))
 			})
 		It("should not allow replacement txs with gas increase < 10%", func() {
@@ -246,19 +245,13 @@ var _ = Describe("EthTxPool", func() {
 		})
 
 		It("should not return pending when queued", func() {
-			ethTx2, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2, GasPrice: big.NewInt(2)})
-			ethTx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(3)})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2, GasPrice: big.NewInt(2)})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(3)})
 			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
 
-			fmt.Println(ethTx2.Hash())
-			fmt.Println(ethTx3.Hash())
-
 			Expect(etp.Pending(false)[addr1]).To(BeEmpty())
-
-			q := etp.queued()
-			fmt.Println(q[addr1][0].Hash())
-
+			Expect(etp.queued()).To(HaveLen(2))
 			pending, queued := etp.Stats()
 			Expect(pending).To(Equal(0))
 			Expect(queued).To(Equal(2))
