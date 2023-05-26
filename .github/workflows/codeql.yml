@@ -79,11 +79,9 @@ jobs:
           # to compile / use a different go version
           restore-keys: |
             ${{ runner.os }}-golang-codeql-
-      - name: Run `mage build
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: build
+      - name: Install Go Tools
+        run: |
+          go run magefiles/setup/setup.go
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
