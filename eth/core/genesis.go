@@ -34,21 +34,4 @@ var DefaultGenesis = &Genesis{
 	GasLimit:   30_000_000,     //nolint:gomnd // its okay.
 	Difficulty: big.NewInt(69), //nolint:gomnd // its okay.
 	Alloc:      GenesisAlloc{},
-	// Alloc:      decodePrealloc("mainnetAllocData"),
-	// For alloc, in the startup / initGenesis, we should allow the host chain to "fill in the data"
-	// i.e in Cosmos, we let the AccountKeeper/EVMKeeper/BankKeeper fill in the Bank Data into the
-	// genesis and then verify the equivalency later. This is to create an invariant that the bank
-	// balances from the bank keeper and the token balances in the EVM are equivalents at genesis.
 }
-
-// func decodePrealloc(data string) GenesisAlloc {
-// 	var p []struct{ Addr, Balance *big.Int }
-// 	if err := rlp.NewStream(strings.NewReader(data), 0).Decode(&p); err != nil {
-// 		panic(err)
-// 	}
-// 	ga := make(GenesisAlloc, len(p))
-// 	for _, account := range p {
-// 		ga[common.BigToAddress(account.Addr)] = GenesisAccount{Balance: account.Balance}
-// 	}
-// 	return ga
-// }
