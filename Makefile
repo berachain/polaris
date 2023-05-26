@@ -8,8 +8,10 @@ help:
 	@echo "This Makefile is an alias for Mage tasks. Run 'mage' to see available Mage targets."
 	@echo "You can use 'make <target>' to call the corresponding 'mage <target>' command."
 
+# Required rule for gh action codeql to run.
 codeqlbuild:
 	@mage contracts:build generate build
+
 # Rule to forward any target to Mage
 %:
 	@mage $@

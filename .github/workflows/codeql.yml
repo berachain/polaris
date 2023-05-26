@@ -75,8 +75,10 @@ jobs:
             ~/go/bin
 
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          # We use a different restore key for the codeql version just in case the autobuilder decides
+          # to compile / use a different go version
           restore-keys: |
-            ${{ runner.os }}-golang-
+            ${{ runner.os }}-golang-codeql-
       - name: Run `mage build
         uses: magefile/mage-action@v2
         with:
