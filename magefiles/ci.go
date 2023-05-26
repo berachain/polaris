@@ -37,14 +37,7 @@ func Build() error {
 		return err
 	}
 
-	if err := (Cosmos{}).Build(); err != nil {
-		return err
-	}
-
-	if err := (Playground{}).Build(); err != nil {
-		return err
-	}
-	return nil
+	return (Cosmos{}).Build()
 }
 
 // Runs the unit tests.

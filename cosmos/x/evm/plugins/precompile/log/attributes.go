@@ -80,7 +80,7 @@ var (
 	_ precompile.ValueDecoder = ReturnStringAsIs
 )
 
-// ConvertSdkCoins converts the string representation of an `sdk.Coin` to a `[]*generated.IbankmoduleCoin`.
+// ConvertSdkCoins converts the string representation of an `sdk.Coin` to a `[]*generated.IBankModuleCoin`.
 //
 // ConvertSdkCoins is a `precompile.ValueDecoder`.
 func ConvertSdkCoins(attributeValue string) (any, error) {

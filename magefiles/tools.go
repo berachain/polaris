@@ -50,7 +50,7 @@ var (
 	// Dependencies.
 	moq = "github.com/matryer/moq"
 
-	moduleDirs = []string{"contracts", "eth", "cosmos", "playground", "magefiles", "lib"}
+	moduleDirs = []string{"contracts", "eth", "cosmos", "magefiles", "lib"}
 )
 
 // ===========================================================================
@@ -63,10 +63,7 @@ func Generate() error {
 	if err := goInstall(moq); err != nil {
 		return err
 	}
-	if err := ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false); err != nil {
-		return err
-	}
-	return nil
+	return ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false)
 }
 
 // Runs `go generate` on the entire project and verifies that no files were
@@ -105,9 +102,5 @@ func Clean() error {
 	}
 
 	// Remove test cache.
-	if err := sh.RunV("go", "clean", "-testcache"); err != nil {
-		return err
-	}
-
-	return nil
+	return sh.RunV("go", "clean", "-testcache")
 }

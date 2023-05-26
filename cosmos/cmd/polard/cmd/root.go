@@ -33,6 +33,7 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/simapp/params"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
+	"cosmossdk.io/x/tx/signing"
 
 	cmtcfg "github.com/cometbft/cometbft/config"
 
@@ -43,12 +44,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
@@ -61,33 +65,68 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
-// NewRootCmd creates a new root command for polard. It is called once in the
-// main function.
+// NewRootCmd creates a new root command for simd. It is called once in the main function.
+//
+//nolint:funlen // from cosmos-sdk
 func NewRootCmd() *cobra.Command {
+	// TODO: GET DEPINJECT WORKING HERE
+	// var (
+	// 	interfaceRegistry  codectypes.InterfaceRegistry
+	// 	appCodec           codec.Codec
+	// 	txConfig           client.TxConfig
+	// 	legacyAmino        *codec.LegacyAmino
+	// 	autoCliOpts        autocli.AppOptions
+	// 	moduleBasicManager module.BasicManager
+	// )
+
+	// // TODO: make it so that x/evm doesn't need this.
+	// if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(
+	// 	sims.NewAppOptionsWithFlagHome(tempDir()),
+	// 	log.NewNopLogger(),
+	// 	evmmempool.NewEthTxPoolFrom(
+	// 		evmmempool.DefaultPriorityMempool(),
+	// 	),
+	// )),
+	// 	&interfaceRegistry,
+	// 	&appCodec,
+	// 	&txConfig,
+	// 	&legacyAmino,
+	// 	&autoCliOpts,
+	// 	&moduleBasicManager,
+	// ); err != nil {
+	// 	panic(err)
+	// }
+
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := runtime.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := runtime.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, sims.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
 		TxConfig:          tempApp.TxConfig(),
 		Amino:             tempApp.LegacyAmino(),
 	}
+	var (
+		appCodec          = encodingConfig.Codec
+		txConfig          = encodingConfig.TxConfig
+		legacyAmino       = encodingConfig.Amino
+		interfaceRegistry = encodingConfig.InterfaceRegistry
+	)
 
 	initClientCtx := client.Context{}.
-		WithCodec(encodingConfig.Codec).
-		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
-		WithLegacyAmino(encodingConfig.Amino).
+		WithCodec(appCodec).
+		WithInterfaceRegistry(interfaceRegistry).
+		WithLegacyAmino(legacyAmino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(runtime.DefaultNodeHome).
-		WithKeyringOptions(keyring.EthSecp256k1Option()).
-		WithViper("") // In simapp, we don't use any prefix for env variables.
+		WithViper(""). // In simapp, we don't use any prefix for env variables.
+		WithKeyringOptions(keyring.EthSecp256k1Option())
 
 	rootCmd := &cobra.Command{
-		Use:   "simd",
-		Short: "simulation app",
+		Use:   "polard",
+		Short: "polaris sample app",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
@@ -106,17 +145,18 @@ func NewRootCmd() *cobra.Command {
 
 			// This needs to go after ReadFromClientConfig, as that function
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			opts, err := txmodule.NewSignModeOptionsWithMetadataQueryFn(txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx))
-			if err != nil {
-				return err
+			txConfigOpts := tx.ConfigOptions{
+				TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
 			}
-			txConfigWithTextual := tx.NewTxConfigWithOptions(
-				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
-				opts,
-				evmante.SignModeEthTxHandler{},
-			)
-			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 
+			// Add a custom sign mode handler for ethereum transactions.
+			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
+			txConfigWithTextual := tx.NewTxConfigWithOptions(
+				codec.NewProtoCodec(interfaceRegistry),
+				txConfigOpts,
+			)
+
+			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 				return err
 			}
@@ -128,7 +168,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig)
+	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, runtime.ModuleBasics)
 
 	if err := tempApp.AutoCliOpts().EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
@@ -145,7 +185,6 @@ func initCometBFTConfig() *cmtcfg.Config {
 	// these values put a higher strain on node memory
 	// cfg.P2P.MaxNumInboundPeers = 100
 	// cfg.P2P.MaxNumOutboundPeers = 40
-	// cfg.Consensus = cmtcfg.DefaultConsensusConfig()
 
 	return cfg
 }
@@ -169,19 +208,29 @@ func initAppConfig() (string, interface{}) {
 	//   own app.toml to override, or use this default value.
 	//
 	// In simapp, we set the min gas prices to 0.
-	srvCfg.MinGasPrices = "0abera"
+	srvCfg.MinGasPrices = "0stake"
+	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
+
 	return serverconfig.DefaultConfigTemplate, srvCfg
 }
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
+func initRootCmd(
+	rootCmd *cobra.Command,
+	txConfig client.TxConfig,
+	_ codectypes.InterfaceRegistry,
+	_ codec.Codec,
+	basicManager module.BasicManager,
+) {
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(runtime.ModuleBasics, runtime.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, runtime.DefaultNodeHome),
+		// NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp),
+		snapshot.Cmd(newApp),
 	)
 
 	server.AddCommands(rootCmd, runtime.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
@@ -189,7 +238,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
-		genesisCommand(encodingConfig),
+		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
 		keys.Commands(runtime.DefaultNodeHome),
@@ -200,9 +249,9 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 }
 
-// genesisCommand builds genesis-related `polard genesis` command. Users may provide application specific commands as a parameter.
-func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, runtime.ModuleBasics, runtime.DefaultNodeHome)
+// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.
+func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
+	cmd := genutilcli.Commands(txConfig, basicManager, runtime.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -228,10 +277,9 @@ func queryCommand() *cobra.Command {
 		authcmd.QueryTxCmd(),
 	)
 
-	runtime.ModuleBasics.AddQueryCommands(cmd)
-
 	return cmd
 }
+
 func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
@@ -252,8 +300,6 @@ func txCommand() *cobra.Command {
 		authcmd.GetDecodeCommand(),
 		authcmd.GetAuxToFeeCommand(),
 	)
-
-	runtime.ModuleBasics.AddTxCommands(cmd)
 
 	return cmd
 }
@@ -285,8 +331,6 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var polarisApp *runtime.PolarisApp
-
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
@@ -303,6 +347,7 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
+	var polarisApp *runtime.PolarisApp
 	if height != -1 {
 		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
 

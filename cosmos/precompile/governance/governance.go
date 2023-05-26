@@ -104,9 +104,9 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalBz, ok := utils.GetAs[[]byte](args[0])
@@ -129,8 +129,8 @@ func (c *Contract) CancelProposal(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	id, ok := utils.GetAs[uint64](args[0])
@@ -147,8 +147,8 @@ func (c *Contract) Vote(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalID, ok := utils.GetAs[uint64](args[0])
@@ -173,8 +173,8 @@ func (c *Contract) VoteWeighted(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalID, ok := utils.GetAs[uint64](args[0])
@@ -197,9 +197,9 @@ func (c *Contract) VoteWeighted(
 func (c *Contract) GetProposal(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalID, ok := utils.GetAs[uint64](args[0])
@@ -214,9 +214,9 @@ func (c *Contract) GetProposal(
 func (c *Contract) GetProposals(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalStatus, ok := utils.GetAs[int32](args[0])

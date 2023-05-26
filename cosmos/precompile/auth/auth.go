@@ -89,11 +89,11 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 
 // ConvertHexToBech32 converts a common.Address to a bech32 string.
 func (c *Contract) ConvertHexToBech32(
-	ctx context.Context,
+	_ context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	hexAddr, ok := utils.GetAs[common.Address](args[0])
@@ -118,11 +118,11 @@ func (c *Contract) ConvertHexToBech32(
 
 // ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
 func (c *Contract) ConvertBech32ToHexAddress(
-	ctx context.Context,
+	_ context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -149,9 +149,9 @@ func (c *Contract) ConvertBech32ToHexAddress(
 func (c *Contract) SetSendAllowance(
 	ctx context.Context,
 	evm ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	owner, ok := utils.GetAs[common.Address](args[0])
@@ -185,9 +185,9 @@ func (c *Contract) SetSendAllowance(
 func (c *Contract) GetSendAllowance(
 	ctx context.Context,
 	evm ethprecompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	owner, ok := utils.GetAs[common.Address](args[0])

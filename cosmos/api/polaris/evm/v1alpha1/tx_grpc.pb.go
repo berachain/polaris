@@ -48,7 +48,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MsgServiceClient interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
-	EthTransaction(ctx context.Context, in *EthTransactionRequest, opts ...grpc.CallOption) (*EthTransactionResponse, error)
+	EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*WrappedEthereumTransactionResult, error)
 	// `UpdateParams` defines a governance operation for updating the x/evm module
 	// parameters. The authority is defaults to the x/gov module account.
 	//
@@ -64,8 +64,8 @@ func NewMsgServiceClient(cc grpc.ClientConnInterface) MsgServiceClient {
 	return &msgServiceClient{cc}
 }
 
-func (c *msgServiceClient) EthTransaction(ctx context.Context, in *EthTransactionRequest, opts ...grpc.CallOption) (*EthTransactionResponse, error) {
-	out := new(EthTransactionResponse)
+func (c *msgServiceClient) EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*WrappedEthereumTransactionResult, error) {
+	out := new(WrappedEthereumTransactionResult)
 	err := c.cc.Invoke(ctx, MsgService_EthTransaction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func (c *msgServiceClient) UpdateParams(ctx context.Context, in *UpdateParamsReq
 // for forward compatibility
 type MsgServiceServer interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
-	EthTransaction(context.Context, *EthTransactionRequest) (*EthTransactionResponse, error)
+	EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error)
 	// `UpdateParams` defines a governance operation for updating the x/evm module
 	// parameters. The authority is defaults to the x/gov module account.
 	//
@@ -100,7 +100,7 @@ type MsgServiceServer interface {
 type UnimplementedMsgServiceServer struct {
 }
 
-func (UnimplementedMsgServiceServer) EthTransaction(context.Context, *EthTransactionRequest) (*EthTransactionResponse, error) {
+func (UnimplementedMsgServiceServer) EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EthTransaction not implemented")
 }
 func (UnimplementedMsgServiceServer) UpdateParams(context.Context, *UpdateParamsRequest) (*UpdateParamsResponse, error) {
@@ -120,7 +120,7 @@ func RegisterMsgServiceServer(s grpc.ServiceRegistrar, srv MsgServiceServer) {
 }
 
 func _MsgService_EthTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EthTransactionRequest)
+	in := new(WrappedEthereumTransaction)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func _MsgService_EthTransaction_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: MsgService_EthTransaction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServiceServer).EthTransaction(ctx, req.(*EthTransactionRequest))
+		return srv.(MsgServiceServer).EthTransaction(ctx, req.(*WrappedEthereumTransaction))
 	}
 	return interceptor(ctx, in, info, handler)
 }
