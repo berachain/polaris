@@ -10,7 +10,7 @@ help:
 
 # Required rule for gh action codeql to run.
 codeqlbuild:
-	@mage contracts:build generate build
+	@mage build
 
 # Rule to forward any target to Mage
 %:
