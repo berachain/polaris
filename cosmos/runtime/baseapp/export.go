@@ -23,6 +23,7 @@ package baseapp
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	storetypes "cosmossdk.io/store/types"
@@ -31,17 +32,16 @@ import (
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"pkg.berachain.dev/polaris/lib/errors"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool,
-	jailAllowedAddrs []string, modulesToExport []string) (servertypes.ExportedApp, error) {
+func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs,
+	modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
 
@@ -50,7 +50,7 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool,
 	height := app.LastBlockHeight() + 1
 	if forZeroHeight {
 		height = 0
-		app.PrepForZeroHeightGenesis(ctx, jailAllowedAddrs)
+		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
 	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.AppCodec(), modulesToExport)
@@ -75,10 +75,10 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool,
 // prepare for fresh start at zero height
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //
-//	in favour of export at a block height
+//	in favor of export at a block height
 //
-//nolint:funlen,gocognit // from sdk.
-func (app *PolarisBaseApp) PrepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+//nolint:funlen,gocognit // from cosmos-sdk.
+func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list
@@ -133,12 +133,22 @@ func (app *PolarisBaseApp) PrepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	// reinitialize all validators
 	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
-		scraps := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, val.GetOperator())
-		feePool := app.DistrKeeper.GetFeePool(ctx)
-		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		app.DistrKeeper.SetFeePool(ctx, feePool)
+		scraps, err := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, val.GetOperator())
+		if err != nil {
+			panic(err)
+		}
 
-		if err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator()); err != nil {
+		var feePool distributiontypes.FeePool
+		feePool, err = app.DistrKeeper.GetFeePool(ctx)
+		if err != nil {
+			panic(err)
+		}
+		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
+		if err = app.DistrKeeper.SetFeePool(ctx, feePool); err != nil {
+			panic(err)
+		}
+
+		if err = app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator()); err != nil {
 			panic(err)
 		}
 		return false
@@ -154,12 +164,12 @@ func (app *PolarisBaseApp) PrepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 
 		if err = app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
 			// never called as BeforeDelegationCreated always returns nil
-			panic(errors.Wrap(err, "error while incrementing period"))
+			panic(fmt.Errorf("error while incrementing period: %w", err))
 		}
 
 		if err = app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
 			// never called as AfterDelegationModified always returns nil
-			panic(errors.Wrap(err, "error while creating a new delegation period record"))
+			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
 		}
 	}
 
@@ -169,7 +179,7 @@ func (app *PolarisBaseApp) PrepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	/* Handle staking state. */
 
 	// iterate through redelegations, reset creation height
-	app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) (stop bool) {
+	app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) bool {
 		for i := range red.Entries {
 			red.Entries[i].CreationHeight = 0
 		}
@@ -178,7 +188,7 @@ func (app *PolarisBaseApp) PrepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	})
 
 	// iterate through unbonding delegations, reset creation height
-	app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) (stop bool) {
+	app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) bool {
 		for i := range ubd.Entries {
 			ubd.Entries[i].CreationHeight = 0
 		}

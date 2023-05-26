@@ -118,10 +118,11 @@ func SetupMinimalKeepers() (
 
 	bk := bankkeeper.NewBaseKeeper(
 		encodingConfig.Codec,
-		BankKey,
+		runtime.NewKVStoreService(BankKey),
 		ak,
 		nil,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		log.NewTestLogger(&testing.T{}),
 	)
 
 	sk := stakingkeeper.NewKeeper(

@@ -21,10 +21,13 @@
 package evm
 
 import (
+	"context"
+
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	"cosmossdk.io/core/appmodule"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -40,10 +43,11 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ module.HasServices         = AppModule{}
-	_ module.BeginBlockAppModule = AppModule{}
-	_ module.PrecommitAppModule  = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ appmodule.HasServices     = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ appmodule.HasEndBlocker   = AppModule{}
+	_ module.AppModule          = AppModule{}
+	_ module.AppModuleBasic     = AppModuleBasic{}
 )
 
 // ==============================================================================
@@ -59,7 +63,7 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec registers the evm module's types on the given LegacyAmino codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino) {
 	// types.RegisterLegacyAminoCodec(cdc)
 }
 
@@ -69,12 +73,7 @@ func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the evm module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
-	// if err := types.RegisterQueryServiceHandlerClient(context.Background(), mux,
-	// types.NewQueryClient(clientCtx)); err != nil {
-	// 	panic(err)
-	// }
-}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *gwruntime.ServeMux) {}
 
 // GetTxCmd returns no root tx command for the evm module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
@@ -121,21 +120,21 @@ func (am AppModule) IsAppModule() {}
 // RegisterInvariants registers the evm module invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// RegisterServices registers a gRPC query service to respond to the
-// module-specific gRPC queries.
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServiceServer(cfg.MsgServer(), am.keeper)
-	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+// RegisterServices registers module services.
+func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
+	types.RegisterMsgServiceServer(registrar, am.keeper)
+	return nil
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 // BeginBlock returns the begin blocker for the evm module.
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
-	am.keeper.BeginBlocker(ctx)
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	return am.keeper.BeginBlocker(ctx)
 }
 
-func (am AppModule) Precommit(ctx sdk.Context) {
-	am.keeper.Precommit(ctx)
+// EndBlock returns the end blocker for the evm module.
+func (am AppModule) EndBlock(ctx context.Context) error {
+	return am.keeper.EndBlock(ctx)
 }

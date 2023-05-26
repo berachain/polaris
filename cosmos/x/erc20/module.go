@@ -23,8 +23,9 @@ package erc20
 import (
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	"cosmossdk.io/core/appmodule"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -40,10 +41,8 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ module.HasServices         = AppModule{}
-	_ module.BeginBlockAppModule = AppModule{}
-	_ module.EndBlockAppModule   = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ appmodule.HasServices = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
 // ==============================================================================
@@ -59,17 +58,17 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec registers the evm module's types on the given LegacyAmino codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino) {
 	// types.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers the module's interface types.
-func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
+func (b AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry) {
 	// types.RegisterInterfaces(r)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the evm module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *gwruntime.ServeMux) {
 	// if err := types.RegisterQueryServiceHandlerClient(context.Background(), mux,
 	// types.NewQueryClient(clientCtx)); err != nil {
 	// 	panic(err)
@@ -119,21 +118,11 @@ func (am AppModule) IsAppModule() {}
 // RegisterInvariants registers the evm module invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// RegisterServices registers a gRPC query service to respond to the
-// module-specific gRPC queries.
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterQueryServiceServer(cfg.QueryServer(), am.keeper)
-	// types.RegisterMsgServiceServer(cfg.MsgServer(), am.keeper)
+// RegisterServices registers module services.
+func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
+	types.RegisterQueryServiceServer(registrar, am.keeper)
+	return nil
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
-
-// BeginBlock returns the begin blocker for the erc20 module.
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {}
-
-// EndBlock returns the end blocker for the erc20 module. It returns no validator
-// updates.
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
-}

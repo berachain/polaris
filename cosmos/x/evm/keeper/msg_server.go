@@ -38,8 +38,8 @@ var _ types.MsgServiceServer = &Keeper{}
 // EthTransaction implements the  MsgServiceServer interface. It processes an incoming request
 // and applies it to the Polaris Chain.
 func (k *Keeper) EthTransaction(
-	ctx context.Context, msg *types.EthTransactionRequest,
-) (*types.EthTransactionResponse, error) {
+	ctx context.Context, msg *types.WrappedEthereumTransaction,
+) (*types.WrappedEthereumTransactionResult, error) {
 	// Process the transaction and return the result.
 	result, err := k.ProcessTransaction(ctx, msg.AsTransaction())
 	if err != nil {
@@ -52,7 +52,7 @@ func (k *Keeper) EthTransaction(
 		vmErr = result.Err.Error()
 	}
 
-	return &types.EthTransactionResponse{
+	return &types.WrappedEthereumTransactionResult{
 		GasUsed:    result.UsedGas,
 		VmError:    vmErr,
 		ReturnData: result.ReturnData,

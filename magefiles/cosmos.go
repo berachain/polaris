@@ -156,10 +156,7 @@ func (c Cosmos) Test() error {
 		return err
 	}
 
-	if err := TestIntegration(); err != nil {
-		return err
-	}
-	return nil
+	return TestIntegration()
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
