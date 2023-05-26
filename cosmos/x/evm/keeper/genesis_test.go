@@ -88,6 +88,33 @@ var _ = Describe("Keeper", func() {
 			It("should execute without error", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
+			Context("a single account is set and valid", func() {
+				BeforeEach(func() {
+					ethGenesis.Alloc[testutil.Bob] = core.GenesisAccount{
+						Balance: big.NewInt(100),
+					}
+					genesisState.Params.EthGenesis = string(enclib.MustMarshalJSON(*ethGenesis))
+					lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "abera", big.NewInt(100)) //nolint:errcheck,lll // test mint must succeed
+				})
+				It("should execute without error", func() {
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
+			Context("multiple accounts are set and valid", func() {
+				BeforeEach(func() {
+					ethGenesis.Alloc[testutil.Bob] = core.GenesisAccount{
+						Balance: big.NewInt(100),
+					}
+					ethGenesis.Alloc[testutil.Alice] = core.GenesisAccount{
+						Balance: big.NewInt(69000),
+					}
+					genesisState.Params.EthGenesis = string(enclib.MustMarshalJSON(*ethGenesis))
+					lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "abera", big.NewInt(100)) //nolint:errcheck,lll // test mint must succeed
+				})
+				It("should execute without error", func() {
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
 		})
 		When("the coinbase is invalid", func() {
 			BeforeEach(func() {
@@ -98,7 +125,7 @@ var _ = Describe("Keeper", func() {
 				Expect(err).To(Equal(fmt.Errorf("coinbase of the genesis block must be the null address, not: %s", testutil.Bob)))
 			})
 		})
-		When("the balance is invalid", func() {
+		When("the balance is invalid (non-zero)", func() {
 			BeforeEach(func() {
 				ethGenesis.Alloc[testutil.Bob] = core.GenesisAccount{
 					Balance: big.NewInt(100),
@@ -116,6 +143,14 @@ var _ = Describe("Keeper", func() {
 				})
 				It("should report a balance mismatch error", func() {
 					Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected %v, got %v", testutil.Bob, 50, 100)))
+				})
+			})
+			Context("the account exists but the balance contains a different denom", func() {
+				BeforeEach(func() {
+					lib.MintCoinsToAddress(ctx, bk, types.ModuleName, testutil.Bob, "peepee", big.NewInt(50)) //nolint:errcheck,lll // test mint must succeed
+				})
+				It("should report a balance mismatch error", func() {
+					Expect(err).To(Equal(fmt.Errorf("account %s balance mismatch: expected %v, got %v", testutil.Bob, 0, 100)))
 				})
 			})
 		})
