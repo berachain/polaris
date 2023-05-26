@@ -98,9 +98,8 @@ func NewPolarisProviderWithConfig(
 func (sp *PolarisProvider) StartServices() error {
 	sp.Node.RegisterAPIs(rpc.GetAPIs(sp.backend))
 	// Register the filter API separately in order to get access to the filterSystem
-	// TODO: this should be made cleaner.
+	// TODO: enable as a flag rather than make every node default to using it
 	filterSystem := utils.RegisterFilterAPI(sp.Node, sp.backend, &defaultEthConfig)
-	// this should be a flag rather than make every node default to using it
 	utils.RegisterGraphQLService(sp.Node, sp.backend, filterSystem, sp.Node.Config())
 	return sp.Node.Start()
 }
