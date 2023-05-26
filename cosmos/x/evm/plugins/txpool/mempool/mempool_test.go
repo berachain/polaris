@@ -159,7 +159,7 @@ var _ = Describe("EthTxPool", func() {
 			})
 		It("should not allow replacement txs with gas increase < 10%", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(99)})
-			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1.0, GasPrice: big.NewInt(100)})
+			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100)})
 
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx11)).To(HaveOccurred())
