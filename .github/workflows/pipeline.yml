@@ -25,6 +25,12 @@ on:
   push:
     branches:
       - main
+
+# This environment is necessary to avoid the following issue
+# https://github.com/github/codeql/issues/6321
+env:
+  CODEQL_EXTRACTOR_GO_BUILD_TRACING: "on"
+
 jobs:
   ci:
     strategy:

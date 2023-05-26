@@ -23,7 +23,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: "ubuntu-latest"
     permissions:
       actions: read
       contents: read
@@ -33,6 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         language: ["go"]
+        versions: [1.20.4]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Use only 'java' to analyze code written in Java, Kotlin or both
         # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
@@ -64,7 +65,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ matrix.versions }}
       - name: Cache Golang Deps
         uses: actions/cache@v3
         with:
