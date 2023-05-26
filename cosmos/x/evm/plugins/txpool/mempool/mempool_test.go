@@ -157,7 +157,7 @@ var _ = Describe("EthTxPool", func() {
 				Expect(queuedTransactions).To(HaveLen(0))
 				Expect(etp.Nonce(addr1)).To(Equal(uint64(4)))
 			})
-		It("should not allow duplicate nonces with gas increase < 10%", func() {
+		It("should not allow replacement txs with gas increase < 10%", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(99)})
 			_, tx11 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1.0, GasPrice: big.NewInt(100)})
 
