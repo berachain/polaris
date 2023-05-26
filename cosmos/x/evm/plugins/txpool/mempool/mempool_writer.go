@@ -28,19 +28,13 @@ import (
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // Insert is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	etp.mu.Lock()
 	defer etp.mu.Unlock()
-
-	// Reject txs with a nonce lower than the nonce reported by the statedb.
-	if sdbNonce := etp.nr.GetNonce(
-		common.BytesToAddress(tx.GetMsgs()[0].GetSigners()[0]),
-	); sdbNonce > evmtypes.GetAsEthTx(tx).Nonce() {
-		return errors.New("nonce too low")
-	}
 
 	// Call the base mempool's Insert method
 	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
@@ -49,17 +43,24 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 
 	// We want to cache the transaction for lookup.
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		signer := common.BytesToAddress(tx.GetMsgs()[0].GetSigners()[0])
+		sender := coretypes.GetSender(ethTx)
+		nonce := ethTx.Nonce()
+
+		// Reject txs with a nonce lower than the nonce reported by the statedb.
+		if sdbNonce := etp.nr.GetNonce(sender); sdbNonce > nonce {
+			return errors.New("nonce too low")
+		}
+
 		// Delete old hash.
-		hash := etp.nonceToHash[signer][ethTx.Nonce()]
+		hash := etp.nonceToHash[sender][nonce]
 		delete(etp.ethTxCache, hash)
 
 		// Add new hash.
 		newHash := ethTx.Hash()
-		if etp.nonceToHash[signer] == nil {
-			etp.nonceToHash[signer] = make(map[uint64]common.Hash)
+		if etp.nonceToHash[sender] == nil {
+			etp.nonceToHash[sender] = make(map[uint64]common.Hash)
 		}
-		etp.nonceToHash[signer][ethTx.Nonce()] = newHash
+		etp.nonceToHash[sender][nonce] = newHash
 		etp.ethTxCache[newHash] = ethTx
 	}
 
@@ -78,9 +79,8 @@ func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 
 	// We want to remove any references to the tx from the cache.
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		signer := common.BytesToAddress(tx.GetMsgs()[0].GetSigners()[0])
 		delete(etp.ethTxCache, ethTx.Hash())
-		delete(etp.nonceToHash[signer], ethTx.Nonce())
+		delete(etp.nonceToHash[coretypes.GetSender(ethTx)], ethTx.Nonce())
 	}
 
 	return nil
