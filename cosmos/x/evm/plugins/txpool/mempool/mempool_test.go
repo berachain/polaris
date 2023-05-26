@@ -251,7 +251,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
 
 			Expect(etp.Pending(false)[addr1]).To(BeEmpty())
-			Expect(etp.queued()).To(HaveLen(2))
+			Expect(etp.queued()[addr1]).To(HaveLen(2))
 			pending, queued := etp.Stats()
 			Expect(pending).To(Equal(0))
 			Expect(queued).To(Equal(2))
