@@ -41,7 +41,6 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -201,21 +200,18 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx31)).ToNot(HaveOccurred())
 
-			allSenders := etp.senderIndices
-
 			// very ugly code, but it works for now,
 			// looks like an unoptimal leetcode solution kek
 			// TODO: Iterate using the `PriorityNonceIterator` and `Select()` defined in priority_nonce.go maybe?
 			var prevTx *coretypes.Transaction
-			for _, list := range allSenders {
-				for elem := list.Front(); elem != nil; elem = elem.Next() {
-					ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value))
-					// for the first transaction
-					if prevTx == nil {
-						prevTx = ethTx
-					} else { // new tx
-						Expect(ethTx.Nonce()).To(Equal(prevTx.Nonce() + 1))
-						prevTx = ethTx
+			for _, txs := range etp.Pending(false) {
+				for _, tx := range txs {
+					if prevTx == nil { // for the first transaction from a sender
+						prevTx = tx
+					} else { // for the rest of the transactions
+						Expect(tx.Nonce()).To(Equal(prevTx.Nonce() + 1))
+						prevTx = tx
+
 					}
 					// NOTE: replacement transactions are not handled because the old tx is removed from the pool
 				}
@@ -270,8 +266,8 @@ var _ = Describe("EthTxPool", func() {
 			wg.Add(1)
 			go func(etp *EthTxPool) {
 				defer wg.Done()
-				for _, list := range etp.senderIndices {
-					for elem := list.Front(); elem != nil; elem = elem.Next() {
+				for _, txs := range etp.Pending(false) {
+					for range txs {
 						readsFromA++
 					}
 				}
@@ -281,8 +277,8 @@ var _ = Describe("EthTxPool", func() {
 			wg.Add(1)
 			go func(etp *EthTxPool) {
 				defer wg.Done()
-				for _, list := range etp.senderIndices {
-					for elem := list.Front(); elem != nil; elem = elem.Next() {
+				for _, txs := range etp.Pending(false) {
+					for range txs {
 						readsFromB++
 					}
 				}

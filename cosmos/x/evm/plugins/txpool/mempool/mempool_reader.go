@@ -21,9 +21,10 @@
 package mempool
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -37,40 +38,41 @@ func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 
 // Pending is called when txs in the mempool are retrieved.
 func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
+	pendingNonces := make(map[common.Address]int64)
 	pending := make(map[common.Address]coretypes.Transactions)
-	for sender, list := range etp.senderIndices {
-		// get Eth Address of sender
-		addr := cosmlib.EthAddressFromBech32(sender)
 
-		var pendingNonce int64 = -1
-		for elem := list.Front(); elem != nil; elem = elem.Next() {
-			if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
-				switch {
-				case pendingNonce == -1:
-					// If its the first tx, set the pending nonce to the nonce of the tx.
-					pending[addr] = append(pending[addr], ethTx)
-					pendingNonce = int64(ethTx.Nonce())
-					// If on the first lookup the nonce delta is more than 0, then there is a gap
-					// and thus no pending transactions, but there are queued transactions. We
-					// continue.
-					if sdbNonce := etp.nr.GetNonce(addr); uint64(pendingNonce)-sdbNonce >= 1 {
-						continue
-					}
-				case int64(ethTx.Nonce()) == pendingNonce+1:
-					// If its not the first tx, but the nonce is the same as the pending nonce, add
-					// it to the list.
-					pending[addr] = append(pending[addr], ethTx)
-					pendingNonce++
-				default:
-					// If we see an out of order nonce, we break since the rest should be "queued".
-					break
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
+
+	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
+		// for iter := list.Front(); iter != nil; iter = iter.Next() {
+		tx := iter.Tx()
+		if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](tx)); ethTx != nil {
+			addr, _ := coretypes.LatestSignerForChainID(ethTx.ChainId()).Sender(ethTx)
+			pendingNonce := pendingNonces[addr]
+			switch {
+			case pendingNonce == 0:
+				// If its the first tx, set the pending nonce to the nonce of the tx.
+				pending[addr] = append(pending[addr], ethTx)
+				pendingNonce = int64(ethTx.Nonce())
+				// If on the first lookup the nonce delta is more than 0, then there is a gap
+				// and thus no pending transactions, but there are queued transactions. We
+				// continue.
+				if sdbNonce := etp.nr.GetNonce(addr); uint64(pendingNonce)-sdbNonce >= 1 {
+					continue
 				}
+			case int64(ethTx.Nonce()) == pendingNonce+1:
+				// If its not the first tx, but the nonce is the same as the pending nonce, add
+				// it to the list.
+				pending[addr] = append(pending[addr], ethTx)
+				pendingNonce++
+			default:
+				// If we see an out of order nonce, we break since the rest should be "queued".
+				continue
 			}
 		}
 	}
+	// }
 
 	return pending
 }
@@ -79,41 +81,42 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 //
 //nolint:gocognit // big brain.
 func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
+	pendingNonces := make(map[common.Address]int64)
 	queued := make(map[common.Address]coretypes.Transactions)
-	for sender, list := range etp.senderIndices {
-		// get Eth Address of sender
-		addr := cosmlib.EthAddressFromBech32(sender)
 
-		pendingNonce := int64(-1)
-		contiguous := true
-		for elem := list.Front(); elem != nil; elem = elem.Next() {
-			if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
-				switch {
-				case contiguous && pendingNonce == -1:
-					// When we see a transaction, mark it as the pending nonce.
-					pendingNonce = int64(ethTx.Nonce())
-					// If on the first lookup the nonce delta is more than 0, then there is a gap
-					// and thus no pending transactions, but there are queued transactions.
-					if uint64(pendingNonce)-etp.nr.GetNonce(addr) >= 1 {
-						contiguous = false
-						queued[addr] = append(queued[addr], ethTx)
-					}
-				case contiguous && int64(ethTx.Nonce()) == pendingNonce+1:
-					// If we are still contiguous and the nonce is the same as the pending nonce,
-					// increment the pending nonce.
-					pendingNonce++
-				case contiguous && int64(ethTx.Nonce()) > pendingNonce+1:
-					// If we are still contiguous and the nonce is greater than the pending nonce,
-					// we are no longer contiguous. Add to the queued list.
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
+
+	// After the lock is released we can iterate over the mempool.
+	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
+		if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](iter.Tx())); ethTx != nil {
+			addr, _ := coretypes.LatestSignerForChainID(ethTx.ChainId()).Sender(ethTx)
+			pendingNonce, ok := pendingNonces[addr]
+			contiguous := true
+			switch {
+			case contiguous && !ok:
+				// When we see a transaction, mark it as the pending nonce.
+				pendingNonce = int64(ethTx.Nonce())
+				pendingNonces[addr] = pendingNonce
+				// If on the first lookup the nonce delta is more than 0, then there is a gap
+				// and thus no pending transactions, but there are queued transactions.
+				if uint64(pendingNonce)-etp.nr.GetNonce(addr) >= 1 {
 					contiguous = false
-					fallthrough
-				default:
-					// All other transactions in the skip list should be queued.
 					queued[addr] = append(queued[addr], ethTx)
 				}
+			case contiguous && int64(ethTx.Nonce()) == pendingNonces[addr]+1:
+				// If we are still contiguous and the nonce is the same as the pending nonce,
+				// increment the pending nonce.
+				pendingNonce++
+				pendingNonces[addr] = pendingNonce
+			case contiguous && int64(ethTx.Nonce()) > pendingNonces[addr]+1:
+				// If we are still contiguous and the nonce is greater than the pending nonce,
+				// we are no longer contiguous. Add to the queued list.
+				contiguous = false
+				fallthrough
+			default:
+				// All other transactions in the skip list should be queued.
+				queued[addr] = append(queued[addr], ethTx)
 			}
 		}
 	}
@@ -124,42 +127,48 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 // Nonce returns the nonce for the given address from the mempool if the address has sent a tx
 // in the mempool.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
-	var pendingNonce int64 = -1
+	pendingNonces := make(map[common.Address]uint64)
+	etp.mu.Lock()
 	// search for the first pending ethTx
-	if txs := etp.senderIndices[cosmlib.Bech32FromEthAddress(addr)]; txs != nil {
-		for elem := txs.Front(); elem != nil; elem = elem.Next() {
-			if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value)); ethTx != nil {
-				switch {
-				case pendingNonce == -1:
-					// When we see a transaction, mark it as the pending nonce.
-					pendingNonce = int64(ethTx.Nonce())
-					// If on the first lookup the nonce delta is more than 0, then there is a gap
-					// and thus no pending transactions, but there are queued transactions.
-					if sdbNonce := etp.nr.GetNonce(addr); uint64(pendingNonce)-sdbNonce >= 1 {
-						return sdbNonce
-					}
-				case int64(ethTx.Nonce()) == pendingNonce+1:
-					// If we are still contiguous and the nonce is the same as the pending nonce,
-					// increment the pending nonce.
-					pendingNonce++
-				case int64(ethTx.Nonce()) > pendingNonce+1:
-					// As soon as we see a non contiguous nonce we break.
-					break
+	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
+		if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](iter.Tx())); ethTx != nil {
+			txAddr, _ := coretypes.LatestSignerForChainID(ethTx.ChainId()).Sender(ethTx)
+			if addr != txAddr {
+				continue
+			}
+			_, ok := pendingNonces[addr]
+			txNonce := ethTx.Nonce()
+			switch {
+			case !ok:
+				// When we see a transaction, mark it as the pending nonce.
+				pendingNonce := txNonce
+				pendingNonces[addr] = pendingNonce
+				// If on the first lookup the nonce delta is more than 0, then there is a gap
+				// and thus no pending transactions, but there are queued transactions.
+				if sdbNonce := etp.nr.GetNonce(addr); uint64(pendingNonces[addr])-sdbNonce >= 1 {
+					return sdbNonce
 				}
+			case txNonce == pendingNonces[addr]+1:
+				// If we are still contiguous and the nonce is the same as the pending nonce,
+				// increment the pending nonce.
+				pendingNonces[addr]++
+			case txNonce > pendingNonces[addr]+1:
+				// As soon as we see a non contiguous nonce we break.
+				break
 			}
 		}
 	}
 
+	// We move this here instead of defer as a slight optimization.
+	etp.mu.Unlock()
+
 	// if the addr has no eth txs, fallback to the nonce retriever db
-	if pendingNonce == -1 {
+	if _, ok := pendingNonces[addr]; !ok {
 		return etp.nr.GetNonce(addr)
 	}
 
 	// pending nonce is 1 more than the current nonce
-	return uint64(pendingNonce + 1)
+	return uint64(pendingNonces[addr] + 1)
 }
 
 // Stats returns the number of currently pending and queued (locally created) transactions.

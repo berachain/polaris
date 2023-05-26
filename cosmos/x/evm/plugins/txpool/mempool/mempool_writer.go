@@ -30,11 +30,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-// SetNonceRetriever sets the nonce retriever db for the mempool.
-func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
-	etp.nr = nr
-}
-
 // Insert is called when a transaction is added to the mempool.
 func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	etp.mu.Lock()
