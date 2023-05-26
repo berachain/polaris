@@ -52,14 +52,16 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 			switch {
 			case pendingNonce == 0:
 				// If its the first tx, set the pending nonce to the nonce of the tx.
-				pending[addr] = append(pending[addr], ethTx)
-				pendingNonce = ethTx.Nonce()
+				pendingNonces[addr] = ethTx.Nonce()
 				// If on the first lookup the nonce delta is more than 0, then there is a gap
 				// and thus no pending transactions, but there are queued transactions. We
 				// continue.
-				if sdbNonce := etp.nr.GetNonce(addr); pendingNonce-sdbNonce >= 1 {
+				if sdbNonce := etp.nr.GetNonce(addr); pendingNonces[addr]-sdbNonce >= 1 {
+					delete(pendingNonces, addr)
 					continue
 				}
+				// this is a pending tx, add it to the pending map.
+				pending[addr] = append(pending[addr], ethTx)
 			case ethTx.Nonce() == pendingNonce+1:
 				// If its not the first tx, but the nonce is the same as the pending nonce, add
 				// it to the list.
@@ -94,11 +96,13 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 			case !seenTransaction:
 				// When we see a transaction, mark it as the pending nonce.
 				pendingNonce = ethTx.Nonce()
-				pendingNonces[addr] = pendingNonce
 				// If on the first lookup the nonce delta is more than 0, then there is a gap
 				// and thus no pending transactions, but there are queued transactions.
 				if pendingNonce-etp.nr.GetNonce(addr) >= 1 {
 					queued[addr] = append(queued[addr], ethTx)
+				} else {
+					// this is a pending tx, add it to the pending map.
+					pendingNonces[addr] = pendingNonce
 				}
 			case ethTx.Nonce() == pendingNonces[addr]+1:
 				// If we are still contiguous and the nonce is the same as the pending nonce,
