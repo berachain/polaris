@@ -44,7 +44,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	pending := make(map[common.Address]coretypes.Transactions)
 	for sender, list := range allNonces {
 		// get Eth Address of sender
-		addr := getEthAddressFromBech32(sender)
+		addr := cosmlib.EthAddressFromBech32(sender)
 
 		var pendingNonce int64 = -1
 
@@ -87,7 +87,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 
 	for sender, list := range allNonces {
 		// get Eth Address of sender
-		addr := getEthAddressFromBech32(sender)
+		addr := cosmlib.EthAddressFromBech32(sender)
 
 		pendingNonce := int64(-1)
 		contiguous := true
@@ -179,9 +179,4 @@ func (etp *EthTxPool) Content() (
 	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
 ) {
 	return etp.Pending(false), etp.queued()
-}
-
-func getEthAddressFromBech32(bech32Str string) common.Address {
-	addrBech32, _ := sdk.AccAddressFromBech32(bech32Str)
-	return cosmlib.AccAddressToEthAddress(addrBech32)
 }

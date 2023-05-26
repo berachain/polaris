@@ -31,6 +31,12 @@ func AccAddressToEthAddress(accAddress sdk.AccAddress) common.Address {
 	return common.BytesToAddress(accAddress)
 }
 
+// EthAddressFromBEch32 converts a Bech32 string to an Ethereum `Address`.
+func EthAddressFromBech32(bech32Str string) common.Address {
+	addrBech32, _ := sdk.AccAddressFromBech32(bech32Str)
+	return AccAddressToEthAddress(addrBech32)
+}
+
 // ConsAddressToEthAddress converts a Cosmos SDK `ConsAddress` to an Ethereum `Address`.
 func ConsAddressToEthAddress(consAddress sdk.ConsAddress) common.Address {
 	return common.BytesToAddress(consAddress)
