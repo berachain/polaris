@@ -23,7 +23,6 @@ package mempool
 import (
 	"bytes"
 	"crypto/ecdsa"
-	"fmt"
 	"math/big"
 	"sync"
 	"testing"
@@ -211,7 +210,6 @@ var _ = Describe("EthTxPool", func() {
 			for _, list := range allSenders {
 				for elem := list.Front(); elem != nil; elem = elem.Next() {
 					ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value))
-					fmt.Println(ethTx.Nonce(), ethTx.GasPrice())
 					// for the first transaction
 					if prevTx == nil {
 						prevTx = ethTx
