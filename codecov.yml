@@ -22,12 +22,7 @@ coverage:
   status:
     project:
       default:
-        threshold: 2%
-        # target: 50%
-        # flags:
-        #   - unit
-        #   - integration
-
+        target: 60%
     patch: off
 
 comment:
@@ -44,5 +39,5 @@ ignore:
   - "**/*.rlpgen.go"
   - "**/*.mock.go"
   - "**/proto"
-  - "build/"
-  - "cmd/"
+  - "**/build"
+  - "**/cmd"

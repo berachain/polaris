@@ -26,7 +26,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 
+	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -81,7 +84,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	// Create the governance keeper.
 	gk := governancekeeper.NewKeeper(
 		encCfg.Codec,
-		testutil.EvmKey,
+		runtime.NewKVStoreService(storetypes.NewKVStoreKey(governancetypes.StoreKey)),
 		ak,
 		bk,
 		sk,
@@ -98,11 +101,11 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 
 	// Set the Params and first proposal ID.
 	params := v1.DefaultParams()
-	err := gk.SetParams(ctx, params)
+	err := gk.Params.Set(ctx, params)
 	if err != nil {
 		panic(err)
 	}
-	gk.SetProposalID(ctx, 1)
+	// gk.SetProposalID(ctx, 1)
 
 	// Fund the caller with some coins.
 	err = lib.MintCoinsToAddress(

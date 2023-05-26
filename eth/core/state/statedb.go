@@ -148,7 +148,7 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 
 // AddPreimage implements the the vm.PolarisStateDB interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
-func (sdb *stateDB) AddPreimage(hash common.Hash, preimage []byte) {}
+func (sdb *stateDB) AddPreimage(_ common.Hash, _ []byte) {}
 
 // AddPreimage implements the the `StateDB“ interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.

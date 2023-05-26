@@ -24,6 +24,8 @@ import (
 	"math/big"
 	"strconv"
 
+	sdkmath "cosmossdk.io/math"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,7 +42,7 @@ import (
 var _ = Describe("Attributes", func() {
 	Describe("Test Default Attribute Value Decoder Functions", func() {
 		It("should correctly convert sdk coin strings to evm coins", func() {
-			denom10 := sdk.NewCoin("denom", sdk.NewInt(10))
+			denom10 := sdk.NewCoin("denom", sdkmath.NewInt(10))
 			coins, err := ConvertSdkCoins(denom10.String())
 			Expect(err).ToNot(HaveOccurred())
 			expectedEvmCoins := []libgenerated.CosmosCoin{

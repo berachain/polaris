@@ -66,9 +66,13 @@ func SerializeToSdkTx(
 		return nil, err
 	}
 
-	// Create the EthTransactionRequest message.
-	ethTxReq := types.NewFromTransaction(signedTx)
-	sig, err := ethTxReq.GetSignature()
+	pk := ethsecp256k1.PubKey{Key: pkBz}
+
+	// Create the WrappedEthereumTransaction message.
+	wrappedEthTx := types.NewFromTransaction(signedTx)
+	// Hack until https://github.com/cosmos/cosmos-sdk/issues/16112 is merged.
+	wrappedEthTx.HackyFixCauseCosmos = ""
+	sig, err := wrappedEthTx.GetSignature()
 	if err != nil {
 		return nil, err
 	}
@@ -86,14 +90,14 @@ func SerializeToSdkTx(
 				// over so that it can verify the signature in the ante handler.
 				Signature: sig,
 			},
-			PubKey: &ethsecp256k1.PubKey{Key: pkBz},
+			PubKey: &pk,
 		},
 	); err != nil {
 		return nil, err
 	}
 
 	// Lastly, we inject the signed ethereum transaction as a message into the Cosmos Tx.
-	if err = tx.SetMsgs(ethTxReq); err != nil {
+	if err = tx.SetMsgs(wrappedEthTx); err != nil {
 		return nil, err
 	}
 

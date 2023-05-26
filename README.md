@@ -46,16 +46,13 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 > Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into logical sections, helping to reduce cognitive overhead.
 
 <pre>
-🔭 Polaris Core 🔭
+🔭 Polaris 🔭
 ├── <a href="./contracts">contracts</a>: Contracts and bindings for Polaris (and hosts).
 ├── <a href="./docs">docs</a>: Documentation for Polaris.
+├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
 ├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
-
-⛄️ Host Chain Implementations ⛄️
-├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
-└── <a href="./playground">playground</a>: Polaris integrated into a simple, simulated blockchain.
 </pre>
 
 

@@ -91,7 +91,6 @@ var _ = Describe("Processor", func() {
 			storetypes.NewKVStoreKey("evm"),
 			ak, bk, sk,
 			"authority",
-			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
 			evmmempool.NewPolarisEthereumTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
@@ -126,7 +125,8 @@ var _ = Describe("Processor", func() {
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
-		k.BeginBlocker(ctx)
+		err = k.BeginBlocker(ctx)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	Context("New Block", func() {
@@ -136,8 +136,9 @@ var _ = Describe("Processor", func() {
 		})
 
 		AfterEach(func() {
-			k.Precommit(ctx)
-			err := os.RemoveAll("tmp/berachain")
+			err := k.EndBlock(ctx)
+			Expect(err).ToNot(HaveOccurred())
+			err = os.RemoveAll("tmp/berachain")
 			Expect(err).ToNot(HaveOccurred())
 		})
 

@@ -24,6 +24,8 @@ import (
 	"errors"
 	"strconv"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -49,7 +51,7 @@ var _ = Describe("Factory", func() {
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))
 		creationHeight = int64(10)
-		amt = sdk.NewCoin("denom", sdk.NewInt(10))
+		amt = sdk.NewCoin("denom", sdkmath.NewInt(10))
 		pc = mock.NewStatefulImpl()
 
 		Expect(func() {

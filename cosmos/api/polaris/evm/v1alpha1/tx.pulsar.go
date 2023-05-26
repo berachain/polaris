@@ -16,25 +16,27 @@ import (
 )
 
 var (
-	md_EthTransactionRequest      protoreflect.MessageDescriptor
-	fd_EthTransactionRequest_data protoreflect.FieldDescriptor
+	md_WrappedEthereumTransaction                        protoreflect.MessageDescriptor
+	fd_WrappedEthereumTransaction_data                   protoreflect.FieldDescriptor
+	fd_WrappedEthereumTransaction_hacky_fix_cause_cosmos protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_polaris_evm_v1alpha1_tx_proto_init()
-	md_EthTransactionRequest = File_polaris_evm_v1alpha1_tx_proto.Messages().ByName("EthTransactionRequest")
-	fd_EthTransactionRequest_data = md_EthTransactionRequest.Fields().ByName("data")
+	md_WrappedEthereumTransaction = File_polaris_evm_v1alpha1_tx_proto.Messages().ByName("WrappedEthereumTransaction")
+	fd_WrappedEthereumTransaction_data = md_WrappedEthereumTransaction.Fields().ByName("data")
+	fd_WrappedEthereumTransaction_hacky_fix_cause_cosmos = md_WrappedEthereumTransaction.Fields().ByName("hacky_fix_cause_cosmos")
 }
 
-var _ protoreflect.Message = (*fastReflection_EthTransactionRequest)(nil)
+var _ protoreflect.Message = (*fastReflection_WrappedEthereumTransaction)(nil)
 
-type fastReflection_EthTransactionRequest EthTransactionRequest
+type fastReflection_WrappedEthereumTransaction WrappedEthereumTransaction
 
-func (x *EthTransactionRequest) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_EthTransactionRequest)(x)
+func (x *WrappedEthereumTransaction) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_WrappedEthereumTransaction)(x)
 }
 
-func (x *EthTransactionRequest) slowProtoReflect() protoreflect.Message {
+func (x *WrappedEthereumTransaction) slowProtoReflect() protoreflect.Message {
 	mi := &file_polaris_evm_v1alpha1_tx_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -46,43 +48,43 @@ func (x *EthTransactionRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EthTransactionRequest_messageType fastReflection_EthTransactionRequest_messageType
-var _ protoreflect.MessageType = fastReflection_EthTransactionRequest_messageType{}
+var _fastReflection_WrappedEthereumTransaction_messageType fastReflection_WrappedEthereumTransaction_messageType
+var _ protoreflect.MessageType = fastReflection_WrappedEthereumTransaction_messageType{}
 
-type fastReflection_EthTransactionRequest_messageType struct{}
+type fastReflection_WrappedEthereumTransaction_messageType struct{}
 
-func (x fastReflection_EthTransactionRequest_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_EthTransactionRequest)(nil)
+func (x fastReflection_WrappedEthereumTransaction_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_WrappedEthereumTransaction)(nil)
 }
-func (x fastReflection_EthTransactionRequest_messageType) New() protoreflect.Message {
-	return new(fastReflection_EthTransactionRequest)
+func (x fastReflection_WrappedEthereumTransaction_messageType) New() protoreflect.Message {
+	return new(fastReflection_WrappedEthereumTransaction)
 }
-func (x fastReflection_EthTransactionRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthTransactionRequest
+func (x fastReflection_WrappedEthereumTransaction_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_WrappedEthereumTransaction
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_EthTransactionRequest) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthTransactionRequest
+func (x *fastReflection_WrappedEthereumTransaction) Descriptor() protoreflect.MessageDescriptor {
+	return md_WrappedEthereumTransaction
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_EthTransactionRequest) Type() protoreflect.MessageType {
-	return _fastReflection_EthTransactionRequest_messageType
+func (x *fastReflection_WrappedEthereumTransaction) Type() protoreflect.MessageType {
+	return _fastReflection_WrappedEthereumTransaction_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_EthTransactionRequest) New() protoreflect.Message {
-	return new(fastReflection_EthTransactionRequest)
+func (x *fastReflection_WrappedEthereumTransaction) New() protoreflect.Message {
+	return new(fastReflection_WrappedEthereumTransaction)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_EthTransactionRequest) Interface() protoreflect.ProtoMessage {
-	return (*EthTransactionRequest)(x)
+func (x *fastReflection_WrappedEthereumTransaction) Interface() protoreflect.ProtoMessage {
+	return (*WrappedEthereumTransaction)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -90,10 +92,16 @@ func (x *fastReflection_EthTransactionRequest) Interface() protoreflect.ProtoMes
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_EthTransactionRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_WrappedEthereumTransaction) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if len(x.Data) != 0 {
 		value := protoreflect.ValueOfBytes(x.Data)
-		if !f(fd_EthTransactionRequest_data, value) {
+		if !f(fd_WrappedEthereumTransaction_data, value) {
+			return
+		}
+	}
+	if x.HackyFixCauseCosmos != "" {
+		value := protoreflect.ValueOfString(x.HackyFixCauseCosmos)
+		if !f(fd_WrappedEthereumTransaction_hacky_fix_cause_cosmos, value) {
 			return
 		}
 	}
@@ -110,15 +118,17 @@ func (x *fastReflection_EthTransactionRequest) Range(f func(protoreflect.FieldDe
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_EthTransactionRequest) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_WrappedEthereumTransaction) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionRequest.data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.data":
 		return len(x.Data) != 0
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.hacky_fix_cause_cosmos":
+		return x.HackyFixCauseCosmos != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransaction"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransaction does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -128,15 +138,17 @@ func (x *fastReflection_EthTransactionRequest) Has(fd protoreflect.FieldDescript
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionRequest) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_WrappedEthereumTransaction) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionRequest.data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.data":
 		x.Data = nil
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.hacky_fix_cause_cosmos":
+		x.HackyFixCauseCosmos = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransaction"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransaction does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -146,16 +158,19 @@ func (x *fastReflection_EthTransactionRequest) Clear(fd protoreflect.FieldDescri
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_EthTransactionRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_WrappedEthereumTransaction) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionRequest.data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.data":
 		value := x.Data
 		return protoreflect.ValueOfBytes(value)
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.hacky_fix_cause_cosmos":
+		value := x.HackyFixCauseCosmos
+		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransaction"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransaction does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -169,15 +184,17 @@ func (x *fastReflection_EthTransactionRequest) Get(descriptor protoreflect.Field
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_WrappedEthereumTransaction) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionRequest.data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.data":
 		x.Data = value.Bytes()
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.hacky_fix_cause_cosmos":
+		x.HackyFixCauseCosmos = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransaction"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransaction does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -191,40 +208,44 @@ func (x *fastReflection_EthTransactionRequest) Set(fd protoreflect.FieldDescript
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_WrappedEthereumTransaction) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionRequest.data":
-		panic(fmt.Errorf("field data of message polaris.evm.v1alpha1.EthTransactionRequest is not mutable"))
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.data":
+		panic(fmt.Errorf("field data of message polaris.evm.v1alpha1.WrappedEthereumTransaction is not mutable"))
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.hacky_fix_cause_cosmos":
+		panic(fmt.Errorf("field hacky_fix_cause_cosmos of message polaris.evm.v1alpha1.WrappedEthereumTransaction is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransaction"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransaction does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_EthTransactionRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_WrappedEthereumTransaction) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionRequest.data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.data":
 		return protoreflect.ValueOfBytes(nil)
+	case "polaris.evm.v1alpha1.WrappedEthereumTransaction.hacky_fix_cause_cosmos":
+		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransaction"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransaction does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_EthTransactionRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_WrappedEthereumTransaction) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in polaris.evm.v1alpha1.EthTransactionRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in polaris.evm.v1alpha1.WrappedEthereumTransaction", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -232,7 +253,7 @@ func (x *fastReflection_EthTransactionRequest) WhichOneof(d protoreflect.OneofDe
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_EthTransactionRequest) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_WrappedEthereumTransaction) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -243,7 +264,7 @@ func (x *fastReflection_EthTransactionRequest) GetUnknown() protoreflect.RawFiel
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionRequest) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_WrappedEthereumTransaction) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -255,7 +276,7 @@ func (x *fastReflection_EthTransactionRequest) SetUnknown(fields protoreflect.Ra
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_EthTransactionRequest) IsValid() bool {
+func (x *fastReflection_WrappedEthereumTransaction) IsValid() bool {
 	return x != nil
 }
 
@@ -265,9 +286,9 @@ func (x *fastReflection_EthTransactionRequest) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_WrappedEthereumTransaction) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*EthTransactionRequest)
+		x := input.Message.Interface().(*WrappedEthereumTransaction)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -283,6 +304,10 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
+		l = len(x.HackyFixCauseCosmos)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -293,7 +318,7 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*EthTransactionRequest)
+		x := input.Message.Interface().(*WrappedEthereumTransaction)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -311,6 +336,13 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.HackyFixCauseCosmos) > 0 {
+			i -= len(x.HackyFixCauseCosmos)
+			copy(dAtA[i:], x.HackyFixCauseCosmos)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.HackyFixCauseCosmos)))
+			i--
+			dAtA[i] = 0x12
 		}
 		if len(x.Data) > 0 {
 			i -= len(x.Data)
@@ -330,7 +362,7 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*EthTransactionRequest)
+		x := input.Message.Interface().(*WrappedEthereumTransaction)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -362,10 +394,10 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthTransactionRequest: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: WrappedEthereumTransaction: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthTransactionRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: WrappedEthereumTransaction: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -401,6 +433,38 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 				if x.Data == nil {
 					x.Data = []byte{}
 				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field HackyFixCauseCosmos", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.HackyFixCauseCosmos = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -438,29 +502,29 @@ func (x *fastReflection_EthTransactionRequest) ProtoMethods() *protoiface.Method
 }
 
 var (
-	md_EthTransactionResponse             protoreflect.MessageDescriptor
-	fd_EthTransactionResponse_gas_used    protoreflect.FieldDescriptor
-	fd_EthTransactionResponse_vm_error    protoreflect.FieldDescriptor
-	fd_EthTransactionResponse_return_data protoreflect.FieldDescriptor
+	md_WrappedEthereumTransactionResult             protoreflect.MessageDescriptor
+	fd_WrappedEthereumTransactionResult_gas_used    protoreflect.FieldDescriptor
+	fd_WrappedEthereumTransactionResult_vm_error    protoreflect.FieldDescriptor
+	fd_WrappedEthereumTransactionResult_return_data protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_polaris_evm_v1alpha1_tx_proto_init()
-	md_EthTransactionResponse = File_polaris_evm_v1alpha1_tx_proto.Messages().ByName("EthTransactionResponse")
-	fd_EthTransactionResponse_gas_used = md_EthTransactionResponse.Fields().ByName("gas_used")
-	fd_EthTransactionResponse_vm_error = md_EthTransactionResponse.Fields().ByName("vm_error")
-	fd_EthTransactionResponse_return_data = md_EthTransactionResponse.Fields().ByName("return_data")
+	md_WrappedEthereumTransactionResult = File_polaris_evm_v1alpha1_tx_proto.Messages().ByName("WrappedEthereumTransactionResult")
+	fd_WrappedEthereumTransactionResult_gas_used = md_WrappedEthereumTransactionResult.Fields().ByName("gas_used")
+	fd_WrappedEthereumTransactionResult_vm_error = md_WrappedEthereumTransactionResult.Fields().ByName("vm_error")
+	fd_WrappedEthereumTransactionResult_return_data = md_WrappedEthereumTransactionResult.Fields().ByName("return_data")
 }
 
-var _ protoreflect.Message = (*fastReflection_EthTransactionResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_WrappedEthereumTransactionResult)(nil)
 
-type fastReflection_EthTransactionResponse EthTransactionResponse
+type fastReflection_WrappedEthereumTransactionResult WrappedEthereumTransactionResult
 
-func (x *EthTransactionResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_EthTransactionResponse)(x)
+func (x *WrappedEthereumTransactionResult) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_WrappedEthereumTransactionResult)(x)
 }
 
-func (x *EthTransactionResponse) slowProtoReflect() protoreflect.Message {
+func (x *WrappedEthereumTransactionResult) slowProtoReflect() protoreflect.Message {
 	mi := &file_polaris_evm_v1alpha1_tx_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -472,43 +536,43 @@ func (x *EthTransactionResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EthTransactionResponse_messageType fastReflection_EthTransactionResponse_messageType
-var _ protoreflect.MessageType = fastReflection_EthTransactionResponse_messageType{}
+var _fastReflection_WrappedEthereumTransactionResult_messageType fastReflection_WrappedEthereumTransactionResult_messageType
+var _ protoreflect.MessageType = fastReflection_WrappedEthereumTransactionResult_messageType{}
 
-type fastReflection_EthTransactionResponse_messageType struct{}
+type fastReflection_WrappedEthereumTransactionResult_messageType struct{}
 
-func (x fastReflection_EthTransactionResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_EthTransactionResponse)(nil)
+func (x fastReflection_WrappedEthereumTransactionResult_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_WrappedEthereumTransactionResult)(nil)
 }
-func (x fastReflection_EthTransactionResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_EthTransactionResponse)
+func (x fastReflection_WrappedEthereumTransactionResult_messageType) New() protoreflect.Message {
+	return new(fastReflection_WrappedEthereumTransactionResult)
 }
-func (x fastReflection_EthTransactionResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthTransactionResponse
+func (x fastReflection_WrappedEthereumTransactionResult_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_WrappedEthereumTransactionResult
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_EthTransactionResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_EthTransactionResponse
+func (x *fastReflection_WrappedEthereumTransactionResult) Descriptor() protoreflect.MessageDescriptor {
+	return md_WrappedEthereumTransactionResult
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_EthTransactionResponse) Type() protoreflect.MessageType {
-	return _fastReflection_EthTransactionResponse_messageType
+func (x *fastReflection_WrappedEthereumTransactionResult) Type() protoreflect.MessageType {
+	return _fastReflection_WrappedEthereumTransactionResult_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_EthTransactionResponse) New() protoreflect.Message {
-	return new(fastReflection_EthTransactionResponse)
+func (x *fastReflection_WrappedEthereumTransactionResult) New() protoreflect.Message {
+	return new(fastReflection_WrappedEthereumTransactionResult)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_EthTransactionResponse) Interface() protoreflect.ProtoMessage {
-	return (*EthTransactionResponse)(x)
+func (x *fastReflection_WrappedEthereumTransactionResult) Interface() protoreflect.ProtoMessage {
+	return (*WrappedEthereumTransactionResult)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -516,22 +580,22 @@ func (x *fastReflection_EthTransactionResponse) Interface() protoreflect.ProtoMe
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_EthTransactionResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_WrappedEthereumTransactionResult) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.GasUsed != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.GasUsed)
-		if !f(fd_EthTransactionResponse_gas_used, value) {
+		if !f(fd_WrappedEthereumTransactionResult_gas_used, value) {
 			return
 		}
 	}
 	if x.VmError != "" {
 		value := protoreflect.ValueOfString(x.VmError)
-		if !f(fd_EthTransactionResponse_vm_error, value) {
+		if !f(fd_WrappedEthereumTransactionResult_vm_error, value) {
 			return
 		}
 	}
 	if len(x.ReturnData) != 0 {
 		value := protoreflect.ValueOfBytes(x.ReturnData)
-		if !f(fd_EthTransactionResponse_return_data, value) {
+		if !f(fd_WrappedEthereumTransactionResult_return_data, value) {
 			return
 		}
 	}
@@ -548,19 +612,19 @@ func (x *fastReflection_EthTransactionResponse) Range(f func(protoreflect.FieldD
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_EthTransactionResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_WrappedEthereumTransactionResult) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionResponse.gas_used":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.gas_used":
 		return x.GasUsed != uint64(0)
-	case "polaris.evm.v1alpha1.EthTransactionResponse.vm_error":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.vm_error":
 		return x.VmError != ""
-	case "polaris.evm.v1alpha1.EthTransactionResponse.return_data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.return_data":
 		return len(x.ReturnData) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransactionResult"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransactionResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -570,19 +634,19 @@ func (x *fastReflection_EthTransactionResponse) Has(fd protoreflect.FieldDescrip
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_WrappedEthereumTransactionResult) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionResponse.gas_used":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.gas_used":
 		x.GasUsed = uint64(0)
-	case "polaris.evm.v1alpha1.EthTransactionResponse.vm_error":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.vm_error":
 		x.VmError = ""
-	case "polaris.evm.v1alpha1.EthTransactionResponse.return_data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.return_data":
 		x.ReturnData = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransactionResult"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransactionResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -592,22 +656,22 @@ func (x *fastReflection_EthTransactionResponse) Clear(fd protoreflect.FieldDescr
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_EthTransactionResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_WrappedEthereumTransactionResult) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionResponse.gas_used":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.gas_used":
 		value := x.GasUsed
 		return protoreflect.ValueOfUint64(value)
-	case "polaris.evm.v1alpha1.EthTransactionResponse.vm_error":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.vm_error":
 		value := x.VmError
 		return protoreflect.ValueOfString(value)
-	case "polaris.evm.v1alpha1.EthTransactionResponse.return_data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.return_data":
 		value := x.ReturnData
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransactionResult"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransactionResult does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -621,19 +685,19 @@ func (x *fastReflection_EthTransactionResponse) Get(descriptor protoreflect.Fiel
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_WrappedEthereumTransactionResult) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionResponse.gas_used":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.gas_used":
 		x.GasUsed = value.Uint()
-	case "polaris.evm.v1alpha1.EthTransactionResponse.vm_error":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.vm_error":
 		x.VmError = value.Interface().(string)
-	case "polaris.evm.v1alpha1.EthTransactionResponse.return_data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.return_data":
 		x.ReturnData = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransactionResult"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransactionResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -647,48 +711,48 @@ func (x *fastReflection_EthTransactionResponse) Set(fd protoreflect.FieldDescrip
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_WrappedEthereumTransactionResult) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionResponse.gas_used":
-		panic(fmt.Errorf("field gas_used of message polaris.evm.v1alpha1.EthTransactionResponse is not mutable"))
-	case "polaris.evm.v1alpha1.EthTransactionResponse.vm_error":
-		panic(fmt.Errorf("field vm_error of message polaris.evm.v1alpha1.EthTransactionResponse is not mutable"))
-	case "polaris.evm.v1alpha1.EthTransactionResponse.return_data":
-		panic(fmt.Errorf("field return_data of message polaris.evm.v1alpha1.EthTransactionResponse is not mutable"))
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.gas_used":
+		panic(fmt.Errorf("field gas_used of message polaris.evm.v1alpha1.WrappedEthereumTransactionResult is not mutable"))
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.vm_error":
+		panic(fmt.Errorf("field vm_error of message polaris.evm.v1alpha1.WrappedEthereumTransactionResult is not mutable"))
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.return_data":
+		panic(fmt.Errorf("field return_data of message polaris.evm.v1alpha1.WrappedEthereumTransactionResult is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransactionResult"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransactionResult does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_EthTransactionResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_WrappedEthereumTransactionResult) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "polaris.evm.v1alpha1.EthTransactionResponse.gas_used":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.gas_used":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "polaris.evm.v1alpha1.EthTransactionResponse.vm_error":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.vm_error":
 		return protoreflect.ValueOfString("")
-	case "polaris.evm.v1alpha1.EthTransactionResponse.return_data":
+	case "polaris.evm.v1alpha1.WrappedEthereumTransactionResult.return_data":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.EthTransactionResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: polaris.evm.v1alpha1.WrappedEthereumTransactionResult"))
 		}
-		panic(fmt.Errorf("message polaris.evm.v1alpha1.EthTransactionResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message polaris.evm.v1alpha1.WrappedEthereumTransactionResult does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_EthTransactionResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_WrappedEthereumTransactionResult) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in polaris.evm.v1alpha1.EthTransactionResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in polaris.evm.v1alpha1.WrappedEthereumTransactionResult", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -696,7 +760,7 @@ func (x *fastReflection_EthTransactionResponse) WhichOneof(d protoreflect.OneofD
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_EthTransactionResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_WrappedEthereumTransactionResult) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -707,7 +771,7 @@ func (x *fastReflection_EthTransactionResponse) GetUnknown() protoreflect.RawFie
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_EthTransactionResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_WrappedEthereumTransactionResult) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -719,7 +783,7 @@ func (x *fastReflection_EthTransactionResponse) SetUnknown(fields protoreflect.R
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_EthTransactionResponse) IsValid() bool {
+func (x *fastReflection_WrappedEthereumTransactionResult) IsValid() bool {
 	return x != nil
 }
 
@@ -729,9 +793,9 @@ func (x *fastReflection_EthTransactionResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_EthTransactionResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_WrappedEthereumTransactionResult) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*EthTransactionResponse)
+		x := input.Message.Interface().(*WrappedEthereumTransactionResult)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -764,7 +828,7 @@ func (x *fastReflection_EthTransactionResponse) ProtoMethods() *protoiface.Metho
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*EthTransactionResponse)
+		x := input.Message.Interface().(*WrappedEthereumTransactionResult)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -813,7 +877,7 @@ func (x *fastReflection_EthTransactionResponse) ProtoMethods() *protoiface.Metho
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*EthTransactionResponse)
+		x := input.Message.Interface().(*WrappedEthereumTransactionResult)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -845,10 +909,10 @@ func (x *fastReflection_EthTransactionResponse) ProtoMethods() *protoiface.Metho
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthTransactionResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: WrappedEthereumTransactionResult: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EthTransactionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: WrappedEthereumTransactionResult: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -1859,18 +1923,20 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// EthTransactionRequest encapsulates an Ethereum transaction as an SDK message.
-type EthTransactionRequest struct {
+// WrappedEthereumTransaction encapsulates an Ethereum transaction as an SDK message.
+type WrappedEthereumTransaction struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
 	// data is inner transaction data of the Ethereum transaction
 	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	// deprecate_this_garbage is required until https://github.com/cosmos/cosmos-sdk/issues/16112 is handled.
+	HackyFixCauseCosmos string `protobuf:"bytes,2,opt,name=hacky_fix_cause_cosmos,json=hackyFixCauseCosmos,proto3" json:"hacky_fix_cause_cosmos,omitempty"`
 }
 
-func (x *EthTransactionRequest) Reset() {
-	*x = EthTransactionRequest{}
+func (x *WrappedEthereumTransaction) Reset() {
+	*x = WrappedEthereumTransaction{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_polaris_evm_v1alpha1_tx_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1878,26 +1944,33 @@ func (x *EthTransactionRequest) Reset() {
 	}
 }
 
-func (x *EthTransactionRequest) String() string {
+func (x *WrappedEthereumTransaction) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EthTransactionRequest) ProtoMessage() {}
+func (*WrappedEthereumTransaction) ProtoMessage() {}
 
-// Deprecated: Use EthTransactionRequest.ProtoReflect.Descriptor instead.
-func (*EthTransactionRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use WrappedEthereumTransaction.ProtoReflect.Descriptor instead.
+func (*WrappedEthereumTransaction) Descriptor() ([]byte, []int) {
 	return file_polaris_evm_v1alpha1_tx_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *EthTransactionRequest) GetData() []byte {
+func (x *WrappedEthereumTransaction) GetData() []byte {
 	if x != nil {
 		return x.Data
 	}
 	return nil
 }
 
-// EthTransactionResponse defines the Msg/EthereumTx response type.
-type EthTransactionResponse struct {
+func (x *WrappedEthereumTransaction) GetHackyFixCauseCosmos() string {
+	if x != nil {
+		return x.HackyFixCauseCosmos
+	}
+	return ""
+}
+
+// WrappedEthereumTransactionResult defines the Msg/EthereumTx response type.
+type WrappedEthereumTransactionResult struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -1910,8 +1983,8 @@ type EthTransactionResponse struct {
 	ReturnData []byte `protobuf:"bytes,3,opt,name=return_data,json=returnData,proto3" json:"return_data,omitempty"`
 }
 
-func (x *EthTransactionResponse) Reset() {
-	*x = EthTransactionResponse{}
+func (x *WrappedEthereumTransactionResult) Reset() {
+	*x = WrappedEthereumTransactionResult{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_polaris_evm_v1alpha1_tx_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1919,32 +1992,32 @@ func (x *EthTransactionResponse) Reset() {
 	}
 }
 
-func (x *EthTransactionResponse) String() string {
+func (x *WrappedEthereumTransactionResult) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EthTransactionResponse) ProtoMessage() {}
+func (*WrappedEthereumTransactionResult) ProtoMessage() {}
 
-// Deprecated: Use EthTransactionResponse.ProtoReflect.Descriptor instead.
-func (*EthTransactionResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use WrappedEthereumTransactionResult.ProtoReflect.Descriptor instead.
+func (*WrappedEthereumTransactionResult) Descriptor() ([]byte, []int) {
 	return file_polaris_evm_v1alpha1_tx_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *EthTransactionResponse) GetGasUsed() uint64 {
+func (x *WrappedEthereumTransactionResult) GetGasUsed() uint64 {
 	if x != nil {
 		return x.GasUsed
 	}
 	return 0
 }
 
-func (x *EthTransactionResponse) GetVmError() string {
+func (x *WrappedEthereumTransactionResult) GetVmError() string {
 	if x != nil {
 		return x.VmError
 	}
 	return ""
 }
 
-func (x *EthTransactionResponse) GetReturnData() []byte {
+func (x *WrappedEthereumTransactionResult) GetReturnData() []byte {
 	if x != nil {
 		return x.ReturnData
 	}
@@ -2044,11 +2117,17 @@ var file_polaris_evm_v1alpha1_tx_proto_rawDesc = []byte{
 	0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
 	0x21, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x2f, 0x76, 0x31, 0x61,
 	0x6c, 0x70, 0x68, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x22, 0x31, 0x0a, 0x15, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
-	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x64,
-	0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x3a,
-	0x04, 0x88, 0xa0, 0x1f, 0x00, 0x22, 0x75, 0x0a, 0x16, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e,
-	0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x74, 0x6f, 0x22, 0x86, 0x01, 0x0a, 0x1a, 0x57, 0x72, 0x61, 0x70, 0x70, 0x65, 0x64, 0x45, 0x74,
+	0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52,
+	0x04, 0x64, 0x61, 0x74, 0x61, 0x12, 0x33, 0x0a, 0x16, 0x68, 0x61, 0x63, 0x6b, 0x79, 0x5f, 0x66,
+	0x69, 0x78, 0x5f, 0x63, 0x61, 0x75, 0x73, 0x65, 0x5f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x13, 0x68, 0x61, 0x63, 0x6b, 0x79, 0x46, 0x69, 0x78, 0x43,
+	0x61, 0x75, 0x73, 0x65, 0x43, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x3a, 0x1f, 0x88, 0xa0, 0x1f, 0x00,
+	0x82, 0xe7, 0xb0, 0x2a, 0x16, 0x68, 0x61, 0x63, 0x6b, 0x79, 0x5f, 0x66, 0x69, 0x78, 0x5f, 0x63,
+	0x61, 0x75, 0x73, 0x65, 0x5f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x22, 0x7f, 0x0a, 0x20, 0x57,
+	0x72, 0x61, 0x70, 0x70, 0x65, 0x64, 0x45, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x54, 0x72,
+	0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12,
 	0x19, 0x0a, 0x08, 0x67, 0x61, 0x73, 0x5f, 0x75, 0x73, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x04, 0x52, 0x07, 0x67, 0x61, 0x73, 0x55, 0x73, 0x65, 0x64, 0x12, 0x19, 0x0a, 0x08, 0x76, 0x6d,
 	0x5f, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x76, 0x6d,
@@ -2066,34 +2145,35 @@ var file_polaris_evm_v1alpha1_tx_proto_rawDesc = []byte{
 	0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x3a, 0x0e, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61,
 	0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x22, 0x16, 0x0a, 0x14, 0x55, 0x70, 0x64, 0x61,
 	0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x32, 0xe7, 0x01, 0x0a, 0x0a, 0x4d, 0x73, 0x67, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12,
-	0x6b, 0x0a, 0x0e, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
-	0x6e, 0x12, 0x2b, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e,
-	0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e,
-	0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2c,
-	0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61,
-	0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
-	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x65, 0x0a, 0x0c,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x29, 0x2e, 0x70,
-	0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70,
-	0x68, 0x61, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2a, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69,
-	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xc8, 0x01, 0x0a, 0x18, 0x63,
-	0x6f, 0x6d, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76,
-	0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f,
-	0x50, 0x01, 0x5a, 0x31, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f,
-	0x2f, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d,
-	0x2f, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x3b, 0x65, 0x76, 0x6d, 0x76, 0x31, 0x61,
-	0x6c, 0x70, 0x68, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x50, 0x45, 0x58, 0xaa, 0x02, 0x14, 0x50, 0x6f,
-	0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x45, 0x76, 0x6d, 0x2e, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68,
-	0x61, 0x31, 0xca, 0x02, 0x14, 0x50, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d,
-	0x5c, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x50, 0x6f, 0x6c, 0x61,
-	0x72, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x5c, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31,
-	0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x50,
-	0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x3a, 0x3a, 0x56, 0x31, 0x61,
-	0x6c, 0x70, 0x68, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x32, 0xf6, 0x01, 0x0a, 0x0a, 0x4d, 0x73, 0x67, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12,
+	0x7a, 0x0a, 0x0e, 0x45, 0x74, 0x68, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x30, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e,
+	0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x57, 0x72, 0x61, 0x70, 0x70, 0x65, 0x64,
+	0x45, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x1a, 0x36, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76,
+	0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x57, 0x72, 0x61, 0x70, 0x70,
+	0x65, 0x64, 0x45, 0x74, 0x68, 0x65, 0x72, 0x65, 0x75, 0x6d, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
+	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x65, 0x0a, 0x0c, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x29, 0x2e, 0x70, 0x6f,
+	0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68,
+	0x61, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2a, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73,
+	0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x2e, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xc8, 0x01, 0x0a, 0x18, 0x63, 0x6f,
+	0x6d, 0x2e, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x2e, 0x76, 0x31,
+	0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50,
+	0x01, 0x5a, 0x31, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f,
+	0x61, 0x70, 0x69, 0x2f, 0x70, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x2f,
+	0x76, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x3b, 0x65, 0x76, 0x6d, 0x76, 0x31, 0x61, 0x6c,
+	0x70, 0x68, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x50, 0x45, 0x58, 0xaa, 0x02, 0x14, 0x50, 0x6f, 0x6c,
+	0x61, 0x72, 0x69, 0x73, 0x2e, 0x45, 0x76, 0x6d, 0x2e, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61,
+	0x31, 0xca, 0x02, 0x14, 0x50, 0x6f, 0x6c, 0x61, 0x72, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x5c,
+	0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x50, 0x6f, 0x6c, 0x61, 0x72,
+	0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x5c, 0x56, 0x31, 0x61, 0x6c, 0x70, 0x68, 0x61, 0x31, 0x5c,
+	0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x50, 0x6f,
+	0x6c, 0x61, 0x72, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x3a, 0x3a, 0x56, 0x31, 0x61, 0x6c,
+	0x70, 0x68, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2110,17 +2190,17 @@ func file_polaris_evm_v1alpha1_tx_proto_rawDescGZIP() []byte {
 
 var file_polaris_evm_v1alpha1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_polaris_evm_v1alpha1_tx_proto_goTypes = []interface{}{
-	(*EthTransactionRequest)(nil),  // 0: polaris.evm.v1alpha1.EthTransactionRequest
-	(*EthTransactionResponse)(nil), // 1: polaris.evm.v1alpha1.EthTransactionResponse
-	(*UpdateParamsRequest)(nil),    // 2: polaris.evm.v1alpha1.UpdateParamsRequest
-	(*UpdateParamsResponse)(nil),   // 3: polaris.evm.v1alpha1.UpdateParamsResponse
-	(*Params)(nil),                 // 4: polaris.evm.v1alpha1.Params
+	(*WrappedEthereumTransaction)(nil),       // 0: polaris.evm.v1alpha1.WrappedEthereumTransaction
+	(*WrappedEthereumTransactionResult)(nil), // 1: polaris.evm.v1alpha1.WrappedEthereumTransactionResult
+	(*UpdateParamsRequest)(nil),              // 2: polaris.evm.v1alpha1.UpdateParamsRequest
+	(*UpdateParamsResponse)(nil),             // 3: polaris.evm.v1alpha1.UpdateParamsResponse
+	(*Params)(nil),                           // 4: polaris.evm.v1alpha1.Params
 }
 var file_polaris_evm_v1alpha1_tx_proto_depIdxs = []int32{
 	4, // 0: polaris.evm.v1alpha1.UpdateParamsRequest.params:type_name -> polaris.evm.v1alpha1.Params
-	0, // 1: polaris.evm.v1alpha1.MsgService.EthTransaction:input_type -> polaris.evm.v1alpha1.EthTransactionRequest
+	0, // 1: polaris.evm.v1alpha1.MsgService.EthTransaction:input_type -> polaris.evm.v1alpha1.WrappedEthereumTransaction
 	2, // 2: polaris.evm.v1alpha1.MsgService.UpdateParams:input_type -> polaris.evm.v1alpha1.UpdateParamsRequest
-	1, // 3: polaris.evm.v1alpha1.MsgService.EthTransaction:output_type -> polaris.evm.v1alpha1.EthTransactionResponse
+	1, // 3: polaris.evm.v1alpha1.MsgService.EthTransaction:output_type -> polaris.evm.v1alpha1.WrappedEthereumTransactionResult
 	3, // 4: polaris.evm.v1alpha1.MsgService.UpdateParams:output_type -> polaris.evm.v1alpha1.UpdateParamsResponse
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
@@ -2137,7 +2217,7 @@ func file_polaris_evm_v1alpha1_tx_proto_init() {
 	file_polaris_evm_v1alpha1_params_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_polaris_evm_v1alpha1_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EthTransactionRequest); i {
+			switch v := v.(*WrappedEthereumTransaction); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2149,7 +2229,7 @@ func file_polaris_evm_v1alpha1_tx_proto_init() {
 			}
 		}
 		file_polaris_evm_v1alpha1_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EthTransactionResponse); i {
+			switch v := v.(*WrappedEthereumTransactionResult); i {
 			case 0:
 				return &v.state
 			case 1:
