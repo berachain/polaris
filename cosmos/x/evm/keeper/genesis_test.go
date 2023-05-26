@@ -60,7 +60,6 @@ var _ = Describe("Keeper", func() {
 	BeforeEach(func() {
 		// setup keepers for genesis
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
-		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(30000000))
 
 		k = keeper.NewKeeper(
 			storetypes.NewKVStoreKey("evm"),
