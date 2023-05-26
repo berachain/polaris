@@ -138,14 +138,13 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 			txNonce := ethTx.Nonce()
 			switch {
 			case !ok:
-				pendingNonce := txNonce
-				pendingNonces[addr] = pendingNonce
-				// When we see a transaction, mark it as the pending nonce.
 				// If on the first lookup the nonce delta is more than 0, then there is a gap
 				// and thus no pending transactions, but there are queued transactions.
-				if sdbNonce := etp.nr.GetNonce(addr); pendingNonces[addr]-sdbNonce >= 1 {
+				if sdbNonce := etp.nr.GetNonce(addr); txNonce-sdbNonce >= 1 {
 					return sdbNonce
 				}
+				// this is a pending tx, add it to the pending map.
+				pendingNonces[addr] = txNonce
 			case txNonce == pendingNonces[addr]+1:
 				// If we are still contiguous and the nonce is the same as the pending nonce,
 				// increment the pending nonce.
