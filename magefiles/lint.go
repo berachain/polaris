@@ -108,7 +108,7 @@ func LicenseCheck() error {
 	LogGreen("Running addlicense -check...")
 	return ExecuteForAllModules(moduleDirs, func(args ...string) error {
 		return goRun(addlicense,
-			"-check", "-v", "-f", "./LICENSE.header", "./.",
+			"-check", "-v", "-f", "./LICENSE.header", "-ignore", "**/.github/", "./.",
 		)
 	}, true)
 }
