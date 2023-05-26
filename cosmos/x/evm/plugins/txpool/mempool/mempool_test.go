@@ -23,6 +23,7 @@ package mempool
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -41,6 +42,7 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -138,7 +140,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Get(ethTx2.Hash()).Hash()).To(Equal(ethTx2.Hash()))
 
 		})
-		It("should queue transactions with out of order nonces then poll from queue when inorder nonce tx is received",
+		It("should enqueue transactions with out of order nonces then poll from queue when inorder nonce tx is received",
 			func() {
 				_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
 				ethtx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
@@ -169,14 +171,62 @@ var _ = Describe("EthTxPool", func() {
 			}
 			// probably more stuff down here...
 		})
-		It("should be able to fetch transactions from the cache", func() {})
-		It("should disallow replacement txs for a tx that isn't from the sender", func() {})
-		It("should disallow malformatted txs", func() {})
-		It("should remove low priority transactions when the mempool is full", func() {})
-		It("should prioritize transactions with higher fees", func() {})
+		It("should be able to fetch transactions from the cache", func() {
+
+			var txHashes []common.Hash
+			for i := 1; i < 100; i++ {
+				ethTx, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				txHashes = append(txHashes, ethTx.Hash())
+			}
+			for _, txHash := range txHashes {
+				Expect(etp.Get(txHash).Hash()).To(Equal(txHash))
+			}
+
+		})
+		It("should allow resubmitting a transaction with same nonce but different fields", func() {
+			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(5), Data: []byte("blahblah")})
+
+			Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+		})
+		It("should prioritize transactions first by nonce, then priority", func() {
+			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2, GasPrice: big.NewInt(5)})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(3)})
+			_, tx31 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(5)})
+
+			Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx31)).ToNot(HaveOccurred())
+
+			allSenders := etp.senderIndices
+
+			// very ugly code, but it works for now,
+			// looks like an unoptimal leetcode solution kek
+			// TODO: Iterate using the `PriorityNonceIterator` and `Select()` defined in priority_nonce.go maybe?
+			var prevTx *coretypes.Transaction
+			for _, list := range allSenders {
+				for elem := list.Front(); elem != nil; elem = elem.Next() {
+					ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](elem.Value))
+					fmt.Println(ethTx.Nonce(), ethTx.GasPrice())
+					// for the first transaction
+					if prevTx == nil {
+						prevTx = ethTx
+					} else { // new tx
+						Expect(ethTx.Nonce()).To(Equal(prevTx.Nonce() + 1))
+						prevTx = ethTx
+					}
+					// NOTE: replacement transactions are not handled because the old tx is removed from the pool
+				}
+			}
+			pending, _ := etp.Stats()
+			Expect(pending).To(Equal(3))
+		})
 		It("should enforce transaction size limits", func() {})
 		It("should handle transaction eviction based on time", func() {})
-		It("should handle transaction eviction based on fee density", func() {})
 		It("should handle concurrent additions", func() {
 
 			// apologies in advance for this test, it's not great.
